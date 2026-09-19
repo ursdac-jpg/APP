@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Parcours « Candidater depuis la recherche » (sous-lot 4b)</title>
+<style>
+  :root {
+    --bg-page:#f4f6f9; --bg-card:#fff; --bg-subtle:#eef1f5; --border:#d9dfe7; --border-strong:#b7c0cc;
+    --text-strong:#1f2933; --text:#33404d; --text-muted:#6b7683;
+    --accent:#2563eb; --accent-hover:#1d4ed8; --accent-bg-subtle:#e8f0fe;
+    --success:#157347; --success-bg-subtle:#e5f3ec;
+    --warning-strong:#a15c00; --warning-bg-subtle:#fdf3e2; --warning-border:#e7c383;
+    --ombre:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
+  }
+  :root[data-theme="sombre"] {
+    --bg-page:#12171e; --bg-card:#1b222c; --bg-subtle:#232c38; --border:#333e4c; --border-strong:#47566a;
+    --text-strong:#f1f4f8; --text:#d7dee7; --text-muted:#9aa6b3;
+    --accent:#5b9bff; --accent-hover:#7db0ff; --accent-bg-subtle:#1e2c44;
+    --success:#4cc88a; --success-bg-subtle:#16281f;
+    --warning-strong:#e7b366; --warning-bg-subtle:#2c2312; --warning-border:#5c4a24;
+    --ombre:0 1px 2px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:0 0 92px; background:var(--bg-page); color:var(--text);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.55; }
+  .wrap { max-width:860px; margin:0 auto; padding:20px 18px; }
+
+  .bandeau-maq { background:var(--accent-bg-subtle); border:1px solid var(--accent); border-radius:10px;
+    padding:12px 14px; font-size:13px; margin-bottom:18px; }
+  .bandeau-maq b { color:var(--text-strong); }
+  .switch-cas { display:flex; gap:8px; margin:10px 0 0; }
+  .switch-cas button { font:inherit; font-size:13px; padding:6px 14px; border-radius:999px;
+    border:1.5px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; }
+  .switch-cas button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+
+  .prog { display:flex; flex-wrap:wrap; gap:6px; font-size:12.5px; margin-bottom:18px; }
+  .prog span { padding:5px 10px; border-radius:999px; border:1px solid var(--border);
+    background:var(--bg-card); color:var(--text-muted); white-space:nowrap; }
+  .prog span.actif { border-color:var(--accent); color:var(--accent); background:var(--accent-bg-subtle); font-weight:600; }
+
+  h1 { font-size:23px; color:var(--text-strong); margin:0 0 2px; text-align:center; }
+  .cible-ligne { text-align:center; margin:0 0 20px; font-size:14px; }
+  .cible-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px;
+    background:var(--accent-bg-subtle); border:1px solid var(--accent); color:var(--text-strong); font-weight:600; }
+  .cible-ligne a { color:var(--accent); font-size:12.5px; margin-left:8px; text-decoration:none; }
+
+  .bloc-depli { border:1px solid var(--border); border-left:4px solid var(--accent);
+    border-radius:8px; background:var(--bg-card); margin-bottom:14px; box-shadow:var(--ombre); }
+  .bloc-depli > .entete { display:flex; align-items:center; gap:8px; padding:12px 14px;
+    font-weight:650; color:var(--text-strong); flex-wrap:wrap; }
+  .bloc-depli > .entete .ico { font-size:17px; }
+  .bloc-depli > .entete .badge { margin-left:auto; font-size:11.5px; font-weight:600; padding:3px 9px;
+    border-radius:999px; background:var(--warning-bg-subtle); color:var(--warning-strong); border:1px solid var(--warning-border); }
+  .bloc-depli > .entete .badge.ok { background:var(--success-bg-subtle); color:var(--success); border-color:transparent; }
+  .bloc-depli > .corps { padding:0 14px 16px; }
+
+  .qlabel { font-size:13px; font-weight:600; color:var(--text-strong); margin:6px 0 8px; }
+  .aide { font-size:12.5px; color:var(--text-muted); margin:4px 0 10px; }
+
+  .jetons { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .jeton { font:inherit; font-size:13px; padding:8px 14px; border-radius:999px; cursor:pointer;
+    border:1.5px solid var(--border-strong); background:var(--bg-card); color:var(--text); transition:.12s; }
+  .jeton:hover { border-color:var(--accent); }
+  .jeton.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+
+  .encart { border-left:3px solid var(--accent); background:var(--accent-bg-subtle);
+    border-radius:8px; padding:10px 12px; font-size:12.5px; margin:10px 0; display:flex; gap:8px; }
+  .encart .ico { font-size:16px; flex-shrink:0; }
+  .encart.warn { border-left-color:var(--warning-border); background:var(--warning-bg-subtle); color:var(--warning-strong); }
+  .encart.ok { border-left-color:var(--success); background:var(--success-bg-subtle); }
+
+  .champ { margin-bottom:12px; }
+  .champ label { display:block; font-size:12.5px; font-weight:600; color:var(--text-strong); margin-bottom:5px; }
+  .champ input { width:100%; font:inherit; font-size:13.5px; padding:9px 11px;
+    border:1.5px solid var(--border); border-radius:8px; background:var(--bg-card); color:var(--text); }
+  .deux-col { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+  @media (max-width:560px){ .deux-col { grid-template-columns:1fr; } }
+
+  .sous-q { display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); }
+  .sous-q.visible { display:block; }
+
+  .annot { font-size:11.5px; color:var(--text-muted); background:var(--bg-subtle);
+    border:1px dashed var(--border-strong); border-radius:6px; padding:7px 10px; margin-top:12px; }
+  .annot b { color:var(--text-strong); }
+
+  .navfixe { position:fixed; left:0; right:0; bottom:0; background:var(--bg-card);
+    box-shadow:0 -4px 12px rgba(11,26,51,.10); padding:12px 18px; z-index:10; }
+  .navfixe .in { max-width:860px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .btn-retour { font:inherit; font-size:13.5px; padding:9px 16px; border-radius:12px;
+    border:1.5px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; }
+  .btn-suite { font:inherit; font-size:14px; font-weight:600; padding:10px 22px; border-radius:12px;
+    border:none; background:var(--accent); color:#fff; cursor:pointer; }
+  .btn-suite[disabled] { opacity:.45; cursor:not-allowed; }
+
+  table.corresp { width:100%; border-collapse:collapse; font-size:12.5px; margin-top:10px; }
+  table.corresp th, table.corresp td { border:1px solid var(--border); padding:7px 9px; text-align:left; vertical-align:top; }
+  table.corresp th { background:var(--bg-subtle); color:var(--text-strong); }
+  h2.sec { font-size:16px; color:var(--text-strong); margin:32px 0 8px; }
+  .toggle-theme { position:fixed; top:10px; right:12px; font-size:12px; padding:5px 10px; border-radius:999px;
+    border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; z-index:20; }
+</style>
+</head>
+<body>
+<button class="toggle-theme" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'sombre' ? '' : 'sombre'">Clair / sombre</button>
+<div class="wrap">
+
+  <div class="bandeau-maq">
+    <b>Maquette - sous-lot 4b.</b> Remplace les <b>4 a 5 fenetres empilees</b> actuelles
+    (choix parcours &rarr; entreprise connue &rarr; coordonnees &rarr; avertissement lettre &rarr; avez-vous un CV &rarr; mise a jour)
+    par <b>une seule page depliante avec barre d'etapes</b>, jetons partout.
+    <b>Zero regression fonctionnelle</b> : chaque fonction actuelle est reprise (tableau en bas).
+    <div class="switch-cas">
+      <button id="casMetier" class="on" onclick="setCas('metier')">Cas : metier connu</button>
+      <button id="casSecteur" onclick="setCas('secteur')">Cas : secteur</button>
+    </div>
+  </div>
+
+  <div class="prog">
+    <span class="actif">&#128221; Ce que vous preparez</span>
+    <span>&#127919; Votre cible</span>
+    <span>&#128196; Votre CV</span>
+    <span>&#128172; Assistant</span>
+  </div>
+
+  <h1>Candidater</h1>
+  <p class="cible-ligne">
+    <span class="cible-chip" id="cibleChip">&#128188; Serveur en restauration</span>
+    <a href="#" onclick="return false">Changer</a>
+  </p>
+
+  <!-- BLOC 1 -->
+  <div class="bloc-depli">
+    <div class="entete"><span class="ico">&#128221;</span> Ce que vous preparez <span class="badge" id="badge1">a completer</span></div>
+    <div class="corps">
+      <div class="qlabel">Que voulez-vous preparer ?</div>
+      <div class="jetons" data-groupe="parcours">
+        <button class="jeton" data-val="cv">&#128196; Mon CV</button>
+        <button class="jeton" data-val="lettre">&#9993; Ma lettre de motivation</button>
+        <button class="jeton" data-val="entretien">&#127908; Mon entretien</button>
+      </div>
+      <div class="encart" id="encartComparer">
+        <span class="ico">&#128207;</span>
+        <div>Vous hesitez encore avec ce metier ? Vous pouvez le comparer a d'autres pistes
+        plutot que de lancer une candidature tout de suite.
+        <div style="margin-top:8px"><button class="btn-retour" style="padding:6px 12px">Comparer mes pistes</button></div></div>
+      </div>
+      <div class="annot"><b>Ecrit</b> <code>rechercheGuidee.parcours</code>. Remplace l'ecran 1 actuel
+      (memes 3 choix, meme encart Comparer - retire pour un secteur : on ne compare que des metiers).</div>
+    </div>
+  </div>
+
+  <!-- BLOC 2 -->
+  <div class="bloc-depli">
+    <div class="entete"><span class="ico">&#127919;</span> Votre cible <span class="badge" id="badge2">a completer</span></div>
+    <div class="corps">
+      <div class="qlabel">Comment cherchez-vous ?</div>
+      <p class="aide">Une <b>structure precise</b> : une entreprise, une agence d'interim identifiee, une offre publiee.
+      &nbsp;&middot;&nbsp; Une <b>recherche plus generale</b> : vous n'avez pas encore de cible en tete.</p>
+      <div class="jetons" data-groupe="type">
+        <button class="jeton" data-val="offre">Je vise une structure precise</button>
+        <button class="jeton" data-val="simple">Recherche plus generale</button>
+      </div>
+
+      <div class="sous-q" id="sousQStructure">
+        <div class="qlabel">La structure (tout est facultatif)</div>
+        <div class="champ"><label>Nom de l'entreprise</label><input type="text" placeholder="Ex. Boulangerie Martin"></div>
+        <div class="deux-col">
+          <div class="champ"><label>Site de l'entreprise</label><input type="text" placeholder="https://..."></div>
+          <div class="champ"><label>Lien ou texte de l'offre</label><input type="text" placeholder="Collez le lien ou le texte"></div>
+        </div>
+        <div class="qlabel" style="margin-top:6px">Connaissez-vous la personne en charge du recrutement ?</div>
+        <div class="jetons">
+          <button class="jeton on">Je ne sais pas</button>
+          <button class="jeton">Oui, Monsieur</button>
+          <button class="jeton">Oui, Madame</button>
+        </div>
+        <div class="qlabel" style="margin-top:12px">Mettre en avant les couleurs de l'entreprise sur votre CV ?</div>
+        <div class="jetons">
+          <button class="jeton on">Non</button>
+          <button class="jeton">Oui</button>
+        </div>
+      </div>
+
+      <div class="sous-q" id="sousQGenerale">
+        <div class="encart ok"><span class="ico">&#9989;</span>
+          <div>Vos documents resteront adaptes a <span id="cibleTexte">ce metier</span> sans viser une entreprise.
+          Vous pourrez preciser une structure plus tard, au moment de postuler.</div></div>
+      </div>
+
+      <div class="encart warn" id="encartLettre" style="display:none">
+        <span class="ico">&#9998;&#65039;</span>
+        <div>Une lettre de motivation est plus percutante avec une entreprise precise.
+        Sans cible connue, elle restera plus generale - c'est possible, mais gardez-le en tete.</div>
+      </div>
+
+      <div class="annot"><b>Ecrit</b> <code>dossier.typeRecherche</code> ('offre' / 'simple')
+      + <code>dossier.rechercheCandidature.*</code>. <b>Reconcilie</b> l'ecran 2 actuel
+      (« Connaissez-vous deja l'entreprise ? Oui / Non ») avec la question <code>data-type-recherche</code>
+      de « Votre objectif » : <b>une seule formulation, un seul champ</b>. Le composant
+      <code>contenuModeRecherche</code> est reutilise, limite ici a <code>data-type-recherche</code>
+      (le metier / secteur est deja choisi, donc pas de <code>data-mode-recherche</code>).
+      L'ancien ecran d'avertissement <b>bloquant</b> pour la lettre devient ce simple encart, non bloquant.</div>
+    </div>
+  </div>
+
+  <!-- BLOC 3 -->
+  <div class="bloc-depli">
+    <div class="entete"><span class="ico">&#128196;</span> Votre CV <span class="badge" id="badge3">a completer</span></div>
+    <div class="corps">
+      <div class="qlabel">Avez-vous deja un CV ?</div>
+      <div class="jetons" data-groupe="cvexiste">
+        <button class="jeton" data-val="oui">Oui</button>
+        <button class="jeton" data-val="non">Non</button>
+      </div>
+
+      <div class="sous-q" id="sousQPasDeCv">
+        <div class="encart"><span class="ico">&#10024;</span>
+          <div>Vous allez le creer a partir de zero, en partant de vos activites et de votre parcours.</div></div>
+      </div>
+
+      <div class="sous-q" id="sousQMaj">
+        <div class="qlabel">Voulez-vous le mettre a jour ?</div>
+        <div class="jetons" data-groupe="maj">
+          <button class="jeton" data-val="oui">Oui, le completer</button>
+          <button class="jeton" data-val="non">Non, il est pret tel quel</button>
+        </div>
+        <div class="encart" id="encartMajOui" style="display:none"><span class="ico">&#9999;&#65039;</span>
+          <div>Vous completerez et corrigerez vos informations avant de generer le CV.</div></div>
+        <div class="encart ok" id="encartMajNon" style="display:none"><span class="ico">&#9989;</span>
+          <div>On passe directement a la preparation, sans retoucher le CV.</div></div>
+      </div>
+
+      <div class="annot"><b>Ecrit</b> <code>dossier.modeCreation</code> ('nouveau' / 'maj' / 'pret').
+      Remplace les ecrans 3 + 3b actuels. <b>Meme sortie exacte</b> que les 3 cartes « Mes documents »
+      (aucune fusion avec elles : la logique est gardee, seul le visuel change - jetons).
+      Pour l'entretien, la destination reste le parcours entretien dedie.</div>
+    </div>
+  </div>
+
+  <h2 class="sec">Correspondance fonctionnelle (zero regression)</h2>
+  <table class="corresp">
+    <tr><th>Aujourd'hui</th><th>Devient</th></tr>
+    <tr><td>Ecran 1 « Choisissez le parcours » (3 pastilles radio) + encart « Comparer mes pistes »</td>
+        <td>Bloc 1, 3 jetons + meme encart Comparer (metier seulement)</td></tr>
+    <tr><td>Ecran 2 « Connaissez-vous deja l'entreprise ? Oui / Non »</td>
+        <td>Bloc 2, 2 jetons « Je vise une structure precise » / « Recherche plus generale » = <code>dossier.typeRecherche</code> (memes valeurs 'offre' / 'simple')</td></tr>
+    <tr><td>Ecran 2b « Coordonnees de l'entreprise » (formulaire, deja en jetons)</td>
+        <td>Bloc 2, sous-question depliee quand « structure precise » - formulaire identique</td></tr>
+    <tr><td>Ecran 2c « Entreprise non renseignee » (avertissement <b>bloquant</b>, lettre)</td>
+        <td>Bloc 2, encart d'information ambre <b>non bloquant</b></td></tr>
+    <tr><td>Ecran 3 « Avez-vous deja un CV ? Oui / Non »</td>
+        <td>Bloc 3, 2 jetons</td></tr>
+    <tr><td>Ecran 3b « Souhaitez-vous mettre votre CV a jour ? Oui / Non »</td>
+        <td>Bloc 3, sous-question depliee quand « Oui » a la question precedente. = <code>dossier.modeCreation</code> ('nouveau' / 'maj' / 'pret')</td></tr>
+    <tr><td>Point d'entree : clic sur un <b>metier</b> des resultats</td>
+        <td>Inchange - ouvre cette page (cas « metier connu »)</td></tr>
+    <tr><td>Point d'entree : <b>secteur</b> (bouton « Candidater pour ce secteur », sous-lot 5)</td>
+        <td>Ouvre cette page (cas « secteur ») - chip « dossier », pas d'encart Comparer, <code>dossier.secteurCible</code> + mode 'domaine'</td></tr>
+    <tr><td>Point d'entree : <b>metier non repertorie</b> (bouton « Candidater pour X », sous-lot 4a)</td>
+        <td>Ouvre cette page (cas « metier connu », intitule en texte libre)</td></tr>
+    <tr><td>Sorties : <code>naviguerVers('objectif' / 'projet' / 'resultats')</code>, <code>ouvrirAssistantDepotCV</code>, <code>ouvrirParcoursEntretien</code></td>
+        <td>Inchangees - declenchees par le bouton « Continuer » de la barre du bas une fois les 3 blocs complets</td></tr>
+  </table>
+
+  <h2 class="sec">Points a valider par Denis</h2>
+  <ul style="font-size:13px">
+    <li>L'ordre des 3 blocs : <b>Ce que vous preparez</b> &rarr; <b>Votre cible</b> &rarr; <b>Votre CV</b>.</li>
+    <li>La reformulation de l'ecran 2 en « structure precise / recherche generale » (= la question de « Votre objectif »).</li>
+    <li>L'avertissement lettre qui passe de <b>bloquant</b> a simple <b>encart</b>.</li>
+    <li>Garder les 2 questions CV (« deja un CV ? » puis « mettre a jour ? ») telles quelles, juste en jetons.</li>
+    <li>Le cas secteur : chip « dossier », pas d'encart Comparer, le reste identique.</li>
+    <li>Libelles, ton, icones.</li>
+  </ul>
+
+</div>
+
+<div class="navfixe"><div class="in">
+  <button class="btn-retour">&#8592; Retour a la recherche</button>
+  <button class="btn-suite" id="btnSuite" disabled>Continuer</button>
+</div></div>
+
+<script>
+  var cas = 'metier';
+  var choix = { parcours:null, type:null, cvexiste:null, maj:null };
+
+  function setCas(c){
+    cas = c;
+    document.getElementById('casMetier').classList.toggle('on', c === 'metier');
+    document.getElementById('casSecteur').classList.toggle('on', c === 'secteur');
+    document.getElementById('cibleChip').innerHTML = c === 'metier'
+      ? '&#128188; Serveur en restauration'
+      : '&#128451;&#65039; Hotellerie, restauration et tourisme';
+    document.getElementById('cibleTexte').textContent = c === 'metier' ? 'ce metier' : 'ce secteur';
+    document.getElementById('encartComparer').style.display = c === 'metier' ? 'flex' : 'none';
+    document.querySelector('h1').textContent = c === 'metier'
+      ? 'Candidater' : 'Candidater dans un secteur';
+    maj();
+  }
+
+  document.querySelectorAll('.jetons[data-groupe]').forEach(function(g){
+    var grp = g.getAttribute('data-groupe');
+    g.querySelectorAll('.jeton').forEach(function(b){
+      b.addEventListener('click', function(){
+        g.querySelectorAll('.jeton').forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+        choix[grp] = b.getAttribute('data-val');
+        maj();
+      });
+    });
+  });
+
+  function maj(){
+    // bloc 1
+    setBadge('badge1', !!choix.parcours);
+    document.getElementById('encartLettre').style.display =
+      (choix.parcours === 'lettre' && choix.type === 'simple') ? 'flex' : 'none';
+    // bloc 2
+    document.getElementById('sousQStructure').classList.toggle('visible', choix.type === 'offre');
+    document.getElementById('sousQGenerale').classList.toggle('visible', choix.type === 'simple');
+    setBadge('badge2', !!choix.type);
+    // bloc 3
+    document.getElementById('sousQPasDeCv').classList.toggle('visible', choix.cvexiste === 'non');
+    document.getElementById('sousQMaj').classList.toggle('visible', choix.cvexiste === 'oui');
+    document.getElementById('encartMajOui').style.display = choix.maj === 'oui' ? 'flex' : 'none';
+    document.getElementById('encartMajNon').style.display = choix.maj === 'non' ? 'flex' : 'none';
+    var cvOk = choix.cvexiste === 'non' || (choix.cvexiste === 'oui' && !!choix.maj);
+    setBadge('badge3', cvOk);
+    // bouton final
+    var tout = !!choix.parcours && !!choix.type && cvOk;
+    var btn = document.getElementById('btnSuite');
+    btn.disabled = !tout;
+    btn.textContent = (choix.cvexiste === 'non') ? 'Creer mon CV'
+      : (choix.maj === 'oui') ? 'Mettre a jour mon CV' : 'Continuer';
+  }
+  function setBadge(id, ok){
+    var el = document.getElementById(id);
+    el.textContent = ok ? 'complete' : 'a completer';
+    el.classList.toggle('ok', ok);
+  }
+  maj();
+</script>
+</body>
+</html>

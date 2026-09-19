@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Analyser ma candidature (parcours consolidé)</title>
+<style>
+  :root {
+    --bg-page: #f4f6f9;
+    --bg-card: #ffffff;
+    --bg-subtle: #eef2f7;
+    --border: #d9e0e8;
+    --border-strong: #b9c4d0;
+    --text-strong: #1f2a37;
+    --text: #33404f;
+    --text-muted: #647184;
+    --accent: #1d63d1;
+    --accent-bg: #e7f0fd;
+    --ok: #1a7a4c;
+    --ok-bg: #e3f5ea;
+    --warn: #9a6410;
+    --warn-bg: #fbf1df;
+    --alert: #a3372b;
+    --alert-bg: #fbe6e3;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page: #0f1620;
+    --bg-card: #18222f;
+    --bg-subtle: #1f2c3b;
+    --border: #2c3a4b;
+    --border-strong: #3c4d61;
+    --text-strong: #eef3f9;
+    --text: #cdd6e1;
+    --text-muted: #93a2b4;
+    --accent: #6ea8f5;
+    --accent-bg: #1b2c44;
+    --ok: #6bd39b;
+    --ok-bg: #16311f;
+    --warn: #e2b877;
+    --warn-bg: #33270f;
+    --alert: #eda69c;
+    --alert-bg: #3a1f1b;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-page);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4 { color: var(--text-strong); line-height: 1.3; }
+  h1 { font-size: 1.5rem; margin: .2rem 0 .5rem; }
+  h2 { font-size: 1.15rem; margin: 1.4rem 0 .6rem; }
+  h3 { font-size: 1rem; margin: 1rem 0 .4rem; }
+  p { margin: .5rem 0; }
+  a { color: var(--accent); }
+  button { font-family: inherit; }
+
+  /* ---- Cadre général ---- */
+  .appbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: .6rem 1rem;
+  }
+  .appbar-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+  .appbar-titre { font-weight: 700; color: var(--text-strong); font-size: 1.05rem; }
+  .appbar-outils { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
+  .appbar select, .appbar .mini-btn {
+    font-size: .8rem; padding: .3rem .55rem; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text);
+  }
+  .note-maquette {
+    max-width: 900px; margin: .5rem auto 0; font-size: .78rem; color: var(--text-muted);
+    border: 1px dashed var(--border-strong); border-radius: 8px; padding: .4rem .6rem;
+    background: var(--bg-subtle);
+  }
+
+  /* ---- Barre d'étapes (position dans le module) ---- */
+  .etapes {
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: .2rem; margin: .9rem auto 0; max-width: 900px;
+  }
+  .etape {
+    display: flex; align-items: center; gap: .4rem;
+    padding: .3rem .7rem; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--bg-subtle);
+    color: var(--text-muted); font-size: .82rem; white-space: nowrap;
+  }
+  .etape .pastille {
+    width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .82rem;
+    background: var(--border); color: var(--bg-card);
+  }
+  .etape.faite { color: var(--text); }
+  .etape.faite .pastille { background: var(--ok); color: #fff; }
+  /* Etape courante : fond jaune + contour/halo bleu (choix Denis "bleu + jaune", aligne sur .pastille-etape-action-courante + -ouverte de l'app). */
+  .etape.courante { color: var(--warn); border-color: var(--accent); background: var(--warn-bg); font-weight: 700; box-shadow: 0 0 0 2px var(--accent-bg), 0 0 0 3px var(--accent); }
+  .etape.courante .pastille { background: var(--accent); color: #fff; }
+  .etape-fleche { color: var(--border-strong); font-size: 1rem; margin: 0 .05rem; }
+  .etape-fleche.avenir { opacity: .4; }
+  .etape-fleche.suivant { color: var(--accent); opacity: 1; animation: chevronClignote 1.6s ease-in-out infinite; }
+  @keyframes chevronClignote { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .etape-fleche.suivant { animation: none; opacity: 1; } }
+  /* Bouton qui "pousse" - equivalent maquette de .bouton-incitation-action
+     de l'app (Importer, "Ouvrir l'assistant" quand l'ouverture est bloquee,
+     "Je suis de retour"). */
+  .btn.pousse { animation: boutonPousse 1.6s ease-in-out infinite; }
+  @keyframes boutonPousse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--accent-bg); }
+    50% { box-shadow: 0 0 0 6px var(--accent-bg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn.pousse { animation: none; } }
+  /* Décompte "hero" : gros chiffre en pastille accent + piste qui se vide
+     sur 5 s. Remplace l'ancien bandeau inline serré. */
+  .decompte-hero {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    padding: 1rem 1.1rem; border-radius: 12px;
+    background: var(--accent-bg); border: 1px solid var(--accent);
+  }
+  .decompte-hero.bloque { background: var(--warn-bg); border-color: var(--warn); }
+  .decompte-hero .num-sec {
+    flex-shrink: 0; width: 2.6rem; height: 2.6rem; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--accent); color: #fff; font-size: 1.2rem; font-weight: 700;
+  }
+  .decompte-hero.bloque .num-sec { background: var(--warn); }
+  .decompte-hero .txt { flex: 1; min-width: 170px; font-size: .92rem; color: var(--text); }
+  .decompte-piste { height: 4px; border-radius: 999px; background: var(--bg-card); overflow: hidden; margin-top: .5rem; }
+  .decompte-piste > span { display: block; height: 100%; background: var(--accent); width: 55%; animation: decompteAvance 5s linear forwards; }
+  @keyframes decompteAvance { from { width: 100%; } to { width: 0; } }
+  @media (prefers-reduced-motion: reduce) { .decompte-piste > span { animation: none; width: 55%; } }
+  /* Bandeau "de retour" (phase ouvert), plus compact que le hero. */
+  .transition-bandeau {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;
+    padding: .7rem .9rem; margin-bottom: .9rem;
+    background: var(--accent-bg); border-left: 3px solid var(--accent); border-radius: 8px;
+    font-size: .9rem; color: var(--text);
+  }
+  .compteur { font-weight: 700; color: var(--accent); }
+  /* Aperçu du retour : encadré comme une petite fenêtre (barre de titre +
+     corps), pas une boîte grisée. */
+  .mini-ecran {
+    margin-top: .9rem; border: 1px solid var(--border-strong); border-radius: 12px;
+    overflow: hidden; background: var(--bg-card);
+  }
+  .mini-ecran .mini-barre {
+    display: flex; align-items: center; gap: .4rem; padding: .4rem .75rem;
+    background: var(--bg-subtle); border-bottom: 1px solid var(--border);
+    font-size: .74rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .03em;
+  }
+  .mini-ecran .mini-corps { padding: .9rem; }
+  /* Zone d'action de collage : une carte accent, un bouton pleine largeur. */
+  .zone-collage {
+    border: 1px solid var(--accent); border-radius: 12px; padding: 1rem;
+    background: var(--accent-bg); text-align: center;
+  }
+  .zone-collage .btn.large { width: 100%; max-width: 340px; }
+  .sous-etapes {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: .35rem;
+    max-width: 900px; margin: .5rem auto 0; font-size: .75rem;
+  }
+  .sous-etape { padding: .15rem .55rem; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+  .sous-etape.courante { background: var(--accent-bg); color: var(--text-strong); border-color: var(--accent); font-weight: 700; }
+
+  /* ---- Contenu ---- */
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 5.5rem; }
+  .vue { display: none; }
+  .vue.active { display: block; animation: apparait .18s ease; }
+  @keyframes apparait { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .carte {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0;
+    box-shadow: var(--shadow);
+  }
+  .carte.plat { box-shadow: none; }
+  .accroche { color: var(--text-muted); font-size: 1.02rem; }
+  .centre { text-align: center; }
+  .pilule {
+    display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: .02em;
+    padding: .15rem .55rem; border-radius: 999px; text-transform: uppercase;
+  }
+  .pilule.ok { background: var(--ok-bg); color: var(--ok); }
+  .pilule.bleu { background: var(--accent-bg); color: var(--accent); }
+  .pilule.warn { background: var(--warn-bg); color: var(--warn); }
+  .pilule.alert { background: var(--alert-bg); color: var(--alert); }
+
+  details.plus {
+    margin: .4rem 0 0; border-top: 1px dashed var(--border); padding-top: .4rem;
+  }
+  details.plus summary { cursor: pointer; color: var(--accent); font-size: .88rem; }
+  details.plus .detail { font-size: .88rem; color: var(--text-muted); margin-top: .35rem; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: .45rem; justify-content: center;
+    padding: .6rem 1.15rem; border-radius: 999px; border: 1px solid transparent;
+    font-size: .95rem; font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+  .btn.primaire { background: var(--accent); color: #fff; }
+  .btn.secondaire { background: var(--bg-subtle); color: var(--text-strong); border-color: var(--border-strong); }
+  .btn.fantome { background: transparent; color: var(--accent); border-color: var(--border-strong); }
+  .btn.large { font-size: 1.05rem; padding: .75rem 1.5rem; }
+  .btn-rangee { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; }
+
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .6rem 0; overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary {
+    list-style: none; cursor: pointer; padding: .8rem 1rem; font-weight: 700; color: var(--text-strong);
+    display: flex; align-items: center; gap: .6rem;
+  }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary .num {
+    width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--accent); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; flex-shrink: 0;
+  }
+  .bloc-depli > summary .etat { margin-left: auto; font-size: .78rem; }
+  .bloc-depli .corps { padding: 0 1rem 1rem; border-top: 1px solid var(--border); }
+
+  .champ { width: 100%; padding: .55rem .7rem; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--bg-page); color: var(--text); font-size: .92rem; }
+  textarea.champ { min-height: 90px; resize: vertical; }
+  label.lig { display: block; font-size: .85rem; color: var(--text-muted); margin: .6rem 0 .2rem; }
+
+  .assist-rangee { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
+  .assist-rangee .etiq { width: 130px; flex-shrink: 0; font-size: .8rem; font-weight: 700; color: var(--text-muted); }
+  .jeton {
+    padding: .35rem .8rem; border-radius: 999px; font-size: .85rem; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+  }
+  .jeton.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .axe { border: 1px solid var(--border); border-radius: 12px; padding: .7rem .9rem; margin: .5rem 0; background: var(--bg-card); }
+  .axe-tete { display: flex; align-items: center; gap: .6rem; }
+  .axe-tete h4 { margin: 0; flex: 1; }
+  .liste-fine { margin: .3rem 0 0; padding-left: 1.1rem; font-size: .9rem; }
+  .liste-fine li { margin: .15rem 0; }
+
+  .carte-choix {
+    border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center;
+    background: var(--bg-card); flex: 1; min-width: 190px;
+    display: flex; flex-direction: column;
+  }
+  /* Bouton "Choisir" pousse en bas : aligne les 3 boutons quelle que soit la longueur du texte (R11). */
+  .carte-choix .btn { margin-top: auto; }
+  .cartes-choix { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: .6rem; align-items: stretch; }
+
+  /* R13 : les deux gestes de triage ("pris connaissance" / "pas d'accord") regroupes dans un encart a part, cote a cote -- distincts de "Generer une proposition" et "Garder comme Repere". Present sur chaque alerte, axe et recommandation. */
+  .encart-triage {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .4rem;
+    margin-top: .5rem; padding: .4rem .6rem;
+    border: 1px dashed #c4b5fd; border-radius: 9px; background: #faf7ff;
+  }
+  .encart-triage .triage-label { font-size: .76rem; font-weight: 700; color: #6b21a8; margin-right: .15rem; }
+  .encart-triage .triage-btn { font-size: .8rem; padding: .3rem .7rem; color: #7c3aed; border-color: #c4b5fd; }
+  body.dark .encart-triage { background: #211a33; border-color: #4c3d6b; }
+  body.dark .encart-triage .triage-label,
+  body.dark .encart-triage .triage-btn { color: #c9b4f5; }
+  body.dark .encart-triage .triage-btn { border-color: #4c3d6b; }
+
+  /* Option A (retour Denis) : pastille de verdict dessinee (plus de rond emoji 🟢🟡🔴). Couleurs du theme, halo doux = moins "agressif" que l'emoji rouge. */
+  .pastille-verdict {
+    display: inline-block; width: .6rem; height: .6rem; border-radius: 50%;
+    flex-shrink: 0; vertical-align: middle; margin: 0 .45rem 0 .1rem;
+  }
+  .pastille-verdict.v-ok { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-bg); }
+  .pastille-verdict.v-warn { background: var(--warn); box-shadow: 0 0 0 3px var(--warn-bg); }
+  .pastille-verdict.v-alert { background: var(--alert); box-shadow: 0 0 0 3px var(--alert-bg); }
+
+  .reco-nav { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin: .6rem 0; }
+  .reco-nav .compteur { font-size: .82rem; color: var(--text-muted); }
+
+  .rappel {
+    font-size: .82rem; color: var(--text-muted); display: flex; gap: .5rem; align-items: flex-start;
+    background: var(--bg-subtle); border-radius: 9px; padding: .5rem .7rem; margin-top: .7rem;
+  }
+  /* ---- Comparaison avant / après ---- */
+  .legende { display: flex; flex-wrap: wrap; gap: .8rem; max-width: 900px; margin: .5rem auto 0; font-size: .76rem; color: var(--text-muted); }
+  .legende span { display: inline-flex; align-items: center; gap: .3rem; }
+  .puce { width: .8rem; height: .8rem; border-radius: 3px; display: inline-block; }
+  .puce.valide { background: var(--accent); }
+  .puce.inchange { background: var(--border-strong); }
+  .puce.consolide { background: var(--warn); }
+  .puce.avalider { background: var(--alert); }
+
+  .tab-comp { width: 100%; border-collapse: collapse; margin: .8rem 0; font-size: .86rem; }
+  .tab-comp th, .tab-comp td { border: 1px solid var(--border); padding: .55rem .6rem; text-align: left; vertical-align: top; }
+  .tab-comp th { background: var(--bg-subtle); color: var(--text-strong); }
+  .tab-comp td:first-child { font-weight: 700; color: var(--text-strong); white-space: nowrap; }
+  .tab-comp .num-av { color: var(--alert); font-weight: 700; }
+  .tab-comp .num-ap { color: var(--ok); font-weight: 700; }
+  .comp-scroll { overflow-x: auto; }
+
+  .bandeau-comp {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+    font-size: .8rem; margin: 0 0 1rem; padding: .5rem .7rem;
+    border: 1px solid var(--border); border-radius: 9px; background: var(--bg-subtle);
+  }
+  .bandeau-comp .etiq-etat { font-weight: 700; padding: .1rem .5rem; border-radius: 999px; font-size: .72rem; text-transform: uppercase; }
+  .etiq-etat.valide { background: var(--accent-bg); color: var(--accent); }
+  .etiq-etat.inchange { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-strong); }
+  .etiq-etat.consolide { background: var(--warn-bg); color: var(--warn); }
+  .etiq-etat.avalider { background: var(--alert-bg); color: var(--alert); }
+  .bandeau-comp .fleche { color: var(--text-muted); }
+
+  .depli-hint { margin-left: auto; font-size: .78rem; font-weight: 400; color: var(--accent); white-space: nowrap; }
+  details[open] > summary .depli-hint { display: none; }
+  .strip { display: flex; gap: .4rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: .2rem; }
+  .strip .jeton { flex-shrink: 0; }
+
+  /* ---- Barre du bas : toujours presente, Retour a gauche ---- */
+  .barre-bas {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: var(--bg-card); border-top: 1px solid var(--border);
+    padding: .55rem 1rem;
+  }
+  .barre-bas-row { max-width: 760px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  .barre-bas .btn { padding: .5rem 1rem; font-size: .9rem; }
+
+  /* ---- Fenêtres ---- */
+  .overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(15,22,32,.55); padding: 1.2rem; overflow-y: auto;
+  }
+  .overlay.ouvert { display: block; }
+  .fenetre {
+    max-width: 620px; margin: 2rem auto; background: var(--bg-card);
+    border-radius: 16px; box-shadow: var(--shadow); padding: 1.2rem 1.3rem;
+  }
+  .fenetre.large { max-width: 820px; }
+  .fenetre-tete { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+  .fenetre-tete h3 { margin: 0; flex: 1; }
+  .fenetre-fermer {
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+    width: 2rem; height: 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem;
+  }
+  .fenetre-pied { margin-top: 1rem; display: flex; justify-content: space-between; gap: .6rem; }
+  mark { background: var(--warn-bg); color: var(--warn); padding: 0 .15rem; border-radius: 3px; }
+
+  /* ---- Écran « Choisir l'assistant » ----
+     Évolution proposée de la brique commune htmlChoixAssistantBilanCorps
+     (motif partagé Bilan / Découverte / page Action / Cohérence) :
+     jetons de thème partout (mode sombre réparé), plus de colonne
+     d'étiquette 130px, primauté visuelle aux pastilles d'assistant,
+     « Ce qui va se passer » + confidentialité repliés. */
+  .choix-ia {
+    border: 1px solid var(--accent); background: var(--accent-bg);
+    border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0;
+  }
+  .choix-ia > .intro { margin: 0 0 .8rem; font-size: .92rem; color: var(--text); }
+  .choix-ia-groupe + .choix-ia-groupe { margin-top: .9rem; }
+  .choix-ia-etiq {
+    display: block; font-size: .8rem; font-weight: 700;
+    color: var(--text-strong); margin-bottom: .4rem;
+  }
+  .choix-ia-rangee { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .assist-pastille {
+    display: flex; flex-direction: column; align-items: center; gap: .12rem;
+    min-width: 90px; padding: .5rem .9rem; border-radius: 14px;
+    border: 1px solid var(--border-strong); background: var(--bg-card);
+    color: var(--text-strong); font-size: .95rem; font-weight: 600; cursor: pointer;
+  }
+  .assist-pastille .sous {
+    font-size: .6rem; font-weight: 400; letter-spacing: .02em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .assist-pastille.sans-compte { border-color: var(--ok); background: var(--ok-bg); }
+  .assist-pastille.connexion { border-color: var(--accent); background: var(--accent-bg); }
+  .assist-pastille.actif {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+    box-shadow: 0 0 0 3px var(--accent-bg);
+  }
+  .assist-pastille.actif .sous { color: rgba(255,255,255,.85); }
+
+  .etape-rangee { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .3rem; }
+  .etape-jeton {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .3rem .7rem .3rem .35rem; border-radius: 999px;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle);
+    color: var(--text-strong); font-size: .84rem; cursor: pointer;
+  }
+  .etape-jeton.actif { border-color: var(--accent); background: var(--accent-bg); font-weight: 700; }
+  .etape-jeton .rond {
+    width: 1.4rem; height: 1.4rem; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .74rem; font-weight: 700; background: var(--accent); color: #fff;
+  }
+  .etape-detail {
+    margin-top: .55rem; font-size: .86rem; color: var(--text);
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .5rem .75rem;
+  }
+  /* Ajouts pass 2 : repere pour qui hesite, "ce qui se passe au clic" dit
+     avant le clic, 4 temps visibles d'un coup, rappel confidentialite lie
+     a "Relire et masquer", cible tactile 44px. */
+  .choix-ia-note {
+    margin: 0 0 .55rem; font-size: .84rem; color: var(--text-muted);
+    display: flex; gap: .45rem; align-items: flex-start;
+  }
+  .choix-ia-etiq .quoi { font-weight: 400; color: var(--text-muted); }
+  .choix-ia-reprendre {
+    margin: 0 0 .8rem; padding: .55rem .75rem; border-radius: 10px;
+    background: var(--bg-subtle); border: 1px solid var(--border-strong);
+    font-size: .88rem; color: var(--text);
+  }
+  .assist-pastille { min-height: 44px; }
+  .assist-pastille .tag-conseille {
+    font-size: .6rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok);
+    border-radius: 999px; padding: .05rem .4rem; margin-top: .2rem;
+  }
+  .etape-liste { list-style: none; margin: .5rem 0 0; padding: 0; display: grid; gap: .5rem; }
+  .etape-liste li { display: flex; gap: .55rem; align-items: flex-start; font-size: .86rem; color: var(--text); }
+  .etape-liste .rond {
+    width: 1.4rem; height: 1.4rem; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .74rem; font-weight: 700; background: var(--accent); color: #fff;
+  }
+  .etape-liste .titre { font-weight: 700; }
+  .choix-ia-rappel {
+    margin-top: .7rem; display: flex; gap: .5rem; align-items: flex-start;
+    background: var(--ok-bg); border: 1px solid var(--ok); border-radius: 10px;
+    padding: .55rem .75rem; font-size: .84rem; color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-row">
+    <span class="appbar-titre">&#128202; Analyser ma candidature</span>
+    <div class="appbar-outils">
+      <select id="devnav" title="Sauter à un écran (aide de maquette)">
+        <option value="">Aller à...</option>
+        <option value="comparaison">0 - Comparaison avant / après</option>
+        <option value="intro">1 - Page d'introduction</option>
+        <option value="envoyer">2 - Préparer (1 page dépliante)</option>
+        <option value="relecture">2b - Relire et masquer (s'ouvre depuis le bloc 2)</option>
+        <option value="choix-assistant">2c - Choisir l'assistant</option>
+        <option value="chez">2d - Chez l'assistant</option>
+        <option value="coller">2e - Coller la réponse</option>
+        <option value="rapport">3 - Le rapport + choix de correction</option>
+        <option value="organiser">3b - Organiser le CV en rubriques (cas B)</option>
+        <option value="libre">4a - Corriger : j'écris avec mes mots</option>
+        <option value="copier">4b - Corriger : aide sur la formulation</option>
+        <option value="accompagne">4c - Corriger : accompagné pas à pas</option>
+        <option value="cloture">5 - Terminé</option>
+        <option value="bord">État 2 : tableau de bord</option>
+      </select>
+      <button class="mini-btn" onclick="ouvrir('m-candidature')">Fenêtre : Offre</button>
+      <button class="mini-btn" onclick="ouvrir('m-coord')">Fenêtre : Coordonnées</button>
+      <button class="mini-btn" onclick="ouvrir('m-cv')">Fenêtre : Modifier mon CV</button>
+      <button class="mini-btn" id="theme">Mode sombre</button>
+    </div>
+  </div>
+
+  <div class="etapes" id="etapes"></div>
+  <div class="sous-etapes" id="sousetapes" style="display:none"></div>
+
+  <div class="note-maquette">
+    Maquette non fonctionnelle. Commencez par <strong>&laquo;&nbsp;0 - Comparaison avant / après&nbsp;&raquo;</strong> (menu &laquo;&nbsp;Aller à...&nbsp;&raquo;) pour situer chaque écran par rapport à ce qui existe aujourd'hui.
+    Aux écrans qui demandent un assistant, le bouton <strong>&laquo;&nbsp;Simuler une réponse&nbsp;&raquo;</strong> saute à la suite avec un diagnostic fictif.
+  </div>
+  <div class="legende">
+    <span><i class="puce valide"></i> Validé ensemble</span>
+    <span><i class="puce inchange"></i> Inchangé (déjà comme ça aujourd'hui)</span>
+    <span><i class="puce consolide"></i> Consolidé (même fonction, moins d'écrans)</span>
+    <span><i class="puce avalider"></i> À valider</span>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ 0. COMPARAISON AVANT / APRÈS ============ -->
+<section class="vue" data-vue="comparaison" data-etape="0" data-retour="">
+  <h1>Comparaison : ce que j'ai aujourd'hui &#8594; ce qui est proposé</h1>
+  <p class="accroche">Le seul objectif : <strong>réduire le nombre d'écrans</strong> en gardant toutes les fonctions. Rien de nouveau côté contenu.</p>
+
+  <div class="comp-scroll">
+  <table class="tab-comp">
+    <thead><tr><th>Moment</th><th>Aujourd'hui</th><th>Proposé</th><th>Ce qui change</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Entrée dans le module</td>
+        <td><span class="num-av">0</span> page d'intro. On tombe direct sur &laquo;&nbsp;Choisissez votre assistant&nbsp;&raquo; (<code>pageBilanCandidature</code>).</td>
+        <td><span class="num-ap">1</span> page d'introduction (patron Cohérence / Repères). Si une analyse existe : bandeau &laquo;&nbsp;reprendre&nbsp;&raquo; sur la même page.</td>
+        <td><i class="puce valide"></i> Nouvelle page, patron déjà validé ailleurs.</td>
+      </tr>
+      <tr>
+        <td>Préparer l'envoi</td>
+        <td><span class="num-av">jusqu'à 4</span> écrans : dépôt CV &middot; &laquo;&nbsp;Où en êtes-vous&nbsp;?&nbsp;&raquo; &middot; ciblage offre &middot; choix de l'assistant.</td>
+        <td><span class="num-ap">1</span> page &laquo;&nbsp;Préparer et envoyer&nbsp;&raquo; qui se déplie (CV &middot; situation &middot; offre) + le choix de l'assistant juste après (brique commune).</td>
+        <td><i class="puce consolide"></i> Mêmes fonctions du code, autre agencement.</td>
+      </tr>
+      <tr>
+        <td>Envoi + retour de l'assistant</td>
+        <td><span class="num-av">2</span> écrans partagés : transition (<code>htmlBanniereTransitionIA</code>) &#8594; coller la réponse (<code>htmlCollageInstantane</code>).</td>
+        <td><span class="num-ap">2</span> écrans, identiques.</td>
+        <td><i class="puce inchange"></i> Rien, sauf le libellé d'un bouton.</td>
+      </tr>
+      <tr>
+        <td>Relire / masquer</td>
+        <td>Composant partagé <code>htmlVerificationDocument</code> (surlignage, relecture manuelle).</td>
+        <td>Identique.</td>
+        <td><i class="puce inchange"></i> Rien.</td>
+      </tr>
+      <tr>
+        <td>Le rapport</td>
+        <td><span class="num-av">2</span> écrans : le rapport (<code>htmlBilanRapport</code>) &#8594; clic &laquo;&nbsp;Agir&nbsp;&raquo; &#8594; les 3 cartes de correction (<code>htmlBilanAgirChoix</code>).</td>
+        <td><span class="num-ap">1</span> écran : le rapport <strong>et</strong> les 3 cartes de correction dessous.</td>
+        <td><i class="puce consolide"></i> 2 écrans &#8594; 1.</td>
+      </tr>
+      <tr>
+        <td>Corriger : j'écris avec mes mots</td>
+        <td><code>htmlBilanCorrection</code> mode <code>libre</code> (1 écran).</td>
+        <td>Identique.</td>
+        <td><i class="puce inchange"></i> Rien.</td>
+      </tr>
+      <tr>
+        <td>Corriger : aidez-moi</td>
+        <td>Mode <code>copier</code> &#8594; fenêtre &laquo;&nbsp;choix assistant du lot&nbsp;&raquo; (<code>bilanOuvrirChoixAssistantLot</code>, 2e implémentation) &#8594; coller &#8594; propositions.</td>
+        <td>Même fond ; la fenêtre &laquo;&nbsp;choix assistant du lot&nbsp;&raquo; devient la <strong>brique commune</strong>.</td>
+        <td><i class="puce consolide"></i> Un doublon fusionné.</td>
+      </tr>
+      <tr>
+        <td>Corriger : accompagné</td>
+        <td><span class="num-av">4</span> sous-écrans pleine page : Vos chiffres &#8594; À compléter (ouvre la fenêtre Candidature) &#8594; Génération &#8594; Relecture.</td>
+        <td><span class="num-ap">4</span> sous-écrans <strong>conservés</strong> (une chose à la fois) ; un repère &laquo;&nbsp;Étape X sur N&nbsp;&raquo; dans le titre (N varie de 2 à 4 selon les cas), jamais une 2e barre.</td>
+        <td><i class="puce inchange"></i> Inchangé (décision Denis).</td>
+      </tr>
+      <tr>
+        <td>Clôture</td>
+        <td>Mode <code>cloture</code> (1 écran) : Finaliser / Analyser à nouveau.</td>
+        <td>Identique.</td>
+        <td><i class="puce inchange"></i> Rien.</td>
+      </tr>
+      <tr>
+        <td>Fenêtres</td>
+        <td>Candidature &middot; Coordonnées entreprise (fenêtre dans fenêtre) &middot; Mes coordonnées &middot; Modifier mon CV (<code>blocEditionCV</code>, doublon de <code>blocERIP</code>).</td>
+        <td>Candidature = <strong>brique commune</strong> &middot; Modifier mon CV = <strong>éditeur unique</strong> (fusion des 2), reste une fenêtre &middot; les autres inchangées.</td>
+        <td><i class="puce consolide"></i> 2 doublons fusionnés.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent)">
+    <h3>Le comptage</h3>
+    <p><strong>Aujourd'hui</strong>, fil principal : environ <span class="num-av">10 à 14 écrans</span> (6 pleine page + jusqu'à 4 en amont + 4 sous-écrans Accompagné) + 5 fenêtres.</p>
+    <p><strong>Proposé</strong>, fil principal : <span class="num-ap">5 à 6 écrans</span> (intro + Préparer et envoyer + transition/coller + rapport&nbsp;+&nbsp;correction + le mode choisi + clôture) + 3 fenêtres.</p>
+    <p class="detail" style="color:var(--text-muted)">Aucune fonction retirée. Ce qui bouge : l'agencement, et 3 doublons de code fusionnés.</p>
+  </div>
+
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('intro')">Voir la version proposée, écran par écran &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 1. PAGE D'INTRODUCTION ============ -->
+<section class="vue" data-vue="intro" data-etape="0" data-retour="">
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Validé</span>
+    <span>Aujourd'hui : <strong>aucune page d'introduction</strong> (on entre direct sur &laquo;&nbsp;choix de l'assistant&nbsp;&raquo;).</span>
+    <span class="fleche">&#8594;</span>
+    <span>Proposé : une page d'intro, patron déjà en place sur Cohérence et Repères.</span>
+  </div>
+  <div class="centre">
+    <h1>&#128202; Analyser ma candidature</h1>
+    <p class="accroche">Avant de modifier un CV, il est souvent utile de comprendre ce qui fonctionne déjà.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#127919; À quoi ça sert</h3>
+    <p>Faire un état des lieux de votre CV : la pertinence des informations, ce qui est solide, ce qui peut le faire
+    hésiter un recruteur, et ce qui peut être amélioré.</p>
+    <p>Selon le type de structure où vous postulez, les mots attendus ne sont pas les mêmes : une association, une
+    entreprise privée, une administration ou une structure de l'insertion n'emploient pas le même vocabulaire.
+    Si vous indiquez où vous candidatez, l'assistant adapte la façon de présenter vos compétences à ce milieu.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128203; Ce qui va se passer</h3>
+    <ul class="liste-fine">
+      <li>Vous partez de votre CV et, si vous le souhaitez, du poste ou du secteur visé.</li>
+      <li>Un assistant en ligne (ChatGPT, Claude, Gemini...) en fait une lecture selon des critères fixes.</li>
+      <li>Vous recevez un rapport clair, puis vous choisissez comment corriger : vous-même, aidé sur la formulation, ou accompagné étape par étape.</li>
+    </ul>
+    <details class="plus"><summary>En savoir plus sur les critères</summary>
+      <p class="detail">Adéquation au poste, crédibilité des éléments avancés, points forts, points qui peuvent freiner,
+      cohérence du parcours, lisibilité et structure. Chaque point vient avec une piste concrète.</p>
+    </details>
+  </div>
+
+  <div class="carte">
+    <h3>&#128683; Ce que ce module ne fait pas</h3>
+    <ul class="liste-fine">
+      <li>Ce n'est pas une note ni un jugement sur vous.</li>
+      <li>Il ne mesure pas la compatibilité de votre CV avec les logiciels de tri des recruteurs (score ATS) : c'est un autre outil de l'application qui s'en charge.</li>
+      <li>On regarde l'état de votre CV, pas ce que vous direz à l'oral.</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#9999;&#65039; Ce que vous pourrez faire ensuite</h3>
+    <ul class="liste-fine">
+      <li>Un rapport clair : points forts, points à revoir, recommandations concrètes.</li>
+      <li>Vous corrigez chaque point <strong>directement dans l'application</strong>, si vous le souhaitez.</li>
+      <li>Vous pouvez aussi marquer un point <strong>« j'en ai pris connaissance »</strong> pour le mettre de côté sans le traiter tout de suite - c'est réversible, rien n'est effacé.</li>
+      <li>L'application <strong>ne modifie pas votre fichier CV d'origine</strong> : elle en extrait le contenu, applique vos corrections, puis vous propose des modèles de CV prêts à l'emploi.</li>
+      <li>Si ces modèles ne vous conviennent pas, vous pouvez <strong>récupérer vos textes corrigés</strong> et les utiliser dans l'outil de votre choix (Canva, un traitement de texte, un autre site...).</li>
+    </ul>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent)">
+    <h3><span style="font-size:1.2rem">&#9875;&#65039;</span> Mes Repères</h3>
+    <p>Depuis ce rapport, vous pouvez garder un axe ou une recommandation comme <strong>Repère</strong> : une réflexion mise de côté (une question, une idée, un sujet à creuser ou à discuter avec la personne qui vous accompagne). Vous la retrouvez ensuite dans <strong>Mes Repères</strong> <span style="color:var(--text-muted)">(&#9875;&#65039;)</span>, un espace à vous, jamais jugé, accessible depuis n'importe où dans l'application.</p>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent);background:var(--accent-bg)">
+    <h3>&#128196; Quelle que soit la forme de votre CV</h3>
+    <p>Fichier PDF ou Word, texte collé, ou même une photo / capture d'écran de votre CV : l'application sait le lire.
+    Vous n'avez rien à remettre en forme avant de commencer.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128172; Comment ça se passe concrètement</h3>
+    <p>Vous copiez votre CV, vous le collez sur le site d'un assistant de votre choix, vous rapportez la réponse ici.
+    L'application vous guide à chaque étape.</p>
+  </div>
+
+  <div class="carte plat">
+    <h3>&#9989; Bon à savoir</h3>
+    <p>Avant l'envoi, vous relisez votre CV et vous <strong>masquez vous-même</strong> ce qui ne doit pas partir (nom, téléphone, e-mail). L'analyse se fait alors sur un CV anonymisé : vos informations personnelles ne sont pas prises en compte. Pensez à vérifier, sur votre CV d'origine, qu'elles y sont bien.</p>
+    <div class="rappel">
+      <span>&#128190;</span>
+      <span>Cette application ne demande jamais de compte : rien n'est conservé automatiquement.
+      Pensez à cliquer sur l'icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span>
+    </div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('envoyer')">Analyser mon CV &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 2. PRÉPARER ET ENVOYER ============ -->
+<section class="vue" data-vue="envoyer" data-etape="1" data-retour="intro">
+  <div class="bandeau-comp">
+    <span class="etiq-etat consolide">Consolidé</span>
+    <span>Aujourd'hui : <strong>2 à 4 fenêtres modales</strong> qui s'enchaînent AVANT d'entrer dans le module (dépôt du CV, relire / masquer, &laquo;&nbsp;votre situation&nbsp;&raquo;, ciblage de l'offre).</span>
+    <span class="fleche">&#8594;</span>
+    <span>Proposé : <strong>1 page du module</strong>, 4 blocs dépliants, dans l'ordre qu'on veut. Mêmes fonctions, mêmes champs, mêmes boutons.</span>
+  </div>
+  <h1>Préparer</h1>
+  <p class="accroche">On rassemble ici tout ce dont l'analyse a besoin, sur <strong>une seule page qui se déplie</strong> - plus de fenêtres qui s'enchaînent.</p>
+  <div class="bandeau-comp" style="margin-top:.4rem">
+    <span class="etiq-etat valide">Comportement</span>
+    <span>Les 4 parties sont <strong>fermées, sauf la première</strong>. Quand vous en terminez une, elle se referme et la suivante s'ouvre. Vous pouvez rouvrir une partie fermée à tout moment. Le bouton du bas ne s'active <strong>que quand la dernière partie a été traitée</strong> (les facultatives peuvent être laissées vides).</span>
+  </div>
+
+  <!-- Bloc 1 : dépôt du CV (aujourd'hui = "Étape 1 · Déposer votre document") -->
+  <details class="bloc-depli" open>
+    <summary><span class="num">1</span> Votre CV <span class="etat pilule ok">Déposé &middot; vous pouvez le changer</span></summary>
+    <div class="corps">
+      <p>Déposez votre CV. Il est lu directement dans votre navigateur, <strong>il n'est envoyé nulle part</strong> pour l'instant.</p>
+      <div class="btn-rangee">
+        <button class="btn primaire" style="font-size:.85rem">Déposer mon CV</button>
+        <button class="btn fantome" style="font-size:.85rem">Ou coller le texte</button>
+      </div>
+      <p class="detail" style="color:var(--text-muted);font-size:.82rem;margin-top:.4rem"><strong>Tous les formats sont acceptés</strong> : PDF, Word, .txt, une photo ou une capture d'écran de votre CV. L'application reconnaît le format toute seule.</p>
+      <div class="carte plat" style="background:var(--ok-bg);margin-top:.6rem"><strong>&#9989; Déposé</strong> — cv-2026.pdf <button class="btn fantome" style="font-size:.8rem;padding:.25rem .7rem;margin-left:.4rem">Changer de CV</button></div>
+      <p class="detail" style="color:var(--text-muted);font-size:.8rem;margin-top:.4rem">Un seul CV à la fois. « Changer de CV » remplace celui-ci.</p>
+      <p class="detail" style="color:var(--text-muted);font-size:.82rem;margin-top:.5rem">Vous pourrez revoir et corriger le contenu <strong>après le rapport</strong>, une fois qu'il aura été rangé en rubriques.</p>
+    </div>
+  </details>
+
+  <!-- Bloc 2 : relire et masquer (aujourd'hui = "Étape 2 · Vérification" ou la modale de relecture séparée selon le cas) -->
+  <details class="bloc-depli">
+    <summary><span class="num">2</span> Relire et masquer <span class="etat pilule bleu">À valider &middot; modifiable ensuite</span><span class="depli-hint">&#9656; obligatoire</span></summary>
+    <div class="corps">
+      <p>Avant l'envoi, vous relisez votre CV et vous <strong>masquez ce que vous ne voulez pas transmettre</strong> à l'assistant. Vous modifiez le texte vous-même, rien n'est masqué à votre place.</p>
+      <div class="carte plat" style="font-size:.88rem;background:var(--bg-page)">
+        <p style="margin:.2rem 0">Accueil de publics, clôture de caisse, formation des nouveaux collègues.</p>
+        <p style="margin:.2rem 0">Tél. : <mark>06 12 34 56 78</mark> &nbsp;&mdash;&nbsp; Courriel : <mark>marie.dupont@exemple.fr</mark></p>
+      </div>
+      <p class="detail" style="color:var(--text-muted);font-size:.82rem">Repérés de façon fiable : <strong>téléphone, courriel, liens</strong> (LinkedIn…), âge / date de naissance étiquetés. Le <strong>nom et le prénom</strong> ne sont repérés que s'ils sont écrits sous la forme « Nom : … » ou présents dans le courriel - pensez à vérifier le reste vous-même.</p>
+      <div class="btn-rangee">
+        <button class="btn primaire" style="font-size:.85rem" onclick="aller('relecture')">Ouvrir la relecture</button>
+        <button class="btn secondaire" style="font-size:.85rem">&#9654; Voir la démonstration (20 s)</button>
+      </div>
+      <p class="detail" style="color:var(--text-muted);font-size:.82rem;margin-top:.4rem"><span class="etiq-etat inchange">Inchangé</span> C'est le composant de relecture déjà utilisé pour CV / Lettre / Entretien / Cohérence. « Ouvrir la relecture » l'ouvre tel quel (texte éditable + surlignage) ; ce bloc n'est qu'un point d'entrée depuis la page « Préparer », au lieu d'une fenêtre à part. <strong>Il existe déjà dans l'application aujourd'hui</strong> (c'est l'écran « Vérifier le texte »).</p>
+    </div>
+  </details>
+
+  <!-- Bloc 3 : votre situation (aujourd'hui = modale "Quelle est votre situation actuelle ?", 6 tuiles) -->
+  <details class="bloc-depli">
+    <summary><span class="num">3</span> Votre situation <span class="etat pilule bleu" style="background:var(--accent-bg);color:var(--accent)">Facultatif &middot; conseillé si vous l'avez</span><span class="depli-hint">&#9656; cliquez pour compléter</span></summary>
+    <div class="corps">
+      <p>Cela adapte l'analyse à votre situation réelle, notamment sur la façon dont votre savoir-être est valorisé. Sans réponse, vous aurez l'analyse habituelle - mais si vous connaissez votre situation, <strong>renseignez-la</strong>.</p>
+      <div class="assist-rangee" style="flex-wrap:wrap">
+        <span class="jeton">Répondre à une offre</span>
+        <span class="jeton">Candidature spontanée</span>
+        <span class="jeton">Changer de métier</span>
+        <span class="jeton">Stage</span>
+        <span class="jeton">Alternance</span>
+        <span class="jeton">PMSMP (immersion)</span>
+      </div>
+      <p class="detail" style="font-size:.82rem;color:var(--text-muted);margin-top:.5rem">Ce bloc n'apparaît que si l'application ne connaît pas déjà votre situation (elle a pu être renseignée ailleurs). Si vous choisissez <strong>Stage / Alternance / PMSMP</strong>, le bloc suivant demande la durée, les dates et les heures au lieu de l'offre d'emploi.</p>
+    </div>
+  </details>
+
+  <!-- Bloc 4 : l'offre visée (aujourd'hui = modale "Cibler votre analyse (facultatif)") -->
+  <details class="bloc-depli">
+    <summary><span class="num">4</span> L'offre visée <span class="etat pilule bleu" style="background:var(--accent-bg);color:var(--accent)">Facultatif &middot; conseillé si vous l'avez</span><span class="depli-hint">&#9656; cliquez pour compléter</span></summary>
+    <div class="corps">
+      <p>Si vous connaissez déjà l'entreprise ou l'offre visée, l'analyse en tient compte : le diagnostic et les corrections s'alignent sur les attentes du poste et sur le vocabulaire du type de structure. Facultatif, mais <strong>fortement conseillé si vous avez ces informations</strong>.</p>
+      <label class="lig">Entreprise ciblée</label>
+      <input class="champ" placeholder="Ex. Boulangerie Dupont">
+      <label class="lig">Site internet de l'entreprise</label>
+      <input class="champ" placeholder="https://…">
+      <label class="lig">Offre d'emploi</label>
+      <textarea class="champ" placeholder="Collez ici le texte de l'offre, ou son lien"></textarea>
+      <p class="detail" style="font-size:.82rem;color:var(--text-muted)">Si vous ne collez qu'un lien, un second champ apparaît pour coller le texte de l'offre si vous y avez accès.</p>
+      <label class="lig">Type de structure</label>
+      <select class="champ">
+        <option>Non précisé</option>
+        <option>Entreprise privée (secteur marchand)</option>
+        <option>Fonction publique d'État</option>
+        <option>Fonction publique territoriale</option>
+        <option>Fonction publique hospitalière</option>
+        <option>Établissement sanitaire ou médico-social privé</option>
+        <option>Association (loi 1901) / économie sociale et solidaire</option>
+        <option>Coopérative (SCOP, SCIC…)</option>
+        <option>Artisanat / commerce de proximité</option>
+        <option>Établissement d'enseignement</option>
+        <option>Autre…</option>
+      </select>
+    </div>
+  </details>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('choix-assistant')">Choisir mon assistant &#8594;</button>
+    <p class="detail" style="color:var(--text-muted);font-size:.82rem;margin-top:.4rem">Actif une fois les parties 1 et 2 traitées (3 et 4 peuvent rester vides). Vient ensuite l'écran <strong>« Choisir l'assistant »</strong> (à part, décision D2 - dessiné ci-dessous), puis l'écran <strong>« Chez l'assistant »</strong>, <strong>qui existe déjà dans l'application</strong> (écran de transition partagé <code>htmlBanniereTransitionIA</code>).</p>
+  </div>
+</section>
+
+<!-- ============ 2c. CHOISIR L'ASSISTANT ============ -->
+<!-- Écran D2 : brique commune htmlChoixAssistantBilanCorps. La maquette ci-dessous propose une ÉVOLUTION DU MOTIF COMMUN (Bilan / Découverte / page Action / Cohérence), pas un design propre au Bilan. -->
+<section class="vue" data-vue="choix-assistant" data-etape="2" data-retour="envoyer">
+  <div class="bandeau-comp">
+    <span class="etiq-etat avalider">À revoir</span>
+    <span>Aujourd'hui : l'écran existe déjà (brique commune <code>htmlChoixAssistantBilanCorps</code>), mais colonnes d'étiquette de 130px qui débordent vers 375px, couleurs en dur (mode sombre cassé), et « Ce qui va se passer » au même niveau visuel que le choix.</span>
+    <span class="fleche">&#8594;</span>
+    <span>Proposé : mêmes fonctions ; jetons de thème partout, étiquettes empilées qui refluent, pastilles d'assistant mises en avant avec une sous-étiquette, « Ce qui va se passer » + confidentialité repliés. <strong>Évolution du motif commun</strong> : Découverte, page Action et Cohérence en profitent.</span>
+  </div>
+
+  <h1>Choisir l'assistant</h1>
+  <p class="accroche">Dernière étape avant l'envoi : avec quel assistant en ligne faire lire votre CV ? <strong>Cliquer sur un assistant prépare et copie tout, puis l'ouvre</strong> : vous n'avez rien à taper.</p>
+
+  <div id="choixAssistantErreur" role="alert" class="detail" style="display:none;color:var(--warn);margin-bottom:.6rem">Une erreur est survenue, merci de réessayer.</div>
+
+  <div class="choix-ia-reprendre">La dernière fois, vous avez utilisé <strong>Claude</strong>. Vous pouvez reprendre avec lui, ou choisir un autre assistant ci-dessous.</div>
+
+  <div class="choix-ia">
+    <p class="choix-ia-note"><span>&#8594;</span><span>Au clic : l'application copie tout et ouvre l'assistant dans un nouvel onglet. <strong>Cette page reste ouverte</strong>, vous y revenez pour coller la réponse.</span></p>
+    <p class="choix-ia-note" style="color:var(--text)"><span>&#128161;</span><span>Si vous hésitez : <strong>ChatGPT</strong> s'utilise tout de suite, sans rien créer.</span></p>
+
+    <div class="choix-ia-groupe">
+      <span class="choix-ia-etiq">Sans compte à créer <span class="quoi">: utilisable tout de suite, aucune inscription</span></span>
+      <div class="choix-ia-rangee">
+        <button type="button" class="assist-pastille sans-compte">ChatGPT<span class="sous">sans compte</span><span class="tag-conseille">conseillé pour commencer</span></button>
+        <button type="button" class="assist-pastille sans-compte">Perplexity<span class="sous">sans compte</span></button>
+      </div>
+    </div>
+
+    <div class="choix-ia-groupe">
+      <span class="choix-ia-etiq">Avec une connexion <span class="quoi">: il faut se connecter à un compte existant</span></span>
+      <div class="choix-ia-rangee">
+        <button type="button" class="assist-pastille connexion actif" aria-pressed="true">Claude<span class="sous">connexion</span></button>
+        <button type="button" class="assist-pastille connexion">Gemini<span class="sous">connexion</span></button>
+        <button type="button" class="assist-pastille connexion">Mistral<span class="sous">connexion</span></button>
+      </div>
+    </div>
+  </div>
+
+  <details class="bloc-depli">
+    <summary><span class="num">&#128203;</span> Ce qui va se passer, et vos données <span class="depli-hint">&#9656; cliquez pour voir</span></summary>
+    <div class="corps">
+      <p class="detail" style="color:var(--text-muted);font-size:.84rem;margin-top:.6rem">Quatre temps, une fois chez l'assistant :</p>
+      <ul class="etape-liste">
+        <li><span class="rond">1</span><span><span class="titre">Copie.</span> Vos réponses (parcours, compétences, préférences) sont copiées automatiquement, rien à écrire vous-même.</span></li>
+        <li><span class="rond">2</span><span><span class="titre">Propositions.</span> Une accroche, une reformulation de vos points forts, des mots clés adaptés au poste.</span></li>
+        <li><span class="rond">3</span><span><span class="titre">Stratégie.</span> Quelles compétences mettre en avant en priorité pour ce poste, et lesquelles laisser de côté.</span></li>
+        <li><span class="rond">4</span><span><span class="titre">Votre choix.</span> Un écran de relecture où vous décochez, modifiez et réordonnez. Rien n'est appliqué avant que vous validiez.</span></li>
+      </ul>
+      <div class="choix-ia-rappel"><span>&#128274;</span><span>Rien n'est envoyé tant que vous n'avez pas relu et masqué votre CV (partie <strong>« Relire et masquer »</strong>). Votre nom, votre adresse et vos coordonnées ne partent pas.</span></div>
+      <div class="btn-rangee"><button class="btn secondaire" style="font-size:.82rem;padding:.3rem .8rem">&#9654; Voir la démonstration</button></div>
+    </div>
+  </details>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('chez')">Simuler le choix de Claude &#8594;</button>
+    <p class="detail" style="color:var(--text-muted);font-size:.82rem;margin-top:.4rem">Dans l'application, il n'y a pas de bouton « Continuer » : cliquer sur un assistant lance tout de suite la copie et l'ouverture. Ce bouton ne sert qu'à la maquette.</p>
+  </div>
+</section>
+
+<!-- ============ 2b. RELIRE ET MASQUER ============ -->
+<section class="vue" data-vue="relecture" data-etape="2" data-retour="envoyer">
+  <div class="bandeau-comp"><span class="etiq-etat inchange">Inchangé</span><span>Composant de relecture déjà partagé par CV, Lettre, Entretien, Bilan, Cohérence. On n'y touche pas.</span></div>
+  <h1>Relire et masquer</h1>
+  <p class="accroche">Dernière étape avant l'envoi. Cet écran ne change pas : c'est le composant de relecture déjà utilisé partout dans l'application.</p>
+  <div class="carte">
+    <p>Nous avons surligné en <mark>ambre</mark>, directement dans le texte, ce qui ressemble à une information personnelle.
+    <strong>Vous relisez et vous modifiez le texte vous-même</strong> : l'application ne masque rien à votre place.</p>
+    <div class="carte plat" style="font-size:.9rem;background:var(--bg-page)">
+      <p style="margin:.2rem 0">Assistante d'accueil</p>
+      <p style="margin:.2rem 0">Tél. : <mark>06 12 34 56 78</mark> &nbsp;-&nbsp; Courriel : <mark>marie.dupont@exemple.fr</mark></p>
+      <p style="margin:.2rem 0">Nom : <mark>Marie Dupont</mark></p>
+      <p style="margin:.2rem 0">Accueil d'environ 40 usagers par jour, clôture de caisse, formation des nouveaux collègues...</p>
+    </div>
+    <p class="detail" style="color:var(--text-muted);font-size:.82rem">
+      Repéré de façon fiable : téléphone, courriel, liens (LinkedIn...), âge ou date de naissance étiquetés.
+      Le nom n'est repéré que s'il est écrit sous la forme &laquo;&nbsp;Nom : ...&nbsp;&raquo; ou s'il se retrouve dans le courriel :
+      pensez à vérifier vous-même le reste du texte.</p>
+  </div>
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('choix-assistant')">C'est bon, je choisis l'assistant &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 2d. CHEZ L'ASSISTANT ============ -->
+<section class="vue" data-vue="chez" data-etape="2" data-retour="choix-assistant">
+  <div class="bandeau-comp">
+    <span class="etiq-etat inchange">Mêmes fonctions, design revu</span>
+    <span>Écran de transition partagé (<code>htmlBanniereTransitionIA</code> + <code>htmlCollageInstantane</code>). <strong>Toutes les fonctions actuelles sont conservées</strong> : décompte 5 s, ouverture automatique de l'onglet, ré-ouverture à la main si le navigateur bloque, « Je suis de retour », collage instantané, collage manuel de secours, « coller un morceau supplémentaire », « Importer » qui pousse, « Effacer et recoller ». Seul l'habillage change.</span>
+  </div>
+  <h1>L'assistant va s'ouvrir</h1>
+  <p class="accroche">Le texte est déjà copié. L'onglet s'ouvre tout seul dans quelques secondes ; <strong>cette page reste ouverte</strong>, c'est ici que vous reviendrez.</p>
+
+  <div class="decompte-hero">
+    <span class="num-sec">5</span>
+    <div class="txt">
+      <strong>L'assistant s'ouvre dans 5 secondes.</strong>
+      <div class="decompte-piste"><span></span></div>
+    </div>
+    <button class="btn primaire" style="font-size:.85rem" onclick="aller('coller')">Ouvrir maintenant &#8594;</button>
+  </div>
+
+  <details class="bloc-depli" style="margin-top:.8rem">
+    <summary><span class="num">&#9432;</span> Si l'onglet ne s'ouvre pas <span class="depli-hint">&#9656; cliquez pour voir</span></summary>
+    <div class="corps">
+      <p style="margin:.4rem 0 0">Certains navigateurs bloquent l'ouverture automatique. Le bandeau ci-dessus devient alors orange, avec un bouton <strong>« Ouvrir [assistant] »</strong> qui pousse : cliquez-le pour ouvrir l'onglet à la main. Le même bouton sert si vous avez fermé l'onglet par erreur - ce n'est jamais un retour en arrière.</p>
+    </div>
+  </details>
+
+  <div class="mini-ecran">
+    <div class="mini-barre"><span>&#128278;</span> Aperçu &middot; ce que vous retrouverez ici à votre retour</div>
+    <div class="mini-corps">
+      <p style="margin:0 0 .6rem">De retour de l'assistant ? Cliquez sur <strong>« Je suis de retour »</strong>, puis sur <strong>« Coller la réponse »</strong> ; enfin sur <strong>« Importer »</strong>.</p>
+      <div class="btn-rangee">
+        <button class="btn secondaire" style="font-size:.8rem" tabindex="-1">&#8617; Je suis de retour</button>
+        <button class="btn primaire" style="font-size:.8rem" tabindex="-1">&#128203; Coller la réponse</button>
+        <button class="btn primaire" style="font-size:.8rem" tabindex="-1">&#128229; Importer</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="detail" style="margin-top:1rem">
+    <button class="btn fantome" onclick="aller('coller')">&#9889; Simuler le retour (maquette)</button>
+  </p>
+</section>
+
+<!-- ============ 2e. DE RETOUR : COLLER LA RÉPONSE ============ -->
+<section class="vue" data-vue="coller" data-etape="2" data-retour="chez">
+  <div class="bandeau-comp">
+    <span class="etiq-etat inchange">Mêmes fonctions, design revu</span>
+    <span>Même écran que « L'assistant va s'ouvrir », une fois de retour : le décompte a laissé place au collage. Composant partagé <code>htmlCollageInstantane</code> - la personne <strong>ne voit jamais le texte</strong> en collage instantané (impossible d'ajouter un caractère par erreur).</span>
+  </div>
+  <h1>De retour : coller la réponse</h1>
+
+  <div class="transition-bandeau">
+    <span>&#8617;</span>
+    <span>L'assistant est ouvert dans un autre onglet.</span>
+    <button class="btn primaire pousse" style="font-size:.85rem;margin-left:auto">Je suis de retour</button>
+  </div>
+
+  <div class="zone-collage">
+    <p style="margin:0 0 .8rem">Vous revenez de <strong>ChatGPT</strong>. Sa réponse est dans votre presse-papiers.</p>
+    <button type="button" class="btn primaire large pousse">&#128203; Coller la réponse</button>
+    <div><button type="button" class="btn secondaire" style="font-size:.8rem;padding:.3rem .8rem;margin-top:.5rem">Coller manuellement</button></div>
+    <p class="detail" style="color:var(--text-muted);font-size:.8rem;margin:.5rem 0 0">« Coller manuellement » sert si le presse-papiers est bloqué par le navigateur : le texte s'affiche alors dans une zone (le seul cas où il est visible).</p>
+  </div>
+
+  <div class="carte plat" style="margin-top:.9rem">
+    <p class="detail" style="color:var(--text-muted);font-size:.8rem;margin:0 0 .5rem">Après le collage</p>
+    <div class="choix-ia-rappel"><span>&#10003;</span><span><strong>Réponse collée.</strong> Le texte reste caché, rien à relire.</span></div>
+    <div class="btn-rangee" style="margin-top:.75rem">
+      <button class="btn primaire large pousse" onclick="aller('rapport')">&#128229; Importer</button>
+      <button class="btn secondaire">Effacer et recoller</button>
+      <button class="btn fantome" style="font-size:.84rem">&#128203; Coller un morceau en plus</button>
+    </div>
+    <p class="detail" style="color:var(--text-muted);font-size:.8rem;margin-top:.6rem">
+      <strong>« Importer » pousse</strong> dès que la réponse est collée : c'est la prochaine action. <strong>« Coller un morceau en plus »</strong> sert si la réponse est arrivée en deux fois (coupée). Si elle n'a pas pu être lue, un message s'affiche sous le bouton et vous recollez.</p>
+  </div>
+</section>
+
+<!-- ============ 3. LE RAPPORT + CHOIX DE CORRECTION ============ -->
+<section class="vue" data-vue="rapport" data-etape="3" data-retour="coller">
+  <div class="bandeau-comp">
+    <span class="etiq-etat consolide">Consolidé</span>
+    <span>Aujourd'hui : le rapport (<strong>déjà en accordéons repliés</strong>), puis clic &laquo;&nbsp;Agir&nbsp;&raquo; &#8594; un écran séparé pour les 3 façons de corriger.</span>
+    <span class="fleche">&#8594;</span>
+    <span>Proposé : le rapport (mêmes accordéons) <strong>et</strong> le choix de correction sur le même écran. Replié, c'est court.</span>
+  </div>
+  <h1>Votre rapport</h1>
+  <p class="accroche">Chaque partie est repliée. Ouvrez ce que vous voulez lire, à votre rythme. En bas : comment avancer.</p>
+
+  <details class="bloc-depli" style="border-left:5px solid var(--warn)">
+    <summary style="background:var(--warn-bg)">&#9888;&#65039; Points à corriger avant tout envoi <span class="etat pilule warn">3</span><span class="depli-hint">&#9656; cliquez pour voir</span></summary>
+    <div class="corps">
+      <div class="carte plat" style="background:var(--warn-bg)">
+        <p style="margin:.2rem 0"><strong>Titre du CV non détecté.</strong> Si votre CV en contient déjà un, la vérification n'a pas pu le voir : confirmez-le ici.</p>
+        <div class="btn-rangee"><button class="btn secondaire" style="font-size:.82rem" onclick="ouvrir('m-cv')">Compléter</button></div><div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai déjà pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+      </div>
+      <div class="carte plat" style="background:var(--warn-bg)">
+        <p style="margin:.2rem 0"><strong>Coordonnées incomplètes.</strong> Manque : téléphone, e-mail. Jamais transmis à l'assistant : signalé uniquement ici.</p>
+        <div class="btn-rangee"><button class="btn secondaire" style="font-size:.82rem" onclick="ouvrir('m-coord')">Compléter</button></div><div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai déjà pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+      </div>
+      <div class="carte plat" style="background:var(--alert-bg)">
+        <p style="margin:.2rem 0"><strong>Deux compétences clés ne sont démontrées qu'en stage ou en formation.</strong> <span class="detail" style="color:var(--text-muted)">Crédibilité</span></p>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli" style="border-left:5px solid var(--ok)">
+    <summary style="background:var(--ok-bg)">&#9733; Synthèse <span class="etat pilule ok">Prêt à envoyer</span><span class="depli-hint">&#9656; cliquez pour lire</span></summary>
+    <div class="corps"><p style="margin:0">Un parcours d'accueil de publics varié et transférable (structure publique, épicerie sociale, animation). L'autonomie est bien démontrée. Les points à travailler concernent surtout la manière de décrire les expériences les plus récentes.</p></div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128100; Première lecture du recruteur<span class="depli-hint">&#9656; cliquez pour ouvrir</span></summary>
+    <div class="corps">
+      <p style="background:var(--bg-subtle);border-radius:10px;padding:.6rem .8rem;font-size:1.02rem">En découvrant ce CV, un recruteur voit d'abord un profil d'accueil solide et polyvalent ; il pourrait hésiter sur le niveau de responsabilité réel des expériences récentes.</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-start">
+        <div class="carte plat" style="flex:1 1 180px;background:var(--accent-bg)"><strong>&#128248; Première impression</strong><p style="margin:.3rem 0 0">CV clair, rubriques attendues présentes.</p></div>
+        <div class="carte plat" style="flex:1 1 180px;background:var(--ok-bg)"><strong>&#128077; Ce qui donne envie</strong><p style="margin:.3rem 0 0">Variété des publics, maîtrise des outils, autonomie.</p></div>
+        <div class="carte plat" style="flex:1 1 180px;background:var(--warn-bg)"><strong>&#128679; Ce qui peut freiner</strong><p style="margin:.3rem 0 0">Expériences clés décrites comme encadrées, un seul exemple de compte rendu.</p></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128202; Analyse par dimension <span class="etat pilule bleu">2 convaincants &middot; 1 à ajuster</span><span class="depli-hint">&#9656; cliquez pour ouvrir</span></summary>
+    <div class="corps">
+      <p class="detail" style="color:var(--text-muted)">Chaque dimension est classée : <span style="color:var(--ok)"><span class="pastille-verdict v-ok"></span>convaincant</span>, <span style="color:var(--warn)"><span class="pastille-verdict v-warn"></span>à ajuster</span>, <span style="color:var(--alert)"><span class="pastille-verdict v-alert"></span>prioritaire</span>. Ouvrez une catégorie pour voir le détail.</p>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:flex-start">
+        <details class="plus" style="flex:1 1 220px;border:1px solid var(--ok);border-radius:8px;padding:.4rem .7rem">
+          <summary><span class="pastille-verdict v-ok"></span>Points convaincants (2)</summary>
+          <div style="margin-top:.5rem">
+            <p style="margin:.2rem 0"><strong>Adéquation au poste</strong></p>
+            <p class="detail" style="color:var(--text-muted)">On regarde : les expériences et compétences répondent-elles au poste visé ?</p>
+            <ul class="liste-fine"><li>Expérience variée et transférable de l'accueil de publics.</li></ul>
+            <div class="btn-rangee"><button class="btn secondaire" style="font-size:.78rem;padding:.3rem .7rem">&#9875;&#65039; Garder comme Repère</button></div><div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+            <p style="margin:.7rem 0 .2rem"><strong>Cohérence du parcours</strong></p>
+            <p class="detail" style="color:var(--text-muted)">On regarde : le parcours raconte-t-il une histoire lisible ? Ici, rien à signaler.</p>
+            <div class="btn-rangee"><button class="btn secondaire" style="font-size:.78rem;padding:.3rem .7rem">&#9875;&#65039; Garder comme Repère</button></div><div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+          </div>
+        </details>
+        <details class="plus" style="flex:1 1 220px;border:1px solid var(--warn);border-radius:8px;padding:.4rem .7rem">
+          <summary><span class="pastille-verdict v-warn"></span>Points à ajuster (1)</summary>
+          <div style="margin-top:.5rem">
+            <p style="margin:.2rem 0"><strong>Crédibilité des éléments avancés</strong></p>
+            <p class="detail" style="color:var(--text-muted)">On regarde : les éléments avancés sont-ils appuyés par des faits concrets (exemples, chiffres, résultats) ?</p>
+            <ul class="liste-fine"><li>Un seul exemple de compte rendu.</li><li>Confidentialité pas mentionnée.</li></ul>
+            <div class="btn-rangee"><button class="btn secondaire" style="font-size:.78rem;padding:.3rem .7rem">&#9875;&#65039; Garder comme Repère</button></div><div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+          </div>
+        </details>
+        <details class="plus" style="flex:1 1 220px;border:1px solid var(--border);border-radius:8px;padding:.4rem .7rem;opacity:.6">
+          <summary><span class="pastille-verdict v-alert"></span>Points prioritaires (0)</summary>
+          <div style="margin-top:.5rem"><p class="detail" style="color:var(--text-muted)">Aucun point prioritaire.</p></div>
+        </details>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128161; Recommandations <span class="etat pilule bleu">3</span><span class="depli-hint">&#9656; cliquez pour ouvrir</span></summary>
+    <div class="corps">
+      <p class="detail" style="color:var(--text-muted)">Des pistes concrètes, classées par priorité. Vous restez libre de les appliquer, de les adapter ou de les ignorer.</p>
+      <p style="margin:.4rem 0 .2rem;color:var(--alert);font-weight:700">Priorité haute (2)</p>
+      <div class="carte plat">
+        <p style="margin:.2rem 0"><strong>1.</strong> Détailler la conduite des entretiens de diagnostic réalisés en stage : contexte, méthode, ce qui a été appris.</p>
+        <div class="btn-rangee">
+          <button class="btn fantome" style="font-size:.8rem;padding:.35rem .8rem">Générer une proposition pour ce point</button>
+          <button class="btn secondaire" style="font-size:.8rem;padding:.35rem .8rem">&#9875;&#65039; Garder comme Repère</button>
+        </div>
+        <div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai déjà pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+      </div>
+      <div class="carte plat">
+        <p style="margin:.2rem 0"><strong>2.</strong> Mentionner explicitement une expérience en lien avec le respect de la confidentialité.</p>
+        <div class="btn-rangee">
+          <button class="btn fantome" style="font-size:.8rem;padding:.35rem .8rem">Générer une proposition pour ce point</button>
+          <button class="btn secondaire" style="font-size:.8rem;padding:.35rem .8rem">&#9875;&#65039; Garder comme Repère</button>
+        </div>
+        <div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai déjà pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+      </div>
+      <p style="margin:.6rem 0 .2rem;color:var(--warn);font-weight:700">Priorité moyenne (1)</p>
+      <div class="carte plat" style="background:#f5edff;border-color:#d8b4fe">
+        <p style="margin:.2rem 0"><strong>3.</strong> Ajouter un second exemple concret de rédaction de compte rendu. <span class="pilule" style="background:#ede9fe;color:#6b21a8">Pris connaissance</span></p>
+        <div class="btn-rangee"><button class="btn fantome" style="font-size:.8rem;padding:.35rem .8rem;color:#7c3aed;border-color:#c4b5fd">Revenir sur ce choix</button></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128203; Points que vous avez choisi de ne pas traiter <span class="etat pilule" style="background:#ede9fe;color:#6b21a8">1</span><span class="depli-hint">&#9656; cliquez pour ouvrir</span></summary>
+    <div class="corps"><p style="margin:0">Recommandation 3 (« Ajouter un second exemple de compte rendu »). <button class="btn fantome" style="font-size:.8rem;padding:.3rem .7rem;color:#7c3aed;border-color:#c4b5fd">Revenir sur ce choix</button></p></div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128274; CV anonymisé avant l'analyse<span class="depli-hint">&#9656; cliquez pour ouvrir</span></summary>
+    <div class="corps"><p>Ce document a été anonymisé avant son envoi à l'assistant. Les informations personnelles (nom, coordonnées, photo...) ont volontairement été masquées et ne sont donc pas prises en compte dans cette analyse. Pensez simplement à vérifier, sur votre CV original, que ces informations sont bien présentes et correctement positionnées.</p></div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#9875;&#65039; Garder comme repère<span class="depli-hint">&#9656; en savoir plus</span></summary>
+    <div class="corps"><p>Sur chaque point du rapport (un axe, une recommandation), le bouton <strong>« Garder comme Repère »</strong> conserve ce point précis pour y revenir plus tard, sans avoir à retrouver ce rapport en entier : il rejoint votre espace <strong>Mes Repères</strong>, où vous pouvez noter vos propres réflexions à côté. Utile pour creuser un point plus tard, en parler à un conseiller, ou y repenser au calme.</p></div>
+  </details>
+
+  <div class="carte plat" style="text-align:center">
+    <button class="btn secondaire">&#128424;&#65039; Imprimer une fiche de synthèse</button>
+    <p class="detail" style="color:var(--text-muted);margin:.4rem 0 0">Un document à relire au calme, ou à emmener à un rendez-vous d'accompagnement.</p>
+  </div>
+
+  <div class="carte" style="background:var(--accent-bg);border-color:var(--accent);text-align:center">
+    <h3 style="margin-top:.2rem">Votre diagnostic est terminé.</h3>
+    <p style="margin:.3rem 0 0">Vous avez une vue complète des points forts de votre CV et des améliorations possibles.</p>
+  </div>
+
+  <div class="bandeau-comp" style="margin-top:1rem">
+    <span class="etiq-etat consolide">Selon le cas</span>
+    <span><strong>CV construit dans l'application</strong> (rubriques déjà connues) : les 3 cartes s'affichent directement, ci-dessous.</span>
+    <span class="fleche">&#8594;</span>
+    <span><strong>CV arrivé en texte brut</strong> : à la place des 3 cartes, un bloc &laquo;&nbsp;On organise votre CV&nbsp;&raquo; menant à l'écran <em>Organiser votre CV</em> (menu &laquo;&nbsp;Aller à&hellip;&nbsp;&raquo;). Une fois fait, les 3 cartes, à égalité.</span>
+  </div>
+
+  <h2>Comment voulez-vous avancer ?</h2>
+  <div class="cartes-choix">
+    <div class="carte-choix">
+      <p><strong>J'écris avec mes mots</strong></p>
+      <p class="detail" style="font-size:.85rem;color:var(--text-muted)">Vous gardez la main. On vous montre juste les points à améliorer.</p>
+      <button class="btn primaire" style="font-size:.85rem" onclick="aller('libre')">Choisir</button>
+    </div>
+    <div class="carte-choix">
+      <p><strong>Aidez-moi à trouver les mots</strong></p>
+      <p class="detail" style="font-size:.85rem;color:var(--text-muted)">Pour chaque point, une proposition de rédaction. Vous la reprenez ou l'adaptez.</p>
+      <button class="btn primaire" style="font-size:.85rem" onclick="aller('copier')">Choisir</button>
+    </div>
+    <div class="carte-choix">
+      <p><strong>Accompagné du début à la fin</strong></p>
+      <p class="detail" style="font-size:.85rem;color:var(--text-muted)">Une étape à la fois, et rien n'est modifié sans votre accord.</p>
+      <button class="btn primaire" style="font-size:.85rem" onclick="aller('accompagne')">Choisir</button>
+    </div>
+  </div>
+
+  <details class="plus" style="margin-top:1rem">
+    <summary>Voir / corriger mon CV avant d'avancer</summary>
+    <div class="detail">
+      <div class="btn-rangee">
+        <button class="btn secondaire" onclick="ouvrir('m-cv')">Modifier mes expériences</button>
+        <button class="btn secondaire" onclick="ouvrir('m-coord')">Mes coordonnées</button>
+        <button class="btn secondaire" onclick="ouvrir('m-cv')">Modifier tout mon CV</button>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ============ 3b. ORGANISER LE CV EN RUBRIQUES (cas B uniquement) ============ -->
+<section class="vue" data-vue="organiser" data-etape="3" data-retour="rapport">
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Nouveau</span>
+    <span><strong>Conditionnel.</strong> N'apparaît que si le CV est arrivé en texte brut, jamais rangé en rubriques (la majorité passe directement du rapport aux 3 cartes). Placé <strong>après le rapport</strong> : la personne a d'abord son résultat, puis un seul écran de rangement, puis les cartes, à égalité.</span>
+  </div>
+  <h1>On organise votre CV</h1>
+  <div class="carte">
+    <p>Pour vous montrer les corrections <strong>directement au bon endroit</strong> de votre CV, on le range d'abord en rubriques : vos expériences, vos formations, vos compétences&hellip; Ce court passage se fait avec l'assistant en ligne, comme pour l'analyse. <strong>Vos informations ne changent pas : on ne fait que les ranger.</strong></p>
+    <p class="detail" style="color:var(--text-muted)">Ensuite, vous pourrez modifier n'importe quelle rubrique quand vous voudrez.</p>
+    <div class="rappel"><span>&#128274;</span><span>Rien de nouveau n'est transmis : c'est le même CV, déjà relu, que pour l'analyse.</span></div>
+    <div class="centre" style="margin-top:1rem">
+      <button class="btn primaire large" onclick="aller('rapport')">Organiser mon CV &#8594;</button>
+    </div>
+  </div>
+  <p class="detail" style="color:var(--text-muted);font-size:.85rem;margin-top:.8rem">
+    <strong>Réutilise l'existant :</strong> l'assistant de dépôt (étape &laquo;&nbsp;structuration&nbsp;&raquo;, prompt <code>extraction-cv</code>) puis l'écran <code>Vérifiez les informations importées</code>, déjà dans l'application. Même assistant que celui choisi pour l'analyse. C'est aussi la cible de la carte &laquo;&nbsp;réorganiser mon CV&nbsp;&raquo; de l'Accompagné (R8), à la place de l'éditeur simple.
+  </p>
+</section>
+
+<!-- ============ 4a. CORRIGER : J'ÉCRIS ============ -->
+<section class="vue" data-vue="libre" data-etape="4" data-retour="rapport">
+  <div class="bandeau-comp"><span class="etiq-etat avalider">À améliorer</span><span>Aujourd'hui la carte 1 ne montre <strong>que</strong> l'axe + la reco en une ligne + un bouton. Ci-dessous : la cible (passage concerné, pourquoi, chiffre manquant) - code seul, sauf le &laquo;&nbsp;comment&nbsp;&raquo; qui demande le prompt.</span></div>
+  <h1>J'écris avec mes mots</h1>
+  <div class="reco-nav">
+    <button class="btn secondaire" style="padding:.4rem .8rem">&#8249; Précédent</button>
+    <span class="compteur">Point 1 sur 3</span>
+    <button class="btn secondaire" style="padding:.4rem .8rem">Suivant &#8250;</button>
+  </div>
+  <div class="carte">
+    <p class="detail" style="color:var(--text-muted);font-size:.8rem;margin:0">Crédibilité</p>
+    <span class="pilule warn">À renforcer</span>
+    <p><strong>Détailler la conduite des entretiens de diagnostic réalisés en stage.</strong></p>
+
+    <p class="detail" style="color:var(--text-muted);font-size:.86rem"><strong>Le passage de votre CV :</strong> &laquo;&nbsp;A conduit 5 entretiens individuels de diagnostic en stage, sous supervision.&nbsp;&raquo;</p>
+    <p class="detail" style="color:var(--text-muted);font-size:.86rem"><strong>Pourquoi :</strong> l'expérience n'est décrite que comme encadrée, sans montrer ce que vous avez fait vous-même ni ce que vous en avez tiré.</p>
+    <div class="rappel" style="background:var(--warn-bg);color:var(--warn)"><span>&#128290;</span><span><strong>Un chiffre ou un résultat est attendu ici.</strong> Par exemple : &laquo;&nbsp;J'ai conduit ___ entretiens, puis rédigé ___ synthèses.&nbsp;&raquo;</span></div>
+    <details class="plus"><summary>Comment m'y prendre</summary><p class="detail">Reprenez le déroulé : préparation → conduite → ce que vous avez fait seul(e) → le résultat écrit. <em>(Cette piste viendrait du prompt - couche optionnelle.)</em></p></details>
+
+    <label class="lig">Votre nouvelle formulation</label>
+    <textarea class="champ" placeholder="Écrivez ici, avec vos mots..."></textarea>
+    <div class="btn-rangee">
+      <button class="btn primaire">J'ai corrigé ce point</button>
+      <button class="btn fantome">Passer ce point pour l'instant</button>
+    </div>
+  </div>
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('cloture')">J'ai fait le tour, terminer &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 4b. CORRIGER : AIDE FORMULATION ============ -->
+<section class="vue" data-vue="copier" data-etape="4" data-retour="rapport">
+  <div class="bandeau-comp"><span class="etiq-etat consolide">Doublon fusionné</span><span>Mode <code>copier</code> inchangé sur le fond ; la fenêtre &laquo;&nbsp;choix assistant du lot&nbsp;&raquo; devient la brique commune.</span></div>
+  <h1>Aidez-moi à trouver les mots</h1>
+  <div class="carte">
+    <h3>1. Les points à traiter</h3>
+    <p class="detail" style="color:var(--text-muted);font-size:.85rem">Décochez ce que vous ne voulez pas traiter maintenant.</p>
+    <p style="margin:.3rem 0"><label><input type="checkbox" checked> Détailler les entretiens de diagnostic en stage</label></p>
+    <p style="margin:.3rem 0"><label><input type="checkbox" checked> Ajouter un 2e exemple de compte rendu</label></p>
+    <p style="margin:.3rem 0"><label><input type="checkbox" checked> Mentionner le respect de la confidentialité</label></p>
+  </div>
+  <div class="carte">
+    <h3>2. Choisir l'assistant pour ces 3 points</h3>
+    <div class="rappel" style="background:var(--warn-bg);color:var(--warn)"><span>&#9881;&#65039;</span><span><strong>La même brique commune, version complète</strong> que dans &laquo;&nbsp;Préparer et envoyer&nbsp;&raquo; : répartition sans compte / compte nécessaire + couleurs + les 4 étapes &laquo;&nbsp;ce qui va se passer&nbsp;&raquo; + rappel de confidentialité + vidéo. Identique partout. C'est déjà le cas aujourd'hui.</span></div>
+    <div class="rappel"><span>&#128274;</span><span>On copie les 3 points d'un coup. Rien de nouveau n'est transmis : seulement vos recommandations et les passages de votre CV déjà relus lors de l'analyse.</span></div>
+    <button class="btn primaire" style="margin-top:.6rem" onclick="aller('copier-recu')">Copier et ouvrir l'assistant</button>
+  </div>
+</section>
+
+<section class="vue" data-vue="copier-recu" data-etape="4" data-retour="copier">
+  <h1>Les propositions</h1>
+  <p class="accroche">Collez la réponse, puis reprenez chaque proposition telle quelle ou adaptez-la.</p>
+  <div class="carte">
+    <textarea class="champ">Réponse fictive collée - 3 propositions...</textarea>
+    <button class="btn primaire" style="margin-top:.5rem">Importer les 3 propositions</button>
+  </div>
+  <div class="carte plat">
+    <span class="pilule bleu">Proposition - point 1</span>
+    <p>&laquo;&nbsp;Dans le cadre de mon stage, j'ai conduit 5 entretiens individuels de diagnostic : préparation de la grille d'entretien, conduite en autonomie avec un temps de reprise avec ma tutrice, puis rédaction d'une synthèse pour chaque personne reçue.&nbsp;&raquo;</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" style="font-size:.85rem">Reprendre telle quelle</button>
+      <button class="btn secondaire" style="font-size:.85rem">Adapter</button>
+    </div>
+  </div>
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('cloture')">J'ai repris ce qu'il me faut, terminer &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 4c. CORRIGER : ACCOMPAGNÉ ============ -->
+<section class="vue" data-vue="accompagne" data-etape="4" data-retour="rapport" data-suivant="completude" data-suivant-label="Continuer">
+  <div class="bandeau-comp">
+    <span class="etiq-etat inchange">Inchangé</span>
+    <span>Décision Denis 2026-08-30 : <strong>on garde les 4 sous-écrans pleine page</strong> (Vos chiffres, À compléter, Génération, Relecture) - une chose à la fois. Repère <strong>&laquo;&nbsp;Étape X sur N&nbsp;&raquo;</strong> dans le titre (N varie de 2 à 4 selon les cas), jamais une 2e barre.</span>
+  </div>
+  <h1>Accompagné : vos chiffres <span style="font-size:.85rem;color:var(--text-muted);font-weight:400">&#183; Étape 1 sur 4</span></h1>
+  <p class="accroche">Quelques phrases à compléter. Laissez vide ce que vous ne savez pas : l'assistant restera général, sans jamais inventer de chiffre.</p>
+  <div class="carte">
+    <p style="margin:.2rem 0"><strong>Expérience : Assistante d'accueil</strong></p>
+    <p>Sur ce poste, j'accueillais en moyenne <input class="champ" style="width:5rem;display:inline-block" placeholder="___"> personnes par jour.</p>
+  </div>
+  <div class="carte">
+    <p style="margin:.2rem 0"><strong>Expérience : Animation socioculturelle</strong></p>
+    <p>J'animais des ateliers pour des groupes de <input class="champ" style="width:5rem;display:inline-block" placeholder="___"> à <input class="champ" style="width:5rem;display:inline-block" placeholder="___"> personnes, pendant <input class="champ" style="width:5rem;display:inline-block" placeholder="___"> ans.</p>
+  </div>
+</section>
+
+<section class="vue" data-vue="completude" data-etape="4" data-retour="accompagne" data-suivant="generation" data-suivant-label="C'est fait, continuer">
+  <h1>Accompagné : à compléter <span style="font-size:.85rem;color:var(--text-muted);font-weight:400">&#183; Étape 2 sur 4</span></h1>
+  <div class="carte" style="border-color:var(--accent);background:var(--accent-bg)">
+    <p><strong>Le poste visé n'est pas encore renseigné.</strong> Sans lui, l'assistant reste général.</p>
+    <button class="btn primaire" onclick="ouvrir('m-candidature')">Aller renseigner l'offre / le poste</button>
+  </div>
+  <div class="carte plat">
+    <p>Une fois rempli, ce bouton devient : <span class="pilule ok">C'est fait</span></p>
+  </div>
+</section>
+
+<section class="vue" data-vue="generation" data-etape="4" data-retour="completude" data-suivant="relecture-acc" data-suivant-label="Voir les propositions">
+  <h1>Accompagné : préparation <span style="font-size:.85rem;color:var(--text-muted);font-weight:400">&#183; Étape 3 sur 4</span></h1>
+  <div class="carte centre">
+    <p style="font-size:2.4rem;margin:.2rem">&#9203;</p>
+    <p>L'assistant prépare une proposition pour chaque point retenu.</p>
+    <p class="detail" style="color:var(--text-muted)">Dans l'application réelle : vous copiez le texte préparé, vous le collez chez l'assistant, vous rapportez la réponse.</p>
+  </div>
+</section>
+
+<section class="vue" data-vue="relecture-acc" data-etape="4" data-retour="generation" data-suivant="cloture" data-suivant-label="Terminer">
+  <h1>Accompagné : relecture <span style="font-size:.85rem;color:var(--text-muted);font-weight:400">&#183; Étape 4 sur 4</span></h1>
+  <p class="accroche">Chaque proposition est présentée &laquo;&nbsp;après application&nbsp;&raquo;. Vous validez ou vous écartez, point par point.</p>
+  <div class="carte">
+    <span class="pilule bleu">Après application - point 1</span>
+    <p>&laquo;&nbsp;Dans le cadre de mon stage, j'ai conduit 5 entretiens individuels de diagnostic, de la préparation de la grille jusqu'à la synthèse écrite, avec un temps de reprise régulier avec ma tutrice.&nbsp;&raquo;</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" style="font-size:.85rem">Appliquer</button>
+      <button class="btn secondaire" style="font-size:.85rem">Écarter</button>
+    </div>
+  </div>
+  <div class="carte">
+    <span class="pilule warn">Organisation du CV</span>
+    <p>Un point concerne l'organisation d'ensemble de votre CV : il se traite dans l'atelier CV, pas ici.</p>
+    <button class="btn fantome" style="font-size:.85rem">Ouvrir l'atelier CV</button>
+  </div>
+</section>
+
+<!-- ============ 5. TERMINÉ ============ -->
+<section class="vue" data-vue="cloture" data-etape="5" data-retour="rapport">
+  <div class="bandeau-comp"><span class="etiq-etat inchange">Inchangé</span><span>Écran de clôture actuel (<code>htmlBilanCorrectionCloture</code>).</span></div>
+  <h1>&#127881; Vos corrections sont prêtes</h1>
+  <div class="carte">
+    <p>Vous pouvez maintenant finaliser votre CV, ou relancer une analyse sur la version corrigée pour voir ce qui s'améliore et ce qui reste.</p>
+    <div class="btn-rangee">
+      <button class="btn primaire large">Finaliser et télécharger mon CV</button>
+      <button class="btn secondaire large" onclick="aller('bord')">Analyser à nouveau mon CV</button>
+    </div>
+    <p class="detail" style="color:var(--text-muted);font-size:.85rem;margin-top:.7rem">
+      &laquo;&nbsp;Analyser à nouveau&nbsp;&raquo; repasse votre CV <strong>corrigé</strong> (pas l'original) : vous voyez l'amélioration, et les points qui restent ou apparaissent.</p>
+  </div>
+  <div class="rappel"><span>&#128190;</span><span>Pensez à sauvegarder (icône disquette) avant de fermer la page.</span></div>
+</section>
+
+<!-- ============ ÉTAT 2 : TABLEAU DE BORD ============ -->
+<section class="vue" data-vue="bord" data-etape="3" data-retour="">
+  <div class="centre">
+    <h1>&#128202; Analyser ma candidature</h1>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent);background:var(--accent-bg)">
+    <h3>&#128260; Vous avez déjà une analyse</h3>
+    <p>Vous pouvez la revoir, ou en relancer une sur votre CV corrigé.</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" onclick="aller('rapport')">Revoir mon rapport</button>
+      <button class="btn secondaire" onclick="aller('envoyer')">Recommencer une analyse</button>
+    </div>
+    <p class="detail" style="color:var(--text-muted);font-size:.82rem;margin-top:.5rem">
+      Barre de progression &laquo;&nbsp;3 points sur 5&nbsp;&raquo; : à n'ajouter que si on décide de sauvegarder l'avancement des corrections (décision du chantier consolidation).</p>
+  </div>
+
+  <p class="detail" style="color:var(--text-muted);text-align:center">
+    &#8595;&nbsp; En dessous : le contenu normal de la page d'introduction (À quoi ça sert, Ce qui va se passer...).<br>
+    <strong>C'est la même page</strong> : sans analyse elle explique, avec une analyse elle affiche ce bandeau en plus. Jamais un écran séparé.</p>
+</section>
+
+</main>
+
+<div class="barre-bas"><div class="barre-bas-row" id="barrebas"></div></div>
+
+<!-- ============ FENÊTRES ============ -->
+<div class="overlay" id="m-candidature">
+  <div class="fenetre">
+    <div class="fenetre-tete"><h3>&#127970; L'offre et l'entreprise</h3><button class="fenetre-fermer" onclick="fermer('m-candidature')" title="Fermer">&times;</button></div>
+    <label class="lig">Métier ou domaine visé</label>
+    <input class="champ" placeholder="ex. Conseiller en insertion professionnelle">
+    <label class="lig">Coller le texte de l'offre (facultatif)</label>
+    <textarea class="champ"></textarea>
+    <label class="lig">Type de structure</label>
+    <select class="champ">
+      <option>Entreprise privée (secteur marchand)</option>
+      <option>Fonction publique territoriale (mairies, départements, régions...)</option>
+      <option>Association (loi 1901) / économie sociale et solidaire</option>
+      <option>Fonction publique hospitalière</option>
+      <option>Autre</option>
+    </select>
+    <label class="lig">Site internet de l'entreprise (facultatif)</label>
+    <input class="champ" placeholder="https://...">
+    <div class="fenetre-pied">
+      <button class="btn secondaire" onclick="fermer('m-candidature')">&#8249; Retour</button>
+      <button class="btn primaire" onclick="fermer('m-candidature')">Je valide</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-coord">
+  <div class="fenetre">
+    <div class="fenetre-tete"><h3>&#128100; Mes coordonnées</h3><button class="fenetre-fermer" onclick="fermer('m-coord')" title="Fermer">&times;</button></div>
+    <p class="detail" style="color:var(--text-muted);font-size:.85rem">Elles n'ont jamais été transmises à l'assistant. Elles servent uniquement à votre CV final.</p>
+    <label class="lig">Nom complet</label><input class="champ">
+    <label class="lig">Téléphone</label><input class="champ">
+    <label class="lig">Courriel</label><input class="champ">
+    <label class="lig">Ville</label><input class="champ">
+    <div class="fenetre-pied">
+      <button class="btn secondaire" onclick="fermer('m-coord')">&#8249; Retour</button>
+      <button class="btn primaire" onclick="fermer('m-coord')">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-cv">
+  <div class="fenetre large">
+    <div class="fenetre-tete"><h3>&#128203; Modifier mon CV</h3><button class="fenetre-fermer" onclick="fermer('m-cv')" title="Fermer">&times;</button></div>
+    <p class="detail" style="color:var(--text-muted);font-size:.85rem">Édition complète du contenu. Reste une grande fenêtre : c'est le bloc le plus riche, on ne cherche pas à le faire entrer dans la page.</p>
+    <details class="bloc-depli" open><summary><span class="num">&#128188;</span> Expériences professionnelles</summary>
+      <div class="corps">
+        <p style="margin:.3rem 0"><strong>Assistante d'accueil</strong> - Structure publique (2021-2024)</p>
+        <p style="margin:.3rem 0"><strong>Employée</strong> - Épicerie sociale (2019-2021)</p>
+        <button class="btn fantome" style="font-size:.85rem">+ Ajouter une expérience</button>
+      </div>
+    </details>
+    <details class="bloc-depli"><summary><span class="num">&#127891;</span> Formations</summary><div class="corps"><button class="btn fantome" style="font-size:.85rem">+ Ajouter une formation</button></div></details>
+    <details class="bloc-depli"><summary><span class="num">&#127760;</span> Langues</summary><div class="corps"><button class="btn fantome" style="font-size:.85rem">+ Ajouter une langue</button></div></details>
+    <details class="bloc-depli"><summary><span class="num">&#128663;</span> Permis</summary><div class="corps"><p>Permis B</p></div></details>
+    <details class="bloc-depli"><summary><span class="num">&#9917;</span> Centres d'intérêt</summary><div class="corps"><button class="btn fantome" style="font-size:.85rem">+ Ajouter</button></div></details>
+    <details class="bloc-depli"><summary><span class="num">&#129309;</span> Engagements / bénévolat</summary><div class="corps"><button class="btn fantome" style="font-size:.85rem">+ Ajouter</button></div></details>
+    <div class="fenetre-pied">
+      <button class="btn secondaire" onclick="fermer('m-cv')">&#8249; Retour</button>
+      <button class="btn primaire" onclick="fermer('m-cv')">Terminer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Une seule barre, 5 pastilles - jamais de sous-barre (decision Denis 2026-08-30 :
+  // pas de barre-en-barre, exploiter la ligne unique).
+  var ETAPES = [
+    { id: 1, label: "Préparer", icone: "&#128221;" },
+    { id: 2, label: "Envoyer",  icone: "&#128228;&#65039;" },
+    { id: 3, label: "Rapport",  icone: "&#128196;" },
+    { id: 4, label: "Corriger", icone: "&#9999;&#65039;" },
+    { id: 5, label: "Terminé",  icone: "&#9989;" }
+  ];
+
+  function rendreEtapes(numEtape, vue) {
+    var host = document.getElementById('etapes');
+    host.style.opacity = (numEtape === 0) ? .55 : 1;
+    host.innerHTML = ETAPES.map(function (e, i) {
+      var cls = "etape";
+      if (numEtape > e.id) cls += " faite";
+      if (numEtape === e.id) cls += " courante";
+      // le chevron entre l'etape courante et la suivante clignote (il reste un passage)
+      var estSuivant = (i === numEtape) && numEtape >= 1 && numEtape < ETAPES.length;
+      var flClass = "etape-fleche" + (estSuivant ? " suivant" : (numEtape < e.id ? " avenir" : ""));
+      var fleche = i > 0 ? '<span class="' + flClass + '">&#187;</span>' : '';
+      return fleche + '<span class="' + cls + '"><span class="pastille">' + e.icone + '</span>' + e.label + '</span>';
+    }).join('');
+    document.getElementById('sousetapes').style.display = "none";
+  }
+
+  function rendreBarreBas(section) {
+    var host = document.getElementById('barrebas');
+    var retour = section.getAttribute('data-retour');
+    var suiv = section.getAttribute('data-suivant');
+    var suivLabel = section.getAttribute('data-suivant-label') || 'Continuer';
+    var gauche = '<button class="btn secondaire" ' +
+      (retour ? 'onclick="aller(\'' + retour + '\')"' : 'onclick="return false" style="opacity:.45;cursor:default" title="Retour vers l\'accueil de l\'application"') +
+      '>&#8249; Retour</button>';
+    var droite = suiv ? '<button class="btn primaire" onclick="aller(\'' + suiv + '\')">' + suivLabel + ' &#8594;</button>' : '<span></span>';
+    host.innerHTML = gauche + droite;
+  }
+
+  function aller(vue) {
+    var cible = document.querySelector('.vue[data-vue="' + vue + '"]');
+    if (!cible) return;
+    document.querySelectorAll('.vue').forEach(function (v) { v.classList.remove('active'); });
+    cible.classList.add('active');
+    var num = parseInt(cible.getAttribute('data-etape'), 10);
+    rendreEtapes(num, vue);
+    rendreBarreBas(cible);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('devnav').value = "";
+  }
+
+  function ouvrir(id) { document.getElementById(id).classList.add('ouvert'); }
+  function fermer(id) { document.getElementById(id).classList.remove('ouvert'); }
+
+  document.getElementById('devnav').addEventListener('change', function () {
+    if (this.value) aller(this.value);
+  });
+  document.getElementById('theme').addEventListener('click', function () {
+    document.body.classList.toggle('dark');
+    this.textContent = document.body.classList.contains('dark') ? 'Mode clair' : 'Mode sombre';
+  });
+
+  aller('comparaison');
+</script>
+</body>
+</html>

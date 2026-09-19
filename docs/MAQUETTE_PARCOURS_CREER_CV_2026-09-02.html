@@ -1,0 +1,818 @@
+<!doctype html>
+<!--
+  MAQUETTE - Parcours « Créer un nouveau CV » (mode dossier.modeCreation = 'nouveau').
+  Cible : refonte guidée par maquette, 8 écrans actuels ramenés à 5, pour viser 17-18/20.
+  Aucun code touché. Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md.
+  Source des décisions : docs/AUDIT_PARCOURS_CREER_CV_2026-09-02.md (notation /20 + réponses
+  d'architecture) et docs/PLAN_REFONTE_MES_DOCUMENTS_2026-09-01.md.
+
+  CE QUE CETTE MAQUETTE DÉCIDE : le contenu de chaque écran, l'ordre, ce qui fusionne,
+  ce qui est obligatoire / facultatif, ce qui disparaît. Elle ne décide PAS le placement
+  fin (position + taille exacte des encarts / boutons) : ça vient après, écran par écran,
+  avec la maquette éditable (règle Denis 2026-09-01). Deux réglages éditables sont quand
+  même exposés ici, sur les 2 écrans où le placement change le ressenti : la répartition
+  obligatoire / facultatif de « Mon projet », et la position de « Et maintenant ? » sur
+  « Créer mon CV ». Chaque réglage affiche sa config en clair, à recopier dans le vrai code.
+
+  PARCOURS CIBLE (5 étapes) :
+    1. Objectif            (pageObjectif, inchangé sur le fond, cartes densifiées)
+    2. Votre parcours      (REGROUPE : pageActivites + pageActions + pageEnvironnement + pageValeurs)
+    3. Mon projet          (pageProjet, allégé : 2 blocs requis, le reste replié)
+    4. Faire le point      (pageRevelation, allégé : texte coupé, métier cible mis en avant)
+    5. Créer mon CV        (pageResultats, refonte partielle : plus de faux choix, plus de
+                            barre dans la barre, bloc « infos transmises » refondu,
+                            section « Et maintenant ? » lettre + entretien à la fin)
+
+  NON NÉGOCIABLE : ne jamais modifier ouvrirAssistantDepotCV. pageObjectif / pageProjet /
+  pageRevelation / pageResultats sont partagées avec d'autres entrées (import de session,
+  Découverte, « Mon projet ») : chaque écran refait reste branché en parallèle de l'ancien
+  jusqu'à validation. Jamais un état à moitié refondu.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Parcours « Créer un nouveau CV »</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#ffffff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#2563eb; --accent-bg:#e8effc;
+    --ok:#198754; --ok-bg:#d9f4e4; --ok-strong:#157347;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#b23b3b; --alert-bg:#fbe6e3;
+    --saumon:#c2410c; --saumon-bg:#fdece1;
+    --radius:10px;
+  }
+  body.sombre {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#4d94ff; --accent-bg:#1e2940;
+    --ok:#35c79a; --ok-bg:#17301f; --ok-strong:#6ee89a;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#e5877f; --alert-bg:#3a1f1d;
+    --saumon:#f0a17a; --saumon-bg:#3a241a;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:820px; margin:0 auto; padding:1.2rem 1rem 4rem; }
+  h1 { font-size:1.55rem; color:var(--text-strong); margin:.2rem 0; }
+  h2 { font-size:1.02rem; color:var(--text-strong); margin:0 0 .4rem; }
+  h3 { font-size:.95rem; color:var(--text-strong); margin:.1rem 0 .3rem; }
+  p { margin:.4rem 0; }
+  .sous-titre { color:var(--text-muted); margin:.2rem 0 1rem; }
+  .centre { text-align:center; }
+  .detail { color:var(--text-muted); font-size:.85rem; }
+
+  .section { background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+    padding:1rem 1.1rem; margin-bottom:.9rem; }
+  .section.teinte { background:var(--accent-bg); border-color:var(--accent); }
+  .section ul { margin:.3rem 0 0; padding-left:1.2rem; }
+  .section li { margin:.25rem 0; }
+
+  .encart { display:flex; gap:.6rem; align-items:flex-start; background:var(--accent-bg);
+    border-left:3px solid var(--accent); border-radius:8px; padding:.6rem .85rem; margin:.6rem 0; font-size:.9rem; }
+  .encart.ok { background:var(--ok-bg); border-left-color:var(--ok); }
+  .encart.warn { background:var(--warn-bg); border-left-color:var(--warn); }
+
+  .hypothese { border:1px dashed var(--warn); background:var(--warn-bg); border-radius:10px;
+    padding:.6rem .85rem; margin:.7rem 0; font-size:.85rem; color:var(--text); }
+  .hypothese b { color:var(--warn); }
+  .note-code { border:1px dashed var(--border-strong); background:var(--bg-subtle); border-radius:10px;
+    padding:.55rem .8rem; margin:.6rem 0; font-size:.82rem; color:var(--text-muted); }
+
+  .btn { font:inherit; border-radius:var(--radius); padding:.55rem 1.1rem; border:1px solid var(--border-strong);
+    background:var(--bg-card); color:var(--text-strong); cursor:pointer; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .btn.large { font-size:1.05rem; padding:.7rem 1.5rem; }
+  .btn.saumon { background:var(--saumon-bg); border-color:var(--saumon); color:var(--saumon); font-weight:600; }
+  .btn.sm { padding:.35rem .8rem; font-size:.85rem; }
+
+  textarea,input[type=text],select { width:100%; font:inherit; border:1px solid var(--border-strong);
+    border-radius:8px; padding:.5rem .6rem; background:var(--bg-card); color:var(--text); }
+
+  .barre-haut { position:sticky; top:0; z-index:5; background:var(--bg-page); border-bottom:1px solid var(--border);
+    padding:.5rem 1rem; display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; }
+  .barre-haut .btn { padding:.3rem .7rem; font-size:.8rem; }
+  .barre-haut .btn.actif { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .barre-haut .espace { flex:1 1 auto; }
+  .vue { display:none; }
+  .vue.visible { display:block; }
+
+  /* Barre d'étapes : compacte, icônes, chevron */
+  .etapes { display:flex; flex-wrap:wrap; align-items:center; gap:.1rem; justify-content:center; margin:.2rem 0 1rem; }
+  .etape { display:inline-flex; align-items:center; gap:.3rem; border:1px solid var(--border); border-radius:999px;
+    padding:.12rem .6rem; font-size:.72rem; color:var(--text-muted); background:var(--bg-card); }
+  .etape .ico { font-size:.9rem; line-height:1; }
+  .etape.faite { color:var(--text); cursor:pointer; }
+  .etape.faite::before { content:"\2713"; color:#fff; background:var(--ok); border-radius:999px; width:13px; height:13px;
+    font-size:.6rem; display:inline-flex; align-items:center; justify-content:center; margin-right:.1rem; }
+  .etape.courante { color:var(--warn); border-color:var(--accent); background:var(--warn-bg); font-weight:700;
+    box-shadow:0 0 0 2px var(--accent-bg),0 0 0 3px var(--accent); }
+  .etape.avenir { opacity:.4; }
+  .chevron { color:var(--border-strong); font-size:.75rem; padding:0 .05rem; }
+  .chevron.avenir { opacity:.4; }
+  .chevron.pulse { color:var(--accent); animation:chevPulse 1.4s ease-in-out infinite; }
+  @keyframes chevPulse { 0%,100% { opacity:.35; } 50% { opacity:1; } }
+  @media (prefers-reduced-motion:reduce) { .chevron.pulse { animation:none; opacity:1; } }
+
+  .barre-detour { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; background:var(--bg-subtle);
+    border:1px solid var(--border); border-radius:10px; padding:.4rem .7rem; margin-bottom:.5rem; font-size:.85rem; }
+  .barre-detour .btn { padding:.3rem .7rem; font-size:.82rem; }
+  .note-revoir { display:flex; gap:.5rem; align-items:flex-start; font-size:.82rem; color:var(--text-muted);
+    background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:.4rem .6rem; margin-bottom:.8rem; }
+  .note-revoir button { border:none; background:transparent; padding:0 .2rem; cursor:pointer; color:var(--text-muted); font-size:.9rem; }
+
+  .nav-bas { border-top:1px solid var(--border); margin-top:1.4rem; padding-top:.7rem; display:flex; gap:.6rem; align-items:center; }
+  .nav-bas .fil { flex:1 1 auto; font-size:.78rem; color:var(--text-muted); }
+
+  /* Accordéons */
+  .bloc-depli { border:1px solid var(--border); border-radius:12px; margin:.5rem 0; overflow:hidden; background:var(--bg-card); }
+  .bloc-depli > summary { list-style:none; cursor:pointer; padding:.7rem 1rem; font-weight:700; color:var(--text-strong);
+    display:flex; align-items:center; gap:.5rem; }
+  .bloc-depli > summary::-webkit-details-marker { display:none; }
+  .bloc-depli > summary::before { content:"\25B8"; color:var(--accent); font-size:.85em; transition:transform .15s; }
+  .bloc-depli[open] > summary::before { transform:rotate(90deg); }
+  .bloc-depli .corps { padding:.4rem 1rem 1rem; border-top:1px solid var(--border); }
+  .bloc-depli.oblig { border-left:3px solid var(--accent); }
+  .bloc-depli.fac { border-left:3px solid var(--border-strong); }
+
+  .pilule { margin-left:auto; font-size:.72rem; font-weight:600; border-radius:999px; padding:.1rem .55rem;
+    border:1px solid var(--border-strong); color:var(--text-muted); background:var(--bg-subtle); }
+  .pilule.a-completer { color:var(--warn); border-color:var(--warn); background:var(--warn-bg); }
+  .pilule.ok { color:var(--ok-strong); border-color:var(--ok); background:var(--ok-bg); }
+
+  /* Sections numérotées (page « Votre parcours ») */
+  .num-sec { display:flex; align-items:center; gap:.55rem; margin:1.1rem 0 .4rem; }
+  .num-sec .rond { flex:0 0 auto; width:26px; height:26px; border-radius:999px; background:var(--accent); color:#fff;
+    font-weight:700; font-size:.85rem; display:flex; align-items:center; justify-content:center; }
+  .num-sec h3 { margin:0; font-size:1rem; }
+  .num-sec .compte { margin-left:auto; font-size:.75rem; color:var(--text-muted); border:1px solid var(--border); border-radius:999px; padding:.05rem .5rem; }
+
+  .grille-mini { display:flex; flex-wrap:wrap; gap:.4rem; margin:.3rem 0 .2rem; }
+  .carte-mini { border:1px solid var(--border-strong); border-radius:999px; padding:.3rem .75rem; font-size:.83rem;
+    background:var(--bg-card); cursor:pointer; }
+  .carte-mini.coche { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .carte-mini.top { border-color:var(--warn); }
+
+  .choix-obj { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin:.5rem 0; }
+  .choix-obj .c { border:1px solid var(--border-strong); border-radius:10px; padding:.6rem .55rem; background:var(--bg-card);
+    text-align:center; cursor:pointer; }
+  .choix-obj .c.actif { border-color:var(--accent); background:var(--accent-bg); font-weight:700; }
+  .choix-obj .c .ic { font-size:1.3rem; display:block; margin-bottom:.2rem; }
+  .choix-obj .c .d { font-size:.74rem; color:var(--text-muted); font-weight:400; display:block; margin-top:.15rem; }
+  @media (max-width:560px) { .choix-obj { grid-template-columns:repeat(2,1fr); } }
+
+  .recap-lecture { border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle); padding:.6rem .85rem; margin:.5rem 0; font-size:.88rem; }
+  .recap-lecture .lg { display:flex; justify-content:space-between; gap:.6rem; padding:.15rem 0; border-bottom:1px dashed var(--border); }
+  .recap-lecture .lg:last-child { border-bottom:none; }
+  .recap-lecture .lg a { color:var(--accent); font-size:.8rem; text-decoration:none; }
+
+  .zone-label { display:inline-block; font-size:.7rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+    color:var(--accent); border:1px dashed var(--accent); border-radius:6px; padding:.05rem .4rem; margin-bottom:.3rem; }
+  .config-readout { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.8rem; background:var(--bg-subtle);
+    border:1px solid var(--border-strong); border-radius:8px; padding:.5rem .7rem; margin:.5rem 0; white-space:pre-wrap; color:var(--text); }
+  .reglage { border:1px solid var(--accent); border-left:3px solid var(--accent); background:var(--accent-bg);
+    border-radius:10px; padding:.7rem .9rem; margin:.8rem 0; font-size:.87rem; }
+  .reglage label { display:block; margin:.2rem 0; cursor:pointer; }
+
+  .flux-col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media (max-width:640px) { .flux-col { grid-template-columns:1fr; } }
+  .flux-col ol { margin:.3rem 0; padding-left:1.3rem; }
+  .flux-col li { margin:.3rem 0; }
+  .flux-col .barre-x { color:var(--alert); text-decoration:line-through; }
+  code { background:var(--bg-subtle); border:1px solid var(--border); border-radius:5px; padding:.05rem .3rem; font-size:.85em; }
+  table.g { width:100%; border-collapse:collapse; font-size:.84rem; margin-top:.5rem; }
+  table.g th,table.g td { border:1px solid var(--border); padding:.45rem .6rem; text-align:left; vertical-align:top; }
+  table.g th { background:var(--bg-subtle); color:var(--text-strong); }
+</style>
+</head>
+<body>
+
+<div class="barre-haut">
+  <button class="btn actif" data-v="flux">Vue d'ensemble</button>
+  <button class="btn" data-v="s1">1 - Objectif</button>
+  <button class="btn" data-v="s2">2 - Votre parcours</button>
+  <button class="btn" data-v="s3">3 - Mon projet</button>
+  <button class="btn" data-v="s4">4 - Faire le point</button>
+  <button class="btn" data-v="s5">5 - Créer mon CV</button>
+  <button class="btn" data-v="change">Ce qui change</button>
+  <span class="espace"></span>
+  <button class="btn" onclick="document.body.classList.toggle('sombre')">Mode sombre</button>
+</div>
+
+<main>
+
+<!-- ================= VUE D'ENSEMBLE ================= -->
+<section class="vue visible" data-v="flux">
+  <div class="centre">
+    <h1>Parcours « Créer un nouveau CV »</h1>
+    <p class="sous-titre">De 8 écrans à 5. Même rythme (un CV « de zéro » a besoin d'étapes), sans le tunnel.</p>
+  </div>
+
+  <div class="flux-col">
+    <div class="section">
+      <h2>Aujourd'hui - 8 écrans, note moyenne ≈ 11 / 20</h2>
+      <ol>
+        <li>Objectif <span class="detail">(14/20)</span></li>
+        <li class="barre-x">Expérience</li>
+        <li class="barre-x">Ce que vous faisiez</li>
+        <li class="barre-x">Environnement</li>
+        <li class="barre-x">Attentes</li>
+        <li>Mon projet <span class="detail">(10/20, la plus lourde)</span></li>
+        <li>Faire le point <span class="detail">(11/20, gros bloc de texte)</span></li>
+        <li>Action <span class="detail">(9/20, faux choix + barre dans barre)</span></li>
+      </ol>
+      <p class="detail">4 écrans multi-sélection quasi identiques d'affilée = sensation de tunnel répétitif.</p>
+    </div>
+
+    <div class="section teinte">
+      <h2>Cible - 5 étapes, note visée ≈ 17 / 20</h2>
+      <ol>
+        <li><strong>Objectif</strong> - cartes densifiées <span class="detail">(→ 16)</span></li>
+        <li><strong>Votre parcours</strong> - 1 page à 4 sections <span class="detail">(→ 16)</span></li>
+        <li><strong>Mon projet</strong> - 2 blocs requis, le reste replié <span class="detail">(→ 16)</span></li>
+        <li><strong>Faire le point</strong> - texte coupé, métier cible en avant <span class="detail">(→ 16)</span></li>
+        <li><strong>Créer mon CV</strong> - plus de faux choix, lettre + entretien à la fin <span class="detail">(→ 17)</span></li>
+      </ol>
+      <div class="etapes" style="margin-top:.6rem">
+        <span class="etape courante"><span class="ico">&#127919;</span> Objectif</span>
+        <span class="chevron pulse">&raquo;</span>
+        <span class="etape avenir"><span class="ico">&#129517;</span> Votre parcours</span>
+        <span class="chevron avenir">&raquo;</span>
+        <span class="etape avenir"><span class="ico">&#128188;</span> Mon projet</span>
+        <span class="chevron avenir">&raquo;</span>
+        <span class="etape avenir"><span class="ico">&#128269;</span> Faire le point</span>
+        <span class="chevron avenir">&raquo;</span>
+        <span class="etape avenir"><span class="ico">&#128196;</span> Créer mon CV</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hypothese">
+    <b>Pourquoi une maquette avant de coder.</b> Chaque écran ci-dessous touche du code partagé
+    (<code>pageObjectif</code>, <code>pageProjet</code>, <code>pageRevelation</code>,
+    <code>pageResultats</code>, et les 4 <code>pageCartes</code>). On refait <b>écran par écran</b>,
+    l'ancien reste branché en parallèle jusqu'à validation de chacun. Jamais un état à moitié refondu.
+    L'écran d'introduction du module (déjà en place) ne change pas ici.
+  </div>
+
+  <div class="section">
+    <h2>Ce qui reste identique</h2>
+    <ul>
+      <li>Le mécanisme de choix par cartes multi-sélection (correct, on le garde).</li>
+      <li>Le système d'import de CV moderne (fichier / copier-coller / photo).</li>
+      <li>Le circuit assistant : copier un texte, le coller chez un assistant en ligne, revenir coller la réponse.</li>
+      <li>Le moteur d'aperçu et d'export PDF / Word (Composeur).</li>
+      <li>La page d'introduction du module et son bouton « Revoir la présentation ».</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= 1 - OBJECTIF ================= -->
+<section class="vue" data-v="s1">
+  <div class="barre-detour">
+    <button class="btn">&#128196; Revoir la présentation</button>
+    <span class="detail">bouton commun, même place que les autres modules</span>
+  </div>
+  <div class="note-revoir"><span style="flex:1">Ce bouton vous ramène à la page qui explique ce parcours. Vous ne perdez rien.</span><button aria-label="Fermer">&#10005;</button></div>
+
+  <div class="etapes">
+    <span class="etape courante"><span class="ico">&#127919;</span> Objectif</span>
+    <span class="chevron pulse">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#129517;</span> Votre parcours</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128188;</span> Mon projet</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128269;</span> Faire le point</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128196;</span> Créer mon CV</span>
+  </div>
+
+  <div class="centre">
+    <h1>Quel est votre objectif ?</h1>
+    <p class="sous-titre">Une seule réponse. Elle oriente tout le reste du parcours. Vous pourrez la changer plus tard.</p>
+  </div>
+
+  <div class="choix-obj">
+    <div class="c actif"><span class="ic">&#128233;</span>Répondre à une offre<span class="d">Une annonce précise</span></div>
+    <div class="c"><span class="ic">&#9993;&#65039;</span>Candidature spontanée<span class="d">Sans annonce</span></div>
+    <div class="c"><span class="ic">&#128260;</span>Changer de métier<span class="d">Reconversion</span></div>
+    <div class="c"><span class="ic">&#127891;</span>Stage<span class="d">En formation</span></div>
+    <div class="c"><span class="ic">&#129309;</span>Alternance<span class="d">École et entreprise</span></div>
+    <div class="c"><span class="ic">&#128101;</span>Immersion (PMSMP)<span class="d">Découvrir un métier</span></div>
+  </div>
+
+  <div class="hypothese">
+    <b>Change peu.</b> C'est <code>pageObjectif</code> avec ses 6 choix réels
+    (<code>OBJECTIF_CHOIX_CANDIDATURE</code>). Améliorations : cartes plus compactes (grille 3 colonnes,
+    2 sur petit écran de portable) pour éviter de scroller ; icône objet, jamais de visage. Rien de cassé.
+    Note 14 → 16.
+  </div>
+
+  <div class="note-code">
+    Attention partagé : <code>pageObjectif</code> sert aussi « Mettre à jour mon CV » et l'import de
+    session. Ici on ne touche que la grille CSS des cartes. Le comportement (pose <code>dossier.objectif</code>
+    via <code>definirObjectifCandidature</code>) est inchangé.
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">« Retour » ramène à la page d'introduction du parcours (jamais droit à l'accueil).</span>
+  </div>
+</section>
+
+<!-- ================= 2 - VOTRE PARCOURS (REGROUPE) ================= -->
+<section class="vue" data-v="s2">
+  <div class="barre-detour">
+    <button class="btn">&#128196; Revoir la présentation</button>
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite"><span class="ico">&#127919;</span> Objectif</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape courante"><span class="ico">&#129517;</span> Votre parcours</span>
+    <span class="chevron pulse">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128188;</span> Mon projet</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128269;</span> Faire le point</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128196;</span> Créer mon CV</span>
+  </div>
+
+  <div class="centre">
+    <h1>Votre parcours</h1>
+    <p class="sous-titre">Quatre questions courtes, sur une seule page. Cochez ce qui vous ressemble, passez le reste.</p>
+  </div>
+
+  <div class="hypothese">
+    <b>Le gros changement (Phase 3b).</b> Cette page unique remplace les 4 écrans actuels
+    <code>Expérience</code> / <code>Ce que vous faisiez</code> / <code>Environnement</code> /
+    <code>Attentes</code>, quasi identiques et enchaînés. On garde le mécanisme de cartes
+    multi-sélection, juste densifié, en 4 sections numérotées d'une même page.
+  </div>
+
+  <div class="num-sec"><span class="rond">1</span><h3>D'où vous partez</h3><span class="compte">2 choisis</span></div>
+  <p class="detail">Les métiers, postes ou activités que vous avez déjà exercés (même sans diplôme, même il y a longtemps).</p>
+  <div class="grille-mini">
+    <span class="carte-mini coche">Vente, caisse</span>
+    <span class="carte-mini coche">Manutention, entrepôt</span>
+    <span class="carte-mini">Nettoyage, entretien</span>
+    <span class="carte-mini">Aide à la personne</span>
+    <span class="carte-mini">Cuisine, restauration</span>
+    <span class="carte-mini">Bâtiment</span>
+    <span class="carte-mini">Accueil, secrétariat</span>
+    <span class="carte-mini">+ ajouter</span>
+  </div>
+
+  <div class="num-sec"><span class="rond">2</span><h3>Ce que vous faisiez concrètement</h3><span class="compte">3 choisis</span></div>
+  <p class="detail">Les gestes du quotidien, sans jargon. Ancien libellé « Ce que vous faisiez » gardé, exemples rendus plus concrets.</p>
+  <div class="grille-mini">
+    <span class="carte-mini coche">Accueillir, renseigner</span>
+    <span class="carte-mini coche">Organiser, planifier</span>
+    <span class="carte-mini coche">Réparer, entretenir</span>
+    <span class="carte-mini">Encadrer une équipe</span>
+    <span class="carte-mini">Conseiller, vendre</span>
+    <span class="carte-mini">Préparer, fabriquer</span>
+    <span class="carte-mini">Gérer des dossiers</span>
+    <span class="carte-mini">+ ajouter</span>
+  </div>
+
+  <div class="num-sec"><span class="rond">3</span><h3>Où et avec qui vous travailliez</h3><span class="compte">1 choisi</span></div>
+  <p class="detail">Ancien « Avec qui ou avec quoi travailliez-vous », jugé trop abstrait. Reformulé « Où et avec qui ».</p>
+  <div class="grille-mini">
+    <span class="carte-mini coche">Avec du public</span>
+    <span class="carte-mini">En équipe</span>
+    <span class="carte-mini">Seul, en autonomie</span>
+    <span class="carte-mini">Avec des machines, des outils</span>
+    <span class="carte-mini">Sur des dossiers, un ordinateur</span>
+    <span class="carte-mini">Dehors, sur le terrain</span>
+  </div>
+
+  <div class="num-sec"><span class="rond">4</span><h3>Ce qui compte pour vous dans un travail</h3><span class="compte">4 choisis</span></div>
+  <p class="detail">Ancienne page « Attentes ». Ajouts : classer un top 3, garder comme repère, lien vers le Lexique.</p>
+  <div class="grille-mini">
+    <span class="carte-mini coche top">Horaires réguliers</span>
+    <span class="carte-mini coche top">Proximité de chez moi</span>
+    <span class="carte-mini coche top">Bonne ambiance</span>
+    <span class="carte-mini coche">Salaire</span>
+    <span class="carte-mini">Autonomie</span>
+    <span class="carte-mini">Évolution possible</span>
+    <span class="carte-mini">Contact humain</span>
+    <span class="carte-mini">Travail en extérieur</span>
+    <span class="carte-mini">Télétravail</span>
+  </div>
+  <div class="encart ok"><span>&#11088;</span><span>Parmi vos choix, <strong>lesquels comptent le plus</strong> ? Faites glisser vos 3 préférés en haut (les cartes bordées d'orange). Ça servira pour votre projet et, plus tard, pour en parler en entretien.</span></div>
+  <div class="barre-detour" style="margin:.5rem 0 0">
+    <button class="btn sm">&#9875;&#65039; Garder « ce qui compte pour moi » comme repère</button>
+    <span class="detail">helper <code>reperesBoutonAncre</code>, déjà utilisé ailleurs</span>
+  </div>
+  <div class="note-code">
+    Futur bloc Lexique « Conditions de travail » : chaque notion ci-dessus (télétravail, horaires,
+    salaire, autonomie, évolution...) aura sa fiche (qu'est-ce que c'est, ce que ça implique, comment
+    en parler en entretien, comment le négocier). Lien « En savoir plus » à ajouter quand le bloc existe.
+    Chantier Lexique, séparé.
+  </div>
+
+  <div class="centre" style="margin-top:1rem"><button class="btn primaire large">Continuer &#8594;</button></div>
+
+  <div class="note-code">
+    Impact code : <b>le plus risqué de la refonte.</b> Touche <code>pageActivites</code>,
+    <code>pageActions</code>, <code>pageEnvironnement</code>, <code>pageValeurs</code> et
+    <code>afficherProgression</code>. Ces pages ne servent QUE le mode « nouveau » (ni « Mettre à jour »
+    ni « Préparer » ne les utilisent) : on peut construire la page regroupée à neuf et débrancher les
+    4 anciennes routes d'un bloc, sans risque pour les autres parcours. Plan dédié avant de coder.
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">Revient à « Objectif ». La barre d'étapes permet aussi de sauter à une étape déjà faite.</span>
+  </div>
+</section>
+
+<!-- ================= 3 - MON PROJET (ALLEGE) ================= -->
+<section class="vue" data-v="s3">
+  <div class="barre-detour">
+    <button class="btn">&#128196; Revoir la présentation</button>
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite"><span class="ico">&#127919;</span> Objectif</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape faite"><span class="ico">&#129517;</span> Votre parcours</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape courante"><span class="ico">&#128188;</span> Mon projet</span>
+    <span class="chevron pulse">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128269;</span> Faire le point</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128196;</span> Créer mon CV</span>
+  </div>
+
+  <div class="centre">
+    <h1>Mon projet</h1>
+    <p class="sous-titre">Deux choses à remplir pour continuer. Le reste est facultatif : à compléter si vous voulez, plus tard aussi.</p>
+  </div>
+
+  <div class="hypothese">
+    <b>La page la plus lourde du parcours (10/20).</b> Elle reste une page dépliante, mais aujourd'hui
+    6 blocs s'ouvrent d'un coup. Cible : <b>2 blocs obligatoires ouverts</b>, les 4 autres <b>repliés</b>,
+    groupés sous « Pour aller plus loin ». Densité réduite. La pulsation rouge du décompte remplacée
+    par une pilule « à compléter » claire (moins agressif pour le public cible ; respecte
+    <code>prefers-reduced-motion</code>).
+  </div>
+
+  <h3 style="margin:.8rem 0 .2rem">À remplir</h3>
+
+  <details class="bloc-depli oblig" open>
+    <summary>&#128100; Vous <span class="pilule a-completer">à compléter</span></summary>
+    <div class="corps">
+      <p class="detail">Prénom, nom, coordonnées à afficher, intitulé du poste visé.</p>
+      <p><input type="text" placeholder="Intitulé du poste visé (ex. Employé polyvalent de restauration)"></p>
+      <div class="grille-mini">
+        <span class="carte-mini">Téléphone</span><span class="carte-mini">E-mail</span><span class="carte-mini">Ville</span><span class="carte-mini">Permis B</span>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli oblig" open>
+    <summary>&#129517; Votre parcours détaillé <span class="pilule a-completer">à compléter</span></summary>
+    <div class="corps">
+      <p class="detail">Vos expériences (dates, employeur, ce que vous faisiez) et vos formations. Repris de l'étape « Votre parcours », à préciser ici.</p>
+      <p><button class="btn sm">+ Ajouter une expérience</button> <button class="btn sm">+ Ajouter une formation</button></p>
+    </div>
+  </details>
+
+  <h3 style="margin:1rem 0 .2rem">Pour aller plus loin <span class="detail">(facultatif)</span></h3>
+
+  <details class="bloc-depli fac">
+    <summary>&#127793; Expériences personnelles, bénévolat <span class="pilule">facultatif</span></summary>
+    <div class="corps"><p class="detail">Ce que vous avez appris en dehors d'un emploi salarié : association, aidant familial, projets perso.</p></div>
+  </details>
+  <details class="bloc-depli fac">
+    <summary>&#128161; Votre projet en quelques phrases <span class="pilule">facultatif</span></summary>
+    <div class="corps"><p class="detail">Ce que vous cherchez, pourquoi ce métier. L'assistant peut vous aider à le formuler ensuite.</p></div>
+  </details>
+  <details class="bloc-depli fac">
+    <summary>&#10133; Compléments <span class="pilule">facultatif</span></summary>
+    <div class="corps"><p class="detail">Langues, permis, logiciels, centres d'intérêt.</p></div>
+  </details>
+  <details class="bloc-depli fac">
+    <summary>&#127970; L'entreprise ou l'offre visée <span class="pilule">facultatif</span></summary>
+    <div class="corps">
+      <p class="detail">Si vous savez déjà où vous postulez : nom de l'entreprise, site internet, lien ou texte de l'offre, type de structure.</p>
+      <p class="detail">Brique <code>bilanCorpsCiblageOffreHTML</code> + liste <code>BILAN_TYPES_STRUCTURE</code> (la même que « Cohérence » et « Analyser ma candidature »).</p>
+    </div>
+  </details>
+
+  <details class="bloc-depli fac">
+    <summary>&#127909; Une vidéo pour comprendre cette étape <span class="pilule">à ouvrir</span></summary>
+    <div class="corps"><p class="detail">L'encart vidéo, aujourd'hui déplié par défaut, passe en accordéon replié.</p></div>
+  </details>
+
+  <div class="reglage">
+    <span class="zone-label">Réglage éditable</span>
+    <p style="margin:.2rem 0 .4rem"><strong>Quels blocs sont obligatoires ?</strong> Cochez ceux qui bloquent le passage à l'étape suivante.</p>
+    <label><input type="checkbox" class="mp-ob" value="Vous" checked> Vous</label>
+    <label><input type="checkbox" class="mp-ob" value="Parcours détaillé" checked> Votre parcours détaillé</label>
+    <label><input type="checkbox" class="mp-ob" value="Expériences perso"> Expériences personnelles, bénévolat</label>
+    <label><input type="checkbox" class="mp-ob" value="Projet en phrases"> Votre projet en quelques phrases</label>
+    <label><input type="checkbox" class="mp-ob" value="Compléments"> Compléments</label>
+    <label><input type="checkbox" class="mp-ob" value="Entreprise / offre"> L'entreprise ou l'offre visée</label>
+    <div class="config-readout" id="mpConfig">obligatoires = [ Vous, Parcours détaillé ]
+facultatifs repliés = [ Expériences perso, Projet en phrases, Compléments, Entreprise / offre ]
+décompte "à compléter" = pilule ambre (pas de pulsation infinie)</div>
+  </div>
+
+  <div class="centre" style="margin-top:1rem"><button class="btn primaire large">Continuer &#8594;</button></div>
+
+  <div class="note-code">
+    Impact code : <code>pageProjet</code> (<code>blocERIP</code>, <code>modeAllege</code>). Partagée
+    avec « Mettre à jour mon CV » et « Préparer » (mode allégé à 3 blocs). On introduit un 3e état
+    « nouveau allégé » sans toucher aux 2 existants. La pilule remplace l'animation
+    <code>pulseLumiereRouge</code> uniquement dans cet état.
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">Revient à « Votre parcours ».</span>
+  </div>
+</section>
+
+<!-- ================= 4 - FAIRE LE POINT (ALLEGE) ================= -->
+<section class="vue" data-v="s4">
+  <div class="barre-detour">
+    <button class="btn">&#128196; Revoir la présentation</button>
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite"><span class="ico">&#127919;</span> Objectif</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape faite"><span class="ico">&#129517;</span> Votre parcours</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape faite"><span class="ico">&#128188;</span> Mon projet</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape courante"><span class="ico">&#128269;</span> Faire le point</span>
+    <span class="chevron pulse">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128196;</span> Créer mon CV</span>
+  </div>
+
+  <div class="centre">
+    <h1>Faisons le point</h1>
+    <p class="sous-titre">Voici ce que l'assistant a compris de votre parcours. Vérifiez, ajustez, puis confirmez le métier que vous visez.</p>
+  </div>
+
+  <div class="hypothese">
+    <b>Aujourd'hui : gros bloc de texte d'intro</b> pour une page dont le cœur utile est ailleurs.
+    Cible : sous-titre d'une phrase (ci-dessus), et on met en avant <b>l'action réelle</b> : choisir
+    ou confirmer le métier cible. Les analyses passent en accordéons condensés, repliés.
+  </div>
+
+  <div class="section teinte">
+    <span class="zone-label">Bloc principal, mis en avant</span>
+    <h2>&#127919; Le métier que vous visez</h2>
+    <p><input type="text" value="Employé polyvalent de restauration"></p>
+    <p class="detail">Suggestions d'après votre parcours (cliquez pour choisir) :</p>
+    <div class="grille-mini">
+      <span class="carte-mini coche">Employé polyvalent de restauration</span>
+      <span class="carte-mini">Agent de restauration collective</span>
+      <span class="carte-mini">Commis de cuisine</span>
+      <span class="carte-mini">Employé de libre-service</span>
+    </div>
+    <div class="barre-detour" style="margin:.6rem 0 0">
+      <button class="btn sm">&#9875;&#65039; Garder ce métier (ou un doute) comme repère</button>
+    </div>
+  </div>
+
+  <details class="bloc-depli">
+    <summary>&#128203; Ce que l'assistant a compris de votre profil</summary>
+    <div class="corps"><p class="detail">Résumé du parcours, compétences repérées, formations. En lecture, corrigeable.</p></div>
+  </details>
+  <details class="bloc-depli">
+    <summary>&#128170; Vos points forts repérés</summary>
+    <div class="corps"><p class="detail">Liste courte, réutilisée dans le CV.</p></div>
+  </details>
+  <details class="bloc-depli">
+    <summary>&#129517; Autres métiers possibles</summary>
+    <div class="corps"><p class="detail">Pistes proches, si vous hésitez encore.</p></div>
+  </details>
+
+  <div class="centre" style="margin-top:1rem"><button class="btn primaire large">Continuer &#8594;</button></div>
+
+  <div class="note-code">
+    Impact code : <code>pageRevelation</code>. Partagée avec Découverte. On coupe le texte d'intro et
+    on réordonne (métier cible d'abord, accordéons ensuite) sans toucher à la logique de suggestion
+    de métiers ni à l'analyse de profil.
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">Revient à « Mon projet ».</span>
+  </div>
+</section>
+
+<!-- ================= 5 - CREER MON CV (page Action refondue) ================= -->
+<section class="vue" data-v="s5">
+  <div class="barre-detour">
+    <button class="btn">&#128196; Revoir la présentation</button>
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite"><span class="ico">&#127919;</span> Objectif</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape faite"><span class="ico">&#129517;</span> Votre parcours</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape faite"><span class="ico">&#128188;</span> Mon projet</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape faite"><span class="ico">&#128269;</span> Faire le point</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape courante"><span class="ico">&#128196;</span> Créer mon CV</span>
+  </div>
+
+  <div class="centre">
+    <h1>Créer mon CV</h1>
+    <p class="sous-titre">Titre aligné sur la barre d'étapes. La page démarre au même niveau que les autres modules (barre remontée).</p>
+  </div>
+
+  <div class="hypothese">
+    <b>Page « Action » aujourd'hui : 9/20.</b> Refonte <b>partielle</b> (le moteur d'aperçu / export
+    ne bouge pas) : on retire le faux choix « choisissez votre action » (CV actif, Lettre et Entretien
+    grisés = pas un choix), on retire la sous-barre CV / Lettre / Entretien (barre dans la barre), on
+    remonte la barre, on refond le bloc « informations transmises », on ajoute « Et maintenant ? » à la fin.
+  </div>
+
+  <table class="g">
+    <tr><th>Aujourd'hui</th><th>Cible</th></tr>
+    <tr><td>Rectangle « Choisissez votre action » avec CV / Lettre / Entretien (2 sur 3 grisés)</td><td class="barre-x">Supprimé</td></tr>
+    <tr><td>Sous-ligne d'étapes CV / Lettre / Entretien sous la barre du module</td><td class="barre-x">Supprimée (généralisation de la branche <code>depuisDecouverte</code>)</td></tr>
+    <tr><td>Bloc « informations transmises à l'assistant » en tête, « seront transmises »</td><td>Récapitulatif en lecture seule, déplacé sur l'écran de choix d'assistant, reformulé</td></tr>
+    <tr><td>Lettre et entretien : accessibles seulement après avoir tout fini, très tard</td><td>Section « Et maintenant ? » à la fin, les deux accessibles directement</td></tr>
+  </table>
+
+  <h3 style="margin:1rem 0 .2rem">a. Choisir votre assistant</h3>
+  <div class="section" style="padding:.8rem 1rem">
+    <div style="border:1px solid var(--ok);background:var(--ok-bg);border-radius:10px;padding:.5rem .7rem;margin:.3rem 0">
+      <p style="margin:0 0 .3rem;font-weight:600;color:var(--ok-strong)">Sans compte à créer</p>
+      <div class="grille-mini" style="margin:0"><span class="carte-mini">ChatGPT</span><span class="carte-mini">Le Chat</span><span class="carte-mini">Perplexity</span></div>
+    </div>
+    <div style="border:1px solid var(--accent);background:var(--accent-bg);border-radius:10px;padding:.5rem .7rem;margin:.3rem 0">
+      <p style="margin:0 0 .3rem;font-weight:600;color:var(--accent)">Avec une connexion</p>
+      <div class="grille-mini" style="margin:0"><span class="carte-mini">Claude</span><span class="carte-mini">Gemini</span><span class="carte-mini">Copilot</span></div>
+    </div>
+
+    <details class="bloc-depli" open style="margin-top:.5rem">
+      <summary>&#128203; Ce qui part chez l'assistant</summary>
+      <div class="corps">
+        <p class="detail">Récapitulatif en lecture seule (déplacé ici, plus en tête de page). Chaque ligne renvoie au bon bloc de « Mon projet » pour corriger.</p>
+        <div class="recap-lecture">
+          <div class="lg"><span>Métier visé : Employé polyvalent de restauration</span><a href="#">corriger</a></div>
+          <div class="lg"><span>Objectif : répondre à une offre</span><a href="#">corriger</a></div>
+          <div class="lg"><span>Expériences : 3 saisies</span><a href="#">corriger</a></div>
+          <div class="lg"><span>Ce qui compte : horaires réguliers, proximité, ambiance</span><a href="#">corriger</a></div>
+        </div>
+        <div class="encart"><span>&#128274;</span><span><strong>Avant l'envoi, vous relirez exactement le texte copié.</strong> Rien n'est envoyé sans votre geste.</span></div>
+      </div>
+    </details>
+    <div class="centre" style="margin-top:.5rem"><button class="btn primaire">Préparer le texte et ouvrir l'assistant &#8594;</button></div>
+  </div>
+
+  <h3 style="margin:1.1rem 0 .2rem">b. Votre CV</h3>
+  <div class="section" style="padding:.8rem 1rem">
+    <p class="detail">Après le passage chez l'assistant : aperçu du CV, choix du modèle, couleurs, puis export. Le moteur d'aperçu et d'export (Composeur, PDF, Word) ne change pas.</p>
+    <div class="grille-mini"><span class="carte-mini coche">Modèle Sobre</span><span class="carte-mini">Modèle Créatif</span><span class="carte-mini">Couleur</span></div>
+    <p style="margin-top:.5rem"><button class="btn">Exporter en PDF</button> <button class="btn">Exporter en Word</button></p>
+    <div class="encart"><span>&#128196;</span><span>Les modèles sont les nôtres. S'ils ne conviennent pas, vous pouvez copier le texte du CV et le mettre en forme ailleurs. Vous n'êtes jamais bloqué.</span></div>
+  </div>
+
+  <div id="etMaintenantSlot">
+    <div class="section teinte" id="etMaintenant">
+      <span class="zone-label">Bloc déplaçable</span>
+      <h2>&#128640; Et maintenant ?</h2>
+      <p style="margin:.2rem 0 .5rem">Vos informations sont enregistrées : votre lettre et votre entretien repartent de là, sans rien ressaisir.</p>
+      <p style="margin:0"><button class="btn primaire">&#9993;&#65039; Préparer ma lettre de motivation</button>
+      &nbsp; <button class="btn primaire">&#128172; Préparer mon entretien</button></p>
+      <p class="detail" style="margin:.5rem 0 0">Les deux sont accessibles : l'entretien ne dépend plus de la lettre
+      (<code>desactiveEntretien = !dossier.lettreTerminee</code> devient <code>!dossier.cvTermine</code>).</p>
+    </div>
+  </div>
+
+  <div class="reglage">
+    <span class="zone-label">Réglage éditable</span>
+    <p style="margin:.2rem 0 .4rem"><strong>Où placer « Et maintenant ? »</strong></p>
+    <label><input type="radio" name="etm" value="bas" checked> En bas de page, après l'export (discret)</label>
+    <label><input type="radio" name="etm" value="apres-cv"> Juste après le bloc « Votre CV »</label>
+    <label><input type="radio" name="etm" value="encart"> Encart mis en avant, tout de suite visible</label>
+    <div class="config-readout" id="etmConfig">position = "bas" (après l'export du CV)
+style = section teintée discrète, pas de bandeau
+boutons = [ Préparer ma lettre, Préparer mon entretien ] tous deux actifs</div>
+  </div>
+
+  <div class="note-code">
+    Impact code : <code>pageResultats</code>. Le plus délicat car la page porte tout le circuit de
+    génération / aperçu / export. On ne touche pas ce moteur : on généralise la branche
+    <code>depuisDecouverte</code> (déjà là) aux modes <code>nouveau</code> / <code>pret</code> /
+    <code>maj</code> pour masquer le sélecteur et la sous-barre, on remonte la barre (CSS), on
+    déplace le récap, on ajoute « Et maintenant ? ». À vérifier : les autres entrées de
+    <code>pageResultats</code> (« Mon projet », import de session) ne doivent pas être affectées.
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">Revient à « Faire le point ».</span>
+  </div>
+</section>
+
+<!-- ================= CE QUI CHANGE ================= -->
+<section class="vue" data-v="change">
+  <div class="centre"><h1>Ce qui change, ce que ça coûte</h1></div>
+
+  <div class="section">
+    <h2>Récapitulatif par écran</h2>
+    <table class="g">
+      <tr><th>Écran</th><th>Note</th><th>Changement principal</th><th>Cible</th><th>Risque code</th></tr>
+      <tr><td>1 - Objectif</td><td>14</td><td>Cartes densifiées (CSS grille)</td><td>16</td><td>Faible</td></tr>
+      <tr><td>2 - Votre parcours</td><td>11</td><td>4 écrans → 1 page à 4 sections</td><td>16</td><td><strong>Élevé</strong> (4 pages, mais mode « nouveau » seul)</td></tr>
+      <tr><td>3 - Mon projet</td><td>10</td><td>2 blocs requis, 4 repliés, décompte apaisé</td><td>16</td><td>Moyen (3e état de <code>pageProjet</code>)</td></tr>
+      <tr><td>4 - Faire le point</td><td>11</td><td>Texte coupé, métier cible mis en avant</td><td>16</td><td>Moyen (partagé Découverte)</td></tr>
+      <tr><td>5 - Créer mon CV</td><td>9</td><td>Plus de faux choix, récap déplacé, « Et maintenant ? »</td><td>17</td><td>Moyen (moteur d'export non touché)</td></tr>
+    </table>
+    <p class="detail">Moyenne actuelle ≈ 11 / 20. Cible ≈ 16 / 20 avec cette maquette (contre ≈ 15 avec des retouches sans maquette).</p>
+  </div>
+
+  <div class="section">
+    <h2>Ordre d'implémentation proposé</h2>
+    <ol>
+      <li><strong>Écran 5 (Créer mon CV)</strong> d'abord : gros gain de ressenti (9 → 17), risque contenu, la branche <code>depuisDecouverte</code> sert de modèle. Bénéficie aussi aux cartes « Mettre à jour » et « Préparer ».</li>
+      <li><strong>Écran 1 (Objectif)</strong> : passe CSS de densité des cartes, rapide, sans risque.</li>
+      <li><strong>Écran 4 (Faire le point)</strong> : couper le texte, réordonner.</li>
+      <li><strong>Écran 3 (Mon projet)</strong> : nouvel état allégé.</li>
+      <li><strong>Écran 2 (Votre parcours)</strong> en dernier : le plus lourd, plan dédié, débranche 4 routes d'un bloc.</li>
+    </ol>
+    <p class="detail">Un commit par écran. <code>npm test</code> + test navigateur de bout en bout à chaque fois. L'ancien écran reste branché jusqu'à validation du nouveau.</p>
+  </div>
+
+  <div class="section">
+    <h2>Ce qui n'est PAS dans cette vague</h2>
+    <ul>
+      <li>Le bloc Lexique « Conditions de travail » (chantier Lexique séparé).</li>
+      <li>Le module « Défendre mes conditions / négociation » (nouveau chantier, parqué dans <code>IDEES_A_RECLASSER.md</code>).</li>
+      <li>Les panneaux de personnalisation CV PDF / Word (chantier distinct, lié au découpage de <code>js/app.js</code>).</li>
+      <li>La suppression de la fenêtre de dépôt CV pour Lettre / Entretien / Cohérence (à faire avec Denis, pas en solo).</li>
+      <li>La mise à jour de l'aide contextuelle (l'ampoule) : dernière tâche, tout à la fin.</li>
+    </ul>
+  </div>
+
+  <div class="hypothese">
+    <b>Note de méthode (règle Denis 2026-09-01).</b> Cette maquette décide le contenu et l'ordre
+    des écrans. Le placement fin (position et taille exacte des encarts et boutons) se règle après,
+    écran par écran, avec la maquette éditable. Deux réglages sont déjà exposés ici (répartition
+    obligatoire / facultatif de « Mon projet », position de « Et maintenant ? ») : ils affichent
+    leur config en clair, à recopier telle quelle dans le code.
+  </div>
+</section>
+
+</main>
+
+<script>
+  function montrer(v) {
+    document.querySelectorAll('.vue').forEach(function (s) { s.classList.toggle('visible', s.dataset.v === v); });
+    document.querySelectorAll('.barre-haut .btn[data-v]').forEach(function (b) { b.classList.toggle('actif', b.dataset.v === v); });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('.barre-haut .btn[data-v]').forEach(function (b) {
+    b.addEventListener('click', function () { montrer(b.dataset.v); });
+  });
+
+  // Réglage éditable 1 : obligatoires / facultatifs de « Mon projet »
+  var mpTous = ['Vous', 'Parcours détaillé', 'Expériences perso', 'Projet en phrases', 'Compléments', 'Entreprise / offre'];
+  function majMpConfig() {
+    var ob = [];
+    document.querySelectorAll('.mp-ob').forEach(function (c) { if (c.checked) { ob.push(c.value); } });
+    var fac = mpTous.filter(function (x) { return ob.indexOf(x) === -1; });
+    document.getElementById('mpConfig').textContent =
+      'obligatoires = [ ' + ob.join(', ') + ' ]\n' +
+      'facultatifs repliés = [ ' + fac.join(', ') + ' ]\n' +
+      'décompte "à compléter" = pilule ambre (pas de pulsation infinie)';
+  }
+  document.querySelectorAll('.mp-ob').forEach(function (c) { c.addEventListener('change', majMpConfig); });
+
+  // Réglage éditable 2 : position de « Et maintenant ? »
+  function majEtm() {
+    var v = document.querySelector('input[name="etm"]:checked').value;
+    var libelle = { 'bas': 'en bas de page, après l\'export du CV', 'apres-cv': 'juste après le bloc « Votre CV »', 'encart': 'encart mis en avant, visible d\'emblée' }[v];
+    var style = v === 'encart' ? 'encart accentué (bordure + fond teinté fort)' : 'section teintée discrète, pas de bandeau';
+    document.getElementById('etmConfig').textContent =
+      'position = "' + v + '" (' + libelle + ')\n' +
+      'style = ' + style + '\n' +
+      'boutons = [ Préparer ma lettre, Préparer mon entretien ] tous deux actifs';
+    var slot = document.getElementById('etMaintenantSlot');
+    var bloc = document.getElementById('etMaintenant');
+    slot.style.order = '';
+    bloc.style.boxShadow = v === 'encart' ? '0 0 0 3px var(--accent-bg)' : '';
+  }
+  document.querySelectorAll('input[name="etm"]').forEach(function (r) { r.addEventListener('change', majEtm); });
+</script>
+</body>
+</html>

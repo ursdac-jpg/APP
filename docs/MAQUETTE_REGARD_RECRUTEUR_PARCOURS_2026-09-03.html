@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - PARCOURS COMPLET du module « Regard recruteur » (APP).
+  Module CONSTRUIT et clos le 2026-09-08. Cette maquette reste la cible visuelle de référence.
+
+  *** CADUC - 2026-09-09 : tous les renvois « Mes preuves » de ce fichier ***
+  Le module « Mes preuves » a été abandonné le 2026-09-09 (test de prompt non concluant,
+  pas de territoire propre). Il n'a jamais été construit et ne le sera pas. Les mentions
+  « Envoyer vers Mes preuves », les boutons du même nom et la note « MODULE MES PREUVES »
+  ci-dessous sont sans objet : les ignorer. Le champ « Écrire ma réponse » du module réel
+  se limite à « C'est vous qui décidez d'écrire, ou non. Vous n'obtiendrez pas de correction
+  ici. » Voir docs/TACHES_VALIDEES.md, entrées [ABANDONNÉ - 2026-09-09].
+
+  *** MODULE AUTONOME / DÉTACHABLE (Denis, 03/09) ***
+  Ce module aura sa PROPRE BASE, séparée du reste d'APP, pour pouvoir être pris tel quel et
+  déployé sur un autre site. CONSÉQUENCE À TRANCHER AVANT LE CODE (décision d'architecture,
+  sa propre analyse) : les composants notés ici "repris tels quels" (htmlChoixAssistantBilanCorps,
+  htmlBanniereTransitionIA, htmlCollageInstantane, htmlVerificationDocument, bilanCorpsCiblageOffreHTML,
+  htmlBoutonRevoirModule...) NE PEUVENT PAS simplement dépendre du reste d'APP. Deux modèles :
+  (a) un petit "core" partagé embarqué avec le module ; (b) le module porte ses propres copies
+  (duplication bornée et documentée, justifiée par la portabilité). Idem pour "Garder comme
+  Repère" -> Mes Repères et "Envoyer vers Mes preuves" : ces modules peuvent ne pas exister sur
+  l'autre site -> prévoir un repli (export/copie) quand ils sont absents. Le parcours et l'UX
+  de cette maquette ne changent pas ; seule la stratégie d'implémentation change.
+
+  Références respectées :
+   - docs/LANGAGE_VISUEL_COMMUN.md (formes, couleurs, ton, patron page d'intro, familles de modules)
+   - docs/MAQUETTE_BILAN_PARCOURS_CONSOLIDE_2026-08-29.html (maquette de référence : structure, mécanique)
+   - docs/MAQUETTE_INTRO_REGARD_RECRUTEUR.html (page de présentation déjà validée le 31/08)
+   - docs/CHANTIER_REGARD_RECRUTEUR.md (conception : 6 axes, chaque doute = une question, aucun score)
+   - docs/BRIQUES_COMMUNES.md (composants partagés réutilisés, nommés dans les bandeaux)
+   - docs/LECONS_A_NE_PAS_REPRODUIRE.md section 10 (méthode), 0bis (français), 1sexies (pulses)
+
+  DÉCISIONS RETENUES (Denis, 2026-09-03), modifiables sur cette maquette :
+   Q1  Rapport : 6 axes (4 sur le texte seul), VALIDÉ Denis 03/09 puis figé avec le schéma de
+       sortie. Ordre = priorités en tête, tout replié sauf les 2 premières parties. Ordre retenu :
+       1. Ce qui attire l'attention de façon positive  2. La cohérence d'ensemble (emploi ou stage,
+       titre + accroche, dates et chevauchements)  3. Le message que votre CV envoie (registre
+       <-> secteur, logiciels nommés, expériences mises en avant, loisirs, généraliste/ciblé)
+       4. Ce qui saute aux yeux  5. Présentation visuelle (image)  6. Couleurs de votre CV (image).
+       Axes 2 et 3 : exemples cités du CV + reformulations concrètes (ce que le module apporte
+       au-delà du Bilan).
+       DEUX axes RETIRÉS le 03/09 : « Sujets à préparer pour un entretien » (doublon avec le
+       bloc « Décoder les questions ») et « Points qui peuvent susciter d'autres questions »
+       (fourre-tout devenu inutile avec « cohérence » + « message » ; voir le schéma de sortie §8).
+   Q1bis DÉCODER LES QUESTIONS D'ENTRETIEN (Denis 03/09) : bloc de recommandation À CÔTÉ des
+       6 axes, sur l'écran du rapport. DEUX sous-blocs complémentaires :
+        - « Questions générales » : 5 questions FIXES ancrées dans le CODE (défauts / pourquoi
+          vous / expérience qui vous a marqué / situation de conflit / vos qualités), toujours
+          affichées, pertinentes quel que soit le CV.
+        - « Questions liées à votre CV » : produites par l'ASSISTANT. Le prompt demande AU MOINS
+          5 questions spécifiques au CV (pas de limite dure possible côté IA). Bloc affiché
+          seulement si l'assistant en a renvoyé -> schéma de sortie : tableau questionsSpecifiquesCV[].
+       Chaque question, dans les deux blocs, au même format : la question / ce que le recruteur
+       cherche vraiment / comment y répondre. Bibliothèque complète = module « Préparer un
+       entretien ». Rejoint « question déstabilisante -> ce que la personne cherche » (IDEES_A_RECLASSER §E).
+   Q1ter TENUE D'ENTRETIEN (Denis 03/09) : une ligne sur la fiche de clôture (tenue sobre et
+       adaptée au métier, cohérente avec le CV). Jamais un jugement sur la personne, jamais prescriptif.
+   FENÊTRES  Aucune nouvelle fenêtre. Dépôt du document, choix de l'assistant, transition,
+       collage : composants déjà câblés, repris tels quels. La fenêtre m-ciblage de la 1re
+       version a été retirée (le ciblage offre/entreprise est un bloc inline, brique commune).
+   Q2  Masquage de l'image : guide pas à pas seul (l'outil de rectangles dans le navigateur
+       reste une question ouverte, décision 4 du chantier).
+   Q3  IMAGE fortement conseillée, jamais obligatoire. Sans image -> « Mode texte seul »
+       (4 axes au lieu de 6), jamais de redirection vers « Analyser ma candidature ».
+       « Mode texte » : porte de sortie TOUJOURS visible.
+   Q4  Nom « Regard recruteur » conservé + sous-titre de la maquette d'intro.
+   Q5  Séquence : maquette validée écran par écran, puis schéma de sortie borné + parser, puis code.
+   ASSISTANT + TRANSITION  Écrans « Choisir l'assistant » et « L'assistant va s'ouvrir » :
+       briques communes htmlChoixAssistantBilanCorps / htmlBanniereTransitionIA reprises
+       TELLES QUELLES (5 assistants, 2 groupes, mêmes couleurs, décompte hero + bouton
+       « Ouvrir maintenant » + repli). Seul ajout : la ligne sur les images + le repli Mode texte.
+   ANONYMISATION  Ne JAMAIS traiter comme un défaut le fait que la personne ait masqué son
+       identité (technique qu'on encourage). Conseil GÉNÉRAL en clôture : remettre nom, prénom,
+       code postal + ville, contacts ; adresse complète seulement si c'est un atout. Si la
+       personne a laissé ses coordonnées visibles, on PEUT commenter taille / couleur /
+       lisibilité (règle de prompt).
+   CLÔTURE  Option A : AUCUNE création ni édition de CV. Le module ne fait que du conseil.
+       En fin de parcours : fiche à IMPRIMER, à EXPORTER (Word), à COPIER pour un e-mail,
+       « Garder comme Repère » point par point + sélection groupée. Renvois vers d'autres
+       modules = emplacement réservé (chantier « Cohérence entre les modules »).
+   AXE "LES COULEURS DE VOTRE CV" (Denis 03/09)  Deux parties :
+       (a) hygiène des couleurs, toujours dispo (on a l'image) : 2 couleurs MAXIMUM (une
+       principale + une d'appui qui vont ensemble) ; au-dela = pas apprecie ; eviter les
+       couleurs tres vives et les contrastes agressifs.
+       (b) reprise des codes de l'entreprise : CONDITIONNEL au SITE INTERNET saisi a l'etape
+       Preparer (le CV ne contient que le nom). Pas de site -> pas d'avis. Pas de selecteur
+       de couleur manuel : la couleur saisie a la main n'est pas exploitable, seule celle
+       tiree du site l'est. -> alimente le prompt.
+   AXE "PRESENTATION VISUELLE" (Denis 03/09)  Ajout sur la POLICE ET LA TAILLE : texte ecrit
+       trop petit pour tout faire tenir, ou police travaillee peu lisible -> le recruteur presse
+       met le CV de cote "pour plus tard" qui ne vient jamais. -> alimente le prompt.
+
+   5 MANQUES COMBLÉS (Denis 03/09, "fais les cinq") :
+     1. MASQUAGE EN MODE TEXTE : en Mode texte on envoie le TEXTE du CV (nom, tel, e-mail).
+        Bloc 2 de "Préparer" et écran "Masquer" ont désormais une variante mode-texte =
+        composant partagé htmlVerificationDocument (surlignage ambre). Ce n'est pas "ne
+        s'applique pas".
+     2. ÉCRAN "RÉPONSE ILLISIBLE / REFUS" (data-vue="erreur-lecture") : l'assistant a refusé,
+        a répondu en prose, ou la réponse est incomprehensible. Explication + phrase prête à
+        recoller + recoller / autre assistant. Rien n'est perdu. Patron déjà utilisé (Découverte, Bilan).
+     3. CAS CV COURT / PAUVRE : bandeau dans le rapport -> l'assistant le dit, se limite au
+        visible, N'INVENTE RIEN, ton encourageant. Garde-fou à porter dans le prompt.
+     4. PLUSIEURS IMAGES : bloc 1 de "Préparer" accepte 1 à 3 images (CV de 2 pages), liste + retirer.
+     5. BOUTON "REVOIR LA PRÉSENTATION" : rendu par le JS (rendreRevoir) sur tous les écrans de
+        travail, en haut à gauche (obligation famille 2, LANGAGE_VISUEL §5bis). Brique partagée
+        htmlBoutonRevoirModule à l'implémentation. DÉTOUR NON DESTRUCTIF : l'intro atteinte ainsi
+        affiche un bandeau "Revenir au module" (retour exact à l'écran quitté), jamais le "Retour"
+        vers l'accueil (_retourModule dans le JS).
+
+   COMPTE PERSO (ajout final 03/09, patron Découverte) : encart repliable sur "Choisir
+   l'assistant" (prévention) + encart visible sur "Coller la réponse" (prioritaire) : si
+   l'assistant commente la consigne au lieu de la faire, phrase prête à recoller. L'écran
+   "erreur-lecture" reprend le même geste en plus large.
+
+   MODULE "MES PREUVES" (note pour son chantier, Denis 03/09)  Sa page d'accueil doit annoncer
+       qu'on peut lui TRANSMETTRE des informations depuis d'autres modules (ici : une question
+       d'entretien + la réponse écrite de la personne). Et le module doit avoir un ESPACE DÉDIÉ
+       où l'on retrouve tout ce qui a été reçu des autres modules. À noter dans CHANTIER_MES_PREUVES
+       (à créer).
+
+   PANIER / REPÈRES COMME HUB (idée Denis 03/09, À ANALYSER, ne pas concevoir maintenant)
+       Distinction Denis : un "Repère" va DIRECTEMENT dans un module famille 2 (analyse) ; un
+       "panier" vit "là-haut" (transversal). Piste préférée de Denis : ne PAS créer un module
+       "panier" ; se servir de MES REPÈRES comme plaque tournante -- dans Mes Repères, la
+       personne peut rediriger certains Repères vers le futur module "Mes preuves" (qui rendrait
+       un retour critique : la réponse répond-elle aux attentes de l'employeur ?). Recoupe le sac
+       de "Comparer mes pistes" (_comparerEtat), le chantier "Cohérence entre les modules",
+       l'idée d'objets métier partagés (IDEES_A_RECLASSER §D). -> Analyse dédiée AVANT tout code,
+       jamais un mécanisme de collecte de plus. Dans la maquette : bouton "Envoyer vers Mes
+       preuves" sur les questions liées au CV = démonstration, marqué "à analyser".
+
+   BOUTON REPÈRE (question ouverte Denis 03/09)  Éviter trop de boutons. Piste : garder les
+       boutons "Garder comme Repère" par axe (fins, en contexte) + UNE seule zone groupée en
+       fin de fiche : bouton global -> écran "quels points je garde (cases)" puis "dans quel
+       des 4 types de Repère" chacun (Question / Idée / Approfondir / Discuter). Aujourd'hui la
+       maquette a DEUX zones groupées (bas du bloc "Décoder" + carte de la fiche) : à fusionner
+       en une seule. Denis re-parcourt la maquette pour trancher.
+
+   AXE 3 "Le message que votre CV envoie" (enrichi Denis 03/09)  Retrait de la mention
+       "3 personnes d'expérience" cote utilisateur (intimidant ; reste un detail de prompt).
+       Phrase d'humilite ajoutee (lecture limitee, on part de ce que la personne montre).
+       Sous-cartes en vrais titres (h4). AJOUTS : "Les logiciels et outils que vous nommez"
+       (nommer explicitement = signal fort, surtout tertiaire -> alimente le prompt) ;
+       "Quelles experiences vous mettez en avant" enrichi (CV trop large -> mettre 3-4 experiences
+       cles en avant + bloc "Autres experiences" en bas ; un parcours varie = force d'adaptation,
+       a assumer) ; "La rubrique loisirs et centres d'interet" (le recruteur y lit un savoir-etre,
+       pas un nombre d'activites ; nommer ce que chaque activite developpe ; competences
+       transversales/transferables a identifier et transposer) -> alimente le prompt.
+
+   DECODER LES QUESTIONS (enrichi Denis 03/09)
+       - Le bloc entier est un ACCORDEON REPLIE par defaut (comme les axes) : certaines personnes
+         ne viennent pas du tout pour l'entretien -> c'est la personne qui choisit d'ouvrir.
+       - Encart : au-dela de la reponse, le recruteur observe si la personne s'est APPROPRIE son
+         CV (peut-elle en parler sans le lire ?). Nuance sur "Vos qualites".
+       - "Ecrire ma reponse" : FACULTATIF et CACHE derriere un bouton (accordeon imbrique), sur
+         chaque question liee au CV. Message clair : rien n'est impose, pas de correction
+         immediate ; plus tard la question + la reponse pourront partir vers "Mes preuves" (module
+         a construire) pour travailler le fil argumentaire. Jamais laisser croire a une validation
+         instantanee. Meme possibilite annoncee sur les questions generales.
+
+   PROMPT (phase Q5)  3 regards d'expérience : recruteur très expérimenté, directeur RH,
+       conseiller en insertion (~20 ans). Retour ADAPTÉ AU SECTEUR visé (technique -> chiffres,
+       certifications, concret ; associatif -> posture, valeurs ; industriel vs associatif =
+       vocabulaire différent). Claude fera une recherche des attentes de recrutement courantes
+       par grand secteur pour alimenter le prompt. Overlap assumé avec les axes « posture » et
+       « personnalisation » de bilan-v1.md : gardé, cadrage distinct (voix de recruteur +
+       exemples + reformulations vs constat bref) -- à noter dans CHANTIER_REGARD_RECRUTEUR.md.
+
+  Teinte du module : --accent sarcelle (placeholder, à accorder avec ATS et Se tenir informé).
+  Thème sombre : classe .dark sur <body> (convention maquette), PAS [data-theme].
+  Discipline git : fichier neuf, « git add <ce fichier> » uniquement, jamais « git add -A »,
+  commit seulement après validation visuelle de Denis.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Regard recruteur (parcours complet)</title>
+<style>
+  :root {
+    --bg-page: #f4f6f9;
+    --bg-card: #ffffff;
+    --bg-subtle: #eef2f7;
+    --border: #d9e0e8;
+    --border-strong: #b9c4d0;
+    --text-strong: #1f2a37;
+    --text: #33404f;
+    --text-muted: #647184;
+    --accent: #0f766e;
+    --accent-bg: #e2f2f0;
+    --ok: #1a7a4c;
+    --ok-bg: #e3f5ea;
+    --warn: #9a6410;
+    --warn-bg: #fbf1df;
+    --alert: #a3372b;
+    --alert-bg: #fbe6e3;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page: #0f1620;
+    --bg-card: #18222f;
+    --bg-subtle: #1f2c3b;
+    --border: #2c3a4b;
+    --border-strong: #3c4d61;
+    --text-strong: #eef3f9;
+    --text: #cdd6e1;
+    --text-muted: #93a2b4;
+    --accent: #2dd4bf;
+    --accent-bg: #17302d;
+    --ok: #6bd39b;
+    --ok-bg: #16311f;
+    --warn: #e2b877;
+    --warn-bg: #33270f;
+    --alert: #eda69c;
+    --alert-bg: #3a1f1b;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-page);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4 { color: var(--text-strong); line-height: 1.3; }
+  h1 { font-size: 1.5rem; margin: .2rem 0 .5rem; }
+  h2 { font-size: 1.15rem; margin: 1.4rem 0 .6rem; }
+  h3 { font-size: 1rem; margin: 1rem 0 .4rem; }
+  p { margin: .5rem 0; }
+  a { color: var(--accent); }
+  button { font-family: inherit; }
+  code { background: var(--bg-subtle); padding: 0 .25rem; border-radius: 4px; font-size: .86em; }
+
+  /* ---- Cadre général ---- */
+  .appbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: .6rem 1rem;
+  }
+  .appbar-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+  .appbar-titre { font-weight: 700; color: var(--text-strong); font-size: 1.05rem; }
+  .appbar-outils { margin-left: auto; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  .appbar select, .appbar .mini-btn {
+    font-size: .8rem; padding: .3rem .55rem; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text);
+    cursor: pointer;
+  }
+  .note-maquette {
+    max-width: 900px; margin: .5rem auto 0; font-size: .78rem; color: var(--text-muted);
+    border: 1px dashed var(--border-strong); border-radius: 8px; padding: .4rem .6rem;
+    background: var(--bg-subtle);
+  }
+  /* Bouton permanent "Revoir la présentation" (obligation famille 2), haut à gauche. */
+  .revoir-presentation { max-width: 900px; margin: .5rem auto 0; }
+  .revoir-presentation:empty { display: none; }
+  .revoir-presentation .btn {
+    font-size: .8rem; padding: .3rem .8rem; border-radius: 999px;
+    border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer;
+  }
+
+  /* ---- Barre d'étapes (position dans le module) ---- */
+  .etapes {
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: .2rem; margin: .9rem auto 0; max-width: 900px;
+  }
+  .etape {
+    display: flex; align-items: center; gap: .4rem;
+    padding: .3rem .7rem; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--bg-subtle);
+    color: var(--text-muted); font-size: .82rem; white-space: nowrap;
+  }
+  .etape .pastille {
+    width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .82rem;
+    background: var(--border); color: var(--bg-card);
+  }
+  .etape.faite { color: var(--text); }
+  .etape.faite .pastille { background: var(--ok); color: #fff; }
+  .etape.courante { color: var(--warn); border-color: var(--accent); background: var(--warn-bg); font-weight: 700; box-shadow: 0 0 0 2px var(--accent-bg), 0 0 0 3px var(--accent); }
+  .etape.courante .pastille { background: var(--accent); color: #fff; }
+  .etape-fleche { color: var(--border-strong); font-size: 1rem; margin: 0 .05rem; }
+  .etape-fleche.avenir { opacity: .4; }
+  .etape-fleche.suivant { color: var(--accent); opacity: 1; animation: chevronClignote 1.6s ease-in-out infinite; }
+  @keyframes chevronClignote { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .etape-fleche.suivant { animation: none; opacity: 1; } }
+
+  .btn.pousse { animation: boutonPousse 1.6s ease-in-out infinite; }
+  @keyframes boutonPousse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--accent-bg); }
+    50% { box-shadow: 0 0 0 6px var(--accent-bg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn.pousse { animation: none; } }
+
+  .decompte-hero {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    padding: 1rem 1.1rem; border-radius: 12px;
+    background: var(--accent-bg); border: 1px solid var(--accent);
+  }
+  .decompte-hero .num-sec {
+    flex-shrink: 0; width: 2.6rem; height: 2.6rem; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--accent); color: #fff; font-size: 1.2rem; font-weight: 700;
+  }
+  .decompte-hero .txt { flex: 1; min-width: 170px; font-size: .92rem; color: var(--text); }
+  .decompte-piste { height: 4px; border-radius: 999px; background: var(--bg-card); overflow: hidden; margin-top: .5rem; }
+  .decompte-piste > span { display: block; height: 100%; background: var(--accent); width: 55%; animation: decompteAvance 5s linear forwards; }
+  @keyframes decompteAvance { from { width: 100%; } to { width: 0; } }
+  @media (prefers-reduced-motion: reduce) { .decompte-piste > span { animation: none; width: 55%; } }
+
+  /* ---- Contenu ---- */
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 5.5rem; }
+  .vue { display: none; }
+  .vue.active { display: block; animation: apparait .18s ease; }
+  @keyframes apparait { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .vue.active { animation: none; } }
+
+  .carte {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0;
+    box-shadow: var(--shadow);
+  }
+  .carte.plat { box-shadow: none; }
+  .carte h4, .sous-carte-titre { font-size: .98rem; margin: .1rem 0 .35rem; color: var(--text-strong); }
+  .accroche { color: var(--text-muted); font-size: 1.02rem; }
+  .centre { text-align: center; }
+  .pilule {
+    display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: .02em;
+    padding: .15rem .55rem; border-radius: 999px; text-transform: uppercase;
+  }
+  .pilule.ok { background: var(--ok-bg); color: var(--ok); }
+  .pilule.bleu { background: var(--accent-bg); color: var(--accent); }
+  .pilule.warn { background: var(--warn-bg); color: var(--warn); }
+  .pilule.alert { background: var(--alert-bg); color: var(--alert); }
+
+  details.plus { margin: .4rem 0 0; border-top: 1px dashed var(--border); padding-top: .4rem; }
+  details.plus summary { cursor: pointer; color: var(--accent); font-size: .88rem; }
+  details.plus .detail { font-size: .88rem; color: var(--text-muted); margin-top: .35rem; }
+  .detail { font-size: .88rem; color: var(--text-muted); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: .45rem; justify-content: center;
+    padding: .6rem 1.15rem; border-radius: 999px; border: 1px solid transparent;
+    font-size: .95rem; font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+  .btn.primaire { background: var(--accent); color: #fff; }
+  body.dark .btn.primaire { color: #06201d; }
+  .btn.secondaire { background: var(--bg-subtle); color: var(--text-strong); border-color: var(--border-strong); }
+  .btn.fantome { background: transparent; color: var(--accent); border-color: var(--border-strong); }
+  .btn.recommencer { background: var(--alert-bg); color: var(--alert); border-color: var(--alert); }
+  .btn.large { font-size: 1.05rem; padding: .75rem 1.5rem; }
+  .btn-rangee { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; }
+
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .6rem 0; overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary {
+    list-style: none; cursor: pointer; padding: .8rem 1rem; font-weight: 700; color: var(--text-strong);
+    display: flex; align-items: center; gap: .6rem;
+  }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary .num {
+    width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--accent); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; flex-shrink: 0;
+  }
+  body.dark .bloc-depli > summary .num { color: #06201d; }
+  .bloc-depli > summary .etat { margin-left: auto; font-size: .78rem; }
+  .bloc-depli .corps { padding: 0 1rem 1rem; border-top: 1px solid var(--border); }
+
+  .champ { width: 100%; padding: .55rem .7rem; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--bg-page); color: var(--text); font-size: .92rem; }
+  textarea.champ { min-height: 80px; resize: vertical; }
+  label.lig { display: block; font-size: .85rem; color: var(--text-muted); margin: .6rem 0 .2rem; }
+
+  .jeton {
+    padding: .35rem .8rem; border-radius: 999px; font-size: .85rem; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+    display: inline-block; margin: .15rem .2rem 0 0;
+  }
+  .jeton.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .liste-fine { margin: .3rem 0 0; padding-left: 1.1rem; font-size: .92rem; }
+  .liste-fine li { margin: .2rem 0; }
+
+  /* 3 temps d'un axe : ce qu'il voit / effet possible / à vérifier */
+  .trois-temps { margin: .5rem 0 0; }
+  .trois-temps .tt {
+    display: flex; flex-direction: column; gap: .15rem;
+    font-size: .9rem; margin: .35rem 0; padding: .45rem .65rem;
+    border-radius: 9px; background: var(--bg-subtle);
+  }
+  .trois-temps .tt .lab { font-weight: 700; color: var(--text-muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; }
+  .trois-temps .tt.verif { background: var(--accent-bg); }
+
+  /* geste de triage : "j'en ai pris connaissance" / "je ne suis pas d'accord" - neutre, thème */
+  .encart-triage {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .4rem;
+    margin-top: .5rem; padding: .4rem .6rem;
+    border: 1px dashed var(--border-strong); border-radius: 9px; background: var(--bg-subtle);
+  }
+  .encart-triage .triage-label { font-size: .76rem; font-weight: 700; color: var(--text-muted); margin-right: .15rem; }
+  .encart-triage .triage-btn { font-size: .8rem; padding: .3rem .7rem; }
+
+  .champ-reponse { margin-top: .4rem; }
+  .champ-reponse label { display: block; font-size: .78rem; color: var(--text-muted); margin-bottom: .15rem; }
+
+  .rappel {
+    font-size: .84rem; color: var(--text-muted); display: flex; gap: .5rem; align-items: flex-start;
+    background: var(--bg-subtle); border-radius: 9px; padding: .5rem .7rem; margin-top: .7rem;
+  }
+  .encart {
+    display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0; font-size: .9rem; color: var(--text);
+  }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+  .encart.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+
+  .zone-collage {
+    border: 1px solid var(--accent); border-radius: 12px; padding: 1rem;
+    background: var(--accent-bg); text-align: center;
+  }
+  .zone-collage .btn.large { width: 100%; max-width: 340px; }
+
+  /* ---- Comparaison avant / après ---- */
+  .legende { display: flex; flex-wrap: wrap; gap: .8rem; max-width: 900px; margin: .5rem auto 0; font-size: .76rem; color: var(--text-muted); }
+  .legende span { display: inline-flex; align-items: center; gap: .3rem; }
+  .puce { width: .8rem; height: .8rem; border-radius: 3px; display: inline-block; }
+  .puce.valide { background: var(--accent); }
+  .puce.inchange { background: var(--border-strong); }
+  .puce.avalider { background: var(--alert); }
+
+  .tab-comp { width: 100%; border-collapse: collapse; margin: .8rem 0; font-size: .86rem; }
+  .tab-comp th, .tab-comp td { border: 1px solid var(--border); padding: .55rem .6rem; text-align: left; vertical-align: top; }
+  .tab-comp th { background: var(--bg-subtle); color: var(--text-strong); }
+  .tab-comp td:first-child { font-weight: 700; color: var(--text-strong); white-space: nowrap; }
+  .comp-scroll { overflow-x: auto; }
+
+  .bandeau-comp {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+    font-size: .8rem; margin: 0 0 1rem; padding: .5rem .7rem;
+    border: 1px solid var(--border); border-radius: 9px; background: var(--bg-subtle);
+  }
+  .bandeau-comp .etiq-etat { font-weight: 700; padding: .1rem .5rem; border-radius: 999px; font-size: .72rem; text-transform: uppercase; }
+  .etiq-etat.valide { background: var(--accent-bg); color: var(--accent); }
+  .etiq-etat.inchange { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-strong); }
+  .etiq-etat.avalider { background: var(--alert-bg); color: var(--alert); }
+  .bandeau-comp .fleche { color: var(--text-muted); }
+
+  .depli-hint { margin-left: auto; font-size: .78rem; font-weight: 400; color: var(--accent); white-space: nowrap; }
+  details[open] > summary .depli-hint { display: none; }
+
+  /* image simulée (mock) */
+  .cv-mock { display: flex; gap: .8rem; flex-wrap: wrap; }
+  .cv-vignette {
+    width: 150px; height: 200px; border: 1px solid var(--border-strong); border-radius: 6px;
+    background: var(--bg-card); padding: .4rem; font-size: .5rem; color: var(--text-muted);
+    display: flex; flex-direction: column; gap: .2rem; overflow: hidden;
+  }
+  .cv-vignette .lg { height: .35rem; background: var(--border); border-radius: 2px; }
+  .cv-vignette .lg.t { background: var(--accent); width: 60%; height: .5rem; }
+  .cv-vignette .masq { background: #1b2430; border-radius: 2px; height: .5rem; }
+  .cv-vignette .lg.court { width: 40%; }
+
+  /* ---- Barre du bas ---- */
+  .barre-bas {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: var(--bg-card); border-top: 1px solid var(--border);
+    padding: .55rem 1rem;
+  }
+  .barre-bas-row { max-width: 760px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  .barre-bas .btn { padding: .5rem 1rem; font-size: .9rem; }
+
+  /* ---- Fenêtres ---- */
+  .overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(15,22,32,.55); padding: 1.2rem; overflow-y: auto;
+  }
+  .overlay.ouvert { display: block; }
+  .fenetre {
+    max-width: 620px; margin: 2rem auto; background: var(--bg-card);
+    border-radius: 16px; box-shadow: var(--shadow); padding: 1.2rem 1.3rem;
+  }
+  .fenetre-tete { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+  .fenetre-tete h3 { margin: 0; flex: 1; }
+  .fenetre-fermer {
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+    width: 2rem; height: 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem;
+  }
+  .fenetre-pied { margin-top: 1rem; display: flex; justify-content: space-between; gap: .6rem; }
+  mark { background: var(--warn-bg); color: var(--warn); padding: 0 .15rem; border-radius: 3px; }
+
+  /* ---- Écran « Choisir l'assistant » (évolution de la brique commune) ---- */
+  .choix-ia { border: 1px solid var(--accent); background: var(--accent-bg); border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0; }
+  .choix-ia-note { margin: 0 0 .55rem; font-size: .86rem; color: var(--text); display: flex; gap: .45rem; align-items: flex-start; }
+  .choix-ia-groupe + .choix-ia-groupe { margin-top: .9rem; }
+  .choix-ia-etiq { display: block; font-size: .8rem; font-weight: 700; color: var(--text-strong); margin-bottom: .4rem; }
+  .choix-ia-etiq .quoi { font-weight: 400; color: var(--text-muted); }
+  .choix-ia-rangee { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .assist-pastille {
+    display: flex; flex-direction: column; align-items: center; gap: .12rem;
+    min-width: 92px; min-height: 44px; padding: .5rem .9rem; border-radius: 14px;
+    border: 1px solid var(--border-strong); background: var(--bg-card);
+    color: var(--text-strong); font-size: .95rem; font-weight: 600; cursor: pointer;
+  }
+  .assist-pastille .sous { font-size: .6rem; font-weight: 400; letter-spacing: .02em; text-transform: uppercase; color: var(--text-muted); }
+  .assist-pastille.sans-compte { border-color: var(--ok); background: var(--ok-bg); }
+  .assist-pastille.connexion { border-color: var(--accent); background: var(--accent-bg); }
+  .assist-pastille .tag-conseille {
+    font-size: .58rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--ok); background: var(--bg-card); border: 1px solid var(--ok);
+    border-radius: 999px; padding: .05rem .4rem; margin-top: .2rem;
+  }
+  .etape-liste { list-style: none; margin: .5rem 0 0; padding: 0; display: grid; gap: .5rem; }
+  .etape-liste li { display: flex; gap: .55rem; align-items: flex-start; font-size: .88rem; color: var(--text); }
+  .etape-liste .rond {
+    width: 1.4rem; height: 1.4rem; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .74rem; font-weight: 700; background: var(--accent); color: #fff;
+  }
+  body.dark .etape-liste .rond { color: #06201d; }
+  .etape-liste .titre { font-weight: 700; }
+  .choix-ia-reprendre {
+    margin: 0 0 .8rem; padding: .55rem .75rem; border-radius: 10px;
+    background: var(--bg-subtle); border: 1px solid var(--border-strong);
+    font-size: .88rem; color: var(--text);
+  }
+  .choix-ia-rappel {
+    margin-top: .7rem; display: flex; gap: .5rem; align-items: flex-start;
+    background: var(--ok-bg); border: 1px solid var(--ok); border-radius: 10px;
+    padding: .55rem .75rem; font-size: .84rem; color: var(--text);
+  }
+  .assist-pastille.actif { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 0 3px var(--accent-bg); }
+  body.dark .assist-pastille.actif { color: #06201d; }
+  .assist-pastille.actif .sous { color: rgba(255,255,255,.85); }
+  .decompte-hero.bloque { background: var(--warn-bg); border-color: var(--warn); }
+  .decompte-hero.bloque .num-sec { background: var(--warn); }
+
+  /* Bascule "avec image" / "Mode texte seul" (aide de maquette) */
+  .mode-texte-only { display: none !important; }
+  body.mode-texte .mode-texte-only { display: block !important; }
+  body.mode-texte .mode-texte-only.encart { display: flex !important; }
+  body.mode-texte .image-only { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-row">
+    <span class="appbar-titre">&#128444;&#65039; Regard recruteur</span>
+    <div class="appbar-outils">
+      <select id="devnav" title="Sauter à un écran (aide de maquette)">
+        <option value="">Aller à...</option>
+        <option value="comparaison">0 - Comparaison : aujourd'hui / proposé</option>
+        <option value="intro">1 - Page de présentation</option>
+        <option value="preparer">2 - Préparer (1 page dépliante)</option>
+        <option value="masquer">2b - Masquer sur l'image (guide)</option>
+        <option value="choix-assistant">2c - Choisir l'assistant</option>
+        <option value="chez">2d - Chez l'assistant</option>
+        <option value="coller">2e - Coller la réponse</option>
+        <option value="erreur-lecture">2f - Réponse illisible / refus (écran d'erreur)</option>
+        <option value="regard">3 - Le regard (le rapport, 6 axes)</option>
+        <option value="fiche">4 - Ma fiche à garder (clôture)</option>
+        <option value="bord">État 2 : reprise / tableau de bord</option>
+      </select>
+      <button class="mini-btn" id="modetexte">Simuler : Mode texte</button>
+      <button class="mini-btn" id="theme">Mode sombre</button>
+    </div>
+  </div>
+
+  <div class="etapes" id="etapes"></div>
+  <div class="revoir-presentation" id="revoirbar"></div>
+
+  <div class="note-maquette">
+    Maquette non fonctionnelle. Commencez par <strong>&laquo;&nbsp;0 - Comparaison&nbsp;&raquo;</strong> (menu &laquo;&nbsp;Aller à...&nbsp;&raquo;) pour situer chaque écran.
+    Aux écrans qui demandent un assistant, un bouton <strong>&laquo;&nbsp;Simuler&nbsp;&raquo;</strong> saute à la suite avec un contenu fictif.
+    Ce module <strong>ne modifie jamais le CV</strong> : il ne fait que des conseils.
+    Le dépôt du document, le choix de l'assistant, la transition, le collage de la réponse : composants <strong>déjà câblés dans l'application</strong>, repris tels quels. Aucune nouvelle fenêtre n'est créée.
+  </div>
+  <div class="legende">
+    <span><i class="puce valide"></i> Nouvel écran, à concevoir ensemble</span>
+    <span><i class="puce inchange"></i> Composant qui existe déjà dans l'application</span>
+    <span><i class="puce avalider"></i> À valider / question ouverte</span>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ 0. COMPARAISON ============ -->
+<section class="vue" data-vue="comparaison" data-etape="0" data-retour="">
+  <h1>Comparaison : ce qui existe aujourd'hui &#8594; le module proposé</h1>
+  <p class="accroche">Ce module <strong>n'existe pas encore</strong>. Ce qui s'en rapproche le plus aujourd'hui : un court passage dans &laquo;&nbsp;Analyser ma candidature&nbsp;&raquo;. On part de cette petite base, et on va bien au-delà.</p>
+
+  <div class="comp-scroll">
+  <table class="tab-comp">
+    <thead><tr><th>Ce qu'on regarde</th><th>Aujourd'hui (Analyser ma candidature)</th><th>Proposé (Regard recruteur)</th><th>Ce qui change</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>La forme du CV</td>
+        <td>Le prompt dit texto : &laquo;&nbsp;Tu ne vois pas le document (mise en page, police, couleurs, colonnes, marges, aération, pages)&nbsp;&raquo;. Le Bilan ne juge que le <strong>texte</strong>.</td>
+        <td>On regarde une <strong>image</strong> du CV : la page réelle, telle qu'un recruteur la voit.</td>
+        <td><i class="puce valide"></i> Nouveau. On comble exactement ce que le Bilan s'interdit.</td>
+      </tr>
+      <tr>
+        <td>La première impression</td>
+        <td>Un court bloc &laquo;&nbsp;Première lecture du recruteur&nbsp;&raquo; : 3 cases (impression / ce qui donne envie / ce qui peut freiner), à l'aveugle sur le texte.</td>
+        <td><strong>6 axes</strong> (4 sur le texte seul), chacun en 3 temps : ce qu'un recruteur voit, ce que ça peut produire, ce qui mérite d'être vérifié. Dont un axe entier sur le <strong>message que renvoie le CV</strong> (registre de langage, logiciels nommés, expériences mises en avant, ciblage) et un sur la <strong>cohérence</strong> (titre, accroche, emploi ou stage, dates), avec exemples cités et reformulations. Plus un bloc &laquo;&nbsp;Décoder les questions d'un recruteur&nbsp;&raquo; (à côté des axes).</td>
+        <td><i class="puce valide"></i> Beaucoup plus détaillé, à partir de la vraie page.</td>
+      </tr>
+      <tr>
+        <td>Les questions d'entretien</td>
+        <td>Des recommandations de fond sur le contenu.</td>
+        <td>Un bloc &laquo;&nbsp;Décoder les questions d'un recruteur&nbsp;&raquo; : 5 questions générales fixes + des questions liées au CV proposées par l'assistant. Pour chacune : ce que le recruteur cherche vraiment, et comment y répondre.</td>
+        <td><i class="puce valide"></i> Nouveau, tourné vers l'oral.</td>
+      </tr>
+      <tr>
+        <td>Les couleurs du CV</td>
+        <td>Rien.</td>
+        <td>Un axe : combien de couleurs, contraste, lisibilité (2 au maximum) ; et, si le site de l'entreprise est fourni, si le CV reprend ses codes visuels. Jamais une obligation.</td>
+        <td><i class="puce valide"></i> Nouveau.</td>
+      </tr>
+      <tr>
+        <td>Modifier le CV</td>
+        <td>Le Bilan permet de corriger le CV dans l'application, puis propose des modèles.</td>
+        <td>Regard recruteur ne touche à rien. C'est <strong>uniquement du conseil</strong> (forme, structure, présentation).</td>
+        <td><i class="puce valide"></i> Volontaire. Voir &laquo;&nbsp;Ce que ce module ne fait pas&nbsp;&raquo;.</td>
+      </tr>
+      <tr>
+        <td>Ce qu'on repart avec</td>
+        <td>Un CV corrigé et des modèles prêts à l'emploi.</td>
+        <td>Une fiche de conseils : à <strong>imprimer</strong>, à <strong>exporter</strong> (Word), à <strong>envoyer par e-mail</strong>, plus des Repères.</td>
+        <td><i class="puce valide"></i> Du conseil, pas un document produit.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent)">
+    <h3>Le comptage</h3>
+    <p><strong>Parcours proposé</strong> : environ <strong>8 écrans</strong> - présentation &middot; préparer (1 page dépliante) &middot; masquer l'image &middot; choisir l'assistant &middot; transition &middot; coller &middot; le regard &middot; ma fiche.</p>
+    <p class="detail"><strong>Aucun écran d'édition de CV.</strong> Le module s'arrête au conseil.</p>
+  </div>
+
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('intro')">Voir le parcours, écran par écran &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 1. PAGE DE PRÉSENTATION ============ -->
+<section class="vue" data-vue="intro" data-etape="0" data-retour="">
+  <div id="introDetour"></div>
+  <div class="bandeau-comp">
+    <span class="etiq-etat inchange">Déjà validée</span>
+    <span>Page de présentation maquettée et validée le 31/08 (<code>docs/MAQUETTE_INTRO_REGARD_RECRUTEUR.html</code>). Reprise ici en version courte, pour la continuité. Atteinte via &laquo;&nbsp;Revoir la présentation&nbsp;&raquo; = <strong>détour non destructif</strong> : bandeau &laquo;&nbsp;Revenir au module&nbsp;&raquo; au lieu du &laquo;&nbsp;Retour&nbsp;&raquo; vers l'accueil.</span>
+  </div>
+  <div class="centre">
+    <h1>&#128444;&#65039; Regard recruteur</h1>
+    <p class="accroche">Vous préparer au regard extérieur porté sur votre dossier : ce qui ressort, ce qui peut faire hésiter, les questions probables.</p>
+  </div>
+
+  <div class="carte" style="background:var(--accent-bg);border-color:var(--accent);text-align:center">
+    <p style="margin:0"><strong>C'est une simulation, pas le verdict d'un vrai recruteur.</strong> Chaque doute est présenté comme une question à vérifier ou à préparer, jamais comme une vérité sur vous.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#127919; À quoi ça sert</h3>
+    <p>Voir votre candidature comme un recruteur peut la voir : la première impression, les points forts perçus, les inquiétudes possibles, les questions qu'il pourrait se poser. Un recruteur repère d'abord les informations qui lui permettent de vérifier rapidement l'adéquation avec le poste ; un CV mal structuré peut faire perdre ces informations même quand le contenu est solide.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128203; Ce qui va se passer</h3>
+    <ul class="liste-fine">
+      <li>Vous préparez une image de votre CV (une capture d'écran nette, ou une page exportée en image).</li>
+      <li>Vous masquez sur l'image, avec des rectangles, votre nom, votre photo, vos coordonnées.</li>
+      <li>Vous indiquez le poste visé, l'entreprise, et si vous l'avez l'offre d'emploi.</li>
+      <li>Un assistant en ligne regarde votre CV comme le ferait un recruteur : la mise en page, l'aération, la longueur, la hiérarchie, autant que le contenu.</li>
+      <li>Vous recevez une lecture structurée en 6 parties, chacune formulée comme des points à vérifier, plus une aide pour décoder les questions d'entretien.</li>
+      <li>Pas d'image, ou une capture d'écran difficile pour vous ? Une lecture plus courte reste possible, sur le texte seul (4 parties).</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#128679; Ce que ce module ne fait pas</h3>
+    <ul class="liste-fine">
+      <li>Ce n'est pas le verdict d'un vrai recruteur : c'est une simulation, pour vous préparer.</li>
+      <li>Ce n'est pas une note ni un classement de votre candidature.</li>
+      <li>Ce n'est pas un entretien en direct : vous recevez une lecture, pas un échange.</li>
+      <li><strong>Il ne modifie pas votre CV.</strong> Il ne fait que des conseils, sur la forme, la structure et la présentation. Vous en tenez compte quand vous voulez, où vous voulez.</li>
+    </ul>
+  </div>
+
+  <div class="carte" style="background:var(--accent-bg);border-color:var(--accent)">
+    <h3>&#9878;&#65039; Des questions, pas un jugement</h3>
+    <p style="margin:0">Le résultat vous montre des points à vérifier et à préparer, jamais une évaluation de vous ou de votre valeur. Vous restez libre de tenir compte d'un point, de le nuancer, ou de le laisser de côté.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#9999;&#65039; Ce que vous pourrez faire ensuite</h3>
+    <ul class="liste-fine">
+      <li>Repérer les points de votre CV qui pourraient faire hésiter, et décider lesquels retravailler.</li>
+      <li>Préparer une réponse aux questions qu'un recruteur pourrait poser.</li>
+      <li>Garder les remarques les plus utiles, et refaire une lecture après avoir modifié votre CV.</li>
+    </ul>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent)">
+    <h3>&#9875;&#65039; Mes Repères</h3>
+    <p style="margin:0">Si une question ou un point à préparer vous semble important pour la suite, vous pourrez le garder dans <strong>Mes Repères</strong>, votre espace personnel de notes.</p>
+  </div>
+
+  <div class="carte plat">
+    <h3>&#9989; Bon à savoir</h3>
+    <div class="rappel"><span>&#128274;</span><span>Avant d'envoyer l'image, vous masquez vous-même votre nom, votre photo et vos coordonnées. Ils ne partent jamais vers l'assistant.</span></div>
+    <div class="rappel"><span>&#128190;</span><span>Cette application ne demande jamais de compte : pensez à cliquer sur l'icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('preparer')">Demander un regard sur ma candidature &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 2. PRÉPARER ============ -->
+<section class="vue" data-vue="preparer" data-etape="1" data-retour="intro">
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Nouvel écran</span>
+    <span>Une seule page qui se déplie (modèle de la page &laquo;&nbsp;Préparer&nbsp;&raquo; d'Analyser ma candidature), plutôt qu'une suite de fenêtres.</span>
+  </div>
+  <h1>Préparer</h1>
+  <p class="accroche">On rassemble ici tout ce dont la lecture a besoin. Les parties sont <strong>fermées, sauf la première</strong> ; le bouton du bas s'active quand l'image de votre CV est prête.</p>
+
+  <!-- Bloc 1 : l'image (1 à 3 pages) -->
+  <details class="bloc-depli" open>
+    <summary><span class="num">1</span> L'image de votre CV <span class="etat pilule bleu">Fortement conseillé</span></summary>
+    <div class="corps">
+      <p>Regard recruteur regarde une <strong>image</strong> de votre CV, pas seulement le texte : c'est ce qui permet de parler de la mise en page, des couleurs, de l'aération. Sans image, une lecture plus courte reste possible (voir ci-dessous).</p>
+      <div class="btn-rangee">
+        <button class="btn primaire" style="font-size:.85rem">Ajouter une image</button>
+        <button class="btn secondaire" style="font-size:.85rem" onclick="aller('masquer')">Aide : faire la capture et masquer</button>
+      </div>
+      <p class="detail" style="margin-top:.4rem">Une capture d'écran nette par page, ou une page de CV exportée en image. Mieux qu'une photo prise au téléphone. <strong>Si votre CV fait deux pages, ajoutez les deux</strong> (jusqu'à trois images).</p>
+      <div class="carte plat" style="background:var(--ok-bg);margin-top:.5rem">
+        <strong>&#9989; 2 images ajoutées</strong>
+        <ul class="liste-fine" style="margin:.3rem 0 0">
+          <li>cv-page1.png <button class="btn fantome" style="font-size:.75rem;padding:.15rem .5rem">Retirer</button></li>
+          <li>cv-page2.png <button class="btn fantome" style="font-size:.75rem;padding:.15rem .5rem">Retirer</button></li>
+        </ul>
+        <button class="btn fantome" style="font-size:.8rem;padding:.25rem .7rem;margin-top:.3rem">+ Ajouter une page</button>
+      </div>
+      <div class="encart">
+        <span>&#128172;</span>
+        <span>Vous n'avez pas d'image, ou une capture d'écran est difficile pour vous ?
+        <button class="btn fantome" style="font-size:.82rem;padding:.25rem .7rem;margin-left:.3rem" onclick="passerModeTexte()">Je préfère une lecture du contenu seul (Mode texte)</button>
+        <br><span class="detail">La lecture porte alors sur le texte : la première impression et les questions d'entretien. Pas d'avis sur la présentation.</span></span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Bloc 2 : masquer -->
+  <details class="bloc-depli">
+    <summary><span class="num">2</span> Masquer ce qui est personnel <span class="etat pilule bleu">Obligatoire</span><span class="depli-hint">&#9656; cliquez</span></summary>
+    <div class="corps">
+
+      <div class="image-only">
+        <p>Avant l'envoi, vous cachez sur <strong>chaque image</strong>, avec des rectangles pleins : votre <strong>nom</strong>, votre <strong>photo</strong>, vos <strong>coordonnées</strong>.</p>
+        <div class="btn-rangee">
+          <button class="btn primaire" style="font-size:.85rem" onclick="aller('masquer')">Ouvrir le guide de masquage</button>
+          <button class="btn secondaire" style="font-size:.85rem">&#9654; Voir la démonstration (20 s)</button>
+        </div>
+        <p class="detail" style="margin-top:.4rem">Vous le faites vous-même, avec un outil simple (Paint, Photos, Aperçu). L'application ne modifie pas vos images.</p>
+        <div class="bandeau-comp" style="margin-top:.5rem">
+          <span class="etiq-etat avalider">À valider</span>
+          <span>Un petit outil pour tracer les rectangles directement ici a été envisagé (décision 4 du chantier). Pour l'instant : guide seul.</span>
+        </div>
+      </div>
+
+      <div class="mode-texte-only">
+        <p>En Mode texte, vous envoyez le <strong>texte</strong> de votre CV : il contient votre nom, votre téléphone, votre e-mail. Vous les masquez donc dans le texte avant l'envoi.</p>
+        <div class="carte plat" style="font-size:.88rem;background:var(--bg-page)">
+          <p style="margin:.2rem 0">Accueil de publics, clôture de caisse, formation des nouveaux collègues.</p>
+          <p style="margin:.2rem 0">Tél. : <mark>06 12 34 56 78</mark> &nbsp;&middot;&nbsp; Courriel : <mark>marie.dupont@exemple.fr</mark></p>
+        </div>
+        <p class="detail" style="margin-top:.4rem"><span class="etiq-etat inchange" style="font-size:.66rem;padding:.05rem .4rem;border-radius:999px;text-transform:uppercase;font-weight:700">Composant existant</span> C'est l'écran &laquo;&nbsp;Vérifier le texte&nbsp;&raquo; déjà partagé par CV, Lettre, Entretien, Bilan, Cohérence (<code>htmlVerificationDocument</code>) : surlignage ambre du téléphone, de l'e-mail, des liens ; vous modifiez le texte vous-même.</p>
+        <div class="btn-rangee">
+          <button class="btn primaire" style="font-size:.85rem" onclick="aller('masquer')">Ouvrir la relecture du texte</button>
+          <button class="btn secondaire" style="font-size:.85rem">&#9654; Voir la démonstration (20 s)</button>
+        </div>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- Bloc 3 : le poste, l'entreprise, le site -->
+  <details class="bloc-depli">
+    <summary><span class="num">3</span> Le poste, l'entreprise, son site <span class="etat pilule bleu">Facultatif &middot; conseillé</span><span class="depli-hint">&#9656; cliquez</span></summary>
+    <div class="corps">
+      <p>Le poste visé et l'offre aident l'assistant à repérer ce qu'un recruteur de <strong>ce</strong> poste regarderait en premier.</p>
+      <label class="lig">Poste ou métier visé</label>
+      <input class="champ" placeholder="Ex. Agent d'accueil">
+      <label class="lig">Entreprise ciblée</label>
+      <input class="champ" placeholder="Ex. Mairie de Bergerac">
+      <label class="lig">Site internet de l'entreprise</label>
+      <input class="champ" placeholder="https://...">
+      <label class="lig">Offre d'emploi</label>
+      <textarea class="champ" placeholder="Collez ici le texte de l'offre, ou son lien"></textarea>
+      <label class="lig">Type de structure</label>
+      <select class="champ">
+        <option>Non précisé</option>
+        <option>Entreprise privée (secteur marchand)</option>
+        <option>Fonction publique territoriale</option>
+        <option>Fonction publique hospitalière</option>
+        <option>Association (loi 1901) / économie sociale et solidaire</option>
+        <option>Artisanat / commerce de proximité</option>
+        <option>Autre...</option>
+      </select>
+
+      <div class="carte plat" style="background:var(--accent-bg);margin-top:.7rem">
+        <strong>&#127912; Le site internet de l'entreprise</strong>
+        <p style="margin:.3rem 0 0;font-size:.9rem">Votre CV ne contient que le nom de l'entreprise. Si vous ajoutez son <strong>site internet</strong> (champ ci-dessus), l'assistant peut y voir ses couleurs dominantes et vous dire si votre CV les reprend, et comment un recruteur pourrait le percevoir. <strong>Sans le site, pas d'avis sur ce point.</strong> Ce n'est jamais une obligation.</p>
+      </div>
+
+      <p class="detail" style="margin-top:.5rem"><span class="etiq-etat inchange" style="font-size:.68rem;padding:.05rem .4rem;border-radius:999px;text-transform:uppercase;font-weight:700">Composant existant</span> Ces champs sont ceux d'&laquo;&nbsp;Analyser ma candidature&nbsp;&raquo; (brique commune <code>bilanCorpsCiblageOffreHTML</code>). Rien n'est redemandé si l'application connaît déjà l'info (site, couleurs) via &laquo;&nbsp;Découvrir mes compétences&nbsp;&raquo;.</p>
+    </div>
+  </details>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('choix-assistant')">Choisir mon assistant &#8594;</button>
+    <p class="detail" style="margin-top:.4rem">Actif une fois l'image ajoutée et masquée <strong>(ou le texte relu et masqué en Mode texte)</strong>. Le poste et l'offre peuvent rester vides.</p>
+  </div>
+</section>
+
+<!-- ============ 2b. MASQUER (image : guide rectangles ; texte : composant partagé) ============ -->
+<section class="vue" data-vue="masquer" data-etape="1" data-retour="preparer">
+  <div class="bandeau-comp image-only">
+    <span class="etiq-etat valide">Nouvel écran</span>
+    <span>Même idée que le composant &laquo;&nbsp;Relire et masquer&nbsp;&raquo; (aujourd'hui pour du texte), transposée à une <strong>image</strong> : ici, des rectangles dessinés.</span>
+  </div>
+  <div class="bandeau-comp mode-texte-only">
+    <span class="etiq-etat inchange">Composant existant</span>
+    <span>En Mode texte, c'est l'écran &laquo;&nbsp;Vérifier le texte&nbsp;&raquo; déjà partagé (CV, Lettre, Entretien, Bilan, Cohérence) : <code>htmlVerificationDocument</code>. On ne le réinvente pas.</span>
+  </div>
+  <h1>Masquer ce qui est personnel</h1>
+  <p class="accroche image-only">L'assistant n'a pas besoin de votre identité pour regarder votre CV. Vous cachez donc ces informations avant de partager l'image.</p>
+  <p class="accroche mode-texte-only">L'assistant n'a pas besoin de votre identité pour lire votre CV. Vous relisez le texte et vous masquez vous-même ce qui ne doit pas partir.</p>
+
+  <div class="carte mode-texte-only">
+    <p>Nous avons surligné en <mark>ambre</mark>, directement dans le texte, ce qui ressemble à une information personnelle. <strong>Vous relisez et vous modifiez le texte vous-même</strong> : rien n'est masqué à votre place.</p>
+    <div class="carte plat" style="font-size:.9rem;background:var(--bg-page)">
+      <p style="margin:.2rem 0">Assistante d'accueil - Structure publique (2021-2024). Accueil de publics, clôture de caisse, formation des nouveaux collègues.</p>
+      <p style="margin:.2rem 0">Tél. : <mark>06 12 34 56 78</mark> &nbsp;&middot;&nbsp; Courriel : <mark>marie.dupont@exemple.fr</mark> &nbsp;&middot;&nbsp; <mark>linkedin.com/in/marie-dupont</mark></p>
+    </div>
+    <p class="detail" style="margin-top:.4rem">Repérés de façon fiable : <strong>téléphone, e-mail, liens</strong> (LinkedIn...), âge / date de naissance étiquetés. Le <strong>nom</strong> n'est repéré que s'il est écrit &laquo;&nbsp;Nom : ...&nbsp;&raquo; ou présent dans l'e-mail : vérifiez le reste vous-même.</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" style="font-size:.85rem" onclick="aller('choix-assistant')">C'est relu, continuer</button>
+      <button class="btn secondaire" style="font-size:.85rem">&#9654; Voir la démonstration (20 s)</button>
+    </div>
+  </div>
+
+  <div class="carte image-only">
+    <h3>En 4 étapes</h3>
+    <ul class="etape-liste">
+      <li><span class="rond">1</span><span><span class="titre">Faites une capture d'écran nette</span> de votre CV. Windows : touche <strong>Impr. écran</strong>, ou <strong>Windows + Maj + S</strong>. Mac : <strong>Cmd + Maj + 4</strong>. Téléphone : la capture d'écran habituelle.</span></li>
+      <li><span class="rond">2</span><span><span class="titre">Ouvrez l'image</span> dans un outil simple : Paint, l'application Photos, ou Aperçu sur Mac.</span></li>
+      <li><span class="rond">3</span><span><span class="titre">Dessinez des rectangles pleins</span>, d'une seule couleur, sur : votre nom, votre photo, votre adresse, votre téléphone, votre e-mail.</span></li>
+      <li><span class="rond">4</span><span><span class="titre">Enregistrez l'image.</span> C'est celle-ci que vous joindrez à l'assistant.</span></li>
+    </ul>
+    <div class="encart"><span>&#128204;</span><span>Le rectangle n'a pas besoin d'être joli. Il doit seulement cacher l'information avant que vous partagiez l'image.</span></div>
+
+    <div class="cv-mock" style="margin-top:.6rem">
+      <div>
+        <p class="detail" style="text-align:center;margin:0 0 .2rem">Avant</p>
+        <div class="cv-vignette">
+          <div class="lg t"></div><div class="lg court"></div>
+          <div class="lg" style="background:var(--accent);width:50%"></div>
+          <div class="lg"></div><div class="lg"></div><div class="lg court"></div>
+          <div class="lg"></div><div class="lg"></div>
+        </div>
+      </div>
+      <div>
+        <p class="detail" style="text-align:center;margin:0 0 .2rem">Après masquage</p>
+        <div class="cv-vignette">
+          <div class="lg t"></div><div class="masq" style="width:55%"></div>
+          <div class="masq" style="width:45%"></div>
+          <div class="lg"></div><div class="lg"></div><div class="lg court"></div>
+          <div class="lg"></div><div class="lg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="carte image-only">
+    <h3>Vous ne savez pas faire ?</h3>
+    <ul class="liste-fine">
+      <li>Demandez à la personne qui vous accompagne de vous aider.</li>
+      <li>Ou passez en <strong>Mode texte</strong> : l'assistant lit alors seulement le contenu de votre CV, pas sa présentation. Une lecture différente, mais tout aussi utile.</li>
+      <li>En dernier recours : imprimez votre CV, masquez au feutre noir, photographiez la feuille.</li>
+    </ul>
+    <div class="btn-rangee">
+      <button class="btn fantome" onclick="passerModeTexte()">Passer en Mode texte seul</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2c. CHOISIR L'ASSISTANT ============ -->
+<section class="vue" data-vue="choix-assistant" data-etape="2" data-retour="preparer">
+  <div class="bandeau-comp">
+    <span class="etiq-etat inchange">Composant existant</span>
+    <span>Brique commune <code>htmlChoixAssistantBilanCorps</code>, reprise <strong>telle quelle</strong> : mêmes assistants, mêmes groupes, mêmes couleurs (vert = sans compte, teinte du module = connexion). Seul ajout propre au module : la ligne sur les images et le repli &laquo;&nbsp;Mode texte&nbsp;&raquo;.</span>
+  </div>
+  <h1>Choisir l'assistant</h1>
+  <p class="accroche">Dernière étape avant l'envoi : avec quel assistant en ligne faire lire votre CV ? <strong>Cliquer sur un assistant prépare et copie tout, puis l'ouvre</strong> : vous n'avez rien à taper.</p>
+
+  <div class="choix-ia-reprendre">La dernière fois, vous avez utilisé <strong>ChatGPT</strong>. Vous pouvez reprendre avec lui, ou choisir un autre assistant ci-dessous.</div>
+
+  <div class="choix-ia">
+    <p class="choix-ia-note"><span>&#8594;</span><span>Au clic : l'application copie tout et ouvre l'assistant dans un nouvel onglet. <strong>Cette page reste ouverte</strong>, vous y revenez pour coller la réponse.</span></p>
+    <p class="choix-ia-note"><span>&#128161;</span><span>Si vous hésitez : <strong>ChatGPT</strong> s'utilise tout de suite, sans rien créer.</span></p>
+    <p class="choix-ia-note"><span>&#128444;&#65039;</span><span>Ce module montre votre CV sous forme d'<strong>image</strong> : les assistants ci-dessous savent tous lire les images. Sinon, le repli &laquo;&nbsp;Mode texte&nbsp;&raquo; est juste en dessous.</span></p>
+
+    <div class="choix-ia-groupe">
+      <span class="choix-ia-etiq">Sans compte à créer <span class="quoi">: utilisable tout de suite, aucune inscription</span></span>
+      <div class="choix-ia-rangee">
+        <button type="button" class="assist-pastille sans-compte">ChatGPT<span class="sous">sans compte</span><span class="tag-conseille">conseillé pour commencer</span></button>
+        <button type="button" class="assist-pastille sans-compte">Perplexity<span class="sous">sans compte</span></button>
+      </div>
+    </div>
+
+    <div class="choix-ia-groupe">
+      <span class="choix-ia-etiq">Avec une connexion <span class="quoi">: il faut se connecter à un compte existant</span></span>
+      <div class="choix-ia-rangee">
+        <button type="button" class="assist-pastille connexion actif" aria-pressed="true">Claude<span class="sous">connexion</span></button>
+        <button type="button" class="assist-pastille connexion">Gemini<span class="sous">connexion</span></button>
+        <button type="button" class="assist-pastille connexion">Mistral<span class="sous">connexion</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="encart warn">
+    <span>&#128221;</span>
+    <span>Votre assistant ne lit que le texte ?
+    <button class="btn fantome" style="font-size:.82rem;padding:.25rem .7rem;margin-left:.3rem" onclick="document.body.classList.add('mode-texte'); aller('coller')">Continuer en Mode texte seul</button>
+    <br><span class="detail">La lecture porte alors sur le contenu de votre CV, pas sur sa présentation.</span></span>
+  </div>
+
+  <details class="plus">
+    <summary>Si vous utilisez votre propre compte (connecté)</summary>
+    <div class="detail">
+      <p style="margin:.3rem 0">Sur un compte auquel vous êtes déjà connecté, l'assistant peut donner son avis sur la consigne au lieu de faire la lecture. Si ça arrive, collez-lui : <em>&laquo;&nbsp;Applique la consigne directement et entièrement, sans commentaire ni introduction.&nbsp;&raquo;</em></p>
+      <div class="btn-rangee"><button class="btn fantome" style="font-size:.8rem;padding:.25rem .7rem">Copier cette phrase</button></div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="num">&#128203;</span> Ce qui va se passer, et vos données <span class="depli-hint">&#9656; cliquez</span></summary>
+    <div class="corps">
+      <p class="detail">Quatre temps, une fois chez l'assistant :</p>
+      <ul class="etape-liste">
+        <li><span class="rond">1</span><span><span class="titre">Copie.</span> Le texte de départ (le poste, l'entreprise, l'offre, ce qu'on demande de regarder) est copié automatiquement.</span></li>
+        <li><span class="rond">2</span><span><span class="titre">Votre image.</span> Vous joignez vous-même l'image masquée de votre CV dans la conversation.</span></li>
+        <li><span class="rond">3</span><span><span class="titre">Lecture.</span> L'assistant regarde votre CV comme le ferait un recruteur expérimenté du secteur que vous visez : la mise en page, le message qu'il renvoie, sa cohérence, autant que le contenu.</span></li>
+        <li><span class="rond">4</span><span><span class="titre">Retour.</span> Vous copiez la réponse et vous revenez la coller ici.</span></li>
+      </ul>
+      <div class="choix-ia-rappel"><span>&#128274;</span><span>Vous avez masqué vous-même votre nom, votre photo et vos coordonnées sur l'image (partie &laquo;&nbsp;Masquer ce qui est personnel&nbsp;&raquo;). Rien d'autre n'est envoyé.</span></div>
+      <div class="btn-rangee"><button class="btn secondaire" style="font-size:.82rem;padding:.3rem .8rem">&#9654; Voir la démonstration</button></div>
+    </div>
+  </details>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('chez')">Simuler le choix de ChatGPT &#8594;</button>
+    <p class="detail" style="margin-top:.4rem">Dans l'application, cliquer sur un assistant lance tout de suite la copie et l'ouverture : ce bouton ne sert qu'à la maquette.</p>
+  </div>
+</section>
+
+<!-- ============ 2d. CHEZ L'ASSISTANT ============ -->
+<section class="vue" data-vue="chez" data-etape="2" data-retour="choix-assistant" data-suivant="coller" data-suivant-label="Simuler : je suis de retour">
+  <div class="bandeau-comp">
+    <span class="etiq-etat inchange">Composant existant</span>
+    <span>Écran de transition partagé <code>htmlBanniereTransitionIA</code>, repris tel quel : décompte &laquo;&nbsp;hero&nbsp;&raquo;, bouton pour ouvrir tout de suite sans attendre la fin du compte, repli si le navigateur bloque l'ouverture.</span>
+  </div>
+  <h1>L'assistant va s'ouvrir</h1>
+
+  <div class="decompte-hero">
+    <span class="num-sec">3</span>
+    <div class="txt">
+      <strong>Tout est copié.</strong> ChatGPT s'ouvre dans un nouvel onglet dans un instant.
+      <div class="decompte-piste"><span></span></div>
+      <div class="btn-rangee"><button class="btn primaire pousse">Ouvrir ChatGPT maintenant</button></div>
+    </div>
+  </div>
+
+  <details class="plus"><summary>Si rien ne s'ouvre</summary>
+    <p class="detail">Votre navigateur a peut-être bloqué l'ouverture d'un nouvel onglet.
+    <button class="btn secondaire" style="font-size:.82rem;margin-left:.3rem">Rouvrir le site de ChatGPT</button></p>
+  </details>
+
+  <div class="carte plat" style="background:var(--bg-subtle);margin-top:.9rem">
+    <p style="margin:0"><strong>Une fois sur ChatGPT :</strong> collez le texte (il est déjà dans le presse-papiers), <strong>joignez votre image masquée</strong>, puis envoyez. Revenez ensuite ici coller la réponse.</p>
+  </div>
+
+  <p class="detail" style="margin-top:.8rem">Transition simulée dans la maquette. Utilisez le bouton &laquo;&nbsp;Simuler&nbsp;&raquo; en bas.</p>
+</section>
+
+<!-- ============ 2e. COLLER LA RÉPONSE ============ -->
+<section class="vue" data-vue="coller" data-etape="2" data-retour="chez">
+  <div class="bandeau-comp">
+    <span class="etiq-etat inchange">Composant existant</span>
+    <span>Composant partagé <code>htmlCollageInstantane</code>. Identique (bouton rectangulaire &laquo;&nbsp;Coller la réponse&nbsp;&raquo;, morceau supplémentaire, effacer et recoller).</span>
+  </div>
+  <h1>De retour : coller la réponse</h1>
+  <p class="accroche">Vous revenez de l'assistant. Une fois sa réponse copiée, collez-la ci-dessous.</p>
+  <div class="encart">
+    <span>&#128172;</span>
+    <span>Si l'assistant a donné son avis sur la consigne au lieu de faire la lecture (ça arrive sur un compte connecté), collez-lui : <em>&laquo;&nbsp;Applique la consigne directement et entièrement, sans commentaire.&nbsp;&raquo;</em> puis rapportez sa nouvelle réponse.</span>
+  </div>
+  <div class="zone-collage">
+    <button class="btn primaire large">Coller la réponse</button>
+    <p class="detail" style="margin:.6rem 0 0">Le texte collé n'est pas affiché : juste une confirmation.</p>
+  </div>
+  <div class="btn-rangee" style="justify-content:center">
+    <button class="btn fantome" style="font-size:.85rem">Coller un morceau supplémentaire</button>
+    <button class="btn fantome" style="font-size:.85rem">Effacer et recoller</button>
+  </div>
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('regard')">Simuler une réponse &#8594;</button>
+    <div class="btn-rangee" style="justify-content:center;margin-top:.5rem"><button class="btn fantome" style="font-size:.82rem" onclick="aller('erreur-lecture')">Simuler : réponse illisible ou refus</button></div>
+  </div>
+</section>
+
+<!-- ============ 2f. RÉPONSE ILLISIBLE / REFUS ============ -->
+<section class="vue" data-vue="erreur-lecture" data-etape="2" data-retour="coller">
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Nouvel écran</span>
+    <span>Cas signalé sur d'autres modules (Découverte, Bilan) : l'assistant a refusé, a répondu par un texte au lieu du format attendu, ou la réponse est incompréhensible. Même patron : on explique, on donne une phrase prête à recoller, on ne bloque pas.</span>
+  </div>
+  <h1>On n'a pas réussi à lire cette réponse</h1>
+  <p class="accroche">Ce n'est pas de votre faute. L'assistant n'a pas répondu dans la forme attendue, ou la réponse est arrivée incomplète.</p>
+
+  <div class="carte">
+    <h3>&#128260; Ce que vous pouvez faire</h3>
+    <ul class="liste-fine">
+      <li><strong>Retourner sur l'assistant</strong> et coller la phrase ci-dessous : elle lui redemande une réponse dans le bon format.</li>
+      <li>Ou <strong>coller à nouveau</strong> la réponse ici, si vous pensez qu'il en manque un morceau.</li>
+      <li>Ou <strong>choisir un autre assistant</strong> et recommencer l'envoi.</li>
+    </ul>
+    <div class="carte plat" style="background:var(--bg-subtle)">
+      <p style="margin:.2rem 0;font-style:italic">&laquo;&nbsp;Reprends ta lecture de mon CV et donne-la uniquement dans le format demandé au début, sans commentaire ni introduction.&nbsp;&raquo;</p>
+      <div class="btn-rangee"><button class="btn primaire" style="font-size:.85rem">Copier cette phrase</button></div>
+    </div>
+    <div class="btn-rangee">
+      <button class="btn secondaire" onclick="aller('coller')">Coller à nouveau</button>
+      <button class="btn secondaire" onclick="aller('choix-assistant')">Choisir un autre assistant</button>
+    </div>
+  </div>
+
+  <div class="encart">
+    <span>&#128172;</span>
+    <span>Rien n'est perdu : votre image et vos réponses restent là. Vous pouvez aussi <strong>sauvegarder</strong> (icône disquette) et revenir plus tard.</span>
+  </div>
+</section>
+
+<!-- ============ 3. LE REGARD (LE RAPPORT) ============ -->
+<section class="vue" data-vue="regard" data-etape="3" data-retour="coller">
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Nouvel écran</span>
+    <span>Le cœur du module. <strong>6 axes fixes</strong> (4 sur le texte seul) + un bloc &laquo;&nbsp;Décoder les questions&nbsp;&raquo;. Chaque doute est une question, jamais un constat. Aucune note, aucun score, aucun classement.</span>
+  </div>
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Décidé</span>
+    <span>6 axes (Denis, 03/09, figés avec le schéma de sortie). Les plus importants pour la candidature sont en tête ; tout est replié, sauf les deux premières parties. Deux axes retirés : &laquo;&nbsp;Sujets à préparer pour un entretien&nbsp;&raquo; et &laquo;&nbsp;Points qui peuvent susciter d'autres questions&nbsp;&raquo; (voir le schéma de sortie §8).</span>
+  </div>
+  <h1>Le regard d'un recruteur sur votre CV</h1>
+  <p class="accroche">Une lecture, pas un échange. Chaque partie est repliée : ouvrez ce que vous voulez, à votre rythme.</p>
+
+  <div class="bandeau-comp image-only">
+    <span class="etiq-etat valide">Avec image</span>
+    <span>Vous avez envoyé une image de votre CV : les <strong>6 axes</strong> sont disponibles.</span>
+  </div>
+  <div class="bandeau-comp mode-texte-only">
+    <span class="etiq-etat avalider">Mode texte</span>
+    <span>Lecture sur le texte seul : <strong>4 axes</strong>. La présentation et les couleurs demandent une image. Ce n'est pas le même regard qu'&laquo;&nbsp;Analyser ma candidature&nbsp;&raquo; : ici, la première impression, le message que renvoie votre CV et les questions d'entretien ; là-bas, l'adéquation de votre parcours à l'offre.</span>
+  </div>
+
+  <div class="carte" style="background:var(--accent-bg);border-color:var(--accent)">
+    <p class="image-only" style="margin:0;font-size:1.02rem"><strong>En quelques secondes</strong>, un recruteur voit d'abord : un profil d'accueil clair et polyvalent. Il pourrait s'arrêter sur : le niveau de responsabilité réel des dernières expériences, et une page assez dense en bas.</p>
+    <p class="mode-texte-only" style="margin:0;font-size:1.02rem"><strong>En parcourant vite le texte</strong>, un recruteur retient d'abord : un profil d'accueil clair et polyvalent. Il pourrait s'arrêter sur : le niveau de responsabilité réel des dernières expériences, et des missions récentes peu détaillées.</p>
+    <p class="detail" style="margin:.5rem 0 0">Notre lecture est limitée : on part de ce que vous nous montrez, pas de votre CV complet en main pour tout examiner. Et tous les recruteurs ne réagissent pas de la même façon. Ce sont des pistes, pas des vérités.</p>
+  </div>
+
+  <div class="bandeau-comp">
+    <span class="etiq-etat avalider">Cas CV court</span>
+    <span>Si le CV est encore court ou peu détaillé (une mission, un début de parcours), l'assistant le dit, se limite à ce qui est visible, et <strong>n'invente rien</strong>. Le rapport affiche alors une phrase du type &laquo;&nbsp;votre CV est encore court, la lecture est forcément partielle - c'est normal à ce stade&nbsp;&raquo;, avec un ton encourageant. Garde-fou à porter dans le prompt.</span>
+  </div>
+
+  <p class="detail" style="margin:.4rem 0 .2rem">Les parties les plus importantes pour votre candidature sont en premier.</p>
+
+  <!-- 1. Ce qui attire l'attention de façon positive (on commence par le positif) -->
+  <details class="bloc-depli" open>
+    <summary><span class="num">&#128077;</span> Ce qui attire l'attention de façon positive<span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps">
+      <ul class="liste-fine">
+        <li>La hiérarchie est claire : on distingue tout de suite les titres du reste.</li>
+        <li>Les intitulés de postes sont visibles et faciles à repérer.</li>
+        <li>Les expériences se suivent dans un ordre logique, de la plus récente à la plus ancienne.</li>
+        <li>Les compétences sont regroupées au même endroit.</li>
+      </ul>
+      <div class="btn-rangee"><button class="btn secondaire" style="font-size:.8rem;padding:.35rem .8rem">&#9875;&#65039; Garder comme Repère</button></div>
+    </div>
+  </details>
+
+  <!-- 2. La cohérence d'ensemble (prioritaire) -->
+  <details class="bloc-depli" open style="border-left:5px solid var(--warn)">
+    <summary style="background:var(--warn-bg)"><span class="num" style="background:var(--warn)">&#128279;</span> La cohérence d'ensemble <span class="etat pilule warn">prioritaire</span><span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps">
+      <p class="detail">Est-ce que tout votre CV raconte la même histoire, et est-ce qu'elle colle au poste ?</p>
+
+      <div class="carte plat" style="background:var(--warn-bg)">
+        <p style="margin:.2rem 0"><strong>Emploi ou stage ?</strong></p>
+        <p style="margin:.2rem 0">Votre CV indique &laquo;&nbsp;à la recherche d'un stage&nbsp;&raquo;. L'offre à laquelle vous répondez est un poste en contrat.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur en fait</span><span>Il peut penser à une candidature envoyée par erreur, ou hésiter sur ce que vous cherchez vraiment. C'est un point qui peut faire écarter une candidature avant même l'entretien.</span></div>
+          <div class="tt verif"><span class="lab">À faire</span><span>Adapter l'objectif du CV au poste visé. Un CV pour un emploi et un CV pour un stage ne disent pas la même chose.</span></div>
+        </div>
+        <div class="btn-rangee"><button class="btn secondaire" style="font-size:.78rem;padding:.3rem .7rem">&#9875;&#65039; Garder comme Repère</button></div>
+      </div>
+
+      <div class="carte plat" style="background:var(--warn-bg)">
+        <p style="margin:.2rem 0"><strong>Le titre et la phrase d'accroche</strong></p>
+        <p style="margin:.2rem 0">Titre : &laquo;&nbsp;Agent polyvalent&nbsp;&raquo;. Accroche : &laquo;&nbsp;Motivé et dynamique, je souhaite mettre mes compétences au service d'une équipe.&nbsp;&raquo;</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur comprend</span><span>Le titre et l'accroche pourraient convenir à beaucoup d'offres. Le lien avec CE poste, et avec le reste de votre CV, n'est pas immédiat.</span></div>
+          <div class="tt verif"><span class="lab">Une piste</span><span>Un titre proche de l'intitulé de l'offre, et une accroche qui dit en une phrase : ce que vous savez faire, pour quel type de poste, avec un élément concret de votre parcours.</span></div>
+        </div>
+        <div class="btn-rangee"><button class="btn secondaire" style="font-size:.78rem;padding:.3rem .7rem">&#9875;&#65039; Garder comme Repère</button></div>
+      </div>
+
+      <div class="carte plat" style="background:var(--warn-bg)">
+        <p style="margin:.2rem 0"><strong>Les dates et les chevauchements</strong></p>
+        <p style="margin:.2rem 0">Deux expériences se chevauchent sur l'année 2022. Une autre période n'a pas de dates.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur en fait</span><span>Il ne conclut pas : il note, et il pourra poser la question en entretien. Un chevauchement peut être tout à fait normal (deux temps partiels, un remplacement).</span></div>
+          <div class="tt verif"><span class="lab">À faire</span><span>Vérifier les dates. Préparer une phrase courte qui explique le chevauchement ou le trou, sans vous justifier.</span></div>
+        </div>
+        <div class="btn-rangee"><button class="btn secondaire" style="font-size:.78rem;padding:.3rem .7rem">&#9875;&#65039; Garder comme Repère</button></div>
+      </div>
+    </div>
+  </details>
+
+  <!-- 3. Le message que votre CV envoie (prioritaire) -->
+  <details class="bloc-depli" style="border-left:5px solid var(--accent)">
+    <summary style="background:var(--accent-bg)"><span class="num">&#127919;</span> Le message que votre CV envoie <span class="etat pilule bleu">prioritaire</span><span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps">
+      <p class="detail">Ce que votre CV donne à comprendre, avec des <strong>exemples précis</strong> tirés de votre texte, et des reformulations.</p>
+
+      <div class="carte plat" style="background:var(--bg-subtle)">
+        <h4>Le registre de langage</h4>
+        <p style="margin:.2rem 0">Vous employez souvent : &laquo;&nbsp;accompagnement du public&nbsp;&raquo;, &laquo;&nbsp;dynamique de projet&nbsp;&raquo;, &laquo;&nbsp;valeurs de solidarité&nbsp;&raquo;, &laquo;&nbsp;dispositif&nbsp;&raquo;.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce que ça évoque</span><span>Un vocabulaire de l'action sociale et de l'associatif. L'offre visée est dans une entreprise privée, où l'on attend plutôt : ce que vous avez géré, avec quels résultats, quels outils.</span></div>
+          <div class="tt verif"><span class="lab">Une piste</span><span>Garder ce que vous avez vraiment fait, mais le dire dans les mots du secteur visé. Par exemple : &laquo;&nbsp;accueil de 60 personnes par jour, gestion des rendez-vous sur logiciel, réduction du temps d'attente&nbsp;&raquo;.</span></div>
+        </div>
+      </div>
+
+      <div class="carte plat" style="background:var(--bg-subtle)">
+        <h4>Les logiciels et les outils que vous nommez</h4>
+        <p style="margin:.2rem 0">Votre CV mentionne &laquo;&nbsp;outils de bureautique&nbsp;&raquo; et &laquo;&nbsp;logiciel de gestion&nbsp;&raquo;, sans les nommer.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur regarde</span><span>Pour un métier de bureau, nommer précisément les logiciels (Excel, un logiciel de caisse, un outil de suivi) est un signal fort et rassurant : le recruteur sait tout de suite ce que vous savez faire.</span></div>
+          <div class="tt verif"><span class="lab">Une piste</span><span>Remplacer les termes vagues par les noms réels, et préciser ce que vous en faisiez (&laquo;&nbsp;Excel : tableaux de suivi et plannings&nbsp;&raquo;). Ne nommez que ce que vous savez vraiment utiliser.</span></div>
+        </div>
+      </div>
+
+      <div class="carte plat" style="background:var(--bg-subtle)">
+        <h4>Quelles expériences vous mettez en avant</h4>
+        <p style="margin:.2rem 0">En premier sur votre CV : un poste de vendeur. Plus bas : un engagement associatif de deux ans. Le CV couvre aussi 6 autres expériences courtes, dans des domaines variés.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur du secteur visé regarde</span><span>Vous candidatez dans le milieu associatif. Votre engagement bénévole parle directement de ce milieu ; l'expérience de vente en est plus éloignée, même si elle reste utile (contact, sens du public). Un CV qui liste beaucoup d'expériences très différentes peut aussi noyer ce qui compte pour ce poste.</span></div>
+          <div class="tt verif"><span class="lab">Une piste</span><span>Remonter en premier les 3 ou 4 expériences qui appuient vraiment cette candidature, et les décrire (missions, durée, ce que vous y avez appris). Regrouper le reste dans un petit bloc &laquo;&nbsp;Autres expériences&nbsp;&raquo; en bas. Aucune expérience ne vaut moins qu'une autre : un parcours varié montre une vraie capacité d'adaptation et d'apprentissage, c'est une force à assumer. C'est juste une question d'ordre et de place pour CE poste.</span></div>
+        </div>
+      </div>
+
+      <div class="carte plat" style="background:var(--bg-subtle)">
+        <h4>La rubrique loisirs et centres d'intérêt</h4>
+        <p style="margin:.2rem 0">Votre CV indique : &laquo;&nbsp;football, lecture, cuisine&nbsp;&raquo;.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur y lit</span><span>Pas le nombre d'activités : ce qu'elles disent de votre savoir-être. &laquo;&nbsp;Football&nbsp;&raquo; seul dit peu ; &laquo;&nbsp;football en club, capitaine d'équipe&nbsp;&raquo; dit travail d'équipe, engagement dans la durée, sens des responsabilités.</span></div>
+          <div class="tt verif"><span class="lab">Une piste</span><span>À côté de chaque activité, une courte mention de ce qu'elle développe (organisation, rigueur, contact, patience...). Ces qualités acquises en dehors du travail se transposent au poste : à vous de faire le lien, sur le CV et à l'oral.</span></div>
+        </div>
+      </div>
+
+      <div class="carte plat" style="background:var(--bg-subtle)">
+        <h4>Généraliste ou ciblé</h4>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur comprend</span><span>Le CV semble écrit pour plusieurs types de postes à la fois. Un recruteur peut se demander si vous visez vraiment celui-ci.</span></div>
+          <div class="tt verif"><span class="lab">Une piste</span><span>Mettre en avant en premier ce qui parle à CE poste ; le reste peut rester, plus court, plus bas.</span></div>
+        </div>
+      </div>
+
+      <p class="detail">&laquo;&nbsp;Analyser ma candidature&nbsp;&raquo; touche aussi à ces points, plus brièvement (axes &laquo;&nbsp;posture&nbsp;&raquo; et &laquo;&nbsp;personnalisation&nbsp;&raquo;). Ici, on les illustre avec vos mots et des reformulations concrètes.</p>
+      <div class="btn-rangee"><button class="btn secondaire" style="font-size:.8rem;padding:.35rem .8rem">&#9875;&#65039; Garder ce point comme Repère</button></div>
+      <div class="encart-triage"><span class="triage-label">Ou classer :</span><button class="btn fantome triage-btn">Pris connaissance</button><button class="btn fantome triage-btn">Pas d'accord</button></div>
+    </div>
+  </details>
+
+  <!-- 4. Ce qui saute aux yeux / ce qu'un recruteur retient -->
+  <details class="bloc-depli">
+    <summary><span class="num">&#9201;&#65039;</span> Ce qui saute aux yeux (les 5 à 10 premières secondes)<span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps">
+      <div class="trois-temps image-only">
+        <div class="tt"><span class="lab">Ce qu'il voit</span><span>Le titre du poste ressort en haut. Le CV est sur deux colonnes. La première page respire, la seconde est plus chargée.</span></div>
+        <div class="tt"><span class="lab">Effet possible</span><span>La lecture peut demander plus d'allers-retours du regard entre les deux colonnes ; le bas du CV peut être parcouru plus vite.</span></div>
+        <div class="tt verif"><span class="lab">À vérifier</span><span>Les informations les plus importantes (intitulés de postes, dates) sont-elles toutes sur la première page, ou dans la première colonne ?</span></div>
+      </div>
+      <div class="trois-temps mode-texte-only">
+        <div class="tt"><span class="lab">Ce qu'il retient</span><span>En haut : le titre du poste et les dernières expériences. C'est ce qui est lu en premier.</span></div>
+        <div class="tt"><span class="lab">Effet possible</span><span>Si une information forte est plus bas dans le texte, elle peut être vue plus tard, ou parcourue vite.</span></div>
+        <div class="tt verif"><span class="lab">À vérifier</span><span>Vos informations les plus fortes sont-elles dans les premières lignes de chaque expérience ?</span></div>
+      </div>
+      <div class="btn-rangee"><button class="btn secondaire" style="font-size:.8rem;padding:.35rem .8rem">&#9875;&#65039; Garder comme Repère</button></div>
+      <div class="encart-triage"><span class="triage-label">Ou classer ce point :</span><button class="btn fantome triage-btn">J'en ai pris connaissance</button><button class="btn fantome triage-btn">Je ne suis pas d'accord</button></div>
+    </div>
+  </details>
+
+  <!-- Axe « Points qui peuvent susciter d'autres questions » RETIRÉ le 03/09 (figeage du schéma
+       de sortie) : avec « La cohérence d'ensemble » et « Le message que votre CV envoie », chaque
+       observation a un axe naturel ; plus d'axe fourre-tout. Ce qui aurait atterri ici va soit
+       dans la piste de l'axe concerné, soit dans « Décoder les questions » (question d'entretien).
+       Voir docs/CHANTIER_REGARD_RECRUTEUR_SCHEMA_SORTIE_2026-09-03.md §8.
+       Axe « Sujets à préparer pour un entretien » RETIRÉ plus tôt (doublon avec « Décoder »). -->
+
+  <!-- Axe 5 (image seulement) -->
+  <details class="bloc-depli image-only">
+    <summary><span class="num">&#128208;</span> Présentation visuelle<span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps">
+      <p class="detail">Uniquement des critères observables. Jamais &laquo;&nbsp;beau&nbsp;&raquo;, &laquo;&nbsp;moderne&nbsp;&raquo;, &laquo;&nbsp;élégant&nbsp;&raquo;.</p>
+      <div class="trois-temps">
+        <div class="tt"><span class="lab">Mise en page</span><span>Deux colonnes. La lecture peut demander davantage de mouvements du regard ; à vérifier une fois le document imprimé.</span></div>
+        <div class="tt"><span class="lab">Densité</span><span>Texte dense en bas de la seconde page, peu de blancs. Une partie peut être parcourue vite.</span></div>
+        <div class="tt"><span class="lab">Hiérarchie</span><span>Titres bien distincts du corps du texte. Facilite le repérage.</span></div>
+        <div class="tt"><span class="lab">Longueur</span><span>Deux pages. À vérifier : chaque information mérite-t-elle sa place, ou peut-on resserrer ?</span></div>
+        <div class="tt verif"><span class="lab">Police et taille du texte</span><span>Le texte semble écrit petit, sans doute pour tout faire tenir. Un recruteur pressé qui doit forcer pour lire met le CV de côté &laquo;&nbsp;pour plus tard&nbsp;&raquo; - et le plus tard ne vient pas. Une police simple et une taille confortable comptent plus qu'une police travaillée.</span></div>
+      </div>
+      <div class="btn-rangee"><button class="btn secondaire" style="font-size:.8rem;padding:.35rem .8rem">&#9875;&#65039; Garder comme Repère</button></div>
+    </div>
+  </details>
+
+  <!-- Axe 6 (image seulement) : couleurs = hygiène générale + reprise des codes entreprise (conditionnel au site) -->
+  <details class="bloc-depli image-only">
+    <summary><span class="num">&#127912;</span> Les couleurs de votre CV<span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps">
+      <div class="carte plat" style="background:var(--bg-subtle)">
+        <h4>Combien de couleurs, et comment</h4>
+        <p style="margin:.2rem 0">Votre CV utilise quatre couleurs : un bleu, un orange, un vert et du gris.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur en pense</span><span>Au-delà de deux couleurs, un CV paraît vite chargé, et ce n'est pas apprécié : le recruteur a peu de temps et va vers le plus lisible. L'idéal : une couleur principale (titres, filets) et, si besoin, une seule autre pour souligner, les deux allant bien ensemble. Éviter les couleurs très vives et les contrastes agressifs.</span></div>
+          <div class="tt verif"><span class="lab">Une piste</span><span>Revenir à deux couleurs au maximum. Garder le bleu comme couleur principale, retirer l'orange et le vert.</span></div>
+        </div>
+      </div>
+
+      <div class="carte plat" style="background:var(--bg-subtle)">
+        <h4>Les codes visuels de l'entreprise</h4>
+        <p style="margin:.2rem 0">Vous avez indiqué le site de l'entreprise. Le bleu de votre CV est proche de celui de son site.</p>
+        <div class="trois-temps">
+          <div class="tt"><span class="lab">Ce qu'un recruteur peut y voir</span><span>Certains y voient un signe d'intérêt et d'effort pour se projeter dans la structure ; d'autres y sont indifférents et préfèrent une présentation neutre. Ce n'est jamais une obligation, et la lisibilité passe avant.</span></div>
+        </div>
+        <p class="detail"><strong>Sans le site internet de l'entreprise, on ne peut pas se prononcer sur ce point</strong> : le CV ne contient que le nom de l'entreprise. Ajoutez le site à l'étape &laquo;&nbsp;Préparer&nbsp;&raquo; si vous voulez cet avis.</p>
+      </div>
+
+      <div class="btn-rangee"><button class="btn secondaire" style="font-size:.8rem;padding:.35rem .8rem">&#9875;&#65039; Garder comme Repère</button></div>
+    </div>
+  </details>
+
+  <div class="encart mode-texte-only">
+    <span>&#128444;&#65039;</span>
+    <span>Pour un avis sur la <strong>mise en page, la présentation et les couleurs</strong>, revenez avec une image de votre CV (une capture d'écran).
+    <button class="btn fantome" style="font-size:.82rem;padding:.25rem .7rem;margin-left:.3rem" onclick="quitterModeTexte()">Ajouter une image</button></span>
+  </div>
+
+  <!-- RECOMMANDATION À CÔTÉ DES 6 AXES : décoder les questions d'entretien. DEUX blocs (Denis 03/09) :
+       1) questions générales FIXES, ancrées dans le code ; 2) questions liées au CV, produites par
+       l'assistant (>= 5 demandées dans le prompt), affichées seulement si l'assistant en a proposé. -->
+  <details class="bloc-depli" style="border-left:5px solid var(--accent)">
+    <summary style="background:var(--accent-bg)"><span class="num">&#128173;</span> Décoder les questions d'un recruteur <span class="etat pilule bleu">si vous préparez l'entretien</span><span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps">
+      <p class="detail">Ce bloc n'est pas un des 6 axes : c'est une aide pour préparer l'entretien (elle remplace l'ancien axe &laquo;&nbsp;Sujets à préparer&nbsp;&raquo;). Ouvrez-le seulement si ça vous intéresse. Une question posée cache souvent une autre attente. Deux listes : les questions qui reviennent presque toujours, et les questions liées à votre CV.</p>
+
+      <div class="encart">
+        <span>&#128173;</span>
+        <span>Au-delà de la réponse, un recruteur observe si vous vous êtes <strong>approprié votre CV</strong> : pouvez-vous parler de votre parcours en le regardant, lui, plutôt qu'en lisant une feuille ou votre CV ? C'est le signe que c'est bien vous qui l'avez construit, ou en tout cas que vous vous y êtes vraiment impliqué. Préparer vos réponses à l'avance, c'est justement ce qui vous permet d'en parler librement le jour J.</span>
+      </div>
+
+      <div class="carte plat">
+        <p style="margin:.2rem 0"><strong>1. Questions générales</strong> <span class="detail">&middot; toujours présentes</span></p>
+        <p class="detail">Pertinentes quel que soit votre CV. Préparez-les une fois, elles resservent. Vous pouvez aussi écrire vos réponses (facultatif), comme pour les questions liées à votre CV plus bas.</p>
+
+        <details class="plus" style="margin-top:.5rem">
+          <summary>&laquo;&nbsp;Parlez-moi de vos défauts.&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> pas la liste de vos défauts. Il regarde si vous savez vous connaître, et si vous avez trouvé des façons de faire avec.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> choisir un point réel, sans gravité pour le poste, et dire ce que vous mettez en place pour le gérer.</p>
+          </div>
+        </details>
+        <details class="plus">
+          <summary>&laquo;&nbsp;Pourquoi vous, et pas quelqu'un d'autre&nbsp;?&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> si vous avez compris le poste, et ce que vous apportez de concret.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> deux ou trois éléments de votre parcours qui répondent directement à ce que l'offre demande.</p>
+          </div>
+        </details>
+        <details class="plus">
+          <summary>&laquo;&nbsp;Parlez-moi de l'expérience qui vous a le plus marqué.&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> ce qui compte pour vous dans le travail, et votre façon de raconter une situation concrète.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> une situation précise : le contexte, ce que vous avez fait, ce que ça a donné, ce que vous en gardez.</p>
+          </div>
+        </details>
+        <details class="plus">
+          <summary>&laquo;&nbsp;Avez-vous déjà géré une situation de tension ou de conflit&nbsp;?&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> votre sang-froid, votre façon d'écouter, et si vous cherchez une solution plutôt qu'un coupable.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> un exemple réel et factuel. Si vous n'en avez pas vécu, le dire, et expliquer comment vous vous y prendriez.</p>
+          </div>
+        </details>
+        <details class="plus">
+          <summary>&laquo;&nbsp;Quelles sont vos qualités&nbsp;?&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> des qualités utiles pour CE poste, et si vous pouvez les illustrer. Sur cette question, il regarde parfois votre CV pour voir si vous récitez ce qui y est écrit : mieux vaut donner un exemple vécu que la liste de votre rubrique &laquo;&nbsp;qualités&nbsp;&raquo;.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> deux ou trois qualités, chacune avec un exemple court tiré de votre parcours.</p>
+          </div>
+        </details>
+        <p class="detail" style="margin-top:.5rem"><span class="etiq-etat inchange" style="font-size:.66rem;padding:.05rem .4rem;border-radius:999px;text-transform:uppercase;font-weight:700">Dans le code</span> Ces 5 questions sont fixes, portées par l'application. Elles apparaissent à chaque fois.</p>
+      </div>
+
+      <div class="carte plat">
+        <p style="margin:.2rem 0"><strong>2. Questions liées à votre CV</strong> <span class="detail">&middot; proposées par l'assistant</span></p>
+        <p class="detail">L'assistant repère dans votre CV ce qui peut amener une question, et en propose au moins cinq, sur le même format.</p>
+
+        <details class="plus" style="margin-top:.5rem">
+          <summary>&laquo;&nbsp;Qu'avez-vous fait pendant la période 2020-2021&nbsp;?&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> comprendre un trou ou un chevauchement, sans en faire un problème.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> une phrase courte, factuelle, tournée vers ce que vous avez appris ou fait.</p>
+            <details class="plus" style="border-top-style:solid;border-color:var(--border-strong)">
+              <summary>&#9997;&#65039; Écrire ma réponse (facultatif)</summary>
+              <div>
+                <p class="detail" style="margin:.3rem 0">C'est vous qui décidez d'écrire, ou non. Vous n'obtiendrez pas de correction ici.</p>
+                <textarea class="champ" placeholder="Votre réponse"></textarea>
+              </div>
+            </details>
+          </div>
+        </details>
+        <details class="plus">
+          <summary>&laquo;&nbsp;Votre CV parle surtout d'associatif ; qu'est-ce qui vous attire dans notre secteur&nbsp;?&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> si votre intérêt pour ce secteur est réfléchi, ou si vous postulez un peu partout.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> ce qui vous relie concrètement au poste (compétences, envies), sans renier votre parcours.</p>
+            <details class="plus" style="border-top-style:solid;border-color:var(--border-strong)">
+              <summary>&#9997;&#65039; Écrire ma réponse (facultatif)</summary>
+              <div>
+                <p class="detail" style="margin:.3rem 0">Facultatif, et sans correction immédiate.</p>
+                <textarea class="champ" placeholder="Votre réponse"></textarea>
+              </div>
+            </details>
+          </div>
+        </details>
+        <details class="plus">
+          <summary>&laquo;&nbsp;Vous parlez d'un outil de suivi : lequel, et pour quoi faire&nbsp;?&nbsp;&raquo;</summary>
+          <div class="detail">
+            <p style="margin:.3rem 0"><strong>Ce que le recruteur cherche :</strong> vérifier que ce que vous citez correspond à une pratique réelle.</p>
+            <p style="margin:.3rem 0"><strong>Comment y répondre :</strong> nommer l'outil, dire ce que vous en faisiez, à quelle fréquence.</p>
+            <details class="plus" style="border-top-style:solid;border-color:var(--border-strong)">
+              <summary>&#9997;&#65039; Écrire ma réponse (facultatif)</summary>
+              <div>
+                <p class="detail" style="margin:.3rem 0">Facultatif, et sans correction immédiate.</p>
+                <textarea class="champ" placeholder="Votre réponse"></textarea>
+              </div>
+            </details>
+          </div>
+        </details>
+        <p class="detail" style="margin-top:.5rem"><span class="etiq-etat valide" style="font-size:.66rem;padding:.05rem .4rem;border-radius:999px;text-transform:uppercase;font-weight:700">De l'assistant</span> Au moins 5 questions demandées dans le prompt (maquette : 3 exemples). Ce bloc n'apparaît que si l'assistant en a proposé.</p>
+      </div>
+
+      <div class="bandeau-comp">
+        <span class="etiq-etat valide">Fait</span>
+        <span>&laquo;&nbsp;Écrire ma réponse&nbsp;&raquo; est <strong>caché derrière un bouton</strong> et facultatif (Denis, 03/09) : rien n'est imposé, aucune correction immédiate.</span>
+      </div>
+
+      <div class="encart"><span>&#128172;</span><span>La bibliothèque complète des questions d'entretien vivra dans le module <strong>Préparer un entretien</strong>. Ici : de quoi anticiper à partir de votre CV. Pour garder des points de ce bloc, servez-vous de la sélection groupée en fin de parcours (page suivante).</span></div>
+    </div>
+  </details>
+
+  <details class="bloc-depli image-only">
+    <summary><span class="num">&#128274;</span> L'image analysée<span class="depli-hint">&#9656; ouvrir</span></summary>
+    <div class="corps"><p style="margin:0">Vous avez masqué nom, photo et coordonnées avant l'envoi : <strong>c'est une bonne pratique, jamais un défaut</strong>, et la lecture n'en tient pas compte. Sur le CV que vous enverrez, pensez à remettre nom, prénom, code postal et ville, et vos moyens de contact (rappel dans votre fiche en fin de parcours).</p></div>
+  </details>
+
+  <div class="carte" style="background:var(--accent-bg);border-color:var(--accent);text-align:center">
+    <h3 style="margin-top:.2rem">Cette lecture est terminée.</h3>
+    <p style="margin:.3rem 0 0">Elle vous montre des points à vérifier et à préparer, jamais une note sur vous.</p>
+  </div>
+
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('fiche')">Préparer ma fiche à garder &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 4. MA FICHE À GARDER (CLÔTURE) ============ -->
+<section class="vue" data-vue="fiche" data-etape="4" data-retour="regard">
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Nouvel écran</span>
+    <span>Clôture du module. <strong>Aucune création ni édition de CV</strong> (décision Denis) : on repart avec des conseils, pas un document produit.</span>
+  </div>
+  <h1>&#127881; Votre fiche de préparation</h1>
+  <p class="accroche">De quoi retravailler votre CV plus tard - sur APP ou ailleurs - et préparer un entretien.</p>
+
+  <div class="carte">
+    <h3>&#128221; Vos questions d'entretien à préparer</h3>
+    <p class="detail">Reprises du bloc &laquo;&nbsp;Décoder les questions&nbsp;&raquo;. Pour chacune : ce que le recruteur cherche, et la place pour votre réponse.</p>
+    <p style="margin:.5rem 0 .2rem"><strong>Questions générales</strong></p>
+    <ul class="liste-fine">
+      <li><strong>Vos défauts</strong> <span class="detail">- il cherche : savez-vous vous connaître et faire avec.</span><br><em>votre réponse : ...</em></li>
+      <li><strong>Pourquoi vous, et pas quelqu'un d'autre</strong> <span class="detail">- il cherche : avez-vous compris le poste et ce que vous apportez.</span><br><em>votre réponse : ...</em></li>
+      <li><strong>L'expérience qui vous a le plus marqué</strong> <span class="detail">- il cherche : ce qui compte pour vous, votre façon de raconter.</span><br><em>votre réponse : ...</em></li>
+      <li><strong>Une situation de tension ou de conflit</strong> <span class="detail">- il cherche : sang-froid, écoute, recherche de solution.</span><br><em>votre réponse : ...</em></li>
+      <li><strong>Vos qualités</strong> <span class="detail">- il cherche : des qualités utiles pour le poste, illustrées.</span><br><em>votre réponse : ...</em></li>
+    </ul>
+    <p style="margin:.5rem 0 .2rem"><strong>Questions liées à votre CV</strong> <span class="detail">(proposées par l'assistant)</span></p>
+    <ul class="liste-fine">
+      <li><strong>La période 2020-2021</strong> <span class="detail">- il cherche : comprendre un trou, sans en faire un problème.</span><br><em>votre réponse : ...</em></li>
+      <li><strong>Votre CV parle surtout d'associatif</strong> <span class="detail">- il cherche : si votre intérêt pour ce secteur est réfléchi.</span><br><em>votre réponse : ...</em></li>
+    </ul>
+    <p style="margin:.6rem 0 .2rem"><strong>Points à vérifier sur votre CV</strong></p>
+    <ul class="liste-fine">
+      <li>Les informations clés (postes, dates) sont-elles bien sur la première page / première colonne ?</li>
+      <li>Le bas de la seconde page est-il confortable à lire ?</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#128204; À retenir pour votre prochain CV</h3>
+    <p>Vous ne modifiez pas votre CV ici. Mais vous pourrez tenir compte de ces points la prochaine fois que vous le travaillerez, <strong>sur APP ou ailleurs</strong> :</p>
+    <ul class="liste-fine">
+      <li>Adapter l'objectif du CV et le titre au poste visé (un CV pour un emploi n'est pas un CV pour un stage).</li>
+      <li>Remonter en premier les expériences qui parlent le plus au secteur visé.</li>
+      <li>Employer le vocabulaire du secteur visé, en gardant ce que vous avez vraiment fait.</li>
+      <li>Remonter les informations importantes sur la première page ou la première colonne.</li>
+      <li>Alléger le bas de la seconde page ; garder les couleurs seulement si elles aident à lire.</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#128231; Vos coordonnées sur le CV que vous enverrez</h3>
+    <p>Vous avez masqué votre identité pour cette lecture : <strong>c'est une bonne pratique, jamais un défaut.</strong> Sur le CV que vous enverrez vraiment, pensez à remettre :</p>
+    <ul class="liste-fine">
+      <li><strong>Nom et prénom</strong>, <strong>code postal et ville</strong>, <strong>téléphone</strong>, <strong>e-mail</strong>.</li>
+      <li><strong>L'adresse complète</strong> : seulement si c'est un atout (vous habitez tout près, vous pouvez vous rendre sur place facilement, vous êtes disponible rapidement). Sinon, code postal et ville suffisent.</li>
+    </ul>
+  </div>
+
+  <div class="encart">
+    <span>&#128084;</span>
+    <span>Le jour de l'entretien : une tenue sobre et adaptée au métier visé va dans le même sens que ce que dit votre CV. Rien d'obligatoire, juste de la cohérence.</span>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent)">
+    <h3>&#128190; Garder ces conseils</h3>
+    <p class="detail">Aucun compte, rien n'est conservé automatiquement : imprimez ou exportez si vous voulez garder cette fiche.</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" style="font-size:.88rem">&#128424;&#65039; Imprimer mes conseils</button>
+      <button class="btn secondaire" style="font-size:.88rem">&#128190; Télécharger en Word</button>
+      <button class="btn secondaire" style="font-size:.88rem">&#128203; Copier le texte (pour un e-mail)</button>
+    </div>
+    <p class="detail" style="margin-top:.5rem">Impression via un document autonome (même procédé que &laquo;&nbsp;Point sur ma situation&nbsp;&raquo; de Regard extérieur). Export Word = même format que le CV et la lettre de l'application.</p>
+  </div>
+
+  <div class="carte" style="border-color:var(--accent)">
+    <h3>&#9875;&#65039; Garder des points comme Repères</h3>
+    <p>La seule zone pour garder des points : cochez ceux que vous voulez, dans tout le rapport <strong>et</strong> le bloc &laquo;&nbsp;Décoder les questions&nbsp;&raquo;. Chaque point du rapport a aussi son bouton &laquo;&nbsp;Garder comme Repère&nbsp;&raquo; en contexte, si vous préférez au fil de la lecture. Rien n'est gardé automatiquement.</p>
+    <div class="carte plat" style="background:var(--bg-subtle);font-size:.9rem">
+      <label style="display:block;margin:.2rem 0"><input type="checkbox"> Le registre de langage est celui de l'associatif, pas de l'entreprise visée</label>
+      <label style="display:block;margin:.2rem 0"><input type="checkbox"> Remonter l'engagement associatif avant l'expérience de vente</label>
+      <label style="display:block;margin:.2rem 0"><input type="checkbox"> Adapter l'objectif du CV (emploi, pas stage)</label>
+      <label style="display:block;margin:.2rem 0"><input type="checkbox"> Préparer une phrase sur le chevauchement de dates de 2022</label>
+      <label style="display:block;margin:.2rem 0"><input type="checkbox"> Question d'entretien : &laquo;&nbsp;parlez-moi de vos défauts&nbsp;&raquo;</label>
+    </div>
+    <p class="detail" style="margin:.4rem 0">Ensuite, pour chaque point coché, vous choisissez dans quel type de Repère il va (Question, Idée, À approfondir, À discuter).</p>
+    <div class="btn-rangee"><button class="btn secondaire" style="font-size:.88rem">&#9875;&#65039; Continuer : choisir le type de chaque point</button></div>
+  </div>
+
+  <div class="bandeau-comp">
+    <span class="etiq-etat avalider">À valider</span>
+    <span>Renvois vers d'autres modules (Atelier CV pour la forme, Analyser ma candidature pour le fond) : <strong>emplacement réservé ici</strong>, à câbler avec le futur chantier &laquo;&nbsp;Cohérence entre les modules&nbsp;&raquo;. Volontairement absent pour l'instant (une page ne hiérarchise pas les modules).</span>
+  </div>
+</section>
+
+<!-- ============ ÉTAT 2 : REPRISE / TABLEAU DE BORD ============ -->
+<section class="vue" data-vue="bord" data-etape="3" data-retour="">
+  <div class="bandeau-comp">
+    <span class="etiq-etat valide">Comportement</span>
+    <span>Famille 2 (comme Analyser ma candidature, Cohérence, Découvrir mes compétences, Comparer mes pistes). Briques partagées : <code>htmlBoutonRevoirModule</code>, <code>htmlEncartRepriseModule</code>, <code>appliquerGelModule</code>.</span>
+  </div>
+  <div class="centre"><h1>&#128444;&#65039; Regard recruteur</h1></div>
+
+  <div class="carte" style="border-color:var(--accent);background:var(--accent-bg)">
+    <h3>&#128260; Vous avez déjà demandé un regard</h3>
+    <p>Vous pouvez le revoir, ou en relancer un sur votre CV modifié.</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" onclick="aller('regard')">Revoir mon regard</button>
+      <button class="btn recommencer" onclick="aller('preparer')">Recommencer</button>
+    </div>
+    <p class="detail" style="margin-top:.5rem">&laquo;&nbsp;Recommencer&nbsp;&raquo; : fond saumon, jamais rouge ; confirmation qui nomme ce qui part et rappelle que Mes Repères ne bougent pas. L'encart pulse environ 10 s (aucune pulsation si <code>prefers-reduced-motion</code>). Le module est gelé jusqu'au choix, mais &laquo;&nbsp;Retour&nbsp;&raquo; et &laquo;&nbsp;Accueil&nbsp;&raquo; restent libres.</p>
+  </div>
+
+  <p class="detail" style="text-align:center">
+    &#8595;&nbsp; En dessous : le contenu normal de la page de présentation.
+    <strong>C'est la même page</strong> : sans regard elle explique, avec un regard elle affiche ce bandeau en plus. Jamais un écran séparé.
+  </p>
+</section>
+
+</main>
+
+<div class="barre-bas"><div class="barre-bas-row" id="barrebas"></div></div>
+
+<script>
+  // Famille 2 - dépôt d'un document + passage assistant, PAS d'étape de correction
+  // (ce module ne modifie pas le CV). 4 pastilles, une seule barre.
+  var ETAPES = [
+    { id: 1, label: "Préparer",   icone: "&#128221;" },
+    { id: 2, label: "Envoyer",    icone: "&#128228;&#65039;" },
+    { id: 3, label: "Le regard",  icone: "&#128196;" },
+    { id: 4, label: "Ma fiche",   icone: "&#9989;" }
+  ];
+
+  function rendreEtapes(numEtape) {
+    var host = document.getElementById('etapes');
+    host.style.opacity = (numEtape === 0) ? .55 : 1;
+    host.innerHTML = ETAPES.map(function (e, i) {
+      var cls = "etape";
+      if (numEtape > e.id) cls += " faite";
+      if (numEtape === e.id) cls += " courante";
+      var estSuivant = (i === numEtape) && numEtape >= 1 && numEtape < ETAPES.length;
+      var flClass = "etape-fleche" + (estSuivant ? " suivant" : (numEtape < e.id ? " avenir" : ""));
+      var fleche = i > 0 ? '<span class="' + flClass + '">&#187;</span>' : '';
+      return fleche + '<span class="' + cls + '"><span class="pastille">' + e.icone + '</span>' + e.label + '</span>';
+    }).join('');
+  }
+
+  function rendreBarreBas(section) {
+    var host = document.getElementById('barrebas');
+    var retour = section.getAttribute('data-retour');
+    var suiv = section.getAttribute('data-suivant');
+    var suivLabel = section.getAttribute('data-suivant-label') || 'Continuer';
+    var gauche = '<button class="btn secondaire" ' +
+      (retour ? 'onclick="aller(\'' + retour + '\')"' : 'onclick="return false" style="opacity:.45;cursor:default" title="Retour vers l\'accueil de l\'application"') +
+      '>&#8249; Retour</button>';
+    var droite = suiv ? '<button class="btn primaire" onclick="aller(\'' + suiv + '\')">' + suivLabel + ' &#8594;</button>' : '<span></span>';
+    host.innerHTML = gauche + droite;
+  }
+
+  // Ecrans de travail : le bouton permanent "Revoir la presentation" y apparait
+  // (obligation famille 2). Absent de la comparaison, de l'intro et de la reprise.
+  var ECRANS_TRAVAIL = ['preparer','masquer','choix-assistant','chez','coller','erreur-lecture','regard','fiche'];
+  var _retourModule = null; // ecran a retrouver quand on consulte l'intro en detour
+  function rendreRevoir(vue) {
+    var host = document.getElementById('revoirbar');
+    host.innerHTML = (ECRANS_TRAVAIL.indexOf(vue) !== -1)
+      ? '<button class="btn" onclick="revoirPresentation()">&#9432; Revoir la présentation</button>'
+      : '';
+  }
+  function revoirPresentation() {
+    var actif = document.querySelector('.vue.active');
+    _retourModule = actif ? actif.getAttribute('data-vue') : null;
+    aller('intro');
+  }
+  function revenirAuModule() {
+    var v = _retourModule; _retourModule = null;
+    aller(v || 'preparer');
+  }
+  function rendreIntroDetour(vue) {
+    var det = document.getElementById('introDetour');
+    if (!det) return;
+    det.innerHTML = (vue === 'intro' && _retourModule)
+      ? '<div class="bandeau-comp" style="border-color:var(--accent)"><span class="etiq-etat valide">Détour</span><span>Vous consultez la présentation <strong>sans quitter votre travail</strong>. <button class="btn primaire" style="font-size:.8rem;padding:.3rem .8rem;margin-left:.3rem" onclick="revenirAuModule()">&#8592; Revenir au module</button></span></div>'
+      : '';
+  }
+
+  function aller(vue) {
+    var cible = document.querySelector('.vue[data-vue="' + vue + '"]');
+    if (!cible) return;
+    if (vue !== 'intro') _retourModule = null; // on quitte le detour des qu'on va ailleurs
+    document.querySelectorAll('.vue').forEach(function (v) { v.classList.remove('active'); });
+    cible.classList.add('active');
+    var num = parseInt(cible.getAttribute('data-etape'), 10);
+    rendreEtapes(num);
+    rendreRevoir(vue);
+    rendreIntroDetour(vue);
+    rendreBarreBas(cible);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('devnav').value = "";
+  }
+
+  function ouvrir(id) { document.getElementById(id).classList.add('ouvert'); }
+  function fermer(id) { document.getElementById(id).classList.remove('ouvert'); }
+
+  function majBoutonModeTexte() {
+    var b = document.getElementById('modetexte');
+    if (b) b.textContent = document.body.classList.contains('mode-texte') ? 'Simuler : avec image' : 'Simuler : Mode texte';
+  }
+  function passerModeTexte() { document.body.classList.add('mode-texte'); majBoutonModeTexte(); aller('regard'); }
+  function quitterModeTexte() { document.body.classList.remove('mode-texte'); majBoutonModeTexte(); aller('preparer'); }
+
+  document.getElementById('devnav').addEventListener('change', function () {
+    if (this.value) aller(this.value);
+  });
+  document.getElementById('theme').addEventListener('click', function () {
+    document.body.classList.toggle('dark');
+    this.textContent = document.body.classList.contains('dark') ? 'Mode clair' : 'Mode sombre';
+  });
+  document.getElementById('modetexte').addEventListener('click', function () {
+    document.body.classList.toggle('mode-texte');
+    majBoutonModeTexte();
+    var actif = document.querySelector('.vue.active');
+    if (actif && actif.getAttribute('data-vue') !== 'regard') aller('regard');
+  });
+
+  aller('comparaison');
+</script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!doctype html>
+<!--
+  MAQUETTE - Refonte de la carte "Mes documents". VERSION 3 (2026-09-01).
+  Aucun code touche. Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md.
+  Plan d'execution : docs/PLAN_REFONTE_MES_DOCUMENTS_2026-09-01.md.
+
+  ACQUIS v1/v2 :
+  - Pas de lien "porte de sortie" : le "Retour" de la barre de navigation fixe du bas suffit.
+  - "Mes Reperes" garde partout. Phrase qui distingue de "Co-construire ma lettre" gardee.
+  - Comportements communs = VRAIES briques partagees, mot pour mot. Bouton "Revoir la
+    presentation" / en detour "Revenir au module" (jamais "travail"). Encart "Continuer" /
+    "Recommencer" (saumon). Gel = module-gel-actif.
+  - Barre d'etapes : ICONES (pas de numeros), chevron ">>", celui courante->suivante clignote.
+    Compacte. Etapes faites cliquables.
+  - Bloc "Votre candidature" sur la page "Preparer" absorbe l'ecran "Objectif". Il disparait
+    du parcours pour "Preparer ma lettre et mon entretien" et "Mettre a jour mon CV".
+
+  CHANGEMENTS v2 -> v3 (retours Denis, tous appliques) :
+  - Bande comparative des 3 modes : RETIREE (redondante avec renommage + descriptions + intros).
+  - Bloc de relecture : titre "Relire, verifier, corriger, masquer" (couvre texte ET image :
+    corriger pour le texte, verifier/masquer pour tout). Icone surligneur, plus l'oeil.
+    Confirme dans le code : mail, telephone, liens, nom, age detectes sont SURLIGNES en jaune
+    dans le texte + listes en badges, pour etre reperes et masques facilement.
+  - Bloc "Votre candidature" : "Pourquoi ce CV ?" = 6 boutons distincts (OBJECTIF_CHOIX_CANDIDATURE
+    reel). 4 champs facultatifs separes : Entreprise / Site internet / Offre d'emploi (bloc a
+    part) / Type de structure = liste deroulante reutilisant BILAN_TYPES_STRUCTURE (10 entrees).
+  - Choix de l'assistant : reprend le composant existant htmlChoixAssistantBilanCorps
+    (groupe "Sans compte a creer" vert en premier, groupe "Avec une connexion" bleu en dessous,
+    + accordeon replie "Ce qui va se passer, et vos donnees").
+  - Note sous "Revoir la presentation" : juste le texte + une petite croix. Pas d'ampoule,
+    pas de bouton "J'ai compris" visible.
+  - Prompt entretien de la carte 3 : option B (echange). Carte 3 -> entretien-accueil.md
+    (rapide) ; module dedie "Preparer un entretien" -> entretien.md (approfondi). Encart
+    de la carte 3 reunit lettre ET entretien.
+  - Intros "Creer un nouveau CV" et "Mettre a jour mon CV" : encart "vous n'etes jamais bloque"
+    (les modeles PDF/Word sont les notres ; sinon, copier le texte et mettre en forme ailleurs).
+    Version "Mettre a jour" plus explicite : la mise en page du CV d'origine n'est pas conservee,
+    on recupere les informations, on les met a jour, on les propose dans un de nos modeles.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette v3 - Refonte "Mes documents"</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#ffffff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#2563eb; --accent-bg:#e8effc;
+    --ok:#198754; --ok-bg:#d9f4e4; --ok-strong:#157347;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --saumon:#c2410c; --saumon-bg:#fdece1;
+    --radius:10px;
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#4d94ff; --accent-bg:#1e2940;
+    --ok:#35c79a; --ok-bg:#17301f; --ok-strong:#6ee89a;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --saumon:#f0a17a; --saumon-bg:#3a241a;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:780px; margin:0 auto; padding:1.2rem 1rem 4rem; }
+  h1 { font-size:1.6rem; color:var(--text-strong); margin:.2rem 0; }
+  h2 { font-size:1.03rem; color:var(--text-strong); margin:0 0 .4rem; }
+  h3 { font-size:.95rem; color:var(--text-strong); margin:.1rem 0 .3rem; }
+  p { margin:.4rem 0; }
+  .sous-titre { color:var(--text-muted); margin:.2rem 0 1rem; }
+  .centre { text-align:center; }
+  .detail { color:var(--text-muted); font-size:.85rem; }
+
+  .section { background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+    padding:1rem 1.1rem; margin-bottom:.9rem; }
+  .section.teinte { background:var(--accent-bg); border-color:var(--accent); }
+  .section ul { margin:.3rem 0 0; padding-left:1.2rem; }
+  .section li { margin:.25rem 0; }
+
+  .encart { display:flex; gap:.6rem; align-items:flex-start; background:var(--accent-bg);
+    border-left:3px solid var(--accent); border-radius:8px; padding:.6rem .85rem; margin:.6rem 0; font-size:.9rem; }
+
+  .hypothese { border:1px dashed var(--warn); background:var(--warn-bg); border-radius:10px;
+    padding:.6rem .85rem; margin:.7rem 0; font-size:.85rem; color:var(--text); }
+  .hypothese b { color:var(--warn); }
+
+  details.encart-multilingue { margin:.9rem 0; border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; }
+  details.encart-multilingue > summary { cursor:pointer; padding:.65rem .9rem; font-weight:600; list-style:none; }
+  details.encart-multilingue > summary::-webkit-details-marker { display:none; }
+  details.encart-multilingue .corps { padding:0 .9rem .85rem; font-size:.92rem; }
+  details.encart-multilingue .corps p:first-child { margin-top:0; }
+
+  .btn { font:inherit; border-radius:var(--radius); padding:.55rem 1.1rem; border:1px solid var(--border-strong);
+    background:var(--bg-card); color:var(--text-strong); cursor:pointer; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .btn.large { font-size:1.05rem; padding:.7rem 1.5rem; }
+  .btn.saumon { background:var(--saumon-bg); border-color:var(--saumon); color:var(--saumon); font-weight:600; }
+  .btn.sm { padding:.35rem .8rem; font-size:.85rem; }
+
+  textarea,input[type=text] { width:100%; font:inherit; border:1px solid var(--border-strong);
+    border-radius:8px; padding:.5rem .6rem; background:var(--bg-card); color:var(--text); }
+
+  .barre-haut { position:sticky; top:0; z-index:5; background:var(--bg-page); border-bottom:1px solid var(--border);
+    padding:.5rem 1rem; display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; }
+  .barre-haut .btn { padding:.3rem .7rem; font-size:.8rem; }
+  .barre-haut .btn.actif { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .barre-haut .espace { flex:1 1 auto; }
+  .vue { display:none; }
+  .vue.visible { display:block; }
+
+  /* Comparatif 3 modes (idee +2) */
+  .comparo { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.4rem; margin:.2rem 0 1rem; }
+  .comparo .col { border:1px solid var(--border); border-radius:10px; padding:.5rem .6rem; background:var(--bg-card); font-size:.8rem; }
+  .comparo .col.actif { border-color:var(--accent); background:var(--accent-bg); font-weight:600; }
+  .comparo .col .quoi { color:var(--text-muted); font-weight:400; display:block; margin-top:.2rem; }
+
+  /* --- Barre d'etapes : COMPACTE, icones (pas de numeros), chevron ">>" --- */
+  .etapes { display:flex; flex-wrap:wrap; align-items:center; gap:.1rem; justify-content:center; margin:.2rem 0 1rem; }
+  .etape { display:inline-flex; align-items:center; gap:.3rem; border:1px solid var(--border); border-radius:999px;
+    padding:.12rem .6rem; font-size:.72rem; color:var(--text-muted); background:var(--bg-card); }
+  .etape .ico { font-size:.9rem; line-height:1; }
+  .etape.faite { color:var(--text); cursor:pointer; }
+  .etape.faite .ico { filter:none; }
+  .etape.faite:hover { border-color:var(--accent); }
+  .etape.faite::before { content:"\2713"; color:#fff; background:var(--ok); border-radius:999px; width:13px; height:13px;
+    font-size:.6rem; display:inline-flex; align-items:center; justify-content:center; margin-right:.1rem; }
+  .etape.courante { color:var(--warn); border-color:var(--accent); background:var(--warn-bg); font-weight:700;
+    box-shadow:0 0 0 2px var(--accent-bg),0 0 0 3px var(--accent); }
+  .etape.avenir { opacity:.4; }
+  .chevron { color:var(--border-strong); font-size:.75rem; padding:0 .05rem; }
+  .chevron.avenir { opacity:.4; }
+  .chevron.pulse { color:var(--accent); animation:chevPulse 1.4s ease-in-out infinite; }
+  @keyframes chevPulse { 0%,100% { opacity:.35; } 50% { opacity:1; } }
+  @media (prefers-reduced-motion:reduce) { .chevron.pulse { animation:none; opacity:1; } }
+
+  .barre-detour { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; background:var(--bg-subtle);
+    border:1px solid var(--border); border-radius:10px; padding:.4rem .7rem; margin-bottom:.5rem; font-size:.85rem; }
+  .barre-detour .btn { padding:.3rem .7rem; font-size:.82rem; }
+  .note-revoir { display:flex; gap:.5rem; align-items:flex-start; font-size:.82rem; color:var(--text-muted);
+    background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px; padding:.4rem .6rem; margin-bottom:.8rem; }
+
+  .bande-reprise { display:flex; flex-wrap:wrap; gap:.7rem; align-items:flex-start; margin-bottom:.9rem; }
+  .bande-reprise .gauche { flex:0 0 auto; }
+  .encart-reprise { flex:1 1 240px; background:var(--accent-bg); border:1px solid var(--accent); border-left:3px solid var(--accent);
+    border-radius:10px; padding:.6rem .8rem; }
+  .encart-reprise p { margin:0 0 .45rem; font-size:.9rem; }
+  .encart-reprise .boutons { display:flex; flex-wrap:wrap; gap:.5rem; }
+
+  .gel { position:relative; }
+  .gel::after { content:""; position:absolute; inset:0; background:var(--bg-page); opacity:.55; border-radius:12px; }
+  .gel > * { filter:grayscale(.5); }
+
+  .nav-bas { border-top:1px solid var(--border); margin-top:1.4rem; padding-top:.7rem; display:flex; gap:.6rem; align-items:center; }
+  .nav-bas .fil { flex:1 1 auto; font-size:.78rem; color:var(--text-muted); }
+
+  .vieille-barre span { border:1px solid var(--border); border-radius:6px; padding:.12rem .45rem; font-size:.74rem;
+    color:var(--text-muted); background:var(--bg-subtle); margin:.15rem; display:inline-block; }
+
+  .bloc-depli { border:1px solid var(--border); border-radius:12px; margin:.5rem 0; overflow:hidden; background:var(--bg-card); }
+  .bloc-depli > summary { list-style:none; cursor:pointer; padding:.7rem 1rem; font-weight:700; color:var(--text-strong);
+    display:flex; align-items:center; gap:.5rem; }
+  .bloc-depli > summary::-webkit-details-marker { display:none; }
+  .bloc-depli > summary::before { content:"\25B8"; color:var(--accent); font-size:.85em; transition:transform .15s; }
+  .bloc-depli[open] > summary::before { transform:rotate(90deg); }
+  .bloc-depli .corps { padding:.4rem 1rem 1rem; border-top:1px solid var(--border); }
+  .pilule { margin-left:auto; font-size:.72rem; font-weight:600; border-radius:999px; padding:.1rem .55rem;
+    border:1px solid var(--border-strong); color:var(--text-muted); background:var(--bg-subtle); }
+  .choix-pourquoi { display:flex; flex-wrap:wrap; gap:.4rem; margin:.4rem 0; }
+  .choix-pourquoi span { border:1px solid var(--border-strong); border-radius:999px; padding:.3rem .7rem; font-size:.83rem; background:var(--bg-card); }
+  .choix-pourquoi span.actif { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+
+  .assist-rangee { display:flex; flex-wrap:wrap; gap:.4rem; margin:.5rem 0; }
+  .assist { border:1px solid var(--border-strong); border-radius:999px; padding:.35rem .8rem; font-size:.85rem; background:var(--bg-card); }
+  .assist.sans-compte { border-color:var(--ok); background:var(--ok-bg); }
+
+  table.renomme { width:100%; border-collapse:collapse; font-size:.85rem; margin-top:.5rem; }
+  table.renomme th,table.renomme td { border:1px solid var(--border); padding:.45rem .6rem; text-align:left; vertical-align:top; }
+  table.renomme th { background:var(--bg-subtle); color:var(--text-strong); }
+  code { background:var(--bg-subtle); border:1px solid var(--border); border-radius:5px; padding:.05rem .3rem; font-size:.85em; }
+</style>
+</head>
+<body>
+
+<div class="barre-haut">
+  <button class="btn actif" data-v="a">Intro 1 - Creer un nouveau CV</button>
+  <button class="btn" data-v="b">Intro 2 - Mettre a jour mon CV</button>
+  <button class="btn" data-v="c">Intro 3 - Preparer ma lettre et mon entretien</button>
+  <button class="btn" data-v="prep">Page "Preparer" (depliante)</button>
+  <button class="btn" data-v="comm">Comportements communs</button>
+  <button class="btn" data-v="barre">Barre d'etapes</button>
+  <button class="btn" data-v="renomme">Ou l'on renomme</button>
+  <span class="espace"></span>
+  <button class="btn" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+</div>
+
+<main>
+
+<!-- ================= INTRO 1 : CREER UN NOUVEAU CV ================= -->
+<section class="vue visible" data-v="a">
+
+  <div class="centre">
+    <h1>&#128221; Creer un nouveau CV</h1>
+    <p class="sous-titre">On part d'une page blanche. L'application vous accompagne pas a pas, une question a la fois.</p>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Rien n'est jamais envoye sans votre accord.</strong> Vous verrez chaque etape avant
+    qu'elle se produise, et vous pourrez tout modifier.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; A quoi ca sert</h2>
+    <p>Construire un CV complet a partir de zero : vos experiences, vos competences, votre projet. A la fin, vous
+    obtenez un CV pret a mettre en forme, puis vous pourrez preparer votre lettre de motivation et votre entretien.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous indiquez votre objectif : le poste ou le type de poste que vous visez.</li>
+      <li>Vous racontez votre parcours : ce que vous avez fait, ou, dans quelles conditions.</li>
+      <li>Vous precisez votre projet et vos attentes.</li>
+      <li>Un assistant en ligne vous aide a formuler tout cela de facon professionnelle.</li>
+      <li>Vous choisissez la mise en forme et vous exportez votre CV (PDF ou Word).</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce mode ne fait pas</h2>
+    <ul>
+      <li>Il ne part pas d'un CV que vous auriez deja : ici, on ecrit tout ensemble, depuis le debut.</li>
+      <li>Il ne porte pas de regard critique sur un CV existant.</li>
+      <li>Il ne redige pas votre lettre a votre place, phrase par phrase.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Mettre votre CV en forme : plusieurs modeles, en PDF ou en Word.</li>
+      <li>Preparer votre lettre de motivation.</li>
+      <li>Vous entrainer aux questions d'un entretien d'embauche.</li>
+    </ul>
+    <div class="encart"><span>&#128196;</span><span>Les modeles de mise en page sont les notres (PDF et Word). S'ils ne
+    correspondent pas a ce que vous cherchez, vous pouvez a tout moment <strong>copier le texte de votre CV</strong> et
+    le mettre en forme sur une autre plateforme de creation de CV. Vous n'etes jamais bloque.</span></div>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Reperes</h2>
+    <p style="margin:0">A tout moment, vous pouvez mettre de cote une reflexion utile sur votre parcours (un doute,
+    une idee, une chose a en dire) dans Mes Reperes, pour vous ou votre conseiller.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Comment ca se passe concretement</h2>
+    <p style="margin:0">Vous avancez page par page. Une barre en haut montre ou vous en etes, et vous pouvez revenir
+    a une etape deja faite quand vous voulez. Pour la partie assistant, vous copiez un texte, vous le collez chez un
+    assistant en ligne dans un nouvel onglet, puis vous revenez coller sa reponse ici. L'application ne remplit rien
+    toute seule : vous validez chaque etape.</p>
+  </div>
+
+  <details class="encart-multilingue">
+    <summary>&#127757; Vous preferez une autre langue ? <span style="font-weight:400;font-size:.9rem;color:var(--text-muted)">Cliquez ici pour plus d'informations.</span></summary>
+    <div class="corps">
+      <p>Votre navigateur peut souvent traduire cette page dans votre langue (clic droit sur la page, ou le menu du
+      navigateur, puis " Traduire "). Vous pouvez alors repondre aux questions dans votre langue : votre CV et votre
+      lettre de motivation seront, eux, rediges en francais correct.</p>
+      <p style="margin-bottom:0">Pour dicter a la voix dans votre langue : la dictee de Windows (touches
+      <span style="white-space:nowrap">Windows + H</span>) suit la langue de l'ordinateur, le plus souvent le francais.
+      Sinon, utilisez la dictee vocale de Google Docs, ou le micro du clavier de votre telephone, puis collez le texte ici.</p>
+    </div>
+  </details>
+
+  <div class="section">
+    <h2>&#9989; Bon a savoir</h2>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte :
+    pensez a cliquer sur l'icone disquette apres avoir travaille, sinon vos informations seront perdues a la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large">Commencer mon CV &#8594;</button>
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">Barre de navigation fixe, commune a tous les modules. " Retour " ramene au panneau " Mes documents "
+    (la ou on choisit les 3 cartes). C'est ce qui remplace l'ancien lien " porte de sortie " retire.</span>
+  </div>
+</section>
+
+<!-- ================= INTRO 2 : METTRE A JOUR MON CV ================= -->
+<section class="vue" data-v="b">
+
+  <div class="centre">
+    <h1>&#9999;&#65039; Mettre a jour mon CV</h1>
+    <p class="sous-titre">On repart de ce que vous avez deja, pas d'une page blanche. Deux choses : recuperer vos
+    informations, et en corriger le contenu.</p>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Rien n'est jamais envoye sans votre accord.</strong> Vous verrez chaque etape avant
+    qu'elle se produise, et vous pourrez tout modifier.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; A quoi ca sert</h2>
+    <p>Reprendre un CV existant pour le remettre a jour : ajouter une experience, corriger une date, retravailler une
+    formulation. La mise en forme, vous la choisissez ensuite.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous deposez votre CV (fichier, copier-coller, photo ou scan) puis vous relisez, corrigez si besoin, et masquez ce que vous ne voulez pas transmettre.</li>
+      <li>Un assistant en ligne en ressort vos informations : experiences, competences, formations.</li>
+      <li>Vous arrivez directement a l'etape de correction du contenu, champ par champ.</li>
+      <li>Vous choisissez la mise en forme et vous exportez.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce mode ne fait pas</h2>
+    <ul>
+      <li>Il ne cree pas de CV a partir de rien : il lui faut un CV de depart.</li>
+      <li>Il ne porte pas de regard critique sur votre CV.</li>
+      <li>Il ne reecrit pas tout a votre place : vous gardez la main sur chaque correction.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Mettre votre CV a jour en forme : plusieurs modeles, PDF ou Word.</li>
+      <li>Preparer votre lettre de motivation.</li>
+      <li>Vous entrainer aux questions d'un entretien d'embauche.</li>
+    </ul>
+    <div class="encart"><span>&#128196;</span><span><strong>La mise en page de votre CV d'origine n'est pas conservee.</strong>
+    L'application recupere les <strong>informations</strong> de votre CV, les met a jour et les complete, puis vous les
+    propose dans l'un de nos modeles (PDF ou Word), que vous choisissez. Si aucun ne vous convient, vous pouvez copier
+    le texte et le mettre en forme sur une autre plateforme de creation de CV. Vous n'etes jamais bloque.</span></div>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Reperes</h2>
+    <p style="margin:0">A tout moment, une reflexion utile sur votre parcours peut etre mise de cote dans Mes Reperes,
+    pour vous ou votre conseiller.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Comment ca se passe concretement</h2>
+    <p style="margin:0">Vous restez sur une seule page pour tout preparer (deposer, masquer, cadrer la candidature).
+    Ensuite, vous copiez un texte, vous le collez chez un assistant en ligne dans un nouvel onglet, puis vous revenez
+    coller sa reponse ici. La barre en haut vous permet de revenir a une etape deja faite quand vous voulez.</p>
+  </div>
+
+  <details class="encart-multilingue">
+    <summary>&#127757; Vous preferez une autre langue ? <span style="font-weight:400;font-size:.9rem;color:var(--text-muted)">Cliquez ici pour plus d'informations.</span></summary>
+    <div class="corps">
+      <p>Votre navigateur peut souvent traduire cette page dans votre langue (clic droit sur la page, ou le menu du
+      navigateur, puis " Traduire "). Vous pouvez alors repondre aux questions dans votre langue : votre CV et votre
+      lettre de motivation seront, eux, rediges en francais correct.</p>
+      <p style="margin-bottom:0">Pour dicter a la voix dans votre langue : la dictee de Windows (touches
+      <span style="white-space:nowrap">Windows + H</span>) suit la langue de l'ordinateur, le plus souvent le francais.
+      Sinon, utilisez la dictee vocale de Google Docs, ou le micro du clavier de votre telephone, puis collez le texte ici.</p>
+    </div>
+  </details>
+
+  <div class="section">
+    <h2>&#9989; Bon a savoir</h2>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte :
+    pensez a cliquer sur l'icone disquette apres avoir travaille, sinon vos informations seront perdues a la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large">Deposer mon CV &#8594;</button>
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">" Retour " ramene au panneau " Mes documents ".</span>
+  </div>
+</section>
+
+<!-- ================= INTRO 3 : PREPARER MA LETTRE ET MON ENTRETIEN ================= -->
+<section class="vue" data-v="c">
+
+  <div class="centre">
+    <h1>&#9993;&#65039; Preparer ma lettre et mon entretien</h1>
+    <p class="sous-titre">Vous avez deja un CV complet. On le reprend tel quel, sans rien vous faire ressaisir, pour
+    preparer votre lettre de motivation puis votre entretien.</p>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Rien n'est jamais envoye sans votre accord.</strong> Vous verrez chaque etape avant
+    qu'elle se produise, et vous pourrez tout modifier.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; A quoi ca sert</h2>
+    <p>A partir de votre CV existant, l'application prepare votre <strong>lettre de motivation</strong>, puis votre
+    <strong>preparation d'entretien</strong>. Votre CV n'est pas modifie : il sert de base.</p>
+    <div class="encart"><span>&#9993;&#65039;</span><span>Cette lettre et cette preparation d'entretien sont
+    <strong>differentes</strong> de " Co-construire ma lettre " et " Preparer un entretien " de l'accueil. Ici,
+    l'application part du contenu de votre CV et va a l'essentiel. Les modules de l'accueil vous accompagnent autrement,
+    plus en profondeur : la lettre phrase par phrase, l'entretien par un echange approfondi.</span></div>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous deposez votre CV (fichier ou copier-coller) puis vous relisez, corrigez si besoin, et masquez ce que vous ne voulez pas transmettre.</li>
+      <li>Vous indiquez pourquoi vous faites ce CV, et si vous le savez, l'entreprise et l'offre visees.</li>
+      <li>Un assistant en ligne lit votre CV et en ressort les informations : experiences, competences, formations.</li>
+      <li>Vous verifiez ce qui a ete compris, vous corrigez si besoin.</li>
+      <li>Vous choisissez ce que vous preparez : la lettre, puis l'entretien.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce mode ne fait pas</h2>
+    <ul>
+      <li>Il ne reecrit pas votre CV et ne change pas sa mise en page.</li>
+      <li>Il ne porte pas de regard critique sur votre CV.</li>
+      <li>Il ne cree pas de CV a partir de rien.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Produire une lettre de motivation adaptee a l'offre visee.</li>
+      <li>Vous entrainer aux questions d'un entretien d'embauche.</li>
+    </ul>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Reperes</h2>
+    <p style="margin:0">A tout moment, vous pouvez mettre de cote une reflexion utile sur votre parcours dans Mes
+    Reperes, pour vous ou votre conseiller.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Comment ca se passe concretement</h2>
+    <p style="margin:0">Vous restez sur <strong>une seule page</strong> pour tout preparer. Une fois pret, vous copiez
+    un texte, vous le collez chez un assistant en ligne (dans un nouvel onglet), puis vous revenez coller sa reponse
+    ici. La barre en haut vous permet de revenir a une etape deja faite quand vous voulez.</p>
+  </div>
+
+  <details class="encart-multilingue">
+    <summary>&#127757; Vous preferez une autre langue ? <span style="font-weight:400;font-size:.9rem;color:var(--text-muted)">Cliquez ici pour plus d'informations.</span></summary>
+    <div class="corps">
+      <p>Votre navigateur peut souvent traduire cette page dans votre langue (clic droit sur la page, ou le menu du
+      navigateur, puis " Traduire "). Vous pouvez alors repondre aux questions dans votre langue : votre CV et votre
+      lettre de motivation seront, eux, rediges en francais correct.</p>
+      <p style="margin-bottom:0">Pour dicter a la voix dans votre langue : la dictee de Windows (touches
+      <span style="white-space:nowrap">Windows + H</span>) suit la langue de l'ordinateur, le plus souvent le francais.
+      Sinon, utilisez la dictee vocale de Google Docs, ou le micro du clavier de votre telephone, puis collez le texte ici.</p>
+    </div>
+  </details>
+
+  <div class="section">
+    <h2>&#9989; Bon a savoir</h2>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte :
+    pensez a cliquer sur l'icone disquette apres avoir travaille, sinon vos informations seront perdues a la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large">Deposer mon CV &#8594;</button>
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">" Retour " ramene au panneau " Mes documents ".</span>
+  </div>
+</section>
+
+<!-- ================= PAGE "PREPARER" (DEPLIANTE) ================= -->
+<section class="vue" data-v="prep">
+
+  <div class="hypothese"><b>Le coeur de la refonte.</b> Cette page depliante remplace la fenetre modale a 4 sous-ecrans
+  (<code>ouvrirAssistantDepotCV</code>, jamais modifiee - gardee en repli uniquement pour une photo ou un scan).
+  Meme principe que <code>htmlBilanPreparer</code>. Exemple montre : mode " Preparer ma lettre et mon entretien ".</div>
+
+  <div class="barre-detour">
+    <button class="btn">&#128196; Revoir la presentation</button>
+    <span class="detail">bouton commun a tous les modules, en haut a gauche</span>
+  </div>
+
+  <div class="etapes">
+    <span class="etape courante"><span class="ico">&#128221;</span> Preparer</span>
+    <span class="chevron pulse">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128172;</span> Assistant</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128229;</span> Reponse</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128203;</span> Mon projet</span>
+    <span class="chevron avenir">&raquo;</span>
+    <span class="etape avenir"><span class="ico">&#128196;</span> Mes documents</span>
+  </div>
+
+  <div class="centre">
+    <h1>Preparer votre candidature</h1>
+    <p class="sous-titre">Trois choses a faire ici, dans l'ordre. Vous pourrez tout revoir ensuite.</p>
+  </div>
+
+  <details class="bloc-depli" open>
+    <summary>&#128196; Votre CV <span class="pilule">a faire</span></summary>
+    <div class="corps">
+      <p class="detail">Deposez un fichier (PDF, Word, texte, photo ou scan) ou collez directement le texte de votre CV.</p>
+      <p><button class="btn primaire">Deposer mon fichier</button> &nbsp; <button class="btn">Ou coller le texte</button></p>
+      <textarea rows="4" placeholder="Collez le texte de votre CV ici..."></textarea>
+      <div class="encart"><span>&#128274;</span><span>Lu dans votre navigateur uniquement. Rien n'est envoye a ce stade.</span></div>
+      <p class="detail" style="margin-bottom:0">Brique <code>obtenirOuDeposerTexteCV</code>. Photo / scan -> la modale
+      existante s'ouvre juste pour l'edition d'image, puis on revient sur cette page.</p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128397;&#65039; Relire, verifier, corriger, masquer <span class="pilule">a faire</span></summary>
+    <div class="corps">
+      <p class="detail">Vous <strong>corrigez le texte</strong> si besoin. Le nom, l'adresse, le telephone, l'e-mail
+      et les liens deteces sont <strong>surlignes en jaune</strong> directement dans le texte (et listes) pour que
+      vous les reperiez et les masquiez facilement. Vous pouvez masquer d'autres passages. Pour une photo ou un scan :
+      vous verifiez et vous masquez au doigt sur l'image.</p>
+      <div class="encart"><span>&#128397;&#65039;</span><span>Ecran de relecture <code>bilanDemanderRelectureCv</code> /
+      <code>htmlVerificationDocument</code> - le meme que " Analyser ma candidature " et " Preparer un entretien ".
+      Detection : telephone, e-mail, LinkedIn/GitHub, URL, age/date de naissance, nom etiquete.</span></div>
+      <p><button class="btn">Enregistrer cette version</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128188; Votre candidature <span class="pilule">a faire</span></summary>
+    <div class="corps">
+      <p><strong>Pourquoi ce CV ?</strong> <span class="detail">(obligatoire - oriente toute la strategie)</span></p>
+      <div class="choix-pourquoi">
+        <span class="actif">Repondre a une offre</span>
+        <span>Candidature spontanee</span>
+        <span>Changer de metier</span>
+        <span>Stage</span>
+        <span>Alternance</span>
+        <span>PMSMP (immersion)</span>
+      </div>
+      <p class="detail" style="margin:.2rem 0 .6rem">6 choix distincts = <code>OBJECTIF_CHOIX_CANDIDATURE</code> reel,
+      un bouton chacun. Le Bilan met deja ces memes 6 choix dans un bloc depliant (" Votre situation ").</p>
+
+      <p style="margin-top:.7rem"><strong>Si vous savez deja ou vous postulez</strong> <span class="detail">(tout est facultatif)</span></p>
+      <p><input type="text" placeholder="Nom de l'entreprise"></p>
+      <p><input type="text" placeholder="Site internet de l'entreprise"></p>
+      <p class="detail" style="margin:-.1rem 0 .5rem">Le site sert aussi, plus tard, a retrouver les couleurs de la marque dans d'autres modules.</p>
+
+      <div class="section" style="background:var(--bg-subtle);padding:.7rem .8rem;margin:.5rem 0">
+        <p style="margin:0 0 .3rem"><strong>L'offre d'emploi</strong> <span class="detail">(bloc a part, facultatif)</span></p>
+        <textarea rows="2" placeholder="Lien de l'offre, ou texte de l'offre colle..."></textarea>
+      </div>
+
+      <p style="margin-top:.6rem"><strong>Type de structure</strong> <span class="detail">(liste deroulante)</span></p>
+      <select style="width:100%;font:inherit;border:1px solid var(--border-strong);border-radius:8px;padding:.5rem .6rem;background:var(--bg-card);color:var(--text);">
+        <option>Choisir dans la liste...</option>
+        <option>Entreprise privee (secteur marchand)</option>
+        <option>Fonction publique d'Etat (administrations, ministeres, ecoles publiques...)</option>
+        <option>Fonction publique territoriale (mairies, departements, regions...)</option>
+        <option>Fonction publique hospitaliere (hopitaux publics, EHPAD publics...)</option>
+        <option>Etablissement sanitaire ou medico-social prive (cliniques privees, EHPAD prives, cabinets)</option>
+        <option>Association (loi 1901) / economie sociale et solidaire</option>
+        <option>Cooperative (SCOP, SCIC...)</option>
+        <option>Artisanat / commerce de proximite</option>
+        <option>Etablissement d'enseignement (public ou prive, formation)</option>
+        <option>Autre</option>
+      </select>
+      <p class="detail" style="margin:.3rem 0 0">Liste <code>BILAN_TYPES_STRUCTURE</code> (10 entrees), deja utilisee
+      telle quelle par " Coherence de mon dossier " et " Analyser ma candidature ". Aucune fenetre a inventer.</p>
+
+      <div class="hypothese" style="margin-bottom:0"><b>Change v3.</b> Ce bloc absorbe l'ancien ecran " Objectif "
+      (<code>pageObjectif</code>, 6 choix) + le ciblage entreprise / site / offre / type de structure (qui etait dans
+      " Mon projet "). L'ecran " Objectif " separe disparait pour ce mode et pour " Mettre a jour mon CV ".
+      <code>dossier.objectif</code> est pose avant le bouton ci-dessous -> aucun effet de bord.</div>
+    </div>
+  </details>
+
+  <div class="section">
+    <h3>&#128172; Ensuite : choisissez votre assistant</h3>
+    <p class="detail">Quand les 3 blocs sont faits, vous choisissez un assistant. L'application prepare et copie tout
+    pour vous, puis l'ouvre dans un nouvel onglet : cette page reste ouverte.</p>
+
+    <div style="border:1px solid var(--ok);background:var(--ok-bg);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0">
+      <p style="margin:0 0 .4rem;font-weight:600;color:var(--ok-strong)">Sans compte a creer <span class="detail" style="font-weight:400">: utilisable tout de suite</span></p>
+      <div class="assist-rangee" style="margin:0">
+        <span class="assist sans-compte">ChatGPT</span>
+        <span class="assist sans-compte">Le Chat (Mistral)</span>
+        <span class="assist sans-compte">Perplexity</span>
+      </div>
+    </div>
+    <div style="border:1px solid var(--accent);background:var(--accent-bg);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0">
+      <p style="margin:0 0 .4rem;font-weight:600;color:var(--accent)">Avec une connexion <span class="detail" style="font-weight:400">: a un compte existant</span></p>
+      <div class="assist-rangee" style="margin:0">
+        <span class="assist">Claude</span>
+        <span class="assist">Gemini</span>
+        <span class="assist">Copilot</span>
+      </div>
+    </div>
+
+    <details class="bloc-depli" style="margin-top:.6rem">
+      <summary>&#128203; Ce qui va se passer, et vos donnees <span class="detail">Cliquez ici pour voir</span></summary>
+      <div class="corps">
+        <ol style="margin:.2rem 0;padding-left:1.2rem">
+          <li>L'application prepare un texte et le copie automatiquement.</li>
+          <li>Elle ouvre l'assistant dans un nouvel onglet. Vous faites Ctrl+V.</li>
+          <li>L'assistant repond. Vous revenez ici et vous collez sa reponse.</li>
+          <li>L'application lit la reponse et remplit vos documents. Vous validez.</li>
+        </ol>
+        <div class="encart"><span>&#128274;</span><span>Rien n'est envoye avant que vous ayez relu et valide votre CV.</span></div>
+      </div>
+    </details>
+
+    <div class="centre" style="margin-top:.6rem">
+      <button class="btn primaire large">Preparer le texte et ouvrir l'assistant &#8594;</button>
+    </div>
+    <p class="detail" style="margin:.4rem 0 0">Composant <code>htmlChoixAssistantBilanCorps</code> (fait le 2026-08-30,
+    utilise par le Bilan et Decouverte) - repris tel quel. Listes d'assistants ici a titre indicatif.</p>
+  </div>
+
+  <div class="hypothese" style="margin-bottom:0"><b>Ce qui disparait par rapport a aujourd'hui.</b> Les 4 sous-ecrans
+  imbriques de la modale (Deposer / Verification / Analyse assistee / Importer), la fenetre de confirmation
+  intermediaire, ET l'ecran " Objectif ". On passe d'environ 8 changements de contexte avant " Mon projet " a 2
+  (cette page, puis l'onglet de l'assistant).</div>
+</section>
+
+<!-- ================= COMPORTEMENTS COMMUNS ================= -->
+<section class="vue" data-v="comm">
+
+  <div class="hypothese"><b>Vraies briques partagees, mot pour mot.</b> <code>htmlBoutonRevoirModule</code>,
+  <code>htmlEncartRepriseModule</code>, <code>htmlBandeRepriseModule</code>, <code>appliquerGelModule</code> -
+  les memes que Bilan / Coherence / Decouverte / Comparer. Rien de nouveau, juste a brancher sur les 3 cartes.
+  <b>Le mot " travail " n'apparait nulle part</b> (= remuneration, regle du code).</div>
+
+  <div class="section">
+    <h2>1. Bouton " Revoir la presentation " (sur les ecrans de travail)</h2>
+    <div class="barre-detour">
+      <button class="btn">&#128196; Revoir la presentation</button>
+    </div>
+    <div class="note-revoir"><span style="flex:1">Ce bouton vous ramene a la page qui explique ce module. Vous ne perdez rien.</span><button class="btn sm" aria-label="Fermer" style="border:none;background:transparent;padding:0 .2rem">&#10005;</button></div>
+    <p>Un clic ouvre la page d'introduction <strong>en detour</strong>. Sur cette page en detour, le meme bouton devient :</p>
+    <div class="barre-detour">
+      <button class="btn primaire">&#8594; Revenir au module</button>
+    </div>
+    <div class="note-revoir"><span style="flex:1">Ce bouton vous ramene a l'endroit ou vous en etiez dans le module. Vous ne perdez rien.</span><button class="btn sm" aria-label="Fermer" style="border:none;background:transparent;padding:0 .2rem">&#10005;</button></div>
+    <p class="detail" style="margin-bottom:0">Note = juste le texte + une petite croix pour la faire disparaitre (drapeau
+    <code>localStorage</code>, jamais reaffichee). Pas d'ampoule, pas de bouton " J'ai compris " visible - la brique reelle
+    ne met que la croix. Libelles exacts : " Revoir la presentation " (ecran de travail) / " Revenir au module " (detour).
+    Jamais " travail ".</p>
+  </div>
+
+  <div class="section">
+    <h2>2. Au retour dans le module : " Continuer / Recommencer " + gel</h2>
+    <p class="detail">La personne revient sur le module alors qu'une preparation est en cours -> elle arrive sur la page
+    d'introduction. La bande ci-dessous s'affiche sous la barre d'etapes : bouton a gauche, encart a droite
+    (<code>htmlBandeRepriseModule</code>). Tant qu'elle n'a pas repondu, <strong>tout le reste de la page est gele</strong>
+    (inerte, sauf cette bande et la barre du bas) : un seul choix a faire.</p>
+
+    <div class="bande-reprise">
+      <div class="gauche"><button class="btn">&#128196; Revoir la presentation</button></div>
+      <div class="encart-reprise">
+        <p>Vous avez une preparation en cours sur ce module.</p>
+        <div class="boutons">
+          <button class="btn primaire sm">Continuer</button>
+          <button class="btn saumon sm">Recommencer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="gel">
+      <div class="section teinte centre"><p style="margin:0"><strong>Rien n'est jamais envoye sans votre accord.</strong></p></div>
+      <div class="section"><h2>&#127919; A quoi ca sert</h2><p>... le reste de l'intro, gele tant qu'on n'a pas choisi ci-dessus.</p></div>
+    </div>
+
+    <p class="detail" style="margin-bottom:0">Texte de l'encart adapte pour ce module : " Vous avez une <strong>preparation</strong>
+    en cours " au lieu du defaut " analyse en cours " - via le parametre <code>texte</code> de la brique, structure et
+    boutons inchanges. " Recommencer " sur fond saumon, jamais rouge. L'encart pulse ~10 s puis s'arrete.</p>
+  </div>
+</section>
+
+<!-- ================= BARRE D'ETAPES ================= -->
+<section class="vue" data-v="barre">
+
+  <div class="hypothese"><b>Icones, pas de numeros</b> (verifie dans <code>barreEtapesModule</code>). Chevron
+  <code>&raquo;</code> entre les etapes ; le chevron entre l'etape courante et la suivante <b>clignote</b> (opacite
+  seule, respecte <code>prefers-reduced-motion</code>). Etat fait = coche verte, courante = surlignee + halo, a venir =
+  estompee. <b>Compacte</b> : plus fine que dans les autres modules. <b>Etapes faites cliquables</b> pour y revenir ;
+  a venir verrouillees. Sur les 3 cartes.</div>
+
+  <div class="section">
+    <h2>Aujourd'hui - 9 reperes, emojis bruts, metaphores melees</h2>
+    <div class="vieille-barre">
+      <span>&#128100;</span><span>&#127919;</span><span>&#129309; Experience</span><span>&#11088; Ce que vous faisiez</span>
+      <span>&#127757; Environnement</span><span>&#9878;&#65039; Attentes</span><span>&#128203; Mon projet</span>
+      <span>&#129517; Faire le point</span><span>&#10024; Action</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Propose - " Preparer ma lettre et mon entretien " : 5 etapes</h2>
+    <div class="etapes">
+      <span class="etape faite" title="cliquable"><span class="ico">&#128221;</span> Preparer</span>
+      <span class="chevron">&raquo;</span>
+      <span class="etape courante"><span class="ico">&#128172;</span> Assistant</span>
+      <span class="chevron pulse">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128229;</span> Reponse</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128203;</span> Mon projet</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128196;</span> Mes documents</span>
+    </div>
+    <p class="detail">&#128221; Preparer &middot; &#128172; Assistant &middot; &#128229; Reponse &middot; &#128203; Mon projet
+    &middot; &#128196; Mes documents. Icones deja utilisees par Bilan / Cohérence / Decouverte / Comparer.</p>
+  </div>
+
+  <div class="section">
+    <h2>Propose - " Mettre a jour mon CV " : 5 etapes</h2>
+    <div class="etapes">
+      <span class="etape courante"><span class="ico">&#128221;</span> Preparer</span>
+      <span class="chevron pulse">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128172;</span> Assistant</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128229;</span> Reponse</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#9999;&#65039;</span> Corriger mon CV</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128196;</span> Mes documents</span>
+    </div>
+    <p class="detail">Identique a la carte 3, sauf l'etape 4 : &#9999;&#65039; " Corriger mon CV " au lieu de " Mon projet ".</p>
+  </div>
+
+  <div class="section">
+    <h2>Propose - " Creer un nouveau CV " : 6 etapes</h2>
+    <div class="etapes">
+      <span class="etape courante"><span class="ico">&#127919;</span> Objectif</span>
+      <span class="chevron pulse">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#129517;</span> Votre parcours</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128188;</span> Mon projet</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128269;</span> Faire le point</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128172;</span> Assistant</span>
+      <span class="chevron avenir">&raquo;</span>
+      <span class="etape avenir"><span class="ico">&#128196;</span> Mes documents</span>
+    </div>
+    <div class="hypothese" style="margin-bottom:0"><b>Phase 3b, separee.</b> Regrouper les 4 etapes actuelles
+    " Experience / Ce que vous faisiez / Environnement / Attentes " sous une seule " Votre parcours " a sous-etapes.
+    Touche 4 pages partagees -> plan dedie apres la Phase 1. Icones de " Creer " a affiner a ce moment-la.</div>
+  </div>
+</section>
+
+<!-- ================= OU L'ON RENOMME ================= -->
+<section class="vue" data-v="renomme">
+
+  <div class="section">
+    <h2>Renommage " J'ai deja un CV " -> " Preparer ma lettre et mon entretien "</h2>
+    <p class="detail">A propager partout ou le texte visible apparait. Le prerequis (" il faut un CV ") passe dans la
+    description de carte, plus dans le titre.</p>
+    <table class="renomme">
+      <tr><th>Endroit</th><th>Aujourd'hui</th><th>Cible</th></tr>
+      <tr>
+        <td>Carte d'accueil " Mes documents " - liste des puces d'aide guidee (<code>js/app.js:4006</code>)</td>
+        <td>Creer un nouveau CV &middot; <b>J'ai deja un CV</b> &middot; Mettre a jour mon CV</td>
+        <td>Creer un nouveau CV &middot; <b>Preparer ma lettre et mon entretien</b> &middot; Mettre a jour mon CV</td>
+      </tr>
+      <tr>
+        <td>Panneau ERIP " Mes documents " - tuile (<code>data/metiers.js:3569</code>)</td>
+        <td>titre " J'ai deja un CV " + description " Vos informations sont reprises telles quelles, rien a ressaisir. "</td>
+        <td>titre " Preparer ma lettre et mon entretien " + description " Vous avez deja un CV. On s'en sert comme base
+        pour votre lettre et votre entretien, sans rien vous faire ressaisir. "</td>
+      </tr>
+      <tr>
+        <td>CONFIG <code>ouvrirCarteAccueil</code> (<code>data/metiers.js:3382</code>)</td>
+        <td>[ ... , 'J'ai deja un CV', ... ]</td>
+        <td>[ ... , 'Preparer ma lettre et mon entretien', ... ]</td>
+      </tr>
+      <tr>
+        <td>Infobulles du parcours guide (<code>js/app.js</code> ~30215 : <code>cv-existant</code>, <code>maj-cv</code>, <code>choix-document-metier</code>...)</td>
+        <td>textes qui disent " si vous avez deja un CV, vous pourrez le deposer "</td>
+        <td>reformuler pour coller au nouveau nom et au nouveau point d'entree (page d'intro routee au lieu de la modale)</td>
+      </tr>
+      <tr>
+        <td>Route + handler (<code>data/metiers.js:3668</code> <code>btnCarteAccueilCvPret</code>)</td>
+        <td><code>ouvrirAssistantDepotCV('pret')</code> (ouvre la modale directement)</td>
+        <td><code>naviguerVers('preparer-lettre-entretien')</code> -> page d'intro routee -> CTA -> page " Preparer " depliante</td>
+      </tr>
+      <tr>
+        <td>Description de la carte d'accueil " Mes documents " (<code>js/app.js:4007</code>)</td>
+        <td>" Le point de depart pour votre CV, votre lettre de motivation et votre preparation d'entretien d'embauche. "</td>
+        <td>a relire : verifier qu'elle ne contredit rien des 3 nouveaux titres (a priori elle reste juste)</td>
+      </tr>
+    </table>
+    <div class="hypothese" style="margin-bottom:0"><b>A verifier au grep avant de coder.</b> <code>J.ai deja un CV</code>
+    et variantes dans <code>js/app.js</code>, <code>data/metiers.js</code>, <code>index.html</code>, <code>modules/</code>.
+    Ne PAS toucher : commentaires de code, noms d'evenements Umami, <code>data-*</code>.</div>
+  </div>
+</section>
+
+</main>
+
+<script>
+  function montrer(v) {
+    document.querySelectorAll('.vue').forEach(function (s) { s.classList.toggle('visible', s.dataset.v === v); });
+    document.querySelectorAll('.barre-haut .btn[data-v]').forEach(function (b) { b.classList.toggle('actif', b.dataset.v === v); });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('.barre-haut .btn[data-v]').forEach(function (b) {
+    b.addEventListener('click', function () { montrer(b.dataset.v); });
+  });
+</script>
+</body>
+</html>

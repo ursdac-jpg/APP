@@ -1,0 +1,653 @@
+<title>Maquette v5 - Page « L'assistant en ligne »</title>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-subtle: #f4f6f8;
+    --bg-card: #ffffff;
+    --text: #1f2733;
+    --text-strong: #0f1720;
+    --text-muted: #6b7683;
+    --border: #e2e6ea;
+    --border-strong: #c7ced5;
+    --accent: #1d4ed8;
+    --accent-hover: #1a44b8;
+    --accent-bg-subtle: #eaf0fe;
+    --success: #0f766e;
+    --success-strong: #0b5b54;
+    --success-bg-subtle: #def2ef;
+    --warn: #b45309;
+    --warn-bg: #fdf3e3;
+    --radius: 12px;
+    --ombre: 0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.08);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #0f141a;
+      --bg-subtle: #161d25;
+      --bg-card: #1a222c;
+      --text: #d6dde4;
+      --text-strong: #f0f4f8;
+      --text-muted: #93a1af;
+      --border: #2a333d;
+      --border-strong: #3a4550;
+      --accent: #8ab4ff;
+      --accent-hover: #a5c6ff;
+      --accent-bg-subtle: #1c2c48;
+      --success: #5fd6c9;
+      --success-strong: #8fe6dc;
+      --success-bg-subtle: #14322f;
+      --warn: #e0a45c;
+      --warn-bg: #2c2413;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141a;
+    --bg-subtle: #161d25;
+    --bg-card: #1a222c;
+    --text: #d6dde4;
+    --text-strong: #f0f4f8;
+    --text-muted: #93a1af;
+    --border: #2a333d;
+    --border-strong: #3a4550;
+    --accent: #8ab4ff;
+    --accent-hover: #a5c6ff;
+    --accent-bg-subtle: #1c2c48;
+    --success: #5fd6c9;
+    --success-strong: #8fe6dc;
+    --success-bg-subtle: #14322f;
+    --warn: #e0a45c;
+    --warn-bg: #2c2413;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 22px 18px 90px; }
+
+  .panneau-demo {
+    border: 1px dashed var(--border-strong); border-radius: 10px;
+    background: var(--bg-subtle); padding: 12px 14px; margin-bottom: 20px; font-size: 13.5px;
+  }
+  .panneau-demo b { color: var(--text-strong); }
+  .panneau-demo .ligne-btn { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .panneau-demo button {
+    font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px;
+    border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer;
+  }
+  .panneau-demo button.on { background: var(--accent); color: #fff; }
+  .panneau-demo button.theme { border-color: var(--border-strong); color: var(--text-muted); }
+
+  .prog { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 16px; font-size: 12px; }
+  .prog .et {
+    display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px;
+    background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border);
+  }
+  .prog .et.faite { color: var(--success-strong); border-color: var(--success); background: var(--success-bg-subtle); }
+  .prog .et.active { color: #fff; background: var(--accent); border-color: var(--accent); font-weight: 700; }
+  .prog .sep { color: var(--text-muted); }
+
+  h1 { font-size: 24px; color: var(--text-strong); margin: 6px 0 4px; }
+  .sous-titre { color: var(--text-muted); margin: 0 0 20px; }
+
+  .carte {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--ombre);
+  }
+  .carte h2 { font-size: 16px; color: var(--text-strong); margin: 0 0 4px; display: flex; align-items: center; gap: 8px; }
+  .carte .aide { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; }
+
+  /* bloc facultatif replié */
+  details.facultatif { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; box-shadow: var(--ombre); }
+  details.facultatif > summary {
+    cursor: pointer; padding: 14px 18px; font-weight: 700; color: var(--text-strong); list-style: none;
+    display: flex; align-items: center; gap: 9px;
+  }
+  details.facultatif > summary::-webkit-details-marker { display: none; }
+  details.facultatif > summary::before { content: "\25B8"; color: var(--accent); font-size: .8em; transition: transform .15s; }
+  details.facultatif[open] > summary::before { transform: rotate(90deg); }
+  details.facultatif > summary .tag {
+    margin-left: auto; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 9px;
+    border: 1px solid var(--border-strong); color: var(--text-muted); background: var(--bg-subtle);
+  }
+  .facultatif-corps { padding: 4px 18px 16px; border-top: 1px solid var(--border); }
+  .hint-deplier { padding: 0 18px 12px; margin-top: -2px; font-size: 12px; color: var(--accent); }
+
+  .groupe { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 11px 13px; margin: 10px 0; background: var(--bg-card); }
+  .groupe .g-titre { font-weight: 700; color: var(--text-strong); display: flex; align-items: center; gap: 7px; margin: 0 0 2px; }
+  .groupe .g-aide { font-size: 12.5px; color: var(--text-muted); margin: 0 0 8px; }
+  .jetons { display: flex; flex-wrap: wrap; gap: 6px; }
+  .jeton {
+    font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 13px; border-radius: 999px; cursor: pointer;
+    color: var(--accent); background: var(--bg-card); border: 1px solid var(--accent); transition: background .12s, color .12s;
+  }
+  .jeton:hover { background: var(--accent-bg-subtle); }
+  .jeton.on { color: #fff; background: var(--accent); }
+
+  .rappel { background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 13px; margin: 0 0 12px; font-size: 13.5px; color: var(--text-strong); }
+  .rappel b { color: var(--text-strong); }
+
+  .btn {
+    font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent);
+  }
+  .btn:hover { background: var(--accent-bg-subtle); }
+  .btn.plein { background: var(--accent); color: #fff; }
+  .btn.plein:hover { background: var(--accent-hover); }
+  .btn.sm { padding: 6px 12px; font-size: 13px; }
+
+  .grp-assistants { border-radius: 10px; padding: 11px 13px; margin: 8px 0; }
+  .grp-sans { background: var(--success-bg-subtle); border: 1px solid var(--success); }
+  .grp-compte { background: var(--accent-bg-subtle); border: 1px solid var(--accent); }
+  .grp-label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+  .grp-sans .grp-label { color: var(--success-strong); }
+  .grp-compte .grp-label { color: var(--accent); }
+  .jeton-assist {
+    font: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+    background: var(--bg-card); border: 1px solid var(--border-strong); color: var(--text-strong);
+  }
+  .grp-sans .jeton-assist { border-color: var(--success); color: var(--success-strong); }
+  .grp-compte .jeton-assist { border-color: var(--accent); color: var(--accent); }
+  .jeton-assist.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .grp-sans .jeton-assist.on { background: var(--success); color: #05201d; border-color: var(--success); }
+
+  .etapes-passe { border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; margin: 10px 0 4px; }
+  .etapes-passe .ep-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+  .ep-liste { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+  .ep {
+    flex: 0 0 auto; font-size: 12px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border-strong);
+    background: var(--bg-card); color: var(--text-strong); display: inline-flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap;
+  }
+  .ep .num { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 9.5px; flex: 0 0 auto; }
+
+  .cr-badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border-strong); color: var(--text-muted); vertical-align: middle; }
+
+  /* rectangle dépliable (accordéon) */
+  .acc { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; box-shadow: var(--ombre); overflow: hidden; }
+  .acc.ouvert { border-color: var(--border-strong); }
+  .acc-tete { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: none; border: 0; cursor: pointer; font: inherit; text-align: left; color: var(--text); }
+  .acc-tete:hover { background: var(--bg-subtle); }
+  .acc-ico { font-size: 17px; flex: 0 0 auto; }
+  .acc-titre { flex: 1 1 auto; font-weight: 700; font-size: 15px; color: var(--text-strong); }
+  .acc-sous { display: block; font-weight: 400; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+  .acc-chevron { flex: 0 0 auto; color: var(--text-muted); transition: transform .15s; }
+  .acc.ouvert .acc-chevron { transform: rotate(180deg); }
+  .acc-corps { padding: 4px 16px 16px; border-top: 1px solid var(--border); }
+
+  /* bouton discret « voir/modifier le texte » */
+  .btn-texte-discret { margin-top: 12px; font: inherit; font-size: 12.5px; color: var(--text-muted); background: var(--bg-subtle); border: 1px solid var(--border-strong); border-radius: 8px; padding: 7px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-texte-discret:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* rectangle « Choisir ce qui ira sur le CV » */
+  .reco-onglets { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .reco-onglet { font: inherit; font-size: 12px; font-weight: 600; padding: 7px 10px; border: 0; background: none; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .reco-onglet:hover { color: var(--text-strong); }
+  .reco-onglet.on { color: var(--accent); border-bottom-color: var(--accent); }
+  .reco-corps { margin-bottom: 6px; }
+  .reco-h { font-size: 13.5px; color: var(--text-strong); margin: 16px 0 2px; }
+  .reco-h:first-child { margin-top: 4px; }
+  .reco-ligne { display: flex; align-items: flex-start; gap: 9px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; font-size: 13px; color: var(--text); cursor: pointer; }
+  .reco-ligne:hover { border-color: var(--border-strong); background: var(--bg-subtle); }
+  .reco-ligne input { margin-top: 2px; flex: 0 0 auto; }
+  .reco-edit { outline: 0; border-bottom: 1px dashed var(--border-strong); }
+  .reco-edit:focus { border-bottom-color: var(--accent); }
+  .reco-carte { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; background: var(--bg-card); }
+  .reco-carte-tete { display: flex; align-items: center; gap: 8px; }
+  .reco-fleches { display: inline-flex; gap: 3px; flex: 0 0 auto; }
+  .reco-fleches button { font: inherit; font-size: 11px; width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-muted); cursor: pointer; }
+  .reco-fleches button:disabled { opacity: .35; cursor: default; }
+  .reco-missions { margin: 6px 0 0 6px; padding-left: 8px; border-left: 2px solid var(--border); }
+  .reco-ss-label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin: 2px 0 5px; }
+  .reco-mission { font-size: 12.5px; padding: 6px 9px; }
+  .reco-item-titre { font-weight: 700; font-size: 13px; color: var(--text-strong); margin: 4px 0 2px; }
+  .astuce { font-size: 12px; color: var(--text-muted); margin: 10px 0 0; }
+  .ep-detail { margin-top: 8px; font-size: 12.5px; color: var(--text-muted); background: var(--bg-subtle); border-radius: 8px; padding: 8px 11px; display: none; }
+  .ep-detail.on { display: block; }
+
+  .confid { font-size: 12px; color: var(--text-muted); margin-top: 10px; display: flex; align-items: flex-start; gap: 6px; }
+
+  .bandeau-retour { background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 13px; font-size: 13.5px; color: var(--text-strong); margin: 0 0 12px; }
+  textarea.collage {
+    width: 100%; min-height: 120px; border: 1px solid var(--border-strong); border-radius: 9px; padding: 10px 12px;
+    font: inherit; font-size: 13.5px; background: var(--bg-card); color: var(--text); resize: vertical;
+  }
+  textarea.collage:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+  .collage-boutons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .msg-import { margin-top: 8px; font-size: 13px; min-height: 1.2em; }
+  .msg-import.ok { color: var(--success-strong); }
+
+  .modale-fond { position: fixed; inset: 0; background: rgba(8,12,18,.55); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modale-fond.on { display: flex; }
+  .modale { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); max-width: 620px; width: 100%; max-height: 80vh; overflow: auto; padding: 18px 20px; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+  .modale h3 { margin: 0 0 4px; font-size: 16px; color: var(--text-strong); }
+  .modale .m-aide { font-size: 12.5px; color: var(--text-muted); margin: 0 0 10px; }
+  .modale textarea { width: 100%; min-height: 220px; border: 1px solid var(--border-strong); border-radius: 9px; padding: 10px 12px; font: 13px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--bg-subtle); color: var(--text); }
+  .modale-pied { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card); border-top: 1px solid var(--border); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .barre-bas .btn.lien { border-color: transparent; background: transparent; color: var(--text-muted); }
+</style>
+
+<div class="wrap">
+  <div class="panneau-demo">
+    <b>Maquette v5 - Page « L'assistant en ligne ».</b> Quatre <b>rectangles dépliables</b>, tout se passe <b>sur cette page</b> (aucune fenêtre à part). <b>1. Réglez le style</b> : ouvert à l'arrivée, 4 réglages pré-remplis + <b>niveau du poste</b> à choisir (option B) + <b>situation en ce moment</b> facultative (décision Denis 2026-09-02 : jamais un diagnostic, transmise seulement si renseignée, n'adapte aucun écran) ; « Ces réglages me conviennent » referme et ouvre le suivant. <b>2. Choisissez votre assistant</b> : composant partagé (sans compte = ChatGPT, Perplexity ; avec compte = Claude, Gemini, Mistral) ; écran d'attente puis ouverture dans un nouvel onglet. <b>3. Importer la réponse</b> : composant d'import existant. <b>4. Choisir ce qui ira sur le CV</b> : les <b>9 onglets réels</b> de l'écran de choix de la réponse (Profil, Intitulé, Accroche, Expériences, Compétences à valoriser, Compétences personnelles, Stratégie de candidature, Rubriques à masquer, Formation, expérience perso et loisir), rapatriés <b>dans la page</b>. Cases à cocher, choix d'accroche/intitulé, missions par expérience, flèches d'ordre. S'ouvre après l'import ; « Je valide ces choix » débloque « Continuer vers Vos documents ». Contenu mock, exemple « Vendeur en boulangerie ».
+    <div class="ligne-btn" id="demo">
+      <button data-v="style" class="on">1 : style</button>
+      <button data-v="assistant">2 : assistant</button>
+      <button data-v="collage">3 : import</button>
+      <button data-v="relecture">4 : choisir</button>
+      <button class="theme" id="btnTheme">Voir en mode sombre</button>
+    </div>
+  </div>
+
+  <div class="prog">
+    <span class="et faite">&#128100; Votre profil</span><span class="sep">&#8250;</span>
+    <span class="et active">&#128172; Assistant</span><span class="sep">&#8250;</span>
+    <span class="et">&#128196; Vos documents</span>
+  </div>
+
+  <h1>&#128172; L'assistant en ligne</h1>
+  <p class="sous-titre">L'application prépare et copie tout pour vous. Vous échangez avec l'assistant, puis vous revenez coller sa réponse. Vous n'avez rien à taper.</p>
+
+  <div id="page"></div>
+</div>
+
+<div class="modale-fond" id="modaleTexte">
+  <div class="modale">
+    <h3>Le texte exact qui sera transmis</h3>
+    <p class="m-aide">Rien n'est envoyé pour l'instant. Vous pouvez relire, corriger, retirer une ligne. C'est ce texte, mot pour mot, que vous copierez ensuite chez l'assistant.</p>
+    <textarea id="texteExact"></textarea>
+    <div class="modale-pied">
+      <button class="btn sm" id="btnTexteAuto">Revenir au texte automatique</button>
+      <button class="btn sm plein" id="btnFermerModale">C'est bon</button>
+    </div>
+  </div>
+</div>
+
+<div class="barre-bas">
+  <button class="btn lien">&#8592; Retour</button>
+  <button class="btn plein" id="btnContinuer" style="visibility:hidden">Continuer vers « Vos documents » &#8594;</button>
+</div>
+
+<script>
+(function () {
+  // Valeurs par défaut : ce qui part si la personne ne touche à rien.
+  // Le NIVEAU DU POSTE n'a pas de défaut (option B, décision Denis 2026-09-02) :
+  // c'est le réglage où une mauvaise supposition fausse le plus le résultat, on
+  // laisse la personne le choisir.
+  // LA SITUATION est FACULTATIVE (décision Denis 2026-09-02) : pas de défaut,
+  // jamais bloquante, jamais un diagnostic. Transmise à l'assistant seulement si
+  // renseignée. N'adapte aucun écran en aval : pur contexte.
+  var STYLE_DEFAUT = { langage: 'professionnel', adaptationMetier: 'adaptee', ton: 'equilibre', longueur: 'equilibree' };
+  var etat = {
+    variante: 'style',
+    ouvert: 'style',           // rectangle déplié : 'style' | 'assistant' | 'collage' | 'relecture' | null
+    style: Object.assign({ poste: null, situation: null }, STYLE_DEFAUT),
+    assistant: null,
+    epDetail: null,
+    texteModifie: false,
+    importFait: false,
+    relectureValidee: false,
+    ongletReco: 'profil',
+    // Reprend les 9 onglets réels de l'écran de choix de la réponse
+    // (GROUPES_ONGLETS_CHOIX_IA_CV dans js/app.js). Contenu mock, exemple
+    // « Vendeur en boulangerie ».
+    reco: {
+      pointsForts: [{ t: 'Sens du service client', on: true }, { t: 'Rigueur et respect des consignes', on: true }, { t: 'Ponctualité', on: false }],
+      motsCles: [{ t: 'encaissement', on: true }, { t: 'hygiène alimentaire (HACCP)', on: true }, { t: 'mise en rayon', on: true }, { t: 'relation client', on: true }],
+      intitule: 0,
+      intitules: ['Vendeur en boulangerie', 'Vendeur, employé de commerce', 'Conseiller de vente en boulangerie-pâtisserie'],
+      accroche: 0,
+      accroches: [
+        'Vendeur rigoureux, à l’aise avec la clientèle et les règles d’hygiène, formé en cuisine.',
+        'CAP Cuisine, 5 ans en relation client et en vente. Sérieux, ponctuel, sens du service.',
+        'Passionné par le contact client, expérience en restauration et en vente, disponible immédiatement.'
+      ],
+      experiences: [
+        { poste: 'Employé polyvalent', entreprise: 'Quick', on: true, missions: [{ t: 'Accueil et encaissement des clients', on: true }, { t: 'Préparation et remise des commandes', on: true }, { t: 'Nettoyage et respect des normes HACCP', on: false }] },
+        { poste: 'Aide-cuisinier', entreprise: 'Le Fournil', on: true, missions: [{ t: 'Aide à la préparation et au dressage', on: true }, { t: 'Plonge et rangement des réserves', on: false }] },
+        { poste: 'Stage de 3e', entreprise: 'Boulangerie du Centre', on: false, missions: [] }
+      ],
+      competences: [{ t: 'Relation client', on: true }, { t: 'Encaissement', on: true }, { t: 'Mise en rayon', on: true }, { t: 'Règles d’hygiène (HACCP)', on: true }, { t: 'Travail en équipe', on: true }, { t: 'Gestion des stocks', on: false }],
+      compPerso: [{ t: 'Organisation du vide-grenier du quartier', on: true }, { t: 'Aide aux devoirs (bénévolat)', on: false }],
+      typeCV: 'specifique',
+      postesRecherche: [{ t: 'Vendeur en boulangerie-pâtisserie', on: true }, { t: 'Employé de commerce', on: true }, { t: 'Conseiller de vente alimentaire', on: false }],
+      rubriques: [{ t: 'Langues', on: false }, { t: 'Loisirs', on: false }, { t: 'Permis', on: false }, { t: 'Engagements', on: true }],
+      formation: { intitule: 'CAP Cuisine (2016)', missions: [{ t: 'Techniques culinaires de base', on: true }, { t: 'Hygiène et sécurité alimentaire', on: true }] },
+      certifications: [{ t: 'SST (Sauveteur Secouriste du Travail)', on: true }],
+      expPerso: { intitule: 'Organisation du vide-grenier du quartier', missions: [{ t: 'Coordination d’une trentaine d’exposants', on: true }, { t: 'Tenue de la caisse et des inscriptions', on: true }] },
+      loisir: { intitule: 'Course à pied (semi-marathons, 5 ans)', missions: [{ t: 'Entraînement régulier, discipline, gestion de l’effort', on: true }] }
+    }
+  };
+  var ONGLETS_RECO = [
+    ['profil', '&#128100;', 'Profil'],
+    ['intitule', '&#127991;&#65039;', 'Intitulé'],
+    ['accroche', '&#10024;', 'Accroche'],
+    ['experiences', '&#128188;', 'Expériences'],
+    ['competences', '&#128295;', 'Compétences à valoriser'],
+    ['compPerso', '&#127793;', 'Compétences personnelles'],
+    ['strategie', '&#127919;', 'Stratégie de candidature'],
+    ['rubriques', '&#128683;', 'Rubriques à masquer'],
+    ['formPerso', '&#127891;', 'Formation, expérience perso et loisir']
+  ];
+
+  var TEXTE_AUTO = "Objectif : répondre à une offre de Vendeur en boulangerie chez Boulangerie Martin.\n\nParcours : CAP Cuisine (2016). Expérience : aide-cuisinier (2017-2019), employé polyvalent en restauration rapide (2020-2023).\n\nCompétences repérées : relation client, encaissement, mise en rayon, règles d'hygiène, travail en équipe.\n\nLangues : anglais (niveau B1). Permis B, avec véhicule.";
+
+  var GROUPES_STYLE = [
+    { champ: 'poste', titre: 'Niveau du poste recherché', aide: 'Cela ajuste le niveau de langage.', icone: '&#128202;',
+      options: [['employe', 'Employé'], ['ouvrier_qualifie', 'Ouvrier qualifié'], ['technicien', 'Technicien'], ['agent_maitrise', 'Agent de maîtrise'], ['cadre', 'Cadre'], ['direction', 'Direction']] },
+    { champ: 'langage', titre: 'Niveau de langage', aide: '« Professionnel » convient presque toujours.', icone: '&#128172;',
+      options: [['naturel', 'Naturel'], ['professionnel', 'Professionnel'], ['tres_professionnel', 'Très professionnel']] },
+    { champ: 'adaptationMetier', titre: 'Vocabulaire du métier', aide: 'Reprendre ou non les mots précis du métier visé.', icone: '&#129520;',
+      options: [['standard', 'Standard'], ['adaptee', 'Adapté au métier'], ['specialisee', 'Spécialisé secteur']] },
+    { champ: 'ton', titre: 'Ton de la candidature', aide: "L'impression générale donnée.", icone: '&#127912;',
+      options: [['dynamique', 'Dynamique'], ['equilibre', 'Équilibré'], ['institutionnel', 'Institutionnel']] },
+    { champ: 'longueur', titre: 'Longueur du texte', aide: 'La quantité de détails.', icone: '&#128207;',
+      options: [['synthetique', 'Synthétique'], ['equilibree', 'Équilibrée'], ['detaillee', 'Détaillée']] },
+    { champ: 'situation', titre: 'Votre situation en ce moment', facultatif: true,
+      aide: 'Cela aide l’assistant à présenter votre parcours au mieux. Vous pouvez passer.', icone: '&#128188;',
+      options: [['en_poste', 'En poste'], ['recherche', 'En recherche d’emploi'], ['etudes', 'En études ou en formation'], ['reconversion', 'En reconversion'], ['reprise', 'Reprise après une pause'], ['non_precise', 'Je préfère ne pas préciser']] }
+  ];
+
+  // Données réelles de l'application (ASSISTANTS_IA / ASSISTANTS_SANS_COMPTE_IA).
+  var ASSIST_SANS = ['ChatGPT', 'Perplexity'];
+  var ASSIST_COMPTE = ['Claude', 'Gemini', 'Mistral'];
+  // ETAPES_DETAIL_CHOIX_IA de l'application (parcours « Créer un CV »).
+  var ETAPES_PASSE = [
+    ['Copie', 'Vos réponses (parcours, compétences, préférences) sont copiées automatiquement, rien à écrire vous-même.'],
+    ['Propositions', 'Une accroche, une reformulation de vos points forts, des mots clés adaptés au poste.'],
+    ['Stratégie', 'Quelles compétences mettre en avant en priorité pour ce poste, et lesquelles laisser de côté.'],
+    ['Votre choix', 'Un écran de relecture où vous décochez, modifiez et réordonnez. Rien n’est appliqué avant que vous validiez.']
+  ];
+
+  function jetons(champ, options) {
+    return options.map(function (o) {
+      return '<button class="jeton' + (etat.style[champ] === o[0] ? ' on' : '') + '" data-style="' + champ + ':' + o[0] + '">' + o[1] + '</button>';
+    }).join('');
+  }
+
+  function labelStyle(champ) {
+    var g = GROUPES_STYLE.filter(function (x) { return x.champ === champ; })[0];
+    var o = g.options.filter(function (x) { return x[0] === etat.style[champ]; })[0];
+    return o ? o[1] : '(non défini)';
+  }
+  function styleEstDefaut() {
+    return Object.keys(STYLE_DEFAUT).every(function (k) { return etat.style[k] === STYLE_DEFAUT[k]; });
+  }
+
+  // rectangle dépliable (accordéon) : en-tête cliquable (icône + titre +
+  // sous-titre quand replié + chevron), corps affiché quand ouvert.
+  function acc(id, ico, titre, sousTitre, corps) {
+    var open = (etat.ouvert === id);
+    return '<div class="acc' + (open ? ' ouvert' : '') + '">' +
+      '<button type="button" class="acc-tete" data-acc="' + id + '">' +
+      '<span class="acc-ico">' + ico + '</span>' +
+      '<span class="acc-titre">' + titre +
+      (!open && sousTitre ? '<span class="acc-sous">' + sousTitre + '</span>' : '') + '</span>' +
+      '<span class="acc-chevron">&#9662;</span></button>' +
+      (open ? '<div class="acc-corps">' + corps + '</div>' : '') +
+      '</div>';
+  }
+
+  function corpsStyle() {
+    var groupes = GROUPES_STYLE.map(function (g) {
+      var aide = g.aide;
+      if (g.champ === 'poste' && !etat.style.poste) {
+        aide = 'À choisir : c’est le réglage qui pèse le plus sur le résultat.';
+      }
+      var titre = g.titre + (g.facultatif ? ' <span class="cr-badge">facultatif</span>' : '');
+      return '<div class="groupe"><p class="g-titre"><span>' + g.icone + '</span>' + titre + '</p>' +
+        '<p class="g-aide">' + aide + '</p><div class="jetons">' + jetons(g.champ, g.options) + '</div></div>';
+    }).join('');
+    return '<p class="aide">Ces choix orientent seulement l’assistant, ils n’apparaissent jamais dans votre CV. ' +
+      'Les réglages ci-dessous conviennent à la plupart des situations : gardez-les tels quels, ou ajustez-les. ' +
+      'Le niveau du poste reste à choisir ; la situation est facultative.</p>' +
+      groupes +
+      '<div style="display:flex;justify-content:flex-end;margin-top:14px">' +
+      '<button class="btn sm plein" id="btnContinuerStyle">Ces réglages me conviennent &#8594;</button></div>';
+  }
+  function sousTitreStyle() {
+    return labelStyle('poste') + ' &middot; ' + labelStyle('langage') + ' &middot; ' + labelStyle('adaptationMetier') +
+      ' &middot; ' + labelStyle('ton') + ' &middot; ' + labelStyle('longueur') +
+      (etat.style.situation ? ' &middot; ' + labelStyle('situation') : '') +
+      (styleEstDefaut() && etat.style.poste ? '  (par défaut)' : '');
+  }
+
+  function corpsChoix() {
+    var d = etat.epDetail;
+    return '<p class="aide">Cliquez sur un assistant. L’application prépare et copie tout, affiche un court écran d’attente, puis ouvre l’assistant dans un nouvel onglet : vous n’avez rien à taper.</p>' +
+      '<div class="grp-assistants grp-sans"><span class="grp-label">Sans compte à créer</span><div class="jetons">' +
+      ASSIST_SANS.map(function (a) { return '<button class="jeton-assist' + (etat.assistant === a ? ' on' : '') + '" data-assist="' + a + '">' + a + '</button>'; }).join('') +
+      '</div></div>' +
+      '<div class="grp-assistants grp-compte"><span class="grp-label">Avec une connexion à un compte existant</span><div class="jetons">' +
+      ASSIST_COMPTE.map(function (a) { return '<button class="jeton-assist' + (etat.assistant === a ? ' on' : '') + '" data-assist="' + a + '">' + a + '</button>'; }).join('') +
+      '</div></div>' +
+      '<div class="etapes-passe"><span class="ep-label">Ce qui va se passer</span><div class="ep-liste">' +
+      ETAPES_PASSE.map(function (e, i) { return '<button class="ep" data-ep="' + i + '"><span class="num">' + (i + 1) + '</span>' + e[0] + '</button>'; }).join('') +
+      '</div>' +
+      '<div class="ep-detail' + (d !== null ? ' on' : '') + '">' + (d !== null ? ETAPES_PASSE[d][1] : '') + '</div></div>' +
+      '<p class="confid"><span>&#128274;</span><span>Votre nom, votre adresse et vos coordonnées ne sont jamais transmis à l’assistant.</span></p>' +
+      '<button type="button" id="btnRelire" class="btn-texte-discret">&#128269; Voir ou modifier le texte transmis à l’assistant' +
+      (etat.texteModifie ? ' <span class="cr-badge">version personnalisée</span>' : '') + '</button>';
+  }
+
+  // « retour de l'assistant » : reprend le composant d'import existant de l'app.
+  function corpsCollage() {
+    return '<div class="bandeau-retour"><b>Vous revenez de ' + (etat.assistant || 'l’assistant') + '</b> : collez sa réponse ci-dessous, puis cliquez sur « Importer ».</div>' +
+      '<textarea class="collage" id="zoneCollage" placeholder="Collez ici la réponse de l’assistant (clic droit, Coller, ou Ctrl+V)"></textarea>' +
+      '<div class="collage-boutons">' +
+      '<button class="btn sm plein" id="btnImporter">&#128229; Importer la réponse</button>' +
+      '<button class="btn sm" id="btnEffacer">Effacer et recoller</button></div>' +
+      '<div class="msg-import' + (etat.importFait ? ' ok' : '') + '" id="msgImport">' + (etat.importFait ? '✓ Réponse importée.' : '') + '</div>';
+  }
+
+  function esc(s) { return String(s).replace(/"/g, '&quot;'); }
+
+  // « Choisir ce qui ira sur le CV » : reprend, DANS la page (jamais une
+  // fenêtre à part), les 9 onglets de l'écran de choix de la réponse
+  // (GROUPES_ONGLETS_CHOIX_IA_CV). Contenu mock.
+  function casesReco(cle, r) {
+    return (r || etat.reco[cle]).map(function (it, i) {
+      return '<label class="reco-ligne"><input type="checkbox" data-reco-case="' + cle + '|' + i + '"' + (it.on ? ' checked' : '') + '> ' + it.t + '</label>';
+    }).join('');
+  }
+  function radioReco(cle, liste, sel) {
+    return liste.map(function (t, i) {
+      return '<label class="reco-ligne"><input type="radio" name="rr-' + cle + '" data-reco-radio="' + cle + '|' + i + '"' + (sel === i ? ' checked' : '') + '>' +
+        '<span style="flex:1"><span contenteditable="true" class="reco-edit">' + t + '</span></span></label>';
+    }).join('');
+  }
+  function blocMissions(item, cleItem) {
+    var m = item.missions.map(function (mm, j) {
+      return '<label class="reco-ligne reco-mission"><input type="checkbox" data-reco-mission="' + cleItem + '|' + j + '"' + (mm.on ? ' checked' : '') + '> ' + mm.t + '</label>';
+    }).join('') || '<p class="astuce" style="margin:4px 0 0">Aucune mission proposée.</p>';
+    return '<div class="reco-item-titre">' + item.intitule + '</div><div class="reco-missions"><span class="reco-ss-label">Missions proposées</span>' + m + '</div>';
+  }
+
+  function corpsRelecture() {
+    if (!etat.importFait) {
+      return '<p class="aide">Cette étape s’ouvrira une fois la réponse de l’assistant importée. Vous y trierez, <b>ici même sur cette page</b>, tout ce que l’assistant propose pour votre CV.</p>';
+    }
+    var barre = '<div class="reco-onglets">' + ONGLETS_RECO.map(function (o) {
+      return '<button class="reco-onglet' + (etat.ongletReco === o[0] ? ' on' : '') + '" data-onglet="' + o[0] + '">' + o[1] + ' ' + o[2] + '</button>';
+    }).join('') + '</div>';
+    var r = etat.reco, corps = '';
+    switch (etat.ongletReco) {
+      case 'profil':
+        corps = '<h4 class="reco-h">Points forts</h4><p class="aide">Les qualités les plus utiles pour ce poste, mises en avant dans l’accroche et la présentation du CV.</p>' + casesReco('pointsForts') +
+          '<h4 class="reco-h">Mots clés</h4><p class="aide">Des termes importants pour ce métier. Ils gardent le même vocabulaire dans tout le dossier (CV, lettre, entretien).</p>' + casesReco('motsCles');
+        break;
+      case 'intitule':
+        corps = '<p class="aide">Le titre affiché en évidence sous votre nom. Choisissez-en un (vous pouvez le modifier).</p>' + radioReco('intitule', r.intitules, r.intitule);
+        break;
+      case 'accroche':
+        corps = '<p class="aide">Une courte phrase en haut du CV, sous le titre. Une seule ira dans le CV ; les autres restent au cas où.</p>' + radioReco('accroche', r.accroches, r.accroche);
+        break;
+      case 'experiences':
+        corps = '<p class="aide">Le CV affiche au maximum <b>5 expériences</b>. Cochez celles à mettre en avant, servez-vous des flèches pour l’ordre de priorité. Pour chacune, cochez les missions à garder.</p>' +
+          r.experiences.map(function (e, i) {
+            return '<div class="reco-carte"><div class="reco-carte-tete">' +
+              '<label class="reco-ligne" style="flex:1;margin:0;border:0;padding:4px 0"><input type="checkbox" data-reco-exp="' + i + '"' + (e.on ? ' checked' : '') + '> <b>' + e.poste + (e.entreprise ? ' &middot; ' + e.entreprise : '') + '</b></label>' +
+              '<span class="reco-fleches"><button type="button" data-exp-sens="haut|' + i + '"' + (i === 0 ? ' disabled' : '') + '>&#9650;</button>' +
+              '<button type="button" data-exp-sens="bas|' + i + '"' + (i === r.experiences.length - 1 ? ' disabled' : '') + '>&#9660;</button></span></div>' +
+              (e.missions.length ? '<div class="reco-missions"><span class="reco-ss-label">Missions proposées</span>' +
+                e.missions.map(function (mm, j) { return '<label class="reco-ligne reco-mission"><input type="checkbox" data-reco-emission="' + i + '|' + j + '"' + (mm.on ? ' checked' : '') + '> ' + mm.t + '</label>'; }).join('') + '</div>'
+                : '<p class="astuce" style="margin:2px 0 0">Aucune mission proposée pour cette expérience.</p>') +
+              '</div>';
+          }).join('');
+        break;
+      case 'competences':
+        corps = '<p class="aide">Le CV n’affiche qu’un nombre limité de compétences (selon le modèle). Décochez celles que vous ne voulez pas ; les plus utiles pour ce métier passent en priorité.</p>' + casesReco('competences');
+        break;
+      case 'compPerso':
+        corps = '<p class="aide">Compétences repérées hors du travail (bénévolat, entraide, gestion d’un projet…). 5 au maximum iront sur le CV.</p>' + casesReco('compPerso');
+        break;
+      case 'strategie':
+        corps = '<h4 class="reco-h">Type de CV conseillé</h4><p class="aide">Un CV taillé pour le métier visé, ou un CV plus général réutilisable.</p>' +
+          '<label class="reco-ligne"><input type="radio" name="rr-typecv" data-reco-typecv="specifique"' + (r.typeCV === 'specifique' ? ' checked' : '') + '> CV spécifique au métier visé</label>' +
+          '<label class="reco-ligne"><input type="radio" name="rr-typecv" data-reco-typecv="general"' + (r.typeCV === 'general' ? ' checked' : '') + '> CV général</label>' +
+          '<h4 class="reco-h">Intitulés de poste à rechercher</h4><p class="aide">N’apparaissent pas sur le CV : ce sont des pistes pour vos recherches d’offres.</p>' + casesReco('postesRecherche');
+        break;
+      case 'rubriques':
+        corps = '<p class="aide">L’assistant juge que ces rubriques apportent peu pour ce poste. Cochez celles à <b>retirer</b> du CV. Rien n’est masqué sans votre accord.</p>' + casesReco('rubriques');
+        break;
+      case 'formPerso':
+        corps = '<h4 class="reco-h">Formation à détailler</h4><p class="aide">La formation retenue comme la plus pertinente, avec quelques acquis à afficher.</p>' + blocMissions(r.formation, 'formation') +
+          '<h4 class="reco-h">Certifications à mettre en avant</h4>' + casesReco('certifications') +
+          '<h4 class="reco-h">Expérience personnelle prioritaire</h4><p class="aide">Une expérience hors travail (bénévolat, engagement…) choisie comme la plus utile, avec ses missions.</p>' + blocMissions(r.expPerso, 'expPerso') +
+          '<h4 class="reco-h">Centre d’intérêt à mettre en avant</h4><p class="aide">Un loisir avec un contexte distinctif (une réalisation, un engagement long).</p>' + blocMissions(r.loisir, 'loisir');
+        break;
+    }
+    return barre + '<div class="reco-corps">' + corps + '</div>' +
+      '<p class="astuce">Tout est modifiable ici. Rien n’est définitif : vous pourrez rouvrir cet écran depuis « Vos documents ».</p>' +
+      '<div style="display:flex;justify-content:flex-end;margin-top:12px">' +
+      '<button class="btn sm plein" id="btnValiderReco">' + (etat.relectureValidee ? 'Mettre à jour mes choix' : 'Je valide ces choix') + ' &#8594;</button></div>';
+  }
+
+  function render() {
+    document.querySelectorAll('#demo button[data-v]').forEach(function (b) { b.classList.toggle('on', b.dataset.v === etat.ouvert); });
+    var h = acc('style', '&#127898;&#65039;', 'Réglez le style d’écriture', sousTitreStyle(), corpsStyle()) +
+      acc('assistant', '&#128172;', 'Choisissez votre assistant', (etat.assistant || ''), corpsChoix()) +
+      acc('collage', '&#128229;', 'Importer la réponse', (etat.importFait ? 'réponse importée' : ''), corpsCollage()) +
+      acc('relecture', '&#128209;', 'Choisir ce qui ira sur le CV',
+        (etat.relectureValidee ? 'choix validés' : (etat.importFait ? 'à faire' : 'après l’import')), corpsRelecture());
+    document.getElementById('page').innerHTML = h;
+    document.getElementById('btnContinuer').style.visibility = etat.relectureValidee ? 'visible' : 'hidden';
+    wire();
+  }
+
+  function wire() {
+    // en-tête de rectangle : ouvre / ferme
+    document.querySelectorAll('[data-acc]').forEach(function (b) {
+      b.onclick = function () {
+        etat.ouvert = (etat.ouvert === b.dataset.acc) ? null : b.dataset.acc;
+        etat.epDetail = null;
+        render();
+      };
+    });
+    document.querySelectorAll('[data-style]').forEach(function (b) {
+      b.onclick = function () {
+        var p = b.dataset.style.split(':');
+        etat.style[p[0]] = p[1];   // choix unique par groupe, jamais vide (toujours une valeur)
+        render();
+      };
+    });
+    var cont = document.getElementById('btnContinuerStyle');
+    if (cont) { cont.onclick = function () { etat.ouvert = 'assistant'; render(); }; }
+
+    document.querySelectorAll('[data-assist]').forEach(function (b) {
+      b.onclick = function () { etat.assistant = b.dataset.assist; etat.ouvert = 'collage'; render(); };
+    });
+    document.querySelectorAll('[data-ep]').forEach(function (b) {
+      b.onclick = function () {
+        var i = parseInt(b.dataset.ep, 10);
+        etat.epDetail = (etat.epDetail === i) ? null : i;
+        render();
+      };
+    });
+    var relire = document.getElementById('btnRelire');
+    if (relire) {
+      relire.onclick = function () {
+        document.getElementById('texteExact').value = etat.texteModifie ? (etat._texte || TEXTE_AUTO) : TEXTE_AUTO;
+        document.getElementById('modaleTexte').classList.add('on');
+      };
+    }
+    var imp = document.getElementById('btnImporter');
+    if (imp) {
+      imp.onclick = function () {
+        var z = document.getElementById('zoneCollage');
+        if (z && z.value.trim().length > 10) { etat.importFait = true; etat.ouvert = 'relecture'; render(); }
+        else { document.getElementById('msgImport').textContent = 'Collez d’abord la réponse de l’assistant.'; }
+      };
+    }
+    var eff = document.getElementById('btnEffacer');
+    if (eff) { eff.onclick = function () { etat.importFait = false; etat.relectureValidee = false; var z = document.getElementById('zoneCollage'); if (z) z.value = ''; render(); }; }
+
+    // rectangle « Choisir ce qui ira sur le CV »
+    document.querySelectorAll('[data-onglet]').forEach(function (b) {
+      b.onclick = function () { etat.ongletReco = b.dataset.onglet; render(); };
+    });
+    document.querySelectorAll('[data-reco-case]').forEach(function (el) {
+      el.onchange = function () { var p = el.dataset.recoCase.split('|'); etat.reco[p[0]][+p[1]].on = el.checked; };
+    });
+    document.querySelectorAll('[data-reco-radio]').forEach(function (el) {
+      el.onchange = function () { var p = el.dataset.recoRadio.split('|'); etat.reco[p[0]] = +p[1]; };
+    });
+    document.querySelectorAll('[data-reco-exp]').forEach(function (el) {
+      el.onchange = function () { etat.reco.experiences[+el.dataset.recoExp].on = el.checked; };
+    });
+    document.querySelectorAll('[data-reco-emission]').forEach(function (el) {
+      el.onchange = function () { var p = el.dataset.recoEmission.split('|'); etat.reco.experiences[+p[0]].missions[+p[1]].on = el.checked; };
+    });
+    document.querySelectorAll('[data-reco-mission]').forEach(function (el) {
+      el.onchange = function () { var p = el.dataset.recoMission.split('|'); etat.reco[p[0]].missions[+p[1]].on = el.checked; };
+    });
+    document.querySelectorAll('[data-reco-typecv]').forEach(function (el) {
+      el.onchange = function () { etat.reco.typeCV = el.dataset.recoTypecv; };
+    });
+    document.querySelectorAll('[data-exp-sens]').forEach(function (b) {
+      b.onclick = function () {
+        var p = b.dataset.expSens.split('|'); var i = +p[1]; var arr = etat.reco.experiences;
+        var j = p[0] === 'haut' ? i - 1 : i + 1;
+        if (j < 0 || j >= arr.length) { return; }
+        var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp; render();
+      };
+    });
+    var vr = document.getElementById('btnValiderReco');
+    if (vr) { vr.onclick = function () { etat.relectureValidee = true; render(); }; }
+  }
+
+  document.getElementById('btnFermerModale').onclick = function () {
+    var v = document.getElementById('texteExact').value;
+    etat._texte = v; etat.texteModifie = (v.trim() !== TEXTE_AUTO.trim());
+    document.getElementById('modaleTexte').classList.remove('on');
+    render();
+  };
+  document.getElementById('btnTexteAuto').onclick = function () {
+    document.getElementById('texteExact').value = TEXTE_AUTO;
+    etat.texteModifie = false; etat._texte = null;
+  };
+  document.getElementById('modaleTexte').onclick = function (e) { if (e.target === this) { this.classList.remove('on'); } };
+
+  document.querySelectorAll('#demo button[data-v]').forEach(function (b) {
+    b.onclick = function () {
+      etat.ouvert = b.dataset.v;
+      etat.epDetail = null;
+      if (b.dataset.v === 'style') { etat.assistant = null; etat.importFait = false; etat.relectureValidee = false; etat.style = Object.assign({ poste: null, situation: null }, STYLE_DEFAUT); }
+      if (b.dataset.v === 'assistant') { etat.assistant = null; etat.importFait = false; etat.relectureValidee = false; }
+      if (b.dataset.v === 'collage') { etat.assistant = etat.assistant || 'ChatGPT'; etat.importFait = false; etat.relectureValidee = false; }
+      if (b.dataset.v === 'relecture') { etat.assistant = etat.assistant || 'ChatGPT'; etat.importFait = true; etat.relectureValidee = false; }
+      render();
+    };
+  });
+  document.getElementById('btnTheme').onclick = function () {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+    this.textContent = dark ? 'Voir en mode sombre' : 'Voir en mode clair';
+  };
+
+  render();
+})();
+</script>

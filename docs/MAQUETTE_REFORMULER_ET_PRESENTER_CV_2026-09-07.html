@@ -1,0 +1,760 @@
+<!doctype html>
+<!--
+  MAQUETTE - nouvelle tuile "Reformuler et presenter mon CV" (4e tuile de "Mes documents").
+  Produite le 2026-09-07. NON COMMITEE dans le sens "valide". Aucun code touche.
+  Option retenue avec Denis : A (4e tuile legere qui reutilise le tuyau de "Mettre a jour mon CV").
+  Marqueurs "[a preciser]" en UN SEUL aller-retour (pas de 2e passage assistant).
+
+  Langage visuel repris de docs/MAQUETTE_MES_DOCUMENTS_JAI_DEJA_UN_CV_2026-09-01.html.
+  Theme sombre : bouton en haut a droite (classe .dark sur <body>).
+
+  TOUT ENCADRE JAUNE "Hypothese" EST UN CHOIX DE CLAUDE A VALIDER OU CORRIGER PAR DENIS.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Reformuler et presenter mon CV</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #2563eb; --accent-bg: #e8effc;
+    --ok: #198754; --ok-bg: #d9f4e4; --ok-strong: #157347;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --marqueur-bg: #fff3cd; --marqueur-bord: #e0a800; --marqueur-txt: #664d03;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #4d94ff; --accent-bg: #1e2940;
+    --ok: #35c79a; --ok-bg: #17301f; --ok-strong: #6ee89a;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+    --marqueur-bg: #3a2f10; --marqueur-bord: #b98900; --marqueur-txt: #f3d488;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 820px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.6rem; color: var(--text-strong); margin: .2rem 0; }
+  h2 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  h3 { font-size: .95rem; color: var(--text-strong); margin: .1rem 0 .3rem; }
+  h4 { font-size: .9rem; color: var(--text-strong); margin: .8rem 0 .2rem; }
+  p { margin: .4rem 0; }
+  .sous-titre { color: var(--text-muted); margin: .2rem 0 1rem; }
+  .centre { text-align: center; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  .section { background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .9rem; }
+  .section.teinte { background: var(--accent-bg); border-color: var(--accent); }
+  .section ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .section li { margin: .25rem 0; }
+
+  .encart { display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+
+  .hypothese { border: 1px dashed var(--warn); background: var(--warn-bg);
+    border-radius: 10px; padding: .6rem .85rem; margin: .7rem 0; font-size: .86rem; color: var(--text); }
+  .hypothese b { color: var(--warn); }
+
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .5rem 0;
+    overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .75rem 1rem;
+    font-weight: 700; color: var(--text-strong); display: flex; align-items: center; gap: .55rem; }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary::before { content: "\25B8"; color: var(--accent);
+    font-size: .85em; display: inline-block; transition: transform .15s; }
+  .bloc-depli[open] > summary::before { transform: rotate(90deg); }
+  .bloc-depli .corps { padding: .5rem 1rem 1rem; border-top: 1px solid var(--border); }
+  .bloc-depli .num, .num-carre { width: 22px; height: 22px; border-radius: 999px; background: var(--accent);
+    color: #fff; font-size: .8rem; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .pilule-etat { margin-left: auto; font-size: .74rem; font-weight: 600; border-radius: 999px;
+    padding: .12rem .6rem; border: 1px solid var(--border-strong); color: var(--text-muted); background: var(--bg-subtle); }
+  .pilule-etat.ok { color: var(--ok-strong); border-color: var(--ok); background: var(--ok-bg); }
+  .pilule-etat.oblig { color: var(--alert); border-color: var(--alert); background: var(--alert-bg); }
+
+  .btn { font: inherit; border-radius: var(--radius); padding: .55rem 1.1rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); cursor: pointer; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .btn.large { font-size: 1.05rem; padding: .7rem 1.5rem; }
+  .btn.discret { border: none; background: transparent; color: var(--accent); text-decoration: underline; padding: .3rem .2rem; }
+
+  textarea, input[type=text] { width: 100%; font: inherit; border: 1px solid var(--border-strong);
+    border-radius: 8px; padding: .5rem .6rem; background: var(--bg-card); color: var(--text); }
+
+  .etapes { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem; justify-content: center; margin: .3rem 0 1.1rem; }
+  .etape { display: flex; align-items: center; gap: .4rem; border: 1px solid var(--border);
+    border-radius: 999px; padding: .2rem .7rem .2rem .25rem; font-size: .8rem; color: var(--text-muted); background: var(--bg-card); }
+  .etape .pastille { width: 20px; height: 20px; border-radius: 999px; background: var(--bg-subtle);
+    color: var(--text-muted); font-size: .72rem; display: inline-flex; align-items: center; justify-content: center; }
+  .etape.faite { color: var(--text); }
+  .etape.faite .pastille { background: var(--ok); color: #fff; }
+  .etape.courante { color: var(--warn); border-color: var(--accent); background: var(--warn-bg);
+    font-weight: 700; box-shadow: 0 0 0 2px var(--accent-bg), 0 0 0 3px var(--accent); }
+  .etape.courante .pastille { background: var(--accent); color: #fff; }
+  .etape-fleche { color: var(--border-strong); font-size: .95rem; }
+  .etape-fleche.suivant { color: var(--accent); }
+
+  .barre-detour { display: flex; gap: .5rem; align-items: center; background: var(--bg-subtle);
+    border: 1px solid var(--border); border-radius: 10px; padding: .4rem .7rem; margin-bottom: .8rem; font-size: .85rem; }
+  .barre-detour .btn { padding: .3rem .7rem; font-size: .82rem; }
+
+  .bandeau-reprise { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+    background: var(--accent-bg); border: 1px solid var(--accent); border-left: 3px solid var(--accent);
+    border-radius: 10px; padding: .7rem .9rem; margin-bottom: .9rem; }
+  .bandeau-reprise .txt { flex: 1 1 220px; font-size: .9rem; }
+
+  .tuiles { display: grid; gap: .6rem; grid-template-columns: 1fr; margin-top: .5rem; }
+  @media (min-width: 720px) { .tuiles { grid-template-columns: 1fr 1fr; } }
+  .tuile { border: 1px solid var(--border-strong); border-radius: 12px; padding: .8rem .9rem; background: var(--bg-card); }
+  .tuile.neuve { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+  .tuile h3 { margin-top: 0; }
+  .tuile .detail { display: block; margin-top: .2rem; }
+  .badge-neuf { font-size: .7rem; font-weight: 700; color: #fff; background: var(--accent);
+    border-radius: 999px; padding: .1rem .5rem; margin-left: .4rem; vertical-align: middle; }
+
+  .barre-haut { position: sticky; top: 0; z-index: 5; background: var(--bg-page);
+    border-bottom: 1px solid var(--border); padding: .5rem 1rem; display: flex; flex-wrap: wrap;
+    gap: .35rem; align-items: center; }
+  .barre-haut .btn { padding: .3rem .7rem; font-size: .8rem; }
+  .barre-haut .btn.actif { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .barre-haut .espace { flex: 1 1 auto; }
+
+  .vue { display: none; }
+  .vue.visible { display: block; }
+
+  .assist-rangee { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+  .assist { border: 1px solid var(--border-strong); border-radius: 999px; padding: .35rem .8rem; font-size: .85rem; background: var(--bg-card); }
+  .assist.sans-compte { border-color: var(--ok); background: var(--ok-bg); }
+  .assist.actif { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+  /* --- CV reformule --- */
+  .cv-rendu { border: 1px solid var(--border-strong); border-radius: 12px; padding: 1rem 1.1rem; background: var(--bg-card); }
+  .cv-rendu h3 { border-bottom: 1px solid var(--border); padding-bottom: .2rem; margin-top: 1rem; }
+  .cv-rendu h3:first-child { margin-top: 0; }
+  .cv-ligne { margin: .35rem 0; }
+  .marqueur { background: var(--marqueur-bg); border: 1px solid var(--marqueur-bord); color: var(--marqueur-txt);
+    border-radius: 6px; padding: .05rem .3rem; font-weight: 600; }
+  .marqueur-champ { display: inline-flex; align-items: center; gap: .3rem; background: var(--marqueur-bg);
+    border: 1px dashed var(--marqueur-bord); border-radius: 6px; padding: .1rem .35rem; margin: 0 .15rem; }
+  .marqueur-champ input { width: 8.5rem; border: none; border-bottom: 1px solid var(--marqueur-bord);
+    border-radius: 0; background: transparent; color: var(--marqueur-txt); padding: .05rem .2rem; font-size: .9rem; }
+  .puce-compteur { display: inline-block; font-size: .78rem; font-weight: 700; color: var(--marqueur-txt);
+    background: var(--marqueur-bg); border: 1px solid var(--marqueur-bord); border-radius: 999px; padding: .1rem .6rem; }
+  .cv-edit { float: right; font-size: .78rem; }
+  .origine { color: var(--text-muted); font-size: .82rem; font-style: italic; }
+  .sortie-cartes { display: grid; gap: .8rem; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .sortie-cartes { grid-template-columns: 1fr 1fr; } }
+  .sortie-carte { border: 1px solid var(--border-strong); border-radius: 12px; padding: 1rem; background: var(--bg-card); }
+  .liste-oui li { margin: .3rem 0; }
+  .liste-oui li::marker { content: "\2713  "; color: var(--ok); }
+  .liste-non li::marker { content: "\2715  "; color: var(--alert); }
+  code { background: var(--bg-subtle); border-radius: 4px; padding: .05rem .3rem; font-size: .85em; }
+</style>
+</head>
+<body>
+
+<div class="barre-haut">
+  <button class="btn actif" data-vue="tuiles">1. Carte "Mes documents"</button>
+  <button class="btn" data-vue="intro">2. Page d'intro</button>
+  <button class="btn" data-vue="preparer">3. Preparer</button>
+  <button class="btn" data-vue="assistant">4. Assistant + reponse</button>
+  <button class="btn" data-vue="verifier">5. Verifier (marqueurs)</button>
+  <button class="btn" data-vue="sorties">6. Les deux sorties</button>
+  <button class="btn" data-vue="prompt">7. Liste fermee du prompt</button>
+  <button class="btn" data-vue="questions">8. A trancher</button>
+  <span class="espace"></span>
+  <button class="btn" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+</div>
+
+<main>
+
+<!-- ================= VUE 1 : CARTE "MES DOCUMENTS", 4 TUILES ================= -->
+<section class="vue visible" data-vue="tuiles">
+
+  <div class="hypothese">
+    <b>Hypothese - la 4e tuile et son ordre.</b> La tuile neuve est placee <b>en 2e position</b>, juste apres
+    "Creer un nouveau CV" et avant "Mettre a jour mon CV" : les deux tuiles qui partent d'un CV existant se suivent.
+    Source unique a etendre : <code>MES_DOCUMENTS_PARCOURS</code> (data/metiers.js), lue par 3 endroits.
+    Icone proposee : <code>bi-brush</code> (mettre en valeur). A confirmer.
+  </div>
+
+  <div class="centre">
+    <h1>&#128193; Mes documents</h1>
+    <p class="sous-titre">Ces parcours vous accompagnent dans la construction de votre dossier de candidature,
+      avec l'aide d'assistants en ligne.</p>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#128161; Lequel est fait pour moi ?</h2>
+    <ul>
+      <li><strong>Je n'ai pas de CV, ou je repars de zero</strong> &#8594; Creer un nouveau CV.</li>
+      <li><strong>Mon CV est complet et juste, il est seulement mal presente</strong> &#8594; Reformuler et presenter mon CV.</li>
+      <li><strong>J'ai des choses a corriger, dater ou ajouter dans le contenu</strong> &#8594; Mettre a jour mon CV.</li>
+      <li><strong>Mon CV est pret, je veux passer a la lettre et a l'entretien</strong> &#8594; Preparer ma lettre et mon entretien.</li>
+    </ul>
+    <div class="hypothese"><b>Hypothese.</b> Cet aiguillage vit dans la bulle "i" de la carte (composant
+      <code>htmlBulleInfoCarte</code>), pas en permanence a l'ecran. Formulations a valider, surtout la ligne 2 face a la ligne 3.</div>
+  </div>
+
+  <div class="tuiles">
+    <div class="tuile">
+      <h3>&#10024; Creer un nouveau CV</h3>
+      <span class="detail">On part d'une page blanche. L'application vous accompagne pas a pas, une question a la fois.</span>
+    </div>
+    <div class="tuile neuve">
+      <h3>&#128443;&#65039; Reformuler et presenter mon CV <span class="badge-neuf">nouveau</span></h3>
+      <span class="detail">Votre CV est deja complet. On ne touche pas au fond : on le reformule proprement,
+        on adapte le vocabulaire au poste vise, et on le remet en forme.</span>
+    </div>
+    <div class="tuile">
+      <h3>&#9999;&#65039; Mettre a jour mon CV</h3>
+      <span class="detail">Vous deposez votre CV, vous corrigez et completez son contenu, puis vous choisissez la presentation.</span>
+    </div>
+    <div class="tuile">
+      <h3>&#128196; Preparer ma lettre et mon entretien</h3>
+      <span class="detail">Vous avez deja un CV. On s'en sert comme base, sans rien vous faire ressaisir.</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================= VUE 2 : PAGE D'INTRO DU MODULE ================= -->
+<section class="vue" data-vue="intro">
+
+  <div class="hypothese">
+    <b>Hypothese - patron.</b> Page d'intro sur <code>htmlPageIntroModuleParcours(config)</code>, exactement comme
+    "Mettre a jour mon CV" et "Preparer ma lettre et mon entretien". Barre d'etapes non affichee sur une page d'intro
+    (regle B.5). Le bandeau de reprise apparait seulement si un CV a deja ete depose.
+  </div>
+
+  <div class="barre-detour">
+    <span>&#8592; Retour</span>
+    <span class="detail">(depuis l'intro, "Retour" ramene a "Mes documents")</span>
+  </div>
+
+  <div class="centre">
+    <h1>&#128443;&#65039; Reformuler et presenter mon CV</h1>
+    <p class="sous-titre">Votre CV contient tout ce qu'il faut. On garde vos informations telles quelles :
+      on retravaille seulement la formulation, l'ordre et la mise en forme.</p>
+  </div>
+
+  <div class="bandeau-reprise">
+    <span class="txt"><strong>Un travail est deja en cours.</strong> Vous aviez commence a deposer votre CV.</span>
+    <button class="btn primaire">Continuer</button>
+    <button class="btn">Recommencer</button>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Rien n'est jamais envoye sans votre accord.</strong> Vous verrez chaque etape
+      avant qu'elle se produise, et vous pourrez tout modifier.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; A quoi ca sert</h2>
+    <p>Vous avez un CV complet et a jour, mais sa presentation ne vous satisfait pas. Ici, un assistant en ligne
+      le <strong>reformule de facon professionnelle</strong> : verbes d'action, phrases claires, rubriques bien rangees,
+      vocabulaire rapproche du poste que vous visez. Vous recuperez ensuite votre CV dans l'un de nos modeles,
+      ou son texte pour le mettre en forme ailleurs.</p>
+    <div class="encart"><span>&#128204;</span><span>La difference avec un assistant en ligne ou vous ecririez librement :
+      ici, la consigne est <strong>cadree</strong>. L'assistant n'a pas le droit d'inventer une experience, un diplome
+      ou un chiffre. Il reformule ce que vous avez ecrit, il ne le remplace pas.</span></div>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous deposez votre CV (fichier, copier-coller, photo ou scan), puis vous relisez et masquez ce que vous ne voulez pas transmettre.</li>
+      <li>Vous indiquez <strong>le poste ou le domaine que vous visez</strong> : c'est ce qui permet d'adapter le vocabulaire.</li>
+      <li>Un assistant en ligne vous renvoie <strong>deux versions</strong> de votre CV, reformulees et remises en forme : une tres proche de votre CV, une autre un peu differente. Vous choisissez.</li>
+      <li>Vous verifiez la version choisie. Aux endroits ou l'assistant aurait besoin d'une precision que vous seul connaissez, un passage est <strong>surligne</strong> : vous le completez si vous voulez, ou vous le laissez.</li>
+      <li>Vous choisissez la sortie : un de nos modeles (PDF ou Word), ou le texte a copier ailleurs (Canva, traitement de texte...).</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce mode ne fait pas</h2>
+    <ul class="liste-non">
+      <li>Il n'ajoute rien a votre CV : ni experience, ni diplome, ni competence, ni date qui n'y figurent pas.</li>
+      <li>Il ne porte pas de regard critique sur votre CV. Pour un avis, c'est "Analyser ma candidature".</li>
+      <li>Il ne cree pas de CV a partir de rien, et il ne sert pas a corriger le contenu en profondeur. Pour ca, "Creer un nouveau CV" ou "Mettre a jour mon CV".</li>
+    </ul>
+    <p class="detail">Ce n'est pas ce que vous cherchiez ?
+      <button class="btn discret">Creer un nouveau CV</button> &#183;
+      <button class="btn discret">Mettre a jour mon CV</button></p>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Recuperer votre CV mis en forme, en PDF ou en Word.</li>
+      <li>Preparer votre lettre de motivation, puis vous entrainer a l'entretien.</li>
+    </ul>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#128278; Mes Reperes</h2>
+    <p style="margin:0">A tout moment, une reflexion utile sur votre parcours peut etre mise de cote dans Mes Reperes,
+      pour vous ou votre conseiller.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9989; Bon a savoir</h2>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte :
+      pensez a cliquer sur l'icone disquette apres avoir travaille, sinon vos informations seront perdues a la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="montrer('preparer')">Deposer mon CV &#8594;</button>
+  </div>
+
+</section>
+
+<!-- ================= VUE 3 : PAGE DEPLIANTE "PREPARER" ================= -->
+<section class="vue" data-vue="preparer">
+
+  <div class="hypothese">
+    <b>Hypothese - page reutilisee.</b> C'est la page depliante partagee (<code>htmlPreparerLettreEntretienDepliante</code>),
+    avec un <code>_prepLEMode</code> de plus (par ex. <code>'reformuler'</code>). Seuls changent : le bloc 3 (le poste vise
+    devient <b>necessaire</b>, pas facultatif), le libelle du bloc 4 et le texte du bouton d'envoi.
+  </div>
+
+  <div class="barre-detour">
+    <button class="btn">&#128443;&#65039; Revoir la presentation</button>
+    <span class="detail">(ouvre l'intro en detour, sans rien perdre)</span>
+  </div>
+
+  <div class="etapes">
+    <span class="etape courante"><span class="pastille">1</span> Preparer</span>
+    <span class="etape-fleche suivant">&#8250;</span>
+    <span class="etape"><span class="pastille">2</span> Assistant</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape"><span class="pastille">3</span> Reponse</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape"><span class="pastille">4</span> Verifier</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape"><span class="pastille">5</span> Mise en forme</span>
+  </div>
+
+  <div class="centre">
+    <h1>Preparer votre CV</h1>
+    <p class="sous-titre">Trois choses a faire ici, dans l'ordre. Vous pourrez tout revoir ensuite.</p>
+  </div>
+
+  <details class="bloc-depli" open>
+    <summary><span class="num">1</span> Votre CV <span class="pilule-etat">a faire</span></summary>
+    <div class="corps">
+      <p class="detail">Deposez un fichier (PDF, Word, texte, photo ou scan) ou collez directement le texte de votre CV.</p>
+      <p><button class="btn primaire">&#128206; Deposer mon fichier</button> &#160;
+         <button class="btn">Ou coller le texte</button></p>
+      <textarea rows="5" placeholder="Collez le texte de votre CV ici..."></textarea>
+      <div class="encart"><span>&#128274;</span><span>Lu dans votre navigateur uniquement. Rien n'est envoye a ce stade.</span></div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="num">2</span> Relire, verifier, masquer <span class="pilule-etat oblig">obligatoire</span></summary>
+    <div class="corps">
+      <p class="detail">Vous corrigez le texte si besoin, et vous masquez ce que vous ne voulez pas transmettre.
+        Le telephone, le courriel et les liens sont surlignes pour que vous les reperiez.</p>
+      <p><button class="btn primaire">Ouvrir la relecture</button></p>
+      <div class="hypothese"><b>Hypothese.</b> Composant partage <code>htmlVerificationDocument</code> /
+        <code>relectureConfidentialite.js</code>, inchange.</div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="num">3</span> Le poste ou le domaine que vous visez <span class="pilule-etat oblig">necessaire</span></summary>
+    <div class="corps">
+      <p class="detail">C'est indispensable ici : sans cela, le vocabulaire de vos competences resterait generique.
+        Un domaine suffit si vous ne visez pas un poste precis.</p>
+      <p><input type="text" placeholder="Poste vise (ex. : agent logistique, aide a domicile...)"></p>
+      <p><input type="text" placeholder="Domaine ou secteur (ex. : grande distribution, aide a la personne...)"></p>
+      <h4>Si vous savez deja ou vous postulez (facultatif)</h4>
+      <p><input type="text" placeholder="Entreprise (facultatif)"></p>
+      <p><input type="text" placeholder="Lien ou texte de l'offre (facultatif)"></p>
+      <div class="hypothese"><b>Hypothese.</b> Brique <code>bilanCorpsCiblageOffreHTML()</code>. Le poste / domaine
+        devient un champ requis propre a ce module ; le bouton d'envoi reste desactive tant qu'il est vide.
+        Entreprise et offre restent facultatifs (ils servent surtout a la lettre plus tard).</div>
+    </div>
+  </details>
+
+  <div class="section">
+    <h3>Ensuite : l'assistant en ligne</h3>
+    <p class="detail">Quand les points 1, 2 et 3 sont faits, vous choisissez un assistant. Le texte a copier est prepare automatiquement.</p>
+    <div class="assist-rangee">
+      <span class="assist sans-compte">ChatGPT<br><span class="detail">sans compte, conseille pour commencer</span></span>
+      <span class="assist sans-compte">Le Chat<br><span class="detail">sans compte</span></span>
+      <span class="assist">Claude<br><span class="detail">connexion</span></span>
+    </div>
+    <div class="centre" style="margin-top:.6rem">
+      <button class="btn primaire large">Preparer le texte et ouvrir l'assistant &#8594;</button>
+    </div>
+    <div class="hypothese"><b>Hypothese.</b> Choix de l'assistant : <code>htmlChoixAssistantBilanCorps()</code>, inchange.
+      Un seul aller-retour. Le prompt envoye = socle commun (dette B.8) + la liste fermee de la vue 7 + le poste/domaine vise.</div>
+  </div>
+
+</section>
+
+<!-- ================= VUE 4 : ASSISTANT + COLLER LA REPONSE ================= -->
+<section class="vue" data-vue="assistant">
+
+  <div class="hypothese">
+    <b>Hypothese - ecrans reutilises tels quels.</b> Bandeau de transition (<code>htmlBanniereTransitionIA</code>)
+    puis collage de la reponse (<code>htmlCollageInstantane</code>). Rien de neuf. Un seul passage.
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite"><span class="pastille">&#10003;</span> Preparer</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape faite"><span class="pastille">&#10003;</span> Assistant</span>
+    <span class="etape-fleche suivant">&#8250;</span>
+    <span class="etape courante"><span class="pastille">3</span> Reponse</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape"><span class="pastille">4</span> Verifier</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape"><span class="pastille">5</span> Mise en forme</span>
+  </div>
+
+  <div class="centre">
+    <h1>Collez la reponse de l'assistant</h1>
+    <p class="sous-titre">Vous revenez de l'onglet de l'assistant. Collez ici tout ce qu'il vous a repondu.</p>
+  </div>
+
+  <div class="section">
+    <textarea rows="8" placeholder="Collez ici la reponse complete de l'assistant..."></textarea>
+    <div class="centre" style="margin-top:.6rem">
+      <button class="btn primaire large">Continuer &#8594;</button>
+    </div>
+    <p class="detail centre">Le texte n'est jamais affiche en clair en mode automatique. Bouton "Coller la reponse" rectangulaire, comme partout ailleurs.</p>
+  </div>
+
+</section>
+
+<!-- ================= VUE 5 : VERIFIER (2 TEMPS : CHOISIR PUIS VERIFIER) ================= -->
+<section class="vue" data-vue="verifier">
+
+  <div class="hypothese">
+    <b>Hypothese - le seul ecran vraiment neuf, en DEUX temps.</b> La reponse de l'assistant contient
+    <b>deux propositions de CV</b> (delimiteurs <code>=== PROPOSITION 1 : la plus fidele ===</code> /
+    <code>=== PROPOSITION 2 : autre version ===</code>).
+    <b>5a</b> : la personne choisit entre les deux (les deux visibles).
+    <b>5b</b> : elle verifie celle qu'elle a retenue. Le code repere les balises <code>[A PRECISER : ...]</code>,
+    <code>[ORIGINE : ...]</code>, <code>[PISTE : ...]</code> (meme mecanisme tolerant que <code>[QUESTION]</code>
+    dans "Comprendre le cadre"). Chaque <code>[A PRECISER]</code> devient un petit champ jaune editable a sa place
+    dans le texte ; le reste est affiche rubrique par rubrique, chaque champ modifiable.
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite"><span class="pastille">&#10003;</span> Preparer</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape faite"><span class="pastille">&#10003;</span> Assistant</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape faite"><span class="pastille">&#10003;</span> Reponse</span>
+    <span class="etape-fleche suivant">&#8250;</span>
+    <span class="etape courante"><span class="pastille">4</span> Verifier</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape"><span class="pastille">5</span> Mise en forme</span>
+  </div>
+
+  <div class="centre">
+    <h1>5a. Choisissez une proposition</h1>
+    <p class="sous-titre">L'assistant vous renvoie deux versions de votre CV. Le fond est le meme dans les deux :
+      memes experiences, memes dates, memes diplomes. Seules la formulation et la mise en ordre changent.</p>
+  </div>
+
+  <div class="sortie-cartes" style="margin-bottom:1rem">
+    <div class="sortie-carte">
+      <h3>&#128204; La plus fidele a votre CV</h3>
+      <p class="detail">Meme ordre, meme longueur, meme mise en avant que votre CV. Seuls les mots, le ton et
+        les intitules de competences ont ete retravailles.</p>
+      <div class="cv-rendu" style="max-height:9rem;overflow:hidden;position:relative">
+        <p class="cv-ligne"><strong>Agent logistique - preparation de commandes</strong></p>
+        <p class="cv-ligne">Cinq ans en entrepot, rigoureux sur les delais et la securite...</p>
+        <p class="cv-ligne origine">Preparateur de commandes, Entrepot Martin, 2019 - 2024...</p>
+      </div>
+      <p><button class="btn">&#9660; Déplier pour tout lire</button></p>
+      <button class="btn primaire" onclick="montrer5b()">Choisir celle-ci &#8594;</button>
+    </div>
+    <div class="sortie-carte">
+      <h3>&#128260; Autre version</h3>
+      <p class="marqueur" style="display:inline-block;margin:.2rem 0">[PISTE : version plus courte, centree sur vos deux experiences en logistique]</p>
+      <div class="cv-rendu" style="max-height:9rem;overflow:hidden;position:relative">
+        <p class="cv-ligne"><strong>Preparateur de commandes experimente</strong></p>
+        <p class="cv-ligne">Logistique d'entrepot, scan, gestion de stock. Disponible immediatement.</p>
+        <p class="cv-ligne origine">Experiences regroupees, accent mis sur la logistique...</p>
+      </div>
+      <p><button class="btn">&#9660; Déplier pour tout lire</button></p>
+      <button class="btn primaire" onclick="montrer5b()">Choisir celle-ci &#8594;</button>
+    </div>
+  </div>
+  <p class="centre"><button class="btn">&#128196; Voir mon CV d'origine</button></p>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">
+
+  <div class="centre">
+    <h1>5b. Verifiez la proposition retenue</h1>
+    <p class="sous-titre">Vous avez choisi "la plus fidele". Vous pouvez tout modifier ici.</p>
+  </div>
+
+  <div class="section teinte">
+    <h3 style="margin-top:0">Ce qui a change</h3>
+    <ul style="margin:.2rem 0 0;padding-left:1.2rem">
+      <li>Les rubriques ont ete remises dans cet ordre : Titre, Experiences, Competences, Formation.</li>
+      <li>7 formulations reprises (verbes d'action, phrases plus courtes).</li>
+      <li>3 intitules de competences rapproches du vocabulaire de l'offre.</li>
+      <li>3 precisions vous sont demandees (surlignees ci-dessous).</li>
+    </ul>
+    <div class="hypothese" style="margin-bottom:0"><b>Hypothese - recos 1 et 2.</b> Ce resume est calcule par le code
+      apres le parsing. Pour un public a confiance fragile, voir l'ampleur du changement enoncee noir sur blanc rassure.</div>
+  </div>
+
+  <div class="section teinte">
+    <p style="margin:0"><span class="puce-compteur">3 precisions proposees</span>
+      &#160; Les passages <span class="marqueur">surlignes</span> sont des endroits ou l'assistant vous propose
+      d'ajouter une precision que vous seul connaissez. <strong>Vous remplissez celles que vous voulez</strong>,
+      vous pouvez ignorer les autres : elles disparaitront du CV final.</p>
+  </div>
+
+  <div class="cv-rendu">
+
+    <h3>Titre et accroche <button class="btn discret cv-edit">modifier</button></h3>
+    <p class="cv-ligne"><strong>Agent logistique - preparation de commandes</strong></p>
+    <p class="cv-ligne">Cinq ans en entrepot, rigoureux sur les delais et la securite. A l'aise avec les outils
+      de scan et la gestion des stocks. Cherche un poste stable en logistique.</p>
+
+    <h3>Experiences <button class="btn discret cv-edit">modifier</button></h3>
+    <p class="cv-ligne"><strong>Preparateur de commandes</strong>, Entrepot Martin, 2019 - 2024</p>
+    <ul>
+      <li class="cv-ligne">Preparation des commandes au scan, en respectant les delais d'expedition.</li>
+      <li class="cv-ligne">Gestion d'un flux d'environ
+        <span class="marqueur-champ"><input type="text" placeholder="combien par jour ?"></span>
+        <span class="marqueur">[A preciser : nombre de colis traites par jour]</span> colis par jour.</li>
+      <li class="cv-ligne">Conduite d'engins de manutention
+        <span class="marqueur-champ"><input type="text" placeholder="CACES ? lequel ?"></span>
+        <span class="marqueur">[A preciser : avez-vous un CACES, et lequel ?]</span>.</li>
+      <li class="cv-ligne">Controle qualite a reception et signalement des anomalies.</li>
+    </ul>
+    <p class="cv-ligne"><strong>Manutentionnaire</strong>, interim (plusieurs missions),
+      <span class="marqueur-champ"><input type="text" placeholder="quelles annees ?"></span>
+      <span class="marqueur">[A preciser : periode approximative de ces missions]</span></p>
+
+    <h3>Competences
+      <span class="detail">(vocabulaire rapproche du secteur : <strong>grande distribution / logistique</strong>)</span>
+      <button class="btn discret cv-edit">voir les intitules d'origine</button>
+    </h3>
+    <ul>
+      <li class="cv-ligne">Preparation de commandes et gestion des flux d'expedition
+        <span class="origine">(d'origine : "je preparais les commandes")</span></li>
+      <li class="cv-ligne">Utilisation de terminaux de scan et de logiciels de gestion de stock
+        <span class="origine">(d'origine : "scan et informatique")</span></li>
+      <li class="cv-ligne">Respect des consignes de securite et des delais
+        <span class="origine">(d'origine : "serieux, ponctuel")</span></li>
+    </ul>
+    <div class="encart"><span>&#128204;</span><span>Chaque intitule reste appuye sur une tache figurant dans votre CV.
+      Si un intitule vous semble aller trop loin, corrigez-le : c'est vous qui tranchez.</span></div>
+
+    <h3>Formation <button class="btn discret cv-edit">modifier</button></h3>
+    <p class="cv-ligne">CAP Operateur logistique, 2018.</p>
+
+  </div>
+
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="montrer('sorties')">C'est bon, passer a la mise en forme &#8594;</button>
+    <p class="detail" style="margin-top:.5rem">
+      <button class="btn discret">Revenir au choix des deux propositions</button>
+      &#183; <button class="btn discret">Tout recommencer</button>
+    </p>
+  </div>
+
+  <div class="hypothese">
+    <b>Decision 2026-09-07.</b> Pas de bouton "Repasser par l'assistant" : avec deux propositions au choix,
+    une reprise cachee n'a plus de sens. Si la personne veut autre chose, elle revient au choix, ou recommence depuis "Preparer".
+  </div>
+  <div class="hypothese">
+    <b>Decision 2026-09-07 - marqueurs non remplis.</b> A l'export, un <code>[A preciser : ...]</code> laisse
+    vide est <b>retire silencieusement</b> ; la phrase garde sa forme reformulee. Aucune phrase ne part avec un crochet visible.
+  </div>
+  <div class="hypothese">
+    <b>Decision 2026-09-07 - intitules d'origine.</b> Affiches <b>visibles par defaut</b> (pas replies), pour que
+    la personne voie que l'authenticite est preservee. Pas de validation competence par competence : elle corrige ce qui la gene.
+  </div>
+
+</section>
+
+<!-- ================= VUE 6 : LES DEUX SORTIES ================= -->
+<section class="vue" data-vue="sorties">
+
+  <div class="hypothese">
+    <b>Hypothese - sorties deja existantes.</b> Identiques a "Mettre a jour mon CV" : soit un de nos modeles
+    (Composeur, PDF ou Word), soit le texte structure a copier. Rien de neuf a construire cote sortie.
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite"><span class="pastille">&#10003;</span> Preparer</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape faite"><span class="pastille">&#10003;</span> Assistant</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape faite"><span class="pastille">&#10003;</span> Reponse</span>
+    <span class="etape-fleche">&#8250;</span>
+    <span class="etape faite"><span class="pastille">&#10003;</span> Verifier</span>
+    <span class="etape-fleche suivant">&#8250;</span>
+    <span class="etape courante"><span class="pastille">5</span> Mise en forme</span>
+  </div>
+
+  <div class="centre">
+    <h1>Comment voulez-vous recuperer votre CV ?</h1>
+    <p class="sous-titre">Les deux sont possibles, et vous pouvez revenir choisir l'autre plus tard.</p>
+  </div>
+
+  <div class="sortie-cartes">
+    <div class="sortie-carte">
+      <h3>&#128196; Remplir un de nos modeles</h3>
+      <p class="detail">Votre CV reformule est verse dans l'un de nos modeles. Vous ajustez la mise en page
+        (police, couleurs, marges) et vous exportez.</p>
+      <ul class="liste-oui">
+        <li>Modeles PDF (apercu direct)</li>
+        <li>Modeles Word (modifiable ensuite)</li>
+      </ul>
+      <button class="btn primaire">Choisir un modele &#8594;</button>
+      <p class="detail" style="margin-top:.4rem">Mene a l'ecran "La mise en page" existant (Composeur / cv-pdf-html).</p>
+    </div>
+    <div class="sortie-carte">
+      <h3>&#128203; Recuperer le texte de mon CV</h3>
+      <p class="detail">Le texte reformule, range par rubrique, pret a coller sur Canva, un traitement de texte,
+        ou une autre plateforme de CV. La mise en forme, vous la faites la-bas.</p>
+      <textarea rows="6" readonly>TITRE
+Agent logistique - preparation de commandes
+
+ACCROCHE
+Cinq ans en entrepot, rigoureux sur les delais et la securite...
+
+EXPERIENCES
+Preparateur de commandes - Entrepot Martin - 2019-2024
+- Preparation des commandes au scan...</textarea>
+      <button class="btn primaire" style="margin-top:.5rem">Copier le texte</button>
+    </div>
+  </div>
+
+  <div class="encart ok" style="margin-top:1rem"><span>&#9989;</span><span>Une fois le CV recupere, vous pouvez enchainer
+    sur "Preparer ma lettre et mon entretien" sans rien ressaisir.</span></div>
+
+</section>
+
+<!-- ================= VUE 7 : LISTE FERMEE DU PROMPT ================= -->
+<section class="vue" data-vue="prompt">
+
+  <div class="hypothese">
+    <b>Fige le 2026-09-07 - prompt final : <code>prompts/reformuler-cv.md</code>.</b> Cette liste est le coeur du module.
+    Complements par rapport a la version ci-dessous : l'assistant renvoie <b>deux propositions</b>
+    (PROPOSITION 1 "la plus fidele", longueur conservee ; PROPOSITION 2 "autre version", precedee de
+    <code>[PISTE : ...]</code>) ; garde-fou <code>[PAS_UN_CV : ...]</code> si le texte recu n'est pas un CV.
+    <b>Le socle B.8 ne s'applique PAS ici</b> (il est specifique a la recherche web) : seul le ton
+    "ecris pour une personne reelle" est repris, plus le preambule anti-injection standard.
+  </div>
+
+  <div class="section">
+    <h2>&#9989; L'assistant a le droit de</h2>
+    <ul class="liste-oui">
+      <li>Reordonner les rubriques et les elements a l'interieur d'une rubrique (le plus pertinent d'abord).</li>
+      <li>Retitrer les rubriques avec des intitules clairs et standards.</li>
+      <li>Reformuler les phrases et les puces : verbes d'action, phrases courtes, suppression du superflu.</li>
+      <li>Harmoniser les temps, la ponctuation, les majuscules, les formats de date.</li>
+      <li>Ecrire ou reecrire un titre et une accroche <strong>a partir du contenu deja present</strong> dans le CV.</li>
+      <li>Rapprocher les intitules de competences du vocabulaire du poste ou du secteur vise,
+        <strong>a condition que chaque competence reste appuyee sur une tache figurant dans le CV</strong>.</li>
+      <li>Poser une balise <code>[A PRECISER : question courte]</code> la ou une precision de la personne
+        rendrait une ligne plus forte (un chiffre deja vecu, une date approximative, un intitule ambigu).</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; L'assistant n'a pas le droit de</h2>
+    <ul class="liste-non">
+      <li>Ajouter une experience, un employeur, un diplome, une certification ou une competence qui ne figure pas dans le CV depose.</li>
+      <li>Inventer un chiffre, une duree, une date ou un resultat.</li>
+      <li>Gonfler une competence au-dela de ce que la personne a reellement fait.</li>
+      <li>Supprimer une experience ou un diplome presents dans le CV.</li>
+      <li>Changer le sens d'une phrase ecrite par la personne.</li>
+      <li>Porter un jugement sur le CV ou sur la personne, ou donner des conseils de candidature.</li>
+      <li>Produire autre chose que le CV reformule (pas de commentaire, pas de liste de remarques).</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128196; Format de sortie attendu</h2>
+    <p class="detail">Le CV reformule, rubrique par rubrique, en texte simple. Les seules balises autorisees sont
+      <code>[A PRECISER : ...]</code>, inserees a leur place dans les phrases concernees. Rien avant, rien apres.</p>
+  </div>
+
+</section>
+
+<!-- ================= VUE 8 : A TRANCHER ================= -->
+<section class="vue" data-vue="questions">
+
+  <div class="section teinte">
+    <h2>Conception figee le 2026-09-07</h2>
+    <p style="margin:.2rem 0">Tous les points sont tranches. Source de verite :
+      <strong>docs/CHANTIER_REFORMULER_ET_PRESENTER_CV.md</strong> (parcours, decisions, sequence de construction)
+      et <strong>prompts/reformuler-cv.md</strong> (prompt final).</p>
+    <ul>
+      <li>Option A : 4e tuile legere ("Reformuler et presenter mon CV", <code>bi-brush</code>, 2e position),
+        reutilise le tuyau de "Mettre a jour mon CV" via un <code>_prepLEMode</code> supplementaire.</li>
+      <li>Aiguillage : 4 lignes dans la bulle "i" de la carte (vue 1).</li>
+      <li>Poste / domaine vise <strong>necessaire</strong> : bouton d'envoi bloque tant qu'il est vide.</li>
+      <li>Un seul aller-retour. L'assistant renvoie <strong>deux propositions</strong> : "la plus fidele"
+        (longueur conservee) et "autre version" (<code>[PISTE : ...]</code>). La personne choisit (5a), puis verifie (5b).</li>
+      <li>Marqueurs <code>[A PRECISER]</code> : 5 max par proposition, dans les deux, affiches seulement pour
+        la retenue, retires en silence a l'export s'ils restent vides.</li>
+      <li>Balise <code>[ORIGINE : ...]</code> apres chaque intitule de competence et l'accroche proposee,
+        <strong>visible par defaut</strong> sur l'ecran de verification.</li>
+      <li>Resume "ce qui a change" en haut de 5b.</li>
+      <li>Pas de bouton "Repasser par l'assistant".</li>
+      <li>Deux sorties des la V1 : modele interne (Composeur PDF / Word) + texte structure a copier.</li>
+      <li>Garde-fou <code>[PAS_UN_CV : ...]</code>.</li>
+      <li>Points a / b / c / d figes sur recommandation de Claude, a reconfirmer au 1er test reel (voir chantier, section 4).</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Ce qu'on reutilise sans le reecrire</h2>
+    <p class="detail">Page depliante "Preparer", brique de depot CV (Pattern A), brique contexte
+      <code>bilanCorpsCiblageOffreHTML</code>, choix de l'assistant <code>htmlChoixAssistantBilanCorps</code>,
+      bandeau de transition, collage de la reponse <code>htmlCollageInstantane</code>, parsing de balises
+      tolerant (patron <code>_comprendreLeCadreParserReponse1</code>), sorties PDF / Word du Composeur,
+      barre d'etapes <code>barreEtapesModule</code>, page d'intro <code>htmlPageIntroModuleParcours</code>,
+      source unique des tuiles <code>MES_DOCUMENTS_PARCOURS</code>.</p>
+    <p class="detail"><strong>Vraiment neuf :</strong> le prompt <code>prompts/reformuler-cv.md</code>,
+      l'ecran "Verifier" en deux temps (choix entre 2 propositions + verification avec marqueurs), la tuile
+      et son intro, le <code>_prepLEMode = 'reformuler'</code>, le parseur des balises
+      <code>[A PRECISER]</code> / <code>[ORIGINE]</code> / <code>[PISTE]</code> / <code>[PAS_UN_CV]</code>.</p>
+  </div>
+
+</section>
+
+</main>
+
+<script>
+  function montrer(vue) {
+    document.querySelectorAll('.vue').forEach(function (s) { s.classList.toggle('visible', s.dataset.vue === vue); });
+    document.querySelectorAll('.barre-haut .btn[data-vue]').forEach(function (b) { b.classList.toggle('actif', b.dataset.vue === vue); });
+    window.scrollTo(0, 0);
+  }
+  function montrer5b() {
+    var h = document.querySelectorAll('.vue[data-vue="verifier"] h1');
+    if (h[1]) { h[1].scrollIntoView({ behavior: 'smooth' }); }
+  }
+  document.querySelectorAll('.barre-haut .btn[data-vue]').forEach(function (b) {
+    b.addEventListener('click', function () { montrer(b.dataset.vue); });
+  });
+</script>
+</body>
+</html>

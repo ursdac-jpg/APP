@@ -1,0 +1,985 @@
+<!doctype html>
+<!--
+  MAQUETTE DE FLUX v8 - "Comparer mes pistes" (aide a la decision d'orientation).
+  Page unique qui defile. Barre du haut = liens ancres, AUCUN JavaScript.
+
+  Nouveautes v7 (pour viser 18/20) :
+  - barre d'etapes avec icones + pastille (meme motif que MAQUETTE_BILAN_PARCOURS_CONSOLIDE),
+    variables --ok / --ok-bg ajoutees (le vert "etape faite" fonctionne vraiment).
+  - ecrans lourds passes en accordeon : titre visible + phrase d'invitation + mention "a remplir"
+    la ou c'est obligatoire.
+  - encadre "Voici comment on va les regarder" raccourci : une puce par piste + une ligne de correction.
+    Ce texte est adresse a la personne (genere par le code), pas une note pour Denis.
+  - confidentialite a l'etape 1 : ce qui sort de l'application, et quoi ne pas y mettre.
+  - remuneration ajoutee (fiches + reglette), avec le rappel "plus eleve n'est pas mieux".
+  - freins relies au repertoire existant data/freins.js (l'assistant situe, le code garantit le lien).
+  - "idee a explorer" sans piste -> proposer d'abord un bilan / CEP.
+  - cas melange (v8) : ecran d'aiguillage "Deux angles" (#e3) avant 3A et 3B ; ordre conseille
+    "dans le temps" d'abord ; la frise a une colonne par piste (repere + chaque depart), jamais de fusion ;
+    ecran 5 recapitule les deux angles faits.
+  - tracabilite des sources : chaque ligne "a verifier" des fiches porte source + portee + date en
+    texte (jamais un lien cliquable rapporte par l'assistant) ; ecran 5 ajoute un tableau "Sources des
+    informations" inclus dans l'impression pour le conseiller ; contenu propre a l'appli marque "verifie le".
+  Fichier autonome, hors depot, rien commite. Mode sombre : case a cocher en haut a droite (astuce CSS).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette de flux v8 - Comparer mes pistes</title>
+<style>
+  html{scroll-behavior:smooth}
+  .app{
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#eef1f7;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#7c3aed; --accent-bg:#f0e9fd;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --ok:#15803d; --ok-bg:#dcfce7;
+    --radius:10px;
+    --piste-a:#2563eb; --piste-b:#16a34a; --piste-c:#c2410c;
+  }
+  #theme-dark:checked ~ .app{
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#c4b5fd; --accent-bg:#292344;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --ok:#4ade80; --ok-bg:#14331f;
+    --piste-a:#60a5fa; --piste-b:#4ade80; --piste-c:#fb923c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .app{background:var(--bg-page);color:var(--text);min-height:100vh;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+  header{position:sticky;top:0;z-index:10;background:var(--bg-card);border-bottom:1px solid var(--border);
+    padding:.5rem .8rem;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+  header .titre{font-weight:700;color:var(--text-strong);margin-right:.5rem;font-size:.92rem}
+  .navlink{font-size:.8rem;text-decoration:none;border:1px solid var(--border-strong);background:var(--bg-subtle);
+    color:var(--text);border-radius:999px;padding:.28rem .7rem}
+  .navlink:hover{border-color:var(--accent);color:var(--accent)}
+  .themebox{margin-left:auto;font-size:.8rem;color:var(--text-muted);cursor:pointer;user-select:none;
+    border:1px solid var(--border-strong);border-radius:999px;padding:.28rem .7rem;background:var(--bg-subtle)}
+  main{max-width:820px;margin:0 auto;padding:1.1rem 1rem 5rem}
+  .ecran{scroll-margin-top:64px;border-top:2px dashed var(--border);padding-top:1.4rem;margin-top:2rem}
+  .ecran:first-of-type{border-top:0;margin-top:.4rem;padding-top:0}
+  h1{font-size:1.4rem;color:var(--text-strong);margin:.2rem 0 .1rem}
+  h2{font-size:1.02rem;color:var(--text-strong);margin:0 0 .4rem}
+  h3{font-size:.92rem;color:var(--text-strong);margin:.7rem 0 .2rem}
+  .sous{color:var(--text-muted);margin:.15rem 0 1rem}
+  .etape{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .section{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:.8rem}
+  .section.teinte{background:var(--accent-bg);border-color:var(--accent)}
+  ul{margin:.3rem 0 0;padding-left:1.2rem}
+  li{margin:.2rem 0}
+  .source{display:flex;gap:.5rem;align-items:flex-start;font-size:.8rem;color:var(--text-muted);
+    border:1px dashed var(--border-strong);border-radius:8px;padding:.4rem .6rem;margin:.5rem 0;background:var(--bg-subtle)}
+  .source b{color:var(--text-strong)}
+  .confid{display:flex;gap:.5rem;align-items:flex-start;font-size:.83rem;color:var(--text);
+    border:1px solid var(--border-strong);border-left:3px solid var(--accent);border-radius:8px;
+    padding:.55rem .75rem;margin:.6rem 0;background:var(--bg-subtle)}
+  .confid b{color:var(--text-strong)}
+  .btn{display:inline-block;font:inherit;font-size:.85rem;border-radius:var(--radius);padding:.5rem 1rem;
+    border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);cursor:pointer;text-decoration:none}
+  .btn.primaire{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+  #theme-dark:checked ~ .app .btn.primaire{color:#1a1330}
+  .rangbtn{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .grille2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .grille3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem}
+  @media(max-width:720px){.grille3{grid-template-columns:1fr}}
+  @media(max-width:640px){.grille2{grid-template-columns:1fr}}
+  .voie{border:1px solid var(--border-strong);border-radius:10px;padding:.75rem .8rem;background:var(--bg-card)}
+  .voie.on{border-color:var(--accent);background:var(--accent-bg)}
+  .voie b{display:block;color:var(--text-strong);font-size:.92rem}
+  .voie .quoi{font-size:.82rem;color:var(--text-muted);margin:.2rem 0 .4rem}
+  .fiche{border:1px solid var(--border);border-radius:12px;background:var(--bg-card);overflow:hidden}
+  .fiche .tete{padding:.55rem .8rem;font-weight:700;color:#fff}
+  .fiche .corps{padding:.7rem .8rem}
+  .fiche h3{margin:.6rem 0 .2rem}
+  .fiche h3:first-child{margin-top:0}
+  .fiche p,.fiche li{font-size:.87rem}
+  .encadreVerif{background:var(--warn-bg);border-left:3px solid var(--warn);border-radius:6px;padding:.5rem .7rem;margin-top:.5rem;font-size:.85rem}
+  .verif-liste{list-style:none;padding:0;margin:.35rem 0 0}
+  .verif-liste>li{margin:.5rem 0;font-size:.85rem}
+  .verif-liste>li:first-child{margin-top:.2rem}
+  .srcline{display:block;font-size:.75rem;color:var(--text-muted);margin-top:.1rem}
+  .srcline b{color:var(--text-strong);font-weight:600}
+  .srcline.manque{color:var(--warn)}
+  .src-tableau{width:100%;border-collapse:collapse;font-size:.8rem;margin:.4rem 0}
+  .src-tableau th,.src-tableau td{border:1px solid var(--border);padding:.35rem .5rem;text-align:left;vertical-align:top}
+  .src-tableau th{background:var(--bg-subtle);color:var(--text-strong);font-size:.74rem;text-transform:uppercase;letter-spacing:.03em}
+  .src-tableau td:last-child{color:var(--text-muted)}
+  .pastille{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff}
+  .champ{width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:.45rem .6rem;font:inherit;
+    background:var(--bg-card);color:var(--text);margin:.25rem 0}
+  textarea.champ{min-height:74px;resize:vertical}
+  select.champ{min-height:auto}
+  .dimtabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0 .8rem}
+  .dimtab{font-size:.8rem;border:1px solid var(--border-strong);background:var(--bg-subtle);border-radius:999px;padding:.25rem .7rem}
+  .dimtab.on{background:var(--text-strong);color:var(--bg-card);border-color:var(--text-strong)}
+  .reglette{position:relative;height:66px;margin:1.1rem 0 .4rem;border-bottom:2px solid var(--border-strong)}
+  .reglette .grad{position:absolute;bottom:-2px;width:1px;height:8px;background:var(--border-strong)}
+  .reglette .grad span{position:absolute;top:10px;left:-12px;font-size:.7rem;color:var(--text-muted);width:28px;text-align:center}
+  .repere{position:absolute;bottom:8px;transform:translateX(-50%);text-align:center}
+  .repere .pt{width:14px;height:14px;border-radius:50%;margin:0 auto}
+  .repere .lbl{font-size:.74rem;color:var(--text-strong);white-space:nowrap;font-weight:700}
+  .repere .val{font-size:.74rem;color:var(--text-muted)}
+  .qdim{font-size:.87rem;font-style:italic;color:var(--text-strong);border-left:3px solid var(--accent);padding-left:.6rem;margin-top:.7rem}
+  .frise{display:grid;grid-template-columns:120px 1fr;gap:.5rem;align-items:start;margin:.4rem 0}
+  .frise .an{font-weight:700;font-size:.82rem;color:var(--text-strong);padding-top:.3rem}
+  .frise .cellules{display:grid;gap:.4rem}
+  .cell{border-radius:8px;padding:.4rem .6rem;font-size:.84rem;border-left:4px solid;background:var(--bg-subtle)}
+  .note{font-size:.8rem;color:var(--text-muted);margin-top:.3rem}
+  .promptbox{font-size:.83rem;white-space:pre-line;background:var(--bg-card);border-radius:8px;padding:.7rem;border:1px solid var(--border)}
+  .bloc-depli{border:1px solid var(--border-strong);border-radius:10px;margin:.5rem 0;overflow:hidden;background:var(--bg-card)}
+  .bloc-depli>summary{list-style:none;cursor:pointer;padding:.7rem .9rem;font-weight:700;color:var(--text-strong)}
+  .bloc-depli>summary::-webkit-details-marker{display:none}
+  .bloc-depli>summary::before{content:"\25B8";color:var(--accent);margin-right:.5rem;display:inline-block;transition:transform .15s}
+  .bloc-depli[open]>summary::before{transform:rotate(90deg)}
+  .bloc-depli>summary::after{content:"Cliquer pour ouvrir";float:right;font-weight:400;font-size:.78rem;color:var(--accent)}
+  .bloc-depli[open]>summary::after{content:"Fermer"}
+  .bloc-depli .depli-quoi{display:block;font-weight:400;font-size:.82rem;color:var(--text-muted);margin:.25rem 0 0 1.1rem}
+  .bloc-depli .depli-corps{padding:.5rem .9rem .9rem;border-top:1px solid var(--border)}
+  .oblig{display:inline-block;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:999px;
+    padding:.05rem .45rem;margin-left:.45rem;vertical-align:middle}
+  .fac{display:inline-block;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border-strong);border-radius:999px;
+    padding:.05rem .45rem;margin-left:.45rem;vertical-align:middle}
+  .legende{position:sticky;top:54px;z-index:5;display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;align-items:center;
+    background:var(--bg-card);border:1px solid var(--border-strong);border-radius:10px;padding:.5rem .8rem;
+    margin:0 0 .9rem;box-shadow:0 3px 10px rgba(0,0,0,.07);font-size:.85rem}
+  .legende .lg-titre{font-weight:700;color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+  .legende .lg-piste{display:flex;align-items:center;gap:.4rem}
+  .legende .lg-pt{width:13px;height:13px;border-radius:50%;flex:none}
+  .legende .lg-nom{color:var(--text-strong);font-weight:600}
+  .etapes{display:flex;align-items:center;gap:.12rem;flex-wrap:wrap;margin:.3rem 0 1rem;font-size:.76rem}
+  .etapes .et{display:inline-flex;align-items:center;gap:.34rem;padding:.24rem .58rem .24rem .3rem;border-radius:999px;
+    border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-muted);white-space:nowrap}
+  .etapes .et .ico{width:1.25rem;height:1.25rem;flex:none;border-radius:50%;display:inline-flex;align-items:center;
+    justify-content:center;font-size:.78rem;background:var(--border-strong);color:var(--bg-card)}
+  .etapes .et.faite{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);font-weight:600}
+  .etapes .et.faite .ico{background:var(--ok);color:#fff}
+  .etapes .et.courante{background:#fde68a;border-color:#f59e0b;color:#7a4405;font-weight:700;box-shadow:0 0 0 3px rgba(245,158,11,.22)}
+  .etapes .et.courante .ico{background:#f59e0b;color:#fff}
+  #theme-dark:checked ~ .app .etapes .et.courante{background:#6b4205;color:#fde68a}
+  .etapes .et.opt{border-style:dashed}
+  .etapes .ch{color:var(--accent);font-weight:700;padding:0 .05rem}
+  .tag{display:inline-block;font-size:.76rem;border:1px solid var(--border-strong);background:var(--bg-subtle);color:var(--text-muted);border-radius:999px;padding:.2rem .6rem;margin:.15rem .2rem 0 0;cursor:pointer}
+  .tag.on{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);font-weight:700}
+  .freinlien{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;font-size:.83rem;
+    border:1px dashed var(--warn);background:var(--warn-bg);border-radius:8px;padding:.4rem .6rem;margin:.4rem 0 0}
+  .regarde{list-style:none;padding:0;margin:.3rem 0 0}
+  .regarde li{display:flex;gap:.5rem;align-items:baseline;margin:.25rem 0;font-size:.88rem}
+  .regarde .fl{color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+<input type="checkbox" id="theme-dark" hidden>
+<div class="app">
+
+<header>
+  <span class="titre">&#129517; Comparer mes pistes</span>
+  <a class="navlink" href="#e0">0. Ajouter mes pistes</a>
+  <a class="navlink" href="#e0b">0 bis. Pistes comprises</a>
+  <a class="navlink" href="#e1">1. Collecter</a>
+  <a class="navlink" href="#e2">2. Les fiches</a>
+  <a class="navlink" href="#e3">3. Deux angles</a>
+  <a class="navlink" href="#e3a">3A. Côte à côte</a>
+  <a class="navlink" href="#e3b">3B. Dans le temps</a>
+  <a class="navlink" href="#e4">4. Aller plus loin</a>
+  <a class="navlink" href="#e5">5. Fin</a>
+  <a class="navlink" href="#annexe">Annexe : questions</a>
+  <label class="themebox" for="theme-dark">Mode sombre</label>
+</header>
+
+<main>
+
+<!-- ECRAN 0 -->
+<section class="ecran" id="e0">
+  <p class="etape">Étape 0</p>
+  <h1>Ajouter mes pistes</h1>
+  <p class="sous">Choisissez la façon qui vous convient. Vous pouvez même en mélanger plusieurs (raconter pour une piste, coller une fiche pour une autre). 2 ou 3 pistes, jamais plus.</p>
+  <div class="etapes">
+    <span class="et courante"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+
+  <div class="section">
+    <h2>Comment voulez-vous nous en parler ?<span class="oblig">à remplir</span></h2>
+    <p class="note" style="margin-top:0">Choisissez au moins une façon. Vous pourrez en utiliser plusieurs. Cliquez sur une ligne pour l'ouvrir.</p>
+
+    <details class="bloc-depli">
+      <summary>&#128172; Je raconte
+        <span class="depli-quoi">À l'écrit ou à la voix (<strong><span style="white-space:nowrap">Windows + H</span></strong>). Ce qui vous tracasse, entre quoi vous hésitez.</span>
+      </summary>
+      <div class="depli-corps">
+        <p class="note" style="margin-top:0">On lit votre texte et on en tire des pistes que vous validez ensuite (écran « 0 bis »).</p>
+        <textarea class="champ" placeholder="Dites ou écrivez ce qui vous fait hésiter...">Je travaille comme agent d'entretien depuis 8 ans. J'ai mal au dos. Je voudrais changer mais j'hésite : est-ce que je fais un CAP carrelage ou un CAP vendeur ? Ou est-ce que je reste et je me forme plus tard ?</textarea>
+      </div>
+    </details>
+
+    <details class="bloc-depli">
+      <summary>&#9999;&#65039; Je nomme mes pistes
+        <span class="depli-quoi">Le nom de chaque piste, plus quelques lignes sur ce qui vous attire, pourquoi vous voudriez la faire.</span>
+      </summary>
+      <div class="depli-corps">
+        <p style="font-size:.85rem;margin:.2rem 0"><b>Piste 1</b></p>
+        <input class="champ" placeholder="Nom de la piste (ex. CAP vendeur)">
+        <textarea class="champ" placeholder="Ce qui m'attire dans cette piste..."></textarea>
+        <p style="font-size:.85rem;margin:.5rem 0 .2rem"><b>Piste 2</b></p>
+        <input class="champ" placeholder="Nom de la piste">
+        <textarea class="champ" placeholder="Ce qui m'attire..."></textarea>
+        <button type="button" class="btn" style="font-size:.8rem">+ Ajouter une 3e piste</button>
+      </div>
+    </details>
+
+    <details class="bloc-depli">
+      <summary>&#128206; J'ajoute des documents
+        <span class="depli-quoi">Coller le texte d'une fiche, d'une offre, d'un programme. Joindre une ou plusieurs photos.</span>
+      </summary>
+      <div class="depli-corps">
+        <button type="button" class="btn" style="width:100%">&#128206; Coller un texte / joindre une photo</button>
+        <p class="note">L'application ne lit pas les fichiers elle-même. Ils sont joints à l'assistant en ligne à l'étape 1, tous en une fois.</p>
+      </div>
+    </details>
+
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> la personne. On ne lui demande jamais de choisir « son niveau » : elle ouvre la ou les façons qui lui vont.</span></div>
+  </div>
+
+  <details class="bloc-depli" open>
+    <summary>&#128100; Où en êtes-vous en ce moment ?<span class="oblig">à remplir</span>
+      <span class="depli-quoi">Votre situation d'aujourd'hui et votre tranche d'âge. Cliquez pour compléter.</span>
+    </summary>
+    <div class="depli-corps">
+      <p style="font-size:.87rem;margin:.2rem 0">
+        <label><input type="radio" name="sit" checked> En emploi (CDI, CDD, intérim)</label><br>
+        <label><input type="radio" name="sit"> Sans emploi</label><br>
+        <label><input type="radio" name="sit"> En formation ou études</label><br>
+        <label><input type="radio" name="sit"> Au foyer, aidant(e)</label><br>
+        <label><input type="radio" name="sit"> En arrêt ou souci de santé</label><br>
+        <label><input type="radio" name="sit"> J'ai, ou je crée, une activité indépendante</label>
+      </p>
+      <p style="font-size:.87rem;margin:.6rem 0 .2rem">Votre tranche d'âge</p>
+      <p style="font-size:.87rem;margin:.2rem 0"><label><input type="radio" name="age"> Moins de 26 ans</label> &nbsp; <label><input type="radio" name="age" checked> 26 à 45 ans</label> &nbsp; <label><input type="radio" name="age"> 45 ans et plus</label></p>
+      <div class="source"><span>&#8505;&#65039;</span><span><b>Sert à :</b> choisir les questions et les dispositifs pertinents (par ex. ARE ou RSA, PTP ou AIF, Mission Locale ou France Travail ou CEP). Ne sert jamais à noter ni à classer.</span></div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#128506;&#65039; Où êtes-vous ?<span class="fac">déjà rempli</span>
+      <span class="depli-quoi">Par défaut : votre région, la Nouvelle-Aquitaine. Vous pouvez préciser un département.</span>
+    </summary>
+    <div class="depli-corps">
+      <p style="font-size:.87rem;margin:.2rem 0">
+        <label><input type="radio" name="terr"> France</label> &nbsp;
+        <label><input type="radio" name="terr" checked> Ma région : Nouvelle-Aquitaine</label> &nbsp;
+        <label><input type="radio" name="terr"> Choisir mon département</label>
+      </p>
+      <select class="champ" style="max-width:280px">
+        <option>Choisir un département de Nouvelle-Aquitaine…</option>
+        <option>16 - Charente</option><option>17 - Charente-Maritime</option><option>19 - Corrèze</option>
+        <option>23 - Creuse</option><option selected>24 - Dordogne</option><option>33 - Gironde</option>
+        <option>40 - Landes</option><option>47 - Lot-et-Garonne</option><option>64 - Pyrénées-Atlantiques</option>
+        <option>79 - Deux-Sèvres</option><option>86 - Vienne</option><option>87 - Haute-Vienne</option>
+      </select>
+      <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> une question posée une seule fois, pour la session. Rien n'est enregistré. Le département ne fait que préciser le prompt de recherche.</span></div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#9855;&#65039; Une situation de handicap, une RQTH, un besoin d'aménagement ?<span class="fac">facultatif</span>
+      <span class="depli-quoi">Si vous l'indiquez, les informations et les acteurs cités seront adaptés (aménagements possibles, formations accessibles, Cap emploi, MDPH, AGEFIPH).</span>
+    </summary>
+    <div class="depli-corps">
+      <p style="font-size:.87rem;margin:.2rem 0"><label><input type="checkbox" checked> J'ai une RQTH ou une demande en cours</label><br><label><input type="checkbox"> Je pense en avoir besoin, je ne l'ai pas encore</label><br><label><input type="checkbox"> Pas concerné(e)</label></p>
+      <input class="champ" placeholder="Un besoin d'aménagement à ne pas oublier ? (facultatif)">
+      <div class="source"><span>&#8505;&#65039;</span><span><b>Effet :</b> le prompt de l'étape 1 ajoute agefiph.fr, monparcourshandicap.gouv.fr, la MDPH du département et Cap emploi, et demande pour chaque piste les aménagements et les formations accessibles. Les bons acteurs apparaissent dans « Points à discuter avec mon conseiller » (étape 5). Ce que vous cochez ici reste dans l'application : le texte à coller à l'étape 1 ne dit que « la personne a, ou demande, une RQTH ».</span></div>
+    </div>
+  </details>
+
+  <p class="note">Vous n'avez rien d'autre à catégoriser. La façon de regarder vos pistes (côte à côte, ou dans le temps) est déterminée à l'étape suivante, à partir de vos pistes, et vous pourrez la corriger.</p>
+
+  <div class="rangbtn"><a class="btn primaire" href="#e0b">Continuer &#8594;</a></div>
+</section>
+
+<!-- ECRAN 0 bis -->
+<section class="ecran" id="e0b">
+  <p class="etape">Étape 0 bis</p>
+  <h1>Les pistes qu'on a comprises</h1>
+  <p class="sous">Vous n'avez rien catégorisé. Un assistant a lu ce que vous avez dit et propose des pistes, chacune avec une <b>étiquette</b>. Corrigez d'un clic si c'est faux, ajoutez, retirez.</p>
+  <div class="etapes">
+    <span class="et courante"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+
+  <div class="section">
+    <h3>Piste 1</h3>
+    <input class="champ" value="CAP carrelage mosaïque">
+    <p style="margin:.3rem 0 0"><span class="tag on">métier</span><span class="tag">formation</span><span class="tag">situation</span><span class="tag">frein / étape</span><span class="tag">idée à explorer</span></p>
+    <p style="font-size:.85rem;margin:.3rem 0 0">Couleur : <input type="color" value="#2563eb"> <span class="pastille" style="background:var(--piste-a)">Piste 1</span></p>
+    <div class="freinlien">
+      <span>&#9888;&#65039;</span>
+      <span>Vous avez aussi dit « je n'ai pas le permis ». Ce n'est pas une piste : c'est une <b>condition</b> à regarder (frein <b>mobilité</b>).</span>
+      <button type="button" class="btn" style="font-size:.78rem;padding:.3rem .7rem">Se renseigner sur ce point</button>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Piste 2</h3>
+    <input class="champ" value="CAP vendeur / employé de commerce">
+    <p style="margin:.3rem 0 0"><span class="tag on">métier</span><span class="tag">formation</span><span class="tag">situation</span><span class="tag">frein / étape</span><span class="tag">idée à explorer</span></p>
+    <p style="font-size:.85rem;margin:.3rem 0 0">Couleur : <input type="color" value="#16a34a"> <span class="pastille" style="background:var(--piste-b)">Piste 2</span></p>
+  </div>
+  <div class="section">
+    <h3>Piste 3 <span style="font-weight:400;color:var(--text-muted)">(à confirmer)</span></h3>
+    <input class="champ" value="Rester en poste et me former plus tard">
+    <p style="margin:.3rem 0 0"><span class="tag">métier</span><span class="tag">formation</span><span class="tag on">situation</span><span class="tag">frein / étape</span><span class="tag">idée à explorer</span></p>
+    <p style="font-size:.85rem;margin:.3rem 0 0">Couleur : <input type="color" value="#c2410c"> <span class="pastille" style="background:var(--piste-c)">Piste 3</span></p>
+  </div>
+  <div class="section">
+    <input class="champ" placeholder="Il manque quelque chose ? Écrivez-le ici, avec vos mots.">
+    <p class="note">Cette zone est le filet : tout ce qui n'entre pas dans une piste ou une étiquette y va, l'assistant en tient compte.</p>
+  </div>
+
+  <div class="section teinte">
+    <p style="margin:0 0 .3rem;font-size:.9rem"><b>&#128260; Voici comment on va regarder vos pistes :</b></p>
+    <ul class="regarde">
+      <li><span class="fl">&#8594;</span><span><span class="pastille" style="background:var(--piste-a)">P1</span> <span class="pastille" style="background:var(--piste-b)">P2</span> CAP carrelage et CAP vendeur : <b>côte à côte</b> (même nature).</span></li>
+      <li><span class="fl">&#8594;</span><span><span class="pastille" style="background:var(--piste-c)">P3</span> Rester en poste : <b>dans le temps</b> (c'est une situation).</span></li>
+    </ul>
+    <p style="font-size:.86rem;margin:.5rem 0 .2rem">Pas d'accord avec ce découpage ?</p>
+    <p style="font-size:.86rem;margin:.2rem 0">
+      <label><input type="checkbox"> Tout regarder « dans le temps »</label> &nbsp;
+      <label><input type="checkbox"> Voir d'abord seulement les deux métiers</label>
+    </p>
+    <p class="note" style="margin-top:.4rem">On commence par un angle, vous pourrez faire l'autre juste après.</p>
+  </div>
+
+  <details class="bloc-depli">
+    <summary>&#128161; Et si je n'avais aucune piste précise ?
+      <span class="depli-quoi">Ce que le module proposerait à la place de la comparaison.</span>
+    </summary>
+    <div class="depli-corps">
+      <p style="font-size:.87rem;margin:.2rem 0">Si vous aviez surtout dit « j'ai envie de changer mais je ne sais pas vers quoi », sans piste concrète, on ne lancerait pas de comparaison. On proposerait d'abord un <b>bilan</b> ou un <b>conseil en évolution professionnelle</b> (CEP, gratuit), pour faire apparaître des pistes. La comparaison viendrait ensuite.</p>
+    </div>
+  </details>
+
+  <p class="note">Vous avez noté 4 pistes ou plus ? On en regarde 2 ou 3 d'abord : le module vous demande ici de cocher lesquelles. Vous pourrez recommencer avec une autre combinaison. L'application n'élimine jamais une piste.</p>
+
+  <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> un passage assistant qui a lu ce que vous avez dit et proposé des pistes et des étiquettes. Le code en déduit la façon de regarder (routage déterministe) et relie un « frein » au répertoire vérifié de l'application (data/freins.js). Rien n'est décidé : vous restez maître de la liste.</span></div>
+
+  <details class="bloc-depli">
+    <summary>&#128172; Quelques précisions selon votre situation
+      <span class="depli-quoi">3 questions courtes, choisies d'après ce que vous avez indiqué (ici : en emploi, reconversion possible pour la santé). Tout est facultatif.</span>
+    </summary>
+    <div class="depli-corps">
+      <p class="note" style="margin-top:0">« Je ne sais pas » devient une question pour votre conseiller.</p>
+      <p style="font-size:.87rem;margin:.5rem 0 .2rem">Depuis combien de temps êtes-vous dans cette entreprise ?</p>
+      <p style="font-size:.87rem;margin:.2rem 0"><label><input type="radio" name="anc"> Moins d'un an</label> &nbsp; <label><input type="radio" name="anc"> 1 à 3 ans</label> &nbsp; <label><input type="radio" name="anc" checked> 3 ans et plus</label> &nbsp; <label><input type="radio" name="anc"> Je ne sais pas</label></p>
+      <p style="font-size:.87rem;margin:.5rem 0 .2rem">Votre contrat</p>
+      <p style="font-size:.87rem;margin:.2rem 0"><label><input type="radio" name="ct" checked> CDI</label> &nbsp; <label><input type="radio" name="ct"> CDD</label> &nbsp; <label><input type="radio" name="ct"> Intérim</label></p>
+      <p style="font-size:.87rem;margin:.5rem 0 .2rem">Avez-vous vu la médecine du travail pour votre dos ? <span style="color:var(--text-muted)">(facultatif)</span></p>
+      <p style="font-size:.87rem;margin:.2rem 0"><label><input type="radio" name="mdt"> Oui</label> &nbsp; <label><input type="radio" name="mdt" checked> Pas encore</label> &nbsp; <label><input type="radio" name="mdt"> Je préfère ne pas dire</label></p>
+      <div class="source"><span>&#8505;&#65039;</span><span><b>Sert à :</b> le code choisit ces questions (jamais un prompt). L'ancienneté et le contrat conditionnent le PTP et la démission-reconversion ; la médecine du travail ouvre le reclassement. Les réponses vont dans le prompt de collecte et dans les questions pour le conseiller, jamais en clair le détail de santé.</span></div>
+    </div>
+  </details>
+
+  <div class="rangbtn"><a class="btn" href="#e0">&#8592; Retour</a><a class="btn primaire" href="#e1">C'est bon, continuer &#8594;</a></div>
+</section>
+
+<!-- ECRAN 1 -->
+<section class="ecran" id="e1">
+  <p class="etape">Étape 1 sur 3</p>
+  <h1>Collecter les informations</h1>
+  <p class="sous">L'application ne va pas chercher elle-même. Elle prépare un texte : vous le collez chez un assistant en ligne qui cherche sur le web, puis vous rapportez sa réponse ici.</p>
+  <div class="etapes">
+    <span class="et faite"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et courante"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+
+  <div class="confid"><span>&#128274;</span><span><b>Avant de coller ce texte ailleurs :</b> il part chez l'assistant en ligne que vous choisissez, en dehors de l'application. Il ne contient pas votre nom. Si vous ajoutez des précisions, restez général : écrivez « une contrainte physique » plutôt que le détail de votre santé. Ne collez pas de documents avec des données très personnelles (numéro de sécurité sociale, avis d'imposition).</span></div>
+
+  <div class="section teinte">
+    <h2>&#128203; Texte préparé pour vous <span class="pastille" style="background:var(--accent)">à copier</span></h2>
+    <p class="promptbox">Recherche sur le web, en priorité sur des sources officielles françaises (service-public.fr, francetravail.fr, travail-emploi.gouv.fr, moncompteformation.gouv.fr, legifrance.gouv.fr, site de la Région Nouvelle-Aquitaine, CARIF-OREF).
+
+Pour chacune de ces pistes, dans le département de la Dordogne (24) si l'information est locale :
+- CAP carrelage mosaïque
+- CAP vendeur / employé de commerce
+
+Pour chaque piste, donne :
+1. informations DURABLES : à quoi mène la formation, niveau visé, activités du métier, conditions de travail, principales voies d'accès, évolutions possibles ;
+2. informations SUSCEPTIBLES D'AVOIR CHANGÉ : durée, nombre d'heures et périodes de stage, coût, financeurs possibles, reste à charge, lieux où elle est proposée, rémunération observée à l'embauche et après quelques années (fourchette), besoins de recrutement récents dans le métier.
+
+Situation de handicap indiquée (la personne a, ou demande, une RQTH) : ajoute agefiph.fr, monparcourshandicap.gouv.fr, la MDPH de la Dordogne et Cap emploi ; pour chaque piste, indique les aménagements possibles et les formations accessibles.
+
+Pour chaque fait susceptible d'avoir changé : indique la source (nom + lien) et la date.
+Ne classe jamais les pistes, ne recommande rien, ne donne aucune note.
+Termine par : « Ces informations servent à préparer un échange avec un conseiller et peuvent évoluer. »
+
+[ si des documents ou photos ont été ajoutés, l'application indique ici de les joindre à ce message ]</p>
+    <div class="rangbtn"><button type="button" class="btn">&#128203; Copier le texte</button></div>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> généré par l'application à partir des pistes, du territoire, du handicap éventuel et des documents ajoutés. Les données déjà connues d'une fiche métier de l'application ne sont pas redemandées.</span></div>
+  </div>
+
+  <details class="bloc-depli">
+    <summary>&#10067; Comment je fais, concrètement ?
+      <span class="depli-quoi">Le passage par un assistant en ligne, étape par étape.</span>
+    </summary>
+    <div class="depli-corps">
+      <p style="font-size:.87rem;margin:.2rem 0"><b>Pour cette étape, l'assistant doit chercher sur internet.</b> Certains le font tout seuls, sur d'autres il faut mettre la <b>recherche web</b> en marche, c'est un seul clic. La courte vidéo ci-dessous montre où se trouve ce bouton sur <b>[assistant recommandé, à fixer par Denis]</b>.</p>
+      <p style="font-size:.83rem;margin:.2rem 0;color:var(--text-muted);border:1px dashed var(--border-strong);border-radius:8px;padding:.5rem .7rem">&#127909; [ maquette : emplacement d'une vidéo ou animation « activer la recherche web », 20 secondes ]</p>
+      <ol style="font-size:.87rem;padding-left:1.1rem;margin:.3rem 0">
+        <li>Je clique sur « Copier le texte » ci-dessus.</li>
+        <li>J'ouvre l'assistant. Je vérifie que la <b>recherche web</b> est en marche (voir la vidéo).</li>
+        <li>Je colle le texte, j'envoie.</li>
+        <li>Je copie sa réponse en entier.</li>
+        <li>Je reviens ici et je la colle dans la case ci-dessous.</li>
+      </ol>
+      <p class="note">Vous pouvez demander à votre conseiller de faire ce passage avec vous la première fois.</p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>Je n'ai pas d'assistant en ligne
+      <span class="depli-quoi">Le module reste utilisable sans lui.</span>
+    </summary>
+    <div class="depli-corps">
+      <p style="font-size:.87rem;margin:.2rem 0">Vous pouvez consulter vous-même les sites officiels : service-public.fr, francetravail.fr, moncompteformation.gouv.fr, Cap Métiers Nouvelle-Aquitaine, et pour le handicap agefiph.fr et votre MDPH. Ou apporter cette recherche à votre conseiller.</p>
+      <p class="note">Sans la recherche web, on garde les informations stables (les fiches) et les questions à préparer.</p>
+    </div>
+  </details>
+
+  <div class="section">
+    <h2>&#128229; Coller la réponse de l'assistant</h2>
+    <textarea class="champ" placeholder="Collez ici la réponse que l'assistant vous a donnée...">[dans la maquette : zone d'exemple]</textarea>
+    <p class="note">Si la réponse ne contient <b>aucun lien de source</b>, ou si toutes les dates sont celles d'aujourd'hui, elle n'a probablement pas été cherchée sur internet : l'information peut être périmée. L'application le signale et propose de recommencer avec l'assistant recommandé, ou d'apporter cette recherche au conseiller. Si une piste manque, même chose. Elle garde ce qui est exploitable, marque le reste « à vérifier ».</p>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> vous, depuis l'assistant en ligne de votre choix. L'application garde cette réponse pour ne pas la refaire si vous changez de vue.</span></div>
+  </div>
+
+  <div class="rangbtn"><a class="btn" href="#e0b">&#8592; Retour</a><a class="btn primaire" href="#e2">Voir les fiches &#8594;</a></div>
+</section>
+
+<!-- ECRAN 2 -->
+<section class="ecran" id="e2">
+  <p class="etape">Étape 2</p>
+  <h1>Une fiche par piste</h1>
+  <p class="sous">Même structure pour chaque piste, chacune dans sa couleur. Vous pouvez vous arrêter là.</p>
+  <div class="etapes">
+    <span class="et faite"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et courante"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+  <div class="legende">
+    <span class="lg-titre">Vos pistes</span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-a)"></span><span class="lg-nom">Piste 1 : CAP carrelage mosaïque</span></span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-b)"></span><span class="lg-nom">Piste 2 : CAP vendeur / employé de commerce</span></span>
+  </div>
+
+  <div class="grille2">
+    <div class="fiche">
+      <div class="tete" style="background:var(--piste-a)">CAP carrelage mosaïque</div>
+      <div class="corps">
+        <h3>Activités</h3>
+        <p>Préparer les supports, poser carrelage, faïence et mosaïque, réaliser les joints et les finitions. Chantiers neufs et rénovation.</p>
+        <h3>Conditions de travail</h3>
+        <p>Travail debout, à genoux, port de charges. Souvent en équipe, déplacements sur chantiers. Horaires de journée.</p>
+        <h3>Ce que cette piste implique</h3>
+        <ul>
+          <li>Un engagement physique fort.</li>
+          <li>Une formation courte : accès rapide au métier.</li>
+          <li>Un secteur du bâtiment sensible à la conjoncture.</li>
+          <li>Choix en chemin : se spécialiser (mosaïque d'art, pierre) ou rester généraliste.</li>
+        </ul>
+        <div class="encadreVerif"><b>À vérifier avant votre décision</b> <span class="note">chaque ligne avec sa source, sa date et sa portée</span>
+          <ul class="verif-liste">
+            <li>Durée : 9 mois à 2 ans selon le dispositif (2 ans en apprentissage, plus court en parcours adulte).
+              <span class="srcline"><b>Source :</b> BTP CFA Nouvelle-Aquitaine · portée départementale · date non affichée · à confirmer avec l'organisme</span></li>
+            <li>Périodes en entreprise : environ 14 semaines.
+              <span class="srcline"><b>Source :</b> arrêté du diplôme (Légifrance) · national · 2019 · réductible après positionnement</span></li>
+            <li>Coût et reste à charge : non trouvé.
+              <span class="srcline manque"><b>Source :</b> aucune trouvée · à demander à l'organisme et à voir avec le conseiller</span></li>
+            <li>Financeurs possibles : apprentissage (OPCO), Projet de transition professionnelle, CPF.
+              <span class="srcline"><b>Source :</b> Transitions Pro Nouvelle-Aquitaine · régional · à vérifier selon votre statut</span></li>
+            <li>Lieux en Dordogne : Périgueux (BTP CFA 24), à confirmer.
+              <span class="srcline"><b>Source :</b> BTP CFA 24 · départemental · date non affichée</span></li>
+            <li>Rémunération à l'embauche : environ 1 870 € brut par mois (proche du SMIC).
+              <span class="srcline"><b>Source :</b> Onisep · national · en brut, pas en net · votre net dépendra de votre situation</span></li>
+            <li>Rémunération après quelques années : non trouvée dans une source officielle.
+              <span class="srcline manque"><b>Source :</b> aucune trouvée · à voir avec le conseiller</span></li>
+            <li>Besoins de recrutement : peu de données chiffrées pour la Dordogne.
+              <span class="srcline"><b>Source :</b> France Travail, enquête Besoins en main-d'oeuvre · national</span></li>
+            <li>Handicap : aménagements possibles, Ressource Handicap Formation, aides AGEFIPH (montant selon étude).
+              <span class="srcline"><b>Source :</b> agefiph.fr, monparcourshandicap.gouv.fr · national · mise à jour 2024</span></li>
+          </ul>
+        </div>
+        <h3>Questions à vous poser</h3>
+        <ul><li>Le travail physique est-il tenable pour mon dos sur la durée ?</li><li>Ai-je un moyen de me rendre sur les chantiers ?</li></ul>
+      </div>
+    </div>
+    <div class="fiche">
+      <div class="tete" style="background:var(--piste-b)">CAP vendeur / employé de commerce</div>
+      <div class="corps">
+        <h3>Activités</h3>
+        <p>Accueillir et conseiller la clientèle, mettre en rayon, encaisser, participer à la gestion des stocks et à l'animation du point de vente.</p>
+        <h3>Conditions de travail</h3>
+        <p>Station debout, amplitude horaire large (soirées, samedis), contact permanent avec le public. En magasin.</p>
+        <h3>Ce que cette piste implique</h3>
+        <ul>
+          <li>Un métier relationnel, peu physique.</li>
+          <li>Des horaires contraignants (soirées, samedis).</li>
+          <li>Formation courte. Secteur qui recrute largement.</li>
+          <li>Choix en chemin : rester vendeur, viser adjoint puis responsable de rayon, se spécialiser sur un univers produit.</li>
+        </ul>
+        <div class="encadreVerif"><b>À vérifier avant votre décision</b> <span class="note">chaque ligne avec sa source, sa date et sa portée</span>
+          <ul class="verif-liste">
+            <li>Durée : 9 mois à 2 ans selon le dispositif (2 ans en apprentissage, plus court en parcours adulte).
+              <span class="srcline"><b>Source :</b> Écoles de la CCI Dordogne · portée départementale · date non affichée · à confirmer avec l'organisme</span></li>
+            <li>Périodes en entreprise : environ 14 semaines (réductible à 6 après positionnement).
+              <span class="srcline"><b>Source :</b> arrêté du diplôme (Légifrance) · national</span></li>
+            <li>Coût et reste à charge : non trouvé.
+              <span class="srcline manque"><b>Source :</b> aucune trouvée · à demander à l'organisme et à voir avec le conseiller</span></li>
+            <li>Financeurs possibles : apprentissage (OPCO), Projet de transition professionnelle, CPF, Région pour certains parcours.
+              <span class="srcline"><b>Source :</b> Transitions Pro Nouvelle-Aquitaine, Région Nouvelle-Aquitaine · régional · à vérifier selon votre statut</span></li>
+            <li>Lieux en Dordogne : Boulazac (Écoles CCI Dordogne), Bergerac (CFA du Grand Bergeracois).
+              <span class="srcline"><b>Source :</b> Écoles CCI Dordogne, France Travail · départemental</span></li>
+            <li>Rémunération à l'embauche : environ 1 870 € brut par mois (proche du SMIC).
+              <span class="srcline"><b>Source :</b> Onisep · national · en brut, pas en net · votre net dépendra de votre situation</span></li>
+            <li>Rémunération après quelques années : non trouvée dans une source officielle.
+              <span class="srcline manque"><b>Source :</b> aucune trouvée · à voir avec le conseiller</span></li>
+            <li>Besoins de recrutement : peu de données chiffrées pour la Dordogne.
+              <span class="srcline"><b>Source :</b> France Travail, enquête Besoins en main-d'oeuvre · national</span></li>
+            <li>Handicap : aménagements possibles, Ressource Handicap Formation, aides AGEFIPH (montant selon étude).
+              <span class="srcline"><b>Source :</b> agefiph.fr, monparcourshandicap.gouv.fr · national · mise à jour 2024</span></li>
+          </ul>
+        </div>
+        <h3>Questions à vous poser</h3>
+        <ul><li>Les horaires du commerce sont-ils compatibles avec ma vie personnelle ?</li><li>Le contact client permanent me convient-il ?</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> « Activités », « Conditions », « Ce que cette piste implique » = base métiers de l'application (fiche ROME France Travail), <b>vérifiée le 2026-08</b>, quand la piste en vient ; sinon = synthèse rapportée à l'étape 1. L'encadré « À vérifier » = toujours la synthèse de l'étape 1 ; chaque ligne porte sa source, sa date et sa portée, en texte (pas en lien : un lien rapporté par l'assistant peut être faux). Toutes ces sources sont réunies à l'écran 5 pour votre conseiller. Les « Questions à vous poser » sont teintées par ce que vous avez raconté (le dos).</span></div>
+
+  <details class="bloc-depli">
+    <summary>&#10068; Avant de continuer : qu'est-ce qui compte pour vous ?
+      <span class="depli-quoi">2 questions courtes. Aucune réponse n'est « la bonne ». Cliquez pour compléter.</span>
+    </summary>
+    <div class="depli-corps">
+      <p style="font-size:.87rem;margin:.2rem 0">Qu'est-ce qui compte le plus pour vous en ce moment ? <span style="color:var(--text-muted)">(plusieurs possibles)</span></p>
+      <p style="font-size:.85rem;margin:.2rem 0;line-height:1.9">
+        <label><input type="checkbox" checked> Le temps avant de retravailler</label> &nbsp;
+        <label><input type="checkbox"> Le revenu pendant la transition</label> &nbsp;
+        <label><input type="checkbox"> Le revenu après</label> &nbsp;
+        <label><input type="checkbox"> La sécurité, la stabilité</label> &nbsp;
+        <label><input type="checkbox" checked> Les conditions de travail</label> &nbsp;
+        <label><input type="checkbox"> Le lieu et le trajet</label> &nbsp;
+        <label><input type="checkbox"> Pouvoir changer plus tard (garder des portes ouvertes)</label> &nbsp;
+        <label><input type="checkbox"> Être accompagné, ne pas être seul</label>
+      </p>
+      <p style="font-size:.87rem;margin:.6rem 0 .2rem">Une contrainte à ne pas oublier ?</p>
+      <input class="champ" value="pas de permis, garde des enfants le mercredi">
+      <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> vous. Ces réponses sont gardées et réutilisées à l'étape 4 (« Aller plus loin »).</span></div>
+    </div>
+  </details>
+
+  <div class="rangbtn"><a class="btn" href="#e1">&#8592; Retour</a><a class="btn primaire" href="#e3">Comparer &#8594;</a><a class="btn" href="#e5">Aller directement à la fin</a></div>
+</section>
+
+<!-- ECRAN 3 (aiguillage, cas melange) -->
+<section class="ecran" id="e3">
+  <p class="etape">Étape 3</p>
+  <h1>Deux angles pour vos pistes</h1>
+  <p class="sous">Votre liste mélange des pistes de même nature (deux formations) et une situation (« rester en poste »). On ne peut pas tout mettre sur la même échelle : on regarde en deux temps. Vous pouvez faire les deux, dans l'ordre que vous voulez, et y revenir.</p>
+  <div class="etapes">
+    <span class="et faite"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et courante"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+
+  <div class="grille2">
+    <div class="voie on">
+      <b>&#128260; Dans le temps</b>
+      <p class="quoi">Ce que ça change, mois après mois, de rester en poste ou de partir sur chacune des autres pistes. Une frise : aujourd'hui, pendant, après.</p>
+      <a class="btn primaire" href="#e3b">Commencer par cet angle &#8594;</a>
+    </div>
+    <div class="voie">
+      <b>&#128209; Côte à côte</b>
+      <p class="quoi">Vos deux formations sur les mêmes repères chiffrés : durée, coût, rémunération, trajet. Des réglettes, une dimension à la fois.</p>
+      <a class="btn" href="#e3a">Voir cet angle &#8594;</a>
+    </div>
+  </div>
+
+  <div class="section teinte">
+    <p style="margin:0;font-size:.88rem"><b>On vous conseille de commencer par « dans le temps ».</b> C'est la question qui commande : bouger, ou pas. « Côte à côte » aide ensuite à choisir entre les deux formations, si vous décidez de bouger.</p>
+  </div>
+
+  <p class="note">Si vous aviez coché « tout regarder dans le temps » à l'écran précédent, il n'y aurait qu'une frise, avec toutes vos pistes en colonnes. Si vous aviez coché « d'abord seulement les deux métiers », on ouvrirait « côte à côte » en premier et cet écran ne s'afficherait pas.</p>
+
+  <div class="rangbtn"><a class="btn" href="#e2">&#8592; Retour aux fiches</a></div>
+</section>
+
+<!-- ECRAN 3A -->
+<section class="ecran" id="e3a">
+  <p class="etape">Étape 3, côte à côte</p>
+  <h1>Superposer : les pistes côte à côte</h1>
+  <p class="sous">Une dimension à la fois. Les pistes sur la même échelle, chacune dans sa couleur. Le texte qui se ressemble d'une piste à l'autre est mis de côté : on regarde ce qui diffère.</p>
+  <div class="etapes">
+    <span class="et faite"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et courante"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+  <div class="legende">
+    <span class="lg-titre">Vos pistes</span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-a)"></span><span class="lg-nom">Piste 1 : CAP carrelage mosaïque</span></span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-b)"></span><span class="lg-nom">Piste 2 : CAP vendeur / employé de commerce</span></span>
+  </div>
+
+  <div class="section">
+    <div class="dimtabs">
+      <span class="dimtab on">Durée de formation</span>
+      <span class="dimtab">Coût / reste à charge</span>
+      <span class="dimtab">Rémunération à l'embauche</span>
+      <span class="dimtab">Heures de stage</span>
+      <span class="dimtab">Temps de trajet</span>
+      <span class="dimtab">Niveau visé après</span>
+    </div>
+
+    <p style="font-size:.85rem;color:var(--text-muted);margin:.2rem 0 0">Durée de formation (en mois)</p>
+    <div class="reglette">
+      <div class="grad" style="left:2%"><span>0</span></div>
+      <div class="grad" style="left:52%"><span>12</span></div>
+      <div class="grad" style="left:98%"><span>24</span></div>
+      <div class="repere" style="left:68%">
+        <div class="lbl" style="color:var(--piste-a)">CAP carrelage</div>
+        <div class="pt" style="background:var(--piste-a)"></div>
+        <div class="val">9 mois à 2 ans</div>
+      </div>
+      <div class="repere" style="left:68%;bottom:-42px">
+        <div class="lbl" style="color:var(--piste-b)">CAP vendeur</div>
+        <div class="pt" style="background:var(--piste-b)"></div>
+        <div class="val">9 mois à 2 ans</div>
+      </div>
+    </div>
+    <p class="qdim" style="margin-top:2.6rem">La durée dépend surtout du dispositif (parcours adulte plus court, apprentissage sur 2 ans), pas de la piste : sur ce point, les deux se ressemblent. Vérifiez les calendriers réels avec les organismes.</p>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> synthèse de l'étape 1. Ici la dimension ne distingue pas les deux pistes ; le repère orange à 3 pistes s'afficherait si vous en aviez une troisième.</span></div>
+
+    <p style="font-size:.85rem;color:var(--text-muted);margin:1rem 0 0">Rémunération observée à l'embauche (mensuel)</p>
+    <div class="reglette">
+      <div class="grad" style="left:2%"><span>1200</span></div>
+      <div class="grad" style="left:52%"><span>1600</span></div>
+      <div class="grad" style="left:98%"><span>2000</span></div>
+      <div class="repere" style="left:67%">
+        <div class="lbl" style="color:var(--piste-a)">CAP carrelage</div>
+        <div class="pt" style="background:var(--piste-a)"></div>
+        <div class="val">environ 1 870 € brut</div>
+      </div>
+      <div class="repere" style="left:67%;bottom:-42px">
+        <div class="lbl" style="color:var(--piste-b)">CAP vendeur</div>
+        <div class="pt" style="background:var(--piste-b)"></div>
+        <div class="val">environ 1 870 € brut</div>
+      </div>
+    </div>
+    <p class="qdim" style="margin-top:2.6rem">D'après Onisep, les deux démarrent près du SMIC (environ 1 870 € brut). Sur ce point non plus, la dimension ne distingue pas les deux pistes. C'est un salaire brut : votre net dépendra de votre situation.</p>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> synthèse de l'étape 1. Fourchette nationale indicative (source Onisep), en <b>salaire brut</b> quand le net n'est pas publié. La rémunération change souvent, elle n'est jamais figée dans l'application.</span></div>
+
+    <p style="font-size:.85rem;color:var(--text-muted);margin:1rem 0 0">Coût pour vous, reste à charge</p>
+    <div class="encadreVerif" style="margin-top:.4rem"><b>Non trouvé dans une source officielle.</b> Les organismes ne publient pas de reste à charge individualisé pour un salarié en reconversion. À demander directement à l'organisme de formation et à voir avec le conseiller (selon le dispositif : apprentissage, Projet de transition professionnelle, CPF).</div>
+    <p class="qdim">Cette dimension reste ouverte : c'est une des premières choses à faire préciser.</p>
+  </div>
+
+  <div class="section teinte">
+    <p style="margin:0 0 .4rem;font-size:.87rem"><b>Rappel :</b> une valeur plus courte, moins chère ou plus élevée n'est pas « meilleure ». Une formation plus longue peut apporter plus, une moins chère peut ouvrir moins de portes. On regarde des faits, pas un classement. Aucun total, aucune note.</p>
+    <p class="note" style="margin:0">Les dimensions sans chiffre comparable (activités, conditions de travail, ce que ça implique, questions à se poser) ne sont pas superposées : elles restent dans les fiches.</p>
+  </div>
+
+  <div class="section teinte">
+    <p style="margin:0;font-size:.9rem"><b>&#128260; Il reste l'autre angle.</b> Vous venez de comparer vos deux formations côte à côte. Pour savoir si bouger vaut le coup, regardez « dans le temps » : ce que ça change de rester ou de partir, mois après mois.</p>
+    <div class="rangbtn"><a class="btn primaire" href="#e3b">Regarder « dans le temps » &#8594;</a><a class="btn" href="#e4">Passer, aller plus loin</a></div>
+  </div>
+
+  <div class="rangbtn"><a class="btn" href="#e3">&#8592; Retour à la carte des angles</a><a class="btn" href="#e2">Retour aux fiches</a></div>
+</section>
+
+<!-- ECRAN 3B -->
+<section class="ecran" id="e3b">
+  <p class="etape">Étape 3, dans le temps</p>
+  <h1>Dans le temps</h1>
+  <p class="sous">On ne met pas ces pistes sur une échelle : on regarde ce que chacune change <b>mois après mois</b>. La colonne « rester en poste » sert de repère ; à côté, chaque piste de départ, dans sa couleur.</p>
+  <div class="etapes">
+    <span class="et faite"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et courante"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+  <div class="legende">
+    <span class="lg-titre">Vos pistes</span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-c)"></span><span class="lg-nom">Repère : rester en poste et me former plus tard</span></span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-a)"></span><span class="lg-nom">Départ : CAP carrelage</span></span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-b)"></span><span class="lg-nom">Départ : CAP vendeur</span></span>
+  </div>
+
+  <div class="section">
+    <div class="frise">
+      <div class="an">Aujourd'hui</div>
+      <div class="cellules">
+        <div class="cell" style="border-left-color:var(--piste-c)"><b style="color:var(--piste-c)">Rester en poste</b> : revenu stable, poste connu, contrainte physique déjà présente, aucune démarche.</div>
+        <div class="cell" style="border-left-color:var(--piste-a)"><b style="color:var(--piste-a)">CAP carrelage</b> : réunir accès et financement <span class="pastille" style="background:var(--warn);color:#000">à vérifier</span>, quitter le poste.</div>
+        <div class="cell" style="border-left-color:var(--piste-b)"><b style="color:var(--piste-b)">CAP vendeur</b> : réunir accès et financement <span class="pastille" style="background:var(--warn);color:#000">à vérifier</span>, quitter le poste.</div>
+      </div>
+    </div>
+    <div class="frise">
+      <div class="an">Pendant la formation<br><span style="font-weight:400;color:var(--text-muted);font-size:.76rem">9 mois à 2 ans selon le dispositif</span></div>
+      <div class="cellules">
+        <div class="cell" style="border-left-color:var(--piste-c)"><b style="color:var(--piste-c)">Rester en poste</b> : revenu maintenu, aucune rupture, la question de l'usure reste entière.</div>
+        <div class="cell" style="border-left-color:var(--piste-a)"><b style="color:var(--piste-a)">CAP carrelage</b> : 9 mois à 2 ans selon le dispositif, revenu de remplacement plus faible <span class="pastille" style="background:var(--warn);color:#000">à vérifier</span>, cours et chantiers-écoles, effort physique dès la formation.</div>
+        <div class="cell" style="border-left-color:var(--piste-b)"><b style="color:var(--piste-b)">CAP vendeur</b> : 9 mois à 2 ans selon le dispositif, revenu de remplacement plus faible <span class="pastille" style="background:var(--warn);color:#000">à vérifier</span>, cours et stages en magasin.</div>
+      </div>
+    </div>
+    <div class="frise">
+      <div class="an">Après</div>
+      <div class="cellules">
+        <div class="cell" style="border-left-color:var(--piste-c)"><b style="color:var(--piste-c)">Rester en poste</b> : même métier, même perspective ; se former « plus tard » reste à planifier, mêmes questions.</div>
+        <div class="cell" style="border-left-color:var(--piste-a)"><b style="color:var(--piste-a)">CAP carrelage</b> : nouveau diplôme, métier du bâtiment, secteur sensible à la conjoncture, métier physique.</div>
+        <div class="cell" style="border-left-color:var(--piste-b)"><b style="color:var(--piste-b)">CAP vendeur</b> : nouveau diplôme, métier relationnel, secteur qui recrute, horaires en soirée et samedi.</div>
+      </div>
+    </div>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> prompt « dans le temps » (les dossiers de l'étape 1 plus un raisonnement mois après mois). Une colonne par piste : les pistes de départ ne sont jamais fusionnées, aucune n'est présentée comme préférable. Les <span class="pastille" style="background:var(--warn);color:#000">à vérifier</span> = règles de dispositifs (ancienneté, revenu de remplacement, financement), toujours via source officielle datée.</span></div>
+  </div>
+
+  <div class="section">
+    <h3>Conditions à réunir pour partir <span style="font-weight:400;color:var(--text-muted)">(communes aux deux départs)</span></h3>
+    <ul style="font-size:.87rem">
+      <li>Financement d'une formation de reconversion et revenu pendant la formation <span class="pastille" style="background:var(--warn);color:#000">à vérifier</span> (Transitions Pro, France Travail selon votre statut).</li>
+      <li>Ce qu'il advient si la formation est interrompue.</li>
+      <li>Handicap : orientation MDPH éventuelle, aides AGEFIPH mobilisables.</li>
+    </ul>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> le champ « conditions à réunir » du prompt, avec règle, source et date. Repris à l'écran 5 dans « Points à discuter avec mon conseiller ».</span></div>
+  </div>
+
+  <div class="section teinte">
+    <p style="margin:0;font-size:.87rem"><b>L'application ne dit jamais</b> « partez » ni « restez ». Elle pose les conditions, les échéances et les questions à préparer avec un conseiller.</p>
+  </div>
+
+  <div class="section teinte">
+    <p style="margin:0;font-size:.88rem"><b>&#128209; Il reste l'autre angle.</b> Vous avez regardé dans le temps. Pour départager vos deux formations sur les chiffres (durée, coût, rémunération, trajet), regardez-les « côte à côte ».</p>
+    <div class="rangbtn"><a class="btn primaire" href="#e3a">Regarder « côte à côte » &#8594;</a><a class="btn" href="#e4">Passer, aller plus loin</a></div>
+  </div>
+
+  <div class="rangbtn"><a class="btn" href="#e3">&#8592; Retour à la carte des angles</a><a class="btn" href="#e2">Retour aux fiches</a></div>
+</section>
+
+<!-- ECRAN 4 -->
+<section class="ecran" id="e4">
+  <p class="etape">Étape 4, facultative</p>
+  <h1>Aller plus loin : pistes de réflexion</h1>
+  <p class="sous">Optionnel. Ce prompt ne repart pas de zéro : il reprend tout ce qui a été collecté <b>et vos réponses aux questions précédentes</b>, pour ouvrir des angles que vous n'avez pas encore vus.</p>
+  <div class="etapes">
+    <span class="et faite"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et courante opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+  <div class="legende">
+    <span class="lg-titre">Vos pistes</span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-a)"></span><span class="lg-nom">Piste 1 : CAP carrelage mosaïque</span></span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-b)"></span><span class="lg-nom">Piste 2 : CAP vendeur / employé de commerce</span></span>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#128203; Texte préparé <span class="pastille" style="background:var(--accent)">à copier</span></h2>
+    <p class="promptbox">À partir des informations ci-dessous et de ce que la personne a indiqué (ce qui compte pour elle : le temps avant de travailler, les conditions de travail ; contrainte : pas de permis, garde le mercredi ; une contrainte physique au dos), propose 4 à 6 questions ou angles de réflexion qu'elle n'a peut-être pas envisagés.
+
+Ne recommande aucune piste. Ne donne pas de note. Formule des questions ouvertes.
+Termine par un rappel d'en parler avec un conseiller.
+
+[ l'application colle ici la synthèse de l'étape 1 et les réponses de la personne ]</p>
+    <div class="rangbtn"><button type="button" class="btn">&#128203; Copier</button></div>
+  </div>
+
+  <div class="section">
+    <h2>&#128161; Ce que l'assistant renvoie <span style="font-weight:400;color:var(--text-muted)">(exemple)</span></h2>
+    <ul style="font-size:.87rem">
+      <li>Le carrelage est un métier physique et vous avez déjà une contrainte au dos : avez-vous pu en parler avec un médecin du travail ou un conseiller en évolution professionnelle ?</li>
+      <li>Sans permis, laquelle des deux voies pose le moins de problème de trajet (chantiers dispersés contre magasin en zone commerciale) ?</li>
+      <li>Vous placez « conditions de travail » en priorité : avez-vous pu observer une journée de chacun de ces métiers (immersion, PMSMP) ?</li>
+      <li>À moyen terme, laquelle laisse le plus de portes ouvertes si votre dos se dégrade ?</li>
+    </ul>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> vous, depuis l'assistant. Affiché à part, étiqueté « pistes de réflexion », jamais mélangé aux fiches.</span></div>
+  </div>
+
+  <div class="rangbtn"><a class="btn" href="#e3a">&#8592; Retour</a><a class="btn primaire" href="#e5">Terminer &#8594;</a></div>
+</section>
+
+<!-- ECRAN 5 -->
+<section class="ecran" id="e5">
+  <p class="etape">Étape 5</p>
+  <h1>Ce que vous retenez</h1>
+  <div class="etapes">
+    <span class="et faite"><span class="ico">&#128221;</span>Mes pistes</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128270;</span>Collecter</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128196;</span>Fiches</span><span class="ch">&#8250;</span>
+    <span class="et faite"><span class="ico">&#128209;</span>Comparer</span><span class="ch">&#8250;</span>
+    <span class="et opt"><span class="ico">&#128161;</span>Aller plus loin</span><span class="ch">&#8250;</span>
+    <span class="et courante"><span class="ico">&#128204;</span>Ce que je retiens</span>
+  </div>
+  <div class="legende">
+    <span class="lg-titre">Vos pistes</span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-a)"></span><span class="lg-nom">Piste 1 : CAP carrelage mosaïque</span></span>
+    <span class="lg-piste"><span class="lg-pt" style="background:var(--piste-b)"></span><span class="lg-nom">Piste 2 : CAP vendeur / employé de commerce</span></span>
+  </div>
+
+  <div class="section teinte">
+    <h2 style="margin-top:0">&#128278; Ce que vous aviez dit vous attirer</h2>
+    <p style="font-size:.87rem;margin:.2rem 0"><span class="lg-pt" style="background:var(--piste-b);display:inline-block;vertical-align:middle;margin-right:.3rem"></span> CAP vendeur : « le contact avec les gens, un métier où je ne suis pas seul, et ça me fait moins peur pour mon dos ».</p>
+    <p class="note">Rappelé depuis la voie « Je nomme mes pistes » de l'étape 0. Non modifiable ici : c'est ce que vous aviez écrit.</p>
+  </div>
+
+  <div class="grille2">
+    <div class="section">
+      <h3 style="margin-top:0">&#128209; Côte à côte : les écarts</h3>
+      <ul style="font-size:.86rem">
+        <li>Durée : 9 mois à 2 ans pour les deux, selon le dispositif choisi.</li>
+        <li>Rémunération à l'embauche : proche du SMIC pour les deux (environ 1 870 € brut).</li>
+        <li>Coût pour vous : non trouvé, à demander aux organismes.</li>
+      </ul>
+      <p class="note">Repris de l'angle « côte à côte ». Aucun total, aucune note.</p>
+    </div>
+    <div class="section">
+      <h3 style="margin-top:0">&#128260; Dans le temps : ce qui change</h3>
+      <ul style="font-size:.86rem">
+        <li>Rester : revenu maintenu, mais l'usure physique reste entière.</li>
+        <li>Partir : revenu plus faible pendant la formation (9 mois à 2 ans), puis un nouveau métier.</li>
+        <li>Conditions avant de partir : financement, revenu de formation, ce qui se passe en cas d'arrêt.</li>
+      </ul>
+      <p class="note">Repris de l'angle « dans le temps ». L'application ne dit pas quoi choisir.</p>
+    </div>
+  </div>
+  <p class="note">Ces deux encadrés n'apparaissent que pour les angles que vous avez réellement ouverts.</p>
+
+  <div class="section">
+    <h2>Ce qui vous attire, ce qui vous inquiète, ce que vous voulez approfondir</h2>
+    <textarea class="champ" placeholder="Écrivez librement..."></textarea>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> vous. C'est votre lecture, l'application n'écrit rien ici.</span></div>
+  </div>
+
+  <div class="section">
+    <h2>Points à discuter avec mon conseiller</h2>
+    <ul style="font-size:.87rem">
+      <li>Compatibilité du carrelage avec mon dos (médecin du travail, service de santé au travail).</li>
+      <li>Trajet sans permis pour chacune des deux voies. <span class="note">Frein mobilité : voir les aides du répertoire de l'application (financement du permis, garages solidaires, aide aux frais de transport).</span></li>
+      <li>Financement et calendrier des deux CAP en Dordogne, et revenu pendant une éventuelle formation.</li>
+      <li>Handicap : aménagements possibles, formation accessible, aides AGEFIPH. Interlocuteurs : Cap emploi, MDPH de la Dordogne.</li>
+    </ul>
+    <div class="source"><span>&#8505;&#65039;</span><span><b>Vient de :</b> vos questions accumulées au fil des étapes, regroupées ici. Les lignes « frein » renvoient au répertoire vérifié de l'application (data/freins.js). La ligne handicap n'apparaît que si vous l'avez indiqué à l'étape 0.</span></div>
+  </div>
+
+  <div class="section">
+    <h2>&#128209; Sources des informations</h2>
+    <p style="font-size:.85rem;margin:.2rem 0">Chaque information rapportée par l'assistant en ligne, avec sa source, sa date et sa portée. Cette liste est incluse dans l'impression et l'export, pour que votre conseiller puisse tout revérifier.</p>
+    <div style="overflow-x:auto">
+    <table class="src-tableau">
+      <thead><tr><th>Information</th><th>Ce qui a été rapporté</th><th>Source, portée, date</th></tr></thead>
+      <tbody>
+        <tr><td>Durée de formation</td><td>9 mois à 2 ans selon le dispositif</td><td>BTP CFA Nouvelle-Aquitaine / Écoles CCI Dordogne · départemental · date non affichée</td></tr>
+        <tr><td>Périodes en entreprise</td><td>environ 14 semaines</td><td>Arrêté du diplôme, Légifrance · national · 2019</td></tr>
+        <tr><td>Coût, reste à charge</td><td>non trouvé</td><td>aucune source · à demander aux organismes</td></tr>
+        <tr><td>Financeurs</td><td>OPCO (apprentissage), Projet de transition professionnelle, CPF, Région</td><td>Transitions Pro Nouvelle-Aquitaine, Région Nouvelle-Aquitaine · régional · à vérifier selon statut</td></tr>
+        <tr><td>Lieux en Dordogne</td><td>Périgueux (BTP CFA 24, à confirmer) ; Boulazac et Bergerac (commerce)</td><td>organismes de formation, France Travail · départemental</td></tr>
+        <tr><td>Rémunération à l'embauche</td><td>environ 1 870 € brut par mois (proche du SMIC), pour les deux</td><td>Onisep · national · en brut, pas en net</td></tr>
+        <tr><td>Rémunération après quelques années</td><td>non trouvée</td><td>aucune source officielle · à voir avec le conseiller</td></tr>
+        <tr><td>Besoins de recrutement</td><td>peu de données chiffrées pour la Dordogne</td><td>France Travail, enquête Besoins en main-d'oeuvre · national</td></tr>
+        <tr><td>Handicap : aménagements, aides</td><td>Ressource Handicap Formation, aides AGEFIPH (montant selon étude)</td><td>agefiph.fr, monparcourshandicap.gouv.fr · national · mise à jour 2024</td></tr>
+        <tr><td>Fiches métier (activités, conditions)</td><td>base de l'application</td><td>fiche ROME France Travail · national · vérifiée le 2026-08</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="note">Les liens ne sont pas affichés en cliquable : un lien rapporté par un assistant peut être faux. Le nom de la source permet de retrouver la page officielle. Les lignes « aucune source » sont les points que le conseiller devra vérifier en priorité.</p>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Garder une piste à approfondir</h2>
+    <p style="font-size:.87rem;margin:.2rem 0">Vous pouvez garder <b>une piste que vous souhaitez approfondir</b> (jamais « piste choisie ») dans Mes Repères, et imprimer cette page pour votre rendez-vous. L'impression inclut le tableau des sources ci-dessus.</p>
+    <div class="rangbtn"><button type="button" class="btn">&#9875;&#65039; Garder « CAP vendeur » à approfondir</button><button type="button" class="btn">&#128424;&#65039; Imprimer / exporter</button></div>
+  </div>
+
+  <p style="text-align:center;color:var(--text-muted);font-size:.82rem;border-top:1px solid var(--border);padding-top:1rem;margin-top:1.4rem">APP part de ce que vous apportez, vous aide à prendre du recul, et vous laisse toujours la décision.</p>
+
+  <div class="rangbtn"><a class="btn" href="#e0">Recommencer avec d'autres pistes</a></div>
+</section>
+
+<!-- ANNEXE -->
+<section class="ecran" id="annexe">
+  <p class="etape">Annexe (pas un écran de l'appli)</p>
+  <h1>Banque de questions par situation</h1>
+  <p class="sous">Ce que le module peut poser, au bon moment, selon la situation. Le code choisit la bonne série (routage déterministe), jamais un prompt. Jamais plus de 3 questions par écran. Tout ce qui touche à l'argent, la santé, la famille, le handicap est facultatif ; « je ne sais pas » est une réponse valide qui devient une question pour le conseiller.</p>
+
+  <div class="section">
+    <h2>Bloc A - Cadrage (écran 0, tout le monde)</h2>
+    <ul style="font-size:.87rem">
+      <li>Où en êtes-vous ? (en emploi / sans emploi / en formation / au foyer-aidant / en arrêt-santé / activité indépendante)</li>
+      <li>Tranche d'âge (moins de 26 / 26 à 45 / 45 et plus)</li>
+      <li>Territoire (France / région / département)</li>
+      <li><i>Facultatif</i> : situation de handicap, RQTH, besoin d'aménagement</li>
+      <li><i>Facultatif</i> : une échéance pour décider</li>
+      <li class="note">La façon de regarder (côte à côte / dans le temps) n'est pas demandée : le code la déduit de la nature des pistes, et la personne peut la corriger à l'écran 0 bis.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Bloc B - Précisions selon la situation (écran 0 bis, adaptatif)</h2>
+    <details class="bloc-depli"><summary>En emploi : rester ou se former / se reconvertir<span class="depli-quoi">B1</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Ancienneté dans l'entreprise ? (conditionne PTP, démission-reconversion)</li><li>Contrat : CDI / CDD / intérim ?</li><li>Un métier précis en tête, ou pas encore ? (si non : proposer un bilan / CEP)</li></ul></div></details>
+    <details class="bloc-depli"><summary>En emploi : rester, rupture conventionnelle, démission<span class="depli-quoi">B2</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Pouvez-vous en parler avec votre employeur ? (rupture conv. = accord)</li><li>Droit au chômage en partant ? (à vérifier ; abandon de poste = démission depuis 2023)</li><li>Un projet derrière, ou un départ « pour partir » ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>Sans emploi : reprendre un emploi ou se former<span class="depli-quoi">B3</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Inscrit à France Travail ? (conditionne AIF, POE, rémunération de formation)</li><li>Depuis combien de temps sans emploi ?</li><li><i>Facultatif</i> : ARE / RSA / autre / rien ?</li><li>Un métier précis en tête ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>Sans emploi : reprendre « n'importe quoi » ou attendre le bon poste<span class="depli-quoi">B4</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Jusqu'à quand vos droits (ARE) courent-ils ? (à vérifier)</li><li><i>Facultatif</i> : des charges qui rendent l'attente difficile ?</li><li>Le bon poste est-il réaliste à court terme dans votre secteur / territoire ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>Se former : quelle voie<span class="depli-quoi">B5</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Pouvez-vous être mobile ? (permis, transport, hébergement)</li><li>Un employeur prêt à vous prendre en alternance ?</li><li>Combien de temps avec un revenu réduit ?</li><li>Niveau d'études actuel ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>Salariat ou indépendance<span class="depli-quoi">B6</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Une idée d'activité précise ?</li><li>ARE ? (ARE maintenue vs ARCE)</li><li><i>Facultatif</i> : un filet de sécurité pour les premiers mois ?</li><li>Seul ou avec des associés ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>Statut, droits, aides<span class="depli-quoi">B7</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li><i>Facultatif</i> : quelles aides aujourd'hui ? (ARE / RSA / prime d'activité / AAH / APL / aucune)</li><li><i>Facultatif</i> : seul, en couple, enfants à charge ? (pour les simulateurs)</li><li>Ce choix change-t-il votre accompagnement (référent RSA, France Travail) ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>Santé, usure, inaptitude<span class="depli-quoi">B8</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li><i>Facultatif</i> : arrêt long, restriction, inaptitude prononcée ?</li><li>Vu la médecine du travail / un service de santé au travail ?</li><li>RQTH, ou demande en cours ?</li><li>Un mi-temps thérapeutique serait-il possible ? (à confirmer avec le médecin)</li></ul></div></details>
+    <details class="bloc-depli"><summary>Handicap<span class="depli-quoi">B9</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Milieu ordinaire, ou interrogation sur le milieu protégé / adapté (ESAT, entreprise adaptée) ?</li><li>Un besoin d'aménagement identifié ?</li><li>Suivi par Cap emploi, la MDPH, un autre acteur ?</li><li>Une orientation MDPH en cours ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>Mobilité, projet de vie<span class="depli-quoi">B10</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Prêt à déménager ? À quelles conditions ?</li><li>Une contrainte familiale (conjoint, enfants, proche aidé) ?</li><li>À vos yeux, « ailleurs » justifie-t-il le changement ?</li></ul></div></details>
+    <details class="bloc-depli"><summary>« Je ne sais pas par où commencer »<span class="depli-quoi">B11</span></summary><div class="depli-corps"><ul style="font-size:.86rem"><li>Une ou deux idées de métier / secteur, même vagues ?</li><li>D'abord bouger (travailler, un stage) ou d'abord réfléchir (bilan, CEP) ?</li><li>Accompagné aujourd'hui, par qui ?</li><li><b>Souvent, ici, le module propose de commencer par une prestation d'orientation</b>, pas par la comparaison.</li></ul></div></details>
+  </div>
+
+  <div class="section">
+    <h2>Bloc C - Ce qui compte pour vous (écran 2)</h2>
+    <p style="font-size:.87rem;margin:.2rem 0">temps avant de retravailler · revenu pendant la transition · revenu après · sécurité, stabilité · conditions de travail · lieu et trajet · pouvoir changer plus tard · être accompagné. + champ libre « une contrainte ».</p>
+  </div>
+
+  <div class="section">
+    <h2>Bloc D - Questions générées pour le conseiller (écran 5)</h2>
+    <p style="font-size:.87rem;margin:.2rem 0">Toutes les lignes « à vérifier » + conditions d'éligibilité des dispositifs, impact sur les droits (ARE, RSA, retraite, sécu), calendrier, ce qui est réversible ou non, freins reliés au répertoire de l'application (mobilité, garde d'enfants, logement...), handicap (aménagements, orientation MDPH, AGEFIPH), et l'interlocuteur adapté (France Travail / Mission Locale / Cap emploi / Transitions Pro / opérateur CEP / assistante sociale / Point Conseil Budget / médecine du travail).</p>
+  </div>
+
+  <div class="rangbtn"><a class="btn" href="#e0">Retour au début</a></div>
+</section>
+
+</main>
+</div>
+</body>
+</html>

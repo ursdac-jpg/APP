@@ -1,0 +1,159 @@
+<!doctype html>
+<!--
+  MAQUETTE - page d'introduction / présentation du module « Découvrir mes compétences ».
+  Remplie à partir du squelette docs/maquettes/_skeleton-intro-module.html.
+  Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md (respecté).
+  Contenu source : modules/decouverte-competences/decouverteParcours.js (les 9 étapes
+  actuelles), prompts/decouverte-competences.md, mémoire
+  project_module_decouvrir_mes_competences_role_reel (rôle réel : bâtir un CV
+  de zéro depuis un récit, pour une personne très éloignée de l'emploi).
+  Thème sombre : classe .dark sur <body> (convention maquette), PAS [data-theme].
+  Teinte du module : --accent #6366f1 (clair) / #818cf8 (sombre) - indigo.
+  Aucune dépendance externe, aucun script requis (juste le bouton bascule thème).
+
+  La proposition de parcours consolidé (9 écrans -> 1 intro + 5 écrans) est
+  décrite dans docs/CONSOLIDATION_DECOUVERTE_PROPOSITION_2026-08-31.md.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - présentation du module Découvrir mes compétences</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #6366f1; --accent-bg: #ecedfd;        /* teinte du module Découverte - indigo */
+    --ok: #198754; --ok-bg: #d9f4e4; --ok-strong: #157347;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #818cf8; --accent-bg: #22243f;
+    --ok: #35c79a; --ok-bg: #17301f; --ok-strong: #6ee89a;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.7rem; color: var(--text-strong); margin: .2rem 0; }
+  h2 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  .sous-titre { color: var(--text-muted); margin: .2rem 0 1rem; }
+  .centre { text-align: center; }
+
+  .section { background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .9rem; }
+  .section.teinte { background: var(--accent-bg); border-color: var(--accent); }
+  .section ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .section li { margin: .2rem 0; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  .encart { display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .5rem 0;
+    overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .7rem 1rem;
+    font-weight: 700; color: var(--text-strong); }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary::before { content: "\25B8"; color: var(--accent);
+    font-size: .85em; margin-right: .5rem; display: inline-block; transition: transform .15s; }
+  .bloc-depli[open] > summary::before { transform: rotate(90deg); }
+  .bloc-depli .corps { padding: .2rem 1rem 1rem; border-top: 1px solid var(--border); }
+
+  .btn { font: inherit; border-radius: var(--radius); padding: .55rem 1.1rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    cursor: pointer; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .btn.large { font-size: 1.05rem; padding: .7rem 1.5rem; }
+
+  .toggle-theme { position: fixed; top: .6rem; right: .6rem; font-size: .8rem; }
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+  <div class="centre">
+    <h1>&#128161; Découvrir mes compétences</h1>
+    <p class="sous-titre">Partir de ce que vous avez vécu et fait, pour en tirer un CV, même si vous n'en avez jamais eu.</p>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Vous n'avez pas besoin d'un parcours « classique » pour commencer.</strong> Le travail salarié, l'aide à des proches, le bénévolat, le bricolage, une passion suivie longtemps : tout cela contient des compétences. Ici, on les met en mots à partir de votre histoire.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; À quoi ça sert</h2>
+    <p>Construire un CV en partant de votre récit, pas d'un formulaire. Vous racontez ce que vous avez fait, avec vos mots ; un assistant en ligne en tire des expériences et des compétences concrètes ; vous choisissez, pour chacune, la formulation qui vous ressemble.</p>
+    <p style="margin-bottom:0">C'est l'outil pour qui repart de loin : personne longtemps sans emploi, sans diplôme reconnu, avec un parcours difficile à faire tenir dans les cases habituelles.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous racontez votre parcours dans une zone de texte, <strong>au clavier ou à la voix</strong> (touches Windows et H). Aucune forme imposée : écrivez comme vous le raconteriez à quelqu'un.</li>
+      <li>Si vous le souhaitez, vous ajoutez vos coordonnées et le type de poste ou de secteur visé. Ce n'est pas obligatoire pour commencer.</li>
+      <li>Vous choisissez un assistant en ligne (ChatGPT ou un autre). L'application prépare le texte, vous le collez chez l'assistant, vous revenez coller sa réponse ici.</li>
+      <li>L'application vous propose, pour chaque expérience repérée, plusieurs façons de la dire et une liste de compétences. Vous gardez ce qui vous va, vous écartez le reste, vous demandez d'autres propositions si besoin.</li>
+      <li>Quelques précisions peuvent vous être demandées (dates, niveau d'études, bénévolat...), puis vous complétez les dernières informations utiles (permis, formations).</li>
+      <li>Vous arrivez sur votre CV, prêt à mettre en forme et à télécharger.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce module ne fait pas</h2>
+    <ul>
+      <li>Ce n'est pas un test de personnalité ni un bilan de compétences officiel. Il ne vous met aucune note et ne porte aucun avis sur vous.</li>
+      <li>Il ne décide pas à votre place quel métier viser : il part de ce que vous racontez.</li>
+      <li>Il n'invente rien. Une compétence n'apparaît que si elle vient de votre récit ou de vos réponses.</li>
+      <li>Ce n'est pas une analyse d'un CV existant : ici on en fabrique un. Pour faire l'état des lieux d'un CV que vous avez déjà, c'est « Analyser ma candidature ».</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Reprendre votre CV dans l'atelier de l'application pour le mettre en forme, choisir un modèle, et le télécharger au format Word ou PDF.</li>
+      <li>Enchaîner sur « Co-construire ma lettre de motivation » ou « Préparer un entretien » à partir de ce CV.</li>
+      <li>Revenir compléter ou corriger une expérience : rien n'est figé.</li>
+    </ul>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Repères</h2>
+    <p style="margin:0">Une idée qui vous vient pendant le parcours (un métier à creuser, une formation à regarder, une question pour votre conseiller) peut être mise de côté dans <strong>Mes Repères</strong>, votre espace personnel de réflexions. Elle vous y attend, sans se mélanger à votre CV.</p>
+    <p style="margin:.5rem 0 0" class="detail">Le bouton « Garder comme Repère » sera ajouté sur les écrans du module lors de son implémentation (comme sur « Analyser ma candidature » et le Lexique).</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Comment ça se passe concrètement</h2>
+    <p style="margin:0">Tout se passe dans une suite d'écrans qui se suivent, avec un bouton « Retour » et un bouton « Continuer » à chaque étape. Vous pouvez fermer et reprendre plus tard là où vous en étiez. Le seul échange avec un assistant en ligne se fait par copier-coller : vous ne tapez rien pour démarrer, l'application prépare le texte pour vous.</p>
+    <div class="encart"><span>&#128161;</span><span class="detail">Le récit est le cœur du parcours : plus vous en dites, plus les propositions seront justes. Mais vous pouvez toujours revenir en ajouter.</span></div>
+  </div>
+
+  <div class="section">
+    <h2>&#9989; Bon à savoir</h2>
+    <div class="encart"><span>&#128274;</span><span class="detail">Vos coordonnées (nom, téléphone, adresse) ne sont jamais envoyées à l'assistant en ligne. Seule la civilité l'est, et uniquement pour accorder le texte au féminin ou au masculin.</span></div>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte : pensez à cliquer sur l'icône disquette pendant le parcours, sinon votre travail sera perdu à la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large">Raconter mon parcours &#8594;</button>
+  </div>
+
+  <p class="detail centre" style="margin-top:1.5rem">
+    Cette application part de ce que vous apportez, vous aide à prendre du recul, et vous laisse toujours la décision.
+  </p>
+</main>
+</body>
+</html>

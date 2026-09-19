@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revue 5bis - Maquettes du parcours guide vs application</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --card: #ffffff; --sub: #eef1f5; --bd: #d9dfe7; --bd2: #b7c0cc;
+    --tx: #33404d; --txs: #1f2933; --txm: #6b7683;
+    --acc: #2563eb; --acc-sub: #e8f0fe;
+    --ok: #157347; --ok-sub: #e5f3ec; --warn: #a15c00; --warn-sub: #fdf3e2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12171e; --card: #1b222c; --sub: #232c38; --bd: #333e4c; --bd2: #47566a;
+      --tx: #d7dee7; --txs: #f1f4f8; --txm: #9aa6b3;
+      --acc: #5b9bff; --acc-sub: #1e2c44;
+      --ok: #4cc88a; --ok-sub: #16281f; --warn: #e7b366; --warn-sub: #2c2312;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--tx); font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--card); border-bottom: 1px solid var(--bd); padding: 12px 20px; }
+  header h1 { margin: 0 0 3px; font-size: 18px; color: var(--txs); }
+  header p { margin: 0; font-size: 12.5px; color: var(--txm); }
+  .nav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .nav a { font-size: 12px; text-decoration: none; color: var(--acc); background: var(--acc-sub); padding: 4px 9px; border-radius: 999px; }
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 20px; }
+  section { background: var(--card); border: 1px solid var(--bd); border-radius: 12px; margin-bottom: 26px; overflow: hidden; scroll-margin-top: 90px; }
+  .sec-tete { padding: 13px 16px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .sec-tete h2 { margin: 0; font-size: 16px; color: var(--txs); }
+  .sec-tete .rte { font-size: 12px; color: var(--txm); }
+  .sec-tete .btn { margin-left: auto; font-size: 12.5px; font-weight: 600; text-decoration: none; padding: 6px 13px; border-radius: 8px; border: 1px solid var(--acc); background: var(--acc); color: #fff; }
+  .sec-tete .btn.sec { background: var(--card); color: var(--acc); }
+  .grille { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 0; }
+  @media (max-width: 1100px) { .grille { grid-template-columns: 1fr; } }
+  .col-maq { border-right: 1px solid var(--bd); }
+  @media (max-width: 1100px) { .col-maq { border-right: 0; border-bottom: 1px solid var(--bd); } }
+  .col-maq .lbl, .col-notes .lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--txm); padding: 9px 14px 6px; }
+  iframe { width: 100%; height: 620px; border: 0; background: #fff; display: block; }
+  .col-notes { padding: 6px 16px 16px; }
+  .col-notes h3 { font-size: 12.5px; margin: 12px 0 5px; color: var(--txs); }
+  .col-notes ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
+  .col-notes li { margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .tag.ok { background: var(--ok-sub); color: var(--ok); }
+  .tag.wip { background: var(--warn-sub); color: var(--warn); }
+  .tag.na { background: var(--sub); color: var(--txm); }
+  code { background: var(--sub); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .rappel { font-size: 12.5px; color: var(--txm); background: var(--sub); border: 1px dashed var(--bd2); border-radius: 8px; padding: 10px 13px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Revue 5bis - maquettes du parcours guide vs application</h1>
+  <p>Colonne gauche : la maquette validee. Colonne droite : etat de la passe de fidelite (5bis) + ecarts connus. Bouton "Ouvrir dans l'appli" : charge l'ecran reel dans un nouvel onglet (peut demander de refaire le parcours pour arriver dans le bon etat).</p>
+  <nav class="nav">
+    <a href="#objectif">Votre objectif</a>
+    <a href="#parcours">Votre parcours</a>
+    <a href="#infos">Vos informations</a>
+    <a href="#profil">Votre profil</a>
+    <a href="#assistant">Assistant</a>
+    <a href="#documents">Vos documents</a>
+    <a href="#miseenpage">La mise en page</a>
+    <a href="#coordonnees">Coordonnees</a>
+    <a href="#ensemble">Vue d'ensemble</a>
+  </nav>
+</header>
+<div class="wrap">
+
+  <section id="objectif">
+    <div class="sec-tete">
+      <h2>1. Votre objectif</h2>
+      <span class="rte"><code>#objectif</code> - MAQUETTE_OBJECTIF_RESTRUCTURE v5</span>
+      <a class="btn sec" href="/#objectif" target="_blank">Ouvrir dans l'appli</a>
+      <a class="btn" href="/docs/MAQUETTE_OBJECTIF_RESTRUCTURE_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_OBJECTIF_RESTRUCTURE_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat 5bis</div>
+        <h3><span class="tag ok">FAIT</span> Blocs Candidature / Le poste</h3>
+        <ul>
+          <li>Compteur X/Y rouge + pulsation : retires (<code>config.niveau</code>).</li>
+          <li>Bandeau "Merci de bien renseigner..." : retire.</li>
+          <li>Croix "tout effacer" : retiree (<code>masquerReset</code>).</li>
+          <li>Filet gauche accent/gris + tag + pastille calme : ajoutes.</li>
+        </ul>
+        <h3><span class="tag na">GARDE (choix Denis)</span></h3>
+        <ul><li>Blocs depliables (la maquette les montre toujours ouverts).</li></ul>
+        <h3><span class="tag wip">CHANTIER SEPARE</span></h3>
+        <ul>
+          <li>Cartes d'objectif en une ligne (composant partage <code>.carte</code>).</li>
+          <li>Ligne de recap "En resume : ..." en bas.</li>
+          <li>Champ "metier precis / domaine" + saisie assistee + encart France Travail = fonctionnel, hors 5bis.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="parcours">
+    <div class="sec-tete">
+      <h2>2. Votre parcours</h2>
+      <span class="rte"><code>#votre-parcours</code> - MAQUETTE_VOTRE_PARCOURS_FUSION v3</span>
+      <a class="btn sec" href="/#votre-parcours" target="_blank">Ouvrir dans l'appli</a>
+      <a class="btn" href="/docs/MAQUETTE_VOTRE_PARCOURS_FUSION_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_VOTRE_PARCOURS_FUSION_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat 5bis</div>
+        <p style="font-size:13px">Fusion faite en etape 3b (route <code>votre-parcours</code>, 4 ecrans -&gt; 1). Passe de fidelite visuelle 5bis : <b>a faire</b> (inventaire AJOUTE / RETIRE a produire).</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="infos">
+    <div class="sec-tete">
+      <h2>3. Vos informations</h2>
+      <span class="rte"><code>#projet</code> - MAQUETTE_MES_INFORMATIONS v10</span>
+      <a class="btn sec" href="/#projet" target="_blank">Ouvrir dans l'appli</a>
+      <a class="btn" href="/docs/MAQUETTE_MES_INFORMATIONS_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_MES_INFORMATIONS_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat 5bis</div>
+        <h3><span class="tag ok">FAIT</span> A1 + A2 + A3 + A3b</h3>
+        <ul>
+          <li>Croix "tout effacer" retiree des 5 blocs.</li>
+          <li>Question "Souhaitez-vous indiquer... ? Oui/Non" retiree pour Loisirs / Engagements / Experiences personnelles (Certifications garde la sienne : dans la maquette).</li>
+          <li>Bouton "Je passe a l'etape suivante -&gt;" retire des catalogues.</li>
+          <li>Plus de resume de niveau bloc, ni ouvert ni ferme (<code>sansResumeBloc</code>).</li>
+          <li>Change borne a "Vos informations" : "Modifier mon CV" / Bilan inchanges.</li>
+        </ul>
+        <h3><span class="tag wip">A CADRER (touche brique blocERIP partagee)</span></h3>
+        <ul>
+          <li>A4 : blocs multi-ouverts + "Tout deplier / Tout replier" (aujourd'hui un seul ouvert).</li>
+          <li>A5 : sous-sections en simples traits (retrait du chevron et de la pastille rond/coche).</li>
+          <li>"Je passe a l'etape suivante" encore present dans Identite / Mobilite / Langues (hors catalogues).</li>
+        </ul>
+        <h3><span class="tag wip">VISUEL (passe finale)</span></h3>
+        <ul><li>Titres de bloc en MAJUSCULES -&gt; casse normale.</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="profil">
+    <div class="sec-tete">
+      <h2>4. Votre profil</h2>
+      <span class="rte"><code>#revelation</code> - MAQUETTE_VOTRE_PROFIL v9</span>
+      <a class="btn sec" href="/#revelation" target="_blank">Ouvrir dans l'appli</a>
+      <a class="btn" href="/docs/MAQUETTE_VOTRE_PROFIL_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_VOTRE_PROFIL_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat 5bis</div>
+        <p style="font-size:13px">Contenu fait en etape 4 (2 cartes fixes + intertitres). Passe de fidelite visuelle 5bis : <b>a faire</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="assistant">
+    <div class="sec-tete">
+      <h2>5. Assistant</h2>
+      <span class="rte"><code>#assistant</code> - MAQUETTE_ASSISTANT v5</span>
+      <a class="btn sec" href="/#assistant" target="_blank">Ouvrir dans l'appli</a>
+      <a class="btn" href="/docs/MAQUETTE_ASSISTANT_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_ASSISTANT_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat 5bis</div>
+        <p style="font-size:13px">4 rectangles construits en etape 5 (5.2 -&gt; 5.5). Passe de fidelite visuelle 5bis : <b>a faire</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="documents">
+    <div class="sec-tete">
+      <h2>6. Vos documents</h2>
+      <span class="rte"><code>#resultats</code> - MAQUETTE_VOS_DOCUMENTS v3</span>
+      <a class="btn sec" href="/#resultats" target="_blank">Ouvrir dans l'appli</a>
+      <a class="btn" href="/docs/MAQUETTE_VOS_DOCUMENTS_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_VOS_DOCUMENTS_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat 5bis</div>
+        <h3><span class="tag ok">FAIT (etape 5.6 -&gt; 5.10)</span></h3>
+        <ul>
+          <li>3 rectangles depliants : Le format / La mise en page / Exporter, un seul ouvert a la fois.</li>
+          <li>"Et maintenant ?" toujours visible en bas.</li>
+          <li>Exporter : format deja choisi + Copier le texte + Canva + ODT + "faire aussi l'autre format".</li>
+        </ul>
+        <h3><span class="tag wip">VISUEL (passe finale)</span></h3>
+        <ul>
+          <li>"Et maintenant ?" garde le style <code>.cv-section</code> (fusee + boutons contour) au lieu du <code>.et-apres</code> de la maquette.</li>
+          <li>Sous-titre "reglages actuels" de "La mise en page" vide.</li>
+          <li>Sous-titre "N export(s) fait(s)" du rectangle Exporter non fait.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="miseenpage">
+    <div class="sec-tete">
+      <h2>7. La mise en page (chantier suivant)</h2>
+      <span class="rte">MAQUETTE_MISE_EN_PAGE v6 - 3 niveaux, ~67 reglages</span>
+      <a class="btn" href="/docs/MAQUETTE_MISE_EN_PAGE_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_MISE_EN_PAGE_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat</div>
+        <p style="font-size:13px"><span class="tag na">CHANTIER SEPARE</span> Le rectangle "La mise en page" reloge pour l'instant le Composeur existant (decision Q3). La reorganisation en 3 niveaux = chantier distinct, apres le parcours guide.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="coordonnees">
+    <div class="sec-tete">
+      <h2>8. Coordonnees (filet)</h2>
+      <span class="rte">MAQUETTE_COORDONNEES v1</span>
+      <a class="btn" href="/docs/MAQUETTE_COORDONNEES_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_COORDONNEES_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Etat 5bis</div>
+        <p style="font-size:13px">Sur "Vos documents", plus de formulaire de coordonnees : juste un bandeau de renvoi vers "Vos informations" si l'identite est entierement vide (fait en 5.6). Maquette = le detail de ce bandeau.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="ensemble">
+    <div class="sec-tete">
+      <h2>9. Vue d'ensemble du parcours</h2>
+      <span class="rte">MAQUETTE_PARCOURS_CREER_CV</span>
+      <a class="btn" href="/docs/MAQUETTE_PARCOURS_CREER_CV_2026-09-02.html" target="_blank">Maquette plein ecran</a>
+    </div>
+    <div class="grille">
+      <div class="col-maq"><div class="lbl">Maquette</div><iframe src="/docs/MAQUETTE_PARCOURS_CREER_CV_2026-09-02.html" loading="lazy"></iframe></div>
+      <div class="col-notes">
+        <div class="lbl">Reperes</div>
+        <p style="font-size:13px">Enchainement cible : Votre objectif -&gt; Votre parcours -&gt; Vos informations -&gt; Votre profil -&gt; Assistant -&gt; Vos documents. 6 reperes dans la barre du haut.</p>
+        <div class="rappel">Regle de fidelite (Denis, repetee) : la maquette validee est la reference a 100 %, dans les deux sens. Ajouter ce qu'elle montre, retirer ce qu'elle ne montre pas - y compris des fonctions non validees en maquette. Les ecarts trop importants sont signales et tranches avec Denis, jamais decides seul.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

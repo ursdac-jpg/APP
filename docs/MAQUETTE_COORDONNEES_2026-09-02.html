@@ -1,0 +1,180 @@
+<title>Maquette - Carte « Vos coordonnées »</title>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #ffffff; --bg-subtle: #f4f6f8; --bg-card: #ffffff;
+    --text: #1f2733; --text-strong: #0f1720; --text-muted: #6b7683;
+    --border: #e2e6ea; --border-strong: #c7ced5;
+    --accent: #1d4ed8; --accent-hover: #1a44b8; --accent-bg-subtle: #eaf0fe;
+    --success: #0f766e; --success-strong: #0b5b54; --success-bg-subtle: #def2ef;
+    --attention: #b45309; --attention-bg: #fdf3e3; --attention-bord: #e7c98b;
+    --radius: 12px; --ombre: 0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.08);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #0f141a; --bg-subtle: #161d25; --bg-card: #1a222c;
+      --text: #d6dde4; --text-strong: #f0f4f8; --text-muted: #93a1af;
+      --border: #2a333d; --border-strong: #3a4550;
+      --accent: #8ab4ff; --accent-hover: #a5c6ff; --accent-bg-subtle: #1c2c48;
+      --success: #5fd6c9; --success-strong: #8fe6dc; --success-bg-subtle: #14322f;
+      --attention: #e0a45c; --attention-bg: #2c2413; --attention-bord: #4a3c1e;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141a; --bg-subtle: #161d25; --bg-card: #1a222c;
+    --text: #d6dde4; --text-strong: #f0f4f8; --text-muted: #93a1af;
+    --border: #2a333d; --border-strong: #3a4550;
+    --accent: #8ab4ff; --accent-hover: #a5c6ff; --accent-bg-subtle: #1c2c48;
+    --success: #5fd6c9; --success-strong: #8fe6dc; --success-bg-subtle: #14322f;
+    --attention: #e0a45c; --attention-bg: #2c2413; --attention-bord: #4a3c1e;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 22px 18px 60px; }
+
+  .panneau-demo { border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); padding: 12px 14px; margin-bottom: 20px; font-size: 13.5px; }
+  .panneau-demo b { color: var(--text-strong); }
+  .panneau-demo .ligne-btn { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .panneau-demo button { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer; }
+  .panneau-demo button.on { background: var(--accent); color: #fff; }
+  .panneau-demo button.theme { border-color: var(--border-strong); color: var(--text-muted); }
+
+  .contexte { font-size: 12.5px; color: var(--text-muted); margin: 0 0 14px; }
+
+  .coord {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--ombre); padding: 15px 17px;
+  }
+  .coord.incomplet { border-color: var(--attention-bord); background: var(--attention-bg); }
+  .coord-tete { display: flex; align-items: center; gap: 9px; margin-bottom: 4px; }
+  .coord-tete .ico { font-size: 17px; }
+  .coord-tete h2 { font-size: 15px; margin: 0; color: var(--text-strong); }
+  .coord-sous { font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px; }
+
+  .coord-liste { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; font-size: 14px; margin: 0 0 12px; }
+  .coord-liste dt { color: var(--text-muted); }
+  .coord-liste dd { margin: 0; color: var(--text-strong); font-weight: 600; }
+  .coord-liste dd.manque { color: var(--attention); font-weight: 600; }
+  .coord-liste dd .petite { display: block; font-weight: 400; font-size: 12px; color: var(--text-muted); }
+
+  .coord-manque-txt { font-size: 13px; color: var(--attention); background: var(--bg-card); border: 1px solid var(--attention-bord); border-radius: 8px; padding: 9px 11px; margin: 0 0 12px; }
+  :root[data-theme="dark"] .coord-manque-txt, :root:not([data-theme="light"]) .coord-manque-txt { background: rgba(0,0,0,.15); }
+
+  .coord-confid { font-size: 12px; color: var(--text-muted); display: flex; align-items: flex-start; gap: 6px; margin: 0 0 14px; }
+
+  .btn { font: inherit; font-weight: 600; padding: 9px 15px; border-radius: 9px; cursor: pointer; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); }
+  .btn:hover { background: var(--accent-bg-subtle); }
+  .btn.plein { background: var(--accent); color: #fff; }
+  .btn.plein:hover { background: var(--accent-hover); }
+  .btn.sm { padding: 7px 13px; font-size: 13.5px; }
+</style>
+
+<div class="wrap">
+  <div class="panneau-demo">
+    <b>Maquette - Carte « Vos coordonnées ».</b> Petite carte affichée en haut de « Vos documents » (avant « Le format »). <b>Lecture seule</b> : les coordonnées sont saisies dans « Vos informations », qui reste la <b>seule source</b>. Ici, on les rappelle (ce qui apparaîtra en haut du CV) et un bouton renvoie à « Vos informations » pour les modifier. Jamais un deuxième formulaire. Trois états selon ce qui est rempli.
+    <div class="ligne-btn" id="demo">
+      <button data-v="completes" class="on">Complètes</button>
+      <button data-v="incompletes">Incomplètes</button>
+      <button data-v="vides">Rien de saisi</button>
+      <button class="theme" id="btnTheme">Voir en mode sombre</button>
+    </div>
+  </div>
+
+  <p class="contexte">Contexte : page « Vos documents », tout en haut, au-dessus du rectangle « Le format ».</p>
+
+  <div id="carte"></div>
+</div>
+
+<script>
+(function () {
+  var JEUX = {
+    completes: {
+      prenom: 'Camille', nom: 'Bernard',
+      email: 'camille.bernard@example.fr',
+      telephone: '06 12 34 56 78',
+      codePostal: '87000', ville: 'Limoges',
+      permis: 'Permis B, avec véhicule'
+    },
+    incompletes: {
+      prenom: 'Camille', nom: 'Bernard',
+      email: '',
+      telephone: '',
+      codePostal: '87000', ville: 'Limoges',
+      permis: ''
+    },
+    vides: {
+      prenom: '', nom: '', email: '', telephone: '', codePostal: '', ville: '', permis: ''
+    }
+  };
+  var etat = { v: 'completes' };
+
+  function ligne(dt, valeur, manqueTxt) {
+    var vide = !valeur;
+    return '<dt>' + dt + '</dt>' +
+      '<dd class="' + (vide ? 'manque' : '') + '">' + (vide ? (manqueTxt || 'à compléter') : valeur) + '</dd>';
+  }
+
+  function carte() {
+    var d = JEUX[etat.v];
+    var nomComplet = (d.prenom + ' ' + d.nom).trim();
+    var commune = [d.codePostal, d.ville].filter(Boolean).join(' ');
+    var manquants = [];
+    if (!d.email) { manquants.push('votre adresse e-mail'); }
+    if (!d.telephone) { manquants.push('votre téléphone'); }
+    if (!nomComplet) { manquants.push('votre nom'); }
+    var incomplet = manquants.length > 0;
+
+    var liste = '<dl class="coord-liste">' +
+      ligne('Nom', nomComplet, 'à compléter') +
+      ligne('E-mail', d.email, 'à compléter') +
+      ligne('Téléphone', d.telephone, 'à compléter') +
+      ligne('Commune', commune, 'à compléter') +
+      (d.permis
+        ? '<dt>Mobilité</dt><dd>' + d.permis + '</dd>'
+        : '<dt>Mobilité</dt><dd class="manque">non précisée<span class="petite">Facultatif. Utile si le poste demande de se déplacer.</span></dd>') +
+      '</dl>';
+
+    var messageManque = incomplet
+      ? '<p class="coord-manque-txt">&#9888;&#65039; Il manque ' + phraseListe(manquants) +
+        '. C\'est ce qui permet de vous recontacter : ajoutez-' + (manquants.length > 1 ? 'les' : 'le') + ' avant d\'envoyer votre CV.</p>'
+      : '';
+
+    var bouton = incomplet
+      ? '<button type="button" class="btn plein sm" id="btnModifier">Compléter mes informations &#8594;</button>'
+      : '<button type="button" class="btn sm" id="btnModifier">Modifier mes coordonnées &#8594;</button>';
+
+    return '<div class="coord' + (incomplet ? ' incomplet' : '') + '">' +
+      '<div class="coord-tete"><span class="ico">&#128100;</span><h2>Vos coordonnées</h2></div>' +
+      '<p class="coord-sous">Elles apparaîtront en haut de votre CV. Saisies dans « Vos informations », modifiables seulement là-bas.</p>' +
+      liste +
+      messageManque +
+      '<p class="coord-confid"><span>&#128274;</span><span>Jamais transmises à l\'assistant ni à aucun autre site. Elles restent sur cette page et disparaissent si vous la fermez.</span></p>' +
+      bouton +
+      '</div>';
+  }
+
+  function phraseListe(arr) {
+    if (arr.length === 1) { return arr[0]; }
+    return arr.slice(0, -1).join(', ') + ' et ' + arr[arr.length - 1];
+  }
+
+  function render() {
+    document.querySelectorAll('#demo button[data-v]').forEach(function (b) { b.classList.toggle('on', b.dataset.v === etat.v); });
+    document.getElementById('carte').innerHTML = carte();
+    var m = document.getElementById('btnModifier');
+    if (m) { m.onclick = function () { alert('Maquette : revient à « Vos informations », section « Vos coordonnées ».'); }; }
+  }
+
+  document.querySelectorAll('#demo button[data-v]').forEach(function (b) {
+    b.onclick = function () { etat.v = b.dataset.v; render(); };
+  });
+  document.getElementById('btnTheme').onclick = function () {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+    this.textContent = dark ? 'Voir en mode sombre' : 'Voir en mode clair';
+  };
+
+  render();
+})();
+</script>

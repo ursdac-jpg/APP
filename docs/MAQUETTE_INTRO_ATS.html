@@ -1,0 +1,222 @@
+<!doctype html>
+<!--
+  MAQUETTE - page d'introduction / présentation du module « ATS » (mots-clés du CV).
+  Copie du squelette docs/maquettes/_skeleton-intro-module.html, puis remplie.
+  Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md.
+  Contenu de référence : docs/PAGES_INTRODUCTION_MODULES_RECUEIL.md, section 2 (structure canonique)
+  et section 7 (banque de fonctions : « ATS : donner à la personne une idée de la correspondance
+  entre son CV et les mots-clés d'un métier / d'une offre ... jamais une note globale sur la personne »).
+
+  MODULE PAS ENCORE CONSTRUIT. Cette maquette sert UNIQUEMENT à préparer l'organisation de la
+  page d'accueil (mégachantier « Réorganisation de la page d'accueil »). Le bouton d'entrée du bas
+  est volontairement DÉSACTIVÉ tant que le module n'existe pas.
+
+  Textes repris de fichiers existants du dépôt (pas inventés) :
+    - Définition ATS  : data/lexique.js, fiche id 'ats'
+        « Un ATS (Applicant Tracking System, logiciel de suivi des candidatures) est un outil utilisé
+          par de nombreux recruteurs pour trier automatiquement les CV reçus, souvent avant qu'une
+          personne ne les lise. Il repère des mots-clés précis, ce qui explique pourquoi une mise en
+          forme trop complexe peut nuire à sa lecture par ce type de logiciel. »
+    - Nuance ATS     : data/lexique.js, second niveau id 'second-niveau-ats'
+        « Un ATS ne rejette pas un CV lui-même : il le classe ou le met en avant selon les mots-clés
+          détectés, ce qui explique pourquoi une candidature peut être moins visible sans être écartée
+          définitivement. »
+    - Objectif       : docs/FEUILLE_DE_ROUTE_ERIP_2026-08-23.md
+        « Évaluer la compatibilité CV/mots-clés métier | Anticiper un filtrage automatisé »
+    - Périmètre      : docs/IDEES_A_RECLASSER.md (2026-08-28)
+        « comparaison mécanique, au niveau du vocabulaire : le CV contient-il les mots que le logiciel
+          de tri (ou le recruteur qui scanne) recherche ? Mots présents / absents / proches +
+          reformulations. » ; « aucun score sur la personne ».
+    - Écran vérif/masquage + phrases confidentialité + disquette : repris mot pour mot de
+      docs/MAQUETTE_INTRO_LETTRE.html et docs/maquettes/_skeleton-intro-module.html.
+
+  Thème sombre : classe .dark sur <body> (convention maquette), PAS [data-theme].
+  Spécificité du module : --accent indigo (#4f46e5 clair / #a5b4fc sombre) -- PLACEHOLDER,
+  à accorder avec les 2 autres maquettes à venir (Regard recruteur, Se tenir informé).
+  Icône : classeur à intercalaires (tri des CV) -- objet, jamais un visage. Alternatives possibles : aimant, loupe.
+
+  RÈGLE APP (décision Denis 2026-08-30) : aucune page d'introduction de module ne porte de bloc
+  « Cet outil travaille avec » ni de recommandation / renvoi vers un autre module. Volontairement absent.
+  Seule exception conservée : l'encart « Mes Repères » (espace personnel transversal).
+
+  EXIGENCE FONCTIONNELLE À REPORTER dans la tâche d'intégration (mégachantier accueil), demande
+  explicite de Denis 2026-08-31 : le module ATS doit DÉTECTER les techniques de triche dans le
+  texte du CV -- mots-clés écrits en blanc sur fond blanc, texte invisible mais sélectionnable,
+  blocs de mots dans les marges / espaces vides, police de taille quasi nulle. À la détection :
+  ne JAMAIS s'en servir en silence ; le signaler à la personne et lui EXPLIQUER les risques
+  (candidature souvent écartée d'emblée, doute jeté sur tout le CV si un recruteur le voit,
+  ne remplace pas le travail sur le contenu), puis proposer de reformuler depuis l'expérience réelle.
+  La détection a besoin de la couche TEXTE du CV -> vit dans ATS, pas dans « Regard recruteur »
+  (qui part d'une image). Si Denis veut la même vérification côté Regard recruteur, ce module
+  devra aussi recevoir le fichier du CV (choix de périmètre à acter).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - présentation du module ATS</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #4f46e5; --accent-bg: #ecebfc;        /* teinte du module : indigo (placeholder) */
+    --ok: #198754; --ok-bg: #d9f4e4; --ok-strong: #157347;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #a5b4fc; --accent-bg: #23253f;
+    --ok: #35c79a; --ok-bg: #17301f; --ok-strong: #6ee89a;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.7rem; color: var(--text-strong); margin: .2rem 0; }
+  h2 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  .sous-titre { color: var(--text-muted); margin: .2rem 0 1rem; }
+  .centre { text-align: center; }
+
+  .section { background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .9rem; }
+  .section.teinte { background: var(--accent-bg); border-color: var(--accent); }
+  .section ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .section li { margin: .2rem 0; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  /* Encart d'information : fond teinté + filet gauche accent + icône objet. */
+  .encart { display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+
+  /* Accordéon "en savoir plus". */
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .5rem 0;
+    overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .7rem 1rem;
+    font-weight: 700; color: var(--text-strong); }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary::before { content: "\25B8"; color: var(--accent);
+    font-size: .85em; margin-right: .5rem; display: inline-block; transition: transform .15s; }
+  .bloc-depli[open] > summary::before { transform: rotate(90deg); }
+  .bloc-depli .corps { padding: .2rem 1rem 1rem; border-top: 1px solid var(--border); }
+
+  /* Boutons : rectangle à coins arrondis, jamais rond. */
+  .btn { font: inherit; border-radius: var(--radius); padding: .55rem 1.1rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    cursor: pointer; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  body.dark .btn.primaire { color: #0b1a12; }
+  .btn.large { font-size: 1.05rem; padding: .7rem 1.5rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .signature { color: var(--text-muted); font-size: .82rem; text-align: center;
+    margin-top: 1.6rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  .toggle-theme { position: fixed; top: .6rem; right: .6rem; font-size: .8rem; }
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+  <div class="centre">
+    <h1>&#128450;&#65039; ATS : les mots-clés de votre CV</h1>
+    <p class="sous-titre">Voir si le vocabulaire de votre CV correspond à celui d'un métier ou d'une offre, pour anticiper un premier tri automatisé.</p>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Un ATS ne rejette pas un CV lui-même</strong> : il le classe ou le met en avant selon les mots-clés détectés, ce qui explique pourquoi une candidature peut être moins visible sans être écartée définitivement. Ici, on regarde des mots, jamais votre valeur.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; À quoi ça sert</h2>
+    <p>Vous donner une idée de la correspondance entre votre CV et les mots-clés attendus pour un métier ou une offre : les mots présents, ceux qui manquent, ceux qui s'en approchent, et des façons de les reformuler à partir de votre parcours réel. C'est une comparaison de vocabulaire, pas un jugement sur votre parcours.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous partez de votre CV, sous la forme que vous avez : un fichier, une photo, un scan, ou simplement le texte collé. Pas besoin de l'avoir mis en forme.</li>
+      <li>Vous indiquez le métier visé et, si vous l'avez, l'offre d'emploi.</li>
+      <li>Vous relisez votre CV à l'écran et vous masquez ce que vous ne voulez pas transmettre (nom, adresse, téléphone), avant de le donner à l'assistant.</li>
+      <li>Un assistant en ligne compare le vocabulaire de votre CV avec celui attendu pour ce métier ou cette offre.</li>
+      <li>Vous recevez une liste : les mots-clés présents, ceux qui manquent, ceux qui s'en approchent, avec des suggestions de reformulation.</li>
+      <li>Si votre CV contient du texte caché (mots-clés écrits en blanc, texte invisible mais que l'on peut sélectionner, blocs de mots dans les marges ou les espaces vides), le module le repère et vous en explique les risques, au lieu de s'en servir.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce module ne fait pas</h2>
+    <ul>
+      <li>Ce n'est pas une note ni un score sur vous.</li>
+      <li>Ce n'est pas un jugement sur votre parcours : on regarde des mots, pas votre valeur.</li>
+      <li>Ce n'est pas une garantie d'être retenu : ajouter un mot-clé rend un CV plus visible, cela ne décide pas à la place du recruteur.</li>
+      <li>Ce n'est pas une analyse de fond de votre CV : ici, on compare seulement le vocabulaire.</li>
+      <li>Il ne vous aide pas à tromper un logiciel de tri : s'il repère du texte caché dans votre CV, il vous le déconseille et vous explique pourquoi.</li>
+    </ul>
+    <details class="bloc-depli">
+      <summary>Qu'est-ce qu'un ATS ?</summary>
+      <div class="corps">
+        <p style="margin:.4rem 0 0">Un ATS (Applicant Tracking System, logiciel de suivi des candidatures) est un outil utilisé par de nombreux recruteurs pour trier automatiquement les CV reçus, souvent avant qu'une personne ne les lise. Il repère des mots-clés précis, ce qui explique pourquoi une mise en forme trop complexe peut nuire à sa lecture par ce type de logiciel.</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="section">
+    <h2>&#9888;&#65039; Le texte caché, une fausse bonne idée</h2>
+    <p>Des méthodes circulent pour « tromper » les logiciels de tri : écrire des mots-clés en blanc sur fond blanc, ou en texte invisible mais que l'on peut sélectionner, souvent dans les marges ou les espaces vides du CV.</p>
+    <p style="margin:.4rem 0 0">Si le module repère ce genre de texte dans votre CV, il vous le signale et vous en explique les risques :</p>
+    <ul>
+      <li>Les logiciels de tri et les recruteurs détectent ce texte de mieux en mieux. Une candidature repérée ainsi est souvent écartée d'emblée, parfois pour les candidatures suivantes dans la même entreprise.</li>
+      <li>Même non détecté, un recruteur qui ouvre le CV voit des mots qui ne correspondent pas au reste : cela jette un doute sur tout le document.</li>
+      <li>Cela ne remplace pas le vrai travail sur le contenu, qui est le seul à aider durablement.</li>
+    </ul>
+    <p style="margin:.4rem 0 0">À la place, le module vous propose de reformuler à partir de votre expérience réelle, avec les mots qui s'appliquent vraiment à vous.</p>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9878;&#65039; Des mots, pas un jugement</h2>
+    <p style="margin:0">Le résultat vous montre du vocabulaire à ajuster, jamais une évaluation de vous. Vous restez libre de reprendre les mots proposés, de les reformuler autrement, ou de ne rien changer.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Repérer les mots-clés à ajouter ou à reformuler dans votre CV, en partant de ce que vous savez déjà faire.</li>
+      <li>Refaire la comparaison pour une autre offre ou un autre métier.</li>
+    </ul>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Repères</h2>
+    <p style="margin:0">Si un mot à travailler ou une reformulation vous semble important pour la suite, vous pourrez le garder dans Mes Repères, votre espace personnel de notes.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Comment ça se passe concrètement</h2>
+    <p style="margin:0">L'application prépare et copie le texte de départ pour vous. Vous le collez sur le site de l'assistant que vous avez choisi, vous récupérez sa réponse, puis vous revenez la coller ici. Vous êtes guidé à chaque étape ; vous n'avez rien à taper pour démarrer.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9989; Bon à savoir</h2>
+    <div class="encart"><span>&#128274;</span><span class="detail">Avant de transmettre votre CV, vous passez par un écran de vérification où vous pouvez masquer votre nom, votre adresse ou votre téléphone. Votre nom et vos coordonnées ne partent jamais vers l'assistant.</span></div>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte : pensez à cliquer sur l'icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" disabled>Comparer les mots-clés de mon CV &#8594;</button>
+    <p class="detail" style="margin:.5rem 0 0">Ce module est en cours de préparation. La page de présentation est prête ; l'outil arrivera dans une prochaine version.</p>
+  </div>
+
+  <p class="signature">APP part de ce que vous apportez, vous aide à prendre du recul, et vous laisse toujours la décision.</p>
+</main>
+</body>
+</html>

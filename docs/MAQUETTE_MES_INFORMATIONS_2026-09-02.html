@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette v10 - Page « Vos informations »</title>
+<style>
+  :root {
+    --bg-page: #f4f6f9; --bg-card: #ffffff; --bg-subtle: #eef1f5;
+    --border: #d9dfe7; --border-strong: #b7c0cc;
+    --text-strong: #1f2933; --text: #33404d; --text-muted: #6b7683;
+    --accent: #2563eb; --accent-hover: #1d4ed8; --accent-bg-subtle: #e8f0fe;
+    --success: #157347; --success-bg-subtle: #e5f3ec;
+    --warning-strong: #a15c00; --warning-bg-subtle: #fdf3e2; --warning-border: #e7c383;
+    --ombre: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+  }
+  :root[data-theme="sombre"] {
+    --bg-page: #12171e; --bg-card: #1b222c; --bg-subtle: #232c38;
+    --border: #333e4c; --border-strong: #47566a;
+    --text-strong: #f1f4f8; --text: #d7dee7; --text-muted: #9aa6b3;
+    --accent: #5b9bff; --accent-hover: #7db0ff; --accent-bg-subtle: #1e2c44;
+    --success: #4cc88a; --success-bg-subtle: #16281f;
+    --warning-strong: #e7b366; --warning-bg-subtle: #2c2312; --warning-border: #5c4a24;
+    --ombre: 0 1px 2px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 0 92px; background: var(--bg-page); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px; line-height: 1.55;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 20px 18px; }
+  .prog { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12.5px; margin-bottom: 22px; }
+  .prog span { padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); white-space: nowrap; }
+  .prog span.actif { border-color: var(--accent); color: var(--accent); background: var(--accent-bg-subtle); font-weight: 600; }
+  h1 { font-size: 24px; color: var(--text-strong); margin: 0 0 4px; text-align: center; }
+  .sous-titre { text-align: center; color: var(--text-muted); margin: 0 0 18px; }
+
+  .panneau-demo { border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); padding: 12px 14px; margin-bottom: 20px; font-size: 13.5px; }
+  .panneau-demo b { color: var(--text-strong); }
+  .demo-boutons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .demo-boutons button { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text); cursor: pointer; }
+
+  .video-repli { margin-bottom: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card); box-shadow: var(--ombre); }
+  .video-repli > summary { list-style: none; cursor: pointer; padding: 11px 14px; font-size: 13px; color: var(--text-muted); }
+  .video-repli > summary::-webkit-details-marker { display: none; }
+  .video-repli > summary::before { content: "\25B8  "; }
+  .video-repli[open] > summary::before { content: "\25BE  "; }
+  .video-repli .corps { padding: 0 14px 14px; font-size: 13px; color: var(--text-muted); }
+
+  .bloc { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; background: var(--bg-card); margin-bottom: 14px; box-shadow: var(--ombre); overflow: hidden; }
+  .bloc.facultatif { border-left-color: var(--border-strong); }
+  .bloc > .entete { display: flex; align-items: center; gap: 9px; padding: 12px 14px; cursor: pointer; user-select: none; flex-wrap: wrap; }
+  .bloc > .entete .ico { font-size: 17px; }
+  .bloc > .entete .titre { font-weight: 650; color: var(--text-strong); font-size: 15px; }
+  .bloc > .entete .chevron { margin-left: auto; color: var(--text-muted); transition: transform .12s; }
+  .bloc.ouvert > .entete .chevron { transform: rotate(90deg); }
+  .bloc .tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .bloc .tag.rec { background: var(--accent-bg-subtle); color: var(--accent); }
+  .bloc .tag.fac { background: var(--bg-subtle); color: var(--text-muted); }
+  .bloc .badge { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+  .bloc .badge.ok { background: var(--success-bg-subtle); color: var(--success); border-color: transparent; }
+  .bloc > .corps { display: none; padding: 0 14px 15px; }
+  .bloc.ouvert > .corps { display: block; }
+
+  .sous-section { border-top: 1px solid var(--border); padding-top: 13px; margin-top: 13px; }
+  .sous-section:first-child { border-top: 0; padding-top: 2px; margin-top: 0; }
+  .sous-section > .ss-titre { font-weight: 600; color: var(--text-strong); font-size: 13.5px; margin-bottom: 9px; }
+  .ss-aide { font-size: 12px; color: var(--text-muted); margin: -3px 0 11px; }
+  .separateur-pointille { border-top: 1px dashed var(--border-strong); margin: 13px 0 11px; }
+
+  .champ { margin-bottom: 12px; }
+  .champ label { display: block; font-size: 12px; font-weight: 600; color: var(--text-strong); margin-bottom: 5px; }
+  .champ label .lbl-fac { font-weight: 500; color: var(--text-muted); }
+  .champ input, .champ select, .champ textarea {
+    width: 100%; font: inherit; font-size: 13.5px; padding: 9px 11px;
+    border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg-card); color: var(--text);
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .champ textarea { resize: vertical; min-height: 58px; }
+  .champ input:focus, .champ select:focus, .champ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+  .champ input::placeholder, .champ textarea::placeholder { color: var(--text-muted); }
+  .grille-champs { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  @media (max-width: 560px) { .grille-champs { grid-template-columns: 1fr; } }
+  .intitule-annee { display: grid; grid-template-columns: 2fr 1fr; gap: 11px; }
+  @media (max-width: 560px) { .intitule-annee { grid-template-columns: 1fr; } }
+
+  .ligne-jetons { margin-bottom: 13px; }
+  .ligne-jetons.serre { margin-bottom: 6px; }
+  .ligne-jetons .lib { font-size: 12px; font-weight: 600; color: var(--text-strong); margin-bottom: 8px; }
+  .jeton {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0 8px 8px 0; padding: 9px 14px 9px 11px;
+    border-radius: 9px; border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text);
+    font-size: 13px; cursor: pointer; user-select: none; transition: border-color .1s, background .1s;
+  }
+  .jeton::before { content: ""; width: 16px; height: 16px; flex: none; border: 1.5px solid var(--border-strong); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+  .jeton--radio::before { border-radius: 999px; }
+  .jeton:hover { border-color: var(--accent); }
+  .jeton.actif { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--text-strong); font-weight: 600; }
+  .jeton.actif::before { content: "\2713"; background: var(--accent); border-color: var(--accent); }
+  .jeton--radio.actif::before { content: ""; box-shadow: inset 0 0 0 3px var(--bg-card); }
+  .jeton.petit { padding: 7px 11px 7px 9px; font-size: 12.5px; }
+  .jeton.petit::before { width: 14px; height: 14px; }
+
+  .btn-ajouter { font: inherit; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; white-space: nowrap; }
+  .btn-ajouter[disabled] { opacity: .4; cursor: not-allowed; }
+  .btn-modifier { font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 7px; border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); cursor: pointer; }
+  .btn-modifier:hover { border-color: var(--accent); color: var(--accent); }
+
+  .resume-verrou { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--success-bg-subtle); border-left: 3px solid var(--success); border-radius: 4px; padding: 9px 12px; font-size: 13px; }
+  .resume-verrou > span { color: var(--success); font-weight: 600; }
+
+  .invite-langue { font-size: 12.5px; color: var(--accent); margin: 8px 0 0; font-weight: 600; }
+  .astuce-forte { font-size: 12.5px; font-weight: 700; color: var(--success); margin: 11px 0 0; }
+  .ligne-modif-hint { font-size: 12px; color: var(--text-muted); margin: 9px 0 0; }
+
+  .liste-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; border-radius: 999px; background: var(--accent-bg-subtle); border: 1px solid var(--accent); color: var(--text-strong); font-size: 12.5px; font-weight: 600; }
+  .chip.ouvert { box-shadow: 0 0 0 3px var(--accent-bg-subtle); border-color: var(--accent-hover); }
+  .chip .chip-body { border: 0; background: none; color: inherit; font: inherit; font-weight: 600; cursor: pointer; padding: 0; }
+  .chip .chip-pastille-ctx { color: var(--accent); font-size: 15px; line-height: 1; vertical-align: middle; }
+  .chip .chip-x { border: 0; background: rgba(0,0,0,.08); color: inherit; cursor: pointer; width: 20px; height: 20px; border-radius: 999px; font-size: 12px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  :root[data-theme="sombre"] .chip .chip-x { background: rgba(255,255,255,.14); }
+
+  .chip-contexte { margin-top: 11px; }
+  .chip-contexte label { display: block; font-size: 12px; font-weight: 600; color: var(--text-strong); margin-bottom: 6px; }
+  .chip-contexte textarea { width: 100%; font: inherit; font-size: 13.5px; padding: 9px 11px; border: 1.5px solid var(--accent); border-radius: 8px; background: var(--bg-card); color: var(--text); resize: vertical; min-height: 58px; }
+  .chip-contexte textarea:focus { outline: none; box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+
+  .encart-info { border-left: 3px solid var(--border-strong); background: var(--bg-subtle); padding: 9px 12px; font-size: 12.5px; color: var(--text-muted); border-radius: 4px; margin: 8px 0 0; }
+  .conseil-chiffres { font-size: 12px; color: var(--accent); margin: 8px 0 0; }
+  .rappel-coord { border-left: 3px solid var(--warning-border); background: var(--warning-bg-subtle); padding: 9px 12px; font-size: 12.5px; color: var(--warning-strong); border-radius: 4px; margin: 2px 0 14px; }
+
+  /* langue : une seule ligne, hauteur fixe, alignée */
+  .langue-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .langue-row select, .langue-row input, .langue-row .btn-ajouter {
+    height: 42px; border-radius: 8px; font: inherit; font-size: 13.5px;
+    border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text);
+  }
+  .langue-row select, .langue-row input { padding: 0 11px; }
+  .langue-row select:focus, .langue-row input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+  .langue-row .lg-langue { flex: 1 1 260px; min-width: 0; }
+  .langue-row .lg-autre { flex: 1 1 180px; min-width: 0; }
+  .langue-row .lg-niveau { flex: 0 0 118px; }
+  .langue-row .btn-ajouter { border-color: var(--accent); background: var(--accent); color: #fff; padding: 0 16px; }
+  .hint-select { font-size: 11.5px; color: var(--text-muted); margin: 6px 0 0; }
+
+  /* ligne "Autre" générique (certifs / perso / loisirs / engagements) */
+  .ligne-autre { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .ligne-autre input { flex: 1 1 220px; min-width: 0; height: 40px; padding: 0 11px; font: inherit; font-size: 13.5px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg-card); color: var(--text); }
+  .ligne-autre input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+
+  /* bouton "valider" désactivé + explication */
+  .btn-ajouter.desactive { opacity: .45; cursor: not-allowed; pointer-events: auto; }
+  .hint-desactive { font-size: 12px; color: var(--warning-strong); margin: 7px 0 0; }
+
+  /* expériences : bascule "en poste" */
+  .xfin-toggle { display: inline-block; margin-top: 7px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer; }
+  .xfin-toggle.on { background: var(--accent); color: #fff; }
+  .xfin-enposte { height: 40px; display: flex; align-items: center; padding: 0 11px; font-size: 13.5px; color: var(--text-muted); border: 1.5px dashed var(--border-strong); border-radius: 8px; background: var(--bg-subtle); }
+
+  /* étape 3 facultative (missions) */
+  .details-fac { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-subtle); margin-top: 12px; }
+  .details-fac > summary { list-style: none; cursor: pointer; padding: 10px 12px; font-size: 12.5px; font-weight: 600; color: var(--text-strong); }
+  .details-fac > summary::-webkit-details-marker { display: none; }
+  .details-fac > summary::before { content: "\25B8  "; color: var(--text-muted); }
+  .details-fac[open] > summary::before { content: "\25BE  "; }
+  .details-fac .df-corps { padding: 0 12px 12px; }
+
+  /* étapes numérotées légères */
+  .etape-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; margin-right: 7px; }
+
+  /* identité : colonne photo à droite, question EN HAUT de cette colonne */
+  .identite-layout { display: flex; gap: 18px; align-items: flex-start; }
+  .identite-champs { flex: 1; min-width: 0; }
+  .identite-colonne-photo { width: 172px; flex: none; }
+  .identite-colonne-photo .q-photo-lib { font-size: 12px; font-weight: 600; color: var(--text-strong); margin-bottom: 8px; line-height: 1.35; }
+  .identite-colonne-photo .q-photo-reponse { display: flex; gap: 6px; }
+  .identite-colonne-photo .jeton.petit { margin: 0; }
+  .identite-photo-box { border: 1.5px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); text-align: center; padding: 20px 8px; font-size: 11.5px; color: var(--text-muted); margin-top: 12px; }
+  .identite-photo-box .ph-ico { font-size: 26px; display: block; margin-bottom: 4px; }
+  @media (max-width: 560px) { .identite-layout { flex-direction: column; } .identite-colonne-photo { width: 100%; } }
+
+  .lien-exemples { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--accent); background: none; border: 0; cursor: pointer; padding: 0; margin: 2px 0 10px; }
+  .panneau-exemples { border: 1px solid var(--border); border-radius: 8px; background: var(--bg-subtle); padding: 11px 12px; margin: 0 0 12px; }
+  .panneau-exemples .pe-groupe { font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; margin: 8px 0 5px; }
+  .panneau-exemples .pe-groupe:first-child { margin-top: 0; }
+  .ex-jeton { display: inline-block; margin: 0 6px 6px 0; padding: 6px 11px; border-radius: 999px; border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); font-size: 12.5px; cursor: pointer; }
+  .ex-jeton:hover { border-color: var(--accent); color: var(--accent); }
+  .ex-jeton.pris { opacity: .45; pointer-events: none; }
+
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card); border-top: 1px solid var(--border); padding: 12px 18px; display: flex; align-items: center; gap: 14px; justify-content: center; }
+  .barre-bas .btn-retour, .barre-bas .btn-continuer { font: inherit; font-weight: 600; padding: 9px 20px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text); }
+  .barre-bas .btn-continuer { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .barre-bas .hint { font-size: 12px; color: var(--text-muted); }
+
+  .legende { max-width: 880px; margin: 26px auto 0; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-size: 13px; box-shadow: var(--ombre); }
+  .legende h2 { font-size: 15px; margin: 0 0 8px; color: var(--text-strong); }
+  .legende h3 { font-size: 13.5px; margin: 12px 0 4px; color: var(--text-strong); }
+  .legende ul { margin: 6px 0; padding-left: 20px; }
+  .legende li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="prog">
+    <span>🎯 Votre objectif</span><span>🧭 Votre parcours</span>
+    <span class="actif">📋 Vos informations</span>
+    <span>🔎 Votre profil</span><span>💬 Assistant</span><span>📄 Vos documents</span>
+  </div>
+
+  <h1>📋 Vos informations</h1>
+  <p class="sous-titre">Ce qui servira à remplir votre CV. Vous pouvez tout compléter maintenant, ou y revenir plus tard.</p>
+
+  <div class="panneau-demo">
+    <b>Maquette v10 de « Vos informations » (ex-« Mes informations »).</b> Nouveau bloc <b>« Vos expériences professionnelles »</b> (recommandé) rapatrié depuis « Vos documents », à côté des formations : c'était la seule saisie du parcours professionnel et elle vivait sur la toute dernière page. Réutilise `dossier.experiences`. Retours Denis appliqués : plus aucune mention « facultatif » sur les champs (on encourage à tout remplir), seul l'intitulé du poste débloque le bouton (sans phrase rouge), 1re lettre en majuscule, Entrée passe au champ suivant, années en chiffres seuls, bouton <b>« Je suis encore en poste »</b>. Titre de la page + barre passés à « Vos ».
+    <div class="demo-boutons">
+      <button type="button" id="btnTheme">🌙 Voir en mode sombre</button>
+      <button type="button" id="btnToutOuvrir">Tout déplier</button>
+      <button type="button" id="btnToutReplier">Tout replier</button>
+    </div>
+  </div>
+
+  <div id="blocs"></div>
+</div>
+
+<div class="barre-bas">
+  <button class="btn-retour">← Retour</button>
+  <span class="hint" id="hint"></span>
+  <button class="btn-continuer">Continuer →</button>
+</div>
+
+<div class="legende">
+  <h2>Ce qui a changé (v5) et pourquoi</h2>
+  <h3>Contexte par élément (certifications, expériences, loisirs, engagements)</h3>
+  <ul>
+    <li>Un élément ajouté devient une pastille colorée. <b>Clic sur la pastille</b> → une zone de texte s'ouvre pour préciser le contexte (dans quel cadre, ce qui a été fait concrètement, un chiffre). Entrée ou clic ailleurs enregistre. Un point « • » marque une pastille dont le contexte est rempli.</li>
+    <li><b>Clic sur la croix</b> → retire l'élément <b>et</b> son contexte.</li>
+    <li>C'est <b>facultatif</b>, présenté comme une astuce : ces détails peuvent faire ressortir une compétence recherchée pour le poste visé. Le mécanisme réutilise <code>avecContexte</code> / <code>dossier.detailsCatalogue</code> déjà dans le code.</li>
+    <li>Le panneau « Voir des exemples » est retiré : la liste déroulante classée par thème EST la liste d'exemples, le doubler était redondant.</li>
+  </ul>
+  <h3>Certifications et « Faire le point »</h3>
+  <ul>
+    <li>Le lien : « Faire le point » est l'étape où <b>l'assistant propose</b> quelles certifications mettre en avant et rédige la formulation. Ça n'empêche pas la personne de saisir dès ici, dans le champ contexte, ce qu'elle a fait avec sa certification. Ce texte alimente l'assistant. La phrase « proposées plus loin » a donc été remplacée par la même astuce de contexte que les autres blocs.</li>
+  </ul>
+  <h3>Mobilité</h3>
+  <ul>
+    <li>« Non » → la section se referme aussitôt sur un résumé (« Pas de permis »).</li>
+    <li>« Oui » → catégories + « Avez-vous un véhicule ? ». <b>Dès que la question véhicule est répondue</b>, la section se referme sur un résumé (« Permis B, C · avec véhicule ») avec un bouton <b>Modifier</b>.</li>
+  </ul>
+  <h3>Langues</h3>
+  <ul>
+    <li>Titre « Langues », l'explication, <b>puis directement la barre</b> (plus de deuxième « Langue »). Défaut affiché : « Je n'ai pas de langue étrangère à indiquer », avec une <b>invitation visible</b> juste en dessous.</li>
+    <li>Barre alignée, hauteur fixe : <b>langue</b>, puis <b>niveau</b> à côté, puis <b>« Ajouter cette langue »</b> à la suite.</li>
+    <li>« Autre langue… » : champ texte, <b>première lettre en majuscule</b>, <b>Entrée valide</b> (le niveau apparaît sans quitter le champ). Plus de « Autre (A1) ».</li>
+  </ul>
+  <h3>Formations</h3>
+  <ul>
+    <li>Remises en 3 étapes : ① type (Sans diplôme / Diplôme / Titre professionnel / CQP), ② niveau + <b>intitulé et année, tous deux obligatoires</b>, ③ <b>détail des missions par secteur, facultatif et replié</b> (repris de <code>CATALOGUE_MISSIONS_FORMATIONS_PAR_SECTEUR</code> — la fonction que la v1 avait perdue).</li>
+    <li>« Sans diplôme » : pris en compte sans confirmation. « Modifier » est un <b>bouton</b>.</li>
+    <li>Bouton « Valider » désactivé → grisé, curseur interdit, info-bulle au survol <b>et</b> phrase visible en dessous (utile sur écran tactile).</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  // Catalogues repris de js/app.js (verbatim)
+  var CATALOGUES = {
+    certifs: [
+      { g: 'Santé / Sécurité', items: ['SST', 'PSC1', 'AFGSU', 'SSIAP', 'H0B0', 'BS', 'BE Manœuvre'] },
+      { g: 'CACES', items: ['R482', 'R485', 'R486', 'R489', 'R490'] },
+      { g: 'BTP', items: ['AIPR', 'Travail en hauteur', 'Échafaudage', 'Amiante'] },
+      { g: 'Transport', items: ['FIMO', 'FCO', 'ADR'] },
+      { g: 'Industrie', items: ['Habilitations électriques', 'Pont roulant', 'Élingage', 'Soudure'] },
+      { g: 'Numérique', items: ['PIX', 'ICDL', 'TOSA'] },
+      { g: 'Langues', items: ['TOEIC', 'TOEFL', 'Linguaskill', 'DELF', 'DALF'] }
+    ],
+    perso: [
+      { g: 'Vie quotidienne', items: ['Gestion d\'un foyer', 'Organisation familiale', 'Gestion d\'un budget', 'Aide administrative', 'Courses et logistique'] },
+      { g: 'Aide aux personnes', items: ['Aidant familial', 'Garde d\'enfants', 'Accompagnement de personnes âgées', 'Soutien à une personne en situation de handicap'] },
+      { g: 'Bricolage et travaux', items: ['Bricolage', 'Peinture', 'Plomberie', 'Électricité', 'Jardinage', 'Entretien d\'espaces verts', 'Mécanique'] },
+      { g: 'Numérique', items: ['Informatique', 'Dépannage informatique', 'Création de site Internet', 'Montage vidéo', 'Graphisme', 'Bureautique avancée'] },
+      { g: 'Développement personnel', items: ['Autoformation', 'Apprentissage en ligne', 'Veille professionnelle', 'Lecture spécialisée'] },
+      { g: 'Projets personnels', items: ['Création d\'entreprise', 'Organisation d\'événements', 'Projet artistique', 'Projet associatif', 'Création de contenu'] },
+      { g: 'Vie sociale', items: ['Animation', 'Médiation', 'Organisation d\'activités', 'Encadrement de groupe'] }
+    ],
+    loisirs: [
+      { g: 'Sports', items: ['Football', 'Rugby', 'Tennis', 'Natation', 'Course à pied', 'Cyclisme', 'Musculation / Fitness', 'Arts martiaux', 'Danse', 'Randonnée', 'Escalade'] },
+      { g: 'Activités créatives', items: ['Dessin', 'Peinture', 'Photographie', 'Couture', 'Tricot', 'Bricolage', 'Menuiserie', 'Décoration'] },
+      { g: 'Culture', items: ['Lecture', 'Écriture', 'Musique', 'Chant', 'Théâtre', 'Cinéma', 'Jeux de société', 'Langues étrangères'] },
+      { g: 'Numérique', items: ['Informatique', 'Programmation', 'Jeux vidéo', 'Montage vidéo', 'Création graphique', 'Impression 3D'] },
+      { g: 'Nature', items: ['Jardinage', 'Potager', 'Observation de la nature', 'Pêche', 'Camping'] },
+      { g: 'Vie quotidienne', items: ['Cuisine', 'Pâtisserie', 'Voyage', 'Collection', 'Animaux'] }
+    ],
+    engagements: [
+      { g: 'Vie associative', items: ['Bénévolat associatif', 'Association sportive', 'Association culturelle', 'Association environnementale', 'Association humanitaire', 'Protection animale'] },
+      { g: 'Solidarité', items: ['Aidant familial', 'Soutien scolaire', 'Tutorat / mentorat', 'Accompagnement de personnes âgées', 'Distribution alimentaire', 'Accompagnement administratif'] },
+      { g: 'Engagement citoyen', items: ['Service civique', 'Sapeur-pompier volontaire', 'Réserve citoyenne', 'Réserve militaire', 'Protection civile', 'Croix-Rouge', 'Secourisme'] },
+      { g: 'Vie locale', items: ['Parent élu', 'Association de parents d\'élèves', 'Conseil de quartier', 'Comité des fêtes', 'Organisation d\'événements'] },
+      { g: 'Responsabilités', items: ['Président d\'association', 'Vice-président', 'Trésorier', 'Secrétaire', 'Encadrement d\'équipe bénévole'] }
+    ]
+  };
+
+  var TYPES_FORMATION = ['Sans diplôme', 'Diplôme', 'Titre professionnel', 'CQP'];
+  var NIVEAUX_DIPLOME = ['CAP / BEP', 'Bac', 'Bac +2', 'Bac +3 / Bac +4', 'Bac +5'];
+  var NIVEAUX_RNCP = ['Niveau 1', 'Niveau 2', 'Niveau 3', 'Niveau 4', 'Niveau 5', 'Niveau 6', 'Niveau 7'];
+  var PLACEHOLDER_INTITULE = {
+    'CAP / BEP': 'Ex. CAP Cuisine, BEP Vente',
+    'Bac': 'Ex. Bac pro Commerce, Bac général, Bac techno STMG',
+    'Bac +2': 'Ex. BTS Management commercial, DUT GEA',
+    'Bac +3 / Bac +4': 'Ex. Licence pro Métiers du commerce, Bachelor RH',
+    'Bac +5': 'Ex. Master Marketing, Diplôme d\'ingénieur'
+  };
+  var EQUIV_RNCP = 'Repères indicatifs : niveau 3 ≈ CAP/BEP · 4 ≈ Bac · 5 ≈ Bac+2 · 6 ≈ Bac+3/4 · 7 ≈ Bac+5.';
+  var NIVEAUX_MISSIONS_DIPLOME = ['CAP / BEP', 'Bac'];
+  var NIVEAUX_MISSIONS_RNCP = ['Niveau 3', 'Niveau 4'];
+  var MISSIONS_PAR_SECTEUR = {
+    'Bâtiment / Travaux publics': ['Lecture de plans et de consignes de chantier', 'Pose de matériaux (briques, carrelage, revêtements...)', 'Utilisation d\'outils et d\'engins de chantier', 'Application des règles de sécurité sur chantier'],
+    'Hôtellerie / Restauration': ['Préparation et dressage de plats', 'Application des règles d\'hygiène alimentaire (HACCP)', 'Service et relation client', 'Gestion des stocks et du matériel de cuisine'],
+    'Aide à la personne / Santé': ['Accompagnement dans les gestes du quotidien', 'Aide à la toilette et aux repas', 'Stimulation et activités avec les bénéficiaires', 'Transmission d\'informations à l\'équipe'],
+    'Logistique / Transport': ['Réception et rangement de marchandises', 'Préparation de commandes', 'Utilisation d\'engins de manutention (chariot, transpalette...)', 'Respect des consignes de sécurité et de circulation'],
+    'Sécurité / Propreté': ['Rondes de surveillance et contrôle d\'accès', 'Nettoyage et entretien de locaux', 'Application des protocoles d\'hygiène et de sécurité', 'Utilisation de matériel professionnel de nettoyage'],
+    'Commerce / Vente': ['Accueil et conseil client', 'Mise en rayon et gestion des stocks', 'Tenue de caisse et encaissement', 'Mise en valeur des produits en vitrine'],
+    'Numérique / Bureautique': ['Rédaction de documents (courriers, tableaux...)', 'Utilisation des outils bureautiques (Word, Excel)', 'Classement et gestion de documents', 'Recherche d\'informations en ligne']
+  };
+  var CONSEIL_CHIFFRES = '💡 Si possible, précisez un chiffre réel : combien de personnes / pièces / clients, combien de temps, quel résultat ?';
+
+  var etat = {
+    ouverts: { vous: true, formations: true, experiences: true, perso: false, complements: false },
+    civilite: 'Ne pas préciser', photo: '', identite: { prenom: '', nom: '', tel: '', mail: '', adresse: '', cp: '', ville: '' }, identiteVerrou: false,
+    permis: '', permisCat: [], vehicule: '', mobiliteVerrou: false,
+    langues: [], langueSel: '', langueAutre: '', niveauSel: '',
+    // brouillon formation
+    fType: '', fNiveau: '', fIntitule: '', fAnnee: '', fSecteur: '', fMissions: [], fMissionsTexte: '', fDetailOuvert: false, fEditIndex: null,
+    // formations : tableau d'objets { type, niveau, intitule, annee, secteur, missions, missionsTexte }
+    formations: [], formationSansDiplome: false,
+    // expériences professionnelles : tableau d'objets { poste, entreprise, debut, fin, missions }
+    experiences: [],
+    xPoste: '', xEntreprise: '', xDebut: '', xFin: '', xMissions: '', xEnPoste: false, xEditIndex: null, xFormOuvert: false,
+    // listes avec contexte par élément : [{ label, contexte, ouvert }]
+    certifOui: '', certifs: [], _certifAutre: false,
+    persos: [], _persoAutre: false,
+    loisirs: [], _loisirAutre: false,
+    engagements: [], _engAutre: false,
+    _identiteRemplie: false
+  };
+
+  function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  function esc(s) { return (s || '').replace(/"/g, '&quot;'); }
+  // majuscule en direct dans un champ, sans perdre le curseur
+  function capField(el) {
+    var v = cap(el.value);
+    if (v !== el.value) { var p = el.selectionStart; el.value = v; try { el.setSelectionRange(p, p); } catch (e) {} }
+    return el.value;
+  }
+  function chiffresSeuls(el, max) {
+    var v = el.value.replace(/[^0-9]/g, '');
+    if (max) { v = v.slice(0, max); }
+    if (v !== el.value) { el.value = v; }
+    return v;
+  }
+  function formationLabel(f) {
+    return (f.type === 'Diplôme' ? f.niveau : f.type) +
+      (f.intitule ? ' - ' + f.intitule : '') + (f.annee ? ' (' + f.annee + ')' : '');
+  }
+
+  // chips langues : tableau de chaînes
+  function chip(txt, liste, i) { return '<span class="chip">' + txt + '<button type="button" class="chip-x" data-liste="' + liste + '" data-i="' + i + '">✕</button></span>'; }
+  function listeChips(liste, arr) { return arr.length ? '<div class="liste-chips">' + arr.map(function (v, i) { return chip(v, liste, i); }).join('') + '</div>' : ''; }
+
+  // chips formations : cliquables pour modifier + croix pour retirer
+  function chipsFormations() {
+    if (!etat.formations.length) { return ''; }
+    var h = '<div class="liste-chips">';
+    etat.formations.forEach(function (f, i) {
+      h += '<span class="chip' + (etat.fEditIndex === i ? ' ouvert' : '') + '">' +
+        '<button type="button" class="chip-body" data-form-editer="' + i + '">' + esc(formationLabel(f)) + '</button>' +
+        '<button type="button" class="chip-x" data-form-supprimer="' + i + '">✕</button>' +
+        '</span>';
+    });
+    return h + '</div>';
+  }
+
+  // chips AVEC contexte par élément (certifs, perso, loisirs, engagements)
+  function chipsContexte(liste, arr) {
+    if (!arr.length) { return ''; }
+    var h = '<div class="liste-chips">';
+    arr.forEach(function (it, i) {
+      h += '<span class="chip' + (it.ouvert ? ' ouvert' : '') + '">' +
+        '<button type="button" class="chip-body" data-cc-toggle="' + liste + '" data-i="' + i + '">' + it.label + (it.contexte.trim() ? ' <span class="chip-pastille-ctx" title="Contexte renseigné">•</span>' : '') + '</button>' +
+        '<button type="button" class="chip-x" data-cc-remove="' + liste + '" data-i="' + i + '">✕</button>' +
+        '</span>';
+    });
+    h += '</div>';
+    var idxOuvert = -1;
+    arr.forEach(function (it, i) { if (it.ouvert) { idxOuvert = i; } });
+    if (idxOuvert !== -1) {
+      h += '<div class="chip-contexte"><label>Contexte pour « ' + arr[idxOuvert].label + ' » (facultatif)</label>' +
+        '<textarea data-cc-ctx="' + liste + '" data-i="' + idxOuvert + '" placeholder="Dans quel cadre ? Qu\'avez-vous fait concrètement ? Un chiffre si possible.">' + esc(arr[idxOuvert].contexte) + '</textarea>' +
+        '<p class="hint-select">Entrée ou clic ailleurs pour enregistrer. Vous pouvez dicter (touches Windows + H), l\'assistant remettra en forme. La croix retire l\'élément et son contexte.</p></div>';
+    }
+    return h;
+  }
+  var INCITATION_CTX = '<p class="astuce-forte">&#128161; Astuce : cliquez sur un élément ajouté pour préciser le contexte (facultatif mais fortement conseillé). Ces détails peuvent faire ressortir une compétence recherchée pour le poste que vous visez.</p>';
+
+  function selectCatalogue(id, cat, placeholder) {
+    var h = '<select id="' + id + '"><option value="">' + placeholder + '</option>';
+    CATALOGUES[cat].forEach(function (grp) {
+      h += '<optgroup label="' + grp.g + '">';
+      grp.items.forEach(function (it) { h += '<option>' + it + '</option>'; });
+      h += '</optgroup>';
+    });
+    return h + '<option value="__autre">Autre (préciser)…</option></select>';
+  }
+
+  /* ---------- Bloc VOUS ---------- */
+  function blocVous() {
+    var idComplet = etat._identiteRemplie;
+    var h = '<div class="bloc ' + (etat.ouverts.vous ? 'ouvert' : '') + '" data-bloc="vous">' +
+      '<div class="entete"><span class="ico">👤</span><span class="titre">Vous</span>' +
+      '<span class="tag rec">recommandé</span><span class="badge' + (idComplet ? ' ok' : '') + '">' + (idComplet ? 'complété' : 'à compléter') + '</span>' +
+      '<span class="chevron">▸</span></div><div class="corps">';
+
+    // Identité
+    h += '<div class="sous-section"><div class="ss-titre">Identité</div><div class="identite-layout"><div class="identite-champs">';
+    var id = etat.identite;
+    if (etat.identiteVerrou) {
+      var bits = [id.prenom + ' ' + id.nom];
+      if (id.tel) { bits.push(id.tel); }
+      if (id.mail) { bits.push(id.mail); }
+      if (id.cp || id.ville) { bits.push((id.cp + ' ' + id.ville).trim()); }
+      h += '<div class="resume-verrou"><span>&#10003; ' + esc(bits.join(' · ')) + '</span>' +
+        '<button type="button" class="btn-modifier" id="btnModifIdentite">Modifier</button></div>';
+    } else {
+      h += '<div class="ligne-jetons"><div class="lib">Civilité</div>' +
+        ['Madame', 'Monsieur', 'Ne pas préciser'].map(function (c) {
+          return '<span class="jeton jeton--radio' + (etat.civilite === c ? ' actif' : '') + '" data-civ="' + c + '">' + c + '</span>';
+        }).join('') + '</div>';
+      h += '<div class="grille-champs">' +
+        '<div class="champ"><label>Prénom</label><input type="text" data-id="prenom" data-cap data-seq="0" value="' + esc(id.prenom) + '"></div>' +
+        '<div class="champ"><label>Nom</label><input type="text" data-id="nom" data-cap data-seq="1" value="' + esc(id.nom) + '"></div>' +
+        '<div class="champ"><label>Téléphone</label><input type="tel" data-id="tel" data-num="15" inputmode="tel" data-seq="2" value="' + esc(id.tel) + '"></div>' +
+        '<div class="champ"><label>Courriel</label><input type="email" data-id="mail" data-seq="3" value="' + esc(id.mail) + '"></div>' +
+        '</div>' +
+        '<div class="champ"><label>Adresse postale <span class="lbl-fac">(facultatif)</span></label>' +
+        '<input type="text" data-id="adresse" data-cap data-seq="4" placeholder="Numéro et rue" value="' + esc(id.adresse) + '">' +
+        '<p class="ss-aide" style="margin:5px 0 0">Sur un CV, le code postal et la ville suffisent. L\'adresse précise n\'est plus attendue ; ne la renseignez que si c\'est utile (proximité avec l\'entreprise).</p></div>' +
+        '<div class="grille-champs">' +
+        '<div class="champ"><label>Code postal</label><input type="text" data-id="cp" data-num="5" inputmode="numeric" data-seq="5" value="' + esc(id.cp) + '"></div>' +
+        '<div class="champ"><label>Ville</label><input type="text" data-id="ville" data-cap data-seq="6" value="' + esc(id.ville) + '"></div>' +
+        '</div>';
+      var idPret = !!(id.prenom.trim() && id.nom.trim() && (id.tel.trim() || id.mail.trim()));
+      h += '<button type="button" class="btn-ajouter' + (idPret ? '' : ' desactive') + '" id="btnValiderIdentite"' +
+        (idPret ? '' : ' title="Renseignez au moins le prénom, le nom, et le téléphone ou le courriel."') + '>Enregistrer mon identité</button>';
+      if (!idPret) { h += '<p class="hint-desactive">Prénom, nom, et téléphone ou courriel : le minimum pour valider.</p>'; }
+    }
+    h += '</div>'; // fin identite-champs
+    // colonne photo : question sur une ligne, réponse Oui/Non sur une autre, photo en dessous si Oui
+    h += '<div class="identite-colonne-photo">' +
+      '<div class="q-photo-lib">Voulez-vous une photo sur votre CV ?</div>' +
+      '<div class="q-photo-reponse">' +
+      ['Oui', 'Non'].map(function (v) {
+        return '<span class="jeton jeton--radio petit' + (etat.photo === v ? ' actif' : '') + '" data-photo="' + v + '">' + v + '</span>';
+      }).join('') + '</div>';
+    if (etat.photo === 'Oui') {
+      h += '<div class="identite-photo-box"><span class="ph-ico">🖼️</span>Déposer une photo</div>';
+    }
+    h += '</div></div></div>'; // fin colonne photo + identite-layout + sous-section
+
+    // Mobilité : se referme et affiche un résumé une fois répondue
+    h += '<div class="sous-section"><div class="ss-titre">Mobilité</div>';
+    if (etat.mobiliteVerrou) {
+      var resume;
+      if (etat.permis === 'Non') {
+        resume = 'Pas de permis';
+      } else {
+        var lettres = etat.permisCat.map(function (c) { return c.split(' ')[0]; }).join(', ');
+        resume = (lettres ? 'Permis ' + lettres : 'Titulaire du permis') + ' · ' + (etat.vehicule === 'Oui' ? 'avec véhicule' : 'sans véhicule');
+      }
+      h += '<div class="resume-verrou"><span>&#10003; ' + resume + '</span>' +
+        '<button type="button" class="btn-modifier" id="btnModifMobilite">Modifier</button></div>';
+    } else {
+      h += '<div class="ligne-jetons' + (etat.permis === 'Oui' ? ' serre' : '') + '"><div class="lib">Avez-vous le permis ?</div>' +
+        ['Oui', 'Non'].map(function (v) {
+          return '<span class="jeton jeton--radio' + (etat.permis === v ? ' actif' : '') + '" data-permis="' + v + '">' + v + '</span>';
+        }).join('') + '</div>';
+      if (etat.permis === 'Oui') {
+        h += '<div class="ligne-jetons"><div class="lib">Catégories (plusieurs possibles)</div>' +
+          ['B (voiture)', 'A (moto)', 'C (poids lourd)', 'D (transport en commun)', 'CE (remorque)'].map(function (v) {
+            return '<span class="jeton petit' + (etat.permisCat.indexOf(v) !== -1 ? ' actif' : '') + '" data-multi="permisCat" data-val="' + v + '">' + v + '</span>';
+          }).join('') + '</div>';
+        h += '<div class="ligne-jetons"><div class="lib">Avez-vous un véhicule ?</div>' +
+          ['Oui', 'Non'].map(function (v) {
+            return '<span class="jeton jeton--radio' + (etat.vehicule === v ? ' actif' : '') + '" data-veh="' + v + '">' + v + '</span>';
+          }).join('') + '</div>';
+      }
+    }
+    h += '</div>';
+
+    // Langues : une seule ligne, hauteur fixe, alignée
+    var langueReelle = etat.langueSel && etat.langueSel !== '__autre';
+    var langueAutrePrete = etat.langueSel === '__autre' && etat.langueAutre.trim();
+    h += '<div class="sous-section"><div class="ss-titre">Langues</div>' +
+      '<p class="ss-aide">Indiquer une langue est un atout. Niveaux du cadre européen : A1 débutant à C2 langue maternelle.</p>' +
+      '<div class="langue-row">' +
+      '<select id="selLangue" class="lg-langue"><option value="">Je n\'ai pas de langue étrangère à indiquer</option>' +
+      ['Anglais', 'Espagnol', 'Allemand', 'Italien', 'Portugais', 'Arabe'].map(function (l) { return '<option' + (etat.langueSel === l ? ' selected' : '') + '>' + l + '</option>'; }).join('') +
+      '<option value="__autre"' + (etat.langueSel === '__autre' ? ' selected' : '') + '>Autre langue…</option>' +
+      '</select>';
+    if (etat.langueSel === '__autre') {
+      h += '<input type="text" id="langueAutreTxt" class="lg-autre" placeholder="Quelle langue ? (Entrée pour valider)" value="' + esc(etat.langueAutre) + '">';
+    }
+    if (langueReelle || langueAutrePrete) {
+      h += '<select id="selNiveau" class="lg-niveau"><option value="">Niveau…</option>' +
+        ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map(function (n) { return '<option' + (etat.niveauSel === n ? ' selected' : '') + '>' + n + '</option>'; }).join('') +
+        '</select>';
+      if (etat.niveauSel) {
+        h += '<button type="button" class="btn-ajouter" id="btnAjLangue">+ Ajouter cette langue</button>';
+      }
+    }
+    h += '</div>';
+    if (!etat.langueSel) {
+      h += '<p class="invite-langue">&#8593; Vous parlez une langue étrangère ? Cliquez ci-dessus pour l\'ajouter.</p>';
+    }
+    h += listeChips('langues', etat.langues) + '</div>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  /* ---------- Bloc FORMATIONS ---------- */
+  function niveauxPourType(t) {
+    if (t === 'Diplôme') { return NIVEAUX_DIPLOME; }
+    if (t === 'Titre professionnel' || t === 'CQP') { return NIVEAUX_RNCP; }
+    return [];
+  }
+  function missionsApplicables() {
+    if (etat.fType === 'Diplôme') { return NIVEAUX_MISSIONS_DIPLOME.indexOf(etat.fNiveau) !== -1; }
+    if (etat.fType === 'Titre professionnel' || etat.fType === 'CQP') { return NIVEAUX_MISSIONS_RNCP.indexOf(etat.fNiveau) !== -1; }
+    return false;
+  }
+  function labelValider() {
+    var mot = (etat.fType === 'Titre professionnel') ? 'le titre' : (etat.fType === 'CQP') ? 'le CQP' : 'le diplôme';
+    return (etat.fEditIndex !== null) ? 'Valider ces modifications' : ('Valider ' + mot);
+  }
+
+  function blocFormations() {
+    var niveauRegle = etat.formationSansDiplome || etat.formations.length > 0;
+    var ok = niveauRegle && etat.certifOui !== '';
+    var h = '<div class="bloc ' + (etat.ouverts.formations ? 'ouvert' : '') + '" data-bloc="formations">' +
+      '<div class="entete"><span class="ico">🎓</span><span class="titre">Vos formations et diplômes</span>' +
+      '<span class="tag rec">recommandé</span><span class="badge' + (ok ? ' ok' : '') + '">' + (ok ? 'complété' : 'à compléter') + '</span>' +
+      '<span class="chevron">▸</span></div><div class="corps">';
+
+    // ---- Sous-section Formations et diplômes ----
+    h += '<div class="sous-section"><div class="ss-titre">Formations et diplômes</div>';
+    h += chipsFormations();
+    if (etat.formations.length && etat.fEditIndex === null) {
+      h += '<p class="ligne-modif-hint">Cliquez sur une formation ci-dessus pour en modifier les informations. La croix la retire.</p>';
+    }
+    if (etat.formationSansDiplome) {
+      h += '<div class="resume-verrou" style="margin-top:11px"><span>&#10003; Niveau indiqué : sans diplôme</span>' +
+        '<button type="button" class="btn-modifier" id="btnModifSansDiplome">Modifier</button></div>';
+    } else {
+      if (etat.fEditIndex !== null) {
+        h += '<p class="ligne-modif-hint" style="color:var(--accent);font-weight:600;margin-top:11px">&#9998; Vous modifiez la formation sélectionnée ci-dessus. ' +
+          '<button type="button" class="lien-modifier" id="btnAnnulerEditForm" style="color:var(--accent);text-decoration:underline;background:none;border:0;cursor:pointer;font:inherit">Annuler</button></p>';
+      }
+      // 1. Type
+      h += '<div class="ligne-jetons serre" style="margin-top:11px"><div class="lib"><span class="etape-num">1</span>Qu\'avez-vous obtenu ?</div>' +
+        TYPES_FORMATION.map(function (t) {
+          return '<span class="jeton jeton--radio' + (etat.fType === t ? ' actif' : '') + '" data-ftype="' + t + '">' + t + '</span>';
+        }).join('') + '</div>';
+
+      if (etat.fType && etat.fType !== 'Sans diplôme') {
+        var motType = (etat.fType === 'CQP') ? 'CQP' : (etat.fType === 'Titre professionnel' ? 'titre' : 'diplôme');
+        // 2. Décrire : niveau + intitulé + année (tous requis)
+        h += '<div class="ligne-jetons"><div class="lib"><span class="etape-num">2</span>Son niveau</div>' +
+          niveauxPourType(etat.fType).map(function (n) {
+            return '<span class="jeton jeton--radio petit' + (etat.fNiveau === n ? ' actif' : '') + '" data-fniveau="' + n + '">' + n + '</span>';
+          }).join('') + '</div>';
+        if (etat.fType === 'Titre professionnel' || etat.fType === 'CQP') {
+          h += '<p class="ss-aide" style="margin-top:-4px">' + EQUIV_RNCP + '</p>';
+        }
+        if (etat.fNiveau) {
+          var ph = (etat.fType === 'Diplôme') ? (PLACEHOLDER_INTITULE[etat.fNiveau] || 'Ex. intitulé exact')
+            : (etat.fType === 'CQP' ? 'Ex. CQP Agent de propreté et d\'hygiène' : 'Ex. Titre professionnel Assistant de vie aux familles');
+          h += '<div class="intitule-annee">' +
+            '<div class="champ"><label>Intitulé exact du ' + motType + '</label>' +
+            '<input type="text" id="fIntitule" data-cap placeholder="' + esc(ph) + '" value="' + esc(etat.fIntitule) + '"></div>' +
+            '<div class="champ"><label>Année d\'obtention</label>' +
+            '<input type="text" id="fAnnee" inputmode="numeric" maxlength="4" placeholder="Ex. 2015" value="' + esc(etat.fAnnee) + '"></div>' +
+            '</div>';
+
+          // 3. Détailler (facultatif) : missions par secteur
+          if (missionsApplicables()) {
+            var ouv3 = etat.fDetailOuvert ? ' open' : '';
+            h += '<details class="details-fac"' + ouv3 + ' id="detailsMissions"><summary><span class="etape-num">3</span>Détailler ce que vous y avez appris et fait (facultatif)</summary><div class="df-corps">' +
+              '<p class="ss-aide" style="margin-top:2px">Utile si votre expérience professionnelle est encore légère : en CAP, BEP ou bac pro, on apprend mais on fait aussi. Rien n\'est affiché tel quel, tout passe par l\'assistant.</p>' +
+              '<div class="ligne-jetons serre"><div class="lib">Dans quel secteur avez-vous exercé, pratiqué ou appris ?</div>' +
+              Object.keys(MISSIONS_PAR_SECTEUR).map(function (s) {
+                return '<span class="jeton jeton--radio petit' + (etat.fSecteur === s ? ' actif' : '') + '" data-fsecteur="' + esc(s) + '">' + s + '</span>';
+              }).join('') + '</div>';
+            if (etat.fSecteur && MISSIONS_PAR_SECTEUR[etat.fSecteur]) {
+              h += '<div class="separateur-pointille"></div>' +
+                '<div class="ligne-jetons"><div class="lib">Des missions courantes dans ce secteur (cochez celles que vous avez faites)</div>' +
+                MISSIONS_PAR_SECTEUR[etat.fSecteur].map(function (m) {
+                  return '<span class="jeton petit' + (etat.fMissions.indexOf(m) !== -1 ? ' actif' : '') + '" data-fmission="' + esc(m) + '">' + m + '</span>';
+                }).join('') + '</div>';
+            }
+            h += '<div class="separateur-pointille"></div>' +
+              '<div class="champ"><label>Ou décrivez-les avec vos propres mots</label>' +
+              '<textarea id="fMissionsTexte" data-cap placeholder="Décrivez avec vos mots... (dictée : touches Windows + H)">' + esc(etat.fMissionsTexte) + '</textarea></div>' +
+              '<p class="conseil-chiffres">' + CONSEIL_CHIFFRES + '</p>' +
+              '</div></details>';
+          }
+
+          var peutValider = !!(etat.fIntitule.trim() && etat.fAnnee.trim());
+          var msgBloque = 'Renseignez l\'intitulé et l\'année pour valider ce ' + motType + '.';
+          h += '<button type="button" class="btn-ajouter' + (peutValider ? '' : ' desactive') + '" id="btnValiderForm"' +
+            (peutValider ? '' : ' title="' + esc(msgBloque) + '"') + '>' + labelValider() + '</button>';
+          if (!peutValider) { h += '<p class="hint-desactive">' + msgBloque + '</p>'; }
+        }
+      }
+    }
+    h += '</div>'; // fin sous-section formations
+
+    // ---- Sous-section Certifications ----
+    h += '<div class="sous-section"><div class="ss-titre">Certifications</div>' +
+      '<div class="ligne-jetons serre"><div class="lib">Avez-vous des certifications (CACES, SST, habilitations...) ?</div>' +
+      ['Oui', 'Non'].map(function (v) {
+        return '<span class="jeton jeton--radio' + (etat.certifOui === v ? ' actif' : '') + '" data-certif="' + v + '">' + v + '</span>';
+      }).join('') + '</div>';
+    if (etat.certifOui === 'Oui') {
+      h += '<div class="champ" style="margin-top:8px">' + selectCatalogue('selCertif', 'certifs', 'Choisir une certification…') + '</div>';
+      if (etat._certifAutre) {
+        h += '<div class="ligne-autre"><input type="text" id="certifAutreTxt" data-cap placeholder="Précisez votre certification">' +
+          '<button type="button" class="btn-ajouter" id="btnAjCertifAutre">+ Ajouter</button></div>';
+      }
+      h += chipsContexte('certifs', etat.certifs);
+      if (etat.certifs.length) { h += INCITATION_CTX; }
+    }
+    h += '</div>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  /* ---------- Bloc EXPÉRIENCES PROFESSIONNELLES (déplacé depuis « Vos documents », v10) ---------- */
+  function experienceLabel(x) {
+    var periode = x.debut || x.fin ? ' (' + [x.debut, x.fin].filter(Boolean).join(' - ') + ')' : '';
+    return esc(x.poste + (x.entreprise ? ' - ' + x.entreprise : '') + periode);
+  }
+  function chipsExperiences() {
+    if (!etat.experiences.length) { return ''; }
+    var h = '<div class="liste-chips">';
+    etat.experiences.forEach(function (x, i) {
+      h += '<span class="chip' + (etat.xEditIndex === i ? ' ouvert' : '') + '">' +
+        '<button type="button" class="chip-body" data-exp-editer="' + i + '">' + experienceLabel(x) + '</button>' +
+        '<button type="button" class="chip-x" data-exp-supprimer="' + i + '">✕</button></span>';
+    });
+    return h + '</div>';
+  }
+  function blocExperiences() {
+    var n = etat.experiences.length;
+    var h = '<div class="bloc ' + (etat.ouverts.experiences ? 'ouvert' : '') + '" data-bloc="experiences">' +
+      '<div class="entete"><span class="ico">💼</span><span class="titre">Vos expériences professionnelles</span>' +
+      '<span class="tag rec">recommandé</span><span class="badge' + (n ? ' ok' : '') + '">' + (n ? n + ' ajoutée(s)' : 'à compléter') + '</span>' +
+      '<span class="chevron">▸</span></div><div class="corps">';
+    h += '<p class="ss-aide">Vos emplois, y compris courts, saisonniers, en intérim ou en contrat aidé. Les stages longs comptent aussi. C\'est le cœur de votre CV.</p>';
+    h += chipsExperiences();
+    if (etat.experiences.length) { h += '<p class="hint-select">Cliquez sur une expérience ci-dessus pour la modifier.</p>'; }
+    if (etat.xFormOuvert) {
+      h += '<div class="sous-section"><div class="ss-titre">' + (etat.xEditIndex !== null ? 'Modifier cette expérience' : 'Ajouter une expérience') + '</div>';
+      h += '<div class="champ"><label>Intitulé du poste occupé</label>' +
+        '<input type="text" id="xPoste" data-cap data-xseq="0" value="' + esc(etat.xPoste) + '" placeholder="Ex. Vendeur, Agent de production, Aide-soignant"></div>';
+      h += '<div class="champ"><label>Entreprise ou employeur</label>' +
+        '<input type="text" id="xEntreprise" data-cap data-xseq="1" value="' + esc(etat.xEntreprise) + '" placeholder="Ex. Boulangerie Martin, Intérim Adecco"></div>';
+      h += '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+        '<div class="champ" style="flex:1 1 140px"><label>Depuis</label><input type="text" id="xDebut" inputmode="numeric" maxlength="4" data-xseq="2" value="' + esc(etat.xDebut) + '" placeholder="Ex. 2021"></div>' +
+        '<div class="champ" style="flex:1 1 140px"><label>Jusqu\'à</label>' +
+          (etat.xEnPoste
+            ? '<div class="xfin-enposte">En poste actuellement</div>'
+            : '<input type="text" id="xFin" inputmode="numeric" maxlength="4" data-xseq="3" value="' + esc(etat.xFin) + '" placeholder="Ex. 2023">') +
+          '<button type="button" class="xfin-toggle' + (etat.xEnPoste ? ' on' : '') + '" id="btnEnPoste">' + (etat.xEnPoste ? '✓ En poste' : '+ Je suis encore en poste') + '</button>' +
+        '</div></div>';
+      h += '<div class="champ"><label>Ce que vous y faisiez</label>' +
+        '<textarea id="xMissions" data-cap placeholder="Décrivez vos tâches principales. Un chiffre si possible : combien de clients, de pièces, de personnes ?">' + esc(etat.xMissions) + '</textarea>' +
+        '<p class="hint-select">' + CONSEIL_CHIFFRES + ' Vous pouvez dicter (touches Windows + H), l\'assistant remettra en forme.</p></div>';
+      h += '<button type="button" class="btn-ajouter' + (etat.xPoste.trim() ? '' : ' desactive') + '" id="btnValiderExp"' +
+        (etat.xPoste.trim() ? '' : ' title="Renseignez au moins l\'intitulé du poste."') + '>' +
+        (etat.xEditIndex !== null ? 'Valider ces modifications' : '+ Ajouter cette expérience') + '</button>';
+      if (etat.xEditIndex !== null) { h += ' <button type="button" id="btnAnnulerExp" style="color:var(--accent);text-decoration:underline;background:none;border:0;cursor:pointer;font:inherit">Annuler</button>'; }
+      h += '</div>';
+    } else {
+      h += '<div class="champ" style="margin-top:10px"><button type="button" class="btn-ajouter" id="btnOuvrirExpForm">📝 Ajouter une expérience</button></div>';
+    }
+    h += '</div></div>';
+    return h;
+  }
+
+  /* ---------- Bloc EXPÉRIENCES DE LA VIE ---------- */
+  function blocPerso() {
+    var n = etat.persos.length;
+    var h = '<div class="bloc facultatif ' + (etat.ouverts.perso ? 'ouvert' : '') + '" data-bloc="perso">' +
+      '<div class="entete"><span class="ico">🌱</span><span class="titre">Ce que vous avez appris ailleurs qu\'au travail</span>' +
+      '<span class="tag fac">facultatif</span><span class="badge' + (n ? ' ok' : '') + '">' + (n ? n + ' ajouté(s)' : 'rien pour l\'instant') + '</span>' +
+      '<span class="chevron">▸</span></div><div class="corps">';
+    h += '<p class="ss-aide">Aidant familial, bénévolat, gestion d\'un budget, gros travaux, organisation d\'événements... Beaucoup de personnes ne pensent pas à les citer.</p>';
+    h += '<div class="champ"><label>Choisir dans la liste</label>' + selectCatalogue('selPerso', 'perso', 'Choisir…') + '</div>';
+    if (etat._persoAutre) {
+      h += '<div class="ligne-autre"><input type="text" id="persoAutreTxt" data-cap placeholder="Décrivez cette expérience">' +
+        '<button type="button" class="btn-ajouter" id="btnAjPersoAutre">+ Ajouter</button></div>';
+    }
+    h += chipsContexte('persos', etat.persos);
+    if (etat.persos.length) { h += INCITATION_CTX; }
+    h += '</div></div>';
+    return h;
+  }
+
+  /* ---------- Bloc COMPLÉMENTS ---------- */
+  function blocComplements() {
+    var n = etat.loisirs.length + etat.engagements.length;
+    var h = '<div class="bloc facultatif ' + (etat.ouverts.complements ? 'ouvert' : '') + '" data-bloc="complements">' +
+      '<div class="entete"><span class="ico">🧩</span><span class="titre">Compléments</span>' +
+      '<span class="tag fac">facultatif</span><span class="badge' + (n ? ' ok' : '') + '">' + (n ? n + ' ajouté(s)' : 'rien pour l\'instant') + '</span>' +
+      '<span class="chevron">▸</span></div><div class="corps">';
+    h += '<div class="sous-section"><div class="ss-titre">Loisirs</div>' +
+      '<div class="champ">' + selectCatalogue('selLoisir', 'loisirs', 'Choisir un loisir…') + '</div>' +
+      (etat._loisirAutre ? '<div class="ligne-autre"><input type="text" id="loisirAutreTxt" data-cap placeholder="Précisez"><button type="button" class="btn-ajouter" id="btnAjLoisirAutre">+ Ajouter</button></div>' : '') +
+      chipsContexte('loisirs', etat.loisirs) +
+      (etat.loisirs.length ? INCITATION_CTX : '') + '</div>';
+    h += '<div class="sous-section"><div class="ss-titre">Engagements (bénévolat, association...)</div>' +
+      '<div class="champ">' + selectCatalogue('selEng', 'engagements', 'Choisir un engagement…') + '</div>' +
+      (etat._engAutre ? '<div class="ligne-autre"><input type="text" id="engAutreTxt" data-cap placeholder="Précisez"><button type="button" class="btn-ajouter" id="btnAjEngAutre">+ Ajouter</button></div>' : '') +
+      chipsContexte('engagements', etat.engagements) +
+      (etat.engagements.length ? INCITATION_CTX : '') + '</div>';
+    h += '</div></div>';
+    return h;
+  }
+
+  function render() {
+    majIdentiteRemplie();
+    document.getElementById('blocs').innerHTML = blocVous() + blocFormations() + blocExperiences() + blocPerso() + blocComplements();
+    document.getElementById('hint').textContent = '';
+    wire();
+  }
+
+  function ajouterItemCtx(liste, label) {
+    if (etat[liste].some(function (x) { return x.label === label; })) { return; }
+    etat[liste].forEach(function (x) { x.ouvert = false; });
+    etat[liste].push({ label: label, contexte: '', ouvert: false });
+  }
+  function ajouterViaSelect(selId, liste, autreFlag) {
+    var el = document.getElementById(selId);
+    if (!el) { return; }
+    if (el.value === '__autre') { etat[autreFlag] = true; render(); return; }
+    if (el.value) { ajouterItemCtx(liste, el.value); etat[autreFlag] = false; render(); }
+  }
+  function ajouterAutre(inputId, liste, autreFlag) {
+    var el = document.getElementById(inputId);
+    if (!el || !el.value.trim()) { return; }
+    ajouterItemCtx(liste, cap(el.value.trim())); etat[autreFlag] = false; render();
+  }
+  function resetBrouillonForm() {
+    etat.fType = ''; etat.fNiveau = ''; etat.fIntitule = ''; etat.fAnnee = '';
+    etat.fSecteur = ''; etat.fMissions = []; etat.fMissionsTexte = ''; etat.fDetailOuvert = false; etat.fEditIndex = null;
+  }
+  function resetBrouillonExp() {
+    etat.xPoste = ''; etat.xEntreprise = ''; etat.xDebut = ''; etat.xFin = ''; etat.xMissions = ''; etat.xEnPoste = false; etat.xEditIndex = null; etat.xFormOuvert = false;
+  }
+  function majIdentiteRemplie() {
+    var id = etat.identite;
+    etat._identiteRemplie = etat.identiteVerrou || !!(id.prenom.trim() && id.nom.trim() && (id.tel.trim() || id.mail.trim()));
+  }
+
+  function wire() {
+    document.querySelectorAll('.bloc > .entete').forEach(function (e) {
+      e.onclick = function (ev) {
+        if (ev.target.closest('input, select, button, textarea, .jeton, .ex-jeton')) { return; }
+        var k = e.parentElement.dataset.bloc; etat.ouverts[k] = !etat.ouverts[k]; render();
+      };
+    });
+    document.querySelectorAll('[data-civ]').forEach(function (el) { el.onclick = function () { etat.civilite = el.dataset.civ; render(); }; });
+
+    // majuscule automatique / chiffres seuls sur tous les champs marqués
+    document.querySelectorAll('[data-cap]').forEach(function (el) {
+      var prev = el.oninput;
+      el.addEventListener('input', function () { capField(el); if (prev) { prev.call(el); } });
+    });
+    document.querySelectorAll('[data-num]').forEach(function (el) {
+      var max = parseInt(el.dataset.num, 10) || 0;
+      el.addEventListener('input', function () { chiffresSeuls(el, max); });
+    });
+
+    // identité : champs liés + Entrée pour passer au champ suivant
+    document.querySelectorAll('input[data-id]').forEach(function (el) {
+      var key = el.dataset.id;
+      el.addEventListener('input', function () { etat.identite[key] = el.value; majIdentiteRemplie();
+        var b = document.querySelector('.bloc[data-bloc="vous"] .badge');
+        if (b) { b.className = 'badge' + (etat._identiteRemplie ? ' ok' : ''); b.textContent = etat._identiteRemplie ? 'complété' : 'à compléter'; }
+        var bv = document.getElementById('btnValiderIdentite');
+        if (bv) {
+          var pret = !!(etat.identite.prenom.trim() && etat.identite.nom.trim() && (etat.identite.tel.trim() || etat.identite.mail.trim()));
+          bv.classList.toggle('desactive', !pret);
+          var hd = bv.nextElementSibling;
+          if (hd && hd.classList.contains('hint-desactive')) { hd.style.display = pret ? 'none' : ''; }
+        }
+      });
+      el.addEventListener('keydown', function (ev) {
+        if (ev.key !== 'Enter') { return; }
+        ev.preventDefault();
+        var seq = +el.dataset.seq;
+        var suivant = document.querySelector('input[data-seq="' + (seq + 1) + '"]');
+        if (suivant) { suivant.focus(); }
+        else { el.blur(); var bv = document.getElementById('btnValiderIdentite'); if (bv && !bv.classList.contains('desactive')) { bv.click(); } }
+      });
+    });
+    var bvi = document.getElementById('btnValiderIdentite');
+    if (bvi) { bvi.onclick = function () { if (bvi.classList.contains('desactive')) { return; } etat.identiteVerrou = true; majIdentiteRemplie(); render(); }; }
+    var bmi = document.getElementById('btnModifIdentite');
+    if (bmi) { bmi.onclick = function () { etat.identiteVerrou = false; majIdentiteRemplie(); render(); }; }
+    document.querySelectorAll('[data-photo]').forEach(function (el) { el.onclick = function () { etat.photo = (etat.photo === el.dataset.photo) ? '' : el.dataset.photo; render(); }; });
+    document.querySelectorAll('[data-permis]').forEach(function (el) {
+      el.onclick = function () {
+        etat.permis = (etat.permis === el.dataset.permis) ? '' : el.dataset.permis;
+        if (etat.permis !== 'Oui') { etat.permisCat = []; etat.vehicule = ''; }
+        // "Non" ferme tout de suite ; "Oui" reste ouvert jusqu'à la réponse véhicule
+        etat.mobiliteVerrou = (etat.permis === 'Non');
+        render();
+      };
+    });
+    document.querySelectorAll('[data-veh]').forEach(function (el) {
+      el.onclick = function () {
+        etat.vehicule = el.dataset.veh;
+        etat.mobiliteVerrou = true; // véhicule répondu -> on ferme et on résume
+        render();
+      };
+    });
+    document.querySelectorAll('[data-multi="permisCat"]').forEach(function (el) {
+      el.onclick = function () { var i = etat.permisCat.indexOf(el.dataset.val); if (i === -1) { etat.permisCat.push(el.dataset.val); } else { etat.permisCat.splice(i, 1); } render(); };
+    });
+    var bmm = document.getElementById('btnModifMobilite');
+    if (bmm) { bmm.onclick = function () { etat.mobiliteVerrou = false; render(); }; }
+    document.querySelectorAll('[data-certif]').forEach(function (el) { el.onclick = function () { etat.certifOui = (etat.certifOui === el.dataset.certif) ? '' : el.dataset.certif; render(); }; });
+    // chips simples (formations, langues)
+    document.querySelectorAll('.chip-x[data-liste]').forEach(function (el) { el.onclick = function () { etat[el.dataset.liste].splice(+el.dataset.i, 1); render(); }; });
+    // chips avec contexte (certifs, perso, loisirs, engagements)
+    document.querySelectorAll('[data-cc-toggle]').forEach(function (el) {
+      el.onclick = function () {
+        var liste = el.dataset.ccToggle, i = +el.dataset.i, etaitOuvert = etat[liste][i].ouvert;
+        etat[liste].forEach(function (x) { x.ouvert = false; });
+        etat[liste][i].ouvert = !etaitOuvert;
+        render();
+      };
+    });
+    document.querySelectorAll('[data-cc-remove]').forEach(function (el) {
+      el.onclick = function () { etat[el.dataset.ccRemove].splice(+el.dataset.i, 1); render(); };
+    });
+    document.querySelectorAll('[data-cc-ctx]').forEach(function (el) {
+      el.oninput = function () { capField(el); etat[el.dataset.ccCtx][+el.dataset.i].contexte = el.value; };
+      el.onkeydown = function (ev) { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); etat[el.dataset.ccCtx][+el.dataset.i].ouvert = false; render(); } };
+      el.onblur = function () { etat[el.dataset.ccCtx][+el.dataset.i].ouvert = false; render(); };
+    });
+
+    // formations
+    document.querySelectorAll('[data-ftype]').forEach(function (el) {
+      el.onclick = function () {
+        var t = el.dataset.ftype;
+        if (t === 'Sans diplôme') { etat.formationSansDiplome = true; resetBrouillonForm(); render(); return; }
+        etat.fType = (etat.fType === t) ? '' : t;
+        etat.fNiveau = ''; etat.fSecteur = ''; etat.fMissions = [];
+        render();
+      };
+    });
+    var bmsd = document.getElementById('btnModifSansDiplome');
+    if (bmsd) { bmsd.onclick = function () { etat.formationSansDiplome = false; render(); }; }
+    document.querySelectorAll('[data-form-editer]').forEach(function (el) {
+      el.onclick = function () {
+        var f = etat.formations[+el.dataset.formEditer];
+        etat.fType = f.type; etat.fNiveau = f.niveau; etat.fIntitule = f.intitule; etat.fAnnee = f.annee;
+        etat.fSecteur = f.secteur || ''; etat.fMissions = (f.missions || []).slice(); etat.fMissionsTexte = f.missionsTexte || '';
+        etat.fDetailOuvert = !!(f.secteur || (f.missions && f.missions.length) || f.missionsTexte);
+        etat.fEditIndex = +el.dataset.formEditer;
+        etat.formationSansDiplome = false;
+        render();
+      };
+    });
+    document.querySelectorAll('[data-form-supprimer]').forEach(function (el) {
+      el.onclick = function () {
+        var i = +el.dataset.formSupprimer;
+        etat.formations.splice(i, 1);
+        if (etat.fEditIndex === i) { resetBrouillonForm(); }
+        else if (etat.fEditIndex !== null && etat.fEditIndex > i) { etat.fEditIndex--; }
+        render();
+      };
+    });
+    var baef = document.getElementById('btnAnnulerEditForm');
+    if (baef) { baef.onclick = function () { resetBrouillonForm(); render(); }; }
+    document.querySelectorAll('[data-fniveau]').forEach(function (el) {
+      el.onclick = function () { etat.fNiveau = (etat.fNiveau === el.dataset.fniveau) ? '' : el.dataset.fniveau; etat.fSecteur = ''; etat.fMissions = []; render(); };
+    });
+    document.querySelectorAll('[data-fsecteur]').forEach(function (el) {
+      el.onclick = function () { etat.fSecteur = (etat.fSecteur === el.dataset.fsecteur) ? '' : el.dataset.fsecteur; etat.fMissions = []; render(); };
+    });
+    document.querySelectorAll('[data-fmission]').forEach(function (el) {
+      el.onclick = function () { var i = etat.fMissions.indexOf(el.dataset.fmission); if (i === -1) { etat.fMissions.push(el.dataset.fmission); } else { etat.fMissions.splice(i, 1); } render(); };
+    });
+    function majBtnValiderForm() {
+      var b = document.getElementById('btnValiderForm');
+      if (!b) { return; }
+      var peut = !!(etat.fIntitule.trim() && etat.fAnnee.trim());
+      b.classList.toggle('desactive', !peut);
+      var hint = b.nextElementSibling;
+      if (hint && hint.classList.contains('hint-desactive')) { hint.style.display = peut ? 'none' : ''; }
+    }
+    var fi = document.getElementById('fIntitule');
+    if (fi) {
+      fi.addEventListener('input', function () { etat.fIntitule = fi.value; majBtnValiderForm(); });
+      fi.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); var fa2 = document.getElementById('fAnnee'); if (fa2) { fa2.focus(); } } });
+    }
+    var fa = document.getElementById('fAnnee');
+    if (fa) {
+      fa.addEventListener('input', function () { etat.fAnnee = chiffresSeuls(fa, 4); majBtnValiderForm(); });
+      fa.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); var b = document.getElementById('btnValiderForm'); if (b && !b.classList.contains('desactive')) { b.click(); } } });
+    }
+    var fmt = document.getElementById('fMissionsTexte');
+    if (fmt) { fmt.addEventListener('input', function () { etat.fMissionsTexte = fmt.value; }); }
+    var dm = document.getElementById('detailsMissions');
+    if (dm) { dm.addEventListener('toggle', function () { etat.fDetailOuvert = dm.open; }); }
+    var bvf = document.getElementById('btnValiderForm');
+    if (bvf) {
+      bvf.onclick = function () {
+        if (bvf.classList.contains('desactive')) { return; }
+        var f = {
+          type: etat.fType, niveau: etat.fNiveau, intitule: etat.fIntitule.trim(), annee: etat.fAnnee.trim(),
+          secteur: etat.fSecteur, missions: etat.fMissions.slice(), missionsTexte: etat.fMissionsTexte.trim()
+        };
+        if (etat.fEditIndex !== null) { etat.formations[etat.fEditIndex] = f; }
+        else { etat.formations.push(f); }
+        etat.formationSansDiplome = false;
+        resetBrouillonForm();
+        render();
+      };
+    }
+
+    // expériences professionnelles
+    var bof = document.getElementById('btnOuvrirExpForm');
+    if (bof) { bof.onclick = function () { etat.xFormOuvert = true; render(); }; }
+    document.querySelectorAll('[data-exp-editer]').forEach(function (el) {
+      el.onclick = function () {
+        var x = etat.experiences[+el.dataset.expEditer];
+        etat.xPoste = x.poste; etat.xEntreprise = x.entreprise || ''; etat.xDebut = x.debut || '';
+        etat.xEnPoste = (x.fin === 'en poste');
+        etat.xFin = etat.xEnPoste ? '' : (x.fin || '');
+        etat.xMissions = x.missions || '';
+        etat.xEditIndex = +el.dataset.expEditer; etat.xFormOuvert = true;
+        render();
+      };
+    });
+    document.querySelectorAll('[data-exp-supprimer]').forEach(function (el) {
+      el.onclick = function () {
+        var i = +el.dataset.expSupprimer;
+        etat.experiences.splice(i, 1);
+        if (etat.xEditIndex === i) { resetBrouillonExp(); }
+        else if (etat.xEditIndex !== null && etat.xEditIndex > i) { etat.xEditIndex--; }
+        render();
+      };
+    });
+    function majBtnValiderExp() {
+      var b = document.getElementById('btnValiderExp');
+      if (!b) { return; }
+      b.classList.toggle('desactive', !etat.xPoste.trim());
+    }
+    var XSEQ = ['xPoste', 'xEntreprise', 'xDebut', 'xFin'];
+    function focusXseq(n) {
+      var cible = document.querySelector('[data-xseq="' + n + '"]');
+      if (cible) { cible.focus(); return true; }
+      return false;
+    }
+    [['xPoste', 'xPoste'], ['xEntreprise', 'xEntreprise'], ['xMissions', 'xMissions']].forEach(function (p) {
+      var el = document.getElementById(p[0]);
+      if (el) { el.addEventListener('input', function () { etat[p[1]] = el.value; majBtnValiderExp(); }); }
+    });
+    ['xDebut', 'xFin'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.addEventListener('input', function () { etat[id] = chiffresSeuls(el, 4); }); }
+    });
+    document.querySelectorAll('[data-xseq]').forEach(function (el) {
+      el.addEventListener('keydown', function (ev) {
+        if (ev.key !== 'Enter') { return; }
+        ev.preventDefault();
+        var n = parseInt(el.dataset.xseq, 10);
+        if (n < 3 && focusXseq(n + 1)) { return; }
+        if (n === 3) { var tx = document.getElementById('xMissions'); if (tx) { tx.focus(); return; } }
+        var b = document.getElementById('btnValiderExp');
+        if (b && !b.classList.contains('desactive')) { b.click(); }
+      });
+    });
+    var bep = document.getElementById('btnEnPoste');
+    if (bep) { bep.onclick = function () { etat.xEnPoste = !etat.xEnPoste; if (etat.xEnPoste) { etat.xFin = ''; } render(); }; }
+    var bve = document.getElementById('btnValiderExp');
+    if (bve) {
+      bve.onclick = function () {
+        if (bve.classList.contains('desactive')) { return; }
+        var x = {
+          poste: etat.xPoste.trim(), entreprise: etat.xEntreprise.trim(), debut: etat.xDebut.trim(),
+          fin: etat.xEnPoste ? 'en poste' : etat.xFin.trim(), missions: etat.xMissions.trim()
+        };
+        if (etat.xEditIndex !== null) { etat.experiences[etat.xEditIndex] = x; }
+        else { etat.experiences.push(x); }
+        resetBrouillonExp();
+        render();
+      };
+    }
+    var bae = document.getElementById('btnAnnulerExp');
+    if (bae) { bae.onclick = function () { resetBrouillonExp(); render(); }; }
+
+    // langues
+    var sl = document.getElementById('selLangue');
+    if (sl) { sl.onchange = function () { etat.langueSel = sl.value; etat.langueAutre = ''; etat.niveauSel = ''; render(); }; }
+    var la = document.getElementById('langueAutreTxt');
+    if (la) {
+      la.oninput = function () {
+        var v = cap(la.value);
+        if (v !== la.value) { var p = la.selectionStart; la.value = v; try { la.setSelectionRange(p, p); } catch (e) {} }
+        etat.langueAutre = la.value;
+      };
+      la.onkeydown = function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); render(); } };
+      la.onblur = function () { render(); };
+    }
+    var sn = document.getElementById('selNiveau');
+    if (sn) { sn.onchange = function () { etat.niveauSel = sn.value; render(); }; }
+    var bl = document.getElementById('btnAjLangue');
+    if (bl) {
+      bl.onclick = function () {
+        var nom = (etat.langueSel === '__autre') ? cap(etat.langueAutre.trim()) : etat.langueSel;
+        if (!nom) { return; }
+        etat.langues.push(nom + ' (' + etat.niveauSel + ')');
+        etat.langueSel = ''; etat.langueAutre = ''; etat.niveauSel = '';
+        render();
+      };
+    }
+
+    // certifs
+    var sc = document.getElementById('selCertif');
+    if (sc) { sc.onchange = function () { ajouterViaSelect('selCertif', 'certifs', '_certifAutre'); }; }
+    var bca = document.getElementById('btnAjCertifAutre');
+    if (bca) { bca.onclick = function () { ajouterAutre('certifAutreTxt', 'certifs', '_certifAutre'); }; }
+
+    // perso / compléments
+    var sp = document.getElementById('selPerso');
+    if (sp) { sp.onchange = function () { ajouterViaSelect('selPerso', 'persos', '_persoAutre'); }; }
+    var bpa = document.getElementById('btnAjPersoAutre');
+    if (bpa) { bpa.onclick = function () { ajouterAutre('persoAutreTxt', 'persos', '_persoAutre'); }; }
+    var slo = document.getElementById('selLoisir');
+    if (slo) { slo.onchange = function () { ajouterViaSelect('selLoisir', 'loisirs', '_loisirAutre'); }; }
+    var bloa = document.getElementById('btnAjLoisirAutre');
+    if (bloa) { bloa.onclick = function () { ajouterAutre('loisirAutreTxt', 'loisirs', '_loisirAutre'); }; }
+    var se = document.getElementById('selEng');
+    if (se) { se.onchange = function () { ajouterViaSelect('selEng', 'engagements', '_engAutre'); }; }
+    var bea = document.getElementById('btnAjEngAutre');
+    if (bea) { bea.onclick = function () { ajouterAutre('engAutreTxt', 'engagements', '_engAutre'); }; }
+  }
+
+  document.getElementById('btnTheme').onclick = function () {
+    var s = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', s ? 'clair' : 'sombre');
+    this.textContent = s ? '🌙 Voir en mode sombre' : '☀️ Voir en mode clair';
+  };
+  document.getElementById('btnToutOuvrir').onclick = function () { Object.keys(etat.ouverts).forEach(function (k) { etat.ouverts[k] = true; }); render(); };
+  document.getElementById('btnToutReplier').onclick = function () { Object.keys(etat.ouverts).forEach(function (k) { etat.ouverts[k] = false; }); render(); };
+
+  render();
+})();
+</script>
+</body>
+</html>

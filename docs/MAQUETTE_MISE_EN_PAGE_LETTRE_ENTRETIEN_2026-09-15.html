@@ -1,0 +1,281 @@
+<title>Maquette - « La mise en page » Lettre / Entretien</title>
+<meta charset="utf-8">
+<style>
+  /* Jetons repris tels quels de css/style.css (racine + [data-theme="sombre"]),
+     pour que cette maquette soit fidele au rendu reel de l'application. */
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text-muted: #4a5b6e; --text-soft: #3a4a5e;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd; --accent-solide: #0d6efd;
+    --success: #0f766e; --success-bg-subtle: #def2ef;
+    --radius: 12px; --ombre: 0 1px 2px rgba(16,24,40,.06), 0 2px 8px rgba(16,24,40,.06);
+  }
+  [data-theme="sombre"] {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #2a3444;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text-muted: #a8b3c4; --text-soft: #c3ccd9;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940; --accent-solide: #1d4ed8;
+    --success: #5fd6c9; --success-bg-subtle: #14322f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg-page); color: var(--text-soft);
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif; font-size: 15px; line-height: 1.55;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 20px 18px 70px; }
+
+  /* --- barre de demo (convention des maquettes du projet) --- */
+  .demo { border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); padding: 12px 14px; margin-bottom: 22px; font-size: 13.5px; color: var(--text-muted); }
+  .demo b { color: var(--text-strong); }
+  .demo .rangee { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .demo button { font: inherit; font-size: 12.5px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer; }
+  .demo button.on { background: var(--accent); color: #fff; }
+  .demo button.theme, .demo button.neutre { border-color: var(--border-strong); color: var(--text-muted); }
+  .demo .separateur { width: 1px; align-self: stretch; background: var(--border-strong); margin: 0 2px; }
+
+  h1 { font-size: 1.5rem; color: var(--text-strong); margin: 4px 0 2px; text-wrap: balance; }
+  h2 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 2px; }
+  .sous-titre { color: var(--text-muted); margin: 0 0 18px; }
+
+  /* --- rectangle "La mise en page" --- */
+  .rect { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--ombre); overflow: hidden; margin-bottom: 14px; }
+  .rect-tete { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .rect-tete .ico { font-size: 1.1rem; }
+  .rect-tete .titre { font-weight: 700; color: var(--text-strong); font-size: 1rem; }
+  .rect-corps { padding: 18px; }
+  .aide { color: var(--text-muted); font-size: 0.88rem; margin: 0 0 1rem; }
+
+  /* --- bloc "Votre texte" : cartes de version --- */
+  .versions { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 0.9rem; }
+  .version-carte { text-align: left; border: 2px solid var(--border); border-radius: 10px; background: var(--bg-subtle); padding: 0.85rem 0.95rem; cursor: pointer; color: var(--text-soft); font: inherit; }
+  .version-carte:hover { border-color: var(--border-strong); }
+  .version-carte.active { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .version-carte .v-nom { font-weight: 700; color: var(--text-strong); font-size: 0.88rem; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.4rem; }
+  .version-carte.active .v-nom::before { content: "✓"; color: var(--accent); }
+  .version-carte .v-axe { display: block; font-size: 0.78rem; font-weight: 600; color: var(--accent); margin-bottom: 0.35rem; }
+  .version-carte .v-extrait { font-size: 0.82rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .lien-modifier { font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--accent); background: none; border: 0; padding: 0.4rem 0; cursor: pointer; }
+  .lien-modifier:hover { text-decoration: underline; }
+
+  .separation { border: 0; border-top: 1px solid var(--border); margin: 1.1rem 0; }
+
+  /* --- deux colonnes : reglages a gauche, apercu a droite --- */
+  .mep-grille { display: grid; grid-template-columns: 1fr 260px; gap: 22px; align-items: start; }
+  @media (max-width: 760px) { .mep-grille { grid-template-columns: 1fr; } }
+
+  .groupe-titre { font-size: 0.78rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.6rem; }
+  .groupe { margin-bottom: 1.3rem; }
+
+  .grille-modeles { display: grid; grid-template-columns: repeat(auto-fill, 66px); gap: 0.65rem; }
+  .modele { cursor: pointer; border: 2px solid var(--border); border-radius: 8px; padding: 0.3rem; text-align: center; background: var(--bg-subtle); }
+  .modele:hover { border-color: var(--border-strong); }
+  .modele.active { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .modele .miniature { width: 100%; aspect-ratio: 3/4; border-radius: 4px; background: var(--bg-card); border: 1px solid var(--border); margin-bottom: 0.25rem; position: relative; overflow: hidden; }
+  .modele .miniature::before { content: ""; position: absolute; top: 8%; left: 10%; width: 34%; height: 66%; background: var(--accent); opacity: .55; }
+  .modele .miniature::after { content: ""; position: absolute; top: 8%; left: 48%; width: 42%; height: 18%; background: var(--border-strong); }
+  .modele .nom { font-size: 0.62rem; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .jetons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .jeton { font: inherit; font-size: 0.85rem; font-weight: 600; padding: 0.5rem 0.9rem; border-radius: 999px; border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text-soft); cursor: pointer; }
+  .jeton:hover { border-color: var(--accent); }
+  .jeton.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .note-format { font-size: 0.8rem; color: var(--text-muted); margin: 0.6rem 0 0; }
+
+  .pastilles { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+  .pastille { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--bg-card); box-shadow: 0 0 0 1.5px var(--border-strong); cursor: pointer; padding: 0; }
+  .pastille.active { box-shadow: 0 0 0 2.5px var(--text-strong); }
+  .note-palette { font-size: 0.8rem; color: var(--text-muted); margin: 0.7rem 0 0; }
+  .badge-nouveau { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: var(--accent-bg-subtle); border-radius: 999px; padding: 0.15rem 0.55rem; margin-left: 0.4rem; vertical-align: 1px; }
+
+  /* --- apercu --- */
+  .apercu-page { background: #ffffff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,.14); padding: 18px; aspect-ratio: 1/1.414; overflow: hidden; }
+  .ap-l { height: 6px; border-radius: 3px; background: #dbe1e8; margin-bottom: 6px; }
+  .ap-l.court { width: 55%; } .ap-l.moyen { width: 82%; } .ap-l.long { width: 96%; }
+  .ap-titre { height: 11px; width: 45%; border-radius: 3px; background: #b9c2cc; margin-bottom: 14px; }
+  .apercu-legende { text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 0.6rem; }
+
+  /* --- retire vs garde : encart de synthese --- */
+  .synthese { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 24px; }
+  .synthese .item { flex: 1 1 220px; border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.85rem; border: 1px solid var(--border); background: var(--bg-card); }
+  .synthese .item.retire { border-left: 3px solid #b45309; }
+  .synthese .item.garde { border-left: 3px solid var(--success); }
+  .synthese .item b { display: block; color: var(--text-strong); margin-bottom: 0.15rem; }
+</style>
+
+<div class="wrap">
+
+  <div class="demo">
+    <b>Maquette - refonte de « La mise en page » pour la Lettre et l'Entretien</b> (points 4 et 7, retour du 2026-09-15, corrigée après vérification du code).
+    Reprend exactement les jetons de couleur de <code>css/style.css</code> (clair + sombre). Ce que ça change par rapport à l'écran actuel : plus de panneau « Choisissez votre action » à cet endroit (déjà retiré côté CV depuis le 2026-09-13, ici étendu à Lettre/Entretien dans le même parcours guidé) ; la palette de couleurs disparaît pour la Lettre et se réduit pour l'Entretien ; les blocs « Votre texte », « Présentation » et « Aperçu » sont réorganisés en cartes.
+    <b>Correction du 2026-09-15 :</b> il n'existe réellement qu'un seul modèle pour la lettre (« Sobre ») et un seul pour l'entretien (« Clair »), <code>modules/lettre-editor/modelesDisponiblesLettre.js</code> / <code>modules/entretien-editor/modelesDisponiblesEntretien.js</code> : la grille de 4 vignettes de la 1ère version était inventée, elle est retirée ci-dessous.
+    <b>2e correction :</b> plus de section « Modèle » à part (rien à choisir), plus de phrase d'aide creuse en tête ; le format A4 Détaillé/Essentiel est entièrement retiré pour l'entretien (décision Denis : c'est une feuille de route personnelle, jamais transmise à personne, mieux vaut tout garder, quitte à déborder sur une 2<sup>e</sup> page, que risquer de couper un élément utile à la préparation).
+    <b>3e correction (déjà codée et vérifiée en navigateur) :</b> « Choisissez votre action » est retiré pour de bon, sur les 3 documents et sur tous les parcours (guidé/pret/maj), sa seule vraie fonction (sauter vers un autre document déjà préparé) est préservée sous forme de liens discrets « Revoir mon CV » / « Revoir ma lettre » dans la section « Et maintenant ? » en bas d'écran, hors du cadre de cette maquette. Palette de l'entretien figée à 6 couleurs sobres (tranché). Pour la lettre, « A4 Détaillé » devient <b>« Feuille A4 »</b> et « A4 Essentiel » devient <b>« Message par mail »</b>, un texte plus court, rédigé à part par l'assistant, pensé pour être copié dans le corps d'un email (pas une page raccourcie).
+    <div class="rangee">
+      <button data-scenario="lettre" class="on">Écran Lettre</button>
+      <button data-scenario="entretien">Écran Entretien</button>
+      <span class="separateur"></span>
+      <button class="theme" id="btnTheme">Voir en mode sombre</button>
+    </div>
+  </div>
+
+  <div id="synthese"></div>
+
+  <h1 id="titreEcran"></h1>
+  <p class="sous-titre" id="sousTitreEcran"></p>
+
+  <div id="page"></div>
+
+</div>
+
+<script>
+(function () {
+  var etat = { scenario: 'lettre', versionActive: 0, format: 'A4', couleurActive: 0 };
+
+  // TACHE (retour Denis, 2026-09-15, tranche) : 6 couleurs sobres pour
+  // l'entretien -- meme choix que modules/cv-editor/formatsLettreEntretien.js
+  // / construirePaletteCouleurs() (js/app.js), deja code et verifie en
+  // navigateur.
+  var PALETTE_6 = [
+    ['#2563EB','Bleu'], ['#15803D','Vert'], ['#18181B','Noir'],
+    ['#4B5563','Gris'], ['#0E7490','Turquoise'], ['#1F3864','Bleu marine']
+  ];
+
+  var CONTENU = {
+    lettre: {
+      titre: '&#9993;&#65039; Vos documents',
+      sousTitre: 'Votre lettre de motivation est rédigée.',
+      modele: 'Sobre',
+      montrerFormat: true,
+      formatNote: '<strong>Message par mail</strong> : une vraie version courte rédigée à part par l’assistant (environ 500-700 caractères), pensée pour être copiée dans le corps d’un email, jamais une coupure de la version « Feuille A4 ».',
+      versions: [
+        { nom: 'Version 1', axe: 'Expérience concrète', extrait: 'Madame, Monsieur, Mon expérience d’éducateur m’a progressivement conduit à vouloir élargir mon champ d’intervention…' },
+        { nom: 'Version 2', axe: 'Motivation et projet', extrait: 'Madame, Monsieur, Ce qui me motive dans mon métier d’éducateur est avant tout de pouvoir accompagner chaque personne…' }
+      ],
+      montrerPalette: false,
+      synthese: [
+        { classe: 'retire', titre: '&#10005; Retiré', texte: '« Choisissez votre action » (redondant : vous venez de choisir la lettre), la section « Modèle » à part (un seul modèle existe) et la palette de 11 couleurs (jamais utile pour un texte de lettre).' },
+        { classe: 'garde', titre: '&#10003; Gardé, renommé', texte: 'Les 2 versions du texte (avec leur axe principal), le format (« Feuille A4 » et « Message par mail », ex A4 Détaillé/Essentiel), l’aperçu.' }
+      ]
+    },
+    entretien: {
+      titre: '&#127908; Vos documents',
+      sousTitre: 'Votre préparation d’entretien est prête.',
+      modele: 'Clair',
+      montrerFormat: false,
+      versions: null,
+      montrerPalette: true,
+      synthese: [
+        { classe: 'retire', titre: '&#10005; Retiré', texte: '« Choisissez votre action », la section « Modèle » à part (un seul modèle existe), le choix de format A4 Détaillé/Essentiel (un seul contenu complet désormais : la fiche n’est jamais transmise à personne, mieux vaut tout garder que risquer de couper un élément utile), et une partie de la palette de couleurs.' },
+        { classe: 'garde', titre: '&#10003; Gardé, réduit', texte: 'La palette passe de 11 à 6 couleurs sobres (tranché). Le contenu complet de la préparation, l’aperçu.' }
+      ]
+    }
+  };
+
+  function pastilles() {
+    return PALETTE_6.map(function (c, i) {
+      return '<button type="button" class="pastille' + (i === etat.couleurActive ? ' active' : '') + '" style="background:' + c[0] + '" title="' + c[1] + '" data-couleur="' + i + '"></button>';
+    }).join('');
+  }
+
+  // TACHE (retour Denis, 2026-09-15) : "on ne marque pas modele de lettre,
+  // on va directement au modele" -- puisqu'un seul modele existe reellement
+  // (voir modules/lettre-editor/modelesDisponiblesLettre.js et
+  // modules/entretien-editor/modelesDisponiblesEntretien.js), pas de bloc
+  // "Modele" separe du tout : son nom est mentionne dans la phrase d'aide
+  // en tete (voir render()), jamais presente comme une categorie a choisir.
+  // TACHE (retour Denis, 2026-09-15, suite) : plus de choix de format pour
+  // l'entretien (c.montrerFormat faux) -- une feuille de route personnelle,
+  // jamais transmise a personne, mieux vaut le contenu complet quitte a
+  // deborder sur une 2e page.
+  function formatBlock(c) {
+    if (!c.montrerFormat) { return ''; }
+    return '<div class="groupe"><p class="groupe-titre">&#128209; Format</p>' +
+      '<div class="jetons">' +
+      '<button type="button" class="jeton' + (etat.format === 'A4' ? ' active' : '') + '" data-format="A4">Feuille A4</button>' +
+      '<button type="button" class="jeton' + (etat.format === 'A4e' ? ' active' : '') + '" data-format="A4e">Message par mail</button>' +
+      '</div>' +
+      '<p class="note-format">' + c.formatNote + '</p>' +
+      '</div>';
+  }
+
+  function paletteBlock(montrer) {
+    if (!montrer) { return ''; }
+    return '<div class="groupe"><p class="groupe-titre">&#127912; Couleur (6 propositions)</p>' +
+      '<div class="pastilles">' + pastilles() + '</div>' +
+      '<p class="note-palette">Une sélection resserrée aux teintes sobres, adaptées à un document professionnel.</p>' +
+      '</div>';
+  }
+
+  function versionsBlock(c) {
+    if (!c.versions) { return ''; }
+    return '<div class="groupe" style="margin-bottom:0.4rem;"><p class="groupe-titre">&#128221; Votre texte</p>' +
+      '<div class="versions">' +
+      c.versions.map(function (v, i) {
+        return '<button type="button" class="version-carte' + (i === etat.versionActive ? ' active' : '') + '" data-version="' + i + '">' +
+          '<span class="v-nom">' + v.nom + '</span>' +
+          '<span class="v-axe">Axe principal : ' + v.axe + '</span>' +
+          '<span class="v-extrait">' + v.extrait + '</span></button>';
+      }).join('') +
+      '</div>' +
+      '<button type="button" class="lien-modifier">&#9999;&#65039; Modifier le texte</button>' +
+      '</div><hr class="separation">';
+  }
+
+  function apercu() {
+    return '<div class="apercu-page"><div class="ap-titre"></div>' +
+      '<div class="ap-l long"></div><div class="ap-l moyen"></div><div class="ap-l court"></div>' +
+      '<div style="height:14px"></div>' +
+      '<div class="ap-l long"></div><div class="ap-l long"></div><div class="ap-l moyen"></div>' +
+      '<div style="height:14px"></div>' +
+      '<div class="ap-l moyen"></div><div class="ap-l long"></div><div class="ap-l court"></div>' +
+      '</div><p class="apercu-legende">Aperçu</p>';
+  }
+
+  function render() {
+    var c = CONTENU[etat.scenario];
+    document.getElementById('titreEcran').innerHTML = c.titre;
+    document.getElementById('sousTitreEcran').textContent = c.sousTitre;
+
+    var syn = c.synthese.map(function (s) {
+      return '<div class="item ' + s.classe + '"><b>' + s.titre + '</b>' + s.texte + '</div>';
+    }).join('');
+    document.getElementById('synthese').innerHTML = '<div class="synthese">' + syn + '</div>';
+
+    var html = '<div class="rect">' +
+      '<div class="rect-tete"><span class="ico">&#128208;</span><span class="titre">La mise en page</span></div>' +
+      '<div class="rect-corps">' +
+      versionsBlock(c) +
+      '<div class="mep-grille">' +
+      '<div>' + formatBlock(c) + paletteBlock(c.montrerPalette) + '</div>' +
+      '<div>' + apercu() + '</div>' +
+      '</div>' +
+      '</div></div>';
+    document.getElementById('page').innerHTML = html;
+    wire();
+  }
+
+  function wire() {
+    document.querySelectorAll('[data-version]').forEach(function (b) { b.onclick = function () { etat.versionActive = +this.dataset.version; render(); }; });
+    document.querySelectorAll('[data-format]').forEach(function (b) { b.onclick = function () { etat.format = this.dataset.format; render(); }; });
+    document.querySelectorAll('[data-couleur]').forEach(function (b) { b.onclick = function () { etat.couleurActive = +this.dataset.couleur; render(); }; });
+  }
+
+  document.querySelectorAll('[data-scenario]').forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll('[data-scenario]').forEach(function (x) { x.classList.remove('on'); });
+      this.classList.add('on');
+      etat.scenario = this.dataset.scenario;
+      etat.couleurActive = 0;
+      render();
+    };
+  });
+  document.getElementById('btnTheme').onclick = function () {
+    var sombre = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', sombre ? 'clair' : 'sombre');
+    this.textContent = sombre ? 'Voir en mode sombre' : 'Voir en mode clair';
+  };
+
+  render();
+})();
+</script>

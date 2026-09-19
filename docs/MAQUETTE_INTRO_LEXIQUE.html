@@ -1,0 +1,183 @@
+<!doctype html>
+<!--
+  MAQUETTE - page d'introduction / présentation du module Lexique.
+  Copiée depuis docs/maquettes/_skeleton-intro-module.html le 2026-08-30.
+  Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md (respecté).
+  Contenu : docs/PAGES_INTRODUCTION_MODULES_RECUEIL.md (carte 2), décliné
+  avec docs/DOCTRINE_LEXIQUE.md, docs/MAQUETTE_LEXIQUE.md et l'entrée d'aide
+  contextuelle du module (AIDE_PAGES.lexique, js/app.js).
+  Thème sombre : classe .dark sur <body> (convention maquette), PAS [data-theme].
+  Teinte du module : ambre sobre. --accent #b45309 (clair) / #f5a742 (sombre).
+  Le Lexique a par ailleurs des couleurs par « famille » (--famille-*) jugées
+  trop « loisirs » : cette page d'intro reste volontairement sur une seule teinte calme.
+  Aucune dépendance externe, aucun script requis (juste un bouton bascule thème).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - présentation du module Lexique</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #b45309; --accent-bg: #fdf1d9; --sur-accent: #ffffff;   /* ambre sobre : teinte du module */
+    --ok: #198754; --ok-bg: #d9f4e4; --ok-strong: #157347;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #f5a742; --accent-bg: #3a2c14; --sur-accent: #2a1e0a;
+    --ok: #35c79a; --ok-bg: #17301f; --ok-strong: #6ee89a;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.7rem; color: var(--text-strong); margin: .2rem 0; }
+  h2 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  .sous-titre { color: var(--text-muted); margin: .2rem 0 1rem; }
+  .centre { text-align: center; }
+
+  .retour { display: inline-block; color: var(--text-muted); text-decoration: none;
+    font-size: .9rem; margin-bottom: .6rem; }
+  .retour:hover { color: var(--text-strong); }
+
+  .section { background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .9rem; }
+  .section.teinte { background: var(--accent-bg); border-color: var(--accent); }
+  .section ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .section li { margin: .35rem 0; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  /* Encart d'information : fond teinté + filet gauche accent + icône objet. */
+  .encart { display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+  .encart span:first-child { flex: 0 0 auto; }
+
+  /* Boutons : rectangle à coins arrondis, jamais rond. */
+  .btn { font: inherit; border-radius: var(--radius); padding: .55rem 1.1rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    cursor: pointer; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent);
+    color: var(--sur-accent); font-weight: 700; }
+  .btn.large { font-size: 1.05rem; padding: .7rem 1.5rem; }
+
+  .signature { color: var(--text-muted); font-size: .85rem; text-align: center;
+    margin-top: 1.6rem; }
+
+  /* Aperçu de la barre de recherche intégrée au module (non fonctionnelle ici). */
+  .apercu-recherche { display: flex; align-items: center; gap: .65rem;
+    background: var(--bg-card); border: 1px solid var(--border-strong);
+    border-radius: 12px; padding: .75rem 1rem; margin: 0 0 .35rem;
+    color: var(--text-muted); font-size: .95rem; }
+  .apercu-recherche .loupe { font-size: 1.15rem; flex: 0 0 auto; }
+  .apercu-recherche-legende { margin: 0 0 1rem; }
+
+  .toggle-theme { position: fixed; top: .6rem; right: .6rem; font-size: .8rem; }
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+  <a href="#" class="retour" onclick="return false">&#8249; Retour</a>
+
+  <div class="centre">
+    <h1>&#128214; Lexique</h1>
+    <p class="sous-titre">Comprendre un mot du monde du travail au moment où il vous bloque, puis repartir.</p>
+  </div>
+
+  <div class="apercu-recherche">
+    <span class="loupe">&#128269;</span>
+    <span>Rechercher un mot, un sigle, une question... (CDI, période d'essai, prélèvement à la source)</span>
+  </div>
+  <p class="detail apercu-recherche-legende">Une barre de recherche est intégrée au module. Elle comprend les sigles et les questions posées avec vos mots, et vous mène droit à la bonne fiche.</p>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Vous n'avez pas besoin de connaître ces mots d'avance.</strong> Personne ne vous les a jamais expliqués. C'est justement le rôle de cette page.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; À quoi ça sert</h2>
+    <p style="margin:0">Le monde du travail est plein de mots qu'on est censé connaître sans nous les avoir jamais expliqués : contrats, dispositifs, sigles, phrases entendues en entretien. Le Lexique les explique simplement, sans jargon, sans supposer que vous savez déjà. Chaque fiche éclaire <strong>pourquoi</strong> un mot ou une attente existe, jamais comment vous y conformer.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128218; Plusieurs domaines de vocabulaire</h2>
+    <p style="margin:0 0 .5rem">Le Lexique ne se limite pas au CV et à l'entretien. Il explique le vocabulaire de tout le parcours :</p>
+    <ul>
+      <li>le droit du travail, les contrats et statuts d'emploi ;</li>
+      <li>le bulletin de salaire, les ressources humaines, la vie en poste ;</li>
+      <li>la formation, la protection sociale, la santé au travail ;</li>
+      <li>les structures et les dispositifs, les démarches administratives ;</li>
+      <li>et les mots de l'accompagnement lui-même, ceux que votre conseiller emploie.</li>
+    </ul>
+    <p style="margin:.5rem 0 0">Un <strong>Mode Livre</strong> affiche l'ensemble des fiches classées par domaine ; des <strong>parcours guidés</strong> vous font suivre un sujet fiche après fiche, dans l'ordre.</p>
+    <p style="margin:.5rem 0 0" class="detail">Sur une fiche, le nom du domaine et le type de langage (langage RH, langage juridique, langage France Travail...) sont cliquables : ils ouvrent toutes les autres fiches du même domaine.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous cherchez un mot (CDI, période d'essai, rupture conventionnelle, prélèvement à la source...) ou vous parcourez les fiches par domaine.</li>
+      <li>Vous pouvez aussi taper ce mot dans la barre de recherche de l'accueil : elle ouvre directement la fiche du Lexique, sans passer par ici.</li>
+      <li>Chaque fiche donne une définition courte et claire, un exemple concret quand c'est utile, et un « En savoir plus » si vous voulez creuser.</li>
+      <li>Une fiche renvoie vers les fiches voisines : « Voir aussi » et « À ne pas confondre avec » (licenciement, démission, rupture conventionnelle...).</li>
+      <li>Des ensembles tout prêts réunissent les fiches d'un même sujet : comprendre un contrat de travail, lire sa fiche de paie, comprendre les mots de son accompagnement.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce module ne fait pas</h2>
+    <ul>
+      <li>Ce n'est pas un cours à suivre du début à la fin, ni une liste à apprendre par cœur. Vous venez chercher un mot, vous repartez. Il n'y a rien à terminer.</li>
+      <li>Ce n'est pas un site d'actualité. Les fiches expliquent des notions qui durent, jamais un montant, un délai ou une démarche qui change souvent.</li>
+      <li>Rien n'est rédigé sur le moment par un assistant en ligne. Tout est écrit à l'avance et relu ; une définition ne change pas d'un jour à l'autre.</li>
+      <li>Le Lexique ne vous dit jamais quoi penser ni quoi faire. Même pour les questions d'entretien, il explique pourquoi la question se pose, sans vous souffler la réponse.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Depuis une fiche, ouvrir une ressource concrète quand il y en a une : l'annuaire des structures près de chez vous, les pistes et les contacts liés à un frein, les numéros d'aide.</li>
+      <li>Ces renvois tiennent compte de votre département : en Dordogne, les ateliers gratuits de l'ERIP du Bergeracois ; en Haute-Vienne, les ressources locales de PCGI 87 ; ailleurs, un annuaire national.</li>
+      <li>Marquer une fiche d'une étoile pour la retrouver vite dans « Mes favoris ».</li>
+      <li>Bientôt : ouvrir directement, depuis une définition, l'outil de l'application concerné (Analyser ma candidature, Coécrire ma lettre de motivation, Préparer un entretien d'embauche), et des repères plus larges sur les compétences et le projet professionnel.</li>
+    </ul>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Repères</h2>
+    <p style="margin:0">Sur une fiche, le bouton <strong>« Garder comme Repère »</strong> met cette fiche de côté dans <strong>Mes Repères</strong>, votre espace personnel de réflexions (une question, une idée, un sujet à creuser ou à discuter avec la personne qui vous accompagne). C'est un geste différent des favoris : un favori sert à <strong>retrouver vite</strong> une fiche, un Repère sert à <strong>y repenser</strong> plus tard.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128221; Comment ces fiches sont faites</h2>
+    <p style="margin:0">Chaque fiche est écrite à l'avance par une personne, en langage simple, puis relue. Le Lexique ne fait appel à aucun assistant en ligne et ne compose aucune réponse sur le moment : ce que vous lisez reste stable jusqu'à ce qu'une personne le mette à jour. La recherche comprend les sigles, les formulations courantes et les questions posées avec vos mots, et vous amène toujours vers une fiche qui existe déjà.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9989; Bon à savoir</h2>
+    <div class="encart ok"><span>&#128274;</span><span class="detail">Le Lexique ne contient aucune information sur vous. Vos recherches ne sont pas enregistrées.</span></div>
+    <div class="encart"><span>&#128190;</span><span class="detail">Les fiches que vous mettez en favori sont gardées avec le reste de votre dossier : pensez à cliquer sur l'icône disquette avant de fermer la page, sinon elles seront perdues.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large">Ouvrir le Lexique &#8594;</button>
+  </div>
+
+  <p class="signature">Cette application part de ce que vous apportez, vous aide à prendre du recul, et vous laisse toujours la décision.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<!--
+  MAQUETTE (statique) - page de presentation d'un module, chantier "bouton
+  presentation". 2 etats, d'apres la description de Denis (2026-09-01) :
+   - ETAT 1 : la personne a quitte le module (bouton Accueil) puis y est
+     revenue depuis l'accueil. L'encart "analyse en cours" apparait, a
+     DROITE, avec Continuer (bleu) + Recommencer (saumon). Il PULSE en bleu
+     ~10 s. Tant que le choix n'est pas fait, le module est DESACTIVE.
+   - ETAT 2 : aller-retour entre la presentation et le module (bouton
+     "Revoir la presentation" / "Revenir au module"). PAS d'encart. Le
+     titre remonte pour occuper l'espace libre.
+  Le bouton "Revenir au module" : a gauche, a distance egale entre la barre
+  d'etapes et le titre, un peu plus a gauche que dans la version precedente.
+  Aucun code de l'application touche. Theme sombre : bouton en haut a droite.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : page de présentation, 2 états</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0d6efd; --accent-bg:#eef2fd; --accent-bg-subtle:#eef2fd;
+    --saumon-bg:#fbe4d7; --saumon-bd:#e6a184; --saumon-tx:#8a3d24;
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#4d94ff; --accent-bg:#1e2940; --accent-bg-subtle:#1e2940;
+    --saumon-bg:#3a2418; --saumon-bd:#7a4633; --saumon-tx:#f0b79c;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:840px; margin:0 auto; padding:1.3rem 1rem 4rem; }
+  h1.t { font-size:1.35rem; color:var(--text-strong); margin:.2rem 0 .3rem; }
+  h2.o { font-size:1.05rem; color:var(--text-strong); margin:2.4rem 0 .3rem; }
+  .intro { color:var(--text-muted); font-size:.9rem; margin:.2rem 0 1.1rem; }
+  .leg { color:var(--text-muted); font-size:.88rem; margin:.1rem 0 .8rem; }
+  svg { display:block; }
+
+  .ecran { background:var(--bg-card); border:1px solid var(--border-strong);
+    border-radius:14px; padding:.9rem 1rem 1.3rem; box-shadow:0 6px 22px rgba(15,30,60,.08); }
+
+  .coin { display:flex; gap:.4rem; margin-bottom:.55rem; }
+  .ic { width:33px; height:33px; border-radius:9px; border:1px solid var(--border-strong);
+    background:var(--bg-card); display:flex; align-items:center; justify-content:center; color:var(--text-muted); }
+  .ic svg { width:15px; height:15px; }
+
+  .barre { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; }
+  .pas { display:inline-flex; align-items:center; gap:.3rem; font-size:.77rem; font-weight:600;
+    border-radius:999px; padding:.28rem .7rem; background:var(--bg-subtle); border:1px solid var(--border); color:var(--text-muted); }
+  .pas.on { background:var(--accent-bg); border-color:var(--accent); color:var(--accent); }
+
+  /* Bande bouton (gauche) + encart (droite). Marges egales haut/bas =
+     bouton a mi-distance entre la barre et le titre. Un peu plus a gauche
+     (120 px de decalage au lieu de 150). */
+  .bande { display:flex; justify-content:space-between; align-items:center;
+    gap:1rem; flex-wrap:wrap; margin:1rem 0 1rem; }
+  .bande .gauche { padding-left:120px; }
+  @media (max-width:620px){ .bande .gauche { padding-left:0; } }
+  /* Etat 2 : pas d'encart -> le titre remonte (bande plus courte). */
+  .bande.seule { margin:.85rem 0 .85rem; }
+
+  .btn-mod { display:inline-flex; align-items:center; gap:.4rem; font:inherit; font-weight:700; font-size:.85rem;
+    border:1.5px solid var(--accent); color:var(--accent); background:var(--accent-bg-subtle);
+    border-radius:999px; padding:.36rem .95rem .36rem .72rem; cursor:default; }
+  .btn-mod svg { width:15px; height:15px; }
+
+  .encart { display:inline-block; max-width:100%;
+    background:var(--accent-bg-subtle); border:1px solid var(--accent); border-left-width:3px;
+    border-radius:10px; padding:.6rem .85rem; }
+  .encart.pulse { animation:pulseBleu 1.8s ease-in-out 3; }
+  @keyframes pulseBleu {
+    0%,100% { box-shadow:0 0 0 0 rgba(13,110,253,.38); }
+    50% { box-shadow:0 0 0 9px rgba(13,110,253,0); }
+  }
+  .encart p { margin:0 0 .5rem; font-size:.88rem; color:var(--text-strong); }
+  .encart .rangee { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .b { font:inherit; font-size:.82rem; font-weight:700; border-radius:.45rem; padding:.34rem .85rem; cursor:default; border:1px solid transparent; }
+  .b.continuer { background:var(--accent); color:#fff; }
+  .b.recommencer { background:var(--saumon-bg); border-color:var(--saumon-bd); color:var(--saumon-tx); }
+
+  .h1mod { text-align:center; margin:.1rem 0 .1rem; }
+  .h1mod h3 { display:inline-flex; align-items:center; gap:.4rem; font-size:1.3rem; color:var(--text-strong); margin:0; }
+  .h1mod h3 svg { width:22px; height:22px; color:var(--accent); }
+  .sst { text-align:center; color:var(--text-muted); font-size:.9rem; margin:.15rem 0 .8rem; }
+  .accroche { background:var(--accent-bg-subtle); border-radius:10px; padding:.6rem .85rem; text-align:center; font-size:.87rem; margin:.5rem 0; }
+  .sec { background:var(--bg-subtle); border:1px solid var(--border); border-radius:12px; padding:.6rem .85rem; margin:.4rem 0; color:var(--text-muted); font-size:.85rem; }
+  .sec.grise { opacity:.45; }
+  .cta { text-align:center; margin-top:1rem; }
+  .cta > span { display:inline-block; font:inherit; font-weight:700; background:var(--accent); color:#fff; border-radius:.6rem; padding:.55rem 1.35rem; }
+  .barre-bas { display:flex; justify-content:space-between; margin-top:1rem; padding-top:.7rem; border-top:1px solid var(--border); }
+  .barre-bas span { display:inline-block; font:inherit; font-size:.84rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-strong); border-radius:.5rem; padding:.35rem .8rem; }
+
+  .voile { position:relative; }
+  .voile.off::after { content:"module désactivé tant que le choix n'est pas fait"; position:absolute; inset:0;
+    background:color-mix(in srgb, var(--bg-card) 55%, transparent); border-radius:10px;
+    display:flex; align-items:center; justify-content:center; font-size:.8rem; color:var(--text-muted); font-style:italic; }
+
+  .note { margin:1rem 0 0; font-size:.87rem; color:var(--text-muted); padding-left:1.3rem; text-indent:-1.3rem; }
+  .note::before { content:"\21B3\00A0\00A0"; color:var(--accent); font-weight:700; }
+  .note strong { color:var(--text-strong); }
+  .toggle { position:fixed; top:.6rem; right:.6rem; font-size:.8rem; padding:.35rem .7rem; border:1px solid var(--border-strong);
+    background:var(--bg-card); color:var(--text-strong); border-radius:.5rem; cursor:pointer; z-index:10; }
+  .rejouer { font:inherit; font-size:.8rem; border:1px solid var(--accent); background:transparent; color:var(--accent);
+    border-radius:.45rem; padding:.25rem .7rem; cursor:pointer; margin-left:.5rem; }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+<main>
+  <h1 class="t">Page de présentation : 2 états</h1>
+  <p class="intro">À taille réelle (agrandis / réduis la fenêtre). Pas le visuel définitif.</p>
+
+  <!-- ETAT 1 -->
+  <h2 class="o">État 1 : on revient dans le module depuis l'accueil</h2>
+  <p class="leg">L'analyse est reprise là où on l'avait laissée. L'encart apparaît à droite et <strong>pulse en bleu ~10 s</strong>. Tant qu'on n'a pas choisi, le module est désactivé.
+    <button class="rejouer" onclick="var e=document.getElementById('enc1'); e.classList.remove('pulse'); void e.offsetWidth; e.classList.add('pulse');">Rejouer le pulse</button>
+  </p>
+  <div class="ecran">
+    <div class="coin">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M10 21v-2.5a6 6 0 1 1 4 0V21"/></svg></span>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg></span>
+    </div>
+    <div class="barre">
+      <span class="pas">Vos documents</span><span class="pas">Infos complémentaires</span>
+      <span class="pas on">Choix de l'assistant</span><span class="pas">Chez l'assistant</span><span class="pas">Rapport</span>
+    </div>
+    <div class="bande">
+      <div class="gauche"><span class="btn-mod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Revenir au module</span></div>
+      <div class="droite">
+        <span class="encart pulse" id="enc1">
+          <p>Vous avez une analyse en cours sur ce module.</p>
+          <span class="rangee"><span class="b continuer">Continuer</span><span class="b recommencer">Recommencer</span></span>
+        </span>
+      </div>
+    </div>
+    <div class="h1mod"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Cohérence de mon dossier</h3></div>
+    <p class="sst">Vérifier que votre CV, votre lettre et votre entretien racontent la même histoire.</p>
+    <div class="voile off">
+      <div class="accroche">Vos documents ne sont pas mis en concurrence : on vérifie qu'ils se répondent.</div>
+      <div class="sec grise">&#127919; À quoi ça sert</div>
+      <div class="sec grise">&#128203; Ce qu'on va vous demander</div>
+      <div class="sec grise">&#128221; Ce qui va se passer</div>
+      <div class="sec grise">&#128683; Ce que ce module ne fait pas</div>
+    </div>
+    <div class="cta"><span>Revenir au module &#8594;</span></div>
+    <div class="barre-bas"><span>&#8592; Retour</span><span>&#127968; Accueil</span></div>
+  </div>
+
+  <!-- ETAT 2 -->
+  <h2 class="o">État 2 : aller-retour présentation puis retour au module (pas de sortie)</h2>
+  <p class="leg">On a juste cliqué « Revoir la présentation » pour consulter. Pas d'encart. Le titre remonte pour occuper l'espace libre.</p>
+  <div class="ecran">
+    <div class="coin">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M10 21v-2.5a6 6 0 1 1 4 0V21"/></svg></span>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg></span>
+    </div>
+    <div class="barre">
+      <span class="pas">Vos documents</span><span class="pas">Infos complémentaires</span>
+      <span class="pas on">Choix de l'assistant</span><span class="pas">Chez l'assistant</span><span class="pas">Rapport</span>
+    </div>
+    <div class="bande seule">
+      <div class="gauche"><span class="btn-mod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Revenir au module</span></div>
+    </div>
+    <div class="h1mod"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Cohérence de mon dossier</h3></div>
+    <p class="sst">Vérifier que votre CV, votre lettre et votre entretien racontent la même histoire.</p>
+    <div class="accroche">Vos documents ne sont pas mis en concurrence : on vérifie qu'ils se répondent.</div>
+    <div class="sec">&#127919; À quoi ça sert</div>
+    <div class="sec">&#128203; Ce qu'on va vous demander</div>
+    <div class="sec">&#128221; Ce qui va se passer</div>
+    <div class="sec">&#128683; Ce que ce module ne fait pas</div>
+    <div class="cta"><span>Revenir au module &#8594;</span></div>
+    <div class="barre-bas"><span>&#8592; Retour</span><span>&#127968; Accueil</span></div>
+  </div>
+
+  <p class="note"><strong>Bouton « Revenir au module »</strong> : à gauche, à mi-distance entre la barre d'étapes et le titre, décalé de 120 px (un peu plus à gauche qu'avant). Sur les écrans du module il s'appelle « Revoir la présentation ».</p>
+  <p class="note"><strong>Encart</strong> : seulement à l'état 1 (retour dans le module après être passé par l'accueil). Jamais pendant un simple aller-retour de consultation. Il pulse en bleu ~10 s, puis s'arrête.</p>
+  <p class="note"><strong>Module désactivé</strong> à l'état 1 tant que « Continuer » ou « Recommencer » n'est pas choisi (on ne peut rien saisir : le travail pourrait être jeté).</p>
+</main>
+</body>
+</html>

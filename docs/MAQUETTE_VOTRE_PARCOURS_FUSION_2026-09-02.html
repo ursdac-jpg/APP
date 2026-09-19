@@ -1,0 +1,333 @@
+<!doctype html>
+<!--
+  MAQUETTE v3 - Fusion des ecrans 2 a 5 du parcours "Creer un nouveau CV"
+  (Activites + Actions + Environnement + Valeurs) en UNE page "Votre parcours".
+  Aucun code touche. A valider AVANT tout code.
+
+  DECISIONS PRISES avec Denis :
+    A - questions repliables (1re ouverte)                      : OUI
+    B - decoupage par familles de choix garde                   : OUI
+    C - plus de "mode decouverte" a onglets clignotants         : OUI (retire)
+    D - "Continuer" actif quand les 4 questions ont >=1 choix   : OUI
+    E - libelles des 4 questions                                : OUI
+    v2.1 - forme "famille" (grande ligne) != forme "carte" (pastille) : OUI, clair
+    v2.2 - apercu gris du contenu quand la famille est fermee   : OUI, utile
+    v2.3 - familles TOUTES FERMEES par defaut (juste les apercus)
+
+  NOUVEAU v3 (retours Denis) :
+    - Le rectangle recapitulatif en bas de chaque question est SUPPRIME.
+    - Quand une famille est FERMEE :
+        * rien de choisi dedans -> apercu gris ("Des clients, Des collegues... (+3)")
+        * au moins un choix     -> la ligne montre les choix faits (pastilles bleues)
+      => on retrouve ses choix sans rouvrir la famille, et sans encadre separe.
+    - La pastille de la QUESTION devient un compteur : "8 choisis sur 12"
+      (choix faits / limite de la question). "a completer" tant que 0.
+    - La pastille de la FAMILLE garde le nombre de choix DISPONIBLES ("6 choix")
+      -> signale qu'il y a du contenu derriere.
+
+  Question 2 : 6 familles -> 4 par redistribution (jamais un fourre-tout).
+  Chaque carte garde ses competences/metiers ; seule l'etiquette de famille change.
+  Questions 3 et 4 : familles inchangees (decision Denis).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette v3 - Fusion « Votre parcours »</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#ffffff; --bg-subtle:#eef2f8;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#2563eb; --accent-bg:#e8effc;
+    --ok:#198754; --ok-bg:#d9f4e4; --ok-strong:#157347;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --radius:10px;
+  }
+  body.sombre {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222a37;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#4d94ff; --accent-bg:#1e2940;
+    --ok:#35c79a; --ok-bg:#17301f; --ok-strong:#6ee89a;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:800px; margin:0 auto; padding:1.2rem 1rem 4rem; }
+  h1 { font-size:1.5rem; color:var(--text-strong); margin:.2rem 0; }
+  p { margin:.4rem 0; }
+  .sous-titre { color:var(--text-muted); margin:.2rem 0 1rem; }
+  .centre { text-align:center; }
+  .detail { color:var(--text-muted); font-size:.85rem; }
+
+  .barre-haut { position:sticky; top:0; z-index:5; background:var(--bg-page); border-bottom:1px solid var(--border);
+    padding:.5rem 1rem; display:flex; gap:.5rem; align-items:center; font-size:.9rem; }
+  .espace { flex:1 1 auto; }
+  .btn { font:inherit; border-radius:var(--radius); padding:.55rem 1.1rem; border:1px solid var(--border-strong);
+    background:var(--bg-card); color:var(--text-strong); cursor:pointer; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .btn.primaire:disabled { opacity:.5; cursor:not-allowed; }
+  .btn.large { font-size:1.05rem; padding:.7rem 1.5rem; }
+  .btn.sm { padding:.3rem .7rem; font-size:.82rem; }
+
+  .etapes { display:flex; flex-wrap:wrap; align-items:center; gap:.1rem; justify-content:center; margin:.2rem 0 1rem; }
+  .etape { display:inline-flex; align-items:center; gap:.3rem; border:1px solid var(--border); border-radius:999px;
+    padding:.12rem .6rem; font-size:.72rem; color:var(--text-muted); background:var(--bg-card); }
+  .etape.faite::before { content:"\2713"; color:#fff; background:var(--ok); border-radius:999px; width:13px; height:13px;
+    font-size:.6rem; display:inline-flex; align-items:center; justify-content:center; margin-right:.1rem; }
+  .etape.courante { color:var(--warn); border-color:var(--accent); background:var(--warn-bg); font-weight:700;
+    box-shadow:0 0 0 2px var(--accent-bg),0 0 0 3px var(--accent); }
+  .etape.avenir { opacity:.4; }
+  .chevron { color:var(--border-strong); font-size:.75rem; }
+
+  .barre-detour { display:flex; gap:.5rem; align-items:center; background:var(--bg-subtle);
+    border:1px solid var(--border); border-radius:10px; padding:.4rem .7rem; margin-bottom:.6rem; font-size:.85rem; }
+  .encart { display:flex; gap:.6rem; align-items:flex-start; background:var(--accent-bg);
+    border-left:3px solid var(--accent); border-radius:8px; padding:.65rem .9rem; margin:.6rem 0 1.2rem; font-size:.92rem; }
+
+  /* ---------- QUESTION (niveau 1) ---------- */
+  .question { border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:12px;
+    margin:.7rem 0; overflow:hidden; background:var(--bg-card); }
+  .question > summary { list-style:none; cursor:pointer; padding:.85rem 1rem; display:flex; align-items:center; gap:.7rem; }
+  .question > summary::-webkit-details-marker { display:none; }
+  .question > summary::before { content:"\25B8"; color:var(--accent); font-size:.9em; transition:transform .15s; flex:0 0 auto; }
+  .question[open] > summary::before { transform:rotate(90deg); }
+  .q-num { flex:0 0 auto; width:28px; height:28px; border-radius:999px; background:var(--accent); color:#fff;
+    font-weight:800; font-size:.9rem; display:flex; align-items:center; justify-content:center; }
+  .q-titre { font-weight:800; color:var(--text-strong); font-size:1.02rem; }
+  .q-pilule { margin-left:auto; flex:0 0 auto; font-size:.74rem; font-weight:800; border-radius:999px; padding:.18rem .7rem;
+    border:1px solid var(--border-strong); color:var(--text-muted); background:var(--bg-subtle); white-space:nowrap; }
+  .q-pilule.ok { color:var(--ok-strong); border-color:var(--ok); background:var(--ok-bg); }
+  .q-pilule.vide { color:var(--warn); border-color:var(--warn); background:var(--warn-bg); }
+  .q-corps { padding:.3rem 1rem 1rem; border-top:1px solid var(--border); }
+  .q-consigne { font-size:.85rem; color:var(--text-muted); margin:.4rem 0 .7rem; }
+
+  /* ---------- FAMILLE = un "tiroir" large ---------- */
+  .cat { border:1px solid var(--border-strong); border-left:5px solid var(--accent);
+    border-radius:6px; background:var(--bg-subtle); margin:.5rem 0; overflow:hidden; }
+  .cat > summary { list-style:none; cursor:pointer; padding:.6rem .85rem; display:flex; align-items:center; gap:.55rem; flex-wrap:wrap; }
+  .cat > summary::-webkit-details-marker { display:none; }
+  .cat > summary::after { content:"\25BE"; margin-left:.2rem; color:var(--accent); transition:transform .15s; flex:0 0 auto; font-size:.8em; }
+  .cat[open] > summary::after { transform:rotate(180deg); }
+  .cat-ico { flex:0 0 auto; font-size:1.15rem; }
+  .cat-nom { font-weight:800; color:var(--text-strong); font-size:.95rem; }
+  .cat-nb { flex:0 0 auto; font-size:.72rem; font-weight:800; color:#fff; background:var(--accent);
+    border-radius:999px; padding:.12rem .55rem; }
+  .cat-ligne { flex:1 1 100%; margin-top:.3rem; padding-left:1.7rem; }
+  .cat[open] .cat-ligne { display:none; }
+  .cat-apercu { font-size:.8rem; color:var(--text-muted); }
+  .cat-choisis { display:flex; flex-wrap:wrap; gap:.3rem; }
+  .cat-choisis .mini { background:var(--accent); color:#fff; border-radius:999px; padding:.12rem .55rem; font-size:.76rem; font-weight:700; }
+  .cat-corps { padding:.4rem .85rem .8rem; background:var(--bg-card); border-top:1px solid var(--border); }
+
+  /* ---------- CARTE = une petite pastille ronde a cocher ---------- */
+  .cartes { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .carte { border:1.5px solid var(--border-strong); border-radius:999px; padding:.35rem .8rem; font-size:.85rem;
+    background:var(--bg-card); color:var(--text); cursor:pointer; user-select:none; }
+  .carte:hover { border-color:var(--accent); }
+  .carte.coche { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .carte.coche::before { content:"\2713  "; }
+
+  .nav-bas { border-top:1px solid var(--border); margin-top:1.6rem; padding-top:.8rem; display:flex; gap:.6rem; align-items:center; }
+  .nav-bas .fil { flex:1 1 auto; font-size:.78rem; color:var(--text-muted); }
+
+  .panneau { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; margin-top:2rem; }
+  .panneau h2 { font-size:1rem; color:var(--text-strong); margin:.1rem 0 .5rem; }
+  .panneau ul { margin:.3rem 0; padding-left:1.2rem; }
+  .panneau li { margin:.35rem 0; font-size:.9rem; }
+  code { background:var(--bg-subtle); border:1px solid var(--border); border-radius:5px; padding:.05rem .3rem; font-size:.85em; }
+</style>
+</head>
+<body>
+
+<div class="barre-haut">
+  <strong>Maquette v3 - « Votre parcours » (les 4 écrans fusionnés)</strong>
+  <span class="espace"></span>
+  <button class="btn sm" onclick="document.body.classList.toggle('sombre')">Mode sombre</button>
+</div>
+
+<main>
+
+  <div class="barre-detour">
+    <button class="btn sm">&#128196; Revoir la présentation</button>
+    <span class="detail">bouton commun, même place que les autres modules</span>
+  </div>
+
+  <div class="etapes">
+    <span class="etape faite">&#127919; Objectif</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape courante">&#129517; Votre parcours</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape avenir">&#128188; Mon projet</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape avenir">&#128269; Faire le point</span>
+    <span class="chevron">&raquo;</span>
+    <span class="etape avenir">&#128196; Créer mon CV</span>
+  </div>
+
+  <div class="centre">
+    <h1>Votre parcours</h1>
+    <p class="sous-titre">Quatre questions courtes, sur une seule page. Repensez à vos expériences, professionnelles ou personnelles.</p>
+  </div>
+
+  <div class="encart">
+    <span aria-hidden="true">&#128073;</span>
+    <span>Chaque question contient <strong>plusieurs familles de choix</strong> (les grandes lignes, avec le nombre de choix : <span class="cat-nb" style="display:inline-block">8&nbsp;choix</span>). Ouvrez une famille pour voir ce qu'elle contient, cochez ce qui vous ressemble. Fermez-la : vos choix restent visibles sur la ligne. <strong>Une seule case suffit</strong> par question.</span>
+  </div>
+
+  <div id="questions"></div>
+
+  <div class="centre" style="margin-top:1.4rem">
+    <button class="btn primaire large" id="btnContinuer" disabled>Continuer &#8594;</button>
+    <p class="detail" id="etatContinuer" style="margin:.4rem 0 0">Il reste 4 question(s) sans aucune case cochée.</p>
+  </div>
+
+  <div class="nav-bas">
+    <button class="btn">&#8592; Retour</button>
+    <span class="fil">« Retour » ramène à l'écran « Objectif ». La barre du haut permet aussi de sauter à une étape déjà faite.</span>
+  </div>
+
+  <div class="panneau">
+    <h2>Ce que montre cette v3</h2>
+    <ul>
+      <li><strong>Familles toutes fermées</strong> par défaut : on voit d'un coup d'œil les familles de chaque question, leur nombre de choix, et un aperçu gris de leur contenu.</li>
+      <li><strong>Plus d'encadré récapitulatif en bas.</strong> Quand une famille est fermée, la ligne montre l'aperçu gris si rien n'est choisi, ou <strong>vos choix en pastilles bleues</strong> dès qu'il y en a.</li>
+      <li>La pastille de la <strong>question</strong> = compteur « X choisis sur [limite] » (rouge tant que 0).</li>
+      <li>La pastille de la <strong>famille</strong> = nombre de choix disponibles (« 6 choix »), pour signaler le contenu.</li>
+      <li><strong>Question 2</strong> : 6 familles → 4 par redistribution. Chaque carte garde ses compétences/métiers ; seule l'étiquette de famille change.</li>
+    </ul>
+  </div>
+
+  <div class="panneau">
+    <h2>À valider</h2>
+    <ul>
+      <li>Le compteur « X choisis sur [limite] » sur la pastille de question : ça te va comme seule info de décompte ?</li>
+      <li>Les choix qui remontent sur la ligne de la famille fermée : lisible ?</li>
+      <li>Reste-t-il un point qui te gêne avant que je passe au plan de code ?</li>
+    </ul>
+  </div>
+
+</main>
+
+<script>
+  var DATA = [
+    {
+      titre: 'Vos expériences : avec qui, avec quoi', champ: 'activites', limite: 12,
+      consigne: 'Repensez à vos expériences passées, professionnelles ou personnelles.',
+      familles: [
+        { ico: '👥', nom: 'Personnes', cartes: ['Des clients','Des collègues','Des enfants','Des personnes âgées','Des patients','Des élèves / étudiants'] },
+        { ico: '📦', nom: 'Matériels', cartes: ['Des machines','Un ordinateur','Des documents','Des marchandises','Des véhicules','Des outils','Des appareils numériques','Des produits'] },
+        { ico: '🐾', nom: 'Animaux', cartes: ['Des animaux de compagnie','Des chevaux','Des animaux d’élevage / de ferme','Des abeilles','Des soins vétérinaires'] }
+      ]
+    },
+    {
+      titre: 'Ce que vous faisiez souvent', champ: 'actions', limite: 12,
+      consigne: 'En repensant à vos expériences passées, choisissez les actions que vous réalisiez régulièrement.',
+      familles: [
+        { ico: '📋', nom: 'Organisation, gestion, administration', cartes: ['Organiser','Planifier','Gérer','Contrôler','Analyser','Négocier','Calculer','Classer','Saisir','Communiquer par écrit','Archiver'] },
+        { ico: '🤝', nom: 'Relationnel', cartes: ['Conseiller','Accompagner','Vendre','Former','Soigner','Accueillir','Aider','Informer'] },
+        { ico: '🔧', nom: 'Technique et fabrication', cartes: ['Réparer','Transporter','Nettoyer','Construire','Fabriquer','Installer','Monter','Découper','Préparer des commandes','Conduire / Piloter','Diagnostiquer','Programmer','Cuisiner'] },
+        { ico: '🎨', nom: 'Création et conception', cartes: ['Créer','Rédiger','Imaginer','Photographier','Dessiner'] }
+      ]
+    },
+    {
+      titre: 'Où vous travailliez', champ: 'environnement', limite: 9,
+      consigne: 'Toujours en pensant à vos expériences passées, choisissez les environnements qui vous correspondent le mieux.',
+      familles: [
+        { ico: '🏢', nom: 'En intérieur', cartes: ['Bureau','Usine / Atelier / Site industriel','Magasin / Commerce','Établissement de santé','École / Centre de formation','Restaurant / Cuisine','Hôtel','Administration / Collectivité','Laboratoire'] },
+        { ico: '🏠', nom: 'À domicile', cartes: ['Au domicile des particuliers','À votre domicile (télétravail)'] },
+        { ico: '🌳', nom: 'En extérieur', cartes: ['Extérieur / Chantier','Exploitation agricole','Espaces verts / Nature','Salle de spectacle / Événementiel','Salle de sport / Loisirs'] },
+        { ico: '🚗', nom: 'En déplacement', cartes: ['Aéroport / Gare','Port / Zone portuaire','Route / Transport','Entrepôt / Plateforme logistique'] }
+      ]
+    },
+    {
+      titre: 'Ce qui compte pour vous aujourd’hui', champ: 'valeurs', limite: 6,
+      consigne: 'Pensez cette fois à ce que vous recherchez aujourd’hui, et choisissez ce qui compte le plus pour vous.',
+      familles: [
+        { ico: '⚖️', nom: 'Équilibre de vie', cartes: ['Bon équilibre vie professionnelle / vie personnelle','Choisir mes horaires','Avoir du temps libre','Travailler près de chez moi','Pouvoir télétravailler'] },
+        { ico: '🤝', nom: 'Ambiance', cartes: ['Une bonne ambiance de travail','Travailler en équipe','Se sentir utile','Avoir du contact humain','Être reconnu pour mon travail'] },
+        { ico: '🌟', nom: 'Sens et évolution', cartes: ['Faire un métier qui a du sens','Apprendre de nouvelles choses','Avoir des missions variées','Pouvoir évoluer','Avoir des responsabilités','Être fier de mon métier'] },
+        { ico: '💼', nom: 'Conditions de travail', cartes: ['Un travail pas trop physique','Un travail calme','Peu de déplacements','Être bien formé(e) au début','Être autonome','Travailler dehors'] },
+        { ico: '🔒', nom: 'Sécurité', cartes: ['Un travail stable','Un bon salaire','Des horaires fixes'] }
+      ]
+    }
+  ];
+
+  var choix = { activites: [], actions: [], environnement: [], valeurs: [] };
+  var etatOuvert = {}; // "qi-fi" -> bool ; questions "q-qi" -> bool
+
+  function esc(s) { return s.replace(/"/g, '&quot;'); }
+  function apercuTexte(cartes) {
+    var t = cartes.slice(0, 3).join(', ');
+    if (cartes.length > 3) { t += '…  (+' + (cartes.length - 3) + ')'; }
+    return t;
+  }
+
+  function render() {
+    var root = document.getElementById('questions');
+    root.innerHTML = DATA.map(function (q, qi) {
+      var n = choix[q.champ].length;
+      var pil = n
+        ? '<span class="q-pilule ok">' + n + ' choisi' + (n > 1 ? 's' : '') + ' sur ' + q.limite + '</span>'
+        : '<span class="q-pilule vide">à compléter</span>';
+      var familles = q.familles.map(function (f, fi) {
+        var choisisFamille = f.cartes.filter(function (c) { return choix[q.champ].indexOf(c) !== -1; });
+        var ligne = choisisFamille.length
+          ? '<div class="cat-choisis">' + choisisFamille.map(function (c) { return '<span class="mini">' + c + '</span>'; }).join('') + '</div>'
+          : '<span class="cat-apercu">' + apercuTexte(f.cartes) + '</span>';
+        var cartes = f.cartes.map(function (c) {
+          var coche = choix[q.champ].indexOf(c) !== -1;
+          return '<span class="carte' + (coche ? ' coche' : '') + '" data-q="' + qi + '" data-carte="' + esc(c) + '">' + c + '</span>';
+        }).join('');
+        var ouvert = !!etatOuvert[qi + '-' + fi];
+        return '<details class="cat"' + (ouvert ? ' open' : '') + ' data-qi="' + qi + '" data-fi="' + fi + '">' +
+          '<summary><span class="cat-ico">' + f.ico + '</span><span class="cat-nom">' + f.nom + '</span>' +
+          '<span class="cat-nb">' + f.cartes.length + ' choix</span>' +
+          '<span class="cat-ligne">' + ligne + '</span></summary>' +
+          '<div class="cat-corps"><div class="cartes">' + cartes + '</div></div>' +
+          '</details>';
+      }).join('');
+      var qOuvert = etatOuvert['q-' + qi] !== undefined ? etatOuvert['q-' + qi] : (qi === 0);
+      return '<details class="question"' + (qOuvert ? ' open' : '') + ' data-qi="' + qi + '">' +
+        '<summary><span class="q-num">' + (qi + 1) + '</span><span class="q-titre">' + q.titre + '</span>' + pil + '</summary>' +
+        '<div class="q-corps"><p class="q-consigne">' + q.consigne + '</p>' + familles + '</div></details>';
+    }).join('');
+    majContinuer();
+  }
+
+  function majContinuer() {
+    var vides = DATA.filter(function (q) { return choix[q.champ].length === 0; }).length;
+    var b = document.getElementById('btnContinuer');
+    b.disabled = vides > 0;
+    document.getElementById('etatContinuer').textContent = vides > 0
+      ? 'Il reste ' + vides + ' question(s) sans aucune case cochée.'
+      : 'Les 4 questions ont au moins une case cochée.';
+  }
+
+  var qs = document.getElementById('questions');
+
+  // memoriser l'ouverture/fermeture des <details>
+  qs.addEventListener('toggle', function (e) {
+    var d = e.target;
+    if (d.classList.contains('question')) { etatOuvert['q-' + d.dataset.qi] = d.open; }
+    else if (d.classList.contains('cat')) { etatOuvert[d.dataset.qi + '-' + d.dataset.fi] = d.open; }
+  }, true);
+
+  qs.addEventListener('click', function (e) {
+    var el = e.target.closest('.carte');
+    if (!el) { return; }
+    var q = DATA[+el.dataset.q];
+    var c = el.dataset.carte;
+    var arr = choix[q.champ];
+    var idx = arr.indexOf(c);
+    if (idx !== -1) { arr.splice(idx, 1); }
+    else { if (arr.length >= q.limite) { return; } arr.push(c); }
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

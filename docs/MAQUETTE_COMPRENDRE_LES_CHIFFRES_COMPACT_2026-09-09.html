@@ -1,0 +1,823 @@
+<!doctype html>
+<!--
+  MAQUETTE v7 - "Comprendre les chiffres" : remplir la moitie droite, vide,
+  de chaque rectangle. Retours Denis du 2026-09-09 appliques.
+
+  v7 : extremes departements / regions lisibles. Deux graphes a la meme
+  hauteur. Survol de la courbe partout, pas seulement sur les points.
+
+  v8 : equilibrage gauche / droite carte par carte (gauche etroite +
+  chiffre agrandi / droite large pour les 4 cartes "un chiffre + une
+  phrase"). 6 annees etiquetees sur la courbe. Extremes compactes aux
+  bouts de la barre.
+
+  v9 : les deux ajouts demandes pour viser plus haut que 16/20 --
+  (a) une PHRASE DE SYNTHESE en haut : ce que disent les 5 chiffres
+  ensemble, en langage simple, avec le garde-fou "ne dit rien sur votre
+  projet" (repris de la section "Lecture du territoire" du digest, pas de
+  veille en plus) ;
+  (b) un REPERE par chiffre : le "c'est eleve / ca monte / a l'inverse de
+  la region" en une phrase, sous chaque chiffre, pour repondre a "est-ce
+  beaucoup ?" avant meme d'ouvrir l'encadre de droite.
+
+  CE QUI CHANGE PAR RAPPORT A v5 :
+  - Chomage, colonne droite : le titre reste "Ou se situe la Dordogne".
+    DEUX barres, une par critere :
+      * DEPARTEMENTS : barre 5,0 % -> 12,4 %, reperage de la Dordogne ;
+      * REGIONS : barre a la meme echelle, reperage de la Nouvelle-Aquitaine.
+  - La phrase "plein emploi" QUITTE la droite et passe A GAUCHE, sous le
+    lien "le nombre de personnes qui cherchent un emploi".
+  - Le graphe du chomage : le plier / deplier est SUPPRIME. Toujours
+    visible. (Les sections repliees plus bas, elles, ne changent pas.)
+  - Courbe pluriannuelle (2021 -> 2026) : les 4 boutons Departement /
+    Region / France / Union europeenne sont des BASCULES qui ajoutent ou
+    retirent une courbe. Multi-selection : on peut afficher les 4 en meme
+    temps. Le departement est actif par defaut.
+  - La ligne en pointilles = le PLEIN EMPLOI : une droite horizontale
+    autour de 5 %, pour voir l'ecart d'un coup d'oeil.
+
+  ZERO REGRESSION DE FONCTION (Denis, non negociable) : a l'implementation,
+  toutes les infobulles au survol des chiffres (source + formule / mode de
+  calcul) sont conservees, sur chaque chiffre. La maquette les rappelle
+  par un pointille sous le chiffre et une note.
+
+  HORS PERIMETRE : tout ce qui est sous les 5 chiffres (trimestres
+  precedents, six pieges + trois fiches, portrait, enquete employeurs,
+  croiser, "une autre question") ne change pas et reste replie.
+
+  A RECUPERER A LA VEILLE (docs/VEILLE_PROMPTS.md) :
+  - chomage : departement et region les plus bas / hauts (nom + taux) ;
+  - chomage annuel ~6 ans : departement, region, France, Union europeenne ;
+  - offres : part d'offres durables (CDI ou CDD de plus de 6 mois), Dordogne.
+  Toutes les valeurs "exemple" ci-dessous sont a remplacer par les vraies.
+
+  Donnees reelles : digest modules/comprendre-les-chiffres/contenu/2026-06.md,
+  departement lu = la Dordogne (24), 1er trimestre 2026.
+
+  Question encore ouverte (Denis) : une maquette ne reproduit pas la vraie
+  largeur de l'app sur son ecran. Le rendu a l'echelle ne se juge qu'en
+  implementant dans le module. Cette maquette sert a valider le CONTENU et
+  la STRUCTURE de chaque colonne droite.
+
+  Regles maquette : proposition SEULE, panneau de reglages avec une croix.
+  Jetons = css/style.css. Aucun tiret cadratin.
+-->
+<html lang="fr" data-theme="clair">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chiffres : remplir la droite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text-muted: #4a5b6e; --text-soft: #3a4a5e;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd;
+    --success: #198754; --danger: #b42318;
+    --serie-dep: #0d6efd; --serie-reg: #128a5e; --serie-fra: #b9770e; --serie-ue: #7b52d1;
+    --radius: 12px; --police-app: 'Inter', 'Segoe UI', Roboto, system-ui, sans-serif;
+  }
+  html[data-theme="sombre"] {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #2a3444;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text-muted: #a8b3c4; --text-soft: #c3ccd9;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940;
+    --success: #35c79a; --danger: #f2755c;
+    --serie-dep: #4d94ff; --serie-reg: #35c79a; --serie-fra: #e2b877; --serie-ue: #b79bec;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg-page); color: var(--text-strong);
+    font-family: var(--police-app); line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { text-wrap: balance; }
+
+  .meta { max-width: 900px; margin: 0 auto; padding: 1.4rem 1.5rem .4rem; }
+  .meta .tag {
+    display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--accent); background: var(--accent-bg-subtle);
+    border-radius: 999px; padding: .2rem .6rem; margin-bottom: .5rem;
+  }
+  .meta h1 { font-size: 1.3rem; margin: 0 0 .3rem; letter-spacing: -0.01em; }
+  .meta p { color: var(--text-muted); margin: .2rem 0; font-size: .92rem; }
+
+  .scene { padding: 1rem 1.5rem 5rem; display: flex; justify-content: center; }
+  .cadre {
+    width: 100%; max-width: 1080px; background: var(--bg-card);
+    border: 1px solid var(--border-strong); border-radius: 18px; overflow: hidden;
+    box-shadow: 0 14px 40px rgba(11, 26, 51, 0.12); transition: max-width .25s ease;
+  }
+  html[data-theme="sombre"] .cadre { box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45); }
+  .cadre.mobile { max-width: 400px; }
+  .cadre.large { max-width: 100%; }
+  .cadre-barre {
+    display: flex; align-items: center; gap: .4rem;
+    padding: .55rem .8rem; border-bottom: 1px solid var(--border); background: var(--bg-subtle);
+  }
+  .cadre-barre .rond {
+    width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border-strong);
+    background: var(--bg-card); display: grid; place-items: center; font-size: .8rem; color: var(--accent);
+  }
+  .cadre-scroll { padding: 1.15rem 1.4rem 1.4rem; }
+
+  .btn-revoir {
+    display: inline-flex; align-items: center; gap: .4rem; font-size: .86rem; font-weight: 600;
+    color: var(--accent); background: var(--accent-bg-subtle);
+    border: 1px solid transparent; border-radius: 999px; padding: .35rem .8rem; margin-bottom: .9rem; cursor: pointer;
+  }
+  .titre-module {
+    display: flex; align-items: center; gap: .5rem;
+    font-size: 1.5rem; font-weight: 700; margin: 0 0 .5rem; letter-spacing: -0.02em;
+  }
+
+  .bascule { display: flex; gap: .3rem; margin-bottom: .6rem; flex-wrap: wrap; }
+  .bascule button {
+    font-size: .8rem; padding: .3rem .7rem; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-muted);
+  }
+  .bascule button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .bandeau-dep {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    padding: .5rem .8rem; margin-bottom: 1rem; font-size: .85rem;
+    background: var(--accent-bg-subtle); border: 1px solid var(--border); border-radius: 10px;
+  }
+  .bandeau-dep b { color: var(--text-strong); }
+  .bandeau-dep button {
+    font-size: .78rem; padding: .25rem .6rem; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent);
+  }
+
+  .section-titre {
+    font-size: 1.05rem; font-weight: 700; margin: 0 0 .2rem;
+    padding-top: .6rem; border-top: 2px solid var(--border-strong);
+  }
+  .section-intro { font-size: .86rem; color: var(--text-muted); margin: .15rem 0 .9rem; }
+  .section-intro .frais { color: var(--text-soft); }
+
+  /* Phrase de synthese : ce que disent les 5 chiffres ensemble. */
+  .synthese {
+    background: var(--accent-bg-subtle); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: .85rem 1rem; margin: 0 0 1rem; font-size: .92rem; color: var(--text-soft);
+  }
+  .synthese-titre {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--text-muted); margin: 0 0 .35rem;
+  }
+  .synthese p { margin: .35rem 0 0; }
+  .synthese p:first-of-type { margin-top: 0; }
+  .synthese-gardefou { font-size: .82rem; color: var(--text-muted); font-style: italic; }
+
+  /* Repere : le "c'est beaucoup / c'est peu / ca monte" en un coup d'oeil. */
+  .indic-repere {
+    display: inline-block; margin: .4rem 0 0; font-size: .82rem; font-weight: 600;
+    color: var(--text-strong); background: var(--bg-subtle);
+    border: 1px solid var(--border-strong); border-radius: 8px; padding: .25rem .55rem;
+  }
+
+  /* ===== LES 5 CHIFFRES : chaque rectangle = 2 colonnes ===== */
+  .liste-chiffres { display: flex; flex-direction: column; gap: .8rem; }
+
+  .indic {
+    background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px;
+    padding: 1rem 1.1rem; min-width: 0;
+  }
+  /* Chomage (gauche riche) : colonnes proches. Les 4 autres cartes
+     (gauche = un chiffre + une phrase) : gauche etroite mais mise en
+     valeur, droite large donc peu haute -> les deux cotes finissent a
+     peu pres a la meme hauteur. */
+  .indic-grille {
+    display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 1.4rem; align-items: start;
+  }
+  .indic-maigre .indic-grille { grid-template-columns: minmax(0, .62fr) minmax(0, 1fr); }
+  .cadre.mobile .indic-grille { grid-template-columns: 1fr; gap: .9rem; }
+
+  .indic-q { font-weight: 700; font-size: .98rem; margin: 0 0 .35rem; color: var(--text-strong); }
+  .indic-valeur { margin: 0; line-height: 1; }
+  .indic-valeur .chiffre {
+    font-size: 2rem; font-weight: 700; color: var(--accent); letter-spacing: -0.02em;
+    border-bottom: 2px dotted var(--accent); cursor: help;
+  }
+  .indic-maigre .indic-valeur .chiffre { font-size: 2.6rem; }
+  .indic-tendance { display: inline-block; margin: .35rem 0 0; font-size: .82rem; color: var(--text-soft); }
+  .indic-phrase { font-size: .9rem; margin: .55rem 0 0; color: var(--text-soft); }
+  .indic-phrase b, .indic-valeur .chiffre, .dr b, .echelle-graduation span { font-variant-numeric: tabular-nums; }
+  .indic-compare { font-size: .83rem; margin: .45rem 0 0; color: var(--text-muted); }
+  .indic-compare b { color: var(--text-soft); font-weight: 600; }
+  .indic-source {
+    font-size: .76rem; margin: .9rem 0 0; padding-top: .55rem; border-top: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .indic-source a {
+    display: inline-block; margin-left: .3rem; color: var(--accent); text-decoration: none;
+    border: 1px solid var(--border-strong); border-radius: 999px; padding: .05rem .5rem; font-weight: 600;
+  }
+  .indic-source-exemple { color: var(--text-muted); font-style: italic; }
+  .indic-a-lire { font-size: .8rem; margin: .6rem 0 0; color: var(--text-muted); line-height: 1.5; }
+  .indic-a-lire button {
+    font: inherit; font-size: .78rem; font-weight: 600;
+    border: 1px dashed var(--accent); color: var(--accent); background: transparent;
+    border-radius: 999px; padding: .1rem .55rem; cursor: pointer;
+  }
+  .indic-a-lire button:hover { background: var(--accent-bg-subtle); }
+  .indic-a-lire-pourquoi { display: block; margin-top: .25rem; font-size: .78rem; }
+
+  /* Marqueur present UNIQUEMENT dans la maquette : disparait dans le module. */
+  .maq-exemple {
+    font-weight: 400; font-size: .64rem; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--warn, #9a6410); border: 1px dashed currentColor; border-radius: 4px;
+    padding: 0 .25rem; margin-left: .3rem;
+  }
+
+  /* ---- Colonne de droite : encadre doux ---- */
+  .dr {
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;
+    padding: .8rem .9rem; font-size: .82rem; color: var(--text-soft);
+  }
+  .dr-titre {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--text-muted); margin: 0 0 .55rem;
+  }
+  .dr p { margin: .4rem 0 0; }
+  .dr p:first-of-type { margin-top: 0; }
+  .dr b { color: var(--text-strong); font-weight: 600; }
+  .dr .dr-sep { margin-top: .55rem; padding-top: .5rem; border-top: 1px solid var(--border); }
+  .dr .dr-pastille {
+    display: inline-block; margin-top: .55rem; font-size: .76rem; font-weight: 600;
+    border: 1px solid var(--accent); color: var(--accent); background: transparent;
+    border-radius: 999px; padding: .1rem .6rem; cursor: pointer;
+  }
+  .dr-liste { margin: .4rem 0 0; padding-left: 1rem; }
+  .dr-liste li { margin: .2rem 0; }
+
+  /* ---- Une barre de positionnement (departements, puis regions) ---- */
+  .dr-bloc { margin-top: .75rem; }
+  .dr-bloc:first-of-type { margin-top: .2rem; }
+  .dr-bloc-titre {
+    font-size: .8rem; font-weight: 700; color: var(--text-strong); margin: 0 0 .3rem;
+  }
+  /* Les extremes sont directement aux bouts de la barre : compact. */
+  .dr-bornes {
+    display: flex; justify-content: space-between; gap: .6rem;
+    font-size: .74rem; color: var(--text-soft); line-height: 1.35;
+  }
+  .dr-bornes span:last-child { text-align: right; }
+  .dr-bornes b { color: var(--text-strong); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .echelle { margin: .3rem 0 1.3rem; }
+  .echelle-piste {
+    position: relative; height: 8px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--success), #d9a63a 55%, var(--danger));
+    opacity: .6;
+  }
+  .echelle-marque { position: absolute; top: -4px; width: 3px; height: 16px; border-radius: 2px; background: var(--text-strong); }
+  .echelle-marque::after {
+    content: attr(data-lab); position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; font-size: .7rem; font-weight: 700; color: var(--text-strong);
+  }
+
+  /* ---- Graphe chomage : toujours visible, 2 colonnes ---- */
+  .graphe-bloc { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--border); }
+  .graphe-bloc > h4 { margin: 0 0 .7rem; font-size: .88rem; color: var(--text-soft); }
+  .graphe-inner {
+    display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: 1.2rem; align-items: start;
+  }
+  .cadre.mobile .graphe-inner { grid-template-columns: 1fr; gap: 1rem; }
+  .graphe-part {
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; padding: .7rem .85rem;
+  }
+  .graphe-part h5 { margin: 0 0 .4rem; font-size: .78rem; font-weight: 700; color: var(--text-soft); }
+  /* Chaque graphe remplit sa colonne ; les viewBox sont calibres pour que
+     les deux finissent a la meme hauteur (~155 px) sans deformation. */
+  .graphe-part svg { width: 100%; height: auto; display: block; }
+  .g-barre { fill: var(--accent); }
+  .g-val { fill: var(--text-soft); font-size: 9px; font-weight: 600; }
+  .graphe-part text { fill: var(--text-muted); font-size: 8px; }
+  .g-axe { stroke: var(--border-strong); stroke-width: 1; }
+  .g-plein { stroke: var(--text-muted); stroke-width: 1.4; stroke-dasharray: 4 3; }
+  .g-plein-lab { fill: var(--text-muted); font-size: 7.5px; font-style: italic; }
+  .g-serie polyline { fill: none !important; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .g-serie circle { r: 3; }
+  .g-serie.masque { display: none; }
+  .courbe-wrap { position: relative; }
+  .courbe-wrap svg { cursor: crosshair; }
+  .g-guide { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 2 2; visibility: hidden; }
+  .g-serie circle.g-pt-actif { r: 5; stroke: var(--bg-subtle); stroke-width: 2; }
+  .g-tooltip {
+    position: absolute; top: 0; z-index: 5; pointer-events: none;
+    background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px;
+    padding: .45rem .6rem; font-size: .74rem; color: var(--text-soft);
+    box-shadow: 0 6px 20px rgba(11,26,51,.18); min-width: 8rem;
+  }
+  .g-tooltip .g-tt-annee { font-weight: 700; color: var(--text-strong); margin-bottom: .2rem; }
+  .g-tooltip .g-tt-l { display: flex; align-items: center; gap: .35rem; margin-top: .15rem; }
+  .g-tooltip .g-tt-pt { width: .55rem; height: .55rem; border-radius: 50%; flex-shrink: 0; }
+  .g-tooltip .g-tt-src { margin-top: .3rem; font-size: .68rem; color: var(--text-muted); }
+  .g-serie[data-serie="dep"] polyline { stroke: var(--serie-dep); }
+  .g-serie[data-serie="dep"] circle { stroke: var(--serie-dep); fill: var(--serie-dep); }
+  .g-serie[data-serie="reg"] polyline { stroke: var(--serie-reg); }
+  .g-serie[data-serie="reg"] circle { stroke: var(--serie-reg); fill: var(--serie-reg); }
+  .g-serie[data-serie="fra"] polyline { stroke: var(--serie-fra); }
+  .g-serie[data-serie="fra"] circle { stroke: var(--serie-fra); fill: var(--serie-fra); }
+  .g-serie[data-serie="ue"] polyline { stroke: var(--serie-ue); }
+  .g-serie[data-serie="ue"] circle { stroke: var(--serie-ue); fill: var(--serie-ue); }
+  .graphe-note { font-size: .72rem; color: var(--text-muted); margin: .35rem 0 0; }
+  .courbe-choix { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .55rem; }
+  .courbe-choix button {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .74rem; padding: .22rem .55rem; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-muted);
+  }
+  .courbe-choix button .pastille-couleur { width: .6rem; height: .6rem; border-radius: 50%; background: currentColor; }
+  .courbe-choix button[data-serie="dep"] { color: var(--serie-dep); }
+  .courbe-choix button[data-serie="reg"] { color: var(--serie-reg); }
+  .courbe-choix button[data-serie="fra"] { color: var(--serie-fra); }
+  .courbe-choix button[data-serie="ue"] { color: var(--serie-ue); }
+  .courbe-choix button[aria-pressed="true"] { background: currentColor; border-color: currentColor; }
+  .courbe-choix button[aria-pressed="true"] span:last-child { color: #fff; }
+  html[data-theme="sombre"] .courbe-choix button[aria-pressed="true"] span:last-child { color: #10151d; }
+  .courbe-choix button[aria-pressed="true"] .pastille-couleur { background: #fff; }
+  html[data-theme="sombre"] .courbe-choix button[aria-pressed="true"] .pastille-couleur { background: #10151d; }
+
+  /* Sections suivantes, repliees (hors sujet de la maquette) */
+  .repliable {
+    margin-top: .7rem; border: 1px solid var(--border-strong); border-radius: 10px;
+    padding: .6rem .8rem; background: var(--bg-subtle); font-size: .86rem; color: var(--text-soft);
+  }
+  .repliable .rt { font-weight: 600; color: var(--text-strong); }
+  .repliable .rc { font-size: .8rem; color: var(--text-muted); }
+
+  /* ---- Panneau reglages ---- */
+  .panneau {
+    position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
+    width: 300px; max-height: 88vh; overflow-y: auto;
+    background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(11, 26, 51, 0.22); font-size: .86rem;
+  }
+  html[data-theme="sombre"] .panneau { box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); }
+  .panneau-tete {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .7rem .5rem .7rem 1rem; font-weight: 700; border-bottom: 1px solid var(--border);
+  }
+  .panneau-tete button {
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-subtle); color: var(--text-muted); font-size: 1rem; cursor: pointer;
+  }
+  .panneau .corps { padding: .9rem 1rem 1rem; display: flex; flex-direction: column; gap: .95rem; }
+  .reglage { display: flex; flex-direction: column; gap: .35rem; }
+  .reglage > span { font-weight: 600; color: var(--text-soft); font-size: .8rem; }
+  .segmented { display: flex; gap: .25rem; flex-wrap: wrap; }
+  .segmented button {
+    flex: 1; min-width: 3rem; padding: .35rem .4rem; font-size: .76rem;
+    border: 1px solid var(--border-strong); border-radius: 8px;
+    background: var(--bg-subtle); color: var(--text-muted); cursor: pointer;
+  }
+  .segmented button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .rouvrir {
+    position: fixed; right: 1rem; bottom: 1rem; z-index: 50; display: none;
+    font-size: .82rem; font-weight: 600; color: var(--accent);
+    background: var(--bg-card); border: 1px solid var(--border-strong);
+    border-radius: 999px; padding: .5rem .9rem; box-shadow: 0 8px 24px rgba(11,26,51,.2); cursor: pointer;
+  }
+  .note { max-width: 1080px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+  .note .carte-note {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem 1.2rem; font-size: .89rem; color: var(--text-soft);
+  }
+  .note h3 { margin: 0 0 .5rem; font-size: 1rem; }
+  .note ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+  .note li { margin: .3rem 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="meta">
+  <span class="tag">Maquette a valider &middot; v9 &middot; 2026-09-09</span>
+  <h1>Comprendre les chiffres : remplir la moitie droite + phrase de synthese + reperes</h1>
+  <p>En haut : une phrase qui relie les 5 chiffres. Sous chaque chiffre : un repere (&laquo; c'est eleve &raquo;, &laquo; a l'inverse de la region &raquo;...). A droite de chaque rectangle : un complement, jamais une redite. Le graphe est toujours visible ; les 4 courbes s'ajoutent une par une ; la ligne pointillee est le plein emploi.</p>
+</div>
+
+<div class="scene">
+  <div class="cadre" id="cadre">
+    <div class="cadre-barre">
+      <span class="rond">&#9881;</span><span class="rond">&#128161;</span><span class="rond">&#128190;</span>
+    </div>
+    <div class="cadre-scroll">
+      <button class="btn-revoir">&#128202; Revoir la presentation</button>
+      <div class="titre-module"><span>&#128202;</span> Comprendre les chiffres</div>
+
+      <div class="bascule">
+        <button aria-pressed="true">Mon departement</button>
+        <button aria-pressed="false">Ma region (Nouvelle-Aquitaine)</button>
+        <button aria-pressed="false">France entiere</button>
+        <button aria-pressed="false">Union europeenne</button>
+      </div>
+      <div class="bandeau-dep">
+        <span>Vous lisez les chiffres pour : <b>la Dordogne (24)</b></span>
+        <button type="button">&#8635; Changer de departement</button>
+      </div>
+
+      <h2 class="section-titre">Les 5 chiffres cles du trimestre</h2>
+      <p class="section-intro"><b>Commencez par ces cinq chiffres.</b> Le reste (portrait du territoire, projets d'embauche, outil de comparaison) est plus bas, a ouvrir seulement si vous le souhaitez.<br>
+        <span class="frais">&#128197; Donnees du trimestre : avril a juin 2026. Prochaine mise a jour : decembre 2026.</span></p>
+
+      <div class="synthese">
+        <p class="synthese-titre">En quelques mots</p>
+        <p>En Dordogne, le chomage est proche de la moyenne francaise et un peu au-dessus de la Nouvelle-Aquitaine ; il bouge peu depuis un an. Le nombre de personnes inscrites a France Travail a baisse sur un an, mais en partie a cause d'un changement des regles d'inscription, pas d'une vague d'embauches. Les offres restent nombreuses, meme si beaucoup sont des contrats courts, et pres d'une personne sur deux cherche depuis plus d'un an.</p>
+        <p class="synthese-gardefou">Ces chiffres decrivent un territoire. Ils ne disent rien sur votre projet a vous : ils servent a reperer des difficultes et a s'y preparer, jamais a se decourager.</p>
+      </div>
+
+      <div class="liste-chiffres" id="liste">
+
+        <!-- ============ 1. CHOMAGE ============ -->
+        <article class="indic">
+          <div class="indic-grille">
+            <div class="indic-gauche">
+              <p class="indic-q">Combien de personnes sont au chomage ici ?</p>
+              <p class="indic-valeur"><span class="chiffre" title="Taux de chomage localise au sens du BIT. INSEE, 1er trimestre 2026 (provisoire). Publie le 19 juin 2026.">7,8 %</span></p>
+              <span class="indic-tendance">&#8599; en legere hausse</span>
+              <p class="indic-phrase">Sur 100 personnes qui travaillent ou cherchent un travail, environ <b>8 sont au chomage</b>.</p>
+              <p class="indic-compare"><b>Il y a un trimestre :</b> 7,6 %&nbsp;&nbsp;&bull;&nbsp;&nbsp;<b>il y a un an :</b> 7,6 %</p>
+              <p class="indic-compare"><b>Nouvelle-Aquitaine :</b> 7,3 %&nbsp;&nbsp;&bull;&nbsp;&nbsp;<b>France :</b> 7,9 %</p>
+              <p class="indic-repere">Dans la moyenne francaise, un peu au-dessus de la Nouvelle-Aquitaine. Stable depuis un an.</p>
+              <p class="indic-a-lire">&#128279; A lire avec : <button type="button">le nombre de personnes qui cherchent un emploi</button> <span class="indic-a-lire-pourquoi">une baisse du taux qui ne s'accompagne pas d'une baisse des inscrits vient souvent de sorties de liste, pas d'embauches.</span></p>
+            </div>
+
+            <aside class="dr">
+              <p class="dr-titre">Ou se situe la Dordogne</p>
+
+              <div class="dr-bloc">
+                <p class="dr-bloc-titre">Departements <span class="maq-exemple">valeurs d'exemple</span></p>
+                <div class="dr-bornes">
+                  <span>le plus bas<br><b>5,0 %</b> Cantal</span>
+                  <span>le plus haut<br><b>12,4 %</b> Pyrenees-Orientales</span>
+                </div>
+                <div class="echelle"><div class="echelle-piste"><span class="echelle-marque" style="left:38%" data-lab="Dordogne 7,8 %"></span></div></div>
+              </div>
+
+              <div class="dr-bloc">
+                <p class="dr-bloc-titre">Regions <span class="maq-exemple">valeurs d'exemple</span></p>
+                <div class="dr-bornes">
+                  <span>la plus basse<br><b>5,8 %</b> Bretagne</span>
+                  <span>la plus haute<br><b>9,6 %</b> Hauts-de-France</span>
+                </div>
+                <div class="echelle"><div class="echelle-piste"><span class="echelle-marque" style="left:39%" data-lab="Nouvelle-Aquitaine 7,3 %"></span></div></div>
+              </div>
+
+              <p class="dr-sep">Le gouvernement vise le <b>plein emploi</b> : un chomage autour de <b>5 %</b>.</p>
+            </aside>
+          </div>
+
+          <div class="graphe-bloc">
+            <h4>&#128200; L'evolution du chomage</h4>
+            <div class="graphe-inner">
+              <div class="graphe-part">
+                <h5>Les 4 derniers trimestres</h5>
+                <svg viewBox="0 0 260 150" role="img" aria-label="Taux de chomage sur 4 trimestres">
+                  <line class="g-axe" x1="14" y1="122" x2="250" y2="122"></line>
+                  <rect class="g-barre" x="24" y="62" width="40" height="60"></rect>
+                  <text class="g-val" x="44" y="55" text-anchor="middle">7,6</text>
+                  <rect class="g-barre" x="86" y="62" width="40" height="60"></rect>
+                  <text class="g-val" x="106" y="55" text-anchor="middle">7,6</text>
+                  <rect class="g-barre" x="148" y="62" width="40" height="60"></rect>
+                  <text class="g-val" x="168" y="55" text-anchor="middle">7,6</text>
+                  <rect class="g-barre" x="210" y="52" width="40" height="70"></rect>
+                  <text class="g-val" x="230" y="45" text-anchor="middle">7,8</text>
+                  <text x="44" y="138" text-anchor="middle">T2 25</text>
+                  <text x="106" y="138" text-anchor="middle">T3 25</text>
+                  <text x="168" y="138" text-anchor="middle">T4 25</text>
+                  <text x="230" y="138" text-anchor="middle">T1 26</text>
+                </svg>
+                <p class="graphe-note">Presque plat : c'est justement l'information.</p>
+              </div>
+
+              <div class="graphe-part">
+                <h5>L'evolution sur plusieurs annees</h5>
+                <div class="courbe-choix" id="courbeChoix">
+                  <button data-serie="dep" aria-pressed="true"><span class="pastille-couleur"></span><span>Departement</span></button>
+                  <button data-serie="reg" aria-pressed="false"><span class="pastille-couleur"></span><span>Region</span></button>
+                  <button data-serie="fra" aria-pressed="false"><span class="pastille-couleur"></span><span>France</span></button>
+                  <button data-serie="ue" aria-pressed="false"><span class="pastille-couleur"></span><span>Union europeenne</span></button>
+                </div>
+                <div class="courbe-wrap" id="courbeWrap">
+                <svg id="courbeSvg" viewBox="0 0 520 150" role="img" aria-label="Evolution du taux de chomage de 2021 a 2026">
+                  <line class="g-axe" x1="18" y1="128" x2="502" y2="128"></line>
+                  <line class="g-plein" x1="18" y1="116" x2="502" y2="116"></line>
+                  <text class="g-plein-lab" x="502" y="112" text-anchor="end">plein emploi (~5 %)</text>
+                  <line class="g-guide" id="gGuide" x1="24" y1="14" x2="24" y2="128"></line>
+                  <g class="g-serie masque" data-serie="ue">
+                    <polyline points="24,68 118,87 212,90 306,92 400,94 494,92"></polyline>
+                    <circle cx="24" cy="68"></circle><circle cx="118" cy="87"></circle><circle cx="212" cy="90"></circle><circle cx="306" cy="92"></circle><circle cx="400" cy="94"></circle><circle cx="494" cy="92"></circle>
+                  </g>
+                  <g class="g-serie masque" data-serie="fra">
+                    <polyline points="24,42 118,61 212,61 306,56 400,58 494,46"></polyline>
+                    <circle cx="24" cy="42"></circle><circle cx="118" cy="61"></circle><circle cx="212" cy="61"></circle><circle cx="306" cy="56"></circle><circle cx="400" cy="58"></circle><circle cx="494" cy="46"></circle>
+                  </g>
+                  <g class="g-serie masque" data-serie="reg">
+                    <polyline points="24,46 118,66 212,68 306,66 400,63 494,61"></polyline>
+                    <circle cx="24" cy="46"></circle><circle cx="118" cy="66"></circle><circle cx="212" cy="68"></circle><circle cx="306" cy="66"></circle><circle cx="400" cy="63"></circle><circle cx="494" cy="61"></circle>
+                  </g>
+                  <g class="g-serie" data-serie="dep">
+                    <polyline points="24,27 118,46 212,61 306,56 400,54 494,49"></polyline>
+                    <circle cx="24" cy="27"></circle><circle cx="118" cy="46"></circle><circle cx="212" cy="61"></circle><circle cx="306" cy="56"></circle><circle cx="400" cy="54"></circle><circle cx="494" cy="49"></circle>
+                  </g>
+                  <text x="24" y="143" text-anchor="middle">2021</text>
+                  <text x="118" y="143" text-anchor="middle">2022</text>
+                  <text x="212" y="143" text-anchor="middle">2023</text>
+                  <text x="306" y="143" text-anchor="middle">2024</text>
+                  <text x="400" y="143" text-anchor="middle">2025</text>
+                  <text x="494" y="143" text-anchor="middle">2026</text>
+                </svg>
+                <div class="g-tooltip" id="gTooltip" hidden></div>
+                </div>
+                <p class="courbe-legende graphe-note">Cliquez sur un territoire pour ajouter ou retirer sa courbe. Deplacez la souris sur le graphe (n'importe ou, pas seulement sur les points) : l'annee la plus proche s'affiche avec les valeurs de tous les territoires visibles et la source. Valeurs annuelles a recuperer a la veille (exemples ici).</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="indic-source">D'apres l'INSEE, taux de chomage localises (1er trimestre 2026, provisoire). <b>Publie le 19 juin 2026.</b><a href="#">Ouvrir la page</a></p>
+        </article>
+
+        <!-- ============ 2. DEMANDEURS CATEGORIE A ============ -->
+        <article class="indic indic-maigre">
+          <div class="indic-grille">
+            <div class="indic-gauche">
+              <p class="indic-q">Combien de personnes cherchent un emploi sans en avoir ?</p>
+              <p class="indic-valeur"><span class="chiffre" title="Demandeurs d'emploi inscrits en categorie A. France Travail, Data Emploi, fin du 1er trimestre 2026.">17 500</span></p>
+              <span class="indic-tendance">&#8600; en legere baisse</span>
+              <p class="indic-phrase"><b>Environ 17 500 personnes</b> sont inscrites a France Travail sans avoir travaille du tout ce mois-ci (on dit &laquo; categorie A &raquo;).</p>
+              <p class="indic-repere">En baisse sur un an ici, alors que le nombre augmente a l'echelle de la Nouvelle-Aquitaine.</p>
+            </div>
+
+            <aside class="dr">
+              <p class="dr-titre">Comprendre les categories</p>
+              <p>Les personnes inscrites a France Travail sont classees de <b>A a E</b>, selon qu'elles ont travaille ou non dans le mois.</p>
+              <ul class="dr-liste">
+                <li><b>A</b> : aucune heure travaillee dans le mois. C'est le chiffre ci-contre.</li>
+                <li><b>B et C</b> : ont travaille un peu, cherchent toujours.</li>
+                <li><b>D</b> : pas tenues de chercher (formation, maladie...).</li>
+                <li><b>E</b> : ont deja un emploi (creation d'entreprise...).</li>
+              </ul>
+              <p class="dr-sep"><b>A + B + C ensemble</b> : environ <b>32 100</b> personnes en Dordogne, la mesure la plus large. Sur un an : environ <b>-2,1 %</b>.</p>
+              <span class="dr-pastille">&#128279; Fiche : le taux INSEE et les personnes inscrites</span>
+            </aside>
+          </div>
+          <p class="indic-source">D'apres France Travail, Data Emploi (fin du 1er trimestre 2026).<a href="#">Ouvrir la page</a></p>
+        </article>
+
+        <!-- ============ 3. LONGUE DUREE ============ -->
+        <article class="indic indic-maigre">
+          <div class="indic-grille">
+            <div class="indic-gauche">
+              <p class="indic-q">La difficulte est-elle passagere ou installee ?</p>
+              <p class="indic-valeur"><span class="chiffre" title="Part des demandeurs inscrits depuis un an et plus. France Travail, Data Emploi, 1er trimestre 2026.">48 %</span></p>
+              <p class="indic-phrase">Parmi les personnes qui cherchent un emploi, <b>environ 48 %</b> sont inscrites depuis plus d'un an.</p>
+              <p class="indic-compare"><b>Nouvelle-Aquitaine :</b> 45,6 %</p>
+              <p class="indic-repere">C'est eleve : pres d'une personne sur deux.</p>
+            </div>
+
+            <aside class="dr">
+              <p class="dr-titre">Ce que &laquo; longue duree &raquo; veut dire</p>
+              <p><b>Un an et plus</b> : on parle de chomage de longue duree. <b>Deux ans et plus</b> : tres longue duree, environ <b>19 %</b> des demandeurs en Dordogne.</p>
+              <p class="dr-sep">Plus l'inscription dure, plus le retour a l'emploi demande du temps et un accompagnement adapte. Ce n'est pas une fatalite.</p>
+              <p><b>Repere national</b> : environ <b>46 %</b> des demandeurs sont inscrits depuis un an et plus. La Dordogne est un peu au-dessus.</p>
+            </aside>
+          </div>
+          <p class="indic-source">D'apres France Travail, Data Emploi (1er trimestre 2026).<a href="#">Ouvrir la page</a></p>
+        </article>
+
+        <!-- ============ 4. EMPLOI SALARIE ============ -->
+        <article class="indic indic-maigre">
+          <div class="indic-grille">
+            <div class="indic-gauche">
+              <p class="indic-q">Le territoire cree ou perd des emplois ?</p>
+              <p class="indic-valeur"><span class="chiffre" title="Emploi salarie (prive et entreprises publiques). France Travail, Data Emploi ; INSEE, estimations trimestrielles d'emploi salarie.">125 900</span></p>
+              <span class="indic-tendance">&#8599; en legere hausse sur un an</span>
+              <p class="indic-phrase">Le departement compte environ <b>125 900 emplois salaries</b>, en hausse d'environ <b>1,2 %</b> sur un an.</p>
+              <p class="indic-repere">L'emploi se maintient ici ; a l'echelle regionale, la tendance recente est plutot a la baisse.</p>
+            </div>
+
+            <aside class="dr">
+              <p class="dr-titre">Ce que ce chiffre compte</p>
+              <p>L'<b>emploi salarie</b> : les salaries du prive et des entreprises publiques. Pas les independants, pas la fonction publique d'Etat.</p>
+              <p class="dr-sep"><b>Sur le dernier trimestre connu</b> : Nouvelle-Aquitaine environ <b>-0,1 %</b>, France <b>0,0 %</b> (stable). Sur un an, la region recule d'environ <b>0,6 %</b>, l'une des baisses les plus marquees.</p>
+              <p>Le detail departemental du trimestre sort plus tard : la tendance regionale donne le sens.</p>
+            </aside>
+          </div>
+          <p class="indic-source">D'apres l'INSEE, estimations trimestrielles d'emploi salarie, et France Travail, Data Emploi.<a href="#">Ouvrir la page</a></p>
+        </article>
+
+        <!-- ============ 5. OFFRES ============ -->
+        <article class="indic indic-maigre">
+          <div class="indic-grille">
+            <div class="indic-gauche">
+              <p class="indic-q">Y a-t-il des offres visibles ?</p>
+              <p class="indic-valeur"><span class="chiffre" title="Offres diffusees sur francetravail.fr, cumul sur douze mois glissants. France Travail, Data Emploi, fin du 1er trimestre 2026.">51 000</span></p>
+              <span class="indic-tendance">&#8599; en legere hausse sur un an</span>
+              <p class="indic-phrase"><b>Environ 51 000 offres</b> ont ete deposees par les employeurs a France Travail sur le territoire, sur les douze derniers mois.</p>
+              <p class="indic-compare"><b>Sur un an :</b> environ +2,6 %</p>
+              <p class="indic-repere">En hausse ici, alors que le departement voisin (Haute-Vienne) recule nettement.</p>
+            </div>
+
+            <aside class="dr">
+              <p class="dr-titre">Lire ce chiffre</p>
+              <p>Une <b>offre deposee n'est pas une embauche</b>, et beaucoup d'embauches ne passent jamais par une offre publiee (candidature spontanee, reseau, interim).</p>
+              <p class="dr-sep"><b>Repere</b> : environ <b>4 embauches sur 10</b> durent plus d'un mois en Dordogne. La plupart des embauches sont des contrats tres courts.</p>
+              <p><b>Part d'offres durables</b> (CDI ou CDD de plus de six mois) : <span class="indic-source-exemple">a recuperer a la veille</span>.</p>
+            </aside>
+          </div>
+          <p class="indic-source">D'apres France Travail, Data Emploi (fin du 1er trimestre 2026).<a href="#">Ouvrir la page</a></p>
+        </article>
+
+      </div>
+
+      <div class="repliable" style="margin-top:1rem"><span class="rt">Les trimestres precedents</span> <span class="rc">: inchange, replie.</span></div>
+      <div class="repliable"><span class="rt">Ce qu'il faut savoir avant de lire ces chiffres</span> <span class="rc">(six pieges + trois fiches, inchange, replie).</span></div>
+      <div class="repliable"><span class="rt">Le portrait du territoire</span><span class="rc">, <span class="rt">Ce que les employeurs prevoient d'embaucher</span>, <span class="rt">Croiser plusieurs chiffres</span> : inchanges, replies, plus bas.</span></div>
+      <div class="repliable"><span class="rt">Une autre question sur les chiffres</span> <span class="rc">(les deux portes, inchangees).</span></div>
+
+    </div>
+  </div>
+</div>
+
+<button type="button" class="rouvrir" id="rouvrir">Reglages &#9662;</button>
+<div class="panneau" id="panneau">
+  <div class="panneau-tete">
+    <span>Points de decision</span>
+    <button type="button" id="fermerPanneau" aria-label="Fermer les reglages">&#10005;</button>
+  </div>
+  <div class="corps">
+    <div class="reglage">
+      <span>Largeur du cadre</span>
+      <div class="segmented" data-cle="taille">
+        <button aria-pressed="true" data-val="bureau">Plafonne (1080 px)</button>
+        <button aria-pressed="false" data-val="large">Pleine largeur</button>
+        <button aria-pressed="false" data-val="mobile">Telephone</button>
+      </div>
+    </div>
+    <div class="reglage">
+      <span>Theme</span>
+      <div class="segmented" data-cle="theme">
+        <button aria-pressed="true" data-val="clair">Clair</button>
+        <button aria-pressed="false" data-val="sombre">Sombre</button>
+      </div>
+    </div>
+    <p style="font-size:.76rem;color:var(--text-muted);margin:0">Essaie &laquo; Pleine largeur &raquo; pour voir l'etalement sur un grand ecran. Le rendu exact ne se juge qu'en implementant dans le module.</p>
+  </div>
+</div>
+
+<div class="note">
+  <div class="carte-note">
+    <h3>Ce que fait cette maquette (v9)</h3>
+    <ul>
+      <li><b>Phrase de synthese en haut</b> (&laquo; En quelques mots &raquo;) : ce que disent les 5 chiffres ensemble, en langage simple, + le garde-fou &laquo; ne dit rien sur votre projet &raquo;. Reprise de la section &laquo; Lecture du territoire &raquo; du digest, deja ecrite : aucune veille en plus.</li>
+      <li><b>Un repere sous chaque chiffre</b> : le &laquo; c'est eleve &raquo;, &laquo; en baisse ici mais pas en region &raquo;, &laquo; dans la moyenne francaise &raquo;... Repond a &laquo; est-ce beaucoup ? &raquo; en un coup d'oeil, avant l'encadre de droite. Le repere = le verdict ; l'encadre de droite = le detail chiffre.</li>
+      <li><b>Zero regression :</b> a gauche, tout est conserve, y compris les infobulles au survol de chaque chiffre (source + mode de calcul).</li>
+      <li><b>Chomage, colonne droite :</b> les extremes ne sont plus dans une phrase a parentheses. Un petit tableau clair : <b>le plus bas</b> / <b>le plus haut</b>, avec le nom du departement (puis de la region) et son taux, aligne. Dessous, la barre situe la Dordogne (puis la Nouvelle-Aquitaine). Puis la phrase plein emploi, reduite a &laquo; un chomage autour de 5 % &raquo;.</li>
+      <li><b>Les deux graphes ont la meme hauteur</b> (150 px) : la courbe ne domine plus les barres.</li>
+      <li><b>Courbe :</b> 4 boutons en bascule multi-selection (departement actif par defaut). <b>On survole n'importe ou sur le graphe</b>, pas seulement les points : une ligne guide se cale sur l'annee la plus proche et une infobulle liste la valeur de chaque territoire affiche + la source. (Ici c'est deja la vraie interaction, pas un libelle natif.)</li>
+      <li>La <b>ligne pointillee horizontale = le plein emploi</b> (~5 %).</li>
+      <li>Categorie A : les 5 categories sur 5 lignes distinctes.</li>
+      <li>Les 4 autres rectangles : colonne droite complementaire (categories A a E ; longue vs tres longue duree ; ce que compte l'emploi salarie ; lire le chiffre des offres). Aucune redite de la gauche.</li>
+      <li>Sections du bas (trimestres precedents, pieges, portrait...) : <b>inchangees et repliees</b>.</li>
+    </ul>
+    <h3>A trancher</h3>
+    <ul>
+      <li>Largeur : plafond 1080 px, ou pleine largeur ? (bouton dans le panneau pour comparer)</li>
+      <li>&laquo; Emploi salarie &raquo; s'appuie a gauche sur une donnee de 2022 (125 900) : a corriger a la veille.</li>
+      <li>Renvoi &laquo; Fiche &raquo; sur la carte categorie A : en pastille comme ici, ou juste l'explication ?</li>
+      <li>Faut-il implementer dans le module pour juger le rendu reel, ou d'abord valider tout le contenu sur cette maquette ?</li>
+    </ul>
+    <h3>A recuperer a la veille (docs/VEILLE_PROMPTS.md)</h3>
+    <ul>
+      <li>Chomage : departement et region les plus bas / les plus hauts (nom + taux).</li>
+      <li>Chomage annuel sur ~6 ans : departement, region, France, Union europeenne.</li>
+      <li>Offres : part d'offres durables (CDI ou CDD de plus de 6 mois), Dordogne.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var etat = { taille: 'bureau', theme: 'clair' };
+
+  function appliquer() {
+    var c = $('cadre');
+    c.classList.toggle('mobile', etat.taille === 'mobile');
+    c.classList.toggle('large', etat.taille === 'large');
+    document.documentElement.setAttribute('data-theme', etat.theme);
+  }
+
+  document.querySelectorAll('.panneau .segmented').forEach(function (grp) {
+    var cle = grp.getAttribute('data-cle');
+    grp.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        grp.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        etat[cle] = b.getAttribute('data-val');
+        appliquer();
+      });
+    });
+  });
+
+  // Courbes pluriannuelles : bascules multi-selection
+  $('courbeChoix').querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var on = b.getAttribute('aria-pressed') === 'true';
+      b.setAttribute('aria-pressed', on ? 'false' : 'true');
+      var g = document.querySelector('.g-serie[data-serie="' + b.getAttribute('data-serie') + '"]');
+      if (g) { g.classList.toggle('masque', on); }
+    });
+  });
+
+  // Survol de la courbe pluriannuelle : n'importe ou sur le graphe, pas
+  // seulement sur les points. Snap a l'annee la plus proche, ligne guide,
+  // infobulle avec toutes les valeurs affichees + source.
+  (function () {
+    var COURBE = {
+      annees: ['2021', '2022', '2023', '2024', '2025', '2026'],
+      x: [24, 118, 212, 306, 400, 494],
+      series: {
+        dep: { nom: 'Dordogne', couleur: 'var(--serie-dep)', v: ['8,7', '7,9', '7,3', '7,5', '7,6', '7,8'] },
+        reg: { nom: 'Nouvelle-Aquitaine', couleur: 'var(--serie-reg)', v: ['7,9', '7,1', '7,0', '7,1', '7,2', '7,3'] },
+        fra: { nom: 'France', couleur: 'var(--serie-fra)', v: ['8,1', '7,3', '7,3', '7,5', '7,4', '7,9'] },
+        ue: { nom: 'Union europeenne', couleur: 'var(--serie-ue)', v: ['7,0', '6,2', '6,1', '6,0', '5,9', '6,0'] }
+      }
+    };
+    var svg = $('courbeSvg'), guide = $('gGuide'), tip = $('gTooltip');
+    if (!svg) { return; }
+    function visible(k) {
+      var g = document.querySelector('.g-serie[data-serie="' + k + '"]');
+      return g && !g.classList.contains('masque');
+    }
+    function pointsActifs(clear, i) {
+      svg.querySelectorAll('circle.g-pt-actif').forEach(function (c) { c.classList.remove('g-pt-actif'); });
+      if (clear) { return; }
+      ['dep', 'reg', 'fra', 'ue'].forEach(function (k) {
+        if (!visible(k)) { return; }
+        var cs = document.querySelectorAll('.g-serie[data-serie="' + k + '"] circle');
+        if (cs[i]) { cs[i].classList.add('g-pt-actif'); }
+      });
+    }
+    function survol(clientX) {
+      var ctm = svg.getScreenCTM();
+      if (!ctm) { return; }
+      var p = svg.createSVGPoint(); p.x = clientX; p.y = 0;
+      var vx = p.matrixTransform(ctm.inverse()).x;
+      var i = 0, best = 1e9, VBW = 520;
+      COURBE.x.forEach(function (px, idx) { var d = Math.abs(px - vx); if (d < best) { best = d; i = idx; } });
+      guide.setAttribute('x1', COURBE.x[i]); guide.setAttribute('x2', COURBE.x[i]);
+      guide.style.visibility = 'visible';
+      pointsActifs(false, i);
+      var html = '<div class="g-tt-annee">' + COURBE.annees[i] + '</div>';
+      var n = 0;
+      ['dep', 'reg', 'fra', 'ue'].forEach(function (k) {
+        if (!visible(k)) { return; }
+        n++;
+        var s = COURBE.series[k];
+        html += '<div class="g-tt-l"><span class="g-tt-pt" style="background:' + s.couleur + '"></span>' + s.nom + ' : <b>' + s.v[i] + ' %</b></div>';
+      });
+      if (!n) { html += '<div class="g-tt-l">Aucun territoire affiche.</div>'; }
+      html += '<div class="g-tt-src">INSEE / Eurostat (exemple)</div>';
+      tip.innerHTML = html;
+      tip.hidden = false;
+      var pct = COURBE.x[i] / VBW * 100;
+      if (i >= 4) { tip.style.left = 'auto'; tip.style.right = (100 - pct) + '%'; }
+      else { tip.style.right = 'auto'; tip.style.left = pct + '%'; }
+    }
+    svg.addEventListener('mousemove', function (e) { survol(e.clientX); });
+    svg.addEventListener('mouseleave', function () {
+      guide.style.visibility = 'hidden'; tip.hidden = true; pointsActifs(true);
+    });
+    svg.addEventListener('touchstart', function (e) { if (e.touches[0]) { survol(e.touches[0].clientX); } }, { passive: true });
+    svg.addEventListener('touchmove', function (e) { if (e.touches[0]) { survol(e.touches[0].clientX); } }, { passive: true });
+  })();
+
+  // Bascule territoire du haut : visuel seulement dans la maquette
+  document.querySelectorAll('.bascule').forEach(function (grp) {
+    grp.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        grp.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+      });
+    });
+  });
+
+  $('fermerPanneau').addEventListener('click', function () {
+    $('panneau').style.display = 'none';
+    $('rouvrir').style.display = 'inline-block';
+  });
+  $('rouvrir').addEventListener('click', function () {
+    $('panneau').style.display = '';
+    $('rouvrir').style.display = 'none';
+  });
+
+  appliquer();
+</script>
+
+</body>
+</html>

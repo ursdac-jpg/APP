@@ -1,0 +1,587 @@
+<!doctype html>
+<title>Boussole</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #F3F6F8;
+    --surface: #FFFFFF;
+    --surface-muted: #EAF0F3;
+    --ink: #1E2A32;
+    --ink-soft: #55666F;
+    --ink-faint: #7C8B92;
+    --accent: #1B6B8C;
+    --accent-ink: #FFFFFF;
+    --line: #D8E1E6;
+    --focus-ring: #1B6B8C;
+    --overlay: rgba(20,28,32,0.45);
+
+    --f-construire: #B8752E;
+    --f-construire-bg: #FBF0E3;
+    --f-connaitre: #7A4C6D;
+    --f-connaitre-bg: #F5EBF1;
+    --f-verifier: #3C7A5C;
+    --f-verifier-bg: #E9F3EE;
+    --f-veille: #5B7C99;
+    --f-veille-bg: #EAEFF3;
+
+    --radius-l: 20px;
+    --radius-m: 14px;
+    --radius-s: 10px;
+    --shadow-card: 0 1px 2px rgba(30,42,50,0.06), 0 8px 24px -12px rgba(30,42,50,0.18);
+    --shadow-panel: 0 20px 60px -20px rgba(20,28,32,0.45);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #14191C; --surface: #1D2429; --surface-muted: #222B31;
+      --ink: #E7EEF1; --ink-soft: #9FB0B8; --ink-faint: #79898F;
+      --accent: #63BEDB; --accent-ink: #0B1417; --line: #2E383E; --focus-ring: #63BEDB;
+      --overlay: rgba(6,10,12,0.6);
+      --f-construire: #E3A15C; --f-construire-bg: #35281A;
+      --f-connaitre: #CE97B9; --f-connaitre-bg: #35242E;
+      --f-verifier: #7FCBA2; --f-verifier-bg: #1D2E25;
+      --f-veille: #96B4C9; --f-veille-bg: #232C32;
+      --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 10px 26px -14px rgba(0,0,0,0.6);
+      --shadow-panel: 0 20px 60px -20px rgba(0,0,0,0.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #14191C; --surface: #1D2429; --surface-muted: #222B31;
+    --ink: #E7EEF1; --ink-soft: #9FB0B8; --ink-faint: #79898F;
+    --accent: #63BEDB; --accent-ink: #0B1417; --line: #2E383E; --focus-ring: #63BEDB;
+    --overlay: rgba(6,10,12,0.6);
+    --f-construire: #E3A15C; --f-construire-bg: #35281A;
+    --f-connaitre: #CE97B9; --f-connaitre-bg: #35242E;
+    --f-verifier: #7FCBA2; --f-verifier-bg: #1D2E25;
+    --f-veille: #96B4C9; --f-veille-bg: #232C32;
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 10px 26px -14px rgba(0,0,0,0.6);
+    --shadow-panel: 0 20px 60px -20px rgba(0,0,0,0.7);
+  }
+  :root[data-accent="ambre"] { --accent: #B8752E; --accent-ink: #FFFFFF; }
+  :root[data-accent="vert"]  { --accent: #3C7A5C; --accent-ink: #FFFFFF; }
+  :root[data-theme="dark"][data-accent="ambre"] { --accent: #E3A15C; --accent-ink: #0B1417; }
+  :root[data-theme="dark"][data-accent="vert"]  { --accent: #7FCBA2; --accent-ink: #0B1417; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: "Public Sans", -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2 { font-family: "Fraunces", Georgia, serif; text-wrap: balance; margin: 0; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; border-radius: 6px; }
+  .rien { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* barre de progression, identique en esprit a l'existante */
+  .progression { border-bottom: 1px solid var(--line); background: var(--surface); }
+  .progression-etapes {
+    max-width: 880px; margin: 0 auto; padding: 0.9rem 1.5rem;
+    display: flex; flex-wrap: wrap; gap: 0.4rem 0;
+  }
+  .etape {
+    font-size: 0.78rem; font-weight: 600; color: var(--ink-faint);
+    padding: 0.3rem 0.85rem 0.3rem 0; position: relative;
+  }
+  .etape:not(:last-child)::after { content: "\2192"; margin-left: 0.6rem; color: var(--line); }
+  .etape.visitee { color: var(--ink-soft); }
+  .etape.active { color: var(--accent); }
+
+  .page { max-width: 880px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+  .bandeau { display: flex; align-items: center; gap: 0.6rem; color: var(--ink-soft); font-size: 0.88rem; margin-bottom: 2rem; }
+  .bandeau svg { flex: none; color: var(--accent); }
+
+  .entete-page { margin-bottom: 2.25rem; }
+  .entete-page h1 { font-size: 1.85rem; font-weight: 600; }
+  .entete-page p { color: var(--ink-soft); margin: 0.45rem 0 0; }
+
+  .section { display: grid; grid-template-columns: 26px 1fr; column-gap: 1.35rem; position: relative; }
+  .section + .section { margin-top: 3rem; }
+  .marker { position: relative; display: none; }
+  .marker .point { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); margin-top: 8px; position: relative; z-index: 1; }
+  .marker::after { content: ""; position: absolute; top: -1.5rem; bottom: -1.5rem; left: 50%; width: 2px; background: var(--line); transform: translateX(-50%); }
+  .section:first-child .marker::after { top: 13px; }
+  .section:last-child .marker::after { bottom: calc(100% - 13px); }
+  @media (min-width: 680px) { .marker { display: block; } }
+
+  .eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; font-weight: 600; color: var(--ink-faint); margin: 0 0 0.4rem; }
+  h2 { font-size: 1.5rem; font-weight: 600; }
+  .souscopie { color: var(--ink-soft); margin: 0.4rem 0 1.25rem; max-width: 46ch; }
+
+  .recherche-carte { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); padding: 1.6rem; box-shadow: var(--shadow-card); }
+  .recherche-champ { display: flex; align-items: center; gap: 0.75rem; background: var(--surface-muted); border: 1.5px solid var(--line); border-radius: var(--radius-m); padding: 0.85rem 1.1rem; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  .recherche-champ:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .recherche-champ svg { flex: none; color: var(--ink-faint); }
+  .recherche-champ input { border: none; background: transparent; outline: none; font: inherit; color: var(--ink); width: 100%; }
+  .recherche-champ input::placeholder { color: var(--ink-faint); }
+  .recherche-note { font-size: 0.82rem; color: var(--ink-faint); margin: 0.6rem 0 0; }
+  .puces { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1rem; }
+  .puce { display: inline-flex; align-items: center; gap: 0.4rem; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-soft); font-size: 0.83rem; font-weight: 500; padding: 0.4rem 0.75rem; border-radius: 999px; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease; }
+  .puce:hover { border-color: var(--accent); color: var(--accent); }
+  .puce .pastille { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+  .doc-toit { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); padding: 1.5rem; box-shadow: var(--shadow-card); }
+  .doc-grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.9rem; }
+
+  .carte-doc, .carte-outil, .carte-hesitez {
+    text-align: left; background: var(--surface-muted); border: 1.5px solid transparent; border-radius: var(--radius-m);
+    padding: 1.05rem 1.1rem; cursor: pointer; display: flex; flex-direction: column; gap: 0.55rem;
+    transition: transform 0.12s ease, border-color 0.12s ease; width: 100%;
+  }
+  .carte-doc:hover, .carte-outil:hover, .carte-hesitez:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .carte-doc svg { color: var(--accent); }
+  .carte-doc strong, .carte-outil strong, .carte-hesitez strong { font-size: 0.97rem; font-weight: 700; color: var(--ink); }
+  .carte-doc span, .carte-outil span, .carte-hesitez span { font-size: 0.84rem; color: var(--ink-soft); line-height: 1.45; }
+
+  .carte-hesitez { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-card); flex-direction: row; align-items: flex-start; gap: 0.9rem; padding: 1.15rem 1.3rem; }
+  .carte-hesitez .icone-ronde { width: 40px; height: 40px; border-radius: var(--radius-s); background: var(--surface-muted); color: var(--accent); display: flex; align-items: center; justify-content: center; flex: none; }
+  .carte-hesitez:hover { border-color: var(--accent); }
+
+  .legende { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+  .legende-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--ink-soft); font-weight: 500; }
+  .legende-item .pastille { width: 9px; height: 9px; border-radius: 50%; }
+
+  .famille { margin-bottom: 1.35rem; border-radius: var(--radius-l); padding: 1.3rem; }
+  .famille-entete { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; }
+  .famille-entete .icone-famille { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .famille-entete h3 { margin: 0; font-size: 1rem; font-weight: 700; font-family: inherit; }
+  .famille-grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; }
+
+  .famille.construire { background: var(--f-construire-bg); }
+  .famille.construire .icone-famille { background: color-mix(in srgb, var(--f-construire) 22%, transparent); color: var(--f-construire); }
+  .famille.construire h3 { color: var(--f-construire); }
+  .famille.construire .carte-outil { background: var(--surface); }
+  .famille.construire .carte-outil svg { color: var(--f-construire); }
+  .famille.construire .carte-outil:hover { border-color: var(--f-construire); }
+
+  .famille.connaitre { background: var(--f-connaitre-bg); }
+  .famille.connaitre .icone-famille { background: color-mix(in srgb, var(--f-connaitre) 22%, transparent); color: var(--f-connaitre); }
+  .famille.connaitre h3 { color: var(--f-connaitre); }
+  .famille.connaitre .carte-outil { background: var(--surface); }
+  .famille.connaitre .carte-outil svg { color: var(--f-connaitre); }
+  .famille.connaitre .carte-outil:hover { border-color: var(--f-connaitre); }
+
+  .famille.verifier { background: var(--f-verifier-bg); }
+  .famille.verifier .icone-famille { background: color-mix(in srgb, var(--f-verifier) 22%, transparent); color: var(--f-verifier); }
+  .famille.verifier h3 { color: var(--f-verifier); }
+  .famille.verifier .carte-outil { background: var(--surface); }
+  .famille.verifier .carte-outil svg { color: var(--f-verifier); }
+  .famille.verifier .carte-outil:hover { border-color: var(--f-verifier); }
+
+  .famille.veille { background: var(--f-veille-bg); }
+  .famille.veille .icone-famille { background: color-mix(in srgb, var(--f-veille) 24%, transparent); color: var(--f-veille); }
+  .famille.veille h3 { color: var(--f-veille); }
+  .famille.veille .carte-outil { background: var(--surface); border-style: dashed; border-color: color-mix(in srgb, var(--f-veille) 55%, transparent); }
+  .famille.veille .carte-outil svg { color: var(--f-veille); }
+  .famille.veille .carte-outil:hover { border-color: var(--f-veille); }
+  .badge-bientot { align-self: flex-start; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; background: var(--f-veille); color: var(--surface); padding: 0.15rem 0.55rem; border-radius: 999px; }
+
+  .pied { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 3.5rem; }
+  .bouton-discret { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-soft); font-size: 0.85rem; font-weight: 600; padding: 0.55rem 0.95rem; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; }
+  .bouton-discret:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+  /* cluster d'icones persistantes, coin haut droit comme aujourd'hui */
+  .cluster-persistant { position: fixed; top: 1rem; right: 1rem; display: flex; gap: 0.5rem; z-index: 40; }
+  .icone-persistante { width: 42px; height: 42px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-card); display: flex; align-items: center; justify-content: center; color: var(--ink-soft); cursor: pointer; }
+  .icone-persistante:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* panneau apercu, modele ouvrirFenetreERIP */
+  .voile { position: fixed; inset: 0; background: var(--overlay); display: none; align-items: center; justify-content: center; padding: 1.25rem; z-index: 100; }
+  .voile.ouvert { display: flex; }
+  .panneau { background: var(--surface); border-radius: var(--radius-l); max-width: 460px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-panel); padding: 1.75rem; position: relative; }
+  .panneau-fermer { position: absolute; top: 0.9rem; right: 0.9rem; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-muted); color: var(--ink-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .panneau-fermer:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .panneau-entete { display: flex; align-items: center; gap: 0.8rem; margin: 0 1.8rem 1rem 0; }
+  .panneau-entete .icone-ronde { width: 42px; height: 42px; border-radius: var(--radius-s); display: flex; align-items: center; justify-content: center; flex: none; background: var(--surface-muted); color: var(--accent); }
+  .panneau-entete h3 { margin: 0; font-size: 1.15rem; font-weight: 700; font-family: inherit; }
+  .panneau-corps p { color: var(--ink-soft); margin: 0 0 0.9rem; }
+  .panneau-corps .etiquette { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); background: var(--surface-muted); padding: 0.2rem 0.6rem; border-radius: 999px; margin-bottom: 0.9rem; }
+  .rangee-boutons { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.4rem; }
+  .rangee-boutons button { border: 1.5px solid var(--line); background: var(--surface-muted); color: var(--ink-soft); font-weight: 600; font-size: 0.85rem; padding: 0.5rem 0.9rem; border-radius: var(--radius-s); cursor: pointer; }
+  .rangee-boutons button.pleine { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .rangee-boutons button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .zone-note { width: 100%; border: 1.5px solid var(--line); border-radius: var(--radius-s); padding: 0.7rem; font: inherit; color: var(--ink); background: var(--surface-muted); resize: vertical; min-height: 70px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="progression" aria-hidden="false">
+  <div class="progression-etapes" id="barreEtapes"></div>
+</div>
+
+<div class="cluster-persistant">
+  <button class="icone-persistante" data-apercu="affichage" aria-label="Affichage">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+  </button>
+  <button class="icone-persistante" data-apercu="disquette" aria-label="Sauvegarder ma session">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4"/><rect x="8" y="13.5" width="8" height="5.5"/></svg>
+  </button>
+  <button class="icone-persistante" data-apercu="aide" aria-label="Besoin d'aide">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.4 2.4 0 1 1 3.5 2.1c-.9.5-1.1.9-1.1 1.9"/><circle cx="12" cy="16.7" r="0.15" fill="currentColor"/></svg>
+  </button>
+  <button class="icone-persistante" data-apercu="carnet" aria-label="Mon Carnet">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="8" cy="7.6" r="0.9" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="0.9" fill="currentColor" stroke="none"/><circle cx="8" cy="16.4" r="0.9" fill="currentColor" stroke="none"/><line x1="11" y1="7.6" x2="16" y2="7.6"/><line x1="11" y1="12" x2="16" y2="12"/><line x1="11" y1="16.4" x2="14.5" y2="16.4"/></svg>
+  </button>
+</div>
+
+<div class="page">
+
+  <p class="bandeau">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    Aucun compte a creer. Rien n'est garde sur un serveur : tout reste sur votre appareil.
+  </p>
+
+  <div class="entete-page">
+    <h1>Par ou voulez-vous commencer ?</h1>
+    <p>Choisissez votre point de depart, ou cherchez directement ce dont vous avez besoin juste en dessous.</p>
+  </div>
+
+  <div class="section">
+    <div class="marker"><div class="point"></div></div>
+    <div>
+      <p class="eyebrow">Point de depart</p>
+      <h2>Cherchez ce dont vous avez besoin</h2>
+      <p class="souscopie">Un mot suffit : un metier, un mot du Lexique, un outil, un frein a lever. On vous amene directement au bon endroit.</p>
+
+      <div class="recherche-carte">
+        <form id="formRecherche">
+          <label class="recherche-champ">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><line x1="20" y1="20" x2="15.8" y2="15.8"/></svg>
+            <input id="rechercheDemo" type="text" placeholder="un metier, un mot du Lexique, un outil...">
+            <span class="rien">Appuyez sur Entree pour lancer la recherche</span>
+          </label>
+        </form>
+        <p class="recherche-note" id="rechercheRetour">Essayez "Lexique", "Reperes" ou "aide-soignant", puis Entree.</p>
+        <div class="puces">
+          <button class="puce" data-valeur="Lexique" data-cible="lexique"><span class="pastille" style="background:var(--f-connaitre)"></span>Lexique</button>
+          <button class="puce" data-valeur="aide-soignant" data-cible="hesitez"><span class="pastille" style="background:var(--accent)"></span>aide-soignant</button>
+          <button class="puce" data-valeur="Mes Reperes" data-cible="reperes"><span class="pastille" style="background:var(--f-connaitre)"></span>Mes Reperes</button>
+          <button class="puce" data-valeur="Coherence de mon dossier" data-cible="coherence"><span class="pastille" style="background:var(--f-verifier)"></span>Coherence de mon dossier</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="marker"><div class="point"></div></div>
+    <div>
+      <p class="eyebrow">Votre candidature</p>
+      <h2>Mes documents</h2>
+      <p class="souscopie">Trois facons de commencer, selon ou vous en etes.</p>
+
+      <div class="doc-toit">
+        <div class="doc-grille">
+          <button class="carte-doc" data-apercu="cv-nouveau">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v6m0 0-3-3m3 3 3-3"/><rect x="4" y="12" width="16" height="8" rx="2"/></svg>
+            <strong>Creer un nouveau CV</strong>
+            <span>L'assistant vous accompagne pas a pas, depuis le depart.</span>
+          </button>
+          <button class="carte-doc" data-apercu="cv-pret">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="m9.5 14 2 2 3.5-4"/></svg>
+            <strong>J'ai deja un CV</strong>
+            <span>Vous le deposez, il est deja complet.</span>
+          </button>
+          <button class="carte-doc" data-apercu="cv-maj">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9.5 17.5 12.5 15l1.7 1.7 2.3-2.7"/></svg>
+            <strong>Mettre mon CV a jour</strong>
+            <span>Vous le deposez, puis vous le completez.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="marker"><div class="point"></div></div>
+    <div>
+      <p class="eyebrow">Pas encore pret a choisir</p>
+      <h2>Vous hesitez encore ?</h2>
+      <button class="carte-hesitez" data-apercu="hesitez">
+        <span class="icone-ronde">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="m9 15 2.2-5.8L15 9l-2.2 5.8z"/></svg>
+        </span>
+        <span>
+          <strong style="display:block;margin-bottom:0.3rem;">Explorez d'autres pistes</strong>
+          <span>Ateliers, formations, immersions, autres metiers : des ressources qui ne remplacent pas l'application, mais peuvent aider a y voir plus clair.</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="marker"><div class="point"></div></div>
+    <div>
+      <p class="eyebrow">Selon votre situation</p>
+      <h2>La boite a outils</h2>
+      <p class="souscopie">Des outils independants du parcours guide, a utiliser dans l'ordre qui vous convient.</p>
+
+      <div class="legende">
+        <span class="legende-item"><span class="pastille" style="background:var(--f-construire)"></span>Construire mes documents</span>
+        <span class="legende-item"><span class="pastille" style="background:var(--f-connaitre)"></span>Mieux me connaitre</span>
+        <span class="legende-item"><span class="pastille" style="background:var(--f-verifier)"></span>Verifier ma candidature</span>
+        <span class="legende-item"><span class="pastille" style="background:var(--f-veille)"></span>Veille informationnelle</span>
+      </div>
+
+      <div class="famille construire">
+        <div class="famille-entete">
+          <span class="icone-famille"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 15 9l3 3-11 11H4z"/><path d="m13.5 10.5 3-3"/></svg></span>
+          <h3>Construire mes documents</h3>
+        </div>
+        <div class="famille-grille">
+          <button class="carte-outil" data-apercu="lettre">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 15 9l3 3-11 11H4z"/><path d="m13.5 10.5 3-3"/></svg>
+            <strong>Co-construire ma lettre</strong>
+            <span>Redigez une lettre de motivation avec un assistant, au clavier ou a la voix.</span>
+          </button>
+          <button class="carte-outil" data-apercu="entretien">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+            <strong>Preparer un entretien</strong>
+            <span>Entrainez-vous aux questions d'un entretien d'embauche.</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="famille connaitre">
+        <div class="famille-entete">
+          <span class="icone-famille"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M9.5 20.5h5M10 17.5h4"/></svg></span>
+          <h3>Mieux me connaitre</h3>
+        </div>
+        <div class="famille-grille">
+          <button class="carte-outil" data-apercu="decouvrir">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M9.5 20.5h5M10 17.5h4"/></svg>
+            <strong>Decouvrir mes competences</strong>
+            <span>Racontez votre parcours, l'assistant en tire des competences concretes.</span>
+          </button>
+          <button class="carte-outil" data-apercu="reperes">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6.5" r="2.3"/><line x1="12" y1="8.8" x2="12" y2="20"/><path d="M7 13.5c2 1.4 8 1.4 10 0"/></svg>
+            <strong>Mes Reperes</strong>
+            <span>Gardez les reflexions utiles pendant votre parcours.</span>
+          </button>
+          <button class="carte-outil" data-apercu="carnet">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="8" cy="7.6" r="0.9" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="0.9" fill="currentColor" stroke="none"/><circle cx="8" cy="16.4" r="0.9" fill="currentColor" stroke="none"/><line x1="11" y1="7.6" x2="16" y2="7.6"/><line x1="11" y1="12" x2="16" y2="12"/><line x1="11" y1="16.4" x2="14.5" y2="16.4"/></svg>
+            <strong>Mon Carnet</strong>
+            <span>Notez librement, sans avoir a savoir tout de suite ce que vous en ferez.</span>
+          </button>
+          <button class="carte-outil" data-apercu="lexique">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5c3-1 5.5-1 7 0v15c-1.5-1-4-1-7 0z"/><path d="M19 4.5c-3-1-5.5-1-7 0v15c1.5-1 4-1 7 0z"/></svg>
+            <strong>Lexique</strong>
+            <span>Comprenez les mots du monde professionnel.</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="famille verifier">
+        <div class="famille-entete">
+          <span class="icone-famille"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/></svg></span>
+          <h3>Verifier ma candidature</h3>
+        </div>
+        <div class="famille-grille">
+          <button class="carte-outil" data-apercu="bilan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="12"/><line x1="12" y1="20" x2="12" y2="7"/><line x1="18" y1="20" x2="18" y2="15"/><line x1="4" y1="20" x2="20" y2="20"/></svg>
+            <strong>Analyser ma candidature</strong>
+            <span>Reperez ce qui merite d'etre renforce avant de postuler.</span>
+          </button>
+          <button class="carte-outil" data-apercu="coherence">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/></svg>
+            <strong>Coherence de mon dossier</strong>
+            <span>Verifiez que CV, lettre et entretien racontent la meme histoire.</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="famille veille">
+        <div class="famille-entete">
+          <span class="icone-famille"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.8 5.8a9 9 0 0 0 0 12.4M18.2 5.8a9 9 0 0 1 0 12.4"/></svg></span>
+          <h3>Veille informationnelle</h3>
+        </div>
+        <div class="famille-grille">
+          <button class="carte-outil" data-apercu="veille">
+            <span class="badge-bientot">Bientot</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+            <strong>Veille informationnelle</strong>
+            <span>Les dernieres informations du monde de l'insertion professionnelle : lois, statistiques, partenaires.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pied">
+    <button class="bouton-discret" data-apercu="avis">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg>
+      Retour sur votre experience
+    </button>
+    <button class="bouton-discret" data-apercu="confidentialite">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 5-3 7.5-7 9-4-1.5-7-4-7-9V6z"/></svg>
+      Confidentialite de vos donnees
+    </button>
+  </div>
+</div>
+
+<div class="voile" id="voile">
+  <div class="panneau" role="dialog" aria-modal="true" aria-labelledby="panneauTitre">
+    <button class="panneau-fermer" id="panneauFermer" aria-label="Fermer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <div class="panneau-entete">
+      <span class="icone-ronde" id="panneauIcone"></span>
+      <h3 id="panneauTitre"></h3>
+    </div>
+    <div class="panneau-corps" id="panneauCorps"></div>
+  </div>
+</div>
+
+<script>
+  var ETAPES = ["Experience","Ce que vous faisiez","Environnement","Attentes","Mon projet","Faire le point","Action"];
+  var etapeActive = -1;
+
+  function dessinerEtapes() {
+    var zone = document.getElementById('barreEtapes');
+    zone.innerHTML = ETAPES.map(function (label, i) {
+      var classe = i === etapeActive ? 'active' : (i < etapeActive ? 'visitee' : '');
+      return '<span class="etape ' + classe + '">' + label + '</span>';
+    }).join('');
+  }
+  dessinerEtapes();
+
+  var ICONES = {
+    document: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/></svg>',
+    plume: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 15 9l3 3-11 11H4z"/><path d="m13.5 10.5 3-3"/></svg>',
+    mic: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+    ampoule: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M9.5 20.5h5M10 17.5h4"/></svg>',
+    ancre: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6.5" r="2.3"/><line x1="12" y1="8.8" x2="12" y2="20"/><path d="M7 13.5c2 1.4 8 1.4 10 0"/></svg>',
+    carnet: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"/><line x1="11" y1="7.6" x2="16" y2="7.6"/><line x1="11" y1="12" x2="16" y2="12"/><line x1="11" y1="16.4" x2="14.5" y2="16.4"/></svg>',
+    livre: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5c3-1 5.5-1 7 0v15c-1.5-1-4-1-7 0z"/><path d="M19 4.5c-3-1-5.5-1-7 0v15c1.5-1 4-1 7 0z"/></svg>',
+    graphe: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="12"/><line x1="12" y1="20" x2="12" y2="7"/><line x1="18" y1="20" x2="18" y2="15"/><line x1="4" y1="20" x2="20" y2="20"/></svg>',
+    coche: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.4"/></svg>',
+    antenne: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4"/><circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/></svg>',
+    boussole: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 15 2.2-5.8L15 9l-2.2 5.8z"/></svg>',
+    oeil: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+    disquette: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4"/><rect x="8" y="13.5" width="8" height="5.5"/></svg>',
+    aide: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.4 2.4 0 1 1 3.5 2.1c-.9.5-1.1.9-1.1 1.9"/></svg>',
+    avis: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg>',
+    bouclier: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 5-3 7.5-7 9-4-1.5-7-4-7-9V6z"/></svg>'
+  };
+
+  var APERCUS = {
+    'cv-nouveau': { icone: 'document', titre: 'Creer un nouveau CV', etape: 0, motsCles: ['nouveau cv', 'creer un cv'],
+      corps: '<p>L\'assistant vous pose des questions simples, une a la fois : votre experience, ce que vous faisiez, votre environnement de travail, vos attentes. A la fin, votre CV est pret.</p><p><strong>Etape suivante :</strong> Experience (regardez la barre en haut, elle vient de s\'allumer).</p>' },
+    'cv-pret': { icone: 'document', titre: 'J\'ai deja un CV', etape: 4, motsCles: ['j ai deja un cv'],
+      corps: '<p>Vous deposez votre CV existant. L\'assistant recupere vos informations pour vous aider a rediger une lettre de motivation ou preparer un entretien.</p><p><strong>Etape suivante :</strong> Mon projet professionnel.</p>' },
+    'cv-maj': { icone: 'document', titre: 'Mettre mon CV a jour', etape: 4, motsCles: ['mettre a jour', 'maj cv'],
+      corps: '<p>Vous deposez votre CV, puis vous le completez ou lui donnez une presentation differente, sans toucher au contenu si vous le souhaitez.</p><p><strong>Etape suivante :</strong> Mon projet professionnel.</p>' },
+    hesitez: { icone: 'boussole', titre: 'Vous hesitez encore ?', motsCles: ['hesite', 'ateliers', 'formations', 'immersions', 'aide-soignant'],
+      corps: '<p>Ce sont des ressources externes complementaires : ateliers, formations, immersions, autres metiers. Elles ne remplacent pas les parcours de l\'application, mais peuvent aider a y voir plus clair.</p><p>Ressources disponibles pour la Haute-Vienne (87) et la Dordogne (24), ainsi que d\'autres sites pour explorer un metier.</p>' },
+    lettre: { icone: 'plume', titre: 'Co-construire ma lettre', motsCles: ['lettre', 'motivation'],
+      corps: '<p>Vous redigez une lettre de motivation avec un assistant IA, au clavier ou a la voix, sans avoir besoin d\'un CV au prealable.</p>' },
+    entretien: { icone: 'mic', titre: 'Preparer un entretien', motsCles: ['entretien', 'oral'],
+      corps: '<p>Vous vous entrainez aux questions d\'un entretien d\'embauche avec un assistant IA, au clavier ou a la voix, sans CV requis non plus.</p>' },
+    decouvrir: { icone: 'ampoule', titre: 'Decouvrir mes competences', motsCles: ['decouvrir', 'competences'],
+      corps: '<p>Vous racontez votre parcours, au clavier ou a la voix. L\'assistant en tire des competences concretes, meme sans experience professionnelle classique.</p>' },
+    reperes: { icone: 'ancre', titre: 'Mes Reperes', motsCles: ['repere', 'reperes'],
+      corps: '<p>Gardez les reflexions qui vous semblent utiles pendant votre parcours : une question, une idee, un sujet a approfondir ou a discuter avec votre conseiller.</p>' },
+    carnet: { icone: 'carnet', titre: 'Mon Carnet', motsCles: ['carnet', 'notes'],
+      corps: '<p>Notez librement tout ce qui vous passe par la tete, sans avoir a savoir tout de suite ce que vous en ferez. Jamais lu ni analyse automatiquement.</p><textarea class="zone-note" placeholder="Ecrivez une premiere note..."></textarea>' },
+    lexique: { icone: 'livre', titre: 'Lexique', motsCles: ['lexique', 'cdi', 'cdd', 'definition'],
+      corps: '<p>Cherchez un mot du monde professionnel (CDI, periode d\'essai, mobilite...) et obtenez une explication simple, sans jargon.</p><p style="font-size:0.8rem;color:var(--ink-faint)">Texte a affiner : la vraie description de cet outil n\'existe pas encore dans l\'aide de l\'application.</p>' },
+    bilan: { icone: 'graphe', titre: 'Analyser ma candidature', motsCles: ['analyser', 'candidature', 'bilan'],
+      corps: '<p>Une analyse de votre CV et du metier vise par un assistant IA de votre choix, pour reperer ce qui merite d\'etre renforce avant de postuler. Necessite un CV deja cree.</p>' },
+    coherence: { icone: 'coche', titre: 'Coherence de mon dossier', motsCles: ['coherence', 'dossier'],
+      corps: '<p>Verifiez que votre CV, votre lettre de motivation et votre preparation d\'entretien racontent bien la meme histoire, sans contradiction.</p><p style="font-size:0.8rem;color:var(--ink-faint)">Texte a affiner : meme remarque que pour le Lexique.</p>' },
+    veille: { icone: 'antenne', titre: 'Veille informationnelle', motsCles: ['veille', 'statistiques', 'loi'],
+      corps: '<p class="etiquette">Bientot disponible</p><p>Ce module n\'existe pas encore. Il rassemblera les dernieres informations du monde de l\'insertion professionnelle : lois, statistiques, partenaires, evenements, verifiees avant publication.</p>' },
+    affichage: { icone: 'oeil', titre: 'Affichage', motsCles: ['theme', 'sombre', 'clair'],
+      corps: '<p>Ajustez le confort visuel de toute l\'application.</p><p style="margin-bottom:0.4rem"><strong>Theme</strong></p><div class="rangee-boutons" id="boutonsTheme"><button data-theme-val="clair">Clair</button><button data-theme-val="sombre">Sombre</button></div><p style="margin:1rem 0 0.4rem"><strong>Couleur d\'accent</strong></p><div class="rangee-boutons" id="boutonsAccent"><button data-accent-val="bleu">Bleu</button><button data-accent-val="ambre">Ambre</button><button data-accent-val="vert">Vert</button></div>' },
+    disquette: { icone: 'disquette', titre: 'Sauvegarder ma session', motsCles: ['disquette', 'exporter', 'importer'],
+      corps: '<p>Cette application ne garde rien sur un serveur. Exportez un fichier pour reprendre votre parcours plus tard, sur cette machine ou une autre.</p><div class="rangee-boutons"><button class="pleine">Exporter ma session</button><button>Importer une session</button></div>' },
+    aide: { icone: 'aide', titre: 'Besoin d\'aide ?', motsCles: ['aide', 'guide'],
+      corps: '<p>Comprendre a quoi sert chaque outil de cette page.</p><div class="rangee-boutons"><button class="pleine">Explication rapide</button><button>Visite guidee</button></div>' },
+    avis: { icone: 'avis', titre: 'Retour sur votre experience', motsCles: ['avis', 'bug'],
+      corps: '<p>Un petit formulaire pour donner votre avis, signaler un probleme rencontre ou proposer une idee. Quelques minutes suffisent, rien n\'est obligatoire.</p>' },
+    confidentialite: { icone: 'bouclier', titre: 'Confidentialite de vos donnees', motsCles: ['confidentialite', 'donnees'],
+      corps: '<p>Cette fenetre explique simplement comment vos informations sont utilisees. Rien n\'est jamais envoye a un serveur : tout reste sur votre appareil.</p>' }
+  };
+
+  var voile = document.getElementById('voile');
+  var dernierFocus = null;
+
+  function ouvrirApercu(cle) {
+    var a = APERCUS[cle];
+    if (!a) return;
+    dernierFocus = document.activeElement;
+    document.getElementById('panneauIcone').innerHTML = ICONES[a.icone] || '';
+    document.getElementById('panneauTitre').textContent = a.titre;
+    document.getElementById('panneauCorps').innerHTML = a.corps;
+    voile.classList.add('ouvert');
+    document.getElementById('panneauFermer').focus();
+
+    if (typeof a.etape === 'number') { etapeActive = a.etape; dessinerEtapes(); }
+
+    if (cle === 'affichage') {
+      document.querySelectorAll('#boutonsTheme button').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(themeActuel === b.dataset.themeVal));
+        b.addEventListener('click', function () {
+          themeActuel = this.dataset.themeVal;
+          document.documentElement.setAttribute('data-theme', themeActuel === 'sombre' ? 'dark' : 'light');
+          document.querySelectorAll('#boutonsTheme button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        });
+      });
+      document.querySelectorAll('#boutonsAccent button').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(accentActuel === b.dataset.accentVal));
+        b.addEventListener('click', function () {
+          accentActuel = this.dataset.accentVal;
+          document.documentElement.setAttribute('data-accent', accentActuel === 'bleu' ? '' : accentActuel);
+          document.querySelectorAll('#boutonsAccent button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        });
+      });
+    }
+  }
+  function fermerApercu() {
+    voile.classList.remove('ouvert');
+    if (dernierFocus) dernierFocus.focus();
+  }
+  document.getElementById('panneauFermer').addEventListener('click', fermerApercu);
+  voile.addEventListener('click', function (e) { if (e.target === voile) fermerApercu(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && voile.classList.contains('ouvert')) fermerApercu(); });
+
+  document.querySelectorAll('[data-apercu]').forEach(function (el) {
+    el.addEventListener('click', function () { ouvrirApercu(this.dataset.apercu); });
+  });
+
+  var themeActuel = 'clair';
+  var accentActuel = 'bleu';
+
+  var champ = document.getElementById('rechercheDemo');
+  var retourRecherche = document.getElementById('rechercheRetour');
+  var exemples = ["un metier, un mot du Lexique, un outil...", "aide-soignant...", "Lexique...", "Coherence de mon dossier..."];
+  var i = 0;
+  var reduitMouvement = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduitMouvement) {
+    setInterval(function () { i = (i + 1) % exemples.length; champ.setAttribute('placeholder', exemples[i]); }, 3200);
+  }
+  document.querySelectorAll('.puce').forEach(function (bouton) {
+    bouton.addEventListener('click', function () {
+      champ.value = bouton.getAttribute('data-valeur');
+      ouvrirApercu(bouton.getAttribute('data-cible'));
+    });
+  });
+  document.getElementById('formRecherche').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var texte = champ.value.trim().toLowerCase();
+    if (!texte) return;
+    var trouve = null;
+    Object.keys(APERCUS).forEach(function (cle) {
+      if (trouve) return;
+      var a = APERCUS[cle];
+      var champs = [a.titre.toLowerCase()].concat(a.motsCles || []);
+      if (champs.some(function (m) { return m.indexOf(texte) !== -1; })) trouve = cle;
+    });
+    if (trouve) { ouvrirApercu(trouve); }
+    else { retourRecherche.textContent = 'Aucun resultat exact pour "' + champ.value + '", mais la Boite a outils juste en dessous couvre surement votre besoin.'; }
+  });
+</script>

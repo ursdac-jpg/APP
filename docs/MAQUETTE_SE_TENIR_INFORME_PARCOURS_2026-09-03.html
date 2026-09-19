@@ -1,0 +1,2056 @@
+<!doctype html>
+<!--
+  MAQUETTE - parcours du module « Se tenir informé » (sous-carte renommée « Comprendre le cadre »).
+  Module PAS ENCORE CONSTRUIT. Cette maquette sert à décider le contenu et l'enchaînement des écrans.
+  Rien à coder tant que Denis n'a pas validé visuellement.
+
+  Modèle visuel : docs/MAQUETTE_BILAN_PARCOURS_CONSOLIDE_2026-08-29.html (écrans « vue » un par un).
+  Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md.
+  Conception de référence : docs/CHANTIER_SE_TENIR_INFORME.md, recalibrage sections 16.1 à 16.12.
+  Page de présentation déjà validée (2026-08-31) : docs/MAQUETTE_INTRO_SE_TENIR_INFORME.html (reprise ici en écran 1).
+
+  DÉCISIONS DENIS 2026-09-03 (recommandations acceptées) :
+   1. Découpage PAR FONCTION : 4 entrées (Comprendre / Trouver une source officielle /
+      Vérifier une information récente / Mon territoire) + la recherche. Pas de dossiers par thème.
+   2. NOM : la carte d'accueil garde « Se tenir informé ». La sous-carte « Actualités » devient
+      « Comprendre le cadre ». La page de présentation reprend ce nom.
+   3. TERRITOIRE : hybride. Config au build pour les instances partenaires (87, 24) ;
+      question éphémère « France / ma région / mon département » sans mémoire pour les déploiements larges.
+   4. « Vérifier une information récente » : conservée, cadrée (écran 6).
+   5. Objet documentaire unique (Lexique + data/freins.js) : chantier séparé avec sa propre maquette.
+      Ici on montre seulement le résultat visible, jamais l'implémentation.
+   6. PROMPTS : recherche web obligatoire, informations datées, source + date + territoire pour chaque
+      affirmation ; l'assistant dit s'il ne peut pas chercher sur le web et ne répond pas.
+   7. Deux familles de textes de recherche : un texte public général et cadré (monté par le code selon
+      le sujet et le territoire) ; les textes de maintenance de Denis, plus poussés, restent dans un
+      document privé (docs/VEILLE_PROMPTS.md) et ne sont jamais montrés au public.
+   8. Plusieurs petits textes spécialisés (un par sujet), jamais un seul texte fourre-tout (LECONS 1bis).
+   9. TERRITOIRE dans le texte de recherche : le texte écrit explicitement le département et interdit
+      de mélanger les départements. Trois couches (national / régional / départemental) + nuance zone
+      d'emploi (bassin d'emploi) : même loi dans tout le département, mais métiers, structures et
+      dispositifs varient d'un bassin à l'autre.
+  10. ACCUEIL DU MODULE (option A validée 2026-09-03) : choix du territoire en pastille en tête (contexte,
+      changeable, jamais bloquant, aucune mémoire) ; 5 entrées : Comprendre une aide ou une démarche ·
+      Comprendre les chiffres · Trouver une source officielle · Vérifier une information récente ·
+      Près de chez moi (liens locaux, ex-« Mon territoire », devenu une vraie destination).
+  11. « Comprendre les chiffres » = le point fort du module (recueil §12). Questions guidées (fiches
+      datées + « comment lire ça ») + question libre (route vers l'écran de recherche par texte).
+      Jamais un tableau de bord figé : on stocke la LECTURE datée, pas les chiffres (recueil §16.9).
+  12. Bloc « À confronter » : informations non officielles (lettres d'information, réseau, terrain),
+      jamais mélangées aux fiches ni au tableau des sources, jamais un lien direct. Formulation non
+      fataliste, deux publics : « à recouper vous-même, et à en parler avec la personne qui vous
+      accompagne si vous en avez une ». Recueil §11 (« intelligence soft »).
+  13. Contenu de « Comprendre » élargi (retours Denis 2026-09-03) : handicap et emploi (RQTH, AGEFIPH,
+      Cap emploi ; réforme AGEFIPH 2026) ; création d'activité, en DEUX fiches distinctes : (a) micro-
+      entreprise ou société, comment choisir ; (b) la coopérative d'activité et d'emploi (test via
+      contrat CAPE 6-18 mois, puis contrat d'entrepreneur salarié CESA en CDI, SIRET mutualisé,
+      protection sociale de salarié, contribution 10-15 % du chiffre d'affaires) ; accès au numérique
+      et aux outils en ligne. Sur « accès au numérique » : ne jamais écrire le mot « IA » ni le nom
+      d'un programme qui le contient dans le texte d'APP ; un programme local de ce type reste un lien
+      nommé dans « Près de chez moi », jamais dans la prose.
+      Événements liés à la création d'activité (réunions d'information des coopératives, ateliers
+      créateurs) : page des événements locale, jamais une fiche. La coopérative comme STRUCTURE :
+      « Près de chez moi ». Pour le 24 : Coop'Alpha (Périgueux, Coulounieix-Chamiers), à vérifier au build.
+  14. 6e ENTRÉE proposée et posée dans la maquette le 2026-09-03 : « Venir de l'étranger : séjour, travail,
+      équivalences ». Domaine dense et administratif où l'info officielle est éclatée (préfecture, OFII,
+      site du service public, ministère de l'Intérieur, centre ENIC-NARIC). Fiches-question + liens
+      officiels seulement. GARDE-FOU : jamais un avis sur la situation de la personne, jamais lui demander
+      ni afficher son statut ; la situation individuelle se vérifie auprès de la préfecture, de l'OFII ou
+      d'une permanence d'accès au droit. Volatil (listes de métiers pour l'admission au séjour, délais
+      préfecture, frais, pays avec accord d'échange de permis) : lien officiel ou « Vérifier une info
+      récente », jamais figé. Liens locaux (préfecture, OFII, permanence juridique) : « Près de chez moi ».
+      Nom CONFIRMÉ par Denis le 2026-09-03 : « Venir de l'étranger : séjour, travail, équivalences ».
+  15. « Comprendre » rangé par THÈMES (sous-titres simples, jamais des accordéons, recueil §16.10
+      « discipline d'organisation par thèmes ») : Travail-contrats-intérim / Se former-se reconvertir-
+      financer / Se faire accompagner / Revenus-aides-situations particulières.
+      Ajouts : intérim et intérim d'insertion (ETTI) + agences spécialisées handicap ; préparation
+      opérationnelle à l'emploi et action de formation préalable au recrutement ; opérateur de
+      compétences (OPCO) ; insertion par l'activité économique (association intermédiaire, entreprise
+      d'insertion, atelier et chantier d'insertion, ETTI) ; clause sociale dans les marchés publics ;
+      cumul emploi + RSA ou chômage.
+  16. 7e ENTRÉE posée le 2026-09-03 : « Lever un frein » (mobilité, logement, garde d'enfant, français
+      langue étrangère). Reprend le vocabulaire des freins de data/freins.js (17 codes). Ce module
+      explique le PAYSAGE et le principe ; les liens concrets adaptés au frein identifié restent au
+      bloc Ressources. Décision Denis 2026-09-03 : si le module Ressources ne devient jamais autre
+      chose qu'un bloc de liens, cette entrée en est la porte d'entrée publique. Câblage à data/freins.js
+      = décision séparée (fichier partagé, hors périmètre de cette maquette). + fiche « reconversion »
+      (démission-reconversion après 5 ans d'activité continue, période de reconversion, projet de
+      transition professionnelle) dans « Se former ».
+  17. DEUX NIVEAUX DE GRANULARITÉ (revu 2026-09-03). (a) NAVIGATION : Denis tranche pour BEAUCOUP de
+      rayons bien triés plutôt que peu de rayons fourre-tout, parce que ce module est un sous-espace où
+      la personne entre en sachant ce qu'elle cherche. 13 rayons de sujet groupés en 4 familles + 4
+      outils. Condition posée par Claude et retenue : l'écran d'entrée GROUPE visuellement les rayons
+      (familles + intertitres) et garde la recherche en tête, sinon 13 cartes nues = du désordre.
+      (b) TEXTES DE RECHERCHE découpés au moins par rayon, souvent par thème d'un rayon, côté personne
+      (bouton « Poser une question récente », sujet pré-réglé) comme côté maintenance. Un texte étroit
+      = de meilleures sources (LECONS 1bis). Un rayon = un sujet = un chercheur.
+  18. LES 13 RAYONS (Denis 2026-09-03) : Emploi et contrats · Se former et se reconvertir ·
+      L'accompagnement et les structures de l'insertion · Créer son activité · Handicap et emploi ·
+      Venir de l'étranger · Justice : sortie de détention · Budget-dettes-droits sociaux · Mobilité ·
+      Logement · Garde d'enfant · Apprendre le français · Questions juridiques. + 4 outils : Comprendre
+      les chiffres · Trouver une source officielle · Vérifier une info récente · Près de chez moi.
+      Dans la maquette, 4 rayons sont détaillés (Emploi et contrats, Venir de l'étranger, Mobilité,
+      Comprendre les chiffres) ; les 9 autres pointent vers un gabarit de rayon commun.
+  19. ORIENTEUR « Par où commencer ? » (Denis 2026-09-03) : en tête de l'accueil, pas un rayon.
+      Temps 1 = cases à cocher en langage simple -> affiche les rayons correspondants, DÉTERMINISTE
+      (code, pas de prompt), instantané, aucune donnée. Temps 2, FACULTATIF = la personne décrit sa
+      situation avec ses mots -> texte de recherche cadré -> l'assistant renvoie UNIQUEMENT la liste
+      des sujets touchés (« pas un avis sur vous »), présentés comme des liens vers les rayons.
+      Garde-fous : avertissement confidentialité avant le champ libre ; jamais un « rapport » ni un
+      diagnostic sur la personne (Constitution, 1er principe) ; rien n'est enregistré ; le champ libre
+      ne route pas, il trie des sujets. Évite le doublon avec le Bilan / Découverte (recueil §11).
+  20. ASSOCIATIONS DU TERRITOIRE (Denis 2026-09-03) : sur les rayons français, garde d'enfant, budget,
+      justice, séjour, création d'activité, se former, événements..., l'aide passe aussi par le milieu
+      associatif. Deux effets : (a) les TEXTES DE RECHERCHE demandent à l'assistant de repérer les
+      associations reconnues du territoire (nom, site officiel, contact) et de les ranger À PART, sous
+      « associations à contacter », jamais confondues avec un service public ; (b) les associations
+      nommées affichées à la personne sont vérifiées au build (LECONS 9.16) et toujours étiquetées
+      « association ». Ce n'est pas le bloc « À confronter » (qui, lui, reste du non vérifié).
+  21. COMPRENDRE LES CHIFFRES (revu 2026-09-03, en tension avec le recalibrage §16.9 — signalé à Denis) :
+      Denis veut le chiffre actuel + un historique court + un graphique. Résolution : RIEN n'est stocké.
+      Le chiffre est rapporté par l'assistant en ligne depuis la source officielle, à chaque visite,
+      affiché EN GRAS avec source + date ; la courbe est dessinée côté navigateur à partir des chiffres
+      de cette réponse (éphémère, jamais un fichier de données à maintenir). Un seul texte de recherche
+      « chiffres », paramétré par le sujet (chômage / métiers en tension / salaires / libre) et le
+      territoire. Garde-fou §12 : simplifier une statistique peut la déformer -> toujours « d'après
+      [source], en [date] », jamais une vérité ; la fiche « comment lire ça » toujours attachée.
+  22. GRAPHIQUES (Denis 2026-09-03) : valeur écrite au-dessus de chaque barre (lisible sans survol,
+      pour le tactile) + infobulle au survol (trimestre, valeur, source). Barres empilées et
+      multicolores quand il y a plusieurs mesures (ex. inscrits France Travail catégorie A/B/C) ;
+      LÉGENDE obligatoire dès qu'il y a plus d'une couleur. Ne jamais comparer un taux (%) et un
+      nombre de personnes sur le même graphique : mesures et sources différentes, dit explicitement.
+      Chiffres les plus utiles en insertion à prévoir : taux de chômage localisé (INSEE) ; inscrits
+      France Travail catégorie A/B/C ; moins de 25 ans ; 50 ans et plus ; ancienneté d'inscription
+      (plus d'un an) ; part des allocataires du RSA ; métiers en tension (part des projets de
+      recrutement jugés difficiles) ; salaires par secteur. Bloc « Zone d'emploi ou bassin d'emploi »
+      dans chaque écran chiffres : la zone d'emploi est un découpage statistique INSEE (trajets
+      domicile-travail, ~300 en France), le bassin d'emploi local n'a pas les mêmes limites ; chaque
+      graphique dit lequel il utilise et combien de communes il représente.
+  23. MISE EN OEUVRE (Denis 2026-09-03) : option A + socle validés. V1 = socle qui ne vieillit pas
+      (tableau des sources + orienteur + Vérifier + Comprendre les chiffres) + 2 rayons rédigés :
+      Venir de l'étranger, Mobilité. Handicap en 3e. Les autres rayons visibles mais « en préparation »,
+      jamais un cul-de-sac (tableau des sources + un texte de recherche).
+  24. MODULE PORTABLE (Denis 2026-09-03, validé) : dossier autonome modules/comprendre-le-cadre/,
+      couche d'adaptation hôte (4-5 fonctions : ouvrirFenetre / collerReponse / garderRepere /
+      brancherRecherche), contenu en données, CSS préfixée. À cadrer dans CHANTIER_SE_TENIR_INFORME
+      et coordonner avec l'autre compte.
+  25. FORMAT DU CONTENU (Denis 2026-09-03) : voir l'écran « Annexe technique ». Une fiche = un .md
+      (en-tête structuré + prose). Le .md est la seule vérité ; Lexique / freins / recherche / corpus.json
+      sont des vues générées au build (Règle 13). Adresses jamais dans le .md : registre liens-verifies.txt.
+  26. FAMILLE 1 (consultation) : bouton « Revoir la présentation » + note. AUCUN encart
+      « Continuer / Recommencer », AUCUN gel, AUCUN pulse de reprise (LANGAGE_VISUEL 5bis).
+      Ce n'est pas un parcours de dépôt : c'est un espace de consultation.
+  27. OUTIL DE VEILLE outils/veille.html (Denis 2026-09-03) : pas d'option A pure (pas le temps).
+      Fichier local qui prépare les prompts, lit les réponses collées, écrit les .md. N'appelle jamais
+      l'assistant lui-même (pas de budget) : le copier-coller reste manuel. Assemble le prompt 2 avec
+      le matériau ET la liste des fiches existantes du rayon dedans ; étiquette les fiches produites
+      (met à jour / ressemble à / nouvelle) ; « Ma base » (persistée, filtres, tri, tableau de bord par
+      rayon) ; « Contrôle mensuel d'un rayon » (prompt 3) ; mode Créer / Entretenir ; cadence par rayon ;
+      relecture en surbrillance ; mise à jour, retrait, registre des adresses ; « committer sur GitHub »
+      à venir. Évoluera vers « committe et pousse ».
+  28. TROIS PROMPTS (Denis 2026-09-03, révisé le même jour) : prompt 1 COLLECTE par RAYON (ou ciblé sur
+      une fiche) cherche large, aucune limite, [COLLECTE] avec sources en 4 colonnes ; prompt 2 RÉDACTION
+      commun, reçoit le texte_brut ET la liste id|titre|tags des fiches existantes du rayon, DÉCOUPE EN
+      PLUSIEURS FICHES (3 à 8, blocs [FICHE n]), réutilise l'id exact d'une fiche existante quand le sujet
+      correspond ; prompt 3 CONTRÔLE par RAYON, une fois par mois, reçoit toutes les fiches du rayon, va
+      sur le web, NE RÉÉCRIT RIEN, rend [CONTROLE] (chaque fiche : à jour / changement / incertain).
+      Une collecte + une rédaction = toutes les fiches d'un rayon. Denis relit, ne rédige rien.
+  29. FICHIERS ET IDENTITÉ (Denis 2026-09-03) : <id>.md par fiche + <rayon>.collecte.md par rayon
+      (partagé par ses fiches ; chaque fiche a collecte: <rayon>.collecte.md). L'id <rayon>-<slug-du-titre>
+      est fixé UNE FOIS et ne change jamais : c'est lui qui garantit qu'une nouvelle collecte met à jour
+      LA BONNE fiche et n'en crée pas un doublon (réinjecté dans les prompts 2 et 3). On ne renomme
+      jamais un fichier de fiche. En-tête : statut (actif | retire), revisions, collecte. Trois issues
+      au contrôle : redater / réviser (+ ligne revisions:) / retirer. Jamais garder une info fausse.
+      Fiche : dépliant « Lire le texte d'origine » (matériau brut, « pas une source en direct ») ;
+      bandeau BLEU « Mise à jour en [mois] » (distinct de l'ambre « à revérifier ») ; pierre tombale
+      quand statut: retire.
+  30. RECHERCHE : le module a sa barre de recherche (fiches) ET est branché sur la barre d'accueil
+      (indexation au build). Taper « permis » sur l'accueil fait remonter la fiche.
+  31. CADENCE DE CONTRÔLE PAR RAYON (Denis 2026-09-03) : mensuel / trimestriel / semestriel, réglable
+      dans veille.html. Défauts : mensuel = étranger, budget, emploi, juridique ; semestriel = garde
+      d'enfant, français ; trimestriel = le reste. Le panneau « Ce mois-ci » ne réclame un rayon que
+      quand sa cadence est due : sur 14 rayons, ~5-6 par mois, jamais 14.
+  32. BALAYAGE TRIMESTRIEL (Denis 2026-09-03, recentrage CIP, section 17.19-17.20) : 5e outil de l'accueil
+      « Ce qui a changé récemment ». Digest des changements officiels du dernier trimestre civil complet
+      (ex. avril-juin), pour les CIP surtout. Un fichier par trimestre (contenu/balayage/<dernier-mois>.md,
+      ex. 2026-06.md ; periode « avril à juin 2026 » ; publie_le = quand Denis l'a fait), groupé par
+      domaine, chaque élément daté et sourcé. Le dernier digest est mis en avant, les précédents restent
+      consultables. Une mesure pas encore en vigueur va uniquement dans « Annoncé, pas encore en vigueur ».
+      Ce n'est PAS un rayon (pas de fiches-question). Priorité 1 de la V1. Bloc [BALAYAGE] dans veille.html.
+  33. DIGEST CHIFFRES CLÉS (Denis 2026-09-04, révise la décision 21, section 17.21) : 2e digest trimestriel,
+      prompt SÉPARÉ du Balayage. ~8 indicateurs impératifs conservés et rafraîchis chaque trimestre
+      (contenu/chiffres/<dernier-mois>.md), avec une serie de 6-8 trimestres pour le chômage et les inscrits
+      qui trace la courbe. Photo datée, pas un tableau de bord live : §16.9 respecté. Sources INSEE / DARES /
+      France Travail (BMO) + le CARIF-OREF de la région (Cap Métiers / SI-Terr pour la Nouvelle-Aquitaine).
+      Affiché en tête de l'écran « Comprendre les chiffres », section « Les chiffres clés » ; la question
+      libre (décision 21) reste en direct, rien stocké. Bloc [CHIFFRES] dans veille.html.
+  34. 14e RAYON « MOINS DE 26 ANS » (Denis 2026-09-04) : famille « Situations et publics », à côté de
+      Handicap, Étranger, Justice. Couvre : Mission Locale et contrat d'engagement jeune, école de la
+      deuxième chance (E2C), EPIDE, service civique, obligation de formation des 16-18 ans, écoles de
+      production, prépa apprentissage, accompagnement intensif jeunes ; renvoi vers l'apprentissage
+      (rayon « Se former »). Case orienteur « J'ai moins de 26 ans ». Son propre prompt de collecte,
+      comme chaque rayon. La liste des rayons passe de 13 à 14 (décision 18 amendée).
+  35. DIGEST « À CONFRONTER » (Denis 2026-09-04, section 17.22) : 4e digest trimestriel, le SEUL endroit
+      du circuit qui regarde des sources non officielles (réseau des professionnels : LinkedIn, lettres
+      d'information, groupes métier). Chaque signal est recoupé avec l'officiel puis classé (confirmé /
+      en partie / contredit / pas de position). Ne produit pas de fiches : alimente le bloc « À confronter »
+      des rayons (décision 12), jamais mélangé aux fiches, jamais de lien cliquable, ton non fataliste.
+      Fichier contenu/a-confronter/<dernier-mois>.md. Prompt et bloc dédiés dans outils/veille.html.
+      Le socle méthode (sources.txt, fiches type: methode) est rédigé (docs/CONTENU_COMPRENDRE_LE_CADRE/).
+  36. LES 14 PROMPTS DE COLLECTE ÉCRITS D'UN BLOC (Denis 2026-09-04) : plutôt que rayon par rayon, tous
+      les sujets de collecte sont rédigés dès maintenant dans outils/veille.html (menu « Sujet ») et
+      résumés dans docs/VEILLE_PROMPTS.md § 3, pour que l'implémentation soit mécanique et sans erreur.
+      Chaque rayon a un sous-thème réglable sauf les deux « Étranger ». Renfort commun des prompts de
+      recherche : socleRecherche() (date du jour, ne pas fabriquer d'URL / numéro de texte / date, une
+      seule URL sans espace), injecté dans les 6 prompts. Contrôle de cohérence de l'outil élargi.
+
+  Thème sombre : classe .dark sur <body>, PAS [data-theme]. Couleurs en jetons var(--...).
+  Aucune adresse Internet non vérifiée n'est affichée (LECONS 9.16) : les liens sortants sont
+  des boutons simulés, à câbler sur des adresses vérifiées au moment de la construction.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - parcours du module Comprendre le cadre (Se tenir informé)</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #0369a1; --accent-bg: #e2f0f8;
+    --ok: #198754; --ok-bg: #d9f4e4; --ok-strong: #157347;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #38bdf8; --accent-bg: #16283a;
+    --ok: #35c79a; --ok-bg: #17301f; --ok-strong: #6ee89a;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55;
+  }
+  h1, h2, h3, h4 { color: var(--text-strong); line-height: 1.3; }
+  h1 { font-size: 1.55rem; margin: .2rem 0 .5rem; }
+  h2 { font-size: 1.1rem; margin: 1.2rem 0 .5rem; }
+  h3 { font-size: 1rem; margin: .9rem 0 .35rem; }
+  p { margin: .5rem 0; }
+  a { color: var(--accent); }
+
+  /* ---- Barre du haut (aides de maquette) ---- */
+  .appbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg-card); border-bottom: 1px solid var(--border); padding: .6rem 1rem;
+  }
+  .appbar-row { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+  .appbar-titre { font-weight: 700; color: var(--text-strong); font-size: 1rem; }
+  .appbar-outils { margin-left: auto; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  .appbar select, .appbar .mini-btn {
+    font-size: .8rem; padding: .3rem .55rem; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text); cursor: pointer;
+  }
+  .note-maquette {
+    max-width: 900px; margin: .5rem auto 0; font-size: .78rem; color: var(--text-muted);
+    border: 1px dashed var(--border-strong); border-radius: 8px; padding: .4rem .6rem; background: var(--bg-subtle);
+  }
+  .legende { display: flex; flex-wrap: wrap; gap: .8rem; max-width: 900px; margin: .5rem auto 0; font-size: .76rem; color: var(--text-muted); }
+  .legende span { display: inline-flex; align-items: center; gap: .35rem; }
+  .puce { width: .8rem; height: .8rem; border-radius: 3px; display: inline-block; }
+  .puce.neuf { background: var(--accent); }
+  .puce.existant { background: var(--border-strong); }
+
+  /* ---- Contenu ---- */
+  main { max-width: 760px; margin: 0 auto; padding: 1.1rem 1rem 4.5rem; }
+  .vue { display: none; }
+  .vue.active { display: block; animation: apparait .18s ease; }
+  @keyframes apparait { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .vue.active { animation: none; } }
+
+  .bandeau-ecran {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+    font-size: .82rem; margin: 0 0 1rem; padding: .55rem .8rem; border-radius: 9px;
+    border: 1px solid var(--border);
+  }
+  .bandeau-ecran .etiq { font-weight: 700; padding: .12rem .55rem; border-radius: 999px; font-size: .72rem; text-transform: uppercase; letter-spacing: .02em; }
+  .bandeau-ecran.neuf { background: var(--accent-bg); border-color: var(--accent); }
+  .bandeau-ecran.neuf .etiq { background: var(--accent); color: #fff; }
+  body.dark .bandeau-ecran.neuf .etiq { color: #04202e; }
+  .bandeau-ecran.existant { background: var(--bg-subtle); }
+  .bandeau-ecran.existant .etiq { background: var(--border-strong); color: var(--text-strong); }
+
+  .accroche { color: var(--text-muted); font-size: 1.02rem; }
+  .centre { text-align: center; }
+
+  .carte {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0; box-shadow: var(--shadow);
+  }
+  .carte.plat { box-shadow: none; }
+  .carte.teinte { background: var(--accent-bg); border-color: var(--accent); }
+  .liste-fine { margin: .3rem 0 0; padding-left: 1.15rem; }
+  .liste-fine li { margin: .2rem 0; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  /* Encart : fond teinté + filet gauche + icône objet. */
+  .encart {
+    display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .65rem .9rem; margin: .6rem 0; font-size: .9rem;
+  }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+  .encart.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+  .encart .ico { flex-shrink: 0; }
+
+  /* Boutons : rectangle à coins arrondis, jamais rond. */
+  .btn {
+    display: inline-flex; align-items: center; gap: .45rem; justify-content: center;
+    font: inherit; border-radius: var(--radius); padding: .55rem 1.05rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    cursor: pointer; text-decoration: none; font-weight: 600; font-size: .92rem;
+  }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; }
+  body.dark .btn.primaire { color: #04202e; }
+  .btn.fantome { background: transparent; color: var(--accent); }
+  .btn.large { font-size: 1.02rem; padding: .72rem 1.4rem; border-radius: 12px; }
+  .btn.mini { font-size: .82rem; padding: .32rem .7rem; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-rangee { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; }
+  .btn.btn-theme { font-size: .82rem; padding: .32rem .8rem; color: var(--accent); background: transparent; border-color: var(--accent); }
+  .sujet-prescope { background: var(--accent-bg); border: 1px solid var(--accent); border-radius: 10px; padding: .5rem .8rem; margin: .5rem 0; font-size: .88rem; }
+
+  .famille-titre { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 1.1rem 0 .3rem; }
+  .bande-orienteur { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; justify-content: space-between;
+    background: var(--accent-bg); border: 1px solid var(--accent); border-radius: 12px; padding: .8rem 1rem; margin: .7rem 0; }
+  .bande-orienteur p { margin: 0; font-size: .92rem; }
+  textarea.zone-recit { width: 100%; min-height: 90px; resize: vertical; border: 1px solid var(--border-strong);
+    border-radius: 10px; padding: .6rem .7rem; font: inherit; background: var(--bg-page); color: var(--text); }
+  .rayon-lien { display: block; width: 100%; text-align: left; background: var(--bg-card); border: 1px solid var(--accent);
+    border-radius: 10px; padding: .6rem .9rem; margin: .35rem 0; cursor: pointer; font: inherit; color: var(--text-strong); font-weight: 600; }
+
+  .chiffre-cle { font-size: 1.5rem; font-weight: 700; color: var(--text-strong); }
+  .chiffre-source { font-size: .8rem; color: var(--text-muted); }
+  .mini-graph { width: 100%; max-width: 480px; height: auto; margin: .5rem 0 .2rem; display: block; }
+  .mini-graph .barre { fill: var(--accent); }
+  .mini-graph .seg-a { fill: var(--accent); }
+  .mini-graph .seg-b { fill: var(--accent); fill-opacity: .6; }
+  .mini-graph .seg-c { fill: var(--accent); fill-opacity: .32; }
+  .mini-graph rect:hover { stroke: var(--text-strong); stroke-width: 1.2; }
+  .mini-graph .axe { stroke: var(--border-strong); stroke-width: 1; }
+  .mini-graph .val { fill: var(--text-strong); font-size: 9px; font-weight: 700; }
+  .mini-graph text { fill: var(--text-muted); font-size: 9px; font-family: inherit; }
+  .graph-tip { position: fixed; z-index: 200; display: none; background: var(--text-strong); color: var(--bg-card);
+    font-size: .78rem; padding: .3rem .55rem; border-radius: 6px; pointer-events: none; max-width: 240px; box-shadow: var(--shadow); }
+  .graph-legende { display: flex; flex-wrap: wrap; gap: .9rem; font-size: .78rem; color: var(--text-muted); margin: .1rem 0 .5rem; }
+  .graph-legende span { display: inline-flex; align-items: center; gap: .35rem; }
+  .graph-legende i { width: .8rem; height: .8rem; border-radius: 2px; display: inline-block; background: var(--accent); }
+  .graph-legende i.b { opacity: .6; }
+  .graph-legende i.c { opacity: .32; }
+
+  .code-bloc { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;
+    padding: .8rem .9rem; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: .8rem; color: var(--text); white-space: pre-wrap; overflow-x: auto; margin: .5rem 0; line-height: 1.5; }
+  .annexe h2 { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1.6rem; }
+
+  /* Bouton « Revoir la présentation » + note (famille 1). */
+  .bloc-revoir { margin: .2rem 0 1rem; }
+  .btn-revoir {
+    display: inline-flex; align-items: center; gap: .4rem;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+    border-radius: 999px; padding: .35rem .85rem; font-size: .84rem; cursor: pointer;
+  }
+  .note-revoir {
+    position: relative; margin-top: .5rem; max-width: 440px;
+    background: var(--accent-bg); border: 1px solid var(--accent); border-radius: 10px;
+    padding: .6rem 1.6rem .6rem .8rem; font-size: .82rem; color: var(--text);
+  }
+  .note-revoir .fermer {
+    position: absolute; top: .3rem; right: .4rem; border: none; background: transparent;
+    color: var(--text-muted); font-size: 1rem; cursor: pointer; line-height: 1;
+  }
+
+  /* Barre de recherche du module (non fonctionnelle ici). */
+  .recherche { display: flex; align-items: center; gap: .5rem; margin: .6rem 0 .2rem;
+    border: 1px solid var(--border-strong); border-radius: 999px; padding: .5rem .9rem; background: var(--bg-card); }
+  .recherche input { border: none; background: transparent; color: var(--text); font: inherit; flex: 1; outline: none; }
+
+  /* Barre de choix du territoire, en tête du module. */
+  .barre-territoire { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 12px; padding: .55rem .9rem; margin: .6rem 0; font-size: .9rem; }
+  .barre-territoire > summary { list-style: none; cursor: pointer; color: var(--text); }
+  .barre-territoire > summary::-webkit-details-marker { display: none; }
+  .barre-territoire .modif { color: var(--accent); font-weight: 600; }
+  .barre-territoire .corps { margin-top: .6rem; border-top: 1px solid var(--border); padding-top: .6rem; }
+
+  /* Bloc « à confronter » : volontairement en retrait, jamais la couleur d'accent. */
+  .carte-confronter { background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0; }
+  .carte-confronter h3 { margin-top: 0; }
+  .carte-confronter .marque { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: .1rem .55rem; margin-bottom: .4rem; }
+
+  /* Grille des 4 entrées. */
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .8rem; margin-top: .6rem; }
+  .entree {
+    text-align: left; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 14px; padding: .95rem 1rem; cursor: pointer; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: .3rem; font: inherit; color: var(--text);
+  }
+  .entree:hover { border-color: var(--accent); }
+  .entree .titre { font-weight: 700; color: var(--text-strong); display: flex; align-items: center; gap: .5rem; }
+  .entree .quoi { font-size: .87rem; color: var(--text-muted); }
+
+  /* Liste de fiches d'un dossier. */
+  .fiche-item {
+    display: block; width: 100%; text-align: left; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: .8rem .95rem; margin: .5rem 0;
+    cursor: pointer; font: inherit; color: var(--text);
+  }
+  .fiche-item:hover { border-color: var(--accent); }
+  .fiche-item .q { font-weight: 700; color: var(--text-strong); }
+  .fiche-item .pour { font-size: .84rem; color: var(--text-muted); margin-top: .2rem; }
+
+  /* Gabarit d'une fiche. */
+  .fiche-tampon {
+    display: inline-flex; align-items: center; gap: .4rem; margin-top: .5rem;
+    font-size: .78rem; color: var(--text-muted); background: var(--bg-subtle);
+    border: 1px solid var(--border); border-radius: 999px; padding: .2rem .65rem;
+  }
+  .bloc-explique { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 12px; padding: .9rem 1rem; margin: .7rem 0; }
+  .bloc-vivant { background: var(--accent-bg); border: 1px solid var(--accent); border-radius: 12px; padding: .9rem 1rem; margin: .7rem 0; }
+  .bloc-vivant .btn { margin: .35rem .35rem 0 0; }
+  .lex { border-bottom: 1px dashed var(--accent); color: var(--accent); cursor: help; }
+  .bandeau-revue {
+    display: none; align-items: flex-start; gap: .5rem;
+    background: var(--warn-bg); border: 1px solid var(--warn); border-radius: 10px;
+    padding: .6rem .85rem; margin: .3rem 0 .8rem; font-size: .88rem; color: var(--text);
+  }
+  .fiche-ancienne .bandeau-revue { display: flex; }
+  .bandeau-revise { display: none; align-items: flex-start; gap: .5rem; background: var(--accent-bg);
+    border: 1px solid var(--accent); border-radius: 10px; padding: .6rem .85rem; margin: .3rem 0 .8rem; font-size: .88rem; color: var(--text); }
+  .fiche-revisee .bandeau-revise { display: flex; }
+  .texte-origine { border: 1px solid var(--border); border-radius: 12px; margin: .6rem 0; overflow: hidden; background: var(--bg-card); }
+  .texte-origine > summary { list-style: none; cursor: pointer; padding: .7rem 1rem; font-weight: 700; color: var(--accent); }
+  .texte-origine > summary::-webkit-details-marker { display: none; }
+  .texte-origine .corps { padding: .2rem 1rem 1rem; border-top: 1px solid var(--border); font-size: .88rem; }
+  .texte-origine .brut { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px;
+    padding: .7rem .8rem; margin: .5rem 0; max-height: 260px; overflow-y: auto; white-space: pre-wrap; font-size: .84rem; }
+  .fiche-ancienne .fiche-tampon { color: var(--warn); border-color: var(--warn); background: var(--warn-bg); }
+  .demo-fraicheur { border: 1px dashed var(--border-strong); border-radius: 12px; padding: .8rem 1rem; margin: .6rem 0; background: var(--bg-subtle); font-size: .88rem; }
+  .demo-fraicheur .frise { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin: .5rem 0; font-size: .8rem; color: var(--text-muted); }
+  .demo-fraicheur .frise b { color: var(--text-strong); }
+  .demo-fraicheur .frise .fleche { color: var(--border-strong); }
+
+  /* Écran « Ce qui a changé récemment » (digest trimestriel). */
+  .digest-item { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: .7rem .9rem; margin: .5rem 0; background: var(--bg-card); }
+  .digest-item .intitule { font-weight: 700; color: var(--text-strong); }
+  .digest-item .meta { font-size: .8rem; color: var(--text-muted); margin: .15rem 0 .35rem; }
+  .digest-item p { margin: .25rem 0; font-size: .92rem; }
+  .digest-archive { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0; }
+
+  /* Dépliants « en savoir plus » (écran chiffres). */
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .5rem 0; background: var(--bg-card); overflow: hidden; }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .6rem .9rem; font-weight: 700; color: var(--accent); font-size: .9rem; }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli .corps { border-top: 1px solid var(--border); font-size: .88rem; }
+
+  /* Tableau des sources. */
+  .tab-scroll { overflow-x: auto; }
+  table.sources { width: 100%; border-collapse: collapse; margin: .7rem 0; font-size: .87rem; }
+  table.sources th, table.sources td { border: 1px solid var(--border); padding: .55rem .6rem; text-align: left; vertical-align: top; }
+  table.sources th { background: var(--bg-subtle); color: var(--text-strong); }
+  table.sources td:first-child { font-weight: 700; color: var(--text-strong); }
+
+  /* Écran « vérifier ». */
+  .jetons { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+  .jeton { padding: .35rem .8rem; border-radius: 999px; font-size: .85rem; font-family: inherit; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong); }
+  select.jeton { border-radius: 10px; }
+  .jeton.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  body.dark .jeton.actif { color: #04202e; }
+  .zone-prompt {
+    border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-page);
+    padding: .8rem .9rem; font-size: .9rem; color: var(--text); white-space: pre-wrap;
+  }
+  .zone-collage { border: 1px dashed var(--accent); border-radius: 12px; padding: 1rem; background: var(--accent-bg); text-align: center; }
+  .reponse-cadre { border: 1px solid var(--warn); border-radius: 12px; background: var(--warn-bg); padding: .9rem 1rem; margin-top: .8rem; }
+  .etape-verif { display: none; }
+  .etape-verif.active { display: block; }
+
+  /* Barre du bas : Retour à gauche, toujours présente. */
+  .barre-bas {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: var(--bg-card); border-top: 1px solid var(--border); padding: .55rem 1rem;
+  }
+  .barre-bas-row { max-width: 760px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  .barre-bas .btn { padding: .5rem 1rem; font-size: .88rem; }
+
+  .transitions { font-size: .8rem; color: var(--text-muted); border-top: 1px dashed var(--border); margin-top: 1.4rem; padding-top: .7rem; }
+  .signature { color: var(--text-muted); font-size: .82rem; text-align: center; margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-row">
+    <span class="appbar-titre">&#128240; Comprendre le cadre <span class="detail">(carte d'accueil : Se tenir informé)</span></span>
+    <div class="appbar-outils">
+      <select id="devnav" title="Sauter à un écran (aide de maquette)">
+        <option value="comparaison">0 - Comparaison avant / après</option>
+        <option value="intro">1 - Page de présentation (existante)</option>
+        <option value="module">2 - Accueil du module</option>
+        <option value="orienteur">3 - Par où commencer ? (orienteur)</option>
+        <option value="dossier">4 - Rayon détaillé : Emploi et contrats</option>
+        <option value="etranger">5 - Rayon détaillé : Venir de l'étranger</option>
+        <option value="mobilite">6 - Rayon détaillé : Mobilité</option>
+        <option value="chiffres">7 - Outil : Comprendre les chiffres</option>
+        <option value="rayon">8 - Gabarit d'un rayon (les 10 autres)</option>
+        <option value="fiche">9 - Le gabarit d'une fiche</option>
+        <option value="sources">10 - Outil : Tableau des sources</option>
+        <option value="territoire">11 - Outil : Près de chez moi</option>
+        <option value="verifier">12 - Outil : Vérifier une information récente</option>
+        <option value="recemment">13 - Outil : Ce qui a changé récemment (digest)</option>
+        <option value="methode">14 - Fiche méthode (comment lire)</option>
+        <option value="annexe">Annexe technique : format du contenu + prompts</option>
+      </select>
+      <button class="mini-btn" id="btnRevue" onclick="toggleRevue()">Fiche de plus de 6 mois</button>
+      <button class="mini-btn" id="theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+    </div>
+  </div>
+  <div class="note-maquette">
+    Maquette non fonctionnelle. Commencez par <strong>&laquo;&nbsp;0 - Comparaison&nbsp;&raquo;</strong>. Chaque écran porte un bandeau
+    &laquo;&nbsp;Nouvel écran&nbsp;&raquo; ou &laquo;&nbsp;Écran déjà dans l'application&nbsp;&raquo;. Les passages vers un assistant en ligne et les liens
+    sortants sont simulés.
+  </div>
+  <div class="legende">
+    <span><i class="puce neuf"></i> Nouvel écran, à concevoir</span>
+    <span><i class="puce existant"></i> Écran déjà dans l'application</span>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ 0. COMPARAISON ============ -->
+<section class="vue active" data-vue="comparaison">
+  <div class="bandeau-ecran existant"><span class="etiq">Repère</span><span>Vue de comparaison : elle n'existe que dans cette maquette, jamais dans l'application.</span></div>
+
+  <h1>Comparaison : ce que j'ai aujourd'hui vers ce qui est proposé</h1>
+  <p class="accroche">Aujourd'hui, la carte &laquo;&nbsp;Se tenir informé&nbsp;&raquo; mène à une page de présentation dont le bouton d'entrée est
+  éteint : on lit, et rien ne s'ouvre. L'objectif : ouvrir un espace de consultation simple, sans jamais devenir un fil d'actualités.</p>
+
+  <div class="tab-scroll">
+  <table class="sources">
+    <thead><tr><th>Moment</th><th>Aujourd'hui</th><th>Proposé</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Entrée</td>
+        <td>Carte &laquo;&nbsp;Se tenir informé&nbsp;&raquo; &rarr; fenêtre &rarr; sous-carte &laquo;&nbsp;Actualités&nbsp;&raquo; &rarr; page de présentation, bouton d'entrée désactivé (<code>pageIntroSeTenirInforme</code>).</td>
+        <td>Même carte, même fenêtre. La sous-carte s'appelle &laquo;&nbsp;Comprendre le cadre&nbsp;&raquo;. La présentation reste, son bouton d'entrée s'active.</td>
+      </tr>
+      <tr>
+        <td>Nom</td>
+        <td>Sous-carte &laquo;&nbsp;Actualités&nbsp;&raquo; : promet un fil d'actualités que le module refuse d'être.</td>
+        <td>Sous-carte &laquo;&nbsp;Comprendre le cadre&nbsp;&raquo;. La carte d'accueil &laquo;&nbsp;Se tenir informé&nbsp;&raquo; ne change pas (dépendance partenaire).</td>
+      </tr>
+      <tr>
+        <td>Après le bouton d'entrée</td>
+        <td>Rien : le bouton est éteint (cul-de-sac).</td>
+        <td>Un choix de territoire en tête, un orienteur &laquo;&nbsp;Par où commencer ?&nbsp;&raquo;, puis 14 rayons de sujet groupés en 4 familles + 5 outils. Derrière chaque rayon : un texte de recherche étroit (voire un par thème du rayon), côté personne comme côté maintenance.</td>
+      </tr>
+      <tr>
+        <td>Le contenu durable</td>
+        <td>Rien dans l'application. La personne cherche seule sur un moteur grand public, au risque d'une source douteuse.</td>
+        <td>Des fiches courtes en forme de question, &laquo;&nbsp;Rédigé et vérifié en [mois année]&nbsp;&raquo;, avec le lien vers la source officielle à jour.</td>
+      </tr>
+      <tr>
+        <td>Chiffres, montants, listes de métiers</td>
+        <td>Rien.</td>
+        <td>Jamais figés dans l'application : un encadré &laquo;&nbsp;Ce qui peut changer souvent&nbsp;&raquo; et un renvoi vers la page officielle.</td>
+      </tr>
+      <tr>
+        <td>Les sources officielles</td>
+        <td>La personne ne sait pas que Légifrance, l'INSEE, la DARES ou l'enquête sur les besoins en main d'oeuvre existent.</td>
+        <td>Un tableau : à quoi sert chacune, quand l'ouvrir, le lien.</td>
+      </tr>
+      <tr>
+        <td>Une question récente sans fiche</td>
+        <td>Recherche grand public.</td>
+        <td>Écran &laquo;&nbsp;Vérifier une information récente&nbsp;&raquo; : un texte de recherche cadré à copier chez un assistant en ligne, réponse rapportée dans un cadre d'avertissement.</td>
+      </tr>
+      <tr>
+        <td>Reprise</td>
+        <td>Bouton d'entrée éteint.</td>
+        <td>Bouton &laquo;&nbsp;Revoir la présentation&nbsp;&raquo; + note. Aucun encart &laquo;&nbsp;Continuer / Recommencer&nbsp;&raquo;, aucun gel : c'est un espace de consultation, pas une analyse en cours.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="carte teinte">
+    <h3>L'esprit</h3>
+    <p style="margin:.2rem 0"><strong>Aujourd'hui</strong> : 1 page de présentation, 0 écran à ouvrir.</p>
+    <p style="margin:.2rem 0"><strong>Proposé</strong> : la présentation, puis un accueil, des fiches en forme de question, un tableau de sources,
+    et un moyen cadré de vérifier une information du moment. Un espace de consultation, jamais un fil.</p>
+  </div>
+
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('intro')">Voir la version proposée, écran par écran &rarr;</button>
+  </div>
+</section>
+
+<!-- ============ 1. PAGE DE PRÉSENTATION (EXISTANTE) ============ -->
+<section class="vue" data-vue="intro">
+  <div class="bandeau-ecran existant"><span class="etiq">Existant</span>
+    <span>Page de présentation validée le 2026-08-31 (<code>MAQUETTE_INTRO_SE_TENIR_INFORME.html</code>). Reprise à l'identique.
+    Deux changements : le titre reprend &laquo;&nbsp;Comprendre le cadre&nbsp;&raquo; (décision 2) et le bouton d'entrée, aujourd'hui éteint, s'active.</span></div>
+
+  <div id="detourBandeau" class="encart" style="display:none">
+    <span class="ico">&#128278;</span>
+    <span>Vous consultez la présentation en détour. Rien n'est perdu. <button class="btn mini" onclick="revenirModule()">Revenir à Comprendre le cadre</button></span>
+  </div>
+
+  <div class="centre">
+    <h1>&#128240; Comprendre le cadre</h1>
+    <p class="accroche">Savoir ce qui a changé dans l'emploi, la formation et les dispositifs, avant de décider ou d'accompagner.</p>
+  </div>
+
+  <div class="carte teinte centre">
+    <p style="margin:0"><strong>Ce n'est pas un fil d'actualités.</strong> Rien ne clignote, rien ne vous presse. Vous venez quand une question
+    précise vous bloque, vous trouvez un repère fiable et le lien officiel, vous repartez.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#127919; À quoi ça sert</h3>
+    <p><strong>Pour vous :</strong> quand une question précise vous bloque (ai-je droit à une aide au permis ? ça recrute dans quoi près de chez moi ?),
+    trouver le bon repère et la source officielle, au lieu d'une recherche au hasard qui tombe sur un site douteux.</p>
+    <p style="margin:.4rem 0 0"><strong>Pour un professionnel de l'insertion :</strong> une base de repères vérifiés à garder sous la main,
+    à montrer à une personne ou à imprimer avant un rendez-vous.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128203; Ce qui va se passer</h3>
+    <ul class="liste-fine">
+      <li>Vous choisissez un rayon : l'emploi et les contrats, la formation et la reconversion, l'accompagnement, la création d'activité, les moins de 26 ans, le handicap, le séjour quand on vient de l'étranger, la sortie de détention, le budget et les dettes, la mobilité, le logement, la garde d'enfant, l'apprentissage du français, les questions juridiques. Si vous ne savez pas où chercher, l'orienteur vous aiguille.</li>
+      <li>Chaque fiche est courte, en langage simple, avec la date de dernière vérification et le lien vers la source officielle à jour.</li>
+      <li>Pour une information récente qui n'a pas encore de fiche (un montant, un financement, des métiers qui recrutent), l'application prépare un texte de recherche à copier chez un assistant en ligne ; vous rapportez sa réponse ici, encadrée d'un rappel de vérifier la source officielle.</li>
+      <li>Un tableau des sources officielles (Légifrance, le site du service public, l'INSEE, la DARES, France Travail...) vous dit à quoi sert chacune et où cliquer.</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#128683; Ce que ce module ne fait pas</h3>
+    <ul class="liste-fine">
+      <li>Ce n'est pas un fil d'actualités : pas de &laquo;&nbsp;à la une&nbsp;&raquo;, pas de nouveautés qui défilent, pas de notification.</li>
+      <li>Il ne cherche pas à vous faire revenir : vous venez quand vous en avez besoin.</li>
+      <li>Ce n'est pas une source de droit : les repères sont écrits à la main, à une date donnée. En cas de doute, c'est la page officielle qui fait foi.</li>
+      <li>Il n'affiche pas de montant ni de barème figé : les chiffres et les règles changent, le module renvoie vers la page officielle à jour.</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#9999;&#65039; Ce que vous pourrez faire ensuite</h3>
+    <ul class="liste-fine">
+      <li>Repartir vers la source officielle, avec la bonne page déjà repérée.</li>
+      <li>Imprimer une synthèse pour la préparer avant un rendez-vous.</li>
+      <li>Poser une nouvelle question sur un autre sujet ou un autre territoire.</li>
+    </ul>
+  </div>
+
+  <div class="carte teinte">
+    <h3>&#9875;&#65039; Mes Repères</h3>
+    <p style="margin:0">Si une information vous semble importante pour votre parcours, vous pourrez la garder dans Mes Repères, votre espace personnel de notes. Mes Repères ne bouge pas quand vous quittez cet espace.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128172; Comment ça se passe concrètement</h3>
+    <p style="margin:0">Pour vérifier une information récente, l'application prépare le texte de la recherche. Vous le collez sur le site d'un assistant en ligne qui consulte des sources récentes, puis vous rapportez la synthèse ici. Pour tout le reste (fiches, tableau des sources), vous consultez directement, sans assistant.</p>
+  </div>
+
+  <div class="carte plat">
+    <h3>&#9989; Bon à savoir</h3>
+    <div class="encart"><span class="ico">&#128197;</span><span class="detail">Les repères sont rédigés à la main, à une date indiquée. Les règles et les chiffres peuvent évoluer : le lien officiel sous chaque repère pointe vers la version à jour.</span></div>
+    <div class="encart"><span class="ico">&#128274;</span><span class="detail">Vos recherches ne sont pas enregistrées.</span></div>
+    <div class="encart"><span class="ico">&#128190;</span><span class="detail">Cette application ne demande jamais de compte : pensez à cliquer sur l'icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('module')">Ouvrir Comprendre le cadre &rarr;</button>
+    <p class="detail" style="margin:.5rem 0 0">Aujourd'hui ce bouton est désactivé (module en préparation). Dans la version proposée, il ouvre l'écran suivant.</p>
+  </div>
+</section>
+
+<!-- ============ 2. ACCUEIL DU MODULE ============ -->
+<section class="vue" data-vue="module">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span>
+    <span>Accueil du module. Une fois entrée ici, la personne revient à cet écran depuis une fiche ; &laquo;&nbsp;Revoir la présentation&nbsp;&raquo; rouvre l'écran 1 en détour non destructif.</span></div>
+
+  <div class="bloc-revoir">
+    <button class="btn-revoir" onclick="revoirPresentation('module')">&#128240; Revoir la présentation</button>
+    <div class="note-revoir" id="noteRevoir">
+      <button class="fermer" onclick="document.getElementById('noteRevoir').style.display='none'" aria-label="Fermer">&times;</button>
+      Ce bouton rouvre la page de présentation quand vous voulez. Vous ne perdez rien en cliquant : cet espace ne contient pas d'analyse en cours, seulement des fiches à consulter.
+    </div>
+    <p class="detail" style="margin:.3rem 0 0">Maquette : dans l'application, ce bouton est la brique partagée <code>htmlBoutonRevoirModule</code>, calée au niveau des icônes fixes du haut, jamais dans le flux. La note ne s'affiche qu'une fois par personne.</p>
+  </div>
+
+  <div class="centre">
+    <h1>&#128240; Comprendre le cadre</h1>
+    <p class="accroche">Des fiches courtes et des liens officiels, à consulter quand vous en avez besoin.</p>
+  </div>
+
+  <details class="barre-territoire">
+    <summary>&#129517; Territoire : <strong>Dordogne (24)</strong> <span class="modif">&middot; Changer</span></summary>
+    <div class="corps">
+      <div class="jetons">
+        <span class="jeton">France entière</span>
+        <span class="jeton">Ma région (Nouvelle-Aquitaine)</span>
+        <span class="jeton actif">Mon département</span>
+      </div>
+      <label class="detail" for="selDeptModule" style="display:block;margin-top:.5rem">Département</label>
+      <select id="selDeptModule" class="jeton">
+        <option>Dordogne (24)</option>
+        <option>Haute-Vienne (87)</option>
+      </select>
+      <p class="detail" style="margin-top:.5rem">Réglé pour cette version installée chez un partenaire. Vous pouvez le changer pour votre consultation, rien n'est enregistré. Le territoire vaut pour tout le module : une même règle peut être nationale, régionale ou départementale, et les liens locaux comme les recherches suivent ce choix.</p>
+    </div>
+  </details>
+
+  <div class="encart">
+    <span class="ico">&#128197;</span>
+    <span>Les fiches de cet espace sont <strong>rédigées à la main, à une date indiquée</strong>. Les règles et les chiffres peuvent évoluer :
+    sous chaque fiche, le lien officiel pointe vers la version à jour, et c'est elle qui fait foi.</span>
+  </div>
+
+  <div class="recherche">
+    <span>&#128269;</span>
+    <input type="text" placeholder="Chercher : une aide, un contrat, un mot, un territoire..." disabled>
+  </div>
+  <p class="detail">Maquette : cette recherche est branchée dès la création du module à la barre d'accueil et au Lexique (règle non négociable). Les fiches ressortent par leur titre et leurs variantes de recherche. En attendant le chantier &laquo;&nbsp;objet documentaire unique&nbsp;&raquo;, elles forment un groupe propre &laquo;&nbsp;Se tenir informé&nbsp;&raquo;.</p>
+
+  <div class="bande-orienteur">
+    <p><strong>Vous ne savez pas par où commencer ?</strong> Cet écran vous aide à repérer les rayons qui vous concernent. Ce n'est pas un avis sur votre situation.</p>
+    <button class="btn primaire" onclick="aller('orienteur')">&#129517; Par où commencer ?</button>
+  </div>
+
+  <div class="famille-titre">Emploi et parcours</div>
+  <div class="grille">
+    <button class="entree" onclick="aller('dossier')"><span class="titre">&#128188; Emploi et contrats</span><span class="quoi">Période d'essai, rupture conventionnelle, CDD, CDI, intérim et intérim d'insertion.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#127891; Se former et se reconvertir</span><span class="quoi">Compte personnel de formation, préparation à l'emploi, validation des acquis, démission-reconversion, période de reconversion.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#129309; L'accompagnement et les structures de l'insertion</span><span class="quoi">France Travail, Mission Locale, Cap emploi, structures d'insertion par l'activité économique, clause sociale, plan local pour l'insertion.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#128640; Créer son activité</span><span class="quoi">Micro-entreprise, société, coopérative d'activité et d'emploi, aides à la création.</span></button>
+  </div>
+
+  <div class="famille-titre">Situations et publics</div>
+  <div class="grille">
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#127890; Moins de 26 ans</span><span class="quoi">Mission Locale et contrat d'engagement jeune, école de la deuxième chance, EPIDE, service civique, obligation de formation des 16-18 ans, écoles de production, accompagnement intensif jeunes.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#9855;&#65039; Handicap et emploi</span><span class="quoi">Reconnaissance (RQTH), dossier MDPH, médecin traitant et médecine du travail, AGEFIPH, Cap emploi, aménagement de poste.</span></button>
+    <button class="entree" onclick="aller('etranger')"><span class="titre">&#128506;&#65039; Venir de l'étranger : séjour, travail, équivalences</span><span class="quoi">Droit au travail selon le titre de séjour, reconnaissance des diplômes, permis de conduire, naturalisation, démarches en préfecture.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#128682; Justice : sortie de détention et insertion</span><span class="quoi">Service pénitentiaire d'insertion et de probation, aménagement de peine, casier, reprise d'un parcours vers l'emploi.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#128176; Budget, dettes, droits sociaux</span><span class="quoi">Surendettement, point conseil budget, dossier Banque de France, microcrédit, RSA et prime d'activité, cumul avec un emploi, MSA.</span></button>
+  </div>
+
+  <div class="famille-titre">Lever un frein du quotidien</div>
+  <div class="grille">
+    <button class="entree" onclick="aller('mobilite')"><span class="titre">&#128663; Mobilité</span><span class="quoi">Permis, permis annulé et récupération de points, garage solidaire, achat de voiture, aide France Travail à la mobilité, location solidaire, transport à la demande.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#127968; Logement</span><span class="quoi">Action Logement, garantie Visale, fonds de solidarité pour le logement, hébergement temporaire.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#127868; Garde d'enfant</span><span class="quoi">Crèche à vocation d'insertion, halte-garderie, aide de la CAF, garde ponctuelle pour un entretien.</span></button>
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#128214; Apprendre le français</span><span class="quoi">Formation de français langue étrangère, cours de l'OFII, ateliers sociolinguistiques, français à visée professionnelle.</span></button>
+  </div>
+
+  <div class="famille-titre">Faire valoir ses droits</div>
+  <div class="grille">
+    <button class="entree" onclick="aller('rayon')"><span class="titre">&#9878;&#65039; Questions juridiques</span><span class="quoi">Conseil de prud'hommes, tribunal administratif, défenseur des droits, aide juridictionnelle, radiation d'une entreprise, litige avec l'administration.</span></button>
+  </div>
+
+  <div class="famille-titre">Outils</div>
+  <div class="grille">
+    <button class="entree" onclick="aller('recemment')"><span class="titre">&#128478;&#65039; Ce qui a changé récemment</span><span class="quoi">Le digest trimestriel des changements officiels (emploi, formation, droits sociaux, séjour). Daté, sourcé. Surtout pour les professionnels.</span></button>
+    <button class="entree" onclick="aller('chiffres')"><span class="titre">&#128202; Comprendre les chiffres</span><span class="quoi">Chômage, métiers qui recrutent, salaires : ce que disent les chiffres officiels, expliqué, daté, pour votre territoire.</span></button>
+    <button class="entree" onclick="aller('sources')"><span class="titre">&#128218; Trouver une source officielle</span><span class="quoi">Le tableau des sites officiels : à quoi sert chacun, et où cliquer.</span></button>
+    <button class="entree" onclick="aller('verifier')"><span class="titre">&#128172; Vérifier une information récente</span><span class="quoi">Quand aucun rayon ne colle : un texte de recherche à copier chez un assistant en ligne.</span></button>
+    <button class="entree" onclick="aller('territoire')"><span class="titre">&#128205; Près de chez moi</span><span class="quoi">Les liens utiles de votre territoire : structures, données locales, événements.</span></button>
+  </div>
+
+  <details class="barre-territoire">
+    <summary>&#128736;&#65039; Comment c'est organisé <span class="modif">&middot; deux niveaux</span></summary>
+    <div class="corps">
+      <p style="margin:.2rem 0"><strong>Niveau 1, la navigation :</strong> 14 rayons de sujet groupés en 4 familles, plus 5 outils. La personne va droit au rayon qui la concerne ; si elle ne sait pas, l'orienteur &laquo;&nbsp;Par où commencer ?&nbsp;&raquo; l'aiguille.</p>
+      <p style="margin:.2rem 0"><strong>Niveau 2, la qualité de l'information :</strong> un texte de recherche étroit par rayon (voire par thème d'un rayon), côté personne comme côté maintenance de Denis. Un texte étroit va chercher précisément ; un texte large ramène du vide (LECONS 1bis).</p>
+      <p style="margin:.2rem 0">Les deux ne sont pas au même niveau : un rayon = un sujet = un chercheur.</p>
+    </div>
+  </details>
+
+  <div class="carte-confronter">
+    <span class="marque">Non vérifié</span>
+    <h3>&#129513; À confronter</h3>
+    <p>Des informations repérées ailleurs que dans les sources officielles : lettres d'information, réseau des professionnels de l'insertion, retours de terrain. Elles peuvent ouvrir une piste ou nourrir une réflexion, mais elles ne sont pas vérifiées : <strong>à recouper vous-même</strong>, et à en parler avec la personne qui vous accompagne si vous en avez une.</p>
+    <p class="detail">Maquette : ces informations n'apparaissent jamais dans les fiches ni dans le tableau des sources, et sans lien cliquable (recueil §11, &laquo;&nbsp;intelligence soft&nbsp;&raquo;). Exemple : &laquo;&nbsp;Plusieurs structures du département accueilleraient des immersions professionnelles (PMSMP) dans les métiers de l'aide à domicile.&nbsp;&raquo;</p>
+  </div>
+
+  <p class="transitions">Transitions simulées : les rayons ouvrent chacun leur écran (dans la maquette, la plupart pointent vers un même gabarit de rayon). &laquo;&nbsp;Changer&nbsp;&raquo; ouvre le choix du territoire (sans mémoire). &laquo;&nbsp;Retour&nbsp;&raquo; en bas de cet écran sort du module vers la Boîte à outils.</p>
+</section>
+
+<!-- ============ ORIENTEUR « PAR OÙ COMMENCER ? » ============ -->
+<section class="vue" data-vue="orienteur">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>L'orienteur. Il ne donne pas de réponse et ne porte aucun avis sur la personne : il aiguille vers le bon rayon. Rien n'est enregistré.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('orienteur')">&#128240; Revoir la présentation</button>
+
+  <h1>&#129517; Par où commencer ?</h1>
+  <p class="accroche">Vous ne savez pas dans quel rayon chercher ? Cet écran vous aide à repérer les sujets qui vous concernent. Ce n'est pas un avis sur votre situation.</p>
+
+  <h3>1. Cochez ce qui vous concerne</h3>
+  <p class="detail">Réponse immédiate, sans assistant en ligne, rien n'est enregistré.</p>
+  <div class="jetons" id="orienteurCases">
+    <button class="jeton" data-r="contrats">J'ai une question sur mon contrat</button>
+    <button class="jeton" data-r="former">Je veux me former ou changer de métier</button>
+    <button class="jeton" data-r="creer">Je veux créer mon activité</button>
+    <button class="jeton" data-r="jeunes">J'ai moins de 26 ans</button>
+    <button class="jeton" data-r="handicap">J'ai un souci de santé qui gêne mon travail</button>
+    <button class="jeton" data-r="etranger">Je viens d'un autre pays</button>
+    <button class="jeton" data-r="justice">Je sors de détention</button>
+    <button class="jeton" data-r="budget">J'ai des dettes, des difficultés d'argent</button>
+    <button class="jeton" data-r="mobilite">Je n'ai pas de moyen de transport</button>
+    <button class="jeton" data-r="logement">J'ai un problème de logement</button>
+    <button class="jeton" data-r="garde">J'ai un problème de garde d'enfant</button>
+    <button class="jeton" data-r="francais">Je comprends mal le français écrit</button>
+    <button class="jeton" data-r="juridique">J'ai un litige, un problème de droit</button>
+  </div>
+  <div id="orienteurResultat" style="display:none">
+    <div class="encart"><span class="ico">&#128205;</span><span>D'après ce que vous avez coché, ces rayons peuvent vous aider :</span></div>
+    <div id="orienteurRayons"></div>
+  </div>
+
+  <h3 style="margin-top:1.4rem">2. Ou décrivez votre situation avec vos mots <span class="detail">(facultatif)</span></h3>
+  <div class="encart warn">
+    <span class="ico">&#128274;</span>
+    <span>N'écrivez pas votre nom, votre adresse, le nom de votre employeur. Décrivez la situation, pas les personnes. Rien n'est enregistré.</span>
+  </div>
+  <textarea class="zone-recit" placeholder="Par exemple : je viens de trouver un emploi à trente kilomètres, je n'ai pas le permis, et je ne sais pas si je peux être aidé pour la voiture..."></textarea>
+  <p class="detail">L'application prépare un texte de recherche. Vous le collez chez un assistant en ligne. Il vous renvoie <strong>la liste des sujets que votre message touche</strong>, pas un avis sur vous.</p>
+  <div class="btn-rangee">
+    <button class="btn primaire" onclick="orienteurTri()">Préparer le tri des sujets &rarr;</button>
+  </div>
+
+  <div id="orienteurTriResultat" style="display:none">
+    <div class="encart">
+      <span class="ico">&#129513;</span>
+      <span><strong>Les sujets que votre message semble concerner</strong> (à vous de voir lesquels vous parlent). Ce n'est pas un avis sur votre situation, seulement un tri de sujets.</span>
+    </div>
+    <button class="rayon-lien" onclick="aller('mobilite')">&#128663; Mobilité</button>
+    <button class="rayon-lien" onclick="aller('dossier')">&#128188; Emploi et contrats</button>
+    <p class="detail">Maquette : le passage chez l'assistant en ligne est simulé.</p>
+  </div>
+
+  <p class="transitions">Transitions simulées : cocher une case affiche les rayons correspondants ; le tri par récit ouvre l'écran de recherche par texte puis renvoie des liens vers les rayons. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ GABARIT D'UN RAYON (partagé par les rayons sans écran détaillé dans la maquette) ============ -->
+<section class="vue" data-vue="rayon">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Gabarit commun d'un rayon. Dans la maquette, 11 des 14 rayons pointent ici ; les 3 détaillés sont &laquo;&nbsp;Emploi et contrats&nbsp;&raquo;, &laquo;&nbsp;Venir de l'étranger&nbsp;&raquo; et &laquo;&nbsp;Mobilité&nbsp;&raquo; (« Comprendre les chiffres » est un outil, pas un rayon).</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('rayon')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128203; Le gabarit d'un rayon</h1>
+  <p class="accroche">Chaque rayon a la même forme : des fiches-question rangées par thème, un bouton &laquo;&nbsp;Poser une question récente&nbsp;&raquo; par thème, et le gabarit de fiche déjà vu.</p>
+
+  <h3>Exemple : rayon &laquo;&nbsp;Handicap et emploi&nbsp;&raquo;</h3>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">À quoi sert la reconnaissance de la qualité de travailleur handicapé (RQTH) ?</div>
+    <div class="pour">Le principe, ce qu'elle ouvre comme droits, et le fait qu'elle ne se voit pas sur le CV.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Constituer un dossier MDPH : les grandes étapes et les interlocuteurs</div>
+    <div class="pour">Le rôle du médecin traitant, de la maison départementale des personnes handicapées, les délais habituels.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">AGEFIPH, Cap emploi, médecine du travail : qui fait quoi ?</div>
+    <div class="pour">Se repérer entre l'aide au maintien dans l'emploi, l'accompagnement vers l'emploi et l'aménagement de poste.</div>
+  </button>
+  <p><button class="btn btn-theme" onclick="poserQuestionTheme('le handicap et l\'emploi')">&#128172; Poser une question récente sur ce thème</button></p>
+
+  <div class="carte">
+    <h3>&#129309; Les associations qui peuvent aider</h3>
+    <p style="margin:.2rem 0">Sur beaucoup de rayons (français, garde d'enfant, budget, justice, séjour, création d'activité...), l'aide passe aussi par des <strong>associations du territoire</strong>. Elles apparaissent ici, avec leur nom et leur site, et l'invitation à les contacter directement.</p>
+    <p class="detail">Maquette : associations nommées, vérifiées au moment de la construction (LECONS 9.16), toujours présentées comme des associations et jamais comme un service public. Le texte de recherche demande aussi à l'assistant de repérer ces associations et de les ranger à part.</p>
+    <button class="btn" disabled>Voir les associations du territoire pour ce sujet (simulé)</button>
+  </div>
+
+  <div class="encart warn">
+    <span class="ico">&#9888;&#65039;</span>
+    <span>Ce rayon explique le cadre. Il ne pose jamais de diagnostic et ne demande jamais d'information médicale. Chaque fiche renvoie vers la source officielle et, pour les liens locaux, vers &laquo;&nbsp;Près de chez moi&nbsp;&raquo;.</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : les 9 rayons non détaillés suivent tous ce modèle. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ COMPRENDRE LES CHIFFRES (outil de l'accueil) ============ -->
+<section class="vue" data-vue="chiffres">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Le point fort du module : rendre lisibles des chiffres officiels que presque personne n'interprète. Deux parties : les chiffres clés (photo trimestrielle stockée, section 17.21) et une question libre (en direct, rien stocké).</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('chiffres')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128202; Comprendre les chiffres</h1>
+  <p class="accroche">Beaucoup de données existent déjà, gratuites et publiques. Le problème, c'est que peu de gens savent les lire. Ici : les indicateurs clés du trimestre, leur évolution, et ce qu'il faut savoir pour ne pas se tromper.</p>
+
+  <h3>Les chiffres clés du trimestre</h3>
+  <p class="detail" style="margin:.1rem 0 .5rem">Photo du <strong>2e trimestre 2026</strong> (avril à juin). Mise à jour chaque trimestre par le digest chiffres, archivée. Ce n'est pas un tableau de bord en temps réel : chaque valeur est datée, sourcée, et le lien officiel donne la version courante.</p>
+  <div class="jetons" style="margin-bottom:.6rem">
+    <span class="jeton actif">Chômage</span>
+    <span class="jeton">Inscrits France Travail</span>
+    <span class="jeton">Métiers en tension</span>
+    <span class="jeton">Salaires</span>
+  </div>
+
+  <div class="carte">
+    <p style="margin:.1rem 0">Taux de chômage localisé, <strong>Dordogne (24)</strong>, dernière donnée connue :</p>
+    <p class="chiffre-cle" style="margin:.2rem 0">7,4 %</p>
+    <p class="chiffre-source" style="margin:0">D'après l'INSEE, taux localisé au sens du Bureau international du travail, données du 1er trimestre 2026. En baisse d'environ 0,3 point sur un an.</p>
+
+    <svg class="mini-graph" viewBox="0 0 300 120" role="img" aria-label="Évolution du taux de chômage sur cinq trimestres"
+         onmousemove="graphTip(event)" onmouseleave="graphTipHide()">
+      <line class="axe" x1="20" y1="95" x2="290" y2="95"></line>
+      <rect class="barre" x="26" y="39" width="30" height="56" data-tip="1er trimestre 2025 : 7,7 % — source INSEE"></rect>
+      <rect class="barre" x="80" y="47" width="30" height="48" data-tip="2e trimestre 2025 : 7,6 % — source INSEE"></rect>
+      <rect class="barre" x="134" y="55" width="30" height="40" data-tip="3e trimestre 2025 : 7,5 % — source INSEE"></rect>
+      <rect class="barre" x="188" y="55" width="30" height="40" data-tip="4e trimestre 2025 : 7,5 % — source INSEE"></rect>
+      <rect class="barre" x="242" y="63" width="30" height="32" data-tip="1er trimestre 2026 : 7,4 % — source INSEE"></rect>
+      <text class="val" x="41" y="34" text-anchor="middle">7,7</text>
+      <text class="val" x="95" y="42" text-anchor="middle">7,6</text>
+      <text class="val" x="149" y="50" text-anchor="middle">7,5</text>
+      <text class="val" x="203" y="50" text-anchor="middle">7,5</text>
+      <text class="val" x="257" y="58" text-anchor="middle">7,4</text>
+      <text x="41" y="108" text-anchor="middle">T1 25</text>
+      <text x="95" y="108" text-anchor="middle">T2 25</text>
+      <text x="149" y="108" text-anchor="middle">T3 25</text>
+      <text x="203" y="108" text-anchor="middle">T4 25</text>
+      <text x="257" y="108" text-anchor="middle">T1 26</text>
+    </svg>
+    <p class="detail" style="margin:0 0 .5rem">Le chiffre est écrit au-dessus de chaque barre. Au survol (ou au toucher), la barre affiche le trimestre, la valeur et la source.</p>
+
+    <h4 style="margin:.8rem 0 .2rem">Le détail, quand il y a plusieurs mesures</h4>
+    <p class="detail" style="margin:0">Le nombre d'inscrits à France Travail se répartit en trois catégories. C'est une <strong>autre mesure</strong> que le taux ci-dessus (des personnes comptées, pas un pourcentage, et une autre source) : à ne pas comparer directement.</p>
+    <svg class="mini-graph" viewBox="0 0 300 128" role="img" aria-label="Inscrits à France Travail par catégorie, sur quatre trimestres"
+         onmousemove="graphTip(event)" onmouseleave="graphTipHide()">
+      <line class="axe" x1="20" y1="100" x2="290" y2="100"></line>
+      <!-- T2 25 -->
+      <rect class="seg-a" x="30" y="52" width="36" height="48" data-tip="2e trimestre 2025 · catégorie A (sans activité) : 16 700 personnes"></rect>
+      <rect class="seg-b" x="30" y="41" width="36" height="11" data-tip="2e trimestre 2025 · catégorie B (activité réduite courte) : 3 900 personnes"></rect>
+      <rect class="seg-c" x="30" y="24" width="36" height="17" data-tip="2e trimestre 2025 · catégorie C (activité réduite longue) : 6 100 personnes"></rect>
+      <text class="val" x="48" y="20" text-anchor="middle">26 700</text>
+      <!-- T3 25 -->
+      <rect class="seg-a" x="95" y="53" width="36" height="47" data-tip="3e trimestre 2025 · catégorie A : 16 400 personnes"></rect>
+      <rect class="seg-b" x="95" y="42" width="36" height="11" data-tip="3e trimestre 2025 · catégorie B : 3 850 personnes"></rect>
+      <rect class="seg-c" x="95" y="25" width="36" height="17" data-tip="3e trimestre 2025 · catégorie C : 6 050 personnes"></rect>
+      <text class="val" x="113" y="21" text-anchor="middle">26 300</text>
+      <!-- T4 25 -->
+      <rect class="seg-a" x="160" y="54" width="36" height="46" data-tip="4e trimestre 2025 · catégorie A : 16 100 personnes"></rect>
+      <rect class="seg-b" x="160" y="43" width="36" height="11" data-tip="4e trimestre 2025 · catégorie B : 3 800 personnes"></rect>
+      <rect class="seg-c" x="160" y="26" width="36" height="17" data-tip="4e trimestre 2025 · catégorie C : 6 000 personnes"></rect>
+      <text class="val" x="178" y="22" text-anchor="middle">25 900</text>
+      <!-- T1 26 -->
+      <rect class="seg-a" x="225" y="55" width="36" height="45" data-tip="1er trimestre 2026 · catégorie A : 15 800 personnes"></rect>
+      <rect class="seg-b" x="225" y="44" width="36" height="11" data-tip="1er trimestre 2026 · catégorie B : 3 750 personnes"></rect>
+      <rect class="seg-c" x="225" y="27" width="36" height="17" data-tip="1er trimestre 2026 · catégorie C : 5 950 personnes"></rect>
+      <text class="val" x="243" y="23" text-anchor="middle">25 500</text>
+      <text x="48" y="114" text-anchor="middle">T2 25</text>
+      <text x="113" y="114" text-anchor="middle">T3 25</text>
+      <text x="178" y="114" text-anchor="middle">T4 25</text>
+      <text x="243" y="114" text-anchor="middle">T1 26</text>
+    </svg>
+    <div class="graph-legende">
+      <span><i></i> Catégorie A : sans aucune activité</span>
+      <span><i class="b"></i> Catégorie B : activité réduite courte</span>
+      <span><i class="c"></i> Catégorie C : activité réduite longue</span>
+    </div>
+    <p class="detail" style="margin:0">Le total est écrit au-dessus de chaque colonne. Le survol d'un morceau de colonne donne le nombre de cette catégorie. Une légende apparaît dès qu'il y a plus d'une couleur.</p>
+
+    <h4 style="margin:.8rem 0 .2rem">Métiers en tension en Dordogne</h4>
+    <p class="detail" style="margin:0">Les métiers avec le plus de projets de recrutement, et la part jugée difficile à pourvoir (enquête Besoins en Main d'Œuvre, France Travail, édition 2026).</p>
+    <ul class="liste-fine">
+      <li>Aides à domicile et aides médico-psychologiques &mdash; <strong>78 %</strong> des projets jugés difficiles</li>
+      <li>Agents d'entretien de locaux &mdash; 61 %</li>
+      <li>Ouvriers agricoles, viticulture &mdash; 55 %</li>
+      <li>Serveurs de cafés, de restaurants &mdash; 52 %</li>
+      <li>Aides-soignants &mdash; 49 %</li>
+    </ul>
+
+    <p class="detail" style="margin:.4rem 0">Maquette : les graphiques et la liste sont dessinés à partir du digest <code>contenu/chiffres/2026-06.md</code>, produit une fois par trimestre. Les courbes s'allongent d'un point à chaque nouveau digest.</p>
+
+    <h3 style="margin-top:.8rem">Les trimestres précédents</h3>
+    <div class="digest-archive">
+      <button class="btn mini" disabled>1er trimestre 2026 (janvier à mars)</button>
+      <button class="btn mini" disabled>4e trimestre 2025 (octobre à décembre)</button>
+    </div>
+
+    <details class="bloc-depli"><summary>Ce qu'il faut savoir sur ces chiffres</summary>
+      <div class="corps" style="padding:.6rem 1rem">
+        <ul class="liste-fine">
+          <li>Le <strong>taux</strong> (INSEE, mesuré par enquête) et le <strong>nombre d'inscrits</strong> (France Travail) ne mesurent pas la même chose : le second est plus large.</li>
+          <li>Un trimestre isolé ne fait pas une tendance : regardez l'évolution sur un an.</li>
+          <li>Les chiffres par âge (moins de 25 ans, 50 ans et plus), par ancienneté d'inscription (plus d'un an) et par part d'allocataires du RSA sont aussi disponibles, sur demande.</li>
+        </ul>
+        <button class="btn mini" onclick="aller('methode')">Fiche : comment lire un taux de chômage</button>
+      </div>
+    </details>
+
+    <details class="bloc-depli"><summary>Zone d'emploi ou bassin d'emploi : de quel territoire parle-t-on ?</summary>
+      <div class="corps" style="padding:.6rem 1rem">
+        <p style="margin:.2rem 0">L'INSEE publie ses chiffres par <strong>zone d'emploi</strong> : un découpage statistique construit autour des trajets domicile-travail (environ 300 en France). La zone d'emploi de Bergerac, par exemple, couvre plusieurs dizaines de communes autour de Bergerac.</p>
+        <p style="margin:.2rem 0">Le <strong>bassin d'emploi</strong> dont on parle localement (France Travail, acteurs de l'insertion) n'a pas toujours les mêmes limites. Chaque graphique de ce module indique <strong>lequel des deux il utilise</strong>, et combien de communes il représente.</p>
+      </div>
+    </details>
+
+    <div class="btn-rangee">
+      <button class="btn" disabled>Ouvrir la page de l'INSEE pour ce chiffre (simulé)</button>
+      <button class="btn fantome">&#9875;&#65039; Garder comme Repère</button>
+    </div>
+  </div>
+
+  <h3>Une autre question sur les chiffres</h3>
+  <div class="carte teinte">
+    <p style="margin:.2rem 0">Un chiffre pointu qui n'est pas dans les indicateurs clés ci-dessus (« le salaire moyen dans la restauration ici », « le chômage des moins de 25 ans sur trois ans », « la part des contrats courts dans le département »...). L'application prépare un texte de recherche : l'assistant rapporte <strong>le chiffre du moment, la série des derniers trimestres, la source, la date, et deux ou trois points d'attention</strong>. Vous collez sa réponse, l'application met les chiffres en gras et dessine le graphique. <strong>Cette réponse-là n'est pas enregistrée</strong> : elle est en direct.</p>
+    <button class="btn primaire" onclick="poserQuestionTheme('un chiffre du marché du travail')">Préparer une recherche &rarr;</button>
+  </div>
+
+  <div class="encart warn">
+    <span class="ico">&#9888;&#65039;</span>
+    <span>Les <strong>chiffres clés</strong> sont une <strong>photo trimestrielle</strong>, datée et sourcée &mdash; pas un tableau de bord en temps réel. La <strong>question libre</strong>, elle, est traitée en direct et rien n'est enregistré. Dans les deux cas : simplifier une statistique peut la déformer, on écrit toujours &laquo;&nbsp;d'après [source], en [date]&nbsp;&raquo;, jamais une vérité, et la fiche &laquo;&nbsp;comment lire ça&nbsp;&raquo; est toujours à portée.</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : les chiffres clés viennent du digest <code>contenu/chiffres/2026-06.md</code> (exemple figé) ; « Préparer une recherche » ouvre l'écran de recherche par texte pour une question libre. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ RAYON « EMPLOI ET CONTRATS » (rayon détaillé de la maquette) ============ -->
+<section class="vue" data-vue="dossier">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Un rayon détaillé. Les 12 autres rayons ont la même forme (voir le gabarit de rayon).</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('dossier')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128188; Emploi et contrats</h1>
+  <p class="accroche">Choisissez la question qui vous concerne. Chaque fiche donne une explication simple, puis le lien officiel pour les détails exacts. Rangées par thème pour rester lisibles.</p>
+
+  <h3>Le contrat et sa fin</h3>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">La période d'essai : combien de temps, qui peut y mettre fin, avec quel délai ?</div>
+    <div class="pour">Utile au début d'un contrat, pour connaître ses droits des deux côtés.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">La rupture conventionnelle, comment ça marche ?</div>
+    <div class="pour">Utile si vous ou votre employeur envisagez de mettre fin à un CDI d'un commun accord. Les règles d'indemnisation évoluent en 2026 : voir le lien officiel.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">CDD, CDI, contrat saisonnier : quelles différences concrètes ?</div>
+    <div class="pour">Durée, renouvellement, fin de contrat, indemnités : le principe de chacun.</div>
+  </button>
+  <p><button class="btn btn-theme" onclick="poserQuestionTheme('les contrats de travail')">&#128172; Poser une question récente sur ce thème</button></p>
+
+  <h3>L'intérim</h3>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">L'intérim : comment ça marche, et qu'est-ce que l'intérim qui accompagne vers l'emploi durable ?</div>
+    <div class="pour">Le principe de la mission d'intérim, et le rôle des entreprises de travail temporaire d'insertion et des agences spécialisées dans le handicap.</div>
+  </button>
+  <p><button class="btn btn-theme" onclick="poserQuestionTheme('l\'intérim')">&#128172; Poser une question récente sur ce thème</button></p>
+
+  <div class="encart">
+    <span class="ico">&#128260;</span>
+    <span>Ce qui change souvent (jamais figé) : les durées d'indemnisation après une rupture, les taux de cotisation, les règles de renouvellement. Renvoi vers le lien officiel ou vers &laquo;&nbsp;Poser une question récente&nbsp;&raquo;.</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : un clic sur une question ouvre sa fiche ; &laquo;&nbsp;Poser une question récente&nbsp;&raquo; ouvre l'écran de recherche par texte, sujet pré-réglé sur le thème. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ VENIR DE L'ÉTRANGER (rayon détaillé de la maquette) ============ -->
+<section class="vue" data-vue="etranger">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Un des 14 rayons (décisions 18 et 34). Domaine dense et administratif, où l'information officielle est éclatée entre préfecture, OFII et le site du service public.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('etranger')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128506;&#65039; Venir de l'étranger : séjour, travail, équivalences</h1>
+  <p class="accroche">Le cadre général, en langage simple, avec le lien officiel pour chaque démarche. Votre situation exacte se vérifie toujours auprès des services compétents.</p>
+
+  <div class="encart warn">
+    <span class="ico">&#9888;&#65039;</span>
+    <span>Ce module <strong>explique le cadre</strong>. Il ne donne jamais d'avis sur votre situation personnelle et ne vous demande jamais votre statut. Votre cas exact se vérifie auprès de la préfecture, de l'OFII ou d'une permanence d'accès au droit gratuite.</span>
+  </div>
+
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Mon titre de séjour me permet-il de travailler ?</div>
+    <div class="pour">Selon le titre, le droit de travailler est automatique, soumis à autorisation, ou limité. Le principe, puis le lien officiel.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Faire reconnaître un diplôme obtenu à l'étranger : à quoi sert l'attestation de comparabilité ?</div>
+    <div class="pour">Le rôle du centre ENIC-NARIC France : ce que l'attestation permet, ce qu'elle ne remplace pas.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">J'ai un permis de conduire étranger : puis-je le garder, ou faut-il l'échanger ?</div>
+    <div class="pour">La règle diffère selon le pays (Union européenne, accord de réciprocité, ou non) et le délai depuis votre installation.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Demande de naturalisation : les grandes étapes</div>
+    <div class="pour">Les conditions générales et le déroulement, sans promesse de résultat.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Le contrat d'intégration républicaine et l'OFII : à quoi ça sert ?</div>
+    <div class="pour">Formation civique, formation en français, entretiens : ce qui est prévu la première année.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Demandeur d'asile ou protection internationale : ce que je peux faire pour l'emploi</div>
+    <div class="pour">Ce qui est possible pendant la demande et une fois la protection obtenue.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('methode')">
+    <div class="q">Comment savoir quelle règle s'applique à ma situation ?</div>
+    <div class="pour">Fiche méthode : reconnaître les cas, et vers qui se tourner pour une réponse ferme.</div>
+  </button>
+
+  <div class="encart">
+    <span class="ico">&#128260;</span>
+    <span>Ce qui change souvent (jamais figé dans l'application) : les listes de métiers ouvrant une admission au séjour par le travail, les délais des préfectures, les frais de dossier, les pays ayant un accord d'échange de permis. Ces points renvoient vers la page officielle à jour ou vers &laquo;&nbsp;Vérifier une information récente&nbsp;&raquo;.</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : une question ouvre sa fiche ; la dernière ouvre la fiche méthode. Les liens locaux (préfecture, OFII, permanence juridique) sont dans &laquo;&nbsp;Près de chez moi&nbsp;&raquo;. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ RAYON « MOBILITÉ » (rayon détaillé de la maquette) ============ -->
+<section class="vue" data-vue="mobilite">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Un des 4 rayons détaillés. Reprend le vocabulaire des freins de l'application (data/freins.js). Le paysage et le principe ici ; les liens concrets restent au bloc Ressources et à &laquo;&nbsp;Près de chez moi&nbsp;&raquo;.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('mobilite')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128663; Mobilité</h1>
+  <p class="accroche">Se déplacer pour aller travailler ou se former, quand on n'a pas de véhicule ou pas de permis. On explique ce qui existe ; pour des liens adaptés à votre cas, voyez &laquo;&nbsp;Près de chez moi&nbsp;&raquo; ou la personne qui vous accompagne.</p>
+
+  <h3>Le permis de conduire</h3>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Financer le permis : quelles aides quand on cherche un emploi ?</div>
+    <div class="pour">Aide de France Travail, compte personnel de formation, aide du conseil départemental, permis à un euro par jour : à quoi sert chacun.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Permis annulé ou invalidé : comment le récupérer, et dans quels délais ?</div>
+    <div class="pour">La différence entre suspension, annulation et invalidation, la visite médicale, les tests, le repassage éventuel.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Récupérer des points sur son permis : comment ça fonctionne ?</div>
+    <div class="pour">Récupération automatique avec le temps, stage de sensibilisation, où vérifier son solde de points.</div>
+  </button>
+  <p><button class="btn btn-theme" onclick="poserQuestionTheme('le permis de conduire')">&#128172; Poser une question récente sur ce thème</button></p>
+
+  <h3>Avoir un véhicule</h3>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Garage solidaire : faire réparer ou acheter une voiture à petit prix</div>
+    <div class="pour">Le principe des garages solidaires et des plateformes de mobilité, et les conditions habituelles d'accès.</div>
+  </button>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Location solidaire, prêt de deux-roues, aide à l'achat : quelles solutions ?</div>
+    <div class="pour">Louer une voiture ou un scooter à tarif réduit le temps de démarrer un emploi, ou obtenir une aide à l'achat.</div>
+  </button>
+  <p><button class="btn btn-theme" onclick="poserQuestionTheme('l\'accès à un véhicule')">&#128172; Poser une question récente sur ce thème</button></p>
+
+  <h3>Se déplacer sans voiture</h3>
+  <button class="fiche-item" onclick="aller('fiche')">
+    <div class="q">Transport à la demande, covoiturage solidaire, tarifs réduits : comment s'en servir pour aller travailler ?</div>
+    <div class="pour">Les solutions quand il n'y a pas de ligne régulière, et les tarifs réduits pour les personnes en recherche d'emploi.</div>
+  </button>
+  <p><button class="btn btn-theme" onclick="poserQuestionTheme('les transports sans voiture')">&#128172; Poser une question récente sur ce thème</button></p>
+
+  <div class="encart">
+    <span class="ico">&#128279;</span>
+    <span>Ce rayon explique ce qui existe. Pour des liens concrets adaptés à votre situation, l'application renvoie vers le bloc Ressources et vers &laquo;&nbsp;Près de chez moi&nbsp;&raquo;. Les montants et conditions changent : renvoi vers la page officielle ou &laquo;&nbsp;Poser une question récente&nbsp;&raquo;.</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : une question ouvre sa fiche ; &laquo;&nbsp;Poser une question récente&nbsp;&raquo; ouvre l'écran de recherche par texte, sujet pré-réglé sur le thème. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ 4. LE GABARIT D'UNE FICHE ============ -->
+<section class="vue" data-vue="fiche" id="fiche">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Le gabarit d'une fiche, coeur du module. Même structure pour toutes les fiches.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('fiche')">&#128240; Revoir la présentation</button>
+
+  <div class="bandeau-revue">
+    <span class="ico">&#9888;&#65039;</span>
+    <span>Cette fiche a été vérifiée il y a plus de six mois. Son explication reste sans doute valable, mais vérifiez les détails sur le lien officiel ci-dessous.</span>
+  </div>
+  <div class="bandeau-revise">
+    <span class="ico">&#128257;</span>
+    <span><strong>Mise à jour en mars 2026</strong> : le plafond du compte personnel de formation a changé. Nous l'avons repéré et intégré. <a href="#" onclick="return false" style="color:var(--accent)">voir les modifications</a></span>
+  </div>
+
+  <h1>Qu'est-ce que le compte personnel de formation (CPF), et à quoi il sert ?</h1>
+  <p class="detail">Pour qui : utile si vous envisagez une formation et que vous vous demandez comment la financer.</p>
+
+  <div class="demo-fraicheur">
+    <strong>&#128200; Aperçu de maquette : la vie d'une fiche</strong>
+    <p style="margin:.3rem 0"><strong>Vérifiée en [mois]</strong> : Denis a regardé, c'est toujours bon. <strong>Six mois sans vérification</strong> : le bandeau ambre &laquo;&nbsp;à revérifier&nbsp;&raquo; apparaît tout seul (calcul sur la date du fichier, jamais de faux &laquo;&nbsp;mis à jour aujourd'hui&nbsp;&raquo;). <strong>Un changement repéré et intégré</strong> : le bandeau bleu &laquo;&nbsp;Mise à jour en [mois]&nbsp;&raquo;, notre couleur, avec la liste des modifications.</p>
+    <div class="btn-rangee" style="margin-top:.3rem">
+      <button class="btn mini" onclick="document.getElementById('fiche').classList.toggle('fiche-ancienne');window.scrollTo(0,0);">Simuler « à revérifier »</button>
+      <button class="btn mini" onclick="document.getElementById('fiche').classList.toggle('fiche-revisee');window.scrollTo(0,0);">Simuler « mise à jour »</button>
+    </div>
+    <p class="detail" style="margin:.3rem 0 0">Le vrai contenu ne se périme pas : l'explication reste, et le lien officiel dessous est toujours à jour. Le matériau brut d'origine est consultable plus bas.</p>
+  </div>
+
+  <div class="bloc-explique">
+    <h3>Ce que cette fiche explique</h3>
+    <p>Le compte personnel de formation est un droit à la formation attaché à la personne, pas à l'employeur. Il se remplit en euros
+    au fil des années travaillées et vous suit même si vous changez d'emploi ou si vous perdez votre travail.</p>
+    <p>Vous pouvez l'utiliser pour financer, en tout ou en partie, une formation qui prépare à un diplôme, à une
+    <span class="lex" title="Renvoi vers le Lexique">certification</span> reconnue, au permis de conduire ou à la création d'entreprise.</p>
+    <p>La démarche se fait depuis un service public en ligne dédié, avec votre
+    <span class="lex" title="Renvoi vers le Lexique">identité numérique</span>.</p>
+    <span class="fiche-tampon">&#128197; Rédigé et vérifié en janvier 2026</span>
+  </div>
+
+  <div class="bloc-vivant">
+    <h3>&#128279; Pour connaître la situation actuelle</h3>
+    <p style="margin:.2rem 0">Le montant disponible, la liste des formations éligibles et les conditions exactes changent régulièrement.
+    Ces pages sont tenues à jour par l'organisme qui les publie :</p>
+    <button class="btn" disabled>Ouvrir la page officielle du compte formation (simulé)</button>
+    <button class="btn" disabled>Ouvrir la fiche pratique du site du service public (simulé)</button>
+    <p class="detail" style="margin-top:.5rem">Maquette : les adresses exactes seront vérifiées une par une et intégrées à la construction (LECONS 9.16). Aucune adresse non vérifiée n'est affichée ici.</p>
+  </div>
+
+  <details class="texte-origine">
+    <summary>&#128220; Lire le texte d'origine</summary>
+    <div class="corps">
+      <p style="margin:.3rem 0">Le matériau officiel collecté en janvier 2026, tel quel. <strong>Ce n'est pas une source en direct</strong> : pour la version à jour, utilisez les liens officiels ci-dessus.</p>
+      <div class="brut">Selon le Code du travail, article L. 6323-1, le compte personnel de formation est ouvert pour toute personne d'au moins seize ans, en emploi ou à la recherche d'un emploi. Il est alimenté en euros à la fin de chaque année travaillée, dans la limite d'un plafond fixé par décret. Les droits sont mobilisables pour les actions de formation sanctionnées par une certification enregistrée au répertoire national des certifications professionnelles ou au répertoire spécifique, le bilan de compétences, la préparation de l'épreuve du permis de conduire, l'accompagnement à la validation des acquis de l'expérience, ainsi que les actions permettant de créer ou reprendre une entreprise.
+[la suite du matériau : montants, participation forfaitaire, articulation avec les financements de France Travail et des régions, cas des personnes en situation de handicap...]</div>
+      <p class="detail" style="margin:.2rem 0 0">Collecté depuis : le site du service public (fiche pratique), Légifrance (articles L. 6323-1 et suivants). Ces informations ont été récupérées depuis ces sites.</p>
+    </div>
+  </details>
+
+  <div class="encart warn">
+    <span class="ico">&#128260;</span>
+    <span><strong>Ce qui peut changer souvent :</strong>
+      <ul class="liste-fine" style="margin-top:.2rem">
+        <li>le montant disponible sur le compte et le plafond ;</li>
+        <li>la participation forfaitaire qui peut rester à votre charge ;</li>
+        <li>la liste des formations et des organismes acceptés ;</li>
+        <li>les cas où France Travail ou la région complètent le financement.</li>
+      </ul>
+    </span>
+  </div>
+
+  <div class="btn-rangee">
+    <button class="btn fantome">&#9875;&#65039; Garder comme Repère</button>
+    <button class="btn" onclick="window.print()">&#128424;&#65039; Imprimer cette fiche</button>
+  </div>
+  <p class="detail" style="margin-top:.4rem">Maquette : &laquo;&nbsp;Garder comme Repère&nbsp;&raquo; est la brique partagée <code>reperesBoutonAncre</code>. La fiche rejoint Mes Repères ; Mes Repères ne bouge pas quand vous quittez cet espace.</p>
+
+  <p class="transitions">Le bandeau &laquo;&nbsp;À revérifier&nbsp;&raquo; du haut s'affiche automatiquement dès que la date de vérification dépasse six mois (calcul sur la date de dernière modification du fichier, aucun coût, jamais de faux &laquo;&nbsp;mis à jour aujourd'hui&nbsp;&raquo;). Bouton &laquo;&nbsp;Fiche de plus de 6 mois&nbsp;&raquo; en haut de la maquette pour le simuler. &laquo;&nbsp;Retour&nbsp;&raquo; ramène au dossier.</p>
+</section>
+
+<!-- ============ 5. TABLEAU DES SOURCES ============ -->
+<section class="vue" data-vue="sources">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Le tableau des sources officielles. Produit à la construction depuis un fichier texte tenu par Denis.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('sources')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128218; Trouver une source officielle</h1>
+  <p class="accroche">Ces sites sont gratuits et en accès libre. Le problème n'est pas d'y accéder, c'est de savoir lequel ouvrir et quoi y chercher.</p>
+
+  <div class="tab-scroll">
+  <table class="sources">
+    <thead><tr><th>La source</th><th>À quoi elle sert</th><th>Quand l'ouvrir</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Légifrance</td><td>Le texte officiel des lois et du code du travail, avec l'historique des versions.</td><td>Pour lire un article précis ou vérifier une règle.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Le site du service public</td><td>Des fiches pratiques vérifiées et datées sur les contrats, la rupture, les aides, la formation.</td><td>Pour comprendre une démarche pas à pas.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Ministère du Travail</td><td>Les réformes en cours et les dossiers thématiques.</td><td>Pour suivre un changement annoncé.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Ministère de l'Intérieur, section étrangers en France</td><td>Les règles de séjour, de travail des étrangers, de naturalisation ; les démarches en ligne.</td><td>Pour une démarche liée au titre de séjour.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Le centre ENIC-NARIC France</td><td>La comparaison d'un diplôme obtenu à l'étranger avec le système français.</td><td>Pour faire reconnaître un diplôme étranger.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>France compétences</td><td>Les certifications reconnues (RNCP), les règles du compte personnel de formation, la qualité des organismes.</td><td>Pour vérifier qu'une formation est reconnue.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Les bulletins officiels du travail et de l'emploi</td><td>Les circulaires qui précisent l'application des dispositifs (parcours emploi compétences, insertion par l'activité économique, aides).</td><td>Pour le détail d'un dispositif récent.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>INSEE</td><td>Le chômage, l'emploi, les salaires, y compris par département.</td><td>Pour un chiffre national ou local.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>DARES</td><td>Les études sur l'emploi, l'apprentissage, les métiers en tension.</td><td>Pour comprendre une tendance.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>France Travail, enquête sur les besoins en main d'oeuvre</td><td>Les projets de recrutement par métier et par bassin d'emploi.</td><td>Pour savoir ce qui recrute près de chez vous.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Transitions Pro</td><td>Le projet de transition professionnelle, pour changer de métier en gardant un revenu.</td><td>En cas de reconversion.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Observatoire des territoires</td><td>Des chiffres par commune, département et région (emploi, services, logement, mobilité).</td><td>Pour situer votre territoire.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+      <tr><td>Le CARIF-OREF de la région (pour la Nouvelle-Aquitaine : Cap Métiers, outil SI-Terr)</td><td>Les métiers pratiqués, les tensions de recrutement, les formations financées et les dynamiques du marché du travail, jusqu'au bassin d'emploi. Données téléchargeables.</td><td>Pour un projet de formation régional, ou comparer des bassins d'emploi.</td><td><button class="btn mini" disabled>Ouvrir</button></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="encart">
+    <span class="ico">&#128196;</span>
+    <span>Maquette : ce tableau est généré à la construction du site à partir d'un fichier texte tenu par Denis (un nom, une description, une adresse par ligne).
+    La personne qui met à jour ne touche jamais au code. Chaque adresse est vérifiée avant d'être publiée (LECONS 9.16).</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : les boutons &laquo;&nbsp;Ouvrir&nbsp;&raquo; mènent à la page officielle (avec l'avertissement &laquo;&nbsp;vous quittez l'application&nbsp;&raquo;). &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ 7. PRÈS DE CHEZ MOI ============ -->
+<section class="vue" data-vue="territoire">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Les liens locaux. Cet écran lit le territoire choisi en tête de l'accueil (ici : Dordogne 24).</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('territoire')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128205; Près de chez moi</h1>
+  <p class="accroche">Les liens utiles de votre territoire. Ces pages sont tenues à jour par les organismes qui les publient.</p>
+  <p class="detail">Territoire : Dordogne (24), région Nouvelle-Aquitaine. Changez-le en tête de l'accueil du module.</p>
+
+  <div class="carte">
+    <h3>&#128100; Trouver une structure</h3>
+    <ul class="liste-fine">
+      <li>France Travail, la Mission Locale (jeunes), Cap emploi (situation de handicap)</li>
+      <li>France Services, pour être aidé sur les démarches en ligne</li>
+      <li>Les services d'insertion du conseil départemental (accompagnement des allocataires du RSA)</li>
+      <li>Un point conseil budget, une structure d'insertion par l'activité économique</li>
+      <li>Un accompagnement à la création d'activité (chambre de métiers, chambre de commerce, réseaux d'aide aux créateurs)</li>
+      <li>Une coopérative d'activité et d'emploi, pour tester son activité en étant salarié et accompagné</li>
+      <li>La préfecture ou la sous-préfecture (titres de séjour, démarches en ligne)</li>
+      <li>La direction territoriale de l'OFII</li>
+      <li>Une permanence d'accès au droit des étrangers, gratuite</li>
+    </ul>
+    <button class="btn" disabled>Ouvrir l'annuaire des structures de mon territoire (simulé)</button>
+    <p class="detail" style="margin-top:.4rem">Maquette : pour la Dordogne (24), la coopérative d'activité et d'emploi serait Coop'Alpha (établissements de Périgueux et Coulounieix-Chamiers), à vérifier au moment de la construction (LECONS 9.16).</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128202; Les chiffres de mon territoire</h3>
+    <ul class="liste-fine">
+      <li>L'INSEE, données locales (chômage, emploi, population)</li>
+      <li>Cap Métiers Nouvelle-Aquitaine (CARIF-OREF), outil SI-Terr : les chiffres emploi, métiers et formation par bassin d'emploi</li>
+      <li>L'Observatoire des territoires</li>
+    </ul>
+    <button class="btn" disabled>Ouvrir les données de mon département (simulé)</button>
+  </div>
+
+  <div class="carte">
+    <h3>&#128197; Les événements</h3>
+    <p style="margin:.2rem 0">Forums, portes ouvertes, sessions de recrutement, réunions d'information sur la création d'activité : la page des événements de votre territoire. Ces annonces à date limite ne sont jamais transformées en fiche.</p>
+    <button class="btn" disabled>Ouvrir la page des événements de mon territoire (simulé)</button>
+    <p class="detail" style="margin-top:.4rem">Pour la Haute-Vienne (87), cette page renvoie vers la veille du partenaire PCGI 87. Pour la Dordogne (24), la page reste à identifier ; sinon, repli vers la page nationale.</p>
+  </div>
+
+  <div class="encart">
+    <span class="ico">&#128196;</span>
+    <span>Maquette : un lien par ligne et par territoire, tenu dans le fichier texte de Denis, vérifié avant publication (LECONS 9.16). Seule cette couche se multiplie par département : les fiches, elles, restent nationales.</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : les boutons ouvrent des pages officielles locales. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ 6. VÉRIFIER UNE INFORMATION RÉCENTE ============ -->
+<section class="vue" data-vue="verifier">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span>
+    <span>Les briques &laquo;&nbsp;préparer un texte&nbsp;&raquo; et &laquo;&nbsp;coller la réponse&nbsp;&raquo; existent déjà (<code>htmlCollageInstantane</code>). Le texte de recherche se construit ici selon le sujet et le territoire ; le passage chez l'assistant en ligne est simulé.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('verifier')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128172; Vérifier une information récente</h1>
+
+  <div class="encart">
+    <span class="ico">&#128161;</span>
+    <span>Cet écran s'ouvre aussi quand une recherche dans l'application ne donne aucun résultat, ou quand vous cliquez &laquo;&nbsp;Poser une question récente&nbsp;&raquo; depuis un thème. Le branchement sur la recherche viendra plus tard.</span>
+  </div>
+
+  <div class="encart">
+    <span class="ico">&#129513;</span>
+    <span>Maquette : chaque thème du module a <strong>son propre texte de recherche étroit</strong> (un pour la mobilité, un pour le séjour, un pour les chiffres du chômage...), côté personne comme côté maintenance de Denis. Un texte étroit donne de meilleures sources qu'un texte large. Les 14 rayons et 5 outils de l'accueil ne sont que la navigation ; les textes de recherche, eux, sont découpés plus finement, par thème.</span>
+  </div>
+
+  <!-- Étape A -->
+  <div class="etape-verif active" id="verifA">
+    <p>Cet espace ne répond pas à votre place. Il prépare un texte de recherche soigné, clair pour vous comme pour l'assistant en ligne. Vous le copiez chez l'assistant, puis vous rapportez sa réponse ici.</p>
+
+    <div class="sujet-prescope" id="sujetPrescope" style="display:none">&#128204; Sujet pré-réglé : <strong id="sujetPrescopeTexte"></strong>. Vous pouvez le changer ci-dessous.</div>
+
+    <h3>1. Le sujet</h3>
+    <div class="jetons" id="jetonsSujet">
+      <button class="jeton actif" data-sujet="montant">Un montant ou un barème</button>
+      <button class="jeton" data-sujet="formation">Un financement de formation</button>
+      <button class="jeton" data-sujet="dispositif">Un dispositif et qui le porte</button>
+      <button class="jeton" data-sujet="metiers">Des métiers qui recrutent</button>
+      <button class="jeton" data-sujet="marche">Un chiffre du marché du travail</button>
+    </div>
+    <p class="detail">Chaque sujet monte un texte de recherche différent : plusieurs petits textes précis, jamais un seul texte qui essaie de tout couvrir.</p>
+
+    <h3>2. Le territoire</h3>
+    <p class="detail">Le territoire décide de beaucoup de choses : une même règle peut être nationale, régionale ou départementale, et les dispositifs dépendent des structures locales. Le texte de recherche l'écrit noir sur blanc, pour que l'assistant ne mélange jamais les territoires.</p>
+    <div class="jetons" id="jetonsTerr">
+      <button class="jeton" data-terr="france">France entière</button>
+      <button class="jeton" data-terr="region">Ma région</button>
+      <button class="jeton actif" data-terr="departement">Mon département</button>
+    </div>
+    <div id="blocDept" style="margin-top:.5rem">
+      <label class="detail" for="selDept" style="display:block">Département</label>
+      <select id="selDept" class="jeton" style="border-radius:10px;padding:.42rem .6rem">
+        <option value="Dordogne|24|la|Nouvelle-Aquitaine|Bergerac, Périgueux, Sarlat">Dordogne (24)</option>
+        <option value="Haute-Vienne|87|la|Nouvelle-Aquitaine|Limoges et sa couronne, ouest du département">Haute-Vienne (87)</option>
+      </select>
+      <p class="detail" style="margin:.5rem 0 .2rem">Un grand département a la même loi partout, mais des zones d'emploi (bassins d'emploi) très différentes : les métiers qui recrutent, les structures et les dispositifs ne sont pas les mêmes d'une zone à l'autre. Précisez une zone si votre situation en dépend.</p>
+      <label class="detail" for="selBassin" style="display:block">Zone d'emploi (facultatif)</label>
+      <select id="selBassin" class="jeton" style="border-radius:10px;padding:.42rem .6rem"></select>
+    </div>
+    <p class="detail" id="terrConfig" style="margin-top:.5rem">Version installée chez un partenaire : le département est déjà réglé (ici &laquo;&nbsp;Dordogne (24)&nbsp;&raquo;). Vous pouvez le changer ci-dessus, pour cette recherche seulement, rien n'est enregistré.</p>
+
+    <h3>3. Le texte à copier</h3>
+    <p class="detail" id="promptMonte">Texte monté pour : un montant ou un barème, Dordogne (24).</p>
+    <div class="zone-prompt" id="zonePrompt"></div>
+    <div class="btn-rangee">
+      <button class="btn">Copier le texte</button>
+      <button class="btn primaire" onclick="etapeVerif('B')">J'ai la réponse, je la colle &rarr;</button>
+    </div>
+    <div class="encart">
+      <span class="ico">&#128274;</span>
+      <span>Ne collez jamais d'informations personnelles (nom, adresse, numéro de sécurité sociale) dans le texte de recherche.</span>
+    </div>
+    <div class="encart">
+      <span class="ico">&#128196;</span>
+      <span>Maquette : ce texte est monté par le code selon le sujet et le territoire. Les textes de recherche de maintenance de Denis, plus poussés (évolutions depuis la dernière vérification, tri durable / à revérifier), vivent dans un document privé (<code>docs/VEILLE_PROMPTS.md</code>) et ne sont pas montrés ici.</span>
+    </div>
+    <p class="transitions">En vrai, ici : vous ouvrez le site d'un assistant en ligne qui sait chercher sur le web, vous collez ce texte, vous attendez sa réponse, vous revenez. Cette maquette saute cette étape.</p>
+  </div>
+
+  <!-- Étape B -->
+  <div class="etape-verif" id="verifB">
+    <h3>3. Coller la réponse</h3>
+    <div class="zone-collage">
+      <p style="margin:.2rem 0">Collez ici la réponse de l'assistant en ligne.</p>
+      <button class="btn primaire" onclick="simulerReponse()">Coller la réponse</button>
+    </div>
+
+    <div class="reponse-cadre" id="reponseSim" style="display:none">
+      <p style="margin:0 0 .4rem"><strong>Vous avez interrogé un assistant en ligne.</strong> Ceci n'est pas une réponse de l'application.
+      Avant de vous en servir, ouvrez la source citée et vérifiez la date et le territoire.</p>
+      <p style="margin:.4rem 0"><strong>Au niveau national</strong> (source : le site du service public, rubrique prime d'activité, page datée) : le montant forfaitaire pour une personne seule est revalorisé chaque année ; le calcul dépend de vos ressources des trois derniers mois et de votre situation familiale.</p>
+      <p style="margin:.4rem 0"><strong>Au niveau départemental (Dordogne 24)</strong> (source : le site du conseil départemental de la Dordogne, page datée) : un accompagnement complémentaire existe pour les personnes qui perçoivent le RSA ; il est porté par les services d'insertion du département.</p>
+      <p style="margin:.4rem 0"><strong>Dans la zone de Bergerac</strong> : la structure d'insertion locale précise les permanences ; la couverture n'est pas identique dans la zone de Sarlat.</p>
+      <p style="margin:.4rem 0"><em>Sources citées : le site du service public et le site du conseil départemental de la Dordogne.</em></p>
+      <button class="btn mini" disabled>Ouvrir la source nationale (simulé)</button>
+      <button class="btn mini" disabled>Ouvrir la source départementale (simulé)</button>
+    </div>
+
+    <div class="btn-rangee">
+      <button class="btn fantome">&#9875;&#65039; Garder cette réponse comme Repère</button>
+      <button class="btn" onclick="etapeVerif('A')">Poser une autre question</button>
+    </div>
+    <p class="transitions">&laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+  </div>
+</section>
+
+<!-- ============ 7. FICHE MÉTHODE ============ -->
+<section class="vue" data-vue="methode">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>Même gabarit qu'une fiche, sans le bloc &laquo;&nbsp;source vivante&nbsp;&raquo; : une méthode ne change pas.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('methode')">&#128240; Revoir la présentation</button>
+
+  <h1>Comment lire un taux de chômage sans se tromper ?</h1>
+  <p class="detail">Pour qui : utile avant de comparer deux chiffres entendus à des moments différents.</p>
+
+  <div class="bloc-explique">
+    <h3>Ce que cette fiche explique</h3>
+    <p>Un même mot, &laquo;&nbsp;chômage&nbsp;&raquo;, recouvre plusieurs mesures différentes. Le taux au sens du Bureau international du travail compte les
+    personnes sans emploi, disponibles et qui en recherchent activement ; il est mesuré par enquête. Le nombre d'inscrits à France Travail est autre chose :
+    il dépend aussi des règles d'inscription.</p>
+    <p>Un taux peut être donné pour la France entière, une région ou un département, et il peut être corrigé ou non des variations de saison.
+    Avant de comparer deux chiffres, vérifiez qu'ils parlent bien de la même chose, sur le même territoire, à la même date.</p>
+    <span class="fiche-tampon">&#128197; Rédigé et vérifié en janvier 2026</span>
+  </div>
+
+  <div class="encart">
+    <span class="ico">&#128269;</span>
+    <span><strong>Trois réflexes :</strong>
+      <ul class="liste-fine" style="margin-top:.2rem">
+        <li>Quelle est la source, et de quand date le chiffre ?</li>
+        <li>De quel territoire parle-t-on ?</li>
+        <li>Est-ce le même indicateur dans les deux cas que je compare ?</li>
+      </ul>
+    </span>
+  </div>
+
+  <div class="btn-rangee">
+    <button class="btn fantome">&#9875;&#65039; Garder comme Repère</button>
+  </div>
+  <p class="transitions">Cette fiche &laquo;&nbsp;comment lire&nbsp;&raquo; vit dans le même dossier que les données qu'elle éclaire. &laquo;&nbsp;Retour&nbsp;&raquo; ramène au dossier.</p>
+</section>
+
+<!-- ============ CE QUI A CHANGÉ RÉCEMMENT (5e outil, digest trimestriel, decision 32) ============ -->
+<section class="vue" data-vue="recemment">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel écran</span><span>5e outil, ajouté le 2026-09-03 au recentrage CIP (sections 17.19-17.20). Le digest trimestriel « ce qui a changé », produit par le Balayage de <code>outils/veille.html</code> dans <code>contenu/balayage/&lt;dernier-mois-du-trimestre&gt;.md</code>. Contenu d'exemple ci-dessous, à remplacer par le vrai digest. Ce n'est pas un rayon.</span></div>
+
+  <button class="btn-revoir" onclick="revoirPresentation('recemment')">&#128240; Revoir la présentation</button>
+
+  <h1>&#128478;&#65039; Ce qui a changé récemment</h1>
+  <p class="accroche">Les changements officiels du dernier trimestre, en emploi, formation, insertion, droits sociaux et séjour. Un point trimestriel, daté et sourcé.</p>
+
+  <div class="encart">
+    <span class="ico">&#128197;</span>
+    <span><strong>Digest du 2e trimestre 2026.</strong> Il couvre <strong>avril à juin 2026</strong>. Rédigé d'abord pour les professionnels de l'insertion ; lisible par tous. Chaque élément renvoie au texte officiel.</span>
+  </div>
+
+  <h3>Emploi et contrats de travail</h3>
+  <div class="digest-item">
+    <span class="intitule">Revalorisation du SMIC</span>
+    <p class="meta">Arrêté &middot; publié le 22 mai 2026 &middot; en vigueur le 1er juin 2026</p>
+    <p><strong>Concerne :</strong> les employeurs et les salariés de droit privé.</p>
+    <p><strong>Ce qui change :</strong> le SMIC brut horaire passe à 12,31 euros en métropole, soit 1 867,02 euros par mois pour 35 heures. Le minimum garanti passe à 4,35 euros.</p>
+    <button class="btn mini" disabled>Ouvrir le texte officiel (simulé)</button>
+  </div>
+
+  <h3>Assurance chômage et France Travail</h3>
+  <div class="digest-item">
+    <span class="intitule">Accès à l'allocation chômage après cinq mois pour certains primo-entrants</span>
+    <p class="meta">Déploiement de dispositif &middot; en vigueur le 1er avril 2026</p>
+    <p><strong>Concerne :</strong> les personnes n'ayant jamais été indemnisées par l'assurance chômage, ou plus depuis vingt ans.</p>
+    <p><strong>Ce qui change :</strong> cinq mois de travail (108 jours ou 758 heures) suffisent pour ouvrir un droit, au lieu de six mois.</p>
+    <button class="btn mini" disabled>Ouvrir le texte officiel (simulé)</button>
+  </div>
+
+  <h3>RSA, prime d'activité, AAH et cumuls</h3>
+  <div class="digest-item">
+    <span class="intitule">Revalorisation du RSA, de la prime d'activité et de l'AAH</span>
+    <p class="meta">Décrets &middot; publiés fin mars 2026 &middot; en vigueur le 1er avril 2026</p>
+    <p><strong>Concerne :</strong> les bénéficiaires du RSA, de la prime d'activité, de l'AAH.</p>
+    <p><strong>Ce qui change :</strong> RSA porté à 651,69 euros pour une personne seule, prime d'activité à 638,28 euros, AAH à 1 041,59 euros. Les montants exacts sont sur le lien officiel.</p>
+    <button class="btn mini" disabled>Ouvrir le texte officiel (simulé)</button>
+  </div>
+
+  <h3>Annoncé, pas encore en vigueur</h3>
+  <div class="digest-item">
+    <span class="intitule">Durée d'allocation chômage réduite après une rupture conventionnelle</span>
+    <p class="meta">Loi &middot; publiée le 12 juin 2026 &middot; en vigueur le 1er septembre 2026</p>
+    <p><strong>Concerne :</strong> les fins de contrat par rupture conventionnelle individuelle à partir du 1er septembre 2026.</p>
+    <p><strong>Ce qui change :</strong> la durée maximale d'indemnisation passe à 15 mois pour les moins de 55 ans, 20,5 mois pour les 55 ans et plus (prolongation possible au cas par cas ensuite).</p>
+    <button class="btn mini" disabled>Ouvrir le texte officiel (simulé)</button>
+  </div>
+
+  <h3>Les trimestres précédents</h3>
+  <div class="digest-archive">
+    <button class="btn mini" disabled>1er trimestre 2026 (janvier à mars)</button>
+    <button class="btn mini" disabled>4e trimestre 2025 (octobre à décembre)</button>
+    <button class="btn mini" disabled>3e trimestre 2025 (juillet à septembre)</button>
+  </div>
+  <p class="detail">Maquette : chaque trimestre est un fichier archivé, nommé par son dernier mois (<code>contenu/balayage/2026-06.md</code>, <code>2026-03.md</code>...). Le dernier est affiché en haut, les précédents restent consultables tels quels.</p>
+
+  <div class="encart warn">
+    <span class="ico">&#9888;&#65039;</span>
+    <span>Ce n'est pas une source de droit. Chaque élément renvoie au texte officiel, daté. <strong>À recouper avant de s'en servir</strong>, et à en parler avec la personne qui vous accompagne si vous en avez une. Ce qui est « annoncé, pas encore en vigueur » ne s'applique pas : c'est là pour anticiper.</span>
+  </div>
+
+  <p class="transitions">Transitions simulées : les boutons « Ouvrir le texte officiel » mènent à Légifrance ou au site du service public (avec l'avertissement « vous quittez l'application »). &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'accueil du module.</p>
+</section>
+
+<!-- ============ ANNEXE TECHNIQUE (pour Denis et pour le code, jamais vue par la personne) ============ -->
+<section class="vue annexe" data-vue="annexe">
+  <div class="bandeau-ecran existant"><span class="etiq">Annexe</span><span>Écran technique : le format du contenu et les prompts de veille. Jamais affiché à la personne. À extraire dans les vrais fichiers quand le code démarrera.</span></div>
+
+  <h1>&#128295; Annexe technique</h1>
+  <p class="accroche">Trois choses figées ici : comment une fiche est écrite, comment on garantit qu'on ne crée pas de doublon dans le temps, et les trois prompts de veille de la V1.</p>
+
+  <h2>1. Le format du contenu</h2>
+
+  <h3>Deux fichiers, un identifiant stable (décision Denis 2026-09-03)</h3>
+  <ul class="liste-fine">
+    <li><code>&lt;id&gt;.md</code> : <strong>la fiche</strong> (en-tête + la synthèse écrite par le prompt de rédaction). Petit, stable, c'est ce que l'application affiche.</li>
+    <li><code>&lt;rayon&gt;.collecte.md</code> : <strong>le matériau brut</strong> ramené par le prompt de collecte, <strong>au niveau du rayon</strong> (une collecte couvre tout un rayon et sert toutes ses fiches). Volumineux, lu seulement quand la personne clique &laquo;&nbsp;Lire le texte d'origine&nbsp;&raquo;. Chaque fiche pointe vers lui par <code>collecte: &lt;rayon&gt;.collecte.md</code>.</li>
+  </ul>
+  <p>Les séparer garde le fichier de la fiche lisible et ses différences git nettes, même quand la collecte fait plusieurs milliers de mots.</p>
+  <p><strong>L'identité d'une fiche, c'est son <code>id</code></strong> : <code>&lt;rayon&gt;-&lt;slug-du-titre&gt;</code>, fixé une fois, qui <strong>ne change jamais</strong> (même si le titre est reformulé ou le texte réécrit). C'est lui qui garantit qu'une nouvelle collecte, plus tard, met à jour LA BONNE fiche et n'en crée pas un doublon. Les prompts 2 et 3 reçoivent la liste <code>id | titre | tags</code> des fiches existantes du rayon et doivent reprendre l'<code>id</code> exact quand ils retombent sur un sujet connu. On ne renomme jamais un fichier de fiche : si le titre devient faux, on change le champ <code>titre:</code>, pas le nom du fichier.</p>
+  <p>En-tête structuré entre <code>---</code>, puis le texte en dessous. Un accent oublié ne casse rien. Le <code>.md</code> est la seule vérité ; tout le reste est généré à la construction. Champs d'état : <code>statut: actif | retire</code> (une fiche retirée devient une pierre tombale, jamais supprimée) et <code>revisions:</code> (liste de &laquo;&nbsp;AAAA-MM : ce qui a changé&nbsp;&raquo;, qui alimente le bandeau bleu &laquo;&nbsp;Mise à jour en [mois]&nbsp;&raquo;).</p>
+  <p><strong>Au contrôle mensuel, trois issues par fiche</strong> : <em>redater</em> (sources revues, rien de matériel changé : <code>verifie_le</code> passe au mois courant, pas de ligne de révision) ; <em>réviser</em> (un détail a bougé : on corrige + une ligne <code>revisions:</code>) ; <em>retirer</em> (dispositif fermé ou info trompeuse : <code>statut: retire</code>). On ne garde jamais une information fausse &laquo;&nbsp;pour l'historique&nbsp;&raquo;.</p>
+
+  <h3>L'arborescence, dans le dossier du module</h3>
+  <div class="code-bloc">modules/comprendre-le-cadre/
+  contenu/
+    etranger/
+      etranger-titre-de-sejour-et-travail.md
+      etranger-equivalence-des-diplomes.md
+      etranger.collecte.md            (le matériau brut, partagé par les fiches du rayon)
+    mobilite/
+      mobilite-financer-le-permis.md
+      mobilite-recuperer-des-points.md
+      mobilite.collecte.md
+    balayage/
+      2026-06.md         (le digest « ce qui a changé » du 2e trimestre 2026, nommé par son dernier mois)
+      2026-03.md
+    chiffres/
+      2026-06.md         (le digest « chiffres clés » du 2e trimestre 2026, même nommage)
+      2026-03.md
+    a-confronter/
+      2026-06.md         (le digest « À confronter » : le non officiel du réseau, recoupé)
+      2026-03.md
+    methode/
+      comment-lire-un-taux-de-chomage.md   (fiche méthode, type: methode, ne se périme pas)
+  sources.txt          (le tableau : nom | à quoi ça sert | quand l'ouvrir | nom-du-lien)
+  liens-verifies.txt   (nom-du-lien | adresse | date de vérification)
+  config.js            (le territoire du déploiement : département, région, liens locaux)
+  corpus.json          (GÉNÉRÉ, jamais édité : l'index que les autres modules lisent)</div>
+  <p class="detail">C'est l'emplacement unique : l'outil <code>outils/veille.html</code> y dépose les fichiers, le module les lit au build. Chemin exact et passage éventuel par un script de build : à cadrer avec l'autre compte.</p>
+
+  <h3>Les champs de l'en-tête</h3>
+  <div class="tab-scroll"><table class="sources">
+    <thead><tr><th>Champ</th><th>Rôle</th><th>Utilisé par</th></tr></thead>
+    <tbody>
+      <tr><td>id</td><td><strong>Identité stable</strong> : <code>&lt;rayon&gt;-&lt;slug-du-titre&gt;</code>, minuscules et tirets. Fixé une fois, ne change jamais. C'est la clé anti-doublon.</td><td>tout ; prompts 2 et 3</td></tr>
+      <tr><td>rayon</td><td>À quel rayon la fiche appartient</td><td>ce module</td></tr>
+      <tr><td>titre</td><td>La question, telle qu'elle s'affiche</td><td>ce module, recherche d'accueil</td></tr>
+      <tr><td>pour_qui</td><td>Une ligne : dans quel cas cette fiche sert</td><td>ce module</td></tr>
+      <tr><td>tags</td><td>Mots-clés pour la recherche</td><td>recherche d'accueil, orienteur</td></tr>
+      <tr><td>territoire</td><td>national / régional / départemental</td><td>ce module (affichage de la portée)</td></tr>
+      <tr><td>statut</td><td><code>actif</code> ou <code>retire</code>. Une fiche <code>retire</code> devient une pierre tombale (jamais supprimée), avec <code>retire_le</code>, <code>retire_raison</code> et un éventuel <code>remplace_par</code>.</td><td>ce module</td></tr>
+      <tr><td>verifie_le</td><td>Mois et année de la dernière vérification. Au-delà de 6 mois, le bandeau ambre « à revérifier » apparaît tout seul (calcul sur la date du fichier).</td><td>ce module</td></tr>
+      <tr><td>revisions</td><td>Liste de « AAAA-MM : ce qui a changé ». La dernière entrée alimente le bandeau bleu « Mise à jour en [mois] ».</td><td>ce module</td></tr>
+      <tr><td>lexique</td><td>Liste de « terme + définition courte ». La SEULE partie que le Lexique reprend.</td><td>module Lexique</td></tr>
+      <tr><td>frein</td><td>Vrai / faux. Si vrai, la fiche alimente aussi le bloc freins.</td><td>data/freins.js</td></tr>
+      <tr><td>sources</td><td>Noms de liens (jamais des adresses). L'adresse est cherchée dans liens-verifies.txt.</td><td>ce module</td></tr>
+      <tr><td>ce_qui_change_souvent</td><td>Liste des points volatils à aller revérifier sur la source</td><td>ce module (encadré dédié)</td></tr>
+      <tr><td>collecte</td><td>Nom du fichier de matériau brut du rayon (<code>&lt;rayon&gt;.collecte.md</code>).</td><td>ce module (dépliant « Lire le texte d'origine »)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Exemple complet : <code>contenu/etranger/etranger-titre-de-sejour-et-travail.md</code></h3>
+  <div class="code-bloc">---
+id: etranger-titre-de-sejour-et-travail
+rayon: etranger
+titre: "Mon titre de séjour me permet-il de travailler ?"
+pour_qui: "Utile si vous avez un titre de séjour et un projet d'emploi ou de formation."
+tags: [titre de séjour, autorisation de travail, droit au travail, étranger, préfecture]
+territoire: national
+statut: actif
+verifie_le: 2026-01
+frein: false
+lexique:
+  - terme: "autorisation de travail"
+    definition: "Accord donné par l'administration pour qu'une personne étrangère occupe un emploi précis, chez un employeur précis."
+  - terme: "récépissé"
+    definition: "Document remis pendant l'instruction d'une demande de titre de séjour. Il prolonge les droits, mais pas toujours le droit de travailler."
+sources:
+  - service-public-travail-des-etrangers
+  - ministere-interieur-etrangers-en-france
+ce_qui_change_souvent:
+  - "Les métiers qui ouvrent une admission exceptionnelle au séjour par le travail"
+  - "Les délais de traitement des préfectures"
+  - "Les conditions pour les demandeurs d'asile"
+revisions: []
+collecte: etranger.collecte.md
+---
+
+Le droit de travailler dépend du titre de séjour que vous détenez. Trois
+situations existent.
+
+Certains titres ouvrent le droit de travailler sans aucune démarche
+supplémentaire : la carte de résident, la carte « vie privée et familiale »,
+le statut de réfugié ou la protection subsidiaire, le « passeport talent ».
+La mention « autorise son titulaire à travailler » figure alors sur le titre.
+
+D'autres titres demandent une autorisation de travail liée à un emploi
+précis : c'est le cas de certains visas de travail. L'employeur fait souvent
+la démarche.
+
+Enfin, quelques situations limitent le travail à un volume d'heures : par
+exemple, un titre « étudiant » autorise à travailler dans une certaine limite
+sur l'année.
+
+Un récépissé de renouvellement d'un titre qui autorisait déjà le travail
+maintient ce droit. Un récépissé de première demande, lui, ne le permet pas
+toujours : c'est écrit dessus.
+
+Votre situation exacte se lit sur votre titre et se vérifie auprès de la
+préfecture. En cas de doute, une permanence d'accès au droit des étrangers
+peut vous aider gratuitement.</div>
+
+  <h3>Comment chaque module récupère les données (une passe de génération)</h3>
+  <ul class="liste-fine">
+    <li><strong>Ce module</strong> : la fiche complète (en-tête → les blocs, texte → la prose).</li>
+    <li><strong>Lexique</strong> : uniquement le champ <code>lexique:</code>, avec un lien « fiche complète » vers ce module. Jamais la prose.</li>
+    <li><strong>data/freins.js</strong> : pour les fiches <code>frein: true</code>, le résumé, les sources, les acteurs.</li>
+    <li><strong>Recherche d'accueil et orienteur</strong> : <code>titre</code> + <code>tags</code>.</li>
+    <li><strong>corpus.json</strong> : l'index machine, lu par tout autre menu ou un autre site.</li>
+  </ul>
+
+  <h2>2. Les trois prompts de veille (V1)</h2>
+  <p class="detail">Trois prompts (décision Denis 2026-09-03). Ils vivent dans un document privé, jamais publiés. L'outil <code>outils/veille.html</code> les assemble (le matériau et la liste des fiches existantes du rayon sont insérés dedans) ; Denis lance les prompts, ne rédige rien.</p>
+  <ul class="liste-fine">
+    <li><strong>Prompt 1 &mdash; COLLECTE</strong> : par rayon (ou ciblé sur une fiche à mettre à jour). Ramène le maximum, ne rédige pas.</li>
+    <li><strong>Prompt 2 &mdash; RÉDACTION</strong> : découpe le matériau en plusieurs fiches. Reçoit les fiches existantes du rayon pour reprendre leur <code>id</code> et ne pas créer de doublon.</li>
+    <li><strong>Prompt 3 &mdash; CONTRÔLE</strong> : une fois par mois, par rayon. Vérifie chaque fiche sur le web, ne réécrit rien, rend un rapport. C'est lui qui évite de relancer une collecte complète sur toutes les fiches.</li>
+  </ul>
+
+  <h3>Prompt 1 : COLLECTE (un par rayon, ramène le maximum)</h3>
+  <div class="code-bloc">Je constitue une base d'information pour un module d'accompagnement en insertion
+professionnelle. Ton rôle est UNIQUEMENT de collecter, pas de rédiger ni de
+synthétiser.
+
+Sujet : [le sujet du rayon (ou son sous-thème), avec les liens locaux du
+département et de la région]. [14 lignes « Sujet : » écrites, décision 36]
+
+Rassemble le MAXIMUM d'informations officielles : le texte tel qu'il est écrit
+sur les sites officiels, les articles de loi cités, les montants, les
+conditions, les délais, les cas particuliers, les exceptions. Il n'y a AUCUNE
+limite de longueur : ramène tout ce que tu trouves, je n'aurai pas le temps
+d'aller page par page. Cherche sur le site du service public, Légifrance, le
+ministère compétent, France Travail, l'INSEE, la préfecture ou le conseil
+départemental concernés, et tout autre site officiel pertinent que tu
+identifies toi-même.
+
+[SOCLE DE RECHERCHE COMMUN, décision 36] Nous sommes le [date du jour].
+Recherche web obligatoire : si tu ne peux pas consulter le web, dis-le et ne
+réponds pas. N'utilise que des pages que tu as réellement ouvertes. Ne fabrique
+jamais une adresse, un numéro de texte (NOR, JORFTEXT, ELI) ni une date : si tu
+ne l'as pas vu dans un résultat, écris « à vérifier ». Une adresse = une seule
+URL, d'un seul tenant, sans espace ni texte inséré.
+
+Termine par un bloc entre [COLLECTE] et [/COLLECTE]. Sources : une ligne par
+source, quatre colonnes séparées par des barres verticales, dans cet ordre :
+nom-court | titre lisible | adresse complète | date. Le nom-court en minuscules
+avec des tirets (ex. service-public-autorisation-travail-salarie).
+[COLLECTE]
+sources:
+- nom-court | titre lisible | https://adresse | AAAA-MM-JJ
+texte_brut:
+tout le matériau collecté, organisé par sous-sujet, en gardant le détail et les
+citations des textes officiels
+[/COLLECTE]</div>
+
+  <h3>Prompt 2 : RÉDACTION (commun à tous les rayons, lancé sur le compte perso de Denis)</h3>
+  <p class="detail">Le prompt 1 collecte large (tout un rayon), le prompt 2 découpe le matériau en PLUSIEURS fiches (3 à 8), une par sujet. Une collecte + une rédaction = toutes les fiches d'un rayon. L'outil insère le matériau ET la liste des fiches déjà existantes du rayon : le prompt reprend leur <code>id</code> exact quand il retombe sur un sujet connu (mise à jour, pas doublon).</p>
+  <div class="code-bloc">Voici un matériau d'information officiel que j'ai collecté sur un thème large.
+Ce matériau couvre plusieurs sujets distincts. Ton rôle est d'en tirer
+PLUSIEURS FICHES, une par sujet qu'une personne se poserait vraiment
+(typiquement 3 à 8). Repère toi-même les sujets. Chaque fiche est prête à
+publier et n'utilise que ce qui, dans le matériau, concerne son sujet.
+
+=== FICHES DÉJÀ EXISTANTES DANS CE RAYON ===
+[inséré par l'outil : une ligne "id | titre | tags" par fiche du rayon]
+Ne recrée pas ces sujets. Si une fiche que tu produis traite le même sujet
+que l'une d'elles, recopie son identifiant EXACT dans le champ "id". Ne
+produis jamais deux fiches qui se recouvrent.
+=== FIN DES FICHES EXISTANTES ===
+
+=== MATÉRIAU ===
+[le champ texte_brut du prompt 1, inséré automatiquement par l'outil]
+=== FIN DU MATÉRIAU ===
+
+RÈGLES DE RÉDACTION (communes à toutes les fiches) :
+Écris pour une personne réelle qui va te lire, pas pour un système. Vocabulaire
+professionnel mais toujours expliqué. Phrases courtes. Jamais condescendant,
+jamais un pavé technique. Commence par le cas concret. Ton posé, clair, un peu
+chaleureux : ni administratif, ni familier. Développe chaque sigle une fois.
+Ne conclus jamais à la place de la personne : tu expliques, elle décide.
+Fais une synthèse humaine qui garde le maximum de détails utiles, sans recopier
+le matériau. Garde les nuances et les cas particuliers importants : ne lisse pas
+au point de perdre l'information. Dix à vingt lignes. Pas de numéro d'article
+dans le corps du texte (ils vont dans les sources). Ce qui bouge (montants,
+listes, délais) va dans « ce qui change souvent », pas dans le corps.
+Je publie ce texte tel quel après une relecture.
+
+Rends une suite de blocs, chacun entre [FICHE n] et [/FICHE n] :
+[FICHE 1]
+id: vide pour un sujet nouveau ; l'identifiant exact ci-dessus si le sujet existe déjà
+titre: une question qu'une personne se pose vraiment
+pour_qui: une phrase, dans quel cas cette fiche sert
+territoire: national
+verifie_le: AAAA-MM (le mois en cours)
+tags: mot-clé, mot-clé, mot-clé
+lexique:
+- terme = définition courte
+sources:
+- les noms-courts du matériau utiles à CETTE fiche (2 à 8)
+ce_qui_change_souvent:
+- trois à cinq points maximum
+texte:
+la fiche complète, dix à vingt lignes, prête à publier
+[/FICHE 1]
+
+[FICHE 2]
+... même structure ...
+[/FICHE 2]</div>
+
+  <h3>Prompt 3 : CONTRÔLE (un par rayon, une fois par mois &mdash; ne réécrit rien)</h3>
+  <p class="detail">L'outil insère toutes les fiches actives du rayon (id, titre, date de vérification, « ce qui change souvent », texte). L'assistant vérifie sur le web, rend un rapport. Les fiches en « CHANGEMENT » déclenchent ensuite un prompt 1 ciblé (bouton « Traiter » dans l'outil). Cadence réglable par rayon (mensuel / trimestriel / semestriel).</p>
+  <div class="code-bloc">Je maintiens une base de fiches d'information pour un module d'accompagnement en
+insertion professionnelle. Voici toutes les fiches actuelles du rayon « [rayon] »,
+avec leur date de dernière vérification.
+
+Ton rôle : pour CHAQUE fiche, vérifie sur le web si l'information est toujours
+exacte AUJOURD'HUI. Tu NE RÉÉCRIS RIEN. Tu rends seulement un rapport court.
+Territoire concerné : [le département et la région]. Recherche web obligatoire.
+
+=== FICHES DU RAYON ===
+[inséré par l'outil : pour chaque fiche, id / titre / verifie_le /
+ ce_qui_change_souvent / texte]
+=== FIN ===
+
+Termine par un bloc entre [CONTROLE rayon: [rayon]] et [/CONTROLE].
+Une entrée par fiche :
+fiche: l'identifiant de la fiche, repris exactement
+etat: A JOUR | CHANGEMENT | INCERTAIN
+depuis: AAAA-MM (seulement si CHANGEMENT)
+resume: deux ou trois lignes, ce qui a changé concrètement
+sources:
+- une adresse officielle par ligne, celles où tu l'as vérifié</div>
+
+  <h3>Quatre digests trimestriels (ne produisent pas de fiches)</h3>
+  <p class="detail"><strong>Balayage</strong> (bloc <code>[BALAYAGE]</code> -> <code>contenu/balayage/&lt;dernier-mois&gt;.md</code>) : les changements officiels du dernier trimestre civil complet, groupés par domaine, pour les CIP. Une mesure pas encore en vigueur va uniquement dans « Annoncé, pas encore en vigueur ». Affiché dans le 5e outil « Ce qui a changé récemment ».</p>
+  <p class="detail"><strong>Chiffres clés</strong> (bloc <code>[CHIFFRES]</code> -> <code>contenu/chiffres/&lt;dernier-mois&gt;.md</code>) : ~8 indicateurs impératifs (chômage localisé national/régional/départemental, inscrits France Travail cat. A et A+B+C, structure par âge et ancienneté, allocataires du RSA, métiers en tension, salaires). Une <code>serie</code> de 6 à 8 trimestres pour le chômage et les inscrits, qui trace la courbe. Sources : INSEE, DARES, France Travail (BMO), et le CARIF-OREF de la région (Cap Métiers / SI-Terr pour la Nouvelle-Aquitaine). Affiché en tête de l'écran « Comprendre les chiffres », section « Les chiffres clés » ; la question libre reste en direct.</p>
+  <p class="detail"><strong>Nourrir le Lexique</strong> (bloc <code>[LEXIQUE]</code>) : les termes, sigles et dispositifs apparus ou qui ont changé de sens, au format de <code>docs/CORPUS_LEXIQUE.md</code>. Ne va pas dans le module : c'est du travail de fond pour le Lexique, à relire avant de coller.</p>
+  <p class="detail"><strong>À confronter</strong> (bloc <code>[CONFRONTER]</code> -> <code>contenu/a-confronter/&lt;dernier-mois&gt;.md</code>) : le <strong>seul</strong> endroit où l'on regarde du non officiel (réseau des professionnels : LinkedIn, lettres d'information, groupes métier). Chaque signal est recoupé avec l'officiel et classé (confirmé / en partie / contredit / pas de position). Alimente le bloc « À confronter » des rayons (décision 12) : jamais mélangé aux fiches, jamais de lien cliquable, ton non fataliste.</p>
+  <p class="detail">Les quatre sont des <strong>prompts séparés</strong> (un étroit va chercher profond, un large ramène du survol &mdash; LECONS 1bis). Même nommage (dernier mois du trimestre), <code>publie_le</code> = quand Denis l'a fait, archivés. Le panneau « Ce trimestre » de <code>outils/veille.html</code> coche les quatre. Prompts complets : <code>docs/VEILLE_PROMPTS.md</code> sections 5bis à 5quinquies.</p>
+
+  <h3>Un prompt de collecte par rayon : les 14 sont écrits (décision Denis 2026-09-04)</h3>
+  <p class="detail">Pour que l'implémentation soit mécanique, les 14 lignes « Sujet : » sont toutes rédigées dans <code>outils/veille.html</code> (menu « Sujet » du prompt de collecte) et résumées dans <code>docs/VEILLE_PROMPTS.md</code> &sect; 3. Chaque rayon a un <strong>sous-thème réglable</strong> (vide = tout le rayon) sauf les deux « Étranger », déjà cadrés. Deux prompts par rayon au maximum.</p>
+  <ul class="liste-fine">
+    <li><strong>Emploi et parcours</strong> : Emploi et contrats (<code>emploi</code>) &middot; Se former et se reconvertir (<code>former</code>) &middot; Accompagnement et structures de l'insertion (<code>accompagnement</code>) &middot; Créer son activité (<code>creer</code>).</li>
+    <li><strong>Situations et publics</strong> : Moins de 26 ans (<code>jeunes</code>) &middot; Handicap et emploi (<code>handicap</code>) &middot; Étranger : séjour (<code>etr-sejour</code>) et démarches/équivalences (<code>etr-demarches</code>) &middot; Justice : sortie de détention (<code>justice</code>) &middot; Budget, dettes, droits sociaux (<code>budget</code>).</li>
+    <li><strong>Lever un frein du quotidien</strong> : Mobilité (<code>mobilite</code>) &middot; Logement (<code>logement</code>) &middot; Garde d'enfant (<code>garde</code>) &middot; Apprendre le français (<code>francais</code>).</li>
+    <li><strong>Faire valoir ses droits</strong> : Questions juridiques (<code>juridique</code>).</li>
+  </ul>
+
+  <h3>L'ordre d'implémentation conseillé</h3>
+  <ul class="liste-fine">
+    <li><strong>Socle</strong> (ne vieillit pas) : tableau des sources (<code>sources.txt</code>, 18 sources), fiches méthode <code>type: methode</code>, orienteur. Rédigé, dans <code>docs/CONTENU_COMPRENDRE_LE_CADRE/</code>.</li>
+    <li><strong>Digests trimestriels</strong> : Balayage, Chiffres, À confronter (Lexique en travail de fond). Machinerie prête.</li>
+    <li><strong>Rayons</strong> : « Venir de l'étranger » et « Budget » d'abord (denses, très demandés), puis « Emploi et contrats », « Se former », « Accompagnement », « Handicap », « Mobilité », « Moins de 26 ans » ; les autres au fil des besoins.</li>
+    <li>Un prompt 3 CONTRÔLE se rédige tout seul (l'outil l'assemble) dès qu'un rayon a des fiches et que sa cadence est due.</li>
+  </ul>
+
+  <h3>Prompt public &mdash; Poser une question récente</h3>
+  <div class="code-bloc">Je cherche une information récente et vérifiée concernant : [ma question].
+Territoire : réponds uniquement pour [France / ma région / mon département],
+sans mélanger les territoires. Appuie-toi d'abord sur des sources officielles
+françaises. Pour chaque information : la source, sa date, le territoire exact.
+Cherche aussi les associations reconnues de ce territoire qui aident sur ce
+sujet, à ranger à part. Si la réponse dépend de ma situation personnelle,
+explique de quoi elle dépend, sans conclure à ma place. Pas de classement, pas
+de recommandation, pas de score.
+Reprend les consignes de ton du prompt de rédaction.</div>
+
+  <p class="transitions">Écran technique. &laquo;&nbsp;Retour&nbsp;&raquo; ramène à l'écran de comparaison.</p>
+</section>
+
+</main>
+
+<div class="graph-tip" id="graphTip"></div>
+
+<div class="barre-bas">
+  <div class="barre-bas-row">
+    <button class="btn" id="btnRetour" onclick="retour()">&larr; Retour</button>
+    <span class="detail" id="retourInfo">Retour : sort du module vers la Boîte à outils.</span>
+  </div>
+</div>
+
+<p class="signature">APP part de ce que vous apportez, vous aide à prendre du recul, et vous laisse toujours la décision.</p>
+
+<script>
+  var vues = Array.prototype.slice.call(document.querySelectorAll('.vue'));
+  var origine = 'module';
+
+  var infosRetour = {
+    comparaison: "Retour : vue de maquette, pas de page précédente.",
+    intro: "Retour : depuis la présentation, ramène à la vraie page précédente (Boîte à outils).",
+    module: "Retour : sort du module vers la Boîte à outils.",
+    orienteur: "Retour : ramène à l'accueil du module.",
+    dossier: "Retour : ramène à l'accueil du module.",
+    etranger: "Retour : ramène à l'accueil du module.",
+    mobilite: "Retour : ramène à l'accueil du module.",
+    rayon: "Retour : ramène à l'accueil du module.",
+    chiffres: "Retour : ramène à l'accueil du module.",
+    fiche: "Retour : ramène à l'écran d'où vient la fiche.",
+    sources: "Retour : ramène à l'accueil du module.",
+    territoire: "Retour : ramène à l'accueil du module.",
+    verifier: "Retour : ramène à l'accueil du module.",
+    recemment: "Retour : ramène à l'accueil du module.",
+    methode: "Retour : ramène à l'écran d'où vient la fiche.",
+    annexe: "Retour : écran technique, ramène à la comparaison."
+  };
+
+  var cibleRetour = {
+    comparaison: 'comparaison', intro: 'comparaison', module: 'comparaison',
+    orienteur: 'module', dossier: 'module', etranger: 'module', mobilite: 'module', rayon: 'module',
+    chiffres: 'module', fiche: 'dossier', sources: 'module', territoire: 'module',
+    verifier: 'module', recemment: 'module', methode: 'dossier', annexe: 'comparaison'
+  };
+
+  function aller(nom, detour) {
+    vues.forEach(function (v) { v.classList.toggle('active', v.dataset.vue === nom); });
+    var sel = document.getElementById('devnav');
+    if (sel) sel.value = nom;
+    document.getElementById('detourBandeau').style.display = (nom === 'intro' && detour) ? 'flex' : 'none';
+    document.getElementById('retourInfo').textContent = infosRetour[nom] || '';
+    if (nom !== 'verifier') { var sp = document.getElementById('sujetPrescope'); if (sp) sp.style.display = 'none'; }
+    window.scrollTo(0, 0);
+  }
+
+  function retour() {
+    var actif = vues.filter(function (v) { return v.classList.contains('active'); })[0];
+    var nom = actif ? actif.dataset.vue : 'module';
+    aller(cibleRetour[nom] || 'module');
+  }
+
+  function revoirPresentation(o) { origine = o; aller('intro', true); }
+  function revenirModule() { aller(origine || 'module'); }
+
+  function toggleRevue() { document.getElementById('fiche').classList.toggle('fiche-ancienne'); }
+
+  function etapeVerif(lettre) {
+    document.getElementById('verifA').classList.toggle('active', lettre === 'A');
+    document.getElementById('verifB').classList.toggle('active', lettre === 'B');
+    if (lettre === 'A') document.getElementById('reponseSim').style.display = 'none';
+    window.scrollTo(0, 0);
+  }
+  function simulerReponse() { document.getElementById('reponseSim').style.display = 'block'; }
+
+  function poserQuestionTheme(theme) {
+    aller('verifier');
+    etapeVerif('A');
+    var b = document.getElementById('sujetPrescope');
+    document.getElementById('sujetPrescopeTexte').textContent = theme;
+    b.style.display = 'block';
+  }
+
+  /* ---- Orienteur « Par où commencer ? » ---- */
+  var rayonVue = {
+    contrats: 'dossier', former: 'rayon', creer: 'rayon', jeunes: 'rayon', handicap: 'rayon', etranger: 'etranger',
+    justice: 'rayon', budget: 'rayon', mobilite: 'mobilite', logement: 'rayon', garde: 'rayon',
+    francais: 'rayon', juridique: 'rayon'
+  };
+  var rayonLabel = {
+    contrats: '💼 Emploi et contrats', former: '🎓 Se former et se reconvertir',
+    creer: '🚀 Créer son activité', jeunes: '🎒 Moins de 26 ans', handicap: '♿️ Handicap et emploi',
+    etranger: '🗺️ Venir de l\'étranger', justice: '🚪 Justice : sortie de détention',
+    budget: '💰 Budget, dettes, droits sociaux', mobilite: '🚗 Mobilité',
+    logement: '🏠 Logement', garde: '🍼 Garde d\'enfant',
+    francais: '📖 Apprendre le français', juridique: '⚖️ Questions juridiques'
+  };
+
+  function orienteurMaj() {
+    var choisis = Array.prototype.map.call(document.querySelectorAll('#orienteurCases .actif'), function (b) { return b.getAttribute('data-r'); });
+    var res = document.getElementById('orienteurResultat');
+    var liste = document.getElementById('orienteurRayons');
+    if (!choisis.length) { res.style.display = 'none'; return; }
+    liste.innerHTML = choisis.map(function (k) {
+      return '<button class="rayon-lien" onclick="aller(\'' + rayonVue[k] + '\')">' + rayonLabel[k] + '</button>';
+    }).join('');
+    res.style.display = 'block';
+  }
+
+  function orienteurTri() {
+    document.getElementById('orienteurTriResultat').style.display = 'block';
+  }
+
+  /* ---- Infobulle des graphiques ---- */
+  function graphTip(evt) {
+    var t = evt.target.getAttribute && evt.target.getAttribute('data-tip');
+    var tip = document.getElementById('graphTip');
+    if (!t) { tip.style.display = 'none'; return; }
+    tip.textContent = t;
+    tip.style.display = 'block';
+    var x = evt.clientX + 14, y = evt.clientY + 14;
+    if (x + 240 > window.innerWidth) x = evt.clientX - 240;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+  function graphTipHide() { document.getElementById('graphTip').style.display = 'none'; }
+
+  var casesGroupe = document.getElementById('orienteurCases');
+  if (casesGroupe) {
+    casesGroupe.addEventListener('click', function (e) {
+      var b = e.target.closest('.jeton');
+      if (!b) return;
+      b.classList.toggle('actif');
+      orienteurMaj();
+    });
+  }
+
+  /* ---- Écran 6 : le texte de recherche se construit selon le sujet et le territoire ---- */
+  var exemplesSujet = {
+    montant: "le montant actuel de la prime d'activité pour une personne seule sans enfant",
+    formation: "les aides mobilisables pour financer une formation qualifiante quand on est inscrit à France Travail",
+    dispositif: "les dispositifs d'accompagnement vers l'emploi ouverts à un adulte en reconversion, et les structures qui les portent",
+    metiers: "les métiers qui manquent de candidats en ce moment",
+    marche: "l'évolution récente du taux de chômage"
+  };
+  var libSujet = {
+    montant: "un montant ou un barème", formation: "un financement de formation",
+    dispositif: "un dispositif et qui le porte", metiers: "des métiers qui recrutent",
+    marche: "un chiffre du marché du travail"
+  };
+
+  function jetonActif(idGroupe, attr) {
+    var el = document.querySelector('#' + idGroupe + ' .actif');
+    return el ? el.getAttribute(attr) : null;
+  }
+
+  function majBassins() {
+    var parts = document.getElementById('selDept').value.split('|');
+    var bassins = (parts[4] || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+    var sel = document.getElementById('selBassin');
+    sel.innerHTML = '<option value="">Tout le département</option>' +
+      bassins.map(function (b) { return '<option value="' + b + '">' + b + '</option>'; }).join('');
+  }
+
+  function construirePrompt() {
+    var s = jetonActif('jetonsSujet', 'data-sujet') || 'montant';
+    var t = jetonActif('jetonsTerr', 'data-terr') || 'departement';
+    var parts = document.getElementById('selDept').value.split('|');
+    var nom = parts[0], code = parts[1], article = parts[2], region = parts[3], bassinsEx = parts[4];
+    var deptLong = "le département de " + article + " " + nom + " (" + code + ")";
+    var deptCourt = nom + " " + code;
+    var bassin = document.getElementById('selBassin').value;
+    document.getElementById('blocDept').style.display = (t === 'departement') ? 'block' : 'none';
+
+    var portee, couche, zone, etiq;
+    if (t === 'france') {
+      portee = "la France entière";
+      couche = "Si une règle particulière s'applique seulement dans certaines régions ou certains départements, signale-le.";
+      zone = "";
+      etiq = "France entière";
+    } else if (t === 'region') {
+      portee = "la région " + region;
+      couche = "Distingue ce qui relève du niveau national et ce qui relève du niveau régional (" + region + "). N'utilise pas d'informations d'une autre région.";
+      zone = "";
+      etiq = region;
+    } else {
+      portee = deptLong + (bassin ? ", et en particulier la zone d'emploi de " + bassin : "");
+      couche = "Distingue clairement ce qui relève du niveau national, du niveau régional (" + region + ") et du niveau départemental (" + deptCourt + "). N'utilise jamais d'informations d'un autre département : ne mélange pas les départements.";
+      zone = "\nCe département compte plusieurs zones d'emploi (bassins d'emploi : " + bassinsEx + "). La loi est la même partout, mais les métiers qui recrutent, les structures et les dispositifs peuvent varier d'une zone à l'autre : si c'est le cas, précise pour quelle zone." + (bassin ? " Concentre-toi sur la zone de " + bassin + "." : "");
+      etiq = deptCourt + (bassin ? " / " + bassin : "");
+    }
+
+    var dispoLigne = (s === 'dispositif')
+      ? "\nPour chaque dispositif, indique quelle structure le porte sur ce territoire et comment la contacter. Si tu ne trouves pas la structure porteuse, dis-le clairement plutôt que de deviner."
+      : "";
+
+    var txt =
+      "Je cherche une information récente et vérifiée concernant : [" + exemplesSujet[s] + "].\n\n" +
+      "Territoire : réponds uniquement pour " + portee + ". " + couche + zone + "\n\n" +
+      "Recherche : recherche web obligatoire. Appuie-toi d'abord sur des sources officielles françaises (sites en .gouv.fr, le site du service public, l'INSEE, France Travail, la DARES, le conseil régional, le conseil départemental). Pour chaque information, cite la source, sa date et le territoire exact. Si tu ne peux pas faire de recherche web, dis-le et ne réponds pas." + dispoLigne + "\n\n" +
+      "Cherche aussi les associations reconnues de ce territoire qui accompagnent sur ce sujet : donne leur nom, leur site officiel et comment les contacter. Range-les à part, sous \"associations à contacter\", et précise bien que ce sont des associations, pas des services publics.\n\n" +
+      "Si la réponse dépend de ma situation personnelle, explique de quoi elle dépend, sans conclure à ma place. Pas de classement, pas de recommandation, pas de score.";
+
+    document.getElementById('zonePrompt').textContent = txt;
+    document.getElementById('promptMonte').textContent = "Texte monté pour : " + libSujet[s] + ", " + etiq + ".";
+  }
+
+  function brancherJetons(idGroupe) {
+    var groupe = document.getElementById(idGroupe);
+    groupe.addEventListener('click', function (e) {
+      var b = e.target.closest('.jeton');
+      if (!b) return;
+      groupe.querySelectorAll('.jeton').forEach(function (j) { j.classList.remove('actif'); });
+      b.classList.add('actif');
+      construirePrompt();
+    });
+  }
+  brancherJetons('jetonsSujet');
+  brancherJetons('jetonsTerr');
+  document.getElementById('selDept').addEventListener('change', function () { majBassins(); construirePrompt(); });
+  document.getElementById('selBassin').addEventListener('change', construirePrompt);
+  majBassins();
+  construirePrompt();
+
+  document.getElementById('devnav').addEventListener('change', function (e) { if (e.target.value) aller(e.target.value); });
+
+  aller('comparaison');
+</script>
+</body>
+</html>

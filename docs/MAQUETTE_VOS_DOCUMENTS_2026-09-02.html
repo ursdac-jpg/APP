@@ -1,0 +1,320 @@
+<title>Maquette v3 - Page « Vos documents »</title>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #ffffff; --bg-subtle: #f4f6f8; --bg-card: #ffffff;
+    --text: #1f2733; --text-strong: #0f1720; --text-muted: #6b7683;
+    --border: #e2e6ea; --border-strong: #c7ced5;
+    --accent: #1d4ed8; --accent-hover: #1a44b8; --accent-bg-subtle: #eaf0fe;
+    --success: #0f766e; --success-strong: #0b5b54; --success-bg-subtle: #def2ef;
+    --radius: 12px; --ombre: 0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.08);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #0f141a; --bg-subtle: #161d25; --bg-card: #1a222c;
+      --text: #d6dde4; --text-strong: #f0f4f8; --text-muted: #93a1af;
+      --border: #2a333d; --border-strong: #3a4550;
+      --accent: #8ab4ff; --accent-hover: #a5c6ff; --accent-bg-subtle: #1c2c48;
+      --success: #5fd6c9; --success-strong: #8fe6dc; --success-bg-subtle: #14322f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141a; --bg-subtle: #161d25; --bg-card: #1a222c;
+    --text: #d6dde4; --text-strong: #f0f4f8; --text-muted: #93a1af;
+    --border: #2a333d; --border-strong: #3a4550;
+    --accent: #8ab4ff; --accent-hover: #a5c6ff; --accent-bg-subtle: #1c2c48;
+    --success: #5fd6c9; --success-strong: #8fe6dc; --success-bg-subtle: #14322f;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 22px 18px 90px; }
+
+  .panneau-demo { border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); padding: 12px 14px; margin-bottom: 20px; font-size: 13.5px; }
+  .panneau-demo b { color: var(--text-strong); }
+  .panneau-demo .ligne-btn { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .panneau-demo button { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer; }
+  .panneau-demo button.on { background: var(--accent); color: #fff; }
+  .panneau-demo button.theme { border-color: var(--border-strong); color: var(--text-muted); }
+
+  .prog { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 16px; font-size: 12px; }
+  .prog .et { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+  .prog .et.faite { color: var(--success-strong); border-color: var(--success); background: var(--success-bg-subtle); }
+  .prog .et.active { color: #fff; background: var(--accent); border-color: var(--accent); font-weight: 700; }
+  .prog .sep { color: var(--text-muted); }
+
+  h1 { font-size: 24px; color: var(--text-strong); margin: 6px 0 4px; }
+  .sous-titre { color: var(--text-muted); margin: 0 0 14px; }
+  .lien-reco { font: inherit; font-size: 12.5px; color: var(--text-muted); background: var(--bg-subtle); border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+  .lien-reco:hover { color: var(--accent); border-color: var(--accent); }
+
+  .acc { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; box-shadow: var(--ombre); overflow: hidden; }
+  .acc.ouvert { border-color: var(--border-strong); }
+  .acc.bloque { opacity: .55; }
+  .acc-tete { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: none; border: 0; cursor: pointer; font: inherit; text-align: left; color: var(--text); }
+  .acc-tete:hover { background: var(--bg-subtle); }
+  .acc.bloque .acc-tete { cursor: default; }
+  .acc.bloque .acc-tete:hover { background: none; }
+  .acc-ico { font-size: 17px; flex: 0 0 auto; }
+  .acc-titre { flex: 1 1 auto; font-weight: 700; font-size: 15px; color: var(--text-strong); }
+  .acc-sous { display: block; font-weight: 400; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+  .acc-chevron { flex: 0 0 auto; color: var(--text-muted); transition: transform .15s; }
+  .acc.ouvert .acc-chevron { transform: rotate(180deg); }
+  .acc-corps { padding: 6px 16px 16px; border-top: 1px solid var(--border); }
+  .aide { color: var(--text-muted); font-size: 13px; margin: 8px 0 12px; }
+
+  /* choix du format : 2 grandes cartes */
+  .fmt-cartes { display: flex; flex-wrap: wrap; gap: 12px; }
+  .fmt-carte { flex: 1 1 260px; text-align: left; padding: 16px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg-subtle); color: var(--text); cursor: pointer; }
+  .fmt-carte:hover { border-color: var(--border-strong); }
+  .fmt-carte.on { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .fmt-carte .fc-titre { font-weight: 700; font-size: 15px; color: var(--text-strong); display: flex; align-items: center; gap: 8px; }
+  .fmt-carte .fc-desc { font-size: 12.5px; color: var(--text-muted); margin-top: 6px; display: block; }
+  .fmt-carte .fc-desc b { color: var(--text-strong); }
+  .fmt-emporter { font-size: 12.5px; color: var(--text-muted); margin: 12px 0 0; padding: 10px 12px; border: 1px dashed var(--border-strong); border-radius: 8px; }
+  .fmt-emporter b { color: var(--text-strong); }
+
+  /* mise en page : aperçu + résumé + bouton vers l'écran dédié */
+  .mep-zone { display: grid; grid-template-columns: 200px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 780px) { .mep-zone { grid-template-columns: 1fr; } }
+  .r-titre { font-size: 11px; font-weight: 700; color: var(--text-muted); margin: 0 0 6px; text-transform: uppercase; letter-spacing: .02em; }
+  .mep-resume-txt { font-size: 14px; color: var(--text-strong); font-weight: 600; margin: 0 0 12px; }
+  .mep-note { font-size: 11.5px; color: var(--text-muted); margin: 8px 0 0; }
+  .export-copie-aide { font-size: 12px; color: var(--text-muted); margin: 8px 0 0; }
+
+  .apercu-page {
+    background: #fff; color: #222; border: 1px solid var(--border-strong); border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.12); padding: 22px; aspect-ratio: 1 / 1.414; overflow: hidden;
+    display: grid; grid-template-columns: 34% 1fr; gap: 16px;
+  }
+  :root[data-theme="dark"] .apercu-page { background: #f5f5f5; }
+  .ap-col-g { border-right: 2px solid #e4b7a0; padding-right: 12px; }
+  .ap-bloc { margin-bottom: 12px; }
+  .ap-h { height: 9px; border-radius: 3px; width: 60%; margin-bottom: 6px; }
+  .ap-l { height: 6px; border-radius: 3px; background: #d7dde3; margin-bottom: 4px; }
+  .ap-l.s { width: 70%; } .ap-l.m { width: 88%; }
+  .ap-nom { height: 14px; width: 72%; border-radius: 3px; background: #333; margin-bottom: 6px; }
+  .ap-sous { height: 7px; width: 50%; border-radius: 3px; background: #999; margin-bottom: 14px; }
+  .apercu-legende { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: center; }
+
+  .btn { font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); }
+  .btn:hover { background: var(--accent-bg-subtle); }
+  .btn.plein { background: var(--accent); color: #fff; }
+  .btn.plein:hover { background: var(--accent-hover); }
+  .btn.sm { padding: 6px 12px; font-size: 13px; }
+  .btn.lien { border-color: transparent; background: transparent; color: var(--text-muted); }
+
+  .export-grille { display: flex; flex-wrap: wrap; gap: 10px; }
+  .export-btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 600; font-size: 14px; padding: 11px 18px; border-radius: 10px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer; }
+  .export-btn:hover { background: var(--accent-bg-subtle); }
+  .export-btn.fait { border-color: var(--success); color: var(--success-strong); background: var(--success-bg-subtle); }
+  .export-btn.principal { background: var(--accent); color: #fff; }
+  .export-secondaires { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .export-sec { font: inherit; font-size: 13px; padding: 8px 13px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .export-sec:hover { border-color: var(--accent); color: var(--accent); }
+  .export-autre { margin-top: 14px; }
+
+  .et-apres { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--ombre); padding: 16px 18px; margin-top: 18px; }
+  .et-apres h3 { margin: 0 0 4px; font-size: 15px; color: var(--text-strong); }
+  .et-apres p { margin: 0 0 10px; font-size: 13px; color: var(--text-muted); }
+  .et-apres .ea-boutons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card); border-top: 1px solid var(--border); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+</style>
+
+<div class="wrap">
+  <div class="panneau-demo">
+    <b>Maquette v3 - Page « Vos documents ».</b> Décisions du 2026-09-02 : <b>toute la page est accessible</b> dès l'arrivée (plus aucun verrou « il faut d'abord valider / télécharger » : arriver ici veut dire que le CV est prêt). Le parcours naturel : on arrive sur <b>Le format</b> &rarr; le choix ouvre <b>La mise en page</b> &rarr; puis <b>Exporter</b>. Trois rectangles dépliables, tous ouvrables, plus « Et maintenant ? » toujours visible en bas. <b>1. Le format</b> : Word ou PDF, phrase honnête sur la différence ; une fois choisi, le rectangle se replie (« Word / PDF, cliquez pour changer »). <b>2. La mise en page</b> : plus de réglages ici. Un aperçu, le résumé des réglages actuels (« A4 Détaillé &middot; 2 colonnes &middot; Segoe »), et un bouton <b>« Régler la mise en page &rarr; »</b> qui ouvre l'écran dédié (<b>MAQUETTE_MISE_EN_PAGE</b>, déjà validée : 3 niveaux, réglages par intention, aperçu à taille réelle). La plupart des personnes n'ouvrent pas cet écran. <b>3. Exporter</b> : le format déjà choisi (un seul bouton) + <b>Copier le texte</b> mis en avant (filet de sécurité) + Canva + ODT + « Faire aussi une version [l'autre format] ». <b>« Et maintenant ? »</b> en bas : garde « Préparer ma lettre » et « Préparer mon entretien » ; le lien « ateliers / formations / immersions / autres métiers » est retiré (déjà couvert ailleurs).
+    <div class="ligne-btn" id="demo">
+      <button data-v="cv" class="on">À l'arrivée</button>
+      <button data-v="cvfini">CV exporté</button>
+      <button class="theme" id="btnTheme">Voir en mode sombre</button>
+    </div>
+  </div>
+
+  <div class="prog">
+    <span class="et faite">&#128100; Votre profil</span><span class="sep">&#8250;</span>
+    <span class="et faite">&#128172; Assistant</span><span class="sep">&#8250;</span>
+    <span class="et active">&#128196; Vos documents</span>
+  </div>
+
+  <h1>&#128196; Vos documents</h1>
+  <p class="sous-titre">L'assistant a rédigé votre CV et vous avez validé ses propositions. Choisissez le format, la mise en page, puis exportez.</p>
+  <button type="button" class="lien-reco" id="btnRevenirReco">&#8617; Revenir aux propositions de l'assistant</button>
+
+  <div id="page"></div>
+</div>
+
+<div class="barre-bas">
+  <button class="btn lien">&#8592; Retour</button>
+  <button class="btn plein" id="btnFini" style="visibility:hidden">Merci bien, j'ai fini &#10003;</button>
+</div>
+
+<script>
+(function () {
+  var etat = {
+    variante: 'cv',
+    ouvert: 'format',        // 'format' | 'mep' | 'export' | null
+    format: null,            // 'pdf' | 'word'
+    exportFait: {}            // { pdf:true, canva:true, ... }
+  };
+
+  // Réglages par défaut affichés en résumé. La vraie mise en page se règle
+  // sur l'écran dédié (MAQUETTE_MISE_EN_PAGE) : ici, un rappel + un bouton.
+  var RESUME_DEFAUT = {
+    pdf: 'A4 Détaillé &middot; 2 colonnes &middot; police Segoe',
+    word: 'A4 &middot; présentation sobre'
+  };
+  var APERCU_ACCENT = '#2f6690'; // accent par défaut de l'écran mise en page
+
+  function acc(id, ico, titre, sousTitre, corps, bloque) {
+    var open = (etat.ouvert === id) && !bloque;
+    return '<div class="acc' + (open ? ' ouvert' : '') + (bloque ? ' bloque' : '') + '">' +
+      '<button type="button" class="acc-tete"' + (bloque ? ' disabled' : ' data-acc="' + id + '"') + '>' +
+      '<span class="acc-ico">' + ico + '</span>' +
+      '<span class="acc-titre">' + titre +
+      (!open && sousTitre ? '<span class="acc-sous">' + sousTitre + '</span>' : '') + '</span>' +
+      '<span class="acc-chevron">&#9662;</span></button>' +
+      (open ? '<div class="acc-corps">' + corps + '</div>' : '') +
+      '</div>';
+  }
+
+  function corpsFormat() {
+    return '<p class="aide">C\'est le format qui décide de la mise en page. Les deux se valent : ils n\'ont pas les mêmes forces.</p>' +
+      '<div class="fmt-cartes">' +
+      '<button type="button" class="fmt-carte' + (etat.format === 'word' ? ' on' : '') + '" data-format="word">' +
+      '<span class="fc-titre">&#128209; Un fichier Word</span>' +
+      '<span class="fc-desc"><b>Vous pourrez encore modifier le texte</b> après l\'avoir téléchargé (dans Word ou un traitement de texte gratuit). En échange, moins de choix de mise en forme : la présentation reste plus sobre et plus rigide.</span></button>' +
+      '<button type="button" class="fmt-carte' + (etat.format === 'pdf' ? ' on' : '') + '" data-format="pdf">' +
+      '<span class="fc-titre">&#128196; Un PDF</span>' +
+      '<span class="fc-desc"><b>Beaucoup plus de liberté de présentation</b> (colonnes, couleurs, en-tête, formes). En échange, une fois le PDF créé, on ne peut plus le modifier : pour changer quelque chose, il faut en refaire un.</span></button>' +
+      '</div>' +
+      '<p class="fmt-emporter">&#128230; Aucun des deux ne vous convient ? Vous pourrez toujours <b>emporter le contenu de votre CV</b> (bouton « Copier le texte » à l\'étape suivante) pour le mettre en forme ailleurs, sur le modèle ou la plateforme de votre choix.</p>';
+  }
+  function sousTitreFormat() {
+    return etat.format ? (etat.format === 'pdf' ? 'PDF' : 'Word') + ' &middot; cliquez pour changer' : '';
+  }
+
+  function corpsMep() {
+    var resume = RESUME_DEFAUT[etat.format];
+    var apercu = '<div class="apercu-page">' +
+      '<div class="ap-col-g" style="border-color:' + APERCU_ACCENT + '">' + apBloc(3) + apBloc(3) + apBloc(2) + '</div>' +
+      '<div><div class="ap-nom"></div><div class="ap-sous"></div>' + apBloc(4) + apBloc(3) + apBloc(3) + '</div>' +
+      '</div>' +
+      '<p class="apercu-legende">Aperçu ' + (etat.format === 'pdf' ? 'PDF' : 'Word') + '</p>';
+    return '<p class="aide">Votre CV est déjà mis en page automatiquement. La plupart des personnes n\'y touchent pas. Vous pouvez tout régler si vous le souhaitez.</p>' +
+      '<div class="mep-zone">' +
+      '<div>' + apercu + '</div>' +
+      '<div class="mep-resume">' +
+      '<p class="r-titre">Réglages actuels</p>' +
+      '<p class="mep-resume-txt">' + resume + '</p>' +
+      '<button class="btn sm plein" id="btnReglerMep">&#128208; Régler la mise en page &#8594;</button>' +
+      '<p class="mep-note">S\'ouvre sur un écran dédié (choix rapide, réglages par intention, aperçu à taille réelle). On revient ici ensuite.</p>' +
+      '<div style="margin-top:14px"><button class="btn sm" id="btnVersExport">Continuer vers l\'export &#8594;</button></div>' +
+      '</div>' +
+      '</div>';
+  }
+  function apBloc(n) {
+    var s = '<div class="ap-bloc"><div class="ap-h" style="background:' + APERCU_ACCENT + '"></div>';
+    for (var i = 0; i < n; i++) { s += '<div class="ap-l ' + (i === n - 1 ? 's' : 'm') + '"></div>'; }
+    return s + '</div>';
+  }
+  function sousTitreMep() {
+    if (!etat.format) { return ''; }
+    return RESUME_DEFAUT[etat.format];
+  }
+
+  function corpsExport() {
+    var f = etat.format;
+    var labelP = (f === 'pdf' ? 'Télécharger le PDF' : 'Télécharger le fichier Word');
+    var faitP = etat.exportFait[f];
+    var autre = (f === 'pdf' ? 'Word' : 'PDF');
+    return '<p class="aide">Votre CV est prêt en <b>' + (f === 'pdf' ? 'PDF' : 'Word') + '</b>. Repartez avec, pour le joindre à une candidature.</p>' +
+      '<div class="export-grille">' +
+      '<button class="export-btn principal' + (faitP ? ' fait' : '') + '" data-export="' + f + '">' +
+      (f === 'pdf' ? '&#128196; ' : '&#128209; ') + (faitP ? '&#10003; ' + (f === 'pdf' ? 'PDF téléchargé' : 'Word téléchargé') : labelP) + '</button>' +
+      '<button class="export-btn' + (etat.exportFait.copie ? ' fait' : '') + '" data-export="copie">&#128203; ' + (etat.exportFait.copie ? '&#10003; Texte copié' : 'Copier le texte') + '</button>' +
+      '</div>' +
+      '<p class="export-copie-aide">« Copier le texte » : pour remplir un autre modèle de CV, sur Canva ou n\'importe quelle autre plateforme, sans rien ressaisir.</p>' +
+      '<div class="export-secondaires">' +
+      '<button class="export-sec' + (etat.exportFait.canva ? ' fait' : '') + '" data-export="canva">&#127912; Envoyer vers Canva</button>' +
+      '<button class="export-sec' + (etat.exportFait.odt ? ' fait' : '') + '" data-export="odt">&#128462; Télécharger en ODT (LibreOffice)</button>' +
+      '</div>' +
+      '<div class="export-autre"><button class="btn sm" id="btnAutreFormat">&#10133; Faire aussi une version ' + autre + '</button></div>';
+  }
+  function sousTitreExport() {
+    var n = Object.keys(etat.exportFait).length;
+    return n ? n + ' export' + (n > 1 ? 's' : '') + ' fait' + (n > 1 ? 's' : '') : '';
+  }
+
+  function etApres() {
+    // Gardé (décision Denis 2026-09-02). Retiré seulement : le lien
+    // "ateliers, formations, immersions, autres métiers" (déjà couvert
+    // ailleurs). Toujours visible en bas : arriver ici = le CV est prêt.
+    return '<div class="et-apres"><h3>&#128640; Et maintenant ?</h3>' +
+      '<p>Votre lettre de motivation et votre entretien repartent de ce CV, sans rien ressaisir.</p>' +
+      '<div class="ea-boutons">' +
+      '<button class="btn">&#9993; Préparer ma lettre de motivation</button>' +
+      '<button class="btn">&#127908; Préparer mon entretien</button></div></div>';
+  }
+  function pasEncoreFormat() {
+    return '<p class="aide">Choisissez d\'abord le format (Word ou PDF) : les réglages en dépendent.</p>' +
+      '<button class="btn sm" id="btnAllerFormat">Aller au choix du format</button>';
+  }
+
+  function render() {
+    document.querySelectorAll('#demo button[data-v]').forEach(function (b) { b.classList.toggle('on', b.dataset.v === etat.variante); });
+    var formatChoisi = !!etat.format;
+    var h = acc('format', '&#128230;', 'Le format', sousTitreFormat(), corpsFormat()) +
+      acc('mep', '&#128208;', 'La mise en page', sousTitreMep(), formatChoisi ? corpsMep() : pasEncoreFormat()) +
+      acc('export', '&#128228;', 'Exporter', sousTitreExport(), formatChoisi ? corpsExport() : pasEncoreFormat()) +
+      etApres();
+    document.getElementById('page').innerHTML = h;
+    document.getElementById('btnFini').style.visibility = Object.keys(etat.exportFait).length ? 'visible' : 'hidden';
+    wire();
+  }
+
+  function wire() {
+    document.querySelectorAll('[data-acc]').forEach(function (b) {
+      b.onclick = function () { etat.ouvert = (etat.ouvert === b.dataset.acc) ? null : b.dataset.acc; render(); };
+    });
+    document.querySelectorAll('[data-format]').forEach(function (b) {
+      b.onclick = function () {
+        etat.format = b.dataset.format;
+        etat.ouvert = 'mep';
+        render();
+      };
+    });
+    var rm = document.getElementById('btnReglerMep');
+    if (rm) { rm.onclick = function () { alert('Maquette : ouvre l\'écran dédié « La mise en page » (MAQUETTE_MISE_EN_PAGE). On revient ensuite sur « Vos documents ».'); }; }
+    var ve = document.getElementById('btnVersExport');
+    if (ve) { ve.onclick = function () { etat.ouvert = 'export'; render(); }; }
+    document.querySelectorAll('[data-export]').forEach(function (b) {
+      b.onclick = function () { etat.exportFait[b.dataset.export] = true; render(); };
+    });
+    var af = document.getElementById('btnAutreFormat');
+    if (af) { af.onclick = function () { etat.format = (etat.format === 'pdf' ? 'word' : 'pdf'); etat.ouvert = 'mep'; render(); }; }
+    var rr = document.getElementById('btnRevenirReco');
+    if (rr) { rr.onclick = function () { alert('Maquette : rouvre « Choisir ce qui ira sur le CV » sur la page Assistant.'); }; }
+    var gf = document.getElementById('btnAllerFormat');
+    if (gf) { gf.onclick = function () { etat.ouvert = 'format'; render(); }; }
+  }
+
+  document.querySelectorAll('#demo button[data-v]').forEach(function (b) {
+    b.onclick = function () {
+      etat.variante = b.dataset.v;
+      etat.exportFait = {};
+      if (b.dataset.v === 'cvfini') { etat.format = 'pdf'; etat.ouvert = 'export'; etat.exportFait = { pdf: true }; }
+      else { etat.format = null; etat.ouvert = 'format'; }
+      render();
+    };
+  });
+  document.getElementById('btnTheme').onclick = function () {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+    this.textContent = dark ? 'Voir en mode sombre' : 'Voir en mode clair';
+  };
+
+  render();
+})();
+</script>

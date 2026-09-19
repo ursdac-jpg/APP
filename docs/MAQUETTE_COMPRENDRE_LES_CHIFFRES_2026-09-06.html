@@ -1,0 +1,1073 @@
+<!--
+  Maquette - module « Comprendre les chiffres » (extraction de « Se tenir informé »).
+  Chantier : docs/CHANTIER_COMPRENDRE_LES_CHIFFRES.md (Mode A).
+
+  Décisions déjà actées (2026-09-06) :
+   - « Se tenir informé » devient un hub à 2 sous-cartes (Comprendre le cadre / Comprendre les chiffres).
+   - 3 couches : 1. la photo du trimestre (5 chiffres qui bougent) ; 2. le portrait du territoire
+     (1x/an, déplié au clic, surtout CIP) ; 3. ce qui se prépare (enquête BMO, 1x/an).
+   - Partie B « une autre question sur les chiffres » : 2 portes (question précise, un temps /
+     comprendre le territoire, deux temps).
+   - Salaire médian / RSA / âge : gardés, dans la couche 2, jamais en carte principale.
+   - Principaux employeurs + écart de salaire femmes-hommes : dans la V1, cadrage prudent.
+   - Les graphiques SVG + l'infobulle au survol de la maquette précédente sont préservés.
+
+  Toutes les valeurs chiffrées ci-dessous sont des EXEMPLES plausibles, pas des données réelles.
+  Le vrai contenu viendra d'un fichier contenu/chiffres/<mois>.md produit par outils/veille.html.
+  Thème sombre : classe .dark sur <body>. Couleurs en jetons var(--...).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Comprendre les chiffres</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #0369a1; --accent-bg: #e2f0f8;
+    --ok: #198754; --ok-bg: #d9f4e4;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px; --shadow: 0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #38bdf8; --accent-bg: #16283a;
+    --ok: #35c79a; --ok-bg: #17301f; --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b; --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  h1,h2,h3,h4 { color: var(--text-strong); line-height: 1.3; }
+  h1 { font-size: 1.5rem; margin: .2rem 0 .5rem; }
+  h2 { font-size: 1.12rem; margin: 1.3rem 0 .5rem; }
+  h3 { font-size: 1rem; margin: 1rem 0 .35rem; }
+  h4 { font-size: .92rem; margin: .8rem 0 .25rem; }
+  p { margin: .5rem 0; }
+  a { color: var(--accent); }
+
+  .appbar { position: sticky; top: 0; z-index: 50; background: var(--bg-card);
+    border-bottom: 1px solid var(--border); padding: .6rem 1rem; }
+  .appbar-row { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+  .appbar-titre { font-weight: 700; color: var(--text-strong); font-size: .98rem; }
+  .appbar-outils { margin-left: auto; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  .appbar select, .appbar .mini-btn { font-size: .8rem; padding: .3rem .55rem; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text); cursor: pointer; }
+  .note-maquette { max-width: 900px; margin: .5rem auto 0; font-size: .78rem; color: var(--text-muted);
+    border: 1px dashed var(--border-strong); border-radius: 8px; padding: .4rem .6rem; background: var(--bg-subtle); }
+
+  main { max-width: 760px; margin: 0 auto; padding: 1.1rem 1rem 4.5rem; }
+  .vue { display: none; }
+  .vue.active { display: block; animation: apparait .18s ease; }
+  @keyframes apparait { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .vue.active { animation: none; } }
+
+  .bandeau-ecran { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-size: .82rem;
+    margin: 0 0 1rem; padding: .55rem .8rem; border-radius: 9px; border: 1px solid var(--accent); background: var(--accent-bg); }
+  .bandeau-ecran .etiq { font-weight: 700; padding: .12rem .55rem; border-radius: 999px; font-size: .72rem;
+    text-transform: uppercase; letter-spacing: .02em; background: var(--accent); color: #fff; }
+  body.dark .bandeau-ecran .etiq { color: #04202e; }
+
+  .accroche { color: var(--text-muted); font-size: 1.02rem; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+  .centre { text-align: center; }
+
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1rem 1.1rem; margin: .8rem 0; box-shadow: var(--shadow); }
+  .carte.teinte { background: var(--accent-bg); border-color: var(--accent); box-shadow: none; }
+  .carte.plat { box-shadow: none; }
+
+  .encart { display: flex; gap: .6rem; align-items: flex-start; background: var(--accent-bg);
+    border-left: 3px solid var(--accent); border-radius: 8px; padding: .65rem .9rem; margin: .7rem 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+  .encart.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+  .encart .ico { flex-shrink: 0; }
+
+  .btn { display: inline-flex; align-items: center; gap: .45rem; justify-content: center; font: inherit;
+    border-radius: var(--radius); padding: .55rem 1.05rem; border: 1px solid var(--border-strong);
+    background: var(--bg-card); color: var(--text-strong); cursor: pointer; text-decoration: none; font-weight: 600; font-size: .92rem; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; }
+  body.dark .btn.primaire { color: #04202e; }
+  .btn.fantome { background: transparent; color: var(--accent); }
+  .btn.mini { font-size: .82rem; padding: .32rem .7rem; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-rangee { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .8rem; }
+
+  .btn-revoir { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--border-strong);
+    background: var(--bg-subtle); color: var(--text-strong); border-radius: 999px; padding: .35rem .85rem;
+    font-size: .84rem; cursor: pointer; margin: .2rem 0 1rem; }
+
+  /* Grille des sous-cartes du hub. */
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .8rem; margin-top: .6rem; }
+  .entree { text-align: left; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: .95rem 1rem; cursor: pointer; box-shadow: var(--shadow); display: flex; flex-direction: column;
+    gap: .3rem; font: inherit; color: var(--text); }
+  .entree:hover { border-color: var(--accent); }
+  .entree .titre { font-weight: 700; color: var(--text-strong); display: flex; align-items: center; gap: .5rem; }
+  .entree .quoi { font-size: .87rem; color: var(--text-muted); }
+
+  /* Rectangle "Votre departement" (composant partage de Comprendre le cadre). */
+  .barre-territoire { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; justify-content: space-between;
+    background: var(--bg-subtle); border: 1px solid var(--border-strong); border-radius: 12px; padding: .6rem .9rem; margin: .6rem 0 .8rem; font-size: .92rem; }
+
+  /* Sélecteur de niveau de lecture. */
+  .territoire-choix { display: flex; flex-wrap: wrap; gap: .4rem; margin: .2rem 0 1rem; }
+  .territoire-choix button { padding: .4rem .9rem; border-radius: 999px; font: inherit; font-size: .88rem;
+    cursor: pointer; border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong); }
+  .territoire-choix button.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  body.dark .territoire-choix button.actif { color: #04202e; }
+
+  /* Une carte-indicateur. */
+  .indic { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1rem 1.1rem; margin: .7rem 0; box-shadow: var(--shadow); }
+  .indic .q { font-weight: 700; color: var(--text-strong); font-size: 1.02rem; }
+  .indic .valeur { font-size: 2rem; font-weight: 800; color: var(--accent); margin: .3rem 0 .1rem; line-height: 1.1; }
+  .indic .tendance { display: inline-flex; align-items: center; gap: .35rem; font-size: .9rem; font-weight: 600;
+    color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: .12rem .6rem; }
+  .indic .phrase { margin: .5rem 0; }
+  .indic .compare { font-size: .86rem; color: var(--text-muted); margin: .2rem 0; }
+  .indic .source { font-size: .78rem; color: var(--text-muted); margin-top: .3rem; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+
+  /* Tous les chiffres et pourcentages : couleur d'accent, gras. Ceux qui
+     portent data-source montrent leur provenance au survol (pointille). */
+  .chiffre { color: var(--accent); font-weight: 700; border-bottom: 1px dotted var(--accent); cursor: help; }
+
+  /* Pastille « aller voir la source » : bouton, jamais un lien texte (LECONS 9.6). */
+  .pastille-source, .lien-interne {
+    display: inline-flex; align-items: center; gap: .3rem; font: inherit; font-size: .78rem; font-weight: 600;
+    border: 1px solid var(--accent); color: var(--accent); background: transparent;
+    border-radius: 999px; padding: .2rem .7rem; cursor: pointer;
+  }
+  .pastille-source:hover, .lien-interne:hover { background: var(--accent-bg); }
+  .lien-interne { border-style: dashed; }
+
+  .mini-graph { width: 100%; max-width: 480px; height: auto; margin: .6rem 0 .2rem; display: block; }
+  .mini-graph .barre { fill: var(--accent); }
+  .mini-graph .seg-a { fill: var(--accent); }
+  .mini-graph .seg-b { fill: var(--accent); fill-opacity: .58; }
+  .mini-graph .seg-c { fill: var(--accent); fill-opacity: .3; }
+  .mini-graph rect:hover { stroke: var(--text-strong); stroke-width: 1.2; }
+  .mini-graph .axe { stroke: var(--border-strong); stroke-width: 1; }
+  .mini-graph .val { fill: var(--text-strong); font-size: 9px; font-weight: 700; }
+  .mini-graph text { fill: var(--text-muted); font-size: 9px; font-family: inherit; }
+  .graph-tip { position: fixed; z-index: 200; display: none; background: var(--text-strong); color: var(--bg-card);
+    font-size: .78rem; padding: .3rem .55rem; border-radius: 6px; pointer-events: none; max-width: 240px; box-shadow: var(--shadow); }
+  .graph-legende { display: flex; flex-wrap: wrap; gap: .9rem; font-size: .78rem; color: var(--text-muted); margin: .2rem 0 .4rem; }
+  .graph-legende span { display: inline-flex; align-items: center; gap: .35rem; }
+  .graph-legende i { width: .8rem; height: .8rem; border-radius: 2px; display: inline-block; background: var(--accent); }
+  .graph-legende i.b { opacity: .58; } .graph-legende i.c { opacity: .3; }
+
+  .bloc-depli { border: 1px solid var(--border-strong); border-radius: 12px; margin: .55rem 0; background: var(--bg-card); overflow: hidden; box-shadow: var(--shadow); }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .75rem .95rem; font-size: .92rem;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary .titre-depli { font-weight: 700; color: var(--accent); }
+  .bloc-depli > summary .titre-depli::before { content: "\25B8\00A0"; font-size: .8em; }
+  .bloc-depli[open] > summary .titre-depli::before { content: "\25BE\00A0"; }
+  .bloc-depli > summary .clic { margin-left: auto; font-weight: 600; font-size: .76rem; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: .05rem .5rem; }
+  .bloc-depli > summary .summary-desc { flex-basis: 100%; font-weight: 400; color: var(--text-muted); font-size: .84rem; margin-top: .15rem; }
+  .bloc-depli[open] > summary .summary-desc { display: none; }
+  .bloc-depli .corps { border-top: 1px solid var(--border); padding: .5rem .95rem .9rem; font-size: .9rem; }
+  .indic .bloc-depli.evolution { box-shadow: none; margin: .6rem 0 0; }
+  .digest-archive { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0; }
+
+  /* Titres de section dans l'ecran principal : bien separes. */
+  [data-vue="chiffres"] h2 { border-top: 2px solid var(--border-strong); margin-top: 1.8rem; padding-top: 1rem; }
+  [data-vue="chiffres"] h2.section-1 { border-top: none; margin-top: .8rem; padding-top: 0; }
+  .section-intro { color: var(--text-muted); font-size: .88rem; margin: .1rem 0 .6rem; }
+
+  .carte-edito { background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 12px; padding: .9rem 1rem; margin: .6rem 0; }
+  .carte-edito .marque { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: .1rem .55rem; margin-bottom: .4rem; }
+
+  .liste-fine { margin: .3rem 0 0; padding-left: 1.15rem; }
+  .liste-fine li { margin: .25rem 0; }
+
+  table.mini { width: 100%; border-collapse: collapse; font-size: .86rem; margin: .5rem 0; }
+  table.mini th, table.mini td { border: 1px solid var(--border); padding: .45rem .55rem; text-align: left; vertical-align: top; }
+  table.mini th { background: var(--bg-subtle); color: var(--text-strong); }
+  .tab-scroll { overflow-x: auto; }
+
+  textarea.zone { width: 100%; min-height: 90px; resize: vertical; border: 1px solid var(--border-strong);
+    border-radius: 10px; padding: .6rem .7rem; font: inherit; background: var(--bg-page); color: var(--text); }
+  .zone-prompt { border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-page);
+    padding: .8rem .9rem; font-size: .88rem; color: var(--text); white-space: pre-wrap; }
+  .porte { display: flex; flex-direction: column; gap: .3rem; text-align: left; background: var(--bg-card);
+    border: 1px solid var(--accent); border-radius: 14px; padding: 1rem 1.1rem; margin: .6rem 0; cursor: pointer; font: inherit; color: var(--text); }
+  .porte .titre { font-weight: 700; color: var(--text-strong); }
+  .porte .quoi { font-size: .87rem; color: var(--text-muted); }
+
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--bg-card);
+    border-top: 1px solid var(--border); padding: .55rem 1rem; }
+  .barre-bas-row { max-width: 760px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  .barre-bas .btn { padding: .5rem 1rem; font-size: .88rem; }
+  #retourInfo { font-size: .76rem; color: var(--text-muted); }
+
+  .annexe h2 { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1.6rem; }
+  code { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 5px; padding: .05rem .3rem; font-size: .82em; }
+
+  /* ---- Bascule Vue simple / Vue d'ensemble ---- */
+  .vue-toggle { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 999px; overflow: hidden; margin: .3rem 0 .8rem; }
+  .vue-toggle button { border: none; background: var(--bg-subtle); color: var(--text-strong); font: inherit; font-size: .86rem;
+    font-weight: 600; padding: .38rem 1rem; cursor: pointer; }
+  .vue-toggle button.actif { background: var(--accent); color: #fff; }
+  body.dark .vue-toggle button.actif { color: #04202e; }
+  .ensemble-seulement { display: none; }
+  body.vue-ensemble .ensemble-seulement { display: block; }
+  body.vue-ensemble .simple-seulement { display: none; }
+
+  /* Renvoi « à lire avec » sur une carte (vue d'ensemble). */
+  .a-lire-avec { font-size: .82rem; color: var(--text-muted); margin: .3rem 0 0; }
+  .a-lire-avec a { color: var(--accent); }
+
+  /* Case « voir aussi région + France » sous un graphe. */
+  .superpose { display: flex; flex-wrap: wrap; gap: .3rem .9rem; font-size: .84rem; margin: .1rem 0 .3rem; }
+  .superpose label { display: inline-flex; align-items: center; gap: .35rem; cursor: pointer; }
+  .mini-graph .courbe-na, .mini-graph .courbe-fr { display: none; fill: none; stroke-width: 2; }
+  .mini-graph .courbe-na { stroke: var(--warn); }
+  .mini-graph .courbe-fr { stroke: var(--text-muted); stroke-dasharray: 4 3; }
+  .mini-graph.show-na .courbe-na { display: block; }
+  .mini-graph.show-fr .courbe-fr { display: block; }
+
+  /* Bloc « Croiser plusieurs chiffres ». */
+  .croiser { background: var(--bg-card); border: 1px solid var(--accent); border-radius: 14px; padding: 1rem 1.1rem; margin: .8rem 0; }
+  .croiser fieldset { border: 1px solid var(--border); border-radius: 10px; padding: .5rem .7rem; margin: .5rem 0; }
+  .croiser legend { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); padding: 0 .3rem; }
+  .croiser label { display: flex; align-items: center; gap: .4rem; font-size: .88rem; margin: .2rem 0; cursor: pointer; }
+
+  /* Tableau de synthèse (vue d'ensemble). */
+  table.synthese { width: 100%; border-collapse: collapse; font-size: .84rem; margin: .5rem 0; }
+  table.synthese th, table.synthese td { border: 1px solid var(--border); padding: .4rem .5rem; text-align: left; }
+  table.synthese th { background: var(--bg-subtle); color: var(--text-strong); }
+  table.synthese td:first-child { font-weight: 600; color: var(--text-strong); }
+
+  @media print { .appbar, .barre-bas, .vue-toggle, .btn-revoir, .bandeau-ecran { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-row">
+    <span class="appbar-titre">&#128202; Maquette - Comprendre les chiffres</span>
+    <span class="appbar-outils">
+      <select id="devnav" onchange="aller(this.value)">
+        <option value="hub">0 - Hub &laquo; Se tenir informe &raquo;</option>
+        <option value="intro">1 - Presentation du module</option>
+        <option value="chiffres" selected>2 - Ecran principal (les 3 couches)</option>
+        <option value="porteA">3 - Question chiffree precise (un temps)</option>
+        <option value="porteB">4 - Comprendre mon territoire (deux temps)</option>
+        <option value="annexe">Annexe - phrases-types + format du fichier</option>
+      </select>
+      <button class="mini-btn" onclick="document.body.classList.toggle('dark')">Th&egrave;me</button>
+    </span>
+  </div>
+  <div class="note-maquette">
+    Tous les chiffres affich&eacute;s sont des <b>exemples</b> pour la Dordogne (24). Le vrai contenu viendra
+    d'un fichier produit une fois par trimestre. Objectif de cette maquette : valider la structure, les
+    libell&eacute;s en langage simple, et le comportement des graphiques.
+  </div>
+</div>
+
+<main>
+
+<!-- ================= 0. HUB ================= -->
+<section class="vue" data-vue="hub">
+  <div class="bandeau-ecran"><span class="etiq">Nouvel &eacute;cran</span>
+    <span>&laquo; Se tenir inform&eacute; &raquo; devient un hub. Aujourd'hui il m&egrave;ne directement &agrave; &laquo; Comprendre le cadre &raquo; ; demain il propose deux sous-modules.</span></div>
+  <h1>&#128240; Se tenir inform&eacute;</h1>
+  <p class="accroche">Deux espaces s&eacute;par&eacute;s : l'un pour vos droits et vos d&eacute;marches, l'autre pour les chiffres du march&eacute; du travail.</p>
+  <div class="grille">
+    <button class="entree" onclick="aller('intro')">
+      <span class="titre">&#128203; Comprendre le cadre</span>
+      <span class="quoi">Des fiches courtes et des liens officiels sur l'emploi, la formation, le logement, les droits... &agrave; consulter quand une question vous bloque.</span>
+    </button>
+    <button class="entree" onclick="aller('intro')">
+      <span class="titre">&#128202; Comprendre les chiffres</span>
+      <span class="quoi">Le ch&ocirc;mage, l'emploi, les m&eacute;tiers qui recrutent pr&egrave;s de chez vous. Des chiffres officiels, expliqu&eacute;s simplement, dat&eacute;s.</span>
+    </button>
+  </div>
+  <p class="detail" style="margin-top:1rem">Transitions simul&eacute;es : les deux cartes m&egrave;nent ici &agrave; la pr&eacute;sentation du module &laquo; Comprendre les chiffres &raquo;.</p>
+</section>
+
+<!-- ================= 1. PRESENTATION ================= -->
+<section class="vue" data-vue="intro">
+  <div class="bandeau-ecran"><span class="etiq">Nouvel &eacute;cran</span>
+    <span>Page de pr&eacute;sentation propre au module (m&ecirc;me patron que les autres modules d'APP).</span></div>
+  <h1>&#128202; Comprendre les chiffres</h1>
+  <p class="accroche">Beaucoup de donn&eacute;es existent d&eacute;j&agrave;, gratuites et publiques. Le probl&egrave;me, c'est que peu de gens savent les lire. Ici, on les explique en langage simple.</p>
+
+  <h3>&#127919; &Agrave; quoi &ccedil;a sert</h3>
+  <p class="detail" style="margin-top:.1rem"><b>Pour vous&nbsp;:</b> savoir o&ugrave; en est l'emploi pr&egrave;s de chez vous, quels m&eacute;tiers recrutent, sans avoir &agrave; d&eacute;chiffrer les tableaux de l'INSEE.</p>
+  <p class="detail" style="margin-top:.1rem"><b>Pour un professionnel de l'insertion&nbsp;:</b> un portrait du territoire &agrave; garder sous la main, &agrave; montrer &agrave; une personne ou &agrave; imprimer avant un rendez-vous.</p>
+
+  <h3>&#128203; Ce qui va se passer</h3>
+  <ul class="liste-fine">
+    <li>Vous choisissez un territoire : votre d&eacute;partement, votre r&eacute;gion, ou la France enti&egrave;re.</li>
+    <li>Vous voyez d'abord <b>les cinq chiffres cl&eacute;s du trimestre</b> : ch&ocirc;mage, personnes qui cherchent un emploi, dur&eacute;e de recherche, emplois, offres.</li>
+    <li>Chaque chiffre est <b>&eacute;crit en gros, expliqu&eacute; en une phrase, compar&eacute;</b> (au trimestre pr&eacute;c&eacute;dent, &agrave; l'an dernier, &agrave; la r&eacute;gion et &agrave; la France), avec un petit graphique.</li>
+    <li>En d&eacute;pliant, vous acc&eacute;dez au <b>portrait du territoire</b> (entreprises, contrats, secteurs, saisonnalit&eacute;...) et &agrave; <b>ce que les employeurs pr&eacute;voient d'embaucher</b> cette ann&eacute;e.</li>
+    <li>Pour une question chiffr&eacute;e pr&eacute;cise qui n'est pas l&agrave;, l'application pr&eacute;pare un texte de recherche &agrave; copier chez un assistant en ligne ; vous rapportez sa r&eacute;ponse ici.</li>
+  </ul>
+
+  <h3>&#128683; Ce que ce module ne fait pas</h3>
+  <ul class="liste-fine">
+    <li>Ce n'est pas un tableau de bord en temps r&eacute;el : chaque chiffre est une <b>photo dat&eacute;e</b>, le lien officiel donne la version &agrave; jour.</li>
+    <li>Il ne pose <b>aucun diagnostic sur vous</b>. Un chiffre d&eacute;crit un territoire, pas une personne.</li>
+    <li>Il ne dit pas si vous allez trouver un emploi.</li>
+  </ul>
+
+  <div class="carte teinte" style="margin-top:1rem">
+    <p style="margin:.1rem 0"><b>&#128202; Comprendre les chiffres</b> et <b>&#128240; Comprendre le cadre</b> vont ensemble.</p>
+    <p style="margin:.3rem 0 0">&laquo;&nbsp;Comprendre le cadre&nbsp;&raquo; donne les rep&egrave;res sur vos droits, vos aides et vos d&eacute;marches. Ce module-ci donne les chiffres du territoire, qui aident &agrave; mieux comprendre ce qui se passe autour de ces r&egrave;gles. Les deux se compl&egrave;tent.</p>
+  </div>
+
+  <div class="btn-rangee"><button class="btn primaire" onclick="aller('chiffres')">Ouvrir Comprendre les chiffres &#8594;</button></div>
+</section>
+
+<!-- ================= 2. ECRAN PRINCIPAL ================= -->
+<section class="vue active" data-vue="chiffres">
+  <div class="bandeau-ecran"><span class="etiq">Nouvel &eacute;cran</span>
+    <span>Le c&oelig;ur du module. Trois couches : la photo du trimestre (visible), le portrait du territoire et l'enqu&ecirc;te BMO (d&eacute;pli&eacute;s au clic).</span></div>
+
+  <button class="btn-revoir" onclick="aller('intro')">&#128240; Revoir la pr&eacute;sentation</button>
+  <h1>&#128202; Comprendre les chiffres</h1>
+
+  <div class="vue-toggle">
+    <button class="actif" id="btnVueSimple" onclick="setVue('simple')">Vue simple</button>
+    <button id="btnVueEnsemble" onclick="setVue('ensemble')">Vue d'ensemble</button>
+  </div>
+
+  <!-- Rectangle "Votre departement" : EXACTEMENT le composant partage de
+       "Comprendre le cadre" (demanderDepartementSiInconnu / CLE_DEPARTEMENT_RESSOURCES).
+       Aujourd'hui deux departements : Dordogne (24) et Haute-Vienne (87). -->
+  <div class="barre-territoire">
+    <span>&#128205; Votre d&eacute;partement : <b id="deptNom">la Dordogne (24)</b></span>
+    <button type="button" class="lien-interne" id="btnChangerDept" onclick="changerDept()">Changer de d&eacute;partement</button>
+  </div>
+
+  <!-- Niveau de lecture : les chiffres s'adaptent a ce qui est choisi ici. -->
+  <p class="section-intro" style="margin-bottom:.2rem">&Agrave; quel niveau voulez-vous lire les chiffres&nbsp;?</p>
+  <div class="territoire-choix" id="terrChoix">
+    <button class="actif" data-t="24" onclick="setTerritoire('24')">Mon d&eacute;partement</button>
+    <button data-t="na" onclick="setTerritoire('na')">Ma r&eacute;gion (Nouvelle-Aquitaine)</button>
+    <button data-t="fr" onclick="setTerritoire('fr')">France enti&egrave;re</button>
+    <button data-t="ue" onclick="setTerritoire('ue')">Union europ&eacute;enne</button>
+  </div>
+  <p class="section-intro" style="margin-top:-.5rem">Vous lisez les chiffres pour&nbsp;: <b id="nivActif">la Dordogne</b>. Tout ce qui suit s'adapte &agrave; ce choix.</p>
+
+  <!-- Vue "Union europeenne" : la France comparee a la moyenne des 27. -->
+  <div id="ueView" hidden>
+    <div class="carte teinte">
+      <h3 style="margin-top:0">La France dans l'Union europ&eacute;enne</h3>
+      <p class="detail" style="margin:.1rem 0 .5rem">Une mise en perspective, pas un jugement. Donn&eacute;es harmonis&eacute;es par Eurostat (m&ecirc;me d&eacute;finition pour les 27 pays). L'Union europ&eacute;enne n'a pas les m&ecirc;mes indicateurs que le local : voici les 10 les plus utiles, France compar&eacute;e &agrave; la moyenne.</p>
+      <div class="tab-scroll"><table class="synthese">
+        <tr><th>Indicateur</th><th>France</th><th>Moyenne UE-27</th></tr>
+        <tr><td>Taux de ch&ocirc;mage</td><td><span class="chiffre">7,3&nbsp;%</span></td><td><span class="chiffre">5,9&nbsp;%</span></td></tr>
+        <tr><td>Ch&ocirc;mage des jeunes (15-24 ans)</td><td><span class="chiffre">17&nbsp;%</span></td><td><span class="chiffre">15&nbsp;%</span></td></tr>
+        <tr><td>Part du ch&ocirc;mage de longue dur&eacute;e</td><td><span class="chiffre">27&nbsp;%</span></td><td><span class="chiffre">33&nbsp;%</span></td></tr>
+        <tr><td>Taux d'emploi (20-64 ans)</td><td><span class="chiffre">69&nbsp;%</span></td><td><span class="chiffre">71&nbsp;%</span></td></tr>
+        <tr><td>Taux d'activit&eacute; (15-64 ans)</td><td><span class="chiffre">74&nbsp;%</span></td><td><span class="chiffre">75&nbsp;%</span></td></tr>
+        <tr><td>Jeunes ni en emploi ni en &eacute;tudes ni en formation</td><td><span class="chiffre">12&nbsp;%</span></td><td><span class="chiffre">11&nbsp;%</span></td></tr>
+        <tr><td>Part du temps partiel</td><td><span class="chiffre">17&nbsp;%</span></td><td><span class="chiffre">17&nbsp;%</span></td></tr>
+        <tr><td>Part de l'emploi en contrat &agrave; dur&eacute;e limit&eacute;e (CDD)</td><td><span class="chiffre">15&nbsp;%</span></td><td><span class="chiffre">13&nbsp;%</span></td></tr>
+        <tr><td>&Eacute;cart de salaire femmes-hommes</td><td><span class="chiffre">14&nbsp;%</span></td><td><span class="chiffre">12&nbsp;%</span></td></tr>
+        <tr><td>Dipl&ocirc;m&eacute;s du sup&eacute;rieur (25-64 ans)</td><td><span class="chiffre">40&nbsp;%</span></td><td><span class="chiffre">35&nbsp;%</span></td></tr>
+      </table></div>
+      <p class="detail" style="margin:.4rem 0 0">Plus tard, on pourra choisir un pays pr&eacute;cis pour le comparer &agrave; la France. Pour l'instant, on reste au niveau de l'ensemble de l'Union.</p>
+      <p class="source">D'apr&egrave;s Eurostat, donn&eacute;es 2025-2026. <button type="button" class="pastille-source">&#128279; Ouvrir la page Eurostat</button></p>
+    </div>
+
+    <details class="bloc-depli">
+      <summary><span class="titre-depli">Les freins &agrave; l'emploi : France et Union europ&eacute;enne</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Les quelques freins qu'Eurostat mesure de la m&ecirc;me fa&ccedil;on dans les 27 pays.</span></summary>
+      <div class="corps">
+      <p class="detail" style="margin:.1rem 0 .5rem">Peu de freins sont mesur&eacute;s de la m&ecirc;me fa&ccedil;on dans les 27 pays. Voici ceux qu'Eurostat permet de comparer (module de l'enqu&ecirc;te emploi sur les personnes hors du march&eacute; du travail). Chiffres d'<b>exemple</b>.</p>
+      <div class="tab-scroll"><table class="synthese">
+        <tr><th>Frein d&eacute;clar&eacute; comme principal obstacle</th><th>France</th><th>Moyenne UE-27</th></tr>
+        <tr><td>Responsabilit&eacute;s familiales (garde d'enfant, aidant)</td><td><span class="chiffre" data-source="Eurostat, enquete sur les forces de travail">~30&nbsp;%</span></td><td><span class="chiffre" data-source="Eurostat">~28&nbsp;%</span></td></tr>
+        <tr><td>Maladie ou handicap</td><td><span class="chiffre" data-source="Eurostat">~22&nbsp;%</span></td><td><span class="chiffre" data-source="Eurostat">~25&nbsp;%</span></td></tr>
+        <tr><td>Formation ou &eacute;tudes en cours</td><td><span class="chiffre" data-source="Eurostat">~18&nbsp;%</span></td><td><span class="chiffre" data-source="Eurostat">~16&nbsp;%</span></td></tr>
+        <tr><td>Pense qu'il n'y a pas de travail disponible</td><td><span class="chiffre" data-source="Eurostat">~9&nbsp;%</span></td><td><span class="chiffre" data-source="Eurostat">~10&nbsp;%</span></td></tr>
+      </table></div>
+      <p class="detail" style="margin:.3rem 0 0">La mobilit&eacute;, le num&eacute;rique ou les savoirs de base ne sont pas compar&eacute;s au niveau europ&eacute;en : ils restent dans le bloc &laquo;&nbsp;freins du territoire&nbsp;&raquo; au niveau France.</p>
+      </div>
+    </details>
+  </div>
+
+
+  <div id="localView">
+
+  <!-- ---- VUE D'ENSEMBLE : synthese + tableau ---- -->
+  <div class="ensemble-seulement">
+    <div class="encart"><span class="ico">&#128737;&#65039;</span><span>Ces chiffres <b>d&eacute;crivent un territoire, ils ne concluent rien sur un projet</b>. Ils servent &agrave; rep&eacute;rer des difficult&eacute;s et &agrave; s'y pr&eacute;parer avec la personne, jamais &agrave; la d&eacute;courager ni &agrave; revoir son projet &agrave; la baisse.</span></div>
+    <div class="carte teinte">
+      <h3 style="margin-top:0">La lecture du territoire</h3>
+      <p class="detail" style="margin:.1rem 0 .5rem">Texte &eacute;crit &agrave; la main, mis &agrave; jour chaque trimestre, dat&eacute; du <b>2<sup>e</sup> trimestre 2026</b>. Il relie les chiffres entre eux <b>avec prudence</b> : il d&eacute;crit, il ne pr&eacute;dit rien et ne juge aucun projet.</p>
+      <p>Le ch&ocirc;mage recule doucement en Dordogne (<span class="chiffre">7,8&nbsp;%</span>, contre <span class="chiffre">8,1&nbsp;%</span> un an plus t&ocirc;t), mais le nombre de personnes inscrites &agrave; France Travail bouge &agrave; peine&nbsp;: cette baisse va souvent de pair avec des sorties de liste (formations, changements de cat&eacute;gorie li&eacute;s aux nouvelles r&egrave;gles de 2025) plut&ocirc;t qu'avec une vague d'embauches.</p>
+      <p>L'emploi salari&eacute; est quasi stable (<span class="chiffre">+0,2&nbsp;%</span> sur le trimestre). Les offres d&eacute;pos&eacute;es sont nombreuses mais <span class="chiffre">4 sur 10 sont saisonni&egrave;res</span> et une part importante dure moins d'un mois&nbsp;: le march&eacute; local est actif en volume, mais les contrats propos&eacute;s sont souvent courts ou saisonniers.</p>
+      <p>Les tensions de recrutement se concentrent sur l'aide &agrave; domicile, l'entretien, la restauration et l'agriculture&nbsp;: des m&eacute;tiers souvent accessibles sans dipl&ocirc;me, mais avec des contraintes fortes (horaires, mobilit&eacute;, p&eacute;nibilit&eacute;). <span class="chiffre">Pr&egrave;s d'une personne sur deux</span> en recherche l'est depuis plus d'un an&nbsp;: la <b>dur&eacute;e d'inscription</b> est ici un rep&egrave;re aussi important que le nombre de personnes concern&eacute;es.</p>
+      <p class="detail" style="margin:.4rem 0 0">Brouillon r&eacute;dig&eacute; par l'assistant &agrave; partir des chiffres du digest, <b>&agrave; v&eacute;rifier et valider par Denis</b> avant mise en ligne.</p>
+    </div>
+
+    <details class="bloc-depli" open>
+      <summary><span class="titre-depli">Tableau de synth&egrave;se</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Toutes les valeurs sur une grille, sans rien d&eacute;rouler.</span></summary>
+      <div class="corps">
+        <div class="tab-scroll"><table class="synthese">
+          <tr><th>Indicateur</th><th>Dordogne</th><th>Tendance</th><th>N.-Aquitaine</th><th>France</th></tr>
+          <tr><td>Taux de ch&ocirc;mage</td><td><span class="chiffre">7,8&nbsp;%</span></td><td>&#8600; l&eacute;g. baisse</td><td><span class="chiffre">6,8&nbsp;%</span></td><td><span class="chiffre">7,3&nbsp;%</span></td></tr>
+          <tr><td>Demandeurs cat. A</td><td><span class="chiffre">~19&nbsp;000</span></td><td>&#8594; stable</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>Inscrits depuis +1 an</td><td><span class="chiffre">~48&nbsp;%</span></td><td>&#8600; l&eacute;g. baisse</td><td><span class="chiffre">45&nbsp;%</span></td><td><span class="chiffre">46&nbsp;%</span></td></tr>
+          <tr><td>Emploi salari&eacute; (trim.)</td><td><span class="chiffre">+0,2&nbsp;%</span></td><td>&#8599; l&eacute;g. hausse</td><td><span class="chiffre">+0,1&nbsp;%</span></td><td>+0,1&nbsp;%</td></tr>
+          <tr><td>Offres d&eacute;pos&eacute;es (trim.)</td><td><span class="chiffre">~4&nbsp;200</span></td><td>&#8594; stable</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>dont offres durables</td><td><span class="chiffre">~60&nbsp;%</span></td><td>&#8594; stable</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>Projets de recrutement (an)</td><td><span class="chiffre">~9&nbsp;000</span></td><td>BMO 2026</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>dont difficiles &agrave; pourvoir</td><td>~60&nbsp;%</td><td>BMO 2026</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>dont saisonniers</td><td><span class="chiffre">~40&nbsp;%</span></td><td>BMO 2026</td><td>&mdash;</td><td>&mdash;</td></tr>
+        </table></div>
+        <p class="detail" style="margin:0">Les valeurs r&eacute;gionales et nationales manquantes le sont parce que la source ne les publie pas au m&ecirc;me niveau.</p>
+      </div>
+    </details>
+
+    <div class="btn-rangee"><button class="btn" onclick="window.print()">&#128424;&#65039; Imprimer la vue d'ensemble</button></div>
+  </div>
+
+  <!-- ---- COUCHE 1 : la photo du trimestre ---- -->
+  <h2 class="section-1">Les 5 chiffres cl&eacute;s du trimestre</h2>
+  <p class="section-intro"><b>Commencez par ces cinq chiffres.</b> Le reste (portrait du territoire, projets d'embauche, outil de comparaison) est plus bas, &agrave; ouvrir seulement si vous le souhaitez.<br><span style="font-size:.82rem">&#128197; Donn&eacute;es arr&ecirc;t&eacute;es en <b>juin 2026</b> (2<sup>e</sup> trimestre). Prochaine mise &agrave; jour pr&eacute;vue : <b>octobre 2026</b>.</span></p>
+
+  <!-- Indicateur 1 : chomage -->
+  <div class="indic">
+    <p class="q">Combien de personnes sont au ch&ocirc;mage ici&nbsp;?</p>
+    <p class="valeur"><span class="chiffre" id="demoChoVal" data-source="INSEE - taux de chomage localise - donnees T1 2026 (T2 provisoire)">7,8&nbsp;%</span></p>
+    <span class="tendance">&#8600; en l&eacute;g&egrave;re baisse</span>
+    <p class="phrase">Sur 100 personnes qui travaillent ou cherchent un travail, environ <span class="chiffre" id="demoChoPhrase">8 sont au ch&ocirc;mage</span>.</p>
+    <p class="compare"><b>Il y a un trimestre&nbsp;:</b> <span class="chiffre" id="demoChoTrim">7,9&nbsp;%</span> &nbsp;&bull;&nbsp; <b>il y a un an&nbsp;:</b> <span class="chiffre" id="demoChoAn">8,1&nbsp;%</span></p>
+    <p class="compare"><b>Nouvelle-Aquitaine&nbsp;:</b> <span class="chiffre">6,8&nbsp;%</span> &nbsp;&bull;&nbsp; <b>France&nbsp;:</b> <span class="chiffre">7,3&nbsp;%</span></p>
+    <details class="bloc-depli evolution">
+    <summary><span class="titre-depli">Voir l'&eacute;volution sur 8 trimestres</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Le graphique trimestre par trimestre, avec la r&eacute;gion et la France en option.</span></summary>
+    <div class="corps">
+    <div class="superpose">
+      Ajouter au graphique :
+      <label><input type="checkbox" onchange="this.closest('.indic').querySelector('.mini-graph').classList.toggle('show-na', this.checked)"> Nouvelle-Aquitaine</label>
+      <label><input type="checkbox" onchange="this.closest('.indic').querySelector('.mini-graph').classList.toggle('show-fr', this.checked)"> France</label>
+    </div>
+    <svg class="mini-graph" viewBox="0 0 320 128" role="img" aria-label="Taux de chomage, huit derniers trimestres"
+         onmousemove="graphTip(event)" onmouseleave="graphTipHide()">
+      <line class="axe" x1="18" y1="104" x2="312" y2="104"></line>
+      <polyline class="courbe-fr" points="35,56.4 71,58.8 107,58.8 143,61.2 179,61.2 215,63.6 251,63.6 287,66"></polyline>
+      <polyline class="courbe-na" points="35,70.8 71,73.2 107,73.2 143,75.6 179,75.6 215,78 251,78 287,78"></polyline>
+      <rect class="barre" x="22"  y="42" width="26" height="62" data-tip="T3 2024 : 8,3 % - source INSEE"></rect>
+      <rect class="barre" x="58"  y="45" width="26" height="59" data-tip="T4 2024 : 8,2 % - source INSEE"></rect>
+      <rect class="barre" x="94"  y="47" width="26" height="57" data-tip="T1 2025 : 8,1 % - source INSEE"></rect>
+      <rect class="barre" x="130" y="49" width="26" height="55" data-tip="T2 2025 : 8,0 % - source INSEE"></rect>
+      <rect class="barre" x="166" y="49" width="26" height="55" data-tip="T3 2025 : 8,0 % - source INSEE"></rect>
+      <rect class="barre" x="202" y="51" width="26" height="53" data-tip="T4 2025 : 7,9 % - source INSEE"></rect>
+      <rect class="barre" x="238" y="51" width="26" height="53" data-tip="T1 2026 : 7,9 % - source INSEE"></rect>
+      <rect class="barre" x="274" y="54" width="26" height="50" data-tip="T2 2026 (provisoire) : 7,8 % - source INSEE"></rect>
+      <text class="val" x="35"  y="37" text-anchor="middle">8,3</text>
+      <text class="val" x="71"  y="40" text-anchor="middle">8,2</text>
+      <text class="val" x="107" y="42" text-anchor="middle">8,1</text>
+      <text class="val" x="143" y="44" text-anchor="middle">8,0</text>
+      <text class="val" x="179" y="44" text-anchor="middle">8,0</text>
+      <text class="val" x="215" y="46" text-anchor="middle">7,9</text>
+      <text class="val" x="251" y="46" text-anchor="middle">7,9</text>
+      <text class="val" x="287" y="49" text-anchor="middle">7,8</text>
+      <text x="35" y="117" text-anchor="middle">T3 24</text>
+      <text x="107" y="117" text-anchor="middle">T1 25</text>
+      <text x="179" y="117" text-anchor="middle">T3 25</text>
+      <text x="251" y="117" text-anchor="middle">T1 26</text>
+      <text x="287" y="117" text-anchor="middle">T2 26</text>
+    </svg>
+    <p class="detail" style="margin:0">Le chiffre est &eacute;crit au-dessus de chaque barre. Au survol (ou au toucher), la barre affiche le trimestre, la valeur et la source. Les cases ci-dessus ajoutent la r&eacute;gion et la France en courbes (m&ecirc;me unit&eacute;).</p>
+    </div>
+    </details>
+    <p class="source">D'apr&egrave;s l'INSEE, &laquo; taux de ch&ocirc;mage localis&eacute; &raquo;, donn&eacute;es du 1<sup>er</sup> trimestre 2026 (le 2<sup>e</sup> est provisoire).
+      <button type="button" class="pastille-source">&#128279; Ouvrir la page de l'INSEE</button></p>
+    <p class="a-lire-avec ensemble-seulement">&#128279; &Agrave; lire avec : <button type="button" class="lien-interne">le nombre de personnes qui cherchent un emploi</button> (une baisse du taux qui ne s'accompagne pas d'une baisse des inscrits vient souvent de sorties de liste).</p>
+  </div>
+
+  <!-- Indicateur 2 : demandeurs d'emploi -->
+  <div class="indic">
+    <p class="q">Combien de personnes cherchent un emploi sans en avoir&nbsp;?</p>
+    <p class="valeur"><span class="chiffre" data-source="France Travail / DARES - statistiques du marche du travail (STMT) - T2 2026">environ 19&nbsp;000</span></p>
+    <span class="tendance">&#8594; &agrave; peu pr&egrave;s stable</span>
+    <p class="phrase">Environ <span class="chiffre">19&nbsp;000 personnes</span> sont inscrites &agrave; France Travail en Dordogne et n'ont pas travaill&eacute; du tout ce mois-ci (on dit &laquo; cat&eacute;gorie A &raquo;).</p>
+    <p class="compare"><b>Il y a un trimestre&nbsp;:</b> <span class="chiffre">19&nbsp;100</span> &nbsp;&bull;&nbsp; <b>il y a un an&nbsp;:</b> <span class="chiffre">19&nbsp;600</span></p>
+    <details class="bloc-depli">
+      <summary><span class="titre-depli">Le d&eacute;tail : cat&eacute;gories A, B et C</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">En comptant aussi les personnes qui ont travaill&eacute; quelques heures.</span></summary>
+      <div class="corps">
+        <p>En comptant aussi les personnes qui ont travaill&eacute; quelques heures (cat&eacute;gories B et C), on arrive &agrave; environ <span class="chiffre">31&nbsp;000 personnes</span> tenues de chercher un emploi.</p>
+        <div class="graph-legende">
+          <span><i></i> A : aucune activit&eacute;</span>
+          <span><i class="b"></i> B : activit&eacute; r&eacute;duite courte</span>
+          <span><i class="c"></i> C : activit&eacute; r&eacute;duite longue</span>
+        </div>
+        <svg class="mini-graph" viewBox="0 0 320 128" role="img" aria-label="Inscrits par categorie, quatre trimestres"
+             onmousemove="graphTip(event)" onmouseleave="graphTipHide()">
+          <line class="axe" x1="18" y1="104" x2="312" y2="104"></line>
+          <rect class="seg-a" x="40"  y="56" width="40" height="48" data-tip="T3 2025 - cat. A : 19 200 personnes"></rect>
+          <rect class="seg-b" x="40"  y="44" width="40" height="12" data-tip="T3 2025 - cat. B : 4 500 personnes"></rect>
+          <rect class="seg-c" x="40"  y="26" width="40" height="18" data-tip="T3 2025 - cat. C : 7 400 personnes"></rect>
+          <text class="val" x="60" y="21" text-anchor="middle">31 100</text>
+          <rect class="seg-a" x="120" y="56" width="40" height="48" data-tip="T4 2025 - cat. A : 19 000 personnes"></rect>
+          <rect class="seg-b" x="120" y="45" width="40" height="11" data-tip="T4 2025 - cat. B : 4 450 personnes"></rect>
+          <rect class="seg-c" x="120" y="27" width="40" height="18" data-tip="T4 2025 - cat. C : 7 350 personnes"></rect>
+          <text class="val" x="140" y="22" text-anchor="middle">30 800</text>
+          <rect class="seg-a" x="200" y="57" width="40" height="47" data-tip="T1 2026 - cat. A : 18 900 personnes"></rect>
+          <rect class="seg-b" x="200" y="46" width="40" height="11" data-tip="T1 2026 - cat. B : 4 400 personnes"></rect>
+          <rect class="seg-c" x="200" y="28" width="40" height="18" data-tip="T1 2026 - cat. C : 7 300 personnes"></rect>
+          <text class="val" x="220" y="23" text-anchor="middle">30 600</text>
+          <rect class="seg-a" x="280" y="58" width="40" height="46" data-tip="T2 2026 - cat. A : 19 000 personnes"></rect>
+          <rect class="seg-b" x="280" y="47" width="40" height="11" data-tip="T2 2026 - cat. B : 4 400 personnes"></rect>
+          <rect class="seg-c" x="280" y="29" width="40" height="18" data-tip="T2 2026 - cat. C : 7 200 personnes"></rect>
+          <text class="val" x="300" y="24" text-anchor="middle">30 600</text>
+          <text x="60"  y="117" text-anchor="middle">T3 25</text>
+          <text x="140" y="117" text-anchor="middle">T4 25</text>
+          <text x="220" y="117" text-anchor="middle">T1 26</text>
+          <text x="300" y="117" text-anchor="middle">T2 26</text>
+        </svg>
+        <p class="detail" style="margin:0">Le total est &eacute;crit au-dessus de chaque colonne. Le survol d'un morceau donne le nombre de cette cat&eacute;gorie.</p>
+      </div>
+    </details>
+    <p class="source">D'apr&egrave;s France Travail et la DARES (statistiques du march&eacute; du travail), donn&eacute;es du 2<sup>e</sup> trimestre 2026. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+  </div>
+
+  <!-- Indicateur 3 : longue duree -->
+  <div class="indic">
+    <p class="q">La difficult&eacute; est-elle passag&egrave;re ou install&eacute;e&nbsp;?</p>
+    <p class="valeur"><span class="chiffre" data-source="Observatoire des territoires (donnees France Travail) - T2 2026">environ 1 sur 2</span></p>
+    <span class="tendance">&#8600; en l&eacute;g&egrave;re baisse</span>
+    <p class="phrase">Parmi les personnes qui cherchent un emploi, <span class="chiffre">environ une sur deux</span> est inscrite depuis plus d'un an (<span class="chiffre">48&nbsp;%</span>).</p>
+    <p class="compare"><b>Il y a un an&nbsp;:</b> <span class="chiffre">50&nbsp;%</span> &nbsp;&bull;&nbsp; <b>Nouvelle-Aquitaine&nbsp;:</b> <span class="chiffre">45&nbsp;%</span> &nbsp;&bull;&nbsp; <b>France&nbsp;:</b> <span class="chiffre">46&nbsp;%</span></p>
+    <p class="source">D'apr&egrave;s l'Observatoire des territoires (donn&eacute;es France Travail), 2<sup>e</sup> trimestre 2026. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+  </div>
+
+  <!-- Indicateur 4 : emploi salarie -->
+  <div class="indic">
+    <p class="q">Le territoire cr&eacute;e ou perd des emplois&nbsp;?</p>
+    <p class="valeur"><span class="chiffre" data-source="INSEE - estimations trimestrielles d'emploi salarie - T2 2026">+0,2&nbsp;% ce trimestre</span></p>
+    <span class="tendance">&#8599; en l&eacute;g&egrave;re hausse</span>
+    <p class="phrase">La Dordogne compte environ <span class="chiffre">95&nbsp;000 emplois salari&eacute;s</span>. Sur le trimestre, ce nombre a un peu augment&eacute; (environ <span class="chiffre">200 emplois</span> de plus).</p>
+    <p class="compare"><b>Sur un an&nbsp;:</b> <span class="chiffre">+0,5&nbsp;%</span> &nbsp;&bull;&nbsp; <b>Nouvelle-Aquitaine&nbsp;:</b> <span class="chiffre">+0,4&nbsp;%</span> sur un an</p>
+    <p class="source">D'apr&egrave;s l'INSEE (estimations trimestrielles d'emploi), 2<sup>e</sup> trimestre 2026. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+  </div>
+
+  <!-- Indicateur 5 : offres -->
+  <div class="indic">
+    <p class="q">Y a-t-il des offres visibles, et sont-elles stables&nbsp;?</p>
+    <p class="valeur"><span class="chiffre" data-source="France Travail - offres d'emploi et recrutements - T2 2026">environ 4&nbsp;200 offres</span></p>
+    <span class="tendance">&#8594; &agrave; peu pr&egrave;s stable</span>
+    <p class="phrase">Environ <span class="chiffre">4&nbsp;200 offres d'emploi</span> ont &eacute;t&eacute; d&eacute;pos&eacute;es &agrave; France Travail en Dordogne ce trimestre. Parmi elles, <span class="chiffre">environ 6 sur 10</span> sont des contrats durables (CDI ou CDD de plus de six mois).</p>
+    <p class="compare"><b>Il y a un an&nbsp;:</b> <span class="chiffre">4&nbsp;350 offres</span>, dont <span class="chiffre">60&nbsp;%</span> durables</p>
+    <div class="encart"><span class="ico">&#8505;&#65039;</span><span>Une offre d&eacute;pos&eacute;e n'est pas une embauche, et beaucoup d'embauches ne passent jamais par une offre publi&eacute;e (candidature spontan&eacute;e, r&eacute;seau, int&eacute;rim).</span></div>
+    <p class="source">D'apr&egrave;s France Travail (offres d'emploi et recrutements), 2<sup>e</sup> trimestre 2026. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+  </div>
+
+  <h2>Les trimestres pr&eacute;c&eacute;dents</h2>
+  <p class="section-intro">Retrouver les m&ecirc;mes cinq chiffres pour les photos plus anciennes.</p>
+  <div class="digest-archive">
+    <button class="btn mini" disabled>1<sup>er</sup> trimestre 2026 (janvier &agrave; mars)</button>
+    <button class="btn mini" disabled>4<sup>e</sup> trimestre 2025 (octobre &agrave; d&eacute;cembre)</button>
+  </div>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Ce qu'il faut savoir avant de lire ces chiffres</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Six pi&egrave;ges de lecture &agrave; conna&icirc;tre pour ne pas se tromper.</span></summary>
+    <div class="corps">
+      <ul class="liste-fine">
+        <li><b>&laquo; Personnes qui cherchent un emploi &raquo; n'est pas &laquo; ch&ocirc;mage &raquo; au sens de l'INSEE.</b> France Travail compte des personnes inscrites ; l'INSEE mesure autre chose, par enqu&ecirc;te. Le second nombre est plus &eacute;troit.</li>
+        <li><b>Le ch&ocirc;mage peut baisser sans plus d'emplois.</b> Des personnes sortent des listes : formation, maladie, d&eacute;couragement, changement de cat&eacute;gorie.</li>
+        <li><b>Le dernier trimestre de l'INSEE est provisoire</b> : il peut &ecirc;tre revu.</li>
+        <li><b>Un seul trimestre ne fait pas une tendance</b> : regardez l'&eacute;volution sur un an.</li>
+        <li><b>Effet de saison</b> : comparez toujours au m&ecirc;me trimestre de l'ann&eacute;e pr&eacute;c&eacute;dente.</li>
+        <li><b>Depuis la loi pour le plein emploi (2025)</b>, la fa&ccedil;on de compter certaines personnes a chang&eacute; : &ccedil;a peut faire varier les chiffres sans que le march&eacute; bouge.</li>
+      </ul>
+      <div class="btn-rangee">
+        <button class="btn mini" onclick="aller('annexe')">Fiche : comment lire un taux de ch&ocirc;mage</button>
+        <button class="btn mini" onclick="aller('annexe')">Fiche : taux INSEE ou personnes inscrites&nbsp;?</button>
+        <button class="btn mini" onclick="aller('annexe')">Fiche : comment lire une &eacute;volution</button>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">L'&acirc;ge de la population</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">La structure par &acirc;ge aide &agrave; comprendre le reste (emploi, secteurs).</span></summary>
+    <div class="corps">
+      <p>En Dordogne, la population est plus &acirc;g&eacute;e que la moyenne&nbsp;: <span class="chiffre">environ 1 personne sur 3</span> a 60 ans ou plus (contre <span class="chiffre">1 sur 4</span> en France). Les moins de 25 ans sont <span class="chiffre">environ 1 sur 4</span>.</p>
+      <p class="detail">C'est une des raisons pour lesquelles la sant&eacute; et l'aide &agrave; domicile p&egrave;sent autant dans l'emploi local, et que le premier employeur du d&eacute;partement est une structure m&eacute;dico-sociale.</p>
+      <p class="source">D'apr&egrave;s l'INSEE, recensement de la population. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Le niveau de formation</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Le niveau d'&eacute;tudes des 25-64 ans du d&eacute;partement.</span></summary>
+    <div class="corps">
+      <p>Parmi les 25-64 ans en Dordogne&nbsp;: <span class="chiffre" data-source="INSEE, recensement de la population">environ 25&nbsp;%</span> sans dipl&ocirc;me ou brevet seul, <span class="chiffre" data-source="INSEE, recensement">environ 30&nbsp;%</span> un CAP ou un BEP, <span class="chiffre" data-source="INSEE, recensement">environ 20&nbsp;%</span> le bac, <span class="chiffre" data-source="INSEE, recensement">environ 25&nbsp;%</span> un dipl&ocirc;me du sup&eacute;rieur.</p>
+      <p style="margin:.3rem 0 0"><b>Jeunes sortis du syst&egrave;me scolaire sans dipl&ocirc;me ni formation</b> (18-24 ans)&nbsp;: <span class="chiffre" data-source="INSEE / minist&egrave;re de l'&Eacute;ducation nationale">environ 1 sur 8</span>. Un rep&egrave;re fort pour l'accompagnement des jeunes.</p>
+      <p class="detail">La part de personnes peu dipl&ocirc;m&eacute;es est un peu plus &eacute;lev&eacute;e qu'en moyenne nationale&nbsp;: un rep&egrave;re pour adapter l'accompagnement, jamais un jugement sur une personne.</p>
+      <p class="source">D'apr&egrave;s l'INSEE, recensement de la population. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Zone d'emploi ou bassin d'emploi&nbsp;?</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Comment l'INSEE d&eacute;coupe le territoire, et pourquoi &ccedil;a compte.</span></summary>
+    <div class="corps">
+      <p>L'INSEE publie ses chiffres par <b>zone d'emploi</b> : un d&eacute;coupage construit autour des trajets domicile-travail (environ 300 en France). La Dordogne en compte quatre principales, autour de P&eacute;rigueux, Bergerac, Sarlat et Nontron.</p>
+      <p>Le <b>bassin d'emploi</b> dont on parle localement n'a pas toujours les m&ecirc;mes limites. Chaque graphique de ce module indique lequel il utilise.</p>
+    </div>
+  </details>
+
+  <!-- ---- COUCHE 2 : le portrait du territoire ---- -->
+  <h2>Le portrait du territoire</h2>
+  <p class="section-intro">Des rep&egrave;res de fond sur l'&eacute;conomie locale, mis &agrave; jour <b>une fois par an</b>. Chaque rubrique est ferm&eacute;e : ouvrez celles qui vous int&eacute;ressent, une par une. Plut&ocirc;t pour un professionnel de l'insertion, mais accessible &agrave; tous.<br><span style="font-size:.82rem">&#128197; Portrait arr&ecirc;t&eacute; en <b>2026</b>. Prochaine mise &agrave; jour pr&eacute;vue : <b>&eacute;t&eacute; 2027</b>.</span></p>
+
+  <!-- Bloc FREINS : replie, meme traitement que les autres, pas de couleur alarmiste. -->
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Les freins &agrave; l'emploi sur le territoire</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Les difficult&eacute;s concr&egrave;tes qui reviennent le plus souvent, avec un ordre de grandeur.</span></summary>
+    <div class="corps">
+    <p class="detail" style="margin:.1rem 0 .5rem">Chiffres d'<b>exemple</b> : le vrai bloc donnera, pour chaque frein, une estimation et sa source (&eacute;tudes France Travail / DARES au niveau national ; observatoires r&eacute;gionaux quand ils existent ; rarement au niveau d&eacute;partemental).</p>
+    <div class="tab-scroll"><table class="synthese">
+      <tr><th>Frein</th><th>D&eacute;partement</th><th>N.-Aquitaine</th><th>France</th></tr>
+      <tr><td>Mobilit&eacute; (pas de permis, pas de v&eacute;hicule, transports)</td><td><span class="chiffre" data-source="France Travail / DARES - etudes sur les freins peripheriques (national)">~1 sur 4</span></td><td><span class="chiffre" data-source="Observatoire regional emploi-formation">~1 sur 4</span></td><td><span class="chiffre" data-source="DARES">~1 sur 5</span></td></tr>
+      <tr><td>Sant&eacute; (probl&egrave;me de sant&eacute; qui limite le travail)</td><td><span class="chiffre" data-source="France Travail / DARES (national)">~1 sur 5</span></td><td>&mdash;</td><td><span class="chiffre" data-source="DARES">~1 sur 5</span></td></tr>
+      <tr><td>Acc&egrave;s et ma&icirc;trise du num&eacute;rique</td><td><span class="chiffre" data-source="INSEE / France Travail (national)">~1 sur 6</span></td><td>&mdash;</td><td><span class="chiffre" data-source="INSEE">~1 sur 6</span></td></tr>
+      <tr><td>Garde d'enfant (parmi les parents)</td><td><span class="chiffre" data-source="CAF / DARES (national)">~1 sur 8</span></td><td>&mdash;</td><td><span class="chiffre" data-source="DARES">~1 sur 8</span></td></tr>
+      <tr><td>Logement (instable, insalubre, trop &eacute;loign&eacute;)</td><td><span class="chiffre" data-source="DIHAL / DARES (national)">~1 sur 10</span></td><td>&mdash;</td><td><span class="chiffre" data-source="DARES">~1 sur 10</span></td></tr>
+      <tr><td>Ma&icirc;trise du fran&ccedil;ais</td><td><span class="chiffre" data-source="OFII / ANLCI (national)">~1 sur 10</span></td><td>&mdash;</td><td><span class="chiffre" data-source="ANLCI">~1 sur 12</span></td></tr>
+      <tr><td>Savoirs de base (lire, &eacute;crire, compter)</td><td><span class="chiffre" data-source="ANLCI (national)">~1 sur 10</span></td><td>&mdash;</td><td><span class="chiffre" data-source="ANLCI">~1 sur 10</span></td></tr>
+      <tr><td>Difficult&eacute;s financi&egrave;res (avancer les frais d'une reprise d'emploi)</td><td><span class="chiffre" data-source="Banque de France / France Travail (national)">fr&eacute;quent</span></td><td>&mdash;</td><td><span class="chiffre" data-source="France Travail">fr&eacute;quent</span></td></tr>
+      <tr><td>D&eacute;marches administratives (papiers, droits non ouverts)</td><td><span class="chiffre" data-source="France Travail (national)">fr&eacute;quent</span></td><td>&mdash;</td><td><span class="chiffre" data-source="France Travail">fr&eacute;quent</span></td></tr>
+      <tr><td>Isolement, absence de r&eacute;seau</td><td><span class="chiffre" data-source="Enquetes qualitatives - a chiffrer">difficile &agrave; chiffrer</span></td><td>&mdash;</td><td>&mdash;</td></tr>
+    </table></div>
+    <p class="detail" style="margin:.3rem 0 0">Une personne peut cumuler plusieurs freins. Ces chiffres d&eacute;crivent une population, jamais une personne. Au niveau <b>Union europ&eacute;enne</b>, seuls quelques freins sont comparables (garde d'enfant, sant&eacute;, formation) : voir la pastille &laquo;&nbsp;Union europ&eacute;enne&nbsp;&raquo;.</p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Population et densit&eacute;</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Combien d'habitants, et &agrave; quel point le territoire est peupl&eacute;.</span></summary>
+    <div class="corps">
+      <div class="tab-scroll"><table class="synthese">
+        <tr><th></th><th>Population</th><th>Densit&eacute; (hab. / km&sup2;)</th></tr>
+        <tr><td>Dordogne (24)</td><td><span class="chiffre" data-source="INSEE, recensement de la population">~410 000</span></td><td><span class="chiffre" data-source="INSEE">~45</span></td></tr>
+        <tr><td>Nouvelle-Aquitaine</td><td><span class="chiffre" data-source="INSEE">~6,1 millions</span></td><td><span class="chiffre" data-source="INSEE">~73</span></td></tr>
+        <tr><td>France</td><td><span class="chiffre" data-source="INSEE">~68 millions</span></td><td><span class="chiffre" data-source="INSEE">~106</span></td></tr>
+      </table></div>
+      <p style="margin:.3rem 0 0"><b>&Eacute;volution&nbsp;:</b> la population de la Dordogne est <span class="chiffre" data-source="INSEE, recensement">&agrave; peu pr&egrave;s stable</span> (l&eacute;g&egrave;re baisse sur dix ans), portée par l'arriv&eacute;e de nouveaux habitants qui compense un solde naturel n&eacute;gatif.</p>
+      <p class="detail" style="margin:.2rem 0 0">La Dordogne est un d&eacute;partement <b>peu dense et &eacute;tendu</b> : c'est une des raisons des trajets longs, du poids de la mobilit&eacute; comme frein, et de la place des services de proximit&eacute; (aide &agrave; domicile, sant&eacute;) dans l'emploi.</p>
+      <p class="source">D'apr&egrave;s l'INSEE, recensement. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">De quoi vit le territoire</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Taille des entreprises, secteurs qui emploient le plus.</span></summary>
+    <div class="corps">
+      <h4>Taille des entreprises</h4>
+      <p>Le tissu &eacute;conomique de la Dordogne est fait surtout de <b>petites structures</b> : <span class="chiffre">environ 9 entreprises sur 10</span> ont moins de <span class="chiffre">10 salari&eacute;s</span>. Les grandes entreprises (plus de <span class="chiffre">250 salari&eacute;s</span>) sont rares mais p&egrave;sent lourd dans l'emploi.</p>
+      <h4>Les grands secteurs qui emploient</h4>
+      <ul class="liste-fine">
+        <li>Services (commerce, tourisme, transport...) : la plus grosse part</li>
+        <li>Sant&eacute; et action sociale : en forte demande</li>
+        <li>Agriculture et agroalimentaire : plus pr&eacute;sent qu'ailleurs en France</li>
+        <li>Construction ; industrie</li>
+      </ul>
+      <p class="source">D'apr&egrave;s l'INSEE, portrait &eacute;conomique du d&eacute;partement, ann&eacute;e 2024. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Comment on est embauch&eacute; ici</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">CDI, CDD, contrats courts, int&eacute;rim, temps partiel.</span></summary>
+    <div class="corps">
+      <p><b>Type de contrat &agrave; l'embauche&nbsp;:</b> une grande partie des embauches se font en CDD, souvent courts. Le CDI reste plus fr&eacute;quent pour les postes stables.</p>
+      <p><b>Contrats tr&egrave;s courts (moins d'un mois)&nbsp;:</b> une part importante des embauches, surtout dans l'h&ocirc;tellerie-restauration et l'agriculture.</p>
+      <p><b>Int&eacute;rim&nbsp;:</b> plus pr&eacute;sent dans l'industrie et la logistique. Ailleurs, c'est plut&ocirc;t rare.</p>
+      <p><b>Temps partiel&nbsp;:</b> fr&eacute;quent dans les services &agrave; la personne, le commerce et le nettoyage. <button type="button" class="lien-interne">Voir la fiche &laquo; temps partiel choisi ou subi &raquo;</button></p>
+      <p class="source">D'apr&egrave;s la DARES (d&eacute;clarations d'embauche) et l'INSEE, ann&eacute;e 2025. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Le march&eacute; n'est pas le m&ecirc;me pour tout le monde</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">R&eacute;partition femmes / hommes par secteur, &eacute;cart de salaire.</span></summary>
+    <div class="corps">
+      <p>Selon les secteurs, la part de femmes et d'hommes est tr&egrave;s diff&eacute;rente : les services &agrave; la personne et la sant&eacute; emploient surtout des femmes ; la construction et l'industrie, surtout des hommes.</p>
+      <p>&Agrave; poste et temps de travail comparables, il reste en Nouvelle-Aquitaine un <span class="chiffre">&eacute;cart de salaire d'environ 13&nbsp;%</span> en d&eacute;faveur des femmes, plus marqu&eacute; dans certains secteurs.</p>
+      <p class="detail">On pr&eacute;sente ce chiffre comme un rep&egrave;re, sans en tirer de conclusion sur une situation personnelle.</p>
+      <p class="source">D'apr&egrave;s l'INSEE, donn&eacute;es r&eacute;gionales, ann&eacute;e 2024. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Salaires par secteur</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Salaire net m&eacute;dian par grand secteur (ordre de grandeur).</span></summary>
+    <div class="corps">
+      <div class="tab-scroll"><table class="mini">
+        <tr><th>Secteur</th><th>Salaire net mensuel m&eacute;dian (temps plein)</th></tr>
+        <tr><td>Industrie</td><td><span class="chiffre">environ 2&nbsp;100&nbsp;&euro;</span></td></tr>
+        <tr><td>Construction</td><td><span class="chiffre">environ 1&nbsp;900&nbsp;&euro;</span></td></tr>
+        <tr><td>Commerce</td><td><span class="chiffre">environ 1&nbsp;750&nbsp;&euro;</span></td></tr>
+        <tr><td>H&ocirc;tellerie-restauration</td><td><span class="chiffre">environ 1&nbsp;650&nbsp;&euro;</span></td></tr>
+        <tr><td>Sant&eacute; et action sociale</td><td><span class="chiffre">environ 1&nbsp;900&nbsp;&euro;</span></td></tr>
+      </table></div>
+      <p class="detail">&laquo; M&eacute;dian &raquo; veut dire : la moiti&eacute; des salaires sont en dessous, la moiti&eacute; au-dessus. &Ccedil;a d&eacute;pend fortement du poste, de l'anciennet&eacute; et du temps de travail. Ce sont des chiffres r&eacute;gionaux ou nationaux, pas d&eacute;partementaux.</p>
+      <p class="source">D'apr&egrave;s l'INSEE, salaires par secteur, ann&eacute;e 2023-2024. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Qui cherche un emploi ici</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">R&eacute;partition par &acirc;ge, nombre de personnes accompagn&eacute;es au titre du RSA.</span></summary>
+    <div class="corps">
+      <p><b>&Acirc;ge des personnes qui cherchent un emploi&nbsp;:</b> <span class="chiffre">environ 15&nbsp;%</span> ont moins de 25 ans, <span class="chiffre">environ 30&nbsp;%</span> ont 50 ans et plus. Les personnes de 50 ans et plus restent en moyenne inscrites plus longtemps.</p>
+      <p><b>RSA&nbsp;:</b> <span class="chiffre">environ 12&nbsp;000 personnes</span> sont accompagn&eacute;es au titre du RSA dans le d&eacute;partement.</p>
+      <p class="detail">Ces chiffres d&eacute;crivent le territoire. Ils ne disent rien de ce qu'une personne pr&eacute;cise peut faire ou obtenir.</p>
+      <p class="source">D'apr&egrave;s France Travail et la CAF, donn&eacute;es 2025-2026. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="titre-depli">Le territoire bouge-t-il&nbsp;?</span><span class="clic">Cliquez pour ouvrir</span><span class="summary-desc">Cr&eacute;ations d'entreprises, poids de l'emploi li&eacute; au tourisme.</span></summary>
+    <div class="corps">
+      <p><b>Cr&eacute;ations d'entreprises&nbsp;:</b> <span class="chiffre">environ 1&nbsp;400 entreprises</span> cr&eacute;&eacute;es ce trimestre en Dordogne, dont une large part de micro-entreprises. <button type="button" class="lien-interne">Voir le rayon &laquo; Cr&eacute;er son activit&eacute; &raquo;</button></p>
+      <p><b>Tourisme&nbsp;:</b> le tourisme repr&eacute;sente une part importante de l'emploi en Dordogne, surtout l'&eacute;t&eacute;. Beaucoup d'emplois saisonniers.</p>
+      <p class="source">D'apr&egrave;s l'INSEE, cr&eacute;ations d'entreprises (trimestriel) et emploi touristique (annuel). <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+    </div>
+  </details>
+
+  <div class="carte-edito">
+    <span class="marque">&Agrave; savoir - &eacute;crit &agrave; la main</span>
+    <h4 style="margin:.1rem 0">Calendrier de saisonnalit&eacute; en Dordogne</h4>
+    <ul class="liste-fine">
+      <li><b>Printemps :</b> reprise dans l'agriculture, le tourisme, le b&acirc;timent.</li>
+      <li><b>Juillet-ao&ucirc;t :</b> pic dans l'h&ocirc;tellerie-restauration, les campings, les sites touristiques.</li>
+      <li><b>Automne :</b> vendanges, r&eacute;colte de la noix, du tabac.</li>
+      <li><b>Toute l'ann&eacute;e :</b> services &agrave; la personne, sant&eacute;, aide &agrave; domicile.</li>
+    </ul>
+    <p class="detail" style="margin:.2rem 0 0">Repr&egrave;res &eacute;crits &agrave; la main, revus chaque ann&eacute;e. Sources : enqu&ecirc;te BMO de France Travail, Cap M&eacute;tiers Nouvelle-Aquitaine.</p>
+  </div>
+
+  <div class="carte-edito">
+    <span class="marque">&Agrave; savoir - &eacute;crit &agrave; la main</span>
+    <h4 style="margin:.1rem 0">Les gros employeurs du territoire</h4>
+    <p class="detail" style="margin:.1rem 0 .4rem">Pour situer le tissu &eacute;conomique local. Ce n'est pas une liste d'endroits o&ugrave; postuler.</p>
+    <ul class="liste-fine">
+      <li><b>Fondation John Bost</b> (La Force) - sant&eacute; et m&eacute;dico-social - un des plus gros employeurs priv&eacute;s du d&eacute;partement.</li>
+      <li>Centre hospitalier de P&eacute;rigueux - sant&eacute;.</li>
+      <li>Conseil d&eacute;partemental de la Dordogne - administration, action sociale.</li>
+      <li>Grande distribution (plusieurs enseignes) - commerce.</li>
+      <li>Industrie agroalimentaire et du cuir (plusieurs sites) - industrie.</li>
+    </ul>
+    <p class="detail" style="margin:.2rem 0 0">Repr&egrave;res &eacute;crits &agrave; la main, dat&eacute;s. Sources : CCI Dordogne, presse &eacute;conomique locale, Cap M&eacute;tiers.</p>
+  </div>
+
+  <!-- ---- CROISER PLUSIEURS CHIFFRES ---- -->
+  <h2>Croiser plusieurs chiffres</h2>
+  <p class="section-intro">Un outil pour les curieux et les professionnels : mettre deux &agrave; quatre s&eacute;ries sur le m&ecirc;me graphique pour voir comment elles &eacute;voluent ensemble. On ne peut cocher que des s&eacute;ries de <b>m&ecirc;me nature</b> : des pourcentages ensemble, ou des nombres ensemble. Jamais les deux : deux &eacute;chelles diff&eacute;rentes font croire &agrave; un lien qui n'existe pas.</p>
+  <div class="croiser" id="croiser">
+    <fieldset>
+      <legend>Des taux (en %)</legend>
+      <label><input type="checkbox" name="croiser-pct" onchange="croiserMaj()" checked> Taux de ch&ocirc;mage - Dordogne</label>
+      <label><input type="checkbox" name="croiser-pct" onchange="croiserMaj()"> Taux de ch&ocirc;mage - Nouvelle-Aquitaine</label>
+      <label><input type="checkbox" name="croiser-pct" onchange="croiserMaj()"> Taux de ch&ocirc;mage - France</label>
+      <label><input type="checkbox" name="croiser-pct" onchange="croiserMaj()"> Part des inscrits depuis plus d'un an</label>
+      <label><input type="checkbox" name="croiser-pct" onchange="croiserMaj()"> Part des offres durables</label>
+    </fieldset>
+    <fieldset>
+      <legend>Des nombres (personnes, offres)</legend>
+      <label><input type="checkbox" name="croiser-nb" onchange="croiserMaj()"> Demandeurs d'emploi cat&eacute;gorie A</label>
+      <label><input type="checkbox" name="croiser-nb" onchange="croiserMaj()"> Offres d&eacute;pos&eacute;es sur le trimestre</label>
+      <label><input type="checkbox" name="croiser-nb" onchange="croiserMaj()"> Emploi salari&eacute; total</label>
+      <label><input type="checkbox" name="croiser-nb" onchange="croiserMaj()"> Projets de recrutement (BMO)</label>
+    </fieldset>
+    <p class="detail" id="croiserAlerte" hidden style="color:var(--warn)">Vous ne pouvez pas m&eacute;langer un taux et un nombre sur le m&ecirc;me graphique. D&eacute;cochez l'un des deux groupes.</p>
+    <div class="carte plat" style="margin:.5rem 0 0">
+      <p style="margin:.1rem 0"><b>Graphique combin&eacute;</b> (aper&ccedil;u simul&eacute;) : les s&eacute;ries coch&eacute;es s'affichent en courbes, une couleur par s&eacute;rie, avec une l&eacute;gende. L'infobulle au survol donne, pour chaque trimestre, <b>toutes les valeurs actives &agrave; la fois</b>.</p>
+    </div>
+  </div>
+
+  <!-- ---- COUCHE 3 : ce qui se prepare (BMO) ---- -->
+  <h2>Ce que les employeurs pr&eacute;voient d'embaucher cette ann&eacute;e</h2>
+  <p class="section-intro">Une enqu&ecirc;te annuelle aupr&egrave;s des employeurs. Des <b>intentions</b>, pas des embauches garanties.</p>
+  <div class="carte plat">
+    <p class="detail" style="margin-top:0">D'apr&egrave;s l'enqu&ecirc;te <b>Besoins en Main d'&OElig;uvre</b> de France Travail. Ce sont des <b>intentions d'employeurs</b>, pas des embauches garanties. Publi&eacute;e une fois par an, au printemps. &Eacute;dition 2026.</p>
+    <p>Environ <span class="chiffre" data-source="France Travail - enquete Besoins en Main d'Oeuvre (BMO) 2026">9&nbsp;000 projets de recrutement</span> annonc&eacute;s pour l'ann&eacute;e en Dordogne.</p>
+    <h4>Les m&eacute;tiers les plus recherch&eacute;s</h4>
+    <ul class="liste-fine">
+      <li>Aides &agrave; domicile, aides m&eacute;dico-psychologiques</li>
+      <li>Agents d'entretien de locaux</li>
+      <li>Serveurs, employ&eacute;s de restauration</li>
+      <li>Ouvriers agricoles, viticulture</li>
+      <li>Aides-soignants</li>
+    </ul>
+    <p>Environ <span class="chiffre">6 projets sur 10</span> sont jug&eacute;s difficiles &agrave; pourvoir par les employeurs.</p>
+    <p>Environ <span class="chiffre">4 projets sur 10</span> sont saisonniers (beaucoup plus qu'en moyenne nationale).</p>
+    <p><b>Une bonne partie</b> des projets ne demandent pas de dipl&ocirc;me pr&eacute;cis.</p>
+    <div class="encart warn"><span class="ico">&#9888;&#65039;</span><span>&laquo; M&eacute;tier en tension &raquo; ne veut pas dire &laquo; facile d'y entrer &raquo;. La difficult&eacute; peut venir des horaires, de la p&eacute;nibilit&eacute;, de la mobilit&eacute; ou de conditions pr&eacute;cises, pas seulement d'un manque de candidats.</span></div>
+    <p class="source">D'apr&egrave;s France Travail, enqu&ecirc;te BMO 2026. <button type="button" class="pastille-source">&#128279; Ouvrir la page</button></p>
+  </div>
+
+  <!-- ---- encart de prudence ---- -->
+  <div class="encart warn">
+    <span class="ico">&#9888;&#65039;</span>
+    <span>Les <b>chiffres cl&eacute;s</b> sont une <b>photo trimestrielle</b>, dat&eacute;e et sourc&eacute;e, pas un tableau de bord en temps r&eacute;el. Simplifier une statistique peut la d&eacute;former : on &eacute;crit toujours &laquo; d'apr&egrave;s [source], en [date] &raquo;, jamais une v&eacute;rit&eacute;. Un chiffre d&eacute;crit un territoire, jamais une personne.</span>
+  </div>
+
+  <!-- ---- PARTIE B : une autre question ---- -->
+  <h2>Une autre question sur les chiffres</h2>
+  <p class="detail" style="margin-top:.1rem">Pour un chiffre pr&eacute;cis qui n'est pas ci-dessus. L'application pr&eacute;pare un texte de recherche &agrave; copier chez un assistant en ligne. <b>Ces r&eacute;ponses-l&agrave; ne sont pas enregistr&eacute;es</b> : elles sont trait&eacute;es en direct.</p>
+  <button class="porte" onclick="aller('porteA')">
+    <span class="titre">&#128269; J'ai une question chiffr&eacute;e pr&eacute;cise</span>
+    <span class="quoi">Exemple : &laquo; le salaire moyen dans la restauration ici &raquo;, &laquo; le ch&ocirc;mage des moins de 25 ans sur trois ans &raquo;. Une r&eacute;ponse, un graphique.</span>
+  </button>
+  <button class="porte" onclick="aller('porteB')">
+    <span class="titre">&#128506;&#65039; Je veux comprendre mon territoire</span>
+    <span class="quoi">Un panorama plus large du march&eacute; du travail local, en plusieurs sujets que vous choisissez de creuser. Plut&ocirc;t pour un professionnel de l'insertion.</span>
+  </button>
+
+  </div><!-- fin #localView -->
+
+  <p class="detail" style="margin-top:1rem">Transitions simul&eacute;es : le s&eacute;lecteur de territoire ne recharge que quelques valeurs pour la d&eacute;mo. En &laquo; Union europ&eacute;enne &raquo;, l'&eacute;cran montre la France compar&eacute;e &agrave; la moyenne des 27. &laquo; Retour &raquo; ram&egrave;ne au hub.</p>
+</section>
+
+<!-- ================= 3. PORTE A ================= -->
+<section class="vue" data-vue="porteA">
+  <div class="bandeau-ecran"><span class="etiq">Nouvel &eacute;cran</span>
+    <span>Porte 1 : une question chiffr&eacute;e pr&eacute;cise, en un temps. M&ecirc;me principe que &laquo; Affiner ma recherche &raquo; du module Comprendre le cadre.</span></div>
+  <button class="btn-revoir" onclick="aller('chiffres')">&#8592; Revenir aux chiffres</button>
+  <h1>&#128269; Une question chiffr&eacute;e pr&eacute;cise</h1>
+
+  <div class="encart"><span class="ico">&#128274;</span><span>N'&eacute;crivez pas votre nom ni d'information personnelle. D&eacute;crivez seulement le chiffre que vous cherchez. Rien n'est enregistr&eacute;.</span></div>
+  <p><b>Quel chiffre cherchez-vous&nbsp;?</b></p>
+  <textarea class="zone" placeholder="Par exemple : le salaire net moyen dans l'aide &agrave; domicile en Dordogne, et son &eacute;volution sur trois ans."></textarea>
+  <div class="btn-rangee"><button class="btn primaire">Pr&eacute;parer le texte de recherche &#8594;</button></div>
+
+  <h3>Le texte de recherche (aper&ccedil;u)</h3>
+  <div class="zone-prompt">Nous sommes le [date du jour]. Recherche web obligatoire. N'utilise que des pages officielles que tu as r&eacute;ellement ouvertes. Ne fabrique jamais une adresse, un chiffre ni une date.
+
+Une personne que j'accompagne en insertion cherche un chiffre pr&eacute;cis. Sa demande, reformul&eacute;e dans un fran&ccedil;ais clair : &laquo; ... &raquo;
+
+Territoire : la Dordogne. Distingue le d&eacute;partement, la Nouvelle-Aquitaine et la France.
+
+Donne : la derni&egrave;re valeur connue, sa date, la source officielle (INSEE, DARES, France Travail...), la s&eacute;rie des 6 &agrave; 8 derniers trimestres si elle existe, et deux ou trois points d'attention pour bien lire ce chiffre.
+
+R&eacute;ponds toujours en fran&ccedil;ais, en phrases courtes, sans jargon. Pas d'avis sur la personne.
+
+Termine par un bloc [CHIFFRES] ... [/CHIFFRES] (indicateur, territoire, valeur, date, s&eacute;rie, source).</div>
+  <div class="btn-rangee"><button class="btn">&#128203; Copier le texte</button></div>
+
+  <h3>Coller la r&eacute;ponse de l'assistant</h3>
+  <textarea class="zone" placeholder="Collez ici la r&eacute;ponse..."></textarea>
+  <div class="btn-rangee"><button class="btn primaire">Afficher le r&eacute;sultat</button></div>
+
+  <div class="carte" style="border-color:var(--warn);background:var(--warn-bg)">
+    <p style="margin:.1rem 0"><b>Aper&ccedil;u du r&eacute;sultat</b> (simul&eacute;) : l'application met le chiffre en gras, dessine le graphique &agrave; partir de la s&eacute;rie, rappelle la source et la date, et affiche &laquo; cette recherche n'est pas enregistr&eacute;e, copiez-la si vous voulez la garder &raquo;.</p>
+  </div>
+</section>
+
+<!-- ================= 4. PORTE B ================= -->
+<section class="vue" data-vue="porteB">
+  <div class="bandeau-ecran"><span class="etiq">Nouvel &eacute;cran</span>
+    <span>Porte 2 : comprendre le territoire, en deux temps. L'assistant structure un panorama, la personne choisit ce qu'elle creuse. Plut&ocirc;t pour un CIP.</span></div>
+  <button class="btn-revoir" onclick="aller('chiffres')">&#8592; Revenir aux chiffres</button>
+  <h1>&#128506;&#65039; Comprendre mon territoire</h1>
+
+  <p><b>Premier temps.</b> Vous d&eacute;crivez ce que vous voulez comprendre (un bassin d'emploi, un public, un secteur...). L'application pr&eacute;pare un texte de recherche qui demande &agrave; l'assistant un <b>panorama en plusieurs sujets courts</b>, pas un avis.</p>
+  <textarea class="zone" placeholder="Par exemple : je veux comprendre le march&eacute; de l'emploi autour de Bergerac pour des personnes peu qualifi&eacute;es."></textarea>
+  <div class="btn-rangee"><button class="btn primaire">Pr&eacute;parer le texte de recherche &#8594;</button></div>
+
+  <h3>Deuxi&egrave;me temps (aper&ccedil;u)</h3>
+  <p class="detail">Vous collez la r&eacute;ponse. L'application affiche les sujets rep&eacute;r&eacute;s, par exemple :</p>
+  <ul class="liste-fine">
+    <li>Le poids des secteurs autour de Bergerac (viticulture, tourisme, industrie)</li>
+    <li>Les contrats propos&eacute;s : saisonniers, temps partiel, dur&eacute;e</li>
+    <li>Les publics d&eacute;j&agrave; nombreux &agrave; chercher un emploi ici</li>
+    <li>Les tensions de recrutement et les m&eacute;tiers concern&eacute;s</li>
+  </ul>
+  <p class="detail">Vous cochez ceux qui vous int&eacute;ressent, l'application pr&eacute;pare un <b>second texte</b> qui creuse seulement ceux-l&agrave;, avec chiffres, sources et dates. Rien n'est enregistr&eacute;.</p>
+
+  <div class="encart"><span class="ico">&#8505;&#65039;</span><span>M&ecirc;me m&eacute;canique que &laquo; Affiner ma recherche &raquo; dans &laquo; Comprendre le cadre &raquo; : structurer d'abord, creuser ensuite. On r&eacute;utilise le m&ecirc;me socle de prompt.</span></div>
+</section>
+
+<!-- ================= ANNEXE ================= -->
+<section class="vue annexe" data-vue="annexe">
+  <h2>Annexe A - Les phrases-types par indicateur du c&oelig;ur</h2>
+  <p class="detail">Pour chaque chiffre cl&eacute;, la phrase change selon que la valeur locale est plus haute, plus basse ou proche de la r&eacute;gion et de la France. Toujours neutre, jamais un jugement.</p>
+
+  <div class="carte plat">
+    <h4>1. Taux de ch&ocirc;mage</h4>
+    <ul class="liste-fine">
+      <li><b>Plus haut&nbsp;:</b> &laquo; En Dordogne, le ch&ocirc;mage est un peu plus &eacute;lev&eacute; qu'en Nouvelle-Aquitaine et qu'en France. &raquo;</li>
+      <li><b>Proche&nbsp;:</b> &laquo; En Dordogne, le ch&ocirc;mage est proche de celui de la r&eacute;gion et de la France. &raquo;</li>
+      <li><b>Plus bas&nbsp;:</b> &laquo; En Dordogne, le ch&ocirc;mage est un peu plus bas qu'en Nouvelle-Aquitaine et qu'en France. &raquo;</li>
+      <li><b>Tendance&nbsp;:</b> &laquo; en l&eacute;g&egrave;re baisse &raquo; / &laquo; &agrave; peu pr&egrave;s stable &raquo; / &laquo; en l&eacute;g&egrave;re hausse &raquo; sur un an.</li>
+    </ul>
+  </div>
+  <div class="carte plat">
+    <h4>2. Personnes qui cherchent un emploi (cat&eacute;gorie A)</h4>
+    <ul class="liste-fine">
+      <li><b>En hausse&nbsp;:</b> &laquo; Il y a un peu plus de personnes inscrites qu'il y a un an. &raquo;</li>
+      <li><b>Stable&nbsp;:</b> &laquo; Le nombre de personnes inscrites est &agrave; peu pr&egrave;s le m&ecirc;me qu'il y a un an. &raquo;</li>
+      <li><b>En baisse&nbsp;:</b> &laquo; Il y a un peu moins de personnes inscrites qu'il y a un an. Attention : cela ne veut pas forc&eacute;ment dire qu'elles ont trouv&eacute; un emploi. &raquo;</li>
+    </ul>
+  </div>
+  <div class="carte plat">
+    <h4>3. Dur&eacute;e de recherche (plus d'un an)</h4>
+    <ul class="liste-fine">
+      <li><b>Plus haut&nbsp;:</b> &laquo; Ici, on reste inscrit plus longtemps qu'en moyenne : la difficult&eacute; est souvent plus install&eacute;e. &raquo;</li>
+      <li><b>Proche / plus bas&nbsp;:</b> &laquo; La dur&eacute;e de recherche ici est proche de / plus courte que la moyenne. &raquo;</li>
+    </ul>
+  </div>
+  <div class="carte plat">
+    <h4>4. Emploi salari&eacute;</h4>
+    <ul class="liste-fine">
+      <li><b>Hausse&nbsp;:</b> &laquo; Le nombre d'emplois a un peu augment&eacute; ce trimestre. &raquo;</li>
+      <li><b>Stable&nbsp;:</b> &laquo; Le nombre d'emplois est &agrave; peu pr&egrave;s stable. &raquo;</li>
+      <li><b>Baisse&nbsp;:</b> &laquo; Le nombre d'emplois a un peu baiss&eacute; ce trimestre. &raquo;</li>
+    </ul>
+  </div>
+  <div class="carte plat">
+    <h4>5. Offres d'emploi</h4>
+    <ul class="liste-fine">
+      <li><b>Plus / moins qu'un an avant&nbsp;:</b> &laquo; Il y a un peu plus / un peu moins d'offres d&eacute;pos&eacute;es qu'il y a un an. &raquo;</li>
+      <li><b>Part durable&nbsp;:</b> &laquo; Environ X offres sur 10 sont des contrats durables (CDI ou CDD de plus de six mois). &raquo;</li>
+    </ul>
+  </div>
+
+  <h2>Annexe B - Le format du fichier de contenu</h2>
+  <p class="detail">La photo du trimestre vient d'un fichier <code>contenu/chiffres/2026-06.md</code> produit par l'outil de veille (bloc <code>[CHIFFRES]</code>, d&eacute;j&agrave; d&eacute;fini dans <code>docs/VEILLE_PROMPTS.md</code> section 5ter). Le portrait du territoire vient d'un fichier annuel s&eacute;par&eacute; <code>contenu/chiffres/portrait-2026.md</code>. Rien n'est stock&eacute; pour la partie &laquo; une autre question &raquo;.</p>
+
+  <button class="btn" onclick="aller('chiffres')">Revenir &agrave; l'&eacute;cran principal</button>
+</section>
+
+</main>
+
+<div class="barre-bas">
+  <div class="barre-bas-row">
+    <button class="btn" onclick="retour()">&#8592; Retour</button>
+    <span id="retourInfo"></span>
+    <button class="btn fantome" onclick="aller('hub')">Accueil</button>
+  </div>
+</div>
+<div class="graph-tip" id="graphTip"></div>
+
+<script>
+  var vues = Array.prototype.slice.call(document.querySelectorAll('.vue'));
+  var cibleRetour = { hub:'hub', intro:'hub', chiffres:'hub', porteA:'chiffres', porteB:'chiffres', annexe:'chiffres' };
+  var infoRetour = {
+    hub: "Retour : sort du hub vers la Boite a outils.",
+    intro: "Retour : ramene au hub Se tenir informe.",
+    chiffres: "Retour : ramene au hub Se tenir informe.",
+    porteA: "Retour : ramene a l'ecran principal.",
+    porteB: "Retour : ramene a l'ecran principal.",
+    annexe: "Retour : annexe de maquette."
+  };
+  function aller(nom) {
+    vues.forEach(function (v) { v.classList.toggle('active', v.dataset.vue === nom); });
+    var sel = document.getElementById('devnav'); if (sel) sel.value = nom;
+    document.getElementById('retourInfo').textContent = infoRetour[nom] || '';
+    window.scrollTo(0, 0);
+  }
+  function retour() {
+    var actif = vues.filter(function (v) { return v.classList.contains('active'); })[0];
+    aller(cibleRetour[actif ? actif.dataset.vue : 'hub'] || 'hub');
+  }
+  var deptDemo = '24'; // 24 = Dordogne, 87 = Haute-Vienne
+  var DEPT = { '24': 'la Dordogne (24)', '87': 'la Haute-Vienne (87)' };
+  // Valeurs de demo : chomage selon le niveau de lecture choisi.
+  var DEMO = {
+    '24': { nom: 'la Dordogne', val: '7,8&nbsp;%', phrase: '8', an: '8,1&nbsp;%', trim: '7,9&nbsp;%' },
+    '87': { nom: 'la Haute-Vienne', val: '7,1&nbsp;%', phrase: '7', an: '7,4&nbsp;%', trim: '7,2&nbsp;%' },
+    'na': { nom: 'la Nouvelle-Aquitaine', val: '6,8&nbsp;%', phrase: '7', an: '7,0&nbsp;%', trim: '6,9&nbsp;%' },
+    'fr': { nom: 'la France enti&egrave;re', val: '7,3&nbsp;%', phrase: '7', an: '7,5&nbsp;%', trim: '7,4&nbsp;%' }
+  };
+  function appliquerDemo(t) {
+    var key = (t === '24') ? deptDemo : t;
+    var d = DEMO[key];
+    document.getElementById('nivActif').innerHTML = (t === '24') ? d.nom : d.nom;
+    document.getElementById('demoChoVal').innerHTML = d.val;
+    document.getElementById('demoChoPhrase').innerHTML = d.phrase + ' sont au ch&ocirc;mage';
+    document.getElementById('demoChoTrim').innerHTML = d.trim;
+    document.getElementById('demoChoAn').innerHTML = d.an;
+  }
+  function setTerritoire(t) {
+    Array.prototype.forEach.call(document.querySelectorAll('#terrChoix button'), function (b) {
+      b.classList.toggle('actif', b.getAttribute('data-t') === t);
+    });
+    var ue = (t === 'ue');
+    document.getElementById('ueView').hidden = !ue;
+    document.getElementById('localView').hidden = ue;
+    if (!ue) {
+      appliquerDemo(t);
+    }
+    // Demo : au niveau local, seule la carte "chomage" change ici. La vraie
+    // version recharge TOUS les chiffres pour le niveau choisi. Au niveau
+    // "Union europeenne", l'ecran montre la France comparee a la moyenne UE-27.
+  }
+  function changerDept() {
+    deptDemo = (deptDemo === '24') ? '87' : '24';
+    document.getElementById('deptNom').innerHTML = DEPT[deptDemo];
+    var actif = document.querySelector('#terrChoix button.actif').getAttribute('data-t');
+    setTerritoire(actif);
+  }
+  function graphTip(evt) {
+    var t = evt.target.getAttribute && evt.target.getAttribute('data-tip');
+    var tip = document.getElementById('graphTip');
+    if (!t) { tip.style.display = 'none'; return; }
+    tip.textContent = t; tip.style.display = 'block';
+    var x = evt.clientX + 14, y = evt.clientY + 14;
+    if (x + 240 > window.innerWidth) x = evt.clientX - 240;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function graphTipHide() { document.getElementById('graphTip').style.display = 'none'; }
+
+  function setVue(mode) {
+    document.body.classList.toggle('vue-ensemble', mode === 'ensemble');
+    document.getElementById('btnVueSimple').classList.toggle('actif', mode === 'simple');
+    document.getElementById('btnVueEnsemble').classList.toggle('actif', mode === 'ensemble');
+    // En vue d'ensemble : les blocs du portrait s'ouvrent, mais PAS les graphes
+    // "Voir l'evolution" a l'interieur des cartes (on garde ca a la demande,
+    // meme pour un pro - reduit la charge cognitive).
+    Array.prototype.forEach.call(document.querySelectorAll('[data-vue="chiffres"] .bloc-depli'), function (d) {
+      if (d.classList.contains('evolution')) return;
+      if (mode === 'ensemble') { d.setAttribute('open', ''); } else { d.removeAttribute('open'); }
+    });
+  }
+
+  function croiserMaj() {
+    var pct = document.querySelectorAll('#croiser input[name="croiser-pct"]:checked').length;
+    var nb = document.querySelectorAll('#croiser input[name="croiser-nb"]:checked').length;
+    document.getElementById('croiserAlerte').hidden = !(pct > 0 && nb > 0);
+  }
+
+  // Infobulle de source sur CHAQUE chiffre au survol. Si le chiffre porte un
+  // data-source, on l'utilise ; sinon on prend la ligne "source" de son bloc.
+  function sourceDuChiffre(el) {
+    if (el.getAttribute('data-source')) return el.getAttribute('data-source');
+    var bloc = el.closest('.indic, .corps, .carte, .croiser, [data-vue]');
+    var s = bloc && bloc.querySelector('.source');
+    if (s) {
+      var clone = s.cloneNode(true);
+      var b = clone.querySelector('button'); if (b) b.parentNode.removeChild(b);
+      var txt = clone.textContent.replace(/\s+/g, ' ').trim().replace(/^D['’]après\s*/i, '');
+      return txt || 'voir la source en bas de ce bloc';
+    }
+    return 'voir la source en bas de ce bloc';
+  }
+  document.addEventListener('mouseover', function (evt) {
+    var el = evt.target.closest && evt.target.closest('.chiffre');
+    if (!el) return;
+    var tip = document.getElementById('graphTip');
+    tip.textContent = 'Source : ' + sourceDuChiffre(el);
+    tip.style.display = 'block';
+    var x = evt.clientX + 14, y = evt.clientY + 14;
+    if (x + 280 > window.innerWidth) x = evt.clientX - 280;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  });
+  document.addEventListener('mouseout', function (evt) {
+    if (evt.target.closest && evt.target.closest('.chiffre')) graphTipHide();
+  });
+
+  aller('chiffres');
+  appliquerDemo('24');
+</script>
+</body>
+</html>

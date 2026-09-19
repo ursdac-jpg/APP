@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - parcours complet du module « Les mots de votre CV (ATS) ».
+  MODULE CONSTRUIT (étapes 1-10, 2026-09-08). Maquette = cible visuelle de référence.
+
+  Retouche 2026-09-08 (Denis) : « (ATS) » rendu visible à côté du nom (titre, accroche,
+  tuile d'accueil, liste de la carte « Outils d'analyse »). Message ajouté partout où le
+  nom apparaît : ce module n'est PAS un logiciel de tri, il en imite la vérification
+  principale (les mots attendus sont-ils présents ?) et dit lesquels faire ressortir.
+
+  Modèle : docs/MAQUETTE_BILAN_PARCOURS_CONSOLIDE_2026-08-29.html (navigation .vue / data-vue /
+  data-etape / data-retour / data-suivant). Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md.
+  Page de présentation déjà validée reprise à l'écran 1 : docs/MAQUETTE_INTRO_ATS.html.
+  Conception : docs/CHANTIER_ATS.md.
+
+  Décisions validées par Denis le 2026-09-03 :
+    1. Nom : « Les mots de votre CV » (répercussions : tuile d'accueil, route ats-intro,
+       pageIntroAts, titre de MAQUETTE_INTRO_ATS.html, ligne AIDE_PAGES.cv).
+    2. Résultat : les 4 blocs qualitatifs conservés.
+    3. Détection du texte caché : les deux (script au collage + consigne dans le prompt).
+    4. Fiche « Mise en forme et logiciels de tri » : oui, conseils fixes + liens externes.
+    5. Plafond de reformulations proposées : 5 par comparaison.
+    6. Couche connaissances écrite UNE fois, rendue sur deux surfaces : la fenêtre du module
+       (overlay, on ne quitte pas le module) ET la fiche Lexique « ats » / « second-niveau-ats ».
+       Le module se suffit à lui-même ; le Lexique porte la version longue.
+
+  Itération 2026-09-03, retours « oeil neuf » de Denis (LECONS regle 10) appliqués :
+    - Page « Préparer » remise dans l'ordre : 1. Votre CV, 2. La référence, 3. Relire et masquer
+      (en dernier, c'est la vérification juste avant l'envoi).
+    - Un seul geste « avancer » par écran (plus de double bouton contenu + barre du bas).
+    - « Retour » vers l'écran réellement précédent (choix de l'assistant revient à « Relire et masquer »).
+    - Récapitulatif avant l'envoi (ce qui part, ce qui ne part pas).
+    - Écran « Résultat » : les 4 blocs remontés, une seule ligne rassurante en tête, le reste
+      dans un « Bon à savoir sur ce résultat » repliable ; une phrase d'explication sous chaque
+      titre de bloc, visible même replié ; reformulations allégées (piste + une action) ;
+      encart « texte caché » qui commence par « ce n'est pas une accusation » ; carte « Et maintenant ? ».
+    - États particuliers simulables : CV peu fourni, offre très courte.
+    - « Je n'ai pas encore de CV » (renvoi « Créer un CV ») ; « un mot de l'offre m'est inconnu »
+      (renvoi Lexique) ; confidentialité au-delà du nom.
+    - Étape « Emporter » renommée « Ma fiche ».
+
+  Itération 2026-09-03 (suite, retours Denis) :
+    - Bloc « Vos changements prioritaires » à l'écran Résultat, après les 4 blocs : 3 changements
+      concrets au plus, chacun = phrase du CV à modifier + mot de l'offre à employer + condition
+      « si... ». On garde le sens et la vérité ; jamais inventer une compétence ; remplacer un
+      terme générique par le mot exact de l'offre quand le sens correspond.
+      LANGAGE : jamais « score ATS », « compatible ATS », « +X% », « passer le filtre » ; on dit
+      « rapprocher le vocabulaire de votre CV de celui de l'offre » / « plus de chances d'être lu ».
+      Règles à porter dans le PROMPT du module (nouveau bloc de sortie « changements prioritaires »).
+    - FAQ : question « Comment savoir si l'entreprise en utilise un ? » (candidature en ligne =
+      logiciel de tri plus probable ; courriel / main propre = rare).
+    - Rappel « peu d'entreprises l'utilisent, surtout en ligne » aussi dans « Bon à savoir sur ce résultat ».
+
+  Famille de navigation : FAMILLE 2 (dépôt de document + passage par un assistant). Sur les écrans
+  de travail : bouton « Revoir la présentation » + note ; encart « Continuer / Recommencer » + gel
+  + pulse à la reprise ; « Retour » ne saute jamais la présentation.
+
+  Briques partagées réutilisées telles quelles (jamais réinventées ici) :
+    - ouvrirAssistantDepotCV               dépôt du CV (fichier / photo / scan / texte)
+    - htmlVerificationDocument + relectureConfidentialite   relire et masquer avant l'envoi
+    - bilanCorpsCiblageOffreHTML           offre / entreprise / site / type de structure (dette B.1)
+    - htmlChoixAssistantBilanCorps         choix de l'assistant
+    - htmlBanniereTransitionIA             écran « chez l'assistant »
+    - htmlCollageInstantane                coller la réponse (texte jamais visible en mode auto)
+    - reperesBoutonAncre                   « Garder comme Repère »
+    - htmlEncartRepriseModule / appliquerGelModule   reprise + gel + pulse
+    - éditeur d'accroche du CV (Bilan, commit 0ba1fe4) : réutilisé, jamais reconstruit
+    - barre d'étapes visuelle (chantier « harmoniser la barre d'étapes »)
+
+  Thème sombre : classe .dark sur <body> (convention des maquettes du dépôt), PAS [data-theme].
+  Toute couleur en jeton var(--…), valeur claire ET sombre.
+  Accent du module : indigo (placeholder de MAQUETTE_INTRO_ATS.html).
+  Français impeccable, accents partout, aucun tiret cadratin. Boutons rectangulaires à coins
+  arrondis. Icônes = objets, jamais un visage. Jamais le mot « IA » visible : « l'assistant en ligne ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Les mots de votre CV (parcours complet)</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #eef2f7;
+    --border: #dde4ec; --border-strong: #c2ccd8;
+    --text-strong: #16233a; --text: #33404f; --text-muted: #5a6a7e;
+    --accent: #4f46e5; --accent-bg: #ecebfc;
+    --ok: #1a7a4c; --ok-bg: #e3f5ea;
+    --warn: #9a6410; --warn-bg: #fbf1df;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --saumon: #d9663f;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text: #cdd6e1; --text-muted: #9aa8ba;
+    --accent: #a5b4fc; --accent-bg: #23253f;
+    --ok: #6bd39b; --ok-bg: #16311f;
+    --warn: #e2b877; --warn-bg: #33270f;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+    --saumon: #e8896b;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; }
+  h1, h2, h3, h4 { color: var(--text-strong); line-height: 1.3; }
+  h1 { font-size: 1.5rem; margin: .2rem 0 .5rem; }
+  h2 { font-size: 1.12rem; margin: 1.2rem 0 .5rem; }
+  h3 { font-size: 1rem; margin: .9rem 0 .4rem; }
+  p { margin: .5rem 0; }
+  code { background: var(--bg-subtle); padding: 0 .25rem; border-radius: 4px; font-size: .9em; }
+
+  .appbar { position: sticky; top: 0; z-index: 50; background: var(--bg-card);
+    border-bottom: 1px solid var(--border); padding: .6rem 1rem; }
+  .appbar-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+  .appbar-titre { font-weight: 700; color: var(--text-strong); font-size: 1.05rem; }
+  .appbar-outils { margin-left: auto; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  .appbar select, .appbar .mini-btn { font-size: .8rem; padding: .3rem .55rem; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text); cursor: pointer; }
+  .note-maquette { max-width: 900px; margin: .5rem auto 0; font-size: .78rem; color: var(--text-muted);
+    border: 1px dashed var(--border-strong); border-radius: 8px; padding: .4rem .6rem; background: var(--bg-subtle); }
+
+  .etapes { display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: .2rem; margin: .9rem auto 0; max-width: 900px; }
+  .etape { display: flex; align-items: center; gap: .4rem; padding: .3rem .7rem; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted);
+    font-size: .82rem; white-space: nowrap; }
+  .etape .pastille { width: 1.5rem; height: 1.5rem; border-radius: 50%; display: inline-flex;
+    align-items: center; justify-content: center; font-size: .82rem; background: var(--border); color: var(--bg-card); }
+  .etape.faite { color: var(--text); }
+  .etape.faite .pastille { background: var(--ok); color: #fff; }
+  .etape.courante { color: var(--warn); border-color: var(--accent); background: var(--warn-bg);
+    font-weight: 700; box-shadow: 0 0 0 2px var(--accent-bg), 0 0 0 3px var(--accent); }
+  .etape.courante .pastille { background: var(--accent); color: #fff; }
+  .etape-fleche { color: var(--border-strong); font-size: 1rem; }
+  .etape-fleche.avenir { opacity: .4; }
+  .etape-fleche.suivant { color: var(--accent); opacity: 1; animation: chevronClignote 1.6s ease-in-out infinite; }
+  @keyframes chevronClignote { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+  .legende { display: flex; flex-wrap: wrap; gap: .8rem; max-width: 900px; margin: .5rem auto 0;
+    font-size: .76rem; color: var(--text-muted); }
+  .legende span { display: inline-flex; align-items: center; gap: .3rem; }
+  .puce { width: .8rem; height: .8rem; border-radius: 3px; display: inline-block; }
+  .puce.neuf { background: var(--accent); }
+  .puce.existant { background: var(--border-strong); }
+  .puce.simule { background: var(--warn); }
+
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 5.5rem; }
+  .vue { display: none; }
+  .vue.active { display: block; animation: apparait .18s ease; }
+  @keyframes apparait { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .accroche { color: var(--text-muted); font-size: 1.02rem; }
+  .centre { text-align: center; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1rem 1.1rem; margin: .8rem 0; box-shadow: var(--shadow); }
+  .carte.plat { box-shadow: none; }
+  .carte.teinte { background: var(--accent-bg); border-color: var(--accent); }
+
+  .bandeau-comp { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-size: .8rem;
+    margin: 0 0 1rem; padding: .5rem .7rem; border: 1px solid var(--border); border-radius: 9px; background: var(--bg-subtle); }
+  .etiq-etat { font-weight: 700; padding: .1rem .5rem; border-radius: 999px; font-size: .72rem; text-transform: uppercase; }
+  .etiq-etat.neuf { background: var(--accent-bg); color: var(--accent); }
+  .etiq-etat.existant { background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-strong); }
+  .etiq-etat.simule { background: var(--warn-bg); color: var(--warn); }
+
+  .pilule { display: inline-block; font-size: .74rem; font-weight: 700; padding: .15rem .55rem;
+    border-radius: 999px; text-transform: uppercase; }
+  .pilule.ok { background: var(--ok-bg); color: var(--ok); }
+  .pilule.bleu { background: var(--accent-bg); color: var(--accent); }
+
+  .btn { display: inline-flex; align-items: center; gap: .45rem; justify-content: center;
+    padding: .6rem 1.15rem; border-radius: var(--radius); border: 1px solid var(--border-strong);
+    background: var(--bg-card); color: var(--text-strong); font: inherit; font-weight: 600;
+    cursor: pointer; text-decoration: none; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; }
+  body.dark .btn.primaire { color: #0b1020; }
+  .btn.fantome { background: transparent; color: var(--accent); }
+  .btn.saumon { background: var(--saumon); border-color: var(--saumon); color: #fff; }
+  .btn.large { font-size: 1.05rem; padding: .72rem 1.5rem; }
+  .btn.mini { font-size: .8rem; padding: .3rem .7rem; }
+  .btn-rangee { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .7rem; }
+  .btn.pousse { animation: boutonPousse 1.6s ease-in-out infinite; }
+  @keyframes boutonPousse { 0%, 100% { box-shadow: 0 0 0 0 var(--accent-bg); } 50% { box-shadow: 0 0 0 6px var(--accent-bg); } }
+  @media (prefers-reduced-motion: reduce) { .btn.pousse, .etape-fleche.suivant { animation: none; } }
+
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .6rem 0; overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .8rem 1rem; font-weight: 700;
+    color: var(--text-strong); display: flex; align-items: flex-start; gap: .6rem; }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary::before { content: "\25B8"; color: var(--accent); font-size: .8em; margin-top: .25rem; transition: transform .15s; }
+  .bloc-depli[open] > summary::before { transform: rotate(90deg); }
+  .bloc-depli > summary .num { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--accent);
+    color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; flex-shrink: 0; }
+  body.dark .bloc-depli > summary .num { color: #0b1020; }
+  .bloc-depli > summary .etat { margin-left: auto; font-size: .78rem; font-weight: 400; }
+  .bloc-depli .corps { padding: .2rem 1rem 1rem; border-top: 1px solid var(--border); }
+  .bloc-depli > summary .t { display: flex; flex-direction: column; gap: .15rem; }
+  .gloss { font-weight: 400; font-size: .82rem; color: var(--text-muted); }
+
+  .champ { width: 100%; padding: .55rem .7rem; border-radius: 9px; border: 1px solid var(--border-strong);
+    background: var(--bg-page); color: var(--text); font: inherit; font-size: .92rem; }
+  textarea.champ { min-height: 80px; resize: vertical; }
+  label.lig { display: block; font-size: .85rem; color: var(--text-muted); margin: .6rem 0 .2rem; }
+
+  .jeton { padding: .35rem .8rem; border-radius: 999px; font-size: .88rem; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong); }
+  .jeton.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  body.dark .jeton.actif { color: #0b1020; }
+  .jeton-rangee { display: flex; gap: .5rem; flex-wrap: wrap; margin: .4rem 0; }
+
+  .encart { display: flex; gap: .6rem; align-items: flex-start; background: var(--accent-bg);
+    border-left: 3px solid var(--accent); border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+  .encart.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+
+  .revoir { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: -.2rem 0 .6rem; }
+  .revoir .btn { font-size: .8rem; padding: .3rem .8rem; border-radius: 999px; }
+  .revoir .note { font-size: .78rem; color: var(--text-muted); }
+
+  .reprise { border: 1px solid var(--accent); background: var(--accent-bg); border-radius: 12px;
+    padding: .9rem 1rem; margin: .8rem 0; animation: repriseP 1.8s ease-in-out 6; }
+  @keyframes repriseP { 0%,100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); }
+    50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 12%, transparent); } }
+  @media (prefers-reduced-motion: reduce) { .reprise { animation: none; } }
+
+  .decompte-hero { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.1rem;
+    border-radius: 12px; background: var(--accent-bg); border: 1px solid var(--accent); }
+  .decompte-hero .num-sec { flex-shrink: 0; width: 2.6rem; height: 2.6rem; border-radius: 50%; display: inline-flex;
+    align-items: center; justify-content: center; background: var(--accent); color: #fff; font-size: 1.2rem; font-weight: 700; }
+  body.dark .decompte-hero .num-sec { color: #0b1020; }
+  .decompte-hero .txt { flex: 1; min-width: 170px; font-size: .92rem; }
+  .decompte-piste { height: 4px; border-radius: 999px; background: var(--bg-card); overflow: hidden; margin-top: .5rem; }
+  .decompte-piste > span { display: block; height: 100%; background: var(--accent); width: 55%; animation: decompteAvance 5s linear forwards; }
+  @keyframes decompteAvance { from { width: 100%; } to { width: 0; } }
+  @media (prefers-reduced-motion: reduce) { .decompte-piste > span { animation: none; } }
+  .transition-bandeau { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; padding: .7rem .9rem;
+    margin-bottom: .9rem; background: var(--accent-bg); border-left: 3px solid var(--accent); border-radius: 8px; font-size: .9rem; }
+  .zone-collage { border: 1px solid var(--accent); border-radius: 12px; padding: 1rem; background: var(--accent-bg); text-align: center; }
+  .mini-ecran { margin-top: .9rem; border: 1px solid var(--border-strong); border-radius: 12px; overflow: hidden; background: var(--bg-card); }
+  .mini-ecran .mini-barre { display: flex; align-items: center; gap: .4rem; padding: .4rem .75rem; background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border); font-size: .74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+  .mini-ecran .mini-corps { padding: .9rem; }
+
+  .comp-scroll { overflow-x: auto; }
+  .tab-comp { width: 100%; border-collapse: collapse; margin: .8rem 0; font-size: .86rem; }
+  .tab-comp th, .tab-comp td { border: 1px solid var(--border); padding: .55rem .6rem; text-align: left; vertical-align: top; }
+  .tab-comp th { background: var(--bg-subtle); color: var(--text-strong); }
+  .tab-comp td:first-child { font-weight: 700; color: var(--text-strong); white-space: nowrap; }
+
+  .bloc-resultat { border: 1px solid var(--border-strong); border-radius: 12px; margin: .6rem 0; overflow: hidden; background: var(--bg-card); }
+  .bloc-resultat > summary { list-style: none; cursor: pointer; padding: .8rem 1rem; font-weight: 700; color: var(--text-strong);
+    display: flex; align-items: flex-start; gap: .5rem; }
+  .bloc-resultat > summary::-webkit-details-marker { display: none; }
+  .bloc-resultat > summary::before { content: "\25B8"; color: var(--accent); font-size: .8em; margin-top: .25rem; transition: transform .15s; }
+  .bloc-resultat[open] > summary::before { transform: rotate(90deg); }
+  .bloc-resultat .corps { padding: .3rem 1rem 1rem; border-top: 1px solid var(--border); }
+  .bloc-resultat .ordre { margin-left: auto; display: flex; gap: .2rem; flex-shrink: 0; }
+  .bloc-resultat .ordre button { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text);
+    border-radius: 6px; width: 1.7rem; height: 1.7rem; cursor: pointer; font-size: .9rem; }
+  .item { border: 1px solid var(--border); border-radius: 9px; padding: .6rem .8rem; margin: .5rem 0; background: var(--bg-page); }
+  .item .src { font-size: .78rem; color: var(--text-muted); }
+  .item p { margin: .25rem 0; }
+
+  .editeur { border: 1px dashed var(--border-strong); border-radius: 10px; padding: .7rem .9rem; margin: .8rem 0; background: var(--bg-subtle); font-size: .86rem; }
+  .editeur label { font-weight: 600; color: var(--text-strong); }
+  .editeur select { font: inherit; padding: .25rem .4rem; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text); }
+  #lectureConfig { display: block; white-space: pre-line; margin-top: .5rem; padding: .5rem .6rem; background: var(--bg-card);
+    border-radius: 6px; border: 1px solid var(--border); font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .8rem; color: var(--text); }
+
+  .extrait-mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .82rem; background: var(--bg-page);
+    border: 1px solid var(--border); border-radius: 8px; padding: .6rem .8rem; margin: .5rem 0; color: var(--text); }
+
+  ul.fine { margin: .3rem 0 0; padding-left: 1.2rem; }
+  ul.fine li { margin: .2rem 0; }
+
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--bg-card);
+    border-top: 1px solid var(--border); padding: .55rem 1rem; }
+  .barre-bas-row { max-width: 760px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  .barre-bas .btn { padding: .5rem 1rem; font-size: .9rem; }
+
+  .overlay { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(15,22,32,.55); padding: 1.2rem; overflow-y: auto; }
+  .overlay.ouvert { display: block; }
+  .fenetre { max-width: 600px; margin: 2rem auto; background: var(--bg-card); border-radius: 16px; box-shadow: var(--shadow); padding: 1.2rem 1.3rem; }
+  .fenetre-tete { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+  .fenetre-tete h3 { margin: 0; flex: 1; }
+  .fenetre-fermer { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+    width: 2rem; height: 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem; }
+  mark { background: var(--warn-bg); color: var(--warn); padding: 0 .15rem; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-row">
+    <span class="appbar-titre">&#128450;&#65039; Les mots de votre CV</span>
+    <div class="appbar-outils">
+      <select id="devnav" title="Sauter à un écran (aide de maquette)">
+        <option value="">Aller à...</option>
+        <option value="comparaison">0 - Comparaison aujourd'hui / proposé</option>
+        <option value="intro">1 - Page de présentation (déjà validée)</option>
+        <option value="bord">1b - Tableau de bord (une comparaison existe)</option>
+        <option value="preparer">2 - Préparer (page dépliante)</option>
+        <option value="relecture">2b - Relire et masquer</option>
+        <option value="choix-assistant">2c - Choisir l'assistant</option>
+        <option value="chez">2d - Chez l'assistant (simulé)</option>
+        <option value="coller">2e - Coller la réponse (simulé)</option>
+        <option value="resultat">3 - Le résultat (4 blocs)</option>
+        <option value="emporter">4 - Ma fiche</option>
+      </select>
+      <button class="mini-btn" onclick="ouvrir('m-metier')">Fenêtre : fiche métier</button>
+      <button class="mini-btn" onclick="ouvrir('m-ats')">Fenêtre : comprendre les logiciels de tri</button>
+      <button class="mini-btn" onclick="ouvrir('m-forme')">Fenêtre : mise en forme</button>
+      <button class="mini-btn" id="theme">Mode sombre</button>
+    </div>
+  </div>
+
+  <div class="etapes" id="etapes"></div>
+
+  <div class="note-maquette">
+    Maquette non fonctionnelle. Commencez par <strong>&laquo;&nbsp;0 - Comparaison&nbsp;&raquo;</strong> (menu &laquo;&nbsp;Aller à...&nbsp;&raquo;) pour situer chaque écran.
+    Le passage par l'assistant en ligne (&laquo;&nbsp;Chez l'assistant&nbsp;&raquo;, &laquo;&nbsp;Coller la réponse&nbsp;&raquo;) est <strong>simulé</strong> : un bouton saute à la suite avec un résultat fictif.
+    L'exemple suit une personne qui répond à une offre d'<strong>employé de libre-service</strong>.
+  </div>
+  <div class="legende">
+    <span><i class="puce neuf"></i> À concevoir (nouvel écran)</span>
+    <span><i class="puce existant"></i> Écran déjà dans l'application (brique partagée)</span>
+    <span><i class="puce simule"></i> Transition simulée dans la maquette</span>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ 0. COMPARAISON ============ -->
+<section class="vue" data-vue="comparaison" data-etape="0" data-retour="">
+  <h1>Comparaison : aujourd'hui &#8594; ce qui est proposé</h1>
+  <p class="accroche">Le module <strong>n'existe pas encore</strong>. Objectif : un parcours <strong>court</strong> qui compare le vocabulaire du CV avec celui d'une offre ou d'un métier, <strong>sans jamais donner de score</strong>.</p>
+
+  <div class="comp-scroll">
+  <table class="tab-comp">
+    <thead><tr><th>Moment</th><th>Aujourd'hui</th><th>Proposé</th><th>Ce qui change</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Entrée</td>
+        <td>Une page de présentation seule, bouton d'entrée désactivé.</td>
+        <td>La même page de présentation (déjà validée), avec le mot &laquo;&nbsp;ATS&nbsp;&raquo; en clair dans le titre et l'accroche, plus un bandeau de reprise si une comparaison existe déjà.</td>
+        <td>Écran déjà validé, comportements de reprise ajoutés.</td>
+      </tr>
+      <tr>
+        <td>La référence des mots-clés</td>
+        <td>Rien.</td>
+        <td><strong>&laquo;&nbsp;J'ai une offre&nbsp;&raquo;</strong> (mots extraits strictement du texte de l'offre) ou <strong>&laquo;&nbsp;Je n'ai pas d'offre&nbsp;&raquo;</strong> (fiche métier officielle). L'origine est affichée pour chaque mot.</td>
+        <td>Nouveau, un bloc de la page &laquo;&nbsp;Préparer&nbsp;&raquo;.</td>
+      </tr>
+      <tr>
+        <td>Préparer l'envoi</td>
+        <td>Rien.</td>
+        <td>Une seule page qui se déplie, dans l'ordre : votre CV, la référence, puis relire et masquer. Puis le choix de l'assistant.</td>
+        <td>Assemblage de briques déjà en service.</td>
+      </tr>
+      <tr>
+        <td>Envoi et retour</td>
+        <td>Rien.</td>
+        <td>Deux écrans partagés : la transition, puis coller la réponse. Identiques aux autres modules.</td>
+        <td>Briques existantes.</td>
+      </tr>
+      <tr>
+        <td>Le résultat</td>
+        <td>Rien.</td>
+        <td>Quatre blocs de même poids, aucun compteur, aucune couleur de réussite. Le texte caché repéré débouche sur un déconseil argumenté, jamais un blocage.</td>
+        <td>Nouveau, cœur du module.</td>
+      </tr>
+      <tr>
+        <td>Ce qu'on emporte</td>
+        <td>Rien.</td>
+        <td>Un aide-mémoire copiable et imprimable, des questions pour le conseiller. Aucun enregistrement automatique.</td>
+        <td>Nouveau.</td>
+      </tr>
+      <tr>
+        <td>Mise en forme et logiciels de tri</td>
+        <td>Rien.</td>
+        <td>Une fiche de conseils fixes, avec des liens vers des guides. Pas une analyse de votre fichier.</td>
+        <td>Nouveau, une fenêtre.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="carte teinte">
+    <h3>Le comptage</h3>
+    <p>Parcours proposé, fil principal : <strong>4 étapes</strong> (Préparer &middot; Envoyer &middot; Résultat &middot; Ma fiche) et <strong>2 fenêtres</strong> (fiche métier, mise en forme).</p>
+    <p class="detail">Aucun score, aucun pourcentage, aucun verdict &laquo;&nbsp;accepté / rejeté&nbsp;&raquo;, à aucun moment.</p>
+  </div>
+
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('intro')">Voir le parcours proposé, écran par écran &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 1. PAGE DE PRÉSENTATION ============ -->
+<section class="vue" data-vue="intro" data-etape="0" data-retour="">
+  <div class="bandeau-comp">
+    <span class="etiq-etat existant">Déjà validée</span>
+    <span>Contenu repris de <code>docs/MAQUETTE_INTRO_ATS.html</code>. Ajouts : le nom <strong>&laquo;&nbsp;Les mots de votre CV (ATS)&nbsp;&raquo;</strong>, le sous-titre dédramatisé, l'accroche &laquo;&nbsp;pas un logiciel de tri, mais la même vérification&nbsp;&raquo;, la distinction avec &laquo;&nbsp;Analyser ma candidature&nbsp;&raquo; en tête, les comportements de reprise.</span>
+  </div>
+
+  <div class="centre">
+    <h1>&#128450;&#65039; Les mots de votre CV <span style="font-weight:400;opacity:.7;">(ATS)</span></h1>
+    <p class="accroche">Comparer le vocabulaire de votre CV avec celui d'une offre ou d'un métier, pour mieux faire ressortir votre parcours.</p>
+  </div>
+
+  <div class="carte teinte centre">
+    <p style="margin:0"><strong>Ce module n'est pas un logiciel de tri</strong> et n'a pas accès à celui d'un employeur. Il en reproduit la vérification principale : il regarde, comme le ferait un logiciel de tri (un &laquo;&nbsp;ATS&nbsp;&raquo;), si les mots attendus pour le poste sont présents dans votre CV, et vous dit lesquels vous pourriez faire ressortir. On compare des <strong>mots</strong>, pas le fond de votre CV, et jamais votre valeur.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#9881;&#65039; Ce que fait un logiciel de tri</h3>
+    <p>Un logiciel de tri (ou &laquo;&nbsp;ATS&nbsp;&raquo;) ne rejette pas un CV de lui-même : il le classe selon les mots-clés qu'il détecte. Une candidature peut donc être moins visible sans être écartée. Ce module vous montre, en clair, ce que ce classement verrait dans votre CV.</p>
+  </div>
+
+  <div class="encart"><span>&#8505;&#65039;</span><span>Vous cherchez un avis sur le <strong>fond</strong> de votre CV (ce qui est solide, ce qui peut faire hésiter un recruteur) ? C'est un autre outil : &laquo;&nbsp;Analyser ma candidature&nbsp;&raquo;.</span></div>
+
+  <div class="carte">
+    <h3>&#127919; À quoi ça sert</h3>
+    <p>Vous donner une idée de la correspondance entre votre CV et les mots-clés attendus pour un métier ou une offre : les mots déjà présents, ceux qui pourraient être formulés autrement, ceux qui ne sont pas retrouvés, avec des façons de les reformuler à partir de votre parcours réel.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128203; Ce qui va se passer</h3>
+    <ul class="fine">
+      <li>Vous partez de votre CV, sous la forme que vous avez : un fichier, une photo, un scan, ou le texte collé. Pas besoin de l'avoir mis en forme.</li>
+      <li>Vous choisissez la référence : l'offre d'emploi si vous l'avez, sinon une fiche métier.</li>
+      <li>Vous relisez votre CV à l'écran et vous masquez ce que vous ne voulez pas transmettre (nom, adresse, téléphone).</li>
+      <li>Un assistant en ligne compare le vocabulaire de votre CV avec celui de la référence.</li>
+      <li>Vous recevez quatre listes de mots, de même importance, et des pistes de reformulation.</li>
+      <li>Si votre CV contient du texte caché, le module le repère et vous en explique les risques, au lieu de s'en servir.</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#128683; Ce que ce module ne fait pas</h3>
+    <ul class="fine">
+      <li>Ce n'est pas une note ni un score sur vous. Votre CV n'est pas vous.</li>
+      <li>Ce n'est pas un jugement sur votre parcours : on regarde des mots.</li>
+      <li>Ce n'est pas une garantie d'être retenu : ajouter un mot-clé rend un CV plus visible, cela ne décide pas à la place du recruteur.</li>
+      <li>Ce n'est pas une analyse de fond de votre CV : pour cela, il y a &laquo;&nbsp;Analyser ma candidature&nbsp;&raquo;.</li>
+      <li>Il ne vous aide pas à tromper un logiciel de tri : s'il repère du texte caché, il vous le déconseille et vous explique pourquoi.</li>
+      <li>Il ne vous reproche jamais d'avoir masqué vos coordonnées : l'analyse se fait sur un CV anonymisé, c'est normal.</li>
+    </ul>
+    <p class="detail"><button class="btn mini fantome" onclick="ouvrir('m-ats')">&#8505;&#65039; Comprendre les logiciels de tri (ATS)</button></p>
+  </div>
+
+  <div class="carte">
+    <h3>&#9999;&#65039; Ce que vous pourrez faire ensuite</h3>
+    <ul class="fine">
+      <li>Repérer les mots-clés à ajouter ou à reformuler dans votre CV, en partant de ce que vous savez déjà faire.</li>
+      <li>Refaire la comparaison pour une autre offre ou un autre métier.</li>
+    </ul>
+  </div>
+
+  <div class="carte teinte">
+    <h3>&#9875;&#65039; Mes Repères</h3>
+    <p style="margin:0">Si un mot à travailler ou une reformulation vous semble important pour la suite, vous pourrez le garder dans Mes Repères, votre espace personnel de notes.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#128172; Comment ça se passe concrètement</h3>
+    <p style="margin:0">L'application prépare et copie le texte de départ pour vous. Vous le collez sur le site de l'assistant que vous avez choisi, vous récupérez sa réponse, puis vous revenez la coller ici. Vous êtes guidé à chaque étape ; vous n'avez rien à taper pour démarrer.</p>
+  </div>
+
+  <div class="carte plat">
+    <h3>&#9989; Bon à savoir</h3>
+    <div class="encart"><span>&#128274;</span><span class="detail">Avant de transmettre votre CV, vous passez par un écran de vérification où vous masquez votre nom, votre adresse ou votre téléphone. L'analyse se fait sur ce CV anonymisé : l'absence de nom ou de coordonnées n'est jamais comptée comme un manque. L'assistant ne sait pas qui vous êtes, et rien de ce que vous faites ici n'est conservé ni transmis à un employeur.</span></div>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte : pensez à cliquer sur l'icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span></div>
+  </div>
+
+  <div class="bandeau-comp" style="margin-top:1rem">
+    <span class="etiq-etat neuf">Ajout famille 2</span>
+    <span>&laquo;&nbsp;Retour&nbsp;&raquo; depuis le premier écran de travail ramène à cette présentation en mode NORMAL (jamais en détour), d'où un second &laquo;&nbsp;Retour&nbsp;&raquo; continue vers l'accueil de la carte, sans boucle présentation / module (vérifié 2026-09-08). Nom visible partout : &laquo;&nbsp;Les mots de votre CV (ATS)&nbsp;&raquo; (tuile d'accueil, liste de la carte, route <code>ats-intro</code>, <code>pageIntroAts</code>).</span>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('preparer')">Comparer les mots de mon CV &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 1b. TABLEAU DE BORD ============ -->
+<section class="vue" data-vue="bord" data-etape="0" data-retour="">
+  <div class="bandeau-comp">
+    <span class="etiq-etat neuf">À concevoir</span>
+    <span>Même page que la présentation. Avec une comparaison en cours, elle affiche ce bandeau en plus. Jamais un écran séparé.</span>
+  </div>
+  <div class="centre"><h1>&#128450;&#65039; Les mots de votre CV</h1></div>
+
+  <div class="reprise">
+    <h3 style="margin-top:0">&#128260; Vous avez déjà une comparaison</h3>
+    <p>Vous pouvez la revoir, ou en lancer une sur une autre offre ou un autre métier.</p>
+    <div class="btn-rangee">
+      <button class="btn primaire" onclick="aller('resultat')">Continuer</button>
+      <button class="btn saumon" onclick="aller('preparer')">Recommencer</button>
+    </div>
+    <p class="detail" style="margin-top:.5rem">&laquo;&nbsp;Recommencer&nbsp;&raquo; ouvre une confirmation qui nomme ce qui part et rappelle que Mes Repères ne bougent pas. Tant que le choix n'est pas fait, le reste de la page est gelé (sauf &laquo;&nbsp;Retour&nbsp;&raquo; et &laquo;&nbsp;Accueil&nbsp;&raquo;). L'encart pulse une dizaine de secondes.</p>
+  </div>
+
+  <p class="detail centre">&#8595; En dessous : le contenu normal de la page de présentation.</p>
+</section>
+
+<!-- ============ 2. PRÉPARER ============ -->
+<section class="vue" id="preparer" data-vue="preparer" data-etape="1" data-retour="intro">
+  <div class="bandeau-comp">
+    <span class="etiq-etat neuf">À concevoir</span>
+    <span>Page assemblée de briques déjà en service. Aucune fenêtre qui s'enchaîne : une seule page qui se déplie, dans l'ordre.</span>
+  </div>
+  <h1>Préparer</h1>
+  <div class="revoir">
+    <button class="btn fantome">&#128450;&#65039; Revoir la présentation</button>
+    <span class="note">Ouvre la présentation par-dessus, sans rien perdre de ce qui est en cours.</span>
+  </div>
+  <p class="accroche">On rassemble ici ce dont la comparaison a besoin. Les trois parties sont fermées sauf la première ; quand vous terminez l'une, la suivante s'ouvre.</p>
+  <div class="bandeau-comp"><span class="etiq-etat neuf">Comportement</span><span>Le bouton du bas s'active quand <strong>les trois parties</strong> sont traitées. &laquo;&nbsp;Relire et masquer&nbsp;&raquo; est la dernière : c'est la vérification juste avant l'envoi.</span></div>
+
+  <details class="bloc-depli" open>
+    <summary><span class="num">1</span> <span class="t">Votre CV<span class="gloss">le document de départ</span></span> <span class="etat pilule ok">Déposé</span></summary>
+    <div class="corps">
+      <p>Déposez votre CV. Il est lu directement dans votre navigateur, <strong>il n'est envoyé nulle part</strong> pour l'instant.</p>
+      <div class="btn-rangee">
+        <button class="btn primaire mini">Déposer mon CV</button>
+        <button class="btn fantome mini">Ou coller le texte</button>
+      </div>
+      <p class="detail"><strong>Tous les formats</strong> : PDF, Word, .txt, une photo ou une capture d'écran. L'application reconnaît le format toute seule.</p>
+      <div class="carte plat" style="background:var(--ok-bg);margin-top:.5rem"><strong>&#9989; Déposé</strong> &middot; cv-2026.pdf <button class="btn fantome mini" style="margin-left:.4rem">Changer de CV</button></div>
+      <p class="detail">Brique partagée <code>ouvrirAssistantDepotCV</code>. Un seul CV à la fois.</p>
+      <p class="detail" style="margin-top:.5rem">Vous n'avez pas encore de CV ? <button class="btn mini fantome">Le créer d'abord avec &laquo; Créer un CV &raquo;</button></p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="num">2</span> <span class="t">La référence<span class="gloss">à quoi comparer votre vocabulaire</span></span> <span class="etat pilule bleu">À choisir</span></summary>
+    <div class="corps">
+      <div class="jeton-rangee">
+        <span class="jeton actif" onclick="refATS('offre')">J'ai une offre</span>
+        <span class="jeton" onclick="refATS('metier')">Je n'ai pas d'offre</span>
+      </div>
+
+      <div id="ref-offre">
+        <p class="detail">Les mots-clés seront extraits <strong>strictement</strong> du texte de l'offre. Chaque mot proposé indiquera son origine.</p>
+        <label class="lig">Entreprise ciblée</label>
+        <input class="champ" placeholder="Ex. Supermarché Coste">
+        <label class="lig">Site internet de l'entreprise</label>
+        <input class="champ" placeholder="https://...">
+        <label class="lig">Offre d'emploi</label>
+        <textarea class="champ" placeholder="Collez ici le texte de l'offre, ou son lien"></textarea>
+        <div class="encart"><span>&#128278;</span><span>Une offre d'emploi est pleine de mots-clés : ce sont souvent ceux que le logiciel de tri va chercher. La comparaison repère lesquels sont déjà dans votre CV, et lesquels décrivent une expérience que vous pourriez formuler autrement.</span></div>
+        <label class="lig">Type de structure</label>
+        <select class="champ">
+          <option>Non précisé</option>
+          <option>Entreprise privée (secteur marchand)</option>
+          <option>Fonction publique territoriale</option>
+          <option>Association (loi 1901) / économie sociale et solidaire</option>
+          <option>Artisanat / commerce de proximité</option>
+          <option>Autre...</option>
+        </select>
+        <p class="detail">Le type de structure sert à l'assistant : une association et une entreprise privée n'emploient pas toujours les mêmes mots. Facultatif. Brique partagée <code>bilanCorpsCiblageOffreHTML</code>.</p>
+      </div>
+
+      <div id="ref-metier" style="display:none">
+        <p>Sans offre, on part d'une <strong>fiche métier officielle</strong>.</p>
+        <div class="btn-rangee"><button class="btn primaire mini" onclick="ouvrir('m-metier')">Choisir une fiche métier</button></div>
+        <div class="carte plat" style="background:var(--accent-bg);margin-top:.5rem"><strong>Fiche retenue :</strong> Employé de libre-service</div>
+        <p class="detail">L'objectif devient : employer le vocabulaire généralement utilisé pour ce métier, et clarifier votre projet (ce que vous avez fait, ce que vous voulez faire, ce que vous ne voulez pas). &laquo;&nbsp;Ces termes proviennent d'une fiche officielle et peuvent varier selon les employeurs.&nbsp;&raquo;</p>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary><span class="num">3</span> <span class="t">Relire et masquer<span class="gloss">la vérification, juste avant l'envoi</span></span> <span class="etat pilule bleu">Obligatoire</span></summary>
+    <div class="corps">
+      <p>Vous relisez votre CV et vous <strong>masquez ce que vous ne voulez pas transmettre</strong>. Vous modifiez le texte vous-même, rien n'est masqué à votre place.</p>
+      <div class="btn-rangee">
+        <button class="btn primaire mini" onclick="aller('relecture')">Ouvrir la relecture</button>
+        <button class="btn mini">&#9654; Voir la démonstration (20 s)</button>
+      </div>
+      <p class="detail">Brique partagée <code>htmlVerificationDocument</code> + <code>relectureConfidentialite</code>, déjà utilisée par CV, Lettre, Entretien, Bilan, Cohérence.</p>
+    </div>
+  </details>
+
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('choix-assistant')">Choisir mon assistant &#8594;</button>
+    <p class="detail">Actif une fois les trois parties traitées.</p>
+  </div>
+</section>
+
+<!-- ============ 2b. RELIRE ET MASQUER ============ -->
+<section class="vue" data-vue="relecture" data-etape="1" data-retour="preparer">
+  <div class="bandeau-comp"><span class="etiq-etat existant">Écran déjà dans l'application</span><span>Composant de relecture partagé. On n'y touche pas.</span></div>
+  <h1>Relire et masquer</h1>
+  <p class="accroche">C'est le composant de relecture déjà utilisé partout dans l'application. Vous modifiez le texte vous-même.</p>
+  <div class="carte">
+    <p>Nous avons surligné en <mark>ambre</mark>, directement dans le texte, ce qui ressemble à une information personnelle.</p>
+    <div class="carte plat" style="background:var(--bg-page);font-size:.9rem">
+      <p style="margin:.2rem 0">Employé polyvalent de magasin</p>
+      <p style="margin:.2rem 0">Tél. : <mark>06 12 34 56 78</mark> &nbsp;&middot;&nbsp; Courriel : <mark>marie.dupont@exemple.fr</mark></p>
+      <p style="margin:.2rem 0">Nom : <mark>Marie Dupont</mark></p>
+      <p style="margin:.2rem 0">Mise en rayon, tenue de caisse, accueil et renseignement des clients, réception des livraisons.</p>
+    </div>
+    <p class="detail">Repéré de façon fiable : téléphone, courriel, liens. Le nom n'est repéré que sous la forme &laquo;&nbsp;Nom : ...&nbsp;&raquo; ou dans le courriel : vérifiez vous-même le reste.</p>
+  </div>
+  <div class="centre" style="margin-top:1rem">
+    <button class="btn primaire large" onclick="aller('choix-assistant')">C'est bon, je choisis l'assistant &#8594;</button>
+  </div>
+</section>
+
+<!-- ============ 2c. CHOISIR L'ASSISTANT ============ -->
+<section class="vue" data-vue="choix-assistant" data-etape="2" data-retour="relecture">
+  <div class="bandeau-comp"><span class="etiq-etat existant">Écran déjà dans l'application</span><span>Brique partagée <code>htmlChoixAssistantBilanCorps</code>.</span></div>
+  <h1>Choisir l'assistant</h1>
+  <div class="revoir"><button class="btn fantome">&#128450;&#65039; Revoir la présentation</button><span class="note">Vous revenez ensuite ici.</span></div>
+  <p class="accroche">Avec quel assistant en ligne faire lire votre CV ? <strong>Cliquer sur un assistant prépare et copie tout, puis l'ouvre</strong> : vous n'avez rien à taper.</p>
+
+  <div class="carte">
+    <h3 style="margin-top:0">&#128203; Ce qui va être envoyé</h3>
+    <ul class="fine">
+      <li>Le texte de votre CV, <strong>une fois anonymisé</strong>.</li>
+      <li>Les mots-clés de l'offre pour &laquo;&nbsp;employé de libre-service&nbsp;&raquo;.</li>
+    </ul>
+    <p class="detail" style="margin-top:.4rem">Ne partent pas : votre nom, votre téléphone, votre adresse. L'assistant ne sait pas qui vous êtes.</p>
+  </div>
+
+  <div class="carte teinte">
+    <p class="detail" style="margin-top:0"><span>&#8594;</span> Au clic : l'application copie tout et ouvre l'assistant dans un nouvel onglet. <strong>Cette page reste ouverte</strong>, vous y revenez pour coller la réponse.</p>
+    <h3>Sans compte à créer</h3>
+    <div class="jeton-rangee">
+      <span class="jeton actif">ChatGPT</span>
+      <span class="jeton">Perplexity</span>
+    </div>
+    <h3>Avec une connexion</h3>
+    <div class="jeton-rangee">
+      <span class="jeton">Claude</span>
+      <span class="jeton">Gemini</span>
+      <span class="jeton">Mistral</span>
+    </div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" onclick="aller('chez')">Simuler le choix de ChatGPT &#8594;</button>
+    <p class="detail">Dans l'application, pas de bouton &laquo;&nbsp;Continuer&nbsp;&raquo; : cliquer sur un assistant lance tout de suite la copie et l'ouverture.</p>
+  </div>
+</section>
+
+<!-- ============ 2d. CHEZ L'ASSISTANT ============ -->
+<section class="vue" data-vue="chez" data-etape="2" data-retour="choix-assistant">
+  <div class="bandeau-comp">
+    <span class="etiq-etat existant">Écran déjà dans l'application</span>
+    <span class="etiq-etat simule">Transition simulée</span>
+    <span>Brique partagée <code>htmlBanniereTransitionIA</code>.</span>
+  </div>
+  <h1>L'assistant va s'ouvrir</h1>
+  <p class="accroche">Le texte est déjà copié. L'onglet s'ouvre tout seul ; <strong>cette page reste ouverte</strong>, c'est ici que vous reviendrez.</p>
+
+  <div class="decompte-hero">
+    <span class="num-sec">5</span>
+    <div class="txt"><strong>L'assistant s'ouvre dans 5 secondes.</strong><div class="decompte-piste"><span></span></div></div>
+    <button class="btn primaire mini" onclick="aller('coller')">Ouvrir maintenant &#8594;</button>
+  </div>
+
+  <div class="mini-ecran">
+    <div class="mini-barre"><span>&#128278;</span> Aperçu &middot; ce que vous retrouverez ici</div>
+    <div class="mini-corps">
+      <p style="margin:0 0 .6rem">De retour ? Cliquez sur <strong>&laquo;&nbsp;Je suis de retour&nbsp;&raquo;</strong>, puis <strong>&laquo;&nbsp;Coller la réponse&nbsp;&raquo;</strong>, puis <strong>&laquo;&nbsp;Importer&nbsp;&raquo;</strong>.</p>
+    </div>
+  </div>
+
+  <p class="detail" style="margin-top:1rem"><button class="btn fantome" onclick="aller('coller')">&#9889; Simuler le retour (maquette)</button></p>
+</section>
+
+<!-- ============ 2e. COLLER LA RÉPONSE ============ -->
+<section class="vue" data-vue="coller" data-etape="2" data-retour="chez">
+  <div class="bandeau-comp">
+    <span class="etiq-etat existant">Écran déjà dans l'application</span>
+    <span class="etiq-etat simule">Simulé</span>
+    <span>Brique partagée <code>htmlCollageInstantane</code> : la personne <strong>ne voit jamais le texte</strong>.</span>
+  </div>
+  <h1>De retour : coller la réponse</h1>
+
+  <div class="transition-bandeau">
+    <span>&#8617;</span><span>L'assistant est ouvert dans un autre onglet.</span>
+    <button class="btn primaire mini pousse" style="margin-left:auto">Je suis de retour</button>
+  </div>
+
+  <div class="zone-collage">
+    <p style="margin:0 0 .8rem">Vous revenez de <strong>ChatGPT</strong>. Sa réponse est dans votre presse-papiers.</p>
+    <button class="btn primaire large pousse">&#128203; Coller la réponse</button>
+    <div><button class="btn mini" style="margin-top:.5rem">Coller manuellement</button></div>
+  </div>
+
+  <div class="carte plat" style="margin-top:.9rem">
+    <div class="encart ok"><span>&#10003;</span><span><strong>Réponse collée.</strong> Le texte reste caché, rien à relire. Une première vérification du texte caché a lieu à ce moment.</span></div>
+    <div class="btn-rangee">
+      <button class="btn primaire large pousse" onclick="aller('resultat')">&#128229; Importer</button>
+      <button class="btn mini">Effacer et recoller</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. LE RÉSULTAT ============ -->
+<section class="vue" id="resultat" data-vue="resultat" data-etape="3" data-retour="coller" data-suivant="emporter" data-suivant-label="Voir ma fiche">
+  <div class="bandeau-comp"><span class="etiq-etat neuf">À concevoir</span><span>Cœur du module. Les 4 blocs d'abord ; le reste (rappels, liens) dans un &laquo;&nbsp;Bon à savoir&nbsp;&raquo; repliable.</span></div>
+  <h1>Le résultat</h1>
+  <div class="revoir"><button class="btn fantome">&#128450;&#65039; Revoir la présentation</button><span class="note">Vous revenez ensuite à ce résultat.</span></div>
+
+  <div class="encart ok"><span>&#9878;&#65039;</span><span><strong>Ni un test ni une note.</strong> Ce sont des pistes pour reformuler, si vous le souhaitez.</span></div>
+
+  <div class="editeur">
+    <p style="margin:.1rem 0 .5rem"><strong>Réglage de maquette.</strong> Changez l'ordre des blocs (fleches) et la place de l'encart &laquo;&nbsp;texte caché&nbsp;&raquo;. La configuration retenue s'affiche en bas.</p>
+    <p style="margin:.3rem 0"><label>Simuler la référence :</label>
+      <select id="simRef" onchange="simRef()"><option value="offre">une offre d'emploi</option><option value="metier">une fiche métier (sans offre)</option></select></p>
+    <p style="margin:.3rem 0"><label>Simuler un cas particulier :</label>
+      <select id="simCas" onchange="simCas()"><option value="">aucun</option><option value="pauvre">CV avec peu de texte</option><option value="courte">offre très courte</option></select></p>
+    <p style="margin:.3rem 0"><label><input type="checkbox" id="chkTriche" onchange="majTriche()"> Simuler : un passage de texte caché est repéré</label></p>
+    <p style="margin:.3rem 0"><label>Place de l'encart &laquo;&nbsp;texte caché&nbsp;&raquo; :</label>
+      <select id="posTriche" onchange="majTriche()"><option value="en-tete">en tête du résultat</option><option value="apres-1">après le premier bloc</option><option value="pied">en pied du résultat</option></select></p>
+    <span id="lectureConfig"></span>
+  </div>
+
+  <div id="zoneResultat">
+
+    <div id="casNote" class="encart warn" style="display:none"><span>&#8505;&#65039;</span><span id="casNoteTxt"></span></div>
+
+    <details class="bloc-depli si-offre-bloc">
+      <summary><span class="num">&#128278;</span> <span class="t">Les mots que l'offre met en avant</span></summary>
+      <div class="corps">
+        <p class="detail">Ce n'est pas une liste à cocher, ni une note. C'est le vocabulaire de l'offre : ce que ce recruteur attend, et souvent ce que son logiciel de tri cherche. Les blocs ci-dessous vous disent, pour chacun, où vous en êtes.</p>
+        <div class="jeton-rangee">
+          <span class="jeton">relation client</span>
+          <span class="jeton">tenue de caisse</span>
+          <span class="jeton">gestion des stocks</span>
+          <span class="jeton">travail en équipe</span>
+          <span class="jeton">encadrement d'équipe</span>
+          <span class="jeton">logiciel de caisse</span>
+          <span class="jeton">inventaire</span>
+          <span class="jeton">CRM</span>
+        </div>
+        <p class="detail">Répondre à une offre, c'est reprendre ces mots <strong>quand ils correspondent vraiment à ce que vous avez fait</strong> : dans vos expériences, votre phrase d'accroche, et votre lettre de motivation.</p>
+        <p class="detail">Un mot de l'offre vous est inconnu ? <button class="btn mini fantome">Le chercher dans le Lexique</button></p>
+      </div>
+    </details>
+
+    <div id="blocsResultat">
+
+      <details class="bloc-resultat" data-titre="Déjà exprimé" open>
+        <summary><span class="t">Déjà exprimé dans votre CV<span class="gloss">ces mots sont déjà là. Rien à faire.</span></span><span class="ordre"><button onclick="bouger(this,-1)" title="Monter">&#9650;</button><button onclick="bouger(this,1)" title="Descendre">&#9660;</button></span></summary>
+        <div class="corps">
+          <div class="item">accueil et renseignement des clients <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span></div>
+          <div class="item">tenue de caisse <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span></div>
+          <div class="item">travail en équipe <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span>
+            <p><button class="btn mini">&#9875;&#65039; Garder comme Repère</button></p>
+          </div>
+        </div>
+      </details>
+
+      <details class="bloc-resultat" data-titre="Peut être formulé autrement">
+        <summary><span class="t">Peut être formulé autrement<span class="gloss">vous l'avez sûrement fait, mais avec d'autres mots. Une piste par mot.</span></span><span class="ordre"><button onclick="bouger(this,-1)">&#9650;</button><button onclick="bouger(this,1)">&#9660;</button></span></summary>
+        <div class="corps">
+          <p class="detail">5 termes au plus par comparaison, pour ne pas robotiser le CV. Une reformulation ne vaut que si elle correspond à votre vécu.</p>
+
+          <div class="item">
+            <p><strong>&laquo;&nbsp;relation client&nbsp;&raquo;</strong> <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span></p>
+            <p class="detail">Votre CV dit : &laquo;&nbsp;accueil et renseignement des usagers&nbsp;&raquo;.</p>
+            <p>Si vous conseilliez les personnes sur les produits ou les services, vous pouvez écrire &laquo;&nbsp;relation client&nbsp;&raquo;.</p>
+            <p><button class="btn mini">&#9875;&#65039; Garder comme Repère</button></p>
+          </div>
+
+          <div class="item">
+            <p><strong>&laquo;&nbsp;gestion des stocks&nbsp;&raquo;</strong> <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span></p>
+            <p class="detail">Votre CV dit : &laquo;&nbsp;réception des livraisons, rangement de la réserve&nbsp;&raquo;.</p>
+            <p>Si vous suiviez les quantités et les commandes, vous pouvez écrire &laquo;&nbsp;gestion des stocks&nbsp;&raquo;.</p>
+            <p><button class="btn mini">&#9875;&#65039; Garder comme Repère</button></p>
+          </div>
+
+          <div class="item">
+            <p><strong>&laquo;&nbsp;encadrement d'équipe&nbsp;&raquo;</strong> <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span></p>
+            <p class="detail">Votre CV dit : &laquo;&nbsp;formation des nouveaux collègues&nbsp;&raquo;.</p>
+            <p>Si vous organisiez leur travail au quotidien, vous pouvez préciser &laquo;&nbsp;encadrement d'équipe&nbsp;&raquo;. À ne pas écrire si vous formiez sans coordonner.</p>
+            <p><button class="btn mini">&#9875;&#65039; Garder comme Repère</button></p>
+          </div>
+        </div>
+      </details>
+
+      <details class="bloc-resultat" data-titre="Pas retrouvé dans le texte fourni">
+        <summary><span class="t">Pas retrouvé dans le texte fourni<span class="gloss">pas vu dans le texte. À n'ajouter que si ça correspond à votre expérience.</span></span><span class="ordre"><button onclick="bouger(this,-1)">&#9650;</button><button onclick="bouger(this,1)">&#9660;</button></span></summary>
+        <div class="corps">
+          <p class="detail"><strong>Absence dans le texte n'est pas absence dans le parcours.</strong> Vérifiez d'abord si ces termes correspondent à votre expérience.</p>
+          <div class="item">&laquo;&nbsp;logiciel de caisse&nbsp;&raquo; <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span></div>
+          <div class="item">&laquo;&nbsp;inventaire&nbsp;&raquo; <span class="src si-offre">&middot; mot de l'offre</span><span class="src si-metier" style="display:none">&middot; fiche métier</span></div>
+        </div>
+      </details>
+
+      <details class="bloc-resultat" data-titre="À vérifier">
+        <summary><span class="t">À vérifier<span class="gloss">l'assistant hésite. À vous de confirmer.</span></span><span class="ordre"><button onclick="bouger(this,-1)">&#9650;</button><button onclick="bouger(this,1)">&#9660;</button></span></summary>
+        <div class="corps">
+          <div class="item">
+            &laquo;&nbsp;CRM&nbsp;&raquo; (dans l'offre) et &laquo;&nbsp;logiciel de gestion commerciale&nbsp;&raquo; (dans votre CV) semblent désigner la même chose. À confirmer selon l'outil que vous avez utilisé.
+            <p><button class="btn mini">&#9875;&#65039; Garder comme Repère</button></p>
+          </div>
+        </div>
+      </details>
+
+    </div>
+
+    <div class="carte" id="recos" style="border-color:var(--accent)">
+      <h3 style="margin-top:0">&#127919; Vos changements prioritaires</h3>
+      <p class="detail">Des changements <strong>précis</strong>, à faire vous-même dans votre CV. Ils ne garantissent rien : ils rapprochent le vocabulaire de votre CV de celui de l'offre, pour qu'il ait plus de chances d'être lu. On garde le sens et la vérité de ce que vous avez fait.</p>
+      <ol class="fine">
+        <li>Dans votre expérience en magasin, écrire <strong>&laquo;&nbsp;relation client&nbsp;&raquo;</strong> là où vous avez mis &laquo;&nbsp;accueil du public&nbsp;&raquo;, si vous conseilliez les clients.</li>
+        <li>Ajouter <strong>&laquo;&nbsp;gestion des stocks&nbsp;&raquo;</strong> à la description de &laquo;&nbsp;réception des livraisons&nbsp;&raquo;, si vous suiviez les quantités.</li>
+        <li>Reprendre le mot exact de l'offre : <strong>&laquo;&nbsp;encaissement&nbsp;&raquo;</strong> plutôt que &laquo;&nbsp;tenue de caisse&nbsp;&raquo;, qui décrit la même chose.</li>
+      </ol>
+      <p class="detail">Trois au plus. Il ne s'agit pas de remplir le CV de mots-clés, mais de choisir les bons mots pour ce que vous avez réellement fait. Un terme trop vague (&laquo;&nbsp;tâches diverses&nbsp;&raquo;, &laquo;&nbsp;polyvalence&nbsp;&raquo;) gagne à être remplacé par le mot concret que l'offre emploie.</p>
+      <div class="btn-rangee"><button class="btn mini">&#9875;&#65039; Garder ces changements comme Repère</button></div>
+    </div>
+
+    <div id="encartTriche" class="encart warn" style="display:none">
+      <span>&#9888;&#65039;</span>
+      <div>
+        <p style="margin:0 0 .3rem"><strong>Ceci n'est pas une accusation.</strong> Le texte fourni contient un passage qui ressemble à une liste de mots-clés sans contexte :</p>
+        <div class="extrait-mono">... Références disponibles sur demande.&nbsp;&nbsp; management gestion de projet leadership reporting budget pilotage anglais courant agile scrum analyste&nbsp;&nbsp; Centres d'intérêt : ...</div>
+        <p style="margin:.3rem 0">Cela peut venir d'une mise en forme perdue lors du copier / coller, ou d'une technique destinée à influencer un logiciel de tri. Vérifiez votre document. Si des mots invisibles ont été ajoutés volontairement, nous vous le déconseillons : cela peut entraîner un rejet de la candidature, ou un doute sur l'ensemble du CV. Il est préférable de faire apparaître les compétences réelles dans la description de vos expériences.</p>
+        <div class="btn-rangee">
+          <button class="btn primaire mini">Reformuler à partir de mon expérience</button>
+          <button class="btn mini">Ce n'est pas mon cas, ignorer</button>
+        </div>
+        <p class="detail" style="margin:.4rem 0 0">Repéré par un test au collage <strong>et</strong> signalé par l'assistant. Ce que le texte brut ne montre pas (blanc sur blanc, police minuscule) : la couleur et la taille sont perdues au copier / coller, cette vérification reste partielle. Rien n'est bloqué : vous jugez.</p>
+      </div>
+    </div>
+
+    <div id="sansOffre" class="carte teinte" style="display:none">
+      <h3 style="margin-top:0">&#127919; Sans offre précise</h3>
+      <p>La référence est la fiche métier <strong>Employé de libre-service</strong>. L'objectif : employer le vocabulaire du métier, et clarifier votre projet.</p>
+      <div class="jeton-rangee">
+        <span class="jeton">Ça, je l'ai fait</span>
+        <span class="jeton">Ça, je veux faire</span>
+        <span class="jeton">Ça, je ne veux pas</span>
+      </div>
+      <p class="detail">Trois mots-clés prioritaires à travailler : <strong>mise en rayon</strong>, <strong>rotation des produits</strong>, <strong>encaissement</strong>.</p>
+    </div>
+
+  </div>
+
+  <details class="bloc-depli">
+    <summary><span class="t">&#9989; Bon à savoir sur ce résultat</span></summary>
+    <div class="corps">
+      <p>L'analyse porte sur le CV que vous avez <strong>anonymisé</strong>. L'absence de nom, de téléphone ou d'adresse est normale : elle n'est <strong>jamais</strong> comptée comme un manque. Si vous avez laissé une coordonnée visible, c'est un simple rappel, pas une critique.</p>
+      <p>Il n'y a pas de bon ou de mauvais CV. Vous restez libre de reprendre les mots proposés, de les reformuler, ou de ne rien changer. L'assistant ne sait pas qui vous êtes ; rien n'est conservé.</p>
+      <p>Peu d'entreprises utilisent un logiciel de tri. C'est surtout le cas quand on postule <strong>en ligne</strong>, via un formulaire. Ces changements restent utiles même sans logiciel : ils rendent votre CV plus clair pour un recruteur qui le lit.</p>
+      <div class="btn-rangee">
+        <button class="btn fantome mini" onclick="ouvrir('m-forme')">&#128196; Comment la mise en forme gêne un logiciel de tri</button>
+        <button class="btn fantome mini" onclick="ouvrir('m-ats')">&#8505;&#65039; Comprendre les logiciels de tri (ATS)</button>
+      </div>
+    </div>
+  </details>
+
+  <div class="carte teinte">
+    <h3 style="margin-top:0">&#10145;&#65039; Et maintenant ?</h3>
+    <p style="margin:0">Choisissez <strong>2 ou 3 mots</strong> à travailler, pas plus. La page suivante en fait une fiche à emporter, avec des questions pour votre conseiller.</p>
+  </div>
+</section>
+
+<!-- ============ 4. MA FICHE ============ -->
+<section class="vue" data-vue="emporter" data-etape="4" data-retour="resultat" data-suivant="bord" data-suivant-label="Terminer">
+  <div class="bandeau-comp"><span class="etiq-etat neuf">À concevoir</span><span>Des éléments de travail à relire, jamais un résultat figé. Aucun enregistrement automatique.</span></div>
+  <h1>Ce que vous emportez</h1>
+  <div class="revoir"><button class="btn fantome">&#128450;&#65039; Revoir la présentation</button><span class="note">Vous revenez ensuite ici.</span></div>
+
+  <div class="carte">
+    <h3>&#128203; Votre aide-mémoire &laquo;&nbsp;Vocabulaire et CV&nbsp;&raquo;</h3>
+    <p>Cochez les mots que vous voulez retenir. <strong>Il n'est pas nécessaire de tous les utiliser.</strong> Vous les remplacez ensuite vous-même dans votre CV.</p>
+    <ul class="fine">
+      <li><label><input type="checkbox" checked> &laquo;&nbsp;relation client&nbsp;&raquo;, si vous conseilliez les personnes</label></li>
+      <li><label><input type="checkbox" checked> &laquo;&nbsp;gestion des stocks&nbsp;&raquo;, si vous suiviez les quantités</label></li>
+      <li><label><input type="checkbox"> &laquo;&nbsp;encadrement d'équipe&nbsp;&raquo;, si vous organisiez le travail des nouveaux</label></li>
+    </ul>
+    <div class="btn-rangee">
+      <button class="btn primaire mini">&#128203; Copier ma fiche</button>
+      <button class="btn mini">&#128424;&#65039; Imprimer</button>
+    </div>
+    <p class="detail">Le texte est copié : vous pouvez le coller dans un mail, un document, ou le garder.</p>
+  </div>
+
+  <div class="carte">
+    <h3>&#10067; Questions à poser à votre conseiller</h3>
+    <ul class="fine">
+      <li>Est-ce que mon expérience de formation des collègues couvre bien le terme &laquo;&nbsp;encadrement&nbsp;&raquo; ?</li>
+      <li>Ai-je vraiment utilisé un outil de type CRM, ou juste un logiciel de caisse ?</li>
+    </ul>
+  </div>
+
+  <div class="carte">
+    <h3>&#9999;&#65039; Votre phrase d'accroche et votre lettre</h3>
+    <p>La phrase d'accroche (le titre ou le court résumé en haut du CV) est l'endroit idéal pour montrer que vous avez compris l'offre : reprenez-y les mots forts de l'annonce, quand ils décrivent vraiment ce que vous savez faire.</p>
+    <p class="detail">Exemple : &laquo;&nbsp;Employé de libre-service, à l'aise avec la relation client et la tenue de caisse&nbsp;&raquo; reprend trois mots de l'offre.</p>
+    <p>Votre lettre de motivation gagne à aller dans le même sens : même vocabulaire, mêmes attentes du poste.</p>
+    <div class="btn-rangee">
+      <button class="btn fantome mini">Ouvrir l'éditeur de mon CV</button>
+      <button class="btn fantome mini">Ouvrir &laquo; Coécrire ma lettre de motivation &raquo;</button>
+    </div>
+    <p class="detail">L'application ne réécrit pas votre accroche à votre place : elle réutilise l'éditeur d'accroche qui existe déjà, vous gardez la main sur chaque mot. Votre comparaison reste, vous pourrez y revenir.</p>
+  </div>
+
+  <div class="encart"><span>&#9875;&#65039;</span><span>Aucun enregistrement automatique. Si un mot ou une reformulation compte pour la suite, gardez-le dans Mes Repères, votre espace de notes personnel, accessible partout dans l'application.</span></div>
+
+  <div class="carte plat">
+    <div class="btn-rangee">
+      <button class="btn primaire mini" onclick="aller('preparer')">Refaire la comparaison pour une autre offre</button>
+    </div>
+    <p class="detail">Cela remplace la comparaison actuelle. Ce que vous avez gardé dans Mes Repères ne bouge pas.</p>
+  </div>
+
+  <div class="carte plat">
+    <p class="detail" style="margin:0 0 .4rem">Pour aller plus loin, si vous le souhaitez</p>
+    <p style="margin:.2rem 0">Cet outil regarde les <strong>mots</strong>. Pour un regard sur le <strong>fond</strong> de votre candidature, ouvrez &laquo;&nbsp;Analyser ma candidature&nbsp;&raquo;.</p>
+    <button class="btn fantome mini">Ouvrir &laquo; Analyser ma candidature &raquo;</button>
+  </div>
+</section>
+
+</main>
+
+<div class="barre-bas"><div class="barre-bas-row" id="barrebas"></div></div>
+
+<!-- ============ FENÊTRES ============ -->
+<div class="overlay" id="m-metier">
+  <div class="fenetre">
+    <div class="fenetre-tete"><h3>&#128193; Choisir une fiche métier</h3><button class="fenetre-fermer" onclick="fermer('m-metier')">&times;</button></div>
+    <p class="detail">Ces fiches viennent du référentiel officiel des métiers (France Travail).</p>
+    <input class="champ" placeholder="Chercher un métier (ex. accueil, vente, aide à domicile...)">
+    <div style="margin-top:.6rem">
+      <div class="item" style="cursor:pointer" onclick="fermer('m-metier')">Employé de libre-service</div>
+      <div class="item" style="cursor:pointer" onclick="fermer('m-metier')">Agent d'accueil</div>
+      <div class="item" style="cursor:pointer" onclick="fermer('m-metier')">Vendeur en magasin</div>
+      <div class="item" style="cursor:pointer" onclick="fermer('m-metier')">Hôte de caisse</div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-ats">
+  <div class="fenetre">
+    <div class="fenetre-tete"><h3>&#8505;&#65039; Comprendre les logiciels de tri (ATS)</h3><button class="fenetre-fermer" onclick="fermer('m-ats')">&times;</button></div>
+    <p class="detail">Quelques repères, en langage simple. Vous n'avez pas besoin de tout retenir : ouvrez seulement ce qui vous intéresse.</p>
+
+    <details class="bloc-depli"><summary><span class="t">Qu'est-ce qu'un logiciel de tri ?</span></summary><div class="corps">
+      <p>Un ATS (de l'anglais &laquo;&nbsp;Applicant Tracking System&nbsp;&raquo;, logiciel de suivi des candidatures) est un outil que certains recruteurs utilisent pour recevoir, ranger et classer les CV. En France, environ une entreprise sur quatre s'en sert, surtout les grandes : dans les structures de plus de 200 salariés, c'est près de deux sur trois. Beaucoup de petites entreprises et d'associations n'en ont pas.</p>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">Est-ce qu'il rejette mon CV tout seul ?</span></summary><div class="corps">
+      <p>Non. Il <strong>classe</strong> les candidatures pour que le recruteur regarde d'abord les plus proches du poste. C'est une personne qui décide. L'idée qu'&laquo;&nbsp;un robot rejette 75&nbsp;% des CV&nbsp;&raquo; vient d'un argument commercial de 2012, jamais vérifié, repris ensuite un peu partout. Aujourd'hui, la grande majorité des recruteurs lisent les CV eux-mêmes.</p>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">Comment savoir si l'entreprise en utilise un ?</span></summary><div class="corps">
+      <p>On ne peut pas le savoir à coup sûr. Un indice : si vous postulez en remplissant un <strong>formulaire en ligne</strong> (sur le site de l'entreprise ou une plateforme d'emploi), il y a plus de chances qu'un logiciel de tri soit derrière, car c'est là qu'ils s'en servent le plus. Pour une candidature envoyée par courriel ou remise en main propre, c'est rare. Dans le doute, un CV clair avec les bons mots est utile de toute façon.</p>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">L'offre d'emploi est déjà pleine de mots-clés</span></summary><div class="corps">
+      <p>Quand il y a une annonce, elle contient presque toujours les mots que le logiciel de tri va chercher : l'intitulé du poste, les compétences demandées, les outils, le vocabulaire du métier. Répondre à cette offre, c'est faire en sorte que votre CV parle la même langue : reprendre ces mots <strong>quand ils décrivent ce que vous avez réellement fait</strong>, dans vos expériences, votre phrase d'accroche et votre lettre de motivation. Ce module compare justement le vocabulaire de votre CV à celui de l'offre.</p>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">Comment lit-il mon CV ?</span></summary><div class="corps">
+      <p>Il range le texte dans des cases : nom, coordonnées, expériences, formations, compétences, dates. Il ne comprend pas les phrases : ce qui n'est pas écrit clairement risque de ne pas être rangé. Quelques repères utiles :</p>
+      <ul class="fine">
+        <li>Des titres de rubriques classiques : &laquo;&nbsp;Expérience professionnelle&nbsp;&raquo;, &laquo;&nbsp;Formation&nbsp;&raquo;, &laquo;&nbsp;Compétences&nbsp;&raquo;.</li>
+        <li>Les sigles écrits en entier au moins une fois : &laquo;&nbsp;CIP (conseiller en insertion professionnelle)&nbsp;&raquo;.</li>
+        <li>Des dates lisibles : &laquo;&nbsp;janvier 2020 - décembre 2023&nbsp;&raquo;.</li>
+      </ul>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">Les mots-clés, les &laquo; quotas &raquo;</span></summary><div class="corps">
+      <p>Le logiciel compare les mots de l'offre avec ceux de votre CV et fait remonter les CV les plus proches. Ce n'est pas un quota de mots à atteindre : c'est un classement. Un recruteur peut aussi chercher un mot précis (&laquo;&nbsp;Excel&nbsp;&raquo;, &laquo;&nbsp;permis B&nbsp;&raquo;) ; si le mot n'est nulle part dans votre CV, votre CV ne ressort pas de cette recherche. C'est pour cela qu'il vaut la peine d'employer les vrais mots de votre métier, à partir de ce que vous avez réellement fait.</p>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">Les questions éliminatoires au moment de postuler</span></summary><div class="corps">
+      <p>Beaucoup de formulaires de candidature posent des questions fermées : autorisation de travailler, permis obligatoire, nombre d'années d'expérience, acceptation de se déplacer. Une réponse &laquo;&nbsp;non&nbsp;&raquo; à une question marquée comme obligatoire peut écarter la candidature automatiquement. Ce n'est pas votre CV, c'est le formulaire. Répondez honnêtement ; si une condition vous semble floue ou injuste, notez-la comme question pour la personne qui vous accompagne.</p>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">Et les techniques pour &laquo; tromper &raquo; le logiciel ?</span></summary><div class="corps">
+      <p>Certaines méthodes circulent : écrire des mots-clés en blanc sur fond blanc, en tout petit, dans les marges ; ou remplir le CV d'une longue liste de mots. Ça se voit : le logiciel lit le texte blanc comme le texte noir, et beaucoup d'outils montrent au recruteur le contenu extrait à côté du CV d'origine. Une candidature repérée ainsi est souvent écartée, et jette un doute sur tout le reste. La seule chose qui aide vraiment : décrire vos expériences réelles avec les bons mots.</p>
+    </div></details>
+
+    <details class="bloc-depli"><summary><span class="t">Pourquoi ce module ne donne pas de score</span></summary><div class="corps">
+      <p>Les &laquo;&nbsp;scores de compatibilité&nbsp;&raquo; affichés par certains sites sont des estimations faites par ces sites, que le recruteur ne voit jamais. Un score rassure ou inquiète pour rien. Ici, on vous montre du vocabulaire à ajuster, pas une note.</p>
+    </div></details>
+
+    <p class="detail">Sources : France Travail, APEC, guides publics sur les logiciels de recrutement. À revérifier tous les 6 à 12 mois.</p>
+  </div>
+</div>
+
+<div class="overlay" id="m-forme">
+  <div class="fenetre">
+    <div class="fenetre-tete"><h3>&#128196; Mise en forme et logiciels de tri</h3><button class="fenetre-fermer" onclick="fermer('m-forme')">&times;</button></div>
+    <p>Le module ne voit que le <strong>texte</strong> de votre CV, pas sa mise en page. Il ne peut donc pas vous dire &laquo;&nbsp;votre CV a deux colonnes&nbsp;&raquo;. Voici des repères généraux, valables pour la plupart des logiciels de tri :</p>
+    <ul class="fine">
+      <li>Un texte <strong>sélectionnable</strong> (pas une image de CV).</li>
+      <li>Éviter les tableaux complexes et les colonnes multiples, qui cassent l'ordre de lecture.</li>
+      <li>Éviter les images qui contiennent du texte.</li>
+      <li>Éviter de mettre une information importante dans l'en-tête ou le pied de page.</li>
+      <li>Une police classique.</li>
+      <li>Vérifier le rendu après l'export en PDF.</li>
+    </ul>
+    <div class="encart"><span>&#128161;</span><span><strong>Test simple :</strong> si votre texte apparaît mélangé ou incompréhensible quand vous le collez dans la comparaison, le logiciel du recruteur le lira de la même façon.</span></div>
+    <p class="detail">Guides utiles (vous quittez l'application) : la page de France Travail sur la lecture des CV par les logiciels. Ces liens sont vérifiés tous les 6 à 12 mois.</p>
+  </div>
+</div>
+
+<script>
+  var ETAPES = [
+    { id: 1, label: "Préparer", icone: "&#128221;" },
+    { id: 2, label: "Envoyer",  icone: "&#128228;&#65039;" },
+    { id: 3, label: "Résultat", icone: "&#128196;" },
+    { id: 4, label: "Ma fiche", icone: "&#128206;" }
+  ];
+
+  function rendreEtapes(num) {
+    var host = document.getElementById('etapes');
+    host.style.opacity = (num === 0) ? .55 : 1;
+    host.innerHTML = ETAPES.map(function (e, i) {
+      var cls = "etape";
+      if (num > e.id) cls += " faite";
+      if (num === e.id) cls += " courante";
+      var estSuivant = (i === num) && num >= 1 && num < ETAPES.length;
+      var flClass = "etape-fleche" + (estSuivant ? " suivant" : (num < e.id ? " avenir" : ""));
+      var fleche = i > 0 ? '<span class="' + flClass + '">&#187;</span>' : '';
+      return fleche + '<span class="' + cls + '"><span class="pastille">' + e.icone + '</span>' + e.label + '</span>';
+    }).join('');
+  }
+
+  function rendreBarreBas(section) {
+    var host = document.getElementById('barrebas');
+    var retour = section.getAttribute('data-retour');
+    var suiv = section.getAttribute('data-suivant');
+    var suivLabel = section.getAttribute('data-suivant-label') || 'Continuer';
+    var gauche = '<button class="btn" ' +
+      (retour ? 'onclick="aller(\'' + retour + '\')"' : 'onclick="return false" style="opacity:.45;cursor:default" title="Vers l\'accueil de l\'application"') +
+      '>&#8249; Retour</button>';
+    var droite = suiv ? '<button class="btn primaire" onclick="aller(\'' + suiv + '\')">' + suivLabel + ' &#8594;</button>' : '<span></span>';
+    host.innerHTML = gauche + droite;
+  }
+
+  function aller(vue) {
+    var cible = document.querySelector('.vue[data-vue="' + vue + '"]');
+    if (!cible) return;
+    document.querySelectorAll('.vue').forEach(function (v) { v.classList.remove('active'); });
+    cible.classList.add('active');
+    rendreEtapes(parseInt(cible.getAttribute('data-etape'), 10));
+    rendreBarreBas(cible);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('devnav').value = "";
+  }
+
+  function ouvrir(id) { document.getElementById(id).classList.add('ouvert'); }
+  function fermer(id) { document.getElementById(id).classList.remove('ouvert'); }
+
+  function refATS(mode) {
+    document.getElementById('ref-offre').style.display  = (mode === 'offre')  ? 'block' : 'none';
+    document.getElementById('ref-metier').style.display = (mode === 'metier') ? 'block' : 'none';
+    document.querySelectorAll('#preparer .jeton').forEach(function (j) { j.classList.remove('actif'); });
+    event.target.classList.add('actif');
+  }
+
+  /* ---- Écran résultat : réglages de maquette ---- */
+  function simRef() {
+    var metier = document.getElementById('simRef').value === 'metier';
+    document.getElementById('sansOffre').style.display = metier ? 'block' : 'none';
+    document.querySelectorAll('#resultat .si-offre').forEach(function (s) { s.style.display = metier ? 'none' : 'inline'; });
+    document.querySelectorAll('#resultat .si-metier').forEach(function (s) { s.style.display = metier ? 'inline' : 'none'; });
+    document.querySelectorAll('#resultat .si-offre-bloc').forEach(function (s) { s.style.display = metier ? 'none' : 'block'; });
+  }
+
+  function simCas() {
+    var v = document.getElementById('simCas').value;
+    var box = document.getElementById('casNote');
+    var txt = document.getElementById('casNoteTxt');
+    if (v === 'pauvre') {
+      txt.textContent = "Votre CV contient peu de texte. Il y a donc peu de reformulations possibles. Voyez ces mots comme des pistes pour décrire ce que vous avez fait : « j'ai fait de l'accueil » peut devenir « accueil du public, orientation, renseignement ».";
+      box.style.display = 'flex';
+    } else if (v === 'courte') {
+      txt.textContent = "L'offre fournie est courte. La comparaison est moins précise : on s'en tient aux mots réellement présents dans l'offre, sans rien deviner.";
+      box.style.display = 'flex';
+    } else {
+      box.style.display = 'none';
+    }
+  }
+
+  function placerTriche() {
+    var enc = document.getElementById('encartTriche');
+    var zone = document.getElementById('zoneResultat');
+    var blocs = document.getElementById('blocsResultat');
+    var pos = document.getElementById('posTriche').value;
+    if (pos === 'en-tete') zone.insertBefore(enc, blocs);
+    else if (pos === 'pied') zone.appendChild(enc);
+    else { var p = blocs.querySelector('details'); if (p) p.after(enc); }
+  }
+
+  function majTriche() {
+    var on = document.getElementById('chkTriche').checked;
+    document.getElementById('encartTriche').style.display = on ? 'flex' : 'none';
+    placerTriche();
+    majConfig();
+  }
+
+  function bouger(btn, dir) {
+    var d = btn.closest('details');
+    if (dir < 0 && d.previousElementSibling) d.parentNode.insertBefore(d, d.previousElementSibling);
+    if (dir > 0 && d.nextElementSibling) d.parentNode.insertBefore(d.nextElementSibling, d);
+    placerTriche();
+    majConfig();
+  }
+
+  function majConfig() {
+    var ordre = [].map.call(document.querySelectorAll('#blocsResultat > details'),
+      function (d) { return d.getAttribute('data-titre'); });
+    var pos = document.getElementById('posTriche').selectedOptions[0].text;
+    var vis = document.getElementById('chkTriche').checked ? 'affiché' : 'masqué';
+    document.getElementById('lectureConfig').textContent =
+      'Ordre des blocs : ' + ordre.join('  |  ') + '\nEncart texte caché : ' + pos + ' (' + vis + ')';
+  }
+
+  document.getElementById('devnav').addEventListener('change', function () { if (this.value) aller(this.value); });
+  document.getElementById('theme').addEventListener('click', function () {
+    document.body.classList.toggle('dark');
+    this.textContent = document.body.classList.contains('dark') ? 'Mode clair' : 'Mode sombre';
+  });
+
+  majConfig();
+  aller('comparaison');
+</script>
+</body>
+</html>

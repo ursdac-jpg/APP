@@ -1,0 +1,422 @@
+<!doctype html>
+<!--
+  MAQUETTE - refonte de la mise en page d'une FICHE du Lexique.
+
+  Constat Denis (2026-09-09, capture "Rupture conventionnelle") : la
+  definition fait 2 lignes, et en dessous ~10 boutons bordes en pavés
+  (En savoir plus, A ne pas confondre, Voir aussi, Dans le theme, Favoris,
+  Garder comme Repere). Les boutons pesent plus lourd que le texte.
+
+  Proposition : le contenu (titre + type + definition + "En savoir plus")
+  respire ; tout ce qui suit devient plus discret et plus compact --
+  relations en petites pilules alignees en liste de definition, actions
+  (favori / Repere) dans une barre fine en bas.
+
+  ZERO REGRESSION : rien n'est retire. "En savoir plus", "A ne pas
+  confondre", "Voir aussi", "Dans le theme", "Ajouter aux favoris",
+  "Garder comme Repere", et les encarts contextuels (frein / urgences /
+  annuaire / renvoi local) restent -- seulement allegess. La navigation
+  (clic -> fiche / collection / bibliotheque) ne change pas.
+
+  Regles maquette (Denis) : proposition SEULE, panneau de reglages avec
+  une croix. Jetons = css/style.css. Contenu reel de la fiche.
+-->
+<html lang="fr" data-theme="clair">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche du Lexique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text-muted: #4a5b6e; --text-soft: #3a4a5e;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd;
+    --repere-ref: #7c3aed; --repere-ref-bg: #f1ebfd;
+    --radius: 12px; --police-app: 'Inter', 'Segoe UI', Roboto, system-ui, sans-serif;
+  }
+  html[data-theme="sombre"] {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #2a3444;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text-muted: #a8b3c4; --text-soft: #c3ccd9;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940;
+    --repere-ref: #b794f6; --repere-ref-bg: #241a3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg-page); color: var(--text-strong);
+    font-family: var(--police-app); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { text-wrap: balance; }
+
+  .meta { max-width: 720px; margin: 0 auto; padding: 1.4rem 1.5rem 0.3rem; }
+  .meta .tag {
+    display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--accent); background: var(--accent-bg-subtle);
+    border-radius: 999px; padding: .2rem .6rem; margin-bottom: .5rem;
+  }
+  .meta h1 { font-size: 1.3rem; margin: 0 0 .3rem; letter-spacing: -0.01em; }
+  .meta p { color: var(--text-muted); margin: .2rem 0; font-size: .92rem; }
+
+  .scene { padding: 1rem 1.5rem 5rem; display: flex; justify-content: center; }
+  .cadre {
+    width: 100%; max-width: 720px; background: var(--bg-card);
+    border: 1px solid var(--border-strong); border-radius: 18px; overflow: hidden;
+    box-shadow: 0 14px 40px rgba(11, 26, 51, 0.12); transition: max-width .25s ease;
+  }
+  html[data-theme="sombre"] .cadre { box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45); }
+  .cadre.mobile { max-width: 390px; }
+  .cadre-barre {
+    display: flex; align-items: center; gap: .4rem;
+    padding: .55rem .8rem; border-bottom: 1px solid var(--border); background: var(--bg-subtle);
+  }
+  .cadre-barre .rond {
+    width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border-strong);
+    background: var(--bg-card); display: grid; place-items: center; font-size: .8rem; color: var(--accent);
+  }
+  .cadre-scroll { padding: 1.15rem 1.3rem 1.4rem; }
+
+  /* -- Retour -- */
+  .fiche-retour {
+    appearance: none; -webkit-appearance: none; font-family: inherit;
+    font-size: .85rem; font-weight: 600; color: var(--accent);
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 999px; padding: .35rem .8rem; margin-bottom: 1rem; cursor: pointer;
+  }
+
+  /* -- En-tete de la fiche : le contenu qui respire -- */
+  .fiche-fil {
+    font-size: .85rem; color: var(--text-muted); margin: 0 0 .3rem;
+  }
+  .fiche-fil a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .fiche-fil a:hover { color: var(--accent); }
+  .fiche-titre { font-size: 1.5rem; font-weight: 700; margin: 0 0 .1rem; letter-spacing: -0.01em; }
+  .fiche-type { font-size: .82rem; color: var(--text-muted); margin: 0 0 1rem; }
+  .fiche-def { font-size: 1.06rem; color: var(--text-strong); margin: 0 0 1rem; max-width: 62ch; }
+
+  /* -- "En savoir plus" : contenu, mais discret -- */
+  .fiche-plus-toggle {
+    appearance: none; -webkit-appearance: none; font-family: inherit;
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-size: .92rem; font-weight: 600; color: var(--accent);
+    background: transparent; border: none; padding: .2rem 0; cursor: pointer;
+  }
+  .fiche-plus-toggle .chev { transition: transform .15s ease; }
+  .fiche-plus-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .fiche-plus-corps {
+    margin: .5rem 0 0; padding: .75rem .9rem;
+    background: var(--accent-bg-subtle); border-radius: 10px;
+    font-size: .98rem; color: var(--text-soft);
+  }
+  .fiche-plus-corps[hidden] { display: none; }
+  .fiche-plus.pilule .fiche-plus-toggle {
+    border: 1px solid var(--border); border-radius: 999px; padding: .35rem .85rem;
+  }
+
+  /* -- Separateur avant les renvois -- */
+  .fiche-sep {
+    border: 0; border-top: 1px solid var(--border);
+    margin: 1.4rem 0 1.1rem;
+  }
+  .fiche-sep.masque { display: none; }
+
+  /* -- Renvois : liste de definition compacte -- */
+  .fiche-renvois { display: flex; flex-direction: column; gap: .7rem; }
+  .fiche-renvoi { display: grid; grid-template-columns: 10.5rem 1fr; gap: .3rem 0.9rem; align-items: start; }
+  .cadre.mobile .fiche-renvoi { grid-template-columns: 1fr; gap: .3rem; }
+  .fiche-renvoi-lib { font-size: .82rem; color: var(--text-muted); padding-top: .28rem; }
+  .fiche-renvoi-pastilles { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .fiche-lien {
+    appearance: none; -webkit-appearance: none; font-family: inherit;
+    font-size: .84rem; font-weight: 500; color: var(--text-strong);
+    background: var(--bg-subtle); border: 1px solid var(--border);
+    border-radius: 999px; padding: .28rem .7rem; cursor: pointer;
+    white-space: normal; text-align: left;
+  }
+  .fiche-lien:hover, .fiche-lien:focus-visible { border-color: var(--accent); color: var(--accent); }
+
+  /* variante "petite liste" plutot que pilules */
+  .fiche-renvois.liste .fiche-renvoi-pastilles { flex-direction: column; align-items: flex-start; gap: .25rem; }
+  .fiche-renvois.liste .fiche-lien {
+    background: transparent; border: 0; border-radius: 0; padding: .15rem 0;
+    color: var(--accent); text-decoration: underline; text-underline-offset: 2px;
+  }
+
+  /* -- Barre d'actions perso (favori + Repere) -- */
+  .fiche-actions {
+    display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+    margin-top: 1.5rem; padding: .7rem .85rem;
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 12px;
+  }
+  .fiche-actions.simple { background: transparent; border: 0; padding: 0; }
+  .fiche-action {
+    appearance: none; -webkit-appearance: none; font-family: inherit;
+    display: inline-flex; align-items: center; gap: .4rem;
+    font-size: .88rem; font-weight: 600; cursor: pointer;
+    border-radius: 999px; padding: .4rem .9rem;
+    border: 1px solid var(--border); background: var(--bg-card); color: var(--text-strong);
+  }
+  .fiche-action.favori { color: var(--accent); }
+  .fiche-action.favori[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); }
+  .fiche-action.repere { color: var(--repere-ref); }
+  .fiche-action.repere:hover { background: var(--repere-ref-bg); border-color: var(--repere-ref); }
+  .fiche-actions-note { flex-basis: 100%; font-size: .78rem; color: var(--text-muted); margin: 0; }
+
+  .barre-bas {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .85rem 0 .1rem; border-top: 1px solid var(--border); margin-top: 1.6rem;
+  }
+  .barre-bas button {
+    font-size: .9rem; font-weight: 600; padding: .5rem .95rem; border-radius: 10px;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); cursor: pointer;
+  }
+
+  /* -- Panneau reglages -- */
+  .panneau {
+    position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
+    width: 300px; max-height: 88vh; overflow-y: auto;
+    background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(11, 26, 51, 0.22); font-size: .86rem;
+  }
+  .panneau-tete {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .7rem .5rem .7rem 1rem; font-weight: 700; border-bottom: 1px solid var(--border);
+  }
+  .panneau-tete button {
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-subtle); color: var(--text-muted); font-size: 1rem; cursor: pointer;
+  }
+  .panneau .corps { padding: .9rem 1rem 1rem; display: flex; flex-direction: column; gap: .9rem; }
+  .reglage { display: flex; flex-direction: column; gap: .35rem; }
+  .reglage > span { font-weight: 600; color: var(--text-soft); font-size: .8rem; }
+  .segmented { display: flex; gap: .25rem; flex-wrap: wrap; }
+  .segmented button {
+    flex: 1; min-width: 3rem; padding: .35rem .4rem; font-size: .78rem;
+    border: 1px solid var(--border-strong); border-radius: 8px;
+    background: var(--bg-subtle); color: var(--text-muted); cursor: pointer;
+  }
+  .segmented button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .rouvrir {
+    position: fixed; right: 1rem; bottom: 1rem; z-index: 50; display: none;
+    font-size: .82rem; font-weight: 600; color: var(--accent);
+    background: var(--bg-card); border: 1px solid var(--border-strong);
+    border-radius: 999px; padding: .5rem .9rem; box-shadow: 0 8px 24px rgba(11,26,51,.2); cursor: pointer;
+  }
+  .config {
+    margin-top: .2rem; padding: .7rem .8rem; background: var(--bg-subtle);
+    border: 1px solid var(--border); border-radius: 9px;
+    font-size: .77rem; line-height: 1.5; color: var(--text-soft); white-space: pre-wrap;
+  }
+  .note { max-width: 720px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+  .note .carte-note {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem 1.2rem; font-size: .89rem; color: var(--text-soft);
+  }
+  .note h3 { margin: 0 0 .5rem; font-size: 1rem; }
+  .note ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+  .note li { margin: .28rem 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="meta">
+  <span class="tag">Maquette &agrave; valider &middot; 2026-09-09</span>
+  <h1>Fiche du Lexique : nouvelle mise en page</h1>
+  <p>Exemple r&eacute;el : &laquo;&nbsp;Rupture conventionnelle&nbsp;&raquo;. Le contenu respire ; les renvois et les actions deviennent compacts et discrets. Rien n'est retir&eacute;. R&eacute;glez les d&eacute;tails dans le panneau ; la croix le referme.</p>
+</div>
+
+<div class="scene">
+  <div class="cadre" id="cadre">
+    <div class="cadre-barre">
+      <span class="rond">&#9881;</span><span class="rond">&#128161;</span><span class="rond">&#128190;</span>
+    </div>
+    <div class="cadre-scroll">
+      <button type="button" class="fiche-retour">&larr; Retour &agrave; la recherche</button>
+
+      <p class="fiche-fil"><a>Droit du travail</a> &middot; <a>langage juridique</a>, <a>langage administratif</a></p>
+      <h1 class="fiche-titre">Rupture conventionnelle</h1>
+      <p class="fiche-type">Terme</p>
+      <p class="fiche-def">Une rupture conventionnelle est une fin de contrat de travail d&eacute;cid&eacute;e d'un commun accord entre l'employeur et le salari&eacute;, formalis&eacute;e par une convention sign&eacute;e des deux parties. Elle se distingue &agrave; la fois du licenciement et de la d&eacute;mission, chacun d&eacute;cid&eacute; par une seule des deux parties.</p>
+
+      <div class="fiche-plus" id="fichePlus">
+        <button type="button" class="fiche-plus-toggle" id="fichePlusToggle" aria-expanded="false" aria-controls="fichePlusCorps">
+          <span class="chev" aria-hidden="true">&#8250;</span> En savoir plus
+        </button>
+        <div class="fiche-plus-corps" id="fichePlusCorps" hidden>
+          <strong>Nuance utile.</strong> Une rupture conventionnelle ne peut jamais &ecirc;tre impos&eacute;e par une seule des deux parties : si l'employeur ou le salari&eacute; refuse, elle n'a pas lieu, et le contrat continue ou prend fin par une autre voie.
+        </div>
+      </div>
+
+      <hr class="fiche-sep" id="ficheSep">
+
+      <div class="fiche-renvois" id="ficheRenvois">
+        <div class="fiche-renvoi">
+          <span class="fiche-renvoi-lib">&Agrave; ne pas confondre avec</span>
+          <span class="fiche-renvoi-pastilles">
+            <button type="button" class="fiche-lien">Licenciement</button>
+            <button type="button" class="fiche-lien">D&eacute;mission</button>
+            <button type="button" class="fiche-lien">Entretien pr&eacute;alable</button>
+          </span>
+        </div>
+        <div class="fiche-renvoi">
+          <span class="fiche-renvoi-lib">Voir aussi</span>
+          <span class="fiche-renvoi-pastilles">
+            <button type="button" class="fiche-lien">Solde de tout compte</button>
+            <button type="button" class="fiche-lien">D&eacute;mission ou rupture conventionnelle&nbsp;?</button>
+            <button type="button" class="fiche-lien">Les d&eacute;lais qui prot&egrave;gent (r&eacute;tractation, r&eacute;flexion, pr&eacute;venance)</button>
+          </span>
+        </div>
+        <div class="fiche-renvoi">
+          <span class="fiche-renvoi-lib">Dans le th&egrave;me</span>
+          <span class="fiche-renvoi-pastilles">
+            <button type="button" class="fiche-lien">&#129517; Comprendre la fin d'un contrat de travail</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="fiche-actions" id="ficheActions">
+        <button type="button" class="fiche-action favori" aria-pressed="false">
+          <span aria-hidden="true">&#9734;</span> Ajouter aux favoris
+        </button>
+        <button type="button" class="fiche-action repere">
+          <span aria-hidden="true">&#128278;</span> Garder comme Rep&egrave;re
+        </button>
+        <p class="fiche-actions-note">Un favori pour retrouver vite &middot; un Rep&egrave;re pour y repenser plus tard.</p>
+      </div>
+
+      <div class="barre-bas">
+        <button type="button">&larr; Retour</button>
+        <button type="button">&#127968; Accueil</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <div class="carte-note">
+    <h3>Ce qui change (et ce qui ne change pas)</h3>
+    <ul>
+      <li><strong>Gard&eacute;, tel quel</strong> : le fil univers / registres cliquable (texte soulign&eacute;, jamais des boutons, LECONS 9.6), le titre, le type, la d&eacute;finition, l'accord&eacute;on &laquo;&nbsp;En savoir plus&nbsp;&raquo;, &laquo;&nbsp;&Agrave; ne pas confondre avec&nbsp;&raquo;, &laquo;&nbsp;Voir aussi&nbsp;&raquo;, &laquo;&nbsp;Dans le th&egrave;me&nbsp;&raquo;, &laquo;&nbsp;Ajouter aux favoris&nbsp;&raquo;, &laquo;&nbsp;Garder comme Rep&egrave;re&nbsp;&raquo;. Les encarts contextuels (frein, num&eacute;ros d'urgence, annuaire, renvoi local) restent aussi, allég&eacute;s de la m&ecirc;me fa&ccedil;on.</li>
+      <li><strong>All&eacute;g&eacute;</strong> : la d&eacute;finition a plus d'air et une largeur de lecture confortable. Les renvois passent de gros boutons bord&eacute;s &agrave; de <strong>petites pilules</strong> align&eacute;es en face de leur libell&eacute; (liste de d&eacute;finition). &laquo;&nbsp;En savoir plus&nbsp;&raquo; devient un simple d&eacute;clencheur texte. Favori et Rep&egrave;re sont regroup&eacute;s dans une <strong>barre d'actions fine</strong> en bas.</li>
+      <li><strong>Rien de retir&eacute;</strong> : mêmes liens, m&ecirc;me navigation (clic vers une fiche, une collection, la biblioth&egrave;que d'un domaine / registre). Aucun geste perdu.</li>
+    </ul>
+  </div>
+</div>
+
+<button type="button" class="rouvrir" id="rouvrir">R&eacute;glages &#9662;</button>
+<div class="panneau" id="panneau">
+  <div class="panneau-tete">
+    <span>R&eacute;glages de la maquette</span>
+    <button type="button" id="fermerPanneau" aria-label="Fermer les r&eacute;glages">&#10005;</button>
+  </div>
+  <div class="corps">
+    <div class="reglage">
+      <span>Th&egrave;me</span>
+      <div class="segmented" data-groupe="theme">
+        <button type="button" data-val="clair" aria-pressed="true">Clair</button>
+        <button type="button" data-val="sombre" aria-pressed="false">Sombre</button>
+      </div>
+    </div>
+    <div class="reglage">
+      <span>Largeur de l'aper&ccedil;u</span>
+      <div class="segmented" data-groupe="largeur">
+        <button type="button" data-val="ordi" aria-pressed="true">Ordinateur</button>
+        <button type="button" data-val="mobile" aria-pressed="false">Mobile</button>
+      </div>
+    </div>
+    <div class="reglage">
+      <span>Renvois (&Agrave; ne pas confondre, Voir aussi&hellip;)</span>
+      <div class="segmented" data-groupe="renvois">
+        <button type="button" data-val="pilules" aria-pressed="true">Petites pilules</button>
+        <button type="button" data-val="liste" aria-pressed="false">Petite liste</button>
+      </div>
+    </div>
+    <div class="reglage">
+      <span>&laquo;&nbsp;En savoir plus&nbsp;&raquo;</span>
+      <div class="segmented" data-groupe="plus">
+        <button type="button" data-val="texte" aria-pressed="true">D&eacute;clencheur texte</button>
+        <button type="button" data-val="pilule" aria-pressed="false">Pilule l&eacute;g&egrave;re</button>
+      </div>
+    </div>
+    <div class="reglage">
+      <span>S&eacute;parateur avant les renvois</span>
+      <div class="segmented" data-groupe="sep">
+        <button type="button" data-val="oui" aria-pressed="true">Visible</button>
+        <button type="button" data-val="non" aria-pressed="false">Masqu&eacute;</button>
+      </div>
+    </div>
+    <div class="reglage">
+      <span>Barre d'actions (favori / Rep&egrave;re)</span>
+      <div class="segmented" data-groupe="actions">
+        <button type="button" data-val="barre" aria-pressed="true">Barre encadr&eacute;e</button>
+        <button type="button" data-val="simple" aria-pressed="false">Boutons simples</button>
+      </div>
+    </div>
+    <div>
+      <span style="font-weight:600;color:var(--text-soft);font-size:.8rem;">Configuration retenue</span>
+      <div class="config" id="config"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var etat = { theme: "clair", largeur: "ordi", renvois: "pilules", plus: "texte", sep: "oui", actions: "barre" };
+  var $ = function (id) { return document.getElementById(id); };
+  var cadre = $("cadre"), renvois = $("ficheRenvois"), fichePlus = $("fichePlus"),
+      ficheSep = $("ficheSep"), ficheActions = $("ficheActions"), configBox = $("config"),
+      panneau = $("panneau"), rouvrir = $("rouvrir");
+
+  $("fichePlusToggle").addEventListener("click", function () {
+    var corps = $("fichePlusCorps");
+    var ouvert = this.getAttribute("aria-expanded") === "true";
+    this.setAttribute("aria-expanded", String(!ouvert));
+    corps.hidden = ouvert;
+  });
+
+  function rendreConfig() {
+    configBox.textContent =
+      "Definition : plus d'air, largeur de lecture ~62 caracteres.\n" +
+      "Renvois : " + (etat.renvois === "pilules" ? "petites pilules alignees en face du libelle" : "petite liste de liens soulignes") + ".\n" +
+      "« En savoir plus » : " + (etat.plus === "texte" ? "declencheur texte (chevron + libelle, sans cadre)" : "pilule legere bordee") + ".\n" +
+      "Separateur avant les renvois : " + (etat.sep === "oui" ? "un filet fin" : "aucun") + ".\n" +
+      "Favori + Repere : " + (etat.actions === "barre" ? "barre fine encadree en bas, avec une ligne d'explication" : "deux boutons simples cote a cote") + ".\n" +
+      "Apercu : theme " + etat.theme + ", largeur " + (etat.largeur === "mobile" ? "mobile" : "ordinateur") + ".";
+  }
+  function appliquer() {
+    document.documentElement.setAttribute("data-theme", etat.theme);
+    cadre.classList.toggle("mobile", etat.largeur === "mobile");
+    renvois.classList.toggle("liste", etat.renvois === "liste");
+    fichePlus.classList.toggle("pilule", etat.plus === "pilule");
+    ficheSep.classList.toggle("masque", etat.sep === "non");
+    ficheActions.classList.toggle("simple", etat.actions === "simple");
+    rendreConfig();
+  }
+  document.querySelectorAll(".segmented").forEach(function (grp) {
+    grp.addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b) { return; }
+      etat[grp.getAttribute("data-groupe")] = b.getAttribute("data-val");
+      grp.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      appliquer();
+    });
+  });
+  document.querySelector(".fiche-action.favori").addEventListener("click", function () {
+    var p = this.getAttribute("aria-pressed") === "true";
+    this.setAttribute("aria-pressed", String(!p));
+    this.querySelector("span").innerHTML = p ? "&#9734;" : "&#9733;";
+    this.lastChild.nodeValue = p ? " Ajouter aux favoris" : " Dans mes favoris";
+  });
+  $("fermerPanneau").addEventListener("click", function () { panneau.style.display = "none"; rouvrir.style.display = "inline-block"; });
+  rouvrir.addEventListener("click", function () { panneau.style.display = ""; rouvrir.style.display = "none"; });
+  appliquer();
+})();
+</script>
+</body>
+</html>

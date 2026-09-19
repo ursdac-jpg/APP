@@ -1,0 +1,226 @@
+<!doctype html>
+<!--
+  MAQUETTE - page d'introduction / présentation du module « Regard recruteur ».
+  Copie du squelette docs/maquettes/_skeleton-intro-module.html, puis remplie.
+  Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md.
+  Contenu de référence : docs/PAGES_INTRODUCTION_MODULES_RECUEIL.md §2 (structure canonique) et §7.
+
+  MODULE PAS ENCORE CONSTRUIT (chantier stratégique 5, le plus lourd : ~100-140h, nouveau moteur
+  de diagnostic complet sur le modèle du Prompt 1 du Bilan). Cette maquette sert UNIQUEMENT à
+  préparer l'organisation de la page d'accueil. Le bouton d'entrée du bas est volontairement
+  DÉSACTIVÉ tant que le module n'existe pas.
+
+  À NE PAS CONFONDRE avec le module existant « Regard extérieur » (Repères).
+  Fusion actée : Simulation recruteur + Préparation selon les inquiétudes du recruteur
+  + ce qui est récupérable de Recruteur virtuel -> un seul module. Le « Comité de recrutement
+  virtuel » (plusieurs profils) est écarté (docs/AUDIT_STRATEGIQUE_ERIP_2026-08.md).
+
+  Textes repris de fichiers existants du dépôt (pas inventés) :
+    - docs/PAGES_INTRODUCTION_MODULES_RECUEIL.md §7 :
+        « simuler le regard d'un recruteur sur une candidature (première impression, inquiétudes
+          possibles, questions). Piste retenue : analyser une image du CV (capture d'écran), pas
+          seulement le texte, pour juger la forme ; anonymisation par rectangles dessinés sur l'image. »
+    - docs/AUDIT_STRATEGIQUE_ERIP_2026-08.md :
+        « une lecture du CV/candidature depuis un point de vue externe structuré (points forts, doutes,
+          objections probables), avec la même discipline que le Bilan CV (axes fixes, sortie bornée,
+          jamais un chat ouvert) » ;
+        garde-fou obligatoire : « chaque élément de sortie (doutes, objections probables) doit être
+          formulé comme question ou point à vérifier, jamais comme un constat affirmatif » ;
+        version courte CIP : « Une lecture externe du CV, points forts et doutes probables /
+          Présente des questions à vérifier, jamais des vérités ».
+    - docs/FEUILLE_DE_ROUTE_ERIP_2026-08-23.md : « Se préparer au regard extérieur porté sur son dossier ».
+    - docs/IDEES_A_RECLASSER.md (2026-08-28, analyse d'une IMAGE de CV) :
+        « Une IA multimodale voit alors ce qu'un recruteur voit : mise en page, aération, colonnes,
+          police, couleurs, hiérarchie visuelle, longueur réelle » ; « une capture d'écran du CV
+          (ou une page PDF exportée en image) est nette et suffit » ; « la personne masque nom / photo /
+          coordonnées sur l'image avant de l'envoyer » ; entrée « obligatoire ou fortement recommandée ».
+    - data/lexique.js, fiche 'cv-lecture-recruteur' :
+        « Un recruteur repère d'abord les informations qui lui permettent de vérifier rapidement
+          l'adéquation avec le poste : intitulés de postes précédents, durée des expériences,
+          compétences citées explicitement. Un CV mal structuré peut faire perdre ces informations
+          même quand le contenu est solide. »
+    - Écran de masquage, phrases confidentialité, encart disquette : repris de MAQUETTE_INTRO_LETTRE.html
+      et du squelette (masquage transposé à l'image : rectangles dessinés).
+
+  Thème sombre : classe .dark sur <body> (convention maquette), PAS [data-theme].
+  Spécificité du module : --accent sarcelle (#0f766e clair / #2dd4bf sombre) -- PLACEHOLDER,
+  à accorder avec ATS (indigo) et Se tenir informé (à venir).
+  Icône : cadre / image (le CV regardé comme le voit un recruteur) -- objet, jamais un visage / des yeux.
+  Alternatives : lunettes, miroir. « Regard extérieur » utilise déjà un télescope : bien différencier.
+
+  RÈGLE APP (décision Denis 2026-08-30) : aucune page d'introduction de module ne porte de bloc
+  « Cet outil travaille avec » ni de renvoi vers un autre module. Volontairement absent.
+  Seule exception conservée : l'encart « Mes Repères » (espace personnel transversal).
+
+  EXIGENCE FONCTIONNELLE À REPORTER dans la tâche d'intégration (mégachantier accueil), demande
+  explicite de Denis 2026-08-31 : le module doit aussi donner « l'avis d'un recruteur » sur le fait
+  que le CV reprenne (ou non) les COULEURS / codes visuels de l'entreprise -- technique courante,
+  certains recruteurs y sont sensibles (signe d'intérêt et d'effort). Sortie : dire si le CV le fait
+  déjà + comment un recruteur pourrait le percevoir, jamais comme une obligation (d'autres y sont
+  indifférents ; la lisibilité prime). Entrées nécessaires : image du CV + nom de l'entreprise
+  (l'app capture déjà « couleurs de l'entreprise » côté Découverte, commit f77769e -- réutiliser).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - présentation du module Regard recruteur</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #0f766e; --accent-bg: #e2f2f0;        /* teinte du module : sarcelle (placeholder) */
+    --ok: #198754; --ok-bg: #d9f4e4; --ok-strong: #157347;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #2dd4bf; --accent-bg: #17302d;
+    --ok: #35c79a; --ok-bg: #17301f; --ok-strong: #6ee89a;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.7rem; color: var(--text-strong); margin: .2rem 0; }
+  h2 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  .sous-titre { color: var(--text-muted); margin: .2rem 0 1rem; }
+  .centre { text-align: center; }
+
+  .section { background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .9rem; }
+  .section.teinte { background: var(--accent-bg); border-color: var(--accent); }
+  .section ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .section li { margin: .2rem 0; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  /* Encart d'information : fond teinté + filet gauche accent + icône objet. */
+  .encart { display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+
+  /* Accordéon "en savoir plus". */
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .5rem 0;
+    overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .7rem 1rem;
+    font-weight: 700; color: var(--text-strong); }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary::before { content: "\25B8"; color: var(--accent);
+    font-size: .85em; margin-right: .5rem; display: inline-block; transition: transform .15s; }
+  .bloc-depli[open] > summary::before { transform: rotate(90deg); }
+  .bloc-depli .corps { padding: .2rem 1rem 1rem; border-top: 1px solid var(--border); }
+
+  /* Boutons : rectangle à coins arrondis, jamais rond. */
+  .btn { font: inherit; border-radius: var(--radius); padding: .55rem 1.1rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    cursor: pointer; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  body.dark .btn.primaire { color: #06201d; }
+  .btn.large { font-size: 1.05rem; padding: .7rem 1.5rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .signature { color: var(--text-muted); font-size: .82rem; text-align: center;
+    margin-top: 1.6rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  .toggle-theme { position: fixed; top: .6rem; right: .6rem; font-size: .8rem; }
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+  <div class="centre">
+    <h1>&#128444;&#65039; Regard recruteur</h1>
+    <p class="sous-titre">Vous préparer au regard extérieur porté sur votre dossier : ce qui ressort, ce qui peut faire hésiter, les questions probables.</p>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>C'est une simulation, pas le verdict d'un vrai recruteur.</strong> Chaque doute est présenté comme une question à vérifier ou à préparer, jamais comme une vérité sur vous.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; À quoi ça sert</h2>
+    <p>Voir votre candidature comme un recruteur peut la voir : la première impression, les points forts perçus, les inquiétudes possibles, les questions qu'il pourrait se poser. Un recruteur repère d'abord les informations qui lui permettent de vérifier rapidement l'adéquation avec le poste, et un CV mal structuré peut faire perdre ces informations même quand le contenu est solide. Ce module vous aide à repérer ça avant lui.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous préparez une image de votre CV : une capture d'écran, ou une page exportée en image, nette et lisible (mieux qu'une photo).</li>
+      <li>Vous masquez sur l'image, avec des rectangles, ce que vous ne voulez pas transmettre : votre nom, votre photo, vos coordonnées.</li>
+      <li>Vous indiquez le poste visé, l'entreprise, et si vous l'avez l'offre d'emploi.</li>
+      <li>Un assistant en ligne regarde votre CV comme le ferait un recruteur : la mise en page, l'aération, la longueur, la hiérarchie des informations, autant que le contenu.</li>
+      <li>Il repère aussi si votre CV reprend les couleurs ou les codes visuels de l'entreprise, et vous dit comment un recruteur pourrait le percevoir.</li>
+      <li>Vous recevez une lecture structurée : points forts perçus, doutes possibles, questions probables, chacun formulé comme un point à vérifier.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#127912; Les couleurs de l'entreprise dans votre CV</h2>
+    <p>Reprendre discrètement les couleurs ou les codes visuels de l'entreprise dans son CV est une technique courante. Certains recruteurs y sont sensibles : ils y voient un signe d'intérêt réel et d'effort pour se projeter dans la structure.</p>
+    <p style="margin:.4rem 0 0">À partir de l'image de votre CV et du nom de l'entreprise, le module vous dit si votre CV le fait déjà, et comment un recruteur pourrait le recevoir. Ce n'est jamais présenté comme une obligation : d'autres recruteurs y sont indifférents, et un CV doit rester lisible avant tout.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce module ne fait pas</h2>
+    <ul>
+      <li>Ce n'est pas le verdict d'un vrai recruteur : c'est une simulation, pour vous préparer.</li>
+      <li>Ce n'est pas une note ni un classement de votre candidature.</li>
+      <li>Ce n'est pas un entretien en direct ni une conversation : vous recevez une lecture, pas un échange.</li>
+      <li>Ce ne sont pas plusieurs avis contradictoires : une seule lecture, structurée et bornée.</li>
+    </ul>
+    <details class="bloc-depli">
+      <summary>Pourquoi une image du CV, et pas seulement le texte ?</summary>
+      <div class="corps">
+        <p style="margin:.4rem 0 0">Une image (capture d'écran) permet de juger ce qu'un recruteur voit vraiment : mise en page, aération, colonnes, police, couleurs, hiérarchie visuelle, longueur réelle en pages. À partir du texte seul, toute la forme reste invisible. Une capture d'écran, ou une page de CV exportée en image, est nette et suffit ; pas besoin d'une photo.</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9878;&#65039; Des questions, pas un jugement</h2>
+    <p style="margin:0">Le résultat vous montre des points à vérifier et à préparer, jamais une évaluation de vous ou de votre valeur. Vous restez libre de tenir compte d'un point, de le nuancer, ou de le laisser de côté.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Repérer les points de votre CV qui pourraient faire hésiter, et décider lesquels retravailler.</li>
+      <li>Préparer une réponse aux questions qu'un recruteur pourrait poser.</li>
+      <li>Refaire une lecture après avoir modifié votre CV, ou pour un autre poste.</li>
+    </ul>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Repères</h2>
+    <p style="margin:0">Si une question ou un point à préparer vous semble important pour la suite, vous pourrez le garder dans Mes Repères, votre espace personnel de notes.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Comment ça se passe concrètement</h2>
+    <p style="margin:0">L'application prépare le texte de départ et vous guide pour joindre l'image de votre CV. Vous donnez le tout à l'assistant en ligne que vous avez choisi, vous récupérez sa réponse, puis vous revenez la coller ici. Vous êtes guidé à chaque étape ; vous n'avez rien à taper pour démarrer.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9989; Bon à savoir</h2>
+    <div class="encart"><span>&#128274;</span><span class="detail">Avant d'envoyer l'image de votre CV, vous masquez vous-même, avec des rectangles, votre nom, votre photo et vos coordonnées. Votre nom et vos coordonnées ne partent jamais vers l'assistant.</span></div>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte : pensez à cliquer sur l'icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" disabled>Demander un regard sur ma candidature &#8594;</button>
+    <p class="detail" style="margin:.5rem 0 0">Ce module est en cours de préparation. La page de présentation est prête ; l'outil arrivera dans une prochaine version.</p>
+  </div>
+
+  <p class="signature">APP part de ce que vous apportez, vous aide à prendre du recul, et vous laisse toujours la décision.</p>
+</main>
+</body>
+</html>

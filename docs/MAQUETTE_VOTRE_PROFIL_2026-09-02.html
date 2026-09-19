@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette v9 - Page « Votre profil » (ex-« Faire le point »)</title>
+<style>
+  :root {
+    --bg-page:#f4f6f9; --bg-card:#fff; --bg-subtle:#eef1f5; --border:#d9dfe7; --border-strong:#b7c0cc;
+    --text-strong:#1f2933; --text:#33404d; --text-muted:#6b7683;
+    --accent:#2563eb; --accent-hover:#1d4ed8; --accent-bg-subtle:#e8f0fe;
+    --success:#157347;
+    --fam-faire:#1d4ed8; --fam-faire-bg:#e8f0fe;
+    --fam-etre:#0f766e; --fam-etre-bg:#d7f0ec;
+    --fam-savoir:#7c3aed; --fam-savoir-bg:#f0e8fd;
+    --ombre:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
+  }
+  :root[data-theme="sombre"] {
+    --bg-page:#12171e; --bg-card:#1b222c; --bg-subtle:#232c38; --border:#333e4c; --border-strong:#47566a;
+    --text-strong:#f1f4f8; --text:#d7dee7; --text-muted:#9aa6b3;
+    --accent:#5b9bff; --accent-hover:#7db0ff; --accent-bg-subtle:#1e2c44;
+    --success:#4cc88a;
+    --fam-faire:#8ab4ff; --fam-faire-bg:#1c2c48;
+    --fam-etre:#5fd6c9; --fam-etre-bg:#14322f;
+    --fam-savoir:#c4a5f7; --fam-savoir-bg:#2a2142;
+    --ombre:0 1px 2px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:0 0 92px; background:var(--bg-page); color:var(--text);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.55; }
+  .wrap { max-width:860px; margin:0 auto; padding:20px 18px; }
+  .prog { display:flex; flex-wrap:wrap; gap:6px; font-size:12.5px; margin-bottom:22px; }
+  .prog span { padding:5px 10px; border-radius:999px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-muted); white-space:nowrap; }
+  .prog span.actif { border-color:var(--accent); color:var(--accent); background:var(--accent-bg-subtle); font-weight:600; }
+  h1 { font-size:24px; color:var(--text-strong); margin:0 0 4px; text-align:center; }
+  .sous-titre { text-align:center; color:var(--text-muted); margin:0 0 18px; }
+
+  .panneau-demo { border:1px dashed var(--border-strong); border-radius:10px; background:var(--bg-subtle); padding:12px 14px; margin-bottom:20px; font-size:13.5px; }
+  .panneau-demo b { color:var(--text-strong); }
+  .demo-boutons { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .demo-boutons button { font:inherit; font-size:12.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; }
+  .demo-boutons button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+
+  .intertitre { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin:20px 0 10px; }
+
+  .btn { font:inherit; font-weight:600; border-radius:7px; cursor:pointer; border:1.5px solid var(--border-strong); background:var(--bg-card); color:var(--text); display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-sm { font-size:12px; padding:6px 12px; }
+  .btn.fait { border-color:var(--success); color:var(--success); }
+
+  .carte-fixe { border:1px solid var(--border); border-radius:8px; background:var(--bg-card); box-shadow:var(--ombre); padding:14px 16px; margin-bottom:10px; }
+  .carte-fixe.accent { border-left:4px solid var(--accent); }
+
+  .metier-vise .mv-ligne { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .metier-vise .mv-nom { font-size:17px; font-weight:700; color:var(--text-strong); }
+  .metier-vise .mv-txt { font-size:12.5px; color:var(--text-muted); margin:9px 0 0; }
+  .metier-vise .mv-actions { margin-top:11px; display:flex; gap:8px; flex-wrap:wrap; }
+
+  .pb-titre { font-weight:650; color:var(--text-strong); font-size:14px; margin-bottom:10px; }
+  .pb-grille { display:grid; grid-template-columns:1fr 1fr; gap:9px 20px; }
+  @media (max-width:560px) { .pb-grille { grid-template-columns:1fr; } }
+  .pb-item { font-size:13px; }
+  .pb-lbl { color:var(--text-muted); font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; }
+  .pb-val { color:var(--text-strong); font-weight:600; }
+  .pb-val.vide { color:var(--text-muted); font-weight:400; font-style:italic; }
+  .pb-note { font-size:12px; color:var(--text-muted); margin:12px 0 0; border-top:1px dashed var(--border); padding-top:10px; }
+
+  .bloc { border:1px solid var(--border); border-radius:8px; background:var(--bg-card); box-shadow:var(--ombre); margin-bottom:10px; overflow:hidden; }
+  .bloc > .entete { display:flex; align-items:center; gap:9px; padding:12px 14px; cursor:pointer; user-select:none; flex-wrap:wrap; }
+  .bloc > .entete .ico { font-size:16px; }
+  .bloc > .entete .titre { font-weight:650; color:var(--text-strong); font-size:14.5px; }
+  .bloc > .entete .cpt { margin-left:auto; font-size:11.5px; font-weight:600; color:var(--text-muted); background:var(--bg-subtle); padding:3px 9px; border-radius:999px; }
+  .bloc > .entete .chevron { color:var(--text-muted); margin-left:8px; transition:transform .12s; }
+  .bloc.ouvert > .entete .chevron { transform:rotate(90deg); }
+  .bloc > .hint-deplier { padding:0 14px 11px; margin-top:-4px; font-size:12px; color:var(--accent); font-weight:600; cursor:pointer; }
+  .bloc.ouvert > .hint-deplier { display:none; }
+  .bloc > .corps { display:none; padding:0 14px 14px; }
+  .bloc.ouvert > .corps { display:block; }
+  .bloc .intro-bloc { font-size:12.5px; color:var(--text-muted); margin:2px 0 12px; }
+
+  .metier-carte { border:1px solid var(--border); border-radius:8px; background:var(--bg-card); padding:11px 12px; margin-bottom:9px; }
+  .metier-carte .mc-haut { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; position:relative; }
+  .metier-carte .mc-nom { font-weight:650; color:var(--text-strong); font-size:14px; }
+  .metier-carte .mc-secteur { font-size:11.5px; color:var(--text-muted); }
+  .metier-carte .mc-tag { font-size:10.5px; font-weight:700; color:var(--accent); background:var(--accent-bg-subtle); padding:2px 8px; border-radius:4px; cursor:pointer; border:1px solid transparent; }
+  .metier-carte .mc-tag:hover, .metier-carte .mc-tag.actif { border-color:var(--accent); }
+  .tag-bulle { position:absolute; left:0; top:100%; margin-top:6px; z-index:10; background:var(--bg-card); border:1px solid var(--accent); border-radius:8px; box-shadow:var(--ombre); padding:9px 12px; font-size:12px; color:var(--text); max-width:340px; }
+  .tag-bulle .tb-titre { font-weight:700; color:var(--text-strong); font-size:11.5px; margin-bottom:4px; }
+  .tag-bulle .tb-liste { color:var(--success); font-weight:600; }
+  .metier-carte .mc-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:9px; }
+
+  .comp-legende { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .cl { font-size:11px; font-weight:700; padding:3px 9px 3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:5px; border:1.5px solid; }
+  .cl::before { content:""; width:8px; height:8px; border-radius:2px; background:currentColor; }
+  .cl--faire { color:var(--fam-faire); border-color:var(--fam-faire); background:var(--fam-faire-bg); }
+  .cl--etre { color:var(--fam-etre); border-color:var(--fam-etre); background:var(--fam-etre-bg); }
+  .cl--savoir { color:var(--fam-savoir); border-color:var(--fam-savoir); background:var(--fam-savoir-bg); }
+
+  .comp-groupe { border-top:1px solid var(--border); padding-top:12px; margin-top:12px; }
+  .comp-groupe:first-of-type { border-top:0; padding-top:2px; margin-top:0; }
+  .comp-groupe .cg-titre { font-weight:700; font-size:13.5px; display:inline-flex; align-items:center; gap:6px; }
+  .comp-groupe .cg-titre::before { content:""; width:10px; height:10px; border-radius:3px; background:currentColor; }
+  .comp-groupe.g-faire .cg-titre { color:var(--fam-faire); }
+  .comp-groupe.g-etre .cg-titre { color:var(--fam-etre); }
+  .comp-groupe.g-savoir .cg-titre { color:var(--fam-savoir); }
+  .comp-groupe .cg-aide { font-size:12px; color:var(--text-muted); margin:3px 0 9px; }
+  .comp-liste { display:flex; flex-wrap:wrap; gap:7px; }
+  .comp { display:inline-flex; align-items:center; gap:7px; padding:7px 7px 7px 12px; border-radius:8px; border:1.5px solid; font-size:12.5px; font-weight:600; cursor:pointer; }
+  .comp.f-faire { border-color:var(--fam-faire); background:var(--fam-faire-bg); color:var(--fam-faire); }
+  .comp.f-etre { border-color:var(--fam-etre); background:var(--fam-etre-bg); color:var(--fam-etre); }
+  .comp.f-savoir { border-color:var(--fam-savoir); background:var(--fam-savoir-bg); color:var(--fam-savoir); }
+  .comp.ouverte { box-shadow:0 0 0 3px var(--bg-subtle); }
+  .comp .comp-x { border:0; background:rgba(0,0,0,.1); color:inherit; cursor:pointer; width:19px; height:19px; border-radius:999px; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center; }
+  :root[data-theme="sombre"] .comp .comp-x { background:rgba(255,255,255,.14); }
+  .comp.retiree { border-color:var(--border-strong); border-style:dashed; background:var(--bg-subtle); color:var(--text-muted); cursor:default; padding-right:7px; text-decoration:line-through; text-decoration-color:var(--text-muted); }
+  .comp.retiree .comp-remettre { text-decoration:none; border:0; background:var(--accent-bg-subtle); color:var(--accent); cursor:pointer; font-weight:700; font-size:11px; line-height:1; padding:4px 9px; border-radius:999px; display:inline-flex; align-items:center; }
+  .tb-liste .cnom { font-weight:700; }
+  .tb-liste .cnom.f-faire { color:var(--fam-faire); }
+  .tb-liste .cnom.f-etre { color:var(--fam-etre); }
+  .tb-liste .cnom.f-savoir { color:var(--fam-savoir); }
+  .comp-detail { margin-top:10px; border-left:3px solid var(--accent); background:var(--bg-subtle); border-radius:4px; padding:10px 12px; }
+  .comp-detail .cd-nom { font-weight:650; color:var(--text-strong); font-size:13px; }
+  .comp-detail .cd-desc { font-size:12.5px; color:var(--text-muted); margin:4px 0 9px; }
+
+  .encart-repere { border-left:3px solid var(--accent); background:var(--accent-bg-subtle); border-radius:4px; padding:11px 13px; margin:18px 0 0; }
+  .encart-repere p { margin:0 0 9px; font-size:12.5px; color:var(--text-muted); }
+  .et-apres { margin:16px 0 0; font-size:12.5px; color:var(--text-muted); font-style:italic; }
+
+  .barre-bas { position:fixed; left:0; right:0; bottom:0; background:var(--bg-card); border-top:1px solid var(--border); padding:12px 18px; display:flex; align-items:center; gap:14px; justify-content:center; }
+  .barre-bas .btn-retour, .barre-bas .btn-continuer { font:inherit; font-weight:600; padding:9px 20px; border-radius:8px; cursor:pointer; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text); }
+  .barre-bas .btn-continuer { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  .legende { max-width:860px; margin:26px auto 0; padding:14px 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); font-size:13px; box-shadow:var(--ombre); }
+  .legende h2 { font-size:15px; margin:0 0 8px; color:var(--text-strong); }
+  .legende ul { margin:6px 0; padding-left:20px; }
+  .legende li { margin-bottom:5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="prog">
+    <span>🎯 Votre objectif</span><span>🧭 Votre parcours</span><span>📋 Mes informations</span>
+    <span class="actif">👤 Votre profil</span><span>💬 Assistant</span><span>📄 Mes documents</span>
+  </div>
+
+  <h1>👤 Votre profil</h1>
+  <p class="sous-titre">Un coup d'oeil sur ce que vous avez saisi, les compétences repérées, et des métiers à regarder.</p>
+
+  <div class="panneau-demo">
+    <b>Maquette v9.</b> « Vos compétences » : pastilles arrondies et <b>une couleur par famille</b> (savoir-faire bleu, savoir-être vert, savoirs violet). Une légende rappelle le code couleur. Les mêmes couleurs se retrouvent dans l'infobulle « compétences en commun » d'un métier, pour que la personne repère d'un coup d'œil de quelle famille relève chaque compétence.<br>
+    <b>Retrait réversible, sans déplacement</b> : au clic sur la croix, la compétence <b>reste exactement à sa place</b>, devient grise, son texte est barré et la croix se change en « ↩ Remettre ». Nouveau clic : elle redevient normale et recomptée. Le compteur du bloc affiche « X gardées · Y retirées ».<br>
+    Rappel v8 : infobulle « compétences en commun » = <b>une seule à la fois</b> (survol → apparaît, la souris s'éloigne → disparaît ; clic → épinglée ; clic sur une autre étiquette → bascule ; clic ailleurs → se ferme). « Votre profil en bref » ouvert, non dépliable. Pas de barre de compatibilité.
+    <div class="demo-boutons" id="demoVariantes">
+      <button data-v="nouveau" class="on">Métier reconnu (base)</button>
+      <button data-v="horsbase">Métier hors base</button>
+      <button data-v="importe">CV importé (maj / pret)</button>
+    </div>
+    <div class="demo-boutons" style="margin-top:8px">
+      <button type="button" id="btnTheme">🌙 Voir en mode sombre</button>
+    </div>
+  </div>
+
+  <div id="page"></div>
+</div>
+
+<div class="barre-bas">
+  <button class="btn-retour">← Retour</button>
+  <button class="btn-continuer">🚀 Passer à l'action</button>
+</div>
+
+<div class="legende">
+  <h2>Décisions v5 + tes questions</h2>
+  <ul>
+    <li><b>« Votre profil en bref » = ouvert</b>, non dépliable, comme le métier visé. Les seuls dépliables : « Métiers à regarder » et « Vos compétences ». D'accord avec toi, c'est la bonne hiérarchie (ce qu'on doit voir vs ce qu'on peut creuser).</li>
+    <li><b>Lignes ajoutées au « en bref »</b> : Recherche (simple / réponse à une offre), Entreprise ou offre visée, Photo sur le CV, À mettre en avant (si une formation / certif a été cochée). Toujours des valeurs, jamais du texte long.</li>
+    <li><b>Barre de compatibilité : je recommande de l'abandonner.</b> Le module « Comparer mes pistes » a déjà tranché « aucun score, aucun classement ». Ton exemple CIP est juste : un score contre un métier non voulu, plus haut que le métier voulu, est démotivant pour ce public. Et notre base (~125 métiers, ~60 compétences classées) ne peut pas produire un score crédible.</li>
+    <li><b>À la place</b> : sur chaque métier suggéré, une ligne « Compétences en commun avec votre profil : X, Y, Z ». Des mots, pas un pourcentage, pas une jauge. Ça dit <b>pourquoi</b> on le suggère, positivement.</li>
+    <li><b>Autre chose à mettre en avant ?</b> Non. « En bref » + métiers + compétences + repères = la page est complète et cohérente. On peut passer à la suite.</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  var METIERS = [
+    { nom:'Conseiller de vente', secteur:'Commerce', tag:'proche de votre profil', commun:['Encaissement','Relation client','Mise en rayon'] },
+    { nom:'Employé de libre-service', secteur:'Grande distribution', tag:'proche de votre profil', commun:['Mise en rayon','Gestion des stocks','Rigueur'] },
+    { nom:'Hôte de caisse', secteur:'Commerce', tag:'proche de votre profil', commun:['Encaissement','Relation client'] },
+    { nom:'Chef de rayon', secteur:'Commerce', tag:'même domaine', commun:['Gestion des stocks','Merchandising'] },
+    { nom:'Vendeur en produits frais', secteur:'Commerce', tag:'même domaine', commun:['Relation client','Règles d\'hygiène'] }
+  ];
+  var COMP = {
+    'Savoir-faire': ['Encaissement', 'Mise en rayon', 'Gestion des stocks', 'Merchandising'],
+    'Savoir-être': ['Relation client', 'Travail en équipe', 'Sens du service', 'Rigueur'],
+    'Savoirs': ['Règles d\'hygiène', 'Plan et sécurité du magasin', 'Gamme de produits']
+  };
+  var AIDE = {
+    'Savoir-faire': 'Ce que vous savez faire concrètement : les gestes, les techniques du métier.',
+    'Savoir-être': 'Votre manière d\'être au travail : avec les autres, face aux imprévus.',
+    'Savoirs': 'Ce que vous connaissez : règles, procédures, consignes de sécurité, gammes de produits...'
+  };
+  var DESC = {
+    'Encaissement': 'Enregistrer les achats, rendre la monnaie, gérer sa caisse et la clôturer sans erreur.',
+    'Relation client': 'Accueillir, écouter, renseigner et rassurer une personne, même mécontente.',
+    'Plan et sécurité du magasin': 'Connaître les issues de secours, l\'emplacement des extincteurs, les consignes d\'évacuation.'
+  };
+  var BREF = {
+    nouveau: [
+      ['Objectif', 'Répondre à une offre'],
+      ['Métier visé', 'Vendeur en boulangerie'],
+      ['Recherche', 'En réponse à une offre'],
+      ['Entreprise / offre visée', 'Boulangerie Martin'],
+      ['Poste recherché', 'CDI, CDD · Temps plein · Disponible sous 15 jours'],
+      ['Identité', 'Marie Durand · Limoges (87000)'],
+      ['Permis', 'B, avec véhicule'],
+      ['Langues', 'Anglais (B1)'],
+      ['Formation', 'CAP Cuisine (2016)'],
+      ['Certifications', 'SST'],
+      ['Photo sur le CV', 'Oui'],
+      ['À mettre en avant', 'Formation CAP Cuisine']
+    ],
+    importe: [
+      ['Objectif', 'Répondre à une offre'],
+      ['Métier visé', 'Vendeur en boulangerie'],
+      ['Recherche', 'Recherche simple'],
+      ['Entreprise / offre visée', 'Aucune'],
+      ['Poste recherché', 'CDI · Temps plein · Disponible immédiatement'],
+      ['Identité', 'Marie Durand · Limoges (87000)'],
+      ['Permis', 'B, sans véhicule'],
+      ['Langues', 'Aucune indiquée'],
+      ['Formation', 'Bac pro Commerce (2012)'],
+      ['Certifications', 'Aucune'],
+      ['Photo sur le CV', 'Non'],
+      ['À mettre en avant', 'Aucun']
+    ]
+  };
+
+  var FAM_CLASSE = { 'Savoir-faire':'f-faire', 'Savoir-être':'f-etre', 'Savoirs':'f-savoir' };
+  var FAM_GROUPE = { 'Savoir-faire':'g-faire', 'Savoir-être':'g-etre', 'Savoirs':'g-savoir' };
+  var FAMILLE_DE = {};
+  Object.keys(COMP).forEach(function (fam) { COMP[fam].forEach(function (c) { FAMILLE_DE[c] = fam; }); });
+  function classeComp(c) { return FAM_CLASSE[FAMILLE_DE[c]] || 'f-faire'; }
+
+  var etat = { variante:'nouveau', ouverts:{ metiers:false, comp:false }, compRetirees:{}, compOuverte:'', repere:{}, panier:{}, communActif:'', communFige:false };
+
+  function btnsMetier(m) {
+    var r = etat.repere[m.nom], p = etat.panier[m.nom];
+    return '<button class="btn btn-sm' + (r ? ' fait' : '') + '" data-repere="' + m.nom + '">🔖 ' + (r ? 'Dans mes Repères' : 'Garder comme Repère') + '</button>' +
+      '<button class="btn btn-sm' + (p ? ' fait' : '') + '" data-panier="' + m.nom + '">🪧 ' + (p ? 'Dans la comparaison' : 'Comparer cette piste') + '</button>' +
+      '<button class="btn btn-sm" data-fiche="' + m.nom + '">📄 Fiche du métier (France Travail)</button>';
+  }
+  function carteMetier(m) {
+    var ouv = (etat.communActif === m.nom);
+    return '<div class="metier-carte"><div class="mc-haut"><span class="mc-nom">' + m.nom + '</span>' +
+      '<span class="mc-secteur">' + m.secteur + '</span>' +
+      '<span class="mc-tag' + (ouv ? ' actif' : '') + '" data-tag-comm="' + m.nom + '">' + m.tag + '</span>' +
+      (ouv ? '<div class="tag-bulle"><div class="tb-titre">Compétences en commun avec votre métier visé</div>' +
+        '<div class="tb-liste">' + m.commun.map(function (c) { return '<span class="cnom ' + classeComp(c) + '">' + c + '</span>'; }).join(', ') + '</div></div>' : '') +
+      '</div>' +
+      '<div class="mc-actions">' + btnsMetier(m) + '</div></div>';
+  }
+  function bloc(id, ico, titre, cpt, corps) {
+    var ouv = etat.ouverts[id];
+    return '<div class="bloc' + (ouv ? ' ouvert' : '') + '" data-bloc="' + id + '">' +
+      '<div class="entete"><span class="ico">' + ico + '</span><span class="titre">' + titre + '</span>' +
+      '<span class="cpt">' + cpt + '</span><span class="chevron">▸</span></div>' +
+      (ouv ? '' : '<div class="hint-deplier">▸ Cliquez pour déplier</div>') +
+      '<div class="corps">' + corps + '</div></div>';
+  }
+  function groupeComp(nom) {
+    var cl = FAM_CLASSE[nom];
+    var h = '<div class="comp-groupe ' + FAM_GROUPE[nom] + '"><div class="cg-titre">' + nom + '</div><div class="cg-aide">' + AIDE[nom] + '</div><div class="comp-liste">';
+    h += (COMP[nom] || []).map(function (c) {
+      var k = nom + ':' + c;
+      var ret = !!etat.compRetirees[k];
+      var ouv = (etat.compOuverte === k);
+      if (ret) {
+        return '<span class="comp ' + cl + ' retiree">' + c +
+          '<button class="comp-remettre" data-comp-remettre="' + k + '" title="Remettre cette compétence dans votre CV">↩ Remettre</button></span>';
+      }
+      return '<span class="comp ' + cl + (ouv ? ' ouverte' : '') + '" data-comp="' + k + '">' + c +
+        '<button class="comp-x" data-comp-retirer="' + k + '" title="Retirer cette compétence (vous pourrez la remettre)">✕</button></span>';
+    }).join('');
+    h += '</div>';
+    if (etat.compOuverte && etat.compOuverte.indexOf(nom + ':') === 0) {
+      var c = etat.compOuverte.split(':')[1];
+      h += '<div class="comp-detail"><div class="cd-nom">' + c + '</div>' +
+        '<div class="cd-desc">' + (DESC[c] || 'Description courte de cette compétence (à alimenter depuis un mini-glossaire).') + '</div>' +
+        '<button class="btn btn-sm">🔖 Garder comme Repère</button></div>';
+    }
+    return h + '</div>';
+  }
+
+  function render() {
+    document.querySelectorAll('#demoVariantes button[data-v]').forEach(function (b) { b.classList.toggle('on', b.dataset.v === etat.variante); });
+    var importe = (etat.variante === 'importe');
+    var horsbase = (etat.variante === 'horsbase');
+    var mv = horsbase ? 'Vendeur en boulangeire' : 'Vendeur en boulangerie';
+    var reconnu = !horsbase;
+
+    var h = '';
+
+    // Métier visé (fixe, ouvert)
+    h += '<div class="carte-fixe accent metier-vise"><div class="mv-ligne"><span style="font-size:15px">🎯</span><span class="mv-nom">' + mv + '</span></div>';
+    if (reconnu) {
+      h += '<p class="mv-txt">Choisi à l\'étape « Votre objectif ». Vous pouvez consulter sa fiche complète sur France Travail : en cliquant, vous verrez directement la fiche. Pour choisir un autre métier, revenez à l\'étape « Votre objectif », en haut de la page.</p>' +
+        '<div class="mv-actions"><button class="btn btn-sm" data-fiche="' + mv + '">📄 Consulter la fiche du métier (France Travail)</button></div>';
+    } else {
+      h += '<p class="mv-txt">Choisi à l\'étape « Votre objectif », saisi tel quel (l\'assistant le remettra en forme). Il n\'est pas dans notre répertoire : pour en savoir plus, cherchez-le dans le répertoire des métiers de France Travail. Pour choisir un autre métier, revenez à l\'étape « Votre objectif », en haut de la page.</p>' +
+        '<div class="mv-actions"><button class="btn btn-sm" data-fiche-rech="' + mv + '">📄 Chercher ce métier sur France Travail</button></div>';
+    }
+    h += '</div>';
+
+    // Votre profil en bref (fixe, ouvert)
+    var lignes = BREF[importe ? 'importe' : 'nouveau'];
+    h += '<div class="carte-fixe"><div class="pb-titre">📝 Votre profil en bref</div><div class="pb-grille">' +
+      lignes.map(function (l) {
+        var vide = /aucun/i.test(l[1]);
+        return '<div class="pb-item"><div class="pb-lbl">' + l[0] + '</div><div class="pb-val' + (vide ? ' vide' : '') + '">' + l[1] + '</div></div>';
+      }).join('') +
+      '</div><p class="pb-note">Ces informations viennent de vos étapes précédentes. Pour en corriger une, retournez à l\'étape concernée (barre en haut) : « Votre objectif » ou « Mes informations ».</p></div>';
+
+    // Des métiers à regarder (dépliable)
+    h += '<div class="intertitre">Des métiers à regarder</div>';
+    h += bloc('metiers', '💼', 'Métiers qui pourraient vous intéresser', METIERS.length + ' métiers',
+      '<p class="intro-bloc">D\'abord des métiers proches de votre profil, puis d\'autres du même domaine que le métier visé. Des pistes de réflexion, jamais des métiers « certains ». Si vous changez de métier visé, la partie « même domaine » change aussi.</p>' +
+      METIERS.map(carteMetier).join('') +
+      '<div style="margin-top:6px;font-size:12px;color:var(--text-muted)">▸ Pourquoi ces métiers ? (sous-section conservée) &nbsp;·&nbsp; ▸ Jobs saisonniers et alimentaires (si pertinent)</div>');
+
+    // Vos compétences (dépliable)
+    h += '<div class="intertitre">Ce que l\'assistant a repéré chez vous</div>';
+    var nbComp = Object.keys(COMP).reduce(function (n, g) {
+      return n + (COMP[g] || []).filter(function (c) { return !etat.compRetirees[g + ':' + c]; }).length;
+    }, 0);
+    var nbRet = Object.keys(etat.compRetirees).filter(function (k) { return etat.compRetirees[k]; }).length;
+    var cptComp = nbRet
+      ? (nbComp + (nbComp > 1 ? ' gardées' : ' gardée') + ' · ' + nbRet + (nbRet > 1 ? ' retirées' : ' retirée'))
+      : (nbComp + ' au total');
+    var corps = '<p class="intro-bloc">Compétences repérées dans votre parcours, classées en trois familles (une couleur par famille, ici et dans les infobulles des métiers). Cliquez sur une compétence pour la comprendre. Retirez celles qui ne vous vont pas : ce sont elles qui alimentent votre CV. Une compétence retirée reste à sa place, grisée et barrée : cliquez sur « Remettre » pour la réactiver.</p>' +
+      '<div class="comp-legende"><span class="cl cl--faire">Savoir-faire</span><span class="cl cl--etre">Savoir-être</span><span class="cl cl--savoir">Savoirs</span></div>' +
+      groupeComp('Savoir-faire') + groupeComp('Savoir-être') + groupeComp('Savoirs');
+    h += bloc('comp', '📊', 'Vos compétences', cptComp, corps);
+
+    h += '<div class="encart-repere"><p>Un doute sur un métier, une compétence, une envie ? Gardez-le comme Repère pour y revenir (seul ou avec votre conseiller).</p>' +
+      '<button class="btn btn-sm" style="border-color:var(--accent);color:var(--accent)">🔖 Garder un Repère</button></div>';
+    h += '<p class="et-apres">À l\'étape suivante, l\'assistant en ligne rédige votre CV à partir de tout ceci.</p>';
+
+    document.getElementById('page').innerHTML = h;
+    wire();
+  }
+
+  function wire() {
+    document.querySelectorAll('#demoVariantes button[data-v]').forEach(function (b) { b.onclick = function () { etat.variante = b.dataset.v; render(); }; });
+    document.querySelectorAll('.bloc > .entete, .bloc > .hint-deplier').forEach(function (e) {
+      e.onclick = function () { var k = e.parentElement.dataset.bloc; etat.ouverts[k] = !etat.ouverts[k]; render(); };
+    });
+    document.querySelectorAll('[data-tag-comm]').forEach(function (el) {
+      var nom = el.dataset.tagComm;
+      el.onclick = function (ev) {
+        ev.stopPropagation();
+        if (etat.communActif === nom && etat.communFige) { etat.communActif = ''; etat.communFige = false; }
+        else { etat.communActif = nom; etat.communFige = true; } // remplace toute autre bulle
+        render();
+      };
+      el.onmouseenter = function () {
+        if (etat.communFige) { return; } // une bulle est épinglée par clic : le survol ne la remplace pas
+        etat.communActif = nom; render();
+      };
+      el.onmouseleave = function () {
+        if (etat.communFige) { return; }
+        if (etat.communActif === nom) { etat.communActif = ''; render(); }
+      };
+    });
+    document.querySelectorAll('[data-repere]').forEach(function (el) { el.onclick = function () { etat.repere[el.dataset.repere] = !etat.repere[el.dataset.repere]; render(); }; });
+    document.querySelectorAll('[data-panier]').forEach(function (el) { el.onclick = function () { etat.panier[el.dataset.panier] = !etat.panier[el.dataset.panier]; render(); }; });
+    document.querySelectorAll('[data-comp]').forEach(function (el) {
+      el.onclick = function (ev) { if (ev.target.closest('.comp-x')) { return; } var k = el.dataset.comp; etat.compOuverte = (etat.compOuverte === k) ? '' : k; render(); };
+    });
+    document.querySelectorAll('[data-comp-retirer]').forEach(function (el) {
+      el.onclick = function (ev) { ev.stopPropagation(); etat.compRetirees[el.dataset.compRetirer] = true; if (etat.compOuverte === el.dataset.compRetirer) { etat.compOuverte = ''; } render(); };
+    });
+    document.querySelectorAll('[data-comp-remettre]').forEach(function (el) {
+      el.onclick = function (ev) { ev.stopPropagation(); delete etat.compRetirees[el.dataset.compRemettre]; render(); };
+    });
+    ['fiche', 'fiche-rech'].forEach(function (d) {
+      document.querySelectorAll('[data-' + d + ']').forEach(function (el) {
+        el.onclick = function () { alert('Maquette : ouvre France Travail (' + (d === 'fiche' ? 'fiche directe' : 'recherche') + ') pour « ' + el.getAttribute('data-' + d) + ' ».'); };
+      });
+    });
+  }
+
+  // clic ailleurs sur la page : ferme la bulle épinglée
+  document.addEventListener('click', function (ev) {
+    if (etat.communFige && !ev.target.closest('[data-tag-comm]') && !ev.target.closest('.tag-bulle')) {
+      etat.communFige = false; etat.communActif = ''; render();
+    }
+  });
+
+  document.getElementById('btnTheme').onclick = function () {
+    var s = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', s ? 'clair' : 'sombre');
+    this.textContent = s ? '🌙 Voir en mode sombre' : '☀️ Voir en mode clair';
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>

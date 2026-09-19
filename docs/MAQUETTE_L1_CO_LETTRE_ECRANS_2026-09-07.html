@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Ecrans de « Co-construire ma lettre de motivation » (L1)</title>
+<style>
+  :root {
+    --bg-page:#f4f6f9; --bg-card:#fff; --bg-subtle:#eef1f5; --border:#d9dfe7; --border-strong:#b7c0cc;
+    --text-strong:#1f2933; --text:#33404d; --text-muted:#6b7683;
+    --accent:#0d6efd; --accent-hover:#0a58ca; --accent-bg-subtle:#eef2fd;
+    --success:#157347; --success-bg-subtle:#e5f3ec;
+    --warning-strong:#a15c00; --warning-bg-subtle:#fdf3e2; --warning-border:#e7c383;
+    --alert-strong:#b42318; --alert-bg-subtle:#fdecea; --alert-border:#e9a29b;
+    --ombre:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
+    --radius:12px;
+  }
+  :root[data-theme="sombre"] {
+    --bg-page:#12171e; --bg-card:#1b222c; --bg-subtle:#232c38; --border:#333e4c; --border-strong:#47566a;
+    --text-strong:#f1f4f8; --text:#d7dee7; --text-muted:#9aa6b3;
+    --accent:#5b9bff; --accent-hover:#7db0ff; --accent-bg-subtle:#1e2c44;
+    --success:#4cc88a; --success-bg-subtle:#16281f;
+    --warning-strong:#e7b366; --warning-bg-subtle:#2c2312; --warning-border:#5c4a24;
+    --alert-strong:#f0a19a; --alert-bg-subtle:#2c1613; --alert-border:#5c2a24;
+    --ombre:0 1px 2px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:0 0 40px; background:var(--bg-page); color:var(--text);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.55; }
+  .wrap { max-width:880px; margin:0 auto; padding:20px 18px; }
+
+  .toggle-theme { position:fixed; top:10px; right:12px; font-size:12px; padding:5px 10px; border-radius:999px;
+    border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; z-index:20; }
+
+  .bandeau-maq { background:var(--accent-bg-subtle); border:1px solid var(--accent); border-radius:10px;
+    padding:12px 14px; font-size:13px; margin-bottom:16px; }
+  .bandeau-maq b { color:var(--text-strong); }
+
+  .nav-ecrans { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:20px; }
+  .nav-ecrans button { font:inherit; font-size:13px; padding:7px 13px; border-radius:999px;
+    border:1.5px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; }
+  .nav-ecrans button.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+
+  .ecran { display:none; }
+  .ecran.on { display:block; }
+
+  .prog { display:flex; flex-wrap:wrap; gap:6px; font-size:12.5px; margin-bottom:16px; }
+  .prog span { padding:5px 10px; border-radius:999px; border:1px solid var(--border);
+    background:var(--bg-card); color:var(--text-muted); white-space:nowrap; }
+  .prog span.actif { border-color:var(--accent); color:var(--accent); background:var(--accent-bg-subtle); font-weight:600; }
+
+  h1 { font-size:22px; color:var(--text-strong); margin:0 0 3px; text-align:center; }
+  .sous-titre { text-align:center; margin:0 0 18px; font-size:13.5px; color:var(--text-muted); }
+
+  .carte { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:var(--ombre); padding:16px 18px; margin-bottom:14px; }
+  .carte h2 { font-size:15.5px; color:var(--text-strong); margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+
+  .bloc-depli { border:1px solid var(--border); border-left:4px solid var(--accent);
+    border-radius:8px; background:var(--bg-card); margin-bottom:14px; box-shadow:var(--ombre); }
+  .bloc-depli > .entete { display:flex; align-items:center; gap:9px; padding:12px 14px;
+    font-weight:650; color:var(--text-strong); flex-wrap:wrap; }
+  .bloc-depli > .entete .num { width:22px; height:22px; border-radius:999px; background:var(--accent);
+    color:#fff; font-size:12.5px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .bloc-depli > .entete .pilule { margin-left:auto; font-size:11.5px; font-weight:600; padding:3px 9px;
+    border-radius:999px; background:var(--warning-bg-subtle); color:var(--warning-strong); border:1px solid var(--warning-border); }
+  .bloc-depli > .entete .pilule.ok { background:var(--success-bg-subtle); color:var(--success); border-color:transparent; }
+  .bloc-depli > .corps { padding:0 14px 15px; }
+
+  .encart { border-left:3px solid var(--accent); background:var(--accent-bg-subtle);
+    border-radius:8px; padding:10px 12px; font-size:12.8px; margin:10px 0; display:flex; gap:8px; }
+  .encart .ico { font-size:16px; flex-shrink:0; }
+  .encart.warn { border-left-color:var(--warning-border); background:var(--warning-bg-subtle); color:var(--warning-strong); }
+  .encart.ok { border-left-color:var(--success); background:var(--success-bg-subtle); }
+  .encart.alert { border-left-color:var(--alert-border); background:var(--alert-bg-subtle); color:var(--alert-strong); }
+
+  .btn { font:inherit; font-size:13.5px; font-weight:600; padding:9px 16px; border-radius:12px;
+    border:1.5px solid var(--accent); background:var(--bg-card); color:var(--accent); cursor:pointer; }
+  .btn:hover { background:var(--accent-bg-subtle); }
+  .btn.plein { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.gris { border-color:var(--border-strong); color:var(--text); }
+  .btn.sm { font-size:12.5px; padding:7px 12px; }
+  .btn[disabled] { opacity:.45; cursor:not-allowed; }
+  .ligne-btn { display:flex; flex-wrap:wrap; gap:9px; margin:10px 0; }
+
+  .champ { margin-bottom:11px; }
+  .champ label { display:block; font-size:12px; font-weight:600; color:var(--text-strong); margin-bottom:4px; }
+  .champ input { width:100%; font:inherit; font-size:13px; padding:8px 10px;
+    border:1.5px solid var(--border); border-radius:8px; background:var(--bg-card); color:var(--text); }
+  .deux-col { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media (max-width:560px){ .deux-col { grid-template-columns:1fr; } }
+
+  .pastilles { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+  .pastille { font:inherit; font-size:13px; padding:8px 15px; border-radius:999px;
+    border:1.5px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; }
+  .pastille.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+
+  .rond-collage { border:2px dashed var(--border-strong); border-radius:14px; padding:22px 16px;
+    text-align:center; color:var(--text-muted); font-size:13px; background:var(--bg-subtle); }
+
+  .annot { font-size:12px; color:var(--text-muted); background:var(--bg-subtle);
+    border:1px dashed var(--border-strong); border-radius:8px; padding:10px 12px; margin-top:14px; }
+  .annot b { color:var(--text-strong); }
+  .annot .t-change { color:var(--accent); font-weight:700; }
+  .annot .t-retire { color:var(--alert-strong); font-weight:700; }
+  .annot .t-garde { color:var(--success); font-weight:700; }
+  .annot ul { margin:6px 0 0; padding-left:18px; }
+  .annot li { margin:3px 0; }
+
+  details.transmis { border:1px solid var(--border); border-radius:8px; background:var(--bg-subtle); margin:10px 0; }
+  details.transmis > summary { cursor:pointer; padding:10px 12px; font-size:13px; font-weight:600; color:var(--text-strong); }
+  details.transmis > div { padding:0 12px 12px; font-size:12.5px; }
+  details.transmis code { background:var(--bg-card); border:1px solid var(--border); border-radius:4px; padding:1px 5px; font-size:11.5px; }
+
+  .coord { border:1px solid var(--border); border-radius:10px; background:var(--bg-card); padding:14px 15px; margin:12px 0; }
+  .coord.incomplet { border-color:var(--warning-border); background:var(--warning-bg-subtle); }
+  .coord-tete { display:flex; align-items:center; gap:8px; margin-bottom:3px; }
+  .coord-tete h3 { font-size:14.5px; margin:0; color:var(--text-strong); }
+  .coord-sous { font-size:12px; color:var(--text-muted); margin:0 0 10px; }
+  .coord-liste { display:grid; grid-template-columns:120px 1fr; gap:4px 12px; font-size:13.5px; margin:0 0 10px; }
+  .coord-liste dt { color:var(--text-muted); }
+  .coord-liste dd { margin:0; color:var(--text-strong); font-weight:600; }
+  .coord-liste dd.manque { color:var(--warning-strong); }
+  .coord-confid { font-size:11.5px; color:var(--text-muted); display:flex; gap:6px; margin:0 0 12px; }
+  .sous-switch { display:flex; gap:6px; margin:8px 0 4px; flex-wrap:wrap; }
+  .sous-switch button { font:inherit; font-size:12px; padding:5px 10px; border-radius:999px;
+    border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-muted); cursor:pointer; }
+  .sous-switch button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  .apercu-lettre { border:1px solid var(--border-strong); border-radius:6px; background:#fff; color:#1f2933;
+    padding:24px 28px; font-size:12px; line-height:1.5; max-width:500px; margin:10px 0; box-shadow:var(--ombre); }
+  :root[data-theme="sombre"] .apercu-lettre { background:#f7f8fa; }
+  .apercu-cadre-legende { font-size:11px; color:var(--text-muted); margin:2px 0 0; }
+  .apercu-lettre .exp { font-weight:700; }
+  .apercu-lettre .dest { text-align:right; margin:14px 0; }
+  .apercu-lettre .obj { font-weight:700; margin:14px 0; }
+  .apercu-lettre p { margin:8px 0; }
+  .apercu-lettre .pagemark { text-align:center; font-size:10px; color:#8a94a0; margin-top:14px; }
+  .apercu-mail { border:1px solid var(--border); border-radius:8px; background:var(--bg-subtle);
+    padding:14px 16px; font-size:12.5px; line-height:1.55; margin:10px 0; white-space:pre-wrap; }
+  .apercu-mail .mail-tete { font-size:11.5px; color:var(--text-muted); border-bottom:1px dashed var(--border-strong);
+    padding-bottom:7px; margin-bottom:9px; }
+
+  table.corresp { width:100%; border-collapse:collapse; font-size:12.5px; margin-top:10px; }
+  table.corresp th, table.corresp td { border:1px solid var(--border); padding:7px 9px; text-align:left; vertical-align:top; }
+  table.corresp th { background:var(--bg-subtle); color:var(--text-strong); }
+  h2.sec { font-size:16px; color:var(--text-strong); margin:30px 0 8px; }
+  ul.valider { font-size:13px; }
+  ul.valider li { margin:5px 0; }
+
+  .navfixe-demo { display:flex; justify-content:space-between; align-items:center; gap:10px;
+    border-top:1px solid var(--border); margin-top:14px; padding-top:12px; }
+</style>
+</head>
+<body>
+<button class="toggle-theme" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'sombre' ? '' : 'sombre'">Clair / sombre</button>
+<div class="wrap">
+
+  <div class="bandeau-maq">
+    <b>Maquette - ecrans de « Co-construire ma lettre de motivation » (parcours L1).</b>
+    Les <b>5 ecrans de l'application ne changent quasiment pas</b>. Ce qui change se joue a l'ecran 3
+    (ce qui est transmis a l'assistant) et a l'ecran 4 (bloc « Vos coordonnees » avant l'enregistrement).
+    Le gros du chantier est dans le <b>prompt</b>, pas dans l'ecran. <b>Zero regression fonctionnelle</b> :
+    aucune fonction ni bouton retire (tableau en bas). Contrat complet : <code>docs/CHANTIER_L1_CO_LETTRE_MOTIVATION.md</code>.
+  </div>
+
+  <div class="nav-ecrans" id="navEcrans">
+    <button data-e="1" class="on">1 &middot; Intro</button>
+    <button data-e="2">2 &middot; Votre CV</button>
+    <button data-e="3">3 &middot; Choisir mon assistant</button>
+    <button data-e="3b">3b &middot; Avant de continuer</button>
+    <button data-e="4">4 &middot; Coller la reponse</button>
+  </div>
+
+  <!-- ================= ECRAN 1 ================= -->
+  <section class="ecran on" data-e="1">
+    <div class="prog">
+      <span class="actif">&#128221; Preparer</span><span>&#128172; Assistant</span>
+      <span>&#128395;&#65039; Rediger</span><span>&#9989; Termine</span>
+    </div>
+    <h1>&#128394;&#65039; Co-construire ma lettre de motivation</h1>
+    <p class="sous-titre">Vous n'ecrivez pas seul : un assistant en ligne propose, vous gardez la main sur chaque phrase.</p>
+
+    <div class="carte">
+      <div class="encart"><span class="ico">&#128394;&#65039;</span>
+        <div><b>Nouvelle ligne a ajouter.</b> « Vous ecrivez la lettre avec l'assistant, phrase par phrase.
+        Pour une lettre rapide a partir d'un CV existant, voir « Preparer ma lettre et mon entretien ». »
+        Rend visible la difference avec L2 (meme principe que la ligne deja ecrite pour L2).</div>
+      </div>
+
+      <p style="font-size:13.5px"><b>La page blanche est le vrai obstacle d'une lettre de motivation.</b>
+      Ici, vous n'en partez pas. Vous avancez a deux, a votre rythme.</p>
+
+      <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0"><b>Sections de la page (inchangees) :</b>
+      A quoi ca sert &middot; Ce qui va se passer &middot; Ce que ce module ne fait pas &middot;
+      Vous gardez la main &middot; Ce que vous pourrez faire ensuite &middot; Comment ca se passe &middot; Bon a savoir.</p>
+
+      <div class="ligne-btn"><button class="btn plein">Ecrire ma lettre de motivation &#8594;</button></div>
+    </div>
+
+    <div class="annot">
+      <b>Ecran 1 - `_coLettreRendreIntro`.</b>
+      <ul>
+        <li><span class="t-garde">Garde</span> : toute la structure, l'encart « Continuer / Recommencer » si une lettre existe deja, le bouton « Revoir la presentation ».</li>
+        <li><span class="t-change">Change</span> : une ligne ajoutee sur la complementarite avec L2. Dans « Ce qui va se passer », une phrase : l'application transmet aussi votre profil, l'assistant ne redemande donc pas ce qu'il sait deja.</li>
+        <li><span class="t-retire">Retire</span> : dans « Ce que vous pourrez faire ensuite », la puce « garder les questions d'entretien et les pistes de reponse que l'assistant ajoute a la fin ». Cette partie sort de L1 (role de « Preparer un entretien »).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= ECRAN 2 ================= -->
+  <section class="ecran" data-e="2">
+    <div class="prog">
+      <span class="actif">&#128221; Preparer</span><span>&#128172; Assistant</span>
+      <span>&#128395;&#65039; Rediger</span><span>&#9989; Termine</span>
+    </div>
+    <h1>&#128394;&#65039; Co-construire ma lettre de motivation</h1>
+    <p class="sous-titre">Tout se prepare ici, sur une seule page qui se deplie. On part de votre CV, puis on precise a qui la lettre s'adresse.</p>
+
+    <div class="encart"><span class="ico">&#128295;</span>
+      <div><b>Cet ecran est refait avec des briques qui existent deja</b> (page « Preparer ma lettre et mon entretien »).
+      Rien de nouveau a construire : meme depot, memes champs d'entreprise, meme relecture. Voir le tableau des briques en bas.</div>
+    </div>
+
+    <div class="bloc-depli">
+      <div class="entete"><span class="num">1</span> Votre CV <span class="pilule">A deposer</span></div>
+      <div class="corps">
+        <p style="font-size:13px">Deposez votre CV, ou collez son texte. Il est lu dans votre navigateur, <b>il n'est envoye nulle part</b> a ce stade.</p>
+        <div class="ligne-btn">
+          <button class="btn plein sm">Deposer mon fichier</button>
+          <button class="btn gris sm">Ou coller le texte</button>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted)"><b>Tous les formats</b> : PDF, Word, .txt, photo, capture d'ecran.
+        Brique : <code>obtenirOuDeposerTexteCV()</code>, repli photo/scan <code>ouvrirAssistantDepotCV()</code>.</p>
+      </div>
+    </div>
+
+    <div class="bloc-depli">
+      <div class="entete"><span class="num">2</span> Relire, verifier, masquer <span class="pilule">A faire apres le depot</span></div>
+      <div class="corps">
+        <p style="font-size:13px">Vous relisez le texte du CV et vous <b>masquez ce que vous ne voulez pas transmettre</b> (nom, adresse, telephone, liens).</p>
+        <p style="font-size:12px;color:var(--text-muted)">Brique : <code>bilanDemanderRelectureCv()</code> + <code>relectureConfidentialite.js</code> (le meme ecran que le Bilan).</p>
+      </div>
+    </div>
+
+    <div class="bloc-depli">
+      <div class="entete"><span class="num">3</span> Le poste que vous visez <span class="pilule">Facultatif</span></div>
+      <div class="corps">
+        <div class="champ"><label>Intitule du poste ou du domaine</label><input type="text" placeholder="Ex. Vendeur en boulangerie"></div>
+        <p style="font-size:12px;color:var(--text-muted)">Meme champ que le bloc 3 de « Preparer ma lettre et mon entretien ».</p>
+      </div>
+    </div>
+
+    <div class="bloc-depli">
+      <div class="entete"><span class="num">4</span> L'entreprise et le recruteur <span class="pilule">Facultatif mais tres utile</span></div>
+      <div class="corps">
+        <p style="font-size:12.5px;color:var(--text-muted)">Une lettre de motivation s'adresse a une entreprise precise. Plus vous en dites, plus elle sera ciblee.</p>
+        <div class="champ"><label>Entreprise ciblee</label><input type="text" placeholder="Ex. Boulangerie Dupont"></div>
+        <div class="deux-col">
+          <div class="champ"><label>Site internet de l'entreprise</label><input type="text" placeholder="https://..."></div>
+          <div class="champ"><label>Type de structure</label><input type="text" placeholder="Non precise / TPE / association / fonction publique..."></div>
+        </div>
+        <div class="champ"><label>Offre d'emploi (lien ou texte colle)</label><input type="text" placeholder="Collez le lien ou le texte de l'offre"></div>
+        <div class="champ"><label>Personne en charge du recrutement (si vous la connaissez)</label>
+          <div class="pastilles" style="margin-top:4px">
+            <button class="pastille on">Je ne sais pas</button>
+            <button class="pastille">Madame ...</button>
+            <button class="pastille">Monsieur ...</button>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted)">Briques : <code>bilanCorpsCiblageOffreHTML()</code> (entreprise / site / offre / type de structure)
+        + <code>contenuCiviliteRecruteurCandidature()</code> (civilite et nom du recruteur). Toutes deux ecrivent dans <code>dossier.rechercheCandidature</code>.</p>
+      </div>
+    </div>
+
+    <div class="navfixe-demo">
+      <button class="btn gris sm">&#8592; Retour</button>
+      <button class="btn plein" disabled>Choisir mon assistant &#8594;</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);text-align:center">Le bouton s'active une fois le CV depose et relu. Les blocs 3 et 4 peuvent rester vides.</p>
+
+    <div class="annot">
+      <b>Ecran 2 - devient une page depliante (comme « Preparer ma lettre et mon entretien »).</b>
+      <ul>
+        <li><span class="t-change">Change</span> : au lieu d'un seul bloc « Votre CV » puis une cascade de fenetres, <b>une seule page</b> avec 4 blocs, tous batis sur des briques existantes.</li>
+        <li><span class="t-change">Ajout</span> : le bloc 4 « L'entreprise et le recruteur ». La lettre s'adresse a une entreprise : l'assistant recoit desormais entreprise, site, offre, type de structure, civilite du recruteur.</li>
+        <li><span class="t-garde">Garde</span> : le depot tous formats, la relecture et le masquage, le repli photo/scan.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= ECRAN 3 ================= -->
+  <section class="ecran" data-e="3">
+    <div class="prog">
+      <span>&#128221; Preparer</span><span class="actif">&#128172; Assistant</span>
+      <span>&#128395;&#65039; Rediger</span><span>&#9989; Termine</span>
+    </div>
+    <h1>&#128394;&#65039; Co-construire ma lettre de motivation</h1>
+    <p class="sous-titre">Une lettre de motivation ecrite avec l'assistant de votre choix.</p>
+
+    <div class="carte">
+      <h2>&#128172; Choisissez votre assistant</h2>
+      <p style="font-size:12.5px;color:var(--text-muted)">Cliquez sur un assistant ci-dessous. L'application prepare et copie tout pour vous, puis ouvre l'assistant.</p>
+      <div class="pastilles">
+        <button class="pastille on">ChatGPT</button>
+        <button class="pastille">Le Chat (Mistral)</button>
+        <button class="pastille">Gemini</button>
+        <button class="pastille">Claude</button>
+      </div>
+
+      <details class="transmis" open>
+        <summary>&#128269; Voir ce qui sera transmis a l'assistant</summary>
+        <div>
+          <p style="margin:6px 0"><b>1. Le texte de demarrage</b> (le nouveau prompt « lettre co-construite »).</p>
+          <p style="margin:6px 0"><b>2. Votre profil</b>, tel que l'application le connait deja : experiences (professionnelles et personnelles),
+          competences, formations, langues, mobilite (permis, vehicule), metier ou secteur vise, type de candidature,
+          entreprise et offre si vous les avez indiquees.</p>
+          <p style="margin:6px 0"><b>3. La strategie deja retenue pour votre CV</b> : accroche, points forts, mots-cles,
+          experiences mises en avant et pourquoi. L'assistant s'appuie dessus au lieu de repartir de zero.</p>
+          <div class="encart ok" style="margin-top:8px"><span class="ico">&#128274;</span>
+            <div>Votre <b>nom, votre adresse et votre telephone ne sont jamais transmis</b>. Votre CV a deja ete relu
+            et masque au moment du depot.</div>
+          </div>
+          <p style="font-size:11.5px;color:var(--text-muted);margin:8px 0 0">Bouton « Voir ou modifier le texte transmis »
+          repris du pipeline candidature (brique partagee <code>htmlChoixAssistantBilanCorps</code>).</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="navfixe-demo">
+      <button class="btn gris sm">&#8592; Retour</button>
+      <span style="font-size:12px;color:var(--text-muted)">Au clic sur un assistant : ecran « Avant de continuer »</span>
+    </div>
+
+    <div class="annot">
+      <b>Ecran 3 - `_coLettreRendreChoixAssistant`.</b>
+      <ul>
+        <li><span class="t-garde">Garde</span> : la liste d'assistants, la note de confidentialite, l'enchainement vers l'ecran tampon.</li>
+        <li><span class="t-change">Change</span> : ce qui est copie dans le presse-papiers. <b>Aujourd'hui</b> : le prompt <code>lettre-v1.md</code> seul, la personne colle son CV elle-meme dans la conversation. <b>Apres</b> : nouveau prompt <b>+ <code>texteProfil('lettre')</code> + strategie CV</b>, comme le font deja L2 et « Preparer un entretien ». Ajout du depliant « Voir ce qui sera transmis ».</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= ECRAN 3b ================= -->
+  <section class="ecran" data-e="3b">
+    <h1>&#128172; Avant de continuer</h1>
+    <p class="sous-titre">Ecran tampon partage par les 5 parcours (CV, lettre x2, entretien x2). Inchange.</p>
+
+    <div class="carte">
+      <ol style="font-size:13px;padding-left:20px">
+        <li>Le texte de demarrage est <b>automatiquement copie</b> dans votre presse-papiers.</li>
+        <li>Une fois sur le site de l'assistant, cliquez dans la zone de conversation et faites <b>Ctrl + V</b>, puis <b>Entree</b>.</li>
+        <li>Quand l'assistant vous demandera votre CV pendant l'echange, collez-le en texte ou deposez le fichier si la plateforme le permet.</li>
+      </ol>
+      <div class="rond-collage" style="margin:10px 0">&#9203; Ouverture de l'assistant dans <b>5</b> secondes... <br><span style="font-size:12px">(piste qui se vide, animation bornee)</span></div>
+      <div class="ligne-btn"><button class="btn plein">Je comprends, continuer</button></div>
+    </div>
+
+    <div class="annot">
+      <b>Ecran 3b - `ouvrirFenetreAssistantIA` (brique partagee).</b>
+      <ul>
+        <li><span class="t-garde">Garde</span> : tout, tel quel. Ce n'est pas un ecran de saisie, c'est la meme confirmation breve que les 4 autres parcours.</li>
+        <li><span class="t-change">Change</span> : rien. Seul le contenu du texte copie a l'etape precedente a change.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= ECRAN 4 ================= -->
+  <section class="ecran" data-e="4">
+    <div class="prog">
+      <span>&#128221; Preparer</span><span>&#128172; Assistant</span>
+      <span class="actif">&#128395;&#65039; Rediger</span><span>&#9989; Termine</span>
+    </div>
+    <h1>&#128394;&#65039; En attente de votre lettre de motivation</h1>
+    <p class="sous-titre">Revenez ici quand l'assistant vous a donne sa reponse.</p>
+
+    <div class="sous-switch" id="posSwitch">
+      <span style="font-size:11.5px;color:var(--text-muted);align-self:center">Position du bloc « Vos coordonnees » :</span>
+      <button data-pos="avant" class="on">avant le collage</button>
+      <button data-pos="apres">apres le collage</button>
+    </div>
+
+    <div id="zoneAvant"></div>
+
+    <div class="carte">
+      <h2>&#128203; Coller la reponse de l'assistant</h2>
+      <div class="rond-collage">&#128203; Cliquez ici pour coller la reponse copiee.</div>
+      <div class="ligne-btn" style="margin-top:10px">
+        <button class="btn gris sm">Copier mon CV</button>
+        <span style="font-size:11.5px;color:var(--text-muted);align-self:center">(si le CV a ete depose en texte)</span>
+      </div>
+    </div>
+
+    <div id="zoneApres"></div>
+
+    <div class="carte">
+      <h2>&#128395;&#65039; Votre lettre - deux formes</h2>
+      <div class="sous-switch" id="formeSwitch">
+        <button data-f="longue" class="on">Version longue (lettre mise en page)</button>
+        <button data-f="courte">Version courte (corps de mail)</button>
+      </div>
+      <div id="formeApercu"></div>
+      <div class="ligne-btn" style="margin-top:12px">
+        <button class="btn gris sm">Effacer et recoller</button>
+        <button class="btn" disabled>&#9989; Termine, merci !</button>
+      </div>
+    </div>
+
+    <div class="annot">
+      <b>Ecran 4 - `_coLettreRendreReponse`.</b>
+      <ul>
+        <li><span class="t-garde">Garde</span> : le collage instantane, « Copier mon CV », « Effacer et recoller », la generation d'un vrai document Word, « Termine ».</li>
+        <li><span class="t-change">Change</span> : nouveau bloc <b>« Vos coordonnees »</b> (voir ci-dessous). Deux formes de sortie, de <b>natures differentes</b> :
+          <b>version longue</b> = lettre mise en page, <b>tient sur une page A4</b>, aperçu dans l'application + Imprimer + Enregistrer en DOCX (memes modeles que L2, rendu deja existant : <code>chargerApercuLettreInline</code> / <code>normaliserDonneesLettre</code> / <code>genererDocxNatifLettre</code>) ;
+          <b>version courte</b> = texte seul, pour le <b>corps d'un e-mail</b> (CV en piece jointe), aperçu texte + Copier le texte + Enregistrer en .txt, pas d'impression.</li>
+        <li><span class="t-retire">Retire</span> : plus aucune note (ni CV, ni lettre), plus de commandes « note » / « details », plus de bloc « questions pieges ». Le principe ERIP est sans notes.</li>
+      </ul>
+      <p style="margin:8px 0 0"><b>Retour = import, jamais texte brut.</b> La personne colle la reponse complete de l'assistant
+      (qui finit par un bloc JSON) ; l'application en extrait la lettre et genere le Word. Un retour en texte libre
+      perdrait la version courte et la mise en forme.</p>
+    </div>
+
+    <h2 class="sec">Le bloc « Vos coordonnees » - 3 etats</h2>
+    <p style="font-size:12.5px;color:var(--text-muted)">Le CV a ete masque au depot : l'assistant n'a jamais vu le nom
+    ni l'adresse, et c'est voulu. L'en-tete de la lettre (expediteur) est reconstitue <b>en local</b> a partir de
+    <code>dossier.identite</code>, au moment de generer le Word (<code>normaliserDonneesLettre.js</code>).</p>
+    <div class="sous-switch" id="coordSwitch">
+      <button data-c="completes" class="on">Coordonnees completes</button>
+      <button data-c="incompletes">Incompletes</button>
+      <button data-c="vides">Rien de saisi</button>
+    </div>
+    <div id="coordApercu"></div>
+
+    <div class="annot">
+      <b>Regle (comme la maquette « Vos coordonnees » du 2026-09-02) :</b> lecture seule ici, jamais un deuxieme
+      formulaire. La saisie se fait dans « Vos informations » (brique identite partagee, <code>js/app.js</code> ~5968-6018).
+      Ici on rappelle ce qui apparaitra en haut de la lettre, et un bouton renvoie a « Vos informations » si besoin.
+      <br><b>A trancher :</b> si la personne arrive sur L1 sans jamais etre passee par « Vos informations » (entree directe
+      depuis une fiche metier), faut-il malgre tout ouvrir « Vos informations » en detour, ou tolerer une lettre sans en-tete
+      expediteur (le corps reste utilisable) ?
+    </div>
+  </section>
+
+  <!-- ================= SYNTHESE ================= -->
+  <h2 class="sec">Correspondance fonctionnelle (zero regression)</h2>
+  <table class="corresp">
+    <tr><th>Aujourd'hui (L1 sur <code>lettre-v1.md</code>)</th><th>Apres</th></tr>
+    <tr><td>Ecran 3 copie le prompt <code>lettre-v1.md</code> seul ; la personne colle son CV dans la conversation</td>
+        <td>Ecran 3 copie le nouveau prompt <b>+ <code>texteProfil('lettre')</code> + strategie CV</b> ; le CV reste colle dans la conversation, mais l'assistant a deja le profil</td></tr>
+    <tr><td>~31 questions scriptees en 7 groupes, meme si la reponse est dans le CV</td>
+        <td>noyau fixe (6 questions) + couche variable posee seulement si absente et pertinente ; jamais un fait deja connu</td></tr>
+    <tr><td>« je ne sais pas » &rarr; 5 suggestions <b>notees sur 10</b></td>
+        <td>« je ne sais pas » &rarr; 5 suggestions, <b>sans la note</b></td></tr>
+    <tr><td>fin d'echange : lettre + conseil d'entretien + 3 questions pieges + note CV /10 + note lettre /10</td>
+        <td>fin d'echange : <b>lettre seule</b> (version longue + version courte). Le reste sort de L1</td></tr>
+    <tr><td>Ecran 4 : collage, generation DOCX, l'en-tete expediteur vient de <code>dossier.identite</code> (souvent vide en entree directe)</td>
+        <td>Ecran 4 : idem <b>+ bloc « Vos coordonnees »</b> (rappel + lien vers « Vos informations » si incomplet)</td></tr>
+    <tr><td>Sortie JSON : <code>{accroche, arguments, lettre:{objet,texte}}</code></td>
+        <td>Sortie JSON : <code>{accroche, arguments, versions:[{objet,texte,texteCourt}]}</code> - 1 seule entree.
+        <code>texte</code> = lettre 1 page A4 ; <code>texteCourt</code> = texte seul pour corps de mail (~800-900 car.).
+        Meme schema que <code>lettre.md</code> : <code>analyserReponseIALettre</code> et le rendu (aperçu + DOCX) sont deja en place</td></tr>
+    <tr><td>Points d'entree : accueil / Boite a outils / fiche metier</td>
+        <td>Inchanges</td></tr>
+  </table>
+
+  <h2 class="sec">Briques reutilisees - rien de nouveau a construire</h2>
+  <table class="corresp">
+    <tr><th>Ecran / partie</th><th>Brique existante (source unique)</th><th>Deja utilisee par</th></tr>
+    <tr><td>2 - depot du CV (fichier / coller / photo)</td><td><code>obtenirOuDeposerTexteCV()</code> ; repli <code>ouvrirAssistantDepotCV()</code></td><td>Mes documents, Bilan</td></tr>
+    <tr><td>2 - relire / masquer</td><td><code>bilanDemanderRelectureCv()</code> + <code>relectureConfidentialite.js</code></td><td>Bilan, Coherence, Entretien</td></tr>
+    <tr><td>2 - entreprise / site / offre / type de structure</td><td><code>bilanCorpsCiblageOffreHTML()</code> + <code>bilanCablerCiblageOffre()</code> + <code>bilanLireCiblageOffre()</code></td><td>Bilan (bloc 4 de « Preparer »), Coherence, Preparer ma lettre et mon entretien</td></tr>
+    <tr><td>2 - civilite et nom du recruteur</td><td><code>contenuCiviliteRecruteurCandidature()</code> + <code>wireCiviliteEtCouleurRecruteurCandidature()</code></td><td>Mon projet, Bilan, Decouverte</td></tr>
+    <tr><td>3 - choisir l'assistant</td><td><code>htmlChoixAssistantBilanCorps()</code> + <code>wireChoixAssistantBilanEtapes()</code></td><td>Bilan, Decouverte, Coherence, page Assistant (dette B.2 resorbee)</td></tr>
+    <tr><td>3b - avant de continuer</td><td><code>ouvrirFenetreAssistantIA()</code></td><td>tous les parcours vers un assistant</td></tr>
+    <tr><td>4 - coller la reponse</td><td><code>htmlCollageInstantane()</code> + <code>activerCollageInstantane()</code></td><td>CV, Lettre, Entretien, page Action, Bilan, Decouverte, Coherence</td></tr>
+    <tr><td>4 - apercu + DOCX de la lettre</td><td><code>chargerApercuLettreInline()</code> + <code>MODELES_LETTRE_DISPONIBLES</code> + <code>normaliserDonneesLettre.js</code> + <code>genererDocxNatifLettre()</code></td><td>Preparer ma lettre et mon entretien (volet lettre)</td></tr>
+    <tr><td>4 - bloc « Vos coordonnees »</td><td>brique identite partagee + patron de <code>docs/MAQUETTE_COORDONNEES_2026-09-02.html</code> (lecture seule + lien vers « Vos informations »)</td><td>« Vos documents »</td></tr>
+    <tr><td>barre d'etapes, bande « Revoir la presentation », encart Continuer / Recommencer</td><td><code>barreEtapesModule()</code>, <code>htmlBandeRepriseModule()</code>, <code>_introBlocReprise()</code></td><td>tous les modules Famille 2</td></tr>
+  </table>
+
+  <h2 class="sec">Chrome du module - conserve a l'identique</h2>
+  <p style="font-size:12.5px;color:var(--text-muted)">Tout existe deja sur L1 (chantier « elimination des fenetres de depot CV » + audit RC-03 du 2026-09-07). La refonte ne le recree pas, elle le garde.</p>
+  <table class="corresp">
+    <tr><th>Element</th><th>Ou</th><th>Comportement</th></tr>
+    <tr><td>Bouton « Revoir la presentation » + note 1re fois</td><td>ecrans 2, 3, 4 (bande partagee)</td><td>ouvre l'intro par-dessus, detour non destructif ; « Revenir au module » revient a l'ecran quitte</td></tr>
+    <tr><td>Encart « Continuer / Recommencer » (fond saumon sur Recommencer)</td><td>intro, si une lettre existe deja</td><td>confirmation qui nomme ce qui part ; le CV et la lettre ne sont pas effaces tant qu'une nouvelle n'est pas enregistree</td></tr>
+    <tr><td>Barre du bas « Retour » + « Accueil »</td><td>chaque ecran de travail</td><td>voir la chaine RC-03 ci-dessous</td></tr>
+  </table>
+  <table class="corresp" style="margin-top:10px">
+    <tr><th>« Retour » depuis...</th><th>...mene a</th></tr>
+    <tr><td>Ecran 2 (Preparer, depliante)</td><td>l'intro en mode <b>normal</b> (`_coLettreRetourIntro`). Puis le « Retour » de l'intro continue vers l'accueil de la carte. <b>Ne pas</b> passer par le detour ici (boucle depot &harr; intro deja corrigee le 2026-09-07).</td></tr>
+    <tr><td>Ecran 3 (Choisir mon assistant)</td><td>l'ecran 2 (`_coLettreRetourDepot`), CV depose conserve</td></tr>
+    <tr><td>Ecran 4 (Coller la reponse)</td><td>l'ecran 3 (`_coLettreRetourChoixAssistant`), pour repartir avec un autre assistant</td></tr>
+    <tr><td>Intro (normale)</td><td>l'accueil de la carte (`carteRetour: 'preparer'`)</td></tr>
+    <tr><td>Intro (en detour)</td><td>« Revenir au module » = l'ecran de travail quitte</td></tr>
+  </table>
+  <p style="font-size:12.5px;color:var(--text-muted)">Non destructif partout : aucun « Retour » n'efface le CV depose. <b>A re-tester ecran par ecran</b> apres la mise en depliante de l'ecran 2.</p>
+
+  <h2 class="sec">Points a valider par Denis</h2>
+  <ul class="valider">
+    <li>Les 5 ecrans de l'application <b>ne bougent pas</b> (hors les 2 ajouts : depliant « ce qui est transmis » ecran 3, bloc « Vos coordonnees » ecran 4).</li>
+    <li>Ecran 4 : position du bloc « Vos coordonnees » (avant ou apres la zone de collage - testable ci-dessus).</li>
+    <li>Bloc « Vos coordonnees » en <b>lecture seule</b> + lien vers « Vos informations », jamais un 2e formulaire (comme la maquette du 2026-09-02).</li>
+    <li>Cas de l'entree directe sans « Vos informations » : detour force, ou lettre sans en-tete expediteur toleree ?</li>
+    <li>Sortie : <b>1 version longue + 1 courte</b> (retenu provisoirement), ou 3 versions comme <code>lettre.md</code> ?</li>
+    <li>Garde-t-on le mot <b>« Start »</b> pour lancer l'echange, ou l'assistant demarre-t-il directement (comme « Preparer un entretien ») ?</li>
+    <li>Nom du fichier prompt : garder <code>lettre-v1.md</code> (et le sortir de la liste des « anciens prompts »), ou nouveau nom (<code>lettre-co.md</code>) ?</li>
+    <li>La ligne de complementarite a ajouter sur l'intro (ecran 1) et le retrait de la puce « questions d'entretien ».</li>
+  </ul>
+
+</div>
+
+<script>
+  // Navigation entre ecrans
+  document.querySelectorAll('#navEcrans button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#navEcrans button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      var cible = b.getAttribute('data-e');
+      document.querySelectorAll('.ecran').forEach(function (s) {
+        s.classList.toggle('on', s.getAttribute('data-e') === cible);
+      });
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // Bloc "Vos coordonnees" - 3 etats
+  var JEUX = {
+    completes:   { nom:'Camille Bernard', email:'camille.bernard@example.fr', tel:'06 12 34 56 78', commune:'87000 Limoges' },
+    incompletes: { nom:'Camille Bernard', email:'', tel:'', commune:'87000 Limoges' },
+    vides:       { nom:'', email:'', tel:'', commune:'' }
+  };
+  var etatCoord = 'completes';
+
+  function ligneCoord(dt, v) {
+    var vide = !v;
+    return '<dt>' + dt + '</dt><dd class="' + (vide ? 'manque' : '') + '">' + (vide ? 'a completer' : v) + '</dd>';
+  }
+  function blocCoord() {
+    var d = JEUX[etatCoord];
+    var manque = [];
+    if (!d.nom) { manque.push('votre nom'); }
+    if (!d.email) { manque.push('votre adresse e-mail'); }
+    if (!d.tel) { manque.push('votre telephone'); }
+    var incomplet = manque.length > 0;
+    var liste = '<dl class="coord-liste">' +
+      ligneCoord('Nom', d.nom) + ligneCoord('E-mail', d.email) +
+      ligneCoord('Telephone', d.tel) + ligneCoord('Commune', d.commune) + '</dl>';
+    var msg = incomplet
+      ? '<div class="encart warn" style="margin:0 0 10px"><span class="ico">&#9888;&#65039;</span>' +
+        '<div>Il manque ' + phrase(manque) + '. C\'est ce qui permet de vous recontacter : ajoutez' +
+        (manque.length > 1 ? '-les' : '-le') + ' avant d\'envoyer votre lettre.</div></div>'
+      : '';
+    var bouton = incomplet
+      ? '<button class="btn plein sm">Completer mes informations &#8594;</button>'
+      : '<button class="btn sm">Modifier mes coordonnees &#8594;</button>';
+    return '<div class="coord' + (incomplet ? ' incomplet' : '') + '">' +
+      '<div class="coord-tete"><span style="font-size:16px">&#128100;</span><h3>Vos coordonnees</h3></div>' +
+      '<p class="coord-sous">Elles apparaitront en haut de votre lettre. Saisies dans « Vos informations », modifiables la-bas.</p>' +
+      liste + msg +
+      '<p class="coord-confid"><span>&#128274;</span><span>Jamais transmises a l\'assistant. Elles restent sur cette page et disparaissent si vous la fermez.</span></p>' +
+      bouton + '</div>';
+  }
+  function phrase(a) {
+    if (a.length === 1) { return a[0]; }
+    return a.slice(0, -1).join(', ') + ' et ' + a[a.length - 1];
+  }
+
+  // Ecran 4 - deux formes de sortie
+  var APERCU_LONGUE =
+    '<div class="apercu-lettre">' +
+      '<div class="exp">Camille Bernard<br>12 rue des Tanneurs, 87000 Limoges<br>06 12 34 56 78 &middot; camille.bernard@example.fr</div>' +
+      '<div class="dest">Boulangerie Martin<br>A l\'attention de Madame Martin<br>3 place du Marche, 87000 Limoges</div>' +
+      '<p style="text-align:right">Limoges, le 7 septembre 2026</p>' +
+      '<div class="obj">Objet : candidature au poste de vendeur en boulangerie</div>' +
+      '<p>Madame,</p>' +
+      '<p>Depuis deux ans, l\'accueil et le conseil des clients rythment mon quotidien en grande distribution. C\'est ce contact direct, ce role de premier interlocuteur, que je souhaite aujourd\'hui exercer dans un commerce de proximite comme le votre.</p>' +
+      '<p>Votre boulangerie mise sur les produits du terroir et un service qui prend le temps : deux exigences que je connais bien pour les avoir appliquees au rayon traiteur, ou j\'ai appris a renseigner precisement sur la composition et l\'origine des produits.</p>' +
+      '<p>Disponible immediatement, je serais heureuse de mettre cette experience du contact client au service de votre equipe, et d\'apprendre a vos cotes les gestes propres a la vente en boulangerie.</p>' +
+      '<p>Je me tiens a votre disposition pour un entretien.</p>' +
+      '<p>Je vous prie d\'agreer, Madame, l\'expression de mes salutations distinguees.</p>' +
+      '<p style="text-align:right">Camille Bernard</p>' +
+      '<div class="pagemark">- 1 / 1 -</div>' +
+    '</div>' +
+    '<div class="ligne-btn">' +
+      '<button class="btn plein sm">&#128438;&#65039; Imprimer</button>' +
+      '<button class="btn sm">&#128196; Enregistrer en DOCX</button>' +
+    '</div>' +
+    '<p style="font-size:11.5px;color:var(--text-muted)">Apercu mis en page. <b>Un seul modele de lettre existe aujourd\'hui</b> ' +
+    '(« Sobre », <code>MODELES_LETTRE_DISPONIBLES</code>) : pas de choix a faire. Le mecanisme de carrousel est pret si un 2e modele est ajoute un jour. ' +
+    'Le prompt garantit que le texte <b>tient sur une page</b> ; le gabarit d\'export ne rattrape rien.</p>';
+
+  var APERCU_COURTE =
+    '<div class="apercu-mail">' +
+      '<div class="mail-tete">Objet : Candidature - Vendeur en boulangerie - Camille Bernard<br>Piece jointe : CV</div>' +
+      'Madame,\n\n' +
+      'Actuellement en poste en grande distribution, ou j\'accueille et conseille les clients au quotidien, je souhaite exercer ce meme role dans un commerce de proximite. Votre boulangerie, attachee aux produits du terroir et a un service attentif, correspond a ce que je recherche.\n\n' +
+      'Mon experience du rayon traiteur m\'a appris a renseigner precisement les clients et a travailler en equipe dans le rythme. Disponible immediatement, je serais ravie d\'apprendre a vos cotes les gestes de la vente en boulangerie.\n\n' +
+      'Je me tiens a votre disposition pour un entretien et vous prie d\'agreer, Madame, mes salutations distinguees.\n\n' +
+      'Camille Bernard - 06 12 34 56 78' +
+    '</div>' +
+    '<div class="ligne-btn">' +
+      '<button class="btn plein sm">&#128203; Copier le texte</button>' +
+      '<button class="btn sm">Enregistrer en .txt</button>' +
+    '</div>' +
+    '<p style="font-size:11.5px;color:var(--text-muted)">Texte seul, sans mise en page : se colle dans le <b>corps d\'un e-mail</b>, ' +
+    'le CV en piece jointe. Environ 800 a 900 caracteres. Pas d\'impression : ce n\'est pas un courrier.</p>';
+
+  function rendreForme(f) {
+    document.getElementById('formeApercu').innerHTML = (f === 'courte') ? APERCU_COURTE : APERCU_LONGUE;
+  }
+  document.querySelectorAll('#formeSwitch button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#formeSwitch button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      rendreForme(b.getAttribute('data-f'));
+    });
+  });
+  rendreForme('longue');
+
+  var positionCoord = 'avant';
+  function rendreCoord() {
+    document.getElementById('zoneAvant').innerHTML = positionCoord === 'avant' ? blocCoord() : '';
+    document.getElementById('zoneApres').innerHTML = positionCoord === 'apres' ? blocCoord() : '';
+    document.getElementById('coordApercu').innerHTML = blocCoord();
+  }
+  document.querySelectorAll('#coordSwitch button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#coordSwitch button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      etatCoord = b.getAttribute('data-c');
+      rendreCoord();
+    });
+  });
+  document.querySelectorAll('#posSwitch button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#posSwitch button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      positionCoord = b.getAttribute('data-pos');
+      rendreCoord();
+    });
+  });
+  rendreCoord();
+</script>
+</body>
+</html>

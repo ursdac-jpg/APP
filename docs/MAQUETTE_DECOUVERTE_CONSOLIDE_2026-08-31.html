@@ -1,0 +1,453 @@
+<!doctype html>
+<!--
+  MAQUETTE - parcours CONSOLIDÉ du module « Découvrir mes compétences ».
+  Traduction visuelle de docs/CONSOLIDATION_DECOUVERTE_PROPOSITION_2026-08-31.md :
+  9 écrans actuels -> 1 présentation + 5 écrans, sans perdre une fonction.
+  Langage visuel commun : docs/LANGAGE_VISUEL_COMMUN.md. Teinte du module : indigo.
+  Thème sombre : classe .dark sur <body>. Aucune dépendance externe.
+
+  Cette page empile TOUS les écrans du parcours, séparés par des bandeaux
+  gris, pour se relire d'un bout à l'autre. Dans l'application, un seul
+  écran serait visible à la fois, avec la barre de navigation en tête.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - parcours consolidé Découvrir mes compétences</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#ffffff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#6366f1; --accent-bg:#ecedfd;
+    --ok:#198754; --ok-bg:#d9f4e4; --ok-strong:#157347;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --radius:10px;
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#818cf8; --accent-bg:#22243f;
+    --ok:#35c79a; --ok-bg:#17301f; --ok-strong:#6ee89a;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg-page);color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55;}
+  main{max-width:860px;margin:0 auto;padding:1.2rem 1rem 5rem;}
+  h1{font-size:1.55rem;color:var(--text-strong);margin:.2rem 0;}
+  h2{font-size:1.1rem;color:var(--text-strong);margin:0 0 .5rem;}
+  h3{font-size:.98rem;color:var(--text-strong);margin:0 0 .3rem;}
+  .sous-titre{color:var(--text-muted);margin:.2rem 0 1rem;}
+  .centre{text-align:center;}
+  .detail{color:var(--text-muted);font-size:.85rem;}
+
+  .ecran-sep{margin:2.6rem 0 1.1rem;padding:.5rem .9rem;border-radius:8px;
+    background:var(--bg-subtle);border:1px dashed var(--border-strong);
+    font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);}
+
+  .section{background:var(--bg-card);border:1px solid var(--border);
+    border-radius:12px;padding:1rem 1.1rem;margin-bottom:.9rem;}
+  .section.teinte{background:var(--accent-bg);border-color:var(--accent);}
+  .section ul{margin:.3rem 0 0;padding-left:1.2rem;}
+  .section li{margin:.2rem 0;}
+
+  .encart{display:flex;gap:.6rem;align-items:flex-start;background:var(--accent-bg);
+    border-left:3px solid var(--accent);border-radius:8px;padding:.6rem .85rem;margin:.6rem 0;font-size:.9rem;}
+  .encart.ok{background:var(--ok-bg);border-left-color:var(--ok);}
+
+  /* ----- Barre de navigation visuelle du module -----
+     Reprise FIDELE du composant reel : css/style.css .barre-etapes-bilan /
+     .pastille-etape-action* / .chevron-etape-action. Pastille courante =
+     jaune pale (#fffaeb) + halo bleu ; faite = verte ; a venir = attenuee ;
+     chevrons = carre bleu arrondi (double-chevron). */
+  .navbar-module{display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;
+    overflow-x:auto;padding:.5rem .4rem;margin:.4rem 0 1.1rem;}
+  .nav-past{display:inline-flex;align-items:center;gap:.4rem;flex-shrink:0;white-space:nowrap;
+    padding:.3rem .75rem;border-radius:999px;border:2px solid var(--border-strong);
+    font-size:.8rem;font-weight:700;color:var(--text-muted);background:var(--bg-card);}
+  .nav-past .ic{font-size:.95rem;line-height:1;}
+  .nav-past.faite{background:var(--ok-bg);border-color:var(--ok);color:var(--ok-strong);}
+  .nav-past.encours{background:#fffaeb;border-color:#f5dd94;color:#92720c;
+    box-shadow:0 0 0 3px var(--accent-bg),0 0 0 5px var(--accent);}
+  .nav-past.avenir{opacity:.4;}
+  .nav-chev{display:inline-flex;align-items:center;justify-content:center;
+    width:1.4rem;height:1.4rem;border-radius:6px;flex-shrink:0;
+    background:var(--accent);color:#fff;font-size:.85rem;margin:0 .1rem;line-height:1;}
+  .nav-chev.avenir{opacity:.4;}
+  body.dark .nav-past.encours{background:rgba(245,221,148,.14);border-color:#7a6a35;color:#f2dd9a;}
+
+  /* ----- Accordéon ----- */
+  .bloc-depli{border:1px solid var(--border);border-radius:12px;margin:.5rem 0;overflow:hidden;background:var(--bg-card);}
+  .bloc-depli>summary{list-style:none;cursor:pointer;padding:.75rem 1rem;font-weight:700;color:var(--text-strong);
+    display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+  .bloc-depli>summary::-webkit-details-marker{display:none;}
+  .bloc-depli>summary::before{content:"\25B8";color:var(--accent);font-size:.85em;transition:transform .15s;}
+  .bloc-depli[open]>summary::before{transform:rotate(90deg);}
+  .bloc-depli .corps{padding:.4rem 1rem 1rem;border-top:1px solid var(--border);}
+  .pilule{margin-left:auto;font-size:.72rem;font-weight:700;border-radius:999px;padding:.1rem .6rem;
+    border:1px solid var(--border-strong);color:var(--text-muted);}
+  .pilule.ok{color:var(--ok-strong);border-color:var(--ok);background:var(--ok-bg);}
+  .pilule.attente{color:var(--warn);border-color:var(--warn);background:var(--warn-bg);}
+
+  /* ----- Champs ----- */
+  label.champ{display:block;font-size:.85rem;font-weight:600;margin:.5rem 0 .2rem;color:var(--text-strong);}
+  input.f,textarea.f,select.f{width:100%;font:inherit;padding:.5rem .6rem;border:1px solid var(--border-strong);
+    border-radius:8px;background:var(--bg-card);color:var(--text);}
+  textarea.f{min-height:8rem;resize:vertical;}
+  .grille2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+  .jetons{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0;}
+  .jeton{border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:.2rem .8rem;font-size:.85rem;cursor:pointer;background:transparent;}
+  .jeton.actif{background:var(--accent);color:#fff;}
+
+  /* ----- Choix par formulation (comme .reco-item du CV) ----- */
+  .choix{border:1px solid var(--border-strong);border-radius:10px;padding:.6rem .8rem;margin:.4rem 0;display:flex;gap:.6rem;align-items:flex-start;}
+  .choix.actif{border-color:var(--accent);background:var(--accent-bg);}
+  .choix input{margin-top:.2rem;}
+
+  /* ----- Onglets ----- */
+  .onglets{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.6rem;}
+  .onglet{border:1px solid var(--border-strong);border-bottom:none;border-radius:10px 10px 0 0;
+    padding:.4rem .8rem;font-size:.85rem;font-weight:600;background:var(--bg-subtle);color:var(--text-muted);cursor:pointer;}
+  .onglet.actif{background:var(--bg-card);color:var(--text-strong);border-color:var(--accent);}
+  .onglet-corps{border:1px solid var(--border);border-radius:0 10px 10px 10px;padding:.9rem;background:var(--bg-card);}
+
+  /* ----- Boutons ----- */
+  .btn{font:inherit;border-radius:var(--radius);padding:.55rem 1.1rem;border:1px solid var(--border-strong);
+    background:var(--bg-card);color:var(--text-strong);cursor:pointer;}
+  .btn.primaire{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+  .btn.large{font-size:1.05rem;padding:.7rem 1.5rem;}
+  .barre-bas{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;
+    margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--border);}
+
+  .toggle-theme{position:fixed;top:.6rem;right:.6rem;font-size:.8rem;z-index:9;}
+  .note{background:var(--warn-bg);border-left:3px solid var(--warn);border-radius:8px;padding:.5rem .8rem;font-size:.82rem;margin:.5rem 0;color:var(--text-strong);}
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+
+  <div class="centre">
+    <h1>&#128161; Découvrir mes compétences — parcours consolidé</h1>
+    <p class="sous-titre">De 9 écrans à 1 présentation + 5 écrans. Aucune fonction perdue. Détail et table « zéro régression » : <code>docs/CONSOLIDATION_DECOUVERTE_PROPOSITION_2026-08-31.md</code>.</p>
+  </div>
+
+  <div class="note"><strong>Barre de navigation du module (récurrente).</strong> Présente en tête de chaque écran de travail, elle situe la personne dans le parcours : étape faite (vert), en cours (indigo), à venir (gris). Non cliquable, purement informative — même principe que la barre du Bilan et de « Cohérence de mon dossier ».</div>
+
+
+  <!-- ============================ ÉCRAN 0 ============================ -->
+  <div class="ecran-sep">Écran 0 — Présentation du module (patron page d'introduction)</div>
+  <div class="section teinte centre">
+    <p style="margin:0">Contenu complet dans <code>docs/MAQUETTE_INTRO_DECOUVERTE.html</code> : accroche + à quoi ça sert + ce qui va se passer + ce que ça ne fait pas + ce que vous pourrez faire ensuite + Mes Repères + comment ça se passe + bon à savoir.</p>
+  </div>
+  <div class="centre"><button class="btn primaire large">Raconter mon parcours &#8594;</button></div>
+  <p class="detail centre">« Retour » de cette page → menu de la Boîte à outils. Bandeau « Continuer / Recommencer » en tête si un travail est déjà engagé (patron, comme le Bilan).</p>
+
+
+  <!-- ============================ ÉCRAN 1 ============================ -->
+  <div class="ecran-sep">Écran 1 — Préparer &nbsp;·&nbsp; fusionne les écrans actuels 1 + 2 + 3</div>
+
+  <div class="navbar-module">
+    <span class="nav-past encours"><span class="ic">&#128221;</span>Préparer</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128172;</span>Assistant</span>
+    <span class="nav-chev avenir">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128229;</span>Réponse</span>
+    <span class="nav-chev avenir">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128161;</span>Vos compétences</span>
+    <span class="nav-chev avenir">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128203;</span>Compléter</span>
+  </div>
+
+  <div class="centre"><h1>&#128161; Découvrir mes compétences</h1>
+  <p class="sous-titre">On rassemble ici tout ce dont l'assistant a besoin. Le récit d'abord ; le reste est facultatif.</p></div>
+
+  <details class="bloc-depli" open>
+    <summary>&#128221; 1 · Votre parcours <span class="pilule attente">À écrire</span></summary>
+    <div class="corps">
+      <p>Racontez ce que vous avez fait, dans votre travail comme en dehors : bricolage, aide à des proches, sport, bénévolat. Écrivez comme vous le raconteriez à quelqu'un.</p>
+      <div class="encart"><span>&#128161;</span><span>Astuce : appuyez sur les touches <strong>Windows + H</strong> pour dicter à la voix au lieu de taper.</span></div>
+      <textarea class="f" placeholder="Par exemple : J'ai travaillé plusieurs années sur des chantiers, je tirais des câbles électriques..."></textarea>
+      <p class="detail" style="margin-top:.4rem;">Un message apparaît ici si des coordonnées (téléphone, e-mail) sont détectées dans le texte : elles n'ont pas besoin d'y figurer, elles se saisissent au bloc 2.</p>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#129534; 2 · Vos coordonnées <span class="pilule">Facultatif · nom et prénom conseillés</span></summary>
+    <div class="corps">
+      <p class="detail">Ces informations ne sont jamais envoyées à l'assistant, à l'exception de la civilité : elle sert uniquement à accorder au féminin / masculin le texte généré à votre sujet.</p>
+      <div class="jetons">
+        <button class="jeton">Madame</button><button class="jeton">Monsieur</button><button class="jeton actif">Ne pas préciser</button>
+      </div>
+      <div class="grille2">
+        <div><label class="champ">Nom</label><input class="f"></div>
+        <div><label class="champ">Prénom</label><input class="f"></div>
+        <div><label class="champ">Téléphone</label><input class="f"></div>
+        <div><label class="champ">Email</label><input class="f"></div>
+        <div><label class="champ">Code postal</label><input class="f"></div>
+        <div><label class="champ">Ville</label><input class="f"></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli">
+    <summary>&#127919; 3 · Ce que vous visez <span class="pilule">Facultatif · conseillé si vous l'avez</span></summary>
+    <div class="corps">
+      <p>Cela oriente le vocabulaire du CV, et permet d'aligner la candidature sur une offre ou une structure précise. Sans réponse, l'assistant reste général.</p>
+
+      <p class="detail" style="font-weight:600;">Cherchez-vous plutôt :</p>
+      <div class="jetons">
+        <button class="jeton actif">&#127919; Un métier précis</button>
+        <button class="jeton">&#129517; Un domaine, sans métier précis en tête</button>
+        <button class="jeton">&#127891; Un stage</button>
+      </div>
+
+      <label class="champ">Recherchez un métier (ou tapez le vôtre puis Entrée — reconnu ou non)</label>
+      <input class="f" placeholder="Un métier...">
+      <div class="jetons" style="margin-top:.3rem;">
+        <button class="jeton">Agent d'entretien</button><button class="jeton">Manutentionnaire</button><button class="jeton">Aide à domicile</button>
+      </div>
+      <p class="detail" style="margin-top:.4rem;">Une fois choisi, le métier s'affiche en pastille cliquable (un clic pour le retirer et en choisir un autre). Pour un <strong>domaine</strong>, l'intitulé de CV réellement construit (« Profil polyvalent - … ») est affiché avant validation.</p>
+
+      <label class="champ" style="margin-top:.6rem;">Avez-vous une offre / une structure en tête ?</label>
+      <div class="jetons">
+        <button class="jeton actif">Oui, une offre / structure précise</button>
+        <button class="jeton">Non, je cherche de façon générale</button>
+      </div>
+
+      <div class="section" style="margin-top:.6rem;background:var(--bg-subtle);">
+        <p class="detail" style="font-weight:600;margin:0 0 .3rem;">Si « oui » — bloc partagé « recherche de candidature » (identique au parcours actuel) :</p>
+        <label class="champ">Nom de l'entreprise / de la structure</label><input class="f">
+        <label class="champ">Site (facultatif)</label><input class="f" placeholder="https://...">
+        <label class="champ">Lien ou texte de l'offre (facultatif, mais très utile)</label><textarea class="f" style="min-height:4rem;"></textarea>
+        <label class="champ">Connaissez-vous la personne en charge du recrutement ?</label>
+        <div class="jetons">
+          <button class="jeton">Oui, Monsieur</button><button class="jeton">Oui, Madame</button><button class="jeton actif">Je ne sais pas</button>
+        </div>
+        <p class="detail" style="margin:.2rem 0 0;">Si oui : un champ « Son nom (facultatif) » apparaît. La civilité connue est utilisée par l'assistant (accroche + formule de politesse).</p>
+        <label class="champ" style="margin-top:.5rem;">Mettre en avant les couleurs de l'entreprise sur votre CV ?</label>
+        <div class="jetons">
+          <button class="jeton actif">Non</button><button class="jeton">Oui</button>
+        </div>
+        <p class="detail" style="margin:.2rem 0 0;">Si oui : un sélecteur de couleur apparaît ; la couleur est proposée sur le CV (modèle Composeur).</p>
+      </div>
+    </div>
+  </details>
+
+  <div class="barre-bas">
+    <button class="btn">&#8592; Retour</button>
+    <button class="btn primaire large">Choisir mon assistant &#8594;</button>
+  </div>
+  <p class="detail">Le bouton s'active dès que le bloc 1 contient du texte. Les blocs 2 et 3 peuvent rester vides. <strong>Tout ce que l'écran 1 actuel demande est ici</strong> (métier / domaine / stage, recherche, offre / structure, entreprise, site, lien d'offre, civilité et nom du recruteur, couleurs de l'entreprise) — mais sur une seule page dépliante, sans le « Retour qui recule sous-état par sous-état ».</p>
+
+
+  <!-- ============================ ÉCRAN 2 ============================ -->
+  <div class="ecran-sep">Écran 2 — Choisir l'assistant &nbsp;·&nbsp; inchangé (écran 4 actuel)</div>
+
+  <div class="navbar-module">
+    <span class="nav-past faite"><span class="ic">&#128221;</span>Préparer</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past encours"><span class="ic">&#128172;</span>Assistant</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128229;</span>Réponse</span>
+    <span class="nav-chev avenir">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128161;</span>Vos compétences</span>
+    <span class="nav-chev avenir">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128203;</span>Compléter</span>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Choisissez votre assistant</h2>
+    <p class="detail">Cliquez sur un assistant. L'application prépare et copie tout pour vous, puis l'ouvre dans un nouvel onglet : <strong>cette page reste ouverte</strong>, vous n'avez rien à taper.</p>
+
+    <div class="section teinte" style="margin:.6rem 0;">
+      <h3 style="margin:0 0 .3rem;">Sans compte à créer <span class="detail" style="font-weight:400;">· utilisable tout de suite</span></h3>
+      <div class="jetons">
+        <button class="jeton actif" style="border-color:var(--ok);color:var(--ok-strong);">ChatGPT <span class="detail" style="font-weight:400;">sans compte</span></button>
+        <button class="jeton" style="border-color:var(--ok);color:var(--ok-strong);">Perplexity <span class="detail" style="font-weight:400;">sans compte</span></button>
+      </div>
+      <h3 style="margin:.7rem 0 .3rem;">Avec une connexion <span class="detail" style="font-weight:400;">· à un compte existant</span></h3>
+      <div class="jetons">
+        <button class="jeton">Claude <span class="detail" style="font-weight:400;">connexion</span></button>
+        <button class="jeton">Gemini <span class="detail" style="font-weight:400;">connexion</span></button>
+        <button class="jeton">Mistral <span class="detail" style="font-weight:400;">connexion</span></button>
+      </div>
+    </div>
+
+    <details class="bloc-depli">
+      <summary>&#128203; Ce qui va se passer, et vos données</summary>
+      <div class="corps">
+        <ol style="margin:.3rem 0 0;padding-left:1.2rem;">
+          <li>Le texte de votre récit est <strong>copié</strong> dans votre presse-papiers.</li>
+          <li>Le site de l'assistant s'ouvre : cliquez dans la zone de conversation, faites <strong>Ctrl + V</strong>, puis Entrée.</li>
+          <li>Copiez toute la réponse de l'assistant.</li>
+          <li>Revenez ici pour la coller (écran suivant).</li>
+        </ol>
+      </div>
+    </details>
+
+    <p class="detail" style="margin-top:.5rem;">Composant <strong>partagé et déjà en production</strong> avec « Analyser ma candidature » (mêmes fonctions, mêmes assistants, même panneau de détail). Repris ici tel quel, avec la distinction sans compte / avec compte que Denis a validée sur le Bilan.</p>
+  </div>
+  <div class="barre-bas"><button class="btn">&#8592; Retour</button><span></span></div>
+
+
+  <!-- ============================ ÉCRAN 3 ============================ -->
+  <div class="ecran-sep">Écran 3 — Coller la réponse &nbsp;·&nbsp; inchangé (écran 5 actuel)</div>
+
+  <div class="navbar-module">
+    <span class="nav-past faite"><span class="ic">&#128221;</span>Préparer</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past faite"><span class="ic">&#128172;</span>Assistant</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past encours"><span class="ic">&#128229;</span>Réponse</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128161;</span>Vos compétences</span>
+    <span class="nav-chev avenir">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128203;</span>Compléter</span>
+  </div>
+
+  <div class="section">
+    <h2>&#128229; De retour : collez la réponse</h2>
+    <p class="detail">Écran tampon + décompte + <code>htmlCollageInstantane</code> + import. <strong>Aucune modification.</strong></p>
+    <textarea class="f" placeholder="Collez ici la réponse complète de l'assistant..."></textarea>
+    <div style="margin-top:.6rem;"><button class="btn primaire">&#128203; Coller la réponse</button> <button class="btn">Importer</button></div>
+  </div>
+
+
+  <!-- ============================ ÉCRAN 4 ============================ -->
+  <div class="ecran-sep">Écran 4 — Vos compétences, expérience par expérience &nbsp;·&nbsp; fusionne les écrans actuels 6 + 7</div>
+
+  <div class="navbar-module">
+    <span class="nav-past faite"><span class="ic">&#128221;</span>Préparer</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past faite"><span class="ic">&#128172;</span>Assistant</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past faite"><span class="ic">&#128229;</span>Réponse</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past encours"><span class="ic">&#128161;</span>Vos compétences</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past avenir"><span class="ic">&#128203;</span>Compléter</span>
+  </div>
+
+  <div class="centre"><h1>&#128161; Vos compétences</h1>
+  <p class="sous-titre">Pour chaque expérience, choisissez la formulation qui vous ressemble. Si aucune ne convient, dites-nous-en un peu plus.</p></div>
+
+  <div class="onglets">
+    <span class="onglet actif">&#128188; Expérience 1</span>
+    <span class="onglet">&#127968; Expérience 2 &#10003;</span>
+    <span class="onglet">&#127793; Expérience 3</span>
+  </div>
+  <div class="onglet-corps">
+    <h3>Chantiers — pose de câbles électriques</h3>
+    <p class="detail">Choisissez la formulation :</p>
+    <label class="choix actif"><input type="radio" name="f1" checked><span>Pose et raccordement de réseaux électriques sur chantiers de construction, en équipe.</span></label>
+    <label class="choix"><input type="radio" name="f1"><span>Travaux d'installation électrique : tirage de câbles, raccordements, lecture de plans.</span></label>
+    <label class="choix"><input type="radio" name="f1"><span>Aucune ne me convient — <em>dites-nous-en un peu plus</em> (nouvel échange court avec l'assistant).</span></label>
+    <p class="detail" style="margin-top:.6rem;">Compétences repérées (jusqu'à 5) :</p>
+    <div class="jetons">
+      <button class="jeton actif">Lecture de plans</button>
+      <button class="jeton actif">Travail en équipe</button>
+      <button class="jeton actif">Respect des consignes de sécurité</button>
+      <button class="jeton">Rigueur</button>
+      <button class="jeton">Autonomie</button>
+    </div>
+  </div>
+
+  <details class="bloc-depli" style="margin-top:1rem;">
+    <summary>&#10067; Quelques précisions <span class="pilule attente">3 questions</span></summary>
+    <div class="corps">
+      <p class="detail">S'affiche uniquement si l'analyse a repéré des manques. Types de questions repris à l'identique : texte libre, dates (2 sélecteurs d'année), formation (intitulé + niveau d'études + dates), engagement (intitulé + dates).</p>
+      <label class="champ">Sur ce poste, combien de temps avez-vous travaillé ?</label>
+      <div class="jetons"><select class="f" style="width:auto;"><option>Année de début</option></select><span>à</span><select class="f" style="width:auto;"><option>Toujours en cours</option></select></div>
+      <label class="champ" style="margin-top:.6rem;">Aviez-vous une responsabilité particulière (encadrement, sécurité) ?</label>
+      <input class="f">
+    </div>
+  </details>
+
+  <div class="barre-bas">
+    <button class="btn">&#8592; Retour</button>
+    <button class="btn primaire large">Continuer &#8594;</button>
+  </div>
+  <p class="detail">« Continuer » s'active quand toutes les expériences sont validées. Les précisions restent facultatives. Plus d'écran séparé « Quelques précisions » quand il n'y a aucune question.</p>
+
+
+  <!-- ============================ ÉCRAN 5 ============================ -->
+  <div class="ecran-sep">Écran 5 — Compléter mon CV &nbsp;·&nbsp; écran 8 actuel, renommé</div>
+
+  <div class="navbar-module">
+    <span class="nav-past faite"><span class="ic">&#128221;</span>Préparer</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past faite"><span class="ic">&#128172;</span>Assistant</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past faite"><span class="ic">&#128229;</span>Réponse</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past faite"><span class="ic">&#128161;</span>Vos compétences</span>
+    <span class="nav-chev">&raquo;</span>
+    <span class="nav-past encours"><span class="ic">&#128203;</span>Compléter</span>
+  </div>
+
+  <div class="centre"><h1>&#128203; Compléter mon CV</h1>
+  <p class="sous-titre">Dernière étape avant votre CV. Ces informations sont transmises telles quelles, jamais interprétées.</p></div>
+
+  <div class="onglets">
+    <span class="onglet actif">&#128663; Mobilité</span>
+    <span class="onglet">&#127891; Formations</span>
+    <span class="onglet">&#129309; Engagement</span>
+    <span class="onglet">&#128295; Savoir-faire personnel</span>
+  </div>
+  <div class="onglet-corps">
+    <h3>Mobilité</h3>
+    <label class="champ">Permis</label>
+    <div class="jetons"><button class="jeton actif">Permis B</button><button class="jeton">Pas de permis</button></div>
+    <label class="champ" style="margin-top:.5rem;">Véhicule personnel</label>
+    <div class="jetons"><button class="jeton actif">Oui</button><button class="jeton">Non</button></div>
+    <p class="detail" style="margin-top:.5rem;">Onglets Formations / Engagement / Savoir-faire : catalogue + saisie libre, ajout, retrait par une croix, dates, description par item, récapitulatif + « Modifier » — à l'identique de l'écran actuel.</p>
+  </div>
+
+  <div class="barre-bas">
+    <button class="btn">&#8592; Retour</button>
+    <button class="btn primaire large">Voir mon CV &#8594;</button>
+  </div>
+
+
+  <!-- ============================ SORTIE ============================ -->
+  <div class="ecran-sep">→ Votre CV (atelier CV, inchangé)</div>
+  <div class="section teinte centre">
+    <p style="margin:0">La personne arrive sur son CV, prêt à mettre en forme, choisir un modèle, imprimer, télécharger en Word ou PDF — puis enchaîner sur « Co-construire ma lettre » ou « Préparer un entretien ».</p>
+  </div>
+
+
+  <!-- ============================ RÉCAP ============================ -->
+  <div class="ecran-sep">Ce qui change · ce qui ne change pas</div>
+  <div class="section">
+    <h2>Fusions (moins d'écrans, mêmes fonctions)</h2>
+    <ul>
+      <li><strong>Écrans 1 + 2 + 3 → Écran 1 « Préparer »</strong> (dépliante). Récit ouvert d'emblée ; coordonnées et visée repliées, facultatives. Supprime le « Retour sous-état par sous-état » de l'écran d'accueil actuel.</li>
+      <li><strong>Écrans 6 + 7 → Écran 4</strong>. Validation par expérience + bloc dépliant « Quelques précisions » sur le même écran. Supprime l'écran séparé quand il n'y a aucune question.</li>
+    </ul>
+    <h2 style="margin-top:.8rem;">Inchangé</h2>
+    <ul>
+      <li>Choisir l'assistant, Coller la réponse (composants partagés).</li>
+      <li>Raffinement « aucune ne convient », onglets par expérience, récapitulatif, « Modifier ».</li>
+      <li>Les 4 onglets Mobilité / Formations / Engagement / Savoir-faire, avec ajout / retrait / dates / description.</li>
+      <li>Fermer = mettre en pause ; reprendre à la dernière étape ; « Réinitialiser » = seul vrai départ à zéro.</li>
+      <li>« Retour » à chaque étape ; en plus, « Retour » d'un écran de travail repasse par la présentation du module.</li>
+    </ul>
+    <h2 style="margin-top:.8rem;">Charge cognitive réduite</h2>
+    <ul>
+      <li>1 barre de navigation visible en permanence : la personne sait toujours où elle en est.</li>
+      <li>Le récit (le seul vrai effort) est isolé et mis en avant ; tout le reste est facultatif et replié.</li>
+      <li>Moins de transitions d'écran : 5 écrans au lieu de 9, dont 2 incompressibles (aller-retour assistant).</li>
+    </ul>
+    <p class="detail">Points laissés à trancher par Denis : ordre des blocs de l'écran 1 ; précisions en bloc dépliant vs petite page après « Continuer » ; nom de l'écran 5 ; teinte indigo. Voir le fichier de proposition.</p>
+  </div>
+
+</main>
+</body>
+</html>

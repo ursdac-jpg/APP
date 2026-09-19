@@ -1,0 +1,706 @@
+<!doctype html>
+<meta charset="UTF-8">
+<title>Porte d'entrée</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ground: #eef2f6;
+    --bg-card: #ffffff;
+    --border: #e2e8f0;
+    --accent: #0d6efd;
+    --accent-bg: #edf4ff;
+    --text: #1f2937;
+    --text-muted: #4a5b6e;
+    --text-faint: #7c8b96;
+    --chip-bg: #f1f5f9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #10141b; --bg-card: #1b212c; --border: #313a4a;
+      --accent: #4d94ff; --accent-bg: #22314a;
+      --text: #e7ecf2; --text-muted: #a8b3c4; --text-faint: #7c8b96; --chip-bg: #232b38;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #10141b; --bg-card: #1b212c; --border: #313a4a;
+    --accent: #4d94ff; --accent-bg: #22314a;
+    --text: #e7ecf2; --text-muted: #a8b3c4; --text-faint: #7c8b96; --chip-bg: #232b38;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--text);
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    padding: 2rem 1.25rem 4rem;
+  }
+  .page { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 1.7rem; margin: 0 0 0.3rem; }
+  .sousTitre { color: var(--text-muted); margin: 0 0 1.75rem; }
+
+  .recherche {
+    display: flex; align-items: center; gap: 0.6rem; height: 3.1rem;
+    background: var(--bg-card); border: 2px solid var(--border); border-radius: 999px;
+    padding: 0 1.1rem; max-width: 560px; margin: 0 0 2rem; color: var(--text-faint);
+  }
+  /* TÂCHE (2026-08-27) : reproduit le contour bleu au clic/focus de la
+     vraie barre de recherche (aucun equivalent avant) - :focus-within
+     s'active des que l'input a l'interieur recoit le focus. */
+  .recherche:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
+
+  .grille { display: flex; flex-wrap: wrap; gap: 1.1rem; }
+  .carte {
+    background: var(--bg-card); border: 3px solid var(--border); border-radius: 1.5rem;
+    padding: 1.5rem 1.3rem; text-align: center; flex: 1 1 260px; max-width: 300px;
+    transition: 0.2s;
+  }
+  .carte:hover { border-color: var(--accent); transform: translateY(-4px); }
+  .carte .picto { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+  .carte .picto-svg { display: block; margin: 0 auto 0.5rem; color: var(--accent); }
+  .carte h3 { font-size: 1.15rem; font-weight: 700; margin: 0.3rem 0; }
+  .carte p { font-size: 0.9rem; color: var(--text-muted); margin: 0 0 0.9rem; }
+
+  .puces { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+  .puce {
+    font-size: 0.76rem; font-weight: 600; color: var(--text-muted);
+    background: var(--chip-bg); border-radius: 999px; padding: 0.3rem 0.65rem;
+  }
+  .badge-dev {
+    display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+    color: var(--accent); background: var(--accent-bg); border-radius: 999px;
+    padding: 0.2rem 0.6rem; margin-bottom: 0.6rem;
+  }
+  .carte-veille { opacity: 0.82; }
+
+  .note { margin-top: 2.5rem; font-size: 0.85rem; color: var(--text-faint); max-width: 60ch; }
+
+  .groupe-resultats-erip { margin: 0 0 1.3rem; }
+  .groupe-resultats-erip:last-child { margin-bottom: 0; }
+  .groupe-resultats-erip h4 { font-size: 1rem; color: var(--text); margin: 0 0 0.7rem; }
+  .grille-resultats-erip { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+  .carte-resultat-erip {
+    background: var(--chip-bg); border: 2px solid var(--border); border-radius: 0.9rem;
+    padding: 0.85rem 1rem; min-width: 200px; max-width: 260px; flex: 1 0 200px;
+  }
+  .carte-resultat-erip h5 { font-size: 0.92rem; font-weight: 700; margin: 0 0 0.25rem; color: var(--text); }
+  .carte-resultat-erip p { font-size: 0.8rem; margin: 0 0 0.25rem; color: var(--text-muted); }
+  .carte-resultat-erip .lien-rome, .lien-rome { display: inline-block; margin-top: 0.4rem; font-size: 0.78rem; font-weight: 600; color: var(--accent); background: var(--accent-bg); border: 1.5px solid var(--accent); border-radius: 999px; padding: 0.3rem 0.75rem; text-decoration: none; cursor: pointer; }
+  .lien-rome:hover { background: var(--accent); color: #fff; }
+  .carte-resultat-texte {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    min-width: 130px; max-width: none; flex: 0 1 auto; font-weight: 600; font-size: 0.86rem; color: var(--accent);
+    background: var(--accent-bg); border-color: var(--accent);
+  }
+  .carte-resultat-cliquable { cursor: pointer; transition: 0.15s; }
+  .carte-resultat-cliquable:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(13,110,253,0.15); }
+
+  .carte-active-demo { cursor: pointer; }
+  .voile { position: fixed; inset: 0; background: rgba(15,23,32,0.45); display: none; align-items: center; justify-content: center; padding: 1.25rem; z-index: 100; }
+  .voile.ouvert { display: flex; }
+  .panneau { background: var(--bg-card); border-radius: 1.5rem; max-width: 640px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.75rem; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .panneau-fermer { position: absolute; top: 1rem; right: 1rem; z-index: 5; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); background: var(--chip-bg); color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+  .panneau-fermer:hover { color: var(--text); }
+  .panneau-fermer:focus-visible { outline: 2px solid var(--text-muted); outline-offset: 2px; }
+  .panneau h2 { margin: 0 0 1.1rem; font-size: 1.3rem; padding-right: 2rem; }
+  .panneau-grille { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+  .sous-carte { flex: 1 1 170px; text-align: center; background: var(--chip-bg); border: 2px solid transparent; border-radius: 1.1rem; padding: 1.1rem 0.9rem; cursor: pointer; transition: 0.15s; }
+  .sous-carte:hover { border-color: var(--accent); }
+  .sous-carte svg { color: var(--accent); margin-bottom: 0.4rem; }
+  .sous-carte strong { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; }
+  .sous-carte span { font-size: 0.82rem; color: var(--text-muted); }
+
+  .titre-carte-ligne { display: flex; align-items: center; justify-content: center; gap: 0.35rem; position: relative; }
+  .info-trigger { width: 28px; height: 28px; border-radius: 50%; border: none; background: none; color: var(--accent); opacity: 0.8; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .info-trigger:hover, .info-trigger:focus-visible { opacity: 1; }
+  .info-trigger.pulse-attention { animation: pulseDouce 1.8s ease-in-out 3; }
+  @keyframes pulseDouce {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(13,110,253,0.35); }
+    50% { box-shadow: 0 0 0 7px rgba(13,110,253,0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .info-trigger.pulse-attention { animation: none; } }
+  .info-bulle {
+    display: none; position: fixed; width: 280px; max-width: 80vw; text-align: left;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25); padding: 1rem 2.4rem 1rem 1.1rem; z-index: 150; cursor: default;
+  }
+  .info-bulle.ouverte { display: block; }
+  .info-bulle > p { margin: 0 0 0.7rem; font-size: 0.83rem; color: var(--text-muted); }
+  .info-bulle .info-item { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .info-bulle .info-item:last-child { margin-bottom: 0; }
+  .info-bulle .info-item svg { color: var(--accent); flex: none; margin-top: 0.1rem; }
+  .info-bulle .info-item strong { display: block; font-size: 0.82rem; }
+  .info-bulle .info-item span { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* Icônes persistantes, mêmes coordonnées que la vraie app (css/style.css,
+     modules/carnet/carnet.css, modules/reperes/reperes.css) - point de
+     départ pour discuter d'un meilleur emplacement, pas une décision finale. */
+  .icone-persistante {
+    position: fixed; z-index: 400; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--accent); font-size: 1.3rem;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .icone-persistante svg { color: var(--accent); }
+  /* TÂCHE (2026-08-27) : rotation demandée par Denis - réglages prend la
+     place de la disquette, la disquette prend la place de l'ampoule (et
+     devient une pilule avec un mot), l'ampoule prend la place des réglages. */
+  #btnPreferencesAffichage { top: 19px; left: 20px; width: 44px; height: 44px; }
+  #btnAide { top: 19px; left: 74px; width: 44px; height: 44px; }
+  #btnSessionTransfert {
+    top: 83px; left: 20px; width: auto; height: 44px; border-radius: 999px;
+    justify-content: flex-start; padding: 0 1rem 0 11px; gap: 0.5rem;
+    font-weight: 700; font-size: 0.85rem; white-space: nowrap;
+  }
+  #btnCarnet { top: 90px; right: 20px; width: 52px; height: 52px; border-radius: 16px; }
+  #btnJournalParcours { top: 152px; right: 20px; width: 52px; height: 52px; border-radius: 16px; }
+  .panneau-icone-persistante {
+    display: none; position: fixed; width: 260px; max-width: 80vw; text-align: left;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25); padding: 1rem 2.4rem 1rem 1.1rem; z-index: 401;
+  }
+  .panneau-icone-persistante.ouvert { display: block; }
+  .fermer-panneau-icone {
+    position: absolute; top: 0.7rem; right: 0.7rem; width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--chip-bg); color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; line-height: 1;
+  }
+  .fermer-panneau-icone:hover { color: var(--text); }
+  .panneau-icone-persistante h6 { margin: 0 0 0.5rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; }
+  .panneau-icone-persistante h6 svg { color: var(--accent); flex: none; }
+  .panneau-icone-persistante p { margin: 0 0 0.7rem; font-size: 0.82rem; color: var(--text-muted); }
+  .panneau-icone-persistante p:last-child { margin-bottom: 0; }
+
+  /* TÂCHE (2026-08-27) : la croix reste TOUJOURS presente dans la mise en
+     page (display:flex fixe), seule sa visibilite change - sinon son
+     apparition/disparition au fil de la frappe fait grossir/retrecir la
+     barre entiere (elle etait plus haute que la ligne de texte). */
+  .bouton-effacer-recherche {
+    display: flex; border: none; background: var(--chip-bg); color: var(--text-muted);
+    width: 26px; height: 26px; border-radius: 50%; align-items: center; justify-content: center;
+    cursor: pointer; flex: none; font-size: 0.9rem; line-height: 1;
+    visibility: hidden; opacity: 0; pointer-events: none;
+  }
+  .bouton-effacer-recherche.visible { visibility: visible; opacity: 1; pointer-events: auto; }
+  .fermer-panneau-recherche {
+    position: absolute; top: 1rem; right: 1.1rem; width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--chip-bg); color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;
+  }
+  .fermer-panneau-recherche:hover { color: var(--text); }
+
+  .pied-page { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; margin-top: 3rem; }
+  .bouton-pied {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--accent);
+    font-size: 0.85rem; font-weight: 600; padding: 0.55rem 1rem; border-radius: 999px; cursor: pointer;
+  }
+  .bouton-pied:hover { background: var(--accent-bg); }
+
+  /* TACHE (2026-08-31) : bouton "Liens utiles" ajoute entre les deux boutons
+     du pied de page. Regroupe les liens externes qui vivaient auparavant
+     derriere la carte "Vous hesitez encore ?". Les liens sont des boutons
+     bordes, jamais du texte souligne (regle "bouton, pas lien texte"). */
+  .panneau-liens-utiles { width: 360px; max-width: 85vw; }
+  .panneau-liens-utiles .liens-utiles-titre-groupe {
+    font-size: 0.78rem; font-weight: 700; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 0.9rem 0 0.5rem;
+  }
+  .panneau-liens-utiles .liens-utiles-titre-groupe:first-of-type { margin-top: 0.3rem; }
+  .lien-utile {
+    display: block; margin-bottom: 0.45rem; font-size: 0.82rem; font-weight: 600;
+    color: var(--accent); background: var(--accent-bg); border: 1.5px solid var(--accent);
+    border-radius: 0.7rem; padding: 0.5rem 0.75rem; text-decoration: none;
+  }
+  .lien-utile:hover { background: var(--accent); color: #fff; }
+</style>
+
+<button type="button" class="icone-persistante" id="btnPreferencesAffichage" title="Préférences d'affichage" data-panneau="panneauPreferencesAffichage">
+  <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg>
+</button>
+<button type="button" class="icone-persistante" id="btnAide" title="Aide sur cette page" data-panneau="panneauAide">
+  <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg>
+</button>
+<button type="button" class="icone-persistante" id="btnSessionTransfert" title="Sauvegarder ma session / changer d'appareil" data-panneau="panneauSessionTransfert">
+  <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v3.5A1.5 1.5 0 0 1 11.5 6h-7A1.5 1.5 0 0 1 3 4.5V1H1.5a.5.5 0 0 0-.5.5m9.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"/></svg>
+  Sauvegarder
+</button>
+<button type="button" class="icone-persistante" id="btnCarnet" title="Carnet" data-panneau="panneauCarnet">
+  <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg>
+</button>
+<button type="button" class="icone-persistante" id="btnJournalParcours" title="Journal de parcours" data-panneau="panneauJournalParcours">
+  <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/></svg>
+</button>
+
+<div class="panneau-icone-persistante" id="panneauSessionTransfert" style="top:133px;left:20px;">
+  <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v3.5A1.5 1.5 0 0 1 11.5 6h-7A1.5 1.5 0 0 1 3 4.5V1H1.5a.5.5 0 0 0-.5.5m9.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"/></svg>Sauvegarder ma session</h6>
+  <p>Cette application ne garde rien automatiquement : exportez un fichier pour ne pas perdre votre travail. Vous pourrez aussi vous en servir pour reprendre votre session sur un autre appareil, si besoin.</p>
+</div>
+<div class="panneau-icone-persistante" id="panneauPreferencesAffichage" style="top:69px;left:20px;">
+  <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg>Préférences d'affichage</h6>
+  <p>Thème clair/sombre, mode daltonien, confort de lecture, couleur d'accent, taille du texte, police - réglages à discuter et repositionner avec cette nouvelle disposition.</p>
+</div>
+<div class="panneau-icone-persistante" id="panneauAide" style="top:69px;left:74px;">
+  <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg>Besoin d'aide ?</h6>
+  <p>Comprendre à quoi sert chaque outil de cette page - explication rapide ou visite guidée.</p>
+</div>
+<div class="panneau-icone-persistante" id="panneauCarnet" style="top:150px;right:20px;">
+  <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2"/><path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z"/></svg>Mon Carnet</h6>
+  <p>Un espace personnel pour noter en un instant ce qui vous passe par la tête, sans avoir à décider tout de suite quoi en faire.</p>
+</div>
+<div class="panneau-icone-persistante" id="panneauJournalParcours" style="top:212px;right:20px;">
+  <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/></svg>Journal de parcours</h6>
+  <p>Apparaît dès que vous avez des Repères en mémoire - un second regard sur ce que vous avez gardé.</p>
+</div>
+
+<div class="page">
+  <h1 style="text-align:center;">Par où voulez-vous commencer ?</h1>
+  <p class="sousTitre" style="text-align:center;">Choisissez votre point de départ.</p>
+
+  <form id="formRecherche" class="recherche" style="margin-left:auto;margin-right:auto;">
+    <span>🔍</span>
+    <input id="rechercheInput" type="text" placeholder="Rechercher un métier..." style="border:none;background:none;outline:none;font:inherit;color:inherit;width:100%;">
+    <button type="button" class="bouton-effacer-recherche" id="btnEffacerRecherche" aria-label="Effacer la recherche">✕</button>
+  </form>
+  <div id="resultatRecherche" class="resultats-erip-dropdown" style="display:none;position:fixed;background:var(--bg-card);border-radius:1.2rem;box-shadow:0 20px 60px rgba(0,0,0,0.25);padding:1.2rem;z-index:300;max-width:min(92vw,640px);max-height:65vh;overflow-y:auto;text-align:left;"></div>
+
+  <div class="grille">
+
+    <div class="carte carte-active-demo" id="carteMesDocuments">
+      <svg class="picto-svg" width="40" height="40" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5z"/></svg>
+      <h3>Mes documents</h3>
+      <p>Le point de départ pour votre CV, votre lettre de motivation et votre préparation d'entretien d'embauche.</p>
+      <div class="puces">
+        <span class="puce">Créer un nouveau CV</span>
+        <span class="puce">J'ai déjà un CV</span>
+        <span class="puce">Mettre à jour mon CV</span>
+      </div>
+    </div>
+
+    <div class="carte">
+      <svg class="picto-svg" width="40" height="40" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664"/></svg>
+      <h3>Me préparer à candidater</h3>
+      <p>Rédiger une lettre de motivation et vous entraîner à un entretien d'embauche.</p>
+      <div class="puces">
+        <span class="puce">Co-construire ma lettre</span>
+        <span class="puce">Préparer un entretien</span>
+        <span class="puce">Regard recruteur</span>
+      </div>
+    </div>
+
+    <div class="carte">
+      <svg class="picto-svg" width="40" height="40" viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5m1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0M1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5"/></svg>
+      <h3>Boîte à outils</h3>
+      <p>Mieux comprendre votre parcours et le monde professionnel.</p>
+      <div class="puces">
+        <span class="puce">Découvrir mes compétences</span>
+        <span class="puce">Mes Repères</span>
+        <span class="puce">Mon Carnet</span>
+        <span class="puce">Lexique</span>
+        <span class="puce">Ressources</span>
+      </div>
+    </div>
+
+    <div class="carte">
+      <svg class="picto-svg" width="40" height="40" viewBox="0 0 16 16" fill="currentColor"><path d="M0 0h1v15h15v1H0z"/><path d="M14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07"/></svg>
+      <h3>Outils d'analyse</h3>
+      <p>Vérifier la solidité de votre candidature avant de postuler.</p>
+      <div class="puces">
+        <span class="puce">Analyser ma candidature</span>
+        <span class="puce">Cohérence de mon dossier</span>
+        <span class="puce">ATS</span>
+      </div>
+    </div>
+
+    <div class="carte">
+      <svg class="picto-svg" width="40" height="40" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2.5A1.5 1.5 0 0 1 1.5 1h11A1.5 1.5 0 0 1 14 2.5v10.528c0 .3-.05.654-.238.972h.738a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 1 1 0v9a1.5 1.5 0 0 1-1.5 1.5H1.497A1.497 1.497 0 0 1 0 13.5zM12 14c.37 0 .654-.211.853-.441.092-.106.147-.279.147-.531V2.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5v11c0 .278.223.5.497.5z"/><path d="M2 3h10v2H2zm0 3h4v3H2zm0 4h4v1H2zm0 2h4v1H2zm5-6h2v1H7zm3 0h2v1h-2zM7 8h2v1H7zm3 0h2v1h-2zm-3 2h2v1H7zm3 0h2v1h-2zm-3 2h2v1H7zm3 0h2v1h-2z"/></svg>
+      <h3>Se tenir informé</h3>
+      <p>Les dernières informations du monde de l'insertion professionnelle.</p>
+      <div class="puces">
+        <span class="puce">Actualités</span>
+      </div>
+    </div>
+
+    <div class="carte">
+      <svg class="picto-svg" width="40" height="40" viewBox="0 0 16 16" fill="currentColor"><path d="M7 1.414V2H2a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h5v1H2.5a1 1 0 0 0-.8.4L.725 8.7a.5.5 0 0 0 0 .6l.975 1.3a1 1 0 0 0 .8.4H7v5h2v-5h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H9V6h4.5a1 1 0 0 0 .8-.4l.975-1.3a.5.5 0 0 0 0-.6L14.3 2.4a1 1 0 0 0-.8-.4H9v-.586a1 1 0 0 0-2 0M13.5 3l.75 1-.75 1H2V3zm.5 5v2H2.5l-.75-1 .75-1z"/></svg>
+      <h3>Vous hésitez encore ?</h3>
+      <p>Vous n'êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.</p>
+      <div class="puces">
+        <span class="puce">Comparer mes pistes</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="voile" id="voile">
+    <div class="panneau" role="dialog" aria-modal="true" aria-labelledby="panneauTitre">
+      <button class="panneau-fermer" id="panneauFermer" aria-label="Fermer">✕</button>
+      <div class="titre-carte-ligne" style="justify-content:flex-start;margin-bottom:1.6rem;">
+        <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor" style="color:var(--accent);flex:none;"><path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5z"/></svg>
+        <h2 id="panneauTitre" style="margin:0;">Mes documents</h2>
+        <button type="button" class="info-trigger" id="infoDeclencheur" aria-label="En savoir plus" aria-expanded="false">
+          <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/></svg>
+        </button>
+        <div class="info-bulle" id="infoBulle">
+          <button type="button" class="fermer-panneau-icone" id="btnFermerInfoBulle" aria-label="Fermer">&#10005;</button>
+          <p>Ces trois parcours vous accompagnent dans la construction de votre dossier de candidature, avec l'aide d'assistants numériques.</p>
+          <div class="info-item">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828z"/></svg>
+            <span><strong>Créer un nouveau CV</strong><span>Vous avancez par étapes simples, une question à la fois.</span></span>
+          </div>
+          <div class="info-item">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/></svg>
+            <span><strong>J'ai déjà un CV</strong><span>Vos informations sont reprises telles quelles, rien à ressaisir.</span></span>
+          </div>
+          <div class="info-item">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
+            <span><strong>Mettre à jour mon CV</strong><span>Seul le contenu est repris - vous choisissez ensuite la présentation.</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="panneau-grille">
+        <div class="sous-carte">
+          <svg width="30" height="30" viewBox="0 0 16 16" fill="currentColor"><path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828z"/><path d="M3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31z"/><path d="M10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/></svg>
+          <strong>Créer un nouveau CV</strong>
+          <span>Construisez votre CV : il vous permettra ensuite de produire vos autres documents.</span>
+        </div>
+        <div class="sous-carte">
+          <svg width="30" height="30" viewBox="0 0 16 16" fill="currentColor"><path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/></svg>
+          <strong>J'ai déjà un CV</strong>
+          <span>Déposez votre CV complet : il vous permettra ensuite de créer votre lettre de motivation.</span>
+        </div>
+        <div class="sous-carte">
+          <svg width="30" height="30" viewBox="0 0 16 16" fill="currentColor"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
+          <strong>Mettre à jour mon CV</strong>
+          <span>Déposez votre CV : mettez à jour son contenu, puis préparez vos autres documents de candidature.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pied-page">
+    <button type="button" class="bouton-pied" id="btnConfidentialite" data-panneau="panneauConfidentialite" data-ouvrir="haut">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/><path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/></svg>
+      Confidentialité de vos données
+    </button>
+    <button type="button" class="bouton-pied" id="btnLiensUtiles" data-panneau="panneauLiensUtiles" data-ouvrir="haut">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg>
+      Liens utiles
+    </button>
+    <button type="button" class="bouton-pied" id="btnRetourExperience" data-panneau="panneauRetourExperience" data-ouvrir="haut">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-2.5a2 2 0 0 0-1.6.8L8 14.333 6.1 11.8a2 2 0 0 0-1.6-.8H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2.5a1 1 0 0 1 .8.4l1.9 2.533a1 1 0 0 0 1.6 0l1.9-2.533a1 1 0 0 1 .8-.4H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/><path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6m0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/></svg>
+      Retour sur votre expérience
+    </button>
+  </div>
+  <div class="panneau-icone-persistante" id="panneauConfidentialite" style="width:360px;max-width:85vw;">
+    <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/><path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/></svg>Confidentialité de vos données</h6>
+    <p>Les informations que vous renseignez sont utilisées uniquement pour personnaliser votre accompagnement. Elles permettent de construire vos documents de candidature et d'utiliser les différents outils de l'application.</p>
+    <p>Vos informations restent disponibles tant que cette page reste ouverte. Elles ne sont pas enregistrées de manière permanente par l'application et disparaissent lorsque vous fermez ou rechargez la page.</p>
+    <p>Des outils vous permettent de masquer vous-même les informations sensibles (nom, téléphone, e-mail) avant de les envoyer à un assistant IA, si vous le souhaitez. Rien d'autre n'est jamais envoyé automatiquement.</p>
+    <p style="display:flex;align-items:flex-start;gap:0.4rem;margin-bottom:0;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="color:var(--accent);flex:none;margin-top:0.15rem;"><path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z"/><path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/><path d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z"/></svg>
+      Si vous utilisez cette application sur un ordinateur public, nous vous conseillons de l'ouvrir en navigation privée.
+    </p>
+  </div>
+  <div class="panneau-icone-persistante" id="panneauRetourExperience">
+    <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-2.5a2 2 0 0 0-1.6.8L8 14.333 6.1 11.8a2 2 0 0 0-1.6-.8H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2.5a1 1 0 0 1 .8.4l1.9 2.533a1 1 0 0 0 1.6 0l1.9-2.533a1 1 0 0 1 .8-.4H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/><path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6m0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/></svg>Retour sur votre expérience</h6>
+    <p>Un petit questionnaire : donner son avis, signaler un bug, proposer une idée.</p>
+  </div>
+  <div class="panneau-icone-persistante panneau-liens-utiles" id="panneauLiensUtiles">
+    <h6><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/><path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/></svg>Liens utiles</h6>
+    <p>Quelques sites extérieurs qui peuvent vous aider. Ils s'ouvrent dans un nouvel onglet, vous ne quittez pas l'application.</p>
+    <p class="liens-utiles-titre-groupe">Partout en France</p>
+    <a class="lien-utile" href="https://immersion-facile.beta.gouv.fr/" target="_blank" rel="noopener">Trouver une immersion en entreprise (PMSMP)</a>
+    <a class="lien-utile" href="https://rafael.cap-metiers.pro/recherche/accueil" target="_blank" rel="noopener">Trouver une formation</a>
+    <a class="lien-utile" href="https://www.parcoureo.fr/" target="_blank" rel="noopener">Explorer d'autres métiers</a>
+    <a class="lien-utile" href="https://dora.inclusion.gouv.fr/" target="_blank" rel="noopener">Trouver une structure qui accompagne près de chez vous (annuaire DORA)</a>
+    <p class="liens-utiles-titre-groupe">Selon votre département</p>
+    <a class="lien-utile" href="https://www.missionlocaledubergeracois.com/erip" target="_blank" rel="noopener">Dordogne (24) : ateliers et visites d'entreprise (ERIP du Bergeracois)</a>
+    <a class="lien-utile" href="https://sites.google.com/view/inkeocc/pcgi-87" target="_blank" rel="noopener">Haute-Vienne (87) : Inkéo C&amp;C - PCGI 87</a>
+  </div>
+
+  <p class="note">Maquette statique et simple, volontairement sans nouvelle mise en page ni nouveau style : mêmes cartes, mêmes couleurs, même police que l'application actuelle. Seule "Mes documents" est cliquable pour l'instant (essai avant de faire pareil sur les 5 autres) - les puces des autres cartes ne sont pas cliquables ici, elles montrent juste ce qui s'ouvrirait derrière chaque carte. "Se tenir informé" s'ouvre normalement (pas de mention "en développement" visible ici) : le message "ce module est en construction" n'apparaîtra qu'en cliquant sur "Actualités" à l'intérieur. Icônes persistantes (disquette/œil/ampoule/carnet/journal) et boutons du bas ajoutés aux mêmes coordonnées que la vraie app - point de départ pour discuter d'un meilleur emplacement, pas une décision finale.<br><br>Mise à jour du 2026-08-31 : la carte "Vous hésitez encore ?" ne renvoie plus vers une liste de liens mais présente le futur module d'aide à la décision d'orientation ("Comparer mes pistes"), avec un bouton d'entrée désactivé tant que le module n'est pas construit, comme pour ATS, Regard recruteur et Se tenir informé. Les liens externes qui vivaient derrière cette carte sont regroupés dans un nouveau bouton "Liens utiles", en bas de page, entre "Confidentialité de vos données" et "Retour sur votre expérience" : discret mais disponible pour qui les cherche. Ce bouton réutilisera dans la vraie application la fenêtre de liens qui existe déjà (avec sa question de département), il ne recopie rien.</p>
+</div>
+
+<script>
+  var champRecherche = document.getElementById('rechercheInput');
+  var resultat = document.getElementById('resultatRecherche');
+  var exemplesRecherche = [
+    'Rechercher un métier...',
+    'Chercher un domaine d\'activité...',
+    'Chercher une compétence...',
+    'Lexique, comme CDI...',
+    'Ressources, comme mobilité...',
+    'Les dernières actualités...'
+  ];
+  var iRecherche = 0;
+  var reduitMouvement = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduitMouvement) {
+    setInterval(function () {
+      iRecherche = (iRecherche + 1) % exemplesRecherche.length;
+      champRecherche.setAttribute('placeholder', exemplesRecherche[iRecherche]);
+    }, 15000);
+  }
+  var regexDiacritiques = new RegExp('[' + String.fromCharCode(0x0300) + '-' + String.fromCharCode(0x036f) + ']', 'g');
+  function normaliserTexte(texte) {
+    return String(texte).toLowerCase().normalize('NFD').replace(regexDiacritiques, '').replace(/[_-]/g, ' ').trim();
+  }
+  var btnEffacerRecherche = document.getElementById('btnEffacerRecherche');
+  function actualiserBoutonEffacer() { btnEffacerRecherche.classList.toggle('visible', champRecherche.value.length > 0); }
+  // TÂCHE : reproduit le vrai comportement (overlayRechercheERIP, js/app.js) -
+  // fermer le panneau vide TOUJOURS le champ, jamais laisse un texte fantôme
+  // qui obligerait à l'effacer à la main pour recommencer.
+  function masquerDropdown() {
+    resultat.style.display = 'none';
+  }
+  function masquerResultat() {
+    masquerDropdown();
+    champRecherche.value = '';
+    actualiserBoutonEffacer();
+  }
+  function positionnerResultat() {
+    var r = document.getElementById('formRecherche').getBoundingClientRect();
+    var largeur = resultat.offsetWidth || 320;
+    var gauche = Math.min(r.left, window.innerWidth - largeur - 12);
+    resultat.style.top = (r.bottom + 8) + 'px';
+    resultat.style.left = Math.max(12, gauche) + 'px';
+  }
+  function echapperAttribut(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+  // TÂCHE : reproduit fidèlement carteMetierHTML() (js/app.js) - même
+  // structure, même contenu, seul le style est adapté aux tokens de cette
+  // maquette. Lien ROME volontairement inerte (pas de vraie URL inventée).
+  function carteMetierHTML(m) {
+    return '<div class="carte-resultat-erip carte-resultat-cliquable" data-outil="' + echapperAttribut(m.nom) + '">' +
+      '<h5>' + m.nom + '</h5>' +
+      '<p>' + m.secteur + '</p>' +
+      '<p><strong>Savoir-faire :</strong> ' + m.savoirFaire + '</p>' +
+      '<p><strong>Savoir-être :</strong> ' + m.savoirEtre + '</p>' +
+      '<p><strong>Savoirs :</strong> ' + m.savoirs + '</p>' +
+      '<a href="#" class="lien-rome" onclick="return false;">&#128279; Fiche ROME ' + m.rome + '</a>' +
+      '</div>';
+  }
+  // TÂCHE : reproduit le style "puce" déjà utilisé pour compétences/savoir-être
+  // (carte-resultat-texte + carte-resultat-cliquable) - pas une invention,
+  // le même gabarit léger déjà dans css/style.css.
+  function puceOutilHTML(nom) {
+    return '<div class="carte-resultat-erip carte-resultat-texte carte-resultat-cliquable" data-outil="' + echapperAttribut(nom) + '">' + nom + '</div>';
+  }
+
+  var METIER_DEMO = { motsCles: ['boulanger', 'boula'], nom: 'Boulanger', secteur: 'Artisanat alimentaire',
+    savoirFaire: 'Cuisine, Précision, Travail manuel', savoirEtre: 'Rigueur, Créativité, Endurance',
+    savoirs: 'Panification, Hygiène alimentaire', rome: 'D1102' };
+  // TÂCHE : vraie définition recopiée depuis data/lexique.js (id "cdi"),
+  // jamais inventée - démontre l'aperçu direct sans quitter la recherche.
+  var LEXIQUE_DEMO = { motsCles: ['cdi'], titre: 'CDI',
+    corps: 'Un CDI (contrat à durée indéterminée) est un contrat de travail sans date de fin prévue à l\'avance. Les autres formes de contrat (CDD, intérim...) se définissent souvent par comparaison avec lui.' };
+  var OUTILS_RECHERCHE = [
+    { motsCles: ['cv', 'creer un nouveau cv', 'nouveau cv', 'lettre', 'entretien', 'candidature', 'document', 'documents'],
+      nom: 'Mes documents', action: function () { document.getElementById('carteMesDocuments').click(); } },
+    { motsCles: ['ats'], nom: 'ATS', action: function () { ouvrirEnConstruction('ATS'); } },
+    { motsCles: ['lexique', 'cdd'], nom: 'Lexique', action: function () { ouvrirEnConstruction('Lexique'); } },
+    { motsCles: ['ressource', 'ressources', 'mobilite', 'frein'], nom: 'Ressources', action: function () { ouvrirEnConstruction('Ressources'); } },
+    { motsCles: ['actualite', 'actualites', 'informe', 's\'informer'], nom: 'Actualités', action: function () { ouvrirEnConstruction('Actualités'); } },
+    { motsCles: ['repere', 'reperes'], nom: 'Mes Repères', action: function () { ouvrirEnConstruction('Mes Repères'); } },
+    { motsCles: ['carnet'], nom: 'Mon Carnet', action: function () { ouvrirEnConstruction('Mon Carnet'); } }
+  ];
+  var actionsParNom = {};
+  function ouvrirEnConstruction(nom) {
+    afficherGroupes('<p style="margin:0;"><strong>' + echapperAttribut(nom) + '</strong><br>' +
+      '<span style="color:var(--text-muted);font-size:0.85rem;">Un outil de notre plateforme, pas encore construit dans cette maquette.</span></p>');
+  }
+  // TÂCHE : quand le mot tapé existe déjà dans le Lexique, on ne redirige
+  // JAMAIS vers le module - la définition sort directement ici, avec un
+  // bouton pour approfondir (liens entre mots, suggestions) uniquement si
+  // la personne le souhaite.
+  function afficherDefinitionLexique(entree) {
+    afficherGroupes('<div class="groupe-resultats-erip"><h4>&#128214; Lexique</h4>' +
+      '<div style="background:var(--chip-bg);border-radius:0.9rem;padding:0.9rem 1rem;">' +
+      '<h5 style="margin:0 0 0.35rem;font-weight:700;">' + echapperAttribut(entree.titre) + '</h5>' +
+      '<p style="margin:0 0 0.7rem;color:var(--text-muted);font-size:0.85rem;">' + echapperAttribut(entree.corps) + '</p>' +
+      '<button type="button" data-outil="voir-lexique" class="lien-rome" style="background:none;font:inherit;">En savoir plus dans le Lexique</button>' +
+      '</div></div>');
+  }
+
+  function afficherGroupes(html) {
+    resultat.innerHTML = '<button type="button" class="fermer-panneau-recherche" aria-label="Fermer" onclick="window.__fermerRechercheDemo()">&#10005;</button>' + html;
+    resultat.style.display = 'block';
+    positionnerResultat();
+  }
+  window.__fermerRechercheDemo = function () { masquerResultat(); champRecherche.focus(); };
+  function afficherAucunResultat(texteTape) {
+    afficherGroupes('<p style="margin:0;text-align:center;color:var(--text-muted);font-size:0.9rem;">Aucun résultat pour "' + echapperAttribut(texteTape) + '".</p>');
+  }
+  function chercher() {
+    var texte = normaliserTexte(champRecherche.value);
+    if (!texte || texte.length < 2) { masquerDropdown(); return; }
+    // TÂCHE : un mot déjà dans le Lexique prime sur tout le reste - jamais
+    // de redirection automatique, la définition sort ici directement.
+    if (LEXIQUE_DEMO.motsCles.some(function (m) { return normaliserTexte(m).indexOf(texte) !== -1; })) {
+      actionsParNom = { 'voir-lexique': function () { ouvrirEnConstruction('Lexique'); } };
+      afficherDefinitionLexique(LEXIQUE_DEMO);
+      return;
+    }
+    actionsParNom = {};
+    var groupesHTML = '';
+    if (METIER_DEMO.motsCles.some(function (m) { return normaliserTexte(m).indexOf(texte) !== -1; })) {
+      // TÂCHE : reproduit le vrai comportement (clic métier -> choix du
+      // parcours / candidature / fiche ROME) - jamais un simple ferme-et-rien,
+      // même dans une maquette de démonstration.
+      actionsParNom[METIER_DEMO.nom] = function () {
+        afficherGroupes('<p style="margin:0;"><strong>Boulanger</strong><br>' +
+          '<span style="color:var(--text-muted);font-size:0.85rem;">Vous seriez dirigé vers le choix de parcours pour ce métier (candidater, CV, lettre...) - comportement réel déjà existant, pas reconstruit dans cette maquette.</span></p>');
+      };
+      groupesHTML += '<div class="groupe-resultats-erip"><h4>&#128188; Métiers</h4><div class="grille-resultats-erip">' + carteMetierHTML(METIER_DEMO) + '</div></div>';
+    }
+    var outilsTrouves = OUTILS_RECHERCHE.filter(function (o) {
+      return o.motsCles.some(function (m) { return normaliserTexte(m).indexOf(texte) !== -1; });
+    });
+    if (outilsTrouves.length) {
+      outilsTrouves.forEach(function (o) { actionsParNom[o.nom] = function () { masquerResultat(); o.action(); }; });
+      groupesHTML += '<div class="groupe-resultats-erip"><h4>&#129513; Outils de la plateforme</h4><div class="grille-resultats-erip">' +
+        outilsTrouves.map(function (o) { return puceOutilHTML(o.nom); }).join('') + '</div></div>';
+    }
+    if (groupesHTML) { afficherGroupes(groupesHTML); } else { afficherAucunResultat(champRecherche.value); }
+  }
+  resultat.addEventListener('click', function (e) {
+    if (e.target.closest('a')) { return; }
+    var carte = e.target.closest('[data-outil]');
+    if (carte && actionsParNom[carte.dataset.outil]) { actionsParNom[carte.dataset.outil](); }
+  });
+  champRecherche.addEventListener('input', function () { actualiserBoutonEffacer(); chercher(); });
+  btnEffacerRecherche.addEventListener('click', function (e) { e.stopPropagation(); masquerResultat(); champRecherche.focus(); });
+  document.getElementById('formRecherche').addEventListener('submit', function (e) { e.preventDefault(); });
+  document.addEventListener('click', function (e) {
+    if (e.target !== resultat && !resultat.contains(e.target) && e.target !== champRecherche && e.target !== btnEffacerRecherche) masquerResultat();
+  });
+  window.addEventListener('resize', function () { if (resultat.style.display === 'block') positionnerResultat(); });
+
+  // TÂCHE : position TOUJOURS calculée depuis le vrai bouton au moment de
+  // l'ouverture (jamais une valeur dupliquée à la main dans le panneau) -
+  // évite de reproduire le bug déjà rencontré (panneau non déplacé en
+  // même temps que son bouton). Ouvre vers le bas s'il y a la place,
+  // sinon vers le haut (utile pour les boutons près du bas de page).
+  function positionnerPanneauDepuisBouton(bouton, panneau) {
+    var r = bouton.getBoundingClientRect();
+    var largeur = panneau.offsetWidth || 260;
+    var hauteur = panneau.offsetHeight || 100;
+    var gauche = Math.min(r.left, window.innerWidth - largeur - 12);
+    // TÂCHE : les boutons du pied de page (Confidentialité, Retour sur
+    // expérience) sont près du bas de la page - leur panneau doit TOUJOURS
+    // s'ouvrir vers le haut, jamais laissé au calcul automatique qui pouvait
+    // parfois choisir le bas selon la place disponible.
+    var ouvreEnBas = bouton.dataset.ouvrir === 'haut' ? false : (r.bottom + 8 + hauteur) < window.innerHeight;
+    panneau.style.left = Math.max(12, gauche) + 'px';
+    if (ouvreEnBas) { panneau.style.top = (r.bottom + 8) + 'px'; panneau.style.bottom = 'auto'; }
+    else { panneau.style.top = 'auto'; panneau.style.bottom = (window.innerHeight - r.top + 8) + 'px'; }
+  }
+  // TÂCHE : croix de fermeture visible sur chaque panneau, en plus du clic
+  // extérieur déjà existant - même règle que partout ailleurs dans l'app
+  // (jamais un seul moyen de fermer une fenêtre/un panneau).
+  document.querySelectorAll('.panneau-icone-persistante').forEach(function (panneau) {
+    var croix = document.createElement('button');
+    croix.type = 'button';
+    croix.className = 'fermer-panneau-icone';
+    croix.setAttribute('aria-label', 'Fermer');
+    croix.innerHTML = '&#10005;';
+    croix.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panneau.classList.remove('ouvert');
+      panneauOuvertActuel = null;
+    });
+    panneau.insertBefore(croix, panneau.firstChild);
+  });
+
+  var panneauOuvertActuel = null;
+  document.querySelectorAll('[data-panneau]').forEach(function (bouton) {
+    bouton.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var panneau = document.getElementById(bouton.dataset.panneau);
+      var etaitOuvert = panneau.classList.contains('ouvert');
+      document.querySelectorAll('.panneau-icone-persistante.ouvert').forEach(function (p) { p.classList.remove('ouvert'); });
+      panneauOuvertActuel = null;
+      if (!etaitOuvert) {
+        panneau.classList.add('ouvert');
+        positionnerPanneauDepuisBouton(bouton, panneau);
+        panneauOuvertActuel = { bouton: bouton, panneau: panneau };
+      }
+    });
+  });
+  // TÂCHE : les 5 icônes persistantes sont position:fixed (ne bougent jamais
+  // au défilement, donc bouton+panneau restaient toujours collés) mais les
+  // 2 boutons du pied de page sont dans le flux normal (défilent AVEC la
+  // page) alors que leur panneau, position:fixed, restait figé à l'écran -
+  // recalculé désormais aussi au défilement, pas seulement à l'ouverture,
+  // pour rester collé à son bouton quel que soit son type.
+  window.addEventListener('scroll', function () {
+    if (panneauOuvertActuel) { positionnerPanneauDepuisBouton(panneauOuvertActuel.bouton, panneauOuvertActuel.panneau); }
+  }, { passive: true });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.panneau-icone-persistante')) {
+      document.querySelectorAll('.panneau-icone-persistante.ouvert').forEach(function (p) { p.classList.remove('ouvert'); });
+    }
+  });
+
+  var infoDeclencheur = document.getElementById('infoDeclencheur');
+  var infoBulle = document.getElementById('infoBulle');
+  var infoBullePinguee = false;
+  function positionnerInfoBulle() {
+    var r = infoDeclencheur.getBoundingClientRect();
+    var largeur = infoBulle.offsetWidth || 280;
+    var gauche = Math.min(r.left, window.innerWidth - largeur - 12);
+    infoBulle.style.top = (r.bottom + 8) + 'px';
+    infoBulle.style.left = Math.max(12, gauche) + 'px';
+  }
+  function ouvrirInfoBulle() {
+    infoBulle.classList.add('ouverte');
+    positionnerInfoBulle();
+    infoDeclencheur.setAttribute('aria-expanded', 'true');
+    // TÂCHE : dès que la personne survole OU clique sur le "i", le pulse
+    // d'attention n'a plus de raison d'être - elle l'a déjà remarqué. On ne
+    // laisse plus la durée fixe (5,6s) courir jusqu'au bout dans ce cas.
+    infoDeclencheur.classList.remove('pulse-attention');
+    clearTimeout(minuteurPulseInfo);
+  }
+  function fermerInfoBulle() {
+    infoBulle.classList.remove('ouverte');
+    infoDeclencheur.setAttribute('aria-expanded', 'false');
+    infoBullePinguee = false;
+  }
+  document.getElementById('btnFermerInfoBulle').addEventListener('click', function (e) {
+    e.stopPropagation();
+    fermerInfoBulle();
+  });
+  infoDeclencheur.addEventListener('mouseenter', ouvrirInfoBulle);
+  infoDeclencheur.addEventListener('mouseleave', function () { if (!infoBullePinguee) fermerInfoBulle(); });
+  infoDeclencheur.addEventListener('click', function (e) {
+    e.stopPropagation();
+    infoBullePinguee = !infoBullePinguee;
+    if (infoBullePinguee) { ouvrirInfoBulle(); } else { fermerInfoBulle(); }
+  });
+  infoBulle.addEventListener('click', function (e) { e.stopPropagation(); });
+  document.addEventListener('click', fermerInfoBulle);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fermerInfoBulle(); });
+  window.addEventListener('resize', function () { if (infoBulle.classList.contains('ouverte')) positionnerInfoBulle(); });
+
+  var voile = document.getElementById('voile');
+  var minuteurPulseInfo = null;
+  document.getElementById('carteMesDocuments').addEventListener('click', function () {
+    voile.classList.add('ouvert');
+    document.getElementById('panneauFermer').focus();
+    infoDeclencheur.classList.remove('pulse-attention');
+    void infoDeclencheur.offsetWidth;
+    infoDeclencheur.classList.add('pulse-attention');
+    clearTimeout(minuteurPulseInfo);
+    minuteurPulseInfo = setTimeout(function () { infoDeclencheur.classList.remove('pulse-attention'); }, 5600);
+  });
+  document.getElementById('panneauFermer').addEventListener('click', function () {
+    voile.classList.remove('ouvert');
+  });
+  // TÂCHE : contrairement aux petits panneaux (infobulle, icônes persistantes),
+  // cette fenêtre d'action ne se ferme JAMAIS au clic extérieur - déjà
+  // corrigé ainsi dans le vrai ouvrirFenetreERIP() (vérifié dans le code,
+  // aucun écouteur de clic sur l'overlay) suite à une vraie frustration
+  // observée par Denis (PC portables sans souris, clics accidentels au pad
+  // qui fermaient la fenêtre en cours). Seule la croix explicite ferme,
+  // Échap reste autorisé (déjà le cas dans le vrai code, jamais déclenché
+  // par un clic accidentel).
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') voile.classList.remove('ouvert'); });
+</script>

@@ -1,0 +1,532 @@
+<!doctype html>
+<!--
+  MAQUETTE - « Affiner ma recherche » : la recherche libre en deux temps du module « Comprendre le cadre ».
+  Partie PAS ENCORE CONSTRUITE. Comble le trou laisse par les 7 etapes (le recit libre etait « hors perimetre,
+  a discuter avec Denis » : la discussion n'a jamais eu lieu, cf. docs/CHANTIER_COMPRENDRE_LE_CADRE_RECHERCHE_LIBRE.md).
+
+  Modele visuel : docs/MAQUETTE_SE_TENIR_INFORME_PARCOURS_2026-09-03.html.
+  Parcours valide par Denis le 2026-09-06 (les 7 questions du chantier, toutes tranchees).
+  Rien a coder tant que Denis n'a pas valide visuellement cette maquette.
+
+  DECISIONS DENIS 2026-09-06 :
+   1. Le bouton « Par ou commencer ? » de l'accueil du module devient « Affiner ma recherche ».
+   2. L'ecran garde les 14 cases a cocher (voie rapide) ET ajoute un champ libre (situations floues).
+   3. Deux temps, comme le Bilan / le Composeur : prompt 1 large qui structure en sous-chapitres,
+      la personne choisit, prompt 2 qui creuse.
+   4. Le prompt 1 autorise l'assistant a POSER DES QUESTIONS liees au texte de la personne.
+   5. A l'etape d'approfondissement : bloc questions = (a) les questions de l'assistant recuperees
+      de sa reponse + (b) des questions generales OBLIGATOIRES venues du code (toujours la, meme si
+      l'assistant n'a rien demande). La personne repond, + contexte libre facultatif.
+   6. Sous-chapitre = titre + 2 a 3 lignes + badge du domaine. Plafond 6.
+   7. Rien n'est garde, sauf si la personne sauvegarde sa session -> exception au principe FAMILLE 1
+      du module, a acter (ecran 6).
+   8. Meme brique de collage (htmlCollageInstantane) que « Comprendre les chiffres » ; deux entrees
+      distinctes, deux jeux de prompts.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Affiner ma recherche (Comprendre le cadre)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+  :root {
+    --bg-page: #f1f5f9; --bg-card: #ffffff; --bg-subtle: #f8fafc;
+    --text: #1e293b; --text-strong: #0f172a; --text-muted: #64748b;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #0369a1; --accent-bg: #e2f0f8;
+    --warn: #b45309; --warn-bg: #fef3c7;
+    --ok: #15803d; --ok-bg: #dcfce7;
+    --shadow: 0 1px 2px rgba(15,23,42,.06);
+  }
+  body.dark {
+    --bg-page: #0b1220; --bg-card: #131c2b; --bg-subtle: #0f1826;
+    --text: #e2e8f0; --text-strong: #f1f5f9; --text-muted: #94a3b8;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #38bdf8; --accent-bg: #16283a;
+    --warn: #fbbf24; --warn-bg: #2a2410;
+    --ok: #4ade80; --ok-bg: #12281a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 1rem 1rem 5rem; }
+  a { color: var(--accent); }
+  h1 { font-size: 1.4rem; color: var(--text-strong); margin: .3rem 0 .7rem; }
+  h3 { font-size: 1.05rem; color: var(--text-strong); margin: 1.2rem 0 .5rem; }
+  .detail { color: var(--text-muted); font-size: .85rem; font-weight: 400; }
+  .accroche { color: var(--text-muted); }
+
+  .appbar { position: sticky; top: 0; z-index: 30; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: .6rem 1rem; }
+  .appbar-row { max-width: 760px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: .6rem; flex-wrap: wrap; }
+  .appbar-titre { font-weight: 700; color: var(--text-strong); font-size: .95rem; }
+  .appbar-outils { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+  select#devnav, .mini-btn { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text);
+    border-radius: 8px; padding: .3rem .55rem; font: inherit; font-size: .82rem; cursor: pointer; }
+  .note-maquette { max-width: 760px; margin: .5rem auto 0; font-size: .8rem; color: var(--text-muted); }
+  .legende { max-width: 760px; margin: .3rem auto 0; display: flex; gap: 1rem; font-size: .78rem; color: var(--text-muted); }
+  .puce { width: .7rem; height: .7rem; border-radius: 999px; display: inline-block; vertical-align: middle; margin-right: .3rem; }
+  .puce.neuf { background: var(--accent); } .puce.existant { background: var(--border-strong); }
+
+  .vue { display: none; } .vue.active { display: block; }
+
+  .bandeau-ecran { display: flex; align-items: center; gap: .6rem; border: 1px solid var(--border); border-radius: 10px; padding: .5rem .8rem; margin: .3rem 0 1rem; font-size: .86rem; }
+  .bandeau-ecran .etiq { font-weight: 700; padding: .12rem .55rem; border-radius: 999px; font-size: .72rem; text-transform: uppercase; letter-spacing: .02em; }
+  .bandeau-ecran.neuf { background: var(--accent-bg); border-color: var(--accent); }
+  .bandeau-ecran.neuf .etiq { background: var(--accent); color: #fff; }
+  body.dark .bandeau-ecran.neuf .etiq { color: #04202e; }
+  .bandeau-ecran.existant { background: var(--bg-subtle); }
+  .bandeau-ecran.existant .etiq { background: var(--border-strong); color: var(--text-strong); }
+
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; margin: .7rem 0; box-shadow: var(--shadow); }
+  .encart { background: var(--accent-bg); border-left: 3px solid var(--accent); border-radius: 8px; padding: .7rem .9rem; margin: .7rem 0; font-size: .92rem; }
+  .encart.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+
+  .btn { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    border-radius: 10px; padding: .5rem .9rem; font: inherit; font-size: .9rem; cursor: pointer; margin: .3rem .3rem 0 0; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; }
+  body.dark .btn.primaire { color: #04202e; }
+  .btn.fantome { background: transparent; color: var(--accent); }
+
+  .jetons { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+  .jeton { padding: .35rem .8rem; border-radius: 999px; font-size: .85rem; font-family: inherit; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong); }
+  .jeton.actif { background: var(--accent); color: #fff; border-color: var(--accent); }
+  body.dark .jeton.actif { color: #04202e; }
+
+  textarea { width: 100%; min-height: 90px; resize: vertical; border: 1px solid var(--border-strong); border-radius: 10px;
+    padding: .6rem .7rem; font: inherit; font-size: .95rem; background: var(--bg-card); color: var(--text); }
+  input[type=text] { width: 100%; border: 1px solid var(--border-strong); border-radius: 8px; padding: .45rem .6rem; font: inherit; background: var(--bg-card); color: var(--text); }
+  label { font-size: .9rem; color: var(--text-strong); font-weight: 600; display: block; margin: .6rem 0 .2rem; }
+
+  .zone-prompt { border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-subtle);
+    padding: .8rem .9rem; font-size: .88rem; white-space: pre-wrap; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .zone-collage { border: 1px dashed var(--accent); border-radius: 12px; padding: 1rem; background: var(--accent-bg); text-align: center; margin: .8rem 0; }
+  .pastille-assistant { display: inline-block; border: 1px solid var(--accent); color: var(--accent); border-radius: 999px; padding: .2rem .7rem; margin: .2rem; font-size: .82rem; }
+  .pastille-assistant.sans { border-color: var(--ok); color: var(--ok); }
+  .reponse-cadre { border: 1px solid var(--warn); border-radius: 12px; background: var(--warn-bg); padding: .9rem 1rem; margin-top: .8rem; }
+
+  .sous-chap { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: .7rem .9rem; margin: .5rem 0; background: var(--bg-card); display: flex; gap: .6rem; }
+  .sous-chap input { margin-top: .25rem; }
+  .sous-chap .titre { font-weight: 700; color: var(--text-strong); }
+  .sous-chap .desc { font-size: .9rem; color: var(--text); margin: .2rem 0; }
+  .badge-domaine { display: inline-block; font-size: .74rem; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: 999px; padding: .05rem .5rem; }
+  .q-origine { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); margin: 1rem 0 .2rem; border-bottom: 1px solid var(--border); padding-bottom: .2rem; }
+
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--bg-card); border-top: 1px solid var(--border); padding: .55rem 1rem; }
+  .barre-bas-row { max-width: 760px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  .transitions { font-size: .8rem; color: var(--text-muted); border-top: 1px dashed var(--border); margin-top: 1.4rem; padding-top: .7rem; }
+  code { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 5px; padding: .05rem .3rem; font-size: .85em; }
+  ul { padding-left: 1.2rem; } li { margin: .2rem 0; }
+  .tab-scroll { overflow-x: auto; }
+  table.qtab { width: 100%; border-collapse: collapse; margin: .6rem 0; font-size: .86rem; }
+  table.qtab th, table.qtab td { border: 1px solid var(--border); padding: .5rem .6rem; text-align: left; vertical-align: top; }
+  table.qtab th { background: var(--bg-subtle); color: var(--text-strong); }
+  table.qtab td:first-child { font-weight: 700; color: var(--text-strong); white-space: nowrap; }
+  table.qtab em { color: var(--warn); font-style: normal; }
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-row">
+    <span class="appbar-titre"><i class="bi bi-search"></i> Affiner ma recherche <span class="detail">(module Comprendre le cadre)</span></span>
+    <div class="appbar-outils">
+      <select id="devnav" title="Sauter a un ecran">
+        <option value="repere">0 - Ou ca se branche</option>
+        <option value="ecran1">1 - Affiner ma recherche</option>
+        <option value="ecran2">2 - Le premier texte de recherche</option>
+        <option value="ecran3">3 - Sous-chapitres + questions</option>
+        <option value="ecran4">4 - Le deuxieme texte de recherche</option>
+        <option value="ecran5">5 - Le resultat approfondi</option>
+        <option value="ecran6">6 - Ce qui est garde ou pas</option>
+        <option value="annexe">Annexe - Prompts et format attendu</option>
+      </select>
+      <button class="mini-btn" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+    </div>
+  </div>
+  <div class="note-maquette">Maquette non fonctionnelle. Le passage chez l'assistant en ligne et les liens sont simules. Commencez par <strong>« 0 - Ou ca se branche »</strong>.</div>
+  <div class="legende"><span><i class="puce neuf"></i> Nouvel ecran</span><span><i class="puce existant"></i> Ecran deja dans l'application</span></div>
+</div>
+
+<main>
+
+<!-- ============ 0 ============ -->
+<section class="vue active" data-vue="repere">
+  <div class="bandeau-ecran existant"><span class="etiq">Repere</span><span>Vue de comparaison : n'existe que dans cette maquette.</span></div>
+  <h1>Ou ca se branche</h1>
+  <p class="accroche">Sur l'accueil du module, sous les 14 rayons, il y a aujourd'hui un encadre avec un bouton.</p>
+
+  <div class="carte">
+    <p style="margin:.2rem 0 .5rem"><strong>Aujourd'hui</strong></p>
+    <div class="encart" style="margin:0">
+      <p style="margin:0 0 .4rem"><strong>Vous ne savez pas par ou commencer ?</strong> Cet ecran vous aide a reperer les sujets qui vous concernent.</p>
+      <button class="btn primaire" style="margin:0"><i class="bi bi-signpost-split"></i> Par ou commencer ?</button>
+    </div>
+    <p class="detail" style="margin:.5rem 0 0">Le bouton mene a l'orienteur : 14 cases a cocher, il montre les rayons correspondants. Rien d'autre.</p>
+  </div>
+
+  <div class="carte">
+    <p style="margin:.2rem 0 .5rem"><strong>Propose</strong></p>
+    <div class="encart" style="margin:0">
+      <p style="margin:0 0 .4rem"><strong>Vous ne trouvez pas, ou votre situation touche plusieurs sujets ?</strong> Decrivez-la, on prepare une recherche pour vous.</p>
+      <button class="btn primaire" style="margin:0" onclick="aller('ecran1')"><i class="bi bi-search"></i> Affiner ma recherche</button>
+    </div>
+    <p class="detail" style="margin:.5rem 0 0">Meme bouton, renomme. Il mene au meme ecran, mais l'ecran gagne un champ libre et une recherche en deux temps. Les 14 cases restent (voie rapide).</p>
+  </div>
+
+  <div class="encart warn">
+    <strong>Pourquoi c'etait absent.</strong> Ce « recit libre » etait dans la maquette d'origine. Quand les 7 etapes du module ont ete codees, il a ete mis « hors perimetre, a discuter avec Denis d'abord » (note ecrite dans le code). La discussion n'a jamais eu lieu : le chantier suivant (verification des 14 rayons) a pris la suite. Ce n'est pas une decision produit, c'est un trou entre deux chantiers.
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="vue" data-vue="ecran1">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel ecran</span><span>Remplace l'orienteur actuel. Meme entree, contenu elargi.</span></div>
+  <h1><i class="bi bi-search"></i> Affiner ma recherche</h1>
+  <p class="accroche">Deux facons de trouver les bons sujets. La premiere si vous savez nommer votre situation. La seconde si c'est plus flou.</p>
+
+  <h3>1. Cochez ce qui vous concerne <span class="detail">(reponse immediate)</span></h3>
+  <p class="detail" style="margin:.1rem 0 .4rem">Vous pouvez en cocher plusieurs. Ce n'est pas un avis sur vous : on vous montre juste les rayons a regarder.</p>
+  <div class="jetons">
+    <button class="jeton">J'ai une question sur mon contrat de travail</button>
+    <button class="jeton">Je veux me former ou changer de metier</button>
+    <button class="jeton actif">J'ai des dettes, des difficultes d'argent</button>
+    <button class="jeton">Je n'ai pas de moyen de transport</button>
+    <button class="jeton">J'ai un probleme de logement</button>
+    <button class="jeton">Je viens d'un autre pays</button>
+    <button class="jeton">... (14 cases au total)</button>
+  </div>
+  <div class="encart" style="margin-top:.4rem">
+    <span><i class="bi bi-geo-alt"></i> D'apres ce que vous avez coche, regardez : <strong>Budget, dettes, droits sociaux</strong> &nbsp;&middot;&nbsp; <strong>Logement</strong>.</span>
+  </div>
+
+  <h3>2. Ou decrivez votre situation avec vos mots <span class="detail">(si aucune case ne colle vraiment)</span></h3>
+  <div class="encart warn">
+    <span><i class="bi bi-shield-lock"></i> <strong>N'ecrivez pas votre nom, votre adresse, le nom de votre employeur.</strong> Decrivez la situation, pas les personnes. Rien n'est enregistre.</span>
+  </div>
+  <textarea placeholder="Par exemple : je viens de trouver un emploi a trente kilometres, je n'ai pas le permis, j'ai encore des dettes d'un ancien loyer et je ne sais pas si je peux etre aide pour la voiture..."></textarea>
+  <p class="detail" style="margin:.3rem 0 0">L'application prepare un texte de recherche. Vous le collez chez un assistant en ligne, qui vous renvoie <strong>les sujets que votre message touche</strong> (pas un avis sur vous), et vous pose au besoin quelques questions.</p>
+  <button class="btn primaire" onclick="aller('ecran2')">Preparer ma recherche <i class="bi bi-arrow-right"></i></button>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="vue" data-vue="ecran2">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel ecran</span><span>Brique de collage deja existante dans l'appli (htmlCollageInstantane).</span></div>
+  <h1>Le premier texte de recherche</h1>
+  <p class="accroche">L'application a prepare ce texte a partir de ce que vous avez ecrit. Vous n'avez rien a rediger.</p>
+
+  <p class="detail" style="margin:.1rem 0 .5rem">Le texte reprend des briques deja utilisees dans l'outil de veille (garde-fous « recherche web obligatoire », « ne fabrique jamais une adresse / un numero / une date », consigne de ton). Voir l'annexe. Ce qui suit est une version resumee pour la maquette.</p>
+  <div class="zone-prompt">Nous sommes le [date du jour]. J'accompagne une personne en insertion professionnelle. Elle a decrit
+sa situation avec ses mots ; aide-la a comprendre quels sujets sa demande touche.
+
+Ce qu'elle a ecrit : « je vien de trouver un emploi a trente km, jai pas le permis, jai encore des
+dettes dun ancien loyer... »
+
+D'abord : reformule sa demande dans un francais correct et clair, en une ou deux phrases, sans rien
+ajouter ni retirer. Elle pourra verifier que tu l'as bien comprise.
+
+Territoire : reponds uniquement pour la Dordogne. Distingue le niveau national, le niveau regional
+(Nouvelle-Aquitaine) et le niveau departemental. Ne melange jamais les departements.
+
+Recherche web obligatoire. N'utilise que des pages que tu as reellement ouvertes. Ne fabrique jamais
+une adresse, un numero de texte ni une date : si tu ne l'as pas vu, ecris « a verifier ». Certains
+sites officiels bloquent la lecture automatique : appuie-toi alors sur les relais (service-public.gouv.fr,
+Centre Inffo...) et signale ce que tu n'as pas pu confirmer. Si tu ne peux pas chercher sur le web,
+dis-le et ne reponds pas.
+
+Organise ta reponse en sous-chapitres, 6 au maximum. Pour chacun : un titre court, 2 a 3 phrases de
+description, et le domaine concerne (emploi, budget, logement, mobilite...).
+
+Si des points sont ambigus dans ce qu'elle a ecrit, pose-lui des questions courtes.
+
+Reponds toujours en francais. Phrases courtes, ton pose et clair, jamais condescendant, jamais un
+pave technique. Pas de classement, pas de recommandation, aucun avis sur sa situation, aucun ton
+alarmiste : tu expliques, elle decide.
+
+Format :
+[REFORMULATION] ta reformulation [/REFORMULATION]
+[SUJET] titre | domaine | description [/SUJET]  (autant de fois que de sujets)
+[QUESTION] ta question [/QUESTION]  (0, 1 ou plusieurs)</div>
+
+  <div class="zone-collage">
+    <p style="margin:0 0 .4rem"><strong>1.</strong> Copiez le texte, ouvrez un assistant en ligne, collez.</p>
+    <div>
+      <span class="pastille-assistant sans">Le Chat</span>
+      <span class="pastille-assistant sans">Copilot</span>
+      <span class="pastille-assistant">ChatGPT</span>
+      <span class="pastille-assistant">Claude</span>
+      <span class="pastille-assistant">Gemini</span>
+    </div>
+    <p style="margin:.5rem 0 .3rem"><strong>2.</strong> Copiez sa reponse et collez-la ici :</p>
+    <textarea placeholder="Collez ici la reponse de l'assistant..."></textarea>
+    <button class="btn primaire" onclick="aller('ecran3')" style="margin-top:.5rem">Voir les sujets <i class="bi bi-arrow-right"></i></button>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="vue" data-vue="ecran3">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel ecran</span><span>Le coeur du deux-temps : on verifie, on choisit, on precise, on relance.</span></div>
+  <h1>Les sujets que votre message touche</h1>
+
+  <div class="encart ok">
+    <p style="margin:0 0 .2rem"><strong>Ce que l'assistant a compris de votre demande :</strong></p>
+    <p style="margin:0">« Vous venez de trouver un emploi a environ trente kilometres de chez vous. Vous n'avez pas le permis de conduire, et il vous reste des dettes liees a un ancien logement. Vous cherchez a savoir si une aide est possible pour la voiture. »</p>
+    <p class="detail" style="margin:.3rem 0 0">Ce n'est pas exactement ca ? <a href="#" onclick="return false">Reprendre mon texte</a></p>
+  </div>
+
+  <p class="accroche">A vous de voir quels sujets vous parlent. Cochez ceux que vous voulez creuser.</p>
+
+  <div class="sous-chap">
+    <input type="checkbox" checked>
+    <div>
+      <span class="titre">L'aide a la mobilite de France Travail</span> <span class="badge-domaine">mobilite</span>
+      <p class="desc">Une prise en charge des frais de trajet, de repas et d'hebergement quand on reprend un emploi loin de chez soi. Conditions de distance et de ressources.</p>
+    </div>
+  </div>
+  <div class="sous-chap">
+    <input type="checkbox" checked>
+    <div>
+      <span class="titre">Financer le permis de conduire</span> <span class="badge-domaine">mobilite</span>
+      <p class="desc">Permis a 1 euro par jour, compte personnel de formation, fonds d'aide aux jeunes, microcredit. Ce qui reste possible en 2026.</p>
+    </div>
+  </div>
+  <div class="sous-chap">
+    <input type="checkbox">
+    <div>
+      <span class="titre">Une dette de loyer : a qui s'adresser</span> <span class="badge-domaine">budget</span>
+      <p class="desc">Le fonds de solidarite pour le logement, le point conseil budget, la negociation d'un echeancier. Ce qui se passe si rien n'est fait.</p>
+    </div>
+  </div>
+  <p class="detail" style="margin-top:.5rem">(jusqu'a 6 sujets au total)</p>
+
+  <h3>Quelques precisions pour aller plus loin</h3>
+  <p class="detail" style="margin:.1rem 0 .6rem">Les questions changent selon les sujets coches. Ici, exemple : les deux sujets coches relevent de <strong>Mobilite</strong>.</p>
+
+  <p class="q-origine">Questions de l'application <span class="detail" style="text-transform:none;letter-spacing:0">selon les rayons coches</span></p>
+  <label>Dans quel departement vivez-vous ?</label>
+  <input type="text" value="Dordogne (24)" readonly style="opacity:.7">
+  <span class="detail">Deja connu par le module, rappele ici.</span>
+  <label>Avez-vous le permis de conduire ?</label>
+  <input type="text" placeholder="Oui / non / en cours">
+  <label>Avez-vous un vehicule, meme en panne ?</label>
+  <input type="text" placeholder="Oui / non">
+  <label>Le besoin est-il lie a un emploi precis (avec une date), ou plus general ?</label>
+  <input type="text" placeholder="Votre reponse">
+  <p class="detail" style="margin:.3rem 0 0">Si un sujet <span class="badge-domaine">budget</span> etait coche en plus, on verrait aussi les questions Budget (« s'agit-il de dettes, d'un decouvert, d'un refus de banque… », « avez-vous deja contacte un point conseil budget… »). Chaque rayon a son petit jeu de questions, prepare dans le code. Voir l'annexe.</p>
+
+  <p class="q-origine">Questions posees par l'assistant <span class="detail" style="text-transform:none;letter-spacing:0">recuperees de sa reponse au premier texte</span></p>
+  <label>L'emploi que vous reprenez est-il un CDI, un CDD, de l'interim ?</label>
+  <input type="text" placeholder="Votre reponse">
+  <p class="detail" style="margin:.2rem 0 0">Cette partie peut etre vide si l'assistant n'a pose aucune question.</p>
+
+  <label style="margin-top:1rem">Autre chose a ajouter ? <span class="detail">(facultatif)</span></label>
+  <textarea style="min-height:60px" placeholder="Un detail qui vous parait important..."></textarea>
+
+  <button class="btn primaire" onclick="aller('ecran4')">Preparer la recherche approfondie <i class="bi bi-arrow-right"></i></button>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="vue" data-vue="ecran4">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel ecran</span><span>Meme brique de collage qu'a l'ecran 2.</span></div>
+  <h1>Le deuxieme texte de recherche</h1>
+  <p class="accroche">Prepare a partir des sujets coches et de vos reponses.</p>
+
+  <p class="detail" style="margin:.1rem 0 .5rem">Memes briques de garde-fou que le premier texte. Version resumee pour la maquette.</p>
+  <div class="zone-prompt">Nous sommes le [date du jour]. Approfondis les sujets suivants pour une personne en insertion.
+
+Territoire : Dordogne. Distingue national / regional (Nouvelle-Aquitaine) / departemental. Ne melange
+jamais les departements.
+
+Sujets a creuser :
+- L'aide a la mobilite de France Travail
+- Financer le permis de conduire
+
+Ce que la personne a precise :
+- Emploi repris : CDD de 8 mois.
+- Vehicule : oui, mais en panne.
+- Permis : non.
+- Departement : Dordogne (24).
+- Depuis quand : l'emploi commence dans deux semaines.
+- Demarche deja faite : non. Urgent : oui.
+
+Recherche web obligatoire. N'utilise que des pages ouvertes. Ne fabrique jamais une adresse, un
+numero de texte ni une date : sinon « a verifier ». Sites qui bloquent -> relais officiels, et
+signale ce que tu n'as pas confirme. Si tu ne peux pas chercher, dis-le et ne reponds pas.
+
+Pour chaque sujet :
+- l'information concrete (qui a droit, combien, comment demander) ;
+- la source officielle et sa date ;
+- ce qui change souvent, a reverifier ;
+- la ou les structures a contacter en Dordogne, avec le moyen de contact.
+
+Reponds en francais. Phrases courtes, ton pose et clair, jamais condescendant. Pas de classement,
+pas de recommandation, aucun avis sur sa situation, aucun ton alarmiste. Si la reponse depend de sa
+situation personnelle, explique de quoi elle depend, sans conclure a sa place.</div>
+
+  <div class="zone-collage">
+    <p style="margin:0 0 .3rem"><strong>Copiez, collez chez un assistant, rapportez la reponse :</strong></p>
+    <textarea placeholder="Collez ici la reponse..."></textarea>
+    <button class="btn primaire" onclick="aller('ecran5')" style="margin-top:.5rem">Voir le resultat <i class="bi bi-arrow-right"></i></button>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="vue" data-vue="ecran5">
+  <div class="bandeau-ecran neuf"><span class="etiq">Nouvel ecran</span><span>Toujours dans un cadre d'avertissement. Jamais presente comme une verite.</span></div>
+  <h1>Le resultat</h1>
+
+  <div class="reponse-cadre">
+    <p style="margin:0 0 .5rem"><i class="bi bi-exclamation-triangle"></i> <strong>D'apres l'assistant en ligne, a verifier sur la source officielle.</strong> Ce n'est pas un avis sur vous. Les regles changent : ouvrez le lien officiel avant toute demarche.</p>
+    <hr style="border-color:var(--border)">
+    <p><strong>L'aide a la mobilite de France Travail</strong><br>
+    Prise en charge des frais quand le lieu de travail est a plus de 60 km aller-retour ou a plus de 2 heures de trajet. Pour les demandeurs d'emploi non indemnises ou peu indemnises, et les beneficiaires du RSA. La demande passe par le conseiller, avant le deplacement ou peu apres.<br>
+    <span class="detail">Source : service-public.gouv.fr, fiche F1011, verifiee en septembre 2026. A confirmer aupres de votre conseiller France Travail de Perigueux.</span></p>
+    <p><strong>Financer le permis</strong><br>
+    Depuis la fin de l'aide au permis B de France Travail (avril 2026), la voie principale est le compte personnel de formation. Le permis a 1 euro par jour reste possible avant 25 ans. Le microcredit accompagne peut aussi financer le permis.<br>
+    <span class="detail">Source : service-public.gouv.fr, fiche F13609, verifiee en septembre 2026.</span></p>
+  </div>
+
+  <div class="encart">
+    <span><i class="bi bi-signpost-2"></i> Ces sujets sont detailles dans le rayon <strong>Mobilite</strong> du module. <a href="#" onclick="return false">Ouvrir le rayon</a></span>
+  </div>
+
+  <div class="encart warn">
+    <span><i class="bi bi-download"></i> <strong>Cette recherche n'est pas enregistree.</strong> Comme les regles changent souvent, garder une reponse ancienne serait risque. Tant que vous ne fermez pas cette page, tout reste affiche. Si vous voulez conserver ce resultat, copiez-le des maintenant.</span>
+  </div>
+
+  <button class="btn" onclick="aller('ecran1')"><i class="bi bi-arrow-repeat"></i> Nouvelle recherche</button>
+  <button class="btn fantome" onclick="aller('repere')">Revenir au module</button>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="vue" data-vue="ecran6">
+  <div class="bandeau-ecran neuf"><span class="etiq">Tranche</span><span>Point 7 du chantier : la persistance. Decision Denis 2026-09-06.</span></div>
+  <h1>Ce qui est garde, ou pas</h1>
+
+  <p><strong>Rien n'est garde. Meme si la personne sauvegarde sa session ailleurs dans l'application, la recherche faite ici n'entre pas dans la sauvegarde.</strong></p>
+
+  <div class="carte">
+    <p style="margin:0 0 .3rem"><strong>Pourquoi</strong></p>
+    <p class="detail" style="margin:0">On ne sait pas combien de temps passera entre deux ouvertures de la session, ni ce qui aura change entre-temps dans la loi et les dispositifs. Une reponse ancienne ressortie telle quelle serait un risque reel pour la personne. On prefere ne rien garder plutot que de garder une information peut-etre perimee.</p>
+  </div>
+  <div class="carte">
+    <p style="margin:0 0 .3rem"><strong>Comment ca se passe pour la personne</strong></p>
+    <p class="detail" style="margin:0">Tant qu'elle ne ferme pas la page, tout reste affiche : elle peut naviguer entre les ecrans, revenir en arriere, relire. Des qu'elle ferme, il ne reste rien. Un message clair le lui dit sur l'ecran du resultat : « cette recherche n'est pas enregistree ; si vous voulez la garder, copiez-la maintenant ».</p>
+  </div>
+  <div class="carte">
+    <p style="margin:0 0 .3rem"><strong>Cote code</strong></p>
+    <p class="detail" style="margin:0">Coherent avec le principe famille 1 du module (pas de gel, pas de reprise). Aucune exception a acter, contrairement a ce qui etait envisage. L'etat de la recherche vit en memoire de page uniquement, jamais dans <code>localStorage</code>, jamais dans le fichier de session.</p>
+  </div>
+
+  <div class="encart warn"><span>Le texte libre de la personne n'est jamais envoye nulle part par l'application (c'est elle qui le copie chez l'assistant). Rien n'est transmis, rien n'est trace, rien n'est stocke.</span></div>
+</section>
+
+<!-- ============ ANNEXE ============ -->
+<section class="vue" data-vue="annexe">
+  <div class="bandeau-ecran existant"><span class="etiq">Annexe</span><span>Pour le chantier de construction, pas pour la validation visuelle.</span></div>
+  <h1>Prompts et format attendu</h1>
+
+  <h3>Les prompts ne s'inventent pas : ils reutilisent l'existant</h3>
+  <p class="detail">Decision Denis 2026-09-06 : ne rien reinventer. L'outil de veille (<code>outils/veille.html</code>, <code>docs/VEILLE_PROMPTS.md</code>) contient deja des briques de prompt eprouvees. On les reprend telles quelles, on garde la coherence de l'application.</p>
+  <div class="tab-scroll">
+  <table class="qtab">
+    <tr><th>Brique existante</th><th>D'ou elle vient</th><th>Ce qu'elle apporte</th></tr>
+    <tr><td><code>socleRecherche()</code></td><td><code>outils/veille.html</code></td><td>date du jour, recherche web obligatoire, « n'utilise que des pages ouvertes », « ne fabrique jamais une adresse / un numero / une date », sites qui bloquent -&gt; relais</td></tr>
+    <tr><td><code>TON</code></td><td><code>outils/veille.html</code></td><td>« ecris pour une personne reelle », phrases courtes, jamais condescendant, commence par le cas concret, developpe chaque sigle, « ne conclus jamais a la place de la personne »</td></tr>
+    <tr><td>La ligne « pas d'avis sur les personnes, pas de conseil, pas de ton alarmiste »</td><td><code>docs/VEILLE_PROMPTS.md</code></td><td>garde-fou Constitution, 1er principe</td></tr>
+    <tr><td>Les 3 couches de territoire (national / regional / departemental, « ne melange jamais les departements ») + nuance bassin d'emploi</td><td>maquette d'origine (decision 9) et <code>docs/VEILLE_PROMPTS.md</code></td><td>l'ancrage local</td></tr>
+    <tr><td>Le format balise (<code>[SUJET]</code>, <code>[QUESTION]</code>, <code>[COLLECTE]</code>...)</td><td><code>outils/veille.html</code> (<code>assemblerImport</code>, digests)</td><td>une reponse que le code sait relire, tolerant au bruit</td></tr>
+  </table>
+  </div>
+  <p class="detail"><strong>Deux ajouts demandes par Denis</strong> (2026-09-06), a integrer dans <code>TON</code> ou a cote :
+    (1) « reponds toujours en francais » ;
+    (2) « reformule d'abord la demande de la personne dans un francais correct et clair, sans rien ajouter ni retirer » (bloc <code>[REFORMULATION]</code> : la personne verifie que l'assistant l'a bien comprise, ecran 3).</p>
+  <p class="detail">A decider au moment de construire : soit on extrait <code>TON</code> / <code>socleRecherche()</code> dans un petit fichier partage (une seule source de verite, CLAUDE.md), soit <code>docs/VEILLE_PROMPTS.md</code> devient la reference ecrite que l'outil ET le module citent. Pas de copie dispersee.</p>
+  <p class="detail">Ces prompts publics restent simples et cadres. Les prompts de maintenance de Denis (plus pousses, avec les listes de veilles professionnelles) restent dans <code>docs/VEILLE_PROMPTS.md</code>, jamais montres au public.</p>
+
+  <h3>Ce que chaque prompt contient</h3>
+  <ul>
+    <li><strong>Prompt 1</strong> : <code>socleRecherche()</code> + <code>TON</code> (+ les 2 ajouts) + le texte libre de la personne + territoire connu + « reformule, organise en 6 sous-chapitres maximum, pose des questions si besoin » + format balise.</li>
+    <li><strong>Prompt 2</strong> : <code>socleRecherche()</code> + <code>TON</code> + sujets coches + reponses aux questions (assistant + application) + contexte libre + territoire + « information concrete, source, date, structure locale ».</li>
+  </ul>
+
+  <h3>Format que le code relit dans la reponse du prompt 1</h3>
+  <div class="zone-prompt">[REFORMULATION] Vous venez de trouver un emploi a environ trente kilometres... [/REFORMULATION]
+[SUJET] L'aide a la mobilite de France Travail | mobilite | Prise en charge des frais de trajet... [/SUJET]
+[SUJET] Financer le permis de conduire | mobilite | Permis a 1 euro, CPF, microcredit... [/SUJET]
+[QUESTION] L'emploi que vous reprenez est-il un CDI, un CDD, de l'interim ? [/QUESTION]</div>
+  <p class="detail">Le domaine de chaque `[SUJET]` sert a deux choses : le badge affiche, et le choix des questions du code a poser (voir plus bas). Tolerant : si l'assistant ne respecte pas exactement les balises, le code retombe sur un affichage brut dans le cadre d'avertissement (comme les digests du module aujourd'hui).</p>
+
+  <h3>Les questions de l'application : un jeu par rayon (a valider par Denis)</h3>
+  <p class="detail">Decision Denis 2026-09-06 : les questions du code ne peuvent pas etre les memes pour tous les sujets. Chaque rayon a son petit jeu de questions ; le code affiche celles des rayons coches. Brouillon ci-dessous, a relire une par une.</p>
+  <div class="tab-scroll">
+  <table class="qtab">
+    <tr><th>Rayon</th><th>Questions du code (brouillon)</th></tr>
+    <tr><td>Toujours</td><td>Departement (pre-rempli) &middot; Depuis combien de temps dans cette situation &middot; Avez-vous deja fait une demarche a ce sujet &middot; Est-ce urgent (une echeance)</td></tr>
+    <tr><td>Emploi et contrats</td><td>Type de contrat (CDI, CDD, interim, apprentissage) &middot; Etes-vous en poste, ou le contrat est-il termine / en cours de rupture &middot; Depuis combien de temps dans l'entreprise</td></tr>
+    <tr><td>Se former</td><td>Salarie, demandeur d'emploi, ou sans activite &middot; Une idee precise de formation, ou vous cherchez encore &middot; Un diplome, ou juste des competences</td></tr>
+    <tr><td>Accompagnement</td><td>Inscrit a France Travail &middot; Deja un conseiller ou un referent &middot; Percevez-vous le RSA</td></tr>
+    <tr><td>Creer son activite</td><td>Projet precis, ou vous explorez &middot; Demandeur d'emploi avec des droits au chomage &middot; Activite artisanale, commerciale, de services</td></tr>
+    <tr><td>Moins de 26 ans</td><td>Quel age &middot; En etudes, en emploi, ou sans solution &middot; Avez-vous un diplome</td></tr>
+    <tr><td>Handicap et emploi</td><td>Une reconnaissance de travailleur handicape (RQTH), ou une demande en cours &middot; En poste, en arret, ou en recherche. <em>Jamais de question sur le probleme de sante lui-meme.</em></td></tr>
+    <tr><td>Venir de l'etranger</td><td>Cherchez-vous une information sur le sejour, le travail, les diplomes, le permis, la nationalite. <em>Jamais demander ni afficher le statut : renvoi prefecture / OFII / permanence.</em></td></tr>
+    <tr><td>Justice : sortie de detention</td><td>Encore en detention, en amenagement de peine, ou deja sorti &middot; Un suivi par un SPIP</td></tr>
+    <tr><td>Budget, dettes, droits sociaux</td><td>Dettes, decouvert, refus de banque, ou aide d'urgence &middot; Deja contacte un point conseil budget ou un travailleur social &middot; Percevez-vous le RSA</td></tr>
+    <tr><td>Mobilite</td><td>Avez-vous le permis &middot; Un vehicule, meme en panne &middot; Besoin lie a un emploi precis (avec une date), ou general</td></tr>
+    <tr><td>Logement</td><td>Locataire, heberge, sans logement, menace d'expulsion &middot; Deja une dette de loyer &middot; Une demande de logement social deposee</td></tr>
+    <tr><td>Garde d'enfant</td><td>Age de l'enfant (moins de 3 ans, 3 a 6 ans, scolarise) &middot; Elevez-vous seul votre enfant &middot; Besoin regulier, ponctuel, en horaires decales</td></tr>
+    <tr><td>Apprendre le francais</td><td>Pour la vie quotidienne, pour un titre de sejour ou la nationalite, ou pour le travail &middot; Deja passe un test ou suivi une formation</td></tr>
+    <tr><td>Questions juridiques</td><td>Type de litige (employeur, administration, discrimination, autre) &middot; Un courrier officiel avec un delai &middot; Deja consulte un point-justice ou un avocat</td></tr>
+  </table>
+  </div>
+  <p class="detail">Regle transverse : questions courtes, a choix simple quand c'est possible ; jamais sur la sante, la situation familiale precise, les revenus chiffres, le statut administratif. Une reponse laissee vide n'empeche jamais de continuer.</p>
+
+  <h3>Briques reutilisees</h3>
+  <ul>
+    <li><code>htmlCollageInstantane</code> / <code>activerCollageInstantane</code> : preparer un texte, choisir l'assistant, coller la reponse. Deja partout dans l'appli.</li>
+    <li><code>ASSISTANTS_IA</code> / <code>ASSISTANTS_SANS_COMPTE_IA</code> : les pastilles.</li>
+    <li>Le territoire : <code>CLE_DEPARTEMENT_RESSOURCES</code>, deja lu par le module.</li>
+    <li>Le cadre d'avertissement et le rendu markdown souple : <code>_comprendreLeCadreRenduDigestCorps</code>, deja dans le module.</li>
+  </ul>
+
+  <h3>Lien avec « Comprendre les chiffres »</h3>
+  <p>Meme mecanique (texte libre &rarr; prompt &rarr; collage &rarr; resultat cadre). Deux entrees distinctes : ici « quels sont mes droits, mes demarches » ; la-bas « qu'est-ce que disent les chiffres ». Deux jeux de prompts, une seule brique. A construire ensemble ou l'un apres l'autre, meme chantier.</p>
+</section>
+
+<p class="transitions">Transitions simulees : les boutons « suivant » sautent d'un ecran a l'autre ; le passage chez l'assistant est simule ; les liens vers les rayons ne font rien ici.</p>
+
+</main>
+
+<div class="barre-bas"><div class="barre-bas-row">
+  <button class="btn fantome" onclick="retour()"><i class="bi bi-arrow-left"></i> Retour</button>
+  <span class="detail" id="retourInfo"></span>
+</div></div>
+
+<script>
+  var vues = Array.prototype.slice.call(document.querySelectorAll('.vue'));
+  var cibleRetour = { repere:'repere', ecran1:'repere', ecran2:'ecran1', ecran3:'ecran2', ecran4:'ecran3', ecran5:'ecran4', ecran6:'repere', annexe:'repere' };
+  var infosRetour = {
+    repere:"Retour : vue de maquette.",
+    ecran1:"Retour : ramene a l'accueil du module.",
+    ecran2:"Retour : ramene a l'ecran precedent (le texte libre est conserve).",
+    ecran3:"Retour : ramene au premier texte de recherche.",
+    ecran4:"Retour : ramene aux sujets et aux questions.",
+    ecran5:"Retour : ramene au deuxieme texte de recherche.",
+    ecran6:"Retour : note de chantier.",
+    annexe:"Retour : annexe technique."
+  };
+  function aller(nom) {
+    vues.forEach(function (v) { v.classList.toggle('active', v.dataset.vue === nom); });
+    var sel = document.getElementById('devnav'); if (sel) sel.value = nom;
+    document.getElementById('retourInfo').textContent = infosRetour[nom] || '';
+    window.scrollTo(0, 0);
+  }
+  function retour() { var n = document.querySelector('.vue.active').dataset.vue; aller(cibleRetour[n] || 'repere'); }
+  document.getElementById('devnav').addEventListener('change', function (e) { if (e.target.value) aller(e.target.value); });
+  document.querySelectorAll('.jeton').forEach(function (j) { j.addEventListener('click', function () { j.classList.toggle('actif'); }); });
+  aller('repere');
+</script>
+</body>
+</html>

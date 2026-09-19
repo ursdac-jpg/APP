@@ -1,0 +1,433 @@
+<!doctype html>
+<!--
+  MAQUETTE - chantier "Bouton Revoir la presentation / Reprendre mon parcours"
+  (docs/CHANTIER_BOUTON_REVOIR_PRESENTATION.md). Cree le 2026-09-01, v3.
+  v3 : le bouton du module revient a GAUCHE mais dans une "ligne d'en-tete du
+  module" a lui, calquee sur ce que le module Reperes fait deja
+  (.reperes-entete-ecran + .bouton-revoir-explication, marge de 150px pour
+  degager les 3 icones fixes). A droite de cette ligne : l'action propre au
+  module (ex. "+ Garder une reflexion"), qui existe deja et occupe ce coin.
+  Chaque decision est prise en tenant compte du mobile (vue dediee).
+  Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md. Theme sombre : classe .dark.
+  Aucune dependance externe. Aucun code de l'application touche.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : bouton de présentation et gestion de session</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #0d6efd; --accent-bg: #eef2fd;
+    --ok: #198754; --ok-bg: #d9f4e4;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #4d94ff; --accent-bg: #1e2940;
+    --ok: #35c79a; --ok-bg: #17301f;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 940px; margin: 0 auto; padding: 1.4rem 1rem 5rem; }
+  h1.titre-maquette { font-size: 1.5rem; color: var(--text-strong); margin: .2rem 0; }
+  h2.section-titre { font-size: 1.15rem; color: var(--text-strong); margin: 2.4rem 0 .3rem; }
+  .intro { color: var(--text-muted); margin: .3rem 0 1.4rem; }
+  .legende { color: var(--text-muted); font-size: .9rem; margin: .1rem 0 .9rem; }
+  svg { display: block; }
+
+  .ecran { background: var(--bg-card); border: 1px solid var(--border-strong);
+    border-radius: 16px; padding: .8rem .9rem 1.1rem; margin: .6rem 0 1rem;
+    box-shadow: 0 6px 22px rgba(15,30,60,.07); }
+  .ecran-large { max-width: 640px; }
+  .ecran-etiquette { display: inline-block; font-size: .72rem; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--accent);
+    background: var(--accent-bg); border-radius: 999px; padding: .18rem .7rem; margin-bottom: .6rem; }
+
+  /* Coin haut gauche : les 3 outils de l'application, une seule ligne. */
+  .outils-appli { display: flex; gap: .4rem; margin-bottom: .1rem; }
+  .icone-appli { width: 34px; height: 34px; border-radius: 10px; flex: none;
+    border: 1px solid var(--border-strong); background: var(--bg-card);
+    display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+  .icone-appli.avec-mot { width: auto; gap: .35rem; padding: 0 .7rem; border-radius: 999px;
+    font-size: .8rem; font-weight: 600; color: var(--text-strong); }
+  .icone-appli svg { width: 16px; height: 16px; }
+
+  /* LA LIGNE D'EN-TETE DU MODULE : bouton du module a gauche (decale pour
+     degager les icones), action propre au module a droite. */
+  .entete-module { display: flex; justify-content: space-between; align-items: center;
+    gap: .6rem; flex-wrap: wrap; margin: .3rem 0 .2rem; }
+  .entete-module .decalage { padding-left: 150px; display: flex; gap: .5rem; align-items: center; }
+
+  /* LE bouton du module : pilule a contour accent + logo du module. */
+  .btn-module { display: inline-flex; align-items: center; gap: .4rem; flex: none;
+    font: inherit; font-weight: 700; font-size: .84rem;
+    border: 1.5px solid var(--accent); color: var(--accent); background: var(--accent-bg);
+    border-radius: 999px; padding: .34rem .9rem .34rem .7rem; cursor: pointer; }
+  .btn-module svg { width: 15px; height: 15px; }
+
+  /* L'action propre au module (existe deja : ex. "+ Garder une reflexion"). */
+  .btn-action-module { display: inline-flex; align-items: center; gap: .35rem; flex: none;
+    font: inherit; font-weight: 600; font-size: .82rem;
+    border: 1px solid var(--border-strong); color: var(--text-strong); background: var(--bg-card);
+    border-radius: 999px; padding: .34rem .85rem; cursor: pointer; }
+
+  .hint-1re-fois { display: flex; gap: .45rem; align-items: flex-start;
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px;
+    padding: .45rem .6rem; margin: .35rem 0 .2rem 150px; font-size: .8rem; color: var(--text-muted); }
+  .hint-1re-fois button { margin-left: auto; flex: none; border: none; background: none;
+    color: var(--text-muted); cursor: pointer; font-size: .95rem; line-height: 1; padding: 0 .2rem; }
+
+  .contenu-travail h3 { color: var(--text-strong); margin: .55rem 0 .3rem; font-size: 1.2rem;
+    display: flex; align-items: center; gap: .45rem; }
+  .contenu-travail h3 svg { width: 21px; height: 21px; color: var(--accent); }
+  .carte-fictive { background: var(--bg-subtle); border: 1px solid var(--border);
+    border-radius: 12px; padding: .7rem .85rem; margin: .5rem 0; font-size: .92rem; }
+  .barre-bas { display: flex; justify-content: space-between; align-items: center;
+    margin-top: .9rem; padding-top: .7rem; border-top: 1px solid var(--border); }
+
+  .btn { font: inherit; border-radius: var(--radius); padding: .5rem 1rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    cursor: pointer; font-size: .9rem; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .btn.discret { font-size: .82rem; padding: .38rem .8rem; color: var(--text-muted); }
+  .btn.action-alerte { border-color: var(--alert); color: var(--alert); background: var(--alert-bg); font-weight: 600; }
+
+  .bandeau-reprise { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem;
+    background: var(--accent-bg); border: 1px solid var(--accent); border-left-width: 3px;
+    border-radius: 10px; padding: .65rem .85rem; margin: .5rem 0 .9rem; }
+  .bandeau-reprise p { margin: 0; flex: 1 1 210px; font-size: .9rem; color: var(--text-strong); }
+  .bandeau-reprise .btn { flex: none; }
+
+  .section-intro { background: var(--bg-subtle); border: 1px solid var(--border);
+    border-radius: 12px; padding: .65rem .85rem; margin: .4rem 0; color: var(--text-muted); font-size: .88rem; }
+
+  .modale { max-width: 440px; border: 1px solid var(--border-strong); border-radius: 14px;
+    background: var(--bg-card); padding: 1rem 1.1rem 1.1rem; box-shadow: 0 12px 40px rgba(15,30,60,.18); }
+  .modale h4 { margin: .1rem 0 .5rem; color: var(--text-strong); font-size: 1.05rem; }
+  .modale ul { margin: .4rem 0 .7rem; padding-left: 1.1rem; font-size: .9rem; }
+  .modale li { margin: .15rem 0; }
+  .modale-actions { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; margin-top: .6rem; }
+
+  .panneau-disquette { max-width: 340px; border: 1px solid var(--border-strong); border-radius: 14px;
+    background: var(--bg-card); padding: 1rem; box-shadow: 0 12px 40px rgba(15,30,60,.14); }
+  .panneau-disquette h4 { margin: .1rem 0 .3rem; color: var(--text-strong); font-size: 1rem;
+    display: flex; align-items: center; gap: .4rem; }
+  .panneau-disquette h4 svg { width: 17px; height: 17px; color: var(--accent); }
+  .panneau-disquette p.expli { margin: .2rem 0 .7rem; font-size: .82rem; color: var(--text-muted); }
+  .panneau-disquette .btn-plein-large { display: block; width: 100%; text-align: center; margin-bottom: .5rem; }
+
+  .zone-a-part { margin-top: .9rem; padding-top: .8rem; border-top: 1px dashed var(--border-strong); }
+  .zone-a-part .titre-zone { font-size: .74rem; font-weight: 700; letter-spacing: .03em;
+    text-transform: uppercase; color: var(--text-muted); margin-bottom: .4rem; }
+  .zone-a-part .apres-effacement { font-size: .82rem; color: var(--text-strong); margin: 0 0 .45rem; }
+  .btn-zone { display: inline-flex; align-items: center; gap: .35rem;
+    font: inherit; font-size: .82rem; font-weight: 600; background: transparent;
+    border: 1px solid currentColor; border-radius: var(--radius);
+    padding: .34rem .8rem; cursor: pointer; }
+  .btn-zone svg { width: 14px; height: 14px; }
+  .btn-zone.restaurer { color: var(--accent); }
+  .btn-zone.effacer { color: var(--alert); }
+
+  .note { margin: .35rem 0 1.1rem; font-size: .88rem; color: var(--text-muted);
+    padding-left: 1.4rem; text-indent: -1.4rem; max-width: 660px; }
+  .note::before { content: "\21B3\00A0\00A0"; color: var(--accent); font-weight: 700; }
+  .note strong { color: var(--text-strong); }
+
+  .toggle-theme { position: fixed; top: .6rem; right: .6rem; font-size: .8rem; z-index: 10; }
+  .deux-colonnes { display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: flex-start; }
+  .deux-colonnes > div { flex: 1 1 300px; }
+
+  .phone { width: 340px; border: 10px solid #2b323e; border-radius: 26px;
+    background: var(--bg-card); padding: .7rem .7rem 1rem; box-shadow: 0 10px 30px rgba(15,30,60,.18); }
+  body.dark .phone { border-color: #454e5e; }
+  .phone .icone-appli { width: 30px; height: 30px; }
+  .phone .icone-appli svg { width: 14px; height: 14px; }
+  .phone .entete-module .decalage { padding-left: 0; }
+  .phone .entete-module { margin-top: .45rem; }
+  .phone .btn-module { font-size: .78rem; padding: .28rem .6rem .28rem .5rem; }
+  .phone .btn-action-module { font-size: .76rem; padding: .28rem .6rem; }
+  .phone .hint-1re-fois { margin-left: 0; }
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+  <h1 class="titre-maquette">Bouton de présentation et gestion de session</h1>
+  <p class="intro">
+    Version 3. Le bouton du module revient <strong>à gauche</strong>, mais dans une ligne à lui,
+    calquée sur ce que «&nbsp;Mes Repères&nbsp;» fait déjà : un décalage qui dégage les 3 icônes,
+    et l'action propre au module (celle qui occupe déjà le coin droit) reste à droite.
+    Une petite note apparaît la première fois. Ce n'est pas le visuel définitif.
+    Basculez le mode sombre en haut à droite.
+  </p>
+
+  <!-- ============================================================ -->
+  <h2 class="section-titre">1. Écran de travail d'un module</h2>
+  <p class="legende">Exemple : «&nbsp;Cohérence de mon dossier&nbsp;», pendant l'analyse (ici, pas d'action propre à droite).</p>
+
+  <div class="ecran ecran-large">
+    <span class="ecran-etiquette">Écran de travail</span>
+
+    <div class="outils-appli">
+      <span class="icone-appli" title="Préférences d'affichage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span>
+      <span class="icone-appli" title="Aide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M10 21v-2.5a6 6 0 1 1 4 0V21"/></svg></span>
+      <span class="icone-appli" title="Sauvegarder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg></span>
+    </div>
+
+    <div class="entete-module">
+      <div class="decalage">
+        <button class="btn-module"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Revoir la présentation</button>
+      </div>
+    </div>
+    <div class="hint-1re-fois">
+      <span>Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.</span>
+      <button title="J'ai compris">&#10005;</button>
+    </div>
+
+    <div class="contenu-travail">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Cohérence de mon dossier</h3>
+      <div class="carte-fictive">Rapport en cours &middot; 3 points examinés sur 6.</div>
+      <div class="carte-fictive">Point 4 : le titre de votre CV et l'intitulé du poste ne se recoupent pas.</div>
+    </div>
+
+    <div class="barre-bas">
+      <button class="btn">&#8592; Retour</button>
+      <button class="btn primaire">Continuer &#8594;</button>
+    </div>
+  </div>
+
+  <p class="note">
+    Le bouton du module est <strong>à gauche</strong>, mais <strong>décalé</strong> (comme «&nbsp;Revoir l'explication&nbsp;» de Mes Repères aujourd'hui) : aucun autre élément ne commence aussi à gauche, donc il ne se colle jamais aux 3 icônes grises.
+  </p>
+  <p class="note">
+    Il est <strong>visuellement distinct</strong> des réglages : pilule à fond et contour d'accent, avec le <strong>logo du module</strong> dedans. Les 3 icônes de l'appli sont des carrés gris. On ne les confond pas.
+  </p>
+  <p class="note">
+    Une <strong>petite note</strong> apparaît la première fois qu'on voit ce bouton (une par personne, refermable). Ensuite elle ne revient plus.
+  </p>
+
+  <!-- ============================================================ -->
+  <h2 class="section-titre">2. Le même écran dans un module qui a une action à droite</h2>
+  <p class="legende">Exemple : «&nbsp;Mes Repères&nbsp;», qui a déjà «&nbsp;+ Garder une réflexion&nbsp;» dans ce coin.</p>
+
+  <div class="ecran ecran-large">
+    <span class="ecran-etiquette">Écran de travail</span>
+
+    <div class="outils-appli">
+      <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span>
+      <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M10 21v-2.5a6 6 0 1 1 4 0V21"/></svg></span>
+      <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg></span>
+    </div>
+
+    <div class="entete-module">
+      <div class="decalage">
+        <button class="btn-module"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.4 5 5.6.7-4 4 1 5.6L12 20l-5 2.9 1-5.6-4-4 5.6-.7z"/></svg>Revoir la présentation</button>
+      </div>
+      <button class="btn-action-module">+ Garder une réflexion</button>
+    </div>
+
+    <div class="contenu-travail">
+      <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.4 5 5.6.7-4 4 1 5.6L12 20l-5 2.9 1-5.6-4-4 5.6-.7z"/></svg>Mes Repères</h3>
+      <div class="carte-fictive">R3 &middot; À approfondir : comment fonctionne une période d'essai.</div>
+      <div class="carte-fictive">R2 &middot; Idée : demander une immersion dans un atelier de menuiserie.</div>
+    </div>
+  </div>
+
+  <p class="note">
+    À droite, l'action propre au module (ici «&nbsp;+ Garder une réflexion&nbsp;», qui existe déjà). Le bouton de présentation à gauche, l'action du module à droite : deux rôles clairs, jamais mélangés.
+  </p>
+
+  <!-- ============================================================ -->
+  <h2 class="section-titre">3. La page de présentation, avec un travail en cours</h2>
+
+  <div class="ecran ecran-large">
+    <span class="ecran-etiquette">Page de présentation</span>
+
+    <div class="outils-appli">
+      <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span>
+      <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M10 21v-2.5a6 6 0 1 1 4 0V21"/></svg></span>
+      <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg></span>
+    </div>
+
+    <div class="entete-module">
+      <div class="decalage">
+        <button class="btn-module"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Revenir à mon travail</button>
+      </div>
+    </div>
+
+    <div class="contenu-travail">
+      <h3 style="justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Cohérence de mon dossier</h3>
+
+      <div class="bandeau-reprise">
+        <p>Vous avez un travail en cours sur ce module.</p>
+        <button class="btn primaire">Continuer</button>
+        <button class="btn discret">Recommencer</button>
+      </div>
+
+      <div class="section-intro">À quoi sert ce module &middot; ce qui va se passer &middot; ce que ce n'est pas &middot; Mes Repères &middot; bon à savoir (les sections d'introduction habituelles, inchangées).</div>
+    </div>
+  </div>
+
+  <p class="note">
+    Sur la présentation, le même bouton dit <strong>«&nbsp;Revenir à mon travail&nbsp;»</strong>. C'est la même action que <strong>«&nbsp;Continuer&nbsp;»</strong> du bandeau : deux faces d'une seule fonction.
+  </p>
+  <p class="note">
+    Le <strong>bandeau «&nbsp;Continuer / Recommencer&nbsp;»</strong> : rectangle pleine largeur, sous le titre, seulement quand un travail existe. <strong>Jamais une fenêtre par-dessus.</strong> «&nbsp;Recommencer&nbsp;» efface <strong>ce module seulement</strong>, avec confirmation (section 5), <strong>pas d'annulation</strong>.
+  </p>
+
+  <!-- ============================================================ -->
+  <h2 class="section-titre">4. La vue mobile (~360&nbsp;px)</h2>
+  <p class="legende">Mêmes règles : icônes seules, le bouton du module sur sa ligne (plus de décalage, l'écran est déjà étroit), texte raccourci.</p>
+
+  <div class="deux-colonnes">
+    <div>
+      <p class="legende"><strong>Écran de travail (Mes Repères)</strong></p>
+      <div class="phone">
+        <div class="outils-appli">
+          <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span>
+          <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M10 21v-2.5a6 6 0 1 1 4 0V21"/></svg></span>
+          <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg></span>
+        </div>
+        <div class="entete-module">
+          <div class="decalage"><button class="btn-module"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.4 5 5.6.7-4 4 1 5.6L12 20l-5 2.9 1-5.6-4-4 5.6-.7z"/></svg>Présentation</button></div>
+          <button class="btn-action-module">+ Garder</button>
+        </div>
+        <h3 style="font-size:1.05rem;margin:.45rem 0 .3rem;color:var(--text-strong);display:flex;gap:.35rem;align-items:center"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 3l2.4 5 5.6.7-4 4 1 5.6L12 20l-5 2.9 1-5.6-4-4 5.6-.7z"/></svg>Mes Repères</h3>
+        <div class="carte-fictive" style="font-size:.85rem">R3 &middot; À approfondir : la période d'essai.</div>
+        <div class="barre-bas"><button class="btn" style="font-size:.82rem">&#8592; Retour</button></div>
+      </div>
+    </div>
+    <div>
+      <p class="legende"><strong>Page de présentation</strong></p>
+      <div class="phone">
+        <div class="outils-appli">
+          <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span>
+          <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M10 21v-2.5a6 6 0 1 1 4 0V21"/></svg></span>
+          <span class="icone-appli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg></span>
+        </div>
+        <div class="entete-module">
+          <div class="decalage"><button class="btn-module"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>Mon travail</button></div>
+        </div>
+        <h3 style="font-size:1.05rem;margin:.45rem 0 .3rem;color:var(--text-strong);text-align:center">Cohérence de mon dossier</h3>
+        <div class="bandeau-reprise" style="padding:.55rem .7rem">
+          <p style="flex:1 1 100%;font-size:.86rem">Vous avez un travail en cours.</p>
+          <button class="btn primaire" style="font-size:.82rem">Continuer</button>
+          <button class="btn discret" style="font-size:.8rem">Recommencer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    Sur mobile, plus de décalage (l'écran est déjà étroit, aucun risque de coller aux icônes). Le texte du bouton raccourcit («&nbsp;Présentation&nbsp;» / «&nbsp;Mon travail&nbsp;»), l'action du module aussi («&nbsp;+ Garder&nbsp;»). Tout tient.
+  </p>
+
+  <!-- ============================================================ -->
+  <h2 class="section-titre">5. La confirmation de «&nbsp;Recommencer&nbsp;» (par module)</h2>
+
+  <div class="ecran" style="max-width:480px">
+    <span class="ecran-etiquette">Fenêtre de confirmation</span>
+    <div class="modale">
+      <h4>Recommencer «&nbsp;Cohérence de mon dossier&nbsp;» ?</h4>
+      <p style="margin:.2rem 0 .3rem;font-size:.9rem">Vous allez repartir du début sur ce module. Seront effacés :</p>
+      <ul>
+        <li>l'analyse en cours et son rapport&#8239;;</li>
+        <li>le CV et la lettre déposés pour cette analyse.</li>
+      </ul>
+      <p style="margin:.2rem 0;font-size:.86rem;color:var(--text-muted)">
+        Vos autres modules, <strong>Mes Repères</strong> et <strong>Mon Carnet</strong> ne sont pas touchés.
+      </p>
+      <div class="modale-actions">
+        <button class="btn discret">Annuler</button>
+        <button class="btn action-alerte">Recommencer ce module</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 class="section-titre">6. Le panneau disquette : «&nbsp;Tout effacer&nbsp;» et «&nbsp;Restaurer&nbsp;»</h2>
+  <p class="legende">Le geste global (effacer toute la session) quitte le haut de l'écran et se range ici, avec Exporter et Importer.</p>
+
+  <div class="deux-colonnes">
+    <div>
+      <p class="legende"><strong>État normal</strong></p>
+      <div class="panneau-disquette">
+        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg>Sauvegarder ma session</h4>
+        <p class="expli">Cette application ne garde rien automatiquement : exportez un fichier pour ne pas perdre votre travail, ou pour le reprendre sur un autre appareil.</p>
+        <button class="btn btn-plein-large">&#8681; Exporter ma session</button>
+        <button class="btn btn-plein-large">&#8679; Importer une session</button>
+        <div class="zone-a-part">
+          <div class="titre-zone">Recommencer complètement</div>
+          <button class="btn-zone effacer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>Tout effacer sur cet appareil</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="legende"><strong>Juste après un «&nbsp;Tout effacer&nbsp;»</strong></p>
+      <div class="panneau-disquette">
+        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-6h8v6"/></svg>Sauvegarder ma session</h4>
+        <p class="expli">Cette application ne garde rien automatiquement : exportez un fichier pour ne pas perdre votre travail, ou pour le reprendre sur un autre appareil.</p>
+        <button class="btn btn-plein-large">&#8681; Exporter ma session</button>
+        <button class="btn btn-plein-large">&#8679; Importer une session</button>
+        <div class="zone-a-part">
+          <div class="titre-zone">Recommencer complètement</div>
+          <p class="apres-effacement">Tout a été effacé. Vous pouvez encore revenir en arrière.</p>
+          <button class="btn-zone restaurer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 1 1 2.5 5.8M4 12V7M4 12h5"/></svg>Restaurer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    Les deux boutons occupent le <strong>même emplacement</strong> et ont la <strong>même forme</strong> (pilule à contour, texte et bordure de la même couleur). Seule la couleur change : <strong>rouge brique</strong> pour «&nbsp;Tout effacer&nbsp;», <strong>bleu</strong> pour «&nbsp;Restaurer&nbsp;». Jamais un rouge vif.
+  </p>
+  <p class="note">
+    Zone à part en bas du panneau (un filet, un retrait), séparée d'Exporter et Importer.
+  </p>
+  <p class="note">
+    «&nbsp;Restaurer&nbsp;» reste possible <strong>jusqu'à</strong> un vrai redémarrage : un nouveau document importé, ou un avancement dans n'importe quel module. Ensuite le bouton redevient «&nbsp;Tout effacer&nbsp;».
+  </p>
+
+  <!-- ============================================================ -->
+  <h2 class="section-titre">7. La confirmation de «&nbsp;Tout effacer sur cet appareil&nbsp;»</h2>
+
+  <div class="ecran" style="max-width:480px">
+    <span class="ecran-etiquette">Fenêtre d'avertissement</span>
+    <div class="modale">
+      <h4>Tout effacer sur cet appareil ?</h4>
+      <p style="margin:.2rem 0 .3rem;font-size:.9rem">Cela supprime <strong>tout votre travail enregistré dans ce navigateur</strong> :</p>
+      <ul>
+        <li>votre CV, votre lettre de motivation, votre préparation d'entretien&#8239;;</li>
+        <li><strong>Mes Repères</strong> et <strong>Mon Carnet</strong>&#8239;;</li>
+        <li>toutes vos analyses (Analyser ma candidature, Cohérence de mon dossier, Regard extérieur).</li>
+      </ul>
+      <p style="margin:.3rem 0;font-size:.86rem;color:var(--text-muted)">
+        Vous pourrez revenir en arrière une fois, tant que vous n'aurez pas recommencé à travailler.
+      </p>
+      <div class="modale-actions">
+        <button class="btn discret">Annuler</button>
+        <button class="btn primaire">Exporter d'abord</button>
+        <button class="btn action-alerte">Tout effacer</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    Trois choix : <strong>Annuler</strong> (le plus sûr, à gauche), <strong>Exporter d'abord</strong> (met en avant la sauvegarde), <strong>Tout effacer</strong> (l'action, en rouge brique, à droite).
+  </p>
+
+</main>
+</body>
+</html>

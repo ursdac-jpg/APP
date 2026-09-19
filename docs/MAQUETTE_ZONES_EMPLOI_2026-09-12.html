@@ -1,0 +1,340 @@
+<!--
+  Maquette - "Les écarts à l'intérieur du département" (Comprendre les chiffres,
+  Vue d'ensemble, niveau "Mon département").
+
+  Contexte (2026-09-12) : Denis veut, dans la Vue d'ensemble, une comparaison
+  entre territoires plus fine que le département/région/France actuels -
+  au niveau département, entre les zones d'emploi qui le composent (Dordogne :
+  Périgueux / Bergerac / Sarlat-la-Canéda). Explicitement PAS un classement
+  ("ça c'est bien, ça ce n'est pas bien") : une explication des écarts
+  (secteurs, structure du territoire), jamais un palmarès.
+
+  Faisabilité vérifiée le 2026-09-12 : l'INSEE publie un taux de chômage par
+  zone d'emploi, en moyenne trimestrielle, depuis 2003 (même source, même
+  cadence que les chiffres département/région/France déjà utilisés).
+  Chiffres RÉELS ci-dessous (T1 2026) : Bergerac 8,5 %, Périgueux 7,5 %,
+  Sarlat-la-Canéda 7,2 %. Nontron n'est PAS une zone d'emploi à part dans le
+  découpage INSEE 2020 (probablement rattachée à Périgueux ou Angoulême).
+
+  Les 3 explications sont maintenant vérifiées (recherche réelle le
+  2026-09-12, sources citées en bas du bloc) :
+  - Bergerac : passé industriel en déclin (poudrerie/Eurenco), zone
+    identifiée comme fragile par l'INSEE, pas d'accès direct à l'A89
+    (piste de Denis, confirmée par la CCI Dordogne).
+  - Périgueux : poids de l'emploi public, accès direct à l'A89 - a quand
+    même encaissé un vrai choc industriel (fermeture Marbot-Bata, Neuvic,
+    2010, piste de Denis avec 2 corrections : le lieu exact et la
+    destination de la sous-traitance, Tunisie/Europe de l'Est et non la
+    Chine).
+  - Sarlat : la piste "tourisme = bons chiffres" est fausse, documentée
+    comme telle (France Stratégie cite Sarlat nommément parmi les zones
+    touristiques les plus vulnérables aux chocs, à cause des contrats
+    courts et de la concentration sectorielle) - creusé sur demande
+    explicite de Denis, qui y voyait la vraie plus-value du bloc.
+
+  Rang du département donné aussi au sein de la région (pas seulement en
+  France) : la Dordogne est 3e à la fois en France et en Nouvelle-Aquitaine
+  (les 2 seuls départements plus grands qu'elle, Gironde et Landes, sont
+  eux-mêmes dans la région).
+
+  Thème clair/sombre : bouton en haut à droite, classe .sombre sur <body> -
+  mêmes jetons de couleur que css/style.css (--bg-card, --text-strong,
+  --accent, --border...).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Zones d'emploi</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e; --text-soft: #33404f;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #0369a1; --accent-bg-subtle: #e2f0f8; --accent-solide: #0369a1;
+    --warning: #b45309; --warning-bg-subtle: #fdf1d9; --warning-border: #eccb8f;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+  }
+  body.sombre {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4; --text-soft: #c3ccd9;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #38bdf8; --accent-bg-subtle: #16283a; --accent-solide: #38bdf8;
+    --warning: #f5a742; --warning-bg-subtle: #3a2c14; --warning-border: #6b4a1e;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  .page { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.4rem; color: var(--text-strong); margin: .2rem 0 .3rem; }
+  h3 { font-size: 1.02rem; color: var(--text-strong); margin: 0 0 .3rem; }
+  p { margin: .5rem 0; }
+  .barre-outils { position: sticky; top: 0; z-index: 10; background: var(--bg-page);
+    padding: .7rem 0; display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+  .etiquette-maquette { font-size: .78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .03em; color: var(--warning); border: 1px solid var(--warning-border);
+    background: var(--warning-bg-subtle); border-radius: 999px; padding: .25rem .7rem; }
+  .btn-theme { font-size: .8rem; padding: .35rem .7rem; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text); cursor: pointer; }
+
+  .note-contexte { font-size: .84rem; color: var(--text-muted); background: var(--bg-subtle);
+    border: 1px dashed var(--border-strong); border-radius: .6rem; padding: .7rem .9rem; margin-bottom: 1.2rem; }
+  .note-contexte b { color: var(--text-strong); }
+
+  /* --- repris tel quel de comprendre-les-chiffres.css, pour le contexte au-dessus du nouveau bloc --- */
+  .cc-territoire { background: var(--bg-subtle); border: 1px solid var(--border-strong);
+    border-radius: .75rem; padding: .6rem .9rem; margin-bottom: .8rem; font-size: .92rem; }
+  .cc-territoire-taille { display: inline-block; margin-top: .3rem; font-size: .82rem; color: var(--text-muted); }
+  .cc-encart-gardefou { background: var(--accent-bg-subtle); border: 1px solid var(--accent);
+    border-left: 3px solid var(--accent); border-radius: .5rem; padding: .75rem 1rem; display: flex;
+    gap: .5rem; align-items: flex-start; margin: .6rem 0; font-size: .9rem; }
+  .cc-carte-teinte { background: var(--accent-bg-subtle); border: 1px solid var(--accent);
+    border-radius: .9rem; padding: 1rem 1.1rem; margin: .7rem 0; }
+  .cc-carte-teinte h3 { margin-top: 0; }
+  .cc-note { font-size: .82rem; color: var(--text-muted); margin: .3rem 0; }
+
+  /* --- le nouveau bloc --- */
+  .cc-zones {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: .9rem;
+    padding: 1.1rem 1.2rem; margin: 1.6rem 0 .7rem;
+  }
+  .cc-zones-intro { font-size: .9rem; color: var(--text-soft); margin: 0 0 1rem; }
+  .cc-zones-barres { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.1rem; }
+  .cc-zone-ligne { display: grid; grid-template-columns: 9.5rem 1fr 3.2rem; align-items: center; gap: .6rem; }
+  .cc-zone-nom { font-size: .88rem; font-weight: 600; color: var(--text-strong); }
+  .cc-zone-piste { position: relative; height: 10px; border-radius: 999px; background: var(--bg-subtle);
+    border: 1px solid var(--border); overflow: hidden; }
+  .cc-zone-remplissage { position: absolute; inset: 0 auto 0 0; border-radius: 999px 0 0 999px;
+    background: var(--accent-solide); }
+  .cc-zone-valeur { font-size: .92rem; font-weight: 700; color: var(--accent); text-align: right;
+    font-variant-numeric: tabular-nums; }
+  .cc-zones-echelle { font-size: .72rem; color: var(--text-muted); margin: -.4rem 0 1rem 9.5rem; }
+
+  .cc-zones-explications { display: flex; flex-direction: column; gap: .8rem; }
+  .cc-zone-explication { border-top: 1px solid var(--border); padding-top: .7rem; }
+  .cc-zone-explication:first-child { border-top: none; padding-top: 0; }
+  .cc-zone-explication-titre { font-size: .86rem; font-weight: 700; color: var(--text-strong); margin: 0 0 .25rem; }
+  .cc-zone-explication p { margin: .25rem 0; font-size: .88rem; color: var(--text-soft); }
+  .a-verifier { color: var(--text-muted); font-style: italic; }
+
+  .cc-zones-source { font-size: .78rem; color: var(--text-muted); margin-top: 1rem;
+    padding-top: .6rem; border-top: 1px solid var(--border); }
+  /* Boutons de source : copie exacte de .comprendre-les-chiffres-pastille du
+     vrai module (modules/comprendre-les-chiffres/comprendre-les-chiffres.css),
+     pour que cette maquette soit visuellement identique une fois implementee. */
+  .cc-source-ligne { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+  .cc-pastille { display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .78rem; font-weight: 600; text-decoration: none;
+    border: 1px solid var(--accent); color: var(--accent); background: transparent;
+    border-radius: 999px; padding: .18rem .7rem; }
+  .cc-pastille:hover { background: var(--accent-bg-subtle); }
+
+  .separateur-exemple { display: flex; align-items: center; gap: .8rem; margin: 2.4rem 0 1.2rem;
+    font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--text-muted); }
+  .separateur-exemple::before, .separateur-exemple::after { content: ""; flex: 1;
+    border-top: 2px dashed var(--border-strong); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="barre-outils">
+    <span class="etiquette-maquette">Maquette - pas le vrai module</span>
+    <button class="btn-theme" onclick="document.body.classList.toggle('sombre')">Clair / sombre</button>
+  </div>
+
+  <div class="note-contexte">
+    <b>Ce que montre cette maquette :</b> l'emplacement et la forme d'un nouveau bloc, "Les écarts à
+    l'intérieur du département", ajouté dans la <b>Vue d'ensemble</b> de Comprendre les chiffres,
+    quand le niveau choisi est <b>un département</b> (ici la Dordogne). Tout ce qui est écrit en
+    dessous est maintenant vérifié, y compris l'explication de Sarlat.
+  </div>
+
+  <h1>Comprendre les chiffres</h1>
+  <div class="cc-territoire">📍 Votre territoire : <b>la Dordogne (24)</b> · Vue d'ensemble
+    <br><span class="cc-territoire-taille">9 060 km² - 3e plus grand département de France
+    métropolitaine, 3e aussi au sein de la Nouvelle-Aquitaine (derrière la Gironde et les Landes,
+    les 2 seuls départements plus grands qu'elle dans la région comme dans le pays) : une des raisons
+    de sa faible densité de population.</span>
+  </div>
+
+  <div class="cc-encart-gardefou">
+    🛡️ <span>Ces chiffres <b>décrivent un territoire, ils ne concluent rien sur un projet</b>. Ils
+    servent à repérer des difficultés et à s'y préparer avec la personne, jamais à la décourager ni à
+    revoir son projet à la baisse.</span>
+  </div>
+
+  <div class="cc-carte-teinte">
+    <h3>La lecture du territoire</h3>
+    <p class="cc-note">Texte de synthèse existant, inchangé par cette maquette.</p>
+    <p>« En Dordogne, le chômage est stable depuis un an et légèrement en dessous de la moyenne
+    française (…) »</p>
+  </div>
+
+  <!-- ============== LE NOUVEAU BLOC ============== -->
+  <div class="cc-zones">
+    <h3>📐 Les écarts à l'intérieur du département</h3>
+    <p class="cc-zones-intro">
+      La Dordogne n'est pas un territoire uniforme : elle se découpe en plusieurs <b>zones d'emploi</b>
+      (voir « Zone d'emploi ou bassin d'emploi » dans les fiches méthode), chacune avec ses propres
+      chiffres. Ce qui suit compare ces zones entre elles - <b>pas pour dire laquelle est « la
+      meilleure »</b>, mais pour comprendre ce qui explique les écarts : les secteurs qui y sont
+      installés, la structure du territoire, son histoire économique.
+    </p>
+
+    <div class="cc-zones-barres">
+      <div class="cc-zone-ligne">
+        <span class="cc-zone-nom">Bergerac</span>
+        <span class="cc-zone-piste"><span class="cc-zone-remplissage" style="width:85%"></span></span>
+        <span class="cc-zone-valeur">8,5 %</span>
+      </div>
+      <div class="cc-zone-ligne">
+        <span class="cc-zone-nom">Périgueux</span>
+        <span class="cc-zone-piste"><span class="cc-zone-remplissage" style="width:75%"></span></span>
+        <span class="cc-zone-valeur">7,5 %</span>
+      </div>
+      <div class="cc-zone-ligne">
+        <span class="cc-zone-nom">Sarlat-la-Canéda</span>
+        <span class="cc-zone-piste"><span class="cc-zone-remplissage" style="width:72%"></span></span>
+        <span class="cc-zone-valeur">7,2 %</span>
+      </div>
+    </div>
+    <p class="cc-zones-echelle">Taux de chômage localisé, moyenne du 1ᵉʳ trimestre 2026.</p>
+
+    <div class="cc-zones-explications">
+      <div class="cc-zone-explication">
+        <p class="cc-zone-explication-titre">Bergerac : le taux le plus élevé du département</p>
+        <p>Bergerac fait partie des zones identifiées de longue date par l'INSEE parmi les plus
+        fragiles de l'ex-Aquitaine, avec un chômage durablement parmi les plus élevés de la région. Le
+        territoire porte aussi un vrai passé industriel en déclin : la poudrerie de Bergerac (aujourd'hui
+        Eurenco) employait jusqu'à 12 000 personnes pendant la Seconde Guerre mondiale, contre un
+        effectif bien réduit aujourd'hui. Autre facteur concret : Bergerac n'a pas d'accès direct à
+        l'autoroute A89, seulement un échangeur à Mussidan, à 30-40 minutes de route - un frein reconnu
+        par la CCI Dordogne au développement de la logistique et de l'entreposage sur ce secteur. Ces deux
+        facteurs cumulés (un passé industriel plus lourd à porter, un désenclavement routier moins bon)
+        expliquent l'essentiel de l'écart avec les deux autres zones du département : environ 1 point de
+        plus que Périgueux, 1,3 point de plus que Sarlat, ce trimestre.</p>
+      </div>
+      <div class="cc-zone-explication">
+        <p class="cc-zone-explication-titre">Périgueux : la préfecture, une situation plus stable</p>
+        <p>Une étude de l'INSEE classe Périgueux parmi les zones en situation plutôt favorable de
+        l'ex-Aquitaine, malgré des fermetures industrielles passées - la zone a par exemple encaissé la
+        fermeture, en 2010, de l'usine de chaussures Marbot-Bata à Neuvic-sur-l'Isle (jusqu'à 1 600
+        emplois dans les années 1970, spécialisée dans les rangers de l'armée française, fermée après la
+        perte de ce marché au profit d'une fabrication en Tunisie et en Europe de l'Est). La zone a
+        pourtant gardé une situation plus stable que Bergerac : le poids de l'emploi public et
+        administratif (préfecture, hôpital, services) amortit mieux ce genre de choc qu'une économie
+        concentrée sur l'industrie ; et l'accès direct à l'autoroute A89, qui contourne la ville par le
+        sud, a permis le développement d'un vrai pôle logistique et entrepôts, contrairement à Bergerac.
+        Au final, Périgueux affiche un taux inférieur à Bergerac (environ 1 point de moins) : une
+        différence qui tient à la structure de l'économie locale, pas à une conjoncture passagère.</p>
+      </div>
+      <div class="cc-zone-explication">
+        <p class="cc-zone-explication-titre">Sarlat-la-Canéda : le taux le plus bas ce trimestre - mais pas la zone la plus solide</p>
+        <p>Une première piste ("l'économie touristique de Sarlat explique ses bons chiffres") a été
+        vérifiée et écartée - c'est même l'inverse qui est documenté. Une étude officielle sur la
+        vulnérabilité économique des zones d'emploi cite Sarlat nommément, aux côtés de Lourdes et
+        Honfleur, parmi les territoires touristiques qui encaissent les hausses de chômage les plus
+        marquées lors d'un choc. La raison : une forte part de contrats courts (saisonniers, CDD,
+        intérim) et un secteur très concentré (hébergement-restauration) qui, dès qu'il est touché, touche
+        tout le territoire d'un coup. Une note INSEE le confirme en ordre de grandeur : près d'un quart de
+        l'emploi de Sarlat est touristique en juillet-août, avec une capacité d'accueil (campings,
+        hôtels) 3 à 5 fois supérieure à la moyenne du département. Le chiffre bas de ce trimestre ne
+        contredit pas cette fragilité : elle se voit surtout dans les à-coups (une mauvaise saison, une
+        crise), pas forcément dans le niveau habituel. Concrètement, le fait que Sarlat affiche ce
+        trimestre un taux inférieur à Bergerac (-1,3 point) et à Périgueux (-0,3 point) est donc un
+        instantané favorable, pas la preuve d'une économie plus solide sur la durée.</p>
+      </div>
+    </div>
+
+    <p class="cc-zones-source">Sources :</p>
+    <div class="cc-source-ligne">
+      <a class="cc-pastille" href="https://www.insee.fr/fr/statistiques/1893230" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> INSEE - Chômage par zone d'emploi</a>
+      <a class="cc-pastille" href="https://www.insee.fr/fr/statistiques/fichier/1292950/edos_1203.pdf" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> INSEE - Vulnérabilité des zones d'emploi</a>
+      <a class="cc-pastille" href="https://pro.en-nouvelle-aquitaine.fr/wp-content/uploads/sites/2/2025/10/Note_INSEE_2022_emploi_touristique_NA.pdf" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> INSEE - Emploi touristique en Nouvelle-Aquitaine</a>
+      <a class="cc-pastille" href="https://www.strategie-plan.gouv.fr/point-de-vue/vulnerabilite-economique-zones-demploi-face-crise" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> France Stratégie - Vulnérabilité économique</a>
+      <a class="cc-pastille" href="https://dordogne.cci.fr/dynamiser-echanges-renforcer-lattractivite-territoire/" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> CCI Dordogne - Desserte A89</a>
+      <a class="cc-pastille" href="https://questions.assemblee-nationale.fr/q13/13-932QOSD.htm" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Assemblée nationale - Fermeture Marbot-Bata</a>
+    </div>
+  </div>
+  <!-- ============== FIN DU NOUVEAU BLOC (Dordogne) ============== -->
+
+  <div class="separateur-exemple">
+    <span>Deuxième exemple, même mécanisme - la Haute-Vienne</span>
+  </div>
+
+  <div class="cc-territoire">📍 Votre territoire : <b>la Haute-Vienne (87)</b> · Vue d'ensemble
+    <br><span class="cc-territoire-taille">Environ 5 520 km² - l'un des deux plus petits départements
+    de Nouvelle-Aquitaine (11e sur 12, juste devant le Lot-et-Garonne), et un département de taille
+    moyenne à l'échelle de la France (autour du 65e rang sur 101).</span>
+  </div>
+
+  <!-- ============== LE NOUVEAU BLOC (Haute-Vienne) ============== -->
+  <div class="cc-zones">
+    <h3>📐 Les écarts à l'intérieur du département</h3>
+    <p class="cc-zones-intro">
+      La Haute-Vienne se découpe en 2 zones d'emploi : Limoges et Saint-Junien. Même principe qu'en
+      Dordogne - comprendre les écarts, pas les classer.
+    </p>
+
+    <div class="cc-zones-barres">
+      <div class="cc-zone-ligne">
+        <span class="cc-zone-nom">Limoges</span>
+        <span class="cc-zone-piste"><span class="cc-zone-remplissage" style="width:76%"></span></span>
+        <span class="cc-zone-valeur">7,6 %</span>
+      </div>
+      <div class="cc-zone-ligne">
+        <span class="cc-zone-nom">Saint-Junien</span>
+        <span class="cc-zone-piste"><span class="cc-zone-remplissage" style="width:65%"></span></span>
+        <span class="cc-zone-valeur">6,5 %</span>
+      </div>
+    </div>
+    <p class="cc-zones-echelle">Taux de chômage localisé, moyenne du 1ᵉʳ trimestre 2026.</p>
+
+    <div class="cc-zones-explications">
+      <div class="cc-zone-explication">
+        <p class="cc-zone-explication-titre">Limoges : une mutation économique de longue haleine</p>
+        <p>Une étude de l'INSEE Limousin retrace trente ans de transformation de la zone. L'industrie
+        (porcelaine, mais aussi cuir et chaussure, comme en Dordogne) a perdu environ la moitié de ses
+        emplois depuis 1982. Ce recul a été compensé, pas remplacé à l'identique, par la croissance de la
+        santé, de l'action sociale et de l'administration publique : plus de 4 emplois sur 10 aujourd'hui,
+        en hausse de 63 % en trente ans. Sur les 321 zones d'emploi de France, Limoges se situe autour du
+        milieu du classement pour le chômage le plus bas - une zone ni particulièrement fragile, ni
+        particulièrement épargnée.</p>
+      </div>
+      <div class="cc-zone-explication">
+        <p class="cc-zone-explication-titre">Saint-Junien : le taux le plus bas, une relance récente et concrète</p>
+        <p>Saint-Junien est une ville historique du travail du cuir et de la ganterie, une tradition qui
+        remonte au Moyen Âge et qui a périclité au fil du 20e siècle. Ce savoir-faire connaît une vraie
+        relance ces dernières années : Hermès y a ouvert un atelier de maroquinerie en 2017, la filière
+        cuir se restructure à l'échelle de la Nouvelle-Aquitaine, et une "Cité du cuir" doit ouvrir fin
+        2025 dans les quartiers historiques de l'industrie du cuir. Un point de prudence toutefois : une
+        source évoque un taux de 12,3 % pour la seule commune de Saint-Junien en 2022 (donnée plus
+        ancienne, à l'échelle de la ville et non de toute la zone d'emploi) - le chiffre retenu ici
+        (6,5 %) porte sur la zone d'emploi entière, au 1ᵉʳ trimestre 2026, la même source et la même
+        méthode que pour tous les autres chiffres de ce module.</p>
+        <p>Pourquoi environ 1 point d'écart avec Limoges ? Les deux zones ont connu le même déclin
+        industriel, mais pas la même échelle ni le même calendrier. Limoges, beaucoup plus grande,
+        absorbe ses pertes sur la durée grâce à une économie plus diversifiée (santé, administration),
+        mais sans choc positif récent : elle reste sur une position moyenne. Saint-Junien, beaucoup plus
+        petite, ressent à l'inverse plus fortement un évènement concret et récent (l'arrivée d'Hermès, la
+        structuration de la filière cuir) : sur un territoire de cette taille, quelques dizaines d'emplois
+        créés pèsent proportionnellement plus lourd sur le taux affiché qu'à Limoges. C'est une explication
+        plausible de l'écart actuel, plus qu'une différence de nature entre les deux zones.</p>
+      </div>
+    </div>
+
+    <p class="cc-zones-source">Sources :</p>
+    <div class="cc-source-ligne">
+      <a class="cc-pastille" href="https://www.insee.fr/fr/statistiques/1893230" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> INSEE - Chômage par zone d'emploi</a>
+      <a class="cc-pastille" href="https://www.insee.fr/fr/statistiques/1288195" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> INSEE Analyses Limousin - 30 ans de mutations</a>
+      <a class="cc-pastille" href="https://www.saint-junien.fr/decouvrir/histoire-et-patrimoine/patrimoine-industriel-artisanal/" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Ville de Saint-Junien - Patrimoine industriel</a>
+      <a class="cc-pastille" href="https://www.usinenouvelle.com/article/130-creations-d-emplois-sur-le-site-hermes-a-saint-junien.N859725" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Usine Nouvelle - Créations d'emplois Hermès</a>
+    </div>
+  </div>
+  <!-- ============== FIN DU NOUVEAU BLOC (Haute-Vienne) ============== -->
+
+</div>
+</body>
+</html>

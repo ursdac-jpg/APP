@@ -1,0 +1,200 @@
+<!doctype html>
+<!--
+  MAQUETTE - unification des couleurs de bouton (demande Denis 2026-09-09).
+  Plan : docs/CHANTIER_UNIFICATION_BOUTONS_2026-09-09.md
+
+  Objectif Denis : « si j'ai choisi thematique orange, tout ce qui est bouton
+  a choisir, a valider, a cliquer, a aller plus loin » suit la couleur du
+  site -- et « tous les boutons retour et accueil des pages et des fenetres ».
+
+  3 familles :
+   1. CTA principal (.btn-primary) : PLEIN accent, texte blanc.
+      « Continuer », « Ouvrir mon Carnet », « Valider »...
+   2. Secondaire / navigation (.btn-outline-secondary, .btn-outline-primary,
+      Retour, Accueil, Annuler, « Voir tout »...) : contour + teinte accent,
+      jamais plein -- reste visuellement en retrait du CTA.
+   3. Sens fixe, NE BOUGENT PAS : Supprimer (rouge --danger), fin de parcours
+      (vert --success), les 4 familles de la grammaire de boutons
+      (comprendre / explorer / personnel / accompagnement).
+
+  Reglages : couleur du site (6) + theme clair/sombre. Regarde surtout le
+  CONTRASTE du texte blanc sur le CTA plein, couleur par couleur, en sombre.
+-->
+<html lang="fr" data-theme="clair" data-accent="bleu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boutons unifiés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text-muted: #4a5b6e; --text-soft: #3a4a5e;
+    --success: #198754; --danger: #dc3545;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd;
+    --police-app: 'Inter','Segoe UI',Roboto,system-ui,sans-serif;
+  }
+  html[data-theme="sombre"] {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text-muted: #a8b3c4; --text-soft: #c3ccd9;
+    --success: #35c79a; --danger: #e07a7a;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940;
+  }
+  /* Les 6 couleurs de site (valeurs reelles css/style.css) */
+  html[data-accent="orange"]    { --accent:#e6720d; --accent-hover:#c25e08; --accent-bg-subtle:#fdf0e4; }
+  html[data-theme="sombre"][data-accent="orange"]    { --accent:#ff9a3d; --accent-hover:#ffb066; --accent-bg-subtle:#3a2a1a; }
+  html[data-accent="vert"]      { --accent:#15803d; --accent-hover:#116631; --accent-bg-subtle:#e6f4ea; }
+  html[data-theme="sombre"][data-accent="vert"]      { --accent:#4ade80; --accent-hover:#6ee89a; --accent-bg-subtle:#1a3324; }
+  html[data-accent="violet"]    { --accent:#7c3aed; --accent-hover:#6d28d9; --accent-bg-subtle:#f1ebfd; }
+  html[data-theme="sombre"][data-accent="violet"]    { --accent:#a78bfa; --accent-hover:#c4b5fd; --accent-bg-subtle:#2a2140; }
+  html[data-accent="turquoise"] { --accent:#0d9488; --accent-hover:#0b7d73; --accent-bg-subtle:#e0f5f2; }
+  html[data-theme="sombre"][data-accent="turquoise"] { --accent:#2dd4bf; --accent-hover:#5eead4; --accent-bg-subtle:#123330; }
+  html[data-accent="framboise"] { --accent:#be185d; --accent-hover:#9d174d; --accent-bg-subtle:#fce7f0; }
+  html[data-theme="sombre"][data-accent="framboise"] { --accent:#f472b6; --accent-hover:#f9a8d4; --accent-bg-subtle:#3a1626; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text-strong); font-family: var(--police-app); line-height: 1.55; }
+
+  .wrap { max-width: 800px; margin: 0 auto; padding: 1.4rem 1.5rem 6rem; }
+  h1 { font-size: 1.35rem; margin: 0 0 .3rem; }
+  .tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); background: var(--accent-bg-subtle); border-radius: 999px; padding: .2rem .6rem; margin-bottom: .5rem; }
+  p.intro { color: var(--text-muted); font-size: .93rem; }
+
+  .bloc { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 14px; padding: 1.1rem 1.2rem; margin-top: 1.2rem; }
+  .bloc h2 { font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 .3rem; }
+  .bloc .sous { font-size: .84rem; color: var(--text-soft); margin: 0 0 .9rem; }
+  .rangee { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+
+  /* ============ LE SYSTEME PROPOSE ============ */
+  .btn { display: inline-flex; align-items: center; gap: .4rem; font: inherit; font-weight: 600; font-size: .95rem; padding: .55rem 1.25rem; border-radius: 999px; cursor: pointer; border: 1.5px solid transparent; text-decoration: none; }
+  .btn .bi { font-size: 1rem; }
+
+  /* 1. CTA principal : plein accent */
+  .btn-cta { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-cta:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-cta:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* 2. Secondaire / navigation : contour + teinte accent */
+  .btn-sec { background: var(--accent-bg-subtle); border-color: var(--accent); color: var(--accent); }
+  html[data-theme="sombre"] .btn-sec { color: var(--accent); }
+  .btn-sec .bi { color: var(--accent); }
+  .btn-sec:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-sec:hover .bi { color: #fff; }
+
+  /* 3. Sens fixe (inchanges) */
+  .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .btn-success { background: var(--success); border-color: var(--success); color: #fff; }
+  .btn-neutre { background: var(--bg-subtle); border-color: var(--border-strong); color: var(--text-soft); }
+
+  .note-contraste { margin-top: .8rem; font-size: .8rem; color: var(--text-muted); padding: .5rem .7rem; background: var(--bg-subtle); border-radius: 8px; }
+  .note-contraste code { background: var(--bg-card); padding: 0 .3rem; border-radius: 4px; }
+
+  /* Panneau reglages */
+  .panneau { position: fixed; right: 1rem; bottom: 1rem; z-index: 50; width: 260px; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 14px; box-shadow: 0 16px 40px rgba(11,26,51,.22); font-size: .86rem; }
+  .panneau:not([open]) { width: auto; }
+  .panneau:not([open]) summary { color: var(--accent); }
+  .panneau:not([open]) summary::before { content: "\2699\FE0F"; margin-right: .4rem; }
+  .panneau:not([open]) summary .x { display: none; }
+  .panneau:not([open]) summary .lib::after { content: " \2014 ouvrir"; font-weight: 400; color: var(--text-muted); }
+  .panneau summary { list-style: none; cursor: pointer; padding: .8rem 1rem; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+  .panneau summary::-webkit-details-marker { display: none; }
+  .panneau[open] summary { border-bottom: 1px solid var(--border); }
+  .panneau summary .x { display: grid; place-items: center; width: 22px; height: 22px; flex-shrink: 0; border: 1px solid var(--border-strong); border-radius: 6px; color: var(--text-muted); font-size: .9rem; background: var(--bg-card); }
+  .panneau .corps { padding: .9rem 1rem 1rem; display: flex; flex-direction: column; gap: 1rem; }
+  .reglage > span { font-weight: 600; color: var(--text-soft); font-size: .8rem; display: block; margin-bottom: .35rem; }
+  .segmented { display: flex; gap: .3rem; flex-wrap: wrap; }
+  .segmented button { flex: 1; min-width: 46px; font: inherit; font-size: .8rem; padding: .38rem .4rem; cursor: pointer; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-card); color: var(--text-soft); }
+  .segmented button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="tag">Maquette &middot; Boutons unifiés</span>
+  <h1>Unification des couleurs de bouton</h1>
+  <p class="intro">Change la <strong>couleur du site</strong> et le <strong>thème</strong> en bas à droite. Regarde surtout, en <strong>sombre</strong>, le texte blanc sur le CTA plein — couleur par couleur.</p>
+
+  <div class="bloc">
+    <h2>1 &middot; CTA principal &mdash; plein accent</h2>
+    <p class="sous">« Continuer », « Ouvrir mon Carnet », « Valider », « Enregistrer »… Aujourd'hui : bleu Bootstrap figé, quel que soit le thème choisi.</p>
+    <div class="rangee">
+      <button class="btn btn-cta">Ouvrir mon Carnet <i class="bi bi-arrow-right"></i></button>
+      <button class="btn btn-cta">Continuer <i class="bi bi-arrow-right"></i></button>
+      <button class="btn btn-cta" disabled>Continuer (désactivé)</button>
+    </div>
+    <p class="note-contraste">Le texte est blanc sur l'accent, comme déjà partout ailleurs dans l'app (jetons actifs, pastilles, onglets…). En sombre, l'accent est plus clair : à valider couleur par couleur (l'orange et le turquoise sont les plus limites).</p>
+  </div>
+
+  <div class="bloc">
+    <h2>2 &middot; Secondaire &amp; navigation &mdash; contour + teinte accent</h2>
+    <p class="sous">« Retour », « Accueil », « Annuler », « Voir tout mon Carnet », le « Retour » d'une carte de l'accueil… Reste visuellement <strong>en retrait</strong> du CTA (jamais plein au repos).</p>
+    <div class="rangee">
+      <button class="btn btn-sec"><i class="bi bi-arrow-left"></i> Retour</button>
+      <button class="btn btn-sec"><i class="bi bi-house-door"></i> Accueil</button>
+      <button class="btn btn-sec">Annuler</button>
+      <button class="btn btn-sec">Voir tout mon Carnet <i class="bi bi-arrow-right"></i></button>
+    </div>
+    <p class="note-contraste">Au survol : se remplit d'accent, texte blanc (comme le bouton « Revenir au module » aujourd'hui).</p>
+  </div>
+
+  <div class="bloc">
+    <h2>3 &middot; Sens fixe &mdash; NE BOUGENT PAS</h2>
+    <p class="sous">Portent une signification : la couleur ne doit jamais changer avec le thème.</p>
+    <div class="rangee">
+      <button class="btn btn-danger"><i class="bi bi-trash3"></i> Supprimer</button>
+      <button class="btn btn-success"><i class="bi bi-check-lg"></i> Merci bien, j'ai fini</button>
+      <button class="btn btn-neutre">Revenir au rapport</button>
+    </div>
+  </div>
+
+  <div class="bloc">
+    <h2>Exemple : une barre de bas de page</h2>
+    <div class="rangee" style="justify-content:space-between;width:100%">
+      <button class="btn btn-sec"><i class="bi bi-arrow-left"></i> Retour</button>
+      <button class="btn btn-sec"><i class="bi bi-house-door"></i> Accueil</button>
+      <button class="btn btn-cta">Continuer <i class="bi bi-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<details class="panneau" open>
+  <summary><span class="lib">Réglages</span><span class="x" aria-label="Fermer">&#10005;</span></summary>
+  <div class="corps">
+    <div class="reglage">
+      <span>Couleur du site</span>
+      <div class="segmented" data-set="accent">
+        <button data-val="bleu" aria-pressed="true">Bleu</button>
+        <button data-val="orange" aria-pressed="false">Orange</button>
+        <button data-val="vert" aria-pressed="false">Vert</button>
+        <button data-val="violet" aria-pressed="false">Violet</button>
+        <button data-val="turquoise" aria-pressed="false">Turq.</button>
+        <button data-val="framboise" aria-pressed="false">Framb.</button>
+      </div>
+    </div>
+    <div class="reglage">
+      <span>Thème</span>
+      <div class="segmented" data-set="theme">
+        <button data-val="clair" aria-pressed="true">Clair</button>
+        <button data-val="sombre" aria-pressed="false">Sombre</button>
+      </div>
+    </div>
+  </div>
+</details>
+
+<script>
+  var root = document.documentElement;
+  document.querySelectorAll('.segmented').forEach(function (grp) {
+    var key = grp.getAttribute('data-set');
+    grp.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      grp.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      root.setAttribute('data-' + key, b.getAttribute('data-val'));
+    });
+  });
+</script>
+</body>
+</html>

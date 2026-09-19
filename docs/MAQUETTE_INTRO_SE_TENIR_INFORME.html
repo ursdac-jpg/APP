@@ -1,0 +1,210 @@
+<!doctype html>
+<!--
+  MAQUETTE - page d'introduction / présentation du module « Se tenir informé » (sous-carte « Actualités »).
+  Copie du squelette docs/maquettes/_skeleton-intro-module.html, puis remplie.
+  Langage visuel : docs/LANGAGE_VISUEL_COMMUN.md.
+  Contenu de référence : docs/CHANTIER_SE_TENIR_INFORME.md (recueil de conception, 2026-08-28).
+
+  MODULE PAS ENCORE CONSTRUIT. Cette maquette sert UNIQUEMENT à préparer l'organisation de la
+  page d'accueil. Le bouton d'entrée du bas est volontairement DÉSACTIVÉ tant que le module n'existe pas.
+
+  CADRAGE (décision Denis 2026-08-31) : la page présente les DEUX faces, en un texte commun :
+    - un assistant de veille par thème (droit, dispositifs, formation, emploi, territoire) avec
+      recherche en langage courant qui renvoie une synthèse sourcée (option « assistant de veille métier ») ;
+    - une carte curatée de repères durables vérifiés + le tableau des sources officielles
+      (option « carte curatée modeste » du recueil).
+  Public : bénéficiaire ET professionnel de l'insertion, texte commun.
+  Méthode précise (contenu, cadence, choix de l'assistant) : à trancher plus tard.
+
+  NON RÉSOLU volontairement dans cette maquette (conflit doctrine à trancher avec Denis) :
+    - « à retenir depuis votre dernière visite » suppose une mémoire de consultation, écartée par
+      le recueil (2e principe de la Constitution + « aucun stockage »). Non affiché ici.
+    - Nom du module : PAS tranché (recueil §8 : ni « Actualités » ni « repères »). « Se tenir informé »
+      est le nom de la carte d'accueil (peut rester). Icône : journal, cohérente avec la carte
+      d'accueil (bi-newspaper, décidé) -- même si le recueil insiste « ce n'est pas un fil d'actualités ».
+
+  Textes repris de docs/CHANTIER_SE_TENIR_INFORME.md (pas inventés) :
+    - « Un module d'actualités répond à qu'est-ce qui s'est passé aujourd'hui. Le besoin réel répond
+      à qu'est-ce que je devrais savoir avant de prendre une décision de recherche d'emploi, ou avant
+      d'accompagner quelqu'un. »
+    - « pas de flux, pas de notifications, consultation à la demande » ; « Pas de : classement
+      chronologique inverse, macaron Nouveau, compteur, à la une, notification, mémoire de consultation. »
+    - Gabarit de fiche : « Repère vérifié en [mois année]. Les règles et les chiffres peuvent évoluer ;
+      le lien ci-dessous pointe vers la source officielle à jour. » ; bandeau « à revérifier » au-delà de 6 mois.
+    - « Deux couches assumées et étiquetées : rédigé à la main vs source officielle vivante. »
+    - Deux usages (recueil §12) : le bénéficiaire vient rarement, sur une question précise, lit une
+      fiche, clique un lien officiel, repart ; le professionnel s'en sert comme base curatée à montrer
+      ou imprimer pour un rendez-vous.
+    - Sources : Légifrance, Service-Public, Ministère du Travail, INSEE, DARES, enquête BMO France
+      Travail, France Compétences, APEC, CARIF-OREF, Observatoire des territoires, DORA...
+    - Recherche en langage courant : « Les nouveautés sur le CPF », « Les aides pour les travailleurs
+      handicapés », « Les métiers en tension autour de Limoges » (repris de l'apport externe 2026-08-31,
+      à consigner dans docs/CHANTIER_SE_TENIR_INFORME.md).
+    - Encart disquette : repris du squelette.
+
+  Thème sombre : classe .dark sur <body> (convention maquette), PAS [data-theme].
+  Spécificité du module : --accent bleu ciel (#0369a1 clair / #38bdf8 sombre) -- PLACEHOLDER,
+  à accorder avec ATS (indigo) et Regard recruteur (sarcelle).
+
+  RÈGLE APP (décision Denis 2026-08-30) : aucune page d'introduction de module ne porte de bloc
+  « Cet outil travaille avec » ni de renvoi vers un autre module. Volontairement absent.
+  Seule exception conservée : l'encart « Mes Repères » (espace personnel transversal).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - présentation du module Se tenir informé</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #f1f4f9;
+    --text: #1b2430; --text-strong: #0b1a33; --text-muted: #5a6a7e;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --accent: #0369a1; --accent-bg: #e2f0f8;        /* teinte du module : bleu ciel (placeholder) */
+    --ok: #198754; --ok-bg: #d9f4e4; --ok-strong: #157347;
+    --warn: #b45309; --warn-bg: #fdf1d9;
+    --alert: #a3372b; --alert-bg: #fbe6e3;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --text: #dbe2ee; --text-strong: #e8edf5; --text-muted: #a8b3c4;
+    --border: #313a4a; --border-strong: #3d4759;
+    --accent: #38bdf8; --accent-bg: #16283a;
+    --ok: #35c79a; --ok-bg: #17301f; --ok-strong: #6ee89a;
+    --warn: #f5a742; --warn-bg: #3a2c14;
+    --alert: #eda69c; --alert-bg: #3a1f1b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+  h1 { font-size: 1.7rem; color: var(--text-strong); margin: .2rem 0; }
+  h2 { font-size: 1.05rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  .sous-titre { color: var(--text-muted); margin: .2rem 0 1rem; }
+  .centre { text-align: center; }
+
+  .section { background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .9rem; }
+  .section.teinte { background: var(--accent-bg); border-color: var(--accent); }
+  .section ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .section li { margin: .2rem 0; }
+  .detail { color: var(--text-muted); font-size: .85rem; }
+
+  /* Encart d'information : fond teinté + filet gauche accent + icône objet. */
+  .encart { display: flex; gap: .6rem; align-items: flex-start;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0; font-size: .9rem; }
+  .encart.ok { background: var(--ok-bg); border-left-color: var(--ok); }
+
+  /* Accordéon "en savoir plus". */
+  .bloc-depli { border: 1px solid var(--border); border-radius: 12px; margin: .5rem 0;
+    overflow: hidden; background: var(--bg-card); }
+  .bloc-depli > summary { list-style: none; cursor: pointer; padding: .7rem 1rem;
+    font-weight: 700; color: var(--text-strong); }
+  .bloc-depli > summary::-webkit-details-marker { display: none; }
+  .bloc-depli > summary::before { content: "\25B8"; color: var(--accent);
+    font-size: .85em; margin-right: .5rem; display: inline-block; transition: transform .15s; }
+  .bloc-depli[open] > summary::before { transform: rotate(90deg); }
+  .bloc-depli .corps { padding: .2rem 1rem 1rem; border-top: 1px solid var(--border); }
+
+  /* Boutons : rectangle à coins arrondis, jamais rond. */
+  .btn { font: inherit; border-radius: var(--radius); padding: .55rem 1.1rem;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    cursor: pointer; }
+  .btn.primaire { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  body.dark .btn.primaire { color: #04202e; }
+  .btn.large { font-size: 1.05rem; padding: .7rem 1.5rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .signature { color: var(--text-muted); font-size: .82rem; text-align: center;
+    margin-top: 1.6rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+  .toggle-theme { position: fixed; top: .6rem; right: .6rem; font-size: .8rem; }
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+  <div class="centre">
+    <h1>&#128240; Se tenir informé</h1>
+    <p class="sous-titre">Savoir ce qui a changé dans l'emploi, la formation et les dispositifs, avant de décider ou d'accompagner.</p>
+  </div>
+
+  <div class="section teinte centre">
+    <p style="margin:0"><strong>Ce n'est pas un fil d'actualités.</strong> Rien ne clignote, rien ne vous presse. Vous venez quand une question précise vous bloque, vous trouvez un repère fiable et le lien officiel, vous repartez.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#127919; À quoi ça sert</h2>
+    <p><strong>Pour vous :</strong> quand une question précise vous bloque (ai-je droit à une aide au permis ? ça recrute dans quoi près de chez moi ?), trouver le bon repère et la source officielle, au lieu d'une recherche au hasard qui tombe sur un site douteux.</p>
+    <p style="margin:.4rem 0 0"><strong>Pour un professionnel de l'insertion :</strong> une base de repères vérifiés à garder sous la main, à montrer à une personne ou à imprimer avant un rendez-vous.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128203; Ce qui va se passer</h2>
+    <ul>
+      <li>Vous choisissez un thème : droit et démarches, dispositifs et aides, formation, emploi et métiers qui recrutent, repères par territoire.</li>
+      <li>Pour chaque thème, vous trouvez des repères courts, en langage simple, avec la date de dernière vérification et le lien vers la source officielle à jour.</li>
+      <li>Vous pouvez aussi poser une question en langage courant : « les nouveautés sur le CPF », « les aides pour les travailleurs handicapés », « les métiers en tension autour de Limoges ». L'application prépare une recherche pour un assistant en ligne, qui vous renvoie une synthèse avec ses sources.</li>
+      <li>Un tableau des sources officielles (Légifrance, Service-Public, INSEE, DARES, France Travail, France Compétences, CARIF-OREF...) vous dit à quoi sert chacune et où cliquer.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>&#128683; Ce que ce module ne fait pas</h2>
+    <ul>
+      <li>Ce n'est pas un fil d'actualités : pas de « à la une », pas de nouveautés qui défilent, pas de notification.</li>
+      <li>Il ne cherche pas à vous faire revenir : vous venez quand vous en avez besoin, pas parce qu'une pastille vous y invite.</li>
+      <li>Ce n'est pas une source de droit : les repères sont écrits à la main, à une date donnée. En cas de doute, c'est la page officielle qui fait foi.</li>
+      <li>Il n'affiche pas de montant ni de barème figé : les chiffres et les règles changent, le module renvoie vers la page officielle à jour.</li>
+    </ul>
+    <details class="bloc-depli">
+      <summary>Les repères peuvent-ils être périmés ?</summary>
+      <div class="corps">
+        <p style="margin:.4rem 0 0">Oui, c'est possible. Chaque repère porte la mention « vérifié en [mois année] », et un repère de plus de six mois affiche « à revérifier ». Le vrai contenu, ce sont les liens vers les sources officielles, qui, elles, restent à jour.</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#129517; Un repère, puis la source officielle</h2>
+    <p style="margin:0">Le module vous donne de quoi comprendre, puis vous envoie vers la page officielle pour les détails exacts. Il ne remplace jamais cette page : il vous aide à la trouver et à la lire.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9999;&#65039; Ce que vous pourrez faire ensuite</h2>
+    <ul>
+      <li>Repartir vers la source officielle, avec la bonne page déjà repérée.</li>
+      <li>Imprimer une synthèse pour la préparer avant un rendez-vous.</li>
+      <li>Poser une nouvelle question sur un autre thème ou un autre territoire.</li>
+    </ul>
+  </div>
+
+  <div class="section teinte">
+    <h2>&#9875;&#65039; Mes Repères</h2>
+    <p style="margin:0">Si une information vous semble importante pour votre parcours, vous pourrez la noter dans Mes Repères, votre espace personnel de notes.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#128172; Comment ça se passe concrètement</h2>
+    <p style="margin:0">Pour la recherche en langage courant, l'application prépare le texte de la recherche. Vous le collez sur le site d'un assistant en ligne qui consulte des sources récentes, puis vous rapportez la synthèse ici. Pour tout le reste (repères, tableau des sources), vous consultez directement, sans assistant.</p>
+  </div>
+
+  <div class="section">
+    <h2>&#9989; Bon à savoir</h2>
+    <div class="encart"><span>&#128197;</span><span class="detail">Les repères sont rédigés à la main, à une date indiquée. Les règles et les chiffres peuvent évoluer : le lien officiel sous chaque repère pointe vers la version à jour.</span></div>
+    <div class="encart"><span>&#128274;</span><span class="detail">Vos recherches ne sont pas enregistrées.</span></div>
+    <div class="encart"><span>&#128190;</span><span class="detail">Cette application ne demande jamais de compte : pensez à cliquer sur l'icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span></div>
+  </div>
+
+  <div class="centre" style="margin-top:1.2rem">
+    <button class="btn primaire large" disabled>Ouvrir Se tenir informé &#8594;</button>
+    <p class="detail" style="margin:.5rem 0 0">Ce module est en cours de préparation. La page de présentation est prête ; l'outil arrivera dans une prochaine version.</p>
+  </div>
+
+  <p class="signature">APP part de ce que vous apportez, vous aide à prendre du recul, et vous laisse toujours la décision.</p>
+</main>
+</body>
+</html>

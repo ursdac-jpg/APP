@@ -1,0 +1,937 @@
+<title>Maquette v6 - Mise en page du CV</title>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #ffffff; --bg-subtle: #f4f6f8; --bg-card: #ffffff;
+    --text: #1f2733; --text-strong: #0f1720; --text-muted: #6b7683;
+    --border: #e2e6ea; --border-strong: #c7ced5;
+    --accent: #1d4ed8; --accent-hover: #1a44b8; --accent-bg-subtle: #eaf0fe;
+    --success: #0f766e; --success-strong: #0b5b54; --success-bg-subtle: #def2ef;
+    --warn: #b45309; --warn-bg: #fdf3e3; --warn-border: #e7c383;
+    --hasard: #7c3aed; --hasard-2: #db2777;
+    --radius: 12px; --ombre: 0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.08);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #0f141a; --bg-subtle: #161d25; --bg-card: #1a222c;
+      --text: #d6dde4; --text-strong: #f0f4f8; --text-muted: #93a1af;
+      --border: #2a333d; --border-strong: #3a4550;
+      --accent: #8ab4ff; --accent-hover: #a5c6ff; --accent-bg-subtle: #1c2c48;
+      --success: #5fd6c9; --success-strong: #8fe6dc; --success-bg-subtle: #14322f;
+      --warn: #e0a45c; --warn-bg: #2c2413; --warn-border: #5c4a24;
+      --hasard: #a78bfa; --hasard-2: #f472b6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141a; --bg-subtle: #161d25; --bg-card: #1a222c;
+    --text: #d6dde4; --text-strong: #f0f4f8; --text-muted: #93a1af;
+    --border: #2a333d; --border-strong: #3a4550;
+    --accent: #8ab4ff; --accent-hover: #a5c6ff; --accent-bg-subtle: #1c2c48;
+    --success: #5fd6c9; --success-strong: #8fe6dc; --success-bg-subtle: #14322f;
+    --warn: #e0a45c; --warn-bg: #2c2413; --warn-border: #5c4a24;
+    --hasard: #a78bfa; --hasard-2: #f472b6;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 22px 18px 60px; }
+
+  .panneau-demo { border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); padding: 12px 14px; margin-bottom: 20px; font-size: 13.5px; }
+  .panneau-demo b { color: var(--text-strong); }
+  .panneau-demo .ligne-btn { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .panneau-demo button { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer; }
+  .panneau-demo button.on { background: var(--accent); color: #fff; }
+  .panneau-demo button.theme { border-color: var(--border-strong); color: var(--text-muted); }
+
+  .prog { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 14px; font-size: 12px; }
+  .prog .et { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+  .prog .et.faite { color: var(--success-strong); border-color: var(--success); background: var(--success-bg-subtle); }
+  .prog .et.active { color: #fff; background: var(--accent); border-color: var(--accent); font-weight: 700; }
+
+  h1 { font-size: 23px; color: var(--text-strong); margin: 6px 0 4px; }
+  .sous-titre { color: var(--text-muted); margin: 0 0 14px; }
+  .rappel-format { background: var(--bg-subtle); border: 1px solid var(--border-strong); border-radius: 10px; padding: 8px 10px 8px 13px; font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; display: flex; gap: 10px; align-items: center; }
+  .rappel-format b { color: var(--text-strong); }
+  .rappel-x { flex: 0 0 auto; border: 0; background: none; color: var(--text-muted); font-size: 14px; line-height: 1; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+  .rappel-x:hover { background: var(--border); color: var(--text-strong); }
+
+  .zone { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .zone { grid-template-columns: 1fr; } }
+
+  .switch-niveau { display: flex; flex-wrap: wrap; border: 1px solid var(--border-strong); border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
+  .switch-niveau button { flex: 1; min-width: 110px; font: inherit; font-size: 13px; font-weight: 600; padding: 8px 12px; border: 0; background: var(--bg-card); color: var(--text-muted); cursor: pointer; }
+  .switch-niveau button.on { background: var(--accent); color: #fff; }
+
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 16px; margin-bottom: 14px; box-shadow: var(--ombre); }
+  .carte > h2 { font-size: 15px; color: var(--text-strong); margin: 0 0 3px; }
+  .carte .aide { color: var(--text-muted); font-size: 12.5px; margin: 0 0 12px; }
+
+  .champ { margin-bottom: 14px; }
+  .champ:last-child { margin-bottom: 0; }
+  .champ > label { display: block; font-size: 12.5px; font-weight: 700; color: var(--text-strong); margin-bottom: 6px; }
+  .champ .sous-aide { font-size: 11.5px; color: var(--text-muted); margin: -3px 0 6px; }
+
+  .de-carte {
+    display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px; cursor: pointer;
+    border: 0; color: #fff; background: linear-gradient(135deg, var(--hasard), var(--hasard-2)); width: 100%; text-align: left;
+  }
+  .de-carte:hover { filter: brightness(1.08); }
+  .de-carte .de-ico { font-size: 28px; line-height: 1; flex: 0 0 auto; }
+  .de-carte .de-txt b { display: block; font-size: 14px; }
+  .de-carte .de-txt span { font-size: 11.5px; opacity: .92; }
+  .de-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .cle-rangee { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cle-rangee .de-carte { flex: 1 1 52%; }
+  .cle-rangee .mep-carte { flex: 1 1 40%; }
+  .mep-carte { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 14px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent-bg-subtle); color: var(--text-strong); text-align: left; }
+  .mep-carte:hover { background: var(--bg-card); }
+  .mep-carte .de-ico { font-size: 26px; }
+  .mep-carte .de-txt b { display: block; font-size: 14px; color: var(--accent); }
+  .mep-carte .de-txt span { font-size: 11.5px; color: var(--text-muted); }
+  .mep-message { display: flex; gap: 8px; align-items: flex-start; background: var(--success-bg-subtle); border: 1px solid var(--success); color: var(--success-strong); border-radius: 8px; padding: 9px 12px; font-size: 12.5px; margin: 10px 0 0; }
+
+  /* grand aperçu */
+  .zone.mode-grand { grid-template-columns: 1fr; }
+  .grand-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; box-shadow: var(--ombre); margin-bottom: 10px; }
+  .grand-barre .gb-sep { width: 1px; height: 22px; background: var(--border-strong); }
+  .grand-barre .gb-toggle .curseur button { padding: 5px 10px; font-size: 11.5px; }
+  .grand-scene { display: flex; justify-content: center; padding: 18px; background: var(--bg-subtle); border-radius: var(--radius); }
+  .grand-scene .scene-grand .apercu-page { max-width: 100%; }
+  .grand-scene.edition .apercu-page { outline: 2px dashed var(--accent); outline-offset: 4px; }
+  .grand-pouvoirs { background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 10px; }
+  .grand-pouvoirs .gp-titre { font-weight: 700; color: var(--text-strong); font-size: 13px; margin: 0 0 6px; }
+  .grand-pouvoirs ul { margin: 0; padding-left: 20px; font-size: 12.5px; color: var(--text); }
+  .grand-pouvoirs li { margin-bottom: 3px; }
+  .grand-pouvoirs li b { color: var(--text-strong); }
+  .grand-pouvoirs .gp-note { font-size: 11.5px; color: var(--text-muted); margin: 8px 0 0; }
+  .grand-outils { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 10px; }
+  .go-groupe { border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px; background: var(--bg-card); box-shadow: var(--ombre); }
+  .go-titre { font-weight: 700; font-size: 12.5px; color: var(--text-strong); margin: 0 0 8px; }
+  .renvoi-grand { border: 1px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 10px; padding: 11px 13px; margin: 6px 0 0; font-size: 12.5px; color: var(--text); }
+  .renvoi-grand b { color: var(--text-strong); }
+  .renvoi-grand .btn { margin-top: 8px; }
+
+  .pastilles { display: flex; flex-wrap: wrap; gap: 7px; }
+  .pastille { font: inherit; font-size: 12.5px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer; }
+  .pastille.on { background: var(--accent); color: #fff; }
+  .pastille[disabled] { opacity: .4; cursor: not-allowed; border-color: var(--border-strong); color: var(--text-muted); background: var(--bg-subtle); }
+
+  .curseur { display: flex; gap: 6px; }
+  .curseur button { flex: 1; font: inherit; font-size: 12px; padding: 6px 4px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 7px; cursor: pointer; }
+  .curseur button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+
+  /* système de couleurs */
+  .couleur-ligne { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .swatch { width: 34px; height: 34px; border-radius: 8px; border: 2px solid var(--bg-card); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
+  .btn-pipette { font: inherit; font-size: 12px; padding: 6px 11px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 7px; cursor: pointer; }
+  .bases { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .base-c { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--bg-card); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
+  .base-c.on { box-shadow: 0 0 0 2px var(--text-strong); }
+  .nuances { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; padding: 8px; border: 1px dashed var(--border-strong); border-radius: 8px; }
+  .nuance-c { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--bg-card); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
+  .nuance-c.on { box-shadow: 0 0 0 2px var(--text-strong); }
+
+  .cases label { display: flex; align-items: center; gap: 9px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 7px; margin-bottom: 5px; font-size: 12.5px; cursor: pointer; }
+  .cases label:hover { border-color: var(--border-strong); }
+  .rangee-ordre { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border: 1px solid var(--border); border-radius: 7px; margin-bottom: 5px; font-size: 12.5px; }
+  .rangee-ordre .flch { margin-left: auto; display: inline-flex; gap: 3px; }
+  .rangee-ordre .flch button { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-muted); cursor: pointer; font-size: 11px; }
+  .rangee-ordre .flch button:disabled { opacity: .35; cursor: default; }
+
+  details.section { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; background: var(--bg-card); box-shadow: var(--ombre); }
+  details.section > summary { cursor: pointer; padding: 13px 15px; font-weight: 700; font-size: 14px; color: var(--text-strong); list-style: none; display: flex; align-items: center; gap: 9px; }
+  details.section > summary::-webkit-details-marker { display: none; }
+  details.section > summary::before { content: "\25B8"; color: var(--accent); font-size: .8em; transition: transform .15s; }
+  details.section[open] > summary::before { transform: rotate(90deg); }
+  .section-corps { padding: 2px 15px 15px; border-top: 1px solid var(--border); }
+  .section-corps .sec-aide { font-size: 12px; color: var(--text-muted); margin: 8px 0 12px; }
+
+  details.details3 { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 8px; }
+  details.details3 > summary { cursor: pointer; font-size: 12px; color: var(--accent); list-style: none; }
+  details.details3 > summary::-webkit-details-marker { display: none; }
+  details.details3 > summary::before { content: "\25B8 "; }
+  details.details3[open] > summary::before { content: "\25BE "; }
+  details.details3 .d3-corps { padding-top: 8px; }
+
+  .reprendre-boutons { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn { font: inherit; font-weight: 600; padding: 8px 14px; border-radius: 8px; cursor: pointer; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); font-size: 13px; }
+  .btn:hover { background: var(--accent-bg-subtle); }
+  .btn.plein { background: var(--accent); color: #fff; }
+  .btn[disabled] { opacity: .4; cursor: not-allowed; }
+  .btn.blanc { border-color: rgba(255,255,255,.7); background: rgba(255,255,255,.14); color: #fff; }
+
+  .pastille-note { font-size: 11px; color: var(--text-muted); margin-top: 5px; font-style: italic; }
+  .avert-impression { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn); border-radius: 8px; padding: 8px 11px; font-size: 12px; margin-top: 8px; display: flex; gap: 7px; align-items: flex-start; }
+  .h-ajuster { font-size: 15px; color: var(--text-strong); margin: 18px 0 10px; }
+
+  /* aperçu */
+  .apercu-colonne { position: sticky; top: 16px; }
+  .apercu-page {
+    background: #fff; color: #222; border: 1px solid var(--border-strong); border-radius: 6px;
+    box-shadow: 0 6px 26px rgba(0,0,0,.15); padding: 14px; aspect-ratio: 1 / 1.414; overflow: hidden;
+    display: grid; gap: 10px;
+  }
+  :root[data-theme="dark"] .apercu-page { background: #f5f5f5; }
+  .apercu-page.deux { grid-template-columns: 33% 1fr; }
+  .apercu-page.une { grid-template-columns: 1fr; }
+
+  /* taille réelle de la feuille selon le format */
+  .scene-mini { display: flex; justify-content: center; }
+  .scene-grand { display: flex; justify-content: center; }
+  .scene-mini .apercu-page, .scene-mini .feuille-a4-fantome { width: 100%; }
+  .scene-grand .apercu-page, .scene-grand .feuille-a4-fantome { width: 460px; max-width: 100%; }
+  .scene-mini.scene-integral, .scene-grand.scene-integral { flex-direction: column; align-items: center; }
+  .scene-integral .apercu-page { width: 100%; }
+  .scene-grand.scene-integral .apercu-page { width: 460px; }
+  /* A5 = la moitié de la feuille A4 (montrée en pointillés autour) */
+  .feuille-a4-fantome {
+    position: relative; aspect-ratio: 1 / 1.414; border: 1px dashed var(--border-strong);
+    border-radius: 6px; padding: 6px; background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(120,120,120,.05) 8px, rgba(120,120,120,.05) 16px);
+  }
+  .feuille-a4-fantome .fantome-tag {
+    position: absolute; top: 4px; right: 8px; font-size: 9px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+  .feuille-a4-fantome .apercu-page { position: absolute; top: 6px; left: 6px; box-shadow: 0 3px 14px rgba(0,0,0,.18); }
+  .feuille-a4-fantome.pour-portrait .apercu-page { width: 70.7%; aspect-ratio: 1 / 1.414; }
+  .feuille-a4-fantome.pour-paysage .apercu-page { width: calc(100% - 12px); aspect-ratio: 1.414 / 1; }
+  .ap-col-g { border-right: 2px solid; padding-right: 10px; }
+  .apercu-page.une .ap-col-g { border: 0; padding: 0; }
+  .ap-bloc { margin-bottom: 10px; }
+  .ap-h { height: 8px; border-radius: 3px; width: 58%; margin-bottom: 5px; }
+  .ap-l { height: 5px; border-radius: 3px; background: #d7dde3; margin-bottom: 3px; }
+  .ap-l.s { width: 68%; } .ap-l.m { width: 86%; }
+  .ap-nom { height: 13px; width: 70%; border-radius: 3px; background: #333; margin-bottom: 5px; }
+  .ap-sous { height: 6px; width: 46%; border-radius: 3px; background: #999; margin-bottom: 12px; }
+  .apercu-page.dense-Aéré .ap-bloc { margin-bottom: 15px; }
+  .apercu-page.dense-Compact .ap-bloc { margin-bottom: 6px; }
+  .apercu-page.dense-Compact .ap-l { margin-bottom: 2px; }
+  .ap-page-sep { text-align: center; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; padding: 3px 0; }
+  .apercu-legende { font-size: 12px; color: var(--text-muted); margin-top: 9px; text-align: center; }
+  .apercu-actions { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+</style>
+
+<div class="wrap">
+  <div class="panneau-demo">
+    <b>Maquette v6 - Mise en page du CV.</b> Sur l'audit complet du code (<code>docs/INVENTAIRE_REGLAGES_CV_2026-09-02.md</code>, ≈ 120 actions). Un seul modèle de base. Trois niveaux : <b>Simple</b> · <b>Je débute</b> · <b>Tout régler</b> (par intention). La <b>manipulation directe du PDF</b> (déplacer / redimensionner / styliser un bloc, régler une rubrique seule, réordonner au glisser-déposer, écrire dans le CV, pipette, imprimer) ne vit <b>que dans l'Aperçu à taille réelle</b>, <b>qu'en PDF</b> ; le menu n'a qu'un renvoi. <b>Annuler / Refaire</b> multi-pas, garde le format. <b>v6 :</b> valeurs par défaut vérifiées contre <code>_PDF_ETAT_DEFAUT</code> (police = Segoe, largeur métier 32 %, « mettre en évidence » toutes décochées, etc.) ; le <b>dé</b> varie maintenant aussi interligne / espacement / marges (jamais les rubriques) ; le bouton <b>Mise en page</b> joue sur interligne / espacement / marges pour aérer ou condenser ; rubrique <b>« Logiciels »</b> ajoutée à la liste (<code>dossier.logiciels</code>, comptable / numérique...).
+    <div class="ligne-btn" id="demo">
+      <button data-fmt="pdf" class="on">Format PDF</button>
+      <button data-fmt="word">Format Word</button>
+      <button class="theme" id="btnTheme">Voir en mode sombre</button>
+    </div>
+  </div>
+
+  <div class="prog">
+    <span class="et faite">&#128172; Assistant</span>
+    <span class="et active">&#128196; Vos documents</span>
+    <span class="et" style="opacity:.6">La mise en page</span>
+  </div>
+
+  <h1>&#128421;&#65039; La mise en page</h1>
+  <p class="sous-titre" id="sousTitre">Vous avez choisi le format PDF.</p>
+  <div id="wordBanner"></div>
+
+  <div class="zone">
+    <div id="panneau"></div>
+    <div class="apercu-colonne"><div id="apercu"></div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var etat = {
+    fmt: 'pdf',
+    niveau: 'simple',        // 'simple' | 'debut' | 'tout'
+    sobre: false,            // Sobre / Créatif
+    complet: true,           // Complet / Optimisé
+    deAnnulable: false,
+    rappelFormatFerme: false,
+    // couleurs -- défauts alignés sur _PDF_ETAT_DEFAUT (cvPdfPanneauReglages.js)
+    accent: '#2f6690',            // regCouleurDebut
+    accentClair: '#d9e8f2',       // regCouleurFin
+    baseCouleur: '#2f6690',
+    nuance: 10,
+    fondColonnes: 'Droite',       // regFondColonnes: "droite"
+    fondEffet: 'Fond plein',      // regFondColonnesEffet: "fondSeul"
+    fondPleineHauteur: false,     // regFondColonnePleineHauteur: false
+    degrade: 'Foncé vers clair',  // regDegradeColonnes: "fonce-clair"
+    texteFond: 'Blanc',           // regTexteFondColonnes: "blanc"
+    // je débute / rapides
+    police: 'Segoe',              // regPolice: "segoe"
+    format: 'A4 Détaillé',        // regFormatCV: "A4-detaille"
+    densite: 'Normal',
+    colonnes: '2',                // regColonnes: "2"
+    // tout régler
+    colonnesInversees: false,     // regColonnesInversees: false
+    largeurGauche: '50',          // regLargeurColonneGauche: "50"
+    formeColonnes: 'Rectangle',   // regFormeColonnes: "rectangle"
+    separateur: false,            // regSeparateurColonnes: false
+    sansAccroche: false,          // regSansAccroche: false
+    lettreJointe: false,          // regLettreJointe: false
+    regroupement: false,          // regRegroupementActif: false
+    ordreExp: 'Pertinence',       // regOrdreExperiences: "pertinence"
+    formatExp: 'Standard',        // regFormatExperiences: "standard"
+    bandeau: true,                // regBandeauEnTete: true
+    formeEntete: 'Rectangle',     // regFormeEnTete: "rectangle"
+    degradeBandeau: 'Foncé vers clair', // regDegradeBandeau: "fonce-clair"
+    coordAPart: false,            // regBandeauDisponibilite: false
+    dispoEntete: '3 colonnes',    // regDispositionEntete: "3colonnes"
+    blocMisEnAvant: 'Compétences',
+    positionLibre: true,          // regPositionLibreEntete: true
+    anneauPhoto: false,           // regAnneauPhoto: false
+    largAccroche: '30',           // regLargeurAccrocheLibre: "30"
+    largMetier: '32',             // regLargeurMetierLibre: "32"
+    blocEntete: 'Nom', hauteurEntete: 'Moyenne', echelleEntete: 'Normale',
+    editionTexte: false,
+    rubriqueReglee: 'Expériences', echelleRubrique: '100', policeRubrique: '(même que le CV)', // regEchelleRubrique: "100"
+    puceRubrique: '(même que le CV)', colonneRubrique: 'Automatique', missionsRubrique: '(même que le CV)',
+    styleTitres: 'Soulignés',
+    lectureGuidee: false,
+    missionsExp: 'Épuré',
+    missionsPerso: 'Épuré',
+    bordures: 'Fines',
+    styleComp: 'Pastille',
+    icones: false,
+    iconesCoord: false,
+    bandeauCompCles: false,
+    coinsArrondis: false,
+    taille: '11',
+    rubriques: { 'Langues': true, 'Certifications': true, 'Logiciels': true, 'Expériences personnelles': false, 'Loisirs': true, 'Engagements': false, 'Permis': true },
+    ordreRubriques: ['Expériences', 'Formations', 'Compétences', 'Langues', 'Loisirs'],
+    veuves: true,
+    formationsMisesEnAvant: false,
+    marges: 'Normales',
+    interligne: 'Normal',
+    espacementParas: 'Normal',
+    pages: '1 page',
+    fondColonnesA5: 'Droite',     // regFondColonnesA5: "droite"
+    enteteInverseeA5: false,      // regEnteteInverseeA5: false
+    remplirPageA5: false,         // regRemplirPageA5: false
+    echelleA5: '11',              // regEchelleA5: value="11"
+    alignement: 'Gauche',
+    histo: 0,
+    grand: false,           // aperçu à taille réelle
+    mepMessage: '',
+    mepIndex: -1
+  };
+
+  // instantanés (comme dans l'app : _cvPdfEtatAvantAleatoire / _PDF_ETAT_DEFAUT).
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  // IMPORTANT (retour Denis 2026-09-02) : restaurer ne change JAMAIS le format.
+  // Chaque format a ses propres réglages : un « Annuler » / « Revenir au modèle »
+  // fait en Word reste en Word, en PDF reste en PDF. Les deux jeux d'options
+  // n'ont pas à coexister. -> à respecter aussi côté code.
+  // clés de VUE, jamais touchées par Annuler / Refaire / Revenir au modèle :
+  // le format choisi, le niveau affiché, l'état du grand aperçu, les
+  // compteurs. Seuls les réglages du CV sont dans l'historique.
+  var CLES_VUE = ['fmt', 'niveau', 'grand', 'mepMessage', 'mepIndex', 'deAnnulable', 'histo'];
+  function restaurer(snap) {
+    Object.keys(snap).forEach(function (k) { if (CLES_VUE.indexOf(k) === -1) { etat[k] = snap[k]; } });
+    var pol = (etat.fmt === 'pdf' ? POLICES_PDF : POLICES_WORD);
+    if (pol.indexOf(etat.police) === -1) { etat.police = pol[0]; }
+    var fmts = (etat.fmt === 'pdf' ? FORMATS_PDF : FORMATS_WORD);
+    if (fmts.indexOf(etat.format) === -1) { etat.format = fmts[0]; }
+  }
+  var DEFAUT = clone(etat);
+  var etatAvantDe = null;
+  // vraie pile Annuler / Refaire (plusieurs pas)
+  var undoStack = [], redoStack = [];
+  function pousserHisto() {
+    undoStack.push(clone(etat));
+    if (undoStack.length > 40) { undoStack.shift(); }
+    redoStack = [];
+  }
+  function annuler() {
+    if (!undoStack.length) { return; }
+    redoStack.push(clone(etat));
+    restaurer(undoStack.pop());
+    render();
+  }
+  function refaire() {
+    if (!redoStack.length) { return; }
+    undoStack.push(clone(etat));
+    restaurer(redoStack.pop());
+    render();
+  }
+
+  var MEP_MESSAGES = [
+    'Réduit la taille du texte de 11 à 10 px, resserré l\'interligne et rééquilibré les colonnes : le CV tient sur 1 page.',
+    'La mise en page actuelle tient déjà bien sur 1 page.',
+    'Élargi pour mieux remplir la page : interligne aéré, marges élargies, 2 missions supplémentaires révélées.',
+    'Réduit à 9 px, interligne serré et missions condensées : tient sur 1 page, mais c\'est un peu serré. Retirez une rubrique pour aérer.'
+  ];
+  function faireMiseEnPage() {
+    etat.mepIndex = (etat.mepIndex + 1) % MEP_MESSAGES.length;
+    etat.mepMessage = MEP_MESSAGES[etat.mepIndex];
+    if (etat.mepIndex === 0 || etat.mepIndex === 3) { etat.taille = etat.mepIndex === 3 ? '9' : '10'; }
+    render();
+  }
+
+  var POLICES_PDF = ['Segoe', 'Georgia', 'Verdana', 'Garamond', 'Arial', 'Calibri', 'Tahoma', 'Trebuchet', 'Times', 'Palatino'];
+  var POLICES_WORD = ['Calibri', 'Georgia', 'Arial', 'Times'];
+  // Les 5 mêmes formats côté PDF ET côté Word : le code Word les a tous
+  // (etatApercuInline.cv.formatPage : "A4" / "A4-essentiel" / "A4-integral" /
+  // "A5" avec modeleA5 "portrait"|"paysage"). « CV Intégral » est
+  // aujourd'hui masqué dans le panneau Word jusqu'à un clic sur
+  // Essentiel/Détaillé -- la refonte le montre directement.
+  var FORMATS_PDF = ['A4 Détaillé', 'A4 Essentiel', 'A4 Intégral', 'Mini CV A5 Portrait', 'Mini CV A5 Paysage'];
+  var FORMATS_WORD = FORMATS_PDF;
+  var PALETTE = [
+    ['#2f6690', '#d9e8f2'], ['#2f6b4f', '#dcefe3'], ['#7a2e3b', '#f3dde1'], ['#4b3f72', '#e6e0f5'],
+    ['#33383d', '#e8eaed'], ['#b5553a', '#fbe7de'], ['#8a6a1e', '#fdf3d9'], ['#1f7a72', '#dcf2ef'],
+    ['#1e3a5f', '#dde5ee'], ['#8f3a5c', '#f5dfe6'], ['#4f5b23', '#e8edd9'], ['#5c2a5e', '#ecdcee'],
+    ['#7a3b1e', '#f3e0d2'], ['#1f4d3a', '#dbeee2'], ['#b9c0c7', '#eef0f2']
+  ];
+  var PALES = ['#b9c0c7'];
+  function luminance(hex) {
+    var h = hex.replace('#', '');
+    var r = parseInt(h.substr(0, 2), 16) / 255, g = parseInt(h.substr(2, 2), 16) / 255, b = parseInt(h.substr(4, 2), 16) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+  function nuancesDe(hex) {
+    var arr = [];
+    for (var i = 4; i <= 10; i++) {
+      var f = i / 10;
+      var h = hex.replace('#', '');
+      var r = Math.round(parseInt(h.substr(0, 2), 16) + (255 - parseInt(h.substr(0, 2), 16)) * (1 - f));
+      var g = Math.round(parseInt(h.substr(2, 2), 16) + (255 - parseInt(h.substr(2, 2), 16)) * (1 - f));
+      var b = Math.round(parseInt(h.substr(4, 2), 16) + (255 - parseInt(h.substr(4, 2), 16)) * (1 - f));
+      arr.push({ n: i, c: '#' + [r, g, b].map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('') });
+    }
+    return arr;
+  }
+  function ch(liste) { return liste[Math.floor(Math.random() * liste.length)]; }
+
+  function jetons(champ, options) {
+    return '<div class="pastilles">' + options.map(function (o) {
+      return '<button class="pastille' + (etat[champ] === o ? ' on' : '') + '" data-set="' + champ + '|' + o + '">' + o + '</button>';
+    }).join('') + '</div>';
+  }
+  function curseur(champ, options) {
+    return '<div class="curseur">' + options.map(function (o) {
+      return '<button class="' + (etat[champ] === o ? 'on' : '') + '" data-set="' + champ + '|' + o + '">' + o + '</button>';
+    }).join('') + '</div>';
+  }
+  function bascule(champ, oui, non) {
+    return '<div class="curseur"><button class="' + (etat[champ] ? 'on' : '') + '" data-bool="' + champ + '|1">' + oui + '</button>' +
+      '<button class="' + (!etat[champ] ? 'on' : '') + '" data-bool="' + champ + '|0">' + non + '</button></div>';
+  }
+  function champ(label, aide, corps) {
+    return '<div class="champ"><label>' + label + '</label>' + (aide ? '<p class="sous-aide">' + aide + '</p>' : '') + corps + '</div>';
+  }
+  function indispo(texte, motif) {
+    return '<div class="champ"><label style="color:var(--text-muted)">' + texte + '</label>' +
+      '<p class="pastille-note">Indisponible en Word : ' + motif + '. Choisissez le PDF si vous en avez besoin.</p></div>';
+  }
+  function avertPale() {
+    return PALES.indexOf(etat.accent) !== -1
+      ? '<div class="avert-impression"><span>&#9888;&#65039;</span><span>Accent très clair : risque de disparaître en impression noir et blanc.</span></div>' : '';
+  }
+
+  /* ---------- champs repris entre niveaux (une seule source) ---------- */
+  function champAllure() {
+    return '<div class="champ"><label>Allure générale</label>' +
+      '<p class="sous-aide"><b>Sobre</b> : classique et discret, sans fausse note. <b>Créatif</b> : couleurs et formes plus affirmées, pour se démarquer.</p>' +
+      curseur('sobreLabel', ['Sobre', 'Créatif']) + '</div>';
+  }
+  function champFormations() {
+    return '<div class="champ"><label>Quelles formations montrer</label>' +
+      '<p class="sous-aide"><b>Complet</b> : tout votre parcours (CAP, brevet, bac, bac+2...). <b>Optimisé</b> : garde le diplôme le plus élevé et les formations / certifications les plus utiles pour le poste visé.</p>' +
+      curseur('completLabel', ['Complet', 'Optimisé']) + '</div>';
+  }
+
+  /* ---------- systeme de couleurs (evolue) ----------
+     court = true : version « Je débute » (accent + bases + pipette + fond des colonnes).
+     court = false : version complète (+ nuances, accent clair, dégradé, texte sur fond). */
+  function blocCouleurs(court) {
+    var word = (etat.fmt === 'word');
+    var nu = nuancesDe(etat.baseCouleur);
+    var corpsAccent = '<div class="couleur-ligne">' +
+      '<span class="swatch" style="background:' + etat.accent + '" title="Cliquer pour ouvrir le sélecteur de couleur"></span>' +
+      '<button class="btn-pipette" id="btnPipette">&#128167; Pipette (prélever une couleur)</button></div>' +
+      '<div class="bases">' + PALETTE.map(function (p) {
+        return '<button class="base-c' + (etat.baseCouleur === p[0] ? ' on' : '') + '" style="background:' + p[0] + '" data-base="' + p[0] + '|' + p[1] + '"></button>';
+      }).join('') + '</div>' +
+      (court ? '' : '<div class="nuances">' + nu.map(function (n) {
+        return '<button class="nuance-c' + (etat.nuance === n.n ? ' on' : '') + '" style="background:' + n.c + '" data-nuance="' + n.n + '|' + n.c + '" title="Nuance ' + n.n + '"></button>';
+      }).join('') + '<span style="font-size:11px;color:var(--text-muted);align-self:center">Nuances rapides</span></div>') +
+      avertPale();
+    return champ('Accent', '', corpsAccent) +
+      (court || word
+        ? ''
+        : champ('Accent clair (2e couleur du dégradé)', '', '<div class="couleur-ligne"><span class="swatch" style="background:' + etat.accentClair + '"></span><span class="pastille-note">A4 uniquement</span></div>')) +
+      champ('Fond des colonnes', '', curseur('fondColonnes', ['Aucun', 'Gauche', 'Droite', 'Les deux'])) +
+      (court ? '' :
+        champ('Dégradé', '', curseur('degrade', ['Foncé vers clair', 'Clair vers foncé', 'Uni'])) +
+        champ('Texte sur le fond coloré', '', curseur('texteFond', ['Blanc', 'Noir'])));
+  }
+
+  /* ---------- boutons clés (repris aussi dans le grand aperçu) ---------- */
+  function messageMep() {
+    return etat.mepMessage
+      ? '<p class="mep-message"><span>&#129668;</span><span>' + etat.mepMessage + '</span></p>' : '';
+  }
+  function completLabel() { return etat.complet ? 'Complet' : 'Optimisé'; }
+
+  /* ---------- niveau SIMPLE ---------- */
+  function niveauSimple() {
+    return '<div class="carte">' +
+      '<div class="cle-rangee">' +
+      '<button class="de-carte" id="btnDe"><span class="de-ico">&#127922;</span>' +
+      '<span class="de-txt"><b>Style au hasard</b><span>Une mise en page complète, tirée d\'une palette sûre.</span></span></button>' +
+      '<button class="mep-carte" id="btnMep"><span class="de-ico">&#129668;</span>' +
+      '<span class="de-txt"><b>Mise en page</b><span>Remet le CV en page selon le contenu (taille du texte, colonnes, 1 page).</span></span></button>' +
+      '</div>' + messageMep() +
+      '<div class="de-actions">' +
+      '<button class="btn" id="btnAnnulerDe"' + (etat.deAnnulable ? '' : ' disabled') + '>&#8617; Annuler le dernier tirage</button>' +
+      '<button class="btn" id="btnRevenirDefaut">Revenir au modèle de départ</button></div>' +
+      '<div style="margin-top:16px">' + champAllure() + '</div>' +
+      champFormations() +
+      '<p class="pastille-note">Sans rien régler, le CV part avec une mise en page propre. La plupart des personnes restent ici.</p>' +
+      '</div>';
+  }
+
+  /* ---------- grand aperçu (« Aperçu à taille réelle ») ---------- */
+  function grandApercu() {
+    var pdf = (etat.fmt === 'pdf');
+    var infoPdf = pdf
+      ? '<div class="grand-pouvoirs"><p class="gp-titre">&#128196; Le PDF : vous agissez directement sur le CV</p>' +
+        '<ul>' +
+        '<li><b>Écrire / corriger le texte</b> : appuyez sur <b>« Modifier le texte »</b> ci-dessus, puis cliquez dans le CV et tapez. Vos retouches sont gardées.</li>' +
+        '<li><b>Déplacer un bloc de l\'en-tête</b> (nom, métier visé, accroche) : attrapez-le et faites-le glisser où vous voulez.</li>' +
+        '<li><b>Redimensionner</b> : tirez les <b>poignées</b> aux bords d\'un rectangle, ou celle du bas de l\'en-tête pour sa hauteur.</li>' +
+        '<li><b>Régler une rubrique seule</b> : cliquez sur son titre dans le CV, une petite barre apparaît (agrandir, autre police, autre puce, forcer dans une colonne).</li>' +
+        '<li><b>Changer l\'ordre des rubriques</b> : glissez une rubrique vers le haut ou le bas.</li>' +
+        '<li><b>Styliser le nom, le métier ou l\'accroche</b> : cliquez dessus, choisissez couleur, gras ou italique.</li>' +
+        '<li><b>Prélever une couleur</b> : bouton <b>« Pipette »</b> ci-dessus, puis pointez la couleur à copier (même sur un autre site).</li>' +
+        '</ul><p class="gp-note">Le Word n\'a rien de tout ça (mise en page fixe). Son avantage : retoucher le texte après téléchargement.</p></div>'
+      : '<div class="grand-pouvoirs"><p class="gp-note">En Word, ce que vous voyez est exactement le fichier .docx. La mise en page est fixe ; le texte se retouche après téléchargement, dans Word.</p></div>';
+    return '<div class="grand-barre">' +
+      '<button class="btn" id="btnRevenirGrand">&#8592; Revenir aux réglages</button>' +
+      '<span class="gb-sep"></span>' +
+      '<button class="btn" id="btnDe">&#127922; Style au hasard</button>' +
+      '<button class="btn" id="btnMep">&#129668; Mise en page</button>' +
+      (pdf ? '<button class="btn' + (etat.editionTexte ? ' plein' : '') + '" id="btnEditTexteGrand">&#9997;&#65039; ' + (etat.editionTexte ? 'Texte : modification active' : 'Modifier le texte') + '</button>' : '') +
+      (pdf ? '<button class="btn" id="btnPipetteGrand">&#128167; Pipette</button>' : '') +
+      '<button class="btn" id="btnImprimerGrand">&#128424;&#65039; Imprimer</button>' +
+      '</div>' + messageMep() + infoPdf +
+      (pdf ? outilsGrandApercu() : '') +
+      '<div class="grand-scene' + (etat.editionTexte ? ' edition' : '') + '" id="grandScene"></div>';
+  }
+  // Ces réglages n'existent QUE dans le grand aperçu, et QU'en PDF (retour
+  // Denis 2026-09-02) : ce ne sont pas des options du menu, on les fait
+  // directement sur le CV. Représentés ici comme des outils du grand aperçu.
+  function outilsGrandApercu() {
+    return '<div class="grand-outils">' +
+      '<div class="go-groupe"><p class="go-titre">&#9995; Un bloc de l’en-tête (attraper et poser sur le CV)</p>' +
+      champ('Bloc de l’en-tête concerné', 'Attrapez-le dans le CV pour le déplacer ; réglez ici sa largeur et son style.', jetons('blocEntete', ['Nom', 'Métier visé', 'Accroche']) +
+        '<div class="cases" style="margin-top:6px">' + ['Couleur personnalisée', 'Gras', 'Italique'].map(function (l, i) { return '<label><input type="checkbox" data-eb="' + i + '"> ' + l + '</label>'; }).join('') + '</div>') +
+      champ('Largeur du rectangle d’accroche', '', curseur('largAccroche', ['30', '50', '70', '90'])) +
+      champ('Largeur du rectangle « métier visé »', '(20 à 60 %)', curseur('largMetier', ['20', '32', '45', '60'])) +
+      champ('Hauteur de l’en-tête', '', curseur('hauteurEntete', ['Basse', 'Moyenne', 'Haute'])) +
+      champ('Taille de tout l’en-tête', '', curseur('echelleEntete', ['Petite', 'Normale', 'Grande'])) +
+      '</div>' +
+      '<div class="go-groupe"><p class="go-titre">&#128204; Une rubrique seule (clic sur son titre dans le CV)</p>' +
+      champ('Rubrique à régler', '', jetons('rubriqueReglee', ['Expériences', 'Formations', 'Compétences', 'Langues', 'Loisirs'])) +
+      champ('Agrandir / réduire cette rubrique', '', curseur('echelleRubrique', ['75', '90', '100', '115', '140'])) +
+      champ('Police propre', '', jetons('policeRubrique', ['(même que le CV)', 'Serif', 'Étroite'])) +
+      champ('Style de puce propre', '', jetons('puceRubrique', ['(même que le CV)', 'Pastille', 'Rectangle', 'Texte seul'])) +
+      champ('Forcer dans une colonne', '', curseur('colonneRubrique', ['Automatique', 'Gauche', 'Droite'])) +
+      champ('Missions de cette rubrique', '', curseur('missionsRubrique', ['(même que le CV)', 'Épuré', 'Condensé'])) +
+      '<div class="reprendre-boutons" style="margin-top:2px"><button class="btn sm">Remettre cette rubrique par défaut</button></div>' +
+      '</div>' +
+      '<div class="go-groupe"><p class="go-titre">&#8597;&#65039; Ordre des rubriques (glisser dans le CV, ou ici)</p>' +
+      etat.ordreRubriques.map(function (r, i) {
+        return '<div class="rangee-ordre">' + r + '<span class="flch">' +
+          '<button data-ord="haut|' + i + '"' + (i === 0 ? ' disabled' : '') + '>&#9650;</button>' +
+          '<button data-ord="bas|' + i + '"' + (i === etat.ordreRubriques.length - 1 ? ' disabled' : '') + '>&#9660;</button></span></div>';
+      }).join('') +
+      '</div></div>';
+  }
+
+  /* ---------- niveau JE DÉBUTE ---------- */
+  function niveauDebut() {
+    var polices = (etat.fmt === 'pdf' ? POLICES_PDF : POLICES_WORD);
+    var formats = (etat.fmt === 'pdf' ? FORMATS_PDF : FORMATS_WORD);
+    return '<div class="carte"><h2>L\'essentiel</h2>' +
+      '<p class="aide">Les réglages qui changent le plus l\'allure du CV, un par ligne.</p>' +
+      champAllure() +
+      blocCouleurs(true) +
+      champ('Police', '', jetons('police', polices)) +
+      champ('Format', '', jetons('format', formats)) +
+      champ('Densité', 'À quel point le texte est serré ou aéré.', curseur('densite', ['Aéré', 'Normal', 'Compact'])) +
+      champ('Colonnes', '', curseur('colonnes', ['1', '2'])) +
+      champFormations() +
+      '</div>';
+  }
+
+  var FORMATS_INFO = {
+    'A4 Détaillé': 'La version courante : une page A4, tout le nécessaire, un bon niveau de détail.',
+    'A4 Essentiel': 'Version resserrée : garde l’essentiel, moins de détails par ligne. Pour un parcours court ou pour aller droit au but.',
+    'A4 Intégral': 'Jusqu’à 2 pages, tout le contenu, aucune limite de rubriques. Pour un long parcours à ne pas tronquer.',
+    'Mini CV A5 Portrait': 'Demi-page A5, à la verticale. Version « poche » à donner en main propre ou à joindre.',
+    'Mini CV A5 Paysage': 'Demi-page A5, à l’horizontale. Même usage, autre allure.'
+  };
+  /* ---------- niveau TOUT RÉGLER : 6 sections par intention ---------- */
+  function secPage() {
+    var f = etat.format, a5 = /A5/.test(f), integral = /Intégral/.test(f);
+    var specifique =
+      '<div class="renvoi-grand" style="background:var(--bg-subtle);border-color:var(--border-strong)">' +
+      '<b>' + f + '</b> &middot; ' + FORMATS_INFO[f] + '</div>' +
+      (integral ? champ('Longueur', 'A4 Intégral autorise 2 pages : ce réglage est verrouillé sur « 2 pages ».', '<div class="curseur"><button class="on" disabled>2 pages</button></div>')
+        : champ('Longueur', 'Forcer une seule page, ou assumer deux pages (utile après un long parcours).', curseur('pages', ['1 page', '2 pages']))) +
+      (a5 && etat.fmt === 'pdf'
+        ? '<details class="details3" open><summary>Réglages du Mini CV A5</summary><div class="d3-corps">' +
+          champ('Fond des colonnes (A5)', '', curseur('fondColonnesA5', ['Droite', 'Gauche', 'Les deux', 'Milieu', 'Aucun'])) +
+          champ('En-tête inversée', 'Portrait uniquement.', bascule('enteteInverseeA5', 'Inversée', 'Normale')) +
+          champ('Remplir la page', 'Deux CV identiques par feuille A4, à découper (économie de papier).', bascule('remplirPageA5', 'Deux par feuille', 'Un seul')) +
+          champ('Taille du texte (A5)', '(9 à 14)', curseur('echelleA5', ['9', '10', '11', '12', '13', '14'])) +
+          '</div></details>'
+        : (a5
+          ? '<p class="pastille-note">Réglages fins du Mini CV A5 (fond des colonnes A5, en-tête inversée, deux par feuille) : disponibles en PDF. En Word, le Mini CV suit les réglages généraux.</p>'
+          : ''));
+    return '<details class="section" open><summary>&#128196; La page</summary><div class="section-corps">' +
+      '<p class="sec-aide">La forme de la feuille : format, colonnes, marges, espace, longueur.</p>' +
+      champ('Format', 'Change la taille et la longueur de la feuille. Les autres réglages s’adaptent.', jetons('format', FORMATS_WORD)) +
+      specifique +
+      champ('Colonnes', '', curseur('colonnes', ['1', '2'])) +
+      champ('Marges', 'Élargir ou réduire pour gagner de la place ou aérer.', curseur('marges', ['Étroites', 'Normales', 'Larges'])) +
+      champ('Interligne', 'L’espace entre les lignes. C’est ce qui fait qu’un CV « respire » ou paraît tassé.', curseur('interligne', ['Serré', 'Normal', 'Aéré'])) +
+      champ('Espacement entre les paragraphes', 'L’air au-dessus et en-dessous de chaque bloc (poste, rubrique).', curseur('espacementParas', ['Serré', 'Normal', 'Large'])) +
+      champ('Taille du texte', '(9 à 14)', curseur('taille', ['9', '10', '11', '12', '13', '14'])) +
+      '<details class="details3"><summary>Détails</summary><div class="d3-corps">' +
+      champ('Colonnes inversées', '', bascule('colonnesInversees', 'Inversées', 'Normales')) +
+      champ('Largeur de la colonne de gauche', '', curseur('largeurGauche', ['30', '40', '50', '60', '70'])) +
+      champ('Forme des colonnes', '', curseur('formeColonnes', ['Rectangle', 'Diagonale'])) +
+      champ('Séparateur entre colonnes', '', bascule('separateur', 'Avec trait', 'Sans trait')) +
+      champ('Alignement des paragraphes', 'Le justifié aligne le texte des deux côtés : aspect plus « propre » pour un pavé.', curseur('alignement', ['Gauche', 'Justifié'])) +
+      '</div></details>' +
+      '</div></details>';
+  }
+  function secCouleurs() {
+    return '<details class="section"><summary>&#127912; Les couleurs</summary><div class="section-corps">' +
+      '<p class="sec-aide">Accent, dégradé, fond des colonnes, texte sur fond coloré.</p>' +
+      blocCouleurs() +
+      '<details class="details3"><summary>Détails</summary><div class="d3-corps">' +
+      champ('Effet du fond des colonnes', '', curseur('fondEffet', ['Fond plein', 'Titres seulement'])) +
+      champ('Fond de colonne pleine hauteur', 'Du haut de la page, sans bandeau coloré.', bascule('fondPleineHauteur', 'Oui', 'Non')) +
+      champ('Couleur des pastilles de compétences', '', '<div class="couleur-ligne"><span class="swatch" style="background:#e9e9e9" title="Cliquer pour choisir la couleur"></span><span class="pastille-note" style="font-style:normal">Par défaut : gris clair (#e9e9e9)</span></div>') +
+      champ('Couleur du texte des pastilles', '', '<div class="couleur-ligne"><span class="swatch" style="background:#1b1b1b" title="Cliquer pour choisir la couleur"></span><span class="pastille-note" style="font-style:normal">Par défaut : gris très foncé (#1b1b1b)</span></div>') +
+      '</div></details>' +
+      '</div></details>';
+  }
+  function secHaut() {
+    return '<details class="section"><summary>&#11014;&#65039; Le haut de la page</summary><div class="section-corps">' +
+      '<p class="sec-aide">Nom, métier visé, accroche, coordonnées.</p>' +
+      champ('Bandeau coloré', '', bascule('bandeau', 'Avec bandeau', 'Sans bandeau')) +
+      champ('Forme de l’en-tête', '', curseur('formeEntete', ['Rectangle', 'Diagonale'])) +
+      champ('Dégradé du bandeau', '', curseur('degradeBandeau', ['Foncé vers clair', 'Clair vers foncé', 'Uni'])) +
+      champ('Coordonnées à part', '', bascule('coordAPart', 'Bandeau séparé', 'Dans le bandeau')) +
+      champ('Disposition', 'Nom, métier et accroche côte à côte, ou empilés.', curseur('dispoEntete', ['3 colonnes', '2 colonnes'])) +
+      champ('Anneau derrière la photo', '', bascule('anneauPhoto', 'Avec anneau', 'Sans anneau')) +
+      (etat.fmt === 'pdf'
+        ? '<div class="renvoi-grand"><b>&#128196; Placement libre des blocs</b> : déplacer le nom / le métier visé / l\'accroche, tirer les poignées pour redimensionner, styliser chaque bloc. Tout ça se fait <b>dans l\'Aperçu à taille réelle</b>, directement sur le CV. Ce n\'est pas un menu à parcourir. <button type="button" class="btn sm" id="btnVersGrand2">Ouvrir l\'Aperçu à taille réelle &#8594;</button></div>'
+        : '<div class="champ"><label style="color:var(--text-muted)">Placement libre des blocs de l’en-tête</label>' +
+          '<p class="pastille-note">Indisponible en Word : la mise en page reste fixe (nom, métier visé et accroche à des positions imposées). Le PDF permet de tout déplacer et redimensionner à la souris.</p></div>') +
+      '</div></details>';
+  }
+  function secTexte() {
+    var polices = (etat.fmt === 'pdf' ? POLICES_PDF : POLICES_WORD);
+    return '<details class="section"><summary>&#128290; Le texte</summary><div class="section-corps">' +
+      '<p class="sec-aide">Titres de rubrique, police, puces, mise en évidence.</p>' +
+      champ('Police', '', jetons('police', polices)) +
+      champ('Titres de rubrique', '', jetons('styleTitres', ['Sans décor', 'Soulignés', 'Bandeau', 'Pastille'])) +
+      champ('Nom à la couleur du métier visé', '« Lecture guidée ».', bascule('lectureGuidee', 'Oui', 'Non')) +
+      champ('Style des compétences', '', jetons('styleComp', ['Pastille', 'Rectangle', 'Texte seul'])) +
+      champ('Icônes de rubrique', '', bascule('icones', 'Avec', 'Sans')) +
+      champ('Icônes de coordonnées', '', bascule('iconesCoord', 'Avec', 'Sans')) +
+      champ('Bordures', '', curseur('bordures', ['Fines', 'Épaisses'])) +
+      '<details class="details3"><summary>Détails</summary><div class="d3-corps">' +
+      champ('Missions (Expériences)', '', curseur('missionsExp', ['Épuré', 'Condensé'])) +
+      champ('Missions (Expérience personnelle)', '', curseur('missionsPerso', ['Épuré', 'Condensé'])) +
+      champ('Mettre en évidence', '(rien par défaut, comme dans le code)', '<div class="cases">' +
+        ['Poste en gras', 'Poste souligné', 'Dates en italique', 'Dates soulignées', 'Entreprise en italique', 'Entreprise soulignée'].map(function (l, i) {
+          return '<label><input type="checkbox" data-evid="' + i + '"> ' + l + '</label>';
+        }).join('') + '</div>') +
+      champ('Bandeau « Compétences clés »', 'Remplace la rubrique par un bandeau.', bascule('bandeauCompCles', 'Oui', 'Non')) +
+      champ('Coins arrondis', '(colonnes + bandeaux)', bascule('coinsArrondis', 'Oui', 'Non')) +
+      (etat.fmt === 'pdf'
+        ? '<div class="renvoi-grand"><b>&#128196; Réglages par rubrique + écrire dans le CV</b> : agrandir une rubrique, lui donner une police / une puce / une colonne à part, corriger le texte directement. Ces réglages se font <b>dans l\'Aperçu à taille réelle</b>, au clic sur le CV. On ne les cherche pas dans un menu. <button type="button" class="btn sm" id="btnVersGrand1">Ouvrir l\'Aperçu à taille réelle &#8594;</button></div>'
+        : '<div class="champ"><label style="color:var(--text-muted)">Réglages par rubrique, écrire dans le CV</label><p class="pastille-note">Indisponible en Word : pas de police / taille / puce propre à une seule rubrique, et le texte se retouche seulement après téléchargement (dans Word).</p></div>') +
+      '</div></details>';
+  }
+  function secAffiche() {
+    var cases = Object.keys(etat.rubriques).map(function (k) {
+      return '<label><input type="checkbox" data-rub="' + k + '"' + (etat.rubriques[k] ? ' checked' : '') + '> ' + k + '</label>';
+    }).join('');
+    var ordre = etat.ordreRubriques.map(function (r, i) {
+      return '<div class="rangee-ordre">' + r + '<span class="flch">' +
+        '<button data-ord="haut|' + i + '"' + (i === 0 ? ' disabled' : '') + '>&#9650;</button>' +
+        '<button data-ord="bas|' + i + '"' + (i === etat.ordreRubriques.length - 1 ? ' disabled' : '') + '>&#9660;</button></span></div>';
+    }).join('');
+    return '<details class="section"><summary>&#128451;&#65039; Ce qui s’affiche</summary><div class="section-corps">' +
+      '<p class="sec-aide">Quelles rubriques montrer, dans quel ordre, et le contenu.</p>' +
+      champ('Rubriques à afficher', '', '<div class="cases">' + cases + '</div>') +
+      champ('Ordre des rubriques', 'Un profil en reconversion met souvent la formation en premier.' + (etat.fmt === 'pdf' ? ' En PDF, aussi en glissant une rubrique dans l’aperçu.' : ''), ordre) +
+      (etat.fmt === 'word'
+        ? champ('Bloc mis en avant', 'La rubrique la plus visible de la colonne (compétences, formations, langues...). En 2 colonnes : un choix par colonne.', curseur('blocMisEnAvant', ['Compétences', 'Formations', 'Langues']))
+        : '') +
+      champ('Ordre des expériences', '', curseur('ordreExp', ['Pertinence', 'Plus récentes', 'Plus anciennes', 'Poste A→Z'])) +
+      champ('Éviter un titre seul en bas de page', 'Garder le titre d’une rubrique avec le début de son contenu.', bascule('veuves', 'Titre + contenu ensemble', 'Laisser couper')) +
+      '<details class="details3"><summary>Détails</summary><div class="d3-corps">' +
+      champ('Phrase d’accroche', '', bascule('sansAccroche', 'Sans accroche', 'Avec accroche')) +
+      champ('Une lettre accompagne ce CV', '', bascule('lettreJointe', 'Oui', 'Non')) +
+      champ('Regrouper les expériences proches', '', bascule('regroupement', 'Regrouper', 'Ne pas regrouper')) +
+      champ('Mise en forme des expériences', '', curseur('formatExp', ['Standard', 'Amélioré'])) +
+      champ('Toutes les formations + la plus pertinente développée', '', bascule('formationsMisesEnAvant', 'Oui', 'Non')) +
+      '</div></details>' +
+      '</div></details>';
+  }
+  function secReprendre() {
+    return '<details class="section"><summary>&#8617;&#65039; Reprendre la main</summary><div class="section-corps">' +
+      '<p class="sec-aide">Revenir en arrière sans crainte, autant de pas qu\'il faut.</p>' +
+      '<div class="reprendre-boutons">' +
+      '<button class="btn" id="btnAnnuler"' + (undoStack.length ? '' : ' disabled') + '>&#8630; Annuler</button>' +
+      '<button class="btn" id="btnRefaire"' + (redoStack.length ? '' : ' disabled') + '>&#8631; Refaire</button>' +
+      '<button class="btn" id="btnRevenirDefaut">Revenir au modèle de départ</button>' +
+      '<button class="btn" id="btnDe2">&#127922; Style au hasard</button>' +
+      '<button class="btn" id="btnMep2">&#129668; Mise en page</button></div>' +
+      messageMep() +
+      '<p class="pastille-note" style="margin-top:8px">' +
+      (undoStack.length ? undoStack.length + ' changement' + (undoStack.length > 1 ? 's' : '') + ' à annuler' : 'Aucun changement à annuler') +
+      (redoStack.length ? ' &middot; ' + redoStack.length + ' à refaire' : '') + '.</p>' +
+      '<p class="pastille-note" style="font-style:normal">« Revenir au modèle de départ » et « Annuler » <b>gardent le format choisi</b> (Word reste Word, PDF reste PDF). Chaque format a ses propres réglages.</p>' +
+      '<details class="details3"><summary>Garder ces réglages pour un prochain CV</summary><div class="d3-corps">' +
+      '<p class="sec-aide">À implémenter (n\'existe pas encore dans le code). Idée : mémoriser les réglages actuels sous « mon style » et les réappliquer d\'un clic sur un futur CV.</p>' +
+      '<div class="reprendre-boutons"><button class="btn" disabled>&#128190; Enregistrer « mon style »</button><button class="btn" disabled>Réappliquer « mon style »</button></div>' +
+      '</div></details>' +
+      '</div></details>';
+  }
+
+  function tirerDe() {
+    var p = ch(PALETTE);
+    etat.accent = p[0]; etat.accentClair = p[1]; etat.baseCouleur = p[0]; etat.nuance = 10;
+    etat.texteFond = luminance(p[0]) > 0.6 ? 'Noir' : 'Blanc';
+    etat.colonnes = ch(['1', '2']);
+    etat.colonnesInversees = Math.random() < 0.5;
+    etat.largeurGauche = ch(['30', '35', '40', '45', '50', '55', '60', '65', '70']);
+    etat.formeColonnes = ch(['Rectangle', 'Diagonale']);
+    etat.separateur = Math.random() < 0.4;
+    etat.styleTitres = ch(['Sans décor', 'Soulignés', 'Bandeau']);
+    etat.degrade = ch(['Foncé vers clair', 'Clair vers foncé', 'Uni']);
+    etat.fondColonnes = ch(['Aucun', 'Gauche', 'Droite', 'Les deux']);
+    etat.bandeau = Math.random() < 0.5;
+    etat.formeEntete = ch(['Rectangle', 'Diagonale']);
+    etat.degradeBandeau = ch(['Foncé vers clair', 'Clair vers foncé', 'Uni']);
+    etat.coordAPart = Math.random() < 0.3;
+    etat.dispoEntete = ch(['3 colonnes', '2 colonnes']);
+    etat.anneauPhoto = Math.random() < 0.4;
+    etat.lectureGuidee = Math.random() < 0.45;
+    etat.missionsExp = ch(['Épuré', 'Condensé']);
+    etat.missionsPerso = ch(['Épuré', 'Condensé']);
+    etat.bordures = ch(['Fines', 'Épaisses']);
+    etat.styleComp = ch(['Pastille', 'Rectangle', 'Texte seul']);
+    etat.icones = Math.random() < 0.5;
+    etat.iconesCoord = Math.random() < 0.5;
+    etat.police = ch(etat.fmt === 'pdf' ? POLICES_PDF : POLICES_WORD);
+    etat.bandeauCompCles = Math.random() < 0.4;
+    etat.coinsArrondis = Math.random() < 0.4;
+    etat.formationsMisesEnAvant = Math.random() < 0.35;
+    etat.ordreExp = ch(['Pertinence', 'Plus récentes', 'Plus anciennes', 'Poste A→Z']);
+    // recommandations D intégrées au tirage : leviers VISUELS, sûrs à
+    // varier. JAMAIS le contenu (rubriques à afficher, ordre des rubriques) :
+    // même règle que "lettre jointe" / "regroupement", exclus du vrai dé.
+    etat.interligne = ch(['Serré', 'Normal', 'Aéré']);
+    etat.espacementParas = ch(['Serré', 'Normal', 'Large']);
+    etat.marges = ch(['Étroites', 'Normales', 'Larges']);
+    // Fidèle au vrai dé (_pdfGenererStyleAleatoire) : chaque tirage repart
+    // d'une ardoise vierge et efface les retouches faites dans l'Aperçu à
+    // taille réelle (bug utilisateur confirmé : « tout ce que j'ai modifié à
+    // la main reste modifié »).
+    etat.echelleRubrique = '100';
+    etat.policeRubrique = '(même que le CV)';
+    etat.puceRubrique = '(même que le CV)';
+    etat.colonneRubrique = 'Automatique';
+    etat.missionsRubrique = '(même que le CV)';
+    etat.largAccroche = '30';
+    etat.largMetier = '32';
+    etat.hauteurEntete = 'Moyenne';
+    etat.echelleEntete = 'Normale';
+    etat.deAnnulable = true;
+  }
+
+  function unePage(nBlocsG, nBlocsD) {
+    var deux = etat.colonnes === '2';
+    return '<div class="apercu-page ' + (deux ? 'deux' : 'une') + ' dense-' + etat.densite + ' fmt-' + etat.format.replace(/[^A-Za-z0-9]/g, '') + '">' +
+      '<div class="ap-col-g" style="border-color:' + etat.accent + (etat.fondColonnes !== 'Aucun' ? ';background:' + etat.accentClair : '') + '">' +
+      '<div style="width:36px;height:36px;background:#c9c9c9;border-radius:6px;margin-bottom:10px"></div>' +
+      apBn(nBlocsG) + '</div>' +
+      '<div><div class="ap-nom"' + (etat.lectureGuidee ? ' style="background:' + etat.accent + '"' : '') + '></div><div class="ap-sous"></div>' +
+      apBn(nBlocsD) + '</div></div>';
+  }
+  function apBn(specs) { return specs.map(function (n) { return apB(n); }).join(''); }
+  function pageHTML() {
+    var f = etat.format;
+    var a5 = /A5/.test(f);
+    var paysage = /Paysage/.test(f);
+    var integral = /Intégral/.test(f);
+    var essentiel = /Essentiel/.test(f);
+    // classe de contexte : le CSS donne la vraie taille de feuille
+    // (A4 plein cadre ; A5 = moitié de A4, portrait ou paysage).
+    var ctx = 'scene-' + (etat.grand ? 'grand' : 'mini');
+    if (integral) {
+      return '<div class="' + ctx + ' scene-integral">' +
+        unePage([3, 3, 2], [4, 3, 3, 3]) +
+        '<div class="ap-page-sep">page 2</div>' +
+        unePage([2, 2], [4, 3, 3]) + '</div>';
+    }
+    var g = essentiel ? [3, 2] : (a5 ? [2, 2] : [3, 3, 2]);
+    var d = essentiel ? [3, 2] : (a5 ? [3, 2] : [4, 3, 3, 2]);
+    if (a5) {
+      // la feuille A4 « fantôme » derrière, pour voir que le A5 en est la moitié
+      return '<div class="' + ctx + '"><div class="feuille-a4-fantome ' + (paysage ? 'pour-paysage' : 'pour-portrait') + '">' +
+        '<span class="fantome-tag">Feuille A4</span>' + unePage(g, d) + '</div></div>';
+    }
+    return '<div class="' + ctx + ' scene-a4">' + unePage(g, d) + '</div>';
+  }
+
+  function render() {
+    document.querySelectorAll('#demo button[data-fmt]').forEach(function (b) { b.classList.toggle('on', b.dataset.fmt === etat.fmt); });
+    var word = (etat.fmt === 'word');
+    document.getElementById('sousTitre').textContent = 'Vous avez choisi le format ' + (word ? 'Word' : 'PDF') + '.';
+    // Rappel court et SYMÉTRIQUE (un par format), avec une croix : une fois
+    // fermé, ne revient plus pour ce CV. La comparaison complète Word/PDF est
+    // sur l'écran « Le format » de « Vos documents », pas ici.
+    document.getElementById('wordBanner').innerHTML = etat.rappelFormatFerme ? '' :
+      '<div class="rappel-format">' +
+      '<span>' + (word
+        ? '<b>Format Word.</b> Vous pourrez encore modifier le texte après l\'avoir téléchargé. Mise en page plus sobre.'
+        : '<b>Format PDF.</b> Beaucoup plus de liberté de mise en page. Une fois créé, il ne se modifie plus : pour changer, on en refait un.') + '</span>' +
+      '<button type="button" class="rappel-x" id="btnFermerRappel" title="Ne plus afficher">&#10005;</button></div>';
+
+    var zone = document.querySelector('.zone');
+    if (etat.grand) {
+      zone.classList.add('mode-grand');
+      document.getElementById('panneau').innerHTML = grandApercu();
+      document.getElementById('grandScene').innerHTML = pageHTML();
+      document.getElementById('apercu').innerHTML = '';
+      wire();
+      return;
+    }
+    zone.classList.remove('mode-grand');
+
+    var sw = '<div class="switch-niveau">' +
+      '<button class="' + (etat.niveau === 'simple' ? 'on' : '') + '" data-niv="simple">Simple</button>' +
+      '<button class="' + (etat.niveau === 'debut' ? 'on' : '') + '" data-niv="debut">Je débute</button>' +
+      '<button class="' + (etat.niveau === 'tout' ? 'on' : '') + '" data-niv="tout">Je veux tout régler</button></div>';
+
+    var h = sw;
+    if (etat.niveau === 'simple') { h += niveauSimple(); }
+    else if (etat.niveau === 'debut') { h += niveauDebut(); }
+    else {
+      h += '<h2 class="h-ajuster">Tous les réglages, regroupés par intention</h2>' +
+        secPage() + secCouleurs() + secHaut() + secTexte() + secAffiche() + secReprendre();
+    }
+    document.getElementById('panneau').innerHTML = h;
+
+    var pale = PALES.indexOf(etat.accent) !== -1;
+    document.getElementById('apercu').innerHTML = pageHTML() +
+      '<p class="apercu-legende">' + (word ? 'Word' : 'PDF') + ' &middot; ' + etat.format + ' &middot; ' + etat.densite.toLowerCase() +
+      (word ? ' &middot; aperçu = fichier final' : '') + '</p>' +
+      (pale ? '<div class="avert-impression" style="margin-top:6px"><span>&#9888;&#65039;</span><span>Accent pâle : vérifiez le rendu noir et blanc.</span></div>' : '') +
+      '<div class="apercu-actions"><button class="btn" id="btnGrandApercu">&#128269; Aperçu à taille réelle</button></div>';
+    wire();
+  }
+  function apB(n) {
+    var s = '<div class="ap-bloc"><div class="ap-h" style="background:' + etat.accent + '"></div>';
+    for (var i = 0; i < n; i++) { s += '<div class="ap-l ' + (i === n - 1 ? 's' : 'm') + '"></div>'; }
+    return s + '</div>';
+  }
+
+  function wire() {
+    document.querySelectorAll('[data-niv]').forEach(function (b) { b.onclick = function () { etat.niveau = b.dataset.niv; render(); }; });
+    document.querySelectorAll('[data-set]').forEach(function (b) {
+      b.onclick = function () {
+        pousserHisto();
+        var p = b.dataset.set.split('|');
+        if (p[0] === 'sobreLabel') { etat.sobre = (p[1] === 'Créatif'); }
+        else if (p[0] === 'completLabel') { etat.complet = (p[1] === 'Complet'); }
+        else { etat[p[0]] = p[1]; }
+        render();
+      };
+    });
+    document.querySelectorAll('[data-bool]').forEach(function (b) {
+      b.onclick = function () { pousserHisto(); var p = b.dataset.bool.split('|'); etat[p[0]] = (p[1] === '1'); render(); };
+    });
+    document.querySelectorAll('[data-base]').forEach(function (b) {
+      b.onclick = function () { pousserHisto(); var p = b.dataset.base.split('|'); etat.baseCouleur = p[0]; etat.accent = p[0]; etat.accentClair = p[1]; etat.nuance = 10; render(); };
+    });
+    document.querySelectorAll('[data-nuance]').forEach(function (b) {
+      b.onclick = function () { pousserHisto(); var p = b.dataset.nuance.split('|'); etat.nuance = +p[0]; etat.accent = p[1]; render(); };
+    });
+    document.querySelectorAll('[data-rub]').forEach(function (el) {
+      el.onchange = function () { pousserHisto(); etat.rubriques[el.dataset.rub] = el.checked; render(); };
+    });
+    document.querySelectorAll('[data-ord]').forEach(function (b) {
+      b.onclick = function () {
+        var p = b.dataset.ord.split('|'); var i = +p[1]; var a = etat.ordreRubriques;
+        var j = p[0] === 'haut' ? i - 1 : i + 1;
+        if (j < 0 || j >= a.length) { return; }
+        pousserHisto();
+        var t = a[i]; a[i] = a[j]; a[j] = t; render();
+      };
+    });
+    ['btnDe', 'btnDe2'].forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b) { b.onclick = function () { pousserHisto(); etatAvantDe = clone(etat); tirerDe(); render(); }; }
+    });
+    ['btnMep', 'btnMep2'].forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b) { b.onclick = function () { pousserHisto(); faireMiseEnPage(); }; }
+    });
+    var ad = document.getElementById('btnAnnulerDe');
+    if (ad) { ad.onclick = function () { if (etatAvantDe) { restaurer(etatAvantDe); etatAvantDe = null; } etat.deAnnulable = false; render(); }; }
+    var rd = document.getElementById('btnRevenirDefaut');
+    if (rd) { rd.onclick = function () { pousserHisto(); restaurer(clone(DEFAUT)); etatAvantDe = null; render(); }; }
+    var an = document.getElementById('btnAnnuler');
+    if (an) { an.onclick = annuler; }
+    var rf = document.getElementById('btnRefaire');
+    if (rf) { rf.onclick = refaire; }
+    var fr = document.getElementById('btnFermerRappel');
+    if (fr) { fr.onclick = function () { etat.rappelFormatFerme = true; render(); }; }
+    var ga = document.getElementById('btnGrandApercu');
+    if (ga) { ga.onclick = function () { etat.grand = true; render(); }; }
+    ['btnVersGrand1', 'btnVersGrand2'].forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b) { b.onclick = function () { etat.grand = true; render(); }; }
+    });
+    var rg = document.getElementById('btnRevenirGrand');
+    if (rg) { rg.onclick = function () { etat.grand = false; render(); }; }
+    var et = document.getElementById('btnEditTexteGrand');
+    if (et) { et.onclick = function () { etat.editionTexte = !etat.editionTexte; render(); }; }
+    var pg = document.getElementById('btnPipetteGrand');
+    if (pg) { pg.onclick = function () { alert('Maquette : ouvre la pipette du navigateur pour prélever une couleur à l\'écran.'); }; }
+    var im = document.getElementById('btnImprimerGrand');
+    if (im) { im.onclick = function () { alert('Maquette : lance l\'impression du CV (fenêtre d\'impression du navigateur).'); }; }
+  }
+
+  document.querySelectorAll('#demo button[data-fmt]').forEach(function (b) {
+    b.onclick = function () {
+      etat.fmt = b.dataset.fmt;
+      etat.rappelFormatFerme = false;   // nouveau format = le rappel réapparaît
+      var pol = (etat.fmt === 'pdf' ? POLICES_PDF : POLICES_WORD);
+      if (pol.indexOf(etat.police) === -1) { etat.police = pol[0]; }
+      var fmts = (etat.fmt === 'pdf' ? FORMATS_PDF : FORMATS_WORD);
+      if (fmts.indexOf(etat.format) === -1) { etat.format = fmts[0]; }
+      render();
+    };
+  });
+  document.getElementById('btnTheme').onclick = function () {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+    this.textContent = dark ? 'Voir en mode sombre' : 'Voir en mode clair';
+  };
+
+  render();
+})();
+</script>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette v5 - Page « Votre objectif » restructurée</title>
+<style>
+  :root {
+    --bg-page: #f4f6f9;
+    --bg-card: #ffffff;
+    --bg-subtle: #eef1f5;
+    --border: #d9dfe7;
+    --border-strong: #b7c0cc;
+    --text-strong: #1f2933;
+    --text: #33404d;
+    --text-muted: #6b7683;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-bg-subtle: #e8f0fe;
+    --success: #157347;
+    --success-bg-subtle: #e5f3ec;
+    --warning-strong: #a15c00;
+    --warning-bg-subtle: #fdf3e2;
+    --warning-border: #e7c383;
+    --ombre: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+  }
+  :root[data-theme="sombre"] {
+    --bg-page: #12171e;
+    --bg-card: #1b222c;
+    --bg-subtle: #232c38;
+    --border: #333e4c;
+    --border-strong: #47566a;
+    --text-strong: #f1f4f8;
+    --text: #d7dee7;
+    --text-muted: #9aa6b3;
+    --accent: #5b9bff;
+    --accent-hover: #7db0ff;
+    --accent-bg-subtle: #1e2c44;
+    --success: #4cc88a;
+    --success-bg-subtle: #16281f;
+    --warning-strong: #e7b366;
+    --warning-bg-subtle: #2c2312;
+    --warning-border: #5c4a24;
+    --ombre: 0 1px 2px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 0 92px;
+    background: var(--bg-page); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px; line-height: 1.55;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 20px 18px; }
+
+  .prog { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12.5px; margin-bottom: 22px; }
+  .prog span {
+    padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-muted); white-space: nowrap;
+  }
+  .prog span.actif { border-color: var(--accent); color: var(--accent); background: var(--accent-bg-subtle); font-weight: 600; }
+
+  h1 { font-size: 24px; color: var(--text-strong); margin: 0 0 4px; text-align: center; }
+  .sous-titre { text-align: center; color: var(--text-muted); margin: 0 0 20px; }
+
+  .panneau-demo {
+    border: 1px dashed var(--border-strong); border-radius: 10px;
+    background: var(--bg-subtle); padding: 12px 14px; margin-bottom: 22px; font-size: 13.5px;
+  }
+  .panneau-demo b { color: var(--text-strong); }
+  .demo-boutons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .demo-boutons button {
+    font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text); cursor: pointer;
+  }
+  .demo-boutons button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  .grille-obj { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+  @media (max-width: 640px) { .grille-obj { grid-template-columns: repeat(2, 1fr); } }
+  .carte-obj {
+    border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg-card);
+    padding: 11px 12px; cursor: pointer; text-align: left; transition: border-color .12s, background .12s;
+    display: flex; flex-direction: column; gap: 2px; box-shadow: var(--ombre);
+  }
+  .carte-obj:hover { border-color: var(--border-strong); }
+  .carte-obj.actif { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .carte-obj .ico { font-size: 18px; }
+  .carte-obj .titre { font-weight: 650; color: var(--text-strong); font-size: 14px; }
+  .carte-obj .desc { font-size: 12px; color: var(--text-muted); }
+  .note-cartes { font-size: 12.5px; color: var(--text-muted); text-align: center; margin: 6px 0 20px; }
+
+  .zone { display: none; }
+  .zone.visible { display: block; }
+
+  .bloc-depli {
+    border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 8px; background: var(--bg-card); margin-bottom: 14px; box-shadow: var(--ombre);
+  }
+  .bloc-depli > .entete { display: flex; align-items: center; gap: 8px; padding: 12px 14px; font-weight: 650; color: var(--text-strong); flex-wrap: wrap; }
+  .bloc-depli > .entete .ico { font-size: 17px; }
+  .bloc-depli > .entete .badge {
+    margin-left: auto; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+    background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border);
+  }
+  .bloc-depli > .entete .badge.ok { background: var(--success-bg-subtle); color: var(--success); border-color: transparent; }
+  .bloc-depli > .entete .nom-provisoire { font-size: 10.5px; font-weight: 700; color: var(--accent); background: var(--accent-bg-subtle); padding: 1px 6px; border-radius: 4px; }
+  .bloc-depli > .corps { padding: 0 14px 14px; }
+
+  .champ { margin-bottom: 14px; }
+  .champ label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-strong); margin-bottom: 5px; }
+  .champ input, .champ textarea, .champ select {
+    width: 100%; font: inherit; font-size: 13.5px; padding: 9px 11px;
+    border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg-card); color: var(--text);
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .champ input:focus, .champ textarea:focus, .champ select:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle);
+  }
+  .champ input::placeholder, .champ textarea::placeholder { color: var(--text-muted); }
+  .champ textarea { resize: vertical; min-height: 68px; }
+  .deux-col { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  @media (max-width: 540px) { .deux-col { grid-template-columns: 1fr; } }
+  .intro-champ { font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px; }
+
+  .ligne-pastilles { margin-bottom: 15px; }
+  .ligne-pastilles .lib { font-size: 12.5px; font-weight: 600; color: var(--text-strong); margin-bottom: 8px; }
+  .pastille {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin: 0 8px 8px 0; padding: 9px 14px 9px 11px; border-radius: 9px;
+    border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text);
+    font-size: 13px; cursor: pointer; user-select: none;
+    transition: border-color .1s, background .1s, box-shadow .1s;
+  }
+  .pastille::before {
+    content: ""; width: 16px; height: 16px; flex: none;
+    border: 1.5px solid var(--border-strong); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; line-height: 1; color: #fff;
+  }
+  .pastille--radio::before { border-radius: 999px; }
+  .pastille:hover { border-color: var(--accent); }
+  .pastille.actif {
+    border-color: var(--accent); background: var(--accent-bg-subtle);
+    color: var(--text-strong); font-weight: 600;
+  }
+  .pastille.actif::before { content: "\2713"; background: var(--accent); border-color: var(--accent); }
+  .pastille--radio.actif::before { content: ""; box-shadow: inset 0 0 0 3px var(--bg-card); }
+
+  .encart-info {
+    border-left: 3px solid var(--border-strong); background: var(--bg-subtle);
+    padding: 8px 11px; font-size: 12.5px; color: var(--text-muted); border-radius: 4px; margin-bottom: 8px;
+  }
+  .sep { height: 1px; background: var(--border); margin: 12px 0; }
+
+  /* saisie métier + validation */
+  .saisie-ligne { display: flex; gap: 8px; align-items: flex-start; }
+  .saisie-ligne .metier-wrap { flex: 1; position: relative; }
+  .btn-valider {
+    font: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 6px;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; white-space: nowrap;
+  }
+  .btn-valider[disabled] { opacity: .4; cursor: not-allowed; }
+  .metier-suggestions {
+    list-style: none; margin: 4px 0 0; padding: 4px; border: 1px solid var(--border-strong);
+    border-radius: 6px; background: var(--bg-card); box-shadow: var(--ombre); position: absolute;
+    left: 0; right: 0; z-index: 20; max-height: 190px; overflow-y: auto;
+  }
+  .metier-suggestions li { padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .metier-suggestions li:hover { background: var(--accent-bg-subtle); }
+
+  /* pastille "retenu" avec croix */
+  .retenu-ligne { margin-top: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .retenu-ligne .lib-retenu { font-size: 12px; color: var(--text-muted); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 999px;
+    background: var(--accent-bg-subtle); border: 1px solid var(--accent); color: var(--text-strong);
+    font-size: 13px; font-weight: 600;
+  }
+  .chip .chip-x {
+    border: 0; background: rgba(0,0,0,.08); color: inherit; cursor: pointer; width: 20px; height: 20px;
+    border-radius: 999px; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+  :root[data-theme="sombre"] .chip .chip-x { background: rgba(255,255,255,.14); }
+
+  .encart-fiche {
+    border-left: 3px solid var(--accent); background: var(--accent-bg-subtle);
+    padding: 10px 12px; border-radius: 4px; margin-top: 10px;
+  }
+  .encart-fiche .ef-titre { margin: 0 0 4px; font-weight: 600; color: var(--text-strong); font-size: 13px; }
+  .encart-fiche .ef-txt { margin: 0 0 8px; font-size: 12.5px; color: var(--text-muted); }
+  .encart-fiche .ef-note { margin: 0 0 10px; font-size: 11.5px; color: var(--text-muted); font-style: italic; }
+  .btn-fiche {
+    font: inherit; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 6px;
+    border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); cursor: pointer;
+  }
+  .btn-fiche:hover { background: var(--accent); color: #fff; }
+
+  .recap {
+    margin: 4px 0 2px; font-size: 12.5px; color: var(--text-muted);
+    border-top: 1px dashed var(--border); padding-top: 10px;
+  }
+  .recap b { color: var(--text-strong); font-weight: 600; }
+
+  .barre-bas {
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg-card);
+    border-top: 1px solid var(--border); padding: 12px 18px;
+    display: flex; align-items: center; gap: 14px; justify-content: center;
+  }
+  .barre-bas .btn-retour, .barre-bas .btn-continuer {
+    font: inherit; font-weight: 600; padding: 9px 20px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text);
+  }
+  .barre-bas .btn-continuer { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .barre-bas .btn-continuer[disabled] { opacity: .45; cursor: not-allowed; }
+  .barre-bas .hint { font-size: 12px; color: var(--warning-strong); }
+
+  .legende {
+    max-width: 880px; margin: 26px auto 0; padding: 14px 16px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg-card); font-size: 13px; box-shadow: var(--ombre);
+  }
+  .legende h2 { font-size: 15px; margin: 0 0 8px; color: var(--text-strong); }
+  .legende h3 { font-size: 13.5px; margin: 12px 0 4px; color: var(--text-strong); }
+  .legende ul { margin: 6px 0; padding-left: 20px; }
+  .legende li { margin-bottom: 4px; }
+
+  .overlay {
+    position: fixed; inset: 0; background: rgba(10,15,22,.55); display: none;
+    align-items: center; justify-content: center; z-index: 60; padding: 20px;
+  }
+  .overlay.visible { display: flex; }
+  .fiche {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    max-width: 460px; width: 100%; padding: 18px 20px; box-shadow: var(--ombre);
+  }
+  .fiche h3 { margin: 0 0 8px; color: var(--text-strong); }
+  .fiche .fermer { float: right; cursor: pointer; color: var(--text-muted); font-size: 18px; border: 0; background: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="prog">
+    <span class="actif">🎯 Votre objectif</span>
+    <span>🧭 Votre parcours</span>
+    <span>📋 Mes informations</span>
+    <span>🔎 Faire le point</span>
+    <span>💬 Assistant</span>
+    <span>📄 Mes documents</span>
+  </div>
+
+  <h1>🎯 Votre objectif</h1>
+  <p class="sous-titre">Le poste ou le type de démarche que vous visez. Nous adaptons la suite à votre choix.</p>
+
+  <div class="panneau-demo">
+    <b>Maquette v5.</b> Encart « fiche métier » revu : il s'affiche <b>pour tout métier</b>. Si le métier est dans notre base (code ROME présent) le bouton ouvre la fiche directement ; sinon il ouvre le répertoire France Travail à remplir. Message ajouté sur les fiches qui changent. Reste : jetons modernisés, champs agrandis, noms de rubriques (« Votre candidature », « Le poste que vous recherchez », « Vos disponibilités »).
+    <div class="demo-boutons" id="demoBoutons">
+      <button data-o="">Rien choisi</button>
+      <button data-o="offre">Répondre à une offre</button>
+      <button data-o="spontanee">Candidature spontanée</button>
+      <button data-o="reconversion">Changer de métier</button>
+      <button data-o="stage">Stage</button>
+      <button data-o="alternance">Alternance</button>
+      <button data-o="pmsmp">PMSMP (immersion)</button>
+    </div>
+    <div class="demo-boutons" style="margin-top:10px">
+      <button type="button" id="btnTheme">🌙 Voir en mode sombre</button>
+    </div>
+  </div>
+
+  <div class="grille-obj" id="grilleObj">
+    <div class="carte-obj" data-o="offre"><span class="ico">📄</span><span class="titre">Répondre à une offre</span><span class="desc">Adapter le CV à une offre précise.</span></div>
+    <div class="carte-obj" data-o="spontanee"><span class="ico">🏢</span><span class="titre">Candidature spontanée</span><span class="desc">Viser une entreprise sans offre.</span></div>
+    <div class="carte-obj" data-o="reconversion"><span class="ico">🔄</span><span class="titre">Changer de métier</span><span class="desc">Valoriser des compétences transférables.</span></div>
+    <div class="carte-obj" data-o="stage"><span class="ico">🎓</span><span class="titre">Stage</span><span class="desc">CV adapté à une recherche de stage.</span></div>
+    <div class="carte-obj" data-o="alternance"><span class="ico">👥</span><span class="titre">Alternance</span><span class="desc">CV adapté à un contrat en alternance.</span></div>
+    <div class="carte-obj" data-o="pmsmp"><span class="ico">🔍</span><span class="titre">PMSMP (immersion)</span><span class="desc">Préparer une immersion en entreprise.</span></div>
+  </div>
+  <p class="note-cartes">Cartes réduites à une ligne : elles ne prennent plus tout l'écran, la suite apparaît juste en dessous.</p>
+
+  <div class="zone" id="zoneCadrage">
+    <div class="bloc-depli" id="blocCand">
+      <div class="entete"><span class="ico">📝</span><span>Votre candidature</span><span class="badge" id="badgeCand">à compléter</span></div>
+      <div class="corps" id="corpsCand"></div>
+    </div>
+    <div class="bloc-depli" id="blocConditions">
+      <div class="entete"><span class="ico">💼</span><span>Le poste que vous recherchez</span><span class="badge ok">facultatif</span></div>
+      <div class="corps" id="corpsConditions"></div>
+    </div>
+    <div class="bloc-depli" id="blocDispo">
+      <div class="entete"><span class="ico">📅</span><span>Vos disponibilités</span><span class="badge ok">facultatif</span></div>
+      <div class="corps" id="corpsDispo"></div>
+    </div>
+    <div class="recap" id="recap"></div>
+  </div>
+
+  <div class="zone" id="zoneVide">
+    <div class="encart-info">Choisissez un objectif ci-dessus pour préciser votre candidature.</div>
+  </div>
+</div>
+
+<div class="barre-bas">
+  <button class="btn-retour">← Retour</button>
+  <span class="hint" id="hint">Choisissez d'abord un objectif.</span>
+  <button class="btn-continuer" id="btnContinuer" disabled>Continuer →</button>
+</div>
+
+<div class="legende">
+  <h2>Ce qui a changé (v3 puis v4)</h2>
+
+  <h3>Passe visuelle (v4)</h3>
+  <ul>
+    <li>Jetons de choix modernisés : <b>case à cocher</b> pour les choix multiples (contrat, disponibilité...), <b>rond</b> pour les choix uniques (métier ou domaine, type de recherche). Coin arrondi, plus de place pour le doigt, coche visible une fois sélectionné.</li>
+    <li>Champs de saisie : plus grands, coins arrondis, <b>halo</b> discret quand on écrit dedans.</li>
+    <li>Titres de rubriques et libellés un peu plus lisibles.</li>
+    <li>Cette passe est <b>à généraliser</b> comme composant partagé (jetons + champs), pas seulement sur cet écran : contrat / disponibilité / etc. apparaissent ailleurs dans l'app.</li>
+  </ul>
+
+  <h3>Champ « Quel métier ? »</h3>
+  <ul>
+    <li><b>Plus aucun message « connu / pas connu ».</b> On ne juge pas le métier saisi.</li>
+    <li>Saisie assistée : la base (une centaine de métiers) est proposée pendant la frappe. Première lettre en majuscule automatique.</li>
+    <li><b>Validation clavier (Entrée) OU souris</b> (bouton « Valider », ou clic sur une suggestion). Un métier libre, absent de la base, se valide exactement pareil.</li>
+    <li>Une fois validé, le métier apparaît en dessous sous forme de pastille avec une <b>croix</b> pour le retirer. Valeur unique : une nouvelle saisie remplace la précédente, jamais d'empilement.</li>
+    <li><b>Encart « En savoir plus sur ce métier »</b> sous la pastille : affiché <b>pour tout métier retenu</b>, connu ou non. Un bouton (pas un lien texte), le clic ouvre France Travail dans une nouvelle page, le parcours reste ouvert ici. Deux cas :
+      <ul>
+        <li><b>Métier de notre base</b> (nous avons son code ROME sur les 65 fiches) : bouton « Consulter la fiche sur France Travail » → <b>ouverture directe de la fiche</b>. Message ajouté : les fiches évoluent ; si elle a disparu, chercher dans le répertoire.</li>
+        <li><b>Métier hors base</b> : bouton « Rechercher ce métier sur France Travail » → <b>ouvre le répertoire des métiers</b>, prêt à taper le nom. On épargne à la personne d'ouvrir un onglet, de chercher France Travail et de retrouver le chemin.</li>
+      </ul>
+      Dans les deux cas, aucun mot « reconnu / pas reconnu » : la personne ne sait pas si nous avons la fiche ou non, seule la destination du bouton change.
+    </li>
+  </ul>
+  <p style="margin:6px 0 0;font-size:12px;color:var(--text-muted)">À confirmer au moment du code : l'URL exacte d'une fiche France Travail par code ROME, et l'URL du répertoire de recherche. Aussi : certains codes ROME de la base peuvent dater d'une ancienne version (v3) et ne plus correspondre. Le message « si la fiche n'apparaît pas, cherchez dans le répertoire » couvre ce cas ; un rafraîchissement des codes ROME serait une petite tâche à part.</p>
+
+  <h3>Choix « Plusieurs métiers d'un domaine »</h3>
+  <ul>
+    <li>Un <b>menu déroulant</b> (plus de mur de pastilles). Domaines en <b>ordre alphabétique</b>, « Autre (préciser) » en tête.</li>
+    <li>« Autre » ouvre un champ texte (première lettre en majuscule), validé au clavier ou à la souris.</li>
+    <li>Même comportement que le métier : valeur unique, pastille + croix pour retirer.</li>
+    <li>Liste provisoire : la vraie liste (une trentaine de domaines) se calera avec le chantier « secteurs de métier ».</li>
+  </ul>
+
+  <h3>Stage / alternance / PMSMP</h3>
+  <ul>
+    <li>« Votre candidature » identique pour les 3 : métier ou domaine + structure + lien.</li>
+    <li>Bloc commun aux 3 : disponibilité + période/dates + durée + <b>heures par semaine</b> (désormais pour stage et alternance aussi, pas seulement l'immersion).</li>
+    <li>Alternance : pas de bloc « conditions de travail ».</li>
+  </ul>
+
+  <h3>En plus (mon idée, non contradictoire)</h3>
+  <ul>
+    <li>Ligne de <b>récapitulatif discret</b> en bas de la page, qui reprend ce qui a été saisi. Prépare le récap en lecture seule voulu sur la page Action.</li>
+  </ul>
+</div>
+
+<div class="overlay" id="overlayFiche">
+  <div class="fiche">
+    <button class="fermer" id="fermerFiche">✕</button>
+    <h3 id="ficheTitre">Consulter la fiche du métier</h3>
+    <div id="ficheCorps"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // "Nous avons la fiche ROME" = présent dans cette liste (mock de la centaine de fiches).
+  var METIERS = [
+    'Vendeur en boulangerie', 'Employé de libre-service', 'Agent d\'accueil', 'Secrétaire',
+    'Assistant administratif', 'Aide-soignant', 'Auxiliaire de puériculture', 'Agent d\'entretien',
+    'Manutentionnaire', 'Préparateur de commandes', 'Cuisinier', 'Serveur', 'Agent de sécurité',
+    'Ouvrier du bâtiment', 'Jardinier', 'Chauffeur livreur', 'Cariste', 'Assistante de vie'
+  ];
+  var DOMAINES = [
+    'Administration et gestion', 'Agriculture et espaces verts', 'Artisanat et beauté', 'Bâtiment',
+    'Commerce et grande distribution', 'Hôtellerie et restauration', 'Industrie', 'Logistique et transport',
+    'Médico-social et aide à la personne', 'Numérique', 'Petite enfance', 'Propreté et hygiène',
+    'Santé', 'Sécurité', 'Tourisme et animation'
+  ].sort(function (a, b) { return a.localeCompare(b, 'fr'); });
+
+  var etat = {
+    objectif: '', modeRecherche: '', typeRecherche: '',
+    metierRetenu: '', metierSaisie: '',
+    domaineRetenu: '', domaineAutreSaisie: '', domaineAutreOuvert: false,
+    contrat: [], temps: [], accepte: [], dispo: []
+  };
+
+  function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  function esc(s) { return (s || '').replace(/"/g, '&quot;'); }
+  function estImmersion(o) { return o === 'stage' || o === 'alternance' || o === 'pmsmp'; }
+
+  function pastilleRow(lib, cle, options) {
+    var h = '<div class="ligne-pastilles"><div class="lib">' + lib + '</div>';
+    options.forEach(function (opt) {
+      var on = etat[cle].indexOf(opt) !== -1 ? ' actif' : '';
+      h += '<span class="pastille' + on + '" data-multi="' + cle + '" data-val="' + opt + '">' + opt + '</span>';
+    });
+    return h + '</div>';
+  }
+
+  function champMetier(label) {
+    var h = '<div class="champ"><label>' + label + '</label>';
+    h += '<div class="saisie-ligne">' +
+      '<div class="metier-wrap">' +
+      '<input type="text" id="champMetier" autocomplete="off" placeholder="Ex. Vendeur en boulangerie" value="' + esc(etat.metierSaisie) + '">' +
+      '<ul class="metier-suggestions" id="metierSug" style="display:none"></ul>' +
+      '</div>' +
+      '<button type="button" class="btn-valider" id="btnValiderMetier"' + (etat.metierSaisie.trim() ? '' : ' disabled') + '>Valider</button>' +
+      '</div>';
+    if (etat.metierRetenu) {
+      var aFiche = METIERS.some(function (m) { return m.toLowerCase() === etat.metierRetenu.toLowerCase(); });
+      h += '<div class="retenu-ligne"><span class="lib-retenu">Votre métier :</span>' +
+        '<span class="chip">' + etat.metierRetenu + '<button type="button" class="chip-x" data-retirer="metier" title="Retirer">✕</button></span>' +
+        '</div>';
+      var txtCommun = 'Le site de France Travail s\'ouvre dans une nouvelle page. Votre parcours reste ouvert ici, vous pourrez y revenir quand vous voulez.';
+      if (aFiche) {
+        h += '<div class="encart-fiche">' +
+          '<p class="ef-titre">📄 En savoir plus sur ce métier</p>' +
+          '<p class="ef-txt">La fiche complète de ce métier (ce qu\'on y fait, les compétences, les conditions de travail) est sur le site de France Travail. ' + txtCommun + '</p>' +
+          '<p class="ef-note">Les intitulés de métiers et leurs fiches évoluent avec le temps. Si la fiche n\'apparaît pas ou ne correspond pas, cherchez ce métier dans le répertoire des métiers de France Travail.</p>' +
+          '<button type="button" class="btn-fiche" data-fiche="' + esc(etat.metierRetenu) + '" data-fiche-mode="directe">Consulter la fiche sur France Travail</button>' +
+          '</div>';
+      } else {
+        h += '<div class="encart-fiche">' +
+          '<p class="ef-titre">📄 En savoir plus sur ce métier</p>' +
+          '<p class="ef-txt">France Travail décrit des milliers de métiers. Vous pouvez y chercher celui-ci pour voir sa fiche (ce qu\'on y fait, les compétences, les conditions de travail). ' + txtCommun + '</p>' +
+          '<button type="button" class="btn-fiche" data-fiche="' + esc(etat.metierRetenu) + '" data-fiche-mode="recherche">Rechercher ce métier sur France Travail</button>' +
+          '</div>';
+      }
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function champDomaine() {
+    var h = '<div class="champ"><label>Quel domaine visez-vous ?</label>';
+    h += '<select id="selDomaine">' +
+      '<option value="">Choisissez un domaine…</option>' +
+      '<option value="__autre"' + (etat.domaineAutreOuvert ? ' selected' : '') + '>Autre (préciser)</option>';
+    DOMAINES.forEach(function (d) {
+      h += '<option value="' + esc(d) + '"' + (etat.domaineRetenu === d ? ' selected' : '') + '>' + d + '</option>';
+    });
+    h += '</select>';
+    if (etat.domaineAutreOuvert) {
+      h += '<div class="saisie-ligne" style="margin-top:8px">' +
+        '<div class="metier-wrap"><input type="text" id="champDomaineAutre" placeholder="Précisez votre domaine" value="' + esc(etat.domaineAutreSaisie) + '"></div>' +
+        '<button type="button" class="btn-valider" id="btnValiderDomaine"' + (etat.domaineAutreSaisie.trim() ? '' : ' disabled') + '>Valider</button>' +
+        '</div>';
+    }
+    if (etat.domaineRetenu) {
+      h += '<div class="retenu-ligne"><span class="lib-retenu">Votre domaine :</span>' +
+        '<span class="chip">' + etat.domaineRetenu + '<button type="button" class="chip-x" data-retirer="domaine" title="Retirer">✕</button></span>' +
+        '</div>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function blocOffreEntreprise(o) {
+    var labelPoste = (o === 'offre') ? 'Intitulé exact du poste dans l\'offre' : 'Poste souhaité (facultatif)';
+    var h = '<div class="ligne-pastilles"><div class="lib">Votre recherche porte sur :</div>' +
+      '<span class="pastille pastille--radio' + (etat.modeRecherche === 'metier' ? ' actif' : '') + '" data-mode="metier">Un métier précis</span>' +
+      '<span class="pastille pastille--radio' + (etat.modeRecherche === 'domaine' ? ' actif' : '') + '" data-mode="domaine">Plusieurs métiers d\'un même domaine</span>' +
+      '</div>';
+    if (etat.modeRecherche === 'metier') {
+      h += champMetier('Quel métier visez-vous ?');
+      if ((o === 'offre' || o === 'spontanee') && etat.metierRetenu) {
+        h += '<div class="ligne-pastilles"><div class="lib">Ce métier, vous le cherchez :</div>' +
+          '<span class="pastille pastille--radio' + (etat.typeRecherche === 'simple' ? ' actif' : '') + '" data-type="simple">Simplement un emploi</span>' +
+          '<span class="pastille pastille--radio' + (etat.typeRecherche === 'offre' ? ' actif' : '') + '" data-type="offre">En réponse à une offre</span>' +
+          '</div>';
+      }
+    } else if (etat.modeRecherche === 'domaine') {
+      h += champDomaine();
+    }
+
+    h += '<div class="sep"></div>';
+    h += '<div class="champ"><label>Lien du site internet de l\'entreprise (facultatif)</label><input type="url" placeholder="https://..."></div>';
+    h += '<div class="champ"><label>L\'offre : collez le lien de l\'annonce, ou bien tout le texte de l\'offre</label>' +
+      '<textarea placeholder="https://...  ou  le texte complet de l\'offre si vous n\'avez pas de lien"></textarea></div>';
+    h += '<div class="deux-col">' +
+      '<div class="champ"><label>Nom de l\'entreprise</label><input type="text"></div>' +
+      '<div class="champ"><label>' + labelPoste + '</label><input type="text"></div>' +
+      '</div>';
+    h += '<div class="encart-info">Facultatif : civilité et nom du recruteur si vous les connaissez, couleur de l\'entreprise pour le CV.</div>';
+    return h;
+  }
+
+  function blocReconversion() {
+    var h = '<div class="ligne-pastilles"><div class="lib">Votre recherche porte sur :</div>' +
+      '<span class="pastille pastille--radio' + (etat.modeRecherche === 'metier' ? ' actif' : '') + '" data-mode="metier">Un métier précis</span>' +
+      '<span class="pastille pastille--radio' + (etat.modeRecherche === 'domaine' ? ' actif' : '') + '" data-mode="domaine">Un domaine</span>' +
+      '</div>';
+    if (etat.modeRecherche === 'metier') { h += champMetier('Quel métier visez-vous ?'); }
+    else if (etat.modeRecherche === 'domaine') { h += champDomaine(); }
+    h += '<div class="sep"></div>';
+    h += '<div class="champ"><label>Entreprise cible (facultatif)</label><input type="text"></div>';
+    h += '<div class="champ"><label>Adresse internet (facultatif)</label><input type="url" placeholder="https://..."></div>';
+    return h;
+  }
+
+  function blocCandidatureImmersion(o) {
+    var h = '<p class="intro-champ">Si vous connaissez déjà ces informations, renseignez-les : elles seront reprises pour votre CV. Rien n\'est obligatoire, une structure vide = candidature générale.</p>';
+    h += '<div class="ligne-pastilles"><div class="lib">Votre recherche porte sur :</div>' +
+      '<span class="pastille pastille--radio' + (etat.modeRecherche === 'metier' ? ' actif' : '') + '" data-mode="metier">Un métier précis</span>' +
+      '<span class="pastille pastille--radio' + (etat.modeRecherche === 'domaine' ? ' actif' : '') + '" data-mode="domaine">Un domaine</span>' +
+      '</div>';
+    if (etat.modeRecherche === 'metier') { h += champMetier('Quel métier ?'); }
+    else if (etat.modeRecherche === 'domaine') { h += champDomaine(); }
+    h += '<div class="sep"></div>';
+    h += '<div class="champ"><label>Nom de la structure (facultatif)</label><input type="text" placeholder="Ex. Boulangerie Martin"></div>';
+    h += '<div class="champ"><label>Adresse internet (facultatif)</label><input type="url" placeholder="https://..."></div>';
+    return h;
+  }
+
+  function blocConditions() {
+    return pastilleRow('Type de contrat recherché', 'contrat', ['CDD', 'CDI', 'Remplacements', 'Intérim']) +
+      pastilleRow('Temps de travail', 'temps', ['Temps plein', 'Temps partiel']) +
+      pastilleRow('J\'accepte également', 'accepte', ['💵 Emploi alimentaire', '☀️ Emploi saisonnier']) +
+      pastilleRow('Disponibilité', 'dispo', ['Immédiatement', 'Sous 15 jours', 'Dans un mois', 'Sans préférence']);
+  }
+
+  function blocDispoDates() {
+    var h = pastilleRow('Vous seriez disponible :', 'dispo', ['Immédiatement', 'Sous 15 jours', 'Dans un mois', 'Sans préférence']);
+    h += '<div class="deux-col">' +
+      '<div class="champ"><label>Période / dates souhaitées (facultatif)</label><input type="text" placeholder="Ex. Octobre à Décembre 2027"></div>' +
+      '<div class="champ"><label>Durée (facultatif)</label><input type="text" placeholder="Ex. 2 mois"></div>' +
+      '</div>';
+    h += '<div class="champ"><label>Heures par semaine (facultatif)</label><input type="text" placeholder="Ex. 35h"></div>';
+    return h;
+  }
+
+  function candidatureComplete(o) {
+    if (!o) { return false; }
+    if (estImmersion(o)) { return true; }
+    if (!etat.modeRecherche) { return false; }
+    if (etat.modeRecherche === 'domaine') { return etat.domaineRetenu !== ''; }
+    if (!etat.metierRetenu) { return false; }
+    if (o === 'reconversion') { return true; }
+    return !!etat.typeRecherche;
+  }
+
+  function majRecap(o) {
+    var el = document.getElementById('recap');
+    var bits = [];
+    if (etat.metierRetenu) { bits.push('<b>' + etat.metierRetenu + '</b>'); }
+    else if (etat.domaineRetenu) { bits.push('domaine <b>' + etat.domaineRetenu + '</b>'); }
+    if (etat.typeRecherche === 'offre') { bits.push('en réponse à une offre'); }
+    else if (etat.typeRecherche === 'simple') { bits.push('recherche simple'); }
+    if (etat.contrat.length) { bits.push(etat.contrat.join(' / ')); }
+    if (etat.dispo.length) { bits.push('disponible : ' + etat.dispo.join(' / ')); }
+    el.innerHTML = bits.length ? 'En résumé : ' + bits.join(' &middot; ') : '';
+  }
+
+  function render() {
+    var o = etat.objectif;
+    document.querySelectorAll('.carte-obj').forEach(function (c) { c.classList.toggle('actif', c.dataset.o === o); });
+    document.querySelectorAll('#demoBoutons button[data-o]').forEach(function (b) { b.classList.toggle('on', b.dataset.o === o); });
+
+    var zone = document.getElementById('zoneCadrage');
+    var vide = document.getElementById('zoneVide');
+    if (!o) {
+      zone.classList.remove('visible'); vide.classList.add('visible');
+      document.getElementById('btnContinuer').disabled = true;
+      document.getElementById('hint').textContent = 'Choisissez d\'abord un objectif.';
+      return;
+    }
+    vide.classList.remove('visible'); zone.classList.add('visible');
+
+    var imm = estImmersion(o);
+    document.getElementById('corpsCand').innerHTML =
+      imm ? blocCandidatureImmersion(o) : (o === 'reconversion' ? blocReconversion() : blocOffreEntreprise(o));
+
+    var montrerConditions = (o === 'offre' || o === 'spontanee' || o === 'reconversion');
+    document.getElementById('blocConditions').style.display = montrerConditions ? '' : 'none';
+    if (montrerConditions) { document.getElementById('corpsConditions').innerHTML = blocConditions(); }
+    document.getElementById('blocDispo').style.display = imm ? '' : 'none';
+    if (imm) { document.getElementById('corpsDispo').innerHTML = blocDispoDates(); }
+
+    var complete = candidatureComplete(o);
+    var badge = document.getElementById('badgeCand');
+    if (imm) { badge.textContent = 'facultatif'; badge.classList.add('ok'); }
+    else { badge.textContent = complete ? 'complété' : 'à compléter'; badge.classList.toggle('ok', complete); }
+
+    document.getElementById('btnContinuer').disabled = !complete;
+    document.getElementById('hint').textContent = complete ? '' : 'Précisez votre recherche dans « Votre candidature ».';
+
+    majRecap(o);
+    wire();
+  }
+
+  function validerMetier() {
+    var v = cap(etat.metierSaisie.trim());
+    if (!v) { return; }
+    etat.metierRetenu = v;
+    etat.metierSaisie = '';
+    etat.typeRecherche = '';
+    render();
+  }
+  function validerDomaineAutre() {
+    var v = cap(etat.domaineAutreSaisie.trim());
+    if (!v) { return; }
+    etat.domaineRetenu = v;
+    etat.domaineAutreOuvert = false;
+    etat.domaineAutreSaisie = '';
+    render();
+  }
+
+  function wire() {
+    document.querySelectorAll('[data-mode]').forEach(function (el) {
+      el.onclick = function () {
+        etat.modeRecherche = (etat.modeRecherche === el.dataset.mode) ? '' : el.dataset.mode;
+        etat.typeRecherche = ''; etat.metierRetenu = ''; etat.metierSaisie = '';
+        etat.domaineRetenu = ''; etat.domaineAutreOuvert = false; etat.domaineAutreSaisie = '';
+        render();
+      };
+    });
+    document.querySelectorAll('[data-type]').forEach(function (el) {
+      el.onclick = function () { etat.typeRecherche = (etat.typeRecherche === el.dataset.type) ? '' : el.dataset.type; render(); };
+    });
+    document.querySelectorAll('[data-multi]').forEach(function (el) {
+      el.onclick = function () {
+        var arr = etat[el.dataset.multi]; var i = arr.indexOf(el.dataset.val);
+        if (i === -1) { arr.push(el.dataset.val); } else { arr.splice(i, 1); }
+        render();
+      };
+    });
+    document.querySelectorAll('[data-retirer]').forEach(function (el) {
+      el.onclick = function () {
+        if (el.dataset.retirer === 'metier') { etat.metierRetenu = ''; etat.typeRecherche = ''; }
+        else { etat.domaineRetenu = ''; }
+        render();
+      };
+    });
+    document.querySelectorAll('[data-fiche]').forEach(function (el) {
+      el.onclick = function () {
+        var mode = el.dataset.ficheMode;
+        document.getElementById('ficheTitre').textContent =
+          (mode === 'directe' ? 'Consulter la fiche : ' : 'Rechercher sur France Travail : ') + el.dataset.fiche;
+        document.getElementById('ficheCorps').innerHTML = (mode === 'directe')
+          ? '<p style="color:var(--text-muted);font-size:13px;margin:0 0 8px">Dans l\'application, ce bouton ouvre <b>directement la fiche</b> de ce métier sur France Travail, grâce au code ROME enregistré dans notre base. Cette maquette ne l\'ouvre pas pour de vrai.</p>' +
+            '<p style="font-size:13px;margin:0">Si la fiche a changé ou disparu, la personne cherche le métier dans le répertoire de France Travail (indiqué juste au-dessus du bouton).</p>'
+          : '<p style="color:var(--text-muted);font-size:13px;margin:0 0 8px">Dans l\'application, ce bouton ouvre <b>le répertoire des métiers</b> de France Travail, où la personne tape le nom du métier pour voir sa fiche. Cette maquette ne l\'ouvre pas pour de vrai.</p>' +
+            '<p style="font-size:13px;margin:0">On lui épargne d\'ouvrir un onglet, de chercher France Travail et de retrouver le bon chemin.</p>';
+        document.getElementById('overlayFiche').classList.add('visible');
+      };
+    });
+
+    var mi = document.getElementById('champMetier');
+    if (mi) {
+      mi.oninput = function () {
+        var val = cap(mi.value);
+        if (val !== mi.value) { var p = mi.selectionStart; mi.value = val; try { mi.setSelectionRange(p, p); } catch (e) {} }
+        etat.metierSaisie = mi.value;
+        var bv = document.getElementById('btnValiderMetier');
+        if (bv) { bv.disabled = !mi.value.trim(); }
+        montrerSuggestions(mi.value);
+      };
+      mi.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); validerMetier(); } };
+      mi.onblur = function () { setTimeout(function () { var s = document.getElementById('metierSug'); if (s) { s.style.display = 'none'; } }, 160); };
+    }
+    var bvm = document.getElementById('btnValiderMetier');
+    if (bvm) { bvm.onclick = validerMetier; }
+
+    var sd = document.getElementById('selDomaine');
+    if (sd) {
+      sd.onchange = function () {
+        if (sd.value === '__autre') { etat.domaineAutreOuvert = true; etat.domaineRetenu = ''; }
+        else if (sd.value === '') { /* rien */ }
+        else { etat.domaineRetenu = sd.value; etat.domaineAutreOuvert = false; etat.domaineAutreSaisie = ''; }
+        render();
+      };
+    }
+    var da = document.getElementById('champDomaineAutre');
+    if (da) {
+      da.oninput = function () {
+        var val = cap(da.value);
+        if (val !== da.value) { var p = da.selectionStart; da.value = val; try { da.setSelectionRange(p, p); } catch (e) {} }
+        etat.domaineAutreSaisie = da.value;
+        var bd = document.getElementById('btnValiderDomaine');
+        if (bd) { bd.disabled = !da.value.trim(); }
+      };
+      da.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); validerDomaineAutre(); } };
+    }
+    var bvd = document.getElementById('btnValiderDomaine');
+    if (bvd) { bvd.onclick = validerDomaineAutre; }
+  }
+
+  function montrerSuggestions(q) {
+    var s = document.getElementById('metierSug');
+    if (!s) { return; }
+    q = q.trim().toLowerCase();
+    if (!q) { s.style.display = 'none'; return; }
+    var matches = METIERS.filter(function (m) { return m.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+    if (!matches.length) { s.style.display = 'none'; return; }
+    s.innerHTML = matches.map(function (m) { return '<li data-pick="' + esc(m) + '">' + m + '</li>'; }).join('');
+    s.style.display = 'block';
+    s.querySelectorAll('[data-pick]').forEach(function (li) {
+      li.onmousedown = function (e) {
+        e.preventDefault();
+        etat.metierSaisie = li.dataset.pick;
+        validerMetier();
+      };
+    });
+  }
+
+  function choisir(o) {
+    etat.objectif = o;
+    etat.modeRecherche = ''; etat.typeRecherche = '';
+    etat.metierRetenu = ''; etat.metierSaisie = '';
+    etat.domaineRetenu = ''; etat.domaineAutreOuvert = false; etat.domaineAutreSaisie = '';
+    etat.contrat = []; etat.temps = []; etat.accepte = []; etat.dispo = [];
+    render();
+  }
+
+  document.querySelectorAll('.carte-obj').forEach(function (c) { c.onclick = function () { choisir(c.dataset.o); }; });
+  document.querySelectorAll('#demoBoutons button[data-o]').forEach(function (b) { b.onclick = function () { choisir(b.dataset.o); }; });
+  document.getElementById('btnTheme').onclick = function () {
+    var sombre = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', sombre ? 'clair' : 'sombre');
+    this.textContent = sombre ? '🌙 Voir en mode sombre' : '☀️ Voir en mode clair';
+  };
+  document.getElementById('fermerFiche').onclick = function () { document.getElementById('overlayFiche').classList.remove('visible'); };
+  document.getElementById('overlayFiche').onclick = function (e) { if (e.target === this) { this.classList.remove('visible'); } };
+
+  render();
+})();
+</script>
+</body>
+</html>
