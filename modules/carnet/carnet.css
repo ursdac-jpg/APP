@@ -1,0 +1,476 @@
+/* ============================================================
+   modules/carnet/carnet.css
+   ------------------------------------------------------------
+   Styles propres au module, jamais mêlés à reperes.css -- chaque
+   module possède les siens, même principe que le reste d'ERIP.
+
+   TAILLES (2026-08-18) : alignées sur la même correction que
+   modules/reperes/reperes.css et modules/regard-exterieur/regardExterieur.css
+   -- mesure directe ayant confirmé que Carnet partageait la même échelle
+   trop petite (0.92rem/0.78rem un peu partout). Texte de travail à
+   1.1rem, secondaire jamais en dessous de ~0.9rem, boutons visant 48px
+   de hauteur cliquable. Correction au coup par coup, module par module
+   (choix explicite de Denis le 2026-08-18) -- un socle typographique
+   commun à poser plus tard reste en mémoire comme chantier futur.
+   ============================================================ */
+
+/* Titre centré dès le départ -- même correction déjà appliquée à
+   Repères (reperes.css) pour ne pas redécouvrir la même collision avec
+   les icônes fixes du haut de page. */
+.carnet-entete-ecran {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.carnet-entete-ecran h1 { margin: 0; text-align: center; }
+
+/* .sousTitre (css/style.css) centre sa boîte (margin:auto) mais pas son
+   texte -- correct pour les écrans qui l'utilisaient jusqu'ici, mais
+   visuellement de travers ici, juste sous un h1 dont le TEXTE est
+   centré (pas seulement la boîte). Classe dédiée plutôt que toucher
+   .sousTitre lui-même, partagé avec des écrans qui n'ont pas ce
+   problème (même principe que .sous-titre-catalogue-agrandi, css/style.css). */
+.carnet-soustitre { text-align: center; }
+
+.carnet-capture {
+  margin: 1rem 0 1.5rem;
+}
+.carnet-capture textarea {
+  resize: vertical;
+}
+/* TACHE (refonte 2026-09-09) : bouton « + Noter » petit, aligne a droite
+   sous le champ (patron « champ de message ») -- ecran complet ET panneau. */
+.carnet-capture-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+.carnet-btn-noter {
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+  min-height: 44px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--accent-bg-subtle);
+  color: var(--accent-hover);
+  border: 1.5px solid var(--accent);
+}
+[data-theme="sombre"] .carnet-btn-noter { color: var(--accent); }
+.carnet-btn-noter:hover { background: var(--accent-solide); color: #fff; }
+
+/* TACHE (refonte visuelle 2026-09-09) : motif decoratif « page de carnet »
+   (lignes + marge + marque-page). Teinte --accent (suit la couleur du site).
+   Purement decoratif sur l'ecran de travail ; sur l'intro il habille le
+   vrai <h1>. */
+.carnet-couverture {
+  position: relative;
+  height: 76px;
+  border-radius: 12px;
+  margin: 0 0 1rem;
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  overflow: hidden;
+}
+.carnet-couverture-nue { height: 54px; }
+.carnet-couverture-intro { height: 84px; margin-bottom: 0.5rem; }
+.carnet-couverture-lignes {
+  position: absolute;
+  inset: 12px 16px 12px 50px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 15px,
+    color-mix(in srgb, var(--accent) 26%, transparent) 15px 16px
+  );
+}
+.carnet-couverture-marge {
+  position: absolute; top: 0; bottom: 0; left: 38px; width: 2px;
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.carnet-couverture-signet {
+  position: absolute; top: -1px; right: 26px; width: 18px; height: 30px;
+  background: var(--accent);
+  border-radius: 0 0 4px 4px;
+}
+.carnet-couverture-titre,
+.carnet-couverture-h1 {
+  position: absolute; left: 50px; top: 50%; transform: translateY(-50%);
+  margin: 0;
+  font-weight: 700;
+  color: var(--accent-hover);
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg-card));
+  padding-right: 0.4rem;
+  max-width: calc(100% - 66px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.carnet-couverture-titre { font-size: 0.92rem; }
+.carnet-couverture-h1 { font-size: 1.4rem; }
+.carnet-couverture-h1 .bi { font-size: 1.1rem; }
+[data-theme="sombre"] .carnet-couverture-titre,
+[data-theme="sombre"] .carnet-couverture-h1 { color: var(--accent); }
+
+/* TACHE (refonte 2026-09-09) : ligne calme sous le titre de l'ecran de
+   travail. Aucun compteur (doctrine principe 6). */
+.carnet-ligne-calme {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--accent-bg-subtle);
+  border-radius: 8px;
+}
+
+/* TACHE (refonte 2026-09-09) : encart astuce dictee resserre (styles sortis
+   de l'inline). Meme fond/filet accent qu'avant. « Windows + H » en petite
+   touche clavier. */
+.carnet-astuce {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-strong);
+}
+.carnet-kbd {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 0 0.35rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  background: var(--bg-card);
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+
+/* TACHE (refonte visuelle 2026-09-09) : filet gauche a la couleur du site
+   + fond « papier » tres leger (accent a 5 %). Le module n'a pas de teinte
+   propre : il suit --accent, comme le reste de l'app. */
+.carnet-item {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.6rem;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.7rem;
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg-card));
+}
+/* TACHE (retour utilisateur, 2026-08-25, parite avec Repères) : champ
+   titre toujours modifiable (jamais un clic supplementaire pour le
+   reveler) -- style discret par defaut, se distingue au focus/hover
+   comme un vrai champ editable. TACHE (refonte 2026-09-09) : precede d'une
+   petite icone d'identite du module, dans une ligne flex. */
+.carnet-item-titre-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+.carnet-item-titre-ic { color: var(--accent); font-size: 0.9rem; flex-shrink: 0; }
+.carnet-item-titre {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-strong);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.carnet-item-titre:hover { background: var(--bg-hover); }
+.carnet-item-titre:focus { border-color: var(--accent); outline: none; background: var(--bg-card); }
+
+/* TACHE (retour utilisateur, 2026-08-25) : fenetre de detail
+   (_carnetOuvrirDetail()) -- etiquettes "Titre"/"Contenu" + un vrai
+   cadre autour du contenu, meme en lecture seule (avant clic sur
+   "Modifier"), pour que la distinction titre/contenu soit immediatement
+   claire au premier coup d'oeil. */
+.carnet-detail-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0.9rem 0 0.3rem;
+}
+.carnet-detail-label:first-child { margin-top: 0; }
+.carnet-detail-champ-titre {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-strong);
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.carnet-detail-champ-titre:focus { border-color: var(--accent); outline: none; }
+.carnet-detail-corps {
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  white-space: pre-wrap;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-strong);
+}
+.carnet-item-texte {
+  white-space: pre-wrap;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  color: var(--text-strong);
+}
+/* TACHE (refonte 2026-09-09) : meta en ligne flex (date + pastille). */
+.carnet-item-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.carnet-date { display: inline-flex; align-items: center; gap: 0.3rem; }
+/* TACHE (refonte 2026-09-09) : « Deja transformee en Repere » passe du
+   texte gris italique a une vraie pastille dessinee, teinte Repere
+   (--repere-ref, token global) + icone de Repere. */
+.carnet-chip-transformee {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--repere-ref);
+  background: color-mix(in srgb, var(--repere-ref) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--repere-ref) 35%, transparent);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+}
+.carnet-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 0.6rem;
+}
+.carnet-item textarea[data-carnet-texte] {
+  width: 100%;
+  font-size: 1.1rem;
+}
+/* TACHE (refonte 2026-09-09) : boutons d'action « pleins doux » au repos
+   (fin du contour transparent qui semblait inactif -- retour Denis).
+   Hierarchie par le sens de l'action. */
+.carnet-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.carnet-action .bi { font-size: 0.95rem; }
+/* Neutre doux : « Modifier », et « Transformer en Repere » une fois deja fait. */
+.carnet-action-neutre {
+  background: var(--bg-subtle);
+  color: var(--text-soft);
+  border-color: var(--border);
+}
+.carnet-action-neutre:hover { background: var(--bg-hover); color: var(--text-strong); }
+/* Violet Repere : « Transformer en Repere » tant que la note n'est pas transformee. */
+.carnet-action-repere {
+  background: color-mix(in srgb, var(--repere-ref) 12%, var(--bg-card));
+  color: var(--repere-ref);
+  border-color: color-mix(in srgb, var(--repere-ref) 35%, transparent);
+}
+.carnet-action-repere .bi { color: var(--repere-ref); }
+.carnet-action-repere:hover { background: color-mix(in srgb, var(--repere-ref) 20%, var(--bg-card)); }
+/* Danger doux : « Supprimer ». */
+.carnet-action-danger {
+  background: color-mix(in srgb, var(--danger) 10%, var(--bg-card));
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+.carnet-action-danger:hover { background: color-mix(in srgb, var(--danger) 18%, var(--bg-card)); }
+
+/* TACHE (idee E de IDEES_A_RECLASSER, Denis 2026-09-09) : filet
+   d'annulation de la derniere suppression, en tete de liste. Transitoire
+   (~10 s), jamais une corbeille. */
+.carnet-annuler-suppression {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0 0 0.9rem;
+  padding: 0.55rem 0.5rem 0.55rem 0.85rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+.carnet-annuler-suppression > span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.carnet-annuler-suppression > span .bi { color: var(--text-muted); }
+.carnet-annuler-suppression-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  min-height: 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--accent-bg-subtle);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.carnet-annuler-suppression-btn .bi { color: var(--accent); }
+.carnet-annuler-suppression-btn:hover {
+  background: var(--accent-solide);
+  border-color: var(--accent-solide);
+  color: #fff;
+}
+.carnet-annuler-suppression-btn:hover .bi { color: #fff; }
+
+.carnet-etat-vide {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+}
+.carnet-etat-vide .carnet-ic { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+/* Retour Denis 2026-08-31 : l'icone d'identite du module prend la couleur
+   d'accent partout, pas seulement dans le titre. */
+.carnet-etat-vide i.bi { color: var(--accent); }
+.carnet-etat-vide p { font-size: 1rem; margin: 0; max-width: 320px; margin-inline: auto; }
+
+/* Icône persistante -- même gabarit que #btnJournalParcours
+   (reperes.css), jamais hidden par défaut (voir index.html). */
+#btnCarnet {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 2700;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--accent);
+  font-size: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+#btnCarnet:hover { background: var(--bg-hover); }
+[data-theme="sombre"] #btnCarnet { border: 2px solid var(--border-strong); box-shadow: none; }
+
+/* Intensite standard des pulses de l'app (homogeneisation 2026-08-28) :
+   anneau qui part de 40% d'opacite et s'etend a 8px. */
+@keyframes carnetPulseConfirmation {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+#btnCarnet.carnet-pulse-confirmation { animation: carnetPulseConfirmation 1.8s ease-in-out 6; }
+
+@media (max-width: 768px) {
+  #btnCarnet { top: var(--hauteur-progression, 5rem); right: 8px; width: 42px; height: 42px; font-size: 1.1rem; }
+}
+
+/* Panneau compact ouvert depuis #btnCarnet -- reste sur la page
+   courante (voir docs/CHANTIER_CARNET.md, partie 5 bis révisée), même
+   gabarit que #panneauJournalParcours (reperes.css). `top` fixé en JS à
+   l'ouverture (_carnetPositionnerPanneau(), modules/carnet/index.js) --
+   la valeur ci-dessous ne sert que de repli avant ce calcul. */
+#panneauCarnet {
+  position: fixed;
+  top: 156px;
+  right: 20px;
+  z-index: 2700;
+  width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  /* TACHE (refonte 2026-09-09) : liseret a la couleur du site en tete du
+     panneau. Seule retouche du cadre -- position/taille/ombre inchangees. */
+  border-top: 3px solid var(--accent);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .18);
+}
+.carnet-panneau-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+.carnet-panneau-entete h6 { margin: 0; color: var(--text-strong); }
+/* Même glyphe et esprit que .fenetre-erip-fermer (css/style.css),
+   jamais réutilisée telle quelle : ce bouton vit dans un panneau, pas
+   une fenêtre ERIP -- gabarit propre, plus discret. */
+.carnet-panneau-fermer {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.carnet-panneau-fermer:hover { background: var(--bg-hover); color: var(--text-strong); }
+/* TACHE (refonte 2026-09-09) : « Derniere note » = titre complet (en gras)
+   + date relative, plus jamais un titre coupe a 4 mots. */
+.carnet-panneau-dernier {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0.7rem 0 0.3rem;
+}
+.carnet-panneau-dernier strong { color: var(--text-strong); font-weight: 600; }
+/* TACHE (refonte 2026-09-09) : etat vide du panneau. */
+.carnet-panneau-vide {
+  font-size: 0.84rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0.7rem 0 0;
+}
+/* TACHE (retour utilisateur, 2026-08-25) : vrai <button> (ouvre le detail
+   au clic). TACHE (refonte 2026-09-09) : titre + date relative sur une
+   ligne (flex), filet entre les apercus. */
+.carnet-apercu-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+  cursor: pointer;
+  padding: 7px 2px;
+  font-size: 0.85rem;
+  color: var(--text-strong);
+  font-family: inherit;
+}
+.carnet-apercu-titre { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.carnet-apercu-quand { flex-shrink: 0; font-size: 0.76rem; color: var(--text-muted); }
+.carnet-apercu-item:hover { background: var(--bg-hover); }
+.carnet-apercu-item:first-child { border-top: none; }
+@media (max-width: 768px) {
+  #panneauCarnet { width: calc(100vw - 16px); max-width: 300px; right: 8px; }
+}
