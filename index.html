@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistant Parcours Professionnel</title>
+  <!-- Favicon (mallette, bleu accent de l'app). Sans ça, le navigateur
+       demande /favicon.ico et reçoit un 404 visible dans la console. -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg" sizes="any">
+
+  <!-- Bootstrap + icones : auto-heberges (versions identiques au CDN,
+       bootstrap 5.3.2 + bootstrap-icons 1.11.3) -- voir vendor/. Rapatries
+       le 2026-08-28 : resilience hors ligne / firewall, plus aucune requete
+       tierce pour l'affichage, console propre. -->
+  <link href="vendor/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+
+  <!-- Styles de l'application -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Module « Repères » — premier module avec sa propre feuille de
+       style (voir modules/reperes/ARCHITECTURE_TECHNIQUE.md). Charge
+       après css/style.css pour pouvoir réutiliser ses variables, ne
+       redéfinit aucune de ses classes. -->
+  <link rel="stylesheet" href="modules/reperes/reperes.css">
+  <!-- Module « Regard extérieur » — voir modules/regard-exterieur/ARCHITECTURE_TECHNIQUE.md. -->
+  <link rel="stylesheet" href="modules/regard-exterieur/regardExterieur.css">
+  <!-- Module « Carnet » — voir modules/carnet/ARCHITECTURE_TECHNIQUE.md. -->
+  <link rel="stylesheet" href="modules/carnet/carnet.css">
+  <!-- Module « Lexique » — voir modules/lexique/ARCHITECTURE_TECHNIQUE.md. Cible ses
+       écrans via [id^="lexique"], jamais les classes Bootstrap génériques globalement. -->
+  <link rel="stylesheet" href="modules/lexique/lexique.css">
+  <!-- Module « Comprendre le cadre », voir modules/comprendre-le-cadre/ARCHITECTURE_TECHNIQUE.md. -->
+  <link rel="stylesheet" href="modules/comprendre-le-cadre/comprendre-le-cadre.css">
+  <!-- Module « Comprendre les chiffres », voir modules/comprendre-les-chiffres/ARCHITECTURE_TECHNIQUE.md. -->
+  <link rel="stylesheet" href="modules/comprendre-les-chiffres/comprendre-les-chiffres.css">
+  <!-- Module « Un regard sur mon CV » (ex Regard recruteur), voir modules/regard-recruteur/ARCHITECTURE_TECHNIQUE.md. -->
+  <link rel="stylesheet" href="modules/regard-recruteur/regard-recruteur.css">
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="d42a6cc9-1794-476e-9f22-dbe1ab93f73a"></script>
+</head>
+<body>
+
+  <div id="app"></div>
+
+  <!-- TACHE (retour utilisateur : "je veux aussi des modes : mode sombre,
+       une variante de couleurs et un mode daltonien... l'icone doit être
+       présente tout le long, sur toutes les pages") : en dehors de #app
+       (jamais régénéré par le rendu JS des pages), pour rester visible
+       quel que soit l'écran affiché. Câblé une seule fois au chargement
+       (voir app.js, initPreferencesAffichage()). -->
+  <button type="button" id="btnPreferencesAffichage" aria-label="Préférences d'affichage" title="Préférences d'affichage"><i class="bi bi-gear" aria-hidden="true"></i></button>
+  <div id="panneauPreferencesAffichage" hidden>
+    <h6><i class="bi bi-gear"></i> Affichage</h6>
+    <!-- TACHE (retour utilisateur : "Thème/Mode daltonien/Confort de
+         lecture toujours visibles, les 3 autres moins importantes dans un
+         accordéon chacune, pour ne pas noyer les 3 premières") : ces 3
+         restent des <div> simples (toujours visibles), regroupees en
+         premier -- Couleur d'accent/Taille du texte/Police suivent, dans
+         leur propre <details> repliable (voir plus bas). -->
+    <div class="pref-affichage-groupe">
+      <span class="pref-affichage-label">Thème</span>
+      <button type="button" data-pref-theme="clair">Clair</button>
+      <button type="button" data-pref-theme="sombre">Sombre</button>
+    </div>
+    <div class="pref-affichage-groupe">
+      <span class="pref-affichage-label">Mode daltonien</span>
+      <button type="button" data-pref-daltonien="0">Désactivé</button>
+      <button type="button" data-pref-daltonien="1">Activé</button>
+    </div>
+    <!-- TACHE (retour utilisateur : "Confort de lecture" separe de
+         "Police", pour ne pas stigmatiser en nommant "dyslexique" tout en
+         restant reconnaissable) : reglage independant et combinable
+         (voir css/style.css) -- grise les boutons Police pendant qu'il
+         est actif (voir appliquerPreferencesAffichage(), js/app.js). -->
+    <div class="pref-affichage-groupe">
+      <span class="pref-affichage-label">Confort de lecture</span>
+      <button type="button" data-pref-confort="0">Désactivé</button>
+      <button type="button" data-pref-confort="1">Activé</button>
+    </div>
+    <!-- TACHE (retour utilisateur, meme demande que ci-dessus) : <details>/
+         <summary> natifs (deja utilises ailleurs dans l'appli pour ce
+         meme besoin, voir js/app.js panneau Projet XXL) -- repliees par
+         defaut (pas d'attribut "open"), aucun JS supplementaire requis
+         pour deplier/replier. -->
+    <details class="pref-affichage-groupe">
+      <summary class="pref-affichage-label">Couleur d'accent</summary>
+      <div class="pref-affichage-details-corps">
+        <button type="button" data-pref-accent="bleu">Bleu</button>
+        <button type="button" data-pref-accent="orange">Orange</button>
+        <button type="button" data-pref-accent="vert">Vert</button>
+        <button type="button" data-pref-accent="violet">Violet</button>
+        <button type="button" data-pref-accent="turquoise">Turquoise</button>
+        <button type="button" data-pref-accent="framboise">Framboise</button>
+      </div>
+    </details>
+    <details class="pref-affichage-groupe">
+      <summary class="pref-affichage-label">Taille du texte</summary>
+      <div class="pref-affichage-details-corps">
+        <button type="button" data-pref-taille="normal">Normal</button>
+        <button type="button" data-pref-taille="grand">Grand</button>
+        <button type="button" data-pref-taille="tres-grand">Très grand</button>
+      </div>
+    </details>
+    <details class="pref-affichage-groupe">
+      <summary class="pref-affichage-label">Police</summary>
+      <div class="pref-affichage-details-corps">
+        <button type="button" data-pref-police="defaut">Défaut</button>
+        <button type="button" data-pref-police="arial">Arial</button>
+        <button type="button" data-pref-police="times">Times New Roman</button>
+      </div>
+    </details>
+  </div>
+
+  <!-- TACHE (retour utilisateur : "je veux ce bouton toujours visible peu
+       importe la page, meme principe exact") : en dehors de #app (jamais
+       regenere), cable une seule fois au chargement (voir app.js,
+       initBoutonSessionTransfert()) -- meme mecanisme d'ouverture/fermeture
+       que panneauPreferencesAffichage juste au-dessus, jamais une 2e
+       logique de panneau flottant. 3e des 3 icones de la ligne du haut.
+       Icone seule, toujours (le mot "Sauvegarder" a ete retire, chantier
+       "bouton presentation" 2026-09-01). -->
+  <button type="button" id="btnSessionTransfert" aria-label="Sauvegarder ma session / changer d'appareil" title="Sauvegarder ma session / changer d'appareil"><i class="bi bi-floppy" aria-hidden="true"></i></button>
+
+  <!-- DEMO A MONTRER A DENIS (2026-09-12) : bouton de retour "colle" a la
+       personne quand elle vient d'un autre module vers le Lexique (ex.
+       Comprendre le cadre), qui la ramene EXACTEMENT ou elle etait, peu
+       importe combien de fiches internes du Lexique elle a visitees entre
+       temps. A DROITE (retour Denis : colle aux 3 icones de gauche =
+       pas assez visible), avec un texte visible ("Revenir a <module>"),
+       jamais seulement une icone -- pour qu'il n'y ait aucune ambiguite sur
+       ce qu'il fait. En dehors de #app, meme principe de persistance que
+       #btnPreferencesAffichage/#btnSessionTransfert/#btnAide (jamais
+       regenere par le rendu JS des modules, donc jamais perdu en cours de
+       navigation). Cache par defaut (hidden), affiche uniquement quand une
+       provenance externe est definie (voir definirRetourModuleExterne()
+       dans app.js), qui pose aussi un pulse bleu de 10 secondes a la
+       premiere apparition (classe pulse-attention, meme mecanisme que les
+       autres pulses d'attention de l'appli). -->
+  <button type="button" id="btnRetourModuleExterne" hidden>
+    <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
+    <span id="btnRetourModuleExterneTexte"></span>
+  </button>
+
+  <div id="panneauSessionTransfert" hidden>
+    <h6><i class="bi bi-floppy"></i> Sauvegarder ma session</h6>
+    <p class="small text-muted mb-2">Cette application ne garde rien automatiquement : exportez un fichier pour ne pas perdre votre travail. Vous pourrez aussi vous en servir pour reprendre votre session sur un autre appareil, si besoin.</p>
+    <!-- TACHE (retour utilisateur : "message de penser a sauvegarder" apres
+         le 2e passage par l’assistant) : masque par defaut, rempli/affiche par
+         declencherPulseSessionApresImportIA() (app.js) -- jamais un texte
+         fige ici, toujours coherent avec le pulse qui l'accompagne. -->
+    <p id="messagePulseDisquette" class="small mb-2" style="display:none;background:#F3F4F6;border-radius:6px;padding:0.5rem 0.7rem;color:#374151;"></p>
+    <button type="button" id="btnExporterSessionFixe" class="btn btn-sm btn-outline-secondary w-100 mb-2">&#128190; Exporter ma session</button>
+    <button type="button" id="btnImporterSessionFixe" class="btn btn-sm btn-outline-secondary w-100">&#128193; Importer une session</button>
+    <input type="file" id="inputImporterSessionFixe" accept="application/json,.json" hidden>
+    <!-- TACHE (chantier "bouton presentation", section E, decision Denis
+         2026-09-01) : le geste global "tout effacer" quitte le haut de
+         l'ecran (ex Reinitialiser) et se range ici, dans une ZONE A PART.
+         "Restaurer" (un niveau d'annulation) prend la meme place tant qu'une
+         sauvegarde de secours existe. Cablage : initBoutonSessionTransfert(). -->
+    <div class="session-zone-effacer">
+      <div class="session-zone-effacer-titre">Recommencer complètement</div>
+      <p id="ligneEffacementFait" class="session-zone-effacer-fait" hidden>Tout a été effacé. Vous pouvez encore revenir en arrière.</p>
+      <button type="button" id="btnToutEffacerAppareil" class="btn-session-effacer"><i class="bi bi-trash3"></i> Tout effacer sur cet appareil</button>
+      <button type="button" id="btnRestaurerAppareil" class="btn-session-restaurer" hidden><i class="bi bi-arrow-counterclockwise"></i> Restaurer</button>
+    </div>
+  </div>
+
+  <!-- TACHE (retour utilisateur : "un bouton où je montre, en fait là-dedans
+       quand je fais clic, les personnes vont regarder et ils vont expliquer
+       en fait chaque outil à quoi sert... pour que les gens puissent être
+       autonomes") : meme mecanisme EXACT que #btnPreferencesAffichage et
+       #btnSessionTransfert juste au-dessus (panneau flottant hors de #app,
+       jamais regenere, ouverture/fermeture au clic -- voir app.js,
+       initBoutonAide()) -- meme bouton, meme forme, toujours au meme
+       endroit (juste en dessous de l'oeil, retour utilisateur explicite),
+       jamais une 3e logique de panneau flottant. Contenu adapte a CHAQUE
+       page affichee (pageActuelle), pas seulement l'accueil. -->
+  <button type="button" id="btnAide" aria-label="Aide sur cette page" title="Aide sur cette page"><i class="bi bi-lightbulb" aria-hidden="true"></i></button>
+  <div id="panneauAide" hidden>
+    <h6><i class="bi bi-lightbulb"></i> Besoin d'aide ?</h6>
+    <p class="small text-muted mb-2">Comprendre à quoi sert chaque outil de cette page.</p>
+    <button type="button" id="btnAideExplicationRapide" class="btn btn-sm btn-outline-secondary w-100 mb-2"><i class="bi bi-card-text"></i> Explication rapide</button>
+    <button type="button" id="btnAideVisiteGuidee" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-map"></i> Visite guidée</button>
+  </div>
+
+  <!-- Module « Repères » — voir docs/CHANTIER_JOURNAL_DE_PARCOURS.md.
+       Coquille vide et masquée, sur le même principe que #app : un
+       simple point d'ancrage, jamais de contenu ni de comportement
+       écrit ici. C'est modules/reperes/index.js qui décide, au
+       chargement, de révéler ce bouton et qui gère entièrement son
+       icône, son panneau et ses événements -- si ce module disparaît,
+       ce bouton reste un fantôme invisible et inerte, sans erreur. -->
+  <button type="button" id="btnJournalParcours" hidden aria-label="Journal de parcours" title="Journal de parcours"></button>
+  <div id="panneauJournalParcours" hidden></div>
+  <!-- Module « Carnet » — voir modules/carnet/ARCHITECTURE_TECHNIQUE.md.
+       Jamais hidden par défaut (contrairement à #btnJournalParcours
+       juste au-dessus) : décision du chantier, l'icône reste visible
+       dès le premier chargement, aucun autre chemin de découverte ne
+       la remplace tant qu'aucune note n'existe. -->
+  <button type="button" id="btnCarnet" aria-label="Carnet" title="Carnet"><i class="bi bi-journal-text" aria-hidden="true"></i></button>
+  <div id="panneauCarnet" hidden></div>
+
+  <!-- Ordre important : du plus stable (donnees + moteur) au plus mouvant (interface) -->
+  <!-- charset UTF-8 explicite : garantit un affichage correct des accents en ouverture locale -->
+  <script src="data/metiers.js" charset="UTF-8"></script>
+  <script src="data/competences.js" charset="UTF-8"></script>
+  <script src="data/actionsProfessionnelles.js" charset="UTF-8"></script>
+  <script src="data/personnesMaterielsLieux.js" charset="UTF-8"></script>
+  <script src="data/environnementsTravail.js" charset="UTF-8"></script>
+  <script src="data/valeursProfessionnelles.js" charset="UTF-8"></script>
+  <script src="data/baseConnaissancesERIP.js" charset="UTF-8"></script>
+  <script src="data/secteurs.js" charset="UTF-8"></script>
+  <script src="data/dictionnaireLexicalERIP.js" charset="UTF-8"></script>
+  <script src="data/toleranceOrthographiqueERIP.js" charset="UTF-8"></script>
+  <script src="data/extractionConceptsERIP.js" charset="UTF-8"></script>
+  <script src="data/moteurPertinenceRechercheERIP.js" charset="UTF-8"></script>
+  <!-- Corpus statique du module Lexique -- voir modules/lexique/ARCHITECTURE_TECHNIQUE.md.
+       Chargé avant modules/lexique/index.js, comme toute donnée avant le code qui la lit. -->
+  <script src="data/lexique.js" charset="UTF-8"></script>
+  <!-- Index inverse du lien Cadre -> Lexique (voir_aussi_lexique:), genere
+       par scripts/genererRenvoisCadre.js, verifie a jour par
+       scripts/checkLexique.js. Alimente le lien retour "Pour aller plus
+       loin -> Comprendre le cadre" du module Lexique. -->
+  <script src="data/lexique-renvois-cadre.js" charset="UTF-8"></script>
+  <!-- Bloc "freins -> ressources" (17 codes), source unique de verite cote
+       donnees pour le module Regard exterieur. Rien ne le consomme encore --
+       voir docs/TACHES_VALIDEES.md, chantier "bloc data/freins.js". -->
+  <script src="data/freins.js" charset="UTF-8"></script>
+  <!-- Bloc "Urgences" : numeros nationaux + portes besoins vitaux. Projete
+       en 2 fiches dans l'univers Lexique "urgences". Chargé après data/lexique.js
+       (il pousse dans LEXIQUE_FICHES). -->
+  <script src="data/urgences.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/extraireDonneesCV.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/normaliserDonneesCV.js" charset="UTF-8"></script>
+  <script src="modules/cv-editor/rendreTemplate.js" charset="UTF-8"></script>
+  <script src="modules/cv-editor/modelesDisponibles.js" charset="UTF-8"></script>
+  <!-- TACHE (Option C : export Word natif) : genere de vrais .docx par
+       modele (au lieu de convertir le HTML deja rendu) -- voir le
+       commentaire d'en-tete du fichier pour le detail. -->
+  <script src="modules/cv-editor/exportDocxNatifCV.js" charset="UTF-8"></script>
+  <!-- TACHE (nouveaux modeles CV, absents de la base) : etend
+       GENERATEURS_DOCX_NATIFS_CV/MODELES_AVEC_DOCX_NATIF_CV, doit donc
+       charger APRES exportDocxNatifCV.js. -->
+  <script src="modules/cv-editor/exportDocxNatifCV_NouveauxModeles.js" charset="UTF-8"></script>
+  <!-- TACHE (refonte "Aperçu et finalisation" : palette de couleurs) :
+       ajoute la recoloration par-dessus les generateurs existants --
+       doit charger APRES exportDocxNatifCV.js ET
+       exportDocxNatifCV_NouveauxModeles.js (utilise leurs fonctions). -->
+  <script src="modules/cv-editor/coloriationDocxNatifCV.js" charset="UTF-8"></script>
+  <!-- TACHE (format A5) : mini-CV, contenu recadre par le meme moteur de
+       decision IA que le format complet (capacites plus serrees) + page
+       reelle A5 -- doit charger APRES exportDocxNatifCV.js,
+       exportDocxNatifCV_NouveauxModeles.js et coloriationDocxNatifCV.js
+       (reutilise leurs fonctions et constantes). -->
+  <script src="modules/cv-editor/formatA5CV.js" charset="UTF-8"></script>
+  <!-- Moteur Composeur (Bêta) — voir architecture-moteur-cv.md. Systeme
+       independant des modeles ci-dessus (isolation, §0.1 du contrat
+       d'architecture) : point de contact unique = l'interception ajoutee
+       en tete de genererDocxNatifCVFormat() (formatA5CV.js, charge juste
+       au-dessus) + l'entree 'composeur' dans MODELES_CV_DISPONIBLES
+       (modelesDisponibles.js). Ordre ci-dessous = ordre des couches
+       (① a ⑤), simple convention de lecture (declarations de fonctions,
+       resolues au moment de l'appel, pas du chargement). -->
+  <script src="modules/cv-composeur/composeurProfil.js" charset="UTF-8"></script>
+  <script src="modules/cv-composeur/composeurComposants.js" charset="UTF-8"></script>
+  <script src="modules/cv-composeur/composeurRegles.js" charset="UTF-8"></script>
+  <script src="modules/cv-composeur/composeurComposition.js" charset="UTF-8"></script>
+  <!-- TACHE (contrat composeur-strategies-cv-v2.md, étape 2) : nouvelle
+       couche, ajoutée en cohabitation avec l'existant -- dépend de
+       calculerScoresStrategies() (decouverteStrategie.js, chargé plus
+       bas dans ce fichier), mais la résolution ne se fait qu'au moment
+       de l'appel (jamais au chargement), donc l'ordre exact entre les
+       deux fichiers n'a pas d'importance -- déjà vérifié pour plusieurs
+       autres cas similaires dans ce projet. -->
+  <script src="modules/cv-composeur/composeurStrategies.js" charset="UTF-8"></script>
+  <script src="modules/cv-composeur/composeurTheme.js" charset="UTF-8"></script>
+  <script src="modules/cv-composeur/composeurRender.js" charset="UTF-8"></script>
+  <script src="modules/cv-composeur/composeurMoteur.js" charset="UTF-8"></script>
+  <!-- TACHE (Mini CV (A5), mise en page dediee) : structure propre (photo
+       centree, 2 colonnes compactes), plus une reduction du modele A4
+       choisi -- doit charger avant ou apres formatA5CV.js (peu importe,
+       resolution des fonctions au moment de l'appel, pas du chargement). -->
+  <script src="modules/cv-editor/miniCvA5.js" charset="UTF-8"></script>
+  <!-- TACHE (5 nouveaux modeles CV, references PowerPoint) : "Chic",
+       premier des 5 -- doit charger APRES exportDocxNatifCV.js,
+       coloriationDocxNatifCV.js, formatA5CV.js et miniCvA5.js (utilise
+       leurs fonctions/listes, etend GENERATEURS_DOCX_NATIFS_CV et
+       MODELES_AVEC_DOCX_NATIF_CV/COULEURS/FORMAT_A5). -->
+  <script src="modules/cv-editor/exportDocxNatifCV_Chic.js" charset="UTF-8"></script>
+  <!-- TACHE (Option pdfmake : export PDF natif) : genere de vrais PDF
+       vectoriels par modele, en repli sur "Imprimer" du navigateur si
+       indisponible -- voir le commentaire d'en-tete du fichier. -->
+  <!-- TACHE (simplification : DOCX seul) : exportPdfNatifCV.js retire --
+       le bouton PDF a ete supprime de l'export CV (voir app.js), ce
+       fichier n'est plus jamais appele. -->
+  <!-- <script src="modules/cv-editor/exportPdfNatifCV.js" charset="UTF-8"></script> -->
+  <!-- TACHE (Option GrapesJS : personnalisation visuelle, premiere
+       version) : editeur plein ecran, voir le commentaire d'en-tete du
+       fichier pour la limite assumee sur l'export. -->
+  <!-- TACHE (simplification : DOCX seul) : personnalisationCV.js retire --
+       le bouton Personnaliser a ete supprime de l'export CV (voir
+       app.js), ce fichier n'est plus jamais appele. -->
+  <!-- <script src="modules/cv-editor/personnalisationCV.js" charset="UTF-8"></script> -->
+  <!-- TACHE (simplification : DOCX seul + filet de secours + apercu
+       integre) : voir le commentaire d'en-tete de chaque fichier. -->
+  <script src="modules/cv-editor/exportBlocsTexteCV.js" charset="UTF-8"></script>
+  <script src="modules/cv-editor/apercuDocxIntegre.js" charset="UTF-8"></script>
+  <!-- TACHE (nouveau moteur "CV design (PDF)", isole du Composeur Word
+       ci-dessus -- aucune dependance sur cv-composeur/ ni docx.js dans
+       ces 3 fichiers, aucune dependance inverse non plus) : rendu
+       HTML/CSS reel -> window.print() (Enregistrer en PDF), reutilise
+       en lecture seule normaliserDonneesCV()/composeurComposer() pour
+       les DECISIONS de contenu (jamais dupliquees ici). -->
+  <script src="modules/cv-pdf-html/cvPdfDonnees.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfTemplateA4.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfTemplateA5.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfPanneauReglages.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfExport.js" charset="UTF-8"></script>
+  <!-- TACHE (chantier "La mise en page du CV", sous-etape 1) : modele de
+       reglages canonique + traducteurs. Isole, aucune dependance ; branche a
+       l'UI a partir de la sous-etape 4. Voir docs/CADRAGE_MISE_EN_PAGE_2026-09-03.md. -->
+  <script src="modules/cv-mise-en-page/reglagesMiseEnPage.js" charset="UTF-8"></script>
+  <script src="modules/cv-mise-en-page/reglagesTraducteurs.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/normaliserDonneesLettre.js" charset="UTF-8"></script>
+  <script src="modules/lettre-editor/modelesDisponiblesLettre.js" charset="UTF-8"></script>
+  <!-- TACHE (traitement DOCX natif etendu a la lettre) : meme principe
+       que exportDocxNatifCV.js, reutilise sa fonction de chargement de
+       la librairie docx (chargee juste au-dessus). -->
+  <script src="modules/lettre-editor/exportDocxNatifLettre.js" charset="UTF-8"></script>
+  <script src="modules/entretien-editor/normaliserDonneesEntretien.js" charset="UTF-8"></script>
+  <script src="modules/entretien-editor/modelesDisponiblesEntretien.js" charset="UTF-8"></script>
+  <!-- TACHE (traitement DOCX natif etendu a l'entretien) : idem. -->
+  <script src="modules/entretien-editor/exportDocxNatifEntretien.js" charset="UTF-8"></script>
+  <!-- TACHE (couleurs + 3 formats pour la lettre et l'entretien, comme
+       pour le CV) : reutilise PALETTES_COULEURS_CV (coloriationDocxNatifCV.js)
+       et _dnTronquerTexte()/_dnTaillePageA5() (formatA5CV.js), deja
+       charges avant ce point -- voir le commentaire d'en-tete du fichier. -->
+  <script src="modules/cv-editor/formatsLettreEntretien.js" charset="UTF-8"></script>
+  <!-- TACHE (filet de secours etendu a la lettre et l'entretien) : meme
+       principe que exportBlocsTexteCV.js. -->
+  <script src="modules/cv-editor/exportBlocsTexteLettreEntretien.js" charset="UTF-8"></script>
+  <!-- Module « Découverte et valorisation des compétences » — voir
+       module-decouverte-valorisation-competences.md et
+       moteur-ia-raisonnement.md. Système indépendant, même principe
+       d'isolation que le Composeur (Bêta) : point de contact unique =
+       la tuile ajoutée dans la Boîte à outils (ouvrirChoixPreparationAccueil,
+       modules/cv-editor/... non, metiers.js) qui appelle
+       demarrerDecouverteCompetences() (decouverteMoteur.js), point
+       d'entrée UNIQUE du module. Ordre ci-dessous : du plus stable
+       (structures de données) au plus mouvant (interface), même
+       logique que le reste de l'application. -->
+  <script src="modules/decouverte-competences/decouverteClassification.js" charset="UTF-8"></script>
+  <script src="modules/decouverte-competences/decouverteAnalyse.js" charset="UTF-8"></script>
+  <script src="modules/decouverte-competences/decouverteRaffinement.js" charset="UTF-8"></script>
+  <script src="modules/decouverte-competences/decouverteStrategie.js" charset="UTF-8"></script>
+  <script src="modules/decouverte-competences/decouverteMapping.js" charset="UTF-8"></script>
+  <script src="modules/decouverte-competences/decouverteParcours.js" charset="UTF-8"></script>
+  <script src="modules/decouverte-competences/decouverteMoteur.js" charset="UTF-8"></script>
+  <!-- Module « Bilan de candidature » — voir
+       modules/bilan-candidature/ARCHITECTURE_TECHNIQUE.md. Systeme
+       independant, meme principe d'isolation que Decouverte
+       ci-dessus : point de contact unique = modules/bilan-candidature/index.js
+       (facade publique, 5 fonctions), charge en dernier dans ce bloc.
+       Ordre ci-dessous : modeles/ (feuille) -> collecte/ + analyse/ ->
+       diagnostic/ -> amelioration/ -> core/ -> index.js -- reprend
+       exactement l'ordre des require() internes du module, sans que cet
+       ordre soit strictement necessaire cote navigateur (aucun require()
+       ici, tout devient global). -->
+  <script src="modules/bilan-candidature/modeles/enums.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/elementsAnonymises.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/utilitaires.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/anomalie.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/candidature.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/contexteAnalyse.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/observation.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/attente.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/axe.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/recommandation.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/diagnostic.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/diagnosticResultat.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/demandeAmelioration.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/modeles/propositionAmelioration.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/collecte/hostDataAdapter.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/collecte/relectureConfidentialite.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/collecte/contexteCandidatureCollector.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/analyse/axeAnalyseRegistry.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/analyse/niveauAnalyseDetector.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/analyse/faitsExtractor.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/correction/destinationRegistry.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/correction/resolutionDestination.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/assistance/resolutionChampExperience.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/assistance/etatRelecture.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/assistance/ecritureRelecture.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/assistance/orchestrationAssistance.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/diagnostic/promptTemplateLoader.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/diagnostic/diagnosticPromptBuilder.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/diagnostic/diagnosticResponseParser.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/amelioration/selectionAmeliorationManager.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/amelioration/ameliorationPromptBuilder.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/amelioration/ameliorationResponseParser.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/amelioration/titreAccrochePromptBuilder.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/amelioration/titreAccrocheResponseParser.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/core/diagnosticStore.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/core/moduleOrchestrator.js" charset="UTF-8"></script>
+  <script src="modules/bilan-candidature/index.js" charset="UTF-8"></script>
+  <!-- Module « Cohérence transversale CV/lettre/entretien » — voir
+       modules/coherence-transversale/CONTRATS.md. Prompt et architecture
+       entierement separes du Bilan (decision du 2026-08-25, prompt trop
+       long = consignes ignorees, voir le prompt V3 du Bilan) -- aucune
+       dependance vers modules/bilan-candidature/. ui.js (integration a
+       l'app hote) charge en tout dernier, avant js/app.js qui l'utilise
+       (routes['coherence-transversale']). -->
+  <script src="modules/coherence-transversale/modeles/utilitaires.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/modeles/constat.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/modeles/dossierTransversal.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/modeles/recommandation.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/modeles/diagnostic.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/modeles/entretienAvance.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/collecte/hostDataAdapter.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/collecte/relectureConfidentialite.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/collecte/dossierTransversalCollector.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/analyse/verificationsDeterministes.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/diagnostic/promptTemplateLoader.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/diagnostic/promptBuilder.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/diagnostic/responseParser.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/diagnostic/entretienAvancePromptBuilder.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/diagnostic/entretienAvanceResponseParser.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/core/diagnosticStore.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/core/moduleOrchestrator.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/index.js" charset="UTF-8"></script>
+  <script src="modules/coherence-transversale/ui.js" charset="UTF-8"></script>
+  <!-- Module « Repères » — voir modules/reperes/ARCHITECTURE_TECHNIQUE.md.
+       Premier module concu des le depart pour etre entierement autonome
+       (rendu, evenements, etat, tout dans modules/reperes/) -- point de
+       contact unique = modules/reperes/index.js. Fichier unique pour
+       l'instant (etape 2/7) : sera scinde si la complexite reelle des
+       etapes suivantes le justifie, jamais par anticipation. -->
+  <script src="modules/reperes/index.js" charset="UTF-8"></script>
+  <!-- Module « Regard extérieur » — voir modules/regard-exterieur/ARCHITECTURE_TECHNIQUE.md.
+       Chargé après modules/reperes/index.js (l'ancre #reperesZoneRegardExterieur
+       lui appartient), avant js/app.js (qui l'appelle après chaque navigation). -->
+  <script src="modules/regard-exterieur/index.js" charset="UTF-8"></script>
+  <!-- Module « Carnet » — voir modules/carnet/ARCHITECTURE_TECHNIQUE.md.
+       Chargé après modules/reperes/index.js (dépendance vers
+       reperesCreerAvecTexte() à l'étape 3), avant js/app.js. -->
+  <script src="modules/carnet/index.js" charset="UTF-8"></script>
+  <!-- Module « Lexique » (nom provisoire) — voir modules/lexique/ARCHITECTURE_TECHNIQUE.md.
+       Aucune dépendance vers un autre module métier (Lexique et Repères
+       s'ignorent mutuellement, voir "Principe directeur" de sa cartographie
+       technique) -- ordre de chargement sans contrainte particulière ici,
+       chargé après data/lexique.js, avant js/app.js. -->
+  <script src="modules/lexique/index.js" charset="UTF-8"></script>
+  <!-- Module « Comparer mes pistes » (aide à la décision d'orientation) --
+       page routée, même patron que « Découvrir mes compétences ». Chargé
+       après data/freins.js (il consomme le répertoire des freins), avant
+       js/app.js (référencé dans l'objet `routes`). Voir
+       docs/CHANTIER_AIDE_DECISION_ORIENTATION.md. -->
+  <script src="modules/comparer-pistes/index.js" charset="UTF-8"></script>
+  <!-- Module « Comprendre le cadre » (sous-carte de « Se tenir informé »),
+       page routée, pure consultation, voir ARCHITECTURE_TECHNIQUE.md du
+       module. Chargé avant js/app.js (référencé dans l'objet `routes`). -->
+  <script src="modules/comprendre-le-cadre/index.js" charset="UTF-8"></script>
+  <!-- Module « Comprendre les chiffres » (2e sous-carte de « Se tenir informé »),
+       page routée, pure consultation. Chargé avant js/app.js (référencé dans
+       l'objet `routes`). Voir modules/comprendre-les-chiffres/ARCHITECTURE_TECHNIQUE.md. -->
+  <script src="modules/comprendre-les-chiffres/index.js" charset="UTF-8"></script>
+  <!-- Module « Les mots de votre CV » (ex-ATS), page routée, famille 2.
+       Charge modules/ats/detectionTexteCache.js + modules/ats/resultatParser.js
+       (logique pure) avant index.js. Tout avant js/app.js (route 'ats'). -->
+  <script src="modules/ats/detectionTexteCache.js" charset="UTF-8"></script>
+  <script src="modules/ats/resultatParser.js" charset="UTF-8"></script>
+  <script src="modules/ats/index.js" charset="UTF-8"></script>
+  <!-- Module « Un regard sur mon CV » (ex Regard recruteur), page routée, famille 2. Logique pure
+       (rapportResponseParser.js + promptBuilder.js) chargée avant index.js,
+       tout avant js/app.js (route 'regard-recruteur'). Voir
+       modules/regard-recruteur/ARCHITECTURE_TECHNIQUE.md. -->
+  <script src="modules/regard-recruteur/rapportResponseParser.js" charset="UTF-8"></script>
+  <script src="modules/regard-recruteur/promptBuilder.js" charset="UTF-8"></script>
+  <script src="modules/regard-recruteur/index.js" charset="UTF-8"></script>
+  <script src="js/app.js" charset="UTF-8"></script>
+
+</body>
+</html>
