@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette -- Refonte restitution Bilan</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  /* ===== Uniquement le necessaire pour cette maquette : reprend les
+     variables et classes de css/style.css (cv-section, badge, boutons)
+     sans les redefinir. Le bloc ci-dessous est SPECIFIQUE a cette page
+     de demonstration, jamais destine a etre copie tel quel dans style.css. ===== */
+
+  .demo-barre {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    background: #1b212c; color: #fff; padding: 0.6rem 1.2rem;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+  .demo-barre strong { color: #ffc94d; }
+  .demo-barre button {
+    border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); color: #fff;
+    border-radius: 20px; padding: 0.3rem 0.9rem; font-size: 0.8rem; cursor: pointer;
+  }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-spacer { height: 3.2rem; }
+
+  .bilan-top-zone { max-width: 760px; margin: 0 auto 2rem; text-align: center; }
+  .bilan-top-zone .badge { font-size: 0.95rem; padding: 0.4rem 0.9rem; }
+  .bilan-top-zone p.resume { text-align: left; font-size: 1.02rem; margin-top: 1rem; }
+
+  .bilan-anonymisation-discrete {
+    display: flex; align-items: center; gap: 0.5rem; justify-content: center;
+    font-size: 0.82rem; color: var(--text-muted); margin-top: 0.9rem;
+  }
+  .bilan-anonymisation-discrete .bi { color: var(--text-muted); }
+
+  /* Panneaux principaux : <details> natif stylise comme .cv-section */
+  .bilan-panneau {
+    background: var(--bg-subtle); border: 2px solid var(--border); border-radius: 1.2rem;
+    padding: 0; margin: 1.1rem 0; overflow: hidden;
+  }
+  .bilan-panneau[open] { border-color: var(--accent); }
+  .bilan-panneau summary {
+    list-style: none; cursor: pointer; padding: 1.1rem 1.4rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .bilan-panneau summary::-webkit-details-marker { display: none; }
+  .bilan-panneau-titre { font-size: 1.08rem; font-weight: 700; color: var(--text-strong); display: flex; align-items: center; gap: 0.6rem; }
+  .bilan-panneau-teaser { font-size: 0.85rem; color: var(--text-muted); font-weight: 400; margin-top: 0.15rem; }
+  .bilan-panneau-fleche { color: var(--accent); transition: transform 0.15s; font-size: 1.1rem; flex-shrink: 0; }
+  .bilan-panneau[open] > summary .bilan-panneau-fleche { transform: rotate(90deg); }
+  .bilan-panneau-corps { padding: 0 1.4rem 1.4rem; }
+
+  /* Sous-panneaux (une dimension d'analyse) : meme logique, plus discrets */
+  .bilan-sous-panneau { border: 1px solid var(--border); border-radius: 0.8rem; margin-bottom: 0.7rem; background: var(--bg-card); }
+  .bilan-sous-panneau summary { list-style: none; cursor: pointer; padding: 0.65rem 0.9rem; display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; }
+  .bilan-sous-panneau summary::-webkit-details-marker { display: none; }
+  .bilan-sous-panneau-fleche { color: var(--text-muted); font-size: 0.85rem; transition: transform 0.15s; }
+  .bilan-sous-panneau[open] .bilan-sous-panneau-fleche { transform: rotate(90deg); }
+  .bilan-sous-panneau-corps { padding: 0 0.9rem 0.9rem; }
+
+  .bilan-regard-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  @media (max-width: 700px) { .bilan-regard-grille { grid-template-columns: 1fr; } }
+  .bilan-regard-carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.8rem; padding: 0.8rem 1rem; }
+  .bilan-regard-carte h6 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); margin-bottom: 0.4rem; }
+
+  .bilan-conclusion {
+    background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 1.2rem;
+    padding: 1.4rem 1.6rem; margin: 1.6rem 0 1rem; text-align: center;
+  }
+  .bilan-conclusion h4 { margin-bottom: 0.5rem; }
+  .bilan-conclusion-actions { display: flex; justify-content: center; gap: 0.7rem; flex-wrap: wrap; margin-top: 1.1rem; }
+
+  .bilan-mockup-note {
+    max-width: 760px; margin: 0 auto 1.5rem; background: #fffaeb; border: 1px dashed #f5dd94;
+    border-radius: 0.8rem; padding: 0.7rem 1rem; font-size: 0.82rem; color: #92720c;
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-barre">
+  <span><strong>Maquette de démonstration</strong> : n'existe pas dans l'app finale</span>
+  <span>Simuler un résultat :</span>
+  <button type="button" data-scenario="excellent">Excellent</button>
+  <button type="button" data-scenario="correct" class="actif">Correct</button>
+  <button type="button" data-scenario="retravailler">À retravailler</button>
+</div>
+<div class="demo-spacer"></div>
+
+<div id="app" style="max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem;background:var(--bg-card);min-height:100vh;">
+
+  <div class="bilan-mockup-note">
+    Cette bannière jaune et la barre du haut sont des outils de démonstration pour comparer les 3 scénarios possibles.
+    Elles n'apparaîtront jamais dans l'application réelle : dans le vrai rapport, un seul scénario s'affiche, celui
+    réellement obtenu.
+  </div>
+
+  <div class="bilan-top-zone">
+    <h1>📊 Bilan de candidature</h1>
+    <div id="zoneBadge"></div>
+    <div id="zoneAlertes"></div>
+    <p class="resume mb-0" id="zoneResume"></p>
+    <div class="bilan-anonymisation-discrete">
+      <i class="bi bi-lock-fill"></i>
+      <span>CV anonymisé avant l'analyse, <a href="#panneau-comprendre" id="lienDetailAnonymisation">en savoir plus</a></span>
+    </div>
+  </div>
+
+  <div id="zonePanneaux"></div>
+
+  <div class="bilan-conclusion" id="zoneConclusion"></div>
+
+</div>
+
+<script>
+var COULEURS_STATUT = {
+  pret: { label: 'Prêt à envoyer', bg: 'var(--success-bg-subtle)', border: 'var(--success-strong)', texte: 'var(--success-strong)' },
+  a_ajuster: { label: 'À ajuster', bg: '#FFF7ED', border: '#FDBA74', texte: '#9A3412' },
+  a_retravailler: { label: 'À retravailler', bg: 'var(--danger-bg-subtle)', border: 'var(--danger)', texte: 'var(--danger)' }
+};
+var COULEURS_RESTITUTION = {
+  tres_convaincant: { label: 'Très convaincant', bg: 'var(--success-bg-subtle)', border: 'var(--success-strong)', texte: 'var(--success-strong)' },
+  convaincant: { label: 'Convaincant', bg: 'var(--success-bg-subtle)', border: 'var(--success-strong)', texte: 'var(--success-strong)' },
+  a_renforcer: { label: 'À renforcer', bg: '#FFF7ED', border: '#FDBA74', texte: '#9A3412' },
+  prioritaire: { label: 'Prioritaire', bg: 'var(--danger-bg-subtle)', border: 'var(--danger)', texte: 'var(--danger)' }
+};
+var COULEURS_PRIORITE = {
+  critique: { label: 'Critique', bg: 'var(--danger-bg-subtle)', border: 'var(--danger)', texte: 'var(--danger)' },
+  haute: { label: 'Haute', bg: '#FFF7ED', border: '#FDBA74', texte: '#9A3412' },
+  moyenne: { label: 'Moyenne', bg: 'var(--accent-bg-subtle)', border: 'var(--accent)', texte: 'var(--accent)' },
+  faible: { label: 'Faible', bg: 'var(--bg-subtle)', border: 'var(--border)', texte: 'var(--text-muted)' }
+};
+
+function badge(c) {
+  return '<span class="badge" style="background:' + c.bg + ';color:' + c.texte + ';border:1px solid ' + c.border + ';font-weight:600;">' + c.label + '</span>';
+}
+function puces(items) {
+  if (!items || !items.length) return '';
+  return '<ul class="small mb-0">' + items.map(function (i) { return '<li>' + i + '</li>'; }).join('') + '</ul>';
+}
+
+/* ===== 3 scenarios, memes champs qu'un DiagnosticResultat reel ===== */
+var SCENARIOS = {
+  excellent: {
+    statut: 'pret',
+    resume: 'Votre candidature est solide et cohérente. Le parcours raconte une histoire claire, les compétences affichées correspondent au métier visé, et aucune incohérence n\'a été relevée. Quelques ajustements mineurs permettraient de la rendre encore plus percutante.',
+    alertes: [],
+    regard: {
+      premiereImpression: 'Un profil clair, structuré, qui donne immédiatement envie d\'en savoir plus.',
+      ceQuiDonneEnvie: 'La progression de poste en poste est logique et chaque expérience apporte un résultat concret.',
+      ceQuiPeutFreiner: 'Rien de bloquant : tout au plus, la partie formation pourrait être un peu plus détaillée.',
+      projection: 'Un recruteur verrait ici un profil autonome, prêt à être opérationnel rapidement, avec peu de questions en suspens avant l\'entretien.'
+    },
+    axes: [
+      { id: 'credibilite', nom: 'Crédibilité des affirmations', niveau: 'tres_convaincant', forts: ['Chaque mission cite un résultat mesurable', 'Ton mesuré, sans exagération'], faibles: [], incoherences: [], risques: [] },
+      { id: 'coherence', nom: 'Cohérence du parcours', niveau: 'tres_convaincant', forts: ['Progression logique entre les postes'], faibles: [], incoherences: [], risques: [] },
+      { id: 'adequation', nom: 'Adéquation au métier visé', niveau: 'convaincant', forts: ['Compétences clés bien mises en avant'], faibles: ['La partie formation reste succincte'], incoherences: [], risques: [] },
+      { id: 'lisibilite', nom: 'Lisibilité du document', niveau: 'convaincant', forts: ['Structure claire, une page'], faibles: [], incoherences: [], risques: [] }
+    ],
+    recommandations: [
+      { contenu: 'Ajouter une ligne sur le contenu de la formation la plus récente.', priorite: 'faible', dimension: 'Adéquation au métier visé' }
+    ],
+    conclusionTitre: 'Votre CV possède de bonnes bases.',
+    conclusionTexte: 'Il est prêt à être envoyé. L\'ajustement suggéré ci-dessus reste facultatif.',
+    panneauAuto: 'panneau-regard'
+  },
+  correct: {
+    statut: 'a_ajuster',
+    resume: 'Votre candidature tient la route sur l\'essentiel, mais certains points méritent d\'être renforcés avant l\'envoi. Le parcours est compréhensible, sans être encore totalement convaincant sur la partie résultats chiffrés.',
+    alertes: [],
+    regard: {
+      premiereImpression: 'Une bonne première impression, un peu freinée par un manque de résultats chiffrés.',
+      ceQuiDonneEnvie: 'Le parcours reste cohérent d\'un poste à l\'autre.',
+      ceQuiPeutFreiner: 'Peu de chiffres concrets pour objectiver les réussites annoncées.',
+      projection: 'Un recruteur comprendrait le profil, mais poserait probablement des questions en entretien pour vérifier l\'impact réel des missions décrites.'
+    },
+    axes: [
+      { id: 'credibilite', nom: 'Crédibilité des affirmations', niveau: 'a_renforcer', forts: ['Ton mesuré'], faibles: ['Peu de résultats chiffrés', 'Affirmations parfois génériques'], incoherences: [], risques: [] },
+      { id: 'coherence', nom: 'Cohérence du parcours', niveau: 'convaincant', forts: ['Aucune rupture injustifiée'], faibles: [], incoherences: [], risques: [] },
+      { id: 'adequation', nom: 'Adéquation au métier visé', niveau: 'convaincant', forts: ['Compétences alignées avec le poste visé'], faibles: [], incoherences: [], risques: [] },
+      { id: 'lisibilite', nom: 'Lisibilité du document', niveau: 'a_renforcer', forts: [], faibles: ['Certains blocs sont denses, peu aérés'], incoherences: [], risques: [] }
+    ],
+    recommandations: [
+      { contenu: 'Ajouter un résultat chiffré sur l\'expérience la plus récente.', priorite: 'haute', dimension: 'Crédibilité des affirmations' },
+      { contenu: 'Aérer la mise en page en réduisant la densité de texte par bloc.', priorite: 'moyenne', dimension: 'Lisibilité du document' },
+      { contenu: 'Reformuler une affirmation trop générique en résultat concret.', priorite: 'faible', dimension: 'Crédibilité des affirmations' }
+    ],
+    conclusionTitre: 'Encore quelques ajustements avant l\'envoi.',
+    conclusionTexte: 'Traitez au moins la recommandation prioritaire ci-dessus, le reste peut attendre une seconde passe.',
+    panneauAuto: 'panneau-analyse'
+  },
+  retravailler: {
+    statut: 'a_retravailler',
+    resume: 'Votre candidature nécessite un travail plus important avant l\'envoi. Deux points bloquants ont été identifiés, en plus de plusieurs axes à renforcer sur le fond.',
+    alertes: [
+      { texte: 'Deux dates d\'expérience se chevauchent sans explication.', dimension: 'Cohérence du parcours' },
+      { texte: 'Aucun résultat concret n\'étaye les responsabilités décrites sur le poste actuel.', dimension: 'Crédibilité des affirmations' }
+    ],
+    regard: {
+      premiereImpression: 'Le profil interpelle par endroits, mais deux incohérences ralentissent la lecture.',
+      ceQuiDonneEnvie: 'Le secteur d\'activité et les intitulés de poste correspondent bien à la cible.',
+      ceQuiPeutFreiner: 'Le chevauchement de dates et l\'absence de résultats concrets soulèvent des questions dès la première lecture.',
+      projection: 'Un recruteur risquerait de s\'arrêter sur les incohérences avant même d\'évaluer le reste du profil.'
+    },
+    axes: [
+      { id: 'credibilite', nom: 'Crédibilité des affirmations', niveau: 'prioritaire', forts: [], faibles: ['Aucun résultat chiffré sur le poste actuel'], incoherences: [], risques: ['Le lecteur peut douter du niveau réel de responsabilité'] },
+      { id: 'coherence', nom: 'Cohérence du parcours', niveau: 'prioritaire', forts: [], faibles: [], incoherences: ['Chevauchement de deux périodes d\'expérience sans explication'], risques: [] },
+      { id: 'adequation', nom: 'Adéquation au métier visé', niveau: 'convaincant', forts: ['Secteur et intitulés cohérents avec la cible'], faibles: [], incoherences: [], risques: [] },
+      { id: 'lisibilite', nom: 'Lisibilité du document', niveau: 'a_renforcer', forts: [], faibles: ['Deux pages pour un profil junior'], incoherences: [], risques: [] }
+    ],
+    recommandations: [
+      { contenu: 'Clarifier ou corriger le chevauchement de dates entre les deux dernières expériences.', priorite: 'critique', dimension: 'Cohérence du parcours' },
+      { contenu: 'Ajouter au moins un résultat chiffré sur le poste actuel.', priorite: 'haute', dimension: 'Crédibilité des affirmations' },
+      { contenu: 'Réduire le document à une page.', priorite: 'moyenne', dimension: 'Lisibilité du document' }
+    ],
+    conclusionTitre: 'Avant de candidater, il est conseillé de corriger les points suivants.',
+    conclusionTexte: 'Commencez par les 2 alertes ci-dessus : ce sont elles qui risquent le plus de faire hésiter un recruteur.',
+    panneauAuto: 'panneau-ameliorer'
+  }
+};
+
+function panneauRegard(s) {
+  var pointsPositifs = [s.regard.premiereImpression, s.regard.ceQuiDonneEnvie].length;
+  var teaser = (s.statut === 'a_retravailler' ? '2 points de vigilance identifiés' : 'Première impression positive, quelques nuances à connaître');
+  return {
+    id: 'panneau-regard', icone: '👀', titre: 'Le regard d\'un recruteur', teaser: teaser,
+    corps: '<div class="bilan-regard-grille">' +
+      '<div class="bilan-regard-carte"><h6>Première impression</h6><p class="small mb-0">' + s.regard.premiereImpression + '</p></div>' +
+      '<div class="bilan-regard-carte"><h6>Ce qui donne envie</h6><p class="small mb-0">' + s.regard.ceQuiDonneEnvie + '</p></div>' +
+      '<div class="bilan-regard-carte"><h6>Ce qui peut freiner</h6><p class="small mb-0">' + s.regard.ceQuiPeutFreiner + '</p></div>' +
+      '<div class="bilan-regard-carte"><h6>Vu par un recruteur</h6><p class="small mb-0">' + s.regard.projection + '</p></div>' +
+      '</div>'
+  };
+}
+
+function panneauAnalyse(s) {
+  var nbConvaincant = s.axes.filter(function (a) { return a.niveau === 'tres_convaincant' || a.niveau === 'convaincant'; }).length;
+  var nbARenforcer = s.axes.filter(function (a) { return a.niveau === 'a_renforcer' || a.niveau === 'prioritaire'; }).length;
+  var teaser = s.axes.length + ' dimensions analysées · ' + nbConvaincant + ' convaincantes · ' + nbARenforcer + ' à renforcer';
+  var corps = s.axes.map(function (axe) {
+    var c = COULEURS_RESTITUTION[axe.niveau];
+    var elements = [];
+    if (axe.forts.length) elements.push('Points forts' + puces(axe.forts));
+    if (axe.faibles.length) elements.push('À renforcer' + puces(axe.faibles));
+    if (axe.incoherences.length) elements.push('Incohérences relevées' + puces(axe.incoherences));
+    if (axe.risques.length) elements.push('Risques' + puces(axe.risques));
+    return '<details class="bilan-sous-panneau">' +
+      '<summary><span><strong>' + axe.nom + '</strong></span>' +
+      '<span style="display:flex;align-items:center;gap:0.6rem;">' + badge(c) + '<i class="bi bi-chevron-right bilan-sous-panneau-fleche"></i></span>' +
+      '</summary>' +
+      '<div class="bilan-sous-panneau-corps">' + elements.map(function (e) { return '<p class="small text-muted mb-0 mt-2">' + e; }).join('') + '</div>' +
+      '</details>';
+  }).join('');
+  return { id: 'panneau-analyse', icone: '🔍', titre: 'Analyse détaillée de votre CV', teaser: teaser, corps: corps };
+}
+
+function panneauAmeliorer(s) {
+  var prioritaires = s.recommandations.filter(function (r) { return r.priorite === 'critique' || r.priorite === 'haute'; });
+  var secondaires = s.recommandations.filter(function (r) { return r.priorite === 'moyenne' || r.priorite === 'faible'; });
+  var teaser = s.recommandations.length + ' recommandation' + (s.recommandations.length > 1 ? 's' : '') +
+    (prioritaires.length ? ', dont ' + prioritaires.length + ' prioritaire' + (prioritaires.length > 1 ? 's' : '') : '');
+  function carteReco(r) {
+    var c = COULEURS_PRIORITE[r.priorite];
+    return '<div style="border:1px solid ' + c.border + ';border-radius:10px;padding:0.75rem 1rem;margin-bottom:0.75rem;background:var(--bg-card);">' +
+      '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">' +
+      '<span class="small text-muted">' + r.dimension + '</span>' + badge(c) + '</div>' +
+      '<p class="mb-0 mt-1">' + r.contenu + '</p></div>';
+  }
+  var corps = '';
+  if (prioritaires.length) corps += '<p class="small text-muted fw-bold mb-2">Prioritaires</p>' + prioritaires.map(carteReco).join('');
+  if (secondaires.length) corps += '<p class="small text-muted fw-bold mb-2 mt-3">Secondaires</p>' + secondaires.map(carteReco).join('');
+  if (!s.recommandations.length) corps = '<p class="text-muted small mb-0">Aucune recommandation : votre candidature est déjà solide.</p>';
+  return { id: 'panneau-ameliorer', icone: '✅', titre: 'Comment améliorer votre CV', teaser: teaser, corps: corps };
+}
+
+function panneauComprendre() {
+  return {
+    id: 'panneau-comprendre', icone: 'ℹ️', titre: 'Comprendre votre résultat',
+    teaser: 'Fonctionnement de l\'analyse, limites, rappel sur l\'anonymisation',
+    corps:
+      '<p class="small fw-bold mb-1">Comment fonctionne cette analyse ?</p>' +
+      '<p class="small text-muted">Votre CV a été comparé à plusieurs critères objectifs (cohérence des dates, présence de résultats concrets, adéquation avec le métier visé...) par un assistant IA, à partir du texte que vous avez transmis.</p>' +
+      '<p class="small fw-bold mb-1 mt-3">Limites de l\'analyse</p>' +
+      '<p class="small text-muted">Ce bilan est une aide à la décision, pas un jugement définitif. La qualité du résultat dépend de la formulation de votre CV et des limites propres à tout modèle d\'IA. En cas de doute, croisez ce retour avec l\'avis d\'une personne de confiance.</p>' +
+      '<p class="small fw-bold mb-1 mt-3">CV anonymisé avant l\'analyse</p>' +
+      '<p class="small text-muted mb-0">Ce document a été anonymisé avant son envoi à l\'assistant IA. Les informations personnelles (nom, coordonnées, photo...) ont volontairement été masquées et ne sont donc pas prises en compte dans cette analyse. Pensez simplement à vérifier, sur votre CV original, que ces informations sont bien présentes et correctement positionnées.</p>'
+  };
+}
+
+function rendrePanneau(p, ouvert) {
+  return '<details class="bilan-panneau" id="' + p.id + '"' + (ouvert ? ' open' : '') + '>' +
+    '<summary><span class="bilan-panneau-titre">' + p.icone + ' ' + p.titre +
+    '<span class="bilan-panneau-teaser" style="display:block;font-weight:400;">' + p.teaser + '</span></span>' +
+    '<i class="bi bi-chevron-right bilan-panneau-fleche"></i></summary>' +
+    '<div class="bilan-panneau-corps">' + p.corps + '</div></details>';
+}
+
+function rendre(nomScenario) {
+  var s = SCENARIOS[nomScenario];
+  document.getElementById('zoneBadge').innerHTML = '<p class="mb-0">' + badge(COULEURS_STATUT[s.statut]) + '</p>';
+  document.getElementById('zoneResume').textContent = s.resume;
+
+  document.getElementById('zoneAlertes').innerHTML = s.alertes.length
+    ? '<div class="cv-section" style="background:var(--danger-bg-subtle);border:1px solid var(--danger);border-radius:12px;padding:1rem 1.25rem;margin:1rem 0;text-align:left;">' +
+      '<h5 style="color:var(--danger);">⚠️ Points à corriger avant tout envoi</h5><ul class="mb-0">' +
+      s.alertes.map(function (a) { return '<li>' + a.texte + ' <span class="text-muted small">(' + a.dimension + ')</span></li>'; }).join('') +
+      '</ul></div>'
+    : '';
+
+  var panneaux = [panneauRegard(s), panneauAnalyse(s), panneauAmeliorer(s), panneauComprendre()];
+  document.getElementById('zonePanneaux').innerHTML = panneaux.map(function (p) {
+    return rendrePanneau(p, p.id === s.panneauAuto);
+  }).join('');
+
+  document.getElementById('zoneConclusion').innerHTML =
+    '<h4>🚀 Et maintenant ?</h4>' +
+    '<p class="mb-0">' + s.conclusionTitre + '<br><span class="text-muted small">' + s.conclusionTexte + '</span></p>' +
+    '<div class="bilan-conclusion-actions">' +
+    '<button type="button" class="btn btn-primary">Corriger mon CV</button>' +
+    '<button type="button" class="btn btn-outline-primary">Générer une nouvelle version</button>' +
+    '<button type="button" class="btn btn-outline-secondary">Relancer un bilan</button>' +
+    '</div>';
+}
+
+document.querySelectorAll('[data-scenario]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('[data-scenario]').forEach(function (b) { b.classList.remove('actif'); });
+    btn.classList.add('actif');
+    rendre(btn.dataset.scenario);
+  });
+});
+
+rendre('correct');
+</script>
+</body>
+</html>

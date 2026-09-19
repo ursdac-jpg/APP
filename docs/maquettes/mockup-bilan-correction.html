@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette -- Continuité Diagnostic vers Correction</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  .demo-barre {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    background: #1b212c; color: #fff; padding: 0.6rem 1.2rem;
+    display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.85rem;
+  }
+  .demo-barre strong { color: #ffc94d; }
+  .demo-barre button {
+    border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); color: #fff;
+    border-radius: 20px; padding: 0.3rem 0.9rem; font-size: 0.8rem; cursor: pointer;
+  }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-spacer { height: 3.4rem; }
+
+  .mockup-note {
+    max-width: 820px; margin: 0 auto 1.5rem; background: #fffaeb; border: 1px dashed #f5dd94;
+    border-radius: 0.8rem; padding: 0.7rem 1rem; font-size: 0.82rem; color: #92720c;
+  }
+
+  .recap-carte {
+    max-width: 820px; margin: 0 auto 1.5rem; background: var(--bg-subtle); border: 2px solid var(--border);
+    border-radius: 1.2rem; padding: 1.2rem 1.4rem;
+  }
+  .recap-carte h5 { display: flex; align-items: center; gap: 0.5rem; }
+  .recap-liste-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--border); font-size: 0.9rem;
+  }
+  .recap-liste-item:first-of-type { border-top: none; }
+
+  .scenario-zone { max-width: 820px; margin: 0 auto 3rem; }
+  .scenario-carte {
+    background: var(--bg-card); border: 2px solid var(--border); border-radius: 1.1rem;
+    padding: 1.2rem 1.4rem; margin-bottom: 0.9rem;
+  }
+  .scenario-carte.accent { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .scenario-carte.muted { opacity: 0.75; }
+  .badge-etat-corrigee { background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
+  .badge-etat-passee { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .pulse-anneau { box-shadow: 0 0 0 3px var(--accent-bg-subtle), 0 0 0 5px var(--accent); border-radius: 0.8rem; }
+
+  .progression-etapes { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
+  .progression-etapes span {
+    flex: 1; height: 6px; border-radius: 3px; background: var(--border);
+  }
+  .progression-etapes span.faite { background: var(--success-strong); }
+  .progression-etapes span.active { background: var(--accent); }
+
+  .comparaison-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .comparaison-grille { grid-template-columns: 1fr; } }
+  .comparaison-bloc { border-radius: 0.9rem; padding: 1rem; font-size: 0.9rem; }
+  .comparaison-bloc.actuel { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); }
+  .comparaison-bloc.propose { background: var(--accent-bg-subtle); border: 2px solid var(--accent); }
+  .comparaison-bloc h6 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.5rem; }
+
+  .lien-bascule { font-size: 0.85rem; color: var(--accent); cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; }
+</style>
+</head>
+<body>
+
+<div class="demo-barre">
+  <span><strong>Maquette de démonstration</strong> : 4 philosophies à comparer, aucune n'est encore choisie</span>
+  <button type="button" data-scenario="editeur" class="actif">1. Retour à l'éditeur</button>
+  <button type="button" data-scenario="pasapas">2. Assistant pas à pas</button>
+  <button type="button" data-scenario="copier">3. Formulations à copier</button>
+  <button type="button" data-scenario="nouvelleversion">4. Nouvelle version complète</button>
+</div>
+<div class="demo-spacer"></div>
+
+<div id="app" style="max-width:1000px;margin:0 auto;padding:2rem 1.5rem 4rem;background:var(--bg-card);min-height:100vh;">
+
+  <div class="mockup-note" id="noteScenario"></div>
+
+  <div class="recap-carte">
+    <h5>🚀 Et maintenant ? <span class="badge" style="background:#FFF7ED;color:#9A3412;border:1px solid #FDBA74;font-weight:600;">À ajuster</span></h5>
+    <p class="small text-muted mb-2">Point de départ commun aux 4 scénarios : le même bilan, les mêmes 3 recommandations. Seule la suite change.</p>
+    <div id="recapListe"></div>
+  </div>
+
+  <div class="scenario-zone" id="zoneScenario"></div>
+
+</div>
+
+<script>
+var RECOS = [
+  { id: 'r1', dimension: 'Crédibilité des affirmations', priorite: 'haute', contenu: 'Ajouter un résultat chiffré sur l\'expérience la plus récente.', proposition: '« Pilotage d\'un portefeuille de 40 comptes clients, avec une progression du taux de renouvellement de 12 points en 18 mois. »' },
+  { id: 'r2', dimension: 'Lisibilité du document', priorite: 'moyenne', contenu: 'Aérer la mise en page en réduisant la densité de texte par bloc.', proposition: 'Limiter chaque expérience à 3 puces maximum, une action et un résultat par puce.' },
+  { id: 'r3', dimension: 'Crédibilité des affirmations', priorite: 'faible', contenu: 'Reformuler une affirmation trop générique en résultat concret.', proposition: '« Force de proposition » devient « À l\'origine de 3 propositions d\'amélioration adoptées par l\'équipe en 2024. »' }
+];
+var COULEURS_PRIORITE = {
+  haute: { label: 'Haute', bg: '#FFF7ED', border: '#FDBA74', texte: '#9A3412' },
+  moyenne: { label: 'Moyenne', bg: 'var(--accent-bg-subtle)', border: 'var(--accent)', texte: 'var(--accent)' },
+  faible: { label: 'Faible', bg: 'var(--bg-subtle)', border: 'var(--border)', texte: 'var(--text-muted)' }
+};
+function badgePriorite(p) {
+  var c = COULEURS_PRIORITE[p];
+  return '<span class="badge" style="background:' + c.bg + ';color:' + c.texte + ';border:1px solid ' + c.border + ';font-weight:600;">' + c.label + '</span>';
+}
+
+function rendreRecap() {
+  document.getElementById('recapListe').innerHTML = RECOS.map(function (r) {
+    return '<div class="recap-liste-item"><span>' + r.contenu + ' <span class="text-muted small">(' + r.dimension + ')</span></span>' + badgePriorite(r.priorite) + '</div>';
+  }).join('');
+}
+
+/* ===================================================================
+   SCENARIO 1 : Retour à l'éditeur ERIP existant (deep-link)
+   =================================================================== */
+var etatEditeur = { etape: 'liste', recoActive: null, corrigees: {} };
+
+function rendreEditeur() {
+  document.getElementById('noteScenario').innerHTML =
+    'Chaque recommandation renvoie vers l\'écran ERIP concerné. Aucune nouvelle interface d\'édition : on réutilise ce qui existe déjà. ' +
+    'Limite assumée : le renvoi cible un écran (ex. "Vos expériences"), pas un champ précis, faute de référence structurée dans les recommandations.';
+
+  if (etatEditeur.etape === 'liste') {
+    document.getElementById('zoneScenario').innerHTML = RECOS.map(function (r) {
+      var corrigee = etatEditeur.corrigees[r.id];
+      return '<div class="scenario-carte' + (corrigee ? ' muted' : '') + '">' +
+        '<div class="d-flex justify-content-between align-items-start gap-2">' +
+        '<div><p class="small text-muted mb-1">' + r.dimension + '</p><p class="mb-0">' + r.contenu + '</p></div>' +
+        (corrigee ? '<span class="badge badge-etat-corrigee">Corrigée</span>' : badgePriorite(r.priorite)) +
+        '</div>' +
+        (corrigee
+          ? ''
+          : '<div class="mt-2 d-flex gap-2 flex-wrap">' +
+            '<button type="button" class="btn btn-primary btn-sm" data-editeur-corriger="' + r.id + '">Corriger dans mon CV</button>' +
+            '<button type="button" class="btn btn-outline-secondary btn-sm" disabled>✨ Améliorer cette recommandation (déjà existant)</button>' +
+            '</div>') +
+        '</div>';
+    }).join('');
+    document.querySelectorAll('[data-editeur-corriger]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        etatEditeur.recoActive = btn.dataset.editeurCorriger;
+        etatEditeur.etape = 'transition';
+        rendreEditeur();
+      });
+    });
+    return;
+  }
+
+  var reco = RECOS.filter(function (r) { return r.id === etatEditeur.recoActive; })[0];
+
+  if (etatEditeur.etape === 'transition') {
+    document.getElementById('zoneScenario').innerHTML =
+      '<div class="scenario-carte accent text-center">' +
+      '<p class="mb-1"><i class="bi bi-signpost-2"></i> Vous allez être redirigé vers l\'écran <strong>Vos expériences</strong></p>' +
+      '<p class="small text-muted mb-3">Pour corriger : « ' + reco.contenu + ' »</p>' +
+      '<div style="background:var(--bg-card);border-radius:0.8rem;padding:0.8rem 1rem;text-align:left;margin-bottom:1rem;">' +
+      '<p class="small fw-bold mb-1">💡 Pense-bête, la proposition déjà générée :</p>' +
+      '<p class="small text-muted mb-0">' + reco.proposition + '</p></div>' +
+      '<button type="button" class="btn btn-primary btn-sm me-2" id="btnContinuerEditeur">Continuer vers l\'éditeur</button>' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAnnulerEditeur">Annuler, retour au Bilan</button>' +
+      '</div>';
+    document.getElementById('btnContinuerEditeur').addEventListener('click', function () { etatEditeur.etape = 'destination'; rendreEditeur(); });
+    document.getElementById('btnAnnulerEditeur').addEventListener('click', function () { etatEditeur.etape = 'liste'; etatEditeur.recoActive = null; rendreEditeur(); });
+    return;
+  }
+
+  if (etatEditeur.etape === 'destination') {
+    document.getElementById('zoneScenario').innerHTML =
+      '<div class="scenario-carte">' +
+      '<p class="small text-muted mb-3"><i class="bi bi-arrow-left"></i> écran réel ERIP « Vos expériences » (aperçu simplifié pour cette maquette)</p>' +
+      '<div class="pulse-anneau" style="padding:0.9rem 1.1rem;margin-bottom:0.7rem;background:var(--bg-subtle);">' +
+      '<p class="fw-bold mb-1">Chargée de clientèle, depuis 2022</p>' +
+      '<p class="small text-muted mb-0">C\'est ici que vous ajustez le texte concerné par la recommandation.</p>' +
+      '</div>' +
+      '<div style="padding:0.9rem 1.1rem;margin-bottom:0.7rem;background:var(--bg-subtle);border-radius:0.8rem;opacity:0.6;">' +
+      '<p class="fw-bold mb-1">Assistante commerciale, de 2019 à 2022</p></div>' +
+      '<button type="button" class="btn btn-success btn-sm" id="btnTermineEditeur">J\'ai terminé, retour au Bilan</button>' +
+      '</div>';
+    document.getElementById('btnTermineEditeur').addEventListener('click', function () {
+      etatEditeur.corrigees[etatEditeur.recoActive] = true;
+      etatEditeur.etape = 'liste'; etatEditeur.recoActive = null;
+      rendreEditeur();
+    });
+  }
+}
+
+/* ===================================================================
+   SCENARIO 2 : Assistant de correction pas à pas
+   =================================================================== */
+var etatPasAPas = { index: 0, statuts: {}, sousEtape: 'question' };
+
+function rendrePasAPas() {
+  document.getElementById('noteScenario').innerHTML =
+    'Même mécanisme de renvoi vers l\'éditeur que le scénario 1, mais orchestré en séquence guidée, un point à la fois, avec progression visible. ' +
+    'Pas une nouvelle interface d\'édition : une couche d\'accompagnement au-dessus du scénario 1.';
+
+  if (etatPasAPas.index >= RECOS.length) {
+    var corrigees = Object.values(etatPasAPas.statuts).filter(function (s) { return s === 'corrigee'; }).length;
+    var passees = Object.values(etatPasAPas.statuts).filter(function (s) { return s === 'passee'; }).length;
+    document.getElementById('zoneScenario').innerHTML =
+      '<div class="scenario-carte accent text-center">' +
+      '<h5 class="mb-2">✅ Parcours terminé</h5>' +
+      '<p class="mb-3">' + corrigees + ' point(s) corrigé(s), ' + passees + ' point(s) laissé(s) pour plus tard.</p>' +
+      '<button type="button" class="btn btn-primary btn-sm me-2" id="btnRelancerPasAPas">Relancer un bilan</button>' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnRecommencerPasAPas">Recommencer la démo</button>' +
+      '</div>';
+    document.getElementById('btnRecommencerPasAPas').addEventListener('click', function () { etatPasAPas = { index: 0, statuts: {}, sousEtape: 'question' }; rendrePasAPas(); });
+    document.getElementById('btnRelancerPasAPas').addEventListener('click', function () { etatPasAPas = { index: 0, statuts: {}, sousEtape: 'question' }; rendrePasAPas(); });
+    return;
+  }
+
+  var reco = RECOS[etatPasAPas.index];
+  var barre = RECOS.map(function (r, i) {
+    var cls = i < etatPasAPas.index ? 'faite' : (i === etatPasAPas.index ? 'active' : '');
+    return '<span class="' + cls + '"></span>';
+  }).join('');
+
+  if (etatPasAPas.sousEtape === 'question') {
+    document.getElementById('zoneScenario').innerHTML =
+      '<div class="progression-etapes">' + barre + '</div>' +
+      '<p class="small text-muted mb-2">Point ' + (etatPasAPas.index + 1) + ' sur ' + RECOS.length + '</p>' +
+      '<div class="scenario-carte">' +
+      '<p class="small text-muted mb-1">' + reco.dimension + '</p>' +
+      '<p class="mb-2">' + reco.contenu + '</p>' +
+      '<div style="background:var(--accent-bg-subtle);border-radius:0.7rem;padding:0.7rem 0.9rem;margin-bottom:1rem;">' +
+      '<p class="small mb-0">💡 ' + reco.proposition + '</p></div>' +
+      '<button type="button" class="btn btn-primary btn-sm me-2" id="btnCorrigerPasAPas">Corriger maintenant</button>' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnPasserPasAPas">Passer pour l\'instant</button>' +
+      '</div>';
+    document.getElementById('btnCorrigerPasAPas').addEventListener('click', function () { etatPasAPas.sousEtape = 'transition'; rendrePasAPas(); });
+    document.getElementById('btnPasserPasAPas').addEventListener('click', function () {
+      etatPasAPas.statuts[reco.id] = 'passee'; etatPasAPas.index += 1; etatPasAPas.sousEtape = 'question'; rendrePasAPas();
+    });
+    return;
+  }
+
+  if (etatPasAPas.sousEtape === 'transition') {
+    document.getElementById('zoneScenario').innerHTML =
+      '<div class="progression-etapes">' + barre + '</div>' +
+      '<div class="scenario-carte">' +
+      '<p class="small text-muted mb-3"><i class="bi bi-arrow-left"></i> écran réel ERIP correspondant (aperçu simplifié)</p>' +
+      '<div class="pulse-anneau" style="padding:0.9rem 1.1rem;margin-bottom:0.9rem;background:var(--bg-subtle);">' +
+      '<p class="fw-bold mb-1">Zone concernée par : ' + reco.dimension + '</p>' +
+      '<p class="small text-muted mb-0">Modification effectuée directement dans l\'éditeur ERIP.</p></div>' +
+      '<button type="button" class="btn btn-success btn-sm" id="btnValiderPasAPas">C\'est corrigé, point suivant</button>' +
+      '</div>';
+    document.getElementById('btnValiderPasAPas').addEventListener('click', function () {
+      etatPasAPas.statuts[reco.id] = 'corrigee'; etatPasAPas.index += 1; etatPasAPas.sousEtape = 'question'; rendrePasAPas();
+    });
+  }
+}
+
+/* ===================================================================
+   SCENARIO 3 : Formulations à copier (modèle externe)
+   =================================================================== */
+var etatCopier = { copiees: {} };
+
+function rendreCopier() {
+  document.getElementById('noteScenario').innerHTML =
+    'Pour les personnes qui gèrent leur CV en dehors d\'ERIP (Canva, Word personnel...). Aucune modification de votre dossier ERIP : ' +
+    'uniquement des formulations prêtes à coller dans votre propre document.';
+
+  document.getElementById('zoneScenario').innerHTML =
+    RECOS.map(function (r) {
+      var copiee = etatCopier.copiees[r.id];
+      return '<div class="scenario-carte">' +
+        '<div class="d-flex justify-content-between align-items-start gap-2 mb-2">' +
+        '<p class="small text-muted mb-0">' + r.dimension + '</p>' + badgePriorite(r.priorite) +
+        '</div>' +
+        '<p class="small mb-2">' + r.contenu + '</p>' +
+        '<div style="background:var(--bg-subtle);border-radius:0.7rem;padding:0.7rem 0.9rem;margin-bottom:0.7rem;">' +
+        '<p class="small mb-0" style="font-family:ui-monospace,Consolas,monospace;">' + r.proposition + '</p></div>' +
+        '<button type="button" class="btn btn-sm ' + (copiee ? 'btn-success' : 'btn-outline-primary') + '" data-copier="' + r.id + '">' +
+        (copiee ? '✅ Copié !' : '📋 Copier cette formulation') + '</button>' +
+        '</div>';
+    }).join('') +
+    '<div class="scenario-carte text-center">' +
+    '<p class="small text-muted mb-2">Vous préférez qu\'ERIP corrige directement votre CV ?</p>' +
+    '<button type="button" class="lien-bascule" id="btnBasculerEditeur">Basculer vers la correction guidée dans ERIP →</button>' +
+    '</div>';
+
+  document.querySelectorAll('[data-copier]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.dataset.copier;
+      var reco = RECOS.filter(function (r) { return r.id === id; })[0];
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(reco.proposition).catch(function () {}); }
+      etatCopier.copiees[id] = true;
+      rendreCopier();
+    });
+  });
+  document.getElementById('btnBasculerEditeur').addEventListener('click', function () { activerScenario('editeur'); });
+}
+
+/* ===================================================================
+   SCENARIO 4 : Nouvelle version complète
+   =================================================================== */
+var etatNouvelleVersion = { validee: false };
+
+function rendreNouvelleVersion() {
+  document.getElementById('noteScenario').innerHTML =
+    'Consolide en une seule fois les propositions déjà obtenues pour les 3 recommandations. Ce n\'est pas un nouveau passage IA qui réanalyse tout : ' +
+    'seulement un assemblage de ce qui existe déjà. Vous gardez la main avant toute application.';
+
+  if (!etatNouvelleVersion.validee) {
+    document.getElementById('zoneScenario').innerHTML =
+      '<div class="comparaison-grille mb-3">' +
+      '<div class="comparaison-bloc actuel"><h6>Texte actuel</h6>' +
+      '<p class="mb-0">« Chargée de clientèle, force de proposition, gestion d\'un portefeuille diversifié. »</p></div>' +
+      '<div class="comparaison-bloc propose"><h6>Nouvelle version proposée</h6>' +
+      '<p class="mb-0">« Pilotage d\'un portefeuille de 40 comptes clients, avec une progression du taux de renouvellement de 12 points en 18 mois. ' +
+      'À l\'origine de 3 propositions d\'amélioration adoptées par l\'équipe en 2024. »</p></div>' +
+      '</div>' +
+      '<div class="scenario-carte">' +
+      '<p class="small mb-2"><i class="bi bi-shield-check"></i> Rien n\'est appliqué avant votre validation explicite.</p>' +
+      '<button type="button" class="btn btn-primary btn-sm me-2" id="btnValiderNouvelleVersion">Valider cette nouvelle version</button>' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm" disabled>Revenir à l\'ancienne version</button>' +
+      '</div>';
+    document.getElementById('btnValiderNouvelleVersion').addEventListener('click', function () { etatNouvelleVersion.validee = true; rendreNouvelleVersion(); });
+    return;
+  }
+
+  document.getElementById('zoneScenario').innerHTML =
+    '<div class="scenario-carte accent text-center">' +
+    '<h5 class="mb-2">✅ Nouvelle version appliquée à votre CV ERIP</h5>' +
+    '<button type="button" class="btn btn-primary btn-sm me-2">Télécharger le Word</button>' +
+    '<button type="button" class="btn btn-outline-primary btn-sm" id="btnRelancerNouvelleVersion">Relancer un bilan</button>' +
+    '</div>';
+  document.getElementById('btnRelancerNouvelleVersion').addEventListener('click', function () { etatNouvelleVersion.validee = false; rendreNouvelleVersion(); });
+}
+
+/* ===================================================================
+   Routeur de scénario
+   =================================================================== */
+function activerScenario(nom) {
+  document.querySelectorAll('[data-scenario]').forEach(function (b) { b.classList.toggle('actif', b.dataset.scenario === nom); });
+  if (nom === 'editeur') rendreEditeur();
+  else if (nom === 'pasapas') rendrePasAPas();
+  else if (nom === 'copier') rendreCopier();
+  else if (nom === 'nouvelleversion') rendreNouvelleVersion();
+}
+
+document.querySelectorAll('[data-scenario]').forEach(function (btn) {
+  btn.addEventListener('click', function () { activerScenario(btn.dataset.scenario); });
+});
+
+rendreRecap();
+activerScenario('editeur');
+</script>
+</body>
+</html>

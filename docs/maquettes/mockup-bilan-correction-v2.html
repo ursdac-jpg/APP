@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette definitive -- Parcours de correction adaptatif</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  .demo-barre {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    background: #1b212c; color: #fff; padding: 0.6rem 1.2rem;
+    display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.85rem;
+  }
+  .demo-barre strong { color: #ffc94d; }
+  .demo-barre button {
+    border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); color: #fff;
+    border-radius: 20px; padding: 0.3rem 0.9rem; font-size: 0.8rem; cursor: pointer;
+  }
+  .demo-barre button.actif { background: #ffc94d; color: #1b212c; border-color: #ffc94d; font-weight: 700; }
+  .demo-spacer { height: 3.4rem; }
+
+  .mockup-note {
+    max-width: 760px; margin: 0 auto 1.2rem; background: #fffaeb; border: 1px dashed #f5dd94;
+    border-radius: 0.8rem; padding: 0.6rem 1rem; font-size: 0.8rem; color: #92720c;
+  }
+  .debug-resolution {
+    max-width: 760px; margin: 0 auto 0.8rem; background: #eef2fd; border: 1px dashed #b6c6f5;
+    border-radius: 0.6rem; padding: 0.4rem 0.8rem; font-size: 0.75rem; color: #2b3a67; font-family: ui-monospace, Consolas, monospace;
+  }
+
+  .position-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 600;
+    color: var(--text-muted); background: var(--bg-subtle); border: 1px solid var(--border);
+    border-radius: 20px; padding: 0.25rem 0.8rem; margin-bottom: 0.9rem;
+  }
+
+  .conteneur { max-width: 760px; margin: 0 auto 3rem; }
+
+  .carte-question {
+    background: var(--bg-card); border: 2px solid var(--border); border-radius: 1.1rem;
+    padding: 1.3rem 1.5rem; margin-bottom: 1rem;
+  }
+  .carte-question.accent { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .carte-question h5 { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+  .carte-question .sous-question { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+  .recap-liste-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0; border-top: 1px solid var(--border); font-size: 0.9rem;
+  }
+  .recap-liste-item:first-of-type { border-top: none; }
+
+  .cta-principal { font-size: 1.05rem; padding: 0.75rem 1.5rem; font-weight: 700; }
+  .alternatives { text-align: center; margin-top: 1rem; }
+  .alternatives p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .lien-alternative {
+    font-size: 0.82rem; color: var(--accent); cursor: pointer; text-decoration: underline;
+    background: none; border: none; padding: 0 0.5rem;
+  }
+
+  .badge-etat-corrigee { background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
+  .badge-etat-passee { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-etat-copiee { background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success-strong); }
+
+  .pulse-anneau { box-shadow: 0 0 0 3px var(--accent-bg-subtle), 0 0 0 5px var(--accent); border-radius: 0.8rem; }
+
+  .progression-etapes { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; max-width: 760px; margin-left: auto; margin-right: auto; }
+  .progression-etapes span { flex: 1; height: 6px; border-radius: 3px; background: var(--border); }
+  .progression-etapes span.faite { background: var(--success-strong); }
+  .progression-etapes span.active { background: var(--accent); }
+
+  .retour-methode { text-align: center; margin-top: 1.2rem; }
+  .retour-methode button { font-size: 0.8rem; color: var(--text-muted); background: none; border: none; text-decoration: underline; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="demo-barre">
+  <span><strong>Maquette de démonstration</strong> : outils de test uniquement, absents de l'app finale</span>
+  <span>Situation simulée :</span>
+  <button type="button" data-contexte="erip" class="actif">CV construit dans ERIP</button>
+  <button type="button" data-contexte="pret">CV importé (deja un CV)</button>
+  <button type="button" id="btnResetDemo">Recommencer</button>
+</div>
+<div class="demo-spacer"></div>
+
+<div id="app" style="max-width:1000px;margin:0 auto;padding:2rem 1.5rem 4rem;background:var(--bg-card);min-height:100vh;">
+
+  <div class="mockup-note" id="noteContexte"></div>
+  <div class="debug-resolution" id="debugResolution" style="display:none;"></div>
+  <div id="positionZone"></div>
+  <div class="conteneur" id="zoneEcran"></div>
+
+</div>
+
+<script>
+/* ============================================================
+   Donnees simulees : 3 recommandations, chacune illustrant une
+   branche differente de la cascade extraitConcerne -> dimensionsLiees.
+   ============================================================ */
+var RECOS = [
+  {
+    id: 'r1', axeId: 'credibilite', dimension: 'Crédibilité des affirmations', priorite: 'haute',
+    contenu: 'Ajouter un résultat chiffré sur l\'expérience la plus récente.',
+    extraitConcerne: 'gestion d\'un portefeuille diversifié',
+    proposition: '« Pilotage d\'un portefeuille de 40 comptes clients, avec une progression du taux de renouvellement de 12 points en 18 mois. »'
+  },
+  {
+    id: 'r2', axeId: 'adequation', dimension: 'Adéquation avec le poste', priorite: 'moyenne',
+    contenu: 'Ajouter une rubrique Compétences, actuellement absente du CV.',
+    extraitConcerne: null,
+    proposition: 'Lister 5 à 8 compétences clés, en priorité celles citées dans l\'offre visée.'
+  },
+  {
+    id: 'r3', axeId: 'credibilite', dimension: 'Crédibilité des affirmations', priorite: 'faible',
+    contenu: 'Reformuler une affirmation trop générique en résultat concret.',
+    extraitConcerne: 'un rôle polyvalent et exigeant',
+    proposition: '« Force de proposition » devient « À l\'origine de 3 propositions d\'amélioration adoptées par l\'équipe en 2024. »'
+  }
+];
+
+/* CV simule (branche modeCreation !== 'pret' uniquement) : sert a
+   demontrer la resolution par extraitConcerne (recherche verbatim). */
+var DOSSIER_SIMULE = {
+  experiences: [
+    { id: 'exp1', poste: 'Chargée de clientèle, depuis 2022', texte: 'Chargée de clientèle, force de proposition, gestion d\'un portefeuille diversifié.' },
+    { id: 'exp2', poste: 'Assistante commerciale, de 2019 à 2022', texte: 'Assistante commerciale, accueil et suivi administratif.' }
+  ]
+};
+
+var MAPPING_AXE_DESTINATION = {
+  adequation: 'Projet professionnel (métier visé)',
+  credibilite: 'Expérience professionnelle',
+  risques: 'Expérience professionnelle',
+  impact: 'Expérience professionnelle',
+  coherence: 'Expérience professionnelle',
+  differenciation: 'Expérience professionnelle',
+  posture: 'Expérience professionnelle',
+  lisibilite: 'Aperçu et finalisation (style)',
+  personnalisation: 'Candidature (offre ciblée)',
+  coherence_transversale: 'Candidature (offre ciblée)'
+};
+
+// Cascade validee : 1) extraitConcerne verbatim retrouve dans le dossier
+// structure -> ciblage precis. 2) sinon, repli sur dimensionsLiees ->
+// destination generale. Jamais l'inverse, jamais les deux a la fois.
+function resoudreDestination(reco) {
+  if (reco.extraitConcerne) {
+    var trouve = DOSSIER_SIMULE.experiences.filter(function (e) { return e.texte.indexOf(reco.extraitConcerne) !== -1; })[0];
+    if (trouve) { return { type: 'extrait', libelle: trouve.poste, detail: 'extrait retrouvé mot pour mot dans cette expérience' }; }
+    return { type: 'axe', libelle: MAPPING_AXE_DESTINATION[reco.axeId], detail: 'extrait fourni mais non retrouvé tel quel, repli sur l\'axe' };
+  }
+  return { type: 'axe', libelle: MAPPING_AXE_DESTINATION[reco.axeId], detail: 'aucun extrait fourni, résolution par axe' };
+}
+
+/* ============================================================
+   Etat partage entre tous les modes (jamais reinitialise en changeant
+   de methode) + contexte simule (equivalent dossier.modeCreation).
+   ============================================================ */
+var etat = { contexte: 'erip', ecran: 'entree', recoStatuts: {}, indexGuide: 0, sousEtapeGuide: 'question', recoActive: null, retourVers: 'entree' };
+
+function libelleEtat(id) {
+  var s = etat.recoStatuts[id];
+  if (s === 'corrigee') return '<span class="badge badge-etat-corrigee">Corrigée</span>';
+  if (s === 'passee') return '<span class="badge badge-etat-passee">Passée</span>';
+  if (s === 'copiee') return '<span class="badge badge-etat-copiee">Copiée</span>';
+  var c = { haute: { l: 'Haute', bg: '#FFF7ED', b: '#FDBA74', t: '#9A3412' }, moyenne: { l: 'Moyenne', bg: 'var(--accent-bg-subtle)', b: 'var(--accent)', t: 'var(--accent)' }, faible: { l: 'Faible', bg: 'var(--bg-subtle)', b: 'var(--border)', t: 'var(--text-muted)' } };
+  var pr = c[RECOS.filter(function (r) { return r.id === id; })[0].priorite];
+  return '<span class="badge" style="background:' + pr.bg + ';color:' + pr.t + ';border:1px solid ' + pr.b + ';font-weight:600;">' + pr.l + '</span>';
+}
+
+function afficherDebug(reco) {
+  var res = resoudreDestination(reco);
+  var box = document.getElementById('debugResolution');
+  box.style.display = 'block';
+  box.innerHTML = '<i class="bi bi-cpu"></i> Résolution (' + reco.id + ') : ' + res.type + ' → ' + res.libelle + ', ' + res.detail;
+}
+function masquerDebug() { document.getElementById('debugResolution').style.display = 'none'; }
+
+function nombreRestantes() {
+  return RECOS.filter(function (r) { return !etat.recoStatuts[r.id] || etat.recoStatuts[r.id] === 'passee'; }).length;
+}
+
+function rendrePosition() {
+  var zone = document.getElementById('positionZone');
+  if (etat.ecran === 'entree') { zone.innerHTML = ''; return; }
+  var restantes = nombreRestantes();
+  zone.innerHTML = '<div class="text-center"><span class="position-pill"><i class="bi bi-compass"></i> ' +
+    (restantes > 0 ? restantes + ' point(s) restant(s) à traiter' : 'Tous les points ont été traités') + '</span></div>';
+}
+
+/* ============================================================
+   ECRAN 1 : "Que dois-je faire maintenant ?"
+   Une seule proposition principale, adaptee au contexte -- jamais 3
+   options a poids egal. Les alternatives restent accessibles mais
+   discretes (liens, pas des boutons de meme poids).
+   ============================================================ */
+function rendreEntree() {
+  masquerDebug();
+  var estERIP = etat.contexte === 'erip';
+  document.getElementById('noteContexte').innerHTML = estERIP
+    ? 'Contexte simulé : CV construit dans ERIP (<code>dossier.modeCreation !== \'pret\'</code>). L\'éditeur structuré est disponible : la correction guidée est proposée par défaut.'
+    : 'Contexte simulé : CV importé (<code>dossier.modeCreation === \'pret\'</code>). Aucun éditeur structuré par champ n\'est disponible pour cette population : l\'édition du texte complet est proposée par défaut.';
+
+  var recapHtml = RECOS.map(function (r) {
+    return '<div class="recap-liste-item"><span>' + r.contenu + ' <span class="text-muted small">(' + r.dimension + ')</span></span>' + libelleEtat(r.id) + '</div>';
+  }).join('');
+
+  var ctaPrincipal = estERIP
+    ? { label: '🧭 Commencer la correction guidée', mode: 'guide' }
+    : { label: '✏️ Corriger le texte de mon CV', mode: 'texte' };
+
+  var alternatives = estERIP
+    ? [{ label: 'Corriger librement, sans être guidé', mode: 'libre' }, { label: 'Obtenir uniquement les formulations à copier', mode: 'copier' }]
+    : [{ label: 'Obtenir les formulations à copier pour mon CV externe', mode: 'copier' }];
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question">' +
+    '<h5>🚀 Et maintenant ?</h5>' +
+    '<p class="sous-question">Que dois-je faire maintenant ?</p>' +
+    recapHtml +
+    '<div class="text-center mt-3">' +
+    '<button type="button" class="btn btn-primary cta-principal" id="btnCtaPrincipal">' + ctaPrincipal.label + '</button>' +
+    '</div>' +
+    '<div class="alternatives">' +
+    '<p>Cette méthode ne convient pas ?</p>' +
+    alternatives.map(function (a, i) { return '<button type="button" class="lien-alternative" data-mode="' + a.mode + '">' + a.label + '</button>' + (i < alternatives.length - 1 ? '<span class="text-muted">·</span>' : ''); }).join('') +
+    '</div>' +
+    '</div>';
+
+  document.getElementById('btnCtaPrincipal').addEventListener('click', function () { activerMode(ctaPrincipal.mode); });
+  document.querySelectorAll('.alternatives [data-mode]').forEach(function (btn) {
+    btn.addEventListener('click', function () { activerMode(btn.dataset.mode); });
+  });
+}
+
+/* ============================================================
+   ECRAN transition partage : "Comment corriger ce point ?"
+   Utilise par le mode guide ET le mode libre -- un seul mecanisme,
+   deux facons d'y entrer (sequence imposee ou pas).
+   ============================================================ */
+function rendreTransition(reco, apresRetour) {
+  var res = resoudreDestination(reco);
+  afficherDebug(reco);
+  var texteDestination = res.type === 'extrait'
+    ? 'Vous allez être redirigé vers l\'expérience concernée : <strong>' + res.libelle + '</strong>'
+    : 'Vous allez être redirigé vers : <strong>' + res.libelle + '</strong>';
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question accent text-center">' +
+    '<p class="sous-question">Comment corriger ce point ?</p>' +
+    '<p class="mb-1">' + texteDestination + '</p>' +
+    '<p class="small text-muted mb-3">Pour corriger : « ' + reco.contenu + ' »</p>' +
+    '<div style="background:var(--bg-card);border-radius:0.8rem;padding:0.8rem 1rem;text-align:left;margin-bottom:1rem;">' +
+    '<p class="small fw-bold mb-1">💡 Pense-bête, la proposition déjà générée :</p>' +
+    '<p class="small text-muted mb-0">' + reco.proposition + '</p></div>' +
+    '<button type="button" class="btn btn-primary btn-sm me-2" id="btnContinuerTransition">Continuer</button>' +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAnnulerTransition">Annuler</button>' +
+    '</div>';
+
+  document.getElementById('btnContinuerTransition').addEventListener('click', function () { rendreDestination(reco, res, apresRetour); });
+  document.getElementById('btnAnnulerTransition').addEventListener('click', apresRetour.annuler);
+}
+
+function rendreDestination(reco, res, apresRetour) {
+  var carte = res.type === 'extrait'
+    ? '<div class="pulse-anneau" style="padding:0.9rem 1.1rem;margin-bottom:0.7rem;background:var(--bg-subtle);">' +
+      '<p class="fw-bold mb-1">' + res.libelle + '</p>' +
+      '<p class="small text-muted mb-0">C\'est ici, précisément, que se trouve le passage concerné.</p></div>'
+    : '<div class="pulse-anneau" style="padding:0.9rem 1.1rem;margin-bottom:0.7rem;background:var(--bg-subtle);">' +
+      '<p class="fw-bold mb-1">' + res.libelle + '</p>' +
+      '<p class="small text-muted mb-0">Zone générale concernée : ajustez le passage correspondant.</p></div>';
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question">' +
+    '<p class="sous-question">Comment corriger ce point ?</p>' +
+    '<p class="small text-muted mb-3"><i class="bi bi-arrow-left"></i> écran réel ERIP (aperçu simplifié pour cette maquette)</p>' +
+    carte +
+    '<button type="button" class="btn btn-success btn-sm" id="btnTermineDestination">J\'ai terminé, retour au Bilan</button>' +
+    '</div>';
+
+  document.getElementById('btnTermineDestination').addEventListener('click', function () {
+    etat.recoStatuts[reco.id] = 'corrigee';
+    apresRetour.termine();
+  });
+}
+
+/* ============================================================
+   ECRAN DE CLOTURE, partage par les 4 modes -- referme la boucle
+   Diagnostic -> Comprendre -> Corriger -> Verifier. Un seul bouton
+   principal, jamais deux d'un poids egal (retour utilisateur). Le
+   ton et le CTA s'adaptent a ce qui a REELLEMENT ete fait : jamais un
+   message de reussite si rien n'a change, jamais "analyser a
+   nouveau" pousse comme LA priorite si le CV dans ERIP n'a pas
+   bouge (mode "copier" -- la correction se fait hors ERIP).
+   ============================================================ */
+function rendreCloture(origineCopier) {
+  masquerDebug();
+  document.getElementById('positionZone').innerHTML = '';
+  var corrigees = RECOS.filter(function (r) { return etat.recoStatuts[r.id] === 'corrigee'; }).length;
+  var copiees = RECOS.filter(function (r) { return etat.recoStatuts[r.id] === 'copiee'; }).length;
+  var texteModifie = !!etat.recoStatuts._texteValide;
+  var cvReellementModifieDansERIP = corrigees > 0 || texteModifie;
+  var aucuneAction = corrigees === 0 && copiees === 0 && !texteModifie;
+
+  var titre, message, libelleCta;
+  if (aucuneAction) {
+    titre = '👍 Pas de souci';
+    message = 'Vous pourrez reprendre ces corrections quand vous serez prêt. Rien n\'a été modifié pour l\'instant.';
+    libelleCta = null;
+  } else if (cvReellementModifieDansERIP) {
+    titre = '✅ Vous avez terminé les corrections que vous souhaitiez apporter.';
+    message = 'La prochaine étape consiste à relancer une analyse, afin de vérifier si les modifications ont bien amélioré votre CV.';
+    libelleCta = '🔄 Analyser à nouveau mon CV';
+  } else {
+    titre = '📋 Vous avez récupéré ' + copiees + ' formulation(s).';
+    message = 'Une fois appliquées dans votre document, la prochaine étape consistera à relancer une analyse, pour vérifier si ces changements ont bien amélioré votre CV.';
+    libelleCta = '🔄 Analyser à nouveau mon CV';
+  }
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question accent text-center">' +
+    '<p class="sous-question">Quelle est l\'étape suivante ?</p>' +
+    '<h5 class="mb-2">' + titre + '</h5>' +
+    '<p class="mb-3">' + message + '</p>' +
+    (libelleCta ? '<button type="button" class="btn btn-primary cta-principal" id="btnClotureCta">' + libelleCta + '</button>' : '') +
+    '<div class="retour-methode mt-2"><button type="button" id="btnClotureRetour">Revenir au rapport actuel</button></div>' +
+    '</div>';
+
+  if (libelleCta) { document.getElementById('btnClotureCta').addEventListener('click', function () { resetDemo(); }); }
+  document.getElementById('btnClotureRetour').addEventListener('click', function () { activerMode('entree'); });
+}
+
+/* ============================================================
+   MODE "guide" : sequence imposee, une recommandation a la fois.
+   ============================================================ */
+function rendreGuide() {
+  masquerDebug();
+  if (etat.indexGuide >= RECOS.length) { rendreCloture(); return; }
+
+  var reco = RECOS[etat.indexGuide];
+  if (etat.recoStatuts[reco.id] === 'corrigee' || etat.recoStatuts[reco.id] === 'passee') { etat.indexGuide += 1; rendreGuide(); return; }
+
+  var barre = RECOS.map(function (r, i) {
+    var cls = i < etat.indexGuide ? 'faite' : (i === etat.indexGuide ? 'active' : '');
+    return '<span class="' + cls + '"></span>';
+  }).join('');
+  document.getElementById('positionZone').innerHTML =
+    '<div class="progression-etapes">' + barre + '</div>' +
+    '<p class="text-center small text-muted mb-3">Où en suis-je ? Point ' + (etat.indexGuide + 1) + ' sur ' + RECOS.length + '</p>';
+
+  if (etat.sousEtapeGuide === 'transition') {
+    rendreTransition(reco, {
+      termine: function () { etat.indexGuide += 1; etat.sousEtapeGuide = 'question'; rendreGuide(); },
+      annuler: function () { etat.sousEtapeGuide = 'question'; rendreGuide(); }
+    });
+    return;
+  }
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question">' +
+    '<p class="sous-question">Que dois-je faire maintenant ?</p>' +
+    '<p class="small text-muted mb-1">' + reco.dimension + '</p>' +
+    '<p class="mb-2">' + reco.contenu + '</p>' +
+    '<div style="background:var(--accent-bg-subtle);border-radius:0.7rem;padding:0.7rem 0.9rem;margin-bottom:1rem;">' +
+    '<p class="small mb-0">💡 ' + reco.proposition + '</p></div>' +
+    '<button type="button" class="btn btn-primary btn-sm me-2" id="btnCorrigerGuide">Corriger maintenant</button>' +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnPasserGuide">Passer pour l\'instant</button>' +
+    '</div>' +
+    boutonRetourMethode();
+
+  document.getElementById('btnCorrigerGuide').addEventListener('click', function () { etat.sousEtapeGuide = 'transition'; rendreGuide(); });
+  document.getElementById('btnPasserGuide').addEventListener('click', function () {
+    etat.recoStatuts[reco.id] = 'passee'; etat.indexGuide += 1; rendreGuide();
+  });
+  wireRetourMethode();
+}
+
+/* ============================================================
+   MODE "libre" : meme mecanisme, sans sequence imposee.
+   ============================================================ */
+function rendreLibre() {
+  masquerDebug();
+  document.getElementById('positionZone').innerHTML = '';
+  if (etat.recoActive) {
+    var reco = RECOS.filter(function (r) { return r.id === etat.recoActive; })[0];
+    rendreTransition(reco, {
+      termine: function () { etat.recoActive = null; rendreLibre(); },
+      annuler: function () { etat.recoActive = null; rendreLibre(); }
+    });
+    return;
+  }
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<p class="text-center sous-question">Que dois-je faire maintenant ? (ordre libre)</p>' +
+    RECOS.map(function (r) {
+      var traitee = etat.recoStatuts[r.id] === 'corrigee';
+      return '<div class="carte-question' + (traitee ? '' : '') + '">' +
+        '<div class="d-flex justify-content-between align-items-start gap-2">' +
+        '<div><p class="small text-muted mb-1">' + r.dimension + '</p><p class="mb-0">' + r.contenu + '</p></div>' + libelleEtat(r.id) +
+        '</div>' +
+        (traitee ? '' : '<div class="mt-2"><button type="button" class="btn btn-primary btn-sm" data-libre-corriger="' + r.id + '">Corriger</button></div>') +
+        '</div>';
+    }).join('') + boutonRetourMethode();
+
+  document.querySelectorAll('[data-libre-corriger]').forEach(function (btn) {
+    btn.addEventListener('click', function () { etat.recoActive = btn.dataset.libreCorriger; rendreLibre(); });
+  });
+  wireRetourMethode();
+}
+
+/* ============================================================
+   MODE "copier" : jamais de navigation ERIP, uniquement du texte.
+   ============================================================ */
+function rendreCopier() {
+  masquerDebug();
+  document.getElementById('positionZone').innerHTML = '';
+  document.getElementById('zoneEcran').innerHTML =
+    '<p class="text-center sous-question">Comment corriger ce point ? (dans votre propre document)</p>' +
+    RECOS.map(function (r) {
+      var copiee = etat.recoStatuts[r.id] === 'copiee';
+      return '<div class="carte-question">' +
+        '<div class="d-flex justify-content-between align-items-start gap-2 mb-2">' +
+        '<p class="small text-muted mb-0">' + r.dimension + '</p>' + libelleEtat(r.id) +
+        '</div>' +
+        '<p class="small mb-2">' + r.contenu + '</p>' +
+        '<div style="background:var(--bg-subtle);border-radius:0.7rem;padding:0.7rem 0.9rem;margin-bottom:0.7rem;">' +
+        '<p class="small mb-0" style="font-family:ui-monospace,Consolas,monospace;">' + r.proposition + '</p></div>' +
+        '<button type="button" class="btn btn-sm ' + (copiee ? 'btn-success' : 'btn-outline-primary') + '" data-copier="' + r.id + '">' +
+        (copiee ? '✅ Copié !' : '📋 Copier cette formulation') + '</button>' +
+        '</div>';
+    }).join('') + boutonRetourMethode();
+
+  document.querySelectorAll('[data-copier]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.dataset.copier;
+      var reco = RECOS.filter(function (r) { return r.id === id; })[0];
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(reco.proposition).catch(function () {}); }
+      etat.recoStatuts[id] = 'copiee';
+      rendreCopier();
+    });
+  });
+  wireRetourMethode();
+}
+
+/* ============================================================
+   MODE "texte" : population CV importe -- pas d'editeur structure,
+   reutilise le principe de ouvrirVerificationInformations() (texte
+   complet, une seule zone d'edition).
+   ============================================================ */
+function rendreTexte() {
+  masquerDebug();
+  document.getElementById('positionZone').innerHTML = '';
+  if (etat.recoStatuts._texteValide) { rendreCloture(); return; }
+  document.getElementById('zoneEcran').innerHTML =
+    '<p class="text-center sous-question">Comment corriger ce point ? (texte complet de votre CV)</p>' +
+    '<div class="carte-question">' +
+    '<p class="small text-muted mb-2">Points à corriger, à titre de repère pendant que vous éditez :</p>' +
+    '<ul class="small mb-3">' + RECOS.map(function (r) { return '<li>' + r.contenu + '</li>'; }).join('') + '</ul>' +
+    '<textarea class="form-control mb-3" rows="8" style="font-size:0.9rem;">Chargée de clientèle, force de proposition, gestion d\'un portefeuille diversifié.\n\nAssistante commerciale, accueil et suivi administratif.</textarea>' +
+    '<button type="button" class="btn btn-primary btn-sm" id="btnValiderTexte">Valider</button>' +
+    '</div>' + boutonRetourMethode();
+  document.getElementById('btnValiderTexte').addEventListener('click', function () { etat.recoStatuts._texteValide = true; rendreTexte(); });
+  wireRetourMethode();
+}
+
+/* ============================================================
+   Retour discret vers une autre methode, disponible partout sauf
+   sur l'ecran d'entree (jamais un choix impose, toujours une porte
+   de sortie facultative).
+   ============================================================ */
+function boutonRetourMethode() {
+  return '<div class="retour-methode">' +
+    '<button type="button" id="btnTerminerParcours">J\'ai terminé pour l\'instant</button>' +
+    '<span class="text-muted"> · </span>' +
+    '<button type="button" id="btnRetourMethode">Changer de méthode</button>' +
+    '</div>';
+}
+function wireRetourMethode() {
+  var b = document.getElementById('btnRetourMethode');
+  if (b) b.addEventListener('click', function () { activerMode('entree'); });
+  var t = document.getElementById('btnTerminerParcours');
+  if (t) t.addEventListener('click', function () { rendreCloture(); });
+}
+
+function activerMode(mode) {
+  etat.ecran = mode;
+  if (mode === 'entree') { rendreEntree(); rendrePosition(); return; }
+  if (mode === 'guide') { rendreGuide(); rendrePosition(); return; }
+  if (mode === 'libre') { rendreLibre(); return; }
+  if (mode === 'copier') { rendreCopier(); return; }
+  if (mode === 'texte') { rendreTexte(); return; }
+}
+
+function resetDemo() {
+  etat = { contexte: etat.contexte, ecran: 'entree', recoStatuts: {}, indexGuide: 0, sousEtapeGuide: 'question', recoActive: null, retourVers: 'entree' };
+  activerMode('entree');
+}
+
+document.querySelectorAll('[data-contexte]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('[data-contexte]').forEach(function (b) { b.classList.remove('actif'); });
+    btn.classList.add('actif');
+    etat.contexte = btn.dataset.contexte;
+    resetDemo();
+  });
+});
+document.getElementById('btnResetDemo').addEventListener('click', resetDemo);
+
+activerMode('entree');
+</script>
+</body>
+</html>

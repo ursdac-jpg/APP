@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquette -- Assistance a la finalisation du CV</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../css/style.css">
+<style>
+  .demo-barre {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    background: #1b212c; color: #fff; padding: 0.6rem 1.2rem;
+    display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.85rem;
+  }
+  .demo-barre button {
+    border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); color: #fff;
+    border-radius: 20px; padding: 0.3rem 0.9rem; font-size: 0.8rem; cursor: pointer;
+  }
+  .demo-spacer { height: 3rem; }
+  .mockup-note {
+    max-width: 780px; margin: 0 auto 1.2rem; background: #fffaeb; border: 1px dashed #f5dd94;
+    border-radius: 0.8rem; padding: 0.6rem 1rem; font-size: 0.8rem; color: #92720c;
+  }
+  .conteneur { max-width: 780px; margin: 0 auto 3rem; }
+  .carte-question {
+    background: var(--bg-card); border: 2px solid var(--border); border-radius: 1.1rem;
+    padding: 1.3rem 1.5rem; margin-bottom: 1rem;
+  }
+  .carte-question.accent { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .sous-question { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+  .carte-relecture {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.9rem;
+    padding: 1rem 1.2rem; margin-bottom: 0.9rem; display: flex; gap: 0.8rem; align-items: flex-start;
+  }
+  .carte-relecture.decochee { opacity: 0.55; }
+  .carte-relecture input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin-top: 0.2rem; flex-shrink: 0; }
+  .badge-origine {
+    display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 700;
+    border-radius: 20px; padding: 0.2rem 0.65rem; margin-bottom: 0.5rem;
+  }
+  .badge-origine.mecanique { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-origine.ia { background: var(--accent-bg-subtle); color: var(--accent); border: 1px solid var(--accent); }
+  .origine-explication { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+  .comparaison-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.85rem; }
+  @media (max-width: 620px) { .comparaison-mini { grid-template-columns: 1fr; } }
+  .comparaison-mini .actuel { color: var(--text-muted); background: var(--bg-subtle); border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+  .comparaison-mini .propose { background: var(--accent-bg-subtle); border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+  .comparaison-mini h6 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.3rem; opacity: 0.8; }
+
+  .barre-validation {
+    position: sticky; bottom: 0; background: var(--bg-card); border-top: 2px solid var(--border);
+    padding: 0.9rem 1.2rem; margin: 0 -1.5rem -1.5rem; border-radius: 0 0 1.1rem 1.1rem;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;
+  }
+  .progression-etapes { display: flex; gap: 0.4rem; max-width: 300px; margin: 0 auto 0.5rem; }
+  .progression-etapes span { flex: 1; height: 6px; border-radius: 3px; background: var(--border); }
+  .progression-etapes span.faite { background: var(--success-strong); }
+  .progression-etapes span.active { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="demo-barre">
+  <span><strong>Maquette de démonstration</strong> : parcours complet "Assistance à la finalisation du CV"</span>
+  <button type="button" id="btnRecommencerDemo">Recommencer</button>
+</div>
+<div class="demo-spacer"></div>
+
+<div id="app" style="max-width:1000px;margin:0 auto;padding:2rem 1.5rem 4rem;background:var(--bg-card);min-height:100vh;">
+  <div class="mockup-note">Cette maquette simule la génération IA (pas de vrai copier-coller externe) pour se concentrer sur le nouveau parcours : la mécanique de génération elle-même est déjà éprouvée ailleurs dans ERIP.</div>
+  <div id="zoneEcran" class="conteneur"></div>
+</div>
+
+<script>
+/* CORRECTIF (2026-08-11, alignement sur l'implementation reelle verifiee
+   dans app.js) : cette maquette suivait encore, pour r3, l'hypothese
+   invalidee "toute recommandation sans extraitConcerne genere un
+   fragment via Prompt 2". Ce n'est vrai que pour les axes d'experience
+   (Famille 1, redactionnelle) -- `adequation`/`personnalisation`
+   (Famille 2, completude) ne generent jamais rien : ce sont des donnees
+   metier que seul le candidat connait (voir
+   EVOLUTIONS_DIFFEREES_BILAN_CANDIDATURE.md, "Distinction... deux
+   familles"). r3 (dimension "Adequation avec le poste") passe donc en
+   `mecanisme: 'completude'`, sans texteFinal ni generation -- exactement
+   le comportement verifie dans app.js (bilanOuvrirAssistanceFinalisation
+   et les ecrans htmlBilanAssistance*). Vocabulaire des mecanismes
+   ('remplacement'/'redactionnel'/'completude') repris tel quel de
+   assistance/orchestrationAssistance.js, jamais un second vocabulaire
+   pour la meme idee. */
+var RECOS = [
+  {
+    id: 'r1', mecanisme: 'remplacement', dimension: 'Crédibilité des affirmations',
+    contenu: 'Ajouter un résultat chiffré sur l\'expérience la plus récente.',
+    texteActuel: 'Gestion d\'un portefeuille diversifié.',
+    texteFinal: null, // genere pendant le parcours (cycle Prompt 2)
+    texteFinalSimule: 'Pilotage d\'un portefeuille de 40 comptes clients, avec une progression du taux de renouvellement de 12 points en 18 mois.'
+  },
+  {
+    id: 'r2', mecanisme: 'redactionnel', dimension: 'Crédibilité des affirmations',
+    contenu: 'Reformuler une affirmation trop générique en résultat concret.',
+    texteActuel: 'Force de proposition.',
+    texteFinal: null,
+    texteFinalSimule: 'À l\'origine de 3 propositions d\'amélioration adoptées par l\'équipe en 2024.'
+  },
+  {
+    id: 'r3', mecanisme: 'completude', dimension: 'Adéquation avec le poste',
+    contenu: 'Préciser le métier visé pour cette candidature.',
+    texteActuel: null, texteFinal: null, texteFinalSimule: null
+  }
+];
+
+// Famille 1 (redactionnelle, passe par Prompt 2) : remplacement + redactionnel.
+// Famille 2 (completude, navigation guidee, jamais de generation) : completude.
+function estFamille1(r) { return r.mecanisme === 'remplacement' || r.mecanisme === 'redactionnel'; }
+
+var etat = { ecran: 'entree', totalGeneration: null, selection: {} };
+RECOS.filter(estFamille1).forEach(function (r) { etat.selection[r.id] = true; }); // pre-coche par defaut, Famille 1 uniquement
+
+function recap() {
+  return RECOS.map(function (r) {
+    return '<div style="display:flex;justify-content:space-between;gap:0.6rem;padding:0.4rem 0;border-top:1px solid var(--border);font-size:0.9rem;">' +
+      '<span>' + r.contenu + ' <span class="text-muted small">(' + r.dimension + ')</span></span>' +
+      '<span class="badge" style="background:var(--bg-subtle);color:var(--text-muted);border:1px solid var(--border);">Validée</span></div>';
+  }).join('');
+}
+
+function rendreEntree() {
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question">' +
+    '<h5>🤝 Besoin d\'aide pour finaliser votre CV ?</h5>' +
+    '<p class="sous-question">Que va-t-il se passer ?</p>' +
+    '<p class="small text-muted mb-2">Vous avez validé 3 recommandations. Vous pouvez les appliquer vous-même (parcours guidé habituel), ou laisser ERIP préparer les modifications pour vous, à valider avant toute écriture dans votre CV.</p>' +
+    recap() +
+    '<div class="text-center mt-3">' +
+    '<button type="button" class="btn btn-primary" style="font-size:1.05rem;padding:0.75rem 1.5rem;font-weight:700;" id="btnDemarrerAide">🤝 J\'ai besoin d\'aide pour finaliser mon CV</button>' +
+    '</div>' +
+    '<p class="text-center small text-muted mt-2">Rien ne sera modifié sans votre accord explicite, recommandation par recommandation.</p>' +
+    '</div>';
+  document.getElementById('btnDemarrerAide').addEventListener('click', function () { activerEcran('classification'); });
+}
+
+function rendreClassification() {
+  var n1 = RECOS.filter(estFamille1).length;
+  var n2 = RECOS.length - n1;
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question accent text-center">' +
+    '<p class="sous-question">Que va-t-il se passer ?</p>' +
+    '<h5 class="mb-2">🔍 Analyse de vos recommandations</h5>' +
+    (n1 ? '<p class="mb-1">' + n1 + ' recommandation(s) : une proposition de texte va être préparée par une IA, à valider avant application.</p>' : '') +
+    (n2 ? '<p class="mb-1">' + n2 + ' recommandation(s) : il s\'agit d\'une information que vous seul connaissez, nous allons vous guider vers l\'écran correspondant.</p>' : '') +
+    '<button type="button" class="btn btn-primary btn-sm mt-2" id="btnContinuerClassification">Continuer</button>' +
+    '</div>';
+  document.getElementById('btnContinuerClassification').addEventListener('click', function () {
+    // Meme cascade que bilanOuvrirAssistanceFinalisation()/brancherEvenementsAssistanceClassification()
+    // (js/app.js) : Famille 1 d'abord si elle existe, sinon Famille 2, sinon cloture directe.
+    var famille1 = RECOS.filter(estFamille1);
+    var famille2 = RECOS.filter(function (r) { return !estFamille1(r); });
+    activerEcran(famille1.length ? 'generation' : (famille2.length ? 'completude' : 'confirmation'));
+  });
+}
+
+function rendreGeneration() {
+  // Boucle UNIQUEMENT sur la Famille 1 (remplacement + redactionnel) sans
+  // fragment encore obtenu -- la Famille 2 (completude) ne passe jamais
+  // par cette etape, voir la note en tete de RECOS.
+  //
+  // etat.totalGeneration (fige a l'entree de cet ecran) sert uniquement a
+  // l'affichage de la progression, jamais a indexer aGenerer -- cette
+  // liste retrecit a chaque fragment obtenu, un index qui progresserait
+  // en parallele deborderait d'un cran (bug trouve et corrige le
+  // 2026-08-11 lors d'une verification precedente de cette maquette).
+  var aGenerer = RECOS.filter(function (r) { return estFamille1(r) && !r.texteFinal; });
+  if (etat.totalGeneration === null) { etat.totalGeneration = aGenerer.length; }
+  var reco = aGenerer[0];
+  if (!reco) { activerEcran('relecture'); return; }
+
+  var dejaTraites = etat.totalGeneration - aGenerer.length;
+  var barre = '';
+  for (var i = 0; i < etat.totalGeneration; i += 1) {
+    barre += '<span class="' + (i < dejaTraites ? 'faite' : (i === dejaTraites ? 'active' : '')) + '"></span>';
+  }
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="progression-etapes">' + barre + '</div>' +
+    '<p class="text-center small text-muted mb-3">Génération ' + (dejaTraites + 1) + ' sur ' + etat.totalGeneration + '</p>' +
+    '<div class="carte-question">' +
+    '<p class="sous-question">Comment corriger ce point ?</p>' +
+    '<p class="small text-muted mb-1">' + reco.dimension + '</p>' +
+    '<p class="mb-3">' + reco.contenu + '</p>' +
+    '<p class="small text-muted mb-3">Comme pour "Améliorer cette recommandation", cette étape ouvre normalement un assistant IA externe (copier-coller). Simulé ici pour se concentrer sur le nouveau parcours.</p>' +
+    '<button type="button" class="btn btn-primary btn-sm" id="btnGenererFragment">✨ Générer une proposition</button>' +
+    '</div>';
+
+  document.getElementById('btnGenererFragment').addEventListener('click', function () {
+    reco.texteFinal = reco.texteFinalSimule;
+    rendreGeneration();
+  });
+}
+
+function rendreRelecture() {
+  var recosFamille1 = RECOS.filter(estFamille1);
+  var cartes = recosFamille1.map(function (r) {
+    var cochee = etat.selection[r.id];
+    return '<div class="carte-relecture' + (cochee ? '' : ' decochee') + '">' +
+      '<input type="checkbox" data-reco-check="' + r.id + '" ' + (cochee ? 'checked' : '') + '>' +
+      '<div style="flex:1;">' +
+      '<p class="origine-explication mb-2">Cette formulation a été générée à partir de la recommandation validée.</p>' +
+      '<p class="small text-muted mb-1">' + r.dimension + '</p>' +
+      '<div class="comparaison-mini">' +
+      '<div class="actuel"><h6>Actuellement</h6>' + (r.texteActuel || '<em>Absent du CV</em>') + '</div>' +
+      '<div class="propose"><h6>Après application</h6>' + r.texteFinal + '</div>' +
+      '</div></div></div>';
+  }).join('');
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<p class="text-center sous-question">Que dois-je faire maintenant ?</p>' +
+    '<div class="carte-question" style="padding-bottom:0;">' +
+    '<h5 class="mb-1">👀 Relisez et validez chaque modification</h5>' +
+    '<p class="small text-muted mb-3">Décochez ce que vous ne souhaitez pas appliquer. Rien n\'est encore écrit dans votre CV.</p>' +
+    cartes +
+    '<div class="barre-validation">' +
+    '<span class="small text-muted" id="compteurSelection"></span>' +
+    '<button type="button" class="btn btn-primary" id="btnAppliquerSelection">Appliquer les modifications sélectionnées</button>' +
+    '</div></div>';
+
+  document.querySelectorAll('[data-reco-check]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      etat.selection[cb.dataset.recoCheck] = cb.checked;
+      rendreRelecture();
+    });
+  });
+  majCompteur();
+  document.getElementById('btnAppliquerSelection').addEventListener('click', function () {
+    var famille2 = RECOS.filter(function (r) { return !estFamille1(r); });
+    activerEcran(famille2.length ? 'completude' : 'confirmation');
+  });
+}
+function majCompteur() {
+  var recosFamille1 = RECOS.filter(estFamille1);
+  var n = recosFamille1.filter(function (r) { return etat.selection[r.id]; }).length;
+  var el = document.getElementById('compteurSelection');
+  if (el) { el.textContent = n + ' modification(s) sélectionnée(s) sur ' + recosFamille1.length; }
+}
+
+// Famille 2 (completude) : aucune generation, aucune relecture -- un
+// message puis une navigation guidee (simulee ici) vers l'ecran ERIP
+// existant. Meme mecanisme que htmlBilanAssistanceCompletude()/
+// brancherEvenementsAssistanceCompletude() (js/app.js).
+function rendreCompletude() {
+  var recosFamille2 = RECOS.filter(function (r) { return !estFamille1(r); });
+  var cartes = recosFamille2.map(function (r) {
+    return '<div class="carte-question" style="margin-bottom:0.75rem;">' +
+      '<p class="small text-muted mb-1">' + r.dimension + '</p>' +
+      '<p class="mb-2">' + r.contenu + '</p>' +
+      '<p class="small text-muted mb-2">Cette recommandation nécessite une information que seul vous pouvez renseigner. Nous allons vous guider vers l\'écran correspondant.</p>' +
+      '<button type="button" class="btn btn-outline-primary btn-sm" data-completer="' + r.id + '">Aller compléter</button>' +
+      '</div>';
+  }).join('');
+
+  document.getElementById('zoneEcran').innerHTML =
+    '<p class="text-center sous-question">Que dois-je faire maintenant ?</p>' +
+    '<h5 class="text-center mb-2">📝 À compléter vous-même</h5>' +
+    cartes +
+    '<div class="text-center mt-2"><button type="button" class="btn btn-primary btn-sm" id="btnCompletudeTermine">C\'est fait, continuer</button></div>';
+
+  document.querySelectorAll('[data-completer]').forEach(function (bouton) {
+    bouton.addEventListener('click', function () {
+      bouton.textContent = '✅ Navigation simulée vers le bloc Candidature';
+      bouton.disabled = true;
+    });
+  });
+  document.getElementById('btnCompletudeTermine').addEventListener('click', function () { activerEcran('confirmation'); });
+}
+
+function rendreConfirmation() {
+  var n = RECOS.filter(estFamille1).filter(function (r) { return etat.selection[r.id]; }).length;
+  document.getElementById('zoneEcran').innerHTML =
+    '<div class="carte-question accent text-center">' +
+    '<h5 class="mb-2">✅ Votre dossier a été mis à jour.</h5>' +
+    '<p class="mb-3">' + (n ? n + ' modification(s) appliquée(s). ' : '') +
+    'Vous pouvez continuer à modifier votre CV normalement dans ERIP, l\'exporter, ou relancer une analyse pour vérifier l\'effet de ces changements.</p>' +
+    '<button type="button" class="btn btn-primary">🔄 Analyser à nouveau mon CV</button>' +
+    '</div>';
+}
+
+function activerEcran(nom) {
+  etat.ecran = nom;
+  if (nom === 'entree') { rendreEntree(); }
+  else if (nom === 'classification') { rendreClassification(); }
+  else if (nom === 'generation') { rendreGeneration(); }
+  else if (nom === 'relecture') { rendreRelecture(); }
+  else if (nom === 'completude') { rendreCompletude(); }
+  else if (nom === 'confirmation') { rendreConfirmation(); }
+}
+
+document.getElementById('btnRecommencerDemo').addEventListener('click', function () {
+  etat = { ecran: 'entree', totalGeneration: null, selection: {} };
+  RECOS.filter(estFamille1).forEach(function (r) { etat.selection[r.id] = true; });
+  RECOS.forEach(function (r) { r.texteFinal = null; });
+  activerEcran('entree');
+});
+
+activerEcran('entree');
+</script>
+</body>
+</html>
