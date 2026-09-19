@@ -1,0 +1,435 @@
+// ============================================================
+// formatA5CV.js
+// ------------------------------------------------------------
+// TACHE (3 formats de CV) : ce fichier couvre desormais les DEUX formats
+// "allegés" a cote du format complet :
+// - "A4 Essentiel" : contenu recadre (moins d'elements), mais sur une
+//   VRAIE page A4 -- pas de changement de taille de page, juste moins
+//   de contenu. Reutilise le meme moteur de decision IA, capacites
+//   moins serrees que le Mini CV.
+// - "Mini CV (A5)" (ex "format A5") : contenu tres recadre + page REELLE
+//   A5 (148x210mm, une vraie demi-page, pas une A4 zoomee).
+//
+// Principe cle, commun aux deux (voir discussion : "et si la 4e
+// experience est la plus pertinente ?") : reutilise EXACTEMENT le meme
+// moteur de decision IA que le format complet (appliquerMoteurDecisionCV,
+// classerCompetencesParPertinence, deja rebranches dans app.js) -- seules
+// les CAPACITES changent. La selection reste donc intelligente : une
+// experience signalee pertinente par l'IA remonte, peu importe sa
+// position dans le dossier -- jamais un simple "on garde les N
+// premieres par ordre".
+//
+// Contrairement au format complet ("A4 Détaillé"), le plafonnage est ICI
+// TOUJOURS applique (meme sans recommandation IA) : les deux formats
+// allegés ont besoin de limites strictes quoi qu'il arrive.
+// ============================================================
+
+// ---- Marges de page agrandies pour "A4 Essentiel" -- retour utilisateur
+// : "je veux que l'essentiel soit plus degage et aere" (pas juste moins
+// de contenu, un vrai espace blanc plus genereux). +45% sur toutes les
+// marges, inchange pour les 2 autres formats (A4 Detaille garde ses
+// marges d'origine, le Mini CV a deja les siennes propres). ----
+function _dnMargePage(margeBase, formatPage) {
+  if (formatPage !== 'A4-essentiel') { return margeBase; }
+  var facteur = 1.45;
+  var resultat = {};
+  Object.keys(margeBase).forEach(function (cle) { resultat[cle] = Math.round(margeBase[cle] * facteur); });
+  return resultat;
+}
+
+
+// ---- Taille de page A5 reelle (148 x 210 mm, portrait, en twips) --
+// UNIQUEMENT pour le Mini CV -- "A4 Essentiel" reste sur une page A4
+// normale (taille par defaut de docx-js, deja verifiee = A4). ----
+function _dnTaillePageA5() {
+  return { width: 8390, height: 11905 };
+}
+
+// ---- Capacites fixes pour le Mini CV (A5) -- tres serrees ----
+var CAPACITES_A5_CV = {
+  experiences: 2, formations: 1, langues: 2, certifications: 0,
+  loisirs: 0, engagements: 0, competences: 4
+};
+
+// ---- Capacites fixes pour "A4 Essentiel" -- allegees mais moins
+// serrees que le Mini CV (page A4 normale, plus de place disponible) ----
+// TACHE (retour utilisateur : "encore trop proche, réduire plus -- une
+// expérience, lieu, date et 1 ligne pour la mission") : plafond
+// d'experiences RELEVE (8, au lieu de 3) plutot qu'abaisse -- voir
+// construireObjetCVPourExportEssentiel() plus bas pour l'explication
+// complete (l'objectif est des experiences plus COURTES, pas moins
+// nombreuses).
+var CAPACITES_A4_ESSENTIEL_CV = {
+  // TACHE (retour utilisateur : "Essentiel autorise 8 expériences,
+  // Détaillé seulement 5 -- l'inverse de ce qu'on attendrait") : ramené à
+  // 4 (moins que les 5 de Détaillé, cohérent avec "on ne garde que les
+  // clés") -- chaque expérience reste affichée en une ligne condensée
+  // (mode compact, voir composeurComposition.js / exportDocxNatifCV.js),
+  // mais le NOMBRE d'expériences retenues doit lui aussi refléter un vrai
+  // resserrement, pas l'inverse.
+  experiences: 4, formations: 3, langues: 4, certifications: 3,
+  loisirs: 3, engagements: 2, competences: 6
+};
+
+// TACHE (retour utilisateur : "le contenu doit être identique pour tous
+// les modèles, juste la forme qui change") : jeu de capacites UNIQUE pour
+// "A4 Détaillé", partage par tous les modeles -- avant cette tache,
+// chaque modele lisait ses PROPRES capacites depuis son JSON (valeurs qui
+// avaient fini par diverger au fil des ajouts : de 3 a 5 experiences
+// selon le modele, certains sans aucune limite). Valeurs reprises du jeu
+// le plus courant parmi les modeles existants (aquarelle, geometrique,
+// moderne-green, ruban). Voir construireObjetCVPourExport (app.js), qui
+// utilise desormais CETTE constante plutot que meta.capacites -- le champ
+// "capacites" reste present (inoffensif) dans le JSON de chaque modele,
+// mais n'est plus lu pour A4 Détaillé.
+var CAPACITES_A4_DETAILLE_CV = { experiences: 5, formations: 3, competences: 6, langues: 4, certifications: 3, loisirs: 3, engagements: 2 };
+
+// ---- Rubriques totalement retirees en A5 (jamais montrees, meme vides) ----
+var RUBRIQUES_MASQUEES_A5 = ['certifications', 'loisirs', 'engagements'];
+
+// ============================================================
+// TACHE (retour utilisateur : "le diplome le plus eleve montre le niveau
+// d'education, meme si sans lien direct avec le metier vise -- important
+// pour les competences transferables/la reconversion") : quand aucune
+// recommandation IA ne concerne les formations (cas frequent, le prompt
+// CV V2 n'en produit qu'pour experiences/competences), le moteur de
+// decision generique (decider()) retombe sur l'ORDRE DU DOSSIER -- pas
+// forcement le niveau le plus eleve. On trie ICI les formations par rang
+// RNCP decroissant (systeme deja utilise dans le formulaire de
+// formation, voir NIVEAUX_DIPLOME_SIMPLES) AVANT de les transmettre au
+// moteur de decision : la priorite par defaut devient "diplome le plus
+// eleve d'abord", tri stable (egalite de niveau -> ordre d'origine
+// conserve). Sans effet si l'IA recommande explicitement une formation
+// precise (son rang de recommandation reste toujours prioritaire).
+// ============================================================
+function _dnRangDiplome(labelNiveau) {
+  if (!labelNiveau) { return 0; }
+  var trouve = (typeof NIVEAUX_DIPLOME_SIMPLES !== 'undefined' ? NIVEAUX_DIPLOME_SIMPLES : []).filter(function (n) { return n.label === labelNiveau; })[0];
+  return trouve ? trouve.rncp : 0;
+}
+function _dnTrierFormationsParNiveauDecroissant(formations) {
+  return (formations || [])
+    .map(function (f, i) { return { f: f, i: i, rang: _dnRangDiplome(f.niveau) }; })
+    .sort(function (a, b) { return (b.rang - a.rang) || (a.i - b.i); })
+    .map(function (x) { return x.f; });
+}
+
+// ---- Troncature "propre" (coupe au dernier espace, pas au milieu d'un mot) ----
+// TACHE (retour utilisateur : "j'ai des mots coupés et remplacés par les
+// ...." en format Essentiel -- bug réel trouvé) : le seuil "dernierEspace
+// > 40" empêchait de couper avant le caractère 40, même quand ça tombait
+// en plein milieu d'un mot -- pour un budget court (Essentiel : 90
+// caractères), le dernier espace utile peut très bien se trouver avant
+// cette limite. Coupe désormais TOUJOURS au dernier espace trouvé, quelle
+// que soit sa position -- si ça donne un résultat court, c'est voulu
+// ("si il n'y a pas de place, on ne les met pas, mais on ne les casse
+// pas") -- ne coupe en plein mot que dans le cas extrême où aucun espace
+// n'existe du tout dans le texte tronqué (un seul mot géant).
+function _dnTronquerTexte(texte, maxCaracteres) {
+  if (!texte) { return ''; }
+  var t = String(texte).trim();
+  if (t.length <= maxCaracteres) { return t; }
+  var coupe = t.slice(0, maxCaracteres);
+  var dernierEspace = coupe.lastIndexOf(' ');
+  return (dernierEspace > -1 ? coupe.slice(0, dernierEspace) : coupe) + '…';
+}
+
+// ============================================================
+// Construit un objet CV recadre, generique -- partage par le Mini CV
+// (A5) et "A4 Essentiel", pour ne jamais dupliquer cette logique. TOUJOURS
+// applique (pas conditionne a la presence de recommandations IA) : les
+// deux formats allegés ont besoin de limites fermes quoi qu'il arrive.
+//
+// options = {
+//   capacites          : plafonds par rubrique (obligatoire)
+//   rubriquesMasquees  : rubriques entierement retirees (tableau, vide par defaut)
+//   tronquerProfil     : longueur max du profil (0/absent = pas de troncature)
+//   tronquerMissions   : longueur max des missions (0/absent = pas de troncature)
+// }
+// ============================================================
+function _dnConstruireObjetCVRecadre(options, modeleId) {
+  var objetCV = normaliserDonneesCV(dossier);
+  var recommandationsIACV = (dossier.ia && dossier.ia.cv && dossier.ia.cv.recommandations) || {};
+
+  // TACHE (diplome le plus eleve par defaut) : voir commentaire au-dessus
+  // de _dnTrierFormationsParNiveauDecroissant().
+  var objetCVPourDecision = {};
+  Object.keys(objetCV).forEach(function (cle) { objetCVPourDecision[cle] = objetCV[cle]; });
+  objetCVPourDecision.formations = _dnTrierFormationsParNiveauDecroissant(objetCV.formations);
+
+  var objetDecide = appliquerMoteurDecisionCV(objetCVPourDecision, recommandationsIACV, options.capacites);
+
+  var recoCompetences = (recommandationsIACV.competencesAValoriser || []).map(function (c) {
+    return { texte: c.competence, justification: c.justification };
+  });
+  var objetFinal = {};
+  Object.keys(objetDecide).forEach(function (cle) { objetFinal[cle] = objetDecide[cle]; });
+  // TACHE (retour utilisateur : "Compétences professionnelles" unifiee,
+  // plafond uniforme a 5, tous les modeles sauf Chic) : ce chemin
+  // (Mini CV A5 + A4 Essentiel) avait sa PROPRE copie de l'appel a
+  // classerCompetencesParPertinence(), independante du correctif deja
+  // applique au format complet (construireObjetCVPourExport, app.js) --
+  // meme bug, meme correction ici. Pour "A4 Essentiel", modeleId peut
+  // valoir 'chic' (le modele choisi determine reellement la mise en page,
+  // voir _dnConstruireDocumentAvecOptions) -- exclusion respectee. Pour
+  // le Mini CV (A5), modeleId n'a aucune incidence sur la mise en page
+  // (toujours _dnConstruireMiniCV, quel que soit le modele choisi en A4) :
+  // le plafond unifie s'applique donc sans exception possible.
+  // Le plafond du format (4 pour A5, 6 pour Essentiel) reste respecte
+  // s'il est PLUS strict que 5 -- jamais reintroduire plus de contenu que
+  // ce que le format prevoit.
+  if (modeleId === 'chic') {
+    objetFinal.competences = classerCompetencesParPertinence(objetDecide.competences, recoCompetences, dossier.metierCible, options.capacites.competences);
+  } else {
+    objetFinal.competences = unifierEtPlafonnerCompetences(objetDecide.competences, recoCompetences, dossier.metierCible, Math.min(5, options.capacites.competences));
+  }
+
+  (options.rubriquesMasquees || []).forEach(function (cle) { objetFinal[cle] = []; });
+
+  if (objetFinal.profil && options.tronquerProfil) {
+    objetFinal.profil = {
+      profilUtilisateur: _dnTronquerTexte(objetFinal.profil.profilUtilisateur, options.tronquerProfil),
+      profilIA: _dnTronquerTexte(objetFinal.profil.profilIA, options.tronquerProfil)
+    };
+  }
+  if (options.tronquerMissions) {
+    objetFinal.experiences = (objetFinal.experiences || []).map(function (e) {
+      var copie = {}; Object.keys(e).forEach(function (k) { copie[k] = e[k]; });
+      copie.missions = _dnTronquerTexte(e.missions, options.tronquerMissions);
+      return copie;
+    });
+  }
+
+  return objetFinal;
+}
+
+// ---- Mini CV (A5) : contenu tres recadre + textes tronques ----
+function construireObjetCVPourExportA5(modeleId) {
+  return _dnConstruireObjetCVRecadre({
+    capacites: CAPACITES_A5_CV,
+    rubriquesMasquees: RUBRIQUES_MASQUEES_A5,
+    tronquerProfil: 220,
+    tronquerMissions: 140
+  }, modeleId);
+}
+
+// ---- "A4 Essentiel" : contenu allege, page A4 normale -- pas de
+// rubrique totalement masquee, mais texte resserre (profil + missions),
+// pour qu'une vraie difference visuelle existe avec "A4 Détaillé" meme
+// quand le contenu reel est modeste (peu d'experiences/rubriques) : sans
+// troncature, les 2 plafonds de capacites ne suffisent pas a eux seuls a
+// creer une difference visible des que la personne a peu de contenu.
+// TACHE (retour utilisateur : "encore trop proche, réduire plus -- une
+// expérience, lieu, date et 1 ligne pour la mission") : plafond
+// d'experiences RELEVE (8, au lieu de 3) plutot qu'abaisse -- l'objectif
+// n'est pas de montrer MOINS d'experiences mais de les montrer plus
+// COURTES (une ligne chacune, voir le rendu compact dans
+// exportDocxNatifCV.js), utile a une personne qui a beaucoup d'experiences
+// variees et veut toutes les lister sans faire deborder la page.
+// tronquerMissions resserre en consequence (90 = une ligne courte, pas un
+// paragraphe) -- valeurs moins agressives que le Mini CV (A5, une demi-page)
+// pour le profil, une page A4 entiere reste disponible ici.
+function construireObjetCVPourExportEssentiel(modeleId) {
+  return _dnConstruireObjetCVRecadre({
+    capacites: CAPACITES_A4_ESSENTIEL_CV,
+    rubriquesMasquees: [],
+    tronquerProfil: 320,
+    tronquerMissions: 90
+  }, modeleId);
+}
+
+// ---- Catalogue minimal des options de base des 10 modeles generiques
+// (deux-colonnes / une-colonne) -- memes valeurs que
+// GENERATEURS_DOCX_NATIFS_CV (exportDocxNatifCV.js) et le catalogue de
+// couleurs (coloriationDocxNatifCV.js), pour pouvoir y injecter formatPage
+// en plus SANS reconstruire un Document deja fige (l'API docx-js ne
+// permet pas de modifier un Document apres coup). ----
+function _dnOptionsBaseParModele(modeleId) {
+  var base = {
+    'aquarelle': { construire: 'deuxColonnes', opts: { primaire: 'C08457', fondSidebar: 'FBF5EC', texteSidebar: '1B2340', styleBandeau: 'teinte', police: 'Georgia', couleurNom: '6B4A3A' }, couleur: function (p) { return { primaire: p.primaire, fondSidebar: p.teinte, couleurNom: p.primaire }; } },
+    'moderne-green': { construire: 'deuxColonnes', opts: { primaire: '3FA34D', fondSidebar: 'EAF3E0', texteSidebar: '1f2a1f', styleBandeau: 'teinte' }, couleur: function (p) { return { primaire: p.primaire, fondSidebar: p.teinte }; } },
+    'moderne': { construire: 'deuxColonnes', opts: { primaire: '2563EB', fondSidebar: 'F3F4F6', texteSidebar: '222222', styleBandeau: 'teinte', police: 'Calibri' }, couleur: function (p) { return { primaire: p.primaire, fondSidebar: p.teinte }; } },
+    'geometrique': { construire: 'deuxColonnes', opts: { primaire: '4B57C9', fondSidebar: '6D89EA', styleBandeau: 'plein' }, couleur: function (p) { return { primaire: p.primaire, fondSidebar: p.primaire }; } },
+    'ruban': { construire: 'deuxColonnes', opts: { primaire: 'E2006E', secondaire: 'F7A8C4', styleBandeau: 'bordure', texteSidebar: '1F2937' }, couleur: function (p) { return { primaire: p.primaire, secondaire: p.secondaire }; } },
+    'classique': { construire: 'uneColonne', opts: { primaire: '000000', texte: '1A1A1A', secondaire: '666666', police: 'Georgia' }, couleur: function (p) { return { primaire: p.primaire, secondaire: p.secondaire }; } },
+    'minimaliste': { construire: 'uneColonne', opts: { primaire: '1A1A1A', texte: '1A1A1A', secondaire: '777777', police: 'Calibri' }, couleur: function (p) { return { primaire: p.primaire, secondaire: p.secondaire }; } },
+    'institutionnel': { construire: 'uneColonne', opts: { primaire: '1A1A2E', texte: '1A1A2E', secondaire: '555566', police: 'Times New Roman', soulignerTitres: true }, couleur: function (p) { return { primaire: p.primaire, secondaire: p.secondaire }; } },
+    'elegant': { construire: 'uneColonne', opts: { primaire: '1F2937', texte: '1F2937', secondaire: 'D4AF37', police: 'Georgia', centrerEntete: true, objectifItalique: true, soulignerTitres: true }, couleur: function (p) { return { primaire: p.primaire, secondaire: p.secondaire }; } },
+    'jeune-diplome': { construire: 'uneColonne', opts: { primaire: '1D4ED8', texte: '1E293B', secondaire: '3B82F6', police: 'Calibri', ordre: ['profil', 'formations', 'experiences', 'experiencesPersonnelles', 'engagements', 'competences', 'langues', 'certifications', 'permis', 'loisirs'] }, couleur: function (p) { return { primaire: p.primaire, secondaire: p.secondaire }; } },
+    // TACHE (retour utilisateur : moteur de mise en page centralisé,
+    // conversion 1/5 -- Impact) : theme pur, aucune structure differente
+    // de deuxColonnes -- "primaire" (titres/texte principal) reste FIXE
+    // en graphite quelle que soit la couleur choisie (identite du modele,
+    // meme principe que le beige de Chic) ; seul "accentSidebar"
+    // (soulignement des titres de sidebar) suit la couleur choisie,
+    // comme c'etait deja le cas avec _dnConstruireImpact() avant cette
+    // conversion (son parametre "accent").
+    'impact': { construire: 'deuxColonnes', opts: { primaire: '0F172A', accentSidebar: '0D9488', fondSidebar: 'F1F5F9', texteSidebar: '0F172A', styleBandeau: 'teinte' }, couleur: function (p) { return { accentSidebar: p.primaire, fondSidebar: p.teinte }; } },
+    // TACHE (retour utilisateur : moteur de mise en page centralisé,
+    // conversion 2/5 -- Dispo) : archetype uneColonne + "bandeauResume"
+    // (pastilles disponibilite/permis/langues/contact sous le nom, voir
+    // exportDocxNatifCV.js) -- seule vraie particularite structurelle,
+    // desormais une option reutilisable du moteur. Competences unifiees
+    // en liste unique comme les autres (etaient en pastilles + fusion
+    // partielle savoirFaire/savoirEtre seulement, savoirs ignore -- meme
+    // decision que pour Impact, cf. conversion 1/5).
+    'dispo': { construire: 'uneColonne', opts: { primaire: 'C2410C', texte: '1F2937', secondaire: '6B7280', police: 'Calibri', bandeauResume: true }, couleur: function (p) { return { primaire: p.primaire, secondaire: p.secondaire }; } },
+    // TACHE (retour utilisateur : moteur de mise en page centralisé,
+    // conversion 3/5 -- Creatif) : archetype deuxColonnes + "styleEnTete:
+    // 'banniere'" (bandeau plein largeur colore, voir exportDocxNatifCV.js)
+    // -- seule vraie particularite structurelle, desormais une option
+    // reutilisable du moteur. Competences unifiees en liste unique comme
+    // les autres (savoir-etre etait en texte simple sans pastilles ni
+    // fusion, savoirs ignore -- meme decision que pour Impact et Dispo).
+    'creatif': { construire: 'deuxColonnes', opts: { primaire: '6D28D9', fondSidebar: 'F5F3FF', texteSidebar: '3B0764', styleBandeau: 'teinte', styleEnTete: 'banniere', texteBandeauSecondaire: 'E9D5FF' }, couleur: function (p) { return { primaire: p.primaire, fondSidebar: p.teinte, texteBandeauSecondaire: p.secondaire }; } },
+    // TACHE (retour utilisateur : moteur de mise en page centralisé,
+    // conversion 4/5 -- Chic) : archetype deuxColonnes + "styleEnTete:
+    // 'bloc-colonne'" (nom/monogramme dans un bloc sombre, dans la
+    // colonne principale) + "styleTitreSection: 'bandeau-sombre'" (titres
+    // de section en bandeau plein largeur colore) -- les 2 vraies
+    // particularites structurelles de Chic, desormais des options
+    // reutilisables. Le beige (fondSidebar) reste FIXE quelle que soit la
+    // couleur choisie (identite du modele, comme demande a l'epoque) --
+    // seul "primaire" (le sombre) suit la couleur, meme principe que
+    // l'original. Competences unifiees en liste unique comme les autres.
+    'chic': { construire: 'deuxColonnes', opts: { primaire: '3F3F3F', fondSidebar: 'EDE4D6', texteSidebar: '2A2A2A', styleBandeau: 'teinte', styleTitreSection: 'bandeau-sombre', styleEnTete: 'bloc-colonne', police: 'Georgia', texteClairSurSombre: 'F5F1E8' }, couleur: function (p) { return { primaire: p.primaire }; } },
+    // TACHE (retour utilisateur : moteur de mise en page centralisé,
+    // conversion 5/5 -- Trajectoire, dernier des 5) : archetype
+    // deuxColonnes + "styleExperiences: 'frise'" (experiences en tableau
+    // date/detail) + "styleTitreSection: 'bandeau-sombre'" (titres en
+    // bandeau colore, deja reutilise de Chic) -- seule vraie
+    // particularite structurelle desormais propre a Trajectoire. Profil
+    // repasse en colonne principale et Formations en sidebar (assignation
+    // standard des 11 autres modeles, au lieu de l'inverse dans
+    // l'original) -- simplification deliberee pour la coherence, comme
+    // pour les autres conversions.
+    'trajectoire': { construire: 'deuxColonnes', opts: { primaire: '14213D', accentSidebar: '14213D', styleTitreSection: 'bandeau-sombre', styleExperiences: 'frise' }, couleur: function (p) { return { primaire: p.primaire, accentSidebar: p.primaire }; } }
+  };
+  return base[modeleId] || null;
+}
+
+function _fusionnerObjets() {
+  var resultat = {};
+  for (var i = 0; i < arguments.length; i++) {
+    var o = arguments[i] || {};
+    Object.keys(o).forEach(function (cle) { resultat[cle] = o[cle]; });
+  }
+  return resultat;
+}
+
+// ============================================================
+// Construit le Document docx-js pour N'IMPORTE QUEL modele, avec couleur
+// et format de page optionnels -- UN SEUL appel au bon constructeur,
+// opts calculees une fois (pas de generation "a blanc" jetee ensuite).
+// ============================================================
+function _dnConstruireDocumentAvecOptions(docx, objetCV, modeleId, couleurId, formatPage) {
+  var palette = (couleurId && typeof PALETTES_COULEURS_CV !== 'undefined') ? PALETTES_COULEURS_CV[couleurId] : null;
+  var opts = { formatPage: formatPage };
+
+  // TACHE (nettoyage, chantier "Mini CV A5 rejoint le Composeur" deja
+  // acheve -- voir genererDocxNatifCVFormat plus bas, formatPage==='A5'
+  // y redirige TOUJOURS vers genererDocxComposeur avant meme d'atteindre
+  // cette fonction) : l'ancienne branche ici (_dnConstruireMiniCV/
+  // _dnConstruireMiniCVPaysage, miniCvA5.js) est desormais STRUCTURELLEMENT
+  // inatteignable pour le CV -- confirmee morte par instrumentation
+  // runtime (rendu ET telechargement A5 reels testes), les 2 fonctions
+  // retirees de miniCvA5.js. Repli defensif "modele non couvert" conserve
+  // ici au cas ou un appelant futur atteindrait un jour cette fonction
+  // directement avec formatPage==='A5' sans passer par genererDocxNatifCVFormat.
+  if (formatPage === 'A5') { return null; }
+
+  switch (modeleId) {
+    // TACHE (retour utilisateur : "concevoir un moteur de mise en page
+    // Word intelligent et centralisé", conversions 2/5 et 3/5 -- Dispo et
+    // Creatif) : rejoignent desormais le moteur generique via
+    // _dnOptionsBaseParModele() -- voir leurs entrees plus bas. Cas
+    // speciaux retires d'ici.
+    // TACHE (retour utilisateur : moteur de mise en page centralisé,
+    // conversion 5/5 -- Trajectoire) : rejoint desormais le moteur
+    // generique via _dnOptionsBaseParModele() -- voir son entree plus
+    // bas. Cas special retire d'ici, plus aucun modele a code dedie.
+    default:
+      var config = _dnOptionsBaseParModele(modeleId);
+      if (!config) { return null; }
+      var optsFinal = _fusionnerObjets(config.opts, palette ? config.couleur(palette) : {}, opts);
+      return config.construire === 'deuxColonnes' ? _dnConstruireDeuxColonnes(docx, objetCV, optsFinal) : _dnConstruireUneColonne(docx, objetCV, optsFinal);
+  }
+}
+
+// ============================================================
+// Point d'entree public, appele depuis app.js/apercuDocxIntegre.js.
+// - formatPage absent ou 'A4' : "A4 Détaillé", contenu complet
+//   (construireObjetCVPourExport, deja existant, moteur de decision
+//   conditionnel a la presence de recommandations IA -- comportement
+//   inchange).
+// - formatPage === 'A4-essentiel' : "A4 Essentiel", contenu allege
+//   (construireObjetCVPourExportEssentiel, TOUJOURS applique) sur une
+//   page A4 normale (aucun changement de taille).
+// - formatPage === 'A5' : "Mini CV (A5)", contenu tres recadre
+//   (construireObjetCVPourExportA5, TOUJOURS applique) + page A5 reelle.
+// ============================================================
+function genererDocxNatifCVFormat(modeleId, couleurId, formatPage, sansAccroche) {
+  // TACHE (retour utilisateur : "je veux avoir une option pour proposer
+  // le CV sans phrase d'accroche") : sansAccroche efface le profil/
+  // accroche UNIQUEMENT sur la copie locale objetCV (ci-dessous, dans le
+  // .then()) -- jamais dossier.profil lui-même, qui doit rester intact
+  // pour que la personne puisse réactiver l'accroche plus tard sans
+  // avoir à la retaper.
+  if (modeleId === 'composeur') {
+    return genererDocxComposeur(dossier, {}, couleurId, formatPage, sansAccroche);
+  }
+
+  // TACHE (chantier Mini CV A5 -- refonte Portrait puis Paysage, plan
+  // valide avec l'utilisateur) : 'portrait' ET 'paysage' rejoignent
+  // desormais tous deux le Composeur (meme moteur que A4 Detaille/
+  // Essentiel/Integral -- colonnes mobiles, competences fusionnees triees
+  // par pertinence, voir composeurComposition.js/composeurRender.js),
+  // chacun avec son propre formatPage ('A5-portrait'/'A5-paysage') qui ne
+  // pilote plus que l'AGENCEMENT visuel (bandeau vs colonne centrale),
+  // jamais une 2e logique de contenu. L'ancien pipeline ci-dessous
+  // (_dnConstruireMiniCV/_dnConstruireMiniCVPaysage, miniCvA5.js) n'est
+  // plus atteint par aucun des 2 modeles A5.
+  // TACHE (retour utilisateur, bug reel confirme : "grand apercu du Mini
+  // CV A5 -- ancienne version avec bandeau colore en en-tete") : la garde
+  // ci-dessus verifiait modeleId === 'portrait'/'paysage' A LA LETTRE --
+  // un appelant transmettant encore un id A4 (ex. 'composeur', reste de
+  // l'etat avant resolution du format) avec formatPage==='A5' retombait
+  // silencieusement sur le pipeline generique plus bas (construireObjetCVPourExportA5
+  // + _dnConstruireDocumentAvecOptions), qui route vers l'ancien template
+  // miniCvA5.js (couleur/bandeau fixes, jamais synchronise avec le theme
+  // Projet XXL actif). Desormais, TOUT appel CV avec formatPage==='A5'
+  // rejoint le Composeur, quel que soit modeleId recu -- rend ce chemin
+  // legacy structurellement inatteignable pour le CV, plutot que de
+  // compter sur chaque appelant pour transmettre le bon id.
+  if (formatPage === 'A5') {
+    var modeleA5Normalise = (modeleId === 'paysage') ? 'paysage' : 'portrait';
+    return genererDocxComposeur(dossier, {}, couleurId, 'A5-' + modeleA5Normalise, sansAccroche);
+  }
+
+  var promesseObjet;
+  if (formatPage === 'A5') {
+    promesseObjet = Promise.resolve(construireObjetCVPourExportA5(modeleId));
+  } else if (formatPage === 'A4-essentiel') {
+    promesseObjet = Promise.resolve(construireObjetCVPourExportEssentiel(modeleId));
+  } else {
+    promesseObjet = (typeof construireObjetCVPourExport === 'function') ? construireObjetCVPourExport(modeleId) : Promise.resolve(normaliserDonneesCV(dossier));
+  }
+
+  return promesseObjet.then(function (objetCV) {
+    if (sansAccroche && objetCV.profil) { objetCV.profil = { profilIA: '', profilUtilisateur: '' }; }
+    return chargerLibrairieDocxNatif().then(function (docx) {
+      var document = _dnConstruireDocumentAvecOptions(docx, objetCV, modeleId, couleurId, formatPage);
+      if (!document) { throw new Error('Modele non couvert pour ce format.'); }
+      return docx.Packer.toBlob(document);
+    });
+  });
+}
+
+// Tous les modeles CV natifs supportent l'A5 (meme mecanisme generique).
+var MODELES_AVEC_FORMAT_A5_CV = typeof MODELES_AVEC_DOCX_NATIF_CV !== 'undefined' ? MODELES_AVEC_DOCX_NATIF_CV.slice() : [];
+
+// TACHE (retour utilisateur : 5 designs A5, comme pour A4 -- on commence
+// par 2) : liste DISTINCTE de MODELES_AVEC_DOCX_NATIF_CV (A4) -- les id de
+// modeles A5 ('portrait', bientot 'paysage') n'ont rien a voir avec ceux
+// des modeles A4, jamais a confondre ni fusionner.
+var MODELES_AVEC_DOCX_NATIF_A5_CV = ['portrait', 'paysage'];

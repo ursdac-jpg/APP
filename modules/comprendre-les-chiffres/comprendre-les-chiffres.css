@@ -1,0 +1,1009 @@
+/* ============================================================
+   modules/comprendre-les-chiffres/comprendre-les-chiffres.css
+   ------------------------------------------------------------
+   Styles propres au module, jamais melanges a ceux d'un autre module -
+   meme principe que comprendre-le-cadre.css / reperes.css / carnet.css.
+
+   Toutes les classes consomment UNIQUEMENT les variables globales deja
+   theme-aware de css/style.css (--bg-subtle, --bg-card, --border,
+   --border-strong, --text-strong, --text-muted, --accent,
+   --accent-bg-subtle, --warning, --warning-bg-subtle...) : aucune couleur
+   fixe en hexadecimal, aucune regle [data-theme="sombre"] a ecrire ici
+   (les variables font le travail). Voir LECONS 9.10 / 9.14.
+
+   Cible visuelle (consigne n1 de Denis, chantier
+   docs/CHANTIER_COMPRENDRE_LES_CHIFFRES.md) : IDENTIQUE a la maquette
+   docs/MAQUETTE_COMPRENDRE_LES_CHIFFRES_2026-09-06.html.
+
+   Le fichier grandit bloc par bloc ; ici : la coquille (bloc 1).
+   ============================================================ */
+
+/* ---- Encarts ---- */
+.comprendre-les-chiffres-encart {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: .75rem 1rem;
+  color: var(--text-strong);
+  margin: .6rem 0;
+}
+.comprendre-les-chiffres-encart .bi { color: var(--accent); }
+
+/* Aperçu verrouillé de l'écran-porte (décision Denis 2026-09-09) : on
+   montre ce que le module répond, grisé et non cliquable, tant que le
+   département n'est pas choisi. Tout le bloc est une zone cliquable qui
+   rouvre la fenêtre de choix. Variables theme-aware uniquement : rien à
+   ajouter en [data-theme="sombre"]. */
+.comprendre-les-chiffres-apercu-verrou {
+  margin-top: 1.25rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: .6rem;
+  padding: .85rem 1rem 1rem;
+  cursor: pointer;
+}
+.comprendre-les-chiffres-apercu-verrou:hover,
+.comprendre-les-chiffres-apercu-verrou:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+.comprendre-les-chiffres-apercu-mot {
+  margin: 0 0 .25rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: .92rem;
+}
+.comprendre-les-chiffres-apercu-mot .bi { margin-right: .3rem; }
+.comprendre-les-chiffres-apercu-contenu {
+  pointer-events: none;
+  user-select: none;
+  opacity: .5;
+}
+.comprendre-les-chiffres-apercu-contenu .comprendre-les-chiffres-section:first-child {
+  margin-top: .25rem;
+}
+.comprendre-les-chiffres-apercu-liste {
+  margin: .4rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--text-strong);
+}
+.comprendre-les-chiffres-apercu-liste li { margin: .3rem 0; }
+
+/* ---- Rectangle « Votre departement » (composant partage de Comprendre
+   le cadre : meme forme que .comprendre-le-cadre-territoire) ---- */
+.comprendre-les-chiffres-territoire {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  border-radius: .75rem;
+  padding: .6rem .9rem;
+}
+
+/* ---- Bascule « Vue simple / Vue d'ensemble » ---- */
+.comprendre-les-chiffres-bascule-vue {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: .3rem 0 .9rem;
+}
+.comprendre-les-chiffres-bascule-vue button {
+  border: none;
+  background: var(--bg-subtle);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 600;
+  padding: .4rem 1rem;
+  cursor: pointer;
+}
+.comprendre-les-chiffres-bascule-vue button.actif {
+  background: var(--accent-solide);
+  color: #fff;
+}
+
+/* ---- Toggle du niveau de lecture (4 pastilles) ---- */
+.comprendre-les-chiffres-niveaux {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: .2rem 0 .6rem;
+}
+.comprendre-les-chiffres-niveaux button {
+  padding: .4rem .9rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: .88rem;
+  cursor: pointer;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-subtle);
+  color: var(--text-strong);
+}
+.comprendre-les-chiffres-niveaux button.actif {
+  background: var(--accent-solide);
+  color: #fff;
+  border-color: var(--accent-solide);
+}
+
+.comprendre-les-chiffres-section-intro {
+  color: var(--text-muted);
+  font-size: .9rem;
+  margin: .15rem 0 .6rem;
+}
+
+/* ---- Titres de section : bien separes, jamais l'impression d'un bloc ---- */
+.comprendre-les-chiffres-section {
+  border-top: 2px solid var(--border-strong);
+  margin-top: 1.8rem;
+  padding-top: 1rem;
+  font-size: 1.15rem;
+}
+
+/* ---- Les deux « portes » de « Une autre question » ---- */
+.comprendre-les-chiffres-porte {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  width: 100%;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: .8rem;
+  padding: 1rem 1.1rem;
+  margin: .6rem 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text-strong);
+}
+.comprendre-les-chiffres-porte:hover { background: var(--accent-bg-subtle); }
+.comprendre-les-chiffres-porte .titre { font-weight: 700; }
+.comprendre-les-chiffres-porte .quoi { font-size: .88rem; color: var(--text-muted); }
+
+/* ---- Bouton de retour contextuel (meme traitement que Comprendre le
+   cadre : vrai bouton plein, jamais un lien texte - LECONS 9.6) ---- */
+.comprendre-les-chiffres-bouton-retour { margin-bottom: 1rem; }
+@media (max-width: 768px) {
+  [data-comprendre-les-chiffres-retour] { margin-top: 48px; }
+}
+
+/* ============================================================
+   BLOC 3 : couche 1 (les 5 chiffres cles)
+   Cible : maquette docs/MAQUETTE_COMPRENDRE_LES_CHIFFRES_2026-09-06.html
+   (ecran « chiffres », .indic / .chiffre / .mini-graph / .bloc-depli).
+   ============================================================ */
+
+/* La 1re section (« Les 5 chiffres cles ») n'a pas de trait de separation
+   ni de gros espace au-dessus : elle suit directement le toggle de niveau. */
+.comprendre-les-chiffres-section-1 {
+  border-top: none;
+  margin-top: .8rem;
+  padding-top: 0;
+}
+
+.comprendre-les-chiffres-sous-titre {
+  font-size: 1rem;
+  margin: 1.4rem 0 .3rem;
+}
+
+.comprendre-les-chiffres-fraicheur {
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+
+.comprendre-les-chiffres-note {
+  font-size: .82rem;
+  color: var(--text-muted);
+  margin: .3rem 0;
+}
+
+/* ---- Une carte-indicateur ---- */
+.comprendre-les-chiffres-indic {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: .9rem;
+  padding: 1rem 1.1rem;
+  margin: .7rem 0;
+}
+.comprendre-les-chiffres-indic-q {
+  font-weight: 700;
+  color: var(--text-strong);
+  font-size: 1.02rem;
+  margin: 0 0 .2rem;
+}
+.comprendre-les-chiffres-indic-valeur {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.1;
+  margin: .2rem 0 .1rem;
+}
+.comprendre-les-chiffres-indic-phrase { margin: .5rem 0; }
+.comprendre-les-chiffres-indic-absent {
+  color: var(--text-muted);
+  font-size: .92rem;
+  margin: .4rem 0;
+}
+.comprendre-les-chiffres-indic-absent .bi { color: var(--warning); }
+
+.comprendre-les-chiffres-compare {
+  font-size: .88rem;
+  color: var(--text-muted);
+  margin: .2rem 0;
+}
+.comprendre-les-chiffres-compare .chiffre { font-size: .88rem; }
+
+.comprendre-les-chiffres-tendance {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: .1rem .6rem;
+}
+
+/* ---- Tous les chiffres : couleur d'accent, gras, infobulle de source ---- */
+.comprendre-les-chiffres-contenu .chiffre {
+  color: var(--accent);
+  font-weight: 700;
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+}
+.comprendre-les-chiffres-indic-valeur .chiffre { border-bottom: none; }
+
+/* ---- Ligne de source + pastille cliquable (jamais un lien texte nu) ---- */
+.comprendre-les-chiffres-source {
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin-top: .4rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+}
+.comprendre-les-chiffres-pastille {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .78rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: transparent;
+  border-radius: 999px;
+  padding: .18rem .7rem;
+}
+.comprendre-les-chiffres-pastille:hover { background: var(--accent-bg-subtle); }
+.comprendre-les-chiffres-pastille-absente {
+  font-size: .76rem;
+  color: var(--warning);
+  border: 1px dashed var(--warning-border);
+  border-radius: 999px;
+  padding: .12rem .6rem;
+}
+
+/* ---- Panneaux replies (methode, evolution, lecture du territoire) ---- */
+.comprendre-les-chiffres-depli {
+  border: 1px solid var(--border-strong);
+  border-radius: .8rem;
+  margin: .55rem 0;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+.comprendre-les-chiffres-depli > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: .7rem .9rem;
+  font-size: .9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .2rem .6rem;
+}
+.comprendre-les-chiffres-depli > summary::-webkit-details-marker { display: none; }
+.comprendre-les-chiffres-depli-titre { font-weight: 700; color: var(--accent); }
+.comprendre-les-chiffres-depli-titre::before { content: "\25B8\00A0"; font-size: .8em; }
+.comprendre-les-chiffres-depli[open] > summary .comprendre-les-chiffres-depli-titre::before { content: "\25BE\00A0"; }
+.comprendre-les-chiffres-depli-clic {
+  margin-left: auto;
+  font-weight: 600;
+  font-size: .74rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: .05rem .5rem;
+}
+.comprendre-les-chiffres-depli-desc {
+  flex-basis: 100%;
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: .82rem;
+  margin-top: .15rem;
+}
+.comprendre-les-chiffres-depli[open] > summary .comprendre-les-chiffres-depli-desc { display: none; }
+.comprendre-les-chiffres-depli-corps {
+  border-top: 1px solid var(--border);
+  padding: .5rem .9rem .8rem;
+  font-size: .9rem;
+}
+.comprendre-les-chiffres-depli-evolution { box-shadow: none; margin: .6rem 0 0; }
+
+/* ---- Section entiere repliee (les trimestres precedents, le portrait,
+   croiser, l'enquete BMO) : le titre de section devient le resume
+   cliquable. Chrome minimal, juste un trait de separation, pour reduire
+   l'impact visuel sans changer l'ordre ni le contenu (demande Denis). ---- */
+.comprendre-les-chiffres-depli-section {
+  border: none;
+  border-top: 2px solid var(--border-strong);
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  margin: 1.6rem 0 0;
+}
+.comprendre-les-chiffres-depli-section > summary { padding: .9rem 0 .4rem; }
+.comprendre-les-chiffres-depli-section > summary .comprendre-les-chiffres-depli-titre {
+  font-size: 1.15rem;
+  color: var(--text-strong);
+}
+.comprendre-les-chiffres-depli-section > summary .comprendre-les-chiffres-depli-titre::before {
+  color: var(--accent);
+}
+.comprendre-les-chiffres-depli-section > .comprendre-les-chiffres-depli-corps {
+  border-top: none;
+  padding: .2rem 0 .4rem;
+  font-size: 1rem;
+}
+/* Un depliant "methode" ou "portrait" imbrique garde son cadre de carte. */
+.comprendre-les-chiffres-depli-section .comprendre-les-chiffres-depli { margin: .55rem 0; }
+/* Une fois la section ouverte, "cliquez pour ouvrir" n'a plus de sens. */
+.comprendre-les-chiffres-depli-section[open] > summary .comprendre-les-chiffres-depli-clic { display: none; }
+
+.comprendre-les-chiffres-liste { margin: .3rem 0 0; padding-left: 1.15rem; }
+.comprendre-les-chiffres-liste li { margin: .3rem 0; }
+
+.comprendre-les-chiffres-archive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: .4rem 0;
+}
+
+.comprendre-les-chiffres-carte-teinte {
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--accent);
+  border-radius: .9rem;
+  padding: 1rem 1.1rem;
+  margin: .7rem 0;
+}
+
+/* ---- Graphe SVG en barres ---- */
+.comprendre-les-chiffres-graphe {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  margin: .6rem 0 .2rem;
+  display: block;
+}
+.comprendre-les-chiffres-graphe .barre { fill: var(--accent); }
+.comprendre-les-chiffres-graphe .barre:hover { stroke: var(--text-strong); stroke-width: 1.2; }
+.comprendre-les-chiffres-graphe .axe { stroke: var(--border-strong); stroke-width: 1; }
+.comprendre-les-chiffres-graphe .grille { stroke: var(--border); stroke-width: .6; stroke-dasharray: 2 2; }
+.comprendre-les-chiffres-graphe .val { fill: var(--text-strong); font-size: 9px; font-weight: 700; }
+.comprendre-les-chiffres-graphe text { fill: var(--text-muted); font-size: 9px; font-family: inherit; }
+
+.comprendre-les-chiffres-infobulle {
+  position: fixed;
+  z-index: 3000;
+  display: none;
+  background: var(--text-strong);
+  color: var(--bg-card);
+  font-size: .78rem;
+  padding: .3rem .55rem;
+  border-radius: 6px;
+  pointer-events: none;
+  max-width: 260px;
+}
+
+/* ============================================================
+   BLOC 4 : couche 2 (portrait), couche 3 (BMO), vue Union européenne
+   ============================================================ */
+
+/* Mentions « [à vérifier ...] » : discrètes, jamais alarmantes. */
+.comprendre-les-chiffres-a-verifier {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: .92em;
+}
+
+/* Cartes éditoriales « À savoir » (saisonnalité, gros employeurs). */
+.comprendre-les-chiffres-edito {
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border-strong);
+  border-radius: .8rem;
+  padding: .9rem 1rem;
+  margin: .6rem 0;
+}
+.comprendre-les-chiffres-edito h4 { margin: .1rem 0 .3rem; font-size: .98rem; }
+.comprendre-les-chiffres-edito-marque {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: .1rem .55rem;
+  margin-bottom: .4rem;
+}
+/* Encarts « gros employeurs » repliés (un par département) : la pastille
+   « À savoir » vit dans le résumé, à côté du titre. */
+.comprendre-les-chiffres-edito-depli > summary .comprendre-les-chiffres-edito-marque {
+  margin-bottom: 0;
+  align-self: center;
+}
+
+/* Encart d'attention (couche 3, encart de prudence). */
+.comprendre-les-chiffres-encart-attention {
+  background: var(--warning-bg-subtle);
+  border-color: var(--warning-border);
+}
+.comprendre-les-chiffres-encart-attention .bi { color: var(--warning); }
+
+/* Tableau de synthèse (vue Union européenne). */
+.comprendre-les-chiffres-tab-scroll { overflow-x: auto; }
+.comprendre-les-chiffres-synthese {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .86rem;
+  margin: .5rem 0;
+}
+.comprendre-les-chiffres-synthese th,
+.comprendre-les-chiffres-synthese td {
+  border: 1px solid var(--border);
+  padding: .4rem .55rem;
+  text-align: left;
+  vertical-align: top;
+}
+.comprendre-les-chiffres-synthese th {
+  background: var(--bg-subtle);
+  color: var(--text-strong);
+}
+.comprendre-les-chiffres-synthese td:first-child {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+/* ============================================================
+   BLOC 5 : croiser plusieurs chiffres
+   ============================================================ */
+.comprendre-les-chiffres-croiser {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: .9rem;
+  padding: 1rem 1.1rem;
+  margin: .7rem 0;
+}
+.comprendre-les-chiffres-croiser fieldset {
+  border: 1px solid var(--border);
+  border-radius: .6rem;
+  padding: .5rem .7rem;
+  margin: .5rem 0;
+}
+.comprendre-les-chiffres-croiser legend {
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--text-muted);
+  padding: 0 .3rem;
+}
+.comprendre-les-chiffres-croiser label {
+  display: flex;
+  align-items: baseline;
+  gap: .45rem;
+  font-size: .9rem;
+  margin: .25rem 0;
+  cursor: pointer;
+}
+.comprendre-les-chiffres-croiser-vide { cursor: default; color: var(--text-muted); }
+.comprendre-les-chiffres-croiser-alerte { color: var(--warning); font-weight: 600; }
+
+.comprendre-les-chiffres-graph-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem .9rem;
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin: .5rem 0 .2rem;
+}
+.comprendre-les-chiffres-graph-legende span { display: inline-flex; align-items: center; gap: .35rem; }
+.comprendre-les-chiffres-graph-legende i {
+  width: .8rem;
+  height: .8rem;
+  border-radius: 2px;
+  display: inline-block;
+}
+.comprendre-les-chiffres-graphe polyline { stroke-linejoin: round; stroke-linecap: round; }
+
+/* ============================================================
+   BLOC 6 : vue d'ensemble
+   ============================================================ */
+.comprendre-les-chiffres-encart-gardefou {
+  background: var(--accent-bg-subtle);
+  border-color: var(--accent);
+  border-left: 3px solid var(--accent);
+  align-items: flex-start;
+}
+.comprendre-les-chiffres-encart-gardefou .bi { color: var(--accent); flex-shrink: 0; }
+
+.comprendre-les-chiffres-a-lire-avec {
+  font-size: .82rem;
+  color: var(--text-muted);
+  margin: .4rem 0 0;
+}
+.comprendre-les-chiffres-lien-interne {
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 600;
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+  background: transparent;
+  border-radius: 999px;
+  padding: .1rem .55rem;
+  cursor: pointer;
+}
+.comprendre-les-chiffres-lien-interne:hover { background: var(--accent-bg-subtle); }
+
+@media print {
+  .barre-navigation-fixe,
+  .barre-etapes-module,
+  .comprendre-les-chiffres-bascule-vue,
+  .comprendre-les-chiffres-niveaux,
+  [id^="btnComprendreLesChiffres"],
+  .comprendre-les-chiffres-a-lire-avec,
+  .comprendre-les-chiffres-territoire button {
+    display: none !important;
+  }
+  .comprendre-les-chiffres-depli { break-inside: avoid; }
+  .comprendre-les-chiffres-depli > summary .comprendre-les-chiffres-depli-clic { display: none; }
+}
+
+/* ============================================================
+   BLOCS 7-8 : partie B (une autre question)
+   ============================================================ */
+.comprendre-les-chiffres-zone {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border-strong);
+  border-radius: .6rem;
+  padding: .6rem .7rem;
+  font: inherit;
+  background: var(--bg-page);
+  color: var(--text-soft);
+  margin: .3rem 0;
+}
+.comprendre-les-chiffres-prompt {
+  border: 1px solid var(--border-strong);
+  border-radius: .6rem;
+  background: var(--bg-page);
+  padding: .8rem .9rem;
+  font-size: .86rem;
+  white-space: pre-wrap;
+  color: var(--text-soft);
+  margin: .3rem 0;
+}
+.comprendre-les-chiffres-assistants {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  margin: .5rem 0;
+}
+.comprendre-les-chiffres-assistant {
+  display: inline-flex;
+  align-items: center;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--border-strong);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: .2rem .7rem;
+}
+.comprendre-les-chiffres-assistant:hover { background: var(--accent-bg-subtle); }
+.comprendre-les-chiffres-sujet {
+  display: flex;
+  align-items: baseline;
+  gap: .45rem;
+  font-size: .9rem;
+  margin: .3rem 0;
+  cursor: pointer;
+}
+
+/* Sous-titres à l'intérieur d'une fiche méthode. */
+.comprendre-les-chiffres-fiche-soustitre {
+  font-size: .95rem;
+  margin: .8rem 0 .2rem;
+  color: var(--text-strong);
+}
+
+/* ============================================================
+   BLOC : carte chômage en deux colonnes + « Où se situer »
+   Cible : docs/MAQUETTE_COMPRENDRE_LES_CHIFFRES_COMPACT_2026-09-09.html (v9).
+   Variables globales theme-aware uniquement, aucun [data-theme] ici.
+   ============================================================ */
+
+.comprendre-les-chiffres-indic--avec-cote .comprendre-les-chiffres-indic-grille {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 1.4rem;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .comprendre-les-chiffres-indic--avec-cote .comprendre-les-chiffres-indic-grille {
+    grid-template-columns: 1fr;
+    gap: .9rem;
+  }
+}
+
+.comprendre-les-chiffres-ou-se-situer {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: .7rem;
+  padding: .8rem .9rem;
+  font-size: .86rem;
+  color: var(--text-soft);
+}
+.comprendre-les-chiffres-oss-tete {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--text-muted);
+  margin: 0 0 .55rem;
+}
+.comprendre-les-chiffres-oss-bloc { margin-top: .75rem; }
+.comprendre-les-chiffres-oss-bloc:first-of-type { margin-top: 0; }
+.comprendre-les-chiffres-oss-titre {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin: 0 0 .3rem;
+}
+.comprendre-les-chiffres-oss-bornes {
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  font-size: .76rem;
+  color: var(--text-soft);
+  line-height: 1.35;
+  margin: 0;
+}
+.comprendre-les-chiffres-oss-bornes span:last-child { text-align: right; }
+.comprendre-les-chiffres-oss-bornes b {
+  color: var(--text-strong);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.comprendre-les-chiffres-oss-echelle { margin: .35rem 0 1.4rem; }
+.comprendre-les-chiffres-oss-piste {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--success), var(--warning) 55%, var(--danger));
+  opacity: .6;
+}
+.comprendre-les-chiffres-oss-marque {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--text-strong);
+}
+.comprendre-les-chiffres-oss-marque::after {
+  content: attr(data-lab);
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+.comprendre-les-chiffres-oss-plein {
+  margin: .1rem 0 0;
+  padding-top: .5rem;
+  border-top: 1px solid var(--border);
+  font-size: .82rem;
+}
+.comprendre-les-chiffres-oss-plein b { color: var(--text-strong); }
+
+/* ============================================================
+   BLOC : évolution du chômage (toujours visible) - trimestres +
+   courbe pluriannuelle multi-territoires. Maquette v9.
+   ============================================================ */
+
+.comprendre-les-chiffres-evolution {
+  margin: 1rem 0 .2rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--border);
+}
+.comprendre-les-chiffres-evolution-titre {
+  font-size: .95rem;
+  margin: 0 0 .7rem;
+  color: var(--text-strong);
+}
+.comprendre-les-chiffres-evolution-titre .bi { color: var(--accent); margin-right: .35rem; }
+.comprendre-les-chiffres-evolution-grille {
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .comprendre-les-chiffres-evolution-grille { grid-template-columns: 1fr; gap: .9rem; }
+}
+.comprendre-les-chiffres-evolution-part {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: .6rem;
+  padding: .6rem .75rem;
+  min-width: 0;
+}
+.comprendre-les-chiffres-evolution-part h5 {
+  margin: 0 0 .4rem;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+.comprendre-les-chiffres-evolution-part .comprendre-les-chiffres-graphe { width: 100%; height: auto; }
+
+/* ---- Boutons de bascule des territoires ---- */
+.comprendre-les-chiffres-courbe-choix-rangee {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin-bottom: .5rem;
+}
+.comprendre-les-chiffres-courbe-choix {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font: inherit;
+  font-size: .74rem;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.comprendre-les-chiffres-courbe-pastille {
+  width: .6rem;
+  height: .6rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.comprendre-les-chiffres-courbe-choix--dep .comprendre-les-chiffres-courbe-pastille { background: var(--accent); }
+.comprendre-les-chiffres-courbe-choix--na  .comprendre-les-chiffres-courbe-pastille { background: var(--success); }
+.comprendre-les-chiffres-courbe-choix--fr  .comprendre-les-chiffres-courbe-pastille { background: var(--warning-strong, var(--warning)); }
+.comprendre-les-chiffres-courbe-choix--ue  .comprendre-les-chiffres-courbe-pastille { background: var(--text-soft); }
+.comprendre-les-chiffres-courbe-choix[aria-pressed="true"] {
+  color: var(--text-strong);
+  border-color: var(--accent);
+  background: var(--accent-bg-subtle);
+  font-weight: 600;
+}
+
+/* ---- La courbe ---- */
+.comprendre-les-chiffres-courbe-wrap { position: relative; }
+.comprendre-les-chiffres-courbe {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: pointer;
+}
+.comprendre-les-chiffres-courbe text { fill: var(--text-muted); font-size: 8px; }
+.comprendre-les-chiffres-courbe-axe { stroke: var(--border-strong); stroke-width: 1; }
+.comprendre-les-chiffres-courbe-plein { stroke: var(--text-muted); stroke-width: 1.3; stroke-dasharray: 4 3; }
+.comprendre-les-chiffres-courbe-plein-lab { fill: var(--text-muted); font-size: 7px; font-style: italic; }
+.comprendre-les-chiffres-courbe-guide { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 2 2; visibility: hidden; }
+
+.comprendre-les-chiffres-courbe-serie polyline {
+  fill: none !important;
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.comprendre-les-chiffres-courbe-serie circle { r: 2.6; }
+.comprendre-les-chiffres-courbe-serie--masque { display: none; }
+.comprendre-les-chiffres-courbe-serie--dep polyline { stroke: var(--accent); stroke-width: 2.6; }
+.comprendre-les-chiffres-courbe-serie--dep circle { stroke: var(--accent); fill: var(--accent); }
+.comprendre-les-chiffres-courbe-serie--na polyline { stroke: var(--success); }
+.comprendre-les-chiffres-courbe-serie--na circle { stroke: var(--success); fill: var(--success); }
+.comprendre-les-chiffres-courbe-serie--fr polyline { stroke: var(--warning-strong, var(--warning)); }
+.comprendre-les-chiffres-courbe-serie--fr circle { stroke: var(--warning-strong, var(--warning)); fill: var(--warning-strong, var(--warning)); }
+.comprendre-les-chiffres-courbe-serie--ue polyline { stroke: var(--text-soft); }
+.comprendre-les-chiffres-courbe-serie--ue circle { stroke: var(--text-soft); fill: var(--text-soft); }
+
+/* ---- Infobulle de la courbe ---- */
+.comprendre-les-chiffres-courbe-infobulle {
+  position: absolute;
+  top: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: .5rem;
+  padding: .45rem .6rem;
+  font-size: .74rem;
+  color: var(--text-soft);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+  min-width: 8rem;
+}
+.comprendre-les-chiffres-courbe-ib-annee { font-weight: 700; color: var(--text-strong); margin-bottom: .2rem; }
+.comprendre-les-chiffres-courbe-ib-l { display: flex; align-items: center; gap: .35rem; margin-top: .15rem; }
+.comprendre-les-chiffres-courbe-ib-pt { width: .55rem; height: .55rem; border-radius: 50%; flex-shrink: 0; }
+.comprendre-les-chiffres-courbe-ib-l--dep .comprendre-les-chiffres-courbe-ib-pt { background: var(--accent); }
+.comprendre-les-chiffres-courbe-ib-l--na .comprendre-les-chiffres-courbe-ib-pt { background: var(--success); }
+.comprendre-les-chiffres-courbe-ib-l--fr .comprendre-les-chiffres-courbe-ib-pt { background: var(--warning-strong, var(--warning)); }
+.comprendre-les-chiffres-courbe-ib-l--ue .comprendre-les-chiffres-courbe-ib-pt { background: var(--text-soft); }
+.comprendre-les-chiffres-courbe-ib-src { margin-top: .3rem; font-size: .68rem; color: var(--text-muted); }
+
+/* ---- Phrase de synthèse « En quelques mots » ---- */
+.comprendre-les-chiffres-synthese-courte {
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: .6rem;
+  padding: .8rem 1rem;
+  margin: 0 0 1rem;
+  font-size: .92rem;
+  color: var(--text-soft);
+}
+.comprendre-les-chiffres-synthese-courte p { margin: .35rem 0 0; }
+.comprendre-les-chiffres-synthese-courte p:first-of-type { margin-top: 0; }
+.comprendre-les-chiffres-synthese-courte-titre {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--text-muted);
+}
+.comprendre-les-chiffres-synthese-courte-gardefou {
+  font-size: .82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---- Plafond de largeur du contenu du module (retour Denis 2026-09-09,
+   grand écran) : sans ça, les graphes et les lignes de texte s'étalent sur
+   toute la largeur de l'écran. Centré, ~1150 px. ---- */
+.comprendre-les-chiffres-accueil {
+  max-width: 1150px;
+  margin-inline: auto;
+}
+/* Les deux graphes d'évolution : répartition proportionnelle dans le
+   contenu plafonné, avec un garde-fou de hauteur. */
+.comprendre-les-chiffres-evolution-grille {
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+}
+.comprendre-les-chiffres-evolution-part .comprendre-les-chiffres-graphe,
+.comprendre-les-chiffres-courbe { max-height: 200px; }
+
+/* ---- Repère : le verdict en un coup d'œil, sous le chiffre ---- */
+.comprendre-les-chiffres-repere {
+  display: inline-block;
+  margin: .5rem 0 .2rem;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  border-radius: .5rem;
+  padding: .28rem .6rem;
+}
+
+/* ---- Colonne droite explicative des 4 autres cartes ---- */
+.comprendre-les-chiffres-cote p { margin: .45rem 0 0; }
+.comprendre-les-chiffres-cote p:first-child { margin-top: 0; }
+.comprendre-les-chiffres-cote b { color: var(--text-strong); }
+.comprendre-les-chiffres-cote-titre {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--text-muted);
+}
+.comprendre-les-chiffres-cote-liste {
+  margin: .4rem 0 0;
+  padding-left: 1.05rem;
+}
+.comprendre-les-chiffres-cote-liste li { margin: .2rem 0; }
+.comprendre-les-chiffres-cote-sep {
+  margin-top: .55rem;
+  padding-top: .5rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Les 4 cartes "un chiffre + une phrase" : gauche etroite (chiffre mis en
+   valeur), droite large donc moins haute -> les deux cotes finissent a peu
+   pres a la meme hauteur (maquette v9). */
+.comprendre-les-chiffres-indic--maigre .comprendre-les-chiffres-indic-grille {
+  grid-template-columns: minmax(0, .62fr) minmax(0, 1fr);
+}
+@media (max-width: 720px) {
+  .comprendre-les-chiffres-indic--maigre .comprendre-les-chiffres-indic-grille {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Fourchette historique sous le graphe des trimestres ---- */
+.comprendre-les-chiffres-evolution-histo {
+  margin: .5rem 0 0;
+  padding-top: .5rem;
+  border-top: 1px solid var(--border);
+  font-size: .8rem;
+  color: var(--text-soft);
+}
+.comprendre-les-chiffres-evolution-histo .bi { color: var(--accent); margin-right: .3rem; }
+.comprendre-les-chiffres-evolution-histo b { color: var(--text-strong); }
+
+/* ============================================================
+   BLOC : "Les ecarts a l'interieur du departement" (vue d'ensemble,
+   niveau departement uniquement). Cible : docs/MAQUETTE_ZONES_EMPLOI_2026-09-12.html
+   (maquette validee par Denis). Explicitement PAS un classement.
+   ============================================================ */
+.comprendre-les-chiffres-zones {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: .9rem;
+  padding: 1.1rem 1.2rem; margin: .7rem 0;
+}
+.comprendre-les-chiffres-zones h3 { margin-top: 0; }
+.comprendre-les-chiffres-zones h3 .bi { color: var(--accent); margin-right: .35rem; }
+.comprendre-les-chiffres-zones-intro { font-size: .9rem; color: var(--text-soft); margin: 0 0 1rem; }
+.comprendre-les-chiffres-zones-barres { display: flex; flex-direction: column; gap: .55rem; margin-bottom: .3rem; }
+.comprendre-les-chiffres-zone-ligne { display: grid; grid-template-columns: 9.5rem 1fr 3.2rem; align-items: center; gap: .6rem; }
+.comprendre-les-chiffres-zone-nom { font-size: .88rem; font-weight: 600; color: var(--text-strong); }
+.comprendre-les-chiffres-zone-piste {
+  position: relative; height: 10px; border-radius: 999px; background: var(--bg-subtle);
+  border: 1px solid var(--border); overflow: hidden;
+}
+.comprendre-les-chiffres-zone-remplissage {
+  position: absolute; inset: 0 auto 0 0; border-radius: 999px 0 0 999px; background: var(--accent-solide);
+}
+.comprendre-les-chiffres-zone-valeur {
+  font-size: .92rem; font-weight: 700; color: var(--accent); text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.comprendre-les-chiffres-zones-explications { display: flex; flex-direction: column; gap: .8rem; margin-top: 1rem; }
+.comprendre-les-chiffres-zone-explication { border-top: 1px solid var(--border); padding-top: .7rem; }
+.comprendre-les-chiffres-zone-explication:first-child { border-top: none; padding-top: 0; }
+.comprendre-les-chiffres-zone-explication-titre { font-size: .86rem; font-weight: 700; color: var(--text-strong); margin: 0 0 .25rem; }
+.comprendre-les-chiffres-zone-explication p { margin: .25rem 0; font-size: .88rem; color: var(--text-soft); }
+
+/* Chiffres secondaires par zone (retour Denis 2026-09-12 : "ne pas les
+   noyer dans le texte") : memes lignes-barres que le graphe principal,
+   mais avec un libelle plus large (les libelles sont plus longs :
+   "Etablissements de 10 salaries ou plus"...) -- colonne dediee, jamais
+   la meme grille etroite que les 3-5 noms de zones du graphe du haut. */
+.comprendre-les-chiffres-zone-stats {
+  display: flex; flex-direction: column; gap: .35rem; margin: .5rem 0 .7rem;
+  background: var(--bg-subtle); border: 1px solid var(--border); border-radius: .6rem;
+  padding: .6rem .8rem;
+}
+.comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-ligne {
+  grid-template-columns: 13rem 1fr 4.5rem;
+}
+.comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-nom { font-size: .8rem; font-weight: 500; color: var(--text-soft); }
+.comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-valeur { font-size: .84rem; }
+.comprendre-les-chiffres-zone-stat-texte { font-size: .84rem; color: var(--text-soft); margin: .1rem 0 .3rem; }
+.comprendre-les-chiffres-zone-stat-texte b { color: var(--text-strong); font-weight: 600; }
+@media (max-width: 640px) {
+  .comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-ligne { grid-template-columns: 1fr; gap: .15rem; }
+  .comprendre-les-chiffres-zone-stats .comprendre-les-chiffres-zone-valeur { text-align: left; }
+}
