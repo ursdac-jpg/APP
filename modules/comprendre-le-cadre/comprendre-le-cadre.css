@@ -1,0 +1,469 @@
+/* ============================================================
+   modules/comprendre-le-cadre/comprendre-le-cadre.css
+   ------------------------------------------------------------
+   Styles propres au module, jamais melanges a ceux d'un autre module -
+   meme principe que reperes.css/carnet.css.
+
+   Les classes ci-dessous existent uniquement parce que les classes
+   Bootstrap equivalentes (.alert-light, .bg-light, .form-control,
+   .input-group-text) ne sont adaptees au mode sombre nulle part dans
+   css/style.css (verifie par grep avant d'ecrire ce fichier, puis
+   confirme a l'oeil, capture en mode sombre : boites blanches figees -
+   voir docs/LECONS_A_NE_PAS_REPRODUIRE.md, 9.10). Elles consomment
+   uniquement les variables globales deja theme-aware (--bg-subtle,
+   --border, --text-strong, --text-muted, css/style.css), jamais une
+   couleur fixe en hexadecimal - aucune regle [data-theme="sombre"]
+   propre a ecrire ici, les variables font deja le travail.
+   ============================================================ */
+
+/* Rayons et outils affichés en grille de sous-cartes (retour Denis,
+   2026-09-05 : "toute la page est en gris, pas assez de cohérence
+   visuelle avec le reste d'ERIP") - jamais un style inventé pour ce
+   module : réutilise TEL QUEL .grille-sous-cartes-accueil/.sous-carte-accueil
+   (css/style.css), le même composant déjà validé pour les sous-cartes de
+   "Mes documents", "Boîte à outils", etc. Rien à ajouter ici, le fichier
+   partagé fait déjà tout le travail (icône accent, titre gras,
+   description, bordure qui réagit au survol, adapté au mode sombre).
+   Seule différence : la grille des rayons n'est pas centrée comme dans
+   une fenêtre étroite, elle démarre à gauche (plus naturel pour une
+   longue liste au lieu de 3-4 tuiles). */
+#comprendreLeCadreRayons .grille-sous-cartes-accueil,
+#comprendreLeCadreOutils .grille-sous-cartes-accueil {
+  justify-content: flex-start;
+}
+
+.comprendre-le-cadre-encart {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: .75rem 1rem;
+  color: var(--text-strong);
+}
+
+/* Aperçu verrouillé sous l'écran-porte (décision Denis 2026-09-09) : le
+   vrai contenu du module est rendu, visible, mais grisé et non cliquable
+   tant que le territoire n'est pas choisi. Tout le bloc est une grande
+   zone cliquable qui rouvre la fenêtre de choix. Variables theme-aware
+   uniquement, aucune couleur figée : rien à ajouter en [data-theme="sombre"]. */
+.comprendre-le-cadre-apercu-verrou {
+  margin-top: 1.25rem;
+  border: 1px dashed var(--border-strong, var(--border));
+  border-radius: .6rem;
+  padding: .85rem 1rem 1rem;
+  cursor: pointer;
+  position: relative;
+}
+.comprendre-le-cadre-apercu-verrou:hover,
+.comprendre-le-cadre-apercu-verrou:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+.comprendre-le-cadre-apercu-mot {
+  margin: 0 0 .25rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: .92rem;
+}
+.comprendre-le-cadre-apercu-mot .bi { margin-right: .3rem; }
+/* Le contenu réel, montré mais désactivé. `inert` coupe déjà le clavier
+   et le tab ; pointer-events:none laisse le clic remonter au conteneur. */
+.comprendre-le-cadre-apercu-contenu {
+  pointer-events: none;
+  user-select: none;
+  opacity: .5;
+  filter: grayscale(0.35);
+}
+.comprendre-le-cadre-apercu-contenu .mt-4 { margin-top: 1rem !important; }
+
+/* Pied de fiche : date de verification + sources cliquables (retour Denis
+   2026-09-05 : "sources cliquables pour aller voir de ses propres yeux",
+   "dates un peu plus visibles"). Bordure accent a gauche pour le sortir
+   du corps de la fiche sans en faire un pave. */
+.comprendre-le-cadre-fiche-verif {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: .5rem;
+  padding: .85rem 1rem;
+  color: var(--text-strong);
+}
+.comprendre-le-cadre-verif-ligne { margin: 0; }
+.comprendre-le-cadre-sources {
+  margin: .3rem 0 0;
+  padding-left: 1.1rem;
+}
+.comprendre-le-cadre-sources li { margin: .5rem 0; }
+.comprendre-le-cadre-source-nom {
+  display: block;
+  font-weight: 600;
+  font-size: .92rem;
+}
+.comprendre-le-cadre-source-lien {
+  display: block;
+  font-size: .82rem;
+  word-break: break-all;
+  margin-top: .1rem;
+}
+.comprendre-le-cadre-source-date {
+  display: inline-block;
+  margin-top: .2rem;
+  padding: .08rem .45rem;
+  border-radius: .4rem;
+  background: var(--accent-bg-subtle);
+  color: var(--accent);
+  font-size: .8rem;
+  font-weight: 700;
+}
+.comprendre-le-cadre-source-date.comprendre-le-cadre-source-nonverif {
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 400;
+  padding-left: 0;
+}
+
+/* Bordure accent + fond legerement releve (retour Denis, 2026-09-05:
+   "on a du mal a l'identifier") - avant, meme gris discret que les
+   encarts d'information, aucune raison de la remarquer comme un champ
+   de saisie cliquable. */
+.comprendre-le-cadre-recherche {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--accent);
+  border-radius: .6rem;
+  padding: .6rem .9rem;
+  color: var(--accent);
+}
+.comprendre-le-cadre-recherche input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--text-strong);
+  font-size: 1rem;
+  outline: none;
+}
+.comprendre-le-cadre-recherche input::placeholder {
+  color: var(--text-muted);
+}
+
+.comprendre-le-cadre-territoire {
+  color: var(--text-strong);
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--accent);
+  border-radius: .6rem;
+  padding: .7rem 1rem;
+}
+
+/* Cases de l'orienteur "Par où commencer ?" (retour Denis 2026-09-05 :
+   "plus clair, plus grand, plus lisible"). Avant : petites pilules
+   btn-sm difficiles a lire. Maintenant : une colonne de vraies cases a
+   cocher, texte a taille normale, etat coche bien marque (fond accent
+   leger + icone pleine). */
+.comprendre-le-cadre-orienteur-cases {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.comprendre-le-cadre-case {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  width: 100%;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-strong);
+  border-radius: .6rem;
+  padding: .7rem .9rem;
+  font-size: 1rem;
+  color: var(--text-strong);
+  cursor: pointer;
+}
+.comprendre-le-cadre-case:hover {
+  border-color: var(--accent);
+}
+.comprendre-le-cadre-case i.bi {
+  color: var(--accent);
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+.comprendre-le-cadre-case.active {
+  border-color: var(--accent);
+  background: var(--accent-bg-subtle);
+  font-weight: 600;
+}
+
+/* Bouton "Retour" contextuel : Bootstrap .btn.btn-primary fait tout le
+   style (retour Denis 2026-09-05 : un vrai bouton plein, de la couleur
+   de "Par où commencer ?", jamais un lien de texte). Ici, seulement la
+   marge verticale qui l'écarte nettement de la pilule "Revoir la
+   présentation" juste au-dessus, surtout une fois la note de celle-ci
+   refermée (sinon les deux se touchent presque). */
+.comprendre-le-cadre-bouton-retour {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 1.1rem 0;
+}
+
+/* Sous 768px, les 3 icones persistantes (roue/ampoule/disquette,
+   css/style.css) quittent leur position fixe habituelle pour se placer
+   EN HAUT du contenu de #app (meme "top: var(--hauteur-progression)" que
+   #app lui-meme) - une page sans <h1> ni barre de progression avant son
+   premier element, comme tous les ecrans de ce module qui commencent par
+   ce bouton retour, se retrouve donc exactement sous ces icones plutot
+   qu'en dessous. Decale ce bouton pour degager la meme hauteur qu'elles
+   (38px + marge), verifie en navigateur a 736px de large. */
+@media (max-width: 768px) {
+  [data-comprendre-le-cadre-retour] { margin-top: 48px; }
+}
+
+/* ============================================================
+   « Affiner ma recherche » : la recherche libre en deux temps.
+   Chantier docs/CHANTIER_COMPRENDRE_LE_CADRE_RECHERCHE_LIBRE.md.
+   Classes propres au module ; couleurs en variables theme-aware
+   (jamais de teinte en dur, jamais une classe Bootstrap non couverte
+   en mode sombre - meme regle que le reste du fichier).
+   ============================================================ */
+
+/* Encart d'avertissement (confidentialite avant le champ libre) et
+   encart de confirmation (la reformulation de l'assistant). Memes
+   proprietes que .comprendre-le-cadre-encart, seule la couleur change. */
+.comprendre-le-cadre-encart.comprendre-le-cadre-avert {
+  background: var(--warning-bg-subtle);
+  border-color: var(--warning-border);
+}
+.comprendre-le-cadre-encart.comprendre-le-cadre-avert .bi {
+  color: var(--warning);
+}
+.comprendre-le-cadre-encart.comprendre-le-cadre-ok {
+  background: var(--success-bg-subtle);
+  border-color: var(--success);
+}
+
+/* Champ libre. Meme cadre que .comprendre-le-cadre-recherche input,
+   sur plusieurs lignes. */
+.comprendre-le-cadre-textarea {
+  width: 100%;
+  border: 1.5px solid var(--border-strong);
+  border-radius: .6rem;
+  padding: .6rem .8rem;
+  font: inherit;
+  font-size: 1rem;
+  background: var(--bg-card);
+  color: var(--text-strong);
+  resize: vertical;
+}
+.comprendre-le-cadre-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Le texte de recherche prepare (prompt), et l'affichage brut d'une
+   reponse d'assistant non balisee. Lisible, defilable, jamais un pave
+   illisible. */
+.comprendre-le-cadre-prompt {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: .6rem;
+  padding: .8rem .9rem;
+  font-size: .9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+/* Les liens vers les assistants en ligne : de simples pastilles-liens,
+   coherentes avec pastille-selection ailleurs dans l'application. */
+.comprendre-le-cadre-assistants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.comprendre-le-cadre-assistant {
+  display: inline-block;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: .3rem .8rem;
+  font-size: .88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.comprendre-le-cadre-assistant:hover {
+  background: var(--accent-bg-subtle);
+}
+
+/* Une carte de sous-chapitre (un sujet renvoye par l'assistant), rendue
+   comme un <label> cochable : la case a gauche, le corps a droite. */
+.comprendre-le-cadre-sujet {
+  display: flex;
+  gap: .7rem;
+  align-items: flex-start;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: .6rem;
+  padding: .75rem .9rem;
+  margin: .55rem 0;
+  background: var(--bg-card);
+  cursor: pointer;
+}
+.comprendre-le-cadre-sujet-case {
+  margin-top: .2rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
+}
+.comprendre-le-cadre-sujet-corps {
+  display: block;
+  flex: 1 1 auto;
+}
+.comprendre-le-cadre-sujet-titre {
+  display: block;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+.comprendre-le-cadre-sujet-desc {
+  display: block;
+  margin: .3rem 0 .5rem;
+  font-size: .95rem;
+}
+.comprendre-le-cadre-sujet-corps .btn {
+  display: inline-block;
+}
+.comprendre-le-cadre-badge {
+  display: inline-block;
+  font-size: .74rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: .05rem .5rem;
+  vertical-align: middle;
+}
+
+/* Ecran « Quelques precisions » : un champ texte par question, avec un
+   intertitre discret par origine (application / rayon / assistant). */
+.comprendre-le-cadre-champ {
+  display: block;
+  width: 100%;
+  border: 1.5px solid var(--border-strong);
+  border-radius: .6rem;
+  padding: .5rem .75rem;
+  margin: .25rem 0 .6rem;
+  font: inherit;
+  font-size: 1rem;
+  background: var(--bg-card);
+  color: var(--text-strong);
+}
+.comprendre-le-cadre-champ:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.q-origine {
+  margin: 0 0 .25rem;
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   Depliants du bas de l'accueil : « Comment lire ces fiches » et
+   « Le tableau des sources officielles » (decision Denis 2026-09-06).
+   Meme langage visuel que les depliants de « Comprendre les chiffres ».
+   ============================================================ */
+.comprendre-le-cadre-depli {
+  border: 1px solid var(--border-strong);
+  border-radius: .8rem;
+  margin: .55rem 0;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+.comprendre-le-cadre-depli:first-of-type { margin-top: 1.5rem; }
+.comprendre-le-cadre-depli > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: .7rem .9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .2rem .6rem;
+}
+.comprendre-le-cadre-depli > summary::-webkit-details-marker { display: none; }
+.comprendre-le-cadre-depli-titre { font-weight: 700; color: var(--accent); }
+.comprendre-le-cadre-depli-titre::before { content: "\25B8\00A0"; font-size: .8em; }
+.comprendre-le-cadre-depli[open] > summary .comprendre-le-cadre-depli-titre::before { content: "\25BE\00A0"; }
+.comprendre-le-cadre-depli-clic {
+  margin-left: auto;
+  font-weight: 600;
+  font-size: .74rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: .05rem .5rem;
+}
+.comprendre-le-cadre-depli[open] > summary .comprendre-le-cadre-depli-clic { display: none; }
+.comprendre-le-cadre-depli-desc {
+  flex-basis: 100%;
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: .82rem;
+  margin-top: .15rem;
+}
+.comprendre-le-cadre-depli[open] > summary .comprendre-le-cadre-depli-desc { display: none; }
+.comprendre-le-cadre-depli-corps {
+  border-top: 1px solid var(--border);
+  padding: .5rem .9rem .8rem;
+  font-size: .9rem;
+}
+
+/* Digest « Ce qui a changé récemment » (retour Denis 2026-09-14 :
+   plusieurs changements d'un même domaine se lisaient comme un seul
+   bloc de texte continu, sans séparation). Un changement = une carte,
+   même habillage que .comprendre-le-cadre-encart. Le nombre de
+   changements à côté du nom du domaine (même pastille que
+   .comprendre-le-cadre-source-date) permet de voir d'un coup d'oeil où
+   il y a du nouveau sans ouvrir chaque domaine. */
+.comprendre-le-cadre-digest-domaine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.comprendre-le-cadre-digest-badge {
+  padding: .08rem .55rem;
+  border-radius: .4rem;
+  background: var(--accent-bg-subtle);
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: none;
+  cursor: help;
+}
+.comprendre-le-cadre-digest-item {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: .9rem 1rem;
+  margin-bottom: .9rem;
+}
+.comprendre-le-cadre-digest-item-titre {
+  color: var(--text-strong);
+  font-size: 1.02rem;
+}
+.comprendre-le-cadre-digest-cle {
+  color: var(--text-strong);
+}
+.comprendre-le-cadre-digest-source {
+  border-top: 1px dashed var(--border);
+  padding-top: .5rem;
+  margin-top: .6rem !important;
+}
+.comprendre-le-cadre-digest-note:first-child { margin-top: 0; }

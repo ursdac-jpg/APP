@@ -1,0 +1,524 @@
+# Registre des adresses du module « Comprendre le cadre » (fichier maitre).
+# Les 14 rayons sont migres depuis le 2026-09-06 : ce fichier est l'unique
+# source, c'est ici qu'on edite.
+#
+# ==========================================================================
+#  FORMAT D'UNE LIGNE :  nom-court | adresse | date de verification | portee
+#     (les separateurs sont des barres verticales, entourees d'espaces)
+# ==========================================================================
+#
+#  Une adresse ne devient un LIEN CLIQUABLE en pied de fiche que si la
+#  3e colonne (la date) est remplie. Tant qu'elle est vide, le nom du site
+#  s'affiche en texte simple, avec la mention « adresse pas encore verifiee ».
+#
+#  ---- Dater une source documentaire (paquet B) ----
+#  1. Ouvrir l'adresse (2e colonne) dans le navigateur.
+#  2. Verifier qu'elle pointe bien sur le bon sujet, et que la page est vivante.
+#  3. Ecrire la date du jour dans la 3e colonne, au format AAAA-MM-JJ.
+#     Si la page a bouge : corriger d'abord l'adresse (2e colonne), puis dater.
+#  4. Enregistrer. Rien d'autre : le lien devient cliquable tout seul.
+#
+#  Avant :  service-public-rsa | https://www.service-public.gouv.fr/particuliers/vosdroits/N19775 |  | national
+#  Apres :  service-public-rsa | https://www.service-public.gouv.fr/particuliers/vosdroits/N19775 | 2026-09-20 | national
+#           (la date est simplement ajoutee entre la 2e et la 4e barre)
+#
+#  ---- Dater une structure « a qui s'adresser » (paquet C) ----
+#  Meme geste, plus la 4e colonne = la PORTEE de la structure :
+#     national  = vaut partout en France, affichee pour tout le monde
+#     region    = Nouvelle-Aquitaine, affichee pour un utilisateur 24 ou 87
+#     24        = Dordogne uniquement
+#     87        = Haute-Vienne uniquement
+#  4e colonne vide = pas encore taguee : la structure s'affiche pour tout le
+#  monde, dans une section « A verifier selon votre territoire ».
+#
+#  Avant :  mission-locale-perigord | https://www.mission-locale.fr/ |  | 24
+#  Apres :  mission-locale-perigord | https://www.missionlocaleduperigordnoir.fr/ | 2026-09-20 | 24
+#           (ici l'adresse nationale a ete remplacee par le vrai site local, puis datee)
+#
+#  Les sources documentaires (Legifrance, service-public...) sont nationales
+#  par nature : laisser leur portee vide, ou ecrire "national".
+#
+#  Liste complete des lignes a traiter, groupee par rayon :
+#  docs/CHANTIER_COMPRENDRE_LE_CADRE_ADRESSES.md
+# ==========================================================================
+
+legifrance | https://www.legifrance.gouv.fr/ | 2026-09-06 | national
+service-public | https://www.service-public.gouv.fr/ | 2026-09-06 | national
+ministere-travail | https://travail-emploi.gouv.fr/ | 2026-09-06 | national
+bo-travail | https://travail-emploi.gouv.fr/publications-et-ressources/bulletins-officiels-et-documents-opposables | 2026-09-06 | national
+interieur-etrangers | https://www.immigration.interieur.gouv.fr/Immigration | 2026-09-06 | national
+enic-naric | https://www.france-education-international.fr/expertises/enic-naric | 2026-09-06 | national
+france-competences | https://www.francecompetences.fr/ | 2026-09-06 | national
+vie-publique | https://www.vie-publique.fr/ | 2026-09-08 | national
+insee | https://www.insee.fr/fr/statistiques | 2026-09-06 | national
+dares | https://dares.travail-emploi.gouv.fr/ | 2026-09-06 | national
+france-travail-stats | https://www.francetravail.org/statistiques-analyses/ | 2026-09-06 | national
+france-travail-bmo | https://statistiques.francetravail.org/bmo | 2026-09-06 | national
+cap-metiers | https://pro.cap-metiers.fr/observer-analyser/si-terr/ | 2026-09-06 | region
+transitions-pro | https://www.transitionspro.fr/ | 2026-09-06 | national
+observatoire-territoires | https://www.observatoire-des-territoires.gouv.fr/ | 2026-09-06 | national
+caf | https://www.caf.fr/allocataires/aides-et-demarches/droits-et-prestations | 2026-09-06 | national
+service-civique | https://www.service-civique.gouv.fr/ | 2026-09-06 | national
+agefiph | https://www.agefiph.fr/ | 2026-09-06 | national
+
+# --- Rayon « Venir de l'étranger » (fiches rédigées le 2026-09-04, adresses à vérifier) ---
+service-public-travail-salarie-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F15898 | 2026-09-06 | national
+service-public-etudiant-etranger-travail | https://www.service-public.gouv.fr/particuliers/vosdroits/F2728 | 2026-09-06 | national
+service-public-reconnaissance-diplome-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F463 | 2026-09-06 | national
+service-public-attestation-comparabilite | https://www.service-public.gouv.fr/particuliers/vosdroits/R38515 | 2026-09-06 | national
+france-education-international-enic-naric | https://www.france-education-international.fr/expertises/enic-naric | 2026-09-06 | national
+service-public-echange-permis-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F1460 | 2026-09-06 | national
+service-public-naturalisation-decret | https://www.service-public.gouv.fr/particuliers/vosdroits/F2213 | 2026-09-05 | national
+service-public-niveau-francais-nationalite | https://www.service-public.gouv.fr/particuliers/vosdroits/F11926 | 2026-09-05 | national
+interieur-examen-civique | https://www.interieur.gouv.fr/actualites/communiques-de-presse/a-partir-du-1er-janvier-2026-reussite-a-lexamen-civique-sera-necessaire-pour-obtenir-carte-de-sejour | 2026-09-06 | national
+service-public-contrat-integration-republicaine | https://www.service-public.gouv.fr/particuliers/vosdroits/F17048 | 2026-09-08 | national
+ofii-accueil-integration | https://www.ofii.fr/procedure/accueil-integration/ | 2026-09-06 | national
+service-public-acces-travail-demandeur-asile | https://www.service-public.gouv.fr/particuliers/vosdroits/F2741 | 2026-09-05 | national
+service-public-protection-subsidiaire | https://www.service-public.gouv.fr/particuliers/vosdroits/F2689 | 2026-09-06 | national
+immigration-interieur-protection-internationale | https://www.immigration.interieur.gouv.fr/limmigration-en-france/sejour-des-etrangers/beneficiaires-de-protection-internationale | 2026-09-06 | national
+legifrance-ceseda-admission-exceptionnelle | https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006070158/LEGISCTA000042772028/ | 2026-09-06 | national
+interieur-metiers-en-tension | https://www.immigration.interieur.gouv.fr/limmigration-en-france/sejour-des-etrangers/liste-des-metiers-en-tension-pour-travailleurs-etrangers | 2026-09-06 | national
+prefecture-ardennes-tarifs-titres-sejour | https://www.ardennes.gouv.fr/Actions-de-l-Etat/Citoyennete-Elections/Demarches-pour-les-etrangers-dans-les-Ardennes-asile-sejour-naturalisation/Informations-pratiques-toutes-les-informations-utiles-pour-les-documents-de-sejour/A-partir-du-1er-mai-2026-nouvelle-tarification-des-titres-de-sejour | 2026-09-14 | national
+
+# Rayon « Étranger » : structures « à qui s'adresser » (à vérifier, adresses locales surtout)
+prefecture-dordogne-etrangers | https://www.dordogne.gouv.fr/ | 2026-09-06 | 24
+anef-etrangers | https://administration-etrangers-en-france.interieur.gouv.fr/ | 2026-09-06 | national
+ofii-direction-territoriale-bordeaux | https://www.ofii.fr/ | 2026-09-06 | region
+enic-naric-france | https://www.france-education-international.fr/expertises/enic-naric | 2026-09-06 | national
+ants-permis | https://ants.gouv.fr/ | 2026-09-06 | national
+cdad-dordogne-points-justice | https://cdad-dordogne.fr/lieux-d-acces-au-droit.html | 2026-09-06 | 24
+cimade-nouvelle-aquitaine | https://www.lacimade.org/ | 2026-09-06 | region
+spada-dordogne | https://www.asd24.org/ | 2026-09-06 | 24
+asso-france-terre-d-asile-24 | https://www.france-terre-asile.org/etablissement/cada-de-perigueux | 2026-09-08 | 24
+
+# --- Rayon « Budget, dettes, droits sociaux » (fiches rédigées le 2026-09-04) ---
+service-public-surendettement | https://www.service-public.gouv.fr/particuliers/vosdroits/N99 | 2026-09-05 | national
+banque-france-procedure-surendettement | https://www.banque-france.fr/fr/a-votre-service/intervenants-sociaux/comprendre-procedure-surendettement | 2026-09-06 | national
+banque-france-detail-procedure-surendettement | https://www.banque-france.fr/fr/detail-de-la-procedure-de-surendettement | 2026-09-06 | national
+solidarites-point-conseil-budget | https://solidarites.gouv.fr/point-conseil-budget-pcb | 2026-09-06 | national
+service-public-rsa | https://www.service-public.gouv.fr/particuliers/vosdroits/N19775 | 2026-09-05 | national
+service-public-prime-activite | https://www.service-public.gouv.fr/particuliers/vosdroits/F2882 | 2026-09-05 | national
+caf-rsa-prime-activite | https://www.caf.fr/allocataires/aides-et-demarches/ma-situation/vie-professionnelle/je-beneficie-du-rsa-et-je-souhaite-la-prime-d-activite | 2026-09-06 | national
+solidarites-revalorisation-2026 | https://solidarites.gouv.fr/revalorisation-annuelle-des-prestations-sociales-au-1er-avril-2026 | 2026-09-05 | national
+service-public-microcredit-personnel | https://www.service-public.gouv.fr/particuliers/vosdroits/F21375 | 2026-09-05 | national
+banque-france-microcredit | https://www.banque-france.fr/fr/a-votre-service/particuliers/connaitre-pratiques-bancaires-assurance/credit/microcredit | 2026-09-06 | national
+service-public-ficp | https://www.service-public.gouv.fr/particuliers/vosdroits/F17608 | 2026-09-05 | national
+banque-france-ficp | https://www.banque-france.fr/fr/a-votre-service/particuliers/fichiers-incident-bancaire/fichier-incidents-remboursement-credits | 2026-09-06 | national
+service-public-droit-au-compte | https://www.service-public.gouv.fr/particuliers/vosdroits/F2417 | 2026-09-05 | national
+banque-france-droit-au-compte | https://www.banque-france.fr/fr/a-votre-service/particuliers/droit-au-compte-bancaire | 2026-09-06 | national
+service-public-saisie-remuneration | https://www.service-public.gouv.fr/particuliers/vosdroits/F115 | 2026-09-05 | national
+
+# Rayon « Budget » : structures « à qui s'adresser »
+asso-mission-locale-du-bergeracois-24 | https://www.missionlocaledubergeracois.com/ | 2026-09-07 | 24
+asso-mission-locale-du-grand-perigueux-24 | https://www.ml-grandperigueux.fr/ | 2026-09-07 | 24
+point-conseil-budget-annuaire | https://lannuaire.service-public.gouv.fr/navigation/pcb | 2026-09-06 | national
+mesquestionsdargent-pcb | https://www.mesquestionsdargent.fr/ | 2026-09-06 | national
+banque-france-succursales | https://www.banque-france.fr/fr/nous-trouver | 2026-09-06 | national
+ccas-mairie | https://lannuaire.service-public.gouv.fr/navigation/ccas | 2026-09-06 | national
+conseil-departemental-dordogne-insertion | https://www.dordogne.fr/ | 2026-09-06 | 24
+caf-dordogne | https://www.caf.fr/allocataires/caf-de-la-dordogne | 2026-09-06 | 24
+msa-dordogne-lot-et-garonne | https://dlg.msa.fr/lfp | 2026-09-06 | 24
+udaf-dordogne | https://www.udaf24.fr/acces-au-microcredit-personnel-accompagne-udaf/ | 2026-09-06 | 24
+cresus-nouvelle-aquitaine | https://www.cresus.org/ | 2026-09-06 | region
+croix-rouge-secours-catholique-microcredit | https://www.service-public.gouv.fr/particuliers/vosdroits/F21375 | 2026-09-06 | national
+solidarites-precarite-alimentaire | https://solidarites.gouv.fr/lutter-contre-la-precarite-alimentaire | 2026-09-06 | national
+restos-du-coeur-aide-alimentaire | https://www.restosducoeur.org/nos-actions/aide-alimentaire/ | 2026-09-06 | national
+restos-du-coeur-dordogne | https://ad24.restosducoeur.org/ | 2026-09-06 | 24
+banque-alimentaire-dordogne | https://www.banquealimentaire.org/ | 2026-09-06 | 24
+secours-populaire-dordogne | https://www.secourspopulaire.fr/ | 2026-09-06 | 24
+epiceries-sociales-solidaires | https://www.andes-france.com/ | 2026-09-06 | national
+asso-udaf-87 | https://www.udaf87.fr/ | 2026-09-08 | 87
+asso-restos-du-coeur-87 | https://ad87.restosducoeur.org/ | 2026-09-08 | 87
+asso-banque-alimentaire-87 | https://ba87.banquealimentaire.org/ | 2026-09-08 | 87
+asso-la-maison-24 | https://www.lamaison24.net/ | 2026-09-08 | 24
+
+# --- Rayon « Mobilité » (fiches rédigées le 2026-09-04) ---
+service-public-aides-permis-de-conduire | https://www.service-public.gouv.fr/particuliers/vosdroits/F13609 | 2026-09-06 | national
+securite-routiere-permis-1-euro | https://www.securite-routiere.gouv.fr/passer-son-permis-de-conduire/financement-du-permis-de-conduire/permis-1-eu-par-jour | 2026-09-06 | national
+service-public-fin-aide-permis-france-travail | https://www.service-public.gouv.fr/particuliers/vosdroits/F1719 | 2026-09-06 | national
+service-public-stage-recuperation-points | https://www.service-public.gouv.fr/particuliers/vosdroits/F14208 | 2026-09-06 | national
+service-public-permis-invalide-solde-points-nul | https://www.service-public.gouv.fr/particuliers/vosdroits/F1704 | 2026-09-05 | national
+service-public-aide-mobilite-chomage | https://www.service-public.gouv.fr/particuliers/vosdroits/F1011 | 2026-09-05 | national
+mes-aides-france-travail-mobilite | https://mes-aides.francetravail.fr/transport | 2026-09-06 | national
+ecologie-aides-vehicules-peu-polluants | https://www.ecologie.gouv.fr/politiques-publiques/prime-retrofit-bonus-ecologique-toutes-aides-faveur-lacquisition-vehicules | 2026-09-06 | national
+primealaconversion-leasing-social-2026 | https://www.primealaconversion.gouv.fr/dboneco/accueil/leasingsocial2026.html | 2026-09-06 | national
+transports-nouvelle-aquitaine-carte-solidaire | https://transports.nouvelle-aquitaine.fr/les-offres/la-carte-solidaire | 2026-09-06 | region
+transports-nouvelle-aquitaine-tad | https://transports.nouvelle-aquitaine.fr/transports-la-demande | 2026-09-06 | region
+
+# Rayon « Mobilité » : structures « à qui s'adresser »
+asso-mission-locale-du-bergeracois-24 | https://www.missionlocaledubergeracois.com/ | 2026-09-07 | 24
+asso-mission-locale-du-grand-perigueux-24 | https://www.ml-grandperigueux.fr/ | 2026-09-07 | 24
+mes-aides-france-travail | https://mes-aides.francetravail.fr/ | 2026-09-06 | national
+france-mobilites-solutions | https://www.francemobilites.fr/ | 2026-09-06 | national
+plateforme-mobilite-dordogne | https://mes-aides.francetravail.fr/regions/nouvelle-aquitaine | 2026-09-06 | 24
+conseil-regional-nouvelle-aquitaine-transports | https://transports.nouvelle-aquitaine.fr/ | 2026-09-06 | region
+covoit-modalis | https://www.modalis.fr/ | 2026-09-06 | region
+conseil-departemental-dordogne-mobilite | https://www.dordogne.fr/ | 2026-09-06 | 24
+mission-locale-perigord | https://lannuaire.service-public.gouv.fr/navigation/nouvelle-aquitaine/dordogne/mission_locale | 2026-09-06 | 24
+auto-ecoles-associatives-sociales | https://mes-aides.francetravail.fr/mobilite | 2026-09-06 | national
+asso-afac-24 | https://afac24.com/ | 2026-09-08 | 24
+asso-auto-mobilite-solidaire-dordogne | https://automobilitesolida.wixsite.com/website | 2026-09-08 | 24
+asso-plateforme-must | https://www.plateforme-must.fr/ | 2026-09-08 | 24
+asso-mobilim-87 | https://mobilim87.fr/ | 2026-09-08 | 87
+asso-atchoum-24 | https://www.atchoum.eu/ | 2026-09-08 | 24
+
+# --- Rayon « Logement » (début : volet « sans hébergement », 2026-09-04) ---
+service-public-domiciliation | https://www.service-public.gouv.fr/particuliers/vosdroits/F17317 | 2026-09-06 | national
+solidarites-domiciliation | https://solidarites.gouv.fr/domiciliation-des-personnes-sans-domicile-stable | 2026-09-06 | national
+dihal-aller-vers-accueils-de-jour-maraudes | https://www.info.gouv.fr/organisation/delegation-interministerielle-a-l-hebergement-et-a-l-acces-au-logement/aller-vers-les-accueils-de-jour-les-maraudes | 2026-09-06 | national
+dihal-115-siao | https://www.info.gouv.fr/organisation/delegation-interministerielle-a-l-hebergement-et-a-l-acces-au-logement | 2026-09-06 | national
+
+# Rayon « Logement » : structures « à qui s'adresser »
+115-samu-social | https://www.info.gouv.fr/organisation/delegation-interministerielle-a-l-hebergement-et-a-l-acces-au-logement | 2026-09-06 | national
+siao-dordogne | https://annuaire.action-sociale.org/ | 2026-09-06 | 24
+accueils-de-jour-dordogne | https://annuaire.action-sociale.org/ | 2026-09-06 | 24
+ccas-domiciliation | https://lannuaire.service-public.gouv.fr/navigation/ccas | 2026-09-06 | national
+conseil-departemental-dordogne-action-sociale | https://www.dordogne.fr/ | 2026-09-06 | 24
+actionlogement-garantie-visale | https://www.actionlogement.fr/la-garantie-visale | 2026-09-06 | national
+actionlogement-avance-loca-pass | https://www.actionlogement.fr/l-avance-loca-pass | 2026-09-06 | national
+service-public-avance-loca-pass | https://www.service-public.gouv.fr/particuliers/vosdroits/F18490 | 2026-09-05 | national
+service-public-fsl | https://www.service-public.gouv.fr/particuliers/vosdroits/F1334 | 2026-09-05 | national
+service-public-aides-au-logement-caf | https://www.service-public.gouv.fr/particuliers/vosdroits/F12006 | 2026-09-05 | national
+service-public-dalo | https://www.service-public.gouv.fr/particuliers/vosdroits/F18005 | 2026-09-05 | national
+service-public-fjt | https://www.service-public.gouv.fr/particuliers/vosdroits/F2018 | 2026-09-05 | national
+service-public-etablissements-precarite | https://www.service-public.gouv.fr/particuliers/vosdroits/F2003 | 2026-09-06 | national
+service-public-loyers-impayes-expulsion | https://www.service-public.gouv.fr/particuliers/vosdroits/F31272 | 2026-09-05 | national
+service-public-demande-logement-social | https://www.service-public.gouv.fr/particuliers/vosdroits/F869 | 2026-09-05 | national
+conseil-departemental-dordogne-fsl | https://www.dordogne.fr/ | 2026-09-06 | 24
+adil-dordogne | https://www.anil.org/qui-sommes-nous/reseau-des-adil/ | 2026-09-06 | 24
+action-logement-nouvelle-aquitaine | https://www.actionlogement.fr/ | 2026-09-06 | region
+caf-dordogne-logement | https://www.caf.fr/allocataires/caf-de-la-dordogne | 2026-09-06 | 24
+prefecture-dordogne-dalo | https://www.dordogne.gouv.fr/ | 2026-09-06 | 24
+habitat-jeunes-perigord | https://habitat.dordogne.fr/mon-logement/hebergement-pour-les-jeunes-et-etudiants-en-dordogne | 2026-09-06 | 24
+asso-soliha-dordogne | https://www.dordogne.soliha.fr/ | 2026-09-08 | 24
+asso-soliha-limousin | https://limousin.soliha.fr/ | 2026-09-08 | 87
+asso-adil-87 | https://www.anil.org/adil-87/ | 2026-09-08 | 87
+
+# --- Rayon « Se former et se reconvertir » (fiches rédigées le 2026-09-04) ---
+service-public-cpf | https://www.service-public.gouv.fr/particuliers/vosdroits/F10705 | 2026-09-05 | national
+moncompteformation | https://www.moncompteformation.gouv.fr/ | 2026-09-06 | national
+francetravail-poei | https://www.francetravail.fr/employeur/aides-aux-recrutements/les-aides-a-la-formation/la-preparation-operationnelle-a.html | 2026-09-06 | national
+francetravail-poec | https://www.francetravail.fr/candidat/en-formation/mes-aides-financieres/la-preparation-operationnelle-1.html | 2026-09-06 | national
+service-public-vae | https://www.service-public.gouv.fr/particuliers/vosdroits/F2401 | 2026-09-05 | national
+france-vae | https://vae.gouv.fr/ | 2026-09-06 | national
+service-public-ptp | https://www.service-public.gouv.fr/particuliers/vosdroits/F14018 | 2026-09-05 | national
+transitionspro-demission-reconversion | https://www.transitionspro.fr/nos-dispositifs/demission-reconversion/ | 2026-09-06 | national
+transitionspro-ptp | https://www.transitionspro.fr/nos-dispositifs/projet-de-transition-professionnelle/ | 2026-09-06 | national
+francetravail-demission-reconversion | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/a-chaque-situation-son-allocatio/quelle-est-ma-situation-professi/je-perds-ou-je-quitte-un-emploi/je-veux-demissionner-et-jai-un-p.html | 2026-09-06 | national
+service-public-cep | https://www.service-public.gouv.fr/particuliers/vosdroits/F32457 | 2026-09-05 | national
+mon-cep | https://mon-cep.org/ | 2026-09-06 | national
+service-public-formation-demandeur-emploi | https://www.service-public.gouv.fr/particuliers/vosdroits/F3147 | 2026-09-05 | national
+fondation-deuxieme-chance | https://www.deuxiemechance.org/ | 2026-09-08 | national
+fondation-deuxieme-chance-etre-aide | https://www.deuxiemechance.org/etre-aide | 2026-09-08 | national
+region-na-bourses-sanitaires-sociales | https://jeunes.nouvelle-aquitaine.fr/formation/etudier/formations-sociales-paramedicales-et-sante-une-bourse-regionale | 2026-09-08 | region
+institut-engagement | https://www.engagement.fr/ | 2026-09-08 | national
+
+# Rayon « Se former » : structures « à qui s'adresser »
+asso-mission-locale-du-bergeracois-24 | https://www.missionlocaledubergeracois.com/ | 2026-09-07 | 24
+asso-mission-locale-du-grand-perigueux-24 | https://www.ml-grandperigueux.fr/ | 2026-09-07 | 24
+mon-cep-operateur-nouvelle-aquitaine | https://mon-cep.org/ | 2026-09-06 | region
+transitions-pro-nouvelle-aquitaine | https://www.transitionspro-na.fr/ | 2026-09-06 | region
+apec | https://www.apec.fr/ | 2026-09-06 | national
+france-travail-formation | https://www.francetravail.fr/ | 2026-09-06 | national
+conseil-regional-nouvelle-aquitaine-formation | https://www.nouvelle-aquitaine.fr/ | 2026-09-06 | region
+france-vae-point-relais-conseil | https://vae.gouv.fr/ | 2026-09-06 | region
+afpa-greta-cnam-dordogne | https://www.afpa.fr/ | 2026-09-06 | 24
+
+# --- Rayon « Emploi et contrats » (fiches rédigées le 2026-09-04) ---
+service-public-periode-essai | https://www.service-public.gouv.fr/particuliers/vosdroits/F1643 | 2026-09-05 | national
+service-public-rupture-conventionnelle | https://www.service-public.gouv.fr/particuliers/vosdroits/F19030 | 2026-09-05 | national
+travail-emploi-rupture-conventionnelle | https://travail-emploi.gouv.fr/la-rupture-conventionnelle-du-contrat-de-travail-duree-indeterminee | 2026-09-06 | national
+service-public-cdd | https://www.service-public.gouv.fr/particuliers/vosdroits/F36 | 2026-09-05 | national
+service-public-fin-cdd | https://www.service-public.gouv.fr/particuliers/vosdroits/F40 | 2026-09-06 | national
+service-public-prime-precarite | https://www.service-public.gouv.fr/particuliers/vosdroits/F803 | 2026-09-06 | national
+service-public-interim | https://www.service-public.gouv.fr/particuliers/vosdroits/F11215 | 2026-09-06 | national
+service-public-cddi | https://www.service-public.gouv.fr/particuliers/vosdroits/F14100 | 2026-09-06 | national
+travail-emploi-pec | https://travail-emploi.gouv.fr/le-parcours-emploi-competences-pec | 2026-09-06 | national
+francetravail-cdd-tremplin | https://www.francetravail.fr/candidat/handicap-et-talents/a-la-une/handicap-inserez-vous-dans-le-mo.html | 2026-09-06 | national
+unedic-rupture-conventionnelle | https://www.unedic.org/la-reglementation/fiches-thematiques/rupture-conventionnelle | 2026-09-05 | national
+service-public-licenciement-motif-personnel | https://www.service-public.gouv.fr/particuliers/vosdroits/F2839 | 2026-09-05 | national
+service-public-indemnite-licenciement | https://www.service-public.gouv.fr/particuliers/vosdroits/F987 | 2026-09-05 | national
+service-public-demission | https://www.service-public.gouv.fr/particuliers/vosdroits/F2883 | 2026-09-05 | national
+
+# --- Rayon « Emploi et contrats » : 4 fiches ajoutees le 2026-09-11, verifiees par Denis le 2026-09-11 ---
+service-public-csp | https://www.service-public.gouv.fr/particuliers/vosdroits/F13819 | 2026-09-11 | national
+travail-emploi-csp | https://travail-emploi.gouv.fr/le-contrat-de-securisation-professionnelle-csp | 2026-09-11 | national
+travail-emploi-abandon-poste | https://travail-emploi.gouv.fr/droit-du-travail/la-rupture-du-contrat-de-travail/article/questions-reponses-presomption-de-demission-en-cas-d-abandon-de-poste | 2026-09-11 | national
+legifrance-decret-abandon-poste | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000047455109 | 2026-09-11 | national
+service-public-emploi-franc | https://entreprendre.service-public.gouv.fr/vosdroits/F34547 | 2026-09-11 | national
+service-public-simulateur-frr | https://www.service-public.gouv.fr/simulateur/calcul/zonageFranceRuralitesRevitalisation | 2026-09-11 | national
+francetravail-qpv | https://www.francetravail.fr/faq/candidat/mes-allocations---mes-aides/les-aides/pour-la-reprise-demploi/quartiers-prioritaires-politique.html | 2026-09-11 | national
+francetravail-cesu | https://www.francetravail.fr/employeur/vous-etes-un-particulier-employe/particulier-employeur--le-cheque.html | 2026-09-11 | national
+code-travail-numerique-cesu | https://code.travail.gouv.fr/fiche-ministere-travail/le-cheque-emploi-service-universel-cesu-declaratif | 2026-09-11 | national
+
+# Rayon « Emploi » : structures « à qui s'adresser »
+france-travail | https://www.francetravail.fr/ | 2026-09-06 | national
+inspection-du-travail-ddets-dordogne | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-06 | 24
+conseil-de-prud-hommes-perigueux-bergerac | https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/dordogne/4e40b4a0-0ebb-4332-8451-587a57b781dc | 2026-09-06 | 24
+structures-iae-dordogne | https://emplois.inclusion.beta.gouv.fr/ | 2026-09-06 | 24
+cap-emploi-dordogne | https://www.capemploi-24.com/ | 2026-09-06 | 24
+
+# --- Rayon « Accompagnement et structures de l'insertion » (fiches rédigées le 2026-09-04) ---
+service-public-contrat-engagement | https://www.service-public.gouv.fr/particuliers/vosdroits/F14926 | 2026-09-05 | national
+francetravail-contrat-engagement | https://www.francetravail.fr/candidat/france-travail-et-vous/contrat-d-engagement.html | 2026-09-06 | national
+travail-emploi-bareme-sanctions | https://travail-emploi.gouv.fr/nouveau-bareme-de-sanctions-en-cas-de-manquement-aux-obligations-du-contrat-dengagement-des-demandeurs-demploi | 2026-09-06 | national
+service-public-cej | https://www.service-public.gouv.fr/particuliers/vosdroits/F32700 | 2026-09-05 | national
+travail-emploi-accompagnement-renove-rsa | https://travail-emploi.gouv.fr/laccompagnement-renove-des-allocataires-du-rsa | 2026-09-06 | national
+travail-emploi-loi-plein-emploi | https://travail-emploi.gouv.fr/la-loi-pour-le-plein-emploi | 2026-09-06 | national
+service-public-iae | https://www.service-public.gouv.fr/particuliers/vosdroits/F2284 | 2026-09-05 | national
+plateforme-inclusion-emplois | https://emplois.inclusion.beta.gouv.fr/ | 2026-09-06 | national
+economie-clauses-sociales | https://www.economie.gouv.fr/daj/guide-sur-les-aspects-sociaux-de-la-commande-publique | 2026-09-06 | national
+ville-emploi-clause-sociale | https://www.ville-emploi.asso.fr/lachat-responsable | 2026-09-08 | national
+travail-emploi-o2r | https://travail-emploi.gouv.fr/ | 2026-09-06 | national
+travail-emploi-geiq | https://travail-emploi.gouv.fr/les-groupements-demployeurs-pour-linsertion-et-la-qualification-geiq | 2026-09-11 | national
+
+# Rayon « Accompagnement » : structures « à qui s'adresser »
+mission-locale-perigord | https://lannuaire.service-public.gouv.fr/navigation/nouvelle-aquitaine/dordogne/mission_locale | 2026-09-06 | 24
+asso-mission-locale-du-bergeracois-24 | https://www.missionlocaledubergeracois.com/ | 2026-09-07 | 24
+asso-mission-locale-du-grand-perigueux-24 | https://www.ml-grandperigueux.fr/ | 2026-09-07 | 24
+conseil-departemental-dordogne-insertion | https://www.dordogne.fr/ | 2026-09-06 | 24
+plie-et-maison-emploi-dordogne | https://www.ville-emploi.asso.fr/annuaire-du-reseau | 2026-09-06 | 24
+inae-nouvelle-aquitaine | https://inae-nouvelleaquitaine.org/ | 2026-09-06 | region
+asso-varlin-pont-neuf | https://varlinpontneuf.fr/ | 2026-09-08 | 87
+carto-inclusion-numerique | https://cartographie.societenumerique.gouv.fr/ | 2026-09-07 | national
+asso-base-24 | https://associationbase.fr/ | 2026-09-08 | 24
+asso-la-main-forte-24 | https://lamainforte.org/ | 2026-09-08 | 24
+dora-services-insertion | https://dora.inclusion.gouv.fr/ | 2026-09-07 | national
+annuaire-acteurs-dordogne | https://www.dordogne.fr/information-transversale/annuaire-des-acteurs | 2026-09-07 | 24
+asso-aleas-87 | https://www.association-aleas.fr/ | 2026-09-08 | 87
+asso-france-alzheimer-24 | https://www.francealzheimer.org/dordogne/ | 2026-09-08 | 24
+asso-unafam-24 | https://www.unafam.org/dordogne | 2026-09-08 | 24
+asso-unafam-87 | https://www.unafam.org/haute-vienne | 2026-09-08 | 87
+figem-annuaire-gem | https://www.figem.fr/annuaire | 2026-09-07 | national
+asso-reseau-alliage-87 | https://www.reseau-alliage.fr/ | 2026-09-08 | 87
+asso-croix-marine-24 | https://www.croixmarine24.fr/ | 2026-09-08 | 24
+asso-saveurs-du-bois-du-roc-24 | https://www.saveursduboisduroc.fr/ | 2026-09-08 | 24
+asso-geiq-24 | https://geiq24.com/ | 2026-09-08 | 24
+
+# --- Rayon « Handicap et emploi » (fiches rédigées le 2026-09-04) ---
+service-public-rqth | https://www.service-public.gouv.fr/particuliers/vosdroits/F1650 | 2026-09-05 | national
+travail-emploi-droits-travailleurs-handicapes | https://travail-emploi.gouv.fr/emploi/handicap/droits-des-travailleurs-en-situation-de-handicap | 2026-09-06 | national
+travail-emploi-reclassement-inaptitude | https://travail-emploi.gouv.fr/quest-ce-quun-reclassement-et-quel-moment-suis-je-concerne | 2026-09-06 | national
+service-public-inaptitude-maladie | https://www.service-public.gouv.fr/particuliers/vosdroits/F726 | 2026-09-05 | national
+agefiph-aides-financieres | https://www.agefiph.fr/aides-financieres | 2026-09-05 | national
+agefiph-evolution-offre | https://www.agefiph.fr/actualites-handicap/evolution-de-loffre-de-services-et-de-daides-financieres-de-lagefiph | 2026-09-05 | national
+service-public-emploi-accompagne | https://www.service-public.gouv.fr/particuliers/vosdroits/F34063 | 2026-09-05 | national
+travail-emploi-cap-emploi | https://travail-emploi.gouv.fr/cap-emploi | 2026-09-06 | national
+service-public-entreprise-adaptee | https://www.service-public.gouv.fr/particuliers/vosdroits/F1653 | 2026-09-05 | national
+service-public-esat | https://www.service-public.gouv.fr/particuliers/vosdroits/F1654 | 2026-09-05 | national
+service-public-oeth | https://www.service-public.gouv.fr/particuliers/vosdroits/F23149 | 2026-09-05 | national
+service-public-rlh | https://www.service-public.gouv.fr/particuliers/vosdroits/F1658 | 2026-09-05 | national
+service-public-aah | https://www.service-public.gouv.fr/particuliers/vosdroits/F12242 | 2026-09-05 | national
+
+# --- Rayon « Handicap et emploi » : 2 fiches ajoutees le 2026-09-11, verifiees par Denis le 2026-09-11 ---
+ameli-demander-pension-invalidite | https://www.ameli.fr/assure/droits-demarches/invalidite-handicap/invalidite/demander-pension-invalidite | 2026-09-11 | national
+ameli-entree-invalidite | https://www.ameli.fr/assure/droits-demarches/invalidite-handicap/invalidite/entree-invalidite | 2026-09-11 | national
+pour-les-personnes-agees-conge-proche-aidant | https://www.pour-les-personnes-agees.gouv.fr/solutions-pour-les-aidants/travailler-et-aider-un-proche/le-conge-de-proche-aidant | 2026-09-11 | national
+pour-les-personnes-agees-ajpa | https://www.pour-les-personnes-agees.gouv.fr/solutions-pour-les-aidants/soutien-financier/l-allocation-journaliere-du-proche-aidant-qu-est-ce-que-c-est | 2026-09-11 | national
+
+# Rayon « Handicap » : structures « à qui s'adresser »
+mdph-dordogne | https://www.dordogne.fr/a-votre-service/handicap/maison-departementale-des-personnes-handicapees | 2026-09-06 | 24
+agefiph-delegation-nouvelle-aquitaine | https://www.agefiph.fr/ | 2026-09-06 | region
+medecine-du-travail-service-prevention-sante | https://www.spst19-24.org/ | 2026-09-06 | 24
+entreprises-adaptees-esat-dordogne | https://annuaire.action-sociale.org/ | 2026-09-06 | 24
+asso-apf-24 | https://dordogne.apf-francehandicap.org/ | 2026-09-08 | 24
+asso-apf-87 | https://haute-vienne.apf-francehandicap.org/ | 2026-09-08 | 87
+
+# --- Rayon « Moins de 26 ans » (fiches rédigées le 2026-09-04) ---
+francetravail-allocation-cej | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/aides-financieres-et-autres-allo/autres-allocations/lallocation-cej--les-reponses-a.html | 2026-09-05 | national
+service-public-e2c | https://www.service-public.gouv.fr/particuliers/vosdroits/F2039 | 2026-09-05 | national
+service-public-epide | https://www.service-public.gouv.fr/particuliers/vosdroits/F1190 | 2026-09-05 | national
+service-public-service-civique | https://www.service-public.gouv.fr/particuliers/vosdroits/F13278 | 2026-09-05 | national
+service-civique-gouv | https://www.service-civique.gouv.fr/ | 2026-09-05 | national
+education-obligation-formation-16-18 | https://www.1jeune1solution.gouv.fr/articles/16-18-obligation-de-formation | 2026-09-05 | national
+travail-emploi-prepa-apprentissage | https://travail-emploi.gouv.fr/la-prepa-apprentissage | 2026-09-06 | national
+travail-emploi-ecoles-de-production | https://www.info.gouv.fr/actualite/les-ecoles-de-production-une-autre-facon-d-apprendre-un-metier | 2026-09-06 | national
+un-jeune-une-solution | https://www.1jeune1solution.gouv.fr/ | 2026-09-05 | national
+service-public-apprentissage | https://www.service-public.gouv.fr/particuliers/vosdroits/F2918 | 2026-09-05 | national
+
+# Rayon « Moins de 26 ans » : structures « à qui s'adresser »
+france-travail-jeunes-dordogne | https://www.francetravail.fr/candidat/jeunes.html | 2026-09-06 | 24
+e2c-perigueux | https://reseau-e2c.fr/ | 2026-09-06 | 24
+epide-nouvelle-aquitaine | https://www.epide.fr/ | 2026-09-06 | region
+agence-service-civique | https://www.service-civique.gouv.fr/trouver-ma-mission | 2026-09-06 | national
+psad-plateforme-suivi-appui-decrocheurs-dordogne | https://www.ac-bordeaux.fr/ia24 | 2026-09-06 | 24
+cfa-et-ecoles-de-production-nouvelle-aquitaine | https://www.1jeune1solution.gouv.fr/formations-initiales | 2026-09-05 | region
+asso-crij-nouvelle-aquitaine | https://crijna.fr/ | 2026-09-08 | region
+asso-mission-locale-perigord-noir-24 | https://www.missionlocaleperigordnoir.com/ | 2026-09-08 | 24
+asso-mission-locale-du-bergeracois-24 | https://www.missionlocaledubergeracois.com/ | 2026-09-07 | 24
+asso-mission-locale-du-grand-perigueux-24 | https://www.ml-grandperigueux.fr/ | 2026-09-07 | 24
+asso-mission-locale-rurale-87 | https://www.missionlocaleruralehautevienne.com/ | 2026-09-08 | 87
+
+# --- Rayon « Créer son activité » (fiches rédigées le 2026-09-04) ---
+entreprendre-regime-micro-entreprise | https://entreprendre.service-public.gouv.fr/vosdroits/F23267 | 2026-09-06 | national
+urssaf-autoentrepreneur-essentiel | https://www.autoentrepreneur.urssaf.fr/portail/accueil/sinformer-sur-le-statut/lessentiel-du-statut.html | 2026-09-06 | national
+urssaf-seuils-2026 | https://www.autoentrepreneur.urssaf.fr/portail/accueil/sinformer-sur-le-statut/toutes-les-actualites/2026--modification-des-seuils-de.html | 2026-09-06 | national
+entreprendre-franchise-tva | https://entreprendre.service-public.gouv.fr/vosdroits/F21746 | 2026-09-06 | national
+entreprendre-tester-activite-cae | https://entreprendre.service-public.gouv.fr/vosdroits/F37875 | 2026-09-06 | national
+les-cae-coop | https://www.les-cae.coop/ | 2026-09-06 | national
+service-public-acre | https://www.service-public.gouv.fr/particuliers/vosdroits/F11677 | 2026-09-05 | national
+entreprendre-arce | https://entreprendre.service-public.gouv.fr/vosdroits/F15252 | 2026-09-06 | national
+francetravail-creer-entreprise | https://www.francetravail.fr/candidat/je-creereprends-une-entreprise/les-aides-financieres-creation-d.html | 2026-09-06 | national
+entreprendre-guichet-unique | https://entreprendre.service-public.gouv.fr/vosdroits/R61572 | 2026-09-06 | national
+bpifrance-creation | https://bpifrance-creation.fr/ | 2026-09-06 | national
+chambres-agriculture-sinstaller | https://chambres-agriculture.fr/je-suis-futur-agriculteur/ | 2026-09-08 | national
+onisep-bprea | https://www.onisep.fr/ressources/univers-formation/formations/lycees/bp-responsable-d-entreprise-agricole | 2026-09-08 | national
+region-na-dnja | https://les-aides.nouvelle-aquitaine.fr/economie-et-emploi/installation-dotation-nouveaux-et-jeunes-agriculteurs-dnja | 2026-09-08 | region
+
+# Rayon « Créer son activité » : structures « à qui s'adresser »
+chambre-metiers-artisanat-dordogne | https://www.artisanat.fr/ | 2026-09-06 | 24
+chambre-agriculture-dordogne | https://dordogne.chambres-agriculture.fr/ | 2026-09-08 | 24
+cci-dordogne | https://www.dordogne.cci.fr/ | 2026-09-06 | 24
+bge-perigord | https://www.bge.asso.fr/ | 2026-09-06 | 24
+adie-nouvelle-aquitaine | https://www.adie.org/ | 2026-09-06 | region
+initiative-perigord | https://initiative-france.fr/ | 2026-09-06 | 24
+france-active-nouvelle-aquitaine | https://www.franceactive.org/ | 2026-09-06 | region
+cooperative-activite-emploi-dordogne | https://www.les-cae.coop/trouver-une-cae | 2026-09-06 | 24
+asso-coopalpha-24 | https://www.coopalpha.coop/ | 2026-09-08 | 24
+asso-iriscop-24 | https://iriscop.com/ | 2026-09-08 | 24
+asso-la-traverse-bergerac-24 | https://latraverse-bergerac.fr/ | 2026-09-08 | 24
+
+# --- Rayon « Justice : sortie de détention » (fiches rédigées le 2026-09-04) ---
+justice-gouv-spip | https://www.justice.gouv.fr/annuaire/structures-reinsertion-demploi/services-penitentiaires-dinsertion-probation-spip | 2026-09-05 | national
+justice-fr-suivi-milieu-ouvert | https://www.justice.gouv.fr/justice-france/prise-charge-personnes-condamnees-ou-prevenues/suivi-milieu-ouvert | 2026-09-05 | national
+justice-fr-amenagements-de-peine | https://www.justice.fr/mon-suivi-justice/comprendre-ma-peine/amenagements-peine | 2026-09-06 | national
+service-public-liberation-sous-contrainte | https://www.service-public.gouv.fr/particuliers/vosdroits/F34150 | 2026-09-05 | national
+justice-gouv-travail-detention | https://www.justice.gouv.fr/grands-dossiers/travail-detention | 2026-09-05 | national
+atigip-travail-penitentiaire | https://atigip.justice.gouv.fr/travail-et-formation/travail-en-detention/ | 2026-09-05 | national
+service-public-casier-judiciaire-bulletins | https://www.service-public.gouv.fr/particuliers/vosdroits/F14710 | 2026-09-05 | national
+service-public-allocations-apres-prison | https://www.service-public.gouv.fr/particuliers/vosdroits/F31832 | 2026-09-05 | national
+service-public-droits-detenus | https://www.service-public.gouv.fr/particuliers/vosdroits/F14154 | 2026-09-05 | national
+francetravail-entre-sors-de-prison | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/a-chaque-situation-son-allocatio/quelle-est-ma-situation-personne/jentre--je-sors-de-prison.html | 2026-09-05 | national
+justice-guide-droits-sociaux-ppsmj | https://www.justice.gouv.fr/documentation/ressources/guide-droits-sociaux-accessibles-aux-ppsmj | 2026-09-05 | national
+
+# Rayon « Justice » : structures « à qui s'adresser »
+spip-dordogne | https://www.justice.gouv.fr/annuaire/structures-reinsertion-demploi/services-penitentiaires-dinsertion-probation-spip | 2026-09-06 | 24
+france-travail-justice-dordogne | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/a-chaque-situation-son-allocatio/quelle-est-ma-situation-personne/jentre--je-sors-de-prison.html | 2026-09-05 | 24
+casier-judiciaire-national | https://casier-judiciaire.justice.gouv.fr/ | 2026-09-05 | national
+associations-post-sentencielles-dordogne | https://www.justice.gouv.fr/annuaire | 2026-09-06 | 24
+structures-iae-milieu-penitentiaire | https://atigip.justice.gouv.fr/travail-et-formation/travail-en-detention/ | 2026-09-05 | national
+asso-arsl-87 | http://www.arsl.eu/ | 2026-09-08 | 87
+
+# --- Rayon « Garde d'enfant » (fiches rédigées le 2026-09-04) ---
+service-public-cmg | https://www.service-public.gouv.fr/particuliers/vosdroits/F345 | 2026-09-05 | national
+solidarites-cmg | https://solidarites.gouv.fr/complement-de-libre-choix-du-mode-de-garde | 2026-09-06 | national
+legifrance-decret-2025-515-cmg | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000051714530 | 2026-09-06 | national
+urssaf-evolution-cmg | https://www.urssaf.fr/accueil/actualites/evolution-cmg-ce-qui-va-changer.html | 2026-09-06 | national
+caf-cmg-evolue | https://www.caf.fr/professionnels/actualites/le-complement-de-libre-choix-du-mode-de-garde-cmg-evolue | 2026-09-06 | national
+francetravail-age-formation | https://www.francetravail.fr/candidat/en-formation/les-dispositifs/formation---laide-a-la-garde-den.html | 2026-09-06 | national
+francetravail-age-faq | https://www.francetravail.fr/faq/candidat/mes-allocations---mes-aides/les-aides/pour-la-garde-denfants/agepi.html | 2026-09-06 | national
+solidarites-agepi | https://mes-aides.francetravail.fr/famille-et-vie-quotidienne/faire-garder-mes-enfants/france-travail/aide-a-la-garde-d-enfantsage | 2026-09-06 | national
+solidarites-avip | https://solidarites.gouv.fr/les-creches-vocation-dinsertion-professionnelle-avip | 2026-09-06 | national
+caf-avip | https://www.caf.fr/professionnels/actualites/les-creches-vocation-d-insertion-professionnelle-avip | 2026-09-06 | national
+monenfant-aides | https://monenfant.fr/des-aides-sp%C3%A9cifiques-pour-la-garde-du-jeune-enfant | 2026-09-06 | national
+monenfant-rpe | https://monenfant.fr/les-relais-petite-enfance | 2026-09-06 | national
+solidarites-choisir-mode-accueil | https://solidarites.gouv.fr/comment-choisir-un-mode-daccueil-pour-son-enfant | 2026-09-06 | national
+caf-rpe | https://www.caf.fr/allocataires/aides-et-demarches/thematique-libre/relais-petite-enfance-rpe | 2026-09-06 | national
+mesdroitssociaux-simulateur-cmg | https://www.mesdroitssociaux.gouv.fr/votre-simulateur/aide-garde-enfant/cmg | 2026-09-06 | national
+
+# Rayon « Garde d'enfant » : structures « à qui s'adresser »
+asso-mission-locale-du-bergeracois-24 | https://www.missionlocaledubergeracois.com/ | 2026-09-07 | 24
+asso-mission-locale-du-grand-perigueux-24 | https://www.ml-grandperigueux.fr/ | 2026-09-07 | 24
+relais-petite-enfance | https://monenfant.fr/les-relais-petite-enfance | 2026-09-06 | national
+caf-dordogne | https://www.caf.fr/allocataires/caf-de-la-dordogne | 2026-09-06 | 24
+pmi-dordogne | https://www.dordogne.fr/ | 2026-09-06 | 24
+france-travail-garde | https://www.francetravail.fr/ | 2026-09-06 | national
+monenfant-annuaire | https://monenfant.fr/ | 2026-09-06 | national
+ccas-commune | https://lannuaire.service-public.gouv.fr/ | 2026-09-06 | national
+mission-locale-perigord | https://lannuaire.service-public.gouv.fr/navigation/nouvelle-aquitaine/dordogne/mission_locale | 2026-09-06 | 24
+pajemploi-urssaf | https://www.pajemploi.urssaf.fr/ | 2026-09-06 | national
+
+# --- Rayon « Apprendre le français » (fiches rédigées le 2026-09-04) ---
+service-public-francais-titre-sejour | https://www.service-public.gouv.fr/particuliers/vosdroits/F34501 | 2026-09-05 | national
+interieur-oepre | https://www.immigration.interieur.gouv.fr/lintegration-des-etrangers/dispositifs-de-lintegration-en-france/ouvrir-lecole-aux-parents-pour-reussite-des-enfants | 2026-09-06 | national
+eduscol-oepre | https://eduscol.education.gouv.fr/5103/ouvrir-l-ecole-aux-parents-pour-la-reussite-des-enfants | 2026-09-06 | national
+education-circulaire-oepre-2025 | https://www.education.gouv.fr/bo/2025/Hebdo38/MENE2525824C | 2026-09-06 | national
+anlci-accueil | https://www.anlci.gouv.fr/ | 2026-09-06 | national
+anlci-chiffres-competences-de-base | https://www.anlci.gouv.fr/chiffres-cles-adultes-et-competences-de-base/ | 2026-09-06 | national
+francetravail-cpf-aif-poec | https://www.francetravail.fr/actualites/a-laffiche/2026/cpf-aif-poec-quel-financement.html | 2026-09-06 | national
+fei-diplomes-tests | https://www.france-education-international.fr/hub/diplomes-tests | 2026-09-06 | national
+fei-centres-examen | https://www.france-education-international.fr/centres-d-examen/carte | 2026-09-06 | national
+
+# Rayon « Apprendre le français » : structures « à qui s'adresser »
+ofii-nouvelle-aquitaine | https://www.ofii.fr/ | 2026-09-06 | region
+centres-sociaux-dordogne | https://www.centres-sociaux.fr/ | 2026-09-06 | 24
+cd24-service-social | https://www.dordogne.fr/ | 2026-09-06 | 24
+france-travail-formation-francais | https://www.francetravail.fr/ | 2026-09-06 | national
+region-nouvelle-aquitaine-savoirs-de-base | https://www.nouvelle-aquitaine.fr/ | 2026-09-06 | region
+etablissements-scolaires-oepre | https://www.ac-bordeaux.fr/ | 2026-09-06 | 24
+cimade-perigueux | https://www.lacimade.org/ | 2026-09-06 | 24
+centres-examen-delf-dordogne | https://www.france-education-international.fr/centres-d-examen/carte | 2026-09-06 | 24
+asso-ligue-de-l-enseignement-24 | https://laligue24.org/ | 2026-09-08 | 24
+asso-lire-87 | https://www.associationlire.com/ | 2026-09-08 | 87
+
+# --- Rayon « Questions juridiques » (fiches rédigées le 2026-09-04) ---
+service-public-consulter-avocat-gratuit | https://www.service-public.gouv.fr/particuliers/vosdroits/F20706 | 2026-09-05 | national
+service-public-aide-juridictionnelle | https://www.service-public.gouv.fr/particuliers/vosdroits/F18074 | 2026-09-05 | national
+aidejuridictionnelle-simulateur | https://www.aidejuridictionnelle.justice.fr/simulateur | 2026-09-06 | national
+code-travail-conseil-prudhommes | https://code.travail.gouv.fr/fiche-ministere-travail/le-conseil-de-prudhommes | 2026-09-05 | national
+service-public-requete-prudhommes-salarie | https://www.service-public.gouv.fr/particuliers/vosdroits/R45128 | 2026-09-05 | national
+francetravail-contester-decision | https://www.francetravail.fr/candidat/vos-droits-et-demarches/reclamations/comment-contester-une-decision-d.html | 2026-09-05 | national
+francetravail-recours-discrimination | https://www.francetravail.fr/candidat/vos-recherches/preparer-votre-candidature/accompagne-dans-sa-recherche/les-recours-en-cas-de-discrimina.html | 2026-09-06 | national
+defenseur-des-droits-accueil | https://www.defenseurdesdroits.fr/ | 2026-09-05 | national
+caf-faire-une-reclamation | https://www.service-public.gouv.fr/particuliers/vosdroits/F2474 | 2026-09-05 | national
+justice-fr-annuaires | https://www.justice.fr/ | 2026-09-06 | national
+
+# Rayon « Questions juridiques » : structures « à qui s'adresser »
+point-justice-dordogne | https://cdad-dordogne.fr/lieux-d-acces-au-droit.html | 2026-09-06 | 24
+cdad-dordogne | https://www.cdad-dordogne.fr/ | 2026-09-06 | 24
+bureau-aide-juridictionnelle-perigueux | https://www.justice.fr/ | 2026-09-06 | 24
+conseil-prudhommes-perigueux-bergerac | https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/dordogne/4e40b4a0-0ebb-4332-8451-587a57b781dc | 2026-09-06 | 24
+dreets-inspection-travail-dordogne | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-06 | 24
+defenseur-des-droits-delegues-dordogne | https://www.defenseurdesdroits.fr/carte-des-delegues | 2026-09-05 | 24
+france-victimes-dordogne | https://www.france-victimes.fr/ | 2026-09-06 | 24
+ordre-avocats-perigueux | https://www.avocats-perigueux.com/ | 2026-09-06 | 24
+asso-cidff-24 | https://dordogne.cidff.info/ | 2026-09-08 | 24
+asso-cidff-limousin | https://limousin.cidff.info/ | 2026-09-08 | 87
+
+# --- Rayon « Travailler après 50 ans et retraite » (fiches rédigées le 2026-09-06) ---
+travail-emploi-retraite-progressive | https://travail-emploi.gouv.fr/la-retraite-progressive | 2026-09-06 | national
+travail-emploi-cumul-emploi-retraite | https://travail-emploi.gouv.fr/le-cumul-emploi-retraite | 2026-09-06 | national
+travail-emploi-depart-volontaire-retraite | https://travail-emploi.gouv.fr/le-depart-volontaire-la-retraite | 2026-09-06 | national
+travail-emploi-mise-a-la-retraite | https://travail-emploi.gouv.fr/la-mise-la-retraite-dun-salarie | 2026-09-06 | national
+travail-emploi-ou-sinformer-retraite | https://travail-emploi.gouv.fr/ou-sinformer-sur-sa-retraite-qui-sadresser | 2026-09-06 | national
+travail-emploi-systeme-regimes-retraite | https://travail-emploi.gouv.fr/le-systeme-et-les-regimes-de-retraite | 2026-09-06 | national
+info-retraite | https://www.info-retraite.fr/ | 2026-09-06 | national
+lassuranceretraite | https://www.lassuranceretraite.fr/portail-info/home.html | 2026-09-06 | national
+
+# Rayon « Travailler après 50 ans et retraite » : structures « à qui s'adresser »
+assurance-retraite-carsat-nouvelle-aquitaine | https://www.lassuranceretraite.fr/ | 2026-09-06 | region
+info-retraite-mon-compte-retraite | https://www.info-retraite.fr/ | 2026-09-06 | national
+france-services-point-retraite | https://www.france-services.gouv.fr/ | 2026-09-06 | national
+
+# --- Rayon « Employeurs et entrepreneurs » (fiches redigees le 2026-09-12) ---
+travail-emploi-obligations-embauche | https://code.travail.gouv.fr/fiche-ministere-travail/les-obligations-de-lemployeur-lors-de-lembauche | 2026-09-12 | national
+travail-emploi-periode-essai | https://code.travail.gouv.fr/fiche-ministere-travail/la-periode-dessai | 2026-09-12 | national
+code-travail-periode-essai-salarie | https://code.travail.gouv.fr/fiche-service-public/periode-dessai-pour-un-salarie | 2026-09-12 | national
+travail-emploi-licenciement-motif-personnel | https://code.travail.gouv.fr/fiche-ministere-travail/le-licenciement-pour-motif-personnel-les-causes-possibles-les-sanctions-applicables | 2026-09-12 | national
+travail-emploi-procedure-licenciement | https://code.travail.gouv.fr/fiche-ministere-travail/la-procedure-en-cas-de-licenciement-pour-motif-personnel | 2026-09-12 | national
+urssaf-reduction-generale | https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/reduction-generale-cotisation.html | 2026-09-12 | national
+urssaf-tese | https://www.urssaf.fr/portail/sites/urssaf/home/employeur/creer/quelle-urssaf-pour-votre-entrepr/les-offres-de-simplification/le-titre-emploi-service-entrepri.html | 2026-09-12 | national
+travail-emploi-aides-employeurs-apprentis | https://travail-emploi.gouv.fr/aides-aux-employeurs-dapprentis | 2026-09-12 | national
+ameli-duerp | https://www.ameli.fr/entreprise/votre-entreprise/outils-gestion-prevention-risques-professionnels/declarer-evaluer-duer | 2026-09-12 | national
+inrs-duerp-obligations | https://www.inrs.fr/publications/juridique/focus-juridiques/focus-juridique-document-unique-evaluation-risques.html | 2026-09-12 | national
+travail-emploi-vip | https://travail-emploi.gouv.fr/la-visite-medicale-dinformation-et-de-prevention | 2026-09-12 | national
+travail-emploi-visite-reprise | https://travail-emploi.gouv.fr/la-visite-de-pre-reprise-et-la-visite-de-reprise | 2026-09-12 | national
+urssaf-complementaire-sante | https://www.urssaf.fr/accueil/employeur/embaucher-gerer-salaries/embaucher/complementaire-frais-sante.html | 2026-09-12 | national
+travail-emploi-cse-11-49 | https://travail-emploi.gouv.fr/le-cse-dans-les-entreprises-de-11-49-salaries | 2026-09-12 | national
+travail-emploi-index-egalite-professionnelle | https://travail-emploi.gouv.fr/index-de-legalite-professionnelle-calcul-et-questionsreponses | 2026-09-12 | national
+
+# Rayon « Employeurs et entrepreneurs » : structures « à qui s'adresser »
+urssaf-nouvelle-aquitaine | https://www.urssaf.fr/ | 2026-09-12 | region
+dreets-nouvelle-aquitaine-inspection-travail | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-12 | region
+spst-19-24-perigueux | https://www.spst19-24.org/ | 2026-09-12 | 24
+spsti-23-87-limoges | https://www.net1901.org/association/SERVICE-DE-PREVENTION-ET-DE-SANTE-AU-TRAVAIL-INTERENTREPRISES-POUR-LA-CREUSE-ET-LA-HAUTE-VIENNE-SPSTI-2387,2516114.html | 2026-09-12 | 87
+france-travail-espace-employeur | https://www.francetravail.fr/employeur/ | 2026-09-12 | national
+
+# --- Nouveau rayon « Santé » : 1re fiche, ajoutee le 2026-09-13 ---
+santefr-annuaire-sante | https://annuairesante.ameli.fr/ | 2026-09-13 | national
+ameli-organisations-coordonnees | https://www.ameli.fr/assure/droits-demarches/difficultes-acces-droits-soins/organisations-coordonnees-territoriales | 2026-09-13 | national
+ameli-choisir-medecin-traitant | https://www.ameli.fr/assure/droits-demarches/principes/choisir-et-declarer-votre-medecin-traitant | 2026-09-13 | national
+geoconfluences-desert-medical | https://geoconfluences.ens-lyon.fr/glossaire/desert-medical | 2026-09-13 | national
+cpam-dordogne | https://www.ameli.fr/dordogne/assure | 2026-09-13 | 24
+cpam-haute-vienne | https://www.ameli.fr/haute-vienne/assure | 2026-09-13 | 87
+france-services | https://www.france-services.gouv.fr/ | 2026-09-13 | national

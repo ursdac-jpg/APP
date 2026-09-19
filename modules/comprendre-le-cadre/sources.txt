@@ -1,0 +1,21 @@
+# nom | à quoi elle sert | quand l'ouvrir | nom-du-lien
+# Généré à l'écran « Trouver une source officielle ». L'adresse vit dans liens-verifies.txt.
+
+Légifrance | Le texte officiel des lois, décrets, arrêtés et codes, avec l'historique des versions. C'est ici que se publie le Journal officiel. | Pour lire un article précis, vérifier une règle, ou voir depuis quand une mesure s'applique. | legifrance
+Le site du service public | Des fiches pratiques vérifiées et datées sur les contrats, la rupture, les aides, la formation, les démarches. | Pour comprendre une démarche pas à pas, en langage clair. | service-public
+Ministère du Travail, de la Santé, des Solidarités et des Familles | Les réformes en cours, les dossiers thématiques, les dossiers de presse, les données de la DARES. | Pour suivre un changement annoncé ou comprendre une politique publique. | ministere-travail
+Bulletins officiels du travail, de l'emploi et de la formation professionnelle | Les circulaires et notes qui précisent l'application concrète des dispositifs (contrats aidés, insertion par l'activité économique, aides). | Pour le détail d'un dispositif récent, quand la fiche pratique ne suffit pas. | bo-travail
+Ministère de l'Intérieur, section « Étrangers en France » | Les règles de séjour, de travail des personnes étrangères, de naturalisation ; les démarches en ligne. | Pour une démarche liée au titre de séjour. | interieur-etrangers
+Le centre ENIC-NARIC France | La comparaison d'un diplôme obtenu à l'étranger avec le système français (attestation de comparabilité). | Pour faire reconnaître un diplôme étranger. | enic-naric
+France compétences | Les certifications reconnues (répertoire national), les règles du compte personnel de formation, la qualité des organismes. | Pour vérifier qu'une formation ou une certification est reconnue. | france-competences
+Vie publique | Le suivi de l'actualité législative au jour le jour (le panorama des lois) et des fiches claires sur le fonctionnement des institutions et des politiques publiques. Édité par la Direction de l'information légale et administrative. | Pour comprendre une loi récente ou une réforme, et savoir qui décide quoi. | vie-publique
+INSEE | Le chômage (taux localisé au sens du Bureau international du travail), l'emploi, les salaires, la population, y compris par département et zone d'emploi. | Pour un chiffre national ou local, ou pour situer un territoire. | insee
+DARES | Les études et statistiques du ministère du Travail : demandeurs d'emploi inscrits, apprentissage, métiers en tension, contrats aidés. | Pour comprendre une tendance du marché du travail. | dares
+France Travail, statistiques du marché du travail | Le nombre de demandeurs d'emploi inscrits par catégorie, par âge, par ancienneté, par territoire. | Pour l'état du marché du travail près de chez soi. | france-travail-stats
+France Travail, enquête « Besoins en main-d'œuvre » | Les projets de recrutement par métier et par bassin d'emploi, et la part jugée difficile à pourvoir. | Pour savoir ce qui recrute près de chez soi. | france-travail-bmo
+Cap Métiers Nouvelle-Aquitaine, outil SI-Terr | Le CARIF-OREF de la région : emploi, métiers, formations financées et dynamiques du marché du travail, jusqu'au bassin d'emploi ; données téléchargeables, portraits de territoire. | Pour un projet de formation régional, ou comparer des bassins d'emploi. | cap-metiers
+Transitions Pro | Le projet de transition professionnelle et la reconversion en gardant un revenu. | En cas de reconversion. | transitions-pro
+Observatoire des territoires | Des chiffres par commune, intercommunalité, département et région (emploi, services, logement, mobilité). | Pour situer précisément un territoire. | observatoire-territoires
+La Caisse d'allocations familiales | Les montants et conditions du RSA, de la prime d'activité, de l'allocation aux adultes handicapés ; le simulateur de droits. | Pour une question sur une prestation sociale. | caf
+L'Agence du Service Civique | Les règles du service civique, le barème des indemnités, le moteur des missions. | Pour comprendre ou trouver une mission de service civique. | service-civique
+L'AGEFIPH | Les aides à l'emploi des personnes en situation de handicap, côté employeur et côté personne. | Pour un projet d'emploi avec une reconnaissance de travailleur handicapé. | agefiph
