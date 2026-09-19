@@ -1,0 +1,396 @@
+/* ============================================================
+   modules/lexique/lexique.css
+   ------------------------------------------------------------
+   Premier fichier CSS propre au module Lexique (2026-08-18) -- jusqu'ici
+   le module n'avait ni feuille dédiée ni style inline, tout son texte
+   reposait sur les classes génériques Bootstrap (.small, list-group-item,
+   h6, .btn-sm), utilisées dans toute l'application. Corriger ces classes
+   globalement aurait un effet de bord large et non maîtrisé sur le reste
+   d'ERIP -- ce fichier cible donc précisément les écrans du Lexique via
+   le sélecteur d'attribut `[id^="lexique"]`, qui capte tout conteneur
+   dont l'id commence par "lexique" (tous les écrans du module suivent
+   cette convention, voir modules/lexique/index.js) : aucun effet
+   ailleurs dans l'application, aucun risque de régression.
+
+   TAILLES : même raisonnement que reperes.css/carnet.css/regardExterieur.css
+   -- texte de travail à 1.1rem, jamais en dessous de ~0.95rem même pour
+   le texte secondaire (univers/registres, type de fiche), zones
+   cliquables visant 48px de hauteur. Correction au coup par coup,
+   module par module (choix explicite de Denis le 2026-08-18) -- un
+   socle typographique commun à poser plus tard reste en mémoire comme
+   chantier futur.
+   ============================================================ */
+
+[id^="lexique"] .small {
+  font-size: 1rem !important;
+}
+[id^="lexique"] h1.h4 {
+  font-size: 1.6rem;
+}
+[id^="lexique"] h2.h6,
+[id^="lexique"] .h6 {
+  font-size: 1.1rem;
+}
+[id^="lexique"] p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Listes (résultats de recherche, Mode Livre, collections, favoris,
+   bibliothèque contextuelle) -- .list-group-item Bootstrap par défaut
+   est compact, agrandi ici pour une hauteur cliquable d'au moins 48px.
+   TACHE (retour terrain, 2026-09-04, BUG REEL trouve sur au moins 2
+   collections en mode sombre) : .list-group-item Bootstrap garde son fond
+   blanc/texte fonce fixes (background-color/color en dur dans
+   bootstrap.min.css, jamais couverts par [data-theme="sombre"] nulle
+   part) -- corrige ici avec les variables de theme, y compris le survol
+   (.list-group-item-action:hover/:focus, egalement fixe par defaut). */
+[id^="lexique"] .list-group-item {
+  font-size: 1.1rem;
+  padding: 0.85rem 1rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  color: var(--text-strong);
+  background-color: var(--bg-card);
+  border-color: var(--border);
+}
+[id^="lexique"] .list-group-item-action:hover,
+[id^="lexique"] .list-group-item-action:focus {
+  color: var(--text-strong);
+  background-color: var(--bg-hover);
+}
+
+/* Boutons .btn-sm par défaut (petits, discrets) -- agrandis ici, même
+   raisonnement que le reste d'ERIP. */
+[id^="lexique"] .btn-sm {
+  font-size: 1rem;
+  padding: 0.6rem 1.1rem;
+  min-height: 48px;
+}
+
+/* Accordéon "En savoir plus" -- son contenu est un <p> normal (déjà
+   couvert par la règle générale ci-dessus), mais l'icône chevron reste
+   petite pour ne pas déséquilibrer visuellement le bouton. */
+[id^="lexique"] .bi-chevron-right,
+[id^="lexique"] .bi-chevron-down {
+  font-size: 1rem;
+}
+
+/* TACHE (chantier "repertoire des freins", etape 8, 2026-08-28) : sous la
+   definition d'une fiche "frein", les pistes + ressources a jour
+   (regardExterieurRenduFicheFrein) -- les classes internes .regard-exterieur-*
+   sont deja stylees par modules/regard-exterieur/regardExterieur.css, charge
+   globalement. Ici, juste un cadre qui detache ce bloc de la definition. */
+.lexique-fiche-frein {
+  margin: 1rem 0 0.5rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+}
+.lexique-fiche-frein > :last-child { margin-bottom: 0; }
+
+/* TACHE (chantier "Ressources - 2e moitie", etape 2, 2026-08-29) : fiches
+   Urgences (data/urgences.js). Numeros en gros et cliquables `tel:`,
+   jamais un rouge d'erreur -- c'est un repere calme, pas une alarme.
+   Couleurs prises aux variables de theme. */
+.lexique-urgence-bloc {
+  margin: 1rem 0 0.5rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+}
+.lexique-urgence-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border-subtle, var(--border));
+}
+.lexique-urgence-item:first-child { padding-top: 0; }
+.lexique-urgence-num {
+  flex-shrink: 0;
+  min-width: 3.4rem;
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 0.5rem;
+  padding: 0.15rem 0.4rem;
+}
+.lexique-urgence-num:hover, .lexique-urgence-num:focus-visible {
+  background: var(--accent-solide);
+  color: var(--bg-card, #fff);
+}
+.lexique-urgence-txt { min-width: 0; }
+.lexique-urgence-libelle { color: var(--text-strong); }
+.lexique-urgence-porte {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border-subtle, var(--border));
+}
+.lexique-urgence-porte:first-child { padding-top: 0; }
+.lexique-urgence-bloc > :last-child { border-bottom: none; }
+.lexique-urgence-local { margin-top: 0.9rem; }
+
+/* TACHE (chantier "Ressources - 2e moitie", etape 3, 2026-08-29) : encart
+   de renvoi annuaire sous une fiche "type de structure" -- secondaire, la
+   fiche reste le contenu principal. */
+.lexique-encart-annuaire {
+  margin: 1rem 0 0.5rem;
+  padding: 0.8rem 1rem;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border);
+  border-radius: 0.7rem;
+}
+.lexique-encart-annuaire p { color: var(--text-muted); }
+
+/* ============================================================
+   TACHE (refonte de l'accueil du module, 2026-09-09 --
+   docs/MAQUETTE_LEXIQUE_ACCUEIL_2026-09-09.html). L'ecran d'arrivee en
+   3 niveaux. Toutes les couleurs viennent des jetons de theme
+   (css/style.css), qui ont deja leur valeur [data-theme="sombre"] :
+   aucun jeton nouveau, mode sombre automatique.
+   ============================================================ */
+
+/* -- Niveau 1 : comprendre / apprendre --
+   Le titre et l'accroche reutilisent le gabarit commun (bloc .text-center
+   + <h1> nu + .sousTitre, css/style.css) : centres et a la meme taille
+   que les autres modules (retour Denis 2026-09-09). */
+[id^="lexique"] .lexique-accueil-recherche {
+  font-size: 1.1rem; padding: 0.85rem 1rem;
+  border-width: 2px; margin-bottom: 0.75rem;
+}
+[id^="lexique"] .lexique-accueil-exemples {
+  display: flex; align-items: center; gap: 0.5rem;
+  flex-wrap: nowrap; overflow: hidden; white-space: nowrap;
+  margin-bottom: 1.7rem;
+}
+[id^="lexique"] .lexique-accueil-exemples-lib {
+  font-size: 0.95rem; color: var(--text-muted); flex-shrink: 0;
+}
+[id^="lexique"] .lexique-accueil-exemples-lot {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;
+  transition: opacity 0.3s ease;
+}
+[id^="lexique"] .lexique-accueil-exemples-lot.lexique-accueil-fond { opacity: 0; }
+[id^="lexique"] .lexique-accueil-exemple {
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  flex-shrink: 0; white-space: nowrap;
+  font-size: 1rem; font-weight: 500; color: var(--text-strong);
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.4rem 0.9rem; cursor: pointer; min-height: 44px;
+}
+[id^="lexique"] .lexique-accueil-exemple:hover,
+[id^="lexique"] .lexique-accueil-exemple:focus-visible {
+  border-color: var(--accent); color: var(--accent);
+}
+
+/* -- Blocs Niveau 2 / Niveau 3 -- */
+[id^="lexique"] .lexique-accueil-bloc { margin-bottom: 1.9rem; }
+[id^="lexique"] .lexique-accueil-bloc-titre {
+  font-size: 1.15rem; font-weight: 700; margin: 0 0 0.75rem;
+  color: var(--text-strong);
+}
+
+/* -- Niveau 2 : grille de themes -- */
+[id^="lexique"] .lexique-accueil-themes {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.8rem; transition: opacity 0.35s ease;
+}
+[id^="lexique"] .lexique-accueil-themes.lexique-accueil-fond { opacity: 0; }
+[id^="lexique"] .lexique-accueil-carte {
+  appearance: none; -webkit-appearance: none; font-family: inherit; color: var(--text-strong);
+  display: flex; align-items: flex-start; gap: 0.7rem; text-align: left;
+  padding: 0.85rem 0.9rem; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 0.8rem; cursor: pointer;
+}
+[id^="lexique"] .lexique-accueil-carte:hover,
+[id^="lexique"] .lexique-accueil-carte:focus-visible {
+  border-color: var(--accent); background: var(--bg-hover, var(--bg-subtle));
+}
+[id^="lexique"] .lexique-accueil-carte-ico {
+  flex-shrink: 0; width: 2.2rem; height: 2.2rem; font-size: 1.3rem;
+  display: grid; place-items: center;
+  background: var(--accent-bg-subtle); border-radius: 0.5rem;
+}
+[id^="lexique"] .lexique-accueil-carte-txt { min-width: 0; }
+[id^="lexique"] .lexique-accueil-carte-nom {
+  display: block; font-weight: 600; font-size: 1rem; color: var(--text-strong);
+}
+[id^="lexique"] .lexique-accueil-carte-nb {
+  display: block; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.15rem;
+}
+[id^="lexique"] .lexique-accueil-minuteur {
+  height: 3px; margin-top: 0.7rem; border-radius: 3px;
+  background: var(--border); overflow: hidden;
+}
+[id^="lexique"] .lexique-accueil-minuteur > i {
+  display: block; height: 100%; width: 0; background: var(--accent); border-radius: 3px;
+  /* Deplacement CONTINU entre deux pas du minuteur (retour Denis
+     2026-09-09 : ne doit pas sauter de pas en pas). Le pas JS est de
+     250 ms -> la transition l'etale de facon lineaire. */
+  transition: width 0.25s linear;
+}
+
+/* Bouton "Voir tous les themes" -- discret : pilule, filet fin, texte
+   accent, jamais l'apparence robuste d'un bouton plein (retour Denis
+   2026-09-09). Reste un vrai bouton borde (LECONS 9.6). */
+[id^="lexique"] .lexique-accueil-tous {
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  margin-top: 0.9rem;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.92rem; font-weight: 600;
+  color: var(--accent); background: transparent;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 0.42rem 1.05rem; cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+[id^="lexique"] .lexique-accueil-tous:hover,
+[id^="lexique"] .lexique-accueil-tous:focus-visible {
+  background: var(--accent-bg-subtle); border-color: var(--accent);
+}
+
+/* -- Niveau 3 : lignes "Explorer" -- volontairement legeres : elles ne
+   doivent pas peser plus que le texte de la page (retour Denis
+   2026-09-09). Rangees compactes, bien arrondies. */
+[id^="lexique"] .lexique-accueil-explorer {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  max-width: 30rem;
+}
+[id^="lexique"] .lexique-accueil-ligne {
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  display: flex; align-items: center; gap: 0.6rem; text-align: left; width: 100%;
+  padding: 0.55rem 0.85rem; background: var(--bg-subtle);
+  border: 1px solid var(--border); border-radius: 0.85rem; cursor: pointer;
+  font-size: 0.94rem; color: var(--text-strong);
+}
+[id^="lexique"] .lexique-accueil-ligne:hover,
+[id^="lexique"] .lexique-accueil-ligne:focus-visible {
+  border-color: var(--accent); background: var(--bg-hover, var(--bg-subtle));
+}
+[id^="lexique"] .lexique-accueil-ligne-ico {
+  font-size: 1rem; width: 1.4rem; text-align: center; flex-shrink: 0;
+}
+[id^="lexique"] .lexique-accueil-ligne-fleche {
+  margin-left: auto; color: var(--text-muted); font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  [id^="lexique"] .lexique-accueil-themes { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   TACHE (refonte de la mise en page d'une FICHE, 2026-09-09 --
+   docs/MAQUETTE_LEXIQUE_FICHE_2026-09-09.html, validee par Denis :
+   renvois en pilules, barre d'actions encadree). Le contenu (definition +
+   "En savoir plus") reprend le dessus ; renvois et actions deviennent
+   compacts. Zero regression : memes liens, meme navigation. Toutes les
+   couleurs sur jetons de theme -> mode sombre automatique.
+   ============================================================ */
+
+/* Retour : pilule fine */
+[id^="lexique"] .lexique-fiche-retour {
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  font-size: 0.85rem; font-weight: 600; color: var(--accent);
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.35rem 0.8rem; margin-bottom: 1rem; cursor: pointer;
+}
+[id^="lexique"] .lexique-fiche-retour:hover,
+[id^="lexique"] .lexique-fiche-retour:focus-visible { border-color: var(--accent); }
+
+/* La definition : plus d'air, largeur de lecture confortable */
+[id^="lexique"] .lexique-fiche-def {
+  font-size: 1.06rem; color: var(--text-strong);
+  margin: 0 0 1rem; max-width: 62ch;
+}
+
+/* "En savoir plus" : declencheur texte discret + contenu legerement teinte */
+[id^="lexique"] .lexique-fiche-plus-zone { margin: 0.2rem 0 0; }
+[id^="lexique"] .lexique-fiche-plus { margin-bottom: 0.4rem; }
+[id^="lexique"] .lexique-fiche-plus-toggle {
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.92rem; font-weight: 600; color: var(--accent);
+  background: transparent; border: none; padding: 0.2rem 0; cursor: pointer;
+}
+[id^="lexique"] .lexique-fiche-plus-toggle .bi { font-size: 0.85rem; transition: transform 0.15s ease; }
+[id^="lexique"] .lexique-fiche-plus-toggle[aria-expanded="true"] .bi { transform: none; }
+[id^="lexique"] .lexique-fiche-plus-corps {
+  margin: 0.4rem 0 0; padding: 0.75rem 0.9rem;
+  background: var(--accent-bg-subtle); border-radius: 10px;
+  font-size: 0.98rem; color: var(--text-soft);
+}
+[id^="lexique"] .lexique-fiche-plus-corps p { font-size: 0.98rem; }
+
+/* Filet fin avant les renvois */
+[id^="lexique"] .lexique-fiche-sep {
+  border: 0; border-top: 1px solid var(--border); margin: 1.4rem 0 1.1rem;
+}
+
+/* Renvois : liste de definition compacte (libelle | pilules) */
+[id^="lexique"] .lexique-fiche-renvois { display: flex; flex-direction: column; gap: 0.7rem; }
+[id^="lexique"] .lexique-fiche-renvoi {
+  display: grid; grid-template-columns: 10.5rem 1fr; gap: 0.3rem 0.9rem; align-items: start;
+}
+[id^="lexique"] .lexique-fiche-renvoi-lib {
+  font-size: 0.82rem; color: var(--text-muted); padding-top: 0.28rem;
+}
+[id^="lexique"] .lexique-fiche-renvoi-pastilles {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+}
+[id^="lexique"] .lexique-fiche-lien {
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  font-size: 0.84rem; font-weight: 500; color: var(--text-strong);
+  background: var(--bg-subtle); border: 1px solid var(--border);
+  border-radius: 999px; padding: 0.28rem 0.7rem; cursor: pointer;
+  text-align: left; white-space: normal;
+}
+[id^="lexique"] .lexique-fiche-lien:hover,
+[id^="lexique"] .lexique-fiche-lien:focus-visible {
+  border-color: var(--accent); color: var(--accent);
+}
+
+/* Barre d'actions perso : favori + le bloc "Garder comme Repère" (insere
+   par js/app.js dans #lexiqueFicheActions : bouton + selecteur de type
+   + confirmation + ligne d'aide canonique). Deux items flex : la pilule
+   favori a gauche, le bloc Repère a droite (il s'etend vers le bas quand
+   le selecteur s'ouvre, sans deranger le favori). */
+[id^="lexique"] .lexique-fiche-actions {
+  display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.6rem 0.7rem;
+  margin-top: 1.5rem; padding: 0.75rem 0.9rem;
+  background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 12px;
+}
+[id^="lexique"] .lexique-fiche-actions .lexique-fiche-ancrage {
+  flex: 1 1 14rem; min-width: 0; margin: 0;
+}
+[id^="lexique"] .lexique-fiche-action,
+[id^="lexique"] .lexique-fiche-actions .lexique-fiche-ancrage .btn {
+  appearance: none; -webkit-appearance: none; font-family: inherit;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer; line-height: 1.2;
+  border-radius: 999px; padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border); background: var(--bg-card); color: var(--text-strong);
+}
+[id^="lexique"] .lexique-fiche-action-favori { color: var(--accent); }
+[id^="lexique"] .lexique-fiche-action-favori[aria-pressed="true"] {
+  background: var(--accent-bg-subtle); border-color: var(--accent);
+}
+[id^="lexique"] .lexique-fiche-action-favori:hover { border-color: var(--accent); }
+[id^="lexique"] .lexique-fiche-actions .lexique-fiche-ancrage .btn {
+  color: var(--success-strong, var(--success));
+}
+[id^="lexique"] .lexique-fiche-actions .lexique-fiche-ancrage .btn:hover {
+  border-color: var(--success);
+}
+[id^="lexique"] .lexique-fiche-actions .aide-repere-ligne {
+  margin: 0.35rem 0 0; font-size: 0.78rem;
+}
+
+@media (max-width: 768px) {
+  [id^="lexique"] .lexique-fiche-renvoi { grid-template-columns: 1fr; gap: 0.25rem; }
+  [id^="lexique"] .lexique-fiche-renvoi-lib { padding-top: 0; }
+}

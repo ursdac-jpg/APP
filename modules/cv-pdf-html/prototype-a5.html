@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Prototype CV PDF (HTML/CSS) - Test de faisabilite</title>
+<style>
+  :root {
+    --couleur-accent: #2f6690;
+    --couleur-accent-clair: #d9e8f2;
+    --couleur-texte: #1b1b1b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: var(--couleur-texte);
+    background: #e9e9e9;
+  }
+
+  .barre-outils {
+    padding: 12px 16px;
+    background: #222;
+    color: #fff;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+  }
+  .barre-outils button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: var(--couleur-accent);
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .barre-outils button:hover { background: #244f70; }
+
+  /* Page A5, orientation paysage : 210mm x 148mm */
+  .page-a5 {
+    width: 210mm;
+    height: 148mm;
+    margin: 24px auto;
+    background: #fff;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* Bandeau diagonal -- IMPOSSIBLE avec docx.js/OOXML (PresetGeometry fige sur "rect") */
+  .bandeau-diagonal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(160deg, var(--couleur-accent) 0%, #1c4a68 100%);
+    clip-path: polygon(0 0, 100% 0, 78% 100%, 0% 100%);
+    z-index: 1;
+  }
+
+  .zone-identite {
+    position: relative;
+    z-index: 2;
+    width: 38%;
+    padding: 20px 18px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .photo-cadre {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--couleur-accent-clair);
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--couleur-accent);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .zone-identite h1 {
+    font-size: 20px;
+    margin: 0;
+    line-height: 1.15;
+  }
+  .zone-identite .metier-vise {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.85;
+    margin: 0 0 4px 0;
+  }
+  .zone-identite .coordonnees {
+    font-size: 11px;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  .zone-contenu {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    padding: 20px 24px 20px 32px;
+    display: flex;
+    gap: 20px;
+  }
+
+  .colonne { flex: 1; min-width: 0; }
+
+  .rubrique { margin-bottom: 14px; }
+  .rubrique h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--couleur-accent);
+    border-bottom: 2px solid var(--couleur-accent-clair);
+    padding-bottom: 3px;
+    margin: 0 0 6px 0;
+  }
+  .rubrique .item { font-size: 11px; margin-bottom: 5px; line-height: 1.35; }
+  .rubrique .item strong { display: block; font-size: 11.5px; }
+
+  .puce-competence {
+    display: inline-block;
+    background: var(--couleur-accent-clair);
+    color: var(--couleur-accent);
+    border-radius: 10px;
+    padding: 2px 9px;
+    font-size: 10px;
+    margin: 0 4px 4px 0;
+  }
+
+  /* --- Mode "apercu impression" pilote par JS, applique EXACTEMENT les
+     memes regles que @media print ci-dessous : sert uniquement a verifier
+     visuellement le rendu d'impression dans un navigateur en bac a sable
+     (le bouton d'apercu ne remplace pas un vrai test d'impression). */
+  body[data-mode="print"] .barre-outils { display: none; }
+  body[data-mode="print"] { background: #fff; }
+  body[data-mode="print"] .page-a5 { margin: 0 auto; box-shadow: none; }
+
+  @media print {
+    @page { size: 210mm 148mm; margin: 0; }
+    body { background: #fff; }
+    .barre-outils { display: none; }
+    .page-a5 { margin: 0; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="barre-outils">
+    <strong>Prototype de faisabilite -- Mini CV A5 Paysage (HTML/CSS -&gt; PDF)</strong>
+    <button id="btnAperçu">Basculer apercu impression</button>
+    <button id="btnImprimer">Imprimer / Enregistrer en PDF</button>
+  </div>
+
+  <div class="page-a5">
+    <div class="bandeau-diagonal"></div>
+    <div class="zone-identite">
+      <div class="photo-cadre">PHOTO</div>
+      <p class="metier-vise">Technicien(ne) de maintenance</p>
+      <h1>Prenom NOM</h1>
+      <div class="coordonnees">
+        06 00 00 00 00<br>
+        exemple@mail.fr<br>
+        Ville, Departement
+      </div>
+    </div>
+
+    <div class="zone-contenu">
+      <div class="colonne">
+        <div class="rubrique">
+          <h2>Experiences</h2>
+          <div class="item">
+            <strong>Technicien maintenance -- Entreprise A (2023-2025)</strong>
+            Diagnostic de pannes electromecaniques ; maintenance preventive.
+          </div>
+          <div class="item">
+            <strong>Agent de production -- Entreprise B (2021-2023)</strong>
+            Suivi qualite sur ligne automatisee.
+          </div>
+        </div>
+        <div class="rubrique">
+          <h2>Formations</h2>
+          <div class="item"><strong>Bac Pro MEI -- Lycee C (2021)</strong></div>
+        </div>
+      </div>
+
+      <div class="colonne">
+        <div class="rubrique">
+          <h2>Competences</h2>
+          <span class="puce-competence">Lecture de plans</span>
+          <span class="puce-competence">Habilitation electrique</span>
+          <span class="puce-competence">Rigueur</span>
+          <span class="puce-competence">Travail en equipe</span>
+          <span class="puce-competence">Autonomie</span>
+          <span class="puce-competence">Maintenance preventive</span>
+        </div>
+        <div class="rubrique">
+          <h2>Langues</h2>
+          <div class="item">Anglais -- niveau B1</div>
+        </div>
+        <div class="rubrique">
+          <h2>Centres d'interet</h2>
+          <div class="item">Mecanique auto (entretien personnel de vehicules)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btnAperçu').addEventListener('click', function () {
+      var actif = document.body.getAttribute('data-mode') === 'print';
+      document.body.setAttribute('data-mode', actif ? '' : 'print');
+      this.textContent = actif ? 'Basculer apercu impression' : 'Revenir a l\'edition';
+    });
+    document.getElementById('btnImprimer').addEventListener('click', function () {
+      window.print();
+    });
+  </script>
+
+</body>
+</html>

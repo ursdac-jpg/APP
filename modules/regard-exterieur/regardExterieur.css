@@ -1,0 +1,566 @@
+/* ============================================================
+   modules/regard-exterieur/regardExterieur.css
+   ------------------------------------------------------------
+   Styles propres au module, jamais mêlés à reperes.css (chaque module
+   possède les siens, même principe que le reste d'ERIP).
+
+   TAILLES (reconstruction du module, puis relevées une 2e fois à la
+   demande explicite de Denis : "tout est petit sur cette fenêtre... on
+   s'adresse à un public assez âgé, certains ont des difficultés de
+   lecture ou de vue") : le socle 16px du reste d'ERIP a été jugé encore
+   insuffisant par défaut pour cet écran précis, avant même d'activer le
+   réglage "Confort de lecture"/taille de texte agrandie ([data-taille],
+   css/style.css) que la personne peut choisir en plus. Texte de travail
+   désormais à 1.1-1.15rem (~18px), jamais en dessous de 1rem (16px)
+   même pour le texte le plus secondaire, boutons visant 48px de hauteur
+   cliquable (au-delà du minimum de 44px usuel). `!important` utilisé
+   uniquement là où le style vient d'un style inline partagé
+   (stylePastilleInline(), js/app.js) qui gagnerait sinon systématiquement
+   sur toute règle externe -- jamais un réflexe, seulement ce cas précis.
+   ============================================================ */
+
+.regard-exterieur-explication {
+  font-size: 1rem;
+}
+
+/* TACHE (retour utilisateur, 2026-08-25) : pulse au tout premier
+   affichage du bouton "Demander un regard extérieur" (seuil de 5
+   Repères atteint) -- meme principe et meme duree (12x1s ~ 12s) que
+   .reperes-pulse-confirmation (reperes.css), pour rester coherent avec
+   les autres pulses "quelque chose de nouveau vient d'apparaitre". */
+/* Intensite standard des pulses de l'app (homogeneisation 2026-08-28) :
+   anneau 40% / 8px. */
+@keyframes regardExterieurPulseApparition {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+#btnRegardExterieur.regard-exterieur-pulse-apparition { animation: regardExterieurPulseApparition 1.8s ease-in-out 6; }
+/* TACHE (retour utilisateur, 2026-08-26) : version generique (pas liee a
+   un ID) de la meme animation calme, reutilisee pour "Voir le rapport"
+   (une fois l'import termine) et pour "Aller plus loin" (a l'arrivee sur
+   un rapport) -- jamais aussi agressif que .bouton-incitation-action
+   (infini), toujours borne dans le temps. */
+.regard-exterieur-pulse-doux { animation: regardExterieurPulseApparition 1.8s ease-in-out 6; }
+
+/* TACHE (retour utilisateur, 2026-08-26, "coller un morceau
+   supplementaire, ne pas oublier de valider") : bandeau jaune, disparait
+   des que l'import est tente (reussi ou non). */
+.regard-exterieur-attente-morceaux {
+  background: var(--jaune-bg-subtle); color: var(--jaune-strong); border: 1px solid var(--jaune-border);
+  border-radius: 10px; padding: 0.6rem 0.9rem; margin: 0.6rem 0; font-size: 0.9rem; font-weight: 600; text-align: center;
+}
+
+/* TACHE (retour utilisateur, 2026-08-26, "message rouge si l'import
+   echoue") : jamais un simple texte muted -- fond rouge clair, franc. */
+.regard-exterieur-erreur-import {
+  background: var(--danger-bg-subtle); color: var(--danger); border: 1px solid var(--danger);
+  border-radius: 10px; padding: 0.7rem 0.9rem; font-weight: 600;
+}
+
+/* TACHE (2026-08-28, signal de détresse / prévention suicide) : bloc rendu
+   TOUJOURS en tête du rapport, jamais dans un accordéon. Registre "attention"
+   (ambre) et non "erreur" (rouge) -- calme, pas alarmant (demande explicite
+   de Denis). Variables déjà adaptées au mode sombre (css/style.css). Le
+   numéro est en grand et cliquable (`tel:` sur mobile). */
+.regard-exterieur-bloc-detresse {
+  background: var(--warning-bg-subtle);
+  border: 1px solid var(--warning-border);
+  border-left: 5px solid var(--warning-strong);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  margin: 0 0 1.4rem;
+}
+.regard-exterieur-detresse-num {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.regard-exterieur-detresse-num a {
+  color: var(--warning-strong);
+  text-decoration: none;
+}
+.regard-exterieur-detresse-num a:hover,
+.regard-exterieur-detresse-num a:focus-visible {
+  text-decoration: underline;
+}
+.regard-exterieur-detresse-texte {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+/* TACHE (2026-08-28, bloc data/freins.js) : ligne "numéro d'urgence" en tête
+   d'un frein de niveau vital (115, 3919...). Registre "attention" (ambre),
+   compacte, jamais rouge. Variables adaptées au mode sombre. */
+.regard-exterieur-frein-urgence {
+  background: var(--warning-bg-subtle);
+  border-left: 4px solid var(--warning-strong);
+  border-radius: 6px;
+  padding: 0.5rem 0.7rem;
+  margin: 0 0 0.7rem;
+  font-size: 1.05rem;
+}
+.regard-exterieur-frein-urgence strong {
+  color: var(--warning-strong);
+  font-size: 1.2rem;
+}
+
+.regard-exterieur-rubrique {
+  margin: 0 0 1.3rem;
+  padding-bottom: 1.3rem;
+  border-bottom: 1px solid var(--border-strong);
+}
+.regard-exterieur-rubrique:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.regard-exterieur-rubrique h6 {
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.regard-exterieur-texte {
+  white-space: pre-wrap;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-strong);
+}
+.regard-exterieur-liste {
+  margin: 0;
+  padding-left: 1.4rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-strong);
+}
+.regard-exterieur-liste li { margin-bottom: 0.5rem; }
+.regard-exterieur-liste li:last-child { margin-bottom: 0; }
+.regard-exterieur-brut {
+  white-space: pre-wrap;
+  font-size: 1rem;
+}
+
+/* ---- Rapport en accordéons (chantier "rapport en accordéons", 2026-08-26,
+   maquette validée avec Denis) : remplace le rendu monolithique toujours
+   déplié ("ça donne envie de vomir", retour utilisateur) -- mêmes tokens
+   de couleur que le reste de l'app (--accent, --bg-card...), même socle de
+   taille que le reste de ce module (jamais en dessous de 1rem, voir
+   l'en-tête de ce fichier). ---- */
+.regard-exterieur-pile-accordeons { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1rem; }
+
+.regard-exterieur-accordeon {
+  background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: 0.85rem 1.1rem;
+}
+.regard-exterieur-accordeon > summary {
+  display: flex; align-items: center; gap: 0.7rem; cursor: pointer; list-style: none; flex-wrap: wrap; min-height: 48px;
+}
+.regard-exterieur-accordeon > summary::-webkit-details-marker { display: none; }
+.regard-exterieur-accordeon > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.regard-exterieur-accordeon-icone { font-size: 1.5rem; flex: none; }
+.regard-exterieur-accordeon-titre-bloc { flex: 1; min-width: 220px; display: block; }
+.regard-exterieur-accordeon-titre { display: block; font-weight: 700; font-size: 1.2rem; color: var(--text-strong); }
+.regard-exterieur-accordeon-teaser { display: block; font-size: 1rem; color: var(--text-muted); margin-top: 0.15rem; }
+.regard-exterieur-accordeon-indice { display: block; font-size: 1rem; color: var(--accent); font-style: italic; margin-top: 0.25rem; }
+.regard-exterieur-accordeon[open] .regard-exterieur-accordeon-indice { display: none; }
+.regard-exterieur-chevron { flex: none; width: 24px; height: 24px; color: var(--text-muted); transition: transform 0.15s ease; }
+.regard-exterieur-accordeon[open] > summary .regard-exterieur-chevron { transform: rotate(180deg); }
+.regard-exterieur-accordeon-corps { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-strong); font-size: 1.1rem; }
+.regard-exterieur-accordeon-corps p { margin: 0 0 0.7rem; }
+.regard-exterieur-accordeon-corps p:last-child { margin-bottom: 0; }
+/* Pastille "Synthèse"/"Ce qui revient" etc. -- nettement plus visible qu'un
+   simple petit texte gris (retour utilisateur : "on a l'impression que
+   c'est du texte, pas un titre"). */
+.regard-exterieur-accordeon-corps h4 {
+  display: inline-block; font-size: 1rem; font-weight: 700; color: var(--accent); background: var(--accent-bg-subtle);
+  padding: 0.3rem 0.8rem; border-radius: 999px; margin: 1rem 0 0.55rem;
+}
+.regard-exterieur-accordeon-corps h4:first-child { margin-top: 0.1rem; }
+
+.regard-exterieur-sous-accordeon {
+  background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 0.55rem;
+}
+.regard-exterieur-sous-accordeon:last-child { margin-bottom: 0; }
+.regard-exterieur-sous-accordeon > summary {
+  display: flex; align-items: center; gap: 0.5rem; cursor: pointer; list-style: none;
+  padding: 0.65rem 0.9rem; font-weight: 600; font-size: 1.08rem; min-height: 44px;
+}
+.regard-exterieur-sous-accordeon > summary::-webkit-details-marker { display: none; }
+.regard-exterieur-sous-accordeon > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.regard-exterieur-chevron-sous { width: 18px; height: 18px; margin-left: auto; color: var(--text-muted); transition: transform 0.15s ease; }
+.regard-exterieur-sous-accordeon[open] > summary .regard-exterieur-chevron-sous { transform: rotate(180deg); }
+.regard-exterieur-sous-accordeon-corps { padding: 0 0.9rem 0.9rem; font-size: 1.08rem; }
+
+.regard-exterieur-indice-clic { font-size: 1rem; color: var(--accent); font-style: italic; margin: 0 0 0.75rem; }
+.regard-exterieur-sous-titre-vue { color: var(--accent); font-size: 1.15rem; font-weight: 700; margin: 1.4rem 0 0.75rem; }
+
+/* ---- pistes de ressources : label seul en gras, phrase explicite pour un site ---- */
+.regard-exterieur-piste { margin-bottom: 0.9rem; }
+.regard-exterieur-piste:last-child { margin-bottom: 0; }
+.regard-exterieur-piste-titre { margin: 0 0 0.2rem; font-weight: 700; font-size: 1.1rem; }
+.regard-exterieur-piste-invite { margin: 0 0 0.2rem; font-size: 1rem; }
+.regard-exterieur-piste-invite a { color: var(--accent); }
+.regard-exterieur-piste-motscles { margin: 0 0 0.15rem; font-size: 1rem; }
+
+/* ---- cartes neutres (Questions à poser, Qui voir) ---- */
+.regard-exterieur-carte-neutre { background: var(--bg-subtle); border-radius: 10px; padding: 0.75rem 0.95rem; margin-bottom: 0.6rem; }
+.regard-exterieur-carte-neutre:last-child { margin-bottom: 0; }
+
+/* ---- bouton "Garder comme Repère" (crée un Repère, voir
+   reperesCreerDepuisRegardExterieur()) -- devient "Enregistré" et se
+   désactive après clic, jamais de doublon possible au double-clic. ---- */
+.btn-garder-repere {
+  font-size: 1rem; font-weight: 600; padding: 0.5rem 0.9rem; min-height: 44px;
+  border-radius: 999px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-muted);
+  cursor: pointer;
+}
+.btn-garder-repere:hover { background: var(--bg-hover); color: var(--text-strong); }
+.btn-garder-repere:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-garder-repere.est-enregistre { background: var(--success-bg-subtle); color: var(--success-strong); border-color: var(--success-bg-subtle); cursor: default; }
+/* TACHE (chantier "répertoire des freins", étape 5) : le bouton "Garder ce
+   frein dans mes Repères" vit sous la fiche du frein, dans le sous-accordéon
+   "Ce qui vous freine" -- une marge le décolle du contenu qui précède. */
+.regard-exterieur-frein-actions { margin-top: 0.8rem; }
+
+/* ---- Bascule vue d'ensemble / vue par catégorie ---- */
+.regard-exterieur-toggle-vues {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.3rem;
+  flex-wrap: wrap;
+}
+.regard-exterieur-toggle-vues button {
+  font-size: 1.05rem;
+  padding: 0.6rem 1.2rem;
+  min-height: 48px;
+}
+.regard-exterieur-toggle-vues button.is-active {
+  background: var(--accent-solide);
+  color: #fff;
+  border-color: var(--accent-solide);
+}
+
+/* ---- Choix de l'assistant (même patron que Découverte) ---- */
+.regard-exterieur-ligne-assistants {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.8rem;
+}
+.regard-exterieur-etiquette-assistants {
+  width: 150px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-strong);
+}
+/* Les pastilles d'assistant viennent de stylePastilleInline() (js/app.js),
+   un style INLINE qui fixe font-size:0.9rem -- une règle externe normale
+   ne peut jamais gagner contre un style inline sur la même propriété,
+   d'où le !important ici, seul moyen réel d'agrandir ce texte sans
+   dupliquer ni modifier cette fonction partagée par 5+ consommateurs. */
+[data-assistant-regard-exterieur] {
+  font-size: 1.05rem !important;
+  padding: 0.6rem 1.1rem !important;
+  min-height: 48px;
+  display: inline-flex !important;
+  align-items: center;
+}
+/* TACHE (retour utilisateur, 2026-08-25, BUG REEL) : ces 4 pastilles ne
+   viennent PLUS de stylePastilleInline() (jamais de style inline ici,
+   voir _regardExterieurRenduChoixAssistant()) -- plus besoin de
+   !important, style complet et dédié, pensé pour que les 4 tiennent sur
+   une seule ligne (jamais de retour a la ligne isolant "Votre lecture",
+   qui ressemblait alors a un 5e assistant IA distinct). */
+.regard-exterieur-ligne-etapes {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+.regard-exterieur-etiquette-etapes {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-strong);
+  margin: 0 0 0.4rem;
+}
+.regard-exterieur-pastille-etape {
+  display: inline-flex;
+  align-items: center;
+  flex: 1 1 0;
+  justify-content: center;
+  white-space: nowrap;
+  background: var(--bg-subtle);
+  color: var(--text-strong);
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.6rem;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.regard-exterieur-pastille-etape.is-active {
+  background: var(--accent-solide);
+  color: #fff;
+  border-color: var(--accent-solide);
+}
+.regard-exterieur-etape-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: #0d6efd;
+  color: #fff;
+  font-size: 0.8rem;
+  margin-right: 0.4rem;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .regard-exterieur-ligne-etapes { flex-wrap: wrap; }
+  .regard-exterieur-pastille-etape { flex: 1 1 45%; }
+}
+
+.regard-exterieur-btn-importer {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.7rem 1.6rem;
+  background: #0d6efd;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(13, 110, 253, .4);
+  min-height: 48px;
+}
+
+/* ---- Sélection des catégories à approfondir ---- */
+.regard-exterieur-choix-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.regard-exterieur-categorie-case {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: var(--bg-subtle);
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+.regard-exterieur-categorie-case input[type="checkbox"] {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+}
+/* TACHE (retour utilisateur, 2026-08-26, bouton "Developper") : le
+   libelle/case a coche garde sa largeur, "Developper" toujours pousse a
+   droite -- la case elle-meme reste .regard-exterieur-categorie-case
+   (inchangee), juste enveloppee ici avec le bouton et le resume repliable. */
+.regard-exterieur-categorie-bloc { display: flex; flex-direction: column; }
+.regard-exterieur-categorie-bloc .regard-exterieur-categorie-case { justify-content: space-between; }
+.regard-exterieur-btn-developper { align-self: flex-start; margin-top: 0.4rem; }
+.regard-exterieur-categorie-resume {
+  margin-top: 0.5rem; padding: 0.6rem 0.8rem; background: var(--bg-subtle);
+  border-radius: 8px; font-size: 0.92rem; color: var(--text-muted); line-height: 1.5;
+}
+
+/* TACHE (retour utilisateur, 2026-08-26) : panneau de sélection des
+   Repères à envoyer -- même gabarit que .regard-exterieur-categorie-case
+   ci-dessus, adapté pour porter titre + méta + extrait au lieu d'un
+   simple libellé. */
+/* TACHE (retour utilisateur, 2026-08-26) : retaillee pour rester
+   gerable avec un grand nombre de Repères ("j'imagine 40 Repères,
+   comment je fais dans cette petite fenêtre ?") -- lignes compactes
+   (extrait retire de la vue par defaut, icone du type ajoutee devant le
+   titre pour un reperage visuel, pas seulement le texte lu). */
+/* TACHE (retour utilisateur, 2026-08-26) : 2-3 colonnes ("vu l'espace
+   qu'on a à l'intérieur de cette fenêtre") -- auto-fill/minmax plutôt
+   qu'un nombre fixe, s'adapte à la largeur réelle de la fenêtre ERIP
+   ("large"). Le Repère en cours d'édition reprend toute la largeur
+   (.is-editing plus bas) : le titre + le texte ont besoin de place. */
+.regard-exterieur-selection-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.5rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  align-items: start;
+}
+.regard-exterieur-selection-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--bg-subtle);
+}
+.regard-exterieur-selection-item.is-editing {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+}
+/* TACHE (garde-fou "Repère vide avant 1er passage", 2026-08-28) : un Repère
+   sans texte est présenté atténué, avec une invite douce sur toute la
+   largeur de la carte. Jamais un rouge d'erreur -- c'est une invitation à
+   compléter, pas un blocage. */
+.regard-exterieur-selection-item.est-vide {
+  flex-wrap: wrap;
+  border-style: dashed;
+}
+.regard-exterieur-selection-item.est-vide .regard-exterieur-selection-contenu { opacity: 0.65; }
+.regard-exterieur-selection-invite-vide {
+  flex-basis: 100%;
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--warning-strong);
+}
+.regard-exterieur-selection-item input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.regard-exterieur-selection-contenu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.regard-exterieur-selection-icone { font-size: 1.05rem; flex-shrink: 0; }
+.regard-exterieur-selection-texte {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+.regard-exterieur-selection-titre {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.regard-exterieur-selection-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.regard-exterieur-selection-modifier { flex-shrink: 0; }
+/* Zone d'édition (après clic sur "Modifier") -- remplace
+   .regard-exterieur-selection-contenu le temps de l'édition, garde le
+   même flex:1 pour occuper toute la largeur disponible. */
+.regard-exterieur-selection-contenu-edition { flex: 1; min-width: 0; cursor: default; }
+.regard-exterieur-selection-titre-champ { width: 100%; font-weight: 700; font-size: 0.95rem; }
+.regard-exterieur-selection-edition { width: 100%; font-size: 0.95rem; }
+
+/* ---- Formulaire de questions, groupé par catégorie ---- */
+.regard-exterieur-groupe-categorie {
+  margin-bottom: 1.6rem;
+}
+.regard-exterieur-groupe-categorie:last-child { margin-bottom: 0; }
+.regard-exterieur-groupe-categorie h6 {
+  color: var(--accent);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-strong);
+}
+.regard-exterieur-question {
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--border);
+}
+.regard-exterieur-question:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.regard-exterieur-question-texte {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 0.8rem;
+}
+/* TACHE (retour utilisateur, 2026-08-26, "une question a la fois") :
+   compteur + barre de progression, ecran "Aller plus loin". */
+.regard-exterieur-compteur-questions {
+  font-weight: 700; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0.3rem;
+}
+.regard-exterieur-barre-progression {
+  height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-bottom: 1rem;
+}
+.regard-exterieur-barre-progression-remplie {
+  height: 100%; background: var(--accent); border-radius: 999px; transition: width .25s ease;
+}
+.regard-exterieur-question-categorie {
+  color: var(--accent); font-weight: 700; margin: 0 0 0.3rem;
+}
+.regard-exterieur-choix-groupe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 0.6rem;
+}
+.regard-exterieur-choix-groupe .btn {
+  font-size: 1.05rem;
+  padding: 0.55rem 1.1rem;
+  min-height: 48px;
+}
+/* Etat non selectionne : couleur explicite (le defaut Bootstrap `.btn`
+   est un texte quasi-noir, invisible en mode sombre sur la carte foncee
+   -- LECONS 9.10/9.14). Bordure discrete pour que ca se lise comme un
+   bouton dans les deux themes. */
+.regard-exterieur-choix-btn {
+  color: var(--text-strong);
+  border: 1px solid var(--border-strong);
+}
+.regard-exterieur-choix-btn.is-selected {
+  background: var(--accent-solide);
+  color: #fff;
+  border-color: var(--accent-solide);
+}
+.regard-exterieur-astuce-dictee {
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+/* Textarea/input de collage et de réponse -- Bootstrap .form-control
+   retombe par défaut sur ~1rem, mais les tailles form-control-sm
+   utilisées pour les réponses aux questions descendent à ~0.875rem :
+   relevées ici pour rester au-dessus du plancher de ce module. */
+.regard-exterieur-question textarea.form-control-sm,
+#texteCollageRegardExterieur {
+  font-size: 1.05rem !important;
+}
+
+/* TACHE (chantier "Ressources - 2e moitie", etape 4, 2026-08-29) : dans
+   "Mes freins identifies", les noms de rapports et de Reperes sont des
+   liens (bouton sans habillage, souligne au survol). Le detail s'affiche
+   dans la meme fenetre avec un "Retour a mes freins". */
+.regard-exterieur-mesfreins-lien {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.regard-exterieur-mesfreins-lien:hover,
+.regard-exterieur-mesfreins-lien:focus-visible {
+  color: var(--text-strong);
+}

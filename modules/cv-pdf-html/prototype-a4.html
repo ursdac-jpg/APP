@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Prototype CV PDF A4 - Colonnes et degrades</title>
+<style>
+  :root {
+    --degrade-debut: #2f6690;
+    --degrade-fin: #d9e8f2;
+    --degrade-angle: 180deg; /* 180deg = fonce en haut, clair en bas */
+    --degrade-angle-bandeau: 180deg;
+    --couleur-texte: #1b1b1b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: var(--couleur-texte);
+    background: #e9e9e9;
+  }
+
+  .barre-outils {
+    padding: 12px 16px;
+    background: #222;
+    color: #fff;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .barre-outils span.groupe-label { opacity: 0.7; margin-left: 8px; }
+  .barre-outils button {
+    padding: 7px 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: #3a3a3a;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .barre-outils button.actif {
+    background: var(--degrade-debut);
+    border-color: #fff;
+  }
+  .barre-outils button.action {
+    background: #2f6690;
+  }
+  .barre-outils button:hover { filter: brightness(1.15); }
+
+  /* Page A4 portrait : 210mm x 297mm */
+  .page-a4 {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 24px auto;
+    background: #fff;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    padding: 0;
+  }
+
+  .entete {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 3px solid var(--degrade-debut);
+    padding: 16mm 14mm 10px 14mm;
+    margin-bottom: 16px;
+  }
+  .entete h1 { font-size: 24px; margin: 0; }
+  .entete .metier-vise {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--degrade-debut);
+    margin: 2px 0 0 0;
+  }
+  .entete .coordonnees {
+    font-size: 11px;
+    text-align: right;
+    line-height: 1.5;
+    color: #555;
+  }
+
+  /* Bandeau en-tete plein (equivalent theme.fondTete du Word) : fond
+     colore full-width, texte force en blanc pour rester lisible dessus. */
+  .entete.bandeau-actif {
+    background: var(--degrade-debut);
+    border-bottom: none;
+    margin-bottom: 16px;
+  }
+  .entete.bandeau-actif.bandeau-degrade {
+    background: linear-gradient(var(--degrade-angle-bandeau), var(--degrade-debut) 0%, var(--degrade-fin) 100%);
+  }
+  .entete.bandeau-actif h1,
+  .entete.bandeau-actif .metier-vise,
+  .entete.bandeau-actif .coordonnees {
+    color: #fff;
+  }
+
+  .corps {
+    display: flex;
+    gap: 18px;
+    padding: 0 14mm 16mm 14mm;
+  }
+  /* En mode 1 colonne, la 2e colonne se replie sous la 1ere */
+  .corps.mode-1-colonne { flex-direction: column; }
+  .corps.mode-1-colonne .colonne { width: 100%; }
+
+  .colonne {
+    flex: 1;
+    min-width: 0;
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  /* Degrade applique uniquement au fond des colonnes, pas a toute la page */
+  .colonne.degrade-actif {
+    background: linear-gradient(var(--degrade-angle), var(--degrade-debut) 0%, var(--degrade-fin) 100%);
+    color: #fff;
+  }
+  .colonne.degrade-actif .rubrique h2 { color: #fff; border-bottom-color: rgba(255,255,255,0.5); }
+  .colonne.degrade-actif .rubrique .item { color: rgba(255,255,255,0.95); }
+
+  .rubrique { margin-bottom: 16px; }
+  .rubrique h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--degrade-debut);
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 4px;
+    margin: 0 0 8px 0;
+  }
+  .rubrique .item { font-size: 11.5px; margin-bottom: 6px; line-height: 1.4; }
+  .rubrique .item strong { display: block; font-size: 12px; }
+
+  .puce-competence {
+    display: inline-block;
+    background: rgba(0,0,0,0.06);
+    border-radius: 10px;
+    padding: 2px 9px;
+    font-size: 10.5px;
+    margin: 0 4px 4px 0;
+  }
+  .colonne.degrade-actif .puce-competence {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+  }
+
+  body[data-mode="print"] .barre-outils { display: none; }
+  body[data-mode="print"] { background: #fff; }
+  body[data-mode="print"] .page-a4 { margin: 0 auto; box-shadow: none; }
+
+  @media print {
+    @page { size: 210mm 297mm; margin: 0; }
+    body { background: #fff; }
+    .barre-outils { display: none; }
+    .page-a4 { margin: 0; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="barre-outils">
+    <strong>Prototype CV PDF A4 -- colonnes / degrade</strong>
+    <span class="groupe-label">Colonnes :</span>
+    <button id="btn1Col">1 colonne</button>
+    <button id="btn2Col" class="actif">2 colonnes</button>
+    <span class="groupe-label">Degrade colonne droite :</span>
+    <button id="btnDegradeAucun" class="actif">Aucun</button>
+    <button id="btnDegradeBasClair">Fonce -&gt; clair</button>
+    <button id="btnDegradeBasFonce">Clair -&gt; fonce</button>
+    <span class="groupe-label">Bandeau en-tete :</span>
+    <button id="btnBandeauNon" class="actif">Non</button>
+    <button id="btnBandeauOui">Oui</button>
+    <span class="groupe-label" id="labelDegradeBandeau" style="display:none;">Degrade bandeau (haut -&gt; bas) :</span>
+    <button id="btnBandeauDegradeAucun" class="actif" style="display:none;">Aucun</button>
+    <button id="btnBandeauDegradeFonceClair" style="display:none;">Fonce -&gt; clair</button>
+    <button id="btnBandeauDegradeClairFonce" style="display:none;">Clair -&gt; fonce</button>
+    <button id="btnApercu" class="action">Basculer apercu impression</button>
+    <button id="btnImprimer" class="action">Imprimer / Enregistrer en PDF</button>
+  </div>
+
+  <div class="page-a4">
+    <div class="entete" id="entete">
+      <div>
+        <p class="metier-vise">Technicien(ne) de maintenance</p>
+        <h1>Prenom NOM</h1>
+      </div>
+      <div class="coordonnees">
+        06 00 00 00 00<br>
+        exemple@mail.fr<br>
+        Ville, Departement
+      </div>
+    </div>
+
+    <div class="corps mode-2-colonnes" id="corps">
+      <div class="colonne" id="colonneGauche">
+        <div class="rubrique">
+          <h2>Experiences</h2>
+          <div class="item">
+            <strong>Technicien maintenance -- Entreprise A (2023-2025)</strong>
+            Diagnostic de pannes electromecaniques ; maintenance preventive sur ligne de production.
+          </div>
+          <div class="item">
+            <strong>Agent de production -- Entreprise B (2021-2023)</strong>
+            Suivi qualite sur ligne automatisee ; controle des non-conformites.
+          </div>
+        </div>
+        <div class="rubrique">
+          <h2>Formations</h2>
+          <div class="item"><strong>Bac Pro MEI -- Lycee C (2021)</strong></div>
+          <div class="item"><strong>CAP Maintenance -- Lycee D (2019)</strong></div>
+        </div>
+      </div>
+
+      <div class="colonne" id="colonneDroite">
+        <div class="rubrique">
+          <h2>Competences</h2>
+          <span class="puce-competence">Lecture de plans</span>
+          <span class="puce-competence">Habilitation electrique</span>
+          <span class="puce-competence">Rigueur</span>
+          <span class="puce-competence">Travail en equipe</span>
+          <span class="puce-competence">Autonomie</span>
+          <span class="puce-competence">Maintenance preventive</span>
+        </div>
+        <div class="rubrique">
+          <h2>Langues</h2>
+          <div class="item">Anglais -- niveau B1</div>
+        </div>
+        <div class="rubrique">
+          <h2>Centres d'interet</h2>
+          <div class="item">Mecanique auto (entretien personnel de vehicules)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var corps = document.getElementById('corps');
+    var colonneDroite = document.getElementById('colonneDroite');
+    var btn1Col = document.getElementById('btn1Col');
+    var btn2Col = document.getElementById('btn2Col');
+    var btnDegradeAucun = document.getElementById('btnDegradeAucun');
+    var btnDegradeBasClair = document.getElementById('btnDegradeBasClair');
+    var btnDegradeBasFonce = document.getElementById('btnDegradeBasFonce');
+
+    function activerColonnes(mode) {
+      corps.classList.toggle('mode-1-colonne', mode === 1);
+      btn1Col.classList.toggle('actif', mode === 1);
+      btn2Col.classList.toggle('actif', mode === 2);
+    }
+    btn1Col.addEventListener('click', function () { activerColonnes(1); });
+    btn2Col.addEventListener('click', function () { activerColonnes(2); });
+
+    function activerDegrade(mode) {
+      btnDegradeAucun.classList.toggle('actif', mode === 'aucun');
+      btnDegradeBasClair.classList.toggle('actif', mode === 'fonce-clair');
+      btnDegradeBasFonce.classList.toggle('actif', mode === 'clair-fonce');
+
+      if (mode === 'aucun') {
+        colonneDroite.classList.remove('degrade-actif');
+        return;
+      }
+      colonneDroite.classList.add('degrade-actif');
+      if (mode === 'fonce-clair') {
+        document.documentElement.style.setProperty('--degrade-angle', '180deg');
+      } else {
+        document.documentElement.style.setProperty('--degrade-angle', '0deg');
+      }
+    }
+    btnDegradeAucun.addEventListener('click', function () { activerDegrade('aucun'); });
+    btnDegradeBasClair.addEventListener('click', function () { activerDegrade('fonce-clair'); });
+    btnDegradeBasFonce.addEventListener('click', function () { activerDegrade('clair-fonce'); });
+
+    var entete = document.getElementById('entete');
+    var btnBandeauNon = document.getElementById('btnBandeauNon');
+    var btnBandeauOui = document.getElementById('btnBandeauOui');
+    var labelDegradeBandeau = document.getElementById('labelDegradeBandeau');
+    var btnBandeauDegradeAucun = document.getElementById('btnBandeauDegradeAucun');
+    var btnBandeauDegradeFonceClair = document.getElementById('btnBandeauDegradeFonceClair');
+    var btnBandeauDegradeClairFonce = document.getElementById('btnBandeauDegradeClairFonce');
+    var boutonsDegradeBandeau = [labelDegradeBandeau, btnBandeauDegradeAucun, btnBandeauDegradeFonceClair, btnBandeauDegradeClairFonce];
+
+    function activerBandeau(actif) {
+      entete.classList.toggle('bandeau-actif', actif);
+      btnBandeauNon.classList.toggle('actif', !actif);
+      btnBandeauOui.classList.toggle('actif', actif);
+      boutonsDegradeBandeau.forEach(function (el) { el.style.display = actif ? '' : 'none'; });
+      if (!actif) { activerDegradeBandeau('aucun'); }
+    }
+    btnBandeauNon.addEventListener('click', function () { activerBandeau(false); });
+    btnBandeauOui.addEventListener('click', function () { activerBandeau(true); });
+
+    function activerDegradeBandeau(mode) {
+      btnBandeauDegradeAucun.classList.toggle('actif', mode === 'aucun');
+      btnBandeauDegradeFonceClair.classList.toggle('actif', mode === 'fonce-clair');
+      btnBandeauDegradeClairFonce.classList.toggle('actif', mode === 'clair-fonce');
+      entete.classList.toggle('bandeau-degrade', mode !== 'aucun');
+      if (mode === 'clair-fonce') {
+        document.documentElement.style.setProperty('--degrade-angle-bandeau', '0deg');
+      } else {
+        document.documentElement.style.setProperty('--degrade-angle-bandeau', '180deg');
+      }
+    }
+    btnBandeauDegradeAucun.addEventListener('click', function () { activerDegradeBandeau('aucun'); });
+    btnBandeauDegradeFonceClair.addEventListener('click', function () { activerDegradeBandeau('fonce-clair'); });
+    btnBandeauDegradeClairFonce.addEventListener('click', function () { activerDegradeBandeau('clair-fonce'); });
+
+    document.getElementById('btnApercu').addEventListener('click', function () {
+      var actif = document.body.getAttribute('data-mode') === 'print';
+      document.body.setAttribute('data-mode', actif ? '' : 'print');
+      this.textContent = actif ? 'Basculer apercu impression' : 'Revenir a l\'edition';
+    });
+    document.getElementById('btnImprimer').addEventListener('click', function () {
+      window.print();
+    });
+  </script>
+
+</body>
+</html>

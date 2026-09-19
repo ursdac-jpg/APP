@@ -1,0 +1,235 @@
+/* ============================================================
+   modules/regard-recruteur/regard-recruteur.css
+   ------------------------------------------------------------
+   Styles du parcours « Un regard sur mon CV ». Chargé après le CSS
+   global (index.html). Toutes les couleurs viennent des jetons partagés
+   de css/style.css (var(--accent), var(--warning)...) : le module suit
+   ainsi la couleur d'accent et le mode daltonien choisis par la personne
+   dans ses préférences, comme le reste de l'application - il n'a plus sa
+   propre teinte figée (corrigé le 2026-09-17, audit
+   docs/AUDIT_REGARD_RECRUTEUR_2026-09-17.md, points 1/6).
+   ============================================================ */
+
+.regard-recruteur-parcours {
+  --rr-accent: var(--accent);
+  --rr-accent-bg: var(--accent-bg-subtle);
+  --rr-warn: var(--warning);
+  --rr-warn-bg: var(--warning-bg-subtle);
+  --rr-bord: var(--border);
+  --rr-bord-fort: var(--border-strong);
+  --rr-fond-sourd: var(--bg-subtle);
+  --rr-carte: var(--bg-card);
+  --rr-texte: var(--text-strong);
+  --rr-texte-sourd: var(--text-muted);
+  --rr-texte-fort: var(--text-strong);
+  --rr-ok: var(--success);
+  --rr-ok-bg: var(--success-bg-subtle);
+}
+
+/* Pas de max-width ici : les autres modules de la même famille (ATS,
+   Comparer mes pistes...) laissent leur contenu occuper toute la largeur
+   utile de la page, sans plafond - corrigé le 2026-09-17 (retour Denis,
+   la largeur de 780px rétrécissait ce module par rapport aux autres). */
+
+.regard-recruteur-parcours .rr-accroche {
+  color: var(--rr-texte-sourd);
+  font-size: 1.02rem;
+  margin: .4rem 0 1rem;
+}
+.regard-recruteur-parcours .rr-detail {
+  font-size: .88rem;
+  color: var(--rr-texte-sourd);
+}
+
+/* ---- Blocs dépliants ---- */
+.regard-recruteur-parcours .rr-bloc {
+  border: 1px solid var(--rr-bord);
+  border-radius: 12px;
+  margin: .6rem 0;
+  overflow: hidden;
+  background: var(--rr-carte);
+}
+.regard-recruteur-parcours .rr-bloc > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: .8rem 1rem;
+  font-weight: 700;
+  color: var(--rr-texte-fort);
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex-wrap: wrap;
+}
+.regard-recruteur-parcours .rr-bloc > summary::-webkit-details-marker { display: none; }
+.regard-recruteur-parcours .rr-num,
+.regard-recruteur-parcours .rr-num-emoji {
+  width: 1.6rem; height: 1.6rem; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .82rem; flex-shrink: 0;
+}
+.regard-recruteur-parcours .rr-num { background: var(--rr-accent); color: #fff; }
+[data-theme="sombre"] .regard-recruteur-parcours .rr-num { color: #06201d; }
+.regard-recruteur-parcours .rr-num-emoji { background: var(--rr-accent-bg); }
+.regard-recruteur-parcours .rr-bloc-corps {
+  padding: .3rem 1rem 1rem;
+  border-top: 1px solid var(--rr-bord);
+}
+.regard-recruteur-parcours .rr-bloc-corps > h4 {
+  font-size: .98rem;
+  margin: .8rem 0 .35rem;
+  color: var(--rr-texte-fort);
+}
+
+.regard-recruteur-parcours .rr-axe-coherence { border-left: 5px solid var(--rr-warn); }
+.regard-recruteur-parcours .rr-axe-coherence > summary { background: var(--rr-warn-bg); }
+.regard-recruteur-parcours .rr-axe-message { border-left: 5px solid var(--rr-accent); }
+.regard-recruteur-parcours .rr-axe-message > summary { background: var(--rr-accent-bg); }
+.regard-recruteur-parcours .rr-decoder { border-left: 5px solid var(--rr-accent); }
+.regard-recruteur-parcours .rr-decoder > summary { background: var(--rr-accent-bg); }
+
+/* ---- Pilules / états ---- */
+.regard-recruteur-parcours .rr-pilule {
+  display: inline-block; font-size: .72rem; font-weight: 700;
+  padding: .12rem .5rem; border-radius: 999px; text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.regard-recruteur-parcours .rr-pilule.bleu { background: var(--rr-accent-bg); color: var(--rr-accent); }
+.regard-recruteur-parcours .rr-pilule.warn { background: var(--rr-warn-bg); color: var(--rr-warn); }
+.regard-recruteur-parcours .rr-etat {
+  margin-left: auto; font-size: .78rem; font-weight: 700;
+}
+.regard-recruteur-parcours .rr-etat.ok { color: var(--rr-ok); }
+
+/* ---- Cartes ---- */
+.regard-recruteur-parcours .rr-carte {
+  background: var(--rr-carte);
+  border: 1px solid var(--rr-bord);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  margin: .8rem 0;
+}
+.regard-recruteur-parcours .rr-carte-plat {
+  background: var(--rr-fond-sourd);
+  border-radius: 10px;
+  padding: .7rem .85rem;
+  margin: .55rem 0;
+}
+.regard-recruteur-parcours .rr-carte-plat h4 {
+  font-size: .95rem; margin: .1rem 0 .35rem; color: var(--rr-texte-fort);
+}
+.regard-recruteur-parcours .rr-carte-ok {
+  background: var(--rr-ok-bg);
+  border-radius: 10px;
+  padding: .7rem .85rem;
+  margin: .55rem 0;
+}
+.regard-recruteur-parcours .rr-synthese {
+  background: var(--rr-accent-bg);
+  border-color: var(--rr-accent);
+}
+.regard-recruteur-parcours .rr-fin-lecture {
+  background: var(--rr-accent-bg);
+  border-color: var(--rr-accent);
+  text-align: center;
+}
+
+/* ---- 3 temps d'un point ---- */
+.regard-recruteur-parcours .rr-trois-temps { margin: .5rem 0 0; }
+.regard-recruteur-parcours .rr-tt {
+  display: flex; flex-direction: column; gap: .15rem;
+  font-size: .9rem; margin: .35rem 0; padding: .45rem .65rem;
+  border-radius: 9px; background: var(--rr-fond-sourd);
+}
+.regard-recruteur-parcours .rr-tt.verif { background: var(--rr-accent-bg); }
+/* TACHE (retour Denis 2026-09-19, point 6) : le constat (le fait, ce qui
+   est ecrit sur le CV) precede desormais "Comment un recruteur peut le
+   lire" / "Une piste" avec la MEME etiquette .rr-lab, mais un fond neutre
+   bordé (jamais rempli) pour le distinguer des 2 boites d'interpretation
+   qui suivent : progression visuelle fait -> lecture -> piste. */
+.regard-recruteur-parcours .rr-tt.constat {
+  background: transparent; border: 1px solid var(--rr-bord);
+}
+.regard-recruteur-parcours .rr-lab {
+  font-weight: 700; color: var(--rr-texte-sourd);
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .03em;
+}
+
+/* ---- Listes ---- */
+.regard-recruteur-parcours .rr-liste,
+.regard-recruteur-parcours .rr-liste-fine { margin: .3rem 0 0; padding-left: 1.15rem; }
+.regard-recruteur-parcours .rr-liste li,
+.regard-recruteur-parcours .rr-liste-fine li { margin: .25rem 0; }
+.regard-recruteur-parcours .rr-liste-fine { font-size: .92rem; }
+.regard-recruteur-parcours .rr-liste-ancres li { margin: .5rem 0; }
+
+.regard-recruteur-parcours .rr-etape-liste { list-style: none; margin: .5rem 0 0; padding: 0; display: grid; gap: .5rem; }
+.regard-recruteur-parcours .rr-etape-liste li { display: flex; gap: .55rem; align-items: flex-start; font-size: .9rem; }
+.regard-recruteur-parcours .rr-rond {
+  width: 1.4rem; height: 1.4rem; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .74rem; font-weight: 700; background: var(--rr-accent); color: #fff;
+}
+[data-theme="sombre"] .regard-recruteur-parcours .rr-rond { color: #06201d; }
+
+/* ---- Encarts ---- */
+.regard-recruteur-parcours .rr-encart {
+  display: flex; gap: .6rem; align-items: flex-start;
+  background: var(--rr-accent-bg);
+  border-left: 3px solid var(--rr-accent);
+  border-radius: 8px; padding: .6rem .85rem; margin: .6rem 0;
+  font-size: .9rem; color: var(--rr-texte);
+}
+.regard-recruteur-parcours .rr-encart.warn {
+  background: var(--rr-warn-bg); border-left-color: var(--rr-warn);
+}
+.regard-recruteur-parcours .rr-bandeau {
+  font-size: .85rem; color: var(--rr-texte-sourd);
+  background: var(--rr-fond-sourd);
+  border: 1px solid var(--rr-bord);
+  border-radius: 9px; padding: .5rem .7rem; margin: .5rem 0;
+}
+
+/* ---- Champs / boutons ---- */
+.regard-recruteur-parcours .rr-boutons {
+  display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .6rem; align-items: center;
+}
+.regard-recruteur-parcours .rr-label-fichier { cursor: pointer; margin: 0; }
+.regard-recruteur-parcours .rr-btn-fin {
+  font-size: .75rem; padding: .1rem .5rem;
+}
+.regard-recruteur-parcours .rr-case {
+  display: block; margin: .7rem 0 .2rem; font-size: .9rem; cursor: pointer;
+}
+.regard-recruteur-parcours .rr-pied-actions {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: .6rem; margin-top: 1.4rem; padding-top: 1rem;
+  border-top: 1px solid var(--rr-bord);
+}
+
+.regard-recruteur-parcours .rr-repli {
+  margin: .4rem 0 0; border-top: 1px dashed var(--rr-bord); padding-top: .4rem;
+}
+.regard-recruteur-parcours .rr-repli > summary {
+  cursor: pointer; color: var(--rr-accent); font-size: .9rem;
+}
+.regard-recruteur-parcours .rr-repli-imbrique {
+  border-top-style: solid; border-color: var(--rr-bord-fort);
+  margin-top: .5rem;
+}
+.regard-recruteur-parcours .rr-zone-collage {
+  border: 1px solid var(--rr-accent);
+  border-radius: 12px;
+  padding: 1rem;
+  background: var(--rr-accent-bg);
+  margin: .6rem 0;
+}
+
+/* ---- Impression de la fiche ---- */
+@media print {
+  body * { visibility: hidden; }
+  .regard-recruteur-fiche, .regard-recruteur-fiche * { visibility: visible; }
+  .regard-recruteur-fiche { position: absolute; left: 0; top: 0; width: 100%; }
+  .regard-recruteur-fiche .rr-pied-actions,
+  .regard-recruteur-fiche .rr-garder .rr-boutons,
+  .regard-recruteur-fiche .aide-repere-ancre { display: none !important; }
+}

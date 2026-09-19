@@ -1,0 +1,1028 @@
+/* ============================================================
+   modules/reperes/reperes.css
+   ------------------------------------------------------------
+   Premier fichier CSS propre à un module dans ce projet (voir
+   ARCHITECTURE_TECHNIQUE.md, section "Feuille de style"). Ne redéfinit
+   jamais une classe déjà présente dans css/style.css -- réutilise ses
+   variables (--accent, --bg-subtle, --border, --text-muted...), déjà
+   déclinées pour les thèmes clair/sombre/daltonien existants, sans
+   qu'aucune classe ci-dessous n'ait besoin de le savoir.
+
+   Introduit à l'étape 3 (création), au moment où un besoin réel de
+   style propre au module apparaît (le sélecteur de type) -- pas avant,
+   conformément à la décision prise à l'étape 2.
+
+   TAILLES (revues avec Denis, retour terrain "trop petit pour notre
+   public", puis relevées une 2e fois : "il faut que d'office notre
+   texte soit un tout petit peu plus grand", au-delà même du socle 16px
+   standard d'ERIP) : texte de travail (libellé d'un Repère, texte de la
+   réflexion, titre) désormais à 1.1rem (~18px), jamais en dessous de
+   ~0.85rem même pour le texte le plus secondaire (date, puce Discuté),
+   zones cliquables visant 48px de hauteur (au-delà du minimum de 44px
+   usuel). Cet écran contient des réflexions personnelles relues parfois
+   sous stress ou fatigue, pour un public parfois âgé ou en difficulté
+   de lecture/vue -- mérite mieux que le socle standard d'ERIP, avant
+   même d'activer le réglage de taille de texte agrandie que la
+   personne peut choisir en plus ([data-taille], css/style.css).
+   ============================================================ */
+
+.reperes-type-picker {
+  display: none;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.reperes-type-picker.is-open { display: block; }
+.reperes-type-picker .reperes-invite {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+.reperes-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.reperes-type-btn {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  color: var(--text-strong);
+  min-height: 48px;
+}
+.reperes-type-btn:hover, .reperes-type-btn:focus-visible { border-color: var(--accent); }
+.reperes-type-btn .reperes-ic { font-size: 1.4rem; }
+/* TACHE (retour utilisateur, 2026-08-25) : explication courte sous
+   chaque nom de categorie -- les 4 categories restaient peu claires
+   sans elle (juste une icone + un mot). */
+.reperes-type-libelle { font-weight: 600; }
+.reperes-type-description {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+.reperes-picker-annuler {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.reperes-confirmation {
+  display: none;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--success-strong);
+  background: var(--success-bg-subtle);
+  border-radius: 0.6rem;
+  padding: 7px 10px;
+}
+.reperes-confirmation.is-visible { display: block; }
+.reperes-entete-ecran {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.reperes-entete-ecran h1 {
+  flex: 1;
+  text-align: center;
+}
+/* TACHE (retour utilisateur, decision revenue le 2026-09-18) : ce bouton
+   avait ete agrandi ("le bouton Garder une reflexion, tres important,
+   il faut qu'il soit bien visible") au-dela du Bootstrap .btn-sm par
+   defaut, sur les 3 rendus (ecran Reperes, panneau Journal, geste
+   ancre "Garder comme Repere" insere dans un AUTRE module) via cet
+   attribut data- commun. Denis est revenu sur cette taille (trouvee
+   trop grande, notamment la ou plusieurs de ces boutons se suivent,
+   ex. "Ma fiche" de Un regard sur mon CV) : redonne au .btn-sm de base
+   son style normal, sur les 3 memes rendus a la fois. */
+
+/* ---- Écran de saisie libre (titre + texte, ouvert juste après la
+   création d'un Repère créé directement par la personne) ---- */
+.reperes-saisie-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-strong);
+  margin-bottom: 0.4rem;
+}
+#reperesSaisieTitre {
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 0.7rem 0.9rem;
+  min-height: 48px;
+}
+#reperesSaisieTexte {
+  font-size: 1.1rem;
+}
+
+/* TACHE (chantier "Phase B", "Mes rapports") : bouton vert clair (jamais
+   bleu, pour ne pas être confondu avec "Voir mon analyse"/"Revoir
+   l'explication") sur SA PROPRE ligne au-dessus des 3 onglets, à gauche,
+   avec un texte explicatif qui occupe le reste de la ligne. */
+/* TACHE (retour utilisateur, 2026-08-26) : empilé en colonne -- bouton
+   "Mes rapports" sur sa propre ligne, le bandeau "Nouveau rapport" juste
+   en dessous (jamais côte à côte, conflit visuel signalé par Denis), la
+   phrase d'explication encore en dessous. */
+.reperes-entete-rapports { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; margin: 14px 0; }
+.reperes-bouton-rapports {
+  background: var(--success-bg-subtle); color: var(--success-strong); border: 1px solid var(--success);
+  border-radius: 999px; padding: 0.55rem 1.1rem; font-weight: 700; white-space: nowrap;
+}
+.reperes-rapports-caption { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+/* TACHE (retour utilisateur, 2026-08-26, recherche) : sa propre ligne,
+   entre le bouton "Mes rapports" et les 3 onglets Non analysés/Déjà
+   analysés/Deuxième regard, poussée à droite -- même visuel que la
+   recherche de "Mes rapports" (.reperes-rapports-recherche-champ,
+   réutilisée telle quelle), mais une donnée séparée (_reperesRecherche). */
+/* TACHE (retour utilisateur, 2026-08-26) : 90px reserves a droite --
+   meme technique deja utilisee pour #reperesZoneRegardExterieur, evite
+   que la colonne d'icones persistantes (Carnet/Journal, position:fixed,
+   right:20px, jusqu'a 58px de large) ne recouvre la barre de recherche
+   sur un ecran large. */
+.reperes-recherche-ligne { display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 90px; }
+
+/* ---- Page "Mes rapports" : filtre par type, une carte par rapport ---- */
+/* TACHE (retour utilisateur, 2026-08-26, recherche) : filtre par type et
+   champ de recherche sur la MEME ligne, recherche poussee a droite --
+   demande explicite de Denis ("tout a droite ici"). */
+/* TACHE (retour utilisateur, 2026-08-26) : meme reserve que .reperes-recherche-ligne
+   ci-dessous -- "Mes rapports" est une page (pas une fenetre), la colonne
+   d'icones persistantes Carnet/Journal reste donc visible ici aussi. */
+.reperes-rapports-filtre-ligne { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; padding-right: 90px; }
+.reperes-rapports-filtre { display: flex; gap: 6px; flex-wrap: wrap; }
+/* TACHE (chantier "repertoire des freins", etape 9, 2026-08-28) : le bloc
+   de droite (bouton "Mes freins identifies" + recherche) reste groupe et
+   pousse a droite (margin-left:auto) -- gros ecart avec les onglets
+   (filtres par type), petit ecart interne : il se range avec "ce qu'on
+   cherche dans ses rapports", pas avec les filtres. Icone clef, jamais
+   l'ancre du Carnet. */
+.reperes-rapports-actions-droite {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.reperes-rapports-mesfreins {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+.reperes-rapports-mesfreins:hover, .reperes-rapports-mesfreins:focus-visible { border-color: var(--accent); }
+/* Dans ce bloc, la recherche ne pousse plus elle-meme (le bloc s'en
+   charge). Scope a cette ligne uniquement -- la meme classe sert aussi la
+   recherche de la liste de Reperes. */
+.reperes-rapports-actions-droite .reperes-rapports-recherche-champ { margin-left: 0; }
+@media (max-width: 620px) {
+  .reperes-rapports-actions-droite { margin-left: 0; width: 100%; }
+  .reperes-rapports-actions-droite .reperes-rapports-recherche-champ { flex: 1 1 100%; }
+}
+.reperes-rapports-filtre button {
+  background: var(--bg-subtle); border: none; border-radius: 999px; padding: 8px 14px;
+  font-size: 0.9rem; color: var(--text-muted); cursor: pointer;
+}
+.reperes-rapports-filtre button.is-active { background: var(--bg-card); color: var(--text-strong); font-weight: 600; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.reperes-rapports-recherche-champ {
+  margin-left: auto; min-width: 220px; flex: 0 1 260px;
+  background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 999px;
+  padding: 8px 14px; font-size: 0.9rem; color: var(--text-strong);
+}
+.reperes-rapports-recherche-champ:focus { outline: none; border-color: var(--accent); background: var(--bg-card); }
+.reperes-legende-rapports-approfondir { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.8rem; }
+.reperes-rapport-indice { font-size: 0.82rem; color: var(--accent); font-style: italic; margin: 0.2rem 0 0; }
+.reperes-rapport[open] .reperes-rapport-indice { display: none; }
+/* TACHE (retour utilisateur, 2026-08-26, "3 colonnes pour combler le vide,
+   lecture facilitée quand il y a beaucoup de rapports") : grille, jamais
+   un nombre de colonnes fixe (auto-fill/minmax, s'adapte à la largeur
+   réelle de la fenêtre ERIP -- même patron que .reperes-colonnes). */
+#reperesRapportsListe { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; align-items: start; }
+#reperesRapportsListe .reperes-rapport { margin-bottom: 0; }
+#reperesRapportsListe .reperes-rapport[open] { grid-column: 1 / -1; }
+.reperes-legende-rapports-approfondir .reperes-rapport-badge { margin: 0 3px; }
+.reperes-rapport {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px;
+  padding: 0.6rem 0.9rem; margin-bottom: 0.6rem;
+}
+/* TACHE (retour utilisateur, 2026-08-26, bouton "Voir le rapport") :
+   pulse doux et CONTINU (jamais un nombre d'iterations fixe -- dure tant
+   que la personne reste sur "Mes rapports" ET n'a pas encore ouvert CE
+   rapport precis, voir _reperesBrancherPulseRapports()). S'eteint sans
+   aucun code de nettoyage : soit au clic sur ce rapport (classe retiree),
+   soit a la fermeture de toute la fenetre (noeud detruit avec elle). */
+/* Intensite standard des pulses de l'app (homogeneisation 2026-08-28) :
+   anneau qui part de 40% d'opacite et s'etend a 8px, plus de changement de
+   fond. */
+@keyframes reperesPulseRapport {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(21, 115, 71, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(21, 115, 71, 0); }
+}
+.reperes-rapport-pulse { animation: reperesPulseRapport 1.8s ease-in-out 6; }
+.reperes-rapport > summary { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; list-style: none; flex-wrap: wrap; }
+.reperes-rapport > summary::-webkit-details-marker { display: none; }
+.reperes-rapport-badge { font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+.reperes-rapport-badge-1ere { background: var(--accent-bg-subtle); color: var(--accent); }
+.reperes-rapport-badge-approfondir { background: #fff3cd; color: #856404; }
+[data-theme="sombre"] .reperes-rapport-badge-approfondir { background: #3a2f13; color: #e0b84d; }
+.reperes-rapport-badge-2e-regard { background: var(--success-bg-subtle); color: var(--success-strong); }
+.reperes-rapport-titre { font-weight: 600; color: var(--text-strong); flex: 1; }
+.reperes-rapport-date { font-size: 0.82rem; color: var(--text-muted); white-space: nowrap; }
+.reperes-rapport-contenu { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); }
+/* TACHE (retour utilisateur, 2026-08-26, "Aller plus loin" en tête, jamais
+   négligé tout en bas) : encadré, bien visible, tout en haut du contenu. */
+.reperes-rapport-aller-plus-loin-bloc {
+  background: var(--accent-bg-subtle); border-radius: 10px; padding: 0.7rem 0.9rem;
+}
+/* TACHE (retour utilisateur, 2026-08-26) : "Fermer le rapport" (gauche) +
+   "Supprimer ce rapport" (droite), remplace l'ancien "Aller plus loin"
+   tout en bas -- même ligne, jamais empilés. */
+.reperes-rapport-bas { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; }
+.reperes-rapport-reperes-concernes { margin-top: 1rem; }
+.reperes-rapport-repere { background: var(--bg-subtle); border-radius: 8px; padding: 0.4rem 0.7rem; margin-bottom: 0.4rem; }
+.reperes-rapport-repere > summary { cursor: pointer; font-weight: 600; font-size: 0.92rem; }
+.reperes-rapport-repere-texte { margin-top: 0.4rem; font-size: 0.9rem; color: var(--text-muted); white-space: pre-wrap; }
+/* TACHE (retour utilisateur, 2026-08-26, "je ne dois pas avoir de repere
+   vide") : avertissement rouge, Repère par Repère, quand celui-ci n'a pas
+   apporté assez de matière pour être traité par l'analyse. */
+.reperes-rapport-repere-absence { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--danger); font-weight: 600; }
+
+/* ---- Étape 4 : consultation ---- */
+.reperes-filtre {
+  display: flex;
+  background: var(--bg-subtle);
+  border-radius: 999px;
+  padding: 3px;
+  margin: 14px 0 18px;
+  gap: 3px;
+}
+.reperes-filtre button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 12px 8px;
+  font-size: 1rem;
+  color: var(--text-muted);
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 48px;
+}
+.reperes-filtre button.is-active {
+  background: var(--bg-card);
+  color: var(--text-strong);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+/* TACHE (retour utilisateur, 2026-08-26) : 1-2 lignes sous les onglets,
+   pour que la personne comprenne "qui/quoi/comment" sans avoir a deviner. */
+.reperes-filtre-explication {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0 2px 16px;
+}
+/* TACHE (retour utilisateur, 2026-08-26) : legende repliee des 3
+   boutons d'un Repere analyse -- petite, discrete, une seule fois pour
+   tout l'onglet "Deja analyses" (jamais repetee par Repere). */
+.reperes-legende-boutons { margin: -10px 2px 16px; }
+.reperes-legende-boutons summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  list-style: none;
+}
+.reperes-legende-boutons summary::-webkit-details-marker { display: none; }
+.reperes-legende-boutons summary::after { content: ' →'; }
+.reperes-legende-boutons[open] summary::after { content: ' ↑'; }
+.reperes-legende-boutons-liste {
+  margin: 6px 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.reperes-legende-boutons-liste li { margin-bottom: 5px; }
+/* Pastille reprenant le meme fond colore que le vrai bouton -- voir
+   .reperes-btn-analyse-copier/-repasser/-supprimer plus haut, memes
+   classes reutilisees telles quelles (seule la forme differe : pastille
+   au lieu de bouton, jamais cliquable ici). */
+.reperes-legende-pastille {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+/* TACHE (retour utilisateur, 2026-08-25) : remplace l'ancien groupement
+   par état (Prêts à en parler / Pour moi, liste simple qui "se remplit
+   à une vitesse impressionnante") par 4 colonnes, une par type de Repère
+   -- même esprit visuel que les cartes du picker (fond légèrement gris,
+   voir 2e capture d'écran fournie par Denis : ".reperes-type-btn").
+   Chaque colonne prend 1 fraction de la largeur sur desktop, empile en
+   1 seule colonne sur mobile (rien de lisible dans 4 colonnes à 320px). */
+.reperes-colonnes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .reperes-colonnes { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .reperes-colonnes { grid-template-columns: 1fr; }
+}
+.reperes-colonne {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  padding: 10px;
+}
+.reperes-colonne-titre-ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+.reperes-colonne-titre {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0;
+}
+.reperes-colonne-titre .reperes-ic { font-size: 1rem; }
+/* TACHE (retour utilisateur, 2026-08-26, "+" rapide par catégorie) : petit
+   bouton rond, cohérent avec .reperes-bouton-rapports (même famille de
+   boutons d'action de cette page). */
+.reperes-btn-quickadd {
+  flex-shrink: 0; width: 1.6rem; height: 1.6rem; border-radius: 50%;
+  border: none; background: var(--accent-solide); color: #fff;
+  font-size: 1rem; font-weight: 700; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.reperes-btn-quickadd:hover { filter: brightness(1.08); }
+.reperes-colonne-vide {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+  padding: 6px 2px;
+}
+.reperes-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.reperes-item-head {
+  width: 100%;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-strong);
+}
+.reperes-item-head .reperes-ic { font-size: 1.2rem; flex-shrink: 0; }
+.reperes-item-head .reperes-meta { flex: 1; min-width: 0; }
+.reperes-item-head .reperes-src {
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.reperes-item-head .reperes-date {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+/* TACHE (retour utilisateur, 2026-08-25) : invite qui disparait une fois
+   le Repere ouvert -- decouverte du geste, jamais un texte permanent. */
+.reperes-invite-clic {
+  display: block;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--accent);
+  margin-top: 2px;
+}
+.reperes-item.is-open .reperes-invite-clic { display: none; }
+.reperes-item-head .reperes-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform .15s ease;
+}
+.reperes-item.is-open .reperes-chevron { transform: rotate(90deg); }
+.reperes-item-body {
+  display: none;
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.reperes-item.is-open .reperes-item-body { display: block; padding-top: 12px; }
+.reperes-item-body textarea {
+  width: 100%;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 1.1rem;
+  color: var(--text-strong);
+  resize: vertical;
+  min-height: 64px;
+  margin-bottom: 10px;
+}
+.reperes-rapport-badge-nouveau {
+  text-align: center; font-size: 0.78rem; font-weight: 700;
+  color: var(--success-strong); background: var(--success-bg-subtle);
+  border-radius: 999px; padding: 3px 0; margin: 0 14px 8px;
+}
+.reperes-bandeau-notif {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--warning-bg-subtle); border: 1px solid var(--warning-border);
+  border-radius: 12px; padding: 10px 14px; margin-top: 10px;
+}
+.reperes-bandeau-notif-ic { font-size: 1.3rem; flex-shrink: 0; }
+.reperes-bandeau-notif strong { display: block; color: var(--warning-strong); font-size: 0.95rem; }
+.reperes-bandeau-notif p { margin: 2px 0 0; font-size: 0.85rem; color: var(--text-muted); }
+
+/* TACHE (retour utilisateur, 2026-08-26, esthétique) : "+ Ajouter quelques
+   mots" (jaune) et "Supprimer" (rouge clair) côte à côte, jamais collés
+   (space-between), plus fins que les anciens boutons pleine largeur. */
+.reperes-confirmation-enregistrement {
+  color: var(--success-strong); font-weight: 700; font-size: 0.9rem; margin: 0.4rem 0 0;
+}
+.reperes-row-ajout-supprimer { display: flex; justify-content: space-between; gap: 10px; }
+.reperes-btn-ajouter-mots {
+  background: var(--jaune-bg-subtle); color: var(--jaune-strong); border: 1px solid var(--jaune-border);
+  border-radius: 999px; padding: 0.4rem 0.9rem; font-weight: 600;
+}
+.reperes-btn-ajouter-mots:hover { filter: brightness(0.97); }
+.reperes-btn-supprimer-clair {
+  background: var(--danger-bg-subtle); color: var(--danger); border: 1px solid var(--danger);
+  border-radius: 999px; padding: 0.4rem 0.9rem; font-weight: 600;
+}
+.reperes-btn-supprimer-clair:hover { filter: brightness(0.97); }
+
+.reperes-row-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* TACHE (retour utilisateur, 2026-08-26, nettoyage automatique par IA) :
+   badge "a verifier" -- visible tant que interpretationIncertaine est
+   vrai sur ce Repere (voir _reperesRenduItem()/reperesAppliquerNettoyageIA()
+   cote js/app.js). Couleur --warning (orange clair), jamais confondu avec
+   --danger (une incertitude n'est pas une erreur). */
+.reperes-badge-incertain {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--warning-bg-subtle); color: var(--warning-strong);
+  border: 1px solid var(--warning-border); border-radius: 999px;
+  padding: 2px 10px; font-size: 0.78rem; font-weight: 700;
+  margin-top: 4px; cursor: pointer;
+}
+.reperes-bloc-verification {
+  background: var(--warning-bg-subtle); border: 1px solid var(--warning-border);
+  border-radius: 10px; padding: 12px 14px; margin: 10px 0;
+}
+.reperes-bloc-verification h6 { margin: 0 0 8px; color: var(--warning-strong); font-size: 0.95rem; }
+.reperes-comparaison-avant-apres { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.reperes-comparaison-bloc {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 12px; font-size: 0.95rem;
+}
+.reperes-comparaison-bloc b {
+  display: block; font-size: 0.72rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .03em; margin-bottom: 3px;
+}
+/* TACHE (retour utilisateur, 2026-08-26) : classe UNIQUE partagee par
+   tous les boutons d'action d'un Repere (Modifier/Annuler/Valider dans
+   le contenu, Supprimer, et les 3 boutons du Repere analyse ci-dessous)
+   -- avant, Modifier restait a la taille par defaut de Bootstrap
+   (.btn-sm) pendant que Supprimer etait agrandi par la regle .btn-sm
+   ci-dessous : deux boutons de la meme ligne, deux tailles differentes,
+   signale par Denis ("je ne sais pas pourquoi le bouton supprimer est
+   plus grand que modifier"). Une seule regle desormais, jamais 2 qui
+   peuvent diverger. */
+.reperes-btn-uniforme {
+  font-size: 1rem;
+  padding: 0.6rem 1.1rem;
+  min-height: 48px;
+}
+/* TACHE (retour utilisateur, 2026-08-26) : Repere ANALYSE -- 3 actions
+   de meme taille/forme (.reperes-btn-uniforme ci-dessus), jamais grises
+   comme avant ("je ne veux pas un bouton gris") -- fond legerement
+   colore par action, couleurs deja utilisees ailleurs dans ERIP (jamais
+   inventees) : bleu clair = copier (neutre, sans consequence), jaune
+   clair = repasser en non analyse (une action a nuancer, ni anodine ni
+   dangereuse), rouge clair = supprimer (meme couleur que partout
+   ailleurs dans l'app pour une suppression). */
+.reperes-row-actions .btn { flex: 1 1 0; min-width: 0; white-space: normal; }
+/* TACHE (retour utilisateur, 2026-08-26, capture d'ecran) : d'abord
+   empiles en pleine largeur (voir historique git), puis retaillés cote
+   a cote avec une taille dediee -- Denis a tranche : jamais plus grands
+   que l'ancien bouton "Modifier" (Bootstrap .btn-sm nu, sans la classe
+   .reperes-btn-uniforme utilisee ailleurs dans ce fichier). Ces 3
+   boutons utilisent donc .btn-sm standard (voir _reperesRenduItem()) --
+   seule la couleur est ajoutee ici, jamais la taille. */
+.reperes-btn-analyse-copier,
+.reperes-btn-analyse-rapport,
+.reperes-btn-analyse-repasser,
+.reperes-btn-analyse-supprimer {
+  line-height: 1.2;
+}
+.reperes-btn-analyse-copier {
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--accent);
+  color: var(--text-strong);
+}
+.reperes-btn-analyse-copier:hover { background: var(--bg-hover); }
+/* TACHE (retour utilisateur, 2026-08-26, bouton "Voir le rapport") :
+   meme vert clair que le bouton "Mes rapports" (.reperes-bouton-rapports)
+   -- reconnaissance par la couleur, jamais bleu (deja pris par "Voir mon
+   analyse"). */
+.reperes-btn-analyse-rapport {
+  background: var(--success-bg-subtle);
+  border: 1px solid var(--success);
+  color: var(--success-strong);
+}
+.reperes-btn-analyse-rapport:hover { background: var(--success-bg-subtle); filter: brightness(0.96); }
+.reperes-btn-analyse-repasser {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #7a5c00;
+}
+.reperes-btn-analyse-repasser:hover { background: #ffe9a8; }
+/* TACHE (retour utilisateur, 2026-08-26, mode sombre) : meme jaune pale
+   qu'en mode clair restait eclatant sur fond sombre (contraste trop fort,
+   "glare") -- meme palette que .reperes-rapport-badge-approfondir (deja
+   corrigee), seul point de couleur jaune de cette page desormais coherent
+   entre les deux. */
+[data-theme="sombre"] .reperes-btn-analyse-repasser { background: #3a2f13; border-color: #8a6d1f; color: #e0b84d; }
+[data-theme="sombre"] .reperes-btn-analyse-repasser:hover { background: #4a3c19; }
+.reperes-btn-analyse-supprimer {
+  background: var(--danger-bg-subtle);
+  border: 1px solid #f5b5b5;
+  color: var(--text-strong);
+}
+.reperes-btn-analyse-supprimer:hover { background: #fbdada; }
+/* TACHE (retour utilisateur, 2026-08-26, audit mode sombre) : le repos
+   passait deja par var(--danger-bg-subtle) (adapte), mais bordure ET
+   survol restaient un rose pale fixe -- au survol en particulier, ce
+   bouton aurait flashe en rose clair eclatant sur fond sombre, meme
+   defaut de "glare" que le bouton Repasser corrige juste au-dessus. */
+[data-theme="sombre"] .reperes-btn-analyse-supprimer { border-color: #7a3d3d; }
+[data-theme="sombre"] .reperes-btn-analyse-supprimer:hover { background: #4a2626; }
+@media (max-width: 560px) {
+  .reperes-row-actions .btn { flex: 1 1 100%; }
+}
+.reperes-lien-enrichir { min-height: 48px; font-size: 1rem; }
+.reperes-etat-vide {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+.reperes-etat-vide .reperes-ic { font-size: 2rem; display: block; margin-bottom: 10px; }
+.reperes-etat-vide p { font-size: 1.05rem; margin: 0; max-width: 260px; margin-inline: auto; }
+/* Retour Denis 2026-08-31 : l'icone d'identite du module (bi-bookmark-star,
+   bi-journals) prend la couleur d'accent. Les <i class="bi"> en tete de
+   <h1>/<h4> sont deja en accent via la regle globale css/style.css
+   (h1..h6 > .bi:first-child). Les icones de categorie (Question / Idee...)
+   sont des emoji dans des <span>, non touchees. */
+.reperes-etat-vide i.bi { color: var(--accent); }
+
+/* ---- Bouton et explication de Regard extérieur, insérés par
+   modules/regard-exterieur/index.js dans #reperesZoneRegardExterieur ---- */
+#reperesZoneRegardExterieur .btn { min-height: 48px; font-size: 1.05rem; }
+/* TACHE (retour utilisateur, 2026-08-25) : elargi de 480px (fixe) a une
+   largeur relative -- la zone remontee en haut de page (voir plus haut)
+   se retrouve desormais a la meme hauteur que les icones persistantes
+   Carnet/Journal (position:fixed, right:20px, jusqu'a 58px de large).
+   90px reserves a droite : assez pour ne jamais passer dessous, sans
+   fixer une largeur en dur qui gaspillerait l'espace sur un grand ecran. */
+#reperesZoneRegardExterieur .reperes-regard-exterieur-explication { font-size: 1rem; max-width: calc(100% - 90px); }
+
+/* ---- Chantier « Journal de parcours » (docs/CHANTIER_JOURNAL_DE_PARCOURS.md) ----
+   Bouton et panneau entièrement possédés et stylés par Repères -- même
+   principe que le reste de ce fichier, appliqué à un point d'ancrage
+   déclaré dans index.html plutôt qu'à du contenu inséré dans #app.
+   Volontairement PAS dans css/style.css : les trois icônes existantes
+   (préférences, session, aide) y sont parce qu'elles sont gérées par
+   app.js lui-même -- celle-ci ne l'est jamais, elle appartient au
+   module de bout en bout. Forme différente (carré arrondi, jamais un
+   cercle) et couleur d'accent sur l'icône : distincte des trois icônes
+   utilitaires par nature, pas seulement par la taille -- reste dans le
+   même gabarit qu'elles pour ne jamais rivaliser avec un vrai bouton
+   d'action principal. */
+/* TACHE (retour utilisateur : "le bouton journal de parcours est trop
+   haut, il va cacher le bouton de réinitialiser et restaurer") : top:16px
+   le plaçait sur la même ligne que le contenu de page (ex. "+ Garder une
+   réflexion", tout en haut à droite) -- descendu sur la même ligne que
+   #btnAide (top:83px, css/style.css), le seul autre bouton utilitaire
+   déjà bien dégagé de tout contenu de page, icône agrandie au passage. */
+#btnJournalParcours {
+  position: fixed;
+  top: 152px;
+  right: 20px;
+  z-index: 2700;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--accent);
+  font-size: 1.7rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+#btnJournalParcours:hover { background: var(--bg-hover); }
+[data-theme="sombre"] #btnJournalParcours { border: 2px solid var(--border-strong); box-shadow: none; }
+@media (max-width: 768px) {
+  #btnJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 50px); right: 8px; width: 42px; height: 42px; font-size: 1.2rem; }
+  /* TACHE (retour utilisateur, 2026-08-26) : reste centre (voir la regle
+     de base ci-dessus, width deja calculee pour ne jamais deborder d'un
+     petit ecran) -- seul le "top" a encore besoin d'un ajustement mobile. */
+  #panneauJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 100px); }
+}
+/* TACHE (retour utilisateur, 2026-08-26, "je veux que le i apparaisse à
+   l'intérieur de journal") : bouton d'info DANS l'entête du panneau
+   (.reperes-journal-entete), jamais une icône flottante séparée -- rond
+   bleu, juste avant le titre "Journal de parcours". */
+.reperes-journal-info {
+  border: 1px solid var(--accent);
+  background: var(--accent-bg-subtle);
+  color: var(--accent);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.reperes-journal-info:hover { background: var(--bg-hover); }
+.reperes-journal-info.reperes-pulse-confirmation { animation: reperesPulseJournal 1.8s ease-in-out 6; }
+
+/* Pulse de confirmation à chaque création (pas le signal de découverte
+   unique de la tuile Boîte à outils, un mécanisme distinct -- voir
+   modules/reperes/index.js, _reperesDeclencherPulseJournal()). Réagit
+   à un geste que la personne vient de faire, jamais une sollicitation
+   initiée par le module. */
+/* TACHE (retour utilisateur, 2026-08-26, maquette Deuxieme regard :
+   "tres vif, ca pique les yeux, ca fait mal a la tete") : intensite
+   baissee (opacite 55%->28%, rayon 8px->6px), rythme (1s) et nombre
+   d'iterations (10, donc 10s au total) INCHANGES -- Denis avait deja
+   explicitement demande cette duree, ce retour ne portait que sur
+   l'intensite visuelle, jamais la duree. Partagee par le Journal de
+   parcours ET "Voir mon analyse" (.reperes-analyse-pulse) -- confirme
+   par Denis vouloir la meme douceur aux deux endroits. */
+/* Intensite standard des pulses de l'app (homogeneisation 2026-08-28) :
+   40% / 8px. Leger relevement depuis le 28% / 6px demande en aout (retour
+   "ca pique les yeux"), mais toujours nettement en dessous de la version
+   d'origine qui genait (55% / 8px), et desormais identique a tous les
+   autres pulses. */
+@keyframes reperesPulseJournal {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+/* TACHE (retour utilisateur, 2026-08-25) : allonge de 2s (1s x 2) a 10s
+   (1s x 10) -- Denis voulait retrouver la duree dont il se souvenait. */
+#btnJournalParcours.reperes-pulse-confirmation { animation: reperesPulseJournal 1.8s ease-in-out 6; }
+/* TACHE (retour utilisateur, 2026-08-26) : bouton "Voir mon analyse"/
+   "Revoir ma dernière analyse" (_reperesRenduListe()) -- plus grand et
+   plus visible qu'avant (n'était que btn-outline-primary btn-sm), même
+   pulse bleu 10s que le Journal tant que l'analyse n'a jamais été
+   ouverte depuis ce bouton (regardExterieurAnalyseDejaVue()). */
+.reperes-bouton-analyse { font-size: 1.1rem; padding: 0.75rem 1.4rem; min-height: 52px; font-weight: 700; }
+.reperes-analyse-pulse { animation: reperesPulseJournal 1.8s ease-in-out 6; }
+
+/* TACHE (chantier "Phase B") : "Voir mon analyse"/"Revoir ma dernière
+   analyse" et "Demander un deuxième regard" sur une même ligne, poussés
+   aux deux extrémités -- jamais côte à côte l'un contre l'autre, pour ne
+   jamais laisser croire que ce sont deux étapes d'un même geste. */
+.reperes-ligne-analyse { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap; }
+/* TACHE (retour utilisateur, 2026-08-26) : bouton + sa propre petite
+   phrase explicative juste en dessous -- courte, une seule ligne, jamais
+   étalée sur toute la largeur (demande explicite de Denis). */
+.reperes-analyse-bloc { display: flex; flex-direction: column; gap: 3px; }
+.reperes-analyse-souscaption { margin: 0; font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+@media (max-width: 480px) {
+  .reperes-analyse-souscaption { white-space: normal; }
+}
+
+/* TACHE (retour utilisateur, 2026-08-26, "on se complique la vie") :
+   recentre en haut de page plutot que coince sous l'icone Journal (a
+   droite, etroit, 280px) -- Denis a signale ne meme plus voir le bas du
+   panneau. Centre horizontalement (left:50% + translateX), elargi (min()
+   pour rester dans l'ecran sur mobile), jamais plus lie a la position de
+   #btnJournalParcours (seul le "top" reste calcule en JS, voir
+   _reperesPositionnerBoutonJournal(), pour rester sous la barre de
+   progression/le <h1> le cas echeant). */
+/* TACHE (retour utilisateur, 2026-08-26, BUG REEL : "la fenêtre qui
+   apparaît est cachée par le journal") : le panneau lui-même reste
+   DELIBEREMENT sous .fenetre-erip-overlay (2000, css/style.css) -- une
+   vraie action (choisir un type de Repère, ouvrir le détail d'un
+   Repère...) doit toujours s'afficher AU-DESSUS du panneau qui l'a
+   déclenchée, jamais l'inverse, sans jamais fermer ce panneau pour
+   autant (Denis : "c'est moi qui dois pouvoir le fermer"). Seule l'ICÔNE
+   #btnJournalParcours reste à 2700, dans le même palier que les autres
+   icônes utilitaires persistantes (#btnAide, #btnCarnet...) -- elle doit
+   rester cliquable en toutes circonstances, mais son CONTENU (ce
+   panneau) n'a jamais besoin de ce même niveau. Ce conflit n'existait
+   pas avant que ce panneau soit centré/élargi (voir plus haut) : dans
+   son coin d'origine, il ne recouvrait jamais une fenêtre elle-même
+   centrée. */
+#panneauJournalParcours {
+  position: fixed;
+  top: 220px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1900;
+  width: min(560px, calc(100vw - 32px));
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .18);
+}
+#panneauJournalParcours h6 { margin: 0; color: var(--text-strong); }
+.reperes-journal-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+.reperes-journal-entete-titre { display: flex; align-items: center; gap: 0.5rem; }
+/* Meme glyphe et esprit que .carnet-panneau-fermer (modules/carnet/carnet.css). */
+.reperes-journal-fermer {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.reperes-journal-fermer:hover { background: var(--bg-hover); color: var(--text-strong); }
+.reperes-journal-dernier {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0.6rem 0;
+}
+/* TACHE (retour utilisateur, 2026-08-25) : devenu un vrai <button>
+   (ouvre le detail complet au clic) -- reset des styles natifs de
+   bouton pour garder exactement le meme rendu qu'avant. */
+.reperes-apercu-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.reperes-apercu-item:hover { background: var(--bg-hover); }
+.reperes-apercu-item:first-child { border-top: none; }
+.reperes-apercu-item .reperes-ic { font-size: 1rem; flex-shrink: 0; }
+.reperes-apercu-item .reperes-src {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-strong);
+}
+/* Titre modifiable dans la fenêtre de détail (_reperesOuvrirDetail()) --
+   même esprit que .carnet-item-titre (modules/carnet/carnet.css). */
+.reperes-detail-titre {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-strong);
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin-bottom: 0.6rem;
+}
+.reperes-detail-titre:focus { border-color: var(--accent); outline: none; }
+/* TACHE (retour utilisateur, 2026-08-25) : etiquette "Titre"/"Contenu"
+   dans la fenetre de detail (_reperesOuvrirDetail()), meme esprit que
+   .carnet-detail-label (modules/carnet/carnet.css). */
+.reperes-detail-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0.9rem 0 0.3rem;
+}
+.reperes-detail-label:first-child { margin-top: 0; }
+/* Meme cadre que .carnet-detail-corps (modules/carnet/carnet.css). */
+.reperes-detail-corps {
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  white-space: pre-wrap;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-strong);
+}
+.reperes-detail-vide { color: var(--text-muted); font-style: italic; }
+.reperes-lien-tout {
+  display: block;
+  text-align: center;
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+/* ---- Écran d'accueil du module (_reperesRenduAccueil()) -- affiché à
+   la toute première visite (dossier.reperesIntroVue absent), puis
+   seulement sur demande via le bouton .bouton-revoir-explication de
+   l'écran principal. Maquette discutée et validée avec Denis avant
+   codage (voir docs/LECONS_A_NE_PAS_REPRODUIRE.md). ---- */
+/* TACHE (intro remise au gabarit commun, Denis 2026-09-09) : la page
+   d'accueil du module utilise desormais les blocs .cv-section + <h4> comme
+   _carnetRenduIntro(). Ne restent ici que l'en-tete, la grille des 4 types,
+   le "En savoir plus" et la zone du bouton. */
+.reperes-accueil-entete { text-align: center; margin-bottom: 1.2rem; }
+.reperes-accueil-entete h1 { margin: 0 0 0.4rem; }
+.reperes-accueil-accroche { color: var(--text-soft); font-size: 1.05rem; max-width: 52ch; margin: 0 auto; }
+
+/* Les 4 types de Repere : petite grille de cartes avec filet gauche accent. */
+.reperes-accueil-types {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.7rem;
+  margin-top: 0.3rem;
+}
+@media (max-width: 640px) {
+  .reperes-accueil-types { grid-template-columns: 1fr; }
+}
+.reperes-accueil-type {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.6rem;
+  padding: 0.8rem 0.9rem;
+}
+.reperes-accueil-type-nom {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 1.02rem;
+  margin-bottom: 0.25rem;
+}
+.reperes-accueil-type > p { color: var(--text-soft); font-size: 0.95rem; margin: 0; }
+.reperes-accueil-savoir-plus { margin-top: 0.5rem; }
+.reperes-accueil-savoir-plus summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.92rem;
+  list-style: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.reperes-accueil-savoir-plus summary::-webkit-details-marker { display: none; }
+.reperes-accueil-savoir-plus summary::after { content: ' →'; }
+.reperes-accueil-savoir-plus[open] summary::after { content: ' ↑'; }
+.reperes-accueil-savoir-plus .reperes-accueil-detail {
+  margin-top: 0.4rem;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+.reperes-accueil-zone-cta { text-align: center; margin-top: 1.5rem; }
+.reperes-accueil-zone-cta .btn { min-height: 52px; font-size: 1.1rem; padding: 0.9rem 2.2rem; border-radius: 999px; }
+
+/* Bouton "Revoir la presentation" de l'ecran principal : depuis le
+   chantier "bouton presentation" (2026-09-01) il porte aussi la classe
+   partagee .btn-revoir-module (css/style.css) qui fournit sa forme
+   (pilule a contour accent). Ici, seul le decalage propre a la ligne
+   d'en-tete de Reperes -- sans lui, ce bouton (1er enfant de
+   .reperes-entete-ecran) demarre pile sous les 3 icones fixes du coin. */
+.reperes-entete-ecran .bouton-revoir-explication { margin-left: 150px; }
+@media (max-width: 768px) {
+  .reperes-entete-ecran .bouton-revoir-explication { margin-left: 0; }
+}
+
+/* TACHE (chantier "répertoire des freins", étape 5, 2026-08-28) : un Repère
+   né d'un frein affiche, en tête de son corps, la fiche du frein
+   (définition, comment lever, qui voir, ressources) re-rendue à jour depuis
+   data/freins.js -- toutes les classes internes (.regard-exterieur-*) sont
+   déjà stylées par modules/regard-exterieur/regardExterieur.css, chargé
+   globalement. Ici on ne pose que le cadre autour + le petit repère visuel
+   dans le titre. Couleurs prises aux variables de thème (jamais de couleur
+   en dur -- LECONS 9.10/9.14). */
+.reperes-frein-tag { font-size: 0.95rem; }
+.reperes-fiche-frein {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.9rem;
+}
+.reperes-fiche-frein-chapeau {
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.reperes-fiche-frein-maj {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.reperes-fiche-frein > :last-child { margin-bottom: 0; }
+
+/* TACHE (garde-fou "Repère vide avant 1er passage", 2026-08-28) : phrase
+   discrète sous un Repère sans texte -- jamais un rouge d'erreur. */
+.reperes-invite-completer {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--warning-strong);
+}
+
+/* TACHE (audit de stabilisation, 2026-09-12, finding "asymetrie de
+   suppression") : meme filet d'annulation ~10 s que Mon Carnet
+   (modules/carnet/carnet.css, idee E de IDEES_A_RECLASSER, Denis
+   2026-09-09) -- 2e occurrence quasi identique, non factorisee "a chaud"
+   (voir BRIQUES_COMMUNES.md, dette a consigner). Jamais une corbeille :
+   rien n'est conserve au-dela du delai. */
+.reperes-annuler-suppression {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0 0 0.9rem;
+  padding: 0.55rem 0.5rem 0.55rem 0.85rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+.reperes-annuler-suppression > span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.reperes-annuler-suppression > span .bi { color: var(--text-muted); }
+.reperes-annuler-suppression-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  min-height: 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--accent-bg-subtle);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.reperes-annuler-suppression-btn .bi { color: var(--accent); }
+.reperes-annuler-suppression-btn:hover {
+  background: var(--accent-solide);
+  border-color: var(--accent-solide);
+  color: #fff;
+}
+.reperes-annuler-suppression-btn:hover .bi { color: #fff; }
