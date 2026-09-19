@@ -1,0 +1,210 @@
+<!doctype html>
+<!--
+  AUDIT en lecture seule des panneaux de personnalisation du CV (Word et PDF).
+  Produit le 2026-09-01 pendant que Denis dormait. NON COMMITE. Aucun code touche.
+  Fait partie du chantier de refonte de la carte "Mes documents" (voir docs/CARTOGRAPHIE_PARCOURS_MES_DOCUMENTS.md).
+  Theme sombre : classe .dark sur <body>.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit - panneaux de personnalisation du CV</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#2563eb; --accent-bg:#e8effc;
+    --ok:#198754; --ok-bg:#d9f4e4; --ok-strong:#157347;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --radius:10px;
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#4d94ff; --accent-bg:#1e2940;
+    --ok:#35c79a; --ok-bg:#17301f; --ok-strong:#6ee89a;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:820px; margin:0 auto; padding:1.2rem 1rem 4rem; }
+  h1 { font-size:1.6rem; color:var(--text-strong); margin:.2rem 0; }
+  h2 { font-size:1.15rem; color:var(--text-strong); margin:1.4rem 0 .5rem; border-bottom:1px solid var(--border); padding-bottom:.3rem; }
+  h3 { font-size:1rem; color:var(--text-strong); margin:1rem 0 .3rem; }
+  p { margin:.45rem 0; }
+  ul { margin:.3rem 0; padding-left:1.25rem; }
+  li { margin:.25rem 0; }
+  code { background:var(--bg-subtle); padding:.05rem .3rem; border-radius:4px; font-size:.88em; }
+  .toggle { position:fixed; top:.6rem; right:.6rem; font:inherit; border:1px solid var(--border-strong);
+    border-radius:var(--radius); padding:.4rem .8rem; background:var(--bg-card); color:var(--text-strong); cursor:pointer; }
+  .tldr { background:var(--accent-bg); border:1px solid var(--accent); border-left:4px solid var(--accent);
+    border-radius:12px; padding:1rem 1.1rem; margin:1rem 0; }
+  .note { display:flex; gap:1rem; align-items:baseline; background:var(--bg-card); border:1px solid var(--border);
+    border-radius:12px; padding:.8rem 1rem; margin:.5rem 0; }
+  .note .chiffre { font-size:1.8rem; font-weight:800; color:var(--accent); flex:0 0 auto; width:4.2rem; text-align:center; }
+  .note .txt { font-size:.92rem; }
+  table { border-collapse:collapse; width:100%; margin:.6rem 0; font-size:.9rem; }
+  th, td { border:1px solid var(--border); padding:.4rem .55rem; text-align:left; vertical-align:top; }
+  th { background:var(--bg-subtle); }
+  .enc { background:var(--bg-subtle); border-left:3px solid var(--accent); border-radius:8px; padding:.6rem .85rem; margin:.6rem 0; font-size:.9rem; }
+  .enc.warn { border-left-color:var(--warn); background:var(--warn-bg); }
+  .enc.ok { border-left-color:var(--ok); background:var(--ok-bg); }
+  .pastille { display:inline-block; width:.7rem; height:.7rem; border-radius:999px; vertical-align:middle; }
+  .p-ok { background:var(--ok); } .p-warn { background:var(--warn); } .p-alert { background:var(--alert); }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+<main>
+
+<h1>Audit des panneaux de personnalisation du CV</h1>
+<p class="detail" style="color:var(--text-muted)">Lecture seule. 2026-09-01. Partie du chantier de refonte de la carte "Mes documents".
+Les deux panneaux concernes : l'ecran d'options qui s'ouvre quand on personnalise un CV, cote <strong>Word</strong> et cote <strong>PDF</strong>.</p>
+
+<div class="tldr">
+  <strong>Si tu ne lis qu'une chose.</strong>
+  <ul style="margin:.5rem 0 0">
+    <li><strong>PDF : 11/20.</strong> Tres puissant, mais 67 reglages dans une colonne sombre qui defile, du jargon partout, pas de vrai "annuler". Seul toi t'y retrouves.</li>
+    <li><strong>Word : 12/20.</strong> Un peu mieux range (Structure / Style visuel / Contenu), garantie "l'apercu = le vrai fichier", mais moins de reglages que le PDF et aucune modification de texte possible sur place.</li>
+    <li><strong>Le probleme le plus profond : il y a DEUX panneaux</strong> (deux codes separes, deux jeux de reglages qui se recopient l'un l'autre). Un CV n'est pas personnalisable pareil selon qu'on l'exporte en Word ou en PDF.</li>
+    <li><strong>Le geste qui fait tout gagner :</strong> un seul jeu de reglages, un seul panneau, rendu vers Word ET PDF. Ensuite : 3 niveaux (rapide / ajuster / details), regroupes par intention, en francais simple, avec annuler-refaire.</li>
+  </ul>
+</div>
+
+<h2>1. Ce que chaque panneau contient aujourd'hui</h2>
+
+<h3>Panneau PDF (<code>modules/cv-pdf-html/cvPdfPanneauReglages.js</code>, ~3700 lignes, dans une iframe)</h3>
+<p><strong>Rangee de boutons en haut :</strong> Style aleatoire (des), Personnaliser (ouvre le detail), Pipette couleur, CV Sobre / CV Creatif, CV Complet / CV Optimise, Mise en page (ajustement auto 1 page), mode "modifier le texte" (main + stylo).</p>
+<p><strong>Bandeau d'en-tete :</strong> blocs deplacables a la souris, bords etirables.</p>
+<p><strong>Detail "Personnaliser" : 9 sections, 67 reglages.</strong></p>
+<table>
+<tr><th>Section</th><th>Exemples de reglages</th></tr>
+<tr><td>Format du CV</td><td>A4 Detaille / Essentiel / Integral, Mini CV A5 Portrait / Paysage</td></tr>
+<tr><td>Contenu</td><td>sans accroche, lettre jointe, mettre en avant + regrouper, ordre des experiences (5 choix), mise en forme des experiences</td></tr>
+<tr><td>Mise en page</td><td>1 ou 2 colonnes, colonnes inversees, largeur colonne gauche (curseur), forme des colonnes (rectangle / diagonale), separateur, mettre en avant les formations</td></tr>
+<tr><td>Couleurs</td><td>accent, accent clair, fond des colonnes (4 choix), effet du fond, degrade (3 choix), fond pleine hauteur</td></tr>
+<tr><td>Mini CV A5</td><td>fond des colonnes, en-tete inversee, remplir la page (2 CV a decouper), taille du texte, bouton mise en page A5</td></tr>
+<tr><td>En-tete</td><td>bandeau colore, forme (rectangle / diagonale), degrade, coordonnees a part, disposition 2 ou 3 colonnes, position libre, largeur rectangle accroche (curseur), largeur rectangle metier (curseur), anneau photo</td></tr>
+<tr><td>Style</td><td>titres de rubrique (4 choix), lecture guidee, missions epure / condense (x2), souligne + italique pour poste / dates / entreprise (6 cases), bordures, style des competences (3 choix), couleur pastilles, couleur texte, icones rubriques, icones coordonnees, police (11 choix), texte sur fond colore, bandeau competences cles, coins arrondis</td></tr>
+<tr><td>Ajustement automatique</td><td>taille du texte 9 a 14 px (curseur)</td></tr>
+<tr><td>Actions</td><td>Reinitialiser, Annuler le dernier tirage aleatoire</td></tr>
+</table>
+<p>Plus : reglages personnalises <strong>par rubrique</strong> (police differente, style de puce, taille pour une rubrique precise). Colonne sombre de 300 px, titres en capitales ambre, sections repliables. En "grand apercu" la colonne passe a 460-680 px sur 2 ou 3 colonnes.</p>
+
+<h3>Panneau Word (<code>modules/cv-editor/apercuDocxIntegre.js</code> + reglages "Projet XXL" dans <code>js/app.js</code>)</h3>
+<p><strong>Meme rangee de boutons en haut</strong> (des, Personnaliser, pipette, Sobre / Creatif, Complet / Optimise, Mise en page).</p>
+<p><strong>Carrousel de modeles</strong> + pastilles de couleur + choix du format de page (A4 / A5).</p>
+<p><strong>Pas de modification de texte sur place</strong> (choix delibere : "le Word affiche EST le vrai fichier .docx", l'editer romprait la garantie d'identite apercu / fichier).</p>
+<p><strong>Detail "Personnaliser" : reglages "Projet XXL"</strong>, ranges en 3 groupes <em>Structure / Style visuel / Contenu</em> : colonnes, colonnes inversees, en-tete inversee, bloc mis en avant, missions bonus, style des missions, police, regroupement, ordre dates / poste, etc. C'est un <strong>sous-ensemble</strong> des reglages PDF.</p>
+
+<h2>2. Les notes</h2>
+
+<div class="note">
+  <span class="chiffre">11<span style="font-size:1rem">/20</span></span>
+  <span class="txt"><strong>Panneau PDF.</strong> Cote fonctionnalites, il vaut ~17/20 : glisser-deposer de l'en-tete, apercu en direct, ajustement auto, tirage aleatoire, modification de texte sur place, reglages par rubrique, 11 polices, gestion de l'A5. Peu de generateurs de CV grand public font autant.
+  Cote lisibilite pour quelqu'un d'autre que toi : ~6/20. 67 reglages d'un coup, niveaux melanges (le "Format" cote a cote avec "italique entreprise"), du jargon ("effet du fond des colonnes : titres seulement", "lecture guidee", "position libre du bandeau"), pas de vrai annuler, colonne sombre et texte minuscule, logique d'affichage / masquage invisible (des reglages apparaissent et disparaissent quand on change le format). Moyenne : <strong>11</strong>.</span>
+</div>
+
+<div class="note">
+  <span class="chiffre">12<span style="font-size:1rem">/20</span></span>
+  <span class="txt"><strong>Panneau Word.</strong> Mieux range que le PDF (3 groupes nommes Structure / Style visuel / Contenu au lieu de 9 sections a plat), et la garantie "ce que je vois EST le fichier final" est un vrai plus de confiance. Mais : nettement <strong>moins de reglages que le PDF</strong> (donc un CV ne se personnalise pas pareil selon l'export), <strong>aucune modification de texte possible</strong> (il faut ressortir vers l'editeur structure), le nom "Projet XXL" ne veut rien dire pour un utilisateur, pas d'annuler non plus, meme jargon. Moyenne : <strong>12</strong>.</span>
+</div>
+
+<div class="enc warn">
+  <strong>La note commune que meritent les deux ensemble : ~9/20.</strong> Parce que le vrai defaut n'est pas dans l'un ou l'autre panneau, il est dans le fait qu'ils sont <strong>deux</strong> : deux fichiers de code separes, deux jeux de reglages qui se recopient l'un l'autre a la main (les commentaires du code disent litteralement "port EXACT du reglage Word"), et un resultat different selon le bouton d'export choisi.
+</div>
+
+<h2>3. Question 1 - Quelles fonctions ajouter, comparé a un logiciel type Word</h2>
+
+<p>Ce qui manque et qui est <strong>standard</strong> dans un editeur de document :</p>
+<table>
+<tr><th>Fonction absente</th><th>Pourquoi ca compte pour le rendu papier</th></tr>
+<tr><td><span class="pastille p-alert"></span> <strong>Interligne / espacement des paragraphes</strong></td><td>Le levier de mise en page le plus utilise dans Word. Aujourd'hui : aucun controle. C'est souvent ce qui fait qu'un CV "respire" ou parait tasse.</td></tr>
+<tr><td><span class="pastille p-alert"></span> <strong>Marges de page</strong></td><td>Reglees automatiquement, non modifiables. Elargir ou reduire les marges est la premiere chose qu'on fait pour gagner ou aerer une page.</td></tr>
+<tr><td><span class="pastille p-alert"></span> <strong>Reordonner les rubriques</strong> (monter "Formations" au-dessus de "Experiences")</td><td>Il existe un ordre pour les experiences, mais pas pour les rubriques elles-memes. Un profil en reconversion veut souvent la formation en premier.</td></tr>
+<tr><td><span class="pastille p-warn"></span> <strong>Afficher / masquer chaque rubrique</strong> en un endroit (langues, loisirs, certifications, permis...)</td><td>Aujourd'hui c'est eparpille (bandeau competences, mise en avant formations...). Une liste de cases claire reglerait 80 % des besoins de contenu.</td></tr>
+<tr><td><span class="pastille p-warn"></span> <strong>Annuler / Refaire</strong> (plusieurs pas en arriere)</td><td>Il n'y a que "Reinitialiser" (tout remettre a zero) et "Annuler le dernier tirage". Un vrai historique enleve la peur d'essayer.</td></tr>
+<tr><td><span class="pastille p-warn"></span> <strong>Alignement du texte</strong> (gauche / justifie) pour l'accroche et les missions</td><td>Le justifie change beaucoup l'aspect "propre" d'un pave de texte.</td></tr>
+<tr><td><span class="pastille p-warn"></span> <strong>Autoriser 2 pages</strong> vs forcer 1 page (choix explicite)</td><td>Aujourd'hui l'ajustement auto retrecit le texte pour tenir sur 1 page. Un senior avec 20 ans de parcours a parfois besoin de 2 pages assumees.</td></tr>
+<tr><td><span class="pastille p-warn"></span> <strong>Style des puces</strong> (rond, tiret, chevron, carre)</td><td>Detail, mais tres visible, et differencie un CV.</td></tr>
+<tr><td><span class="pastille p-warn"></span> <strong>Photo : recadrer, forme, taille, bordure</strong></td><td>Seul "anneau decale" existe. Recadrer une photo mal cadree est un besoin frequent.</td></tr>
+<tr><td><span class="pastille p-warn"></span> <strong>Garder une rubrique groupee</strong> (jamais un titre de rubrique seul en bas de page)</td><td>Controle "veuves et orphelines". Un titre "Formations" tout seul en bas de la page 1 fait amateur.</td></tr>
+<tr><td><span class="pastille p-ok"></span> <strong>Styles enregistres par la personne</strong> ("mon style", a reappliquer plus tard)</td><td>Il y a des modeles (Sobre / Creatif) mais pas de reglage perso memorise et re-applicable.</td></tr>
+<tr><td><span class="pastille p-ok"></span> <strong>Avertissement d'impression</strong> : accent trop clair (invisible en noir et blanc), contraste texte / fond insuffisant</td><td>Beaucoup de CV sont imprimes en noir et blanc chez un employeur. Un accent pastel disparait.</td></tr>
+<tr><td><span class="pastille p-ok"></span> <strong>Apercu a taille reelle</strong> / zoom, reperes de coupe</td><td>Voir le CV a la vraie taille A4 avant d'imprimer.</td></tr>
+</table>
+<p class="detail" style="color:var(--text-muted)"><span class="pastille p-alert"></span> vraiment manquant &nbsp; <span class="pastille p-warn"></span> important &nbsp; <span class="pastille p-ok"></span> bonus qui distingue</p>
+
+<div class="enc">
+  <strong>Attention au piege.</strong> Le PDF a deja 67 reglages. Ajouter 12 fonctions sans rien reorganiser, c'est passer de "l'ecran de la mort" a "l'ecran de la fin du monde". <strong>La reorganisation (question 2) doit venir d'abord ou en meme temps.</strong> Sinon chaque ajout aggrave le probleme.
+</div>
+
+<h2>4. Question 2 - Reorganiser pour que ce soit lisible par d'autres</h2>
+
+<h3>Le principe : trois niveaux, pas un seul mur</h3>
+<ol>
+  <li><strong>Reglages rapides</strong> (toujours visibles, 5 a 7 choix) : le modele, la couleur, la police, le format, la densite (aere / normal / compact). 90 % des gens ne toucheront que ca.</li>
+  <li><strong>Ajuster</strong> (derriere une porte claire "Ajuster en detail") : 5 a 6 sections regroupees <em>par intention</em>, pas par objet technique.</li>
+  <li><strong>Details</strong> (replies par defaut a l'interieur d'"Ajuster") : les micro-reglages (italique / souligne par type de champ, largeur des rectangles au pixel, effet de degrade...).</li>
+</ol>
+
+<h3>Regrouper par intention</h3>
+<table>
+<tr><th>Aujourd'hui (par objet technique)</th><th>Propose (par intention)</th></tr>
+<tr><td>Format du CV + Mise en page + Ajustement automatique + Mini CV A5</td><td><strong>La page</strong> : format, 1 ou 2 colonnes, marges, interligne, taille du texte, "tenir sur 1 page / autoriser 2 pages"</td></tr>
+<tr><td>Couleurs</td><td><strong>Les couleurs</strong> : accent, fond des colonnes, degrade (+ avertissement impression noir et blanc)</td></tr>
+<tr><td>En-tete</td><td><strong>Le haut de la page</strong> : bandeau, disposition nom / metier / accroche, photo</td></tr>
+<tr><td>Style</td><td><strong>Le texte</strong> : police, style des titres de rubrique, mise en evidence, icones, puces</td></tr>
+<tr><td>Contenu</td><td><strong>Ce qui s'affiche</strong> : rubriques a montrer / masquer (cases), ordre des rubriques, ordre des experiences, accroche, regroupement</td></tr>
+<tr><td>Actions</td><td><strong>Reprendre la main</strong> : Annuler / Refaire, revenir au modele de depart, tirage au hasard</td></tr>
+</table>
+
+<h3>Pages plutot qu'un seul defilement</h3>
+<p>Comme tu l'as suggere : une suite de pages courtes plutot qu'une colonne interminable. Par exemple un fil : <strong>Choisir un modele -> Couleur et police -> La page -> Le haut de page -> Peaufiner</strong>. A chaque etape, 3 a 6 choix maximum, l'apercu a cote. On peut revenir en arriere. La derniere etape "Peaufiner" contient tout le reste, pour ceux qui veulent.</p>
+
+<h3>Six corrections concretes en plus du regroupement</h3>
+<ul>
+  <li><strong>Renommer en francais simple.</strong> "Effet du fond des colonnes : titres seulement" devient "Colorer seulement les titres". "Lecture guidee" devient "Mettre mon nom a la couleur du metier vise". "Disposition de l'en-tete : 3 colonnes" devient "Nom, metier et accroche cote a cote".</li>
+  <li><strong>Une ligne "a quoi ca sert" par section</strong>, pas par reglage (sinon on alourdit).</li>
+  <li><strong>Ne plus faire apparaitre / disparaitre les reglages en silence.</strong> Un reglage sans effet dans le format choisi reste visible mais grise, avec "disponible en 2 colonnes" / "disponible en A4".</li>
+  <li><strong>Annuler / Refaire</strong> reels, un bouton bien visible.</li>
+  <li><strong>Un interrupteur "Je debute / Je veux tout regler"</strong> en haut, qui montre ou cache les niveaux 2 et 3.</li>
+  <li><strong>Sortir de la colonne sombre etroite</strong> : fond clair, texte lisible, jetons de theme (clair + sombre), largeur confortable, comme les modules recents.</li>
+</ul>
+
+<h3>Le geste structurant, au-dessus de tout le reste</h3>
+<div class="enc ok">
+  <strong>Un seul jeu de reglages, un seul panneau, deux rendus.</strong> Aujourd'hui : reglages PDF dans un module, reglages Word ("Projet XXL") dans <code>app.js</code>, recopies a la main. Cible : un modele de reglages unique, une seule interface, que le moteur transforme en PDF ou en Word. Ca supprime la moitie du travail de maintenance, garantit qu'un CV se personnalise pareil quel que soit l'export, et fait passer la note commune de ~9 a ~15+ d'un coup. Ce chantier est lie au decoupage de <code>app.js</code> (les reglages Word en sortiraient).
+</div>
+
+<h2>5. Pour resumer : comment monter chaque note</h2>
+<table>
+<tr><th></th><th>PDF (11)</th><th>Word (12)</th></tr>
+<tr><td><strong>+2 a +3</strong></td><td>Renommer en francais simple, une ligne d'aide par section, ne plus masquer les reglages en silence</td><td>Renommer, abandonner le nom "Projet XXL", une ligne d'aide par groupe</td></tr>
+<tr><td><strong>+2</strong></td><td>3 niveaux (rapide / ajuster / details) + interrupteur debutant</td><td>Idem + rendre visible que l'apercu = le fichier (c'est deja vrai, mais jamais dit)</td></tr>
+<tr><td><strong>+1 a +2</strong></td><td>Annuler / Refaire ; sortir de la colonne sombre etroite</td><td>Annuler / Refaire ; permettre de modifier le texte (via un aller vers l'editeur, presente clairement)</td></tr>
+<tr><td><strong>+2 a +3</strong></td><td>Ajouter les leviers standard : interligne, marges, alignement, rubriques on/off + ordre, "1 ou 2 pages"</td><td>Aligner le jeu de reglages sur celui du PDF</td></tr>
+<tr><td><strong>le grand saut</strong></td><td colspan="2">Fusionner les deux panneaux : un seul jeu de reglages, une seule interface, rendu Word + PDF. Note commune ~9 -> ~15+.</td></tr>
+</table>
+
+<h2>6. Fichiers concernes (pour la refonte)</h2>
+<ul>
+  <li><code>modules/cv-pdf-html/cvPdfPanneauReglages.js</code> (~3700 lignes) - le panneau PDF, dans une iframe. Les 67 reglages, la rangee de boutons, le mode edition de texte, le tirage aleatoire.</li>
+  <li><code>modules/cv-pdf-html/cvPdfTemplateA4.js</code> / <code>cvPdfTemplateA5.js</code> - le rendu qui lit ces reglages.</li>
+  <li><code>modules/cv-editor/apercuDocxIntegre.js</code> (~860 lignes) - le grand apercu Word (generique, partage avec lettre / entretien).</li>
+  <li><code>js/app.js</code> - les reglages "Projet XXL" (Structure / Style visuel / Contenu), <code>_synchroniserPanneauReglagesXXLGrandApercu</code>, la rangee de boutons Word.</li>
+  <li><code>modules/cv-composeur/composeurTheme.js</code> (~810 lignes) - <code>composeurAppliquerReglagesProjetXXL()</code>, la traduction reglages -> objet theme. C'est ici que vivrait le "modele de reglages unique".</li>
+  <li><code>modules/cv-composeur/composeurRender.js</code> / <code>composeurComposition.js</code> - le rendu Composeur qui lit le theme.</li>
+</ul>
+
+<p class="detail" style="color:var(--text-muted);margin-top:2rem">Rien de tout ceci n'est urgent. Les deux panneaux fonctionnent. C'est un chantier de la refonte "Mes documents", a faire quand tu es repose, apres avoir tranche les questions de la maquette Phase 1.</p>
+
+</main>
+</body>
+</html>
