@@ -139,3 +139,19 @@ test('bilanRepartirRecommandationsAssistance (fan-out retire) : une recommandati
   assert.deepEqual(repartition.horsAutomatisation.map((c) => c.recommandation.id), ['r-multi']);
   assert.deepEqual(repartition.famille1, []);
 });
+
+// --- retour Denis 2026-09-30 : expérience sans mission, extrait = son titre ---
+
+test('expérience sans mission : la proposition part dans les missions, jamais à la place du titre du poste', () => {
+  const sansMission = [{ index: 0, poste: 'Entretien chez les particuliers', missions: '' }];
+  const r = reco({ extraitConcerne: 'Entretien chez les particuliers' });
+  const classement = bilanClasserRecommandationAssistance(r, { experiencesTexte: sansMission, structurationDisponible: true }, BILAN_CATALOGUE_AXES);
+  assert.deepEqual(classement.destination, { liste: 'experiences', index: 0, champ: 'missions' });
+  assert.equal(classement.texteActuel, '');
+});
+
+test('expérience avec missions : un extrait qui cite le titre continue de viser le titre (comportement inchangé)', () => {
+  const r = reco({ extraitConcerne: 'Chargée de clientèle' });
+  const classement = bilanClasserRecommandationAssistance(r, { experiencesTexte: EXPERIENCE_UNIQUE, structurationDisponible: true }, BILAN_CATALOGUE_AXES);
+  assert.equal(classement.destination.champ, 'poste');
+});

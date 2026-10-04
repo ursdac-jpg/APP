@@ -59,3 +59,19 @@ test('aucun JSON dans le texte -> ReponseIllisible', () => {
     (erreur) => erreur.code === 'ReponseIllisible'
   );
 });
+
+test('R9 partie 2 : chaque accroche garde sa version courte (même rang)', () => {
+  const resultat = bilanParserReponseTitreAccroche(texteColleDepuis({ titre: 'x', accroches: ['A longue.', 'B longue.'], accrochesCourtes: ['A courte.', 'B courte.'] }), DEPENDANCES);
+  assert.deepEqual(resultat.accrochesCourtes, ['A courte.', 'B courte.']);
+});
+
+test('R9 partie 2 : une accroche invalide écartée ne décale pas les versions courtes', () => {
+  const resultat = bilanParserReponseTitreAccroche(texteColleDepuis({ titre: 'x', accroches: ['A', 42, '  ', 'D'], accrochesCourtes: ['a', 'b', 'c', 'd'] }), DEPENDANCES);
+  assert.deepEqual(resultat.accroches, ['A', 'D']);
+  assert.deepEqual(resultat.accrochesCourtes, ['a', 'd']);
+});
+
+test('R9 partie 2 : sans versions courtes (ancienne réponse) : des chaînes vides, jamais un échec', () => {
+  const resultat = bilanParserReponseTitreAccroche(texteColleDepuis({ titre: 'x', accroches: ['A', 'B'] }), DEPENDANCES);
+  assert.deepEqual(resultat.accrochesCourtes, ['', '']);
+});

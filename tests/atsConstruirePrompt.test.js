@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 require('./_domStub').installerStubDom();
-const { _atsConstruirePrompt, atsEtatNeuf } = require('../modules/ats/index.js');
+const { _atsConstruirePrompt, _atsSynchroniserReference, atsEtatNeuf } = require('../modules/ats/index.js');
 
 const TEMPLATE = fs.readFileSync(path.join(__dirname, '..', 'prompts', 'ats.md'), 'utf8');
 
@@ -52,4 +52,37 @@ test('champs manquants : valeurs de repli propres, jamais "undefined"', () => {
   assert.equal(/\{[A-Z_]+\}/.test(section), false);
   assert.match(p, /Entreprise ciblée :\*\* Non fournie/);
   assert.match(p, /Type de structure :\*\* Non fourni/);
+});
+
+// TACHE (panneau Candidature partage, 2026-09-29) : la reference se deduit des
+// champs du panneau. Avant, l'etat ciblage n'avait jamais la forme attendue :
+// l'offre saisie n'arrivait pas dans le prompt.
+test('_atsSynchroniserReference : offre collee => mode offre, ciblage complet', () => {
+  global.dossier = { metierCible: 'Vendeur', rechercheCandidature: { texteOffre: 'Vendeur H/F en boulangerie', entreprise: 'Boulangerie Martin', site: 'https://martin.fr', typeStructure: 'Artisanat / commerce de proximité' } };
+  try {
+    const etat = atsEtatNeuf();
+    _atsSynchroniserReference(etat);
+    assert.equal(etat.modeReference, 'offre');
+    assert.equal(etat.ciblage.saisieLibre, 'Vendeur H/F en boulangerie');
+    assert.equal(etat.ciblage.entreprise, 'Boulangerie Martin');
+    const p = _atsConstruirePrompt(TEMPLATE, Object.assign(etat, { cvTexte: 'Mon CV.' }));
+    assert.ok(p.includes('Vendeur H/F en boulangerie'));
+    assert.ok(p.includes('Boulangerie Martin'));
+    assert.ok(!/\{[A-Z_]+\}/.test(p), 'aucun placeholder residuel');
+  } finally { delete global.dossier; }
+});
+
+test('_atsSynchroniserReference : sans offre, metier choisi => mode metier ; rien => aucune reference', () => {
+  global.dossier = { metierCible: 'Métier inconnu du répertoire', rechercheCandidature: {} };
+  try {
+    const etat = atsEtatNeuf();
+    _atsSynchroniserReference(etat);
+    assert.equal(etat.modeReference, 'metier');
+    assert.equal(etat.metier.nom, 'Métier inconnu du répertoire');
+    global.dossier = { metierCible: null, secteurCible: 'Logistique', rechercheCandidature: {} };
+    const vide = atsEtatNeuf();
+    _atsSynchroniserReference(vide);
+    assert.equal(vide.modeReference, 'metier');
+    assert.equal(vide.metier, null);
+  } finally { delete global.dossier; }
 });

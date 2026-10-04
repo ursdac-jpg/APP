@@ -221,18 +221,20 @@ test('comparerParserFrise : JSON de frise -> colonnes + conditions', () => {
   assert.deepEqual(r.questions_conseiller, ['Q1']);
 });
 
-test('panier de comparaison : ajout / retrait / max 8 / dedoublonnage insensible casse-accents', () => {
+test('panier de comparaison : ajout / retrait / aucun plafond / dedoublonnage insensible casse-accents', () => {
+  // TACHE (retour Denis 2026-09-20) : plus de plafond sur le nombre total
+  // de pistes de cote -- seul _COMPARER_ANALYSE_MAX (regardees ensemble,
+  // teste ailleurs) reste borne a 3.
   cp.comparerPanierVider();
   assert.equal(cp.comparerPanierAjouter('Carreleur'), true);
   assert.equal(cp.comparerPanierAjouter('carreleur'), false); // deja dedans (normalise)
   assert.equal(cp.comparerPanierContient('CARRELEUR'), true);
-  ['Vendeur', 'Aide-soignant', 'Boulanger', 'Fleuriste', 'Menuisier', 'Cuisinier', 'Jardinier'].forEach(function (m) {
+  ['Vendeur', 'Aide-soignant', 'Boulanger', 'Fleuriste', 'Menuisier', 'Cuisinier', 'Jardinier', 'Plombier'].forEach(function (m) {
     assert.equal(cp.comparerPanierAjouter(m), true);
   });
-  assert.equal(cp.comparerPanierListe().length, 8);
-  assert.equal(cp.comparerPanierAjouter('Plombier'), false); // plein (8)
+  assert.equal(cp.comparerPanierListe().length, 9);
   cp.comparerPanierRetirer('vendeur');
-  assert.equal(cp.comparerPanierListe().length, 7);
+  assert.equal(cp.comparerPanierListe().length, 8);
   assert.equal(cp.comparerPanierListe().indexOf('Vendeur'), -1);
   cp.comparerPanierVider();
   assert.deepEqual(cp.comparerPanierListe(), []);
@@ -279,4 +281,20 @@ test('COMPARER_BLOC_B : 10 series, chacune <= 3 questions, "Je ne sais pas" sur 
       if (q.type === 'jetons') { assert.ok(q.options.indexOf('Je ne sais pas') >= 0, id + '/' + q.id); }
     });
   });
+});
+
+// --- retour Denis 2026-09-30 : « Les deux angles, l'un après l'autre » ---
+test('comparerRouterForme : « les deux angles » donne l\'enchaînement mixte dès deux métiers ou formations', () => {
+  const deuxMetiers = [{ nom: 'Plombier', etiquette: 'metier' }, { nom: 'Électricien', etiquette: 'metier' }];
+  assert.equal(cp.comparerRouterForme(deuxMetiers, 'auto'), 'superposition');
+  assert.equal(cp.comparerRouterForme(deuxMetiers, 'les-deux'), 'mixte');
+  // un seul métier et une situation : la correction n'a pas de sens, la forme proposée reste
+  const unMetierUneSituation = [{ nom: 'Plombier', etiquette: 'metier' }, { nom: 'Rester', etiquette: 'situation' }];
+  assert.equal(cp.comparerRouterForme(unMetierUneSituation, 'les-deux'), cp.comparerRouterForme(unMetierUneSituation, 'auto'));
+});
+
+test('comparerRouterForme : les autres corrections ne changent pas', () => {
+  const deuxMetiers = [{ nom: 'A', etiquette: 'metier' }, { nom: 'B', etiquette: 'formation' }];
+  assert.equal(cp.comparerRouterForme(deuxMetiers, 'tout-temps'), 'frise');
+  assert.equal(cp.comparerRouterForme(deuxMetiers, 'dabord-metiers'), 'superposition');
 });

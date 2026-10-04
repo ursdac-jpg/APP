@@ -34,6 +34,72 @@ test('bilanTrouverExperienceParExtrait : extrait reformule (non verbatim) -> auc
   assert.equal(bilanTrouverExperienceParExtrait('gestion de portefeuilles variés', EXPERIENCES), null);
 });
 
+// TACHE (retour Denis 2026-09-20, Carte 3 "Vos chiffres" disparue par
+// intermittence) : la comparaison tolere desormais la mise en forme
+// (casse, espaces, ponctuation legere), jamais une reformulation reelle
+// (voir le test juste au-dessus, toujours null).
+test('bilanTrouverExperienceParExtrait : casse differente -> correspondance quand meme', () => {
+  const trouve = bilanTrouverExperienceParExtrait('gestion d\'un portefeuille diversifié', EXPERIENCES);
+  assert.equal(trouve.index, 0);
+  assert.equal(trouve.champ, 'missions');
+});
+test('bilanTrouverExperienceParExtrait : espaces multiples/differents -> correspondance quand meme', () => {
+  const trouve = bilanTrouverExperienceParExtrait('Gestion  d\'un   portefeuille diversifié', EXPERIENCES);
+  assert.equal(trouve.index, 0);
+});
+test('bilanTrouverExperienceParExtrait : apostrophe/guillemets courbes vs droits -> correspondance quand meme', () => {
+  const trouve = bilanTrouverExperienceParExtrait('Gestion d’un portefeuille diversifié', EXPERIENCES);
+  assert.equal(trouve.index, 0);
+});
+test('bilanTrouverExperienceParExtrait : espace avant une ponctuation -> correspondance quand meme', () => {
+  const trouve = bilanTrouverExperienceParExtrait('Accueil et suivi administratif .', EXPERIENCES);
+  assert.equal(trouve.index, 1);
+});
+// TACHE (retour Denis 2026-09-20, bug reel confirme avec un vrai JSON de
+// diagnostic) : un extrait citant plusieurs missions a la suite, separees
+// par des doubles sauts de ligne (comme l'assistant les percoit), doit
+// matcher des missions jointes cote code par ". " (joindreMissionsImport(),
+// js/app.js) -- meme mots, separateur different, toujours une correspondance.
+test('bilanTrouverExperienceParExtrait : plusieurs missions citees a la suite, separees par des sauts de ligne au lieu de points -> correspondance quand meme', () => {
+  const missionsJointes = { index: 0, poste: 'Assistante administrative', missions: 'Gestion des agendas. Organisation de réunions. Mise à jour des tableaux Excel. Relation avec les fournisseurs.' };
+  const trouve = bilanTrouverExperienceParExtrait('Gestion des agendas \n\nOrganisation de réunions \n\nMise à jour des tableaux Excel \n\nRelation avec les fournisseurs', [missionsJointes]);
+  assert.equal(trouve.index, 0);
+  assert.equal(trouve.champ, 'missions');
+});
+// TACHE (retour Denis 2026-09-20, bug reel confirme : reprise de la Carte 3
+// atterrissant sur un ecran/une fenetre etrangers a la recommandation) :
+// un extrait qui cite une liste de missions commence parfois par une
+// etiquette de rubrique ("Missions :") avant la liste elle-meme -- cette
+// etiquette ne fait jamais partie du champ missions du dossier, donc la
+// recherche de sous-chaine echouait toujours des qu'elle etait presente.
+test('bilanTrouverExperienceParExtrait : extrait precede de l\'etiquette "Missions :" -> etiquette ignoree, correspondance quand meme', () => {
+  const experience = { index: 0, poste: 'Assistante administrative', missions: 'Accueil physique et téléphonique. Gestion des courriers et des e-mails. Saisie de devis et de factures.' };
+  const trouve = bilanTrouverExperienceParExtrait('Missions :\n\nAccueil physique et téléphonique \n\nGestion des courriers et des e-mails \n\nSaisie de devis et de factures', [experience]);
+  assert.equal(trouve.index, 0);
+  assert.equal(trouve.champ, 'missions');
+});
+
+// TACHE (retour Denis 2026-09-20, bug reel confirme avec un vrai JSON de
+// diagnostic, 2 recommandations touchees) : un extrait citant le poste PUIS,
+// colle, l'entreprise/les dates/toutes les missions ("Assistante
+// administrative Entreprise : ABC Services..." en une seule chaine) ne
+// matchait ni poste ni missions pris separement -- jamais une simple
+// citation d'UN champ. Doit tout de meme rattacher a la bonne experience,
+// via le poste qui ouvre l'extrait (repli, jamais une comparaison floue :
+// seuil de longueur minimal pour eviter un intitule trop court/generique).
+test('bilanTrouverExperienceParExtrait : extrait combinant poste + entreprise + dates + missions en un seul bloc -> rattache via le poste qui ouvre l\'extrait', () => {
+  const extraitReel = "Assistante administrative\n\nEntreprise : ABC Services - BergeracPériode : Mars 2023 - Aujourd'hui\n\nMissions :\n\nAccueil physique et téléphonique \n\nGestion des courriers et des e-mails \n\nSaisie de devis et de factures";
+  const experiencesReelles = [{ index: 0, poste: 'Assistante administrative', missions: 'Accueil physique et téléphonique. Gestion des courriers et des e-mails. Saisie de devis et de factures.' }];
+  const trouveReel = bilanTrouverExperienceParExtrait(extraitReel, experiencesReelles);
+  assert.equal(trouveReel.index, 0);
+  assert.equal(trouveReel.champ, 'poste');
+});
+test('bilanTrouverExperienceParExtrait : intitule court/generique -> jamais de rattachement par ce repli (evite un faux positif par coincidence)', () => {
+  const experiencesCourtes = [{ index: 0, poste: 'Agent', missions: 'x' }];
+  const trouve = bilanTrouverExperienceParExtrait('Agent immobilier independant, rien a voir avec le CV', experiencesCourtes);
+  assert.equal(trouve, null);
+});
+
 test('bilanTrouverExperienceParExtrait : extrait/liste vides -> null, jamais d\'exception', () => {
   assert.equal(bilanTrouverExperienceParExtrait(null, EXPERIENCES), null);
   assert.equal(bilanTrouverExperienceParExtrait('x', []), null);

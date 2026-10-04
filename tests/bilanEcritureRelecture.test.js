@@ -238,3 +238,38 @@ test('destination.liste = dossier, champ hors enumeration -> DestinationEcriture
   );
   assert.equal(dossier.metierCible, 'Vendeur');
 });
+
+// --- consigne « [À compléter...] » : jamais écrite dans le CV (retour Denis 2026-09-30) ---
+
+test('crochet à compléter : la consigne de l\'assistant est retirée avant l\'écriture, le reste du texte est gardé', () => {
+  const dossier = dossierAvecExperiences([{ poste: 'Entretien chez les particuliers', missions: '' }]);
+  const el = element({
+    texteApres: 'Réalisation de l\'entretien du domicile et adaptation de l\'intervention aux besoins du particulier. [À compléter avec les tâches réellement effectuées et, si elle est connue, la fréquence ou le contexte des interventions.]'
+  });
+  bilanAppliquerElementsRelecture(dossier, [el]);
+  assert.equal(dossier.experiences[0].missions, 'Réalisation de l\'entretien du domicile et adaptation de l\'intervention aux besoins du particulier.');
+});
+
+test('crochet à compléter : un texte entièrement composé de la consigne n\'écrase pas le contenu existant', () => {
+  const dossier = dossierAvecExperiences([{ poste: 'Aide', missions: 'Mission déjà là.' }]);
+  bilanAppliquerElementsRelecture(dossier, [element({ texteApres: '[À compléter avec une donnée réelle]' })]);
+  assert.equal(dossier.experiences[0].missions, 'Mission déjà là.');
+});
+
+test('crochet à compléter : un crochet sans rapport avec une consigne est laissé tel quel', () => {
+  const dossier = dossierAvecExperiences([{ poste: 'Aide', missions: '' }]);
+  bilanAppliquerElementsRelecture(dossier, [element({ texteApres: 'Utilisation de [Word] et Excel.' })]);
+  assert.equal(dossier.experiences[0].missions, 'Utilisation de [Word] et Excel.');
+});
+
+test('missions : le titre du poste répété en tête de la proposition est retiré (retour Denis 2026-09-30)', () => {
+  const dossier = dossierAvecExperiences([{ poste: 'Entretien chez les particuliers', missions: '' }]);
+  bilanAppliquerElementsRelecture(dossier, [element({ texteApres: 'Entretien chez les particuliers : réalisation de l\'entretien du domicile.' })]);
+  assert.equal(dossier.experiences[0].missions, 'Réalisation de l\'entretien du domicile.');
+});
+
+test('titre du poste : une proposition qui vise le titre n\'est pas modifiée par ce retrait', () => {
+  const dossier = dossierAvecExperiences([{ poste: 'Vendeur', missions: 'x' }]);
+  bilanAppliquerElementsRelecture(dossier, [element({ texteApres: 'Vendeur : conseil client', destination: { index: 0, champ: 'poste' } })]);
+  assert.equal(dossier.experiences[0].poste, 'Vendeur : conseil client');
+});

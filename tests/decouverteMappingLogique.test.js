@@ -187,3 +187,18 @@ test('appliquerMisesAJourDossier : competencesPersonnellesDecouverte reste un ch
   assert.deepEqual(dossier.competencesPersonnellesDecouverte, [{ competence: 'X', source: 'Y' }]);
   assert.deepEqual(dossier.competences.savoirFaire, []);
 });
+
+test('appliquerMisesAJourDossier : une experience deja presente (meme poste, meme employeur) n est pas dupliquee, ses competences demontrees s ajoutent', () => {
+  const dossier = { experiences: [{ poste: 'Aide à domicile', entreprise: '', missions: 'x', competencesDemontrees: ['Écoute'] }] };
+  appliquerMisesAJourDossier(dossier, {
+    experiences: [
+      { poste: 'aide a domicile', entreprise: '', missions: 'y', competencesDemontrees: ['Écoute', 'Patience'] },
+      { poste: 'Jardinage', entreprise: '', missions: 'z', competencesDemontrees: [] }
+    ],
+    loisirs: [], engagements: [], competences: { savoirFaire: [], savoirEtre: [] }, competencesPersonnelles: []
+  });
+  assert.equal(dossier.experiences.length, 2);
+  assert.equal(dossier.experiences[0].missions, 'x');
+  assert.deepEqual(dossier.experiences[0].competencesDemontrees, ['Écoute', 'Patience']);
+  assert.equal(dossier.experiences[1].poste, 'Jardinage');
+});

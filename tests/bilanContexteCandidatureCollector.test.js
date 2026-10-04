@@ -24,6 +24,20 @@ test('bilanCollecterCandidature : assemble cv + metierVise + entrepriseCiblee + 
   assert.equal(candidature.offreEmploi, 'Texte de l\'offre');
 });
 
+// TACHE (retour Denis 2026-09-19, 5e vague, champ additif CONTRATS.md)
+test('bilanCollecterCandidature : metierViseEstDomaine transmis depuis hostDataAdapter, jamais une saisie libre', async () => {
+  const candidature = await bilanCollecterCandidature({}, dependancesDeTest({
+    lecteurs: {
+      lireCv: () => 'Mon CV complet',
+      lireMetierVise: () => 'Bâtiment et travaux publics',
+      lireMetierViseEstDomaine: () => true,
+      lireEntrepriseCiblee: () => null
+    }
+  }));
+  assert.equal(candidature.metierVise, 'Bâtiment et travaux publics');
+  assert.equal(candidature.metierViseEstDomaine, true);
+});
+
 // TACHE (ciblage offre d'emploi, 2026-08-24, demande de Denis)
 test('bilanCollecterCandidature : siteEntreprise/typeStructure/typeStructureAutre (saisie libre) transportes tels quels', async () => {
   const candidature = await bilanCollecterCandidature({

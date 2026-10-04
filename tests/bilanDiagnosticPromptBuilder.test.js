@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  bilanFormaterValeurOptionnelle, bilanFormaterObservationsDeterministes, bilanFormaterTypeStructure,
+  bilanFormaterValeurOptionnelle, bilanFormaterMetierVise, bilanFormaterObservationsDeterministes, bilanFormaterTypeStructure,
   bilanConstruireValeursPlaceholders, bilanConstruirePromptDiagnostic
 } = require('../modules/bilan-candidature/diagnostic/diagnosticPromptBuilder.js');
 
@@ -17,6 +17,22 @@ test('bilanFormaterValeurOptionnelle : valeur absente => "Non fourni."', () => {
   assert.equal(bilanFormaterValeurOptionnelle(null), 'Non fourni.');
   assert.equal(bilanFormaterValeurOptionnelle(''), 'Non fourni.');
   assert.equal(bilanFormaterValeurOptionnelle('Boulanger'), 'Boulanger');
+});
+
+// TACHE (retour Denis 2026-09-19, 5e vague) : distingue un domaine large
+// d'un metier precis dans le champ transmis au prompt.
+test('bilanFormaterMetierVise : metier precis (ou metierViseEstDomaine absent) => texte seul, sans qualificatif', () => {
+  assert.equal(bilanFormaterMetierVise({ metierVise: 'Boulanger', metierViseEstDomaine: false }), 'Boulanger');
+  assert.equal(bilanFormaterMetierVise({ metierVise: 'Boulanger' }), 'Boulanger');
+});
+test('bilanFormaterMetierVise : domaine large => texte qualifie explicitement, renvoie vers la consigne dediee', () => {
+  const texte = bilanFormaterMetierVise({ metierVise: 'Bâtiment et travaux publics', metierViseEstDomaine: true });
+  assert.match(texte, /^Bâtiment et travaux publics \(/);
+  assert.match(texte, /domaine large/);
+  assert.match(texte, /pas un métier précis/);
+});
+test('bilanFormaterMetierVise : rien fourni => "Non fourni.", meme si metierViseEstDomaine vaut true par erreur', () => {
+  assert.equal(bilanFormaterMetierVise({ metierVise: null, metierViseEstDomaine: true }), 'Non fourni.');
 });
 
 test('bilanFormaterObservationsDeterministes : liste vide => message explicite, jamais une liste vide muette', () => {

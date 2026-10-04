@@ -22,6 +22,16 @@ test('bilanCreerCandidature : champs optionnels absents => null, jamais undefine
   assert.equal(candidature.typeStructureAutre, null);
 });
 
+// TACHE (retour Denis 2026-09-19, 5e vague, champ additif CONTRATS.md)
+test('bilanCreerCandidature : metierViseEstDomaine absent => false (jamais undefined)', () => {
+  const candidature = bilanCreerCandidature({ id: 'c1', cv: 'Mon CV' });
+  assert.equal(candidature.metierViseEstDomaine, false);
+});
+test('bilanCreerCandidature : metierViseEstDomaine transmis tel quel', () => {
+  const candidature = bilanCreerCandidature({ id: 'c1', cv: 'Mon CV', metierViseEstDomaine: true });
+  assert.equal(candidature.metierViseEstDomaine, true);
+});
+
 // TACHE (ciblage offre d'emploi, 2026-08-24, demande de Denis)
 test('bilanCreerCandidature : siteEntreprise/typeStructure/typeStructureAutre transportes tels quels', () => {
   const candidature = bilanCreerCandidature({

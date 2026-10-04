@@ -123,3 +123,30 @@ test('lireTexteOffre : absent -> chaine vide, jamais une exception', () => {
     delete global.dossier;
   }
 });
+
+// TACHE (panneau Candidature partage, 2026-09-29)
+test('ctLireDonneesBrutes : transmet type de structure, situation et cible visee', () => {
+  const l = lecteursDeTest({});
+  l.lireTypeStructure = () => 'Association (loi 1901) / économie sociale et solidaire';
+  l.lireSituationCandidature = () => 'Candidature spontanée, sans offre précise.';
+  l.lireCibleVisee = () => 'Domaine visé (pas un métier précis) : Logistique';
+  const brut = ctLireDonneesBrutes(l);
+  assert.equal(brut.typeStructure, 'Association (loi 1901) / économie sociale et solidaire');
+  assert.equal(brut.situationCandidature, 'Candidature spontanée, sans offre précise.');
+  assert.equal(brut.cibleVisee, 'Domaine visé (pas un métier précis) : Logistique');
+  const vide = ctLireDonneesBrutes(lecteursDeTest({}));
+  assert.equal(vide.typeStructure, null);
+  assert.equal(vide.situationCandidature, null);
+  assert.equal(vide.cibleVisee, null);
+});
+
+test('lireTexteOffre : repli sur lienOffre (champ ecrit par le panneau Candidature partage)', () => {
+  global.dossier = { rechercheCandidature: { lienOffre: 'Texte de l’offre saisi dans le panneau' } };
+  try {
+    assert.equal(ctLecteursParDefaut().lireTexteOffre(), 'Texte de l’offre saisi dans le panneau');
+    global.dossier.rechercheCandidature.texteOffre = 'Texte priorité';
+    assert.equal(ctLecteursParDefaut().lireTexteOffre(), 'Texte priorité');
+  } finally {
+    delete global.dossier;
+  }
+});

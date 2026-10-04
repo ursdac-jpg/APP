@@ -35,13 +35,13 @@ test('ctFormaterListeRecommandationsEA : accepte des objets {contenu} ou des cha
   assert.equal(ctFormaterListeRecommandationsEA([]), 'Aucune.');
 });
 
-test('ctConstruireValeursPlaceholdersEntretienAvance : mappe les 10 placeholders attendus', () => {
+test('ctConstruireValeursPlaceholdersEntretienAvance : mappe les 12 placeholders attendus', () => {
   const diagnosticPrecedent = { resultat: { syntheseGenerale: 'Candidature cohérente.' } };
   const valeurs = ctConstruireValeursPlaceholdersEntretienAvance(dossierValide(), diagnosticPrecedent, [], [], []);
   assert.deepEqual(Object.keys(valeurs).sort(), [
-    'CV', 'ENTREPRISE_OU_NON_FOURNIE', 'LETTRE', 'OFFRE_OU_NON_FOURNIE',
+    'CIBLE_VISEE_OU_NON_FOURNIE', 'CV', 'ENTREPRISE_OU_NON_FOURNIE', 'LETTRE', 'OFFRE_OU_NON_FOURNIE',
     'QUESTIONS_REPONSES_PERSONNE', 'RECOMMANDATIONS_APPLIQUEES_OU_AUCUNE', 'RECOMMANDATIONS_NON_APPLIQUEES_OU_AUCUNE',
-    'SITE_ENTREPRISE_OU_NON_FOURNI', 'SYNTHESE_ANALYSE_PRECEDENTE', 'TYPE_STRUCTURE_OU_NON_FOURNI'
+    'SITE_ENTREPRISE_OU_NON_FOURNI', 'SITUATION_OU_NON_FOURNIE', 'SYNTHESE_ANALYSE_PRECEDENTE', 'TYPE_STRUCTURE_OU_NON_FOURNI'
   ]);
   assert.equal(valeurs.SYNTHESE_ANALYSE_PRECEDENTE, 'Candidature cohérente.');
 });

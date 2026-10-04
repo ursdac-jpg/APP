@@ -32,12 +32,12 @@ test('bilanFormaterObjectifs : joints par point-virgule, message par defaut si v
   assert.match(bilanFormaterObjectifs([]), /Aucun objectif/);
 });
 
-test('bilanConstruireValeursPlaceholdersAmelioration : mappe exactement les 10 placeholders du Prompt 2', () => {
+test('bilanConstruireValeursPlaceholdersAmelioration : mappe exactement les 11 placeholders du Prompt 2 (dont VOIX_HUMAINE, fragment commun)', () => {
   const valeurs = bilanConstruireValeursPlaceholdersAmelioration(demandeValide());
   assert.deepEqual(Object.keys(valeurs).sort(), [
     'ENTREPRISE_CIBLEE_OU_NON_FOURNIE', 'EXTRAIT_CONCERNE_OU_NON_FOURNI', 'OBJECTIFS_OU_NON_FOURNIS',
     'OBSERVATIONS_RESOLUES', 'OFFRE_EMPLOI_OU_NON_FOURNIE', 'PROFIL_RECONVERSION_OU_DEBUTANT',
-    'RECOMMANDATION_CONTENU', 'RECOMMANDATION_DIMENSIONS', 'SITE_ENTREPRISE_OU_NON_FOURNI', 'TYPE_STRUCTURE_OU_NON_FOURNI'
+    'RECOMMANDATION_CONTENU', 'RECOMMANDATION_DIMENSIONS', 'SITE_ENTREPRISE_OU_NON_FOURNI', 'TYPE_STRUCTURE_OU_NON_FOURNI', 'VOIX_HUMAINE'
   ]);
 });
 

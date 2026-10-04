@@ -28,12 +28,12 @@ test('ctFormaterConstatsDeterministes : aucun constat -> message explicite', () 
   assert.equal(ctFormaterConstatsDeterministes(null), 'Aucun constat déterministe disponible.');
 });
 
-test('ctConstruireValeursPlaceholders : mappe exactement les 9 placeholders du prompt', () => {
+test('ctConstruireValeursPlaceholders : mappe exactement les 11 placeholders du prompt', () => {
   const valeurs = ctConstruireValeursPlaceholders(dossierValide(), []);
   assert.deepEqual(Object.keys(valeurs).sort(), [
-    'CONSTATS_DETERMINISTES', 'CV', 'ENTREPRISE_OU_NON_FOURNIE', 'LETTRE',
+    'CIBLE_VISEE_OU_NON_FOURNIE', 'CONSTATS_DETERMINISTES', 'CV', 'ENTREPRISE_OU_NON_FOURNIE', 'LETTRE',
     'OFFRE_OU_NON_FOURNIE', 'PREPARATION_ENTRETIEN_OU_NON_FOURNIE', 'QUESTIONS_PERSONNE_OU_NON_FOURNIES',
-    'SITE_ENTREPRISE_OU_NON_FOURNI', 'TYPE_STRUCTURE_OU_NON_FOURNI'
+    'SITE_ENTREPRISE_OU_NON_FOURNI', 'SITUATION_OU_NON_FOURNIE', 'TYPE_STRUCTURE_OU_NON_FOURNI'
   ]);
   assert.equal(valeurs.CV, 'Mon CV');
   assert.equal(valeurs.LETTRE, 'Madame, Monsieur...');
@@ -71,4 +71,25 @@ test('ctConstruirePromptDiagnostic : resout tous les placeholders et retourne te
   assert.ok(resultat.texte.indexOf('Offre : Non fournie.') !== -1);
   assert.equal(resultat.dateGeneration, '2026-08-25T00:00:00.000Z');
   assert.equal(resultat.hashContexteUtilise, 'abc123');
+});
+
+// TACHE (panneau Candidature partage, 2026-09-29) : situation et metier/domaine
+// vise arrivent bien dans le prompt de Coherence ("Non fournie." si absents).
+test('ctConstruireValeursPlaceholders : situation et cible visee resolues, "Non fournie." si absentes', () => {
+  const avec = ctConstruireValeursPlaceholders(dossierValide({ situationCandidature: 'Changement de métier (reconversion).', cibleVisee: 'Métier visé : Magasinier' }), []);
+  assert.equal(avec.SITUATION_OU_NON_FOURNIE, 'Changement de métier (reconversion).');
+  assert.equal(avec.CIBLE_VISEE_OU_NON_FOURNIE, 'Métier visé : Magasinier');
+  const sans = ctConstruireValeursPlaceholders(dossierValide(), []);
+  assert.equal(sans.SITUATION_OU_NON_FOURNIE, 'Non fournie.');
+  assert.equal(sans.CIBLE_VISEE_OU_NON_FOURNIE, 'Non fournie.');
+});
+
+test('prompts/coherence-transversale.md et coherence-transversale-entretien.md declarent les placeholders situation et cible', () => {
+  const fs = require('fs');
+  const path = require('path');
+  ['coherence-transversale.md', 'coherence-transversale-entretien.md'].forEach((nom) => {
+    const texte = fs.readFileSync(path.join(__dirname, '..', 'prompts', nom), 'utf8');
+    assert.ok(texte.includes('{SITUATION_OU_NON_FOURNIE}'), nom + ' : {SITUATION_OU_NON_FOURNIE} manquant');
+    assert.ok(texte.includes('{CIBLE_VISEE_OU_NON_FOURNIE}'), nom + ' : {CIBLE_VISEE_OU_NON_FOURNIE} manquant');
+  });
 });

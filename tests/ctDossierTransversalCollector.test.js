@@ -101,3 +101,28 @@ test('ctCollecterDossierTransversal : rejette avec RelectureAnnulee si la person
     (e) => e.code === 'RelectureAnnulee'
   );
 });
+
+// TACHE (panneau Candidature partage, 2026-09-29) : situation, cible visee,
+// type de structure et offre lus dans les champs du panneau (lecteurs), la
+// saisie libre restant prioritaire.
+test('ctCollecterDossierTransversal : situation, cible visee, type de structure et offre viennent du panneau (lecteurs)', async () => {
+  const dossier = await ctCollecterDossierTransversal({}, dependancesDeTest({
+    lecteurs: {
+      lireCv: () => 'Mon CV', lireLettreTexte: () => 'Ma lettre', lireEntrepriseCiblee: () => '', lireSiteEntreprise: () => '',
+      lireEntretienTexte: () => '', lireTexteOffre: () => 'Offre de magasinier',
+      lireTypeStructure: () => 'Artisanat / commerce de proximité',
+      lireSituationCandidature: () => 'Changement de métier (reconversion).',
+      lireCibleVisee: () => 'Métier visé : Magasinier'
+    }
+  }));
+  assert.equal(dossier.offreEmploi, 'Offre de magasinier');
+  assert.equal(dossier.typeStructure, 'Artisanat / commerce de proximité');
+  assert.equal(dossier.situationCandidature, 'Changement de métier (reconversion).');
+  assert.equal(dossier.cibleVisee, 'Métier visé : Magasinier');
+});
+
+test('ctCollecterDossierTransversal : situation et cible absentes => null', async () => {
+  const dossier = await ctCollecterDossierTransversal({}, dependancesDeTest());
+  assert.equal(dossier.situationCandidature, null);
+  assert.equal(dossier.cibleVisee, null);
+});

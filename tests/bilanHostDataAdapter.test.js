@@ -7,6 +7,7 @@ function lecteursDeTest(valeurs) {
   return {
     lireCv: () => valeurs.cv,
     lireMetierVise: () => valeurs.metierVise,
+    lireMetierViseEstDomaine: () => valeurs.metierViseEstDomaine,
     lireEntrepriseCiblee: () => valeurs.entrepriseCiblee,
     lireSiteEntreprise: () => valeurs.siteEntreprise,
     lireOffreEmploi: () => valeurs.offreEmploi,
@@ -33,6 +34,12 @@ test('bilanLireDonneesBrutesCandidat : champs absents => null, jamais undefined'
   assert.equal(brut.siteEntreprise, null);
   assert.equal(brut.objectif, null);
   assert.equal(brut.nombreExperiencesProfessionnelles, 0);
+});
+
+// TACHE (retour Denis 2026-09-19, 5e vague)
+test('bilanLireDonneesBrutesCandidat : metierViseEstDomaine transmis tel quel (booleen strict)', () => {
+  assert.equal(bilanLireDonneesBrutesCandidat(lecteursDeTest({ cv: 'Mon CV', metierViseEstDomaine: true })).metierViseEstDomaine, true);
+  assert.equal(bilanLireDonneesBrutesCandidat(lecteursDeTest({ cv: 'Mon CV' })).metierViseEstDomaine, false);
 });
 
 test('bilanLireDonneesBrutesCandidat : transmet siteEntreprise tel quel', () => {
@@ -173,4 +180,17 @@ test('lireSiteEntreprise : relaie siteCibleActuel() tel quel', () => {
 test('lireSiteEntreprise : fonction globale absente -> chaine vide, jamais une exception', () => {
   assert.doesNotThrow(() => bilanLecteursParDefaut().lireSiteEntreprise());
   assert.equal(bilanLecteursParDefaut().lireSiteEntreprise(), '');
+});
+
+// TACHE (panneau Candidature partage, 2026-09-29) : l'offre saisie dans le
+// panneau (lienOffre) doit atteindre le Bilan, avant elle n'etait jamais lue.
+test('bilanLecteursParDefaut().lireOffreEmploi : repli sur lienOffre, texteOffre prioritaire', () => {
+  global.dossier = { rechercheCandidature: { lienOffre: 'Offre saisie dans le panneau' } };
+  try {
+    assert.equal(bilanLecteursParDefaut().lireOffreEmploi(), 'Offre saisie dans le panneau');
+    global.dossier.rechercheCandidature.texteOffre = 'Offre mémorisée';
+    assert.equal(bilanLecteursParDefaut().lireOffreEmploi(), 'Offre mémorisée');
+  } finally {
+    delete global.dossier;
+  }
 });
