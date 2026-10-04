@@ -20,7 +20,7 @@ const CLES_PDF = [
   'bandeauEnTete', 'formeEnTete', 'degradeBandeau', 'bandeauDisponibilite', 'dispositionEntete',
   'anneauPhoto', 'positionLibreEntete', 'largeurAccrocheLibre', 'largeurMetierLibre',
   'police', 'styleTitres', 'lectureGuidee', 'styleCompetences', 'icones', 'iconesCoordonnees',
-  'styleBordures', 'styleProfessionnel', 'stylePersonnel', 'bandeauCompetencesCles', 'coinsArrondis',
+  'styleBordures', 'styleProfessionnel', 'stylePersonnel', 'styleFormations', 'separateurMissions', 'bandeauCompetencesCles', 'coinsArrondis',
   'souligner', 'italique', 'ordreExperiences', 'formatExperiences', 'sansAccroche', 'lettreJointe',
   'regroupement', 'formationsMisesEnAvant', 'allure'
 ];
@@ -42,7 +42,7 @@ test('inverse PDF : aller-retour exact sur une config bien modifiee', () => {
     bandeauDisponibilite: true, dispositionEntete: '2colonnes', anneauPhoto: true, positionLibreEntete: false,
     largeurAccrocheLibre: 70, largeurMetierLibre: 45, police: 'verdana', styleTitres: 'sans-decor',
     lectureGuidee: true, styleCompetences: 'texte-seul', icones: true, iconesCoordonnees: true,
-    styleBordures: 'epaisse', styleProfessionnel: 'condense', stylePersonnel: 'condense',
+    styleBordures: 'epaisse', styleProfessionnel: 'condense', stylePersonnel: 'condense', styleFormations: 'condense', separateurMissions: 'losange',
     bandeauCompetencesCles: true, coinsArrondis: true,
     souligner: { poste: true, entreprise: true }, italique: { dates: true },
     ordreExperiences: 'recentes', formatExperiences: 'ameliore', sansAccroche: true,

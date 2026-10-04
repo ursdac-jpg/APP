@@ -16,7 +16,10 @@ const {
   _reformulerCvParserReponse,
   _reformulerCvNettoyerStruct,
   _reformulerCvResumeChangements,
-  _reformulerCvTexteFinalProposition
+  _reformulerCvTexteFinalProposition,
+  _reformulerCvFusionnerExperiences,
+  _reformulerCvFusionnerFormations,
+  _reformulerCvFusionnerListeTextes
 } = require('../data/metiers.js');
 
 // Stub minimal de deps.extraireJSON (voir parserResultatAts(), modules/ats/
@@ -162,4 +165,66 @@ test('texteFinalProposition : experience en cours (dateFin vide) affiche "Aujour
 test('texteFinalProposition : struct vide -> chaine vide, jamais une exception', () => {
   assert.equal(_reformulerCvTexteFinalProposition({}), '');
   assert.equal(_reformulerCvTexteFinalProposition(undefined), '');
+});
+
+// ---------- Fusion avec le dossier (2026-09-26 : « Continuer vers un modele » ne doit plus rien perdre) ----------
+
+test('fusion experiences : le lieu et les champs du dossier sont conserves, les mots viennent de la reponse', () => {
+  const existantes = [
+    { poste: 'Vendeur', entreprise: 'Magasin Dupont', lieu: 'Limoges', dateDebut: '2015', dateFin: '2018', missions: 'ancien texte', competencesDemontrees: ['Vente'] }
+  ];
+  const proposees = [{ poste: 'Vendeur', entreprise: 'Magasin Dupont', lieu: '', dateDebut: '2015', dateFin: '2018', missions: ['Conseiller les clients', 'Tenir la caisse'] }];
+  const r = _reformulerCvFusionnerExperiences(existantes, proposees);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].lieu, 'Limoges');
+  assert.equal(r[0].missions, 'Conseiller les clients' + String.fromCharCode(10) + 'Tenir la caisse');
+  assert.deepEqual(r[0].competencesDemontrees, ['Vente']);
+});
+
+test('fusion experiences : une experience ajoutee a la main et absente de la reponse est CONSERVEE a la suite', () => {
+  const existantes = [
+    { poste: 'Vendeur', entreprise: 'Magasin Dupont', dateDebut: '2015', dateFin: '2018', missions: 'a' },
+    { poste: 'Agent de quai', entreprise: 'Transports Martin', lieu: 'Brive', dateDebut: '2019', dateFin: '2020', missions: 'b' }
+  ];
+  const proposees = [{ poste: 'Vendeur', entreprise: 'Magasin Dupont', lieu: '', dateDebut: '2015', dateFin: '2018', missions: ['Vendre'] }];
+  const r = _reformulerCvFusionnerExperiences(existantes, proposees);
+  assert.equal(r.length, 2);
+  assert.equal(r[1].poste, 'Agent de quai');
+  assert.equal(r[1].lieu, 'Brive');
+});
+
+test('fusion experiences : une experience nouvelle de la reponse est ajoutee', () => {
+  const r = _reformulerCvFusionnerExperiences([], [{ poste: 'Cariste', entreprise: 'X', lieu: 'Tulle', dateDebut: '2021', dateFin: '', missions: ['Conduire'] }]);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].lieu, 'Tulle');
+});
+
+test('fusion formations : niveau, centre et lieu du dossier sont conserves', () => {
+  const existantes = [
+    { niveau: 'CAP', intitule: 'Employe polyvalent de commerce', annee: '2019', etablissement: 'CFA du Limousin', lieu: 'Limoges', typeCredential: 'diplome', niveauRNCP: 3 },
+    { niveau: 'Titre professionnel', intitule: 'Cariste', annee: '2026', etablissement: 'AFPA', lieu: 'Brive' }
+  ];
+  const proposees = [{ niveau: '', intitule: 'Employe polyvalent de commerce', annee: '2019', etablissement: '', lieu: '' }];
+  const r = _reformulerCvFusionnerFormations(existantes, proposees);
+  assert.equal(r.length, 2);
+  assert.equal(r[0].etablissement, 'CFA du Limousin');
+  assert.equal(r[0].lieu, 'Limoges');
+  assert.equal(r[0].niveau, 'CAP');
+  assert.equal(r[0].niveauRNCP, 3);
+  assert.equal(r[1].etablissement, 'AFPA');
+});
+
+test('fusion listes : union sans doublon, la reponse d abord', () => {
+  const r = _reformulerCvFusionnerListeTextes(['Football', 'Lecture'], ['lecture', 'Musique']);
+  assert.deepEqual(r, ['lecture', 'Musique', 'Football']);
+  const l = _reformulerCvFusionnerListeTextes([{ langue: 'Espagnol', niveau: 'B1' }], [{ langue: 'Anglais', niveau: 'B2' }]);
+  assert.equal(l.length, 2);
+});
+
+test('nettoyerStruct : le lieu des experiences et le centre des formations sont gardes', () => {
+  const s = _reformulerCvNettoyerStruct({ experiences: [{ poste: 'A', entreprise: 'B', lieu: 'Brive', missions: ['x'] }], formations: [{ niveau: 'CAP', intitule: 'Maconnerie', annee: '2010', etablissement: 'CFA', lieu: 'Tulle' }] });
+  assert.equal(s.experiences[0].lieu, 'Brive');
+  assert.equal(s.formations[0].etablissement, 'CFA');
+  assert.equal(s.formations[0].lieu, 'Tulle');
+  assert.equal(s.formations[0].niveau, 'CAP');
 });

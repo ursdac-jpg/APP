@@ -46,6 +46,8 @@ const DEFAUTS_ATTENDUS = {
   styleBordures: 'fine',
   styleProfessionnel: 'epure',
   stylePersonnel: 'epure',
+  styleFormations: 'epure',
+  separateurMissions: 'pointvirgule',
   bandeauCompetencesCles: false,
   coinsArrondis: false,
   ordreExperiences: 'pertinence',

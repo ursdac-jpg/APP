@@ -13,7 +13,7 @@ const PDF_DEFAUT_ATTENDU = {
   regColonnes: '2', regColonnesInversees: false, regSeparateurColonnes: false, regFormeColonnes: 'rectangle', regLargeurColonneGauche: '35',
   regCouleurDebut: '#2f6690', regCouleurFin: '#d9e8f2', regFondColonnes: 'droite', regFondColonnesEffet: 'fondSeul', regDegradeColonnes: 'fonce-clair',
   regBandeauEnTete: true, regFormeEnTete: 'rectangle', regDegradeBandeau: 'fonce-clair', regBandeauDisponibilite: false, regAnneauPhoto: false,
-  regStyleTitres: 'souligne', regLectureGuidee: false, regStyleProfessionnel: 'epure', regStylePersonnel: 'epure', regStyleBordures: 'fine', regIcones: false, regIconesCoordonnees: false, regPolice: 'segoe', regTexteFondColonnes: 'blanc', regBandeauCompetencesCles: false,
+  regStyleTitres: 'souligne', regLectureGuidee: false, regStyleProfessionnel: 'epure', regStylePersonnel: 'epure', regStyleFormations: 'epure', regSeparateurMissions: 'pointvirgule', regStyleBordures: 'fine', regIcones: false, regIconesCoordonnees: false, regPolice: 'segoe', regTexteFondColonnes: 'blanc', regBandeauCompetencesCles: false,
   regStyleCompetences: 'pastille', regCouleurFondCompetences: '#e9e9e9', regCouleurTextePuces: '#1b1b1b',
   regCoinsArrondis: false, regFondColonnesA5: 'droite', regEnteteInverseeA5: false, regRemplirPageA5: false, regSansAccroche: false, regPositionLibreEntete: true, regLargeurAccrocheLibre: '30', regLargeurMetierLibre: '32', regFondColonnePleineHauteur: false,
   regLettreJointe: false, regRegroupementActif: false, regOrdreExperiences: 'pertinence', regFormatExperiences: 'standard', regDispositionEntete: '3colonnes',
