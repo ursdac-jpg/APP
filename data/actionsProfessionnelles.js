@@ -106,8 +106,19 @@ var CATALOGUE_ACTIONS_PRO = [
       { id: 'conseiller', label: 'Conseiller', icon: '💬', categorie: 'Relationnel',
         savoirFaire: ['Conseil'], savoirEtre: ['Communication', 'Pédagogie'],
         savoirs: [], metiers: ['Conseiller de vente', 'Agent d\'accueil'] },
+      // TACHE (retour utilisateur 2026-09-20) : "Accompagner" est un verbe
+      // trop generique (CIP, coach, educateur... autant que ADVF/AES) pour
+      // porter un savoir-faire aussi specifique que "Soins" -- une personne
+      // en insertion professionnelle qui coche cette carte tres naturelle
+      // pour son metier n'a pas a se retrouver avec un savoir-faire de
+      // soignant. Le signal "Soins" reste disponible et correct via des
+      // cartes sans ambiguite : "Soigner" (ce meme catalogue), "Des
+      // patients" (CATALOGUE_PERSONNES_MATERIELS_LIEUX), "Etablissement de
+      // sante" (CATALOGUE_ENVIRONNEMENTS_TRAVAIL). Meme principe deja
+      // applique a "Accueillir"/"Aider" ci-dessous : savoirFaire vide,
+      // seulement des savoir-etre.
       { id: 'accompagner', label: 'Accompagner', icon: '🤝', categorie: 'Relationnel',
-        savoirFaire: ['Soins'], savoirEtre: ['Empathie', 'Aide à la personne', 'Patience'],
+        savoirFaire: [], savoirEtre: ['Empathie', 'Aide à la personne', 'Patience'],
         savoirs: [], metiers: ['Assistant de vie aux familles (ADVF)', 'Accompagnant éducatif et social (AES)'] },
       { id: 'vendre', label: 'Vendre', icon: '🛒', categorie: 'Relationnel',
         savoirFaire: ['Négociation', 'Persuasion'], savoirEtre: ['Relation client'],

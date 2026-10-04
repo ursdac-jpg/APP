@@ -1,0 +1,754 @@
+/* Feuille de style du panneau "La mise en page" (PDF) - REPRISE A L'IDENTIQUE de la maquette
+   docs/MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html (source de verite, Denis 2026-09-25).
+   Chaque regle de la maquette est limitee a .mep-mq (conversion faite une fois), et les rem sont
+   multipliees par 0,875 (la maquette a html {font-size:14px}, l'application 16px : memes tailles
+   reelles, et le reglage de taille du texte de l'application reste respecte).
+   Si la maquette change, reporter ici la meme regle (memes valeurs x 0,875 pour les rem).
+   Seuls 2 noms changent (collision avec css/style.css) : .carte devient .mep-carte, .btn devient .mep-btn. */
+.mep-mq, .mep-mq * { box-sizing: border-box; }
+.mep-mq { font-family: "Segoe UI", -apple-system, Roboto, Helvetica, Arial, sans-serif; font-size: 0.875rem; line-height: 1.45; color: var(--text); }
+.mep-mq button { font: inherit; cursor: pointer; }
+.mep-mq svg.ic { width: 1.3125rem; height: 1.3125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+.mep-mq { --radius: 12px; }
+.mep-mq .entete { display: flex; align-items: center; gap: 0.6125rem; margin-bottom: 0.525rem; }
+.mep-mq .entete .rond { width: 1.925rem; height: 1.925rem; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border);
+    display: grid; place-items: center; color: var(--accent); box-shadow: var(--shadow); flex: 0 0 auto; }
+.mep-mq .entete h1 { margin: 0; font-size: 1.05rem; color: var(--text-strong); }
+.mep-mq .entete p { margin: 0; color: var(--text-muted); font-size: 0.7175rem; line-height: 1.3; }
+.mep-mq .entete .aide { margin-left: auto; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent);
+    border-radius: 10px; padding: 0.3062rem 0.7rem; font-weight: 600; display: flex; gap: 0.35rem; align-items: center; }
+.mep-mq .rangee-modes { display: flex; gap: 0.525rem; align-items: stretch; margin-bottom: 0.4813rem; flex-wrap: wrap; }
+.mep-mq .btn-plein { border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: var(--radius);
+    padding: 0.35rem 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 0.4375rem; }
+.mep-mq .btn-plein:hover { background: var(--accent-bg-subtle); }
+.mep-mq .cartes-haut { display: grid; grid-template-columns: 1fr 1fr; gap: 0.525rem; margin-bottom: 0.4813rem; }
+.mep-mq .ligne-action { display: flex; gap: 0.35rem; align-items: stretch; min-width: 0; }
+.mep-mq .ligne-action .carte-action.retreci { flex: 1; min-width: 0; }
+.mep-mq .ligne-action .carte-action.retreci b,
+.mep-mq .ligne-action .carte-action.retreci small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mep-mq .mini-action { flex: 0 0 auto; width: 1.8812rem; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; font-size: 0.9188rem; cursor: pointer; }
+.mep-mq .mini-action:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-hover); }
+.mep-mq .mini-action:disabled { opacity: .32; cursor: default; }
+/* TACHE (retour Denis 2026-09-27, P5) : "Style au hasard" / "Mise en page"
+   se confondaient avec les cartes d'information autour (meme fond neutre,
+   meme fin liseré) - rien ne signalait que ce sont des boutons. Fond plein
+   dans la couleur d'accent (meme langage que les boutons primaires du
+   reste de l'application), jamais juste un contour. */
+.mep-mq .carte-action { display: flex; gap: 0.7rem; align-items: center; border: none; background: var(--accent);
+    border-radius: var(--radius); padding: 0.3937rem 0.6125rem; text-align: left; color: #fff; width: 100%; box-shadow: var(--shadow); }
+.mep-mq .carte-action:hover { background: var(--accent-hover); }
+.mep-mq .carte-action .emo { width: 1.75rem; height: 1.75rem; border-radius: 8px; background: rgba(255, 255, 255, 0.22); display: grid; place-items: center; font-size: 1.0938rem; flex: 0 0 auto; color: #fff; }
+.mep-mq .carte-action b { display: block; font-size: 0.7875rem; color: #fff; }
+.mep-mq .carte-action small { color: rgba(255, 255, 255, 0.85); font-size: 0.665rem; display: block; line-height: 1.2; }
+.mep-mq .carte-action .chev { margin-left: auto; color: #fff; font-size: 1.05rem; }
+.mep-mq .duo { display: grid; grid-template-columns: 1fr 1.25fr; gap: 0.525rem; margin-bottom: 0.4813rem; }
+.mep-mq details.mep-carte,
+.mep-mq .mep-carte { border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius); margin-bottom: 0.4813rem; }
+.mep-mq details.mep-carte > summary,
+.mep-mq .mep-carte > .carte-tete { list-style: none; display: flex; align-items: center; gap: 0.525rem; padding: 0.3937rem 0.7rem; cursor: pointer; }
+.mep-mq details.mep-carte > summary::-webkit-details-marker { display: none; }
+/* Denis, 2026-09-29 : on doit voir d'un coup d'oeil qu'une carte s'ouvre et se ferme. FERMEE = fond teinte (bleu clair) ; OUVERTE = fond blanc
+   avec une barre de couleur a gauche. Variables deja definies pour le mode sombre. */
+.mep-mq details.mep-carte:not([open]) { background: var(--accent-bg-subtle); }
+.mep-mq details.mep-carte:not([open]) > summary:hover { background: var(--bg-hover); border-radius: var(--radius); }
+.mep-mq details.mep-carte[open] { background: var(--bg-card); border-left: 4px solid var(--accent); }
+.mep-mq .carte-tete .ic,
+.mep-mq summary .ic { color: var(--accent); flex: 0 0 auto; }
+.mep-mq .carte-tete h3,
+.mep-mq summary h3 { margin: 0; font-size: 0.8312rem; color: var(--text-strong); }
+.mep-mq summary .sous { color: var(--text-muted); font-size: 0.665rem; }
+.mep-mq summary .chev { margin-left: auto; color: var(--accent); transition: transform .15s; font-size: 0.9625rem; }
+.mep-mq details[open] > summary .chev { transform: rotate(180deg); }
+.mep-mq .carte-corps { padding: 0 0.7rem 0.525rem; }
+.mep-mq .carte-corps > p.aide { margin: 0 0 0.35rem; color: var(--text-muted); font-size: 0.7rem; line-height: 1.3; }
+.mep-mq .seg { display: flex; gap: 0.4375rem; flex-wrap: wrap; }
+.mep-mq .seg button { flex: 1; min-width: 80px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    border-radius: 9px; padding: 0.28rem 0.4375rem; font-size: 0.7525rem; }
+.mep-mq .seg button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+.mep-mq .swatches { display: flex; align-items: center; gap: 0.6125rem; flex-wrap: wrap; }
+/* Denis, 2026-09-29 : toutes les couleurs sur UNE SEULE ligne (une 2e ligne recree du vide). Les pastilles gardent leur taille si la place suffit, sinon elles retrecissent (rondes). */
+.mep-mq .swatches-une-ligne { flex-wrap: nowrap; gap: clamp(3px, 0.6125rem, 0.6125rem); }
+.mep-mq .swatches-une-ligne .sw { flex: 0 1 1.6188rem; width: auto; height: auto; min-width: 14px; aspect-ratio: 1 / 1; }
+.mep-mq .sw { width: 1.6188rem; height: 1.6188rem; border-radius: 50%; border: 3px solid transparent; outline: 1px solid var(--border-strong); }
+.mep-mq .sw.on { border-color: var(--bg-card); outline: 2px solid var(--accent); }
+.mep-mq .sw[disabled] { cursor: not-allowed; outline-style: dashed; opacity: .6; }
+.mep-mq .sw-entreprise-indispo { display: inline-flex; align-items: center; gap: 0.35rem; }
+.mep-mq .sw-entreprise-msg { font-size: 0.6825rem; color: var(--text-muted); max-width: 7.875rem; line-height: 1.2; }
+.mep-mq .sw-perso { display: flex; align-items: center; gap: 0.4375rem; color: var(--text-muted); font-size: 0.735rem; border-left: 1px solid var(--border); padding-left: 0.6125rem; cursor: pointer; position: relative; }
+.mep-mq .sw-perso .roue { position: relative; width: 1.6188rem; height: 1.6188rem; border-radius: 50%; flex: 0 0 auto;
+    background: radial-gradient(circle, #fff 0 26%, transparent 27%), conic-gradient(#e53935, #fdd835, #43a047, #00acc1, #1e88e5, #8e24aa, #e53935);
+    border: 3px solid transparent; outline: 1px solid var(--border-strong); }
+.mep-mq .sw-perso.on .roue { border-color: var(--bg-card); outline: 2px solid var(--accent); }
+.mep-mq .sw-perso.on .roue::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--choisie, #2f6690); }
+.mep-mq .sw-perso input { position: absolute; left: 0.6125rem; top: 0; width: 1.6188rem; height: 1.6188rem; opacity: 0; cursor: pointer; padding: 0; border: 0; }
+.mep-mq .sw-perso:hover { color: var(--accent); }
+.mep-mq .vignettes { display: flex; gap: 0.3937rem; flex-wrap: wrap; margin-top: 0.4375rem; align-items: flex-end; }
+.mep-mq .vign { border: 1px solid var(--border-strong); background: var(--bg-card); border-radius: 9px; padding: 0.2188rem; width: 78px; height: 96px; display: flex; flex-direction: column; text-align: center; color: var(--text); font-size: 0.6125rem; }
+.mep-mq .vign .vign-nom { flex: 1; display: flex; align-items: center; justify-content: center; line-height: 1.15; overflow: hidden; }
+.mep-mq .vign.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); color: var(--accent); }
+.mep-mq .mini { height: 56px; background: #fff; border: 1px solid #d9dee6; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 0.2188rem; }
+.mep-mq .mini i { position: absolute; display: block; }
+.mep-mq .legende-vign { font-size: 0.6475rem; color: var(--text-muted); margin: 0.35rem 0 0; line-height: 1.3; }
+.mep-mq .org { display: grid; grid-template-columns: 1fr 1.15fr; gap: 0.7rem; }
+.mep-mq .org h4 { margin: 0 0 0.2188rem; font-size: 0.735rem; color: var(--text-strong); }
+.mep-mq .radio-gros { display: flex; gap: 0.3937rem; margin-top: 0.2625rem; flex-wrap: wrap; }
+.mep-mq .radio-gros button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 9px; padding: 0.35rem 0.6125rem; font-weight: 600; font-size: 0.7525rem; }
+.mep-mq .radio-gros button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+.mep-mq .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 0.0875rem 0.525rem; }
+.mep-mq .ck { display: flex; gap: 0.35rem; align-items: center; font-size: 0.735rem; color: var(--text-strong); cursor: pointer; padding: 0.0875rem 0; }
+.mep-mq .ck input { width: 0.875rem; height: 0.875rem; accent-color: var(--accent); }
+.mep-mq .ck.sans-objet { opacity: .5; cursor: not-allowed; }
+.mep-mq .ck-marque { border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 0.35rem 0.6rem; background: var(--bg-card); font-weight: 600; }
+.mep-mq .ck-marque.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+.mep-mq .sous-choix { margin-top: 0.35rem; padding: 0.3062rem 0.4375rem; background: var(--bg-subtle); border-radius: 9px; font-size: 0.6825rem; line-height: 1.3; }
+.mep-mq .sous-choix b { color: var(--text-strong); }
+.mep-mq .trois { display: grid; grid-template-columns: 1.05fr 1.15fr 1fr; gap: 0.4375rem; }
+.mep-mq .boite { border: 1px solid var(--border); border-radius: 9px; padding: 0.35rem 0.4813rem; background: var(--bg-card); }
+.mep-mq .boite h4 { margin: 0 0 0.175rem; font-size: 0.7175rem; color: var(--text-strong); }
+.mep-mq .rad { display: block; padding: 0.0875rem 0; font-size: 0.735rem; color: var(--text-strong); cursor: pointer; }
+.mep-mq .rad input { accent-color: var(--accent); margin-right: 0.3937rem; }
+.mep-mq .rad small { display: block; margin-left: 1.225rem; color: var(--text-muted); font-size: 0.6125rem; line-height: 1.2; }
+.mep-mq .pile { display: flex; flex-direction: column; gap: 0.3937rem; }
+.mep-mq .ligne-plus { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 0.525rem; margin-top: 0.4375rem; }
+.mep-mq .champ label { display: block; font-size: 0.665rem; font-weight: 700; color: var(--text-strong); margin-bottom: 0.1313rem; }
+.mep-mq .champ select { width: 100%; padding: 0.2625rem 0.3937rem; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); font: inherit; font-size: 0.735rem; }
+.mep-mq .pas { display: inline-flex; align-items: center; border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; }
+.mep-mq .pas button { border: 0; background: var(--bg-subtle); color: var(--text-strong); width: 1.575rem; height: 1.575rem; font-size: 0.9188rem; }
+.mep-mq .pas span { min-width: 2.1rem; text-align: center; font-weight: 700; color: var(--text-strong); }
+.mep-mq .rappel-missions { margin: 0.4rem 0; padding: 0.35rem 0.6rem; border: 1px solid var(--warning-border); border-left-width: 4px; border-radius: 6px; background: var(--warning-bg-subtle); color: var(--text-strong); font-size: 0.85rem; }
+.mep-mq .info-auto { margin-top: 0.3937rem; padding: 0.3062rem 0.525rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 8px; font-size: 0.6825rem; color: var(--text-strong); }
+.mep-mq .lien-ecartees { margin-top: 0.3937rem; padding: 0.3062rem 0.525rem; border: 1px solid var(--warning-border); background: var(--warning-bg-subtle); border-radius: 9px; font-size: 0.6825rem; color: var(--text-strong); }
+.mep-mq .lien-ecartees button { border: 0; background: none; color: var(--accent); text-decoration: underline; padding: 0; font-weight: 600; }
+.mep-mq .grille-el { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4375rem 0.6125rem; }
+.mep-mq .curseur { display: flex; align-items: center; gap: 0.525rem; }
+.mep-mq .curseur input[type=range] { flex: 1; accent-color: var(--accent); }
+.mep-mq .style-corps { padding-top: 0.4813rem; }
+.mep-mq .style-grille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.4375rem 1.225rem; align-items: start; }
+.mep-mq .zone-mep { min-height: 16rem; border: 1px dashed var(--border-strong); border-radius: 10px; padding: 0.5rem 0.65rem; background: var(--bg-subtle); }
+.mep-mq .resultat-mep { white-space: pre-line; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.78rem; color: var(--text-strong); }
+.mep-mq .titre-mini { display: flex; align-items: center; flex-wrap: wrap; gap: 0.0875rem 0.4375rem; margin-bottom: 0.3062rem; font-weight: 700; color: var(--text-strong); font-size: 0.8312rem; }
+.mep-mq .titre-mini .ic { width: 1.0938rem; height: 1.0938rem; color: var(--accent); }
+.mep-mq .titre-mini .sous { font-weight: 400; font-size: 0.665rem; color: var(--text-muted); }
+.mep-mq .gab-ligne { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.4375rem; padding-top: 0.4375rem; border-top: 1px dashed var(--border); }
+/* Une seule rangee de hauteur FIXE (Sobre, Standard, Creatif) : le panneau ne bouge plus quand on change de mode ; la rangee defile si elle est trop longue. */
+.mep-mq .gab-ligne .vignettes { margin: 0; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; height: 7rem; align-items: flex-start; padding-bottom: 0.3rem; }
+.mep-mq .gab-ligne .vign { flex: 0 0 78px; }
+.mep-mq .gab-ligne .legende-vign { margin: 0; min-height: 2.4em; }
+.mep-mq .vign-info { flex: 1 1 100%; height: 96px; border: 1px dashed var(--border-strong); background: var(--bg-subtle); border-radius: 9px; padding: 0.5rem 0.8rem; display: flex; flex-direction: column; justify-content: center; gap: 0.2rem; font-size: 0.7rem; color: var(--text); line-height: 1.35; }
+.mep-mq .vign-info b { color: var(--text-strong); font-size: 0.8rem; }
+.mep-mq .case.sans-objet { opacity: .5; }
+.mep-mq .org-tete { display: flex; align-items: center; justify-content: space-between; gap: 0.4375rem 0.7875rem; flex-wrap: wrap; }
+.mep-mq .org-tete .radio-gros { margin-top: 0; }
+.mep-mq .cote-inline { display: flex; align-items: center; gap: 0.4375rem; font-size: 0.7rem; color: var(--text-strong); }
+.mep-mq .cote-inline .seg { flex-wrap: nowrap; }
+.mep-mq .cote-inline .seg button { flex: none; min-width: 0; padding: 0.2625rem 0.5687rem; }
+.mep-mq .mini-titre { margin: 0.4375rem 0 0.0875rem; font-size: 0.7rem; color: var(--text-strong); }
+.mep-mq .checks.auto { grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); }
+.mep-mq .quatre { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; align-items: stretch; }
+.mep-mq .quatre .boite { padding: 0.55rem 0.7rem; }
+.mep-mq .quatre .boite h4 { font-size: 0.85rem; margin-bottom: 0.3rem; }
+.mep-mq .quatre .rad { font-size: 0.82rem; padding: 0.15rem 0; }
+.mep-mq .quatre .rad small { font-size: 0.7rem; margin-left: 1.4rem; }
+.mep-mq .quatre .ck { font-size: 0.82rem; }
+.mep-mq .ligne-plus { display: flex; flex-wrap: wrap; gap: 0.35rem 1.05rem; align-items: center; margin-top: 0.4375rem; grid-template-columns: none; }
+.mep-mq .inline { display: flex; align-items: center; gap: 0.3937rem; }
+.mep-mq .inline label { margin: 0; font-size: 0.6825rem; font-weight: 700; color: var(--text-strong); white-space: nowrap; }
+.mep-mq .inline select { width: auto; }
+.mep-mq .choix-exp { margin-top: 0.4375rem; }
+.mep-mq .choix-corps { margin-top: 0.4rem; padding: 0.4rem 0.525rem 0.4375rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 9px; }
+.mep-mq .choix-exp.desactivee > summary { opacity: .45; pointer-events: none; cursor: not-allowed; }
+.mep-mq .choix-titre { display: flex; flex-wrap: wrap; gap: 0.0875rem 0.525rem; align-items: baseline; margin-bottom: 0.2625rem; font-size: 0.735rem; color: var(--text-strong); }
+.mep-mq .choix-titre span { font-size: 0.6475rem; color: var(--text-muted); }
+.mep-mq .choix-exp > summary { list-style: none; cursor: pointer; margin-bottom: 0; align-items: center; }
+.mep-mq .choix-exp > summary::-webkit-details-marker { display: none; }
+.mep-mq .choix-exp > summary .chev { margin-left: auto; color: var(--accent); font-size: 0.9625rem; transition: transform .15s; }
+.mep-mq .choix-exp[open] > summary .chev { transform: rotate(180deg); }
+/* Zone depliante des experiences : un VRAI bouton (bordure d'accent, texte centre), pas une simple ligne de texte. */
+.mep-mq .choix-exp > summary.choix-bouton { display: flex; align-items: center; justify-content: center; gap: 0.7rem; text-align: center; width: 100%; min-height: 3.6rem; box-sizing: border-box; border: 1.5px solid var(--accent); background: var(--bg-card); border-radius: var(--radius); padding: 0.55rem 0.8rem; margin-bottom: 0.2625rem; }
+.mep-mq .choix-exp > summary.choix-bouton:hover { background: var(--bg-hover); }
+.mep-mq .choix-bouton .cb-texte { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+.mep-mq .choix-bouton b { color: var(--accent); font-size: 0.85rem; }
+.mep-mq .choix-bouton small { color: var(--text-muted); font-size: 0.68rem; }
+.mep-mq .choix-bouton em { font-style: normal; color: var(--text-strong); font-size: 0.68rem; font-weight: 600; }
+.mep-mq .choix-bouton .chev { font-size: 1.4rem; line-height: 1; }
+.mep-mq .choix-exp[open] .cb-ouvrir, .mep-mq .choix-exp:not([open]) .cb-fermer { display: none; }
+.mep-mq .choix-exp[open] > summary { margin-bottom: 0.2625rem; }
+.mep-mq .choix-aide { margin: 0 0 0.3062rem; font-size: 0.665rem; color: var(--text-muted); }
+/* Une experience / formation / entree par ligne (retour Denis 2026-10-02) : deux par ligne etaient trop serrees. Un filet fin separe les lignes. */
+.mep-mq .mep-liste-choix-exp { display: grid; grid-template-columns: 1fr; gap: 0.0438rem 0; }
+.mep-mq .mep-liste-choix-exp > .ligne-bloc { border-bottom: 1px solid var(--border); padding: 0.1rem 0; }
+.mep-mq .mep-liste-choix-exp > .ligne-bloc:last-child { border-bottom: 0; }
+.mep-mq .mep-liste-choix-exp .ligne-choix { flex-wrap: wrap; row-gap: 0.15rem; }
+.mep-mq .mep-liste-choix-exp .ligne-choix .nom { flex: 1 1 14rem; }
+.mep-mq .ligne-choix { display: flex; align-items: center; gap: 0.3937rem; font-size: 0.7rem; color: var(--text-strong); padding: 0.0875rem 0; }
+.mep-mq .ligne-choix input[type=checkbox] { width: 0.875rem; height: 0.875rem; accent-color: var(--accent); flex: 0 0 auto; }
+.mep-mq .ligne-choix .nom { flex: 1; min-width: 0; line-height: 1.2; }
+.mep-mq .ligne-choix .nom em { color: var(--text-muted); font-style: normal; font-size: 0.6475rem; }
+.mep-mq .ligne-choix .pas button { width: 1.3125rem; height: 1.3125rem; font-size: 0.8312rem; }
+.mep-mq .ligne-choix .pas span { min-width: 1.4rem; font-size: 0.7rem; }
+.mep-mq .ligne-choix.off { opacity: .55; }
+.mep-mq .ligne-choix.off .pas { pointer-events: none; }
+.mep-mq .ligne-bloc { min-width: 0; }
+.mep-mq .ligne-bloc.ouvert { grid-column: 1 / -1; }
+.mep-mq .ligne-choix .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.0875rem 0.3937rem; font-size: 0.63rem; white-space: nowrap; }
+.mep-mq .ligne-choix .btn-miss.perso { border-color: var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); }
+.mep-mq .miss-liste { margin: 0.1313rem 0 0.3062rem 1.2688rem; padding: 0.3062rem 0.4375rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+.mep-mq .miss-liste .miss-tete { display: flex; justify-content: space-between; gap: 0.4375rem; flex-wrap: wrap; font-size: 0.6475rem; color: var(--text-muted); margin-bottom: 0.175rem; }
+/* Les deux listes « Choisir » des competences sont COTE A COTE, une colonne par rubrique (demande de Denis) : professionnelles a gauche, comportementales a droite, chacune dans son rectangle a liseré bleu (une seule couleur dans tout le panneau ; les deux listes se distinguent par leur titre). Une seule ouverte : elle prend toute la largeur. Sur ecran etroit, elles s'empilent. */
+.mep-mq #mepZoneQualitesMetier { margin: 0.35rem 0 0.4rem; }
+.mep-mq #mepZoneQualitesMetier .mention-secteur { margin: 0 0 0.4rem; font-size: 0.75rem; color: var(--text-muted); }
+.mep-mq #mepZoneQualitesMetier .checks { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+/* Accroche : « Sans accroche » puis « Version courte » juste a sa droite, sur une meme ligne, en grands boutons, ecriture normale. */
+.mep-mq .ligne-accroche-options { display: flex; justify-content: flex-start; align-items: stretch; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+.mep-mq .ligne-accroche-options .ck-marque { font-size: 0.8rem; font-weight: 400; padding: 0.5rem 0.9rem; gap: 0.5rem; border-radius: 10px; }
+.mep-mq .bloc-accroche.inactif { opacity: .45; }
+.mep-mq .btn-miss:disabled { opacity: .5; cursor: not-allowed; }
+.mep-mq .ligne-accroche-options .ck-marque input { width: 1rem; height: 1rem; }
+/* Case « Ajouter les qualites attendues » : un vrai bouton, plus grand et plus visible que les cases voisines (demande de Denis). Ecriture normale. */
+.mep-mq #mepZoneQualitesMetier .ck-marque { font-size: 0.875rem; font-weight: 400; padding: 0.6rem 1rem; gap: 0.6rem; border: 2px solid var(--accent); border-radius: 10px; line-height: 1.3; }
+.mep-mq #mepZoneQualitesMetier .ck-marque input { width: 1.1rem; height: 1.1rem; flex: 0 0 auto; }
+.mep-mq #mepZoneQualitesMetier .ck-marque .ex { display: block; font-size: 0.7rem; margin-top: 0.15rem; }
+.mep-mq #mepZoneQualitesMetier .btn-miss { display: inline-block; margin-top: 0.25rem; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.6825rem; white-space: nowrap; cursor: pointer; }
+.mep-mq .champ .miss-liste { margin: 0.3rem 0 0 0; border-top: 4px solid var(--accent); }
+/* Bouton d'ouverture des listes de competences : plus grand et plus visible (demande de Denis). */
+.mep-mq .ligne-comp .btn-miss[data-mep-pick] { padding: 0.3125rem 0.75rem; font-size: 0.7875rem; font-weight: 400; border: 1px solid var(--accent); border-radius: 8px; white-space: normal; text-align: left; }
+.mep-mq .miss-liste .miss-tete button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.0875rem 0.4813rem; font-size: 0.6475rem; white-space: nowrap; cursor: pointer; }
+.mep-mq .miss-liste label { display: flex; gap: 0.3937rem; align-items: flex-start; font-size: 0.6825rem; color: var(--text-strong); padding: 0.105rem 0; line-height: 1.25; }
+.mep-mq .miss-liste label input { margin-top: 0.105rem; accent-color: var(--accent); }
+.mep-mq .miss-liste label.non { color: var(--text-muted); }
+/* Competences des listes « Les montrer et les choisir » : ecriture normale (ni gras ni italique) ; en gras seulement quand elles sont cochees (demande de Denis). */
+.mep-mq .champ .miss-liste label { display: flex; font-weight: 400; font-style: normal; margin-bottom: 0; }
+.mep-mq .miss-liste label em { font-style: normal; font-weight: 400; }
+.mep-mq .miss-liste label:has(input:checked) > span { font-weight: 700; }
+.mep-mq .seg-mini button { flex: none; min-width: 0; padding: 0.2188rem 0.525rem; font-size: 0.7rem; }
+.mep-mq .seg-mini button small { display: block; font-weight: 400; color: var(--text-muted); font-size: 0.595rem; line-height: 1.15; margin-top: 0.0875rem; }
+.mep-mq .seg-mini button.on small { color: var(--accent); }
+.mep-mq .seg button small { display: block; font-weight: 400; color: var(--text-muted); font-size: 0.6125rem; line-height: 1.2; margin-top: 0.0875rem; }
+.mep-mq .seg button.on small { color: var(--accent); }
+.mep-mq .ligne-comp { display: flex; align-items: center; gap: 0.4375rem; }
+.mep-mq .ligne-comp .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.6825rem; white-space: nowrap; }
+.mep-mq .ligne-comp .btn-miss.perso { border-color: var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); }
+.mep-mq .ex { color: var(--text-muted); font-size: 0.6475rem; }
+.mep-mq .miss-liste .tag-ecart { color: var(--warning); font-style: normal; font-size: 0.63rem; margin-left: 0.2625rem; }
+.mep-mq .mep-pick-pro,
+.mep-mq .mep-pick-comp { margin: 0.35rem 0 0; }
+.mep-mq .mep-pick-pro .cols,
+.mep-mq .mep-pick-comp .cols { columns: 1; }
+.mep-mq .mep-pick-pro label,
+.mep-mq .mep-pick-comp label { break-inside: avoid; }
+.mep-mq .pas button:disabled { opacity: .35; cursor: not-allowed; }
+.mep-mq .ligne-choix .sur { color: var(--text-muted); font-size: 0.63rem; min-width: 1.1375rem; }
+.mep-mq .mep-btn { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: var(--radius); padding: 0.3937rem 0.7438rem; font-weight: 600; display: inline-flex; gap: 0.4375rem; align-items: center; }
+.mep-mq .mep-btn.principal { background: var(--accent-solide); border-color: var(--accent-solide); color: #fff; padding: 0.4375rem 0.9625rem; }
+.mep-mq .info-page { font-size: 0.6475rem; color: var(--text-muted); margin: 0.3062rem 0.175rem 0; display: flex; justify-content: space-between; gap: 0.4375rem; flex-wrap: wrap; }
+
+/* ---- Ajouts propres a l'application (absents de la maquette, memes valeurs que ses regles) ---- */
+/* Le rond a engrenage vit dans la tete du rectangle "La mise en page" : meme rendu que .entete .rond */
+.mep-mq .rond { width: 1.925rem; height: 1.925rem; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border);
+  display: grid; place-items: center; color: var(--accent); box-shadow: var(--shadow); flex: 0 0 auto; }
+/* Reprises de la maquette (regles situees plus bas dans son fichier) */
+.mep-mq .sw.entreprise { outline: 2px dashed var(--text-muted); outline-offset: 2px; }
+.mep-mq .btn-g-i.on { border-color: var(--accent-solide) !important; background: var(--accent-solide) !important; color: #fff !important; box-shadow: inset 0 0 0 1px var(--accent-solide); }
+/* Fenetres de la maquette (aide, exportation) : memes regles que .voile / .fenetre / .encart / .fermer.
+   Seul changement : z-index 3000 (au-dessus de la barre et des icones de l'application). */
+.mep-mq .voile { position: fixed; inset: 0; background: rgba(8,12,20,.55); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 0.875rem; }
+.mep-mq .voile.ouvert { display: flex; }
+.mep-mq .fenetre { background: var(--bg-card); color: var(--text); border-radius: 14px; max-width: 560px; width: 100%; padding: 1.05rem 1.1375rem; box-shadow: var(--shadow); }
+.mep-mq .fenetre h3 { margin: 0 0 .35rem; color: var(--text-strong); }
+.mep-mq .encart { margin-top: 0.6125rem; padding: 0.525rem 0.7rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 8px; font-size: 0.7875rem; color: var(--text-strong); }
+.mep-mq .fermer { float: right; border: 0; background: none; font-size: 1.1375rem; color: var(--text-muted); }
+/* Demande de Denis (2026-09-25) : couleur de l'entreprise et « Personnalisee » sur UNE seule ligne, sous les 5 teintes */
+.mep-mq .swatches-ligne2 { flex-wrap: nowrap; }
+.mep-mq .swatches-ligne2 .sw-entreprise-msg { max-width: 6.5rem; }
+.mep-mq .swatches-ligne2 .sw-perso { white-space: nowrap; }
+/* « Revenir au modele de depart » : a droite d'« Apercu en plein ecran », sur la meme ligne (2026-09-26, demande de Denis) */
+.mep-mq .rangee-modes .mep-btn-depart { margin-left: auto; white-space: nowrap; }
+/* « Valider le CV » : tout en bas de la colonne des reglages, sous « Reglages supplementaires » ; bouton a gauche, message et infos a sa suite */
+.mep-mq .bloc-valider-mep { display: flex; align-items: center; justify-content: flex-start; gap: 0.9rem; flex-wrap: wrap; margin-top: 0.75rem; }
+.mep-mq .bloc-valider-mep .mep-btn { white-space: nowrap; flex: 0 0 auto; }
+.mep-mq .bloc-valider-mep .valider-infos { display: flex; flex-direction: column; gap: 0.2rem; flex: 1 1 14rem; min-width: 0; }
+.mep-mq .bloc-valider-mep .avert-page { font-size: 0.75rem; }
+.mep-mq .bloc-valider-mep .info-page { margin: 0; flex-direction: column; gap: 0.1rem; }
+
+/* ---- Plein ecran (tranche 4) : memes regles que .plein / .plein-corps / .plein-outils / .plein-zone / .plein-tete / .barre-rub / .toast de la maquette
+   (rem x 0,875). Seuls changements : z-index au-dessus de la barre et des icones de l'application. ---- */
+.mep-mq .plein { position: fixed; inset: 0; z-index: 3100; background: var(--bg-page); display: none; flex-direction: column; }
+.mep-mq .plein.ouvert { display: flex; }
+.mep-mq .plein-corps { display: grid; grid-template-columns: 300px 1fr; flex: 1; min-height: 0; }
+.mep-mq .plein-outils { border-right: 1px solid var(--border); background: var(--bg-card); padding: 0.7875rem; overflow: auto; display: flex; flex-direction: column; gap: 0.4813rem; }
+.mep-mq .plein-outils .t { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 9px; padding: 0.35rem 0.525rem; text-align: left; font-weight: 600; font-size: 0.735rem; }
+.mep-mq .plein-outils .t.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+.mep-mq .plein-outils details { border: 1px solid var(--border); border-radius: 10px; padding: 0.3937rem 0.6125rem; font-size: 0.7525rem; background: var(--bg-subtle); }
+.mep-mq .plein-outils details summary { cursor: pointer; font-weight: 600; color: var(--text-strong); }
+.mep-mq .plein-outils details p { margin: 0.35rem 0 0; color: var(--text-muted); }
+.mep-mq .plein-zone { overflow: auto; padding: 0.875rem; display: flex; justify-content: center; background: var(--bg-page); }
+.mep-mq .plein-tete { display: flex; gap: 0.525rem; align-items: center; padding: 0.525rem 0.875rem; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+.mep-mq .plein-tete .hint { color: var(--text-muted); font-size: 0.7437rem; }
+.mep-mq #mqZoneDisp { border: 1px solid var(--border); border-radius: 10px; padding: 0.4375rem 0.525rem; background: var(--bg-subtle); font-size: 0.735rem; }
+.mep-mq #mqZoneDisp .seg { margin: 0.2625rem 0 0.3937rem; }
+.mep-mq .barre-rub { position: fixed; z-index: 3200; background: var(--bg-card); color: var(--text-strong); border: 1px solid var(--accent); border-radius: 10px; padding: 0.35rem 1.925rem 0.35rem 0.525rem; box-shadow: var(--shadow); display: flex; flex-wrap: wrap; gap: 0.35rem 0.7rem; align-items: center; font-size: 0.7rem; max-width: 470px; }
+/* Retour Denis 2026-09-28 : la croix de fermeture se perdait au milieu des autres boutons (fin de la rangee "Position/Remettre") - deplacee dans le coin, comme une fermeture de fenetre classique. */
+.mep-mq .barre-rub-fermer { position: absolute; top: 0.35rem; right: 0.35rem; }
+/* Couleur de chaque zone (Denis, 2026-09-29) : barre flottante au meme style que les autres barres du plein ecran ; degrade en bas a droite. */
+.mep-mq .barre-coul { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 0.45rem; width: 20.5rem; max-width: 92vw; padding: 0.55rem 1.925rem 0.6rem 0.7rem; }
+.mep-mq .barre-coul b { font-size: 0.78rem; }
+.mep-mq .barre-coul .rang { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.mep-mq .barre-coul .sw { padding: 0; border-radius: 50%; border: 3px solid transparent; width: 1.6188rem; height: 1.6188rem; }
+.mep-mq .barre-coul .sw.on { border-color: var(--bg-card); }
+.mep-mq .barre-coul .pied { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; border-top: 1px solid var(--border); padding-top: 0.4rem; }
+.mep-mq .barre-coul .case { display: flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; color: var(--text); cursor: pointer; }
+.mep-mq .barre-coul .pied .case { margin-left: auto; } /* Degrade : toujours en bas a droite (demande de Denis) */
+.mep-mq .barre-coul .note { margin: 0; font-size: 0.66rem; color: var(--text-muted); line-height: 1.3; }
+.mep-mq .barre-coul .alerte-contraste { margin: 0; font-size: 0.68rem; line-height: 1.35; color: var(--text-strong); background: var(--warning-bg-subtle); border-left: 3px solid var(--warning); border-radius: 6px; padding: 0.35rem 0.5rem; }
+.mep-mq .barre-coul .alerte-contraste.faible { border-left-color: var(--danger); background: var(--danger-bg-subtle); }
+
+.mep-mq .barre-rub .grp { display: inline-flex; align-items: center; gap: 0.2625rem; }
+.mep-mq .barre-rub button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 7px; padding: 0.175rem 0.4375rem; font-size: 0.6825rem; }
+.mep-mq .barre-rub .seg { gap: 0.2188rem; flex-wrap: nowrap; }
+.mep-mq .barre-rub button.on, .mep-mq .barre-rub .seg button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+.mep-mq .barre-rub input[type="range"] { width: 92px; accent-color: var(--accent); }
+.mep-mq .barre-rub output { min-width: 2.6em; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-strong); }
+.mep-mq #mqBarreBloc.sans-libre .libre-seul { display: none; }
+.mep-mq .toast { position: fixed; left: 50%; bottom: 4.375rem; transform: translateX(-50%); background: var(--text-strong); color: var(--bg-card); padding: 0.4813rem 0.875rem; border-radius: 10px; z-index: 3300; font-size: 0.7875rem; display: none; }
+/* Fenetre « Exporter votre CV » de la maquette (tranche 5) : boutons .gros (action principale) et .sec (autres). */
+.mep-mq .fenetre .gros { display: block; width: 100%; margin-top: 0.525rem; padding: 0.7rem 0.875rem; border-radius: 12px; border: 1px solid var(--accent-solide); background: var(--accent-solide); color: #fff; font-weight: 700; text-align: left; }
+.mep-mq .fenetre .sec { display: block; width: 100%; margin-top: 0.4375rem; padding: 0.525rem 0.875rem; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); text-align: left; }
+.mep-mq .fenetre .sec:hover { border-color: var(--accent); color: var(--accent); }
+.mep-mq .fenetre .lien-odt { display: inline-block; margin-top: 0.6125rem; padding: 0; border: 0; background: none; color: var(--text-muted); font-size: 0.7rem; text-decoration: underline; }
+.mep-mq .fenetre .aide-odt { margin-top: 0.3rem; font-size: 0.7rem; color: var(--text-strong); }
+
+/* Petits ecrans (telephone) : la maquette ne definit rien sous 1050 px hors « une colonne ». Regles ajoutees pour qu'aucun texte
+   ne soit coupe ou ne sorte d'un bouton (regle de Denis) : les 2 grandes actions du haut s'empilent, la barre du bas passe a la ligne. */
+@media (max-width: 560px) {
+  .mep-mq .cartes-haut { grid-template-columns: 1fr; }
+  .mep-mq .plein-corps { grid-template-columns: 1fr; }
+  .mep-mq .plein-outils { border-right: 0; border-bottom: 1px solid var(--border); max-height: 40vh; }
+  /* Éléments supplémentaires : les deux rubriques de compétences s'empilent (une colonne), plus aucune case coupée. */
+  .mep-mq .grille-el { grid-template-columns: 1fr; }
+  .mep-mq .ck-marque { min-width: 0; overflow-wrap: anywhere; }
+}
+
+/* Carte Format : les 5 formats en tuiles (le texte ne sort jamais du bouton : il passe a la ligne). */
+.mep-mq .fmt-tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.4375rem; }
+.mep-mq .fmt-tuile { display: flex; flex-direction: column; gap: 0.15rem; text-align: left; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text); border-radius: 10px; padding: 0.5rem 0.65rem; min-width: 0; }
+.mep-mq .fmt-tuile b { color: var(--text-strong); font-size: 0.8rem; overflow-wrap: anywhere; }
+.mep-mq .fmt-tuile span { font-size: 0.66rem; color: var(--text-muted); line-height: 1.3; overflow-wrap: anywhere; }
+.mep-mq .fmt-tuile.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); }
+.mep-mq .fmt-tuile.on b { color: var(--accent); }
+.mep-mq .fmt-tuile:hover { border-color: var(--accent); }
+/* Suggestions d'informations complementaires */
+.mep-mq .sugg-infos { margin-top: 0.4rem; padding: 0.5rem 0.6rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); display: flex; flex-direction: column; gap: 0.4rem; }
+.mep-mq .sugg-groupe b { font-size: 0.68rem; color: var(--text-strong); display: block; margin-bottom: 0.2rem; }
+.mep-mq .sugg-liste { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.mep-mq .sugg-item { font-weight: 500; font-size: 0.72rem; text-align: left; max-width: 100%; }
+.mep-mq .sugg-item.deja { opacity: .5; }
+/* Zone « Relier mes competences a mes experiences » (dans la carte des experiences) */
+.mep-mq .liens-liste { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 0.4rem; }
+.mep-mq .lien-comp { font-weight: 700; font-size: 0.78rem; color: var(--text-strong); margin-bottom: 0.2rem; }
+.mep-mq .lien-exps { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.mep-mq .lien-exp { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text); border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.7rem; text-align: left; max-width: 100%; }
+.mep-mq .lien-exp span { opacity: .7; }
+.mep-mq .lien-exp.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 600; }
+.mep-mq .lien-exp.suggere { border-style: dashed; }
+.mep-mq .lien-sugg { border-left: 3px solid var(--accent); padding-left: 0.5rem; }
+.mep-mq .lien-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.6rem; flex-wrap: wrap; }
+/* Edition a la main des experiences (dans la zone « Modifier mes experiences et leurs missions ») */
+.mep-mq .exp-edit { margin: 0.3rem 0 0.6rem; padding: 0.5rem 0.6rem; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); }
+.mep-mq .exp-edit .champ label { font-size: 0.68rem; font-weight: 700; color: var(--text-strong); display: block; margin-bottom: 0.15rem; }
+.mep-mq .exp-edit input[type=text], .mep-mq .exp-edit textarea { width: 100%; box-sizing: border-box; }
+.mep-mq .exp-edit-etat { min-height: 1.1em; margin-top: 0.25rem; font-size: 0.68rem; color: var(--accent); font-weight: 600; text-align: right; }
+/* Personnaliser en 2 colonnes */
+.mep-mq .perso-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 0.6rem; }
+.mep-mq .perso-col { border: 1px solid var(--border); border-radius: 10px; padding: 0.45rem 0.55rem; background: var(--bg-card); }
+.mep-mq .perso-col > b { font-size: 0.72rem; color: var(--text-strong); display: block; margin-bottom: 0.3rem; }
+.mep-mq .perso-ligne { margin-top: 0.3rem; }
+.mep-mq .perso-ligne.paire-perso { border-left: 3px solid var(--accent); padding-left: 0.35rem; background: var(--accent-bg-subtle); border-radius: 6px; }
+.mep-mq .perso-bloc { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 0.4rem; padding: 0.15rem 0; }
+.mep-mq .perso-nom { font-size: 0.72rem; font-weight: 600; color: var(--text-strong); flex: 1 1 8rem; min-width: 0; overflow-wrap: anywhere; }
+.mep-mq .perso-btns { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+/* Suggestions de mise en page (zone « Ce que Mise en page a fait ») */
+.mep-mq .rect-prop.rect-petit { min-height: 2.4rem; padding: 0.25rem 0.6rem; }
+.mep-mq .rect-prop.rect-petit b { font-size: 0.78rem; }
+.mep-mq .rect-prop.rect-petit small { font-size: 0.64rem; }
+.mep-mq .rect-prop { width: 100%; min-height: 3.6rem; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; text-align: center; border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--text); border-radius: var(--radius); padding: 0.5rem 0.7rem; cursor: pointer; }
+.mep-mq .rect-prop b { display: block; color: var(--accent); font-size: 0.85rem; }
+.mep-mq .rect-prop small { color: var(--text-muted); font-size: 0.68rem; }
+.mep-mq .rect-prop .chev { font-size: 1.3rem; line-height: 1; transition: transform .15s; }
+.mep-mq .rect-prop.ouvert .chev { transform: rotate(180deg); }
+.mep-mq .rect-prop .badge { display: inline-block; background: var(--accent); color: #fff; border-radius: 999px; font-size: 0.65rem; padding: 0 0.45rem; margin-left: 0.3rem; }
+.mep-mq .depli { margin-top: 0.6rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 9px; padding: 0.55rem 0.65rem; }
+.mep-mq .depli .sous { color: var(--text-muted); font-size: 0.72rem; margin: 0 0 0.45rem; }
+.mep-mq .props { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+.mep-mq .prop { border: 1px solid var(--border-strong); border-radius: 10px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; background: var(--bg-card); }
+.mep-mq .prop.appliquee { border-color: var(--accent); }
+.mep-mq .prop b { color: var(--text-strong); font-size: 0.8rem; }
+.mep-mq .prop p { margin: 0; font-size: 0.72rem; color: var(--text-muted); line-height: 1.3; }
+.mep-mq .prop .gain { color: var(--accent); font-weight: 700; }
+.mep-mq .vignette { height: 84px; background: #e9edf2; border: 1px solid var(--border); border-radius: 6px; padding: 5px; display: grid; align-content: start; gap: 3px; }
+.mep-mq .vignette.deux { grid-template-columns: 34% 1fr; }
+.mep-mq .vignette i { display: block; height: 6px; background: #b9c3d0; border-radius: 2px; }
+.mep-mq .vignette .t { background: #5f7fa8; height: 8px; }
+.mep-mq .vignette .col { display: flex; flex-direction: column; gap: 3px; }
+.mep-mq .prop-carte { display: flex; flex-direction: column; gap: 0.3rem; text-align: left; border: 1.5px solid var(--border-strong); border-radius: 10px; padding: 0.45rem; background: var(--bg-card); color: var(--text); min-width: 0; }
+.mep-mq .prop-carte b { color: var(--text-strong); font-size: 0.78rem; overflow-wrap: anywhere; }
+.mep-mq .prop-carte .gain { color: var(--accent); font-weight: 700; font-size: 0.7rem; }
+.mep-mq .prop-carte.choisie { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); background: var(--accent-bg-subtle); }
+.mep-mq .prop-carte .etiquette-appliquee { font-size: 0.68rem; font-weight: 700; color: var(--accent); }
+.mep-mq .sugg-detail { margin-top: 0.6rem; padding: 0.5rem 0.65rem; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); font-size: 0.8rem; color: var(--text-strong); }
+.mep-mq .sugg-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.mep-mq .sugg-pager { display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-top: 0.5rem; font-size: 0.75rem; }
+.mep-mq .pills-2col-info { display: none; }
+.mep-mq .style-grille .gab-ligne { border-top: 0; margin-top: 0.5rem; padding-top: 0; }
+.mep-mq .style-grille .gab-ligne .vignettes { height: 7rem; }
+@media (max-width: 640px) { .mep-mq .props { grid-template-columns: 1fr; } }
+.mep-mq .alerte-masquees { margin-top: 0.5rem; padding: 0.4rem 0.6rem; border: 1px solid var(--warning-border); border-left-width: 4px; background: var(--warning-bg-subtle); border-radius: 8px; font-size: 0.72rem; color: var(--text-strong); }
+/* Les deux colonnes du haut ont TOUJOURS la meme largeur : la rangee des modeles defile dans la colonne de gauche au lieu de l'elargir. */
+.mep-mq .style-grille > div { min-width: 0; }
+/* Les modeles s'affichent sur toute la largeur et passent a la ligne : aucune barre de defilement (demande de Denis, 2026-09-26). */
+.mep-mq .gab-ligne .vignettes { flex-wrap: wrap; overflow: visible; height: auto; min-height: 6.4rem; }
+.mep-mq .desc-allure { margin-top: 0.6rem; padding: 0.5rem 0.7rem; border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); font-size: 0.74rem; color: var(--text); line-height: 1.35; }
+.mep-mq .desc-allure b { color: var(--text-strong); }
+.mep-mq .gab-ligne .vignettes { min-height: 0; }
+/* Liste « Corrections faites sur le CV » (au-dessus de « Valider le CV ») */
+.mep-mq .corrections-cv { margin-top: 0.75rem; border: 1px solid var(--border-strong); border-radius: 10px; padding: 0.4rem 0.7rem; background: var(--bg-subtle); font-size: 0.78rem; }
+.mep-mq .corrections-cv > summary { cursor: pointer; font-weight: 600; color: var(--text-strong); }
+.mep-mq .corrections-cv .sous-aide { margin: 0.35rem 0; color: var(--text-muted); }
+.mep-mq .corrections-cv .corr-ligne { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; padding: 0.25rem 0; border-top: 1px solid var(--border); }
+.mep-mq .corrections-cv .corr-ligne span { min-width: 0; overflow-wrap: anywhere; }
+.mep-mq .corrections-cv .corr-ligne .mep-btn { flex: 0 0 auto; white-space: nowrap; }
+/* Edition d'une experience a la fois : nom cliquable, pied du formulaire avec « Valider » a droite */
+.mep-mq .ligne-choix .nom.cliquable { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 2px; }
+.mep-mq .ligne-choix .nom.cliquable:hover { color: var(--accent); }
+.mep-mq .exp-edit-pied { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-top: 0.4rem; }
+.mep-mq .exp-edit-pied .exp-edit-etat { margin: 0; text-align: left; flex: 1 1 auto; min-width: 0; }
+.mep-mq .exp-edit-pied .mep-btn { flex: 0 0 auto; white-space: nowrap; }
+.mep-mq #mqBarreBloc.sans-boite .boite-seule { display: none; }
+.mep-mq .mep-exp-mode-ligne { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.mep-mq .mep-exp-mode-ligne .rad { flex: 1 1 8rem; }
+/* Denis, 2026-09-29 (Rectangles arrondis) : pile de trois feuilles qui montre l'ordre des rectangles (1 = devant). */
+.mep-mq .mq-pile { position: relative; display: inline-block; width: 56px; height: 40px; vertical-align: middle; margin: 0 8px; }
+.mep-mq .mq-pile i { position: absolute; width: 30px; height: 22px; border: 2px solid var(--border-strong); border-radius: 4px; background: var(--bg-card); color: var(--text-muted);
+  font: 700 10px/16px sans-serif; text-align: right; padding-right: 3px; box-sizing: border-box; font-style: normal; box-shadow: 0 1px 3px rgba(0, 0, 0, .18); }
+.mep-mq .mq-pile i.cur { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+
+/* Mode sombre : le bleu clair de l'accent ne donnait que 3 sur 1 de contraste avec le texte blanc des deux grandes cartes (« Style rapide », « Mise en page »).
+   Bleu plus profond et texte plein : environ 4,9 sur 1 (controle du 2026-09-30). */
+[data-theme="sombre"] .mep-mq .carte-action { background: #2b6cd9; }
+[data-theme="sombre"] .mep-mq .carte-action:hover { background: #2358b3; }
+[data-theme="sombre"] .mep-mq .carte-action small { color: #fff; }
+
+/* « Éditer les expériences » : vrai bouton sous les quatre boîtes de la carte Expériences (retour Denis 2026-10-02). La case reste là (masquée), le gestionnaire est inchangé. */
+.mep-mq .bouton-editer { position: relative; display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; box-sizing: border-box; margin: 0.55rem 0 0.15rem; min-height: 2.4rem; padding: 0.35rem 0.8rem; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.mep-mq .bouton-editer:hover { background: var(--bg-hover); }
+.mep-mq .bouton-editer.on { background: var(--accent); color: #fff; }
+.mep-mq .bouton-editer input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.mep-mq .bouton-editer:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mep-mq .bouton-editer small { font-weight: 400; color: inherit; opacity: 0.85; font-size: 0.7rem; }
+.mep-mq .bouton-editer svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+
+/* Boutons de mise en forme G / I / S (gras, italique, souligne) : plus grands, faciles a toucher (retour Denis 2026-10-02). Le style en ligne de chaque bouton est surcharge ici,
+   la couleur « actif » (bleu plein) reste celle de .btn-g-i.on. */
+.mep-mq .btn-g-i { padding: 0.3rem 0.85rem !important; font-size: 0.95rem !important; min-width: 2.5rem; min-height: 2.1rem; cursor: pointer; }
+
+/* Bandeau « Detail » compact (cartes Formations et Experience personnelle, retour Denis 2026-10-02) : trois rangees sur toute la largeur, au lieu d'une boite haute. */
+.mep-mq .detail-compact { border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); padding: 0.45rem 0.7rem; margin-top: 0.55rem; }
+.mep-mq .detail-compact h4 { margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--text-strong); }
+.mep-mq .detail-compact .rangee { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1.1rem; padding: 0.15rem 0; }
+.mep-mq .detail-compact .rangee + .rangee { border-top: 1px dashed var(--border); }
+.mep-mq .detail-compact .rangee > label.t { font-size: 0.74rem; font-weight: 600; color: var(--text-strong); }
+.mep-mq .detail-compact .ck { margin: 0; }
+
+/* ============================================================
+   GRANDS BOUTONS (retour Denis 2026-10-03) : reglage d'interface « Grands boutons » (panneau des preferences d'affichage ou case en haut de l'ecran).
+   Cibles d'au moins 44 px (taille conseillee pour un doigt), texte d'au moins 14 px, cases et curseurs plus grands. Ne touche JAMAIS au CV (iframe) ni a ses reglages.
+   Attribut data-grands-boutons="1" sur la racine ; rien ne change sans lui.
+   ============================================================ */
+.mep-mq .entete { flex-wrap: wrap; }
+.mep-mq .entete-boutons { margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: stretch; }
+.mep-mq .entete .entete-boutons .aide { margin-left: 0; }
+/* Bouton « Boutons plus grands » : actif = plein, comme un interrupteur. */
+.mep-mq .entete .aide-grands.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+[data-theme="sombre"] .mep-mq .entete .aide-grands.on { background: #2b6cd9; border-color: #2b6cd9; color: #fff; }
+[data-grands-boutons="1"] .mep-mq { font-size: 1rem; }
+[data-grands-boutons="1"] .mep-mq button,
+[data-grands-boutons="1"] .mep-mq select,
+[data-grands-boutons="1"] .mep-mq input[type=text],
+[data-grands-boutons="1"] .mep-mq textarea { min-height: 2.75rem; font-size: 1rem !important; }
+[data-grands-boutons="1"] .mep-mq button { min-width: 2.75rem; padding-left: 0.9rem !important; padding-right: 0.9rem !important; }
+[data-grands-boutons="1"] .mep-mq .pas button { width: 2.75rem !important; height: 2.75rem !important; font-size: 1.3rem !important; }
+[data-grands-boutons="1"] .mep-mq .pas span { min-width: 2rem !important; font-size: 1rem !important; }
+[data-grands-boutons="1"] .mep-mq .ligne-choix,
+[data-grands-boutons="1"] .mep-mq label.ck,
+[data-grands-boutons="1"] .mep-mq label.rad,
+[data-grands-boutons="1"] .mep-mq .ck-marque { min-height: 2.75rem; font-size: 1rem !important; align-items: center; padding-top: 0.2rem; padding-bottom: 0.2rem; }
+[data-grands-boutons="1"] .mep-mq .ligne-choix .nom,
+[data-grands-boutons="1"] .mep-mq .nom { font-size: 1rem !important; line-height: 1.3; }
+[data-grands-boutons="1"] .mep-mq input[type=checkbox],
+[data-grands-boutons="1"] .mep-mq input[type=radio] { width: 1.5rem !important; height: 1.5rem !important; }
+[data-grands-boutons="1"] .mep-mq input[type=range] { height: 2.4rem; }
+[data-grands-boutons="1"] .mep-mq .seg button,
+[data-grands-boutons="1"] .mep-mq .btn-g-i,
+[data-grands-boutons="1"] .mep-mq .btn-miss,
+[data-grands-boutons="1"] .mep-mq .mep-btn { min-height: 2.75rem; }
+[data-grands-boutons="1"] .mep-mq details.mep-carte > summary { min-height: 3rem; }
+[data-grands-boutons="1"] .mep-mq .sous,
+[data-grands-boutons="1"] .mep-mq .ex,
+[data-grands-boutons="1"] .mep-mq .choix-aide,
+[data-grands-boutons="1"] .mep-mq small,
+[data-grands-boutons="1"] .mep-mq .rad small { font-size: 0.9rem !important; }
+[data-grands-boutons="1"] .mep-mq h4 { font-size: 1.05rem; }
+[data-grands-boutons="1"] .mep-mq .detail-compact .rangee > label.t { font-size: 0.95rem; }
+
+/* Phrase d'accroche (retour Denis 2026-10-03) : phrase choisie et propositions lisibles EN ENTIER, avant de choisir. */
+.mep-mq .accroche-actuelle { flex: 1; min-width: 0; padding: 0.45rem 0.6rem; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-card); color: var(--text-strong); font-size: 0.8rem; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; }
+.mep-mq .liste-accroches { display: flex; flex-direction: column; gap: 0.35rem; }
+.mep-mq .champ label.rad-accroche, .mep-mq .rad-accroche { display: flex; font-weight: 400; margin-bottom: 0; align-items: flex-start; gap: 0.5rem; padding: 0.5rem 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card); font-size: 0.8rem; line-height: 1.4; }
+.mep-mq .rad-accroche input { margin: 0.2rem 0 0; flex: 0 0 auto; }
+.mep-mq .rad-accroche.choisie { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.mep-mq .rad-accroche-texte { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.mep-mq .rad-accroche-texte b { display: block; color: var(--accent); font-size: 0.7rem; margin-bottom: 0.1rem; }
+[data-grands-boutons="1"] .mep-mq label.rad.rad-accroche { align-items: flex-start; }
+/* Grands boutons : rien ne doit déborder ni cacher un autre réglage (retour Denis 2026-10-03). Les pastilles de couleur passent sur plusieurs lignes au lieu de sortir de leur zone ; les gros boutons d'action laissent leur texte revenir à la ligne. */
+[data-grands-boutons="1"] .mep-mq .swatches,
+[data-grands-boutons="1"] .mep-mq .swatches-une-ligne,
+[data-grands-boutons="1"] .mep-mq .swatches-ligne2 { flex-wrap: wrap; gap: 0.5rem; }
+[data-grands-boutons="1"] .mep-mq .swatches .sw,
+[data-grands-boutons="1"] .mep-mq .swatches-une-ligne .sw { flex: 0 0 2.75rem; width: 2.75rem; height: 2.75rem; min-width: 2.75rem; padding: 0 !important; }
+[data-grands-boutons="1"] .mep-mq .ligne-action .carte-action.retreci b,
+[data-grands-boutons="1"] .mep-mq .ligne-action .carte-action.retreci small { white-space: normal; overflow: visible; text-overflow: clip; }
+[data-grands-boutons="1"] .mep-mq .carte-action { padding-left: 0.6rem !important; padding-right: 0.6rem !important; text-align: left; }
+/* Grands boutons : plancher de taille pour TOUS les textes d'aide, étiquettes de champ et titres (retour Denis 2026-10-03 : « Titre du CV », « Phrase d'accroche », « Couleurs »... restaient à 10-13 px). Aucun texte sous 14,4 px. */
+[data-grands-boutons="1"] .mep-mq label,
+[data-grands-boutons="1"] .mep-mq .champ label,
+[data-grands-boutons="1"] .mep-mq .inline label,
+[data-grands-boutons="1"] .mep-mq summary,
+[data-grands-boutons="1"] .mep-mq .titre-mini,
+[data-grands-boutons="1"] .mep-mq .cb-ouvrir,
+[data-grands-boutons="1"] .mep-mq .cb-fermer,
+[data-grands-boutons="1"] .mep-mq em,
+[data-grands-boutons="1"] .mep-mq strong,
+[data-grands-boutons="1"] .mep-mq b,
+[data-grands-boutons="1"] .mep-mq p,
+[data-grands-boutons="1"] .mep-mq .encart,
+[data-grands-boutons="1"] .mep-mq .desc-allure,
+[data-grands-boutons="1"] .mep-mq .sw-perso,
+[data-grands-boutons="1"] .mep-mq .sw-entreprise-msg,
+[data-grands-boutons="1"] .mep-mq .mep-note-format,
+[data-grands-boutons="1"] .mep-mq .sous-aide,
+[data-grands-boutons="1"] .mep-mq .info-page,
+[data-grands-boutons="1"] .mep-mq .sur,
+[data-grands-boutons="1"] .mep-mq .accroche-actuelle,
+[data-grands-boutons="1"] .mep-mq .rad-accroche,
+[data-grands-boutons="1"] .mep-mq h4,
+[data-grands-boutons="1"] .mep-mq .ligne-choix .nom em { font-size: max(0.9rem, 1em) !important; }
+[data-grands-boutons="1"] .mep-mq h3 { font-size: 1rem; }
+[data-grands-boutons="1"] .mep-mq .sw-entreprise-msg { max-width: 12rem; }
+/* Grands boutons : toutes les cases et tous les boutons ronds ont EXACTEMENT la même taille, même quand le texte voisin passe sur plusieurs lignes (retour Denis 2026-10-03 : certaines cases étaient écrasées). */
+[data-grands-boutons="1"] .mep-mq input[type=checkbox],
+[data-grands-boutons="1"] .mep-mq input[type=radio] { flex: 0 0 1.5rem !important; min-width: 1.5rem !important; max-width: 1.5rem !important; min-height: 1.5rem !important; box-sizing: border-box; }
+[data-grands-boutons="1"] .mep-mq .fmt-tuile span { font-size: 0.9rem !important; }
+[data-grands-boutons="1"] .mep-mq label.ck,
+[data-grands-boutons="1"] .mep-mq label.rad,
+[data-grands-boutons="1"] .mep-mq .checks.auto > * { min-width: 0; overflow-wrap: anywhere; }
+[data-grands-boutons="1"] .mep-mq label.ck > span,
+[data-grands-boutons="1"] .mep-mq label.rad > span { min-width: 0; }
+[data-grands-boutons="1"] .mep-mq .checks.auto { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+/* Grands boutons, petit écran (375 px) : les rangées de choix passent à la ligne au lieu de dépasser leur carte. */
+[data-grands-boutons="1"] .mep-mq .seg,
+[data-grands-boutons="1"] .mep-mq .cote-inline,
+[data-grands-boutons="1"] .mep-mq .org-tete,
+[data-grands-boutons="1"] .mep-mq .ligne-plus,
+[data-grands-boutons="1"] .mep-mq .mep-simple-opt { flex-wrap: wrap; min-width: 0; max-width: 100%; }
+[data-grands-boutons="1"] .mep-mq .seg button,
+[data-grands-boutons="1"] .mep-mq .seg label { flex: 1 1 auto; min-width: 0; }
+[data-grands-boutons="1"] .mep-mq .sw-perso,
+[data-grands-boutons="1"] .mep-mq .swatches-ligne2 .sw-perso { white-space: normal; }
+[data-grands-boutons="1"] .mep-mq .mep-2col-grille,
+[data-grands-boutons="1"] .mep-mq .mep-2col-reglages,
+[data-grands-boutons="1"] .mep-mq details.mep-carte,
+[data-grands-boutons="1"] .mep-mq .carte-corps { min-width: 0; }
+[data-grands-boutons="1"] .mep-mq .inline { flex-wrap: wrap; min-width: 0; max-width: 100%; }
+[data-grands-boutons="1"] .mep-mq .inline select { max-width: 100%; }
+[data-grands-boutons="1"] .mep-mq .sw-entreprise-indispo { flex-wrap: wrap; min-width: 0; }
+
+/* Zone « Couleurs » : sans le mode Grands boutons, elle reste ouverte et son bouton est masqué (rien ne change) ; avec le mode, un seul bouton ouvre toutes les options de couleur. */
+.mep-mq .zone-couleurs { margin-top: 0; }
+.mep-mq .zone-couleurs > summary.choix-bouton { display: none; }
+.mep-mq .zone-couleurs > .choix-corps { margin-top: 0; padding: 0; border-left: 0; background: transparent; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs > summary.choix-bouton { display: flex; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs > .choix-corps { margin-top: 0.4rem; padding: 0.4rem 0.525rem 0.4375rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); }
+.mep-mq .cb-pastille { width: 2rem; height: 2rem; border-radius: 50%; flex: 0 0 auto; border: 3px solid var(--bg-card); outline: 1px solid var(--border-strong); }
+[data-grands-boutons="1"] .mep-mq .miss-tete,
+[data-grands-boutons="1"] .mep-mq .miss-tete span,
+[data-grands-boutons="1"] .mep-mq .rappel-missions { font-size: 0.9rem !important; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs > summary.choix-bouton { flex-wrap: nowrap; min-height: 3.6rem; }
+
+/* Zone « Choisir mes couleurs » (mode Grands boutons) : bouton compact, contenu rangé en sections titrées alignées. */
+.mep-mq .coul-titre { display: none; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs > summary.choix-bouton { min-height: 2.75rem; padding: 0.25rem 0.8rem; justify-content: flex-start; text-align: left; gap: 0.6rem; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .cb-texte { align-items: flex-start; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .cb-pastille { width: 1.6rem; height: 1.6rem; border-width: 2px; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .chev { margin-left: auto; font-size: 1.2rem; }
+[data-grands-boutons="1"] .mep-mq .coul-titre { display: block; margin: 0 0 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--text-strong); }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .swatches-ligne2 > .coul-titre,
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .choix-corps > .coul-titre:not(:first-child) { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .swatches-une-ligne { display: grid; grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr)); justify-items: center; gap: 0.5rem; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .swatches-ligne2 { display: flex; flex-direction: column; align-items: stretch; gap: 0.4rem; margin-top: 0.7rem !important; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .sw-perso { border-left: 0; padding: 0.3rem 0.6rem; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); min-height: 2.75rem; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .sw-entreprise-indispo,
+[data-grands-boutons="1"] .mep-mq .zone-couleurs .swatches-ligne2 > .sw.entreprise { align-self: flex-start; }
+[data-grands-boutons="1"] .mep-mq .zone-couleurs label.case { margin-top: 0 !important; padding: 0.3rem 0.6rem; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); min-height: 2.75rem; align-items: center; gap: 0.5rem; }
+
+/* Option courte + petit « ? » (retour Denis 2026-10-03) */
+.mep-mq .opt-aide { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; min-width: 0; }
+.mep-mq .opt-aide > label { flex: 0 1 auto; min-width: 0; }
+.mep-mq .aide-option { width: 1.5rem; height: 1.5rem; padding: 0; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); font-weight: 700; font-size: 0.75rem; line-height: 1; display: inline-grid; place-items: center; flex: 0 0 auto; }
+.mep-mq .aide-option:hover, .mep-mq .aide-option[aria-expanded="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); }
+.mep-mq .aide-option-texte { flex: 1 0 100%; margin: 0 0 0.2rem; padding: 0.35rem 0.55rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 6px; font-size: 0.75rem; line-height: 1.35; color: var(--text-strong); }
+.mep-mq .aide-option-texte[hidden] { display: none; }
+[data-grands-boutons="1"] .mep-mq .aide-option { width: 2.75rem; height: 2.75rem; min-width: 2.75rem; font-size: 1.1rem; }
+[data-grands-boutons="1"] .mep-mq .aide-option-texte { font-size: 0.9rem !important; }
+
+.mep-mq .opt-aide { display: block; min-width: 0; }
+.mep-mq .opt-aide .aide-option { vertical-align: middle; margin-left: 0.15rem; }
+.mep-mq .opt-aide > label { flex: initial; min-width: 0; }
+.mep-mq .opt-aide .aide-option-texte { grid-column: 1 / -1; }
+.mep-mq .opt-aide .mot-final { white-space: nowrap; }
+
+/* « Détails » (Réglages supplémentaires) : contenu affiché directement, plus de clic en plus (retour Denis 2026-10-03). */
+.mep-mq .details-direct { margin-top: 0.5rem; border-top: 0; padding-top: 0; }
+.mep-mq .details-direct > summary { display: none; }
+
+/* Boutons de choix des Réglages supplémentaires : même charte que les autres boutons de choix de l'écran (.seg). */
+.mep-mq .mep-simple-duo { display: flex; flex-wrap: wrap; gap: 0.4375rem; }
+.mep-mq .mep-simple-opt { flex: 1; min-width: 80px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 9px; padding: 0.28rem 0.4375rem; font-size: 0.7525rem; font-weight: 400; cursor: pointer; }
+.mep-mq .mep-simple-opt:hover { border-color: var(--accent); background: var(--bg-hover); }
+.mep-mq .mep-simple-opt.actif { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+
+/* Rubrique OUVERTE : son en-tête devient un bandeau plein, titre plus grand, pour savoir où commence et où finit chaque panneau (retour Denis 2026-10-03). */
+.mep-mq details.mep-carte[open] > summary { background: var(--accent); color: #fff; border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0; padding-top: 0.55rem; padding-bottom: 0.55rem; }
+.mep-mq details.mep-carte[open] > summary h3 { color: #fff; font-size: 1.1rem; }
+.mep-mq details.mep-carte[open] > summary .sous { color: rgba(255, 255, 255, 0.88); }
+.mep-mq details.mep-carte[open] > summary svg.ic,
+.mep-mq details.mep-carte[open] > summary .chev { color: #fff; stroke: currentColor; }
+[data-theme="sombre"] .mep-mq details.mep-carte[open] > summary { background: #2b6cd9; }
+/* Panneaux imbriqués (dans « Réglages supplémentaires ») : bandeau plus discret pour garder la hiérarchie */
+.mep-mq details.mep-carte details.mep-carte[open] > summary { background: var(--accent-bg-subtle); color: var(--accent); }
+.mep-mq details.mep-carte details.mep-carte[open] > summary h3 { color: var(--accent); font-size: 1rem; }
+.mep-mq details.mep-carte details.mep-carte[open] > summary .sous { color: var(--text-muted); }
+.mep-mq details.mep-carte details.mep-carte[open] > summary svg.ic,
+.mep-mq details.mep-carte details.mep-carte[open] > summary .chev { color: var(--accent); }
+[data-theme="sombre"] .mep-mq details.mep-carte details.mep-carte[open] > summary { background: var(--accent-bg-subtle); }
+/* Sous le bandeau bleu d'une rubrique ouverte : de l'air avant les premiers boutons (retour Denis 2026-10-03). */
+.mep-mq details.mep-carte[open] > .carte-corps { padding-top: 1.1rem; }
+.mep-mq details.mep-carte details.mep-carte[open] > .carte-corps { padding-top: 0.6rem; }
+[data-grands-boutons="1"] .mep-mq .resultat-mep,
+[data-grands-boutons="1"] .mep-mq .badge { font-size: max(0.9rem, 1em) !important; }
+/* « ? » aligné au centre de la ligne de son intitulé, quel que soit le conteneur */
+.mep-mq label .aide-option, .mep-mq h4 .aide-option { vertical-align: middle; margin-left: 0.25rem; }
+.mep-mq .rad .aide-option { display: inline-grid; }
+/* Boutons secondaires « btn-miss » : même aspect partout, même hors d'une ligne de choix (retour Denis 2026-10-03 : « Changer dans Mise en page et texte » était un gros bouton gris du navigateur). */
+.mep-mq .inline .btn-miss, .mep-mq .champ .btn-miss, .mep-mq .pied-options-supp .btn-miss, .mep-mq .boite-titre-bouton .btn-miss, .mep-mq .conseil-missions .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.6825rem; white-space: nowrap; cursor: pointer; }
+.mep-mq .inline .btn-miss:hover, .mep-mq .champ .btn-miss:hover, .mep-mq .pied-options-supp .btn-miss:hover, .mep-mq .boite-titre-bouton .btn-miss:hover, .mep-mq .conseil-missions .btn-miss:hover { border-color: var(--accent); background: var(--accent-bg-subtle); }
+/* Edition des competences : memes champs que « Changer l'intitule » (coins arrondis, bordure du panneau), un par ligne, avec « Ajouter » dans le style des boutons du panneau. */
+.mep-mq #mepEditComp input[type=text] { flex: 1; min-width: 0; border: 1px solid var(--border-strong); border-radius: 8px; padding: 0.3rem 0.5rem; font-size: 0.75rem; font-family: inherit; background: var(--bg-card); color: var(--text-strong); }
+.mep-mq #mepEditComp .ligne-comp { display: flex; align-items: center; gap: 0.4rem; }
+.mep-mq #mepEditComp .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.6825rem; white-space: nowrap; cursor: pointer; }
+/* Bouton secondaire ACTIF (options ouvertes) : bleu, pour voir d'un coup d'oeil que les choix en dessous viennent de lui (retour Denis 2026-10-04). */
+.mep-mq .btn-miss.actif { background: var(--accent); border-color: var(--accent); color: #fff; }
+.mep-mq .btn-miss.actif:hover { background: var(--accent); color: #fff; }
+.mep-mq .conseil-missions { margin: 0.1rem 0 0.3rem 1rem; font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.mep-mq .boite-titre-bouton { display: flex; align-items: center; justify-content: flex-start; gap: .6rem; flex-wrap: wrap; }
+.mep-mq .boite-titre-bouton h4 { margin: 0; }
+.mep-mq .dates-plus { display: inline-flex; align-items: center; gap: .4rem; }
+/* Lot N2 (2026-10-04) : pied de carte « Options supplementaires » et retour depuis « Reglages supplementaires ». */
+.mep-mq .pied-options-supp { margin-top: 0.6rem; padding-top: 0.45rem; border-top: 1px dashed var(--border-strong); }
+.mep-mq .flash-supp { animation: flash-supp 1.6s ease-out; }
+@keyframes flash-supp { 0% { box-shadow: 0 0 0 4px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.mep-mq .inline > .sous { font-size: 0.7rem; color: var(--text-muted); }
+.mep-mq .mot-final { white-space: nowrap; }
+
+/* Signes devant les competences des listes « Les montrer et les choisir » : point plein = tiree du CV, losange vide = attendue dans le metier.
+   La legende est cachee derriere un « ? » (retour Denis 2026-10-03). */
+.mep-mq .miss-liste .sg { display: inline-block; width: 1.1rem; text-align: center; font-size: 0.95rem; line-height: 1; flex: 0 0 auto; }
+.mep-mq .miss-liste .sg.cv { color: var(--accent); }
+.mep-mq .miss-liste .sg.att { color: #b7791f; }
+[data-theme="sombre"] .mep-mq .miss-liste .sg.att { color: #e6b45a; }
+.mep-mq .miss-liste .legende { margin: 0.2rem 0 0.35rem; padding: 0.4rem 0.55rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-subtle, var(--accent-bg-subtle)); font-size: 0.72rem; color: var(--text-strong); line-height: 1.45; }
+.mep-mq .miss-liste .legende[hidden] { display: none; }
+.mep-mq .miss-liste .legende > div { display: flex; gap: 0.4rem; align-items: baseline; }
+.mep-mq .miss-tete .aide-option { vertical-align: middle; margin-left: 0.3rem; }
+[data-grands-boutons="1"] .mep-mq .miss-liste .sg { font-size: 1.15rem; width: 1.4rem; }
+[data-grands-boutons="1"] .mep-mq .miss-liste .legende { font-size: 0.9rem !important; }
+.mep-mq .miss-liste .pied-legende { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.35rem; font-size: 0.68rem; color: var(--text-muted); }
+[data-grands-boutons="1"] .mep-mq .miss-liste .pied-legende { font-size: 0.9rem !important; }
+/* Disposition des compétences : les TROIS boutons sur UNE seule ligne (retour Denis 2026-10-03) ; l'intitulé passe au-dessus si la place manque. */
+.mep-mq .dispo-ligne { flex-wrap: wrap; }
+.mep-mq .dispo-ligne > label { flex: 1 0 100%; }
+.mep-mq .dispo-ligne .seg { flex-wrap: nowrap; max-width: 100%; }
+.mep-mq .dispo-ligne .seg button { white-space: nowrap; min-width: 0; padding-left: 0.35rem; padding-right: 0.35rem; flex: 0 1 auto; }
+[data-grands-boutons="1"] .mep-mq .dispo-ligne .seg button { padding-left: 0.25rem !important; padding-right: 0.25rem !important; font-size: 0.9rem !important; }
+/* Boutons radio avec « ? » (expérience personnelle, formations, expériences) : bouton rond, texte et « ? » sur une même ligne, alignés au centre (retour Denis 2026-10-03). */
+.mep-mq label.rad:has(.mot-final) { display: flex; align-items: center; gap: 0.4rem; }
+.mep-mq label.rad:has(.mot-final) > input { margin: 0; flex: 0 0 auto; }
+.mep-mq .rad .mot-final { display: inline-flex; align-items: center; gap: 0.3rem; white-space: normal; min-width: 0; }
+.mep-mq .rad .mot-final .aide-option { margin-left: 0; }
+.mep-mq .mep-exp-mode-ligne .rad { flex: 1 1 14rem; }
+/* Intitulés de rubriques modifiables : bouton « Changer l'intitulé » + propositions (retour Denis 2026-10-03) */
+.mep-mq .ligne-intitule { margin: 0 0 0.6rem; padding-bottom: 0.55rem; border-bottom: 1px dashed var(--border); }
+.mep-mq .ligne-intitule .zone-propositions { margin-top: 0.45rem; }
+.mep-mq .ligne-intitule .zone-propositions[hidden], .mep-mq .ligne-intitule .libre[hidden] { display: none; }
+.mep-mq .ligne-intitule .libre { margin-top: 0.4rem; align-items: center; }
+.mep-mq .ligne-intitule input[type=text] { flex: 1; min-width: 0; border: 1px solid var(--border-strong); border-radius: 8px; padding: 0.3rem 0.5rem; font-size: 0.75rem; background: var(--bg-card); color: var(--text-strong); }
+.mep-mq .ligne-intitule .rappel { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem; }
+.mep-mq .ligne-intitule .retour { border: 0; background: none; color: var(--accent); font-size: 0.65rem; cursor: pointer; padding: 0; text-decoration: underline; min-height: 0; }
+.mep-mq .ligne-intitule .sous { font-size: 0.65rem; color: var(--text-muted); font-weight: 400; }
+.mep-mq .sous-rub { margin-top: 0.6rem; font-size: 0.75rem; color: var(--text-strong); }
+.mep-mq .sous-rub .sous { font-size: 0.65rem; color: var(--text-muted); font-weight: 400; }
+.mep-mq .autres-titres { margin-top: 0.4rem; }
+[data-grands-boutons="1"] .mep-mq .ligne-intitule .rappel, [data-grands-boutons="1"] .mep-mq .ligne-intitule .sous, [data-grands-boutons="1"] .mep-mq .sous-rub, [data-grands-boutons="1"] .mep-mq .sous-rub .sous { font-size: 0.9rem !important; }
+[data-grands-boutons="1"] .mep-mq .ligne-intitule .retour { font-size: 0.9rem !important; }
+.mep-mq .ligne-intitule[hidden], .mep-mq .autres-titres[hidden] { display: none; }
+/* Compact : le bouton « Changer l'intitulé » ne doit pas allonger le panneau (retour Denis 2026-10-03). */
+.mep-mq .ligne-intitule { margin: 0.1rem 0 0.3rem; padding-bottom: 0; border-bottom: 0; }
+.mep-mq .ligne-intitule .ligne-comp { margin: 0; }
+.mep-mq .opt-rub { min-width: 0; }
+.mep-mq .opt-rub .ligne-intitule { margin: 0 0 0.2rem 1.3rem; }
+.mep-mq .ligne-intitule .btn-miss { padding: 0.0875rem 0.4rem; font-size: 0.62rem; }
+[data-grands-boutons="1"] .mep-mq .ligne-intitule .btn-miss { padding: 0.2rem 0.6rem; font-size: 0.9rem !important; }
+/* Informations complémentaires : case, intitulé et « ? » sur la même ligne (la rubrique prend toute la largeur de la liste) */
+.mep-mq .opt-rub-large { grid-column: 1 / -1; }
+
+/* Bouton « Stage » sur la ligne de chaque expérience (retour Denis 2026-10-03) : même charte que « Missions » */
+.mep-mq .btn-stage { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.0875rem 0.5rem; font-size: 0.63rem; white-space: nowrap; cursor: pointer; }
+.mep-mq .btn-stage[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); font-weight: 700; }
+[data-grands-boutons="1"] .mep-mq .btn-stage { font-size: 0.9rem !important; padding: 0.2rem 0.7rem; }
+
+/* Carte « Organisation du CV » (retour Denis 2026-10-03) : option inutilisable = grisee, visible, avec son « ? » ; blocs courts grises avec deux colonnes ; formes de puces par rubrique. */
+.mep-mq .cote-inline.sans-objet { opacity: .5; }
+.mep-mq .cote-inline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+.mep-mq .puces-par-rubrique { margin-top: 0.4rem; display: grid; gap: 0.25rem; }
+.mep-mq .puces-par-rubrique .inline label { min-width: 9.5rem; }
+/* Grands boutons : une option par ligne, pour qu'aucun intitule (« Meme ecriture partout ») ne passe sur deux lignes. */
+[data-grands-boutons="1"] .mep-mq .checks.auto { grid-template-columns: 1fr; }
+
+/* Infobulle flottante des « ? » (retour Denis 2026-10-03) : posee par-dessus la page, rien ne bouge ; croix, clic ailleurs ou Echap pour fermer. */
+.mep-bulle-aide { position: fixed; z-index: 3000; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; text-align: left; background: var(--bg-card); color: var(--text-strong); border: 1px solid var(--border-strong); border-radius: 1rem; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); padding: 0.9rem 2.4rem 0.9rem 1rem; }
+.mep-bulle-aide[hidden] { display: none; }
+.mep-bulle-aide .mep-bulle-texte { font-size: 0.88rem; line-height: 1.4; color: var(--text); }
+.mep-bulle-aide .mep-bulle-texte .legende > div { display: flex; gap: 0.5rem; margin-bottom: 0.35rem; }
+.mep-bulle-fermer { position: absolute; top: 0.5rem; right: 0.5rem; width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0; }
+.mep-bulle-fermer:hover { color: var(--text-strong); }
+[data-grands-boutons="1"] .mep-bulle-aide .mep-bulle-texte { font-size: 1rem; }
+[data-grands-boutons="1"] .mep-bulle-fermer { width: 2.75rem; height: 2.75rem; font-size: 1.3rem; }
+[data-grands-boutons="1"] .mep-bulle-aide { padding-right: 3.4rem; }
+
+/* Choix du style des compétences (Général, Pastilles, Rectangles, Texte) + « ? » : une seule ligne en affichage normal (retour Denis 2026-10-03) ; en grands boutons la ligne peut passer à la suivante. */
+.mep-mq .inline > .seg.seg-mini { flex: 0 1 auto; min-width: 0; }
+.mep-mq .inline > .seg.seg-mini button { white-space: nowrap; padding-left: 0.4rem; padding-right: 0.4rem; }
+[data-grands-boutons="1"] .mep-mq .inline:has(> .seg.seg-mini) { flex-wrap: wrap; }
+
+/* Choix a deux boutons sur toute la largeur de la ligne (professionnelles / comportementales, disposition et missions de « Competences en action ») - retour Denis 2026-10-03 */
+.mep-mq .champ-pleine > .seg { width: 100%; flex-wrap: nowrap; }
+.mep-mq .champ-pleine > .seg button { flex: 1 1 0; min-width: 0; white-space: normal; }
+.mep-mq .champ-pleine > label { display: block; margin-bottom: 0.2rem; }
