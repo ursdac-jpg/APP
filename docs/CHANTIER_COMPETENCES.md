@@ -327,7 +327,7 @@ est mathématiquement bien borné 0-100, mais :
   ensembles comparés : un seul élément coché qui correspond peut saturer toute une catégorie à
   100 %, même si le métier a neuf autres exigences jamais confirmées.
 - Les deux failles jouent dans le même sens : un profil pauvre peut être flatté, jamais l'inverse.
-- **Précédent produit direct dans l'app** : `docs/ETAT_DES_CHANTIERS_2026-08-24.md:141` documente
+- **Précédent produit direct dans l'app** : `docs/ETAT_DES_CHANTIERS.md:141` documente
   qu'un « score de compétitivité chiffré » a été explicitement écarté dans le module Bilan de
   candidature, remplacé par une échelle qualitative (`BILAN_RESTITUTION_QUALITATIVE` : très
   convaincant / convaincant / à renforcer / prioritaire) : décision déjà prise pour ce même public.

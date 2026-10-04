@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Carte « Compétences » de « La mise en page » : choix de la disposition des compétences comportementales (et professionnelles), 2026-10-02.
+  Construite comme la maquette de la carte Expériences : VRAI balisage de la carte (copié de l'application), VRAIES feuilles de style
+  (css/style.css et css/mise-en-page-maquette.css). Seul ce qui change est marqué : bouton « Montrer ce qui change » dans la barre de la maquette.
+  Aujourd'hui : les compétences professionnelles ont une case « sur 2 colonnes » ; les comportementales n'ont AUCUN choix de disposition.
+  Rien n'est enregistré ; contenu fictif. Notes et verdict : bouton « Notes de la maquette ».
+  Thème sombre : bouton de la barre (data-theme="sombre"). Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Carte Compétences, disposition</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font-size: .78rem; color: var(--text-muted); font-family: "Segoe UI", sans-serif; }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 920px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  body.marquer [data-change] { outline: 2px dashed #e08a00; outline-offset: 2px; position: relative; }
+  body.marquer [data-change]::before { content: attr(data-change); position: absolute; top: -.85rem; right: 0; background: #e08a00; color: #fff; font: 600 .62rem "Segoe UI", sans-serif; padding: .05rem .4rem; border-radius: 4px; z-index: 5; white-space: nowrap; }
+  /* Petit apercu du bloc sur le CV (maquette seulement) : les trois dispositions */
+  .apercu { margin-top: .45rem; border: 1px solid var(--border-strong); border-radius: 8px; background: #fff; color: #1c2430; padding: .45rem .6rem; font: .72rem "Segoe UI", sans-serif; }
+  .apercu .t { font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #2f6690; border-bottom: 1px solid #b9c4d2; margin-bottom: .3rem; font-size: .68rem; }
+  .apercu .pill { display: inline-block; background: #e9ecf0; border-radius: 12px; padding: 1px 8px; margin: 0 4px 4px 0; }
+  .apercu .pill.rect { border-radius: 3px; }
+  .apercu .pill.texte { background: none; padding: 0; margin: 0 .3em 0 0; border-radius: 0; }
+  .apercu .sepa { margin: 0 .35em 0 0; }
+  .apercu ul { margin: 0; padding-left: 1.1rem; }
+  .apercu.une .pill { display: block; width: max-content; }
+  .apercu.deux .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; }
+  .apercu.deux .pill { display: block; width: max-content; }
+  [hidden] { display: none !important; }
+  dialog { max-width: 720px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); }
+  dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+
+<div class="ecran"><div class="mep-mq">
+<details class="mep-carte" id="cComp" open>
+  <summary><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg><div><h3>Compétences <span class="sous" style="font-weight:400;margin-left:0.5rem">Professionnelles et comportementales : lesquelles montrer, et dans quel ordre.</span></h3></div><span class="chev">&#8963;</span></summary>
+  <div class="carte-corps">
+    <div class="grille-el">
+
+      <div class="champ"><label class="ck ck-marque on"><input type="checkbox" checked> Afficher les compétences professionnelles</label>
+        <label>Compétences professionnelles à afficher</label>
+        <div class="ligne-comp"><div class="pas"><button type="button">&minus;</button><span>6</span><button type="button">+</button></div><button type="button" class="btn-miss">Les montrer et les choisir &#9662;</button></div>
+        <!-- CHANGE : la case « sur 2 colonnes » devient un choix a trois positions, sous la rubrique concernee -->
+        <div class="inline" style="margin-top:.45rem" data-change="La case « sur 2 colonnes » devient un choix à 3 positions (même réglage derrière)"><label>Disposition</label>
+          <div class="seg seg-mini" data-famille="pro"><button type="button" class="on" data-v="suite">À la suite</button><button type="button" data-v="une">Une colonne</button><button type="button" data-v="deux">Deux colonnes</button></div></div>
+        <!-- CHANGE (v2) : style propre a la famille ; « comme le style général » = le réglage de « Mise en page et texte » (par défaut) -->
+        <div class="inline" style="margin-top:.45rem" data-change="Nouveau : style par famille (exception ; par défaut, le style général)"><label>Style</label>
+          <div class="seg seg-mini" data-style="pro"><button type="button" class="on" data-v="general" title="Comme le style général de « Mise en page et texte »">Général</button><button type="button" data-v="pastille">Pastilles</button><button type="button" data-v="rect">Rectangles</button><button type="button" data-v="texte">Texte</button></div></div>
+        <div class="inline" data-sepa="pro" hidden style="margin-top:.45rem" data-change="Nouveau : signe entre les compétences (texte, à la suite)"><label>Signe entre les compétences</label>
+          <div class="seg seg-mini" data-sepseg="pro"><button type="button" class="on" data-v="rond">&bull;</button><button type="button" data-v="median">&middot;</button><button type="button" data-v="carre">&#9632;</button><button type="button" data-v="losange">&#9670;</button><button type="button" data-v="barre">|</button></div></div>
+        <div class="inline" data-puces="pro" hidden style="margin-top:.45rem" data-change="Rappel du réglage général « Forme des puces » (pas un 2e réglage)"><label>Puces</label><span class="sous">Forme des puces : <b>rond</b> (réglage général)</span> <button type="button" class="btn-miss">Changer dans « Mise en page et texte » &rarr;</button></div>
+        <div class="apercu" data-apercu="pro"></div>
+      </div>
+
+      <div class="champ"><label class="ck ck-marque on"><input type="checkbox" checked> Afficher les compétences comportementales</label>
+        <label>Compétences comportementales à afficher</label>
+        <div class="ligne-comp"><div class="pas"><button type="button">&minus;</button><span>5</span><button type="button">+</button></div><button type="button" class="btn-miss">Les montrer et les choisir &#9662;</button></div>
+        <!-- CHANGE : nouveau, meme choix que pour les professionnelles -->
+        <div class="inline" style="margin-top:.45rem" data-change="Nouveau : les comportementales n'avaient aucun choix de disposition"><label>Disposition</label>
+          <div class="seg seg-mini" data-famille="comp"><button type="button" class="on" data-v="suite">À la suite</button><button type="button" data-v="une">Une colonne</button><button type="button" data-v="deux">Deux colonnes</button></div></div>
+        <!-- CHANGE (v2) : style propre a la famille ; « comme le style général » = le réglage de « Mise en page et texte » (par défaut) -->
+        <div class="inline" style="margin-top:.45rem" data-change="Nouveau : style par famille (exception ; par défaut, le style général)"><label>Style</label>
+          <div class="seg seg-mini" data-style="comp"><button type="button" class="on" data-v="general" title="Comme le style général de « Mise en page et texte »">Général</button><button type="button" data-v="pastille">Pastilles</button><button type="button" data-v="rect">Rectangles</button><button type="button" data-v="texte">Texte</button></div></div>
+        <div class="inline" data-sepa="comp" hidden style="margin-top:.45rem" data-change="Nouveau : signe entre les compétences (texte, à la suite)"><label>Signe entre les compétences</label>
+          <div class="seg seg-mini" data-sepseg="comp"><button type="button" class="on" data-v="rond">&bull;</button><button type="button" data-v="median">&middot;</button><button type="button" data-v="carre">&#9632;</button><button type="button" data-v="losange">&#9670;</button><button type="button" data-v="barre">|</button></div></div>
+        <div class="inline" data-puces="comp" hidden style="margin-top:.45rem" data-change="Rappel du réglage général « Forme des puces » (pas un 2e réglage)"><label>Puces</label><span class="sous">Forme des puces : <b>rond</b> (réglage général)</span> <button type="button" class="btn-miss">Changer dans « Mise en page et texte » &rarr;</button></div>
+        <div class="apercu" data-apercu="comp"></div>
+      </div>
+
+    </div>
+    <div id="mepZoneQualitesMetier"><div class="checks auto"><label class="ck ck-marque on"><input type="checkbox" checked> Ajouter les qualités attendues pour ce poste (11) <span class="ex">Proposées pour ce métier : gardez ce qui vous ressemble</span></label></div></div>
+    <p class="choix-aide" style="margin-top:.5rem">Le style des compétences (pastilles, rectangles, texte) se choisit toujours dans « Mise en page et texte ». La disposition ci-dessus s'applique quel que soit ce style.</p>
+  </div>
+</details>
+</div></div>
+
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <p><b>Ce qui existe aujourd'hui (audit du code, 2026-10-02)</b> :</p>
+  <ul>
+    <li><b>Compétences professionnelles</b> : une case « sur 2 colonnes » (carte Compétences) ; en style « Texte », elles passent d'office sur 2 colonnes ; en Mixte, toujours sur 2 colonnes.</li>
+    <li><b>Compétences comportementales</b> : aucun choix. Elles suivent le style global (pastilles, rectangles, texte) et se placent à la suite, en continu.</li>
+  </ul>
+  <p><b>Version 2 (ajouts demandés par Denis)</b> : sous chaque famille, un <b>Style</b> propre à la famille (« Comme le style général » par défaut, puis Pastilles, Rectangles, Texte) ; en style <b>Texte</b> et « À la suite », un <b>signe entre les compétences</b> (rond, point médian, carré, losange, barre ; aujourd'hui un rond fixe) ; en style Texte et « Une colonne » / « Deux colonnes », un <b>rappel</b> du réglage général « Forme des puces » (jamais un deuxième réglage : un seul choix pour toutes les listes, décidé le 2026-10-02). Le style général de « Mise en page et texte » reste la valeur par défaut ; le style par famille est l'exception.</p>
+  <p><b>Ce que propose la maquette</b> : le même choix à trois positions pour les deux familles, sous chacune : <b>À la suite</b> (comme aujourd'hui, par défaut), <b>Une colonne</b> (une compétence par ligne), <b>Deux colonnes</b> (déjà existant pour les professionnelles). Un petit aperçu montre l'effet, dans la maquette seulement. Rien d'autre ne bouge dans la carte.</p>
+  <p><b>Verdict de faisabilité : GO.</b></p>
+  <ul>
+    <li><b>Simple, existant à réutiliser</b> : « Deux colonnes » est le mécanisme actuel (`listesDeuxColonnes`, fonction `pillsEnDeuxColonnes`), à brancher aussi sur les comportementales. « À la suite » est le rendu actuel.</li>
+    <li><b>À créer</b> : « Une colonne » (déjà codé), le style par famille (nouveau choix lu par le rendu, avec repli sur le style général), le signe de séparation en texte (les six signes des missions condensées existent déjà). Le Word lit la même mise en forme que le PDF : un essai par format.</li>
+    <li><b>Risque modéré</b> : le Word lit le rendu du PDF ; il faut vérifier qu'il reprend bien « Une colonne » et « Deux colonnes » pour les comportementales. Un essai par format, comme pour les autres étapes.</li>
+    <li><b>Aucune fonction retirée</b> : la case « 2 colonnes » des professionnelles devient une des trois positions, avec le même réglage derrière. Les anciens CV gardent leur choix.</li>
+    <li><b>Point à trancher</b> : en style « Texte » et en Mixte, les professionnelles sont aujourd'hui forcées sur 2 colonnes. Je propose de garder ce comportement tant que la personne n'a rien choisi (« À la suite » = automatique dans ces cas), et de respecter son choix dès qu'elle en fait un.</li>
+  </ul>
+  <p style="text-align:right"><button type="button" class="btn-miss" id="btnFermerNotes">Fermer</button></p>
+</dialog>
+
+<script>
+  var COMP = { pro: ['Pose de carrelage', 'Peinture en bâtiment', 'Préparation des supports', 'Lecture de plans', 'Utilisation d’outils', 'Respect des consignes de sécurité'],
+               comp: ['Sens du détail', 'Soin du travail', 'Endurance physique', 'Respect des délais', 'Travail en équipe'] };
+  var TITRES = { pro: 'Compétences professionnelles', comp: 'Compétences comportementales' };
+  var ETAT = { pro: { dispo: 'suite', style: 'general', sepa: 'rond' }, comp: { dispo: 'suite', style: 'general', sepa: 'rond' } };
+  var GENERAL = 'pastille'; /* le style general de « Mise en page et texte » dans la maquette */
+  var SIGNES = { rond: '•', median: '·', carre: '■', losange: '◆', barre: '|' };
+  function dessiner(famille) {
+    var e = ETAT[famille], style = e.style === 'general' ? GENERAL : e.style;
+    var z = document.querySelector('[data-apercu="' + famille + '"]'); z.className = 'apercu ' + (e.dispo === 'suite' ? '' : e.dispo);
+    var cls = style === 'pastille' ? '' : (style === 'rect' ? ' rect' : ' texte');
+    var items = COMP[famille], corps;
+    if (style === 'texte' && e.dispo === 'suite') {
+      corps = '<div>' + items.map(function (t, k) { return '<span>' + t + '</span>' + (k < items.length - 1 ? '<span class="sepa"> ' + SIGNES[e.sepa] + ' </span>' : ''); }).join('') + '</div>';
+    } else if (style === 'texte') {
+      var li = function (l) { return '<ul>' + l.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul>'; };
+      corps = e.dispo === 'deux' ? '<div class="grille"><div>' + li(items.slice(0, Math.ceil(items.length / 2))) + '</div><div>' + li(items.slice(Math.ceil(items.length / 2))) + '</div></div>' : li(items);
+    } else {
+      var pills = items.map(function (t) { return '<span class="pill' + cls + '">' + t + '</span>'; });
+      corps = e.dispo === 'deux' ? '<div class="grille"><div>' + pills.slice(0, Math.ceil(pills.length / 2)).join('') + '</div><div>' + pills.slice(Math.ceil(pills.length / 2)).join('') + '</div></div>' : pills.join('');
+    }
+    z.innerHTML = '<div class="t">' + TITRES[famille] + '</div>' + corps;
+    var texte = style === 'texte';
+    document.querySelector('[data-sepa="' + famille + '"]').hidden = !(texte && e.dispo === 'suite');
+    document.querySelector('[data-puces="' + famille + '"]').hidden = !(texte && e.dispo !== 'suite');
+  }
+  function brancher(attr, cle) {
+    document.querySelectorAll('[' + attr + ']').forEach(function (seg) {
+      var f = seg.getAttribute(attr);
+      seg.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () { seg.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); ETAT[f][cle] = b.getAttribute('data-v'); dessiner(f); });
+      });
+    });
+  }
+  brancher('data-famille', 'dispo'); brancher('data-style', 'style'); brancher('data-sepseg', 'sepa');
+  dessiner('pro'); dessiner('comp');
+  document.getElementById('btnMarquer').addEventListener('click', function () { this.classList.toggle('on'); document.body.classList.toggle('marquer'); });
+  document.getElementById('btnNotes').addEventListener('click', function () { document.getElementById('dlgNotes').showModal(); });
+  document.getElementById('btnFermerNotes').addEventListener('click', function () { document.getElementById('dlgNotes').close(); });
+  document.getElementById('btnSombre').addEventListener('click', function () { var h = document.documentElement; if (h.getAttribute('data-theme') === 'sombre') { h.removeAttribute('data-theme'); } else { h.setAttribute('data-theme', 'sombre'); } });
+</script>
+</body>
+</html>

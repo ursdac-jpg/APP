@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Cartes « Formations » et « Expérience personnelle » alignées sur la carte « Expériences professionnelles » (demande de Denis, 2026-10-02).
+  Même méthode que les maquettes précédentes : VRAI balisage des cartes (copié de l'application), VRAIES feuilles de style (css/style.css, css/mise-en-page-maquette.css),
+  seul ce qui change est marqué (bouton « Montrer ce qui change »). Rien n'est enregistré ; contenu fictif.
+  Ce que Denis demande : (1) même disposition que les expériences professionnelles ; (2) le bouton « Éditer » dans le même style, aussi pour les formations ;
+  (3) la liste des éléments affichés « comme dans les expériences professionnelles » (zone dépliante « Modifier mes ... et leurs missions »).
+  Thème sombre : bouton de la barre. Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Cartes Formations et Expérience personnelle</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font-size: .78rem; color: var(--text-muted); font-family: "Segoe UI", sans-serif; }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 920px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  body.marquer [data-change] { outline: 2px dashed #e08a00; outline-offset: 2px; position: relative; }
+  body.marquer [data-change]::before { content: attr(data-change); position: absolute; top: -.85rem; right: 0; background: #e08a00; color: #fff; font: 600 .62rem "Segoe UI", sans-serif; padding: .05rem .4rem; border-radius: 4px; z-index: 5; white-space: nowrap; }
+  .mep-mq .bouton-editer { position: relative; display: flex; align-items: center; justify-content: center; gap: .6rem; width: 100%; box-sizing: border-box; margin: .55rem 0 .15rem; min-height: 2.4rem; padding: .35rem .8rem; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .mep-mq .bouton-editer.on { background: var(--accent); color: #fff; }
+  .mep-mq .bouton-editer small { font-weight: 400; color: inherit; opacity: .85; font-size: .7rem; }
+  .mep-mq .bouton-editer svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .titre-carte { font: 700 .8rem "Segoe UI", sans-serif; color: var(--text-muted); margin: 1.2rem 0 .3rem; text-transform: uppercase; letter-spacing: .04em; }
+  /* Une formation / une experience par ligne (demande de Denis) : la grille a 2 colonnes de l'application passe a 1 colonne dans ces listes */
+  .mep-mq .mep-liste-choix-exp { grid-template-columns: 1fr; }
+  .mep-mq .mep-liste-choix-exp .ligne-bloc { border-bottom: 1px solid var(--border); padding: .15rem 0; }
+  .mep-mq .mep-liste-choix-exp .ligne-bloc:last-child { border-bottom: 0; }
+  .mep-mq .mep-liste-choix-exp .ligne-choix { flex-wrap: wrap; row-gap: .15rem; }
+  .mep-mq .mep-liste-choix-exp .ligne-choix .nom { flex: 1 1 14rem; min-width: 0; }
+  /* « Detail » : bandeau compact sur toute la largeur, deux rangees, au lieu d'une colonne haute */
+  .detail-compact { border: 1px solid var(--border); border-radius: 10px; background: var(--bg-subtle); padding: .45rem .7rem; margin-top: .55rem; }
+  .detail-compact h4 { margin: 0 0 .25rem; font-size: .8rem; color: var(--text-strong); }
+  .detail-compact .rangee { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1.1rem; padding: .15rem 0; }
+  .detail-compact .rangee + .rangee { border-top: 1px dashed var(--border); }
+  .detail-compact .rangee > label.t { font-size: .74rem; font-weight: 600; color: var(--text-strong); }
+  .detail-compact .ck { margin: 0; }
+  /* Style commun : quand « Même style d'écriture dans toutes les rubriques » est coché, les réglages d'écriture des formations et de l'expérience personnelle suivent les expériences : grisés, avec la raison */
+  body.lie .suit { opacity: .45; pointer-events: none; }
+  .note-suit { display: none; font-size: .7rem; color: var(--text-muted); margin-left: .5rem; }
+  body.lie .note-suit { display: inline; }
+  [hidden] { display: none !important; }
+  dialog { max-width: 720px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); }
+  dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+
+<div class="ecran"><div class="mep-mq">
+
+<!-- ======================= ORGANISATION DU CV (extrait) ======================= -->
+<p class="titre-carte">Carte « Organisation du CV » (extrait : options rapides)</p>
+<div class="mep-carte" style="padding:.6rem .8rem">
+  <h4 style="margin:0 0 .3rem;font-size:.85rem;color:var(--text-strong)">Options rapides</h4>
+  <div class="checks auto">
+    <label class="ck"><input type="checkbox" checked> Dates à la même place dans toutes les rubriques <span class="ex">(comme les expériences)</span></label>
+    <label class="ck" data-change="Nouveau : même style d'écriture dans toutes les rubriques"><input type="checkbox" id="chkStyle" checked> Même style d'écriture dans toutes les rubriques <span class="ex">(comme les expériences)</span></label>
+    <label class="ck"><input type="checkbox" checked> Compétences en haut</label>
+  </div>
+  <p class="choix-aide" style="margin:.3rem 0 0">Cochée : les formations et l'expérience personnelle s'écrivent comme les expériences professionnelles (titre en gras, italique ou souligné, style des missions). Décochée : chaque rubrique a ses propres réglages.</p>
+</div>
+
+<p class="titre-carte">Carte « Expériences professionnelles » (la référence : extrait des réglages d'écriture, inchangés)</p>
+<div class="mep-carte" style="padding:.6rem .8rem">
+  <div class="ligne-plus">
+    <div class="inline"><label>Style des missions</label><div class="seg seg-mini"><button type="button" class="on">Épurées<small>Une par ligne</small></button><button type="button">Condensées<small>À la suite</small></button></div></div>
+    <div class="inline"><label>Dates <span class="sous" style="font-weight:400">Le poste reste en gras seul</span></label><span class="grp"><button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Souligné"><u>S</u></button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Italique"><i>I</i></button></span></div>
+    <div class="inline"><label>Entreprise</label><span class="grp"><button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Souligné"><u>S</u></button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Italique"><i>I</i></button></span></div>
+  </div>
+</div>
+
+<!-- ======================= FORMATIONS ======================= -->
+<p class="titre-carte">Carte « Formations »</p>
+<details class="mep-carte" id="cForm" open>
+  <summary><svg class="ic" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><div><h3>Formations</h3><span class="sous">Choisissez quelles formations afficher.</span></div><span class="chev">&#8963;</span></summary>
+  <div class="carte-corps">
+    <div class="quatre">
+      <div class="boite"><h4>Quelles formations montrer</h4>
+        <label class="rad"><input type="radio" name="fs" checked> Complet<small>Tout votre parcours.</small></label>
+        <label class="rad"><input type="radio" name="fs"> Optimisé<small>Le diplôme le plus élevé et les formations les plus utiles.</small></label></div>
+      <div class="boite"><h4>Formations à afficher</h4>
+        <label class="rad"><input type="radio" name="ft" checked> Toutes<small>Affiche tout votre parcours de formation.</small></label>
+        <label class="rad"><input type="radio" name="ft"> Les plus pertinentes<small>Met en avant celles en lien avec votre projet.</small></label></div>
+    </div>
+
+    <!-- CHANGE (v2) : « Détail » en bandeau compact (3 rangées) au lieu d'une boîte haute ; tous les réglages de détail au même endroit -->
+    <div class="detail-compact" data-change="Détail : bandeau compact en 3 rangées (avant : boîte haute + réglages éparpillés)">
+      <h4>Détail de chaque formation</h4>
+      <div class="rangee suit" id="rTitreForm"><label class="t">Titre</label><span class="grp" data-change="Mêmes boutons que dans l'application, plus grands : on les touche facilement"><button type="button" class="btn-g-i on" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Gras"><b>G</b></button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Italique"><i>I</i></button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Souligné"><u>S</u></button></span>
+        <span class="note-suit">Titre : comme les expériences</span><label class="t">Afficher</label><label class="ck"><input type="checkbox" checked> Centre</label><label class="ck"><input type="checkbox" checked> Année</label><label class="ck"><input type="checkbox" checked> Lieu</label></div>
+      <div class="rangee"><label class="t">Informations</label><div class="seg seg-mini"><button type="button" class="on">Selon le modèle</button><button type="button">Sur une ligne</button><button type="button">En dessous</button></div>
+        <label class="t">Espace entre les formations <span>4 px</span></label><input type="range" min="0" max="32" value="4" style="width:9rem"></div>
+      <div class="rangee"><label class="t">Missions</label><label class="ck"><input type="checkbox" checked> Afficher les missions de la formation</label><span class="suit"><div class="seg seg-mini"><button type="button" class="on">Épurées<small>Une par ligne</small></button><button type="button">Condensées<small>À la suite</small></button></div></span><span class="note-suit">Style : comme les expériences</span></div>
+    </div>
+    <!-- CHANGE 1 : même bouton « Éditer » que dans les expériences professionnelles, juste sous les boîtes -->
+    <button type="button" class="bouton-editer" id="btnEditerForm" data-change="Nouveau : même bouton que dans Expériences professionnelles">
+      <svg viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <span>Éditer les formations <small>(intitulé, centre, année, missions)</small></span></button>
+    <p class="choix-aide" id="aideForm" hidden><b>Mode édition :</b> cliquez sur le nom d&rsquo;une formation pour la modifier, puis sur « Valider ». Les autres restent fermées. Vos corrections ne changent que ce CV, jamais « Vos informations ».</p>
+
+    <!-- CHANGE 2 : la liste des formations passe dans une zone dépliante, comme « Modifier mes expériences et leurs missions » -->
+    <details class="choix-exp" id="zoneForm" open data-change="Nouveau : liste dans une zone dépliante, comme pour les expériences">
+      <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Modifier mes formations et leurs missions</span><span class="cb-fermer">Refermer mes formations</span></b><small>6 formations affichées &middot; cliquez pour modifier</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+      <div class="choix-corps">
+        <p class="choix-aide">Toutes vos formations sont affichées. Pour chacune, choisissez les missions à garder.</p>
+        <div class="mep-liste-choix-exp">
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom cliquable" data-edit><b>CAP - Agent de prévention</b> <em>(2021)</em></span><span class="pas"><button type="button">&minus;</button><span>3</span><button type="button" disabled>+</button></span><span class="sur">/3</span><button type="button" class="btn-miss">Missions &#9662;</button></label></div>
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom cliquable" data-edit><b>BEP - Vente</b> <em>(2018)</em></span><span class="pas"><button type="button">&minus;</button><span>2</span><button type="button" disabled>+</button></span><span class="sur">/2</span><button type="button" class="btn-miss">Missions &#9662;</button></label></div>
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom cliquable" data-edit><b>Certification - Sensibilisation amiante</b> <em>(2026)</em></span><span class="ex">Aucune mission proposée</span></label></div>
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom cliquable" data-edit><b>Certification - Module travail en hauteur</b> <em>(2026)</em></span><span class="ex">Aucune mission proposée</span></label></div>
+        </div>
+      </div>
+    </details>
+    <!-- Les anciens boutons « Modifier » de chaque ligne disparaissent : le clic sur le nom (mode édition) ouvre le même formulaire. Rien n'est retiré. -->
+
+    <div class="ligne-plus" data-change="Ordre sous la liste, comme dans Expériences professionnelles">
+      <div class="inline"><label>Ordre</label><select><option>Du plus récent au plus ancien</option><option>Du plus ancien au plus récent</option><option selected>Du plus pertinent</option><option>Mon ordre (fait dans le grand aperçu)</option></select></div>
+    </div>
+    <div class="champ"><div class="ligne-comp"><span class="sous-aide">Taille du texte, interligne et espace de cette rubrique : directement sur le CV.</span><button type="button" class="btn-miss">Régler sur le CV &rarr;</button></div></div>
+  </div>
+</details>
+
+<!-- ======================= EXPÉRIENCE PERSONNELLE ======================= -->
+<p class="titre-carte">Carte « Expérience personnelle »</p>
+<details class="mep-carte" id="cPerso" open>
+  <summary><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg><div><h3>Expérience personnelle</h3><span class="sous">Choisissez ce qui apparaît dans cette rubrique.</span></div><span class="chev">&#8963;</span></summary>
+  <div class="carte-corps">
+    <p class="aide">Cette rubrique rassemble votre savoir-faire personnel et vos engagements.</p>
+    <div class="quatre">
+      <div class="boite"><h4>Mode de présentation</h4>
+        <label class="rad"><input type="radio" name="pm" checked> Citer seulement<small>Juste les titres, sur une ligne.</small></label>
+        <label class="rad"><input type="radio" name="pm"> Développer<small>Titre et missions détaillées.</small></label></div>
+      <div class="boite"><h4>Expériences à afficher</h4>
+        <label class="rad"><input type="radio" name="pt" checked> Toutes<small>Tout votre savoir-faire personnel et vos engagements.</small></label>
+        <label class="rad"><input type="radio" name="pt"> Les plus pertinentes<small>Met en avant celles en lien avec votre projet.</small></label></div>
+      <div class="boite"><h4>1 savoir-faire personnel</h4><p class="sous">Bricolage</p><button type="button" class="mep-btn perso">Cacher sur le CV</button></div>
+      <div class="boite"><h4>1 engagement</h4><p class="sous">Bénévole aux Restos du Cœur</p><button type="button" class="mep-btn perso">Cacher sur le CV</button></div>
+    </div>
+
+    <!-- CHANGE (v3) : bandeau « Détail » comme pour les formations -->
+    <div class="detail-compact" data-change="Nouveau : le panneau de détail des formations, pour l'expérience personnelle">
+      <h4>Détail de chaque entrée</h4>
+      <div class="rangee suit"><label class="t">Titre</label><span class="grp"><button type="button" class="btn-g-i on" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Gras"><b>G</b></button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Italique"><i>I</i></button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.3rem .85rem;font-size:.95rem;min-width:2.5rem;min-height:2.1rem" title="Souligné"><u>S</u></button></span><span class="note-suit">Titre : comme les expériences</span></div>
+      <div class="rangee"><label class="t">Espace entre les entrées <span>4 px</span></label><input type="range" min="0" max="32" value="4" style="width:9rem">
+        <label class="t">Missions</label><span class="sous">Affichées en mode « Développer »</span><span class="suit"><div class="seg seg-mini"><button type="button" class="on">Épurées<small>Une par ligne</small></button><button type="button">Condensées<small>À la suite</small></button></div></span><span class="note-suit">Style : comme les expériences</span></div>
+    </div>
+
+    <!-- CHANGE 1 : même bouton « Éditer » -->
+    <button type="button" class="bouton-editer" id="btnEditerPerso" data-change="Nouveau : même bouton que dans Expériences professionnelles">
+      <svg viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <span>Éditer mon expérience personnelle <small>(intitulé, missions)</small></span></button>
+    <p class="choix-aide" id="aidePerso" hidden><b>Mode édition :</b> cliquez sur le nom d&rsquo;une entrée pour la modifier, puis sur « Valider ». Vos corrections ne changent que ce CV.</p>
+
+    <!-- CHANGE 2 : liste dans une zone dépliante -->
+    <details class="choix-exp" id="zonePerso" open data-change="Nouveau : liste dans une zone dépliante, comme pour les expériences">
+      <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Modifier mon expérience personnelle et ses missions</span><span class="cb-fermer">Refermer mon expérience personnelle</span></b><small>2 entrées affichées &middot; cliquez pour modifier</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+      <div class="choix-corps">
+        <p class="choix-aide">Toutes vos entrées sont affichées. En mode « Développer », choisissez les missions à garder pour chacune.</p>
+        <div class="mep-liste-choix-exp">
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom cliquable" data-edit><b>Bricolage</b></span><span class="pas"><button type="button">&minus;</button><span>3</span><button type="button" disabled>+</button></span><span class="sur">/3</span><button type="button" class="btn-miss">Missions &#9662;</button></label></div>
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom cliquable" data-edit><b>Bénévole aux Restos du Cœur</b></span><span class="pas"><button type="button">&minus;</button><span>2</span><button type="button" disabled>+</button></span><span class="sur">/2</span><button type="button" class="btn-miss">Missions &#9662;</button></label></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="ligne-plus" data-change="Réglages regroupés sous la liste">
+      <div class="inline"><label>Ordre</label><select><option>Du plus récent au plus ancien</option><option>Du plus ancien au plus récent</option><option selected>Du plus pertinent</option><option>Mon ordre (fait dans le grand aperçu)</option></select></div>
+    </div>
+    <div class="champ"><div class="ligne-comp"><span class="sous-aide">Taille du texte, interligne et espace de cette rubrique : directement sur le CV.</span><button type="button" class="btn-miss">Régler sur le CV &rarr;</button></div></div>
+  </div>
+</details>
+
+</div></div>
+
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <p><b>Constat (audit du code, 2026-10-02).</b> Aujourd'hui, ces deux cartes ne ressemblent pas à « Expériences professionnelles » : la liste des formations / de l'expérience personnelle est toujours étalée sous les réglages (pas de zone dépliante), il n'y a pas de bouton « Éditer » (chaque formation a un petit bouton « Modifier », l'expérience personnelle n'en a pas dans la carte), et les réglages sont éparpillés.</p>
+  <p><b>Ce qui change (3 choses, en orange)</b> : (1) le bouton « Éditer » identique à celui des expériences, sous les boîtes ; (2) la liste dans une zone dépliante « Modifier mes ... et leurs missions », avec son résumé « N affichées · cliquez pour modifier » ; (3) les réglages d'ordre, d'espace et de style regroupés sous la liste, comme pour les expériences. Rien d'autre ne bouge : les boîtes du haut, les + / −, « Missions », « Régler sur le CV » sont gardés.</p>
+  <p><b>Ajouts du 2026-10-02 (soir)</b> : (a) <b>une formation / une expérience par ligne</b> dans les listes (l'application en met deux côte à côte, trop serrées) ; (b) la boîte haute « Détail » devient un <b>bandeau compact en trois rangées</b> sur toute la largeur : titre (G, I, S) et ce qu'on affiche (centre, année, lieu) ; puis la façon de présenter les informations et l'espace entre les formations, puis les missions (afficher, style). La boîte « Missions de la formation » rejoint ce bandeau : il ne reste que deux boîtes en haut. Mêmes réglages, moins de hauteur ; l'ordre reste sous la liste.</p>
+  <p><b>Boutons G, I, S</b> : on garde les lettres (pas de mots écrits), avec le style des boutons déjà utilisés dans l'application (bordure, bleu plein quand le bouton est actif), mais plus grands pour être faciles à toucher. La même taille est proposée pour les « S » et « I » des dates et de l'entreprise dans la carte Expériences professionnelles. Même réglage derrière : aucune donnée ne change.</p>
+  <p><b>Ajouts demandés (v3)</b> : (1) l'<b>expérience personnelle</b> reçoit le même bandeau « Détail » que les formations, pour la personnaliser de la même façon : titre (G, I, S), espace entre les entrées, style des missions. (2) Une nouvelle option rapide dans « Organisation du CV », sous « Dates à la même place dans toutes les rubriques » (qui existe déjà et sert de modèle) : <b>« Même style d'écriture dans toutes les rubriques »</b>. Cochée, les formations et l'expérience personnelle suivent les expériences professionnelles (la référence) : leurs réglages d'écriture sont grisés avec la mention « comme les expériences ». Décochée (la personne « décroche »), chaque rubrique retrouve ses propres réglages. Dans la maquette, cochez et décochez la case pour voir les deux états.</p>
+  <p><b>Ce que couvre le style commun</b> : la mise en forme du titre (gras, italique, souligné) et le style des missions (épurées ou condensées) ; le signe entre les missions condensées est déjà commun ; la position des dates a déjà son option. Question : y ajouter aussi le style du lieu ?</p>
+  <p><b>Précaution pour les CV existants</b> : le style commun ne s'active d'office que si les trois rubriques s'écrivent déjà pareil (c'est le cas par défaut). Si une personne avait réglé une rubrique autrement, l'option reste décochée : rien ne change tout seul, et un bouton « Harmoniser » propose de tout aligner sur les expériences.</p>
+  <p><b>Une différence voulue avec les expériences professionnelles</b> : « Éditer » dans les expériences modifie les données de « Vos informations » (intitulé, lieu, dates, missions). Pour les formations et l'expérience personnelle, je propose que « Éditer » reste une <b>correction de ce CV seulement</b> (comme le bouton « Modifier » actuel) : une formation est repérée par son intitulé, et le changer dans le dossier ferait perdre les choix déjà faits (missions cochées, ordre). Les anciens boutons « Modifier » de chaque ligne sont remplacés par le clic sur le nom en mode édition, avec le même formulaire (aucune fonction perdue).</p>
+  <p><b>Verdict de faisabilité : GO AVEC RÉSERVES.</b> Presque tout est du déplacement de balisage existant et la réutilisation de la zone dépliante des expériences. À créer : l'interrupteur « mode édition » pour chaque carte (calqué sur celui des expériences) et, pour l'expérience personnelle, le formulaire d'édition (titre + missions) calqué sur celui des formations. Réserves : (a) l'expérience personnelle n'a pas encore de réglage de titre ni d'espace entre les entrées : à créer, et à faire lire par le PDF et le Word ; (b) le style commun touche trois rendus (expériences, formations, expérience personnelle), à tester dans chaque format ; (c) un titre d'expérience en italique ou souligné passe par des réglages déjà présents dans le moteur mais peu exposés. Test d'ensemble de chaque carte (chaque bouton) comme pour les compétences, plus le banc des 24 modèles.</p>
+  <p><b>À trancher</b> : (a) « Éditer » = correction du CV seulement (recommandé) ou modification de « Vos informations » ? (b) pour l'expérience personnelle, le formulaire n'existe pas encore dans la carte : l'ajouter (recommandé) ?</p>
+  <p style="text-align:right"><button type="button" class="btn-miss" id="btnFermerNotes">Fermer</button></p>
+</dialog>
+
+<script>
+  document.querySelectorAll('.btn-g-i').forEach(function (b) { b.addEventListener('click', function () { b.classList.toggle('on'); }); });
+  var chk = document.getElementById('chkStyle');
+  function majLie() { document.body.classList.toggle('lie', chk.checked); }
+  chk.addEventListener('change', majLie); majLie();
+  function bascule(idBtn, idAide) { document.getElementById(idBtn).addEventListener('click', function () { var on = this.classList.toggle('on'); document.getElementById(idAide).hidden = !on; }); }
+  bascule('btnEditerForm', 'aideForm'); bascule('btnEditerPerso', 'aidePerso');
+  document.getElementById('btnMarquer').addEventListener('click', function () { this.classList.toggle('on'); document.body.classList.toggle('marquer'); });
+  document.getElementById('btnNotes').addEventListener('click', function () { document.getElementById('dlgNotes').showModal(); });
+  document.getElementById('btnFermerNotes').addEventListener('click', function () { document.getElementById('dlgNotes').close(); });
+  document.getElementById('btnSombre').addEventListener('click', function () { var h = document.documentElement; if (h.getAttribute('data-theme') === 'sombre') { h.removeAttribute('data-theme'); } else { h.setAttribute('data-theme', 'sombre'); } });
+</script>
+</body>
+</html>

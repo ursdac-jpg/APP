@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE (version 2) - « Compétences en action » : contenu et disposition, étape 1 (2026-10-03). Mode A : rien n'est codé dans l'application.
+  VRAIES feuilles de style (css/style.css, css/mise-en-page-maquette.css), VRAI balisage du panneau (.mep-mq, .boite, .seg, .ck, .choix-exp / .choix-bouton, .sous-liste). Contenu fictif.
+  Retours de Denis intégrés : lecture du CV de gauche à droite (professionnelles à gauche, comportementales à droite) ; la même option de disposition dans les trois modes ;
+  Mixte = professionnelles et comportementales au même niveau, « Compétences en action » sur sa propre ligne, puis les expériences ; case « Indiquer l'expérience entre parenthèses »
+  et zone « Relier mes compétences à mes expériences » CONSERVÉES (c'est la personne qui relie) ; boutons de mode au style des autres boutons de l'application ;
+  une expérience sans rapport avec le métier visé ne fait PAS remonter de missions en haut : elle reste dans la liste comme trace du parcours.
+  Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Compétences en action</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  body.marquer [data-change] { outline: 3px dashed #e08a00; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .ecran { max-width: 1100px; margin: 0 auto; padding: 1rem 1rem 4rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; zoom: 1.2; }
+  @media (max-width: 900px) { .ecran { grid-template-columns: 1fr; zoom: 1; } }
+  .reglages .boite { margin-bottom: .6rem; padding: .6rem .8rem; }
+  .reglages .boite h4 { margin: 0 0 .35rem; }
+  .reglages .seg { margin-bottom: .3rem; }
+  .simul { border-style: dashed; background: var(--bg-subtle); }
+  .simul .titre-simul { font-size: .68rem; color: var(--text-muted); margin: 0 0 .3rem; }
+  .ligne-aide { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin: .15rem 0; font-size: .8rem; color: var(--text-strong); }
+  .bulle { margin: .25rem 0 .4rem; padding: .4rem .6rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 6px; font-size: .75rem; color: var(--text); }
+  .sous-liste { display: flex; align-items: center; gap: .4rem; padding: .2rem 0; border-bottom: 1px solid var(--border); font-size: .8rem; color: var(--text-strong); }
+  .sous-liste .nom { flex: 1 1 auto; } .sous-liste em { color: var(--text-muted); font-style: normal; font-size: .72rem; }
+  .sous-liste.reserve { opacity: .7; }
+  .cv { background: #fff; color: #1c2430; border: 1px solid var(--border-strong); border-radius: 8px; padding: 1rem 1.1rem; font: .8rem "Segoe UI", sans-serif; box-shadow: var(--shadow); }
+  .cv h1 { font-size: 1.05rem; margin: 0; color: #2f6690; }
+  .cv h2 { font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; color: #2f6690; border-bottom: 1px solid #b9c4d2; margin: .8rem 0 .3rem; padding-bottom: .1rem; }
+  .cv .ligne { display: flex; justify-content: space-between; gap: .6rem; } .cv .dates { white-space: nowrap; }
+  .cv ul { margin: .1rem 0 .4rem; padding-left: 1.1rem; }
+  .cv .paire { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .cv .paire > div > h2:first-child { margin-top: .8rem; }
+  .cv .pill { display: inline-block; background: #e9eef5; border-radius: 10px; padding: 0 .5rem; margin: 0 .2rem .2rem 0; font-size: .74rem; }
+  .cv .theme { font-weight: 700; margin-top: .25rem; }
+  .cv .src { color: #5a6b80; font-size: .72rem; }
+  .cv .complete { color: #8a5a00; font-size: .68rem; }
+  .cv .trace { color: #5a6b80; font-size: .7rem; font-style: italic; }
+  .cv .sens { color: #8a5a00; font-size: .66rem; text-align: right; }
+  dialog { max-width: 800px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); } dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+<div class="ecran">
+  <div class="reglages mep-mq">
+    <div class="boite simul">
+      <p class="titre-simul">Réglages de la MAQUETTE seulement (dans l'application, tout cela vient du dossier de la personne)</p>
+      <div class="ligne-aide"><b>Nombre d'expériences sur le CV</b> <button type="button" class="aide-option" data-aide="nexp" aria-label="Explication">?</button></div>
+      <div class="bulle" id="bulle-nexp" hidden>Sert uniquement à cette maquette : pour voir le résultat avec peu ou beaucoup d'expériences. Dans l'application, c'est le nombre réel d'expériences de la personne.</div>
+      <div class="seg seg-mini" id="segN"></div>
+      <div class="ligne-aide"><b>Expériences liées au métier visé</b> <button type="button" class="aide-option" data-aide="pert" aria-label="Explication">?</button></div>
+      <div class="bulle" id="bulle-pert" hidden>Dans l'application, l'assistant et la fiche du métier visé repèrent les expériences liées au poste ; la personne peut corriger. Ici : métier visé « Agent de sécurité ». Les expériences non liées restent sur le CV comme trace du parcours, sans faire remonter leurs missions en haut.</div>
+      <div class="seg seg-mini" id="segP"></div>
+    </div>
+
+    <div class="boite" data-change="Boutons au style des autres boutons de l'application (avant : petits ronds)"><h4>Mode de présentation</h4>
+      <div class="seg" id="segMode"></div>
+    </div>
+
+    <div class="boite" data-change="NOUVEAU : même option dans les trois modes"><h4>Compétences professionnelles et comportementales</h4>
+      <div class="seg" id="segPC"></div>
+      <p class="choix-aide" id="aidePC"></p>
+    </div>
+
+    <div class="boite" id="boiteAction" data-change="Disposition de « Compétences en action » (déjà validée)"><h4>Compétences en action</h4>
+      <div class="seg" id="segAction"></div>
+      <p class="choix-aide" id="aideAction"></p>
+      <div id="zoneMiss" data-change="NOUVEAU : chaque mission sur une ligne, ou à la suite avec un signe (même réglage que « Style des missions » des expériences)">
+        <div class="ligne-aide"><b>Missions</b> <button type="button" class="aide-option" data-aide="miss" aria-label="Explication">?</button></div>
+        <div class="bulle" id="bulle-miss" hidden>Même réglage que « Style des missions » des expériences : chaque mission sur sa ligne, ou toutes à la suite, séparées par un signe.</div>
+        <div class="seg" id="segMiss"></div>
+        <div id="zoneSigne"><div class="ligne-aide"><b>Signe entre les missions</b></div><div class="seg seg-mini" id="segSigne"></div></div>
+      </div>
+    </div>
+
+    <div class="boite" data-change="CONSERVÉ : c'est la personne qui relie ses compétences à ses expériences">
+      <label class="ck" id="lckSrc"><input type="checkbox" id="ckSrc"> Indiquer l'expérience entre parenthèses</label>
+      <details class="choix-exp desactivee" id="zoneLiens">
+        <summary class="choix-titre choix-bouton" aria-disabled="true"><span class="cb-texte"><b>Relier mes compétences à mes expériences</b><small id="smLiens">Cochez d’abord « Indiquer l’expérience entre parenthèses »</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+        <div class="choix-corps" id="corpsLiens"></div>
+      </details>
+    </div>
+
+    <div class="boite" id="boiteListe">
+      <h4>Modifier « Compétences en action »</h4>
+      <div class="inline" style="margin-bottom:.4rem"><label>Nombre de missions</label>
+        <div class="pas"><button type="button" id="moins">&minus;</button><span id="nbAff">0</span><button type="button" id="plus">+</button></div><span class="sur" id="nbTot"></span></div>
+      <div id="liste"></div>
+    </div>
+  </div>
+  <div>
+    <div class="sens">Le regard lit le CV de la gauche vers la droite et du haut vers le bas : l'important est en haut à gauche.</div>
+    <div class="cv" id="cv"></div>
+  </div>
+</div>
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Chronologique</b> : « Compétences professionnelles » (à gauche) et « Compétences comportementales » (à droite) sur la même ligne, ou l'une sous l'autre : option « Compétences professionnelles et comportementales ». Les missions restent dans les expériences.</li>
+    <li><b>Par compétences</b> : « Compétences en action » (vraies missions) puis les comportementales : pleine largeur, ou en deux colonnes avec les comportementales à droite.</li>
+    <li><b>Mixte</b> : professionnelles et comportementales au même niveau (même ligne ou l'une sous l'autre), « Compétences en action » sur sa propre ligne, puis les expériences. L'option « à côté des comportementales » est grisée en Mixte (elles sont déjà avec les professionnelles).</li>
+    <li><b>Association conservée</b> : la case « Indiquer l'expérience entre parenthèses » et la zone « Relier mes compétences à mes expériences » restent telles qu'aujourd'hui ; c'est la personne qui relie. Cochez la case : les expériences apparaissent entre parenthèses sur le CV et la zone se déverrouille.</li>
+    <li><b>Peu d'expériences liées au métier</b> (votre exemple : six expériences, une seule liée au poste) : seules les expériences LIÉES au métier visé font remonter des missions en haut (3 chacune si elles sont 1 à 2, 2 si 3 à 4, 1 si 5 et plus), au moins 2 en tout. Les autres expériences restent dans la liste, raccourcies, comme trace du parcours. S'il manque de la matière, on complète d'abord avec les compétences regroupées par thème de l'assistant qui sont liées au métier, jamais avec des missions sans rapport.</li>
+    <li><b>Boutons</b> : cette maquette n'est PAS la cible visuelle. Ce qui existe garde sa forme actuelle dans le code ; les nouvelles options reprennent les mêmes composants que le reste de l'application.</li>
+    <li><b>Missions du bloc</b> : chaque mission sur une ligne, ou à la suite avec un signe (point-virgule, point médian, rond, carré, losange, barre) : même réglage que « Style des missions » des expériences, appliqué à « Compétences en action ».</li>
+    <li><b>À valider</b> : la règle « seules les expériences liées au métier remontent » ; les dispositions ; la grisée de « à côté » en Mixte.</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+<script>
+  var EXPS = [
+    { poste: 'Agent de sécurité', ent: 'Sécuritas', dates: '2022 - 2024', missions: ['Surveiller les accès du site', 'Contrôler les badges et les sacs', 'Rédiger les rapports de ronde', 'Accueillir les visiteurs'] },
+    { poste: 'Vendeuse', ent: 'Boulangerie Dupont', dates: '2019 - 2021', missions: ['Accueillir et conseiller les clients', 'Tenir la caisse', 'Préparer les commandes'] },
+    { poste: 'Employée polyvalente', ent: 'Café du centre', dates: '2018', missions: ['Servir en salle', 'Encaisser', 'Nettoyer le matériel'] },
+    { poste: 'Maître-chien', ent: 'Gardiennage 87', dates: '2017', missions: ['Effectuer des rondes avec le chien', 'Sécuriser un site industriel', 'Alerter en cas d’intrusion'] },
+    { poste: 'Aide-magasinier', ent: 'Logistic 87', dates: '2016', missions: ['Ranger les palettes', 'Préparer les expéditions'] },
+    { poste: 'Hôte d’accueil', ent: 'Mairie de Limoges', dates: '2015', missions: ['Orienter le public', 'Gérer les appels'] }
+  ];
+  var LIEES = [0, 3, 5];       // expériences liées au métier visé, dans l'ordre de pertinence
+  var THEMES = [{ t: 'Sécurité des personnes et des biens', items: ['Surveillance et contrôle d’accès', 'Rédaction de rapports'] }, { t: 'Relation avec le public', items: ['Accueil et conseil'] }];
+  var PRO = ['Gestion de caisse', 'Travail en équipe', 'Respect des consignes'];
+  var COMP = ['Rigueur', 'Ponctualité', 'Sens du contact'];
+  var SIGNES = { pointvirgule: ' ; ', pointmedian: ' · ', rond: ' ● ', carre: ' ■ ', losange: ' ◆ ', barre: ' | ' };
+  var miss = 'ligne', signe = 'pointmedian';
+  var mode = 'C', nexp = 6, nlie = 1, pc = 'ligne', action = 'cote', src = false, extra = 0;
+  function el(i) { return document.getElementById(i); }
+  function seg(id, opts, actuel, cb) {
+    el(id).innerHTML = opts.map(function (o) { return '<button type="button" data-v="' + o[0] + '"' + (o[0] === actuel ? ' class="on"' : '') + (o[2] ? ' disabled title="' + o[2] + '"' : '') + '>' + o[1] + '</button>'; }).join('');
+    el(id).querySelectorAll('button').forEach(function (b) { b.onclick = function () { cb(b.getAttribute('data-v')); }; });
+  }
+  function quota(n) { return n <= 2 ? 3 : (n <= 4 ? 2 : 1); }
+  function choisir() {
+    var exps = EXPS.slice(0, nexp), idx = LIEES.filter(function (i) { return i < nexp; }).slice(0, nlie), q = quota(Math.max(1, idx.length));
+    var prises = [], reserve = [];
+    idx.forEach(function (ei) { EXPS[ei].missions.forEach(function (m, k) { (k < q ? prises : reserve).push({ m: m, ent: EXPS[ei].ent, rang: k, ei: ei }); }); });
+    prises.sort(function (a, b) { return a.rang - b.rang || idx.indexOf(a.ei) - idx.indexOf(b.ei); });
+    var comble = false;
+    if (prises.length < 2) { THEMES.forEach(function (t) { t.items.forEach(function (it) { if (prises.length < 2) { prises.push({ m: it, ent: 'compétence du métier', rang: 0, ei: -1 }); comble = true; } }); }); }
+    var aj = Math.max(0, Math.min(extra, reserve.length));
+    return { exps: exps, idx: idx, aff: prises.concat(reserve.slice(0, aj)), res: reserve.slice(aj), q: q, comble: comble };
+  }
+  function pill(l) { return l.map(function (x) { return '<span class="pill">' + x + '</span>'; }).join(''); }
+  function dessiner() {
+    var d = choisir(), cv = '<h1>Camille MARTIN</h1>';
+    var paren = function (x) { return (src && x.ent && x.ei >= 0) ? ' <span class="src">(' + x.ent + ')</span>' : ''; };
+    var blocPro = '<h2>Compétences professionnelles</h2>' + pill(PRO);
+    var blocComp = '<h2>Compétences comportementales</h2>' + pill(COMP);
+    function blocAction() {
+      var h = '<h2>Compétences en action</h2>';
+      if (mode === 'C' && miss === 'suite') { return h + '<div>' + d.aff.map(function (x) { return x.m + paren(x); }).join(SIGNES[signe]) + (signe === 'pointvirgule' ? '.' : '') + '</div>'; }
+      if (mode === 'C') { return h + '<ul>' + d.aff.map(function (x) { return '<li>' + x.m + paren(x) + '</li>'; }).join('') + '</ul>'; }
+      var n = 0; THEMES.forEach(function (t) { n += t.items.length; });
+      var out = h + THEMES.map(function (t) { return '<div class="theme">' + t.t + '</div><div>' + t.items.join(' · ') + (src ? ' <span class="src">(Sécuritas)</span>' : '') + '</div>'; }).join('');
+      if (n < 4) { out += '<div class="theme">Compétences professionnelles <span class="complete">(complété)</span></div><div>' + PRO.slice(0, 4 - n).join(' · ') + '</div>'; }
+      return out;
+    }
+    if (mode === 'A') {
+      cv += pc === 'ligne' ? '<div class="paire"><div>' + blocPro + '</div><div>' + blocComp + '</div></div>' : blocPro + blocComp;
+    } else if (mode === 'B') {
+      cv += (pc === 'ligne' ? '<div class="paire"><div>' + blocPro + '</div><div>' + blocComp + '</div></div>' : blocPro + blocComp) + blocAction();
+    } else {
+      cv += action === 'cote' ? '<div class="paire"><div>' + blocAction() + '</div><div>' + blocComp + '</div></div>' : blocAction() + blocComp;
+    }
+    cv += '<h2>Expériences professionnelles</h2>' + d.exps.map(function (e, i) {
+      var liee = d.idx.indexOf(i) !== -1;
+      var pris = d.aff.filter(function (x) { return x.ei === i; }).map(function (x) { return x.m; });
+      var tete = '<div class="ligne"><span><b>' + e.poste + '</b> - ' + e.ent + '</span><span class="dates">' + e.dates + '</span></div>';
+      if (mode === 'A') { return tete + '<ul>' + e.missions.slice(0, liee ? 3 : 2).map(function (m) { return '<li>' + m + '</li>'; }).join('') + '</ul>'; }
+      if (!liee) { return tete + '<div class="trace">Parcours : détail raccourci</div>'; }
+      var reste = e.missions.filter(function (m) { return pris.indexOf(m) === -1; }).slice(0, 2);
+      return tete + (reste.length ? '<ul>' + reste.map(function (m) { return '<li>' + m + '</li>'; }).join('') + '</ul>' : '');
+    }).join('');
+    el('cv').innerHTML = cv;
+    // panneau
+    el('boiteAction').hidden = (mode === 'A'); el('boiteListe').hidden = (mode === 'A');
+    el('aidePC').textContent = pc === 'ligne' ? 'Professionnelles à gauche, comportementales à droite : l’information clé en haut à gauche.' : 'L’une sous l’autre, pleine largeur.';
+    el('aideAction').textContent = mode === 'B' ? 'Sur sa propre ligne, entre les compétences et les expériences.' : (action === 'cote' ? 'À gauche, les comportementales à droite ; retour à la ligne si c’est long.' : 'Pleine largeur, bien détaillé.');
+    el('nbAff').textContent = d.aff.length; el('nbTot').textContent = '/' + (d.aff.length + d.res.length);
+    el('liste').innerHTML = d.aff.map(function (x) { return '<div class="sous-liste"><input type="checkbox" checked><span class="nom">' + x.m + ' <em>(' + x.ent + ')</em></span><button type="button" class="btn-miss">Modifier</button><button type="button" class="btn-miss">&uarr;</button><button type="button" class="btn-miss">&darr;</button></div>'; }).join('') +
+      d.res.map(function (x) { return '<div class="sous-liste reserve"><input type="checkbox"><span class="nom">' + x.m + ' <em>(' + x.ent + ' : en réserve)</em></span></div>'; }).join('') +
+      '<p class="choix-aide">' + (d.comble ? 'Peu de missions liées au métier : complété par des compétences regroupées par thème liées au métier. ' : '') + 'Les expériences sans rapport avec le métier visé ne font pas remonter de missions ici : elles restent dans la liste des expériences, comme trace du parcours.</p>';
+    el('zoneLiens').classList.toggle('desactivee', !src);
+    el('smLiens').textContent = src ? 'Indiquez où vous avez acquis chaque compétence' : 'Cochez d’abord « Indiquer l’expérience entre parenthèses »';
+    el('corpsLiens').innerHTML = src ? THEMES.concat([{ t: 'Gestion de caisse', items: [] }]).map(function (t) { return '<div class="sous-liste"><span class="nom"><b>' + (t.items[0] || t.t) + '</b></span><label class="ck"><input type="checkbox" checked> Sécuritas</label><label class="ck"><input type="checkbox"> Vendeuse</label></div>'; }).join('') : '';
+    el('zoneLiens').open = src;
+    seg('segN', [[1, '1'], [2, '2'], [3, '3'], [5, '5'], [6, '6']], nexp, function (v) { nexp = +v; extra = 0; dessiner(); });
+    seg('segP', [[1, '1'], [2, '2'], [3, '3']], nlie, function (v) { nlie = +v; extra = 0; dessiner(); });
+    seg('segMode', [['A', 'Chronologique'], ['C', 'Par compétences'], ['B', 'Mixte']], mode, function (v) { mode = v; extra = 0; dessiner(); });
+    seg('segPC', [['ligne', 'Sur la même ligne'], ['sous', 'L’une sous l’autre']].map(function (o) { return mode === 'C' ? [o[0], o[1], 'En « Par compétences », il n’y a pas de bloc « Compétences professionnelles ».'] : o; }), (mode === 'C' ? '' : pc), function (v) { pc = v; dessiner(); });
+    seg('segAction', [['large', 'Pleine largeur'], ['cote', mode === 'B' ? 'À côté des comportementales' : 'À côté des comportementales', mode === 'B' ? 'En Mixte, les comportementales sont déjà avec les compétences professionnelles.' : '']], mode === 'B' ? 'large' : action, function (v) { action = v; dessiner(); });
+    el('zoneMiss').hidden = (mode !== 'C'); el('zoneSigne').hidden = (miss !== 'suite');
+    seg('segMiss', [['ligne', 'Chaque mission sur une ligne'], ['suite', 'À la suite, avec un signe']], miss, function (v) { miss = v; dessiner(); });
+    seg('segSigne', [['pointvirgule', ';'], ['pointmedian', '·'], ['rond', '●'], ['carre', '■'], ['losange', '◆'], ['barre', '|']], signe, function (v) { signe = v; dessiner(); });
+    el('ckSrc').checked = src;
+  }
+  document.querySelectorAll('[data-aide]').forEach(function (b) { b.onclick = function () { var z = el('bulle-' + b.getAttribute('data-aide')); z.hidden = !z.hidden; }; });
+  el('ckSrc').onchange = function () { src = this.checked; dessiner(); };
+  el('plus').onclick = function () { extra++; dessiner(); };
+  el('moins').onclick = function () { if (extra > 0) { extra--; } dessiner(); };
+  el('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); };
+  el('btnNotes').onclick = function () { el('dlgNotes').showModal(); };
+  el('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  dessiner();
+</script>
+</body>
+</html>

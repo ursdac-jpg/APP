@@ -35,6 +35,18 @@ Chaque événement envoie : `message` (tronqué à 200 caractères), `fichier` (
 
 ## Erreurs répertoriées
 
+### Les mots de votre CV : « Imprimer » imprime des pages blanches
+
+- **Vu** : 2026-09-30, retour de Denis sur l'écran « Ma fiche ».
+- **Cause** : le bouton appelait `window.print()` sur toute la page de l'application, dont la mise en page (zones défilantes, barre fixe) ne s'imprime pas.
+- **Statut** : **CORRIGÉ** (2026-09-30, `modules/ats/index.js`, `_atsImprimerFiche`). La fiche est imprimée seule, dans un cadre invisible.
+
+### Reformuler mon CV : « Gestion du temps ne figure pas dans votre CV. Voulez-vous la retirer ? » (fausse alerte)
+
+- **Vu** : 2026-09-30, premier test réel sur le CV de Josianne (texte lu sur image : « Gestlon du temps »).
+- **Cause** : `pointsQualitesAbsentes` (`data/incoherencesImport.js`) comparait chaque qualité renvoyée par l'assistant au texte du CV mot pour mot. L'assistant avait corrigé l'orthographe (« Gestlon » devenu « Gestion »), donc la qualité paraissait inventée.
+- **Statut** : **CORRIGÉ** (2026-09-30). Comparaison tolérante mot par mot (une lettre d'écart pour un mot de 4 à 7 lettres, deux au-delà, mot de 3 lettres ou moins identique). Une vraie invention (« Patience » absente du CV) est toujours signalée. Test : `tests/incoherencesImport.test.js`.
+
 ### `Cannot read properties of undefined (reading 'texte')` - rendu du rapport du Bilan
 
 - **Vu** : ~2 jours avant le 2026-08-28 (2 occurrences à « app.js:12523 »), puis 1 occurrence dans les 4 h précédant le 2026-08-28 à « app.js:13013 » - **même bug**, la ligne a bougé car du code a été ajouté au-dessus entre deux déploiements.
@@ -59,3 +71,16 @@ Chaque événement envoie : `message` (tronqué à 200 caractères), `fichier` (
   - `onEffacer` + `onCollerManuel` ajoutés aux 7 configs de collage (Bilan diagnostic, Titre/accroche, Amélioration, Amélioration lot, Cohérence, Entretien avancé, Découverte), + remise à blanc du message en tête de chaque handler « Importer ».
 - **Notes** : la même famille de code (état-machine `genere -> complete/echec_parsing` copiée d'un module à l'autre) portait le même bug partout -> corrigé partout d'un coup. Reste un cas non traité : un **double collage automatique** peut mettre deux blocs JSON dans la zone de texte ; « Effacer + recoller propre » récupère, mais l'idéal serait que le parser prenne le dernier bloc valide (refinement séparé si ça remonte).
   - **Vérifié 2026-09-10** : toujours non traité. `extraireBlocJSONDepuisTexte()` (`js/app.js:24733`) prend la portion de la **première `{` à la dernière `}`** - avec deux blocs collés, elle engloberait les deux et `JSON.parse` échoue. Bas volume, contournement « Effacer + recoller » suffisant, laissé tel quel. Si ça remonte : itérer sur les blocs `{...}` équilibrés et garder le dernier qui parse.
+
+### « Sans accroche » cochée : l'accroche restait dans le Word et dans le texte copié (trouvé et corrigé le 2026-09-29)
+- **Symptôme** : la case de la carte « En-tête de CV » retirait l'accroche du PDF, mais le fichier Word et « Copier le texte » la contenaient encore.
+- **Cause** : la case n'écrivait que dans `dossier.reglagesMiseEnPageCV` (lu par le PDF). Le Word et le texte copié lisent `etatApercuInline.cv.sansAccroche`, jamais mis à jour dans l'écran unique. Après un rechargement de session, les deux états pouvaient aussi diverger.
+- **Correction** : `_mepDefinirSansAccroche` aligne toujours les deux états ; `_appliquerReglagesMiseEnPageCV` resynchronise à chaque passage ; garde finale `_cvSansAccrocheSiDemande` dans `construireObjetCVPourExport`. Vérifié en lisant le vrai `word/document.xml` (A4 détaillé, complet, essentiel, A5).
+- **Règle** : un réglage de contenu doit être vérifié dans TOUTES les sorties (PDF, Word, texte copié), en ouvrant le fichier produit, pas seulement l'aperçu.
+
+### « Choisir ce qui ira sur le CV » disparu après l'import de la réponse de l'assistant (trouvé et corrigé le 2026-09-30)
+- **Symptôme** : après le deuxième passage, « Vos documents » n'affichait que « Terminez d'abord l'étape « Choisir ce qui ira sur le CV » ci-dessus » : l'étape en question n'existait plus à l'écran, plus de synthèse de l'import, plus de mise en page. Blocage total du parcours CV.
+- **Cause** : le commit `50b6d45f` (2026-09-29) a conditionné l'affichage de ce rectangle à `dossier.ia.cv.recommandations.length`. Pour le CV, `recommandations` est un objet (pas une liste) : `.length` est toujours indéfini, donc le rectangle ne s'affichait jamais. Le libellé « réponse importée » de la page Assistant avait le même défaut, en place avant.
+- **Correction** : les 3 endroits de `js/app.js` utilisent `_dossierIaContientDesChoix(docActif)` (la fonction déjà existante qui dit « le deuxième passage est fait »).
+- **2e passage du même bug (trouvé le 2026-09-30, tard)** : la première correction ne couvrait que le cas « réponse déjà appliquée au dossier ». Juste après « Importer dans le CV », la réponse n'est qu'en mémoire (`_brouillonRelectureIACV`) et n'est écrite dans le dossier qu'après « Continuer » : le rectangle restait masqué, donc page vide. Corrigé par `reponseIAImportee()` (dossier OU brouillon en attente). Reproduit puis vérifié en rejouant le vrai parcours (Mettre à jour mon CV, collage, Importer, Continuer vers La mise en page).
+- **Règle** : ne jamais tester une donnée avec `.length` sans avoir vérifié son type dans `creerDossierIAVide()`. Un changement de condition d'affichage se teste avec un vrai JSON de l'assistant, jusqu'à l'écran final.

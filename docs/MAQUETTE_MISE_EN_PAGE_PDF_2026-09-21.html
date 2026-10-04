@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - « La mise en page » du CV en PDF (refonte), 2026-09-21.
+
+  Cible visuelle : la capture de Denis (docs/images_chantiers/maquette_refonte_mise_en_page_pdf_2026-09-21.webp),
+  reproduite au plus près (Denis, 2026-09-21 : « coller au maximum à cette maquette et à ce que nous
+  avons déjà en visuel »). Jetons de couleur = ceux de css/style.css (clair et sombre).
+  Contenu de l'aperçu : le CV réel de M. Doumbouya (cas de test de référence du chantier). Les
+  missions sont des EXEMPLES d'illustration : aucune n'est à recopier telle quelle dans l'application.
+
+  Notes de travail : docs/NOTES_REFONTE_MISE_EN_PAGE_PDF_2026-09-21.md (constats C1 à C36, questions Q1 à Q127).
+  Ce qui est nouveau, ce qui reste à décider : bouton « Notes de la maquette » (jamais dans l'écran lui-même,
+  LECONS règle 11).
+
+  Thème sombre : classe .dark sur <body> (convention des maquettes du dépôt). Le CV (la feuille) reste
+  blanc dans les deux thèmes, comme un vrai papier.
+  Français impeccable, aucun tiret cadratin, jamais le mot « IA » visible, icônes = objets.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - La mise en page du CV (PDF)</title>
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text: #33404f; --text-muted: #4a5b6e;
+    --accent: #0d6efd; --accent-solide: #0d6efd; --accent-bg-subtle: #eef2fd;
+    --success: #198754; --success-bg-subtle: #d1f4de;
+    --warning: #b45309; --warning-bg-subtle: #fdf1d9; --warning-border: #f0c675;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+    --radius: 12px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #1e2940;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text: #cdd6e1; --text-muted: #9aa8ba;
+    --accent: #4d94ff; --accent-solide: #1f5fd1; --accent-bg-subtle: #1e2940;
+    --success: #6bd39b; --success-bg-subtle: #16311f;
+    --warning: #e2b877; --warning-bg-subtle: #33270f; --warning-border: #6b5424;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 14px; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: "Segoe UI", -apple-system, Roboto, Helvetica, Arial, sans-serif; line-height: 1.45; }
+  button { font: inherit; cursor: pointer; }
+  svg.ic { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Barre de la maquette (hors écran réel) */
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;
+    padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font-size: .78rem; color: var(--text-muted); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text);
+    border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; }
+
+  .ecran { max-width: 1560px; margin: 0 auto; padding: .6rem 1.1rem 4.6rem; }
+  .entete { display: flex; align-items: center; gap: .7rem; margin-bottom: .6rem; }
+  .entete .rond { width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border);
+    display: grid; place-items: center; color: var(--accent); box-shadow: var(--shadow); flex: 0 0 auto; }
+  .entete h1 { margin: 0; font-size: 1.2rem; color: var(--text-strong); }
+  .entete p { margin: 0; color: var(--text-muted); font-size: .82rem; line-height: 1.3; }
+  .entete .aide { margin-left: auto; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent);
+    border-radius: 10px; padding: .35rem .8rem; font-weight: 600; display: flex; gap: .4rem; align-items: center; }
+
+  .grille { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 1050px) { .grille { grid-template-columns: 1fr; } }
+
+  /* Colonne des réglages */
+  .rangee-modes { display: flex; gap: .6rem; align-items: stretch; margin-bottom: .55rem; flex-wrap: wrap; }
+  .modes { display: flex; flex: 1 1 300px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--bg-card); }
+  .modes button { flex: 1; border: 0; background: transparent; color: var(--text-strong); padding: .35rem .4rem; text-align: center; line-height: 1.2; }
+  .modes button b { display: block; font-size: .9rem; }
+  .modes button span { font-size: .72rem; color: var(--text-muted); }
+  .modes button.on { background: var(--accent-solide); color: #fff; }
+  .modes button.on span { color: rgba(255,255,255,.85); }
+  .btn-plein { border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: var(--radius);
+    padding: .4rem .8rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+  .btn-plein:hover { background: var(--accent-bg-subtle); }
+
+  .cartes-haut { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: .55rem; }
+  .ligne-action { display: flex; gap: .4rem; align-items: stretch; min-width: 0; }
+  .ligne-action .carte-action.retreci { flex: 1; min-width: 0; }
+  .ligne-action .carte-action.retreci b, .ligne-action .carte-action.retreci small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-action { flex: 0 0 auto; width: 2.15rem; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; font-size: 1.05rem; cursor: pointer; }
+  .mini-action:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-hover); }
+  .mini-action:disabled { opacity: .32; cursor: default; }
+  /* TACHE (retour Denis 2026-09-27, P5) : fond plein dans la couleur d'accent -- ces 2 cartes sont des
+     boutons, elles se confondaient avec les cartes d'information neutres autour. */
+  .carte-action { display: flex; gap: .8rem; align-items: center; border: none; background: var(--accent);
+    border-radius: var(--radius); padding: .45rem .7rem; text-align: left; color: #fff; width: 100%; box-shadow: var(--shadow); }
+  .carte-action:hover { background: var(--accent-hover); }
+  .carte-action .emo { width: 2rem; height: 2rem; border-radius: 8px; background: rgba(255, 255, 255, 0.22); display: grid; place-items: center; font-size: 1.25rem; flex: 0 0 auto; color: #fff; }
+  .carte-action b { display: block; font-size: .9rem; color: #fff; }
+  .carte-action small { color: rgba(255, 255, 255, 0.85); font-size: .76rem; display: block; line-height: 1.2; }
+  .carte-action .chev { margin-left: auto; color: #fff; font-size: 1.2rem; }
+
+  .duo { display: grid; grid-template-columns: 1fr 1.25fr; gap: .6rem; margin-bottom: .55rem; }
+  details.carte, .carte { border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius); margin-bottom: .55rem; }
+  details.carte > summary, .carte > .carte-tete { list-style: none; display: flex; align-items: center; gap: .6rem; padding: .45rem .8rem; cursor: pointer; }
+  details.carte > summary::-webkit-details-marker { display: none; }
+  .carte-tete .ic, summary .ic { color: var(--accent); flex: 0 0 auto; }
+  .carte-tete h3, summary h3 { margin: 0; font-size: .95rem; color: var(--text-strong); }
+  summary .sous { color: var(--text-muted); font-size: .76rem; }
+  summary .chev { margin-left: auto; color: var(--accent); transition: transform .15s; font-size: 1.1rem; }
+  details[open] > summary .chev { transform: rotate(180deg); }
+  .carte-corps { padding: 0 .8rem .6rem; }
+  .carte-corps > p.aide { margin: 0 0 .4rem; color: var(--text-muted); font-size: .8rem; line-height: 1.3; }
+
+  .seg { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .seg button { flex: 1; min-width: 80px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    border-radius: 9px; padding: .32rem .5rem; font-size: .86rem; }
+  .seg button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+  .swatches { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+  .sw { width: 1.85rem; height: 1.85rem; border-radius: 50%; border: 3px solid transparent; outline: 1px solid var(--border-strong); }
+  .sw.on { border-color: var(--bg-card); outline: 2px solid var(--accent); }
+  .sw[disabled] { cursor: not-allowed; outline-style: dashed; opacity: .6; }
+  .sw-entreprise-indispo { display: inline-flex; align-items: center; gap: .4rem; }
+  .sw-entreprise-msg { font-size: .78rem; color: var(--text-muted); max-width: 9rem; line-height: 1.2; }
+  /* Bouton « Personnalisée » : roue de toutes les couleurs (comme sur la capture), clic = sélecteur libre */
+  .sw-perso { display: flex; align-items: center; gap: .5rem; color: var(--text-muted); font-size: .84rem; border-left: 1px solid var(--border); padding-left: .7rem; cursor: pointer; position: relative; }
+  .sw-perso .roue { position: relative; width: 1.85rem; height: 1.85rem; border-radius: 50%; flex: 0 0 auto;
+    background: radial-gradient(circle, #fff 0 26%, transparent 27%), conic-gradient(#e53935, #fdd835, #43a047, #00acc1, #1e88e5, #8e24aa, #e53935);
+    border: 3px solid transparent; outline: 1px solid var(--border-strong); }
+  .sw-perso.on .roue { border-color: var(--bg-card); outline: 2px solid var(--accent); }
+  .sw-perso.on .roue::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--choisie, #2f6690); }
+  .sw-perso input { position: absolute; left: .7rem; top: 0; width: 1.85rem; height: 1.85rem; opacity: 0; cursor: pointer; padding: 0; border: 0; }
+  .sw-perso:hover { color: var(--accent); }
+
+  .vignettes { display: flex; gap: .45rem; flex-wrap: wrap; margin-top: .5rem; align-items: flex-end; }
+  .vign { border: 1px solid var(--border-strong); background: var(--bg-card); border-radius: 9px; padding: .25rem; width: 78px; height: 96px; display: flex; flex-direction: column; text-align: center; color: var(--text); font-size: .7rem; }
+  .vign .vign-nom { flex: 1; display: flex; align-items: center; justify-content: center; line-height: 1.15; overflow: hidden; }
+  .vign.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); color: var(--accent); }
+  .mini { height: 56px; background: #fff; border: 1px solid #d9dee6; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: .25rem; }
+  .mini i { position: absolute; display: block; }
+  .legende-vign { font-size: .74rem; color: var(--text-muted); margin: .4rem 0 0; line-height: 1.3; }
+
+  .org { display: grid; grid-template-columns: 1fr 1.15fr; gap: .8rem; }
+  .org h4 { margin: 0 0 .25rem; font-size: .84rem; color: var(--text-strong); }
+  .radio-gros { display: flex; gap: .45rem; margin-top: .3rem; flex-wrap: wrap; }
+  .radio-gros button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 9px; padding: .4rem .7rem; font-weight: 600; font-size: .86rem; }
+  .radio-gros button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: .1rem .6rem; }
+  .ck { display: flex; gap: .4rem; align-items: center; font-size: .84rem; color: var(--text-strong); cursor: pointer; padding: .1rem 0; }
+  .ck input { width: 1rem; height: 1rem; accent-color: var(--accent); }
+  .sous-choix { margin-top: .4rem; padding: .35rem .5rem; background: var(--bg-subtle); border-radius: 9px; font-size: .78rem; line-height: 1.3; }
+  .sous-choix b { color: var(--text-strong); }
+
+  .trois { display: grid; grid-template-columns: 1.05fr 1.15fr 1fr; gap: .5rem; }
+  .boite { border: 1px solid var(--border); border-radius: 9px; padding: .4rem .55rem; background: var(--bg-card); }
+  .boite h4 { margin: 0 0 .2rem; font-size: .82rem; color: var(--text-strong); }
+  .rad { display: block; padding: .1rem 0; font-size: .84rem; color: var(--text-strong); cursor: pointer; }
+  .rad input { accent-color: var(--accent); margin-right: .45rem; }
+  .rad small { display: block; margin-left: 1.4rem; color: var(--text-muted); font-size: .7rem; line-height: 1.2; }
+  .pile { display: flex; flex-direction: column; gap: .45rem; }
+  .ligne-plus { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: .6rem; margin-top: .5rem; }
+  .champ label { display: block; font-size: .76rem; font-weight: 700; color: var(--text-strong); margin-bottom: .15rem; }
+  .champ select { width: 100%; padding: .3rem .45rem; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); font: inherit; font-size: .84rem; }
+  .pas { display: inline-flex; align-items: center; border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; }
+  .pas button { border: 0; background: var(--bg-subtle); color: var(--text-strong); width: 1.8rem; height: 1.8rem; font-size: 1.05rem; }
+  .pas span { min-width: 2.4rem; text-align: center; font-weight: 700; color: var(--text-strong); }
+  .info-auto { margin-top: .45rem; padding: .35rem .6rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 8px; font-size: .78rem; color: var(--text-strong); }
+
+  .lien-ecartees { margin-top: .45rem; padding: .35rem .6rem; border: 1px solid var(--warning-border); background: var(--warning-bg-subtle); border-radius: 9px; font-size: .78rem; color: var(--text-strong); }
+  .lien-ecartees button { border: 0; background: none; color: var(--accent); text-decoration: underline; padding: 0; font-weight: 600; }
+  .grille-el { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem .7rem; }
+  .curseur { display: flex; align-items: center; gap: .6rem; }
+  .curseur input[type=range] { flex: 1; accent-color: var(--accent); }
+
+
+  /* Réagencement pour supprimer les blancs (retour Denis, 2026-09-21 soir) */
+  .style-corps { padding-top: .55rem; }
+  .style-grille { display: grid; grid-template-columns: 1.2fr 1fr; gap: .5rem 1.4rem; align-items: end; }
+  .titre-mini { display: flex; align-items: center; flex-wrap: wrap; gap: .1rem .5rem; margin-bottom: .35rem; font-weight: 700; color: var(--text-strong); font-size: .95rem; }
+  .titre-mini .ic { width: 1.25rem; height: 1.25rem; color: var(--accent); }
+  .titre-mini .sous { font-weight: 400; font-size: .76rem; color: var(--text-muted); }
+  .gab-ligne { display: flex; gap: .9rem; align-items: center; flex-wrap: wrap; margin-top: .5rem; padding-top: .5rem; border-top: 1px dashed var(--border); }
+  .gab-ligne .vignettes { margin: 0; }
+  .gab-ligne .legende-vign { flex: 1 1 200px; margin: 0; }
+  .org-tete { display: flex; align-items: center; justify-content: space-between; gap: .5rem .9rem; flex-wrap: wrap; }
+  .org-tete .radio-gros { margin-top: 0; }
+  .cote-inline { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: var(--text-strong); }
+  .cote-inline .seg { flex-wrap: nowrap; }
+  .cote-inline .seg button { flex: none; min-width: 0; padding: .3rem .65rem; }
+  .mini-titre { margin: .5rem 0 .1rem; font-size: .8rem; color: var(--text-strong); }
+  .checks.auto { grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); }
+  .quatre { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: .5rem; align-items: stretch; }
+  .ligne-plus { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; align-items: center; margin-top: .5rem; grid-template-columns: none; }
+  .inline { display: flex; align-items: center; gap: .45rem; }
+  .inline label { margin: 0; font-size: .78rem; font-weight: 700; color: var(--text-strong); white-space: nowrap; }
+  .inline select { width: auto; }
+
+
+  /* Choix des expériences pertinentes + missions par expérience */
+  .choix-exp { margin-top: .5rem; padding: .45rem .6rem .5rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 9px; }
+  .choix-titre { display: flex; flex-wrap: wrap; gap: .1rem .6rem; align-items: baseline; margin-bottom: .3rem; font-size: .84rem; color: var(--text-strong); }
+  .choix-titre span { font-size: .74rem; color: var(--text-muted); }
+  .choix-exp > summary { list-style: none; cursor: pointer; margin-bottom: 0; align-items: center; }
+  .choix-exp > summary::-webkit-details-marker { display: none; }
+  .choix-exp > summary .chev { margin-left: auto; color: var(--accent); font-size: 1.1rem; transition: transform .15s; }
+  .choix-exp[open] > summary .chev { transform: rotate(180deg); }
+  .choix-exp[open] > summary { margin-bottom: .3rem; }
+  .choix-aide { margin: 0 0 .35rem; font-size: .76rem; color: var(--text-muted); }
+  #listeChoixExp { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .05rem .9rem; }
+  .ligne-choix { display: flex; align-items: center; gap: .45rem; font-size: .8rem; color: var(--text-strong); padding: .1rem 0; }
+  .ligne-choix input[type=checkbox] { width: 1rem; height: 1rem; accent-color: var(--accent); flex: 0 0 auto; }
+  .ligne-choix .nom { flex: 1; min-width: 0; line-height: 1.2; }
+  .ligne-choix .nom em { color: var(--text-muted); font-style: normal; font-size: .74rem; }
+  .ligne-choix .pas button { width: 1.5rem; height: 1.5rem; font-size: .95rem; }
+  .ligne-choix .pas span { min-width: 1.6rem; font-size: .8rem; }
+  .ligne-choix.off { opacity: .55; }
+  .ligne-choix.off .pas { pointer-events: none; }
+
+
+  /* Choix des missions une par une */
+  .ligne-bloc { min-width: 0; }
+  .ligne-bloc.ouvert { grid-column: 1 / -1; }
+  .ligne-choix .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: .1rem .45rem; font-size: .72rem; white-space: nowrap; }
+  .ligne-choix .btn-miss.perso { border-color: var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); }
+  .miss-liste { margin: .15rem 0 .35rem 1.45rem; padding: .35rem .5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+  .miss-liste .miss-tete { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; font-size: .74rem; color: var(--text-muted); margin-bottom: .2rem; }
+  .miss-liste .miss-tete button { border: 0; background: none; color: var(--accent); text-decoration: underline; padding: 0; font-size: .74rem; }
+  .miss-liste label { display: flex; gap: .45rem; align-items: flex-start; font-size: .78rem; color: var(--text-strong); padding: .12rem 0; line-height: 1.25; }
+  .miss-liste label input { margin-top: .12rem; accent-color: var(--accent); }
+  .miss-liste label.non { color: var(--text-muted); }
+
+  .seg-mini button { flex: none; min-width: 0; padding: .25rem .6rem; font-size: .8rem; }
+  .seg-mini button small { display: block; font-weight: 400; color: var(--text-muted); font-size: .68rem; line-height: 1.15; margin-top: .1rem; }
+  .seg-mini button.on small { color: var(--accent); }
+  .seg button small { display: block; font-weight: 400; color: var(--text-muted); font-size: .7rem; line-height: 1.2; margin-top: .1rem; }
+  .seg button.on small { color: var(--accent); }
+  .cv .lieu-italique { font-style: italic; }
+  .cv .lieu-gris { color: #6b7684; }
+  .cv .col-fond .lieu-gris, .cv .bloc-fond .lieu-gris { color: rgba(255,255,255,.78); }
+
+  .ligne-comp { display: flex; align-items: center; gap: .5rem; }
+  .ligne-comp .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: .2rem .55rem; font-size: .78rem; white-space: nowrap; }
+  .ligne-comp .btn-miss.perso { border-color: var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); }
+  .ex { color: var(--text-muted); font-size: .74rem; }
+  .miss-liste .tag-ecart { color: var(--warning); font-style: normal; font-size: .72rem; margin-left: .3rem; }
+  #pickPro, #pickComp { margin: .4rem 0 0; }
+  #pickPro .cols, #pickComp .cols { columns: 2 260px; column-gap: 1rem; }
+  #pickPro label, #pickComp label { break-inside: avoid; }
+
+
+  /* Modèle créatif « Colonne et frise » (inspiré du CV d'origine de M. Doumbouya) */
+  .cv-frise { padding-bottom: 0; overflow: hidden; }
+  .cv-frise .fr-coin { position: absolute; top: 0; right: 0; width: 76%; height: 118px; background: var(--cv); clip-path: polygon(34% 0, 100% 0, 100% 86%); z-index: 0; }
+  .cv-frise.degr .fr-coin { background: linear-gradient(120deg, var(--cv), color-mix(in srgb, var(--cv) 45%, #ffffff)); }
+  .cv-frise .fr-coin2 { position: absolute; top: 0; left: 0; width: 31%; height: 58px; background: #5f7288; clip-path: polygon(0 0, 100% 0, 0 100%); z-index: 3; }
+  .cv-frise .fr-grille { display: grid; grid-template-columns: 31% 1fr; min-height: 1123px; position: relative; z-index: 1; }
+  .cv-frise .fr-lat, .cv-frise .fr-main { min-width: 0; }
+  .cv-frise .fr-lat { background: #93aac6; padding: 96px 16px 22px 22px; }
+  .cv-frise .fr-lat .coord { margin: 0 0 6px; font-size: calc(11.5px * var(--k, 1)); line-height: 1.7; color: #14202e; word-break: break-word; }
+  .cv-frise .fr-lat h3 { font-size: calc(var(--tt, 13px) * 1.15); color: #5f7288; margin: 18px 0 6px; font-weight: 700; overflow-wrap: break-word; }
+  .cv-frise .fr-lat .fr-b { font-weight: 700; margin-bottom: 5px; color: #0f1720; }
+  .cv-frise .fr-main { padding: 30px 26px 22px 26px; }
+  .cv-frise .fr-nom { font-size: calc(20px * var(--k, 1)); font-weight: 400; color: #222; }
+  .cv-frise .fr-metier { font-size: calc(21px * var(--k, 1)); color: var(--cv); font-weight: 600; margin: 2px 0 8px; }
+  .cv-frise .fr-accroche { font-size: calc(12px * var(--k, 1)); margin: 0 0 6px; }
+  .cv-frise .fr-h { font-size: calc(var(--tt, 13px) * 1.3); color: var(--cv); margin: 16px 0 6px; font-weight: 600; overflow-wrap: break-word; }
+  .cv-frise .fr-b { font-weight: 700; margin-bottom: 4px; }
+  .cv-frise .fr-frise { border-left: 2px solid #2c3038; margin-left: 5px; padding-left: 16px; }
+  .cv-frise .fr-item { position: relative; margin-bottom: 9px; }
+  .cv-frise .fr-item::before { content: ""; position: absolute; left: -23px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #111; }
+  .cv-frise .fr-poste { font-weight: 700; }
+  .cv-frise .fr-meta { color: #555; }
+  .cv-frise .fr-ent { color: var(--cv); }
+  .cv-frise .fr-item ul { margin-top: 3px; }
+  .cv-frise .theme { font-weight: 700; margin: 6px 0 1px; }
+
+
+  /* Allure « Sobre » : titres soulignés, pas d'icône, angles droits, une couleur pâle ; se distingue nettement de « Standard » */
+  .cv.sobre { --pale: color-mix(in srgb, var(--cv) 14%, #ffffff); }
+  .cv.sobre h2 { color: #20262e; border-bottom: 2px solid var(--cv); letter-spacing: .04em; }
+  .cv.sobre .nom, .cv.sobre .metier { color: #20262e; }
+  .cv.sobre .coord div::before { display: none; }
+  .cv.sobre .trait { height: 1px; background: #20262e; }
+  .cv .tete-pale { background: var(--pale); border-bottom: 1px solid var(--cv); margin-bottom: 4px; }
+  .cv .col-pale { background: var(--pale); padding: 2px 12px 12px; }
+  .cv .bloc-pale { background: var(--pale); padding: 4px 12px 8px; margin-top: 8px; }
+
+
+  /* Réglages d'une rubrique seule (plein écran) : taille et interligne, comme la mini-barre existante */
+  .plein-zone .cv h2[data-rub] { cursor: pointer; }
+  .plein-zone .cv h2[data-rub]:hover { outline: 1px dashed var(--cv); outline-offset: 2px; }
+  .barre-rub { position: fixed; z-index: 150; background: var(--bg-card); color: var(--text-strong); border: 1px solid var(--accent); border-radius: 10px; padding: .4rem .6rem; box-shadow: var(--shadow); display: flex; flex-wrap: wrap; gap: .4rem .8rem; align-items: center; font-size: .8rem; max-width: 470px; }
+  .barre-rub .grp { display: inline-flex; align-items: center; gap: .3rem; }
+  .barre-rub button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 7px; padding: .2rem .5rem; font-size: .78rem; }
+  .barre-rub .seg { gap: .25rem; flex-wrap: nowrap; }
+  .barre-rub .seg button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+
+  .pas button:disabled { opacity: .35; cursor: not-allowed; }
+  .ligne-choix .sur { color: var(--text-muted); font-size: .72rem; min-width: 1.3rem; }
+  .barre-bas { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--bg-card); border-top: 1px solid var(--border);
+    padding: .45rem 1.1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .btn { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: var(--radius); padding: .45rem .85rem; font-weight: 600; display: inline-flex; gap: .5rem; align-items: center; }
+  .btn.principal { background: var(--accent-solide); border-color: var(--accent-solide); color: #fff; padding: .5rem 1.1rem; }
+
+  /* Aperçu (colonne de droite) */
+  .apercu { position: sticky; top: .5rem; border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius); padding: .55rem; }
+  .cadre-cv { background: #e9ecf1; border-radius: 8px; padding: 10px; overflow: hidden; }
+  body.dark .cadre-cv { background: #0d1017; }
+  .feuille-wrap { position: relative; transform-origin: top left; }
+  .info-page { font-size: .74rem; color: var(--text-muted); margin: .35rem .2rem 0; display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+
+  /* La feuille du CV (toujours blanche) */
+  .cv { --cv: #2f6690; width: 794px; min-height: 1123px; background: #fff; color: #1c2430; font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px; line-height: 1.38; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,.18); padding-bottom: 8mm; }
+  .cv * { box-sizing: border-box; }
+  .cv .tete { display: grid; grid-template-columns: 1.15fr 1fr 1.5fr; gap: 14px; padding: 10mm 10mm 9px; align-items: start; }
+  .cv .nom { font-size: 21px; font-weight: 700; color: var(--cv); }
+  .cv .coord { margin-top: 8px; font-size: 11.5px; line-height: 1.7; }
+  .cv .coord div::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 2px; background: var(--cv); opacity: .8; }
+  .cv .metier { font-size: 19px; text-transform: uppercase; color: var(--cv); text-align: center; padding-top: 6px; line-height: 1.15; letter-spacing: .01em; }
+  .cv .accroche { font-style: italic; font-size: 11px; line-height: 1.4; border-left: 2px solid #cbd3dc; padding-left: 12px; }
+  .cv .trait { height: 4px; background: var(--cv); margin: 0 10mm 4px; border-radius: 2px; }
+  .cv .corps { padding: 0 10mm; }
+  .cv .corps.deux { display: grid; grid-template-columns: 36% 1fr; gap: 16px; align-items: start; }
+  .cv .corps.deux > div { min-width: 0; }
+  .cv h2 { font-size: var(--tt, 13px); text-transform: uppercase; letter-spacing: .03em; color: var(--cv); margin: 13px 0 5px; padding-bottom: 2px; border-bottom: 1px solid #d5dbe4; display: flex; align-items: center; gap: 6px; }
+  .cv h2 span { min-width: 0; overflow-wrap: break-word; }
+  .cv.agrandir h2 { font-size: calc(var(--tt, 13px) * 1.27); }
+  .cv.ico h2::before { content: ""; width: 11px; height: 11px; border-radius: 3px; background: var(--cv); flex: 0 0 auto; }
+  .cv.ico.sobre h2::before { border-radius: 0; background: #20262e; }
+  .cv.serre .item { margin-bottom: 3px; }
+  .cv.serre li { margin-bottom: 0; }
+  .cv.serre h2 { margin: 7px 0 3px; }
+  .cv.serre .theme { margin: 3px 0 0; }
+  .cv.serre .tete { padding-bottom: 4px !important; }
+  .cv .item { margin-bottom: 8px; }
+  .cv .ligne { display: flex; justify-content: space-between; gap: 10px; }
+  .cv .ligne .dates { white-space: nowrap; font-weight: 400; }
+  .cv b, .cv .gras { font-weight: 700; }
+  .cv .meta { color: #4b5866; }
+  .cv ul { margin: 2px 0 0 0; padding-left: 16px; }
+  .cv li { margin-bottom: 1px; }
+  .cv .pill { display: inline-block; background: #e9ecf0; border-radius: 12px; padding: 2px 9px; margin: 0 4px 4px 0; font-size: .92em; position: relative; }
+  .cv .pill.rect { border-radius: 4px; }
+  .cv .pill.texte { background: none; padding: 0; margin: 0 .3em 0 0; }
+  .cv .pill.texte::after { content: " • "; }
+  .cv .pill.texte:last-child::after { content: ""; }
+  .cv .paire { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cv .bloc-fond { background: var(--cv); color: #fff; border-radius: 6px; padding: 2px 12px 10px; margin-top: 13px; }
+  .cv.degr .bloc-fond { background: linear-gradient(135deg, var(--cv), color-mix(in srgb, var(--cv) 45%, #ffffff)); }
+  .cv .bloc-fond h2 { color: #fff; border-bottom-color: rgba(255,255,255,.4); margin-top: 8px; }
+  .cv .bloc-fond .meta { color: rgba(255,255,255,.85); }
+  .cv .bloc-fond .dates { color: #fff; }
+  .cv .col-fond { background: var(--cv); color: #fff; padding: 2px 10px 12px; border-radius: 6px; }
+  .cv.degr .col-fond { background: linear-gradient(165deg, var(--cv), color-mix(in srgb, var(--cv) 45%, #ffffff)); }
+  .cv .col-fond h2 { color: #fff; border-bottom-color: rgba(255,255,255,.4); }
+  .cv .col-fond .pill { background: rgba(255,255,255,.2); color: #fff; }
+  .cv .col-fond .meta { color: rgba(255,255,255,.85); }
+  .cv .tete-fond { background: var(--cv); color: #fff; }
+  .cv.degr .tete-fond { background: linear-gradient(135deg, var(--cv), color-mix(in srgb, var(--cv) 45%, #ffffff)); }
+  .cv .tete-fond .nom, .cv .tete-fond .metier { color: #fff; }
+  .cv .tete-fond .accroche { border-left-color: rgba(255,255,255,.5); }
+  .cv .tete-fond.tete-diag { background: none; position: relative; padding-bottom: 40px !important; }
+  .cv .tete-diag::before { content: ""; position: absolute; inset: 0; background: var(--cv); clip-path: polygon(0 0, 100% 0, 100% 74%, 0 100%); z-index: 0; }
+  .cv.degr .tete-diag::before { background: linear-gradient(160deg, var(--cv), color-mix(in srgb, var(--cv) 45%, #ffffff)); }
+  .cv .tete-diag > div { position: relative; z-index: 1; }
+  .cv .tete-fond .coord div::before { background: #fff; }
+  .cv .marque-page { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dashed #e4572e; z-index: 3; }
+  .cv .marque-page span { position: absolute; right: 8px; top: -18px; background: #fff; color: #e4572e; font-size: 10.5px; padding: 0 5px; }
+  .cv .mise-en-avant { background: #f3f6fa; border-radius: 6px; padding: 6px 10px; margin: 6px 0; }
+  .cv .theme { font-weight: 700; margin: 6px 0 1px; }
+  .cv .src { color: #4b5866; font-size: .88em; }
+  .cv.cadre { box-shadow: inset 0 0 0 3px var(--cv), 0 2px 10px rgba(0,0,0,.18); }
+  .cv.cadre .tete-centree { justify-items: center; text-align: center; }
+  .cv.cadre .tete-centree .coord { align-items: center; }
+  .cv.cadre .corps.deux > div:first-child { border-right: 1px solid var(--cv); padding-right: 10px; }
+  .cv.picto { border-top: 5px solid var(--cv); }
+  .cv.picto.ico h2::before { border-radius: 50%; width: 13px; height: 13px; }
+
+
+  /* Ctrl de l'aperçu plein écran */
+  .plein { position: fixed; inset: 0; z-index: 100; background: var(--bg-page); display: none; flex-direction: column; }
+  .plein.ouvert { display: flex; }
+  .plein-corps { display: grid; grid-template-columns: 300px 1fr; flex: 1; min-height: 0; }
+  .plein-outils { border-right: 1px solid var(--border); background: var(--bg-card); padding: .9rem; overflow: auto; display: flex; flex-direction: column; gap: .55rem; }
+  .plein-outils .t { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 9px; padding: .4rem .6rem; text-align: left; font-weight: 600; font-size: .84rem; }
+  .plein-outils .t.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+  .plein-outils details { border: 1px solid var(--border); border-radius: 10px; padding: .45rem .7rem; font-size: .86rem; background: var(--bg-subtle); }
+  .plein-outils details summary { cursor: pointer; font-weight: 600; color: var(--text-strong); }
+  .plein-outils details p { margin: .4rem 0 0; color: var(--text-muted); }
+  .plein-zone { overflow: auto; padding: 1rem; display: flex; justify-content: center; background: var(--bg-page); }
+  .plein-zone .cv { transform-origin: top center; margin: 0 auto; }
+  .plein-tete { display: flex; gap: .6rem; align-items: center; padding: .6rem 1rem; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+  .plein-tete .hint { color: var(--text-muted); font-size: .85rem; }
+  .ctl-exp { position: absolute; right: -2px; top: -3px; display: none; gap: 2px; z-index: 4; }
+  /* Les flèches se posent à GAUCHE, en colonne, dans une place réservée : elles ne cachent jamais les années (à droite) ni le texte. */
+  .mode-deplacer .item[data-exp] { position: relative; padding-left: 30px; outline: 1px dashed var(--cv); outline-offset: 2px; }
+  .mode-deplacer .fr-item[data-exp] { position: relative; outline: 1px dashed var(--cv); outline-offset: 2px; }
+  .mode-deplacer .item[data-exp] .ctl-exp, .mode-deplacer .fr-item[data-exp] .ctl-exp { display: flex; flex-direction: column; left: 2px; right: auto; top: 1px; gap: 1px; }
+  .mode-deplacer .fr-item[data-exp] { padding-left: 16px; }
+  .mode-deplacer .fr-item[data-exp] .ctl-exp { left: -34px; }
+  .ctl-exp button { border: 1px solid #b6c0cc; background: #fff; color: #1c2430; border-radius: 5px; width: 24px; height: 17px; font-size: 9px; padding: 0; line-height: 1; }
+  .pill .x { display: none; margin-left: 5px; border: 0; background: #c0392b; color: #fff; border-radius: 50%; width: 15px; height: 15px; font-size: 10px; line-height: 15px; padding: 0; text-align: center; }
+  .mode-retirer .pill .x { display: inline-block; }
+  [contenteditable="true"] { outline: 1px dashed var(--cv); }
+
+  /* En-tête libre (aperçu plein écran) : quatre blocs indépendants, déplacés, étirés, réglés un par un */
+  .cv .tete.libre { display: block; position: relative; padding: 0 !important; }
+  /* Frise : la colonne latérale (31%) et fr-main (69%) sont 2 cellules de grille séparées ; le bloc libre, lui, reste un enfant normal de fr-main (pour garder sa hauteur réservée) mais s'étire visuellement par-dessus les 2 colonnes, afin que la personne puisse glisser nom/coordonnées/titre dans la colonne de gauche pour équilibrer (Denis, 2026-09-22). 100/69 ≈ 144.93 %, 31/69 ≈ 44.93 % : les pourcentages des blocs à l'intérieur (voir teteDefauts) sont recalculés sur cette largeur élargie, pas sur celle de fr-main seul. */
+  .cv-frise .tete.libre.large { width: 144.93%; margin-left: -44.93%; }
+  .cv .tete.libre > .blc { position: absolute; }
+  .cv .blc .nom { font-size: calc(21px * var(--k, 1)); }
+  .cv .blc .coord { margin-top: 0; font-size: calc(11.5px * var(--k, 1)); }
+  .cv .blc .metier { font-size: calc(19px * var(--k, 1)); padding-top: 0; }
+  .cv .blc .accroche { font-size: calc(11px * var(--k, 1)); }
+  .cv .poi-l, .cv .poi-h { display: none; position: absolute; z-index: 6; touch-action: none; }
+  .cv .poi-l { top: 0; right: -7px; bottom: 0; width: 14px; cursor: ew-resize; }
+  .cv .poi-l::after { content: ""; position: absolute; top: 50%; right: 5px; transform: translateY(-50%); width: 4px; height: 26px; border-radius: 2px; background: #8a95a3; }
+  .cv .poi-h { left: 0; right: 0; bottom: -7px; height: 14px; cursor: ns-resize; }
+  .cv .poi-h::after { content: ""; position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); height: 4px; width: 30px; border-radius: 2px; background: #8a95a3; }
+  .mode-entete .poi-l, .mode-entete .poi-h { display: block; }
+  .mode-entete .tete.libre { outline: 1px dotted #8a95a3; }
+  .mode-entete [data-bl] { outline: 1px dashed #8a95a3; outline-offset: 2px; cursor: pointer; }
+  .mode-entete .blc { cursor: move; touch-action: none; }
+  .mode-entete [data-bl].hors-cadre { outline: 3px solid #dc2626; outline-offset: 2px; background: rgba(220,38,38,.08); }
+  .cv.justif .item li, .cv.justif .accroche, .cv.justif .fr-accroche { text-align: justify; }
+  .cv.sepcol .corps.deux > div:first-child { border-right: 1px solid #d5dbe4; padding-right: 8px; }
+  .cv.sans-icoc .coord div::before { display: none; }
+  .sw.entreprise { outline: 2px dashed var(--text-muted); outline-offset: 2px; }
+  /* Jamais imprimé : repères de l'aperçu (ligne de fin de page, poignées, cadres) */
+  @media print { .cv .marque-page, .cv .poi-l, .cv .poi-h { display: none !important; } .cv [data-bl] { outline: none !important; background: none !important; } }
+  .btn-g-i.on { border-color: var(--accent-solide) !important; background: var(--accent-solide) !important; color: #fff !important; box-shadow: inset 0 0 0 1px var(--accent-solide); }
+  .barre-rub .grp.libre-seul { display: inline-flex; }
+  #barreBloc.sans-libre .libre-seul { display: none; }
+  #zoneDispTete { display: none; border: 1px solid var(--border); border-radius: 10px; padding: .5rem .6rem; background: var(--bg-subtle); font-size: .84rem; }
+  #zoneDispTete .seg { margin: .3rem 0 .45rem; }
+
+  /* Impression réelle : le CV seul, format A4, sans marge de page (comme l'exportation de l'application) */
+  #impression { display: none; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+    body > *:not(#impression) { display: none !important; }
+    #impression { display: block !important; }
+    #impression .cv { box-shadow: none !important; margin: 0 !important; min-height: 1120px; transform: none !important; }
+    #impression .cv-frise .fr-grille { min-height: 1120px; }
+    #impression .cv .item, #impression .cv .fr-item, #impression .cv h2, #impression .cv .theme { break-inside: avoid; }
+    #impression .cv h2 { break-after: avoid; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* Fenêtre Exporter */
+  .voile { position: fixed; inset: 0; background: rgba(8,12,20,.55); z-index: 200; display: none; align-items: center; justify-content: center; padding: 1rem; }
+  .voile.ouvert { display: flex; }
+  .fenetre { background: var(--bg-card); color: var(--text); border-radius: 14px; max-width: 560px; width: 100%; padding: 1.2rem 1.3rem; box-shadow: var(--shadow); }
+  .fenetre h3 { margin: 0 0 .4rem; color: var(--text-strong); }
+  .fenetre .gros { display: block; width: 100%; margin-top: .6rem; padding: .8rem 1rem; border-radius: 12px; border: 1px solid var(--accent-solide); background: var(--accent-solide); color: #fff; font-weight: 700; text-align: left; }
+  .fenetre .sec { display: block; width: 100%; margin-top: .5rem; padding: .6rem 1rem; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); text-align: left; }
+  .encart { margin-top: .7rem; padding: .6rem .8rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 8px; font-size: .9rem; color: var(--text-strong); }
+  .fermer { float: right; border: 0; background: none; font-size: 1.3rem; color: var(--text-muted); }
+
+  /* Notes de la maquette */
+  .notes { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 94vw; background: var(--bg-card); border-left: 1px solid var(--border-strong);
+    z-index: 300; padding: 1rem 1.1rem; overflow: auto; display: none; box-shadow: var(--shadow); }
+  .notes.ouvert { display: block; }
+  .notes h3 { margin: .2rem 0 .3rem; color: var(--text-strong); font-size: 1.05rem; }
+  .notes h4 { margin: 1rem 0 .3rem; color: var(--text-strong); font-size: .92rem; }
+  .notes ul { margin: .2rem 0; padding-left: 1.1rem; font-size: .86rem; }
+  .notes li { margin-bottom: .3rem; }
+  .notes .tag { display: inline-block; font-size: .7rem; padding: 0 .4rem; border-radius: 6px; background: var(--accent-bg-subtle); color: var(--accent); margin-right: .3rem; }
+  body.surligne [data-nouveau] { outline: 2px dashed var(--warning); outline-offset: 3px; border-radius: 8px; }
+  .toast { position: fixed; left: 50%; bottom: 5rem; transform: translateX(-50%); background: var(--text-strong); color: var(--bg-card); padding: .55rem 1rem; border-radius: 10px; z-index: 400; font-size: .9rem; display: none; }
+</style>
+</head>
+<body>
+
+<div class="barre-maquette">
+  Maquette (jamais dans l'application) :
+  <button id="btnSombre">Thème sombre</button>
+  <button id="btnNotes">Notes de la maquette</button>
+  <label style="margin-left:.6rem;font-size:.85rem"><input type="checkbox" id="oSimulCouleurEnt" checked> Simuler : couleur d’entreprise captée par l’assistant</label>
+</div>
+
+<div class="ecran">
+  <div class="entete">
+    <div class="rond"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+    <div>
+      <h1>La mise en page</h1>
+      <p>Votre CV est déjà mis en page automatiquement. La plupart des personnes n'y touchent pas. Vous pouvez tout régler si vous le souhaitez.</p>
+    </div>
+    <button class="aide"><svg class="ic" viewBox="0 0 24 24" style="width:1.2rem;height:1.2rem"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg> Aide</button>
+  </div>
+
+  <div class="grille">
+    <!-- ===================== Réglages ===================== -->
+    <div id="reglages">
+      <div class="rangee-modes">
+        <button class="btn-plein" id="btnPlein"><svg class="ic" viewBox="0 0 24 24" style="width:1.2rem;height:1.2rem"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Aperçu en plein écran</button>
+      </div>
+
+      <div class="cartes-haut">
+        <div class="ligne-action">
+          <button class="carte-action retreci" id="btnDe">
+            <span class="emo">🎲</span>
+            <span><b id="deTitre">Style rapide (aléatoire)</b><small id="deSous">Un style complet en un clic.</small></span>
+          </button>
+          <button class="mini-action" id="btnAnnulerTirage" title="Revenir au tirage précédent" disabled>↺</button>
+          <button class="mini-action" id="btnDepuisDebut" title="Revenir au modèle de départ">⏮</button>
+        </div>
+        <div class="ligne-action">
+          <button class="carte-action retreci" id="btnOptim">
+            <span class="emo">🪄</span>
+            <span><b>Mise en page</b><small>Fait tenir sur une page, ou remplit l'espace.</small></span>
+          </button>
+          <button class="mini-action" id="btnAnnulerOptim" title="Revenir à avant la dernière mise en page" disabled>↺</button>
+        </div>
+      </div>
+
+      <div class="carte">
+        <div class="carte-corps style-corps">
+          <div class="style-grille">
+            <div>
+              <div class="titre-mini"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 22a3 3 0 0 1-1-5.8c.6-.3 1-.9 1-1.6 0-1 .8-1.6 1.7-1.6H17"/></svg>Allure générale <span class="sous">Choisissez le style visuel de votre CV.</span></div>
+              <div class="seg" id="segAllure">
+                <button data-v="sobre">Sobre</button><button data-v="standard" class="on">Standard</button><button data-v="creatif">Créatif</button>
+              </div>
+            </div>
+            <div>
+              <div class="titre-mini">Couleurs</div>
+              <div class="swatches" id="swatches"></div>
+              <label class="case" id="ligneDegrade" data-nouveau style="margin-top:.4rem"><input type="checkbox" id="oDegrade" checked> Dégradé <span class="sous" style="margin-left:.3rem">Un effet que Word ne sait pas faire.</span></label>
+            </div>
+          </div>
+          <div id="zoneGabarits" data-nouveau></div>
+        </div>
+      </div>
+
+      <details class="carte" open id="cOrg">
+        <summary><svg class="ic" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg><div><h3>Organisation du CV</h3><span class="sous">Choisissez l'organisation générale de votre CV.</span></div><span class="chev">⌃</span></summary>
+        <div class="carte-corps">
+          <div class="org-tete">
+            <div class="radio-gros"><button class="on" id="btnStd">◉ Standard (recommandé)</button><button id="btnPerso">Personnaliser</button></div>
+            <div id="zoneCote" class="cote-inline" data-nouveau><b>Blocs courts</b>
+              <div class="seg" id="segCote"><button data-v="cote" class="on">Côte à côte</button><button data-v="dessous">L'un sous l'autre</button></div>
+            </div>
+          </div>
+          <div id="zonePerso" class="sous-choix" style="display:none" data-nouveau></div>
+          <h4 class="mini-titre">Options rapides</h4>
+          <div class="checks auto">
+            <label class="ck"><input type="checkbox" id="oCompHaut" checked> Compétences en haut</label>
+            <label class="ck"><input type="checkbox" id="oFormAvant"> Formations avant expériences</label>
+            <label class="ck"><input type="checkbox" id="oCentres" checked> Afficher les centres d'intérêt</label>
+            <label class="ck"><input type="checkbox" id="oDeux"> Deux colonnes</label>
+            <label class="ck"><input type="checkbox" id="oReduire"> Réduire les espaces</label>
+            <label class="ck"><input type="checkbox" id="oAgrandir"> Agrandir les titres</label>
+            <label class="ck"><input type="checkbox" id="oIcones"> Icônes sur les rubriques</label>
+            <label class="ck" data-nouveau><input type="checkbox" id="oIconesCoord"> Icônes sur les coordonnées</label>
+            <label class="ck" data-nouveau><input type="checkbox" id="oPastilles" checked> Compétences en pastilles</label>
+          </div>
+        </div>
+      </details>
+
+      <details class="carte" open id="cExp">
+        <summary><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><div><h3>Expériences professionnelles</h3><span class="sous">Choisissez la façon de présenter vos expériences.</span></div><span class="chev">⌃</span></summary>
+        <div class="carte-corps">
+          <div class="quatre">
+            <div class="boite"><h4>Mode de présentation</h4>
+              <label class="rad"><input type="radio" name="mode" value="A" checked> Chronologique (classique)</label>
+              <label class="rad"><input type="radio" name="mode" value="C"> Par compétences</label>
+              <label class="rad"><input type="radio" name="mode" value="B"> Mixte (compétences + parcours)</label>
+              <label class="ck" id="lblSrc" style="display:none;margin-top:.25rem" data-nouveau><input type="checkbox" id="oSrc"> Indiquer l'expérience entre parenthèses</label>
+            </div>
+            <div class="boite"><h4>Expériences à afficher</h4>
+              <label class="rad"><input type="radio" name="tout" value="toutes" checked> Toutes les expériences<small>Affiche l'ensemble de votre parcours.</small></label>
+              <label class="rad"><input type="radio" name="tout" value="pertinentes"> Les plus pertinentes<small>Met en avant celles en lien avec votre projet.</small></label>
+            </div>
+            <div class="boite"><h4>Position des dates</h4>
+              <label class="rad"><input type="radio" name="dates" value="droite" checked> À droite du poste</label>
+              <label class="rad"><input type="radio" name="dates" value="sous"> Sous le poste</label>
+              <label class="rad" data-nouveau><input type="radio" name="dates" value="avant"> Avant le poste</label>
+            </div>
+            <div class="boite"><h4>Niveau de détail</h4>
+              <label class="rad"><input type="radio" name="detail" value="auto" checked> Automatique<small>Complet, raccourci seulement si le CV déborde.</small></label>
+              <label class="rad"><input type="radio" name="detail" value="complet"> Complet</label>
+              <label class="rad"><input type="radio" name="detail" value="resume"> Résumé</label>
+            </div>
+          </div>
+          <details class="choix-exp" id="zoneChoixExp" data-nouveau>
+            <summary class="choix-titre"><b>Vos expériences et leurs missions</b><span id="resumeChoixExp"></span><span class="chev" aria-hidden="true">⌄</span></summary>
+            <p class="choix-aide" id="texteChoixExp"></p>
+            <div id="listeChoixExp"></div>
+          </details>
+          <div class="ligne-plus" data-nouveau>
+            <div class="inline"><label for="selOrdre">Ordre</label>
+              <select id="selOrdre"><option value="recent">Du plus récent au plus ancien</option><option value="mien">Mon ordre</option><option value="pertinent">Du plus pertinent</option></select></div>
+            <div class="inline"><label>Missions par expérience</label><div class="pas" id="pasMissions" title="De 1 à 10 missions"><button data-d="-1">−</button><span id="nbMissions">4</span><button data-d="1">+</button></div></div>
+            <div class="inline" data-nouveau><label>Style des missions</label><div class="seg seg-mini" id="segStyleExp"><button data-v="epure" class="on">Épurées<small>Une par ligne</small></button><button data-v="condense">Condensées<small>À la suite</small></button></div></div>
+            <div class="inline" data-nouveau><label>Dates <span class="sous" style="font-weight:400">Le poste reste en gras seul</span></label><span class="grp"><button type="button" id="btnDatesSoul" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">S</button> <button type="button" id="btnDatesItal" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">I</button></span></div>
+            <div class="inline" data-nouveau><label>Entreprise</label><span class="grp"><button type="button" id="btnEntSoul" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">S</button> <button type="button" id="btnEntItal" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">I</button></span></div>
+            <label class="ck"><input type="checkbox" id="oLieu" checked> Afficher le lieu</label>
+            <div class="inline" id="zoneStyleLieu"><label>Style du lieu</label>
+              <div class="seg seg-mini" id="segLieu"><button data-v="normal">Normal</button><button data-v="italique" class="on">Italique</button><button data-v="gris">Gris</button></div></div>
+          </div>
+          <div class="info-auto" id="infoAuto" style="display:none" data-nouveau></div>
+        </div>
+      </details>
+
+      <details class="carte" id="cForm">
+        <summary><svg class="ic" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><div><h3>Formations <span class="sous" style="font-weight:400;margin-left:.5rem">Choisissez quelles formations afficher.</span></h3></div><span class="chev">⌄</span></summary>
+        <div class="carte-corps">
+          <div class="trois" style="grid-template-columns:1fr 1fr">
+            <div class="boite"><h4>Quelles formations montrer</h4>
+              <label class="rad"><input type="radio" name="formsel" value="complet" checked> Complet<small>Tout votre parcours.</small></label>
+              <label class="rad"><input type="radio" name="formsel" value="optimise"> Optimisé<small>Le diplôme le plus élevé et les formations les plus utiles.</small></label>
+            </div>
+            <div class="boite" data-nouveau><h4>Détail</h4>
+              <label class="ck"><input type="checkbox" id="oFormMissions"> Afficher les missions de la formation</label>
+              <div class="champ" style="margin-top:.45rem"><label>Titre de la formation</label>
+                <span class="grp"><button type="button" id="btnFormGras" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .6rem;font-weight:700"><b>G</b></button> <button type="button" id="btnFormItal" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .6rem"><i>I</i></button> <button type="button" id="btnFormSoul" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .6rem"><u>S</u></button></span></div>
+              <p style="font-size:.8rem;color:var(--text-muted);margin:.4rem 0 0">Les missions proposées pour votre formation apparaissent sous son titre.</p>
+              <div class="champ" style="margin-top:.45rem"><label for="rgEspForm">Espace entre les formations <span id="valEspForm" style="font-weight:400;color:var(--text-muted)">4 px</span></label>
+                <input type="range" id="rgEspForm" min="0" max="16" step="1" value="4" style="width:100%;accent-color:var(--accent)"></div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="carte" id="cSupp">
+        <summary><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div><h3>Éléments supplémentaires <span class="sous" style="font-weight:400;margin-left:.5rem">Compétences, centres d'intérêt, langues, etc.</span></h3></div><span class="chev">⌄</span></summary>
+        <div class="carte-corps">
+          <div class="grille-el" data-nouveau>
+            <div class="champ"><label>Compétences professionnelles à afficher</label>
+              <div class="ligne-comp"><div class="pas" id="pasPro"><button data-d="-1">−</button><span id="nbPro">8</span><button data-d="1">+</button></div><button type="button" class="btn-miss" id="btnPickPro">Choisir ▾</button></div></div>
+            <div class="champ"><label>Compétences comportementales à afficher</label>
+              <div class="ligne-comp"><div class="pas" id="pasComp"><button data-d="-1">−</button><span id="nbComp">6</span><button data-d="1">+</button></div><button type="button" class="btn-miss" id="btnPickComp">Choisir ▾</button></div></div>
+          </div>
+          <div id="pickPro" class="miss-liste" style="display:none" data-nouveau></div>
+          <div id="pickComp" class="miss-liste" style="display:none" data-nouveau></div>
+          <div class="lien-ecartees" id="lienEcartees" data-nouveau>2 compétences n'ont pas été proposées : elles ne correspondent pas au poste visé (Expression artistique, Créativité). Elles restent dans la liste : c'est vous qui décidez. <button id="btnEcartees">Voir la liste</button></div>
+          <h4 class="mini-titre">Rubriques à afficher</h4>
+          <div class="checks auto" data-nouveau>
+            <label class="ck"><input type="checkbox" id="aLogi" checked> Logiciels et outils</label>
+            <label class="ck"><input type="checkbox" id="aLangues"> Langues <span class="ex">(exemple)</span></label>
+            <label class="ck"><input type="checkbox" id="aCertifs"> Certifications <span class="ex">(exemple)</span></label>
+          </div>
+        </div>
+      </details>
+
+      <details class="carte" id="cTexte">
+        <summary><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><div><h3>Mise en page et texte <span class="sous" style="font-weight:400;margin-left:.5rem">Taille de la police, espacements, colonnes, icônes...</span></h3></div><span class="chev">⌄</span></summary>
+        <div class="carte-corps">
+          <div class="grille-el" data-nouveau style="margin-bottom:.6rem">
+            <div class="champ" style="grid-column:1/-1"><label for="selMetier">Titre du CV <span class="sous" style="font-weight:400">Propositions de l’assistant</span></label>
+              <select id="selMetier"></select></div>
+            <div class="champ" style="grid-column:1/-1"><label for="selAccroche">Phrase d’accroche <span class="sous" style="font-weight:400">Propositions de l’assistant</span></label>
+              <select id="selAccroche"></select>
+              <label class="case" style="margin-top:.35rem"><input type="checkbox" id="oSansAccroche"> Sans accroche</label></div>
+          </div>
+          <div class="grille-el">
+            <div class="champ"><label for="selPolice">Police</label>
+              <select id="selPolice"><option value="Arial, Helvetica, sans-serif">Arial (recommandée)</option><option value="Calibri, Carlito, sans-serif">Calibri</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option></select></div>
+            <div class="champ" data-nouveau><label>Taille de</label><div class="seg seg-mini" id="segCible" style="margin-bottom:.3rem"><button data-v="texte" class="on">Texte</button><button data-v="titres">Titres</button></div><div class="curseur"><input type="range" id="rgTaille" min="10" max="14" step="0.5" value="12.5"><span id="valTaille" style="min-width:3.2rem">12,5 px</span></div></div>
+            <div class="champ"><label>Espacement</label><div class="seg" id="segInter"><button data-v="serre">Serré</button><button data-v="normal" class="on">Normal</button><button data-v="aere">Aéré</button></div></div>
+            <div class="champ"><label>Marges de la page</label><div class="seg" id="segMarges"><button data-v="8">8 mm</button><button data-v="10" class="on">10 mm</button><button data-v="14">14 mm</button></div></div>
+            <div class="champ"><label>Compétences</label><div class="seg" id="segPill"><button data-v="pastille" class="on">Pastilles</button><button data-v="rect">Rectangles</button><button data-v="texte">Texte</button></div></div>
+            <div class="champ"><label>Fond de la colonne</label><div class="seg" id="segFond"><button data-v="aucun" class="on">Aucun</button><button data-v="gauche">Gauche</button><button data-v="droite">Droite</button></div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="carte" id="cAvance" data-nouveau>
+        <summary><svg class="ic" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg><div><h3>Réglages avancés <span class="sous" style="font-weight:400;margin-left:.5rem">Pour aller plus loin : vous pouvez ne rien changer</span></h3></div><span class="chev">⌄</span></summary>
+        <div class="carte-corps">
+          <label class="case"><input type="checkbox" id="oJustif"> Texte justifié (bords droits alignés)</label>
+          <label class="case"><input type="checkbox" id="oSepcol"> Trait entre les deux colonnes</label>
+          <label class="case"><input type="checkbox" id="oIcoCoord" checked> Petits carrés devant les coordonnées</label>
+        </div>
+      </details>
+
+      <details class="carte" id="cFormat" data-nouveau>
+        <summary><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div><h3>Format <span class="sous" style="font-weight:400;margin-left:.5rem">Une page, ou votre CV complet sur plusieurs pages</span></h3></div><span class="chev">⌄</span></summary>
+        <div class="carte-corps">
+          <div class="seg" id="segFormat"><button data-v="a4-1page" class="on">A4<small>Sur une page</small></button><button data-v="a4-complet">A4 complet<small>Sur plusieurs pages</small></button></div>
+          <p class="sous" style="margin:.5rem 0 0">Format A5 : bientôt, dans un prochain passage.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- ===================== Aperçu ===================== -->
+    <div class="apercu" id="apercu">
+      <div class="cadre-cv" id="cadreCv"><div class="feuille-wrap" id="feuilleWrap"><div id="cv" class="cv"></div></div></div>
+      <div class="info-page" id="infoPage"></div>
+    </div>
+  </div>
+</div>
+
+<div class="barre-bas">
+  <button class="btn" id="btnDepart"><svg class="ic" viewBox="0 0 24 24" style="width:1.2rem;height:1.2rem"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg> Revenir au modèle de départ</button>
+  <span class="avert-page" id="avertPage" style="display:none" role="alert" data-nouveau></span>
+  <!-- Decision de Denis (2026-09-22, choix laisse a Claude, avec justification) : "Valider" reste TOUJOURS cliquable, meme si le CV depasse une page en format "A4 sur 1 page".
+       Pourquoi ne pas le desactiver : (1) desactiver un bouton sans que la personne comprenne pourquoi est un piege classique pour un public en fragilite numerique -- elle reste bloquee sans savoir quoi faire ; (2) le format "A4 complet" (plusieurs pages) est une fonction VOULUE par Denis (CV complet pour un 2e entretien) : un blocage automatique la contredirait des qu'il resterait mal synchronise avec Format ; (3) avertir clairement et laisser la main est coherent avec les autres regles du chantier (jamais poser de diagnostic, jamais imposer a la place de la personne). Le message rouge explique le probleme ET donne l'action pour le resoudre (Mise en page, ou changer de Format), ce qu'un bouton grise ne peut pas faire. -->
+  <button class="btn principal" id="btnValider">Valider le CV →</button>
+</div>
+
+<!-- Aperçu en plein écran (= « Voir et modifier en grand » actuel, avec ses options + de nouvelles) -->
+<div class="plein" id="plein">
+  <div class="plein-tete"><button class="btn" id="btnRetour">← Revenir aux réglages</button><span class="hint" id="hintPlein">Vous agissez directement sur le CV.</span><span class="hint" id="pagePlein" style="margin-left:auto"></span></div>
+  <div class="plein-corps">
+    <div class="plein-outils">
+      <button class="t" id="tTexte">✍️ Modifier le texte</button>
+      <button class="t" id="tEntete" data-nouveau>⤢ Régler l’en-tête</button>
+      <div id="zoneDispTete">
+        <b>Disposition de départ</b>
+        <div class="seg seg-mini" id="segDispTete"><button data-v="3">3 colonnes</button><button data-v="2">2 colonnes</button></div>
+        <button class="t" id="tEnteteRaz" style="width:100%">↺ Remettre l’en-tête à sa place</button>
+      </div>
+      <button class="t" id="tDeplacer" data-nouveau>↕ Déplacer une expérience</button>
+      <button class="t" id="tRetirer" data-nouveau>✕ Retirer une compétence</button>
+      <details><summary>Ici, vous touchez directement le CV</summary><p>Cliquez sur un élément pour le modifier, le déplacer ou le retirer. Les choix (style, couleur, mise en page) se font sur l’écran des réglages. Rien n’est perdu : « Revenir au modèle de départ » remet tout.</p></details>
+      <details><summary>L’en-tête : nom, titre, coordonnées, accroche</summary><p>Après « Régler l’en-tête » : glissez un bloc pour le déplacer, tirez la poignée grise de son bord droit pour l’élargir (la phrase passe sur plus ou moins de lignes), tirez la poignée du bas pour changer la hauteur, cliquez sur un bloc pour sa taille, son gras, sa couleur. Un cadre rouge signale un bloc qui dépasse ou en recouvre un autre.</p></details>
+      <details open><summary>Une rubrique seule</summary><p>Cliquez sur le titre d'une rubrique dans le CV : une petite barre permet de changer sa <b>taille</b> et son <b>interligne</b>, sans toucher aux autres rubriques.</p></details>
+    </div>
+    <div class="plein-zone" id="pleinZone"><div id="pleinCvWrap"></div></div>
+  </div>
+</div>
+
+<div class="barre-rub" id="barreRub" style="display:none" role="dialog" aria-label="Réglages de cette rubrique" data-nouveau>
+  <b id="rubNom"></b>
+  <span class="grp">Taille <button type="button" data-rt="-0.05" aria-label="Plus petit">A−</button><button type="button" data-rt="0.05" aria-label="Plus grand">A+</button></span>
+  <span class="grp">Interligne <span class="seg seg-mini" id="segRubIl"><button data-il="1.2">Serré</button><button data-il="1.38">Normal</button><button data-il="1.6">Aéré</button></span></span>
+  <button type="button" id="rubRaz">Remettre</button><button type="button" id="rubFermer" aria-label="Fermer">×</button>
+</div>
+
+<div class="barre-rub" id="barreBloc" style="display:none" role="dialog" aria-label="Réglages de ce bloc de l’en-tête" data-nouveau>
+  <b id="blNom"></b>
+  <span class="grp">Taille <button type="button" data-bt="-0.1" aria-label="Plus petit">A−</button><button type="button" data-bt="0.1" aria-label="Plus grand">A+</button></span>
+  <span class="grp"><button type="button" id="blGras" aria-label="Gras"><b>G</b></button><button type="button" id="blItal" aria-label="Italique"><i>I</i></button><input type="color" id="blCoul" aria-label="Couleur du texte" style="width:30px;height:24px;padding:0;border:0"></span>
+  <span class="grp libre-seul">Largeur <button type="button" data-bw="-5" aria-label="Plus étroit">−</button><button type="button" data-bw="5" aria-label="Plus large">+</button></span>
+  <span class="grp libre-seul">Position <button type="button" data-bn="-1,0" aria-label="À gauche">◀</button><button type="button" data-bn="0,-4" aria-label="Plus haut">▲</button><button type="button" data-bn="0,4" aria-label="Plus bas">▼</button><button type="button" data-bn="1,0" aria-label="À droite">▶</button></span>
+  <button type="button" id="blRaz">Remettre</button><button type="button" id="blFermer" aria-label="Fermer">×</button>
+</div>
+
+<div class="voile" id="voileAide"><div class="fenetre" role="dialog" aria-modal="true" aria-labelledby="aideTitre">
+  <button class="fermer" id="fermerAide" aria-label="Fermer">×</button>
+  <h3 id="aideTitre">Aide : La mise en page</h3>
+  <p style="margin:.2rem 0">Votre CV est déjà mis en page automatiquement : vous pouvez ne rien changer.</p>
+  <div class="encart"><b>Pour changer l'allure</b> : choisissez Sobre, Standard ou Créatif, puis un modèle.</div>
+  <div class="encart"><b>Pour choisir ce qui apparaît</b> : « Expériences » (lesquelles, combien de missions, lesquelles des missions), « Éléments supplémentaires » (compétences, rubriques).</div>
+  <div class="encart"><b>Pour corriger un détail</b> : « Aperçu en plein écran » permet de déplacer une expérience, retirer une compétence, changer la taille d'une rubrique.</div>
+  <div class="encart"><b>Pour tout annuler</b> : « Revenir au modèle de départ ».</div>
+</div></div>
+
+<div id="impression" aria-hidden="true"></div>
+
+<div class="voile" id="voileExport"><div class="fenetre" role="dialog" aria-modal="true">
+  <button class="fermer" id="fermerExport" aria-label="Fermer">×</button>
+  <h3>Exporter votre CV</h3>
+  <p style="margin:.2rem 0 0">Votre CV est prêt en <b>PDF</b>. Repartez avec, pour le joindre à une candidature.</p>
+  <button class="gros" id="btnEnregPdf" data-nouveau>📄 Enregistrer mon CV en PDF</button>
+  <div class="encart" data-nouveau>Dans la fenêtre qui s'ouvre, choisissez <b>« Enregistrer au format PDF »</b>, puis <b>« Enregistrer »</b>.</div>
+  <button class="sec">📋 Copier le texte</button>
+  <button class="sec">🎨 Envoyer vers Canva</button>
+</div></div>
+
+<aside class="notes" id="notes">
+  <button class="fermer" id="fermerNotes" aria-label="Fermer">×</button>
+  <h3>Notes de la maquette</h3>
+  <label class="ck" style="margin:.3rem 0"><input type="checkbox" id="ckSurligne"> Surligner ce qui est nouveau</label>
+  <h4>Écran existant, refondu</h4>
+  <ul>
+    <li>« Vos documents &gt; La mise en page » existe déjà (3 niveaux, cartes du haut, allure, formations). Cette maquette reprend votre capture.</li>
+    <li>Les boutons « Voir et modifier en grand » et « Imprimer / Enregistrer en PDF » sont retirés du panneau. « Aperçu en plein écran » ouvre le grand aperçu actuel. L'enregistrement se fait dans « Valider le CV &gt; Exporter ».</li>
+  </ul>
+  <h4>Nouveau (contours orange quand « Surligner » est coché)</h4>
+  <ul>
+    <li><span class="tag">C35</span>Modèles (vignettes) sous « Allure générale » : Sobre et Créatif ont chacun leurs modèles ; Standard garde le tirage cadré.</li>
+    <li><span class="tag">C34</span>Le bouton du dé devient « Un autre modèle (2 sur 3) » en Sobre ou Créatif.</li>
+    <li><span class="tag">C31</span>Blocs courts côte à côte ou l'un sous l'autre (une colonne).</li>
+    <li><span class="tag">C36</span>« Avant le poste » pour les dates ; ordre des expériences ; missions par expérience ; lieu.</li>
+    <li><span class="tag">C17</span>Nombre de compétences ; « compétences écartées » (C21).</li>
+    <li><span class="tag">C20</span>Missions de la formation, au clic.</li>
+    <li><span class="tag">C19 C15</span>Plein écran : déplacer une expérience (▲▼), retirer une compétence (×).</li>
+    <li><span class="tag">Q109</span>Fenêtre Exporter : phrase d'aide avant la fenêtre d'impression.</li>
+  </ul>
+  <h4>Ce qui reste à décider ensemble</h4>
+  <ul>
+    <li><span class="tag">Q123</span>« Par compétences » et « Mixte » se ressemblent : garder les trois ?</li>
+    <li><span class="tag">Q111</span>Ordre des rubriques : ici celui que vous avez dicté (compétences, expériences, formations, logiciels, centres d'intérêt).</li>
+    <li><span class="tag">Q92</span>Langues, certifications, permis, photo : où vont-ils ?</li>
+    <li><span class="tag">Q108</span>« Quelles formations montrer : Complet / Optimisé » : garder ?</li>
+    <li>Contenu exact de « Je débute » et de « Je veux tout régler » : à établir avec l'inventaire des réglages.</li>
+    <li>Les missions du CV sont des exemples d'illustration.</li>
+  </ul>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Données : le CV de M. Doumbouya ---------- */
+  var IDENT = { nom: 'Ibrahim DOUMBOUYA', tel: '07.58.41.64.69', mail: 'zepeq10@gmail.com', ville: 'Bergerac, 24100', permis: 'Permis B',
+    metier: 'Employé libre-service',
+    accroche: "Titulaire du Titre professionnel de Cariste d'entrepôt, je recherche un poste d'Employé libre-service au sein d'une entreprise privée. Mes expériences en agroalimentaire, emballage, boucherie et logistique m'ont permis de développer des compétences en préparation, manutention, contrôle des produits et respect des règles d'hygiène et de sécurité." };
+  /* Propositions de l'assistant pour le titre du CV et l'accroche (dans la maquette : exemples fixes ; dans l'application, elles viendront de la relecture avec l'assistant, jamais inventées ici). */
+  var PROP_METIER = ['Employé libre-service', 'Agent de quai et manutention', 'Cariste et agent logistique'];
+  var PROP_ACCROCHE = [
+    IDENT.accroche,
+    "Rigoureux et polyvalent, je mets mon expérience en logistique et manutention au service d'un nouvel employeur, avec le goût du travail bien fait et le respect des consignes de sécurité."
+  ];
+  /* Ordre d'origine du CV de la personne ("mon ordre"). pert = rang de pertinence pour le poste visé. */
+  var EXPS = [
+    { id: 'bd',   poste: 'Ouvrier service emballage', ent: "Blason d'Or (intérim)", lieu: 'Bergerac', d: [2026, 2026], pert: 3, m: ['Préparer et conditionner les produits selon les consignes de travail.', 'Manipuler les produits et les emballages avec soin afin de préserver leur conformité.', 'Contrôler visuellement les produits et signaler les anomalies constatées.', 'Maintenir le poste de travail propre et respecter les règles d’hygiène et de sécurité.', 'Étiqueter les colis et préparer leur expédition.', 'Trier les produits non conformes.', 'Approvisionner le poste en emballages.', 'Respecter les cadences de production.', 'Nettoyer et ranger le poste en fin de service.', 'Signaler tout incident au responsable d’équipe.'] },
+    { id: 'th',   poste: "Cariste d'entrepôt (stage de formation)", ent: 'Thomas Rural Master', lieu: 'Bergerac', d: [2026, 2026], pert: 1, m: ['Réceptionner et déplacer les marchandises avec les équipements de manutention adaptés.', 'Stocker et déstocker les marchandises en respectant les emplacements prévus.', 'Préparer les marchandises pour leur expédition et contribuer au réapprovisionnement.', 'Appliquer les règles de sécurité lors de l’utilisation des chariots élévateurs.', 'Vérifier l’état de fonctionnement des engins avant utilisation.', 'Charger et décharger les camions selon le plan de chargement.', 'Contrôler les bons de livraison à la réception.', 'Utiliser un logiciel de gestion des stocks (Apisoft).', 'Ranger et étiqueter les palettes.', 'Signaler les anomalies au responsable.'] },
+    { id: 'bat',  poste: 'Ouvrier du Bâtiment', ent: 'Entreprise chinoise', lieu: 'Tunisie', d: [2022, 2022], pert: 9, m: ['Assister les équipes sur le chantier selon les consignes.', 'Transporter et mettre à disposition le matériel.', 'Respecter les règles de sécurité du chantier.'] },
+    { id: 'bou',  poste: 'Employé polyvalent de boucherie', ent: 'Boucherie locale', lieu: 'Tunisie', d: [2022, 2023], pert: 5, m: ['Manipuler et préparer les produits dans le respect des règles d’hygiène alimentaire.', 'Participer à la mise à disposition des produits pour la vente.', 'Maintenir l’espace de travail et le matériel dans des conditions conformes.'] },
+    { id: 'boi',  poste: 'Opérateur en industrie agro-alimentaire', ent: 'Boissons Tunisie Meddeb', lieu: 'Tunisie', d: [2023, 2023], pert: 7, m: ['Alimenter la ligne de production en matières et emballages.', 'Surveiller la qualité des produits en sortie de ligne.', 'Respecter les procédures d’hygiène de l’usine.'] },
+    { id: 'agr',  poste: 'Ouvrier agricole', ent: 'Castang', lieu: 'Bergerac', d: [2025, 2025], pert: 8, m: ['Effectuer les travaux de récolte et de tri des produits.', 'Conditionner les produits pour leur livraison.'] },
+    { id: 'del',  poste: 'Opérateur en industrie agro-alimentaire', ent: 'Delmond Foie gras', lieu: 'Bergerac', d: [2025, 2026], pert: 2, m: ['Participer aux opérations de préparation et de manipulation des produits agroalimentaires.', 'Contrôler visuellement les produits et respecter les exigences d’hygiène.', 'Travailler en équipe dans le respect de l’organisation de la production.', 'Approvisionner la ligne en matières premières.', 'Contrôler le poids et l’aspect des produits.', 'Étiqueter et conditionner les produits finis.', 'Nettoyer les équipements selon le protocole d’hygiène.', 'Signaler les non-conformités à l’encadrement.', 'Ranger et stocker les produits finis.'] },
+    { id: 'pre',  poste: "Gérant d'un pressing", ent: 'Ets Banamorydou', lieu: 'Guinée Conakry', d: [2020, 2021], pert: 6, m: ['Gérer l’activité quotidienne du pressing.', 'Accueillir et conseiller les clients.', 'Suivre les commandes et les stocks.', 'Encaisser et tenir la caisse.', 'Traiter le linge selon les consignes des clients.', 'Entretenir les machines et le local.', 'Fixer les prix et établir les devis.', 'Gérer les réclamations des clients.', 'Organiser le planning des retraits.', 'Suivre la trésorerie du pressing.'] },
+    { id: 'ven',  poste: 'Vendeur-commercial', ent: 'Magasin de vêtements / friperie', lieu: 'Guinée Conakry', d: [2013, 2018], pert: 4, m: ['Accueillir et renseigner les clients sur les articles proposés.', 'Participer à la présentation et à la mise à disposition des produits en magasin.', 'Organiser les articles afin de faciliter leur présentation et leur accès.'] }
+  ];
+  var THEMES = [
+    { t: 'Préparation et manutention', l: [
+      ['Préparer, conditionner et contrôler les commandes selon les consignes', ['Blason d’Or', 'Delmond Foie gras']],
+      ['Réceptionner, stocker et déplacer les marchandises avec des chariots élévateurs (catégories 3 et 5)', ['Thomas Rural Master']] ] },
+    { t: 'Relation client et vente', l: [
+      ['Accueillir, conseiller et servir les clients', ['Vendeur-commercial', 'Gérant d’un pressing']],
+      ['Présenter et organiser les produits pour la vente', ['Vendeur-commercial', 'Boucherie locale']] ] },
+    { t: 'Hygiène, sécurité et organisation', l: [
+      ['Appliquer les règles d’hygiène et de sécurité au poste de travail', ['Boucherie locale', 'Blason d’Or', 'Delmond Foie gras']],
+      ['Gérer l’activité quotidienne d’un commerce', ['Gérant d’un pressing']] ] }
+  ];
+  var PRO = ['Conduite de chariots élévateurs de catégorie 3 et 5', 'Utilisation de transpalettes électriques', 'Vérification de l’état de fonctionnement des engins', 'Déplacement et entreposage des marchandises', 'Utilisation du logiciel de gestion des stocks (Apisoft)', 'Réception et vérification du bon de livraison', 'Préparation de commandes', 'Chargement et déchargement des produits', 'Vigilance sur le lieu de travail', 'Respect des règles d’hygiène et de sécurité', 'Entretien du poste de travail'];
+  /* 9 exemples (au lieu de 5) pour que le plafond relevé (Denis, 2026-09-22 : équilibre avec les compétences professionnelles) ait de quoi proposer un vrai choix. */
+  var COMP = ['Attentif et concentré', 'Patient', 'Goût pour le travail en équipe', 'Persévérance', 'Respect des règles', 'Rigueur', 'Ponctualité', 'Sens de l’organisation', 'Capacité d’adaptation'];
+  var ECARTEES = ['Expression artistique', 'Créativité'];
+  var LOGI = ['Apisoft', 'Word', 'Logiciels de gestion des stocks'];
+  var LANGUES = ['Français (courant)', 'Anglais (notions)'];  /* exemple d'illustration, pas une donnée de la personne */
+  var CERTIFS = ['CACES R489 (catégories 3 et 5)'];          /* exemple d'illustration, pas une donnée de la personne */
+  var CENTRES = ['Sport', 'Football', 'Musique'];
+  var FORMS = [
+    { d: "Titre professionnel - Cariste d'entrepôt", e: 'AFTRAL', a: '2026', m: ['Conduire en sécurité des chariots élévateurs.', 'Préparer des commandes et réceptionner des marchandises.'] },
+    { d: 'Remise à niveau en informatique', e: 'Emmaüs Connect', a: '2024', m: ['Utiliser les outils numériques du quotidien.'] },
+    { d: 'Baccalauréat général (niveau)', e: 'Lycée Donka', a: '2013', m: [] }
+  ];
+  var COULEURS = ['#2e7d5b', '#2f6690', '#7d8790', '#b23a3a', '#6b3fa0'];
+  /* Couleur de départ propre à chaque modèle : n'écrase JAMAIS une couleur choisie par la personne. Les vignettes gardent la couleur du modèle. */
+  var MODEL_COULEUR = { bandeau: '#2f6690', diagonale: '#2f6690', colonne: '#2f6690', cadre: '#1c3d52', picto: '#7d2e43', frise: '#d4974f', 'sobre-bandeau': '#2f6690', 'sobre-fond': '#2f6690', 'sobre-epure': '#2f6690' };
+  /* « Colonne colorée » et « Colonne et frise » n'existent QUE par leur colonne : en 1 colonne, ils perdraient leur couleur sans rien la remplacer (contrairement à « Fond pâle » du Sobre, qui a un repli en 1 colonne). Jamais proposés en 1 colonne ; les choisir bascule automatiquement en 2 colonnes (Denis, 2026-09-22 : « il faut faire attention, sinon c'est pas cohérent »). */
+  var GABARIT_2COL = { colonne: true, frise: true };
+  var GABARITS = {
+    sobre: [ { id: 'sobre-bandeau', nom: 'Bandeau pâle' }, { id: 'sobre-fond', nom: 'Fond pâle' }, { id: 'sobre-epure', nom: 'Épuré' } ],
+    creatif: [ { id: 'bandeau', nom: 'Bandeau entier' }, { id: 'diagonale', nom: 'Bandeau diagonal' }, { id: 'colonne', nom: 'Colonne colorée' }, { id: 'cadre', nom: 'Cadre de page' }, { id: 'picto', nom: 'Titres à pictogrammes' }, { id: 'frise', nom: 'Colonne et frise' } ]
+  };
+  var DEFAUT = { mode: 'simple', allure: 'standard', gabarit: '', couleur: '#2f6690', deux: false, cote: 'cote',
+    compHaut: true, formAvant: false, centres: true, reduire: false, agrandir: false, icones: false,
+    presentation: 'A', cible: 'texte', tailleTitres: 13, espForm: 4, rubStyle: {}, rubOuverte: null, autoM: null, couleurChoisie: false, selPro: null, selComp: null, ouvPro: false, ouvComp: false, aff: { logiciels: true, langues: false, certifs: false }, lieuStyle: 'italique', srcExp: false, sel: EXPS.filter(function (e) { return e.pert <= 5; }).map(function (e) { return e.id; }), mExp: {}, mSel: {}, ouv: {}, tout: 'toutes', dates: 'droite', detail: 'auto', ordre: 'recent', missions: 4, lieu: true,
+    formSel: 'complet', formMissions: false, nbPro: 8, nbComp: 6, ecarteesRemises: false,
+    police: 'Arial, Helvetica, sans-serif', taille: 12.5, inter: 'normal', marge: 10, pill: 'pastille', fond: 'aucun',
+    ordreMien: null, ordrePerso: ['comp', 'exp', 'form', 'bas'], retirees: [], perso: false, justif: false, sepcol: false, icoCoord: true, degrade: true, metierChoisi: 0, accrocheChoisi: 0, sansAccroche: false, formGras: false, formItal: false, formSoul: false, styleExp: 'epure', souligDates: false, italDates: false, souligEnt: false, italEnt: false, couleurEntreprise: '#0b6e4f', iconesCoord: false, format: 'a4-1page', histoTirage: null, histoOptim: null,
+    tete: { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {} } };
+  var S = JSON.parse(JSON.stringify(DEFAUT));
+  function $(id) { return document.getElementById(id); }
+  function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function toast(t) { var e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(function () { e.style.display = 'none'; }, 2400); }
+
+  /* ---------- Aide au rendu du CV ---------- */
+  function fmtDates(d) { return d[0] === d[1] ? String(d[0]) : d[0] + ' - ' + d[1]; }
+  function listeExps() {
+    var l = EXPS.slice();
+    if (S.tout === 'pertinentes') { l = l.filter(function (e) { return S.sel.indexOf(e.id) !== -1; }); }
+    if (S.ordre === 'recent') { l.sort(function (a, b) { return (b.d[1] - a.d[1]) || (b.d[0] - a.d[0]); }); }
+    else if (S.ordre === 'pertinent') { l.sort(function (a, b) { return a.pert - b.pert; }); }
+    else if (S.ordreMien) { l.sort(function (a, b) { return S.ordreMien.indexOf(a.id) - S.ordreMien.indexOf(b.id); }); }
+    return l;
+  }
+  function nbMissionsEffectif() { return S.detail === 'resume' ? 1 : S.missions; }
+  function nbPour(e) { if (S.detail === 'resume') { return 1; } if (S.mSel[e.id]) { return S.mSel[e.id].length; } if (S.detail === 'auto' && S.autoM && S.autoM[e.id] != null) { return S.autoM[e.id]; } return Math.min(e.m.length, (S.mExp[e.id] != null) ? S.mExp[e.id] : S.missions); }
+  function missionsHtml(ms) {
+    if (!ms.length) { return ''; }
+    if (S.styleExp === 'condense') { return '<div class="meta" style="margin-top:2px">' + esc(ms.map(function (m) { return m.replace(/[.;]\s*$/, ''); }).join(' ; ')) + '.</div>'; }
+    return '<ul>' + ms.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>';
+  }
+  function missionsPour(e) {
+    var liste = S.mSel[e.id] ? S.mSel[e.id].map(function (i) { return e.m[i]; }) : e.m.slice(0, nbPour(e));
+    return S.detail === 'resume' ? liste.slice(0, 1) : liste;
+  }
+  function styleDates() { return 'text-decoration:' + (S.souligDates ? 'underline' : 'none') + ';font-style:' + (S.italDates ? 'italic' : 'normal') + ';'; }
+  function styleEnt() { return 'text-decoration:' + (S.souligEnt ? 'underline' : 'none') + ';font-style:' + (S.italEnt ? 'italic' : 'normal') + ';'; }
+  function enteteExp(e, mode) {
+    var lieu = (S.lieu && e.lieu) ? ', <span class="lieu lieu-' + S.lieuStyle + '">' + esc(e.lieu) + '</span>' : '';
+    var dates = '<span style="' + styleDates() + '">' + fmtDates(e.d) + '</span>';
+    var ent = '<span style="' + styleEnt() + '">' + esc(e.ent) + '</span>';
+    if (mode === 'compact') { return '<div class="item"><b>' + esc(e.poste) + '</b> - ' + ent + lieu + ' : ' + dates + '</div>'; }
+    if (S.dates === 'droite') { return '<div class="ligne"><span><b class="gras">' + esc(e.poste) + '</b> - ' + ent + lieu + '</span><span class="dates">' + dates + '</span></div>'; }
+    if (S.dates === 'sous') { return '<div><b class="gras">' + esc(e.poste) + '</b></div><div class="meta">' + ent + lieu + ' : ' + dates + '</div>'; }
+    return '<div><span class="dates" style="display:inline-block;min-width:74px">' + dates + '</span><b class="gras">' + esc(e.poste) + '</b> - ' + ent + lieu + '</div>';
+  }
+  function blocExpA(exps) {
+    return exps.map(function (e) {
+      var ms = missionsPour(e);
+      return '<div class="item" data-exp="' + e.id + '"><span class="ctl-exp"><button data-mv="-1" title="Monter">▲</button><button data-mv="1" title="Descendre">▼</button></span>' +
+        enteteExp(e, '') + missionsHtml(ms) + '</div>';
+    }).join('');
+  }
+  function blocExpHistorique(exps, compact) {
+    return exps.map(function (e) {
+      return '<div class="item" data-exp="' + e.id + '"><span class="ctl-exp"><button data-mv="-1" title="Monter">▲</button><button data-mv="1" title="Descendre">▼</button></span>' +
+        enteteExp(e, compact ? 'compact' : '') + '</div>';
+    }).join('');
+  }
+  function blocMissionsParTheme() {
+    return THEMES.map(function (t) {
+      var n = S.detail === 'resume' ? 1 : 2;
+      return '<div class="theme">' + esc(t.t) + '</div><ul>' + t.l.slice(0, n).map(function (l) {
+        return '<li>' + esc(l[0]) + (S.srcExp ? ' <span class="src">(' + l[1].map(esc).join(', ') + ')</span>' : '') + '</li>';
+      }).join('') + '</ul>';
+    }).join('');
+  }
+  function titre(t) { return '<h2 data-rub="' + t + '"><span>' + t + '</span></h2>'; }
+  function pills(liste, cle) {
+    var vis = liste.filter(function (x) { return S.retirees.indexOf(x) === -1; });
+    return vis.map(function (x) { return '<span class="pill ' + S.pill + '">' + esc(x) + '<button class="x" data-ret="' + esc(x) + '" title="Retirer">×</button></span>'; }).join('');
+  }
+  function listePro() { return S.selPro ? PRO.filter(function (x) { return S.selPro.indexOf(x) !== -1; }) : PRO.slice(0, S.nbPro); }
+  function baseComp() { return COMP.concat(ECARTEES); }
+  function listeComp() { return S.selComp ? baseComp().filter(function (x) { return S.selComp.indexOf(x) !== -1; }) : COMP.slice(0, S.nbComp); }
+  function blocPro() { return titre('Compétences professionnelles') + '<div>' + pills(listePro()) + '</div>'; }
+  function blocComp() { return titre('Compétences comportementales') + '<div>' + pills(listeComp()) + '</div>'; }
+  function blocLogi() { return S.aff.logiciels ? titre('Logiciels et outils') + '<div>' + LOGI.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join('') + '</div>' : ''; }
+  function blocLangues() { return S.aff.langues ? titre('Langues') + '<div>' + LANGUES.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join('') + '</div>' : ''; }
+  function blocCertifs() { return S.aff.certifs ? titre('Certifications') + '<div>' + CERTIFS.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join('') + '</div>' : ''; }
+  function blocCentres() { return S.centres ? titre('Centres d’intérêt') + '<div>' + CENTRES.map(function (x) { return '<div>' + esc(x) + '</div>'; }).join('') + '</div>' : ''; }
+  function espFormEff() { return S.reduire ? Math.min(S.espForm, 3) : S.espForm; }
+  function styleFormTitre() { return 'font-weight:' + (S.formGras ? '700' : '400') + ';font-style:' + (S.formItal ? 'italic' : 'normal') + ';text-decoration:' + (S.formSoul ? 'underline' : 'none') + ';'; }
+  // TACHE (chantier refonte mise en page PDF, phase 5 prep, Denis 2026-09-22) :
+  // "icones des coordonnees" (telephone/email/ville/permis) -- fonction deja
+  // construite et fonctionnelle cote code reel (modules/cv-pdf-html/
+  // cvPdfTemplateA4.js, reglage iconesCoordonnees, _PDF_ICONES_SVG), absente
+  // de la maquette (inventaire, ligne 44, "A AJOUTER"). Memes traces SVG que
+  // le code reel (jamais reinventees) pour une fidelite exacte maquette <->
+  // application. Independant des "petits carres" (S.icoCoord, reglages
+  // avances) : actif, il les remplace (suppression via la classe sans-icoc
+  // deja existante, voir plus bas) plutot que de cumuler les deux.
+  var ICONES_COORD_SVG = {
+    tel: '<path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><line x1="11" y1="18" x2="13" y2="18"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3,7 12,13 21,7"/>',
+    ville: '<path d="M12 22s7-7.58 7-12a7 7 0 0 0-14 0c0 4.42 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+    permis: '<rect x="2" y="11" width="20" height="6" rx="2"/><path d="M6 11l2-4h8l2 4"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>'
+  };
+  function iconeCoordSvg(cle) {
+    return '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:5px">' + ICONES_COORD_SVG[cle] + '</svg>';
+  }
+  function coordHtml() {
+    var ic = S.iconesCoord;
+    return '<div>' + (ic ? iconeCoordSvg('tel') : '') + esc(IDENT.tel) + '</div>' +
+      '<div>' + (ic ? iconeCoordSvg('mail') : '') + esc(IDENT.mail) + '</div>' +
+      '<div>' + (ic ? iconeCoordSvg('ville') : '') + esc(IDENT.ville) + '</div>' +
+      (IDENT.permis ? '<div>' + (ic ? iconeCoordSvg('permis') : '') + esc(IDENT.permis) + '</div>' : '');
+  }
+  function blocForm() {
+    var l = FORMS.slice(); if (S.formSel === 'optimise') { l = l.slice(0, 2); }
+    return titre('Formations') + l.map(function (f) {
+      return '<div class="item" style="margin-bottom:' + espFormEff() + 'px"><div><span style="' + styleFormTitre() + '">' + esc(f.d) + '</span> - ' + esc(f.e) + ' - ' + f.a + '</div>' +
+        ((S.formMissions && f.m.length) ? '<ul>' + f.m.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>' : '') + '</div>';
+    }).join('');
+  }
+  function paire(a, b) {
+    if (S.cote === 'cote') { return '<div class="paire"><div>' + a + '</div><div>' + b + '</div></div>'; }
+    return '<div>' + a + '</div><div>' + b + '</div>';
+  }
+  function blocExperiences() {
+    var exps = listeExps();
+    if (S.presentation === 'A') { return titre('Expérience professionnelle') + blocExpA(exps); }
+    if (S.presentation === 'B') { return titre('Compétences en action') + blocMissionsParTheme() + titre('Parcours professionnel') + blocExpHistorique(exps, false); }
+    return titre('Compétences en action') + blocMissionsParTheme() + titre('Parcours professionnel') + blocExpHistorique(exps, true);
+  }
+  function tropChargeADroite() { return listeExps().reduce(function (t, e) { return t + 1 + (S.presentation === 'A' ? Math.min(nbPour(e), e.m.length) : 0); }, 0) > 22; }
+
+  function composerFrise() {
+    function lignes(l) { return l.map(function (x) { return '<div class="fr-b">' + esc(x) + '</div>'; }).join(''); }
+    function lieuHtml(e) { return (S.lieu && e.lieu) ? ' <span class="lieu lieu-' + S.lieuStyle + '">' + esc(e.lieu) + '</span>' : ''; }
+    var exps = listeExps();
+    var ctl = '<span class="ctl-exp"><button data-mv="-1" title="Monter">\u25B2</button><button data-mv="1" title="Descendre">\u25BC</button></span>';
+    var itemsExp = exps.map(function (e) {
+      var ms = S.presentation === 'A' ? missionsPour(e) : [];
+      return '<div class="fr-item" data-exp="' + e.id + '">' + ctl + '<div class="fr-poste">' + esc(e.poste) + '</div><div class="fr-meta"><span style="' + styleDates() + '">' + fmtDates(e.d) + '</span> <span class="fr-ent" style="' + styleEnt() + '">' + esc(e.ent) + '</span>' + lieuHtml(e) + '</div>' +
+        missionsHtml(ms) + '</div>';
+    }).join('');
+    var themes = (S.presentation === 'A') ? '' : '<div class="fr-h">Compétences en action</div>' + blocMissionsParTheme();
+    var fl = FORMS.slice(); if (S.formSel === 'optimise') { fl = fl.slice(0, 2); }
+    var itemsForm = fl.map(function (f) {
+      return '<div class="fr-item" style="margin-bottom:' + espFormEff() + 'px"><div class="fr-poste" style="' + styleFormTitre() + '">' + esc(f.d) + '</div><div class="fr-meta"><span>' + f.a + '</span> <span class="fr-ent">' + esc(f.e) + '</span></div>' +
+        ((S.formMissions && f.m.length) ? '<ul>' + f.m.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>' : '') + '</div>';
+    }).join('');
+    var lat = (S.tete.libre ? '' : '<div class="coord"' + attrBl('coord') + '>' + coordHtml() + '</div>') +
+      '<h3>Atouts</h3>' + lignes(listeComp()) +
+      (S.aff.logiciels ? '<h3>Informatique</h3>' + lignes(LOGI) : '') +
+      (S.aff.langues ? '<h3>Langues</h3>' + lignes(LANGUES) : '') +
+      (S.aff.certifs ? '<h3>Certifications</h3>' + lignes(CERTIFS) : '') +
+      (S.centres ? '<h3>Centres d\u2019intérêt</h3>' + lignes(CENTRES) : '');
+    var main = (S.tete.libre ? teteLibreHtml('tete') : ('<div class="fr-nom"' + attrBl('nom') + '>' + esc(IDENT.nom) + '</div><div class="fr-metier"' + attrBl('metier') + '>' + esc(IDENT.metier) + '</div>' + (S.sansAccroche ? '' : '<p class="fr-accroche"' + attrBl('accroche') + '>' + esc(IDENT.accroche) + '</p>'))) +
+      '<div class="fr-h">Compétences</div>' + lignes(listePro()) +
+      themes +
+      '<div class="fr-h">Expériences professionnelles</div><div class="fr-frise">' + itemsExp + '</div>' +
+      '<div class="fr-h">Diplômes et Formations</div><div class="fr-frise">' + itemsForm + '</div>';
+    return { cls: 'cv cv-frise' + (S.degrade ? ' degr' : ''), html: '<div class="fr-coin"></div><div class="fr-coin2"></div><div class="fr-grille"><aside class="fr-lat">' + lat + '</aside><main class="fr-main">' + main + '</main></div>', formAGauche: false };
+  }
+
+  function composer() {
+    if (S.allure === 'creatif' && S.gabarit === 'frise') { return composerFrise(); }
+    var cls = ['cv'];
+    if (S.allure === 'sobre') { cls.push('sobre'); }
+    if (S.agrandir) { cls.push('agrandir'); } if (S.icones || S.allure === 'creatif') { cls.push('ico'); } if (S.reduire) { cls.push('serre'); } if (S.degrade && S.allure !== 'sobre') { cls.push('degr'); } if (S.gabarit === 'cadre') { cls.push('cadre'); } if (S.gabarit === 'picto') { cls.push('picto'); }
+    var g = S.gabarit;
+    var enteteFond = (g === 'bandeau' || g === 'diagonale');
+    var entetePale = (g === 'sobre-bandeau');
+    var pad = S.marge + 'mm';
+    var teteCls = 'tete' + (enteteFond ? ' tete-fond' : '') + (g === 'diagonale' ? ' tete-diag' : '') + (entetePale ? ' tete-pale' : '') + (g === 'cadre' ? ' tete-centree' : '');
+    var trait = (enteteFond || entetePale ? '' : '<div class="trait" style="margin:0 ' + pad + ' 4px' + (S.allure === 'sobre' ? ';height:2px;background:var(--cv)' : '') + '"></div>');
+    var html = (S.tete.libre ? teteLibreHtml(teteCls) : '<div class="' + teteCls + '" style="padding:' + pad + ' ' + pad + ' 9px">' +
+      '<div><div class="nom">' + esc(IDENT.nom) + '</div><div class="coord">' + coordHtml() + '</div></div>' +
+      '<div class="metier">' + esc(IDENT.metier) + '</div>' + (S.sansAccroche ? '' : '<div class="accroche">' + esc(IDENT.accroche) + '</div>') + '</div>') + trait;
+    var corps;
+    if (S.deux) {
+      var gauche = '', droite = '';
+      var formADroite = !tropChargeADroite();
+      var blocsComp = blocPro() + blocComp();
+      var formAGaucheEff = (!formADroite) && !S.formAvant;
+      gauche += (S.compHaut ? blocsComp : '') + (formAGaucheEff ? blocForm() : '') + blocLogi() + blocLangues() + blocCertifs() + blocCentres() + (S.compHaut ? '' : blocsComp);
+      droite += (S.formAvant ? blocForm() : '') + blocExperiences() + ((formADroite && !S.formAvant) ? blocForm() : '');
+      var colFondDroite = (S.fond === 'droite' || g === 'colonne');
+      var colFondGauche = (S.fond === 'gauche' && g !== 'colonne');
+      corps = '<div class="corps deux" style="padding:0 ' + pad + '"><div class="' + (colFondGauche ? 'col-fond' : '') + '">' + gauche + '</div><div class="' + (colFondDroite ? 'col-fond' : (g === 'sobre-fond' ? 'col-pale' : '')) + '">' + droite + '</div></div>';
+    } else {
+      var blocs = {
+        comp: paire(blocPro(), blocComp()),
+        exp: blocExperiences(),
+        form: blocForm(),
+        bas: (S.centres ? paire(blocLogi(), blocCentres()) : blocLogi()) + ((S.aff.langues || S.aff.certifs) ? paire(blocLangues(), blocCertifs()) : '')
+      };
+      var ordre = S.perso ? S.ordrePerso.slice() : (S.compHaut ? ['comp', 'exp', 'form', 'bas'] : ['exp', 'form', 'comp', 'bas']);
+      if (!S.perso && S.formAvant) { ordre = ordre.filter(function (k) { return k !== 'form'; }); ordre.splice(ordre.indexOf('exp'), 0, 'form'); }
+      corps = '<div class="corps" style="padding:0 ' + pad + '">' + ordre.map(function (k) { return '<div class="rub-' + k + ((g === 'sobre-fond' && (k === 'comp' || k === 'bas')) ? ' bloc-pale' : '') + '">' + blocs[k] + '</div>'; }).join('') + '</div>';
+    }
+    return { cls: cls.join(' '), html: html + corps, formAGauche: S.deux && tropChargeADroite() };
+  }
+
+  /* Regroupe chaque titre de rubrique et son contenu dans une section, pour régler cette rubrique seule. */
+  function structurerRubriques(root) {
+    Array.from(root.querySelectorAll('h2[data-rub]')).forEach(function (h) {
+      var cle = h.getAttribute('data-rub'); var sec = document.createElement('div'); sec.className = 'rub-sec'; sec.setAttribute('data-rub', cle);
+      h.parentNode.insertBefore(sec, h);
+      var n = h; while (n && !(n !== h && n.tagName === 'H2')) { var suivant = n.nextSibling; sec.appendChild(n); n = suivant; }
+      var st = S.rubStyle[cle]; if (st) { if (st.t && st.t !== 1) { sec.style.zoom = st.t; } if (st.il) { sec.style.lineHeight = st.il; } }
+    });
+  }
+  function appliquerStyleCV(el) {
+    el.style.setProperty('--cv', S.couleur);
+    el.style.fontFamily = S.police;
+    el.style.fontSize = S.taille + 'px';
+    el.style.setProperty('--tt', S.tailleTitres + 'px');
+    var lh = S.inter === 'serre' ? 1.22 : S.inter === 'aere' ? 1.6 : 1.38;
+    if (S.reduire) { lh = Math.max(1.12, lh - 0.14); }
+    el.style.lineHeight = lh;
+  }
+
+  /* ---------- Rendu principal ---------- */
+  function rendre() {
+    /* Format « A4 complet » (Denis, 2026-09-22) : la personne veut délibérément un CV complet sur plusieurs pages (pour un 2e entretien, par exemple) ; le raccourcissement automatique du niveau « Automatique » ne doit jamais le lui reprendre en douce. */
+    if (S.detail !== 'auto' || S.format === 'a4-complet') { S.autoM = null; rendreUnique(); finRendre(); return; }
+    S.autoM = {}; var essais = 0;
+    rendreUnique();
+    while ($('cv').scrollHeight > 1125 && essais++ < 80) {
+      var cand = listeExps().filter(function (e) { return !S.mSel[e.id] && S.mExp[e.id] == null && nbPour(e) > 1; }).sort(function (a, b) { return b.pert - a.pert; })[0];
+      if (!cand) { break; }
+      S.autoM[cand.id] = nbPour(cand) - 1; rendreUnique();
+    }
+    finRendre();
+  }
+  /* Après le rendu final : le panneau des expériences montre ce qui est vraiment affiché ; réglage global grisé en « Résumé ». */
+  function finRendre() {
+    majChoixExp();
+    var verrou = (S.detail === 'resume');
+    document.querySelectorAll('#pasMissions button').forEach(function (b) { b.disabled = verrou; });
+    $('pasMissions').title = verrou ? 'Niveau « Résumé » : une mission par expérience' : (S.detail === 'auto' ? 'Nombre maximum de missions : réduit seulement si le CV déborde' : 'De 1 à 10 missions');
+  }
+  function rendreUnique() {
+    $('oPastilles').checked = (S.pill !== 'texte');
+    $('zoneStyleLieu').style.display = S.lieu ? 'flex' : 'none';
+    var r = composer(); r.cls += (S.justif ? ' justif' : '') + (S.sepcol ? ' sepcol' : '') + ((S.icoCoord && !S.iconesCoord) ? '' : ' sans-icoc');
+    $('ligneDegrade').style.display = (S.allure === 'sobre') ? 'none' : 'flex';
+    var cv = $('cv'); cv.className = r.cls; cv.innerHTML = r.html; structurerRubriques(cv); appliquerStyleCV(cv); ajusterHauteurTete(cv);
+    var pw = $('pleinCvWrap');
+    if ($('plein').classList.contains('ouvert')) {
+      pw.innerHTML = '<div class="' + r.cls + (modePlein.deplacer ? ' mode-deplacer' : '') + (modePlein.retirer ? ' mode-retirer' : '') + (modePlein.entete ? ' mode-entete' : '') + '">' + r.html + '</div>';
+      var c2 = pw.firstChild; structurerRubriques(c2); appliquerStyleCV(c2); ajusterHauteurTete(c2); c2.onclick = function (ev) { var h = ev.target.closest && ev.target.closest('h2[data-rub]'); if (h && !modePlein.texte) { ouvrirBarreRub(h); } };
+       c2.setAttribute('contenteditable', modePlein.texte ? 'true' : 'false');
+      /* Même repère de fin de page 1 que sur l'écran des réglages : le même CV ne doit pas dire deux choses. */
+      var h2p = c2.scrollHeight; var pagesP = h2p > 1125 ? 2 : 1;
+      if (pagesP === 2) { var mp = document.createElement('div'); mp.className = 'marque-page'; mp.style.top = '1123px'; mp.innerHTML = '<span>fin de la page 1 (estimation)</span>'; c2.appendChild(mp); }
+      $('pagePlein').textContent = pagesP === 1 ? 'Estimation : le CV tient sur 1 page' : 'Estimation : le CV occupe environ 2 pages';
+      if (modePlein.entete) { brancherEntete(c2); }
+    }
+    // marque de fin de page 1
+    var h = cv.scrollHeight;
+    $('feuilleWrap').style.height = '';
+    var marque = document.querySelector('#cv .marque-page'); if (marque) { marque.remove(); }
+    var pages = h > 1125 ? 2 : 1;
+    if (pages === 2) { var m = document.createElement('div'); m.className = 'marque-page'; m.style.top = '1123px'; m.innerHTML = '<span>fin de la page 1 (estimation)</span>'; cv.appendChild(m); }
+    /* Avertissement de la barre du bas (Denis, 2026-09-22) : seulement quand le format demandé est « 1 page » ET que ce n'est pas le cas ; jamais quand « A4 complet » est choisi, c'est alors voulu. Le bouton Valider reste cliquable : voir la note dans le code juste avant btnValider pour le pourquoi. */
+    var avert = $('avertPage');
+    if (pages === 2 && S.format !== 'a4-complet') { avert.style.display = ''; avert.textContent = 'Le CV dépasse une page. Cliquez sur « Mise en page » pour le faire tenir, ou choisissez Format : A4 complet si c’est voulu.'; }
+    else { avert.style.display = 'none'; avert.textContent = ''; }
+    ajusterEchelle();
+    var expsN = listeExps().length;
+    $('infoPage').innerHTML = '<span>' + expsN + ' expérience' + (expsN > 1 ? 's' : '') + ' affichée' + (expsN > 1 ? 's' : '') + ' sur ' + EXPS.length + '</span><span>' + (pages === 1 ? 'Estimation : le CV tient sur 1 page' : 'Estimation : le CV occupe environ 2 pages') + '</span>' +
+      (r.formAGauche ? '<span style="flex-basis:100%">Beaucoup d’expériences : les formations passent dans la colonne de gauche.</span>' : '');
+    // info détail automatique
+    var ia = $('infoAuto');
+    var nbRaccourcies = S.autoM ? Object.keys(S.autoM).length : 0;
+    if (S.detail === 'auto' && nbRaccourcies) { ia.style.display = 'block'; ia.textContent = pages === 1 ? 'Pour tout faire tenir sur une page, les missions des expériences les moins pertinentes ont été raccourcies : aucune expérience n\u2019est retirée.' : (Object.keys(S.mExp).length + Object.keys(S.mSel).length ? 'Le CV dépasse une page : vous avez fixé le nombre de missions de certaines expériences, elles ne sont pas raccourcies.' : (S.format === 'a4-complet' ? 'Votre CV est complet : format A4, sur plusieurs pages.' : 'Même avec une mission par expérience, le CV dépasse une page : choisissez 2 colonnes ou réduisez le nombre d\u2019expériences.')); }
+    else if (S.detail === 'resume') { ia.style.display = 'block'; ia.textContent = 'Pour tout faire tenir, les expériences sont résumées : une seule mission par expérience.'; }
+    else if (pages === 2 && S.tout === 'toutes') { ia.style.display = 'block'; ia.innerHTML = (S.format === 'a4-complet') ? 'Votre CV est complet : format A4, sur plusieurs pages.' : 'Le CV occupe environ 2 pages. Vous pouvez passer en « Résumé » pour tout faire tenir sur une page : aucune expérience ne sera retirée.'; }
+    else { ia.style.display = 'none'; }
+    // pastilles retirer
+    document.querySelectorAll('.pill .x').forEach(function (b) { b.onclick = function (ev) { ev.stopPropagation(); var x = b.getAttribute('data-ret');
+      if (PRO.indexOf(x) !== -1) { S.selPro = listePro().filter(function (y) { return y !== x; }); } else { S.selComp = listeComp().filter(function (y) { return y !== x; }); }
+      majPickers(); rendre(); toast('Compétence retirée de ce CV. Vous la retrouvez dans « Éléments supplémentaires > Choisir ».'); }; });
+    document.querySelectorAll('.ctl-exp button').forEach(function (b) { b.onclick = function (ev) { ev.stopPropagation(); deplacerExp(b.closest('[data-exp]').getAttribute('data-exp'), parseInt(b.getAttribute('data-mv'), 10)); }; });
+    majDe();
+  }
+  function ajusterEchelle() {
+    var cadre = $('cadreCv'); var larg = cadre.clientWidth - 20; var k = Math.min(1, larg / 794);
+    var w = $('feuilleWrap'); w.style.transform = 'scale(' + k + ')'; w.style.width = '794px';
+    var hReel = $('cv').scrollHeight; cadre.style.height = (hReel * k + 20) + 'px';
+    var pz = $('pleinZone'), pw = $('pleinCvWrap');
+    if ($('plein').classList.contains('ouvert')) { var k2 = Math.min(1.15, (pz.clientWidth - 40) / 794); pw.style.transform = 'scale(' + k2 + ')'; pw.style.transformOrigin = 'top center'; pw.style.width = '794px'; pw.style.marginBottom = (pw.scrollHeight * (k2 - 1)) + 'px'; }
+  }
+  function deplacerExp(id, sens) {
+    var ids = listeExps().map(function (e) { return e.id; });
+    var i = ids.indexOf(id), j = i + sens; if (j < 0 || j >= ids.length) { return; }
+    ids.splice(j, 0, ids.splice(i, 1)[0]);
+    var reste = EXPS.map(function (e) { return e.id; }).filter(function (x) { return ids.indexOf(x) === -1; });
+    S.ordreMien = ids.concat(reste); S.ordre = 'mien'; $('selOrdre').value = 'mien'; rendre();
+  }
+
+  /* ---------- Choix des compétences une par une ---------- */
+  function listeChoix(id, base, choisies, cle) {
+    var coches = choisies();
+    return '<div class="miss-tete"><span>' + coches.length + ' sur ' + base.length + ' proposées</span><button type="button" data-raz="' + cle + '">Remettre l\u2019ordre automatique</button></div><div class="cols">' +
+      base.map(function (x) {
+        var c = coches.indexOf(x) !== -1; var ec = ECARTEES.indexOf(x) !== -1;
+        return '<label class="' + (c ? '' : 'non') + '"><input type="checkbox" data-c="' + cle + '" data-v="' + esc(x) + '"' + (c ? ' checked' : '') + '><span>' + esc(x) + (ec ? '<em class="tag-ecart">non proposée : hors sujet pour ce poste</em>' : '') + '</span></label>';
+      }).join('') + '</div>';
+  }
+  function majPickers() {
+    $('nbPro').textContent = listePro().length; $('nbComp').textContent = listeComp().length;
+    $('pasPro').querySelector('[data-d="1"]').disabled = listePro().length >= PRO.length; $('pasPro').querySelector('[data-d="-1"]').disabled = listePro().length <= 3;
+    $('pasComp').querySelector('[data-d="1"]').disabled = listeComp().length >= COMP.length; $('pasComp').querySelector('[data-d="-1"]').disabled = listeComp().length <= 3;
+    [['Pro', PRO, listePro, 'selPro', 'ouvPro'], ['Comp', baseComp(), listeComp, 'selComp', 'ouvComp']].forEach(function (d) {
+      var zone = $('pick' + d[0]); var btn = $('btnPick' + d[0]); var perso = !!S[d[3]];
+      btn.className = 'btn-miss' + (perso ? ' perso' : ''); btn.textContent = (perso ? 'Choix personnel' : 'Choisir') + (S[d[4]] ? ' \u25B4' : ' \u25BE');
+      zone.style.display = S[d[4]] ? 'block' : 'none'; zone.innerHTML = S[d[4]] ? listeChoix(d[0], d[1], d[2], d[3]) : '';
+      zone.querySelectorAll('input[data-c]').forEach(function (c) { c.onchange = function () {
+        var cle = c.getAttribute('data-c'); var v = c.getAttribute('data-v'); var cur = (S[cle] ? S[cle].slice() : d[2]().slice());
+        var pos = cur.indexOf(v); if (c.checked && pos === -1) { cur.push(v); } else if (!c.checked && pos !== -1) { cur.splice(pos, 1); }
+        S[cle] = cur; majPickers(); rendre(); }; });
+      zone.querySelectorAll('[data-raz]').forEach(function (b) { b.onclick = function () { S[b.getAttribute('data-raz')] = null; majPickers(); rendre(); }; });
+    });
+  }
+
+  /* ---------- Choix des expériences pertinentes ---------- */
+  function majChoixExp() {
+    var z = $('zoneChoixExp'); z.style.display = 'block';
+    var nbAff = listeExps().length, nbPerso = Object.keys(S.mSel).length + Object.keys(S.mExp).length;
+    $('resumeChoixExp').textContent = nbAff + ' expérience' + (nbAff > 1 ? 's' : '') + ' affichée' + (nbAff > 1 ? 's' : '') + (nbPerso ? ' · ' + nbPerso + ' choix personnel' + (nbPerso > 1 ? 's' : '') : '') + ' · cliquez pour modifier';
+    var toutes = (S.tout === 'toutes');
+    $('texteChoixExp').textContent = toutes
+      ? 'Toutes vos expériences sont affichées. Pour chacune, choisissez les missions à garder : la 5e à la place de la 4e, c\u2019est possible.'
+      : 'Cochez les expériences à afficher (proposées pour le poste visé : vous décidez). Pour chacune, choisissez les missions à garder.';
+    var lst = $('listeChoixExp');
+    lst.innerHTML = EXPS.slice().sort(function (a, b) { return a.pert - b.pert; }).map(function (e) {
+      var on = toutes || S.sel.indexOf(e.id) !== -1; var n = nbPour(e); var perso = !!S.mSel[e.id]; var ouvert = !!S.ouv[e.id];
+      var lignes = '';
+      if (ouvert) {
+        var coches = perso ? S.mSel[e.id] : e.m.slice(0, n).map(function (m, i) { return i; });
+        lignes = '<div class="miss-liste"><div class="miss-tete"><span>' + coches.length + ' mission' + (coches.length > 1 ? 's' : '') + ' choisie' + (coches.length > 1 ? 's' : '') + ' sur ' + e.m.length + ' proposées</span>' +
+          '<button type="button" data-raz="' + e.id + '">Remettre les premières</button></div>' +
+          e.m.map(function (m, i) { var c = coches.indexOf(i) !== -1; return '<label class="' + (c ? '' : 'non') + '"><input type="checkbox" data-mi="' + e.id + '|' + i + '"' + (c ? ' checked' : '') + '><span>' + esc(m) + '</span></label>'; }).join('') + '</div>';
+      }
+      return '<div class="ligne-bloc' + (ouvert ? ' ouvert' : '') + '"><label class="ligne-choix' + (on ? '' : ' off') + '"><input type="checkbox" data-id="' + e.id + '"' + (on ? ' checked' : '') + (toutes ? ' disabled' : '') + '>' +
+        '<span class="nom"><b>' + esc(e.poste) + '</b> - ' + esc(e.ent) + ' <em>(' + fmtDates(e.d) + ')</em></span>' +
+        '<span class="pas" data-pas="' + e.id + '"><button type="button" data-d="-1"' + ((S.detail === 'resume' || n <= 1) ? ' disabled' : '') + '>\u2212</button><span>' + n + '</span><button type="button" data-d="1"' + ((S.detail === 'resume' || n >= e.m.length) ? ' disabled' : '') + '>+</button></span><span class="sur" title="Missions proposées pour cette expérience">/' + e.m.length + '</span>' +
+        '<button type="button" class="btn-miss' + (perso ? ' perso' : '') + '" data-miss="' + e.id + '">' + (perso ? 'Choix personnel' : 'Missions') + (ouvert ? ' \u25B4' : ' \u25BE') + '</button></label>' + lignes + '</div>';
+    }).join('');
+    lst.querySelectorAll('input[data-id]').forEach(function (c) { c.onchange = function () {
+      var id = c.getAttribute('data-id'); var i = S.sel.indexOf(id);
+      if (c.checked && i === -1) { S.sel.push(id); } else if (!c.checked && i !== -1) { S.sel.splice(i, 1); }
+      majChoixExp(); rendre(); }; });
+    lst.querySelectorAll('.pas button').forEach(function (b) { b.onclick = function (ev) { ev.preventDefault(); ev.stopPropagation();
+      var id = b.parentNode.getAttribute('data-pas'); var exp = EXPS.filter(function (x) { return x.id === id; })[0];
+      var cur = nbPour(exp); delete S.mSel[id];
+      S.mExp[id] = Math.max(1, Math.min(exp.m.length, cur + (+b.getAttribute('data-d')))); majChoixExp(); rendre(); }; });
+    lst.querySelectorAll('.btn-miss').forEach(function (b) { b.onclick = function (ev) { ev.preventDefault(); ev.stopPropagation();
+      var id = b.getAttribute('data-miss'); S.ouv[id] = !S.ouv[id]; majChoixExp(); }; });
+    lst.querySelectorAll('input[data-mi]').forEach(function (c) { c.onchange = function () {
+      var par = c.getAttribute('data-mi').split('|'); var id = par[0], idx = +par[1]; var exp = EXPS.filter(function (x) { return x.id === id; })[0];
+      var cur = S.mSel[id] ? S.mSel[id].slice() : exp.m.slice(0, nbPour(exp)).map(function (m, i) { return i; });
+      var pos = cur.indexOf(idx); if (c.checked && pos === -1) { cur.push(idx); } else if (!c.checked && pos !== -1) { cur.splice(pos, 1); }
+      cur.sort(function (a, b) { return a - b; }); S.mSel[id] = cur; majChoixExp(); rendre(); }; });
+    lst.querySelectorAll('[data-raz]').forEach(function (b) { b.onclick = function (ev) { ev.preventDefault(); delete S.mSel[b.getAttribute('data-raz')]; majChoixExp(); rendre(); }; });
+  }
+
+  /* ---------- Cartes du haut : allure, gabarits, dé ---------- */
+  function majGabarits() {
+    var z = $('zoneGabarits'); var fam = GABARITS[S.allure];
+    if (!fam) { z.innerHTML = '<div class="gab-ligne"><p class="legende-vign">Standard : la base neutre. Le bouton « Style rapide » propose un style cadré, jamais un changement de contenu.</p></div>'; return; }
+    var famVisible = S.deux ? fam : fam.filter(function (g) { return !GABARIT_2COL[g.id]; });
+    z.innerHTML = '<div class="gab-ligne"><div class="vignettes">' + famVisible.map(function (g) {
+      return '<button class="vign' + (S.gabarit === g.id ? ' on' : '') + '" data-g="' + g.id + '"><div class="mini">' + mini(g.id) + '</div><span class="vign-nom">' + g.nom + '</span></button>';
+    }).join('') + '</div><p class="legende-vign">' + (S.allure === 'sobre' ? 'Modèles sobres : sans couleurs vives, sans icônes. Le bouton « Un autre modèle » les fait défiler.' : 'Modèles créatifs : plus de couleurs, des icônes. Le bouton « Un autre modèle » les fait défiler.') + (!S.deux && fam.some(function (g) { return GABARIT_2COL[g.id]; }) ? ' <span class="sous">2 modèles de plus en 2 colonnes.</span>' : '') + '</p></div>';
+    z.querySelectorAll('.vign').forEach(function (b) { b.onclick = function () { S.gabarit = b.getAttribute('data-g'); appliquerGabarit(); rendre(); majGabarits(); }; });
+  }
+  function mini(id) {
+    var c = MODEL_COULEUR[id] || '#8a97a6';
+    if (id === 'sobre-bandeau') { return '<i style="left:0;top:0;right:0;height:20px;background:#dbe6f0;border-bottom:1px solid ' + c + '"></i><i style="left:6px;top:6px;width:34px;height:4px;background:#444"></i><i style="left:6px;top:30px;width:40px;height:1px;background:#444"></i><i style="left:6px;top:36px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:44px;right:6px;height:3px;background:#ddd"></i>'; }
+    if (id === 'sobre-fond') { return '<i style="left:6px;top:6px;width:34px;height:4px;background:#444"></i><i style="left:6px;top:14px;right:6px;height:1px;background:#444"></i><i style="left:6px;top:20px;width:20px;height:3px;background:#ddd"></i><i style="left:34px;top:19px;right:5px;bottom:5px;background:#dbe6f0"></i>'; }
+    if (id === 'sobre-epure') { return '<i style="left:8px;top:8px;width:34px;height:4px;background:#444"></i><i style="left:8px;top:16px;right:8px;height:1px;background:#444"></i><i style="left:8px;top:26px;width:26px;height:1px;background:#777"></i><i style="left:8px;top:32px;right:8px;height:3px;background:#e2e2e2"></i><i style="left:8px;top:44px;width:26px;height:1px;background:#777"></i>'; }
+    if (id === 'classique') { return '<i style="left:6px;top:6px;width:40px;height:6px;background:#888"></i><i style="left:6px;top:16px;right:6px;height:2px;background:#bbb"></i><i style="left:6px;top:24px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:32px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:44px;right:6px;height:3px;background:#ddd"></i>'; }
+    if (id === 'filet') { return '<i style="left:6px;top:6px;width:44px;height:6px;background:#666"></i><i style="left:6px;top:16px;right:6px;height:1px;background:#666"></i><i style="left:6px;top:26px;width:30px;height:2px;background:#666"></i><i style="left:6px;top:32px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:46px;width:30px;height:2px;background:#666"></i>'; }
+    if (id === 'epure') { return '<i style="left:8px;top:8px;width:36px;height:5px;background:#999"></i><i style="left:8px;top:24px;right:8px;height:3px;background:#e5e5e5"></i><i style="left:8px;top:34px;right:8px;height:3px;background:#e5e5e5"></i><i style="left:8px;top:44px;right:8px;height:3px;background:#e5e5e5"></i>'; }
+    if (id === 'bandeau') { return '<i style="left:0;top:0;right:0;height:22px;background:' + c + '"></i><i style="left:6px;top:32px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:40px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:50px;width:30px;height:3px;background:' + c + '"></i>'; }
+    if (id === 'frise') { return '<i style="left:0;top:0;bottom:0;width:22px;background:#93aac6"></i><i style="right:0;top:0;width:46px;height:18px;background:' + c + ';clip-path:polygon(0 0,100% 0,100% 100%)"></i><i style="left:30px;top:24px;width:26px;height:3px;background:' + c + '"></i><i style="left:32px;top:34px;bottom:8px;width:1px;background:#333"></i><i style="left:37px;top:35px;right:6px;height:3px;background:#ddd"></i><i style="left:37px;top:45px;right:6px;height:3px;background:#ddd"></i>'; }
+    if (id === 'colonne') { return '<i style="left:6px;top:6px;width:30px;height:5px;background:' + c + '"></i><i style="left:6px;top:20px;width:24px;height:3px;background:#ddd"></i><i style="left:36px;top:18px;right:5px;bottom:5px;background:' + c + ';border-radius:3px"></i>'; }
+    if (id === 'cadre') { return '<i style="left:0;top:0;right:0;bottom:0;box-shadow:inset 0 0 0 4px ' + c + '"></i><i style="left:14px;top:10px;right:14px;height:12px;background:' + c + '"></i><i style="left:10px;top:30px;width:22px;height:4px;background:#ddd"></i><i style="left:37px;top:14px;bottom:10px;width:2px;background:' + c + '"></i><i style="left:41px;top:30px;right:9px;height:4px;background:#ddd"></i><i style="left:10px;top:40px;width:22px;height:4px;background:#ddd"></i><i style="left:41px;top:40px;right:9px;height:4px;background:#ddd"></i>'; }
+    if (id === 'picto') { return '<i style="left:0;top:0;right:0;height:11px;background:' + c + '"></i><i style="left:10px;top:23px;width:18px;height:18px;border-radius:50%;background:' + c + '"></i><i style="left:32px;top:28px;right:8px;height:7px;background:#444"></i><i style="left:10px;top:47px;right:8px;height:4px;background:#ddd"></i>'; }
+    return '<i style="left:0;top:0;right:0;height:30px;background:' + c + ';clip-path:polygon(0 0,100% 0,100% 55%,0 100%)"></i><i style="left:6px;top:40px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:48px;width:34px;height:3px;background:#ddd"></i>';
+  }
+  /* Le modèle « Colonne et frise » impose 2 colonnes et une couleur chaude : en le quittant, on retrouve les choix d'avant. */
+  function quitterFrise() {
+    if (S._deuxAvant !== undefined) { S.deux = S._deuxAvant; $('oDeux').checked = S.deux; S._deuxAvant = undefined; majPerso(); }
+  }
+  function appliquerGabarit() {
+    var g = S.gabarit;
+    if (GABARIT_2COL[g]) { if (S._deuxAvant === undefined) { S._deuxAvant = S.deux; } S.deux = true; $('oDeux').checked = true; majPerso(); }
+    else { quitterFrise(); }
+    if (!S.couleurChoisie) { S.couleur = MODEL_COULEUR[g] || '#2f6690'; }
+    majSwatches();
+    S.fond = (g === 'colonne') ? 'droite' : 'aucun';
+    S.pill = (S.allure === 'sobre') ? 'texte' : 'pastille';
+    if (S.allure === 'creatif') { S.icones = true; } else { S.icones = false; }
+    $('oIcones').checked = S.icones;
+    setSeg('segFond', S.fond); setSeg('segPill', S.pill);
+  }
+  function setSeg(id, v) { document.querySelectorAll('#' + id + ' button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-v') === v); }); }
+  function majDe() {
+    var fam = GABARITS[S.allure];
+    if (fam) { var i = Math.max(0, fam.map(function (g) { return g.id; }).indexOf(S.gabarit)); $('deTitre').textContent = 'Un autre modèle (' + (i + 1) + ' sur ' + fam.length + ')'; $('deSous').textContent = 'Passe au modèle suivant dans le même style.'; }
+    else { $('deTitre').textContent = 'Style rapide (aléatoire)'; $('deSous').textContent = 'Un style complet en un clic.'; }
+    $('zoneCote').style.display = S.deux ? 'none' : 'flex';
+  }
+  function tirer() {
+    S.histoTirage = { couleur: S.couleur, couleurChoisie: S.couleurChoisie, pill: S.pill, fond: S.fond, gabarit: S.gabarit, icones: S.icones };
+    $('btnAnnulerTirage').disabled = false;
+    var fam = GABARITS[S.allure];
+    if (fam) {
+      var ids = fam.map(function (g) { return g.id; }); var i = ids.indexOf(S.gabarit);
+      S.gabarit = ids[(i + 1) % ids.length]; appliquerGabarit(); majGabarits();
+    } else {
+      S.couleur = COULEURS[Math.floor(Math.random() * COULEURS.length)];
+      S.pill = ['pastille', 'rect', 'texte'][Math.floor(Math.random() * 3)]; setSeg('segPill', S.pill);
+      S.fond = Math.random() < 0.4 ? 'droite' : 'aucun'; setSeg('segFond', S.fond);
+      majSwatches(); toast('Nouveau style : les couleurs et l’allure changent, jamais votre contenu ni son ordre.');
+    }
+    rendre();
+  }
+  /* Bug trouvé en testant la fonction "remplir" ci-dessous (2026-09-22) : .cv a un min-height:1123px (une page ne rétrécit jamais visuellement en dessous d'une page A4) -- scrollHeight ne peut donc JAMAIS descendre sous 1123, même quand le contenu réel est bien plus court. Pour détecter un CV plus court que la page (la marge disponible pour "remplir"), on mesure le bas réel du dernier bloc de contenu, jamais .cv lui-même. */
+  function hauteurContenuCv(cv) {
+    var dernier = cv.lastElementChild;
+    while (dernier && dernier.classList.contains('marque-page')) { dernier = dernier.previousElementSibling; } /* le repère de fin de page (hauteur 0, positionné à 1123px pile) fausserait sinon toujours la mesure vers 1123 */
+    return dernier ? Math.round(dernier.offsetTop + dernier.offsetHeight) : cv.scrollHeight;
+  }
+  /* Denis, 2026-09-22 : « s'assurer que le bouton mise en page fait son boulot, faire tenir le CV sur une page ». Avant : un seul petit pas (taille -1), jamais vérifié jusqu'au bout -- corrigé : ça boucle vraiment jusqu'à ce que ça tienne ou qu'il n'y ait plus rien à essayer, jamais le contenu ni son ordre. Ordre du moins visible au plus visible : taille, espacement, marges (purement typographique) -- PUIS, seulement si ça ne suffit toujours pas, compétences en texte (au lieu de pastilles) et missions condensées (deux changements de style plus visibles, demandés par Denis en complément). Toujours réversible (bouton ↺ dédié, un seul niveau).
+     Denis, 2026-09-22 (2e demande, capture d'écran à l'appui) : « je veux que ce bouton ait 2 fonctions, réduire si trop grand, et remplir la page s'il reste de la place -- cette 2e fonction n'existe pas encore ». Un seul bouton (recommandation de Claude, non contestée) : il détecte lui-même s'il faut réduire ou remplir. REMPLIR est le symétrique exact de RÉDUIRE -- mêmes leviers (taille, interligne), dans l'ordre inverse, jamais au-delà de ce qui tient encore sur une page (chaque pas vérifié, annulé s'il ferait déborder) -- jamais le contenu ni son ordre, jamais les marges (les agrandir réduirait la place utile, contraire au but). Un petit écart (moins de 2 lignes) ne déclenche rien : pas la peine de bouger le CV pour presque rien. */
+  /* Nombre de lignes réellement affichées par un titre de rubrique (une Range sur son contenu donne un rect par ligne, quel que soit son display). */
+  function lignesElement(el) { var r = document.createRange(); r.selectNodeContents(el); var n = r.getClientRects().length; return n || 1; }
+  function lignesTitres() {
+    return Array.from(document.querySelectorAll('#cv h2, #cv .fr-lat h3, #cv .fr-h')).map(lignesElement);
+  }
+  function optimiser() {
+    S.histoOptim = { taille: S.taille, inter: S.inter, marge: S.marge, pill: S.pill, pillAvant: S.pillAvant, styleExp: S.styleExp, tailleTitres: S.tailleTitres };
+    $('btnAnnulerOptim').disabled = false;
+    var hauteurDepart = hauteurContenuCv($('cv'));
+    if (hauteurDepart > 1125) {
+      var essais = 0;
+      while ($('cv').scrollHeight > 1125 && S.taille > 10 && essais++ < 60) { S.taille = Math.max(10, Math.round((S.taille - 0.5) * 10) / 10); rendre(); }
+      if ($('cv').scrollHeight > 1125 && S.inter !== 'serre') { S.inter = 'serre'; setSeg('segInter', 'serre'); rendre(); }
+      if ($('cv').scrollHeight > 1125 && S.marge > 8) { S.marge = 8; setSeg('segMarges', '8'); rendre(); }
+      if ($('cv').scrollHeight > 1125 && S.pill !== 'texte') { S.pillAvant = (S.pill !== 'texte') ? S.pill : S.pillAvant; S.pill = 'texte'; setSeg('segPill', 'texte'); rendre(); }
+      if ($('cv').scrollHeight > 1125 && S.styleExp !== 'condense') { S.styleExp = 'condense'; setSeg('segStyleExp', 'condense'); rendre(); }
+      if (window.__majCurseurTaille) { window.__majCurseurTaille(); }
+      toast($('cv').scrollHeight <= 1125 ? 'Mise en page ajustée : le CV tient sur une page.' : 'Même réduit au minimum, le CV dépasse une page : passez en « Résumé » ou réduisez le nombre d’expériences.');
+    } else if (hauteurDepart < 1085) {
+      var essaisF = 0;
+      while ($('cv').scrollHeight < 1125 && S.taille < 14 && essaisF++ < 40) {
+        var tailleAvant = S.taille;
+        S.taille = Math.min(14, Math.round((S.taille + 0.5) * 10) / 10);
+        rendre();
+        if ($('cv').scrollHeight > 1125) { S.taille = tailleAvant; rendre(); break; }
+      }
+      var ordreInter = ['serre', 'normal', 'aere'];
+      while ($('cv').scrollHeight < 1125 && ordreInter.indexOf(S.inter) < ordreInter.length - 1) {
+        var interAvant = S.inter;
+        S.inter = ordreInter[ordreInter.indexOf(S.inter) + 1];
+        setSeg('segInter', S.inter); rendre();
+        if ($('cv').scrollHeight > 1125) { S.inter = interAvant; setSeg('segInter', S.inter); rendre(); break; }
+      }
+      /* Titres : dernier levier, seulement s'il reste de la place ; s'arrête avant qu'un titre gagne une ligne (Denis, 2026-09-22 : une fonction
+         automatique reste prudente, jamais un titre coupé, incomplet ou qui passe sur une ligne de plus sans que la personne l'ait choisi). */
+      var lignesAvantT = lignesTitres(), essaisT = 0;
+      while ($('cv').scrollHeight < 1125 && S.tailleTitres < 30 && essaisT++ < 40) {
+        var titresAvant = S.tailleTitres;
+        S.tailleTitres = Math.min(30, Math.round((S.tailleTitres + 0.5) * 10) / 10);
+        rendre();
+        var lignesApresT = lignesTitres();
+        var casse = $('cv').scrollHeight > 1125 || lignesApresT.some(function (n, i) { return n > lignesAvantT[i]; });
+        if (casse) { S.tailleTitres = titresAvant; rendre(); break; }
+        lignesAvantT = lignesApresT;
+      }
+      if (window.__majCurseurTaille) { window.__majCurseurTaille(); }
+      toast((hauteurContenuCv($('cv')) > hauteurDepart + 5) ? 'Mise en page ajustée : la page est mieux remplie.' : 'Mise en page déjà bien ajustée : rien à gagner sans dépasser une page.');
+    } else {
+      $('btnAnnulerOptim').disabled = true; S.histoOptim = null;
+      toast('Mise en page déjà bien ajustée.');
+    }
+  }
+  function annulerOptim() {
+    if (!S.histoOptim) { return; }
+    S.taille = S.histoOptim.taille; S.inter = S.histoOptim.inter; S.marge = S.histoOptim.marge;
+    S.pill = S.histoOptim.pill; S.pillAvant = S.histoOptim.pillAvant; S.styleExp = S.histoOptim.styleExp;
+    S.tailleTitres = S.histoOptim.tailleTitres; S.histoOptim = null;
+    if (window.__majCurseurTaille) { window.__majCurseurTaille(); }
+    setSeg('segInter', S.inter); setSeg('segMarges', String(S.marge)); setSeg('segPill', S.pill); setSeg('segStyleExp', S.styleExp);
+    $('btnAnnulerOptim').disabled = true; rendre();
+    toast('Mise en page précédente rétablie.');
+  }
+
+  function annulerTirage() {
+    if (!S.histoTirage) { return; }
+    var h = S.histoTirage; S.couleur = h.couleur; S.couleurChoisie = h.couleurChoisie; S.pill = h.pill; S.fond = h.fond; S.gabarit = h.gabarit; S.icones = h.icones; S.histoTirage = null;
+    $('oIcones').checked = S.icones; setSeg('segPill', S.pill); setSeg('segFond', S.fond);
+    $('btnAnnulerTirage').disabled = true;
+    majSwatches(); majGabarits(); rendre();
+    toast('Style précédent rétabli.');
+  }
+
+  /* ---------- Couleurs ---------- */
+  // TACHE (chantier refonte mise en page PDF, phase 5 prep, Denis 2026-09-22) :
+  // le bouton "Couleur de l'entreprise" reflete desormais S.couleurEntreprise
+  // (hex si l'assistant l'a captee -- champ couleurEntrepriseSuggeree du
+  // prompt cv.md, deja normalise cote code reel par normaliserCouleurHexIA()
+  // -- ou vide sinon). Capte -> bouton actif comme les autres couleurs.
+  // Pas capte -> bouton desactive (grise, non cliquable) avec un message en
+  // clair explique juste apres, jamais une simple infobulle au survol (public
+  // peu a l'aise avec l'informatique). Simulateur des 2 etats dans la barre
+  // "Maquette (jamais dans l'application)" en haut d'ecran.
+  function majSwatches() {
+    var z = $('swatches');
+    var ce = S.couleurEntreprise;
+    z.innerHTML = COULEURS.map(function (c) { return '<button class="sw' + (S.couleur === c ? ' on' : '') + '" data-c="' + c + '" style="background:' + c + '" aria-label="Couleur"></button>'; }).join('') +
+      (ce
+        ? '<button class="sw entreprise' + (S.couleur === ce ? ' on' : '') + '" data-c="' + ce + '" style="background:' + ce + '" title="Couleur de l’entreprise, captée dans la réponse de l’assistant" aria-label="Couleur de l’entreprise"></button>'
+        : '<span class="sw-entreprise-indispo"><button class="sw entreprise" disabled style="background:#d8dde5" title="L’assistant n’a pas réussi à capter les couleurs de cette entreprise" aria-label="Couleur de l’entreprise, indisponible"></button><span class="sw-entreprise-msg">Couleurs de l’entreprise non captées</span></span>') +
+      '<label class="sw-perso' + (COULEURS.indexOf(S.couleur) === -1 ? ' on' : '') + '" style="--choisie:' + S.couleur + '" title="Choisir n’importe quelle couleur"><span class="roue"></span><input type="color" id="inpCouleur" value="' + S.couleur + '" aria-label="Couleur personnalisée"> Personnalisée</label>';
+    z.querySelectorAll('.sw:not([disabled])').forEach(function (b) { b.onclick = function () { S.couleurChoisie = true; S.couleur = b.getAttribute('data-c'); majSwatches(); majGabarits(); rendre(); }; });
+    /* Pas de reconstruction pendant le glissement du sélecteur (sinon il se referme) : on met à jour la roue et le CV en place. */
+    $('inpCouleur').oninput = function () {
+      S.couleurChoisie = true; S.couleur = this.value; var lab = this.parentNode; lab.classList.add('on'); lab.style.setProperty('--choisie', this.value);
+      z.querySelectorAll('.sw').forEach(function (b) { b.classList.remove('on'); }); rendre();
+    };
+    $('inpCouleur').onchange = function () { majGabarits(); };
+  }
+
+  /* ---------- Personnaliser : ordre des rubriques (une colonne) ---------- */
+  var NOMS = { comp: 'Compétences (pro et comportementales)', exp: 'Expériences professionnelles', form: 'Formations', bas: 'Logiciels et centres d’intérêt' };
+  function majPerso() {
+    var z = $('zonePerso');
+    if (S.deux) { z.innerHTML = 'Sur deux colonnes, les rubriques restent à leur place : compétences, logiciels et centres d’intérêt à gauche, expériences à droite. Les formations passent à gauche s’il y a beaucoup d’expériences.'; return; }
+    z.innerHTML = '<b>Ordre des rubriques</b>' + S.ordrePerso.map(function (k, i) {
+      return '<div style="display:flex;gap:.4rem;align-items:center;margin-top:.3rem"><span style="flex:1">' + NOMS[k] + '</span><button class="pas-btn" data-k="' + i + '" data-d="-1" ' + (i === 0 ? 'disabled' : '') + '>▲</button><button class="pas-btn" data-k="' + i + '" data-d="1" ' + (i === S.ordrePerso.length - 1 ? 'disabled' : '') + '>▼</button></div>';
+    }).join('');
+    z.querySelectorAll('.pas-btn').forEach(function (b) { b.style.cssText = 'border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:6px;width:28px;height:26px'; b.onclick = function () { var i = +b.getAttribute('data-k'), j = i + (+b.getAttribute('data-d')); S.ordrePerso.splice(j, 0, S.ordrePerso.splice(i, 1)[0]); S.perso = true; majPerso(); rendre(); }; });
+  }
+
+  /* ---------- Barre flottante d'une rubrique (plein écran) ---------- */
+  function majBarreRub() {
+    var cle = S.rubOuverte; var st = S.rubStyle[cle] || {};
+    $('rubNom').textContent = cle;
+    document.querySelectorAll('#segRubIl button').forEach(function (b) { b.classList.toggle('on', String(b.getAttribute('data-il')) === String(st.il || 1.38)); });
+  }
+  function ouvrirBarreRub(h) {
+    S.rubOuverte = h.getAttribute('data-rub'); majBarreRub();
+    var b = $('barreRub'); b.style.display = 'flex'; var r = h.getBoundingClientRect();
+    b.style.left = Math.max(8, Math.min(window.innerWidth - 480, r.left)) + 'px'; b.style.top = Math.max(8, r.top - b.offsetHeight - 6) + 'px';
+  }
+  function styleRub() { var c = S.rubOuverte; if (!S.rubStyle[c]) { S.rubStyle[c] = { t: 1, il: 1.38 }; } return S.rubStyle[c]; }
+  document.querySelectorAll('#barreRub [data-rt]').forEach(function (b) { b.onclick = function () { var st = styleRub(); st.t = Math.max(0.7, Math.min(1.4, Math.round((st.t + (+b.getAttribute('data-rt'))) * 100) / 100)); rendre(); }; });
+  document.querySelectorAll('#segRubIl button').forEach(function (b) { b.onclick = function () { styleRub().il = +b.getAttribute('data-il'); majBarreRub(); rendre(); }; });
+  $('rubRaz').onclick = function () { delete S.rubStyle[S.rubOuverte]; majBarreRub(); rendre(); };
+  $('rubFermer').onclick = function () { $('barreRub').style.display = 'none'; S.rubOuverte = null; };
+
+  /* ---------- Plein écran ---------- */
+  var modePlein = { deplacer: false, retirer: false, texte: false, entete: false };
+  function enFrise() { return S.allure === 'creatif' && S.gabarit === 'frise'; }
+  function texteAide() {
+    if (modePlein.entete) {
+      return 'Glissez un bloc pour le déplacer, tirez sa poignée grise de droite pour l’élargir, celle du bas pour la hauteur. Cliquez sur un bloc pour ses réglages.';
+    }
+    return modePlein.deplacer ? 'Utilisez ▲ ▼ à côté de chaque expérience pour la déplacer (elle garde ses missions).' : modePlein.retirer ? 'Cliquez sur la croix rouge d’une compétence pour la retirer de ce CV.' : modePlein.texte ? 'Cliquez dans le CV pour corriger un texte.' : 'Vous agissez directement sur le CV.';
+  }
+  function basculer(nom) {
+    var etait = nom ? modePlein[nom] : false;
+    ['deplacer', 'retirer', 'texte', 'entete'].forEach(function (k) { modePlein[k] = false; });
+    if (nom && !etait) { modePlein[nom] = true; }
+    [['tDeplacer', 'deplacer'], ['tRetirer', 'retirer'], ['tTexte', 'texte'], ['tEntete', 'entete']].forEach(function (d) { $(d[0]).classList.toggle('on', modePlein[d[1]]); });
+    S.tete.libre = (modePlein.entete || S.tete.modif);
+    $('zoneDispTete').style.display = (modePlein.entete && !enFrise()) ? 'block' : 'none'; /* sur la frise, l'en-tête empile toujours les 4 blocs au départ : la disposition 2/3 colonnes n'a pas de sens dans une colonne aussi étroite */
+    setSeg('segDispTete', teteDisp());
+    $('barreBloc').style.display = 'none';
+    $('hintPlein').textContent = texteAide();
+    rendre();
+  }
+
+  /* ---------- En-tête libre : quatre blocs (nom, coordonnées, titre du CV, accroche) ---------- */
+  var TETE_NOMS = { nom: 'Nom', coord: 'Coordonnées', metier: 'Titre du CV', accroche: 'Phrase d’accroche' };
+  function round1(v) { return Math.round(v * 10) / 10; }
+  function teteDisp() { return S.tete.disp || (IDENT.metier.length > 42 ? '2' : '3'); }
+  /* Sur la frise, le bloc libre vit dans « fr-main » (bien plus étroit que la page A4 entière, marges de page sans rapport) : positions de départ dédiées, empilées comme l'affichage d'origine, jamais la formule du modèle standard. */
+  function hauteurTete() { if (enFrise()) { return S.tete.haut || (235 + (S.sansAccroche ? -80 : 0)); } return S.tete.haut || ((S.gabarit === 'diagonale' ? 225 : 172) + (teteDisp() === '2' ? 32 : 0)); }
+  function teteDefauts() {
+    /* Denis, 2026-09-22 : « je veux pouvoir mettre le nom, les coordonnées et le titre de métier dans la colonne de gauche aussi, pour équilibrer les colonnes ». Le bloc libre est élargi en CSS pour couvrir les 2 colonnes (classe .large) ; x=0 est le bord gauche de la colonne de gauche, x=100 le bord droit de la colonne de droite. Départ inchangé (dans la colonne de droite, comme avant), mais on peut désormais glisser n'importe quel bloc jusque dans la colonne de gauche. */
+    if (enFrise()) { return { nom: { x: 31, y: 0, w: 48 }, coord: { x: 31, y: 34, w: 41 }, metier: { x: 31, y: 122, w: 55 }, accroche: { x: 31, y: 154, w: 59 } }; }
+    var m = Math.round(S.marge * 3.78), mx = round1(m / 794 * 100), d2 = (teteDisp() === '2');
+    return {
+      nom: { x: mx, y: m, w: round1(Math.min(30, 35 - mx)) }, coord: { x: mx, y: m + 30, w: round1(Math.min(30, 35 - mx)) },
+      metier: d2 ? { x: 55, y: m, w: round1(Math.min(40, 100 - mx - 55)) } : { x: 35.5, y: m + 6, w: 25 },
+      accroche: d2 ? { x: 55, y: m + 52, w: round1(Math.min(40, 100 - mx - 55)) } : { x: 62, y: m, w: round1(Math.min(33, 100 - mx - 62)) }
+    };
+  }
+  function geomDom(bl) {
+    var b = document.querySelector('#pleinCvWrap .blc[data-bl="' + bl + '"]'); if (!b) { return geomBl(bl); }
+    var t = b.parentNode; return { x: round1(b.offsetLeft / t.offsetWidth * 100), y: b.offsetTop, w: round1(b.offsetWidth / t.offsetWidth * 100) };
+  }
+  function geomBl(bl) { var d = teteDefauts()[bl], p = S.tete.pos[bl] || d; return { x: p.x, y: p.y, w: S.tete.larg[bl] || d.w }; }
+  function grasBl(bl) { var st = S.tete.sty[bl] || {}; if (st.g !== undefined) { return st.g; } return enFrise() ? bl === 'metier' : bl === 'nom'; }
+  function italBl(bl) { var st = S.tete.sty[bl] || {}; return st.i !== undefined ? st.i : bl === 'accroche'; }
+  function coulBl(bl) {
+    var st = S.tete.sty[bl]; if (st && st.c) { return st.c; }
+    if (enFrise()) { return bl === 'nom' ? '#222222' : bl === 'metier' ? S.couleur : bl === 'coord' ? '#14202e' : '#1c2430'; }
+    if (S.gabarit === 'bandeau' || S.gabarit === 'diagonale') { return '#ffffff'; }
+    if (S.allure === 'sobre') { return (bl === 'nom' || bl === 'metier') ? '#20262e' : '#1c2430'; }
+    return (bl === 'nom' || bl === 'metier') ? S.couleur : '#1c2430';
+  }
+  function styBl(bl) {
+    var st = S.tete.sty[bl] || {}, o = '';
+    if (st.c) { o += 'color:' + st.c + ';'; }
+    if (st.g !== undefined) { o += 'font-weight:' + (st.g ? 700 : 400) + ';'; }
+    if (st.i !== undefined) { o += 'font-style:' + (st.i ? 'italic' : 'normal') + ';'; }
+    return o;
+  }
+  function attrBl(bl) { return ' data-bl="' + bl + '" style="--k:' + (S.tete.ech[bl] || 1) + ';' + styBl(bl) + '"'; }
+  function teteLibreHtml(cls) {
+    function bloc(bl, inner) {
+      var g = geomBl(bl);
+      return '<div class="blc" data-bl="' + bl + '" style="left:' + g.x + '%;top:' + g.y + 'px;width:' + g.w + '%;--k:' + (S.tete.ech[bl] || 1) + '">' + inner +
+        '<span class="poi-l" title="Tirer pour élargir ou rétrécir : la phrase passe sur plus ou moins de lignes"></span></div>';
+    }
+    return '<div class="' + cls + ' libre' + (enFrise() ? ' large' : '') + '" style="height:' + hauteurTete() + 'px">' +
+      bloc('nom', '<div class="nom" style="' + styBl('nom') + '">' + esc(IDENT.nom) + '</div>') +
+      bloc('coord', '<div class="coord" style="' + styBl('coord') + '">' + coordHtml() + '</div>') +
+      bloc('metier', '<div class="metier" style="' + styBl('metier') + '">' + esc(IDENT.metier) + '</div>') +
+      (S.sansAccroche ? '' : bloc('accroche', '<div class="accroche" style="' + styBl('accroche') + '">' + esc(IDENT.accroche) + '</div>')) +
+      '<span class="poi-h" title="Tirer pour changer la hauteur de l’en-tête"></span></div>';
+  }
+  /* Hauteur de départ : elle s'adapte au contenu (marge, police, longueur de l'accroche). Dès que la personne touche à l'en-tête, la hauteur est figée : elle décide, le cadre rouge la prévient. */
+  function ajusterHauteurTete(root) {
+    var t = root.querySelector('.tete.libre'); if (!t) { return; }
+    var qb = function (k) { return t.querySelector('.blc[data-bl="' + k + '"]'); };
+    if (!S.tete.pos.coord && qb('nom') && qb('coord')) { qb('coord').style.top = (qb('nom').offsetTop + qb('nom').offsetHeight + 4) + 'px'; }
+    if (teteDisp() === '2' && !S.tete.pos.accroche && qb('metier') && qb('accroche')) { qb('accroche').style.top = (qb('metier').offsetTop + qb('metier').offsetHeight + 8) + 'px'; }
+    if (S.tete.haut) { return; }
+    var maxB = 0; Array.prototype.forEach.call(t.querySelectorAll('.blc'), function (b) { maxB = Math.max(maxB, b.offsetTop + b.offsetHeight); });
+    var besoin = maxB + 12; if (root.classList.contains('cv') && t.classList.contains('tete-diag')) { besoin = Math.max(besoin, Math.ceil(maxB / 0.74) + 4); }
+    t.style.height = Math.max(hauteurTete(), besoin) + 'px';
+  }
+  function touche() {
+    if (!S.tete.haut) { var t = document.querySelector('#pleinCvWrap .tete.libre') || document.querySelector('#cv .tete.libre'); if (t) { S.tete.haut = t.offsetHeight; } }
+    S.tete.modif = true; S.tete.libre = true;
+  }
+  /* Cadre rouge : un bloc qui sort de l'en-tête ou qui en recouvre un autre. */
+  function verifierRouge(tete) {
+    var blocs = Array.prototype.slice.call(tete.querySelectorAll('.blc')), tr = tete.getBoundingClientRect();
+    var rects = blocs.map(function (b) { return b.getBoundingClientRect(); }), n = 0;
+    blocs.forEach(function (b, i) {
+      var r = rects[i], sort = r.left < tr.left - 0.5 || r.top < tr.top - 0.5 || r.right > tr.right + 0.5 || r.bottom > tr.bottom + 0.5, recouvre = false;
+      rects.forEach(function (q, j) { if (j !== i && !(r.right <= q.left + 0.5 || r.left >= q.right - 0.5 || r.bottom <= q.top + 0.5 || r.top >= q.bottom - 0.5)) { recouvre = true; } });
+      b.classList.toggle('hors-cadre', sort || recouvre); if (sort || recouvre) { n++; }
+    });
+    $('hintPlein').textContent = n ? '⚠ Cadre rouge : ce bloc dépasse de l’en-tête ou en recouvre un autre. Déplacez-le, réduisez-le, ou agrandissez l’en-tête (poignée du bas).' : texteAide();
+    return n;
+  }
+  function brancherEntete(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-bl]'), function (b) { b.addEventListener('click', function (ev) { ev.stopPropagation(); }); });
+    var tete = root.querySelector('.tete.libre');
+    if (!tete) {
+      Array.prototype.forEach.call(root.querySelectorAll('[data-bl]'), function (b) { b.addEventListener('click', function () { ouvrirBarreBloc(b.getAttribute('data-bl'), b); }); });
+      $('hintPlein').textContent = texteAide(); return;
+    }
+    var echelle = function () { return tete.getBoundingClientRect().width / tete.offsetWidth; };
+    Array.prototype.forEach.call(tete.querySelectorAll('.blc'), function (b) {
+      b.addEventListener('pointerdown', function (ev) {
+        if (ev.target.closest('.poi-l') || (ev.button !== undefined && ev.button !== 0)) { return; }
+        ev.preventDefault();
+        var bl = b.getAttribute('data-bl'), k = echelle(), x0 = ev.clientX, y0 = ev.clientY, g = geomDom(bl), bouge = false, nx = g.x, ny = g.y;
+        b.setPointerCapture(ev.pointerId);
+        function mv(e) {
+          var dx = (e.clientX - x0) / k, dy = (e.clientY - y0) / k; if (Math.abs(dx) > 3 || Math.abs(dy) > 3) { bouge = true; }
+          nx = Math.max(0, Math.min(98, g.x + dx / tete.offsetWidth * 100)); ny = Math.max(0, g.y + dy);
+          b.style.left = nx + '%'; b.style.top = ny + 'px'; verifierRouge(tete);
+        }
+        function up() {
+          b.removeEventListener('pointermove', mv); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up);
+          if (bouge) { touche(); S.tete.pos[bl] = { x: round1(nx), y: Math.round(ny) }; rendre(); } else { ouvrirBarreBloc(bl, b); }
+        }
+        b.addEventListener('pointermove', mv); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
+      });
+    });
+    Array.prototype.forEach.call(tete.querySelectorAll('.poi-l'), function (poi) {
+      poi.addEventListener('pointerdown', function (ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        var b = poi.closest('.blc'), bl = b.getAttribute('data-bl'), k = echelle(), x0 = ev.clientX, g = geomDom(bl), w = g.w;
+        poi.setPointerCapture(ev.pointerId);
+        function mv(e) { w = Math.max(12, Math.min(100 - g.x, g.w + (e.clientX - x0) / k / tete.offsetWidth * 100)); b.style.width = w + '%'; verifierRouge(tete); }
+        function up() { poi.removeEventListener('pointermove', mv); poi.removeEventListener('pointerup', up); poi.removeEventListener('pointercancel', up); touche(); S.tete.larg[bl] = Math.round(w); rendre(); if (S.blOuvert) { majBarreBloc(); } }
+        poi.addEventListener('pointermove', mv); poi.addEventListener('pointerup', up); poi.addEventListener('pointercancel', up);
+      });
+    });
+    var ph = tete.querySelector('.poi-h');
+    if (ph) {
+      ph.addEventListener('pointerdown', function (ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        var k = echelle(), y0 = ev.clientY, h0 = hauteurTete(), h = h0; ph.setPointerCapture(ev.pointerId);
+        function mv(e) { h = Math.round(Math.max(100, Math.min(400, h0 + (e.clientY - y0) / k))); tete.style.height = h + 'px'; verifierRouge(tete); }
+        function up() { ph.removeEventListener('pointermove', mv); ph.removeEventListener('pointerup', up); ph.removeEventListener('pointercancel', up); touche(); S.tete.haut = h; rendre(); }
+        ph.addEventListener('pointermove', mv); ph.addEventListener('pointerup', up); ph.addEventListener('pointercancel', up);
+      });
+    }
+    verifierRouge(tete);
+  }
+  function majBarreBloc() {
+    var bl = S.blOuvert; if (!bl) { return; }
+    $('blNom').textContent = TETE_NOMS[bl];
+    $('blGras').classList.toggle('on', grasBl(bl)); $('blItal').classList.toggle('on', italBl(bl)); $('blCoul').value = coulBl(bl);
+    $('barreBloc').classList.toggle('sans-libre', !S.tete.libre);
+  }
+  function ouvrirBarreBloc(bl, el) {
+    S.blOuvert = bl; majBarreBloc();
+    var b = $('barreBloc'); b.style.display = 'flex'; var r = el.getBoundingClientRect(), t = el.closest('.tete'), rt = t ? t.getBoundingClientRect() : r;
+    b.style.left = Math.max(8, Math.min(window.innerWidth - 480, r.left)) + 'px';
+    b.style.top = Math.max(8, Math.min(window.innerHeight - b.offsetHeight - 8, rt.bottom + 12)) + 'px';
+  }
+  function initEntete() {
+    $('tEntete').onclick = function () { basculer('entete'); };
+    document.querySelectorAll('#segDispTete button').forEach(function (b) { b.onclick = function () {
+      S.tete.disp = b.getAttribute('data-v'); S.tete.pos = {}; S.tete.larg = {}; S.tete.haut = null; setSeg('segDispTete', S.tete.disp); rendre();
+      toast('Positions de départ changées : les blocs de l’en-tête sont replacés.'); }; });
+    $('tEnteteRaz').onclick = function () {
+      S.tete = { libre: modePlein.entete, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {} };
+      $('barreBloc').style.display = 'none'; setSeg('segDispTete', teteDisp()); rendre(); toast('L’en-tête est remis à sa place de départ.'); };
+    function sty() { var bl = S.blOuvert; if (!S.tete.sty[bl]) { S.tete.sty[bl] = {}; } return S.tete.sty[bl]; }
+    document.querySelectorAll('#barreBloc [data-bt]').forEach(function (b) { b.onclick = function () { var bl = S.blOuvert, cur = S.tete.ech[bl] || 1;
+      S.tete.ech[bl] = Math.max(0.6, Math.min(2.2, Math.round((cur + (+b.getAttribute('data-bt'))) * 100) / 100)); touche(); rendre(); majBarreBloc(); }; });
+    $('blGras').onclick = function () { var st = sty(); st.g = !grasBl(S.blOuvert); touche(); rendre(); majBarreBloc(); };
+    $('blItal').onclick = function () { var st = sty(); st.i = !italBl(S.blOuvert); touche(); rendre(); majBarreBloc(); };
+    $('blCoul').oninput = function () { sty().c = this.value; touche(); rendre(); };
+    document.querySelectorAll('#barreBloc [data-bw]').forEach(function (b) { b.onclick = function () { var bl = S.blOuvert, g = geomDom(bl);
+      S.tete.larg[bl] = Math.round(Math.max(12, Math.min(100 - g.x, g.w + (+b.getAttribute('data-bw'))))); touche(); rendre(); }; });
+    document.querySelectorAll('#barreBloc [data-bn]').forEach(function (b) { b.onclick = function () { var bl = S.blOuvert, g = geomDom(bl), d = b.getAttribute('data-bn').split(',');
+      S.tete.pos[bl] = { x: round1(Math.max(0, Math.min(98, g.x + (+d[0])))), y: Math.max(0, g.y + (+d[1])) }; touche(); rendre(); }; });
+    $('blRaz').onclick = function () { var bl = S.blOuvert; delete S.tete.pos[bl]; delete S.tete.larg[bl]; delete S.tete.ech[bl]; delete S.tete.sty[bl];
+      S.tete.modif = Object.keys(S.tete.pos).length + Object.keys(S.tete.larg).length + Object.keys(S.tete.ech).length + Object.keys(S.tete.sty).length + (S.tete.haut ? 1 : 0) > 0; rendre(); majBarreBloc(); };
+    $('blFermer').onclick = function () { $('barreBloc').style.display = 'none'; S.blOuvert = null; };
+    /* Raccourci : un clic sur le CV de l'écran des réglages ouvre le plein écran directement sur l'élément cliqué. */
+    $('cadreCv').title = 'Cliquez sur le CV pour le modifier en grand';
+    $('cadreCv').onclick = function (ev) {
+      var bl = ev.target.closest('[data-bl]'), cle = bl && bl.getAttribute('data-bl');
+      var ble = ev.target.closest('.tete .nom, .tete .coord, .tete .metier, .tete .accroche'); if (!cle && ble) { cle = ble.className.match(/nom|coord|metier|accroche/)[0]; }
+      var enTete = !!(cle || ev.target.closest('.tete')), h = ev.target.closest('h2[data-rub]'), rub = h && h.getAttribute('data-rub');
+      $('plein').classList.add('ouvert');
+      if (enTete && !modePlein.entete) { basculer('entete'); } else { rendre(); }
+      requestAnimationFrame(function () {
+        if (cle) { var el = document.querySelector('#pleinCvWrap [data-bl="' + cle + '"]'); if (el) { ouvrirBarreBloc(cle, el); } }
+        else if (rub) { var hh = document.querySelector('#pleinCvWrap h2[data-rub="' + rub + '"]'); if (hh) { ouvrirBarreRub(hh); } }
+      });
+    };
+  }
+
+  /* ---------- Branchements ---------- */
+  function initEcouteurs() {
+    document.querySelectorAll('#segAllure button').forEach(function (b) { b.onclick = function () { S.allure = b.getAttribute('data-v'); setSeg('segAllure', S.allure); var fam = GABARITS[S.allure]; S.gabarit = fam ? fam[0].id : ''; if (fam) { appliquerGabarit(); } else { quitterFrise(); if (!S.couleurChoisie) { S.couleur = '#2f6690'; } majSwatches(); S.fond = 'aucun'; S.pill = 'pastille'; S.icones = false; $('oIcones').checked = false; setSeg('segFond', 'aucun'); setSeg('segPill', 'pastille'); } majGabarits(); rendre(); }; });
+    $('btnDe').onclick = tirer; $('btnOptim').onclick = optimiser;
+    $('btnAnnulerTirage').onclick = annulerTirage; $('btnAnnulerOptim').onclick = annulerOptim;
+    $('btnDepuisDebut').onclick = function () { $('btnDepart').click(); };
+    $('btnStd').onclick = function () { S.perso = false; S.compHaut = true; S.formAvant = false; $('oCompHaut').checked = true; $('oFormAvant').checked = false; $('btnStd').classList.add('on'); $('btnPerso').classList.remove('on'); $('zonePerso').style.display = 'none'; rendre(); };
+    $('btnPerso').onclick = function () { $('btnStd').classList.remove('on'); $('btnPerso').classList.add('on'); $('zonePerso').style.display = 'block'; majPerso(); };
+    var cks = { oCompHaut: 'compHaut', oFormAvant: 'formAvant', oCentres: 'centres', oReduire: 'reduire', oAgrandir: 'agrandir', oIcones: 'icones', oIconesCoord: 'iconesCoord', oDeux: 'deux', oLieu: 'lieu', oFormMissions: 'formMissions', oJustif: 'justif', oSepcol: 'sepcol', oIcoCoord: 'icoCoord', oDegrade: 'degrade' };
+    /* Bug trouvé par le script de vérification (2026-09-22) : décocher « Deux colonnes » à la main pendant que le modèle « Colonne et frise » est actif (qui impose 2 colonnes) ne mettait pas à jour S._deuxAvant (la valeur mémorisée pour la restaurer en quittant la frise) ; en quittant la frise bien plus tard, l'ancienne valeur mémorisée écrasait silencieusement le choix manuel de la personne. Le choix manuel devient la nouvelle valeur à restaurer. */
+    Object.keys(cks).forEach(function (id) { $(id).onchange = function () {
+      S[cks[id]] = this.checked;
+      if (id === 'oDeux') {
+        majPerso();
+        if (S._deuxAvant !== undefined) { S._deuxAvant = this.checked; }
+        if (!this.checked && GABARIT_2COL[S.gabarit]) {
+          var fam = GABARITS[S.allure], repli = fam && fam.filter(function (g) { return !GABARIT_2COL[g.id]; })[0];
+          S.gabarit = repli ? repli.id : ''; appliquerGabarit(); majGabarits();
+          toast('« ' + (repli ? repli.nom : 'Standard') + ' » remplace le modèle précédent : il a besoin de 2 colonnes pour garder sa couleur.');
+        } else { majGabarits(); }
+      }
+      rendre();
+    }; });
+    $('oPastilles').onchange = function () { S.pill = this.checked ? (S.pillAvant && S.pillAvant !== 'texte' ? S.pillAvant : 'pastille') : 'texte'; if (!this.checked) { S.pillAvant = null; } setSeg('segPill', S.pill); rendre(); };
+    document.querySelectorAll('#segLieu button').forEach(function (b) { b.onclick = function () { S.lieuStyle = b.getAttribute('data-v'); setSeg('segLieu', S.lieuStyle); rendre(); }; });
+    document.querySelectorAll('#segStyleExp button').forEach(function (b) { b.onclick = function () { S.styleExp = b.getAttribute('data-v'); setSeg('segStyleExp', S.styleExp); rendre(); }; });
+    document.querySelectorAll('#segFormat button').forEach(function (b) { b.onclick = function () { S.format = b.getAttribute('data-v'); setSeg('segFormat', S.format); rendre(); }; });
+    $('btnDatesSoul').onclick = function () { S.souligDates = !S.souligDates; $('btnDatesSoul').classList.toggle('on', S.souligDates); rendre(); };
+    $('btnDatesItal').onclick = function () { S.italDates = !S.italDates; $('btnDatesItal').classList.toggle('on', S.italDates); rendre(); };
+    $('btnEntSoul').onclick = function () { S.souligEnt = !S.souligEnt; $('btnEntSoul').classList.toggle('on', S.souligEnt); rendre(); };
+    $('btnEntItal').onclick = function () { S.italEnt = !S.italEnt; $('btnEntItal').classList.toggle('on', S.italEnt); rendre(); };
+    document.querySelectorAll('#segCote button').forEach(function (b) { b.onclick = function () { S.cote = b.getAttribute('data-v'); setSeg('segCote', S.cote); rendre(); }; });
+    document.querySelectorAll('input[name="mode"]').forEach(function (r) { r.onchange = function () { S.presentation = r.value; $('lblSrc').style.display = (r.value === 'A') ? 'none' : 'flex'; rendre(); }; });
+    $('oSrc').onchange = function () { S.srcExp = this.checked; rendre(); };
+    document.querySelectorAll('input[name="tout"]').forEach(function (r) { r.onchange = function () { S.tout = r.value; if (r.value === 'pertinentes') { $('zoneChoixExp').open = true; } majChoixExp(); rendre(); }; });
+    document.querySelectorAll('input[name="dates"]').forEach(function (r) { r.onchange = function () { S.dates = r.value; rendre(); }; });
+    document.querySelectorAll('input[name="detail"]').forEach(function (r) { r.onchange = function () { S.detail = r.value; rendre(); }; });
+    document.querySelectorAll('input[name="formsel"]').forEach(function (r) { r.onchange = function () { S.formSel = r.value; rendre(); }; });
+    $('rgEspForm').oninput = function () { S.espForm = +this.value; $('valEspForm').textContent = this.value + ' px'; rendre(); };
+    $('selOrdre').onchange = function () { S.ordre = this.value; rendre(); };
+    function pas(id, cle, min, max, aff) { document.querySelectorAll('#' + id + ' button').forEach(function (b) { b.onclick = function () { S[cle] = Math.max(min, Math.min(max, S[cle] + (+b.getAttribute('data-d')))); $(aff).textContent = S[cle]; if (cle === 'missions') { S.mExp = {}; majChoixExp(); } if (cle === 'nbPro') { S.selPro = null; } if (cle === 'nbComp') { S.selComp = null; } majPickers(); rendre(); }; }); }
+    pas('pasMissions', 'missions', 1, 10, 'nbMissions'); pas('pasPro', 'nbPro', 3, 11, 'nbPro'); pas('pasComp', 'nbComp', 3, 9, 'nbComp'); /* Denis, 2026-09-22 : plafonds rapprochés (11 vs 9, au lieu de 11 vs 7) pour équilibrer pro et comportementales */
+    $('btnPickPro').onclick = function () { S.ouvPro = !S.ouvPro; majPickers(); };
+    $('btnPickComp').onclick = function () { S.ouvComp = !S.ouvComp; majPickers(); };
+    $('btnEcartees').onclick = function () { S.ouvComp = true; majPickers(); $('pickComp').scrollIntoView({ block: 'center' }); };
+    [['aLogi', 'logiciels'], ['aLangues', 'langues'], ['aCertifs', 'certifs']].forEach(function (d) { $(d[0]).onchange = function () { S.aff[d[1]] = this.checked; rendre(); }; });
+    $('selPolice').onchange = function () { S.police = this.value; rendre(); };
+    $('selMetier').innerHTML = PROP_METIER.map(function (t, i) { return '<option value="' + i + '">' + esc(t) + '</option>'; }).join('');
+    $('selAccroche').innerHTML = PROP_ACCROCHE.map(function (t, i) { return '<option value="' + i + '">' + esc(t.length > 70 ? t.slice(0, 70) + '…' : t) + '</option>'; }).join('');
+    $('selMetier').onchange = function () { S.metierChoisi = +this.value; IDENT.metier = PROP_METIER[S.metierChoisi]; rendre(); };
+    $('selAccroche').onchange = function () { S.accrocheChoisi = +this.value; IDENT.accroche = PROP_ACCROCHE[S.accrocheChoisi]; rendre(); };
+    $('btnFormGras').onclick = function () { S.formGras = !S.formGras; $('btnFormGras').classList.toggle('on', S.formGras); rendre(); };
+    $('btnFormItal').onclick = function () { S.formItal = !S.formItal; $('btnFormItal').classList.toggle('on', S.formItal); rendre(); };
+    $('btnFormSoul').onclick = function () { S.formSoul = !S.formSoul; $('btnFormSoul').classList.toggle('on', S.formSoul); rendre(); };
+    $('oSansAccroche').onchange = function () {
+      S.sansAccroche = this.checked; $('selAccroche').disabled = this.checked;
+      if (this.checked && S.blOuvert === 'accroche') { $('barreBloc').style.display = 'none'; S.blOuvert = null; }
+      rendre();
+    };
+    /* Un seul curseur, deux cibles : le texte ou les titres (choisis par Texte / Titres). */
+    function majCurseurTaille() {
+      var r = $('rgTaille'), titres = (S.cible === 'titres');
+      r.min = titres ? 10 : 10; r.max = titres ? 30 : 14; r.value = titres ? S.tailleTitres : S.taille;
+      $('valTaille').textContent = String(r.value).replace('.', ',') + ' px'; setSeg('segCible', S.cible);
+    }
+    window.__majCurseurTaille = majCurseurTaille;
+    document.querySelectorAll('#segCible button').forEach(function (b) { b.onclick = function () { S.cible = b.getAttribute('data-v'); majCurseurTaille(); }; });
+    $('rgTaille').oninput = function () { if (S.cible === 'titres') { S.tailleTitres = +this.value; } else { S.taille = +this.value; } $('valTaille').textContent = String(this.value).replace('.', ',') + ' px'; rendre(); };
+    document.querySelectorAll('#segInter button').forEach(function (b) { b.onclick = function () { S.inter = b.getAttribute('data-v'); setSeg('segInter', S.inter); rendre(); }; });
+    document.querySelectorAll('#segMarges button').forEach(function (b) { b.onclick = function () { S.marge = +b.getAttribute('data-v'); setSeg('segMarges', String(S.marge)); rendre(); }; });
+    document.querySelectorAll('#segPill button').forEach(function (b) { b.onclick = function () { S.pill = b.getAttribute('data-v'); if (S.pill !== 'texte') { S.pillAvant = S.pill; } setSeg('segPill', S.pill); rendre(); }; });
+    document.querySelectorAll('#segFond button').forEach(function (b) { b.onclick = function () { S.fond = b.getAttribute('data-v'); setSeg('segFond', S.fond); rendre(); }; });
+    $('btnDepart').onclick = function () { S = JSON.parse(JSON.stringify(DEFAUT)); location.hash = ''; location.reload(); };
+    $('btnPlein').onclick = function () { $('plein').classList.add('ouvert'); rendre(); };
+    $('btnRetour').onclick = function () { $('plein').classList.remove('ouvert'); $('barreRub').style.display = 'none'; $('barreBloc').style.display = 'none'; modePlein.entete = false; $('tEntete').classList.remove('on'); $('zoneDispTete').style.display = 'none'; S.tete.libre = !!S.tete.modif; $('hintPlein').textContent = texteAide(); rendre(); };
+    $('tTexte').onclick = function () { basculer('texte'); }; $('tDeplacer').onclick = function () { basculer('deplacer'); }; $('tRetirer').onclick = function () { basculer('retirer'); };
+    $('btnValider').onclick = function () { $('voileExport').classList.add('ouvert'); };
+    document.querySelector('.entete .aide').onclick = function () { $('voileAide').classList.add('ouvert'); };
+    $('fermerAide').onclick = function () { $('voileAide').classList.remove('ouvert'); };
+    $('fermerExport').onclick = function () { $('voileExport').classList.remove('ouvert'); };
+    $('btnEnregPdf').onclick = function () {
+      /* Vrai test : le navigateur imprime seulement le CV, en A4, comme l'exportation de l'application. */
+      var c = $('cv'), copie = c.cloneNode(true); copie.removeAttribute('id');
+      var mp = copie.querySelector('.marque-page'); if (mp) { mp.remove(); }
+      $('impression').innerHTML = ''; $('impression').appendChild(copie);
+      $('voileExport').classList.remove('ouvert');
+      setTimeout(function () { window.print(); }, 150);
+    };
+    $('btnSombre').onclick = function () { document.body.classList.toggle('dark'); this.textContent = document.body.classList.contains('dark') ? 'Thème clair' : 'Thème sombre'; };
+    $('btnNotes').onclick = function () { $('notes').classList.toggle('ouvert'); }; $('fermerNotes').onclick = function () { $('notes').classList.remove('ouvert'); };
+    // TACHE (Denis 2026-09-22) : "si le prompt nous donne les couleurs de
+    // l'entreprise, le bouton sera active automatiquement" -- reprend le
+    // comportement deja construit cote code reel (js/app.js, import CV :
+    // couleurEntrepriseSuggeree appliquee immediatement des l'import,
+    // jamais un choix fige, modifiable ensuite via le selecteur manuel).
+    // Simule ici le moment de l'import : cocher = "l'assistant vient de la
+    // capter" -> appliquee tout de suite ; decocher = jamais captee, la
+    // couleur choisie retombe sur le defaut.
+    $('oSimulCouleurEnt').onchange = function () {
+      S.couleurEntreprise = this.checked ? '#0b6e4f' : '';
+      if (this.checked) { S.couleur = '#0b6e4f'; S.couleurChoisie = false; }
+      else if (S.couleur === '#0b6e4f') { S.couleur = COULEURS[0]; S.couleurChoisie = false; }
+      majSwatches(); majGabarits(); rendre();
+    };
+    $('ckSurligne').onchange = function () { document.body.classList.toggle('surligne', this.checked); };
+    window.addEventListener('resize', ajusterEchelle);
+  }
+
+  $('selMetier').value = String(S.metierChoisi); $('selAccroche').value = String(S.accrocheChoisi); $('selAccroche').disabled = S.sansAccroche; $('oSansAccroche').checked = S.sansAccroche;
+  $('btnFormGras').classList.toggle('on', S.formGras); $('btnFormItal').classList.toggle('on', S.formItal); $('btnFormSoul').classList.toggle('on', S.formSoul);
+  $('btnDatesSoul').classList.toggle('on', S.souligDates); $('btnDatesItal').classList.toggle('on', S.italDates);
+  $('btnEntSoul').classList.toggle('on', S.souligEnt); $('btnEntItal').classList.toggle('on', S.italEnt);
+  majSwatches(); majGabarits(); majPerso(); initEcouteurs(); initEntete(); majChoixExp(); majPickers(); rendre();
+  if (typeof ResizeObserver !== 'undefined') { new ResizeObserver(ajusterEchelle).observe($('cadreCv')); }
+})();
+</script>
+</body>
+</html>

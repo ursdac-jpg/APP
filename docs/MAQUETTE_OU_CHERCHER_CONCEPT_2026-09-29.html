@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - CONCEPT GROSSIER (étape 1 de la méthode) du module « Où et sous quel nom chercher »
+  (titre de travail, à valider par Denis). Créée le 2026-09-29. Mode A.
+
+  Origine : idée de Denis du 2026-09-21, notée dans docs/IDEES_A_RECLASSER.md (entrées des 2026-09-22
+  et 2026-09-25). Faisabilité et questions : docs/CHANTIER_OU_CHERCHER_2026-09-29.md.
+
+  CE QUE C'EST : un concept pour se mettre d'accord sur le parcours et les 3 blocs du résultat.
+  Ce n'est PAS la maquette détaillée : le contenu est un exemple fictif, les boutons de dépôt / relecture /
+  choix de l'assistant sont représentés par un seul écran « Préparer » (les briques partagées existantes
+  seront reprises telles quelles : ouvrirAssistantDepotCV, htmlVerificationDocument,
+  htmlChoixAssistantBilanCorps, htmlBanniereTransitionIA, htmlCollageInstantane).
+
+  Famille de navigation : FAMILLE 2 (dépôt de document + passage par un assistant), comme « Les mots de
+  votre CV ». Thème sombre : classe .dark sur <body> (convention des maquettes). Accent : teal (provisoire).
+  Français impeccable, aucun tiret cadratin, jamais « IA » visible, icônes = objets.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette concept - Où et sous quel nom chercher</title>
+<style>
+  :root {
+    --bg-page: #f4f6fb; --bg-card: #ffffff; --bg-subtle: #eef2f7;
+    --border: #dde4ec; --border-strong: #c2ccd8;
+    --text-strong: #16233a; --text: #33404f; --text-muted: #5a6a7e;
+    --accent: #0f766e; --accent-bg: #dff3f0;
+    --ok: #1a7a4c; --ok-bg: #e3f5ea;
+    --warn: #9a6410; --warn-bg: #fbf1df;
+    --info: #2b5c9a; --info-bg: #e6eefa;
+    --radius: 10px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text: #cdd6e1; --text-muted: #9aa8ba;
+    --accent: #5eead4; --accent-bg: #13302e;
+    --ok: #6bd39b; --ok-bg: #16311f;
+    --warn: #e2b877; --warn-bg: #33270f;
+    --info: #9cc0f0; --info-bg: #182740;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; }
+  h1, h2, h3 { color: var(--text-strong); line-height: 1.3; }
+  h1 { font-size: 1.5rem; margin: .3rem 0 .5rem; }
+  h2 { font-size: 1.1rem; margin: 1.1rem 0 .4rem; }
+  p { margin: .5rem 0; }
+  .appbar { position: sticky; top: 0; z-index: 50; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: .6rem 1rem; }
+  .appbar-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+  .appbar-titre { font-weight: 700; color: var(--text-strong); }
+  .appbar-outils { margin-left: auto; display: flex; gap: .5rem; }
+  .mini-btn { font-size: .8rem; padding: .3rem .6rem; border-radius: 8px; border: 1px solid var(--border-strong);
+    background: var(--bg-subtle); color: var(--text); cursor: pointer; }
+  .note-maquette { max-width: 900px; margin: .6rem auto 0; font-size: .8rem; color: var(--text-muted);
+    border: 1px dashed var(--border-strong); border-radius: 8px; padding: .45rem .7rem; background: var(--bg-subtle); }
+  main { max-width: 900px; margin: 0 auto; padding: 0 1rem 5rem; }
+  .etapes { display: flex; justify-content: center; gap: .4rem; flex-wrap: wrap; margin: .9rem 0; }
+  .etape { padding: .3rem .8rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-subtle);
+    color: var(--text-muted); font-size: .82rem; }
+  .etape.courante { border-color: var(--accent); background: var(--accent-bg); color: var(--text-strong); font-weight: 700; }
+  .vue { display: none; } .vue.active { display: block; }
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin: .8rem 0; }
+  .encart { border-left: 3px solid var(--accent); background: var(--accent-bg); border-radius: 8px; padding: .6rem .8rem; margin: .8rem 0; }
+  .encart.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+  .encart.info { border-left-color: var(--info); background: var(--info-bg); }
+  .encart b, .encart strong { color: var(--text-strong); }
+  .btn { display: inline-block; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
+    border-radius: 12px; padding: .55rem 1rem; font-size: .95rem; cursor: pointer; margin: .2rem .3rem .2rem 0; }
+  .btn.principal { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  body.dark .btn.principal { color: #06201d; }
+  .btn.petit { font-size: .82rem; padding: .35rem .7rem; border-radius: 10px; }
+  .barre-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-top: 1px solid var(--border);
+    padding: .6rem 1rem; display: flex; justify-content: space-between; max-width: 100%; }
+  .barre-nav > div { max-width: 900px; margin: 0 auto; width: 100%; display: flex; justify-content: space-between; }
+  details.bloc-depli { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px;
+    background: var(--bg-card); margin: .7rem 0; }
+  details.bloc-depli > summary { cursor: pointer; padding: .7rem .9rem; background: var(--accent-bg); color: var(--text-strong);
+    font-weight: 700; list-style: none; border-radius: 8px; }
+  details.bloc-depli > summary::before { content: "\25B8  "; }
+  details[open].bloc-depli > summary::before { content: "\25BE  "; }
+  .bloc-depli-corps { padding: .3rem .9rem .9rem; }
+  .sous-titre { color: var(--text-muted); font-size: .9rem; font-weight: 400; display: block; margin-top: .15rem; }
+  .jetons { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+  .jeton { border: 1px solid var(--border-strong); border-radius: 999px; padding: .25rem .8rem; font-size: .9rem;
+    background: var(--bg-card); color: var(--text-strong); }
+  .jeton.plein { background: var(--accent); border-color: var(--accent); color: #fff; }
+  body.dark .jeton.plein { color: #06201d; }
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .8rem; }
+  .piste { border: 1px solid var(--border); border-radius: 12px; padding: .8rem .9rem; background: var(--bg-card); }
+  .piste .nom { font-weight: 700; color: var(--text-strong); }
+  .piste .secteur { font-size: .82rem; color: var(--text-muted); }
+  .piste .pourquoi { font-size: .88rem; margin: .5rem 0; }
+  .mini { font-size: .85rem; color: var(--text-muted); }
+  .champ { width: 100%; padding: .5rem .7rem; border-radius: 10px; border: 1px solid var(--border-strong);
+    background: var(--bg-card); color: var(--text); font-size: .95rem; }
+  .num { display: inline-flex; width: 1.6rem; height: 1.6rem; border-radius: 50%; align-items: center; justify-content: center;
+    background: var(--accent); color: #fff; font-weight: 700; margin-right: .5rem; }
+  body.dark .num { color: #06201d; }
+  .tableau-decision { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .tableau-decision td, .tableau-decision th { border: 1px solid var(--border); padding: .4rem .6rem; text-align: left; vertical-align: top; }
+  .pilule { display: inline-block; border-radius: 999px; padding: .05rem .6rem; font-size: .75rem; border: 1px solid var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="appbar"><div class="appbar-row">
+  <span class="appbar-titre">Où et sous quel nom chercher <span class="pilule">titre de travail</span></span>
+  <span class="appbar-outils">
+    <button class="mini-btn" id="bascule-theme">Mode sombre</button>
+    <button class="mini-btn" data-vue="intro">Recommencer</button>
+  </span>
+</div></div>
+<div class="note-maquette" style="max-width:868px;margin-left:auto;margin-right:auto">
+  <b>Maquette concept (étape 1).</b> Contenu d'exemple fictif (profil d'assistante administrative). Sert à valider le parcours et les
+  3 blocs du résultat, pas encore le détail visuel ni les textes définitifs.
+</div>
+
+<main>
+<div class="etapes" id="etapes"></div>
+
+<!-- ============ ÉCRAN 1 : PRÉSENTATION ============ -->
+<section class="vue active" data-vue-id="intro">
+  <h1>Où et sous quel nom chercher un emploi</h1>
+  <p>Un même métier n'a pas toujours le même nom d'une entreprise à l'autre. Et des métiers de secteurs différents demandent souvent les mêmes savoir-faire.
+     Ce module vous aide à savoir <b>quels mots taper</b> et <b>où regarder</b>, pour ne passer à côté d'aucune offre.</p>
+  <div class="carte">
+    <h2>À quoi ça sert</h2>
+    <ul>
+      <li>Retrouver les autres noms du métier que vous cherchez, pour élargir vos recherches d'offres.</li>
+      <li>Découvrir des métiers proches, dans d'autres secteurs, qui reprennent ce que vous savez déjà faire.</li>
+      <li>Repartir avec une liste de mots à copier dans les sites d'offres d'emploi.</li>
+    </ul>
+    <h2>Ce que ce module ne fait pas</h2>
+    <ul>
+      <li>Il ne dit pas quel métier est « fait pour vous » : ce sont des pistes à regarder, vous décidez.</li>
+      <li>Il ne donne aucune note et ne juge pas votre parcours.</li>
+      <li>Il ne trouve pas d'offres : il vous dit comment les chercher.</li>
+    </ul>
+  </div>
+  <div class="encart info"><b>Ce qui va se passer.</b> Vous déposez votre CV, vous relisez ce qui part chez l'assistant en ligne, puis vous recevez trois listes. Rien n'est appliqué à votre CV.</div>
+  <button class="btn principal" data-vue="preparer">Commencer</button>
+</section>
+
+<!-- ============ ÉCRAN 2 : PRÉPARER ============ -->
+<section class="vue" data-vue-id="preparer">
+  <h1>Préparer</h1>
+  <div class="carte">
+    <h2><span class="num">1</span>Votre CV</h2>
+    <p class="mini">Brique partagée « dépôt du CV » (fichier, photo, scan ou texte). Les nom, adresse et coordonnées sont masqués avant l'envoi.</p>
+    <button class="btn">Choisir un fichier</button> <button class="btn">Je n'ai pas encore de CV</button>
+    <div class="encart"><b>Exemple : </b>« CV-assistante.pdf » déposé, relu et masqué.</div>
+  </div>
+  <div class="carte">
+    <h2><span class="num">2</span>Ce que vous cherchez aujourd'hui <span class="mini">(facultatif)</span></h2>
+    <p class="mini">Le métier que vous avez en tête, pour que la liste parte de là. Vous pouvez laisser vide : l'assistant part alors de votre CV.</p>
+    <input class="champ" value="Assistante administrative" aria-label="Métier cherché">
+  </div>
+  <div class="carte">
+    <h2><span class="num">3</span>Jusqu'où élargir ?</h2>
+    <p class="mini">Vous pouvez changer ce choix à tout moment.</p>
+    <div class="jetons">
+      <span class="jeton plein">Le même métier sous d'autres noms</span>
+      <span class="jeton plein">Des métiers proches dans d'autres secteurs</span>
+      <span class="jeton">Rester dans mon secteur</span>
+    </div>
+  </div>
+  <div class="carte">
+    <h2><span class="num">4</span>Envoyer à l'assistant en ligne</h2>
+    <p class="mini">Récapitulatif avant l'envoi : ce qui part (texte du CV masqué, métier cherché), ce qui ne part pas (nom, coordonnées, photo). Puis « choisir l'assistant » et « coller la réponse » : mêmes écrans que « Les mots de votre CV ».</p>
+  </div>
+  <div class="barre-nav"><div><button class="btn" data-vue="intro">Retour</button><button class="btn principal" data-vue="resultat">Continuer (voir un résultat d'exemple)</button></div></div>
+</section>
+
+<!-- ============ ÉCRAN 3 : RÉSULTAT ============ -->
+<section class="vue" data-vue-id="resultat">
+  <h1>Vos pistes pour chercher</h1>
+  <div class="encart"><b>Ce sont des pistes, pas des réponses.</b> Ni une note, ni un choix fait à votre place. Regardez ce qui vous parle et laissez le reste.</div>
+
+  <details class="bloc-depli" open>
+    <summary>Le même métier, sous d'autres noms <span class="sous-titre">À taper dans les sites d'offres : une offre peut ne pas porter le nom que vous utilisez.</span></summary>
+    <div class="bloc-depli-corps">
+      <div class="jetons">
+        <span class="jeton">Assistant administratif</span><span class="jeton">Gestionnaire administratif</span>
+        <span class="jeton">Secrétaire polyvalent</span><span class="jeton">Agent administratif</span><span class="jeton">Assistant de gestion</span>
+      </div>
+      <p class="mini">Vous les rencontrerez surtout : dans les petites structures (« secrétaire polyvalent »), dans les collectivités (« agent administratif »), dans les entreprises (« assistant de gestion »).</p>
+      <button class="btn petit">Chercher sur France Travail</button>
+    </div>
+  </details>
+
+  <details class="bloc-depli" open>
+    <summary>Des métiers proches, dans d'autres secteurs <span class="sous-titre">Ils demandent des savoir-faire que vous avez déjà, sous un autre intitulé.</span></summary>
+    <div class="bloc-depli-corps">
+      <div class="grille">
+        <div class="piste"><div class="nom">Secrétaire médicale</div><div class="secteur">Santé et soins</div>
+          <div class="pourquoi"><b>Retrouvé dans votre CV :</b> accueil du public, gestion d'agenda, saisie de dossiers.</div>
+          <div class="mini"><b>À vérifier :</b> une formation courte est parfois demandée.</div>
+          <button class="btn petit">Garder comme Repère</button><button class="btn petit">Comparer cette piste</button><button class="btn petit">Fiche du métier</button></div>
+        <div class="piste"><div class="nom">Gestionnaire de paie</div><div class="secteur">Administration, gestion et bureau</div>
+          <div class="pourquoi"><b>Retrouvé dans votre CV :</b> rigueur, suivi de dossiers, tableurs.</div>
+          <div class="mini"><b>À vérifier :</b> notions de droit du travail.</div>
+          <button class="btn petit">Garder comme Repère</button><button class="btn petit">Comparer cette piste</button><button class="btn petit">Fiche du métier</button></div>
+        <div class="piste"><div class="nom">Conseiller en relation client</div><div class="secteur">Commerce et vente</div>
+          <div class="pourquoi"><b>Retrouvé dans votre CV :</b> accueil, écoute, traitement des demandes.</div>
+          <div class="mini"><b>À vérifier :</b> horaires souvent décalés.</div>
+          <button class="btn petit">Garder comme Repère</button><button class="btn petit">Comparer cette piste</button><button class="btn petit">Fiche du métier</button></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="bloc-depli" open>
+    <summary>Mes mots pour chercher <span class="sous-titre">La liste à copier, prête à coller dans une barre de recherche d'offres.</span></summary>
+    <div class="bloc-depli-corps">
+      <div class="jetons">
+        <span class="jeton">assistant administratif</span><span class="jeton">gestionnaire administratif</span><span class="jeton">secrétaire polyvalent</span>
+        <span class="jeton">secrétaire médicale</span><span class="jeton">gestionnaire de paie</span><span class="jeton">conseiller relation client</span>
+      </div>
+      <button class="btn petit">Copier la liste</button><button class="btn petit">Garder dans mon Carnet</button>
+    </div>
+  </details>
+
+  <div class="carte">
+    <h2>Et maintenant ?</h2>
+    <p>Pour une piste qui vous parle : la comparer avec d'autres (« Comparer mes pistes »), ou voir si le vocabulaire de votre CV la rejoint (« Les mots de votre CV »).</p>
+    <button class="btn" data-vue="cv-par-metier">Un CV pour une de ces pistes (2e temps, à décider)</button>
+  </div>
+  <div class="barre-nav"><div><button class="btn" data-vue="preparer">Retour</button><button class="btn principal" data-vue="intro">Terminer</button></div></div>
+</section>
+
+<!-- ============ ÉCRAN 4 : VOLET 2 (À DÉCIDER) ============ -->
+<section class="vue" data-vue-id="cv-par-metier">
+  <h1>Un CV pour une de ces pistes</h1>
+  <div class="encart warn"><b>Volet 2, pas encore décidé.</b> Idée de Denis : l'essentiel du CV (expériences, missions) reste identique, seuls le titre et l'accroche changent.
+    Ce volet touche le CV lui-même : c'est un chantier séparé, à ouvrir après le volet 1. Il est montré ici seulement pour situer la suite.</div>
+  <div class="carte">
+    <p><b>Piste choisie :</b> Secrétaire médicale</p>
+    <table class="tableau-decision">
+      <tr><th>Ce qui change</th><th>Ce qui reste</th></tr>
+      <tr><td>Le titre du CV, l'accroche, l'ordre des compétences mises en avant</td><td>Les expériences, les dates, les missions, la formation</td></tr>
+    </table>
+    <p class="mini">Aucune expérience ni compétence inventée : seulement une mise en avant différente de ce qui existe déjà.</p>
+  </div>
+  <div class="barre-nav"><div><button class="btn" data-vue="resultat">Retour au résultat</button></div></div>
+</section>
+</main>
+
+<script>
+  var ETAPES = [['preparer','Préparer'],['resultat','Résultat']];
+  function afficher(id) {
+    document.querySelectorAll('.vue').forEach(function (v) { v.classList.toggle('active', v.dataset.vueId === id); });
+    var box = document.getElementById('etapes'); box.innerHTML = '';
+    if (id !== 'intro') {
+      ETAPES.forEach(function (e, i) {
+        var s = document.createElement('span');
+        s.className = 'etape' + (e[0] === id ? ' courante' : '');
+        s.textContent = (i + 1) + '. ' + e[1]; box.appendChild(s);
+      });
+    }
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-vue]'); if (b) { afficher(b.dataset.vue); }
+  });
+  document.getElementById('bascule-theme').addEventListener('click', function () {
+    var d = document.body.classList.toggle('dark');
+    this.textContent = d ? 'Mode clair' : 'Mode sombre';
+  });
+  afficher('intro');
+</script>
+</body>
+</html>

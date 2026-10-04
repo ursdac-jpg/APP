@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Fenêtres d'édition COMPLÈTES partout (2026-10-03). Mode A : rien n'est codé dans l'application.
+  VRAI balisage des fenêtres d'édition du panneau (.exp-edit > .grille-el > .champ, .exp-edit-pied, .mep-btn), VRAIES feuilles de style
+  (css/style.css, css/mise-en-page-maquette.css). Contenu fictif. Seul ce qui change est marqué : bouton « Montrer ce qui change ».
+  Demande de Denis : « lorsque je fais éditer, je dois pouvoir éditer l'intitulé, l'année, le lieu, le centre de formation ou l'entreprise : tout ».
+  État constaté dans le code : Expériences complet ; Certifications : intitulé, organisme, lieu, date (pas de missions) ; Formations : titre + missions seulement ;
+  Expérience personnelle : à compléter. Les corrections de Formations et d'Expérience personnelle restent « pour ce CV seulement ».
+  Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Édition complète</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 760px; margin: 0 auto; padding: 1rem 1rem 4rem; zoom: 1.45; }
+  .mep-mq input[type=text], .mep-mq textarea { font-size: 0.9rem; padding: 0.3rem 0.45rem; width: 100%; box-sizing: border-box; }
+  .mep-mq .champ label { font-size: 0.78rem; font-weight: 700; }
+  .mep-mq .grille-el { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.7rem; }
+  .onglets-mq { display: flex; gap: .4rem; flex-wrap: wrap; max-width: 760px; margin: .8rem auto 0; padding: 0 1rem; font: .8rem "Segoe UI", sans-serif; }
+  .onglets-mq button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px; padding: .3rem .7rem; cursor: pointer; }
+  .onglets-mq button.on { background: var(--accent-bg-subtle); border-color: var(--accent); font-weight: 700; }
+  body.marquer [data-change] { outline: 3px dashed #e08a00; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  dialog { max-width: 780px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); } dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnAvant">Voir l'état d'aujourd'hui</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+<div class="onglets-mq" role="tablist">
+  <button type="button" data-f="form" class="on">Formations</button>
+  <button type="button" data-f="perso">Expérience personnelle</button>
+  <button type="button" data-f="cert">Certifications</button>
+  <button type="button" data-f="exp">Expériences (déjà complète)</button>
+</div>
+<div class="ecran"><div class="mep-mq"><div class="boite" style="padding:.7rem .8rem" id="zone"></div></div></div>
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Principe</b> : une fenêtre d'édition COMPLÈTE pour chaque rubrique : tous les champs que la rubrique porte sur le CV, dans le même ordre que sur le CV. Même présentation que celle des expériences, déjà complète.</li>
+    <li><b>Formations</b> : aujourd'hui seulement le titre et les missions. Ajout : niveau (CAP, Bac+2...), année, centre de formation, lieu. Le titre devient « Intitulé du diplôme ».</li>
+    <li><b>Expérience personnelle</b> : intitulé, début, fin, structure ou entreprise, lieu, missions.</li>
+    <li><b>Certifications</b> : déjà intitulé, organisme, lieu, date. Ajout proposé : « Missions (facultatif) ». Les missions restent facultatives : l'assistant en propose quand il peut, sinon rien n'est écrit. Jamais exigées (pas de contenu inventé).</li>
+    <li><b>Portée</b> : pour Formations et Expérience personnelle, la correction vaut pour CE CV seulement, comme aujourd'hui (le dossier d'origine n'est pas modifié). Le pied de la fenêtre le dit.</li>
+    <li><b>À valider</b> : (1) les champs ajoutés ; (2) « Missions (facultatif) » dans Certifications ; (3) la phrase « Pour ce CV seulement ».</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+<script>
+  var avant = false, courant = 'form';
+  function champ(libelle, valeur, ph, large, nouveau) {
+    return '<div class="champ"' + (large ? ' style="grid-column:1/-1"' : '') + (nouveau ? ' data-change="NOUVEAU champ"' : '') + '><label>' + libelle + '</label><input type="text" value="' + valeur + '"' + (ph ? ' placeholder="' + ph + '"' : '') + '></div>';
+  }
+  function missions(texte, libelle, nouveau) {
+    return '<div class="champ" style="grid-column:1/-1"' + (nouveau ? ' data-change="NOUVEAU champ"' : '') + '><label>' + libelle + ' <span class="sous" style="font-weight:400">une par ligne : corrigez ou ajoutez ce que vous voulez mettre en avant</span></label><textarea rows="4">' + texte + '</textarea></div>';
+  }
+  function pied(portee) {
+    return '<div class="exp-edit-pied"><span class="exp-edit-etat">' + (portee ? '<span data-change="NOUVEAU : la portée est dite">Pour ce CV seulement : votre dossier d’origine n’est pas modifié.</span>' : '') + '</span><button type="button" class="mep-btn principal">Valider</button></div>';
+  }
+  function dessiner() {
+    var h = '';
+    if (courant === 'form') {
+      h = '<div class="exp-edit"><div class="grille-el">' +
+        (avant ? champ('Titre de la formation', 'Agent de prévention et de sécurité', '', true) :
+          champ('Intitulé du diplôme', 'Agent de prévention et de sécurité', '', true) + champ('Niveau', 'CAP', 'Ex. : CAP, Bac +2', false, true) + champ('Année', '2021', 'Ex. : 2021', false, true) + champ('Centre de formation', 'AFPA', 'Ex. : AFPA', false, true) + champ('Lieu', 'Limoges', 'Ex. : Limoges', false, true)) +
+        missions('Réglementation\nSecourisme\nGestion des conflits', 'Missions') + '</div>' + pied(!avant) + '</div>';
+    } else if (courant === 'perso') {
+      h = '<div class="exp-edit"><div class="grille-el">' +
+        (avant ? champ('Intitulé', 'Bénévolat', '', true) :
+          champ('Intitulé', 'Bénévolat', '', true) + champ('Début', '2019', 'Ex. : 2019', false, true) + champ('Fin (vide = en cours)', '2022', 'Ex. : 2022', false, true) + champ('Structure ou entreprise', 'Restos du Cœur', 'Ex. : une association', false, true) + champ('Lieu', 'Limoges', 'Ex. : Limoges', false, true)) +
+        missions('Distribuer les repas\nAccueillir les bénéficiaires', 'Missions') + '</div>' + pied(!avant) + '</div>';
+    } else if (courant === 'cert') {
+      h = '<div class="exp-edit"><div class="grille-el">' + champ('Intitulé de la certification', 'Habilitation électrique', '', true) + champ('Organisme', 'AFPA', 'Ex. : AFPA') + champ('Lieu', 'Limoges', 'Ex. : Limoges') + champ('Date', '2026', 'Ex. : 2023 ou juin 2023') +
+        (avant ? '' : missions('', 'Missions (facultatif)', true).replace('une par ligne : corrigez ou ajoutez ce que vous voulez mettre en avant', 'laissez vide si vous n’en avez pas')) + '</div>' + pied(false) + '</div>';
+    } else {
+      h = '<div class="exp-edit"><div class="grille-el">' + champ('Intitulé du poste', 'Agent d’accueil', '', true) + champ('Entreprise', 'Mairie de Limoges', '') + champ('Lieu', 'Limoges', '') + champ('Début', '2024', '') + champ('Fin (vide = en cours)', '2024', '') + missions('Accueillir le public\nGérer les appels', 'Missions') + '</div>' +
+        '<div class="exp-edit-pied"><span class="exp-edit-etat"></span><button type="button" class="mep-btn principal">Valider</button></div></div>';
+    }
+    document.getElementById('zone').innerHTML = h;
+  }
+  document.querySelectorAll('.onglets-mq button').forEach(function (b) { b.onclick = function () { courant = b.getAttribute('data-f'); document.querySelectorAll('.onglets-mq button').forEach(function (x) { x.classList.toggle('on', x === b); }); dessiner(); }; });
+  document.getElementById('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); };
+  document.getElementById('btnAvant').onclick = function () { avant = !avant; this.classList.toggle('on', avant); this.textContent = avant ? 'Voir la proposition' : 'Voir l’état d’aujourd’hui'; dessiner(); };
+  document.getElementById('btnNotes').onclick = function () { document.getElementById('dlgNotes').showModal(); };
+  document.getElementById('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  dessiner();
+</script>
+</body>
+</html>

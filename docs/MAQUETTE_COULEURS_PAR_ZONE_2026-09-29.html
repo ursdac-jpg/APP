@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Changer la couleur de chaque zone d'un CV creatif (plein ecran), 2026-09-29.
+
+  Demande de Denis : dans le plein ecran, pouvoir cliquer sur les zones colorees (colonne, bandeau, triangle...) d'un modele
+  creatif, choisir leur couleur dans les reglages a droite, avec la palette ET la pipette ; pour TOUS les modeles creatifs.
+  Decisions de Denis (2026-09-29) : les DEUX declenchements (bouton « Modifier les couleurs » + clic direct sur une zone),
+  perimetre « modeles simples d'abord, formes (vagues, diagonales) ensuite ».
+
+  Ajout demande par Denis (2026-09-29) : dans les OPTIONS RAPIDES, un raccourci « couleurs liees / dissociees » : garder la meme couleur
+  pour le triangle du haut (ou le bandeau) ET l'ecriture des titres (comportement actuel), ou les dissocier.
+
+  Audit du code reel avant cette maquette :
+  - « Colonne et frise » : le triangle du haut et les titres sont branches sur la palette (var(--cv)) ; la colonne de gauche
+    est une couleur ECRITE EN DUR (#93aac6, coin #5f7288) dans cvPdfTemplateMaquette.js : la palette ne peut donc pas l'atteindre.
+    Meme cas pour environ 19 fonds fixes du moteur « maquette ». Les modeles « de l'application » (vagues, diagonales, rubans)
+    sont des formes et des degrades : leurs zones sont plus delicates (2e temps).
+  - La pipette existe deja (EyeDropper, repli : saisir un code couleur). Le Word lit le rendu du CV : il herite des couleurs sans code
+    separe (a mesurer dans le vrai Word, modele par modele).
+  Cette page est MANIPULABLE. Francais impeccable, aucun tiret cadratin, jamais le mot IA, pas d'icone de visage.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Couleurs par zone</title>
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text: #33404f; --text-muted: #4a5b6e;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd; --on-accent: #ffffff;
+    --warning: #b45309; --warning-bg-subtle: #fdf1d9;
+    --success: #157347; --success-bg-subtle: #e7f6ee;
+    --shadow: 0 10px 30px rgba(20,35,60,.12); --radius: 12px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #1e2940;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text: #cdd6e1; --text-muted: #9aa8ba;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940; --on-accent: #08111f;
+    --warning: #f0b45c; --warning-bg-subtle: #33280f;
+    --success: #5fcf95; --success-bg-subtle: #10281c;
+    --shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text); font: 15px/1.5 "Segoe UI", Roboto, system-ui, sans-serif; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 14px; }
+  h1 { font-size: 1.35rem; color: var(--text-strong); margin: .2rem 0; }
+  h2 { font-size: 1rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  .sous { color: var(--text-muted); font-size: .86rem; }
+  .barre { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .btn { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; padding: .45rem .8rem; font: inherit; cursor: pointer; min-height: 42px; }
+  .btn:hover { background: var(--bg-hover); }
+  .btn.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn.petit { min-height: 36px; padding: .3rem .65rem; font-size: .88rem; }
+  .btn:focus-visible, input:focus-visible, .zone:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .encart { background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: 9px 12px; margin: 8px 0; font-size: .9rem; }
+  .encart.warn { background: var(--warning-bg-subtle); border-left-color: var(--warning); }
+  .encart.ok { background: var(--success-bg-subtle); border-left-color: var(--success); }
+  .plein { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 1fr); gap: 14px; margin-top: 10px; align-items: start; }
+  @media (max-width: 900px) { .plein { grid-template-columns: 1fr; } }
+  .tete { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; }
+  .hint { color: var(--text-muted); font-size: .85rem; margin-left: auto; }
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+  .scene { background: #cfd6e2; border-radius: var(--radius); padding: 12px; display: flex; justify-content: center; }
+  body.dark .scene { background: #2a3140; }
+
+  /* ---- la feuille du CV (rendu simplifie du vrai modele) ---- */
+  .feuille { --cv: #d4974f; --z-coin: var(--cv); --z-coin2: #5f7288; --z-colonne: #93aac6; --z-bandeau: var(--cv);
+    position: relative; width: 420px; height: 594px; background: #fff; color: #1c2430; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.25); font-size: 10px; line-height: 1.4; }
+  .zone { cursor: default; }
+  .zone.direct { cursor: pointer; }
+  .mode-couleurs .zone { outline: 2px dashed rgba(13,110,253,.85); outline-offset: -2px; cursor: pointer; }
+  .mode-couleurs .zone:hover { outline-style: solid; outline-width: 3px; }
+  .mode-couleurs .zone-t { outline: 2px dashed rgba(13,110,253,.85); outline-offset: 1px; cursor: pointer; }
+  .mode-couleurs .zone-t:hover { outline-style: solid; }
+  .mode-couleurs .zone::after { content: attr(data-nom); position: absolute; left: 6px; bottom: 6px; background: #0d6efd; color: #fff; font: 600 10px "Segoe UI", sans-serif; padding: 2px 6px; border-radius: 999px; pointer-events: none; z-index: 20; }
+  .zone.choisie { outline: 3px solid #0d6efd !important; outline-offset: -3px; }
+  .texte-edit { cursor: text; }
+  .texte-edit:hover { background: rgba(13,110,253,.10); }
+
+  /* modele 1 : Colonne et frise */
+  .m-frise .coin { position: absolute; top: 0; right: 0; width: 76%; height: 100px; background: var(--z-coin); clip-path: polygon(34% 0, 100% 0, 100% 86%); z-index: 0; }
+  .m-frise .coin2 { position: absolute; top: 0; left: 0; width: 31%; height: 46px; background: var(--z-coin2); clip-path: polygon(0 0, 100% 0, 0 100%); z-index: 3; }
+  .m-frise .grille { display: grid; grid-template-columns: 31% 1fr; height: 100%; position: relative; z-index: 1; }
+  .m-frise .lat { background: var(--z-colonne); padding: 66px 10px 12px 14px; position: relative; }
+  .m-frise .main { padding: 24px 16px 12px; }
+  .m-frise .nom { font-size: 17px; }
+  .m-frise .metier { font-size: 14px; font-weight: 600; color: var(--cv); margin: 2px 0 6px; }
+  .m-frise h3 { font-size: 11px; color: var(--cv); margin: 12px 0 3px; }
+  .m-frise .lat h4 { font-size: 10px; margin: 10px 0 3px; color: #5f7288; }
+  .photo { width: 58px; height: 58px; border-radius: 50%; background: #dfe6ef; border: 3px solid #fff; margin: 0 0 8px; }
+
+  /* modele 2 : Bandeau */
+  .m-bandeau .band { background: var(--z-bandeau); color: #fff; padding: 22px 18px 16px; position: relative; }
+  .m-bandeau .band .nom { font-size: 19px; font-weight: 700; }
+  .m-bandeau .band .metier { font-size: 12px; opacity: .95; }
+  .m-bandeau .corps { display: grid; grid-template-columns: 1fr 34%; gap: 0; height: calc(100% - 92px); }
+  .m-bandeau .col1 { padding: 14px 16px; }
+  .m-bandeau .col2 { background: var(--z-colonne, #e9eef5); padding: 14px 12px; position: relative; }
+  .m-bandeau h3 { font-size: 11px; color: var(--cv); border-bottom: 2px solid var(--cv); margin: 10px 0 4px; padding-bottom: 2px; }
+  .m-bandeau .pill { display: inline-block; background: var(--z-pastille, #dde5f0); border-radius: 999px; padding: 2px 8px; margin: 0 3px 3px 0; }
+  .m-bandeau .feuille { }
+
+  /* panneau de droite */
+  .sw { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .sw button { width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--border-strong); cursor: pointer; padding: 0; }
+  .sw button[aria-pressed="true"] { border-color: var(--text-strong); box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--text-strong); }
+  .ligne { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  input.hex { width: 110px; font: inherit; padding: .35rem .5rem; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-card); color: var(--text-strong); }
+  .pastille-z { display: inline-block; width: 18px; height: 18px; border-radius: 5px; border: 1px solid var(--border-strong); vertical-align: -4px; margin-right: 6px; }
+  .liste-z { margin: 6px 0 0; padding: 0; list-style: none; }
+  .liste-z li { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-top: 1px solid var(--border); }
+  .liste-z li:first-child { border-top: 0; }
+  #toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); background: var(--text-strong); color: var(--bg-card); padding: 8px 14px; border-radius: 999px; font-size: .88rem; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  #toast.v { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="barre"><h1>Changer la couleur de chaque zone du CV</h1><button class="btn petit" id="btnTheme" type="button">Mode sombre</button></div>
+  <p class="sous">Maquette manipulable, avec deux modèles créatifs. Essayez les <b>deux façons</b> de changer une couleur : le clic direct sur un fond coloré, et le bouton « Modifier les couleurs ».</p>
+
+  <div class="encart"><b>Règle qui évite les conflits :</b> le clic direct ne marche <b>que sur les fonds colorés sans autre fonction</b> (colonne, bandeau, triangle). Le texte, la photo et les blocs gardent leur comportement : cliquez sur le nom du CV pour le vérifier.</div>
+
+  <div class="tete" role="toolbar" aria-label="Outils du plein écran">
+    <span class="sous" style="margin-right:4px">Modèle :</span>
+    <button class="btn petit on" id="mFrise" type="button" data-m="frise">Colonne et frise</button>
+    <button class="btn petit" id="mBandeau" type="button" data-m="bandeau">Bandeau</button>
+    <span style="width:14px"></span>
+    <button class="btn petit" type="button" id="btnTexte">&#9997;&#65039; Modifier le texte</button>
+    <button class="btn petit" type="button" id="btnCouleurs" aria-pressed="false">&#127912; Modifier les couleurs</button>
+    <span class="hint" id="hint">Cliquez sur une zone colorée pour changer sa couleur.</span>
+  </div>
+
+  <div class="plein">
+    <div class="scene" id="scene"></div>
+    <div id="panneau"></div>
+  </div>
+
+  <div class="encart warn" style="margin-top:12px"><b>Dans le vrai Word :</b> les couleurs suivent automatiquement (le Word est fabriqué à partir du même rendu que le PDF). Je les mesurerai dans Word, modèle par modèle, avant de livrer.</div>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var PALETTE = ['#d4974f', '#2f6690', '#3a7d44', '#8e44ad', '#c0392b', '#1f7a8c', '#5f7288', '#93aac6', '#e8bf8f', '#2b2d42', '#f4a261', '#ffffff'];
+  var MODELES = {
+    frise: {
+      nom: 'Colonne et frise',
+      // zones : id, nom lisible, variable CSS, valeur d'origine du modele, classe directe (fond sans autre fonction)
+      zones: [
+        { id: 'coin', nom: 'Triangle du haut', v: '--z-coin', def: null, lien: 'globale' },
+        { id: 'coin2', nom: 'Petit coin gris', v: '--z-coin2', def: '#5f7288' },
+        { id: 'colonne', nom: 'Colonne de gauche', v: '--z-colonne', def: '#93aac6' },
+        { id: 'titres', nom: 'Titres et métier', v: '--cv', def: '#d4974f', lien: 'globale' }
+      ],
+      paire: ['coin', 'titres'], paireNom: 'le triangle du haut et l\'écriture des titres',
+      html: '<div class="feuille m-frise" id="f">' +
+        '<div class="coin zone direct" data-z="coin" data-nom="Triangle du haut"></div>' +
+        '<div class="coin2 zone direct" data-z="coin2" data-nom="Petit coin gris"></div>' +
+        '<div class="grille"><div class="lat zone direct" data-z="colonne" data-nom="Colonne de gauche"><div class="photo"></div>' +
+          '<h4>CONTACT</h4><div>camille@ex.fr<br>06 00 00 00 00<br>Limoges (87000)</div><h4>LANGUES</h4><div>Anglais B1</div><h4>CENTRES D\'INTÉRÊT</h4><div>Course à pied<br>Cuisine</div></div>' +
+        '<div class="main"><div class="nom texte-edit" data-t="le nom">Camille MARTIN</div><div class="metier zone-t" data-z="titres">Agent de sécurité</div>' +
+          '<div class="texte-edit" data-t="l\'accroche">Rigoureuse et attentive, je souhaite mettre mon sens du contact au service de la sécurité des personnes.</div>' +
+          '<h3 class="zone-t" data-z="titres">EXPÉRIENCE PROFESSIONNELLE</h3><div class="texte-edit" data-t="une expérience"><b>Agent de sécurité</b> - Sécuritas, Limoges<br>Surveiller les accès. Contrôler les badges.</div>' +
+          '<h3 class="zone-t" data-z="titres">FORMATIONS</h3><div class="texte-edit" data-t="une formation">CAP Agent de prévention - AFPA - 2021</div></div></div></div>'
+    },
+    bandeau: {
+      nom: 'Bandeau',
+      zones: [
+        { id: 'bandeau', nom: 'Bandeau du haut', v: '--z-bandeau', def: null, lien: 'globale' },
+        { id: 'colonne', nom: 'Colonne de droite', v: '--z-colonne', def: '#e9eef5' },
+        { id: 'pastille', nom: 'Pastilles', v: '--z-pastille', def: '#dde5f0' },
+        { id: 'titres', nom: 'Titres', v: '--cv', def: '#d4974f', lien: 'globale' }
+      ],
+      paire: ['bandeau', 'titres'], paireNom: 'le bandeau du haut et l\'écriture des titres',
+      html: '<div class="feuille m-bandeau" id="f">' +
+        '<div class="band zone direct" data-z="bandeau" data-nom="Bandeau du haut"><div class="nom texte-edit" data-t="le nom">Camille MARTIN</div><div class="metier texte-edit" data-t="le métier">Agent de sécurité</div></div>' +
+        '<div class="corps"><div class="col1"><h3 class="zone-t" data-z="titres">EXPÉRIENCE PROFESSIONNELLE</h3><div class="texte-edit" data-t="une expérience"><b>Agent de sécurité</b> - Sécuritas, Limoges<br>Surveiller les accès. Contrôler les badges.</div>' +
+          '<h3 class="zone-t" data-z="titres">FORMATIONS</h3><div class="texte-edit" data-t="une formation">CAP Agent de prévention - AFPA - 2021</div></div>' +
+          '<div class="col2 zone direct" data-z="colonne" data-nom="Colonne de droite"><h3 class="zone-t" data-z="titres" style="margin-top:0">COMPÉTENCES</h3>' +
+          '<span class="pill zone direct" data-z="pastille" data-nom="Pastilles" style="position:relative">Rigueur</span><span class="pill zone direct" data-z="pastille" data-nom="Pastilles" style="position:relative">Sens du contact</span><span class="pill zone direct" data-z="pastille" data-nom="Pastilles" style="position:relative">Gestion du stress</span></div></div></div>'
+    }
+  };
+  var etat = { modele: 'frise', mode: false, zone: null, couleurs: { frise: {}, bandeau: {} }, globale: '#d4974f', lie: { frise: true, bandeau: true } };
+
+  function toast(t) { var e = $('toast'); e.textContent = t; e.classList.add('v'); clearTimeout(toast.h); toast.h = setTimeout(function () { e.classList.remove('v'); }, 1900); }
+  function zonesDe() { return MODELES[etat.modele].zones; }
+  function zone(id) { return zonesDe().filter(function (z) { return z.id === id; })[0]; }
+  function couleurDe(z) {
+    var choix = etat.couleurs[etat.modele][z.id];
+    if (choix) { return choix; }
+    return (z.lien === 'globale') ? etat.globale : z.def;
+  }
+
+  function appliquer() {
+    var f = $('f'); if (!f) { return; }
+    f.style.setProperty('--cv', etat.globale);
+    zonesDe().forEach(function (z) {
+      var choix = etat.couleurs[etat.modele][z.id];
+      if (z.v === '--cv') { if (choix) { f.style.setProperty('--cv', choix); } return; }
+      if (choix) { f.style.setProperty(z.v, choix); }
+      else { f.style.removeProperty(z.v); if (z.lien === 'globale') { f.style.setProperty(z.v, 'var(--cv)'); } }
+    });
+    f.querySelectorAll('.choisie').forEach(function (e) { e.classList.remove('choisie'); });
+    if (etat.zone) { f.querySelectorAll('[data-z="' + etat.zone + '"]').forEach(function (e) { e.classList.add('choisie'); }); }
+  }
+
+  function rendreScene() {
+    $('scene').innerHTML = MODELES[etat.modele].html;
+    $('scene').classList.toggle('mode-couleurs', etat.mode);
+    var f = $('f');
+    // clic direct : seulement les fonds sans autre fonction ; le texte garde son role
+    f.addEventListener('click', function (ev) {
+      var t = ev.target.closest('.texte-edit');
+      if (t) { toast('Ici, un clic modifie ' + t.getAttribute('data-t') + ' (comportement actuel conserve).'); return; }
+      var z = ev.target.closest('.zone.direct, .zone-t');
+      if (!z) { return; }
+      if (z.classList.contains('zone-t') && !etat.mode) { return; } // le texte des titres : seulement en mode couleurs
+      choisir(z.getAttribute('data-z'));
+    });
+    appliquer();
+  }
+
+  function choisir(id) { etat.zone = id; appliquer(); rendrePanneau(); }
+
+  function hexValide(h) { return /^#?[0-9a-fA-F]{6}$/.test((h || '').trim()); }
+  function normaliser(h) { h = h.trim(); return (h[0] === '#' ? h : '#' + h).toLowerCase(); }
+  function poser(id, hex) {
+    var z = zone(id); if (!z) { return; }
+    var m = MODELES[etat.modele], c = etat.couleurs[m.modele || etat.modele];
+    c[id] = hex;
+    if (etat.lie[etat.modele] && m.paire.indexOf(id) !== -1) { m.paire.forEach(function (autre) { c[autre] = hex; }); } // liees : elles bougent ensemble
+    appliquer(); rendrePanneau();
+  }
+
+  function rendrePanneau() {
+    var p = $('panneau'), z = etat.zone ? zone(etat.zone) : null, h = '';
+    var M = MODELES[etat.modele], lie = etat.lie[etat.modele];
+    h += '<div class="carte" style="margin-bottom:10px"><h2>Options rapides</h2>' +
+      '<label class="ligne" style="cursor:pointer;align-items:flex-start"><input type="checkbox" id="ckLie" ' + (lie ? 'checked' : '') + ' style="width:20px;height:20px;margin-top:2px">' +
+      '<span><b>Garder la même couleur pour ' + M.paireNom + '</b><br><span class="sous">' + (lie ? 'Une seule couleur pour les deux : elles changent ensemble.' : 'Dissociées : chacune a sa propre couleur. Cliquez sur l\'une ou l\'autre dans le CV.') + '</span></span></label></div>';
+    if (z) {
+      var c = couleurDe(z);
+      h += '<div class="carte"><h2>Zone : ' + z.nom + '</h2>' +
+        '<p class="sous">Elle change seule. Les autres zones gardent leur couleur.</p>' +
+        '<div class="sw" role="group" aria-label="Palette">' + PALETTE.map(function (col) { return '<button type="button" data-c="' + col + '" style="background:' + col + '" aria-label="Couleur ' + col + '" aria-pressed="' + (col.toLowerCase() === (c || '').toLowerCase()) + '"></button>'; }).join('') + '</div>' +
+        '<div class="ligne"><button class="btn petit" id="btnPipette" type="button">&#128396;&#65039; Pipette</button>' +
+        '<label class="sous" for="hex">Code couleur</label><input class="hex" id="hex" value="' + (c || '') + '" maxlength="7" aria-label="Code couleur"><button class="btn petit" id="btnHex" type="button">Appliquer</button></div>' +
+        '<div class="ligne"><button class="btn petit" id="btnOrigine" type="button">Remettre la couleur d\'origine</button><button class="btn petit" id="btnFermerZ" type="button">Fermer</button></div>' +
+        '<p class="sous" id="msgHex" style="margin:0"></p></div>';
+    } else {
+      h += '<div class="carte"><h2>Couleurs du CV</h2><p class="sous">Cette palette change la couleur générale : les titres et le triangle du haut. Pour une zone précise (colonne, bandeau...), cliquez dessus dans le CV.</p>' +
+        '<div class="sw" role="group" aria-label="Couleur générale">' + PALETTE.slice(0, 10).map(function (col) { return '<button type="button" data-g="' + col + '" style="background:' + col + '" aria-label="Couleur générale ' + col + '" aria-pressed="' + (col === etat.globale) + '"></button>'; }).join('') + '</div></div>';
+    }
+    // liste des zones du modele (recapitulatif et acces au clavier)
+    h += '<div class="carte" style="margin-top:10px"><h2>Les zones colorées de ce modèle</h2><ul class="liste-z">' +
+      zonesDe().map(function (zz) { var modif = !!etat.couleurs[etat.modele][zz.id];
+        return '<li><span class="pastille-z" style="background:' + couleurDe(zz) + '"></span><span style="flex:1">' + zz.nom + (modif ? ' <em class="sous">(modifiée)</em>' : '') + '</span><button class="btn petit" type="button" data-choisir="' + zz.id + '">Changer</button></li>'; }).join('') +
+      '</ul><div class="ligne"><button class="btn petit" id="btnToutOrigine" type="button">Revenir aux couleurs du modèle</button></div></div>';
+    p.innerHTML = h;
+
+    var ck = $('ckLie'); if (ck) { ck.addEventListener('change', function () {
+      var c = etat.couleurs[etat.modele], pr = M.paire;
+      if (this.checked) { var ref = c[pr[0]] || (zone(pr[0]).lien === 'globale' ? etat.globale : zone(pr[0]).def); pr.forEach(function (a) { c[a] = ref; }); if (ref === etat.globale) { pr.forEach(function (a) { delete c[a]; }); } toast('Liées : l\'écriture reprend la couleur de ' + zone(pr[0]).nom.toLowerCase() + '.'); }
+      else { toast('Dissociées : vous pouvez maintenant les régler séparément.'); }
+      etat.lie[etat.modele] = this.checked; appliquer(); rendrePanneau(); }); }
+    p.querySelectorAll('[data-c]').forEach(function (b) { b.addEventListener('click', function () { poser(etat.zone, this.getAttribute('data-c')); }); });
+    p.querySelectorAll('[data-g]').forEach(function (b) { b.addEventListener('click', function () { etat.globale = this.getAttribute('data-g'); if (etat.lie[etat.modele]) { MODELES[etat.modele].paire.forEach(function (a) { delete etat.couleurs[etat.modele][a]; }); } appliquer(); rendrePanneau(); }); });
+    p.querySelectorAll('[data-choisir]').forEach(function (b) { b.addEventListener('click', function () { choisir(this.getAttribute('data-choisir')); }); });
+    var bp = $('btnPipette'); if (bp) { bp.addEventListener('click', pipette); }
+    var bh = $('btnHex'); if (bh) { bh.addEventListener('click', function () { var v = $('hex').value; if (!hexValide(v)) { $('msgHex').textContent = 'Écrivez 6 caractères, par exemple #2f6690.'; return; } poser(etat.zone, normaliser(v)); }); }
+    var bo = $('btnOrigine'); if (bo) { bo.addEventListener('click', function () { var mm = MODELES[etat.modele]; delete etat.couleurs[etat.modele][etat.zone]; if (etat.lie[etat.modele] && mm.paire.indexOf(etat.zone) !== -1) { mm.paire.forEach(function (a) { delete etat.couleurs[etat.modele][a]; }); } appliquer(); rendrePanneau(); toast('Couleur d\'origine remise.'); }); }
+    var bf = $('btnFermerZ'); if (bf) { bf.addEventListener('click', function () { etat.zone = null; appliquer(); rendrePanneau(); }); }
+    $('btnToutOrigine').addEventListener('click', function () { etat.couleurs[etat.modele] = {}; etat.zone = null; appliquer(); rendrePanneau(); toast('Couleurs du modèle remises.'); });
+  }
+
+  function pipette() {
+    if (typeof window.EyeDropper !== 'function') {
+      var v = window.prompt('Votre navigateur ne propose pas la pipette. Écrivez le code couleur (6 caractères, par exemple #2f6690).');
+      if (v && hexValide(v)) { poser(etat.zone, normaliser(v)); } return;
+    }
+    new window.EyeDropper().open().then(function (r) { poser(etat.zone, r.sRGBHex); }).catch(function () { /* annulé */ });
+  }
+
+  function basculerMode() {
+    etat.mode = !etat.mode;
+    var b = $('btnCouleurs'); b.classList.toggle('on', etat.mode); b.setAttribute('aria-pressed', etat.mode);
+    $('scene').classList.toggle('mode-couleurs', etat.mode);
+    $('hint').textContent = etat.mode ? 'Toutes les zones colorées sont entourées : cliquez sur celle à changer.' : 'Cliquez sur une zone colorée pour changer sa couleur.';
+  }
+  $('btnCouleurs').addEventListener('click', basculerMode);
+  $('btnTexte').addEventListener('click', function () { toast('Modifier le texte : comportement actuel, inchangé.'); });
+  document.querySelectorAll('[data-m]').forEach(function (b) { b.addEventListener('click', function () {
+    etat.modele = this.getAttribute('data-m'); etat.zone = null;
+    document.querySelectorAll('[data-m]').forEach(function (x) { x.classList.toggle('on', x === b); });
+    rendreScene(); rendrePanneau(); }); });
+  $('btnTheme').addEventListener('click', function () { document.body.classList.toggle('dark'); this.textContent = document.body.classList.contains('dark') ? 'Mode clair' : 'Mode sombre'; });
+
+  rendreScene(); rendrePanneau();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : rubriques côte à côte</title>
+<style>
+:root {
+  --bg: #f4f6fa; --card: #ffffff; --text: #1c2430; --muted: #5b6675; --border: #d5dbe4;
+  --accent: #2f6690; --accent-bg: #e8f0f7; --danger: #b23a3a; --ok: #2e7d5b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #141a22; --card: #1b212c; --text: #e8edf5; --muted: #a3afc0; --border: #33405a; --accent: #6fa8d6; --accent-bg: #1e2940; --danger: #e07a7a; --ok: #6fcf9f; }
+}
+:root[data-theme="dark"] { --bg: #141a22; --card: #1b212c; --text: #e8edf5; --muted: #a3afc0; --border: #33405a; --accent: #6fa8d6; --accent-bg: #1e2940; --danger: #e07a7a; --ok: #6fcf9f; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; }
+.tete { display: flex; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--card); flex-wrap: wrap; }
+.tete .retour { border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; padding: 6px 12px; }
+.tete .hint { color: var(--muted); font-size: 14px; flex: 1; min-width: 220px; }
+.corps { display: grid; grid-template-columns: 270px 1fr; gap: 16px; padding: 16px; max-width: 1150px; margin: 0 auto; }
+@media (max-width: 800px) { .corps { grid-template-columns: 1fr; } }
+.outils { display: flex; flex-direction: column; gap: 8px; align-content: start; }
+.t { text-align: left; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 10px; padding: 9px 12px; font-size: 14px; cursor: pointer; }
+.t:hover:not(:disabled) { border-color: var(--accent); }
+.t.on { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); font-weight: 700; }
+.t:disabled { opacity: .45; cursor: not-allowed; }
+.boite { border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 9px 12px; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.boite b { color: var(--text); }
+.boite label { display: flex; gap: 6px; align-items: center; margin: 4px 0; color: var(--text); cursor: pointer; }
+.seg { display: flex; gap: 6px; }
+.seg button { flex: 1; }
+.msg { min-height: 24px; font-size: 13px; margin-bottom: 8px; color: var(--muted); }
+.msg.ok { color: var(--ok); } .msg.ko { color: var(--danger); font-weight: 600; }
+.feuille { background: var(--card); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.12); padding: 0 0 18px; min-height: 640px; position: relative; }
+.entete { background: linear-gradient(135deg, #2f6690, #6d97bd); color: #fff; padding: 16px 24px; border-radius: 6px 6px 0 0; }
+.entete b { font-size: 19px; display: block; } .entete span { font-size: 13px; opacity: .9; }
+.zone { padding: 12px 24px 0; }
+.deuxcol { display: grid; grid-template-columns: 36% 1fr; gap: 22px; }
+.col { min-width: 0; }
+.ligne { display: flex; gap: 16px; margin: 0; }
+.ligne > .bloc { flex: 1 1 0; min-width: 0; }
+.bloc { position: relative; padding: 6px 0 10px; }
+.bloc h4 { margin: 0 0 4px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--border); padding: 0 0 3px; display: flex; align-items: center; gap: 6px; }
+.bloc .l { height: 8px; background: var(--border); border-radius: 4px; margin: 6px 0; opacity: .85; }
+.bloc .l.c { width: 70%; } .bloc .l.cc { width: 45%; }
+.etiq { font-size: 10px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted); margin-left: auto; }
+.poignee, .cadenas { display: none; }
+.poignee { cursor: grab; font-size: 16px; line-height: 1; color: var(--accent); padding: 0 4px; user-select: none; touch-action: none; }
+.mode .bloc { outline: 1px dashed var(--accent); outline-offset: 3px; margin: 4px 3px; padding: 6px 6px 10px; border-radius: 4px; }
+.mode .poignee { display: inline-block; }
+.bloc.leve { opacity: .25; }
+.slot { height: 0; margin: 0; border-radius: 4px; }
+.glisse .slot { height: 12px; margin: 2px 0; border: 2px dashed var(--accent); }
+.glisse .slot.actif { background: var(--accent-bg); border-style: solid; height: 24px; }
+.glisse .slot.interdit { border-color: var(--danger); }
+.cote { display: none; width: 0; flex: 0 0 0; border-radius: 4px; }
+.glisse .cote { display: flex; align-items: center; justify-content: center; width: 40px; flex: 0 0 40px; border: 2px dashed var(--accent); font-size: 11px; color: var(--accent); text-align: center; margin: 4px 0; }
+.glisse .cote.actif { background: var(--accent-bg); border-style: solid; }
+.glisse .cote.interdit { border-color: var(--danger); color: var(--danger); }
+.fantome { position: fixed; pointer-events: none; z-index: 50; background: var(--card); border: 2px solid var(--accent); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.legende { font-size: 13px; color: var(--muted); max-width: 1150px; margin: 0 auto; padding: 0 16px 24px; line-height: 1.55; }
+.legende b { color: var(--text); }
+.tag { display: inline-block; font-size: 11px; border: 1px solid var(--border); border-radius: 999px; padding: 0 8px; margin: 0 2px; }
+</style>
+</head>
+<body>
+<div class="tete">
+  <span class="retour">&larr; Revenir aux réglages</span>
+  <span class="hint" id="hint">Prenez une rubrique par sa poignée ⠿ : déposez-la sur une ligne bleue (nouvelle ligne) ou sur une case « à côté ».</span>
+</div>
+
+<div class="corps">
+  <div class="outils">
+    <button class="t" disabled>&#9997;&#65039; Modifier le texte</button>
+    <button class="t" disabled>&#127912; Modifier les couleurs</button>
+    <button class="t on" id="tRub">&#10021; Déplacer les rubriques</button>
+    <div class="seg"><button class="t" id="bAnnuler" disabled>&#8617; Annuler</button><button class="t" id="bAuto">&#8634; Automatique</button></div>
+    <div class="boite">
+      <b>Le CV est sur</b>
+      <div class="seg" style="margin-top:6px"><button class="t on" id="b1">1 colonne</button><button class="t" id="b2">2 colonnes</button></div>
+    </div>
+    <div class="boite">
+      <b>Pour tester : le contenu du CV</b>
+      <label><input type="checkbox" id="cForm"> Formations avec missions développées</label>
+      <label><input type="checkbox" id="cPerso"> Expérience personnelle développée (missions)</label>
+      <span>Une rubrique <b>courte</b> peut partager une ligne. Une rubrique <b>avec missions</b> reste seule.</span>
+    </div>
+  </div>
+
+  <div>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="feuille mode" id="feuille">
+      <div class="entete"><b>Camille MARTIN</b><span>Agent de sécurité &middot; Limoges</span></div>
+      <div class="zone" id="zone"></div>
+    </div>
+  </div>
+</div>
+
+<div class="legende">
+  <b>Ce que montre cette maquette (deuxième version).</b><br>
+  (1) <b>Une ligne peut contenir plusieurs rubriques</b> : jusqu'à <b>3 rubriques courtes à une colonne</b> (Logiciels, Langues, Centres d'intérêt, Informations, Formations en descriptif, Expérience personnelle citée), jusqu'à <b>2 dans la grande colonne à deux colonnes</b>.
+  Les compétences (professionnelles, comportementales) peuvent aussi être 2 par ligne.<br>
+  (2) Quand on prend une rubrique, deux sortes d'emplacements apparaissent : des <b>lignes bleues</b> entre les lignes (elle prend sa propre ligne) et des cases <b>« à côté »</b> à droite d'une ligne qui peut encore l'accueillir.<br>
+  (3) Une rubrique <b>avec missions</b> (Expériences, Formations développées, Expérience personnelle développée) reste seule sur sa ligne : la case « à côté » devient rouge avec l'explication.
+  Cochez « missions développées » à gauche pour voir la règle changer ; si une rubrique regroupée devient longue, elle reprend automatiquement sa propre ligne.<br>
+  (4) La <b>colonne de gauche</b> (2 colonnes) est étroite : pas de « à côté ». « Expérience professionnelle » reste à droite.<br>
+  (5) Annuler et « Automatique » comme dans la première version. Cette maquette ne modifie aucun vrai CV.
+</div>
+
+<script>
+(function () {
+  var NOMS = { pro: 'Compétences professionnelles', comp: 'Compétences comportementales', logi: 'Logiciels et outils', langues: 'Langues', centres: 'Centres d’intérêt',
+    infos: 'Informations complémentaires', exp: 'Expérience professionnelle', form: 'Formations', perso: 'Expérience personnelle' };
+  var LIGNES = { pro: 3, comp: 3, logi: 2, langues: 1, centres: 2, infos: 1, exp: 6, form: 2, perso: 2 };
+  var DEP1 = [['pro', 'comp'], ['exp'], ['form'], ['perso'], ['logi', 'langues', 'centres']];
+  var DEP2 = { gauche: [['comp'], ['logi'], ['langues'], ['centres']], droite: [['pro'], ['exp'], ['form'], ['perso']] };
+  var $ = function (id) { return document.getElementById(id); };
+  var copie = function (o) { return JSON.parse(JSON.stringify(o)); };
+  var deux = false, etat1 = copie(DEP1), etat2 = copie(DEP2), histo = [];
+
+  // classe d'une rubrique : 'long' (missions) / 'moyen' (competences : pastilles) / 'court'
+  function classe(k) {
+    if (k === 'exp') { return 'long'; }
+    if (k === 'form') { return $('cForm').checked ? 'long' : 'court'; }
+    if (k === 'perso') { return $('cPerso').checked ? 'long' : 'court'; }
+    if (k === 'pro' || k === 'comp') { return 'moyen'; }
+    return 'court';
+  }
+  function maxLigne(colNom) { return deux ? (colNom === 'droite' ? 2 : 1) : 3; }
+  // une ligne (tableau de cles) peut-elle accueillir la rubrique k en plus ?
+  function peutAccueillir(ligne, k, colNom) {
+    if (ligne.indexOf(k) !== -1 && ligne.length === 1) { return false; }
+    var autres = ligne.filter(function (x) { return x !== k; });
+    if (!autres.length) { return true; }
+    if (classe(k) === 'long') { return false; }
+    if (autres.some(function (x) { return classe(x) === 'long'; })) { return false; }
+    var mx = maxLigne(colNom);
+    var moyen = classe(k) === 'moyen' || autres.some(function (x) { return classe(x) === 'moyen'; });
+    if (moyen) { mx = Math.min(mx, 2); }
+    return autres.length < mx;
+  }
+  function raison(ligne, k, colNom) {
+    var autres = ligne.filter(function (x) { return x !== k; });
+    if (classe(k) === 'long') { return '« ' + NOMS[k] + ' » a des missions développées : elle reste seule sur sa ligne.'; }
+    if (autres.some(function (x) { return classe(x) === 'long'; })) { return 'Cette ligne contient une rubrique avec missions : elle reste seule.'; }
+    if (deux && colNom === 'gauche') { return 'La colonne de gauche est étroite : une seule rubrique par ligne.'; }
+    return 'Cette ligne est pleine (' + maxLigne(colNom) + ' rubriques au plus' + (deux ? ' dans la grande colonne' : '') + ').';
+  }
+
+  function blocHtml(k) {
+    var l = ''; for (var i = 0; i < LIGNES[k]; i++) { l += '<div class="l ' + (i % 3 === 1 ? 'c' : i % 3 === 2 ? 'cc' : '') + '"></div>'; }
+    var e = classe(k) === 'long' ? 'missions' : classe(k) === 'moyen' ? 'moyenne' : 'courte';
+    return '<div class="bloc" data-k="' + k + '"><h4><span class="poignee" title="Glisser">&#10303;</span>' + NOMS[k] + '<span class="etiq">' + e + '</span></h4>' + l + '</div>';
+  }
+  function colonneHtml(rows, colNom) {
+    var h = '<div class="slot" data-col="' + colNom + '" data-r="0"></div>';
+    rows.forEach(function (ligne, r) {
+      h += '<div class="ligne" data-col="' + colNom + '" data-r="' + r + '">' + ligne.map(blocHtml).join('') +
+        '<div class="cote" data-col="' + colNom + '" data-r="' + r + '">&#65291;<br>à côté</div></div>';
+      h += '<div class="slot" data-col="' + colNom + '" data-r="' + (r + 1) + '"></div>';
+    });
+    return h;
+  }
+  function dessiner() {
+    if (deux) { $('zone').innerHTML = '<div class="deuxcol"><div class="col">' + colonneHtml(etat2.gauche, 'gauche') + '</div><div class="col">' + colonneHtml(etat2.droite, 'droite') + '</div></div>'; }
+    else { $('zone').innerHTML = '<div class="col">' + colonneHtml(etat1, 'unique') + '</div>'; }
+    $('b1').classList.toggle('on', !deux); $('b2').classList.toggle('on', deux);
+    $('bAnnuler').disabled = !histo.length;
+    $('zone').querySelectorAll('.poignee').forEach(function (p) { p.addEventListener('pointerdown', debut); });
+  }
+  function rows(colNom) { return deux ? etat2[colNom] : etat1; }
+  function msg(t, c) { var m = $('msg'); m.textContent = t || ' '; m.className = 'msg' + (c ? ' ' + c : ''); }
+  function pousser() { histo.push(copie({ d: deux, e1: etat1, e2: etat2 })); }
+
+  // ---- glisser ----
+  var g = null;
+  function debut(e) {
+    e.preventDefault();
+    var b = e.target.closest('.bloc'), k = b.getAttribute('data-k');
+    b.classList.add('leve');
+    var f = document.createElement('div'); f.className = 'fantome'; f.textContent = NOMS[k]; document.body.appendChild(f);
+    g = { k: k, f: f, cible: null };
+    $('feuille').classList.add('glisse');
+    // marquer les cases « à cote » interdites / autorisees
+    $('zone').querySelectorAll('.cote').forEach(function (c) {
+      var col = c.getAttribute('data-col'), r = parseInt(c.getAttribute('data-r'), 10), ligne = rows(col)[r];
+      c.classList.toggle('interdit', !peutAccueillir(ligne, k, col));
+    });
+    bouger(e);
+    window.addEventListener('pointermove', bouger); window.addEventListener('pointerup', fin, { once: true });
+  }
+  function bouger(e) {
+    if (!g) { return; }
+    g.f.style.left = (e.clientX + 12) + 'px'; g.f.style.top = (e.clientY + 8) + 'px';
+    var cand = null, dmin = 1e9;
+    document.querySelectorAll('.slot, .cote').forEach(function (el) {
+      el.classList.remove('actif');
+      var r = el.getBoundingClientRect();
+      var cx = Math.max(r.left, Math.min(e.clientX, r.right)), cy = Math.max(r.top, Math.min(e.clientY, r.bottom));
+      var d = Math.hypot(e.clientX - cx, e.clientY - cy) * (el.classList.contains('cote') ? 0.6 : 1); // la case « à cote » est prioritaire quand on est dessus
+      if (d < dmin) { dmin = d; cand = el; }
+    });
+    g.cible = cand;
+    if (cand) {
+      cand.classList.add('actif');
+      if (cand.classList.contains('cote') && cand.classList.contains('interdit')) {
+        var col = cand.getAttribute('data-col'), r2 = parseInt(cand.getAttribute('data-r'), 10);
+        msg(raison(rows(col)[r2], g.k, col), 'ko');
+      } else if (deux && g.k === 'exp' && cand.getAttribute('data-col') === 'gauche') { msg('« Expérience professionnelle » reste toujours dans la colonne de droite.', 'ko'); }
+      else { msg(''); }
+    }
+  }
+  function retirer(k) {
+    var lst = deux ? [etat2.gauche, etat2.droite] : [etat1], pos = null;
+    lst.forEach(function (rs, ci) { rs.forEach(function (ligne, r) { var j = ligne.indexOf(k); if (j !== -1) { pos = { rs: rs, r: r, j: j, ci: ci }; } }); });
+    if (!pos) { return null; }
+    pos.rs[pos.r].splice(pos.j, 1);
+    var vide = !pos.rs[pos.r].length; if (vide) { pos.rs.splice(pos.r, 1); }
+    return { rs: pos.rs, r: pos.r, vide: vide };
+  }
+  function fin() {
+    window.removeEventListener('pointermove', bouger);
+    var x = g; g = null; if (!x) { return; }
+    x.f.remove(); $('feuille').classList.remove('glisse');
+    var c = x.cible;
+    if (!c) { dessiner(); return; }
+    var col = c.getAttribute('data-col'), r = parseInt(c.getAttribute('data-r'), 10);
+    if (deux && x.k === 'exp' && col === 'gauche') { msg('« Expérience professionnelle » reste toujours dans la colonne de droite.', 'ko'); dessiner(); return; }
+    if (c.classList.contains('cote')) {
+      var cible = rows(col)[r];
+      if (!peutAccueillir(cible, x.k, col)) { msg(raison(cible, x.k, col), 'ko'); dessiner(); return; }
+      pousser();
+      var ref = cible[0]; var info = retirer(x.k);
+      // retrouver la ligne de reference apres retrait
+      var rs = rows(col); var idx = rs.findIndex(function (l) { return l.indexOf(ref) !== -1; });
+      rs[idx].push(x.k);
+      msg('« ' + NOMS[x.k] + ' » placée à côté.', 'ok');
+    } else {
+      pousser();
+      var i = r; var rs2 = rows(col);
+      var origine = null; rs2.forEach(function (l, li) { if (l.indexOf(x.k) !== -1) { origine = { li: li, seule: l.length === 1 }; } });
+      if (origine && origine.seule && origine.li < i) { i--; }
+      retirer(x.k);
+      rows(col).splice(i, 0, [x.k]);
+      msg('« ' + NOMS[x.k] + ' » placée sur sa propre ligne.', 'ok');
+    }
+    dessiner();
+  }
+
+  // si une rubrique regroupee devient longue (missions developpees), elle reprend sa propre ligne
+  function normaliser() {
+    var change = false;
+    var passer = function (rs) {
+      for (var r = 0; r < rs.length; r++) {
+        var ligne = rs[r];
+        if (ligne.length > 1) {
+          var longs = ligne.filter(function (k) { return classe(k) === 'long'; });
+          if (longs.length) { ligne.filter(function (k) { return classe(k) === 'long'; }).forEach(function (k) { ligne.splice(ligne.indexOf(k), 1); rs.splice(r + 1, 0, [k]); change = true; }); }
+        }
+      }
+    };
+    passer(etat1); passer(etat2.gauche); passer(etat2.droite);
+    return change;
+  }
+  ['cForm', 'cPerso'].forEach(function (id) { $(id).addEventListener('change', function () { var c = normaliser(); msg(c ? 'Une rubrique regroupée a maintenant des missions : elle reprend sa propre ligne.' : '', c ? 'ok' : ''); dessiner(); }); });
+  $('b1').addEventListener('click', function () { deux = false; msg(''); dessiner(); });
+  $('b2').addEventListener('click', function () { deux = true; msg(''); dessiner(); });
+  $('bAnnuler').addEventListener('click', function () { var h = histo.pop(); if (h) { deux = h.d; etat1 = h.e1; etat2 = h.e2; msg('Dernier déplacement annulé.', 'ok'); dessiner(); } });
+  $('bAuto').addEventListener('click', function () { pousser(); etat1 = copie(DEP1); etat2 = copie(DEP2); msg('Disposition automatique rétablie.', 'ok'); dessiner(); });
+  dessiner();
+})();
+</script>
+</body>
+</html>

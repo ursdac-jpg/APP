@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Option « Stage » sur chaque expérience (2026-10-03). Mode A : rien n'est codé dans l'application.
+  VRAI balisage de la liste « Modifier mes expériences et leurs missions » (.ligne-bloc > label.ligne-choix : case, poste - entreprise (période),
+  compteur de missions « − n + / total », bouton Missions), VRAIES feuilles de style (css/style.css, css/mise-en-page-maquette.css).
+  Seul ce qui change est marqué : bouton « Montrer ce qui change ». Contenu fictif. Mode sombre : bouton de la barre.
+  Demande de Denis : un bouton « Stage » SUR LA LIGNE de chaque expérience, entre le nom et le compteur de missions, pour la marquer d'un clic sans ouvrir l'expérience.
+  Aujourd'hui le stage n'est PAS capté (aucun champ) : seule la personne ou l'assistant pourrait l'indiquer. Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Option Stage</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 4rem; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 860px) { .ecran { grid-template-columns: 1fr; } }
+  body.marquer [data-change] { outline: 3px dashed #e08a00; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  /* NOUVEAU (maquette) : bouton « Stage » (même charte que « Missions ») */
+  .btn-stage { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.0875rem 0.5rem; font-size: 0.63rem; white-space: nowrap; cursor: pointer; }
+  .btn-stage[aria-pressed="true"] { background: var(--accent-bg-subtle); border-color: var(--accent); font-weight: 700; }
+  /* petit CV (maquette seulement) */
+  .cv { background: #fff; color: #1c2430; border: 1px solid var(--border-strong); border-radius: 8px; padding: 1rem 1.1rem; font: .8rem "Segoe UI", sans-serif; box-shadow: var(--shadow); }
+  .cv h1 { font-size: 1.05rem; margin: 0; color: #2f6690; }
+  .cv h2 { font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; color: #2f6690; border-bottom: 1px solid #b9c4d2; margin: .8rem 0 .3rem; padding-bottom: .1rem; }
+  .cv .ligne { display: flex; justify-content: space-between; gap: .6rem; } .cv .dates { white-space: nowrap; }
+  .cv ul { margin: .1rem 0 .5rem; padding-left: 1.1rem; }
+  dialog { max-width: 760px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); } dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+<div class="ecran">
+  <div class="mep-mq">
+    <details class="mep-carte" open>
+      <summary><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><div><h3>Expériences professionnelles</h3></div><span class="chev">&#8963;</span></summary>
+      <div class="carte-corps"><div class="mep-liste-choix-exp" id="liste"></div></div>
+    </details>
+  </div>
+  <div class="cv" id="cv" data-change="Le CV écrit « (stage) » juste après le poste des expériences marquées"></div>
+</div>
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Constat</b> : aujourd'hui, le stage n'est pas une information captée. Une expérience n'a que : poste, entreprise, lieu, dates, missions. « Stage » ne s'affiche que si la personne l'écrit elle-même dans le poste.</li>
+    <li><b>Proposition</b> : un petit bouton « Stage » sur la ligne de chaque expérience (même charte que « Missions »), entre le nom et le compteur de missions. Un clic le marque, un second clic le retire : on n'ouvre pas l'expérience.</li>
+    <li><b>Sur le CV (PDF et Word)</b> : le poste est suivi de « (stage) », par exemple « Agent d'accueil (stage) ». Rien d'autre ne change. L'information est enregistrée avec l'expérience.</li>
+    <li><b>À l'import</b> : si l'assistant reconnaît un stage dans le texte, il pourra pré-cocher le bouton ; la personne garde le dernier mot.</li>
+    <li><b>À trancher avec Denis</b> : le mot exact affiché (« (stage) » seul, ou aussi « (stage de formation) », « (stage d'immersion) » comme dans le choix de l'objectif) ; le sort des expériences déjà importées (rien n'est coché d'office) ; le bouton est-il aussi proposé dans la fenêtre d'édition d'une expérience (oui, même état).</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+<script>
+  var EXP = [
+    { poste: 'Agent d’accueil', entreprise: 'Mairie de Limoges', periode: '2024', segments: 4, n: 3, stage: false },
+    { poste: 'Vendeuse', entreprise: 'Boulangerie Dupont', periode: '2019 - 2021', segments: 3, n: 3, stage: false },
+    { poste: 'Aide en cuisine', entreprise: 'Café du centre', periode: '2018', segments: 2, n: 2, stage: true }
+  ];
+  function dessiner() {
+    document.getElementById('liste').innerHTML = EXP.map(function (e, i) {
+      return '<div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked><span class="nom"><b>' + e.poste + '</b> - ' + e.entreprise + ' <em>(' + e.periode + ')</em></span>' +
+        '<button type="button" class="btn-stage" data-stage="' + i + '" aria-pressed="' + e.stage + '" title="Cette expérience est un stage : le CV écrira « (stage) » après le poste">' + (e.stage ? '&#10003; Stage' : 'Stage') + '</button>' +
+        '<span class="pas"><button type="button" disabled>&minus;</button><span>' + e.n + '</span><button type="button">+</button></span><span class="sur">/' + e.segments + '</span>' +
+        '<button type="button" class="btn-miss">Missions &#9662;</button></label></div>';
+    }).join('');
+    document.getElementById('cv').innerHTML = '<h1>Camille MARTIN</h1><h2>Expériences professionnelles</h2>' + EXP.map(function (e) {
+      return '<div class="ligne"><span><b>' + e.poste + (e.stage ? ' (stage)' : '') + '</b> - ' + e.entreprise + '</span><span class="dates">' + e.periode + '</span></div><ul><li>Mission de l’expérience.</li></ul>';
+    }).join('');
+    document.querySelectorAll('[data-stage]').forEach(function (b) { b.onclick = function (ev) { ev.preventDefault(); var k = +b.getAttribute('data-stage'); EXP[k].stage = !EXP[k].stage; dessiner(); }; });
+  }
+  document.getElementById('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); document.querySelectorAll('.btn-stage').forEach(function (b) { b.setAttribute('data-change', '1'); }); };
+  document.getElementById('btnNotes').onclick = function () { document.getElementById('dlgNotes').showModal(); };
+  document.getElementById('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  dessiner();
+</script>
+</body>
+</html>

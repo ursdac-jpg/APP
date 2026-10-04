@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Ménage de « Réglages supplémentaires » (lot N2, 2026-10-03). Mode A : rien n'est codé dans l'application.
+  Montre, carte par carte, AVANT (« Réglages supplémentaires » avec ses 5 groupes) et APRÈS (la carte disparaît, chaque réglage rejoint sa carte, grisé avec « ? » quand il ne s'applique pas).
+  Seul ce qui change est marqué : bouton « Montrer ce qui change ». Contenu fictif. Inventaire détaillé : docs/INVENTAIRE_REGLAGES_SUPPLEMENTAIRES_2026-10-03.md.
+  Vraies feuilles de style. Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Ménage des réglages</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  body.marquer [data-change] { outline: 3px dashed #e08a00; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .ecran { max-width: 760px; margin: 0 auto; padding: 1rem 1rem 4rem; zoom: 1.25; }
+  .mep-mq .champ { margin: .35rem 0; }
+  .mep-mq .champ > label { display: block; font-size: .78rem; font-weight: 700; margin-bottom: .15rem; }
+  .nouveau { border-left: 3px solid #e08a00; padding-left: .5rem; }
+  .vide { color: var(--text-muted); font-size: .8rem; }
+  dialog { max-width: 800px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); } dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnAvant">Voir l'état d'aujourd'hui</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+<div class="ecran"><div class="mep-mq" id="cartes"></div></div>
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Aujourd'hui</b> : une carte « Réglages supplémentaires » de 5 groupes (25 réglages) qui n'ont « pas de place dans les cartes ci-dessus ».</li>
+    <li><b>Proposition</b> : la carte disparaît. Chaque réglage rejoint la carte où on le cherche naturellement (Organisation, En-tête, Compétences, Expériences, Mise en page et texte, Couleurs, Autres rubriques). Mêmes fonctions, mêmes clés enregistrées.</li>
+    <li><b>Grisé avec « ? »</b> : un réglage qui ne s'applique pas (une colonne, pas de bandeau, pas de photo, modèle à disposition propre) reste visible, grisé, avec un « ? » qui dit pourquoi.</li>
+    <li><b>Fusions</b> : une seule liste de polices ; une seule liste d'ordre des expériences ; une seule case par rubrique à afficher ou masquer ; l'espacement des paragraphes dans « Mise en page et texte ».</li>
+    <li><b>Liens retirés</b> : les deux phrases « Ouvrir l'Aperçu à taille réelle » (doublon du bouton déjà en haut).</li>
+    <li><b>Garde-fou</b> : « Style rapide » ne touche toujours pas ces réglages.</li>
+    <li><b>À valider</b> : la nouvelle place de chaque réglage (tableau de l'inventaire) et cette maquette.</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+<script>
+  var avant = false;
+  function seg(opts, actuel, grise) { return '<div class="seg seg-mini">' + opts.map(function (o) { return '<button type="button"' + (o === actuel ? ' class="on"' : '') + (grise ? ' disabled' : '') + '>' + o + '</button>'; }).join('') + '</div>'; }
+  function champ(lib, html, nouveau, aide) { return '<div class="champ' + (nouveau ? ' nouveau' : '') + '"' + (nouveau ? ' data-change="Réglage déplacé ici"' : '') + '><label>' + lib + (aide ? ' <button type="button" class="aide-option" title="' + aide + '">?</button>' : '') + '</label>' + html + '</div>'; }
+  function carte(titre, corps, ouvert) { return '<details class="mep-carte"' + (ouvert === false ? '' : ' open') + '><summary><div><h3>' + titre + '</h3></div><span class="chev">&#8963;</span></summary><div class="carte-corps">' + corps + '</div></details>'; }
+  function dessiner() {
+    var h = '';
+    if (avant) {
+      h += carte('Réglages supplémentaires', '<p class="vide">Ces réglages n’ont pas de place dans les cartes ci-dessus. « Style rapide » ne les touche jamais.</p>' +
+        '<h4 class="mini-titre">La page</h4>' + champ('Colonnes inversées', seg(['Inversées', 'Normales'], 'Normales')) + champ('Largeur de la colonne de gauche', '<input type="range" min="25" max="45" value="35"> 35 %') + champ('Forme des colonnes', seg(['Rectangle', 'Diagonale'], 'Rectangle')) + champ('Espacement des paragraphes', seg(['Serré', 'Normal', 'Large'], 'Normal')) +
+        '<h4 class="mini-titre">Les couleurs</h4>' + champ('Texte sur le fond coloré', seg(['Blanc', 'Noir'], 'Blanc')) + champ('Effet du fond des colonnes', seg(['Fond plein', 'Titres seulement'], 'Fond plein')) + champ('Fond de colonne pleine hauteur', seg(['Oui', 'Non'], 'Non')) + champ('Couleur des pastilles de compétences', '<input type="color" value="#e9e9e9">') + champ('Couleur du texte des pastilles', '<input type="color" value="#1b1b1b">') +
+        '<h4 class="mini-titre">Le haut de la page</h4>' + champ('Bandeau coloré', seg(['Avec bandeau', 'Sans bandeau'], 'Avec bandeau')) + champ('Dégradé du bandeau', seg(['Foncé vers clair', 'Clair vers foncé', 'Uni'], 'Uni')) + champ('Coordonnées à part', seg(['Bandeau séparé', 'Dans le bandeau'], 'Dans le bandeau')) + champ('Anneau derrière la photo', seg(['Avec anneau', 'Sans anneau'], 'Avec anneau')) + '<p class="vide">Placement libre des blocs… Ouvrir l’Aperçu à taille réelle →</p>' +
+        '<h4 class="mini-titre">Le texte</h4>' + champ('Autres polices', '<select><option>Choisir une autre police…</option><option>Garamond</option></select>') + champ('Titres de rubrique', seg(['Sans décor', 'Soulignés', 'Bandeau'], 'Sans décor')) + champ('Nom à la couleur du métier visé', seg(['Oui', 'Non'], 'Non')) + champ('Bordures', seg(['Fines', 'Épaisses'], 'Fines')) + champ('Mettre en évidence', '<label class="ck"><input type="checkbox"> Poste souligné</label> <label class="ck"><input type="checkbox"> Poste italique</label>') + champ('Bandeau « Compétences clés »', seg(['Oui', 'Non'], 'Non')) + champ('Coins arrondis', seg(['Oui', 'Non'], 'Non')) +
+        '<h4 class="mini-titre">Ce qui s’affiche</h4>' + champ('Autre ordre des expériences', '<select><option>Choisir un autre ordre…</option><option>Du plus ancien au plus récent</option></select>') + champ('Éviter un titre seul en bas de page', seg(['Oui', 'Non'], 'Oui')) + champ('Rubriques à afficher ou masquer', seg(['Afficher', 'Masquer'], 'Afficher')) + champ('Regrouper les expériences proches', seg(['Regrouper', 'Ne pas regrouper'], 'Ne pas regrouper')) + champ('Mise en forme des expériences', seg(['Standard', 'Amélioré'], 'Standard')));
+    } else {
+      h += carte('Organisation du CV', '<p class="vide">… options rapides existantes …</p><div class="champ"><label>Colonnes</label></div>' +
+        champ('Colonnes inversées', seg(['Inversées', 'Normales'], 'Normales', true), true, 'Indisponible ici : une seule colonne.') + champ('Largeur de la colonne de gauche', '<input type="range" min="25" max="45" value="35" disabled> 35 %', true, 'Indisponible ici : une seule colonne.') + champ('Forme des colonnes', seg(['Rectangle', 'Diagonale'], 'Rectangle', true), true, 'Indisponible ici : une seule colonne.'));
+      h += carte('En-tête de CV', '<p class="vide">… titre, accroche existants …</p>' + champ('Bandeau coloré', seg(['Avec bandeau', 'Sans bandeau'], 'Avec bandeau'), true) + champ('Dégradé du bandeau', seg(['Foncé vers clair', 'Clair vers foncé', 'Uni'], 'Uni'), true) + champ('Coordonnées à part', seg(['Bandeau séparé', 'Dans le bandeau'], 'Dans le bandeau'), true) + champ('Anneau derrière la photo', seg(['Avec anneau', 'Sans anneau'], 'Avec anneau'), true) + champ('Nom à la couleur du métier visé', seg(['Oui', 'Non'], 'Non'), true));
+      h += carte('Compétences', '<p class="vide">… blocs professionnelles et comportementales existants …</p>' + champ('Couleur des pastilles', '<input type="color" value="#e9e9e9">', true, 'Visible quand le style est « Pastilles ».') + champ('Couleur du texte des pastilles', '<input type="color" value="#1b1b1b">', true) + champ('Bandeau « Compétences clés »', seg(['Oui', 'Non'], 'Non'), true));
+      h += carte('Expériences professionnelles', '<p class="vide">… mode de présentation, liste d’ordre…</p>' + champ('Ordre', '<select><option>Du plus récent au plus ancien</option><option>Mon ordre</option><option>Du plus pertinent</option><option>Du plus ancien au plus récent</option><option>Intitulé de poste (A→Z)</option><option>Intitulé de poste (Z→A)</option></select>', true, 'Une seule liste d’ordre.') + champ('Mettre en évidence le poste', '<label class="ck"><input type="checkbox"> Poste souligné</label> <label class="ck"><input type="checkbox"> Poste italique</label>', true) + champ('Regrouper les expériences proches', seg(['Regrouper', 'Ne pas regrouper'], 'Ne pas regrouper', true), true, 'Indisponible ici : l’assistant n’a proposé aucun regroupement.') + champ('Mise en forme des expériences', seg(['Standard', 'Amélioré'], 'Standard'), true));
+      h += carte('Mise en page et texte', '<p class="vide">… taille, police, style des compétences existants …</p>' + champ('Police (une seule liste)', '<select><option>Arial</option><option>Garamond</option><option>Book Antiqua</option></select>', true, 'Toutes les polices dans une seule liste.') + champ('Titres de rubrique', seg(['Sans décor', 'Soulignés', 'Bandeau'], 'Sans décor'), true) + champ('Bordures', seg(['Fines', 'Épaisses'], 'Fines'), true) + champ('Coins arrondis', seg(['Oui', 'Non'], 'Non'), true) + champ('Éviter un titre seul en bas de page', seg(['Oui', 'Non'], 'Oui'), true) + champ('Espacement des paragraphes', seg(['Serré', 'Normal', 'Large'], 'Normal'), true, 'Fusionné avec « Espacement » si c’est le même réglage.'));
+      h += carte('Couleurs', '<p class="vide">… couleur principale, dégradé existants …</p>' + champ('Texte sur le fond coloré', seg(['Blanc', 'Noir'], 'Blanc'), true) + champ('Effet du fond des colonnes', seg(['Fond plein', 'Titres seulement'], 'Fond plein'), true) + champ('Fond de colonne pleine hauteur', seg(['Oui', 'Non'], 'Non'), true));
+      h += carte('Autres rubriques', '<p class="vide">… rubriques existantes …</p>' + champ('Expériences personnelles, Engagements, Permis de conduire', seg(['Afficher', 'Masquer'], 'Afficher'), true, 'Une seule case par rubrique : elles n’apparaissent que si elles contiennent quelque chose.'));
+      h += '<p class="vide" data-change="La carte « Réglages supplémentaires » disparaît">La carte « Réglages supplémentaires » n’existe plus.</p>';
+    }
+    document.getElementById('cartes').innerHTML = h;
+  }
+  document.getElementById('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); };
+  document.getElementById('btnAvant').onclick = function () { avant = !avant; this.classList.toggle('on', avant); this.textContent = avant ? 'Voir la proposition' : 'Voir l’état d’aujourd’hui'; dessiner(); };
+  document.getElementById('btnNotes').onclick = function () { document.getElementById('dlgNotes').showModal(); };
+  document.getElementById('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  dessiner();
+</script>
+</body>
+</html>

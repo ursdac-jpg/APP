@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Noms des listes selon le mode de présentation, intitulé « Compétences en action » modifiable, et option « Mêmes puces partout » (2026-10-03).
+  Mode A : rien n'est codé dans l'application.
+  VRAI balisage du panneau (.mep-mq > .mep-carte > .carte-corps, .quatre/.boite/.rad, .choix-exp > summary.choix-bouton, .ligne-intitule, .opt-aide, .seg-mini)
+  et VRAIES feuilles de style (css/style.css, css/mise-en-page-maquette.css). Contenu fictif. Seul ce qui change est marqué : « Montrer ce qui change ».
+  Demandes de Denis : (1) en mode « Par compétences », la liste qui contient les missions porte le vrai nom de la rubrique du CV et ce nom est modifiable ;
+  (2) chaque mode propose de changer le nombre et l'ordre ; (3) une infobulle explique « Par compétences » ; (4) case « Mêmes puces partout », cochée d'office.
+  Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Modes et puces</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 1040px; margin: 0 auto; padding: 1rem 1rem 4rem; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 860px) { .ecran { grid-template-columns: 1fr; } }
+  body.marquer [data-change] { outline: 3px dashed #e08a00; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .onglets-mq { display: flex; gap: .4rem; flex-wrap: wrap; max-width: 1040px; margin: .8rem auto 0; padding: 0 1rem; font: .8rem "Segoe UI", sans-serif; }
+  .onglets-mq button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 8px; padding: .3rem .7rem; cursor: pointer; }
+  .onglets-mq button.on { background: var(--accent-bg-subtle); border-color: var(--accent); font-weight: 700; }
+  .sous-liste { display: flex; align-items: center; gap: .4rem; padding: .15rem 0; border-bottom: 1px solid var(--border); font-size: .78rem; color: var(--text-strong); }
+  .sous-liste .nom { flex: 1 1 auto; }
+  .sous-liste button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 6px; padding: 0 .35rem; font-size: .7rem; cursor: pointer; }
+  .ou-cv { display: block; margin: .1rem 0 .3rem; color: var(--text-muted); font-size: .72rem; }
+  .ligne-puce { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; padding: .2rem 0; font-size: .8rem; color: var(--text-strong); }
+  .ligne-puce b { min-width: 11rem; }
+  .cv { background: #fff; color: #1c2430; border: 1px solid var(--border-strong); border-radius: 8px; padding: 1rem 1.1rem; font: .8rem "Segoe UI", sans-serif; box-shadow: var(--shadow); }
+  .cv h1 { font-size: 1.05rem; margin: 0; color: #2f6690; }
+  .cv h2 { font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; color: #2f6690; border-bottom: 1px solid #b9c4d2; margin: .8rem 0 .3rem; padding-bottom: .1rem; }
+  .cv .ligne { display: flex; justify-content: space-between; gap: .6rem; } .cv .dates { white-space: nowrap; }
+  .cv ul { margin: .1rem 0 .5rem; padding-left: 1.1rem; }
+  dialog { max-width: 780px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); } dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnAvant">Voir l'état d'aujourd'hui</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+<div class="onglets-mq" role="tablist">
+  <button type="button" data-ecran="modes" class="on">1. Listes selon le mode</button>
+  <button type="button" data-ecran="puces">2. Mêmes puces partout</button>
+</div>
+
+<div class="ecran" id="ecranModes">
+  <div class="mep-mq">
+    <details class="mep-carte" open>
+      <summary><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><div><h3 id="titreCarteExp">Expériences professionnelles</h3></div><span class="chev">&#8963;</span></summary>
+      <div class="carte-corps">
+        <div class="quatre">
+          <div class="boite"><h4>Mode de présentation</h4>
+            <label class="rad"><input type="radio" name="mode" value="A"> <span class="mot-final">Chronologique <button type="button" class="aide-option" data-aide title="Présentation classique : vos expériences avec leurs missions.">?</button></span></label>
+            <label class="rad"><input type="radio" name="mode" value="C" checked> <span class="mot-final">Par compétences <button type="button" class="aide-option" id="aideParComp" data-change="NOUVEAU : infobulle sur « Par compétences »" data-aide title="Vos missions les plus importantes, rangées par compétence, en haut du CV. Ce ne sont pas des mots-clés.">?</button></span></label>
+            <label class="rad"><input type="radio" name="mode" value="B"> <span class="mot-final">Mixte <button type="button" class="aide-option" data-aide title="Des mots-clés de compétences, puis vos missions les plus importantes, puis vos expériences.">?</button></span></label>
+            <p class="aide-option-texte" id="aideTexte" hidden></p>
+          </div>
+          <div class="boite"><h4>Niveau de détail</h4>
+            <label class="rad"><input type="radio" name="niv" checked> Automatique</label>
+            <label class="rad"><input type="radio" name="niv"> Complet</label>
+            <label class="rad"><input type="radio" name="niv"> Résumé</label>
+          </div>
+        </div>
+
+        <!-- Liste 1 : les missions rangées par compétence (modes « Par compétences » et « Mixte ») -->
+        <div id="blocAction" data-change="Le titre porte le vrai nom de la rubrique du CV, avec où elle se trouve, et son intitulé se change ici (aujourd'hui : « Modifier mes compétences et leurs missions », sans nom de rubrique ni bouton)">
+          <div class="ligne-intitule" id="zoneIntitule">
+            <div class="ligne-comp" style="flex-wrap:wrap"><button type="button" class="btn-miss" id="btnChangerIntitule" aria-expanded="false">&#9998; Changer l&rsquo;intitulé &#9662;</button><button type="button" class="aide-option" data-aide title="Change le titre de cette rubrique sur le CV : choisissez une proposition ou écrivez le vôtre. Le même titre apparaît aussi dans ce panneau.">?</button><span class="sous" id="surLeCv" hidden></span></div>
+            <div class="zone-propositions" id="zoneProp" hidden>
+              <div class="seg seg-mini" id="propositions"></div>
+              <div class="libre ligne-comp"><input type="text" maxlength="40" id="champIntitule" placeholder="Modifiez ou écrivez votre intitulé (40 lettres au plus)" aria-label="Modifier l’intitulé"><button type="button" class="btn-miss" id="btnValider" disabled>Valider</button><button type="button" class="btn-miss" id="btnRetour" hidden>Revenir au nom d&rsquo;origine</button></div>
+            </div>
+          </div>
+          <details class="choix-exp" id="listeAction">
+            <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir" id="titreAction"></span><span class="cb-fermer" id="titreActionFerme"></span></b><small id="resumeAction"></small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+            <div class="choix-corps"><p class="choix-aide" id="aideAction"></p>
+              <div class="sous-liste"><input type="checkbox" checked><span class="nom">Accueillir et orienter le public</span><button type="button" aria-label="Monter">&#9650;</button><button type="button" aria-label="Descendre">&#9660;</button></div>
+              <div class="sous-liste"><input type="checkbox" checked><span class="nom">Gérer les appels et les courriels</span><button type="button" aria-label="Monter">&#9650;</button><button type="button" aria-label="Descendre">&#9660;</button></div>
+              <div class="sous-liste"><input type="checkbox" checked><span class="nom">Tenir la caisse et clôturer la journée</span><button type="button" aria-label="Monter">&#9650;</button><button type="button" aria-label="Descendre">&#9660;</button></div>
+              <div class="sous-liste"><input type="checkbox"><span class="nom">Préparer les commandes</span><button type="button" aria-label="Monter">&#9650;</button><button type="button" aria-label="Descendre">&#9660;</button></div>
+            </div>
+          </details>
+        </div>
+
+        <!-- Liste 2 : les mots-clés de compétences (modes « Chronologique » et « Mixte ») -->
+        <div id="blocPro" data-change="Mixte : la liste des mots-clés porte aussi son vrai nom">
+          <details class="choix-exp">
+            <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir" id="titrePro"></span><span class="cb-fermer">Refermer les mots-clés</span></b><small>Pastilles, sous les missions en action · 8 sur 12 affichés</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+            <div class="choix-corps"><div class="sous-liste"><input type="checkbox" checked><span class="nom">Accueil du public</span><button type="button">&#9650;</button><button type="button">&#9660;</button></div><div class="sous-liste"><input type="checkbox" checked><span class="nom">Logiciels de bureautique</span><button type="button">&#9650;</button><button type="button">&#9660;</button></div></div>
+          </details>
+        </div>
+
+        <!-- Liste 3 : les expériences -->
+        <div id="blocExp" data-change="Le titre porte le vrai nom de la rubrique du CV (suit son intitulé) et dit où elle se trouve (aujourd'hui : « Modifier mes expériences et leurs missions »)">
+          <details class="choix-exp">
+            <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir" id="titreExp"></span><span class="cb-fermer">Refermer les expériences</span></b><small id="resumeExp"></small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+            <div class="choix-corps"><div class="sous-liste"><input type="checkbox" checked><span class="nom"><b>Agent d’accueil</b> - Mairie de Limoges <em>(2024)</em></span><button type="button">&#9650;</button><button type="button">&#9660;</button></div><div class="sous-liste"><input type="checkbox" checked><span class="nom"><b>Vendeuse</b> - Boulangerie Dupont <em>(2019 - 2021)</em></span><button type="button">&#9650;</button><button type="button">&#9660;</button></div></div>
+          </details>
+        </div>
+        <p class="choix-aide" style="margin-top:.5rem" data-change="Dans les trois modes : le nombre et l’ordre se règlent pour chaque liste (cases, flèches « monter / descendre », niveau de détail)">Dans les trois modes, pour chaque liste : cocher ou décocher, monter ou descendre, et le niveau de détail règle le nombre.</p>
+      </div>
+    </details>
+  </div>
+  <div class="cv" id="cv"></div>
+</div>
+
+<div class="ecran" id="ecranPuces" hidden>
+  <div class="mep-mq">
+    <details class="mep-carte" open>
+      <summary><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg><div><h3>Organisation du CV</h3></div><span class="chev">&#8963;</span></summary>
+      <div class="carte-corps">
+        <h4 class="mini-titre">Options rapides</h4>
+        <div class="checks auto">
+          <div class="opt-aide"><label class="ck"><input type="checkbox" checked> <span>Dates <span class="mot-final">alignées <button type="button" class="aide-option" data-aide title="Toutes les rubriques placent leurs dates comme les expériences.">?</button></span></span></label></div>
+          <div class="opt-aide"><label class="ck"><input type="checkbox" checked> <span>Même écriture <span class="mot-final">partout <button type="button" class="aide-option" data-aide title="Les formations et l’expérience personnelle s’écrivent comme les expériences.">?</button></span></span></label></div>
+          <div class="opt-aide"><label class="ck"><input type="checkbox"> <span>Afficher les <span class="mot-final">mois <button type="button" class="aide-option" data-aide title="Exemple : « sept. 2023 », dans toutes les rubriques qui ont des dates.">?</button></span></span></label></div>
+          <div class="opt-aide" data-change="NOUVEAU : cochée d’office. Décochée, chaque rubrique choisit sa propre forme de puce"><label class="ck"><input type="checkbox" id="ckPuces" checked> <span>Mêmes puces <span class="mot-final">partout <button type="button" class="aide-option" data-aide title="Une seule forme de puce pour tout le CV. Décochez pour choisir une forme différente pour chaque rubrique.">?</button></span></span></label></div>
+        </div>
+        <!-- Même forme partout : le réglage général existe déjà aujourd'hui dans « Mise en page et texte » ; il est repris ici -->
+        <div id="puceGenerale" class="ligne-puce"><b>Forme des puces</b><div class="seg seg-mini" data-puces="*"></div></div>
+        <!-- Décochée : une forme par rubrique -->
+        <div id="pucesParRubrique" hidden data-change="NOUVEAU : une forme de puce par rubrique (le Word la reprend telle quelle)">
+          <p class="choix-aide">Choisissez la forme de puce de chaque rubrique.</p>
+          <div class="ligne-puce"><b>Expériences professionnelles</b><div class="seg seg-mini" data-puces="exp"></div></div>
+          <div class="ligne-puce"><b>Formations</b><div class="seg seg-mini" data-puces="form"></div></div>
+          <div class="ligne-puce"><b>Expérience personnelle</b><div class="seg seg-mini" data-puces="perso"></div></div>
+          <div class="ligne-puce"><b>Compétences</b><div class="seg seg-mini" data-puces="comp"></div></div>
+        </div>
+      </div>
+    </details>
+  </div>
+  <div class="cv" id="cvPuces"></div>
+</div>
+
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Écran 1 : les listes portent les vrais noms.</b> Le titre de chaque liste est le nom de la rubrique sur le CV, qui suit l'intitulé choisi. Il dit où elle se trouve (« en haut du CV », « sous les mots-clés »). Changez de mode avec les boutons ronds : <b>Chronologique</b> = Expériences et mots-clés ; <b>Par compétences</b> = « Compétences en action » et Expériences ; <b>Mixte</b> = les trois listes.</li>
+    <li><b>« Compétences en action » devient le nom, dans « Par compétences » aussi.</b> Ainsi « Compétences professionnelles » ne désigne plus que les mots-clés. Le bouton « Changer l'intitulé » est dans la carte, avec ses propositions et le champ libre, comme les autres rubriques.</li>
+    <li><b>Infobulle</b> sur « Par compétences » : au survol, au clic sur « ? » et au doigt.</li>
+    <li><b>Nombre et ordre</b> : dans les trois modes, cases pour garder ou retirer, flèches pour monter ou descendre, niveau de détail pour le nombre. Rien de nouveau à apprendre : même geste partout.</li>
+    <li><b>Écran 2 : puces.</b> Aujourd'hui, un seul réglage « Forme des puces » existe (carte « Mise en page et texte », toutes les listes). La case « Mêmes puces partout » est cochée d'office. Décochée, chaque rubrique a sa forme. Le Word reprend les formes choisies.</li>
+    <li><b>À trancher avec Denis</b> : la forme par rubrique s'applique-t-elle aussi aux compétences en pastilles (non : seulement aux listes à puces) ; la case est-elle aussi rappelée dans « Mise en page et texte » (oui, même état).</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+
+<script>
+  var mode = 'C', avant = false, nomAction = "Compétences en action", defaut = "Compétences en action";
+  var PROPOSITIONS = ["Compétences en action", "Mes missions clés", "Savoir-faire en situation", "Ce que je sais faire"];
+  var puces = { '*': 'rond', exp: 'rond', form: 'rond', perso: 'rond', comp: 'rond' };
+  var SIGNES = [['rond', '•'], ['carre', '▪'], ['triangle', '▸'], ['losange', '◆'], ['tiret', '–']];
+  function el(id) { return document.getElementById(id); }
+  function majListes() {
+    var nomExp = 'Expériences professionnelles';
+    el('titreCarteExp').textContent = nomExp;
+    el('blocAction').hidden = (mode === 'A');
+    el('blocPro').hidden = (mode !== 'B');
+    el('titreAction').textContent = avant ? (mode === 'B' ? 'Modifier mes compétences en action' : 'Modifier mes compétences et leurs missions') : 'Modifier « ' + (mode === 'C' ? nomAction : nomAction) + ' »';
+    el('titreActionFerme').textContent = avant ? 'Refermer mes compétences' : 'Refermer « ' + nomAction + ' »';
+    el('resumeAction').textContent = (avant ? '' : 'En haut du CV, avant les expériences · ') + '3 missions sur 4 affichées';
+    el('aideAction').textContent = avant ? 'Voici les missions qui s’affichent sur votre CV, rangées par compétence. Pour chacune : la garder ou non, la modifier, la monter ou la descendre.' : 'Ces missions s’affichent en haut du CV, sous « ' + nomAction + ' ». Les autres restent dans vos expériences : une mission n’est jamais répétée.';
+    el('titrePro').textContent = avant ? 'Modifier mes compétences professionnelles' : 'Modifier « Compétences professionnelles »';
+    el('titreExp').textContent = avant ? 'Modifier mes expériences et leurs missions' : 'Modifier « ' + nomExp + ' »';
+    el('resumeExp').textContent = (avant ? '' : (mode === 'A' ? 'Le cœur du CV · ' : 'Sous les compétences · ')) + '2 expériences sur 2 affichées';
+    el('zoneIntitule').hidden = (mode === 'A') || avant;
+    el('surLeCv').hidden = (nomAction === defaut); el('surLeCv').textContent = 'Sur le CV : « ' + nomAction + ' »';
+    el('btnRetour').hidden = (nomAction === defaut);
+    el('aideParComp').hidden = avant;
+    var cv = '<h1>Camille MARTIN</h1>';
+    if (mode === 'B') { cv += '<h2>Compétences professionnelles</h2><div>Accueil du public · Bureautique · Gestion de caisse</div>'; }
+    if (mode !== 'A') { cv += '<h2>' + (avant && mode === 'C' ? 'Compétences professionnelles' : nomAction) + '</h2><ul><li>Accueillir et orienter le public</li><li>Gérer les appels et les courriels</li><li>Tenir la caisse et clôturer la journée</li></ul>'; }
+    if (mode === 'A') { cv += '<h2>Compétences professionnelles</h2><div>Accueil du public · Bureautique · Gestion de caisse</div>'; }
+    cv += '<h2>Expériences professionnelles</h2><div class="ligne"><span><b>Agent d’accueil</b> - Mairie de Limoges</span><span class="dates">2024</span></div>' + (mode === 'A' ? '<ul><li>Accueillir le public</li><li>Gérer les appels</li></ul>' : '') + '<div class="ligne"><span><b>Vendeuse</b> - Boulangerie Dupont</span><span class="dates">2019 - 2021</span></div>' + (mode === 'A' ? '<ul><li>Tenir la caisse</li></ul>' : '');
+    el('cv').innerHTML = cv;
+  }
+  function majProps() {
+    el('propositions').innerHTML = PROPOSITIONS.map(function (t, i) { return '<button type="button" data-v="' + t + '"' + (t === nomAction ? ' class="on"' : '') + '>' + t + (i === 0 ? '<small>nom d’origine</small>' : '') + '</button>'; }).join('');
+    el('propositions').querySelectorAll('button').forEach(function (b) { b.onclick = function () { el('champIntitule').value = b.getAttribute('data-v'); nomAction = b.getAttribute('data-v'); majProps(); majListes(); el('btnValider').disabled = true; }; });
+  }
+  document.querySelectorAll('input[name="mode"]').forEach(function (r) { r.onchange = function () { mode = r.value; majListes(); }; });
+  el('btnChangerIntitule').onclick = function () { var z = el('zoneProp'); z.hidden = !z.hidden; el('btnChangerIntitule').innerHTML = '&#9998; Changer l’intitulé ' + (z.hidden ? '&#9662;' : '&#9652;'); };
+  el('champIntitule').oninput = function () { el('btnValider').disabled = !this.value.trim() || this.value.trim() === nomAction; };
+  el('btnValider').onclick = function () { nomAction = el('champIntitule').value.trim().slice(0, 40); majProps(); majListes(); this.disabled = true; };
+  el('btnRetour').onclick = function () { nomAction = defaut; el('champIntitule').value = defaut; majProps(); majListes(); };
+  document.querySelectorAll('[data-aide]').forEach(function (b) { b.onclick = function (ev) { ev.preventDefault(); ev.stopPropagation(); var t = el('aideTexte'); t.textContent = b.getAttribute('title'); t.hidden = false; }; });
+  // puces
+  function dessinerPuces() {
+    document.querySelectorAll('[data-puces]').forEach(function (z) {
+      var k = z.getAttribute('data-puces');
+      var courant = puces[k];
+      z.innerHTML = SIGNES.map(function (s) { return '<button type="button" data-s="' + s[0] + '"' + (courant === s[0] ? ' class="on"' : '') + '>' + s[1] + '</button>'; }).join('');
+      z.querySelectorAll('button').forEach(function (b) { b.onclick = function () { puces[k] = b.getAttribute('data-s'); if (k === '*') { ['exp', 'form', 'perso', 'comp'].forEach(function (r) { puces[r] = puces['*']; }); } dessinerPuces(); cvPuces(); }; });
+    });
+  }
+  function sg(k) { return (SIGNES.filter(function (s) { return s[0] === puces[k]; })[0] || SIGNES[0])[1]; }
+  function cvPuces() {
+    var meme = el('ckPuces').checked;
+    function li(k, t) { return '<div style="padding-left:.2rem">' + sg(meme ? '*' : k) + ' ' + t + '</div>'; }
+    el('cvPuces').innerHTML = '<h1>Camille MARTIN</h1><h2>Compétences en action</h2>' + li('comp', 'Accueillir et orienter le public') + li('comp', 'Gérer les appels') + '<h2>Expériences professionnelles</h2>' + li('exp', 'Accueillir le public') + li('exp', 'Tenir la caisse') + '<h2>Formations</h2>' + li('form', 'CAP Agent de prévention') + '<h2>Expérience personnelle</h2>' + li('perso', 'Organiser des repas de quartier');
+  }
+  el('ckPuces').onchange = function () { el('pucesParRubrique').hidden = this.checked; el('puceGenerale').hidden = !this.checked; if (this.checked) { ['exp', 'form', 'perso', 'comp'].forEach(function (r) { puces[r] = puces['*']; }); } dessinerPuces(); cvPuces(); };
+  document.querySelectorAll('.onglets-mq button').forEach(function (b) { b.onclick = function () { document.querySelectorAll('.onglets-mq button').forEach(function (x) { x.classList.toggle('on', x === b); }); el('ecranModes').hidden = (b.getAttribute('data-ecran') !== 'modes'); el('ecranPuces').hidden = (b.getAttribute('data-ecran') !== 'puces'); }; });
+  el('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); };
+  el('btnAvant').onclick = function () { avant = !avant; this.classList.toggle('on', avant); this.textContent = avant ? 'Voir la proposition' : 'Voir l’état d’aujourd’hui'; majListes(); };
+  el('btnNotes').onclick = function () { el('dlgNotes').showModal(); };
+  el('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  majProps(); majListes(); dessinerPuces(); cvPuces();
+</script>
+</body>
+</html>

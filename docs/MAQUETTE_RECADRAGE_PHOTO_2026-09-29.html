@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Recadrage de la photo du CV (option A : zoom + deplacement), 2026-09-29.
+
+  Origine : question de Denis (carte "En-tete de CV") : comment garantir que la photo importee est a la bonne
+  taille pour le CV, et pouvoir la repositionner ? DECISION DE DENIS 2026-09-29 : option A (petit cadre avec
+  zoom et deplacement).
+
+  Audit du code reel avant cette maquette :
+  - Une seule fonction traite la photo : ajouterPhotoAuDossier() (js/app.js ~16346). Elle est appelee par 4 chemins
+    (ecran Identite, panneau "La mise en page" via mepPhotoInput, Atelier CV, pageResultats). Elle recadre AU CENTRE
+    en carre 400x400 (JPEG 0.85) et JETTE l'original -> aucun controle de position ni de zoom, et impossible de
+    recadrer plus tard sans rechoisir le fichier.
+  - Le CV n'affiche que ce carre : rond (anneau), losange, medaillon = simple habillage du meme carre. Le PDF, le Word
+    (qui recopie le rendu PDF) et le Mini CV A5 lisent tous dossier.photo.url : un seul point a modifier.
+  - Consequence : la boite de cadrage s'insere UNE SEULE FOIS dans ajouterPhotoAuDossier() (une source de verite) et
+    profite automatiquement aux 4 chemins. Rien a recopier.
+
+  Cette page est manipulable : glisser la photo, zoomer, clavier, et vous pouvez charger VOTRE photo. Francais
+  impeccable, aucun tiret cadratin, jamais le mot IA, icone = objet (appareil photo), pas de visage.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Recadrage de la photo</title>
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text: #33404f; --text-muted: #4a5b6e;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd; --on-accent: #ffffff;
+    --warning: #b45309; --warning-bg-subtle: #fdf1d9; --warning-border: #f0c675;
+    --success: #157347; --success-bg-subtle: #e7f6ee;
+    --scrim: rgba(11,26,51,.55); --shadow: 0 10px 30px rgba(20,35,60,.12);
+    --radius: 12px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #1e2940;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text: #cdd6e1; --text-muted: #9aa8ba;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940; --on-accent: #08111f;
+    --warning: #f0b45c; --warning-bg-subtle: #33280f; --warning-border: #6b5220;
+    --success: #5fcf95; --success-bg-subtle: #10281c;
+    --scrim: rgba(0,0,0,.65); --shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text); font: 16px/1.5 "Segoe UI", Roboto, system-ui, sans-serif; }
+  .page { max-width: 980px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.5rem; color: var(--text-strong); margin: .2rem 0 .4rem; }
+  h2 { font-size: 1.1rem; color: var(--text-strong); margin: 0 0 .5rem; }
+  p { margin: .3rem 0; }
+  .sous { color: var(--text-muted); font-size: .88rem; }
+  .barre { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 14px; box-shadow: var(--shadow); }
+  .encart { background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+  .encart.warn { background: var(--warning-bg-subtle); border-left-color: var(--warning); }
+  .encart.ok { background: var(--success-bg-subtle); border-left-color: var(--success); }
+  .btn { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; padding: .5rem .9rem; font: inherit; cursor: pointer; min-height: 44px; }
+  .btn:hover { background: var(--bg-hover); }
+  .btn.principal { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn.principal:hover { background: var(--accent-hover); }
+  .btn.petit { min-height: 40px; padding: .35rem .8rem; }
+  .btn:focus-visible, .zone:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .lignebtn { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .grille { grid-template-columns: 1fr; } }
+  .etat { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 12px; background: var(--bg-subtle); }
+  .etat h3 { margin: 0 0 6px; font-size: .95rem; color: var(--text-strong); }
+  .vignette { width: 96px; height: 96px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-strong); background: var(--bg-subtle); }
+  .vignette.rond { border-radius: 50%; }
+  .rangee { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  label.case { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+
+  /* Boite de cadrage */
+  .voile { position: fixed; inset: 0; background: var(--scrim); display: none; align-items: center; justify-content: center; padding: 12px; z-index: 50; }
+  .voile.ouvert { display: flex; }
+  .boite { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; width: min(760px, 100%); max-height: 96vh; overflow: auto; padding: 16px; box-shadow: var(--shadow); }
+  .boite-corps { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 640px) { .boite-corps { grid-template-columns: 1fr; justify-items: center; } }
+  .zone { position: relative; width: 320px; height: 320px; max-width: 100%; overflow: hidden; border-radius: 10px; background: #222; touch-action: none; cursor: grab; user-select: none; }
+  .zone.prise { cursor: grabbing; }
+  .zone img { position: absolute; left: 0; top: 0; max-width: none; pointer-events: none; transform-origin: 0 0; }
+  .guide { position: absolute; inset: 0; pointer-events: none; }
+  .guide svg { width: 100%; height: 100%; display: block; }
+  .zoom { display: flex; align-items: center; gap: 8px; margin-top: 10px; width: 320px; max-width: 100%; }
+  .zoom input[type=range] { flex: 1; accent-color: var(--accent); min-height: 32px; }
+  .apercus { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; margin: 8px 0; }
+  .apercus figure { margin: 0; text-align: center; font-size: .82rem; color: var(--text-muted); }
+  .apercus canvas { display: block; border: 1px solid var(--border-strong); background: var(--bg-subtle); margin-bottom: 4px; }
+  .cache { display: none !important; }
+  .pied { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .bascule { position: fixed; right: 12px; bottom: 12px; z-index: 40; }
+  .verdict { font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="barre">
+    <h1>Recadrage de la photo du CV</h1>
+    <button class="btn petit" id="btnTheme" type="button">Mode sombre</button>
+  </div>
+  <p class="sous">Maquette manipulable : tout ce qui est dessiné ici fonctionne. Vous pouvez essayer avec votre propre photo (elle reste dans cette page, rien n'est envoyé).</p>
+
+  <div class="carte">
+    <h2>Le parcours, en 3 temps</h2>
+    <div class="grille">
+      <div class="etat">
+        <h3>1. Avant (aujourd'hui)</h3>
+        <p class="sous">On choisit un fichier : l'application coupe elle-même le milieu de la photo en carré, sans rien demander. Si le visage est décentré ou la photo prise de loin, il est mal cadré et on ne peut plus rien changer sans tout recommencer.</p>
+      </div>
+      <div class="etat">
+        <h3>2. Après (cette maquette)</h3>
+        <p class="sous">Après le choix du fichier, une petite fenêtre s'ouvre : la personne fait glisser la photo et zoome pour placer ce qu'elle veut garder dans le cadre, voit tout de suite le résultat sur le CV, puis valide. Un bouton « Ajuster le cadrage » permet d'y revenir plus tard.</p>
+      </div>
+    </div>
+    <div class="encart"><b>Un seul endroit à modifier dans le code :</b> la fonction commune qui traite la photo. Les 4 chemins qui l'utilisent (écran Identité, réglages du CV, Atelier CV, page Vos documents) profitent donc de la même fenêtre, sans rien recopier.</div>
+  </div>
+
+  <div class="carte">
+    <h2>La carte « En-tête de CV », bloc Photo</h2>
+    <p class="sous">C'est l'endroit où la personne ajoute, ajuste, change ou retire sa photo.</p>
+    <div class="grille" style="margin-top:10px">
+      <div class="etat" id="etatSans">
+        <h3>Sans photo</h3>
+        <p class="sous">Au clic : votre appareil vous propose de choisir une photo, puis la fenêtre de cadrage s'ouvre. Cette page reste ouverte.</p>
+        <div class="lignebtn"><button class="btn principal" id="btnAjouter" type="button">📷 Ajouter ma photo</button></div>
+      </div>
+      <div class="etat" id="etatAvec">
+        <h3>Avec photo</h3>
+        <div class="rangee">
+          <img class="vignette" id="vigCarre" alt="Votre photo, en carré">
+          <img class="vignette rond" id="vigRond" alt="Votre photo, en rond">
+        </div>
+        <p class="sous" id="infoPhoto"></p>
+        <label class="case"><input type="checkbox" id="ckInclure" checked> Inclure ma photo sur le CV</label>
+        <div class="lignebtn">
+          <button class="btn" id="btnAjuster" type="button">Ajuster le cadrage</button>
+          <button class="btn" id="btnChanger" type="button">Changer la photo</button>
+          <button class="btn" id="btnRetirer" type="button">Retirer la photo</button>
+        </div>
+      </div>
+    </div>
+    <div class="encart ok" id="msgOk" style="display:none">Photo enregistrée. Elle est prête pour le CV.</div>
+    <div class="lignebtn">
+      <button class="btn petit" id="btnEssai" type="button">Essayer avec une photo d'exemple (sans visage)</button>
+    </div>
+    <input type="file" id="fichier" accept="image/*" class="cache">
+  </div>
+</div>
+
+<!-- Boite de cadrage -->
+<div class="voile" id="voile" role="dialog" aria-modal="true" aria-labelledby="titreBoite">
+  <div class="boite">
+    <h2 id="titreBoite">Cadrer ma photo</h2>
+    <p class="sous">Faites glisser la photo pour placer ce que vous voulez garder dans le cadre, puis agrandissez ou réduisez si besoin. Vous pouvez aussi utiliser les flèches du clavier.</p>
+    <div class="boite-corps">
+      <div>
+        <div class="zone" id="zone" tabindex="0" aria-label="Zone de cadrage. Flèches pour déplacer, plus et moins pour zoomer.">
+          <img id="imgSource" alt="">
+          <div class="guide" aria-hidden="true">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs><mask id="trou"><rect width="100" height="100" fill="#fff"/><circle cx="50" cy="50" r="50" fill="#000"/></mask></defs>
+              <rect width="100" height="100" fill="rgba(0,0,0,.35)" mask="url(#trou)"/>
+              <circle cx="50" cy="50" r="49.6" fill="none" stroke="#fff" stroke-width=".8" stroke-dasharray="3 2"/>
+              <rect x=".4" y=".4" width="99.2" height="99.2" fill="none" stroke="#fff" stroke-width=".8"/>
+            </svg>
+          </div>
+        </div>
+        <div class="zoom">
+          <button class="btn petit" id="btnMoins" type="button" aria-label="Réduire">−</button>
+          <input type="range" id="curseur" min="100" max="400" step="1" value="100" aria-label="Niveau de zoom">
+          <button class="btn petit" id="btnPlus" type="button" aria-label="Agrandir">+</button>
+        </div>
+        <div class="lignebtn" style="margin-top:6px"><button class="btn petit" id="btnRecentrer" type="button">Recentrer</button></div>
+      </div>
+      <div>
+        <p><b>Ce que verra le CV</b></p>
+        <div class="apercus">
+          <figure><canvas id="apCarre" width="96" height="96"></canvas>Photo carrée</figure>
+          <figure><canvas id="apRond" width="96" height="96"></canvas>Photo ronde</figure>
+        </div>
+        <div class="encart">Sur un CV avec photo <b>ronde</b>, seule la partie dans le cercle (trait pointillé) reste visible. Le carré est utilisé tel quel par les autres modèles.</div>
+        <div class="encart warn cache" id="alerteQualite"><span class="verdict">Photo un peu floue.</span> Réduisez le zoom ou choisissez une photo plus grande pour un rendu net.</div>
+        <p class="sous" id="infoCadre"></p>
+      </div>
+    </div>
+    <div class="pied">
+      <div class="lignebtn" style="margin:0">
+        <button class="btn" id="btnAutre" type="button">Choisir une autre photo</button>
+      </div>
+      <div class="lignebtn" style="margin:0">
+        <button class="btn" id="btnAnnuler" type="button">Annuler</button>
+        <button class="btn principal" id="btnValider" type="button">Valider le cadrage</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var S = 320;               // taille de la zone de cadrage (px)
+  var SORTIE = 400;          // taille finale de la photo du CV (comme aujourd'hui)
+  var MAXZOOM = 4;
+  var $ = function (id) { return document.getElementById(id); };
+  var etat = { source: null, k: 1, kmin: 1, ox: 0, oy: 0, larg: 0, haut: 0 };
+  var enregistree = null;    // { url, source (original reduit) }
+
+  // ---------- theme ----------
+  $('btnTheme').addEventListener('click', function () {
+    document.body.classList.toggle('dark');
+    this.textContent = document.body.classList.contains('dark') ? 'Mode clair' : 'Mode sombre';
+  });
+
+  // ---------- photo d'exemple (sans visage) ----------
+  function photoExemple() {
+    var c = document.createElement('canvas'); c.width = 900; c.height = 1200;
+    var x = c.getContext('2d');
+    var g = x.createLinearGradient(0, 0, 900, 1200); g.addColorStop(0, '#9ec5fe'); g.addColorStop(1, '#f8d7a8'); x.fillStyle = g; x.fillRect(0, 0, 900, 1200);
+    x.fillStyle = '#5b7db1'; x.beginPath(); x.moveTo(0, 900); x.lineTo(250, 520); x.lineTo(470, 820); x.lineTo(680, 480); x.lineTo(900, 860); x.lineTo(900, 1200); x.lineTo(0, 1200); x.fill();
+    x.fillStyle = '#f4b942'; x.beginPath(); x.arc(660, 250, 90, 0, 7); x.fill();
+    x.fillStyle = '#2f6690'; x.fillRect(120, 300, 220, 160); x.fillStyle = '#fff'; x.font = 'bold 44px sans-serif'; x.fillText('EXEMPLE', 148, 396);
+    return c.toDataURL('image/jpeg', 0.9);
+  }
+
+  // ---------- ouverture de la boite ----------
+  function reduire(img, max) { // garde l'original, reduit a 1000 px de cote max
+    var r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    var c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * r); c.height = Math.round(img.naturalHeight * r);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.85);
+  }
+  function ouvrir(dataUrl, cadrageInitial) {
+    var img = new Image();
+    img.onload = function () {
+      etat.source = img; etat.larg = img.naturalWidth; etat.haut = img.naturalHeight;
+      etat.kmin = S / Math.min(etat.larg, etat.haut);
+      var im = $('imgSource'); im.src = dataUrl; im.style.width = etat.larg + 'px'; im.style.height = etat.haut + 'px';
+      if (cadrageInitial) { etat.k = cadrageInitial.k; etat.ox = cadrageInitial.ox; etat.oy = cadrageInitial.oy; } else { recentrer(); }
+      $('curseur').value = Math.round(etat.k / etat.kmin * 100);
+      appliquer();
+      $('voile').classList.add('ouvert'); $('zone').focus();
+    };
+    img.onerror = function () { alert('Impossible de lire cette image, essayez-en une autre.'); };
+    img.src = dataUrl;
+  }
+  function fermer() { $('voile').classList.remove('ouvert'); }
+
+  // ---------- geometrie ----------
+  function borner() {
+    var wk = etat.larg * etat.k, hk = etat.haut * etat.k;
+    etat.ox = Math.min(0, Math.max(S - wk, etat.ox));
+    etat.oy = Math.min(0, Math.max(S - hk, etat.oy));
+  }
+  function recentrer() {
+    etat.k = etat.kmin; etat.ox = (S - etat.larg * etat.k) / 2; etat.oy = (S - etat.haut * etat.k) / 2; borner();
+  }
+  function zoomer(nouveauK) {
+    nouveauK = Math.max(etat.kmin, Math.min(etat.kmin * MAXZOOM, nouveauK));
+    var cx = (S / 2 - etat.ox) / etat.k, cy = (S / 2 - etat.oy) / etat.k; // point source au centre du cadre
+    etat.k = nouveauK; etat.ox = S / 2 - cx * etat.k; etat.oy = S / 2 - cy * etat.k; borner();
+  }
+  function region() { return { sx: -etat.ox / etat.k, sy: -etat.oy / etat.k, cote: S / etat.k }; }
+
+  function dessiner(canvas, rond) {
+    var r = region(), ctx = canvas.getContext('2d'), t = canvas.width;
+    ctx.clearRect(0, 0, t, t); ctx.save();
+    if (rond) { ctx.beginPath(); ctx.arc(t / 2, t / 2, t / 2, 0, 7); ctx.clip(); }
+    ctx.drawImage(etat.source, r.sx, r.sy, r.cote, r.cote, 0, 0, t, t); ctx.restore();
+  }
+  function appliquer() {
+    var im = $('imgSource');
+    im.style.transform = 'translate(' + etat.ox + 'px,' + etat.oy + 'px) scale(' + etat.k + ')';
+    $('curseur').value = Math.round(etat.k / etat.kmin * 100);
+    dessiner($('apCarre'), false); dessiner($('apRond'), true);
+    var r = region(), floue = r.cote < SORTIE * 0.75;
+    $('alerteQualite').classList.toggle('cache', !floue);
+    $('infoCadre').textContent = 'Zoom ' + Math.round(etat.k / etat.kmin * 100) + ' %. Partie gardée : ' + Math.round(r.cote) + ' x ' + Math.round(r.cote) + ' points de la photo d\'origine.';
+  }
+
+  // ---------- gestes : glisser, zoom, clavier ----------
+  var zone = $('zone'), pris = null;
+  zone.addEventListener('pointerdown', function (e) { pris = { x: e.clientX, y: e.clientY, ox: etat.ox, oy: etat.oy }; zone.setPointerCapture(e.pointerId); zone.classList.add('prise'); });
+  zone.addEventListener('pointermove', function (e) { if (!pris) { return; } etat.ox = pris.ox + (e.clientX - pris.x); etat.oy = pris.oy + (e.clientY - pris.y); borner(); appliquer(); });
+  zone.addEventListener('pointerup', function () { pris = null; zone.classList.remove('prise'); });
+  zone.addEventListener('pointercancel', function () { pris = null; zone.classList.remove('prise'); });
+  zone.addEventListener('wheel', function (e) { e.preventDefault(); zoomer(etat.k * (e.deltaY < 0 ? 1.08 : 1 / 1.08)); appliquer(); }, { passive: false });
+  zone.addEventListener('keydown', function (e) {
+    var pas = e.shiftKey ? 30 : 10, ok = true;
+    if (e.key === 'ArrowLeft') { etat.ox += pas; } else if (e.key === 'ArrowRight') { etat.ox -= pas; }
+    else if (e.key === 'ArrowUp') { etat.oy += pas; } else if (e.key === 'ArrowDown') { etat.oy -= pas; }
+    else if (e.key === '+' || e.key === '=') { zoomer(etat.k * 1.1); } else if (e.key === '-') { zoomer(etat.k / 1.1); }
+    else { ok = false; }
+    if (ok) { e.preventDefault(); borner(); appliquer(); }
+  });
+  $('curseur').addEventListener('input', function () { zoomer(etat.kmin * this.value / 100); appliquer(); });
+  $('btnPlus').addEventListener('click', function () { zoomer(etat.k * 1.15); appliquer(); });
+  $('btnMoins').addEventListener('click', function () { zoomer(etat.k / 1.15); appliquer(); });
+  $('btnRecentrer').addEventListener('click', function () { recentrer(); appliquer(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('voile').classList.contains('ouvert')) { fermer(); } });
+
+  // ---------- validation : produit la meme photo carree 400 x 400 qu'aujourd'hui ----------
+  var dernierOriginal = null; // original reduit, garde pour "Ajuster le cadrage"
+  $('btnValider').addEventListener('click', function () {
+    var c = document.createElement('canvas'); c.width = SORTIE; c.height = SORTIE; var r = region();
+    c.getContext('2d').drawImage(etat.source, r.sx, r.sy, r.cote, r.cote, 0, 0, SORTIE, SORTIE);
+    var url = c.toDataURL('image/jpeg', 0.85);
+    enregistree = { url: url, source: dernierOriginal, cadrage: { k: etat.k, ox: etat.ox, oy: etat.oy } };
+    fermer(); afficher(true);
+  });
+  $('btnAnnuler').addEventListener('click', fermer);
+  $('voile').addEventListener('click', function (e) { if (e.target === this) { fermer(); } });
+  $('btnAutre').addEventListener('click', function () { $('fichier').click(); });
+
+  // ---------- carte ----------
+  function afficher(nouvelle) {
+    var a = !!enregistree;
+    $('etatSans').classList.toggle('cache', a); $('etatAvec').classList.toggle('cache', !a);
+    if (a) {
+      $('vigCarre').src = enregistree.url; $('vigRond').src = enregistree.url;
+      $('infoPhoto').textContent = 'Photo carrée de 400 x 400 points, environ ' + Math.round(enregistree.url.length * 0.75 / 1024) + ' Ko.';
+    }
+    $('msgOk').style.display = nouvelle ? 'block' : 'none';
+  }
+  function choisirFichier() { $('fichier').click(); }
+  $('btnAjouter').addEventListener('click', choisirFichier);
+  $('btnChanger').addEventListener('click', choisirFichier);
+  $('btnRetirer').addEventListener('click', function () { enregistree = null; dernierOriginal = null; afficher(false); });
+  $('btnAjuster').addEventListener('click', function () { if (enregistree && enregistree.source) { ouvrir(enregistree.source, enregistree.cadrage); } });
+  $('btnEssai').addEventListener('click', function () { var u = photoExemple(); dernierOriginal = u; ouvrir(u); });
+  $('fichier').addEventListener('change', function () {
+    var f = this.files && this.files[0]; this.value = '';
+    if (!f) { return; }
+    if (!f.type || f.type.indexOf('image/') !== 0) { alert('Merci de choisir un fichier image (JPG, PNG...).'); return; }
+    var lect = new FileReader();
+    lect.onload = function (e) {
+      var img = new Image();
+      img.onload = function () { dernierOriginal = reduire(img, 1000); ouvrir(dernierOriginal); };
+      img.onerror = function () { alert('Impossible de lire cette image, essayez-en une autre.'); };
+      img.src = e.target.result;
+    };
+    lect.readAsDataURL(f);
+  });
+
+  afficher(false);
+})();
+</script>
+</body>
+</html>

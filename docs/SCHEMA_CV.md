@@ -53,6 +53,7 @@ Coordonnées du candidat, telles que saisies dans "Mon projet" / page Action
 | `adresse` | `string` | Adresse postale. |
 | `codePostal` | `string` | Code postal. |
 | `ville` | `string` | Ville. |
+| `lien` | `string` | Lien LinkedIn ou site personnel (facultatif, ajout 2026-09-25) : affiché dans les coordonnées de certains modèles de CV PDF. |
 
 ```json
 "identite": { "civilite": "Madame", "nom": "Dupont", "prenom": "Julie", "telephone": "0600000000", "email": "julie@test.fr", "adresse": "1 rue Test", "codePostal": "33000", "ville": "Bordeaux" }
@@ -209,6 +210,7 @@ Diplômes/formations (`dossier.formations`), un véritable tableau à N
 | `intitule` | `string` | Intitulé précis (ex. `"BTS Gestion"`). |
 | `annee` | `string` | Année d'obtention. |
 | `etablissement` | `string` | École ou centre de formation (facultatif, chaîne vide si non renseigné). |
+| `lieu` | `string` | Ville où se déroule la formation (facultatif, chaîne vide si non renseigné). Ajouté le 2026-09-25 : saisi dans le formulaire des formations, capté par l'assistant à l'import (`prompts/extraction-cv.md`), montré ou non sur le CV PDF par la personne (carte « Formations » de « La mise en page »). |
 | `missions` | `string` | Détail complémentaire sur la formation, saisi via le palier "niveau d'études" du parcours Découverte (facultatif, chaîne vide si non renseigné). |
 
 **Filtre appliqué par `normaliserDonneesCV()`** : toute formation dont le
@@ -218,7 +220,7 @@ que l'objet CV : `dossier.formations` garde la donnée intacte, toujours
 utilisée telle quelle ailleurs (Mon Projet, texte de profil pour l'IA).
 
 ```json
-"formations": [ { "niveau": "Bac +2", "intitule": "BTS Gestion", "annee": "2019", "etablissement": "IUT de Bordeaux", "missions": "" } ]
+"formations": [ { "niveau": "Bac +2", "intitule": "BTS Gestion", "annee": "2019", "etablissement": "IUT de Bordeaux", "lieu": "Bordeaux", "missions": "" } ]
 ```
 
 ---
@@ -278,19 +280,24 @@ utilisée telle quelle ailleurs (Mon Projet, texte de profil pour l'IA).
 
 | Type | Rôle |
 |---|---|
-| `{texte, dateDebut, dateFin}[]` | Engagements associatifs/citoyens renseignés par la personne. `dateDebut`/`dateFin` vides si non renseignées (chaîne vide, jamais `null`) ; `dateFin` vide = engagement toujours en cours. |
+| `{texte, dateDebut, dateFin, missions}[]` | Engagements associatifs/citoyens renseignés par la personne. `dateDebut`/`dateFin` vides si non renseignées (chaîne vide, jamais `null`) ; `dateFin` vide = engagement toujours en cours. `missions` (chaîne, sauts de ligne entre missions, comme `experiences[].missions`), facultatif : jamais saisi à la main (aucun champ dédié dans "Vos informations"), alimenté soit par l'import d'un CV existant (`prompts/extraction-cv.md`), soit par l'assistant lors de la génération du CV (`prompts/cv.md`, point 17 : une proposition de 2 à 3 missions par engagement, revue par la personne comme le reste des recommandations avant application non destructive par `appliquerMoteurDecisionCV()`). |
 
 ```json
 "engagements": [
-  { "texte": "Bénévolat association d'aide alimentaire", "dateDebut": "2018", "dateFin": "2022" }
+  { "texte": "Bénévolat association d'aide alimentaire", "dateDebut": "2018", "dateFin": "2022", "missions": "" }
 ]
 ```
 
 Format étendu depuis `string[]` (ancien format). Le code de rendu
-(`composeurRender.js`, `js/app.js`) continue de gérer les deux formats de
-façon défensive (`typeof e === 'string'` vs objet) pour ne jamais planter
-sur une donnée déjà existante au format ancien, même si un seul modèle de
-CV (Composeur) est aujourd'hui en usage.
+(`composeurRender.js`, `js/app.js`, `cvPdfTemplateMaquette.js`) continue de
+gérer les deux formats de façon défensive (`typeof e === 'string'` vs
+objet) pour ne jamais planter sur une donnée déjà existante au format
+ancien, même si un seul modèle de CV (Composeur) est aujourd'hui en usage.
+Une fois `missions` renseigné, un engagement se rend exactement comme une
+expérience personnelle (`experiencesPersonnelles`) dans la rubrique
+"Expérience personnelle" du CV (PDF et Word), même mécanisme, même
+absence de distinction visible entre les deux sources : décision de Denis
+du 2026-09-27 ("les deux vont devoir avoir le même comportement").
 
 ---
 

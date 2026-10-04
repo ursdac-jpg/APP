@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Compétences « tirées de votre CV » et compétences « attendues » : un signe et une légende, au lieu d'un texte répété (2026-10-03).
+  VRAI balisage des listes « Les montrer et les choisir » de la carte Compétences (.miss-liste / .miss-tete / label + case + span, copié de
+  l'application), VRAIES feuilles de style (css/style.css et css/mise-en-page-maquette.css). Seul ce qui change est marqué : bouton « Montrer ce qui change ».
+  Rien n'est enregistré ; contenu fictif (carreleur). Thème sombre : bouton de la barre. Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+  Signes choisis : objets simples, sans visage. ● (point plein) = tirée de votre CV ; ◇ (losange vide) = attendue dans le métier.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Compétences possédées ou attendues</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 920px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  body.marquer [data-change] { outline: 2px dashed #e08a00; outline-offset: 2px; position: relative; }
+  body.marquer [data-change]::before { content: attr(data-change); position: absolute; top: -.85rem; right: 0; background: #e08a00; color: #fff; font: 600 .62rem "Segoe UI", sans-serif; padding: .05rem .4rem; border-radius: 4px; z-index: 2; }
+  [hidden] { display: none !important; }
+  .deux-listes { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; align-items: start; }
+  @media (max-width: 700px) { .deux-listes { grid-template-columns: 1fr; } }
+  /* NOUVEAU (maquette) : signes devant chaque compétence + légende sous la liste */
+  .sg { display: inline-block; width: 1.1rem; text-align: center; font-size: .95rem; line-height: 1; flex: 0 0 auto; }
+  .sg.cv { color: var(--accent); }
+  .sg.att { color: #b7791f; }
+  [data-theme="sombre"] .sg.att { color: #e6b45a; }
+  .aide-q { width: 1.4rem; height: 1.4rem; padding: 0; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); font-weight: 700; font-size: .72rem; cursor: pointer; margin-left: .3rem; vertical-align: middle; }
+  .legende { margin-top: .45rem; padding: .4rem .55rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-subtle, #f8fafc); font-size: .72rem; color: var(--text-strong); line-height: 1.45; }
+  .legende div { display: flex; gap: .4rem; align-items: baseline; }
+  dialog { max-width: 720px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); }
+  dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnAvant">Voir comme aujourd'hui</button>
+  <button type="button" id="btnApres" class="on">Voir la proposition</button>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+
+<div class="ecran"><div class="mep-mq">
+<details class="mep-carte" id="cComp" open>
+  <summary><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg><div><h3>Compétences <span class="sous" style="font-weight:400;margin-left:0.5rem">Professionnelles et comportementales : lesquelles montrer, et dans quel ordre.</span></h3></div><span class="chev">&#8963;</span></summary>
+  <div class="carte-corps">
+    <div class="deux-listes">
+      <div>
+        <div class="miss-liste" id="listePro" style="margin-left:0"></div>
+        <div class="legende" data-change="Légende sous la liste, une seule fois (au lieu de répéter « attendu dans ce secteur » à chaque ligne)" data-legende="pro"></div>
+      </div>
+      <div>
+        <div class="miss-liste" id="listeComp" style="margin-left:0"></div>
+        <div class="legende" data-change="Même légende pour les comportementales" data-legende="comp"></div>
+      </div>
+    </div>
+  </div>
+</details>
+</div></div>
+
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Aujourd'hui</b> : chaque compétence « attendue » porte le texte « attendu dans ce secteur » (professionnelles) ou « proposé pour ce métier » (comportementales), répété à chaque ligne. On ne distingue pas d'un coup d'œil ce qui vient du CV.</li>
+    <li><b>Proposition</b> : la légende est <b>cachée</b> derrière le petit « ? » de l'en-tête de chaque liste (décision de Denis : annoncer d'entrée « attendu par le secteur » pourrait faire sentir la personne moins légitime à choisir). Deux signes simples, sans visage. <b>●</b> (point plein, couleur de l'application) = tirée de votre CV ; <b>◇</b> (losange vide, couleur ambre) = attendue dans le métier. Une légende, écrite une seule fois sous chaque liste, explique les deux signes.</li>
+    <li>Une compétence attendue que la personne reconnaît se <b>coche comme les autres</b> : elle garde son signe ◇ (on garde la mémoire de son origine) et passe sur le CV.</li>
+    <li>Rien n'est retiré : mêmes cases, mêmes compteurs, mêmes boutons « Remettre la sélection automatique ». Seul l'habillage de l'origine change.</li>
+    <li>Le sens des signes est <b>toujours</b> expliqué sous la liste (pas seulement au survol), pour les personnes sur tablette ou téléphone.</li>
+    <li>Mode sombre vérifiable avec le bouton de la barre. Grands boutons : le signe grossit avec le texte (même taille de police).</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+
+<script>
+  var LISTES = {
+    pro: { titre: 'Compétences professionnelles', items: [
+      ['Pose de carrelage sur sols et murs', 'cv', 1], ['Pose de carrelage dans les pièces d’eau', 'cv', 1], ['Pose de carrelage sur escaliers', 'cv', 1],
+      ['Découpe et ajustement du carrelage', 'cv', 1], ['Préparation des supports', 'cv', 1], ['Lecture de plans', 'att', 0], ['Respect des consignes de sécurité', 'att', 0], ['Utilisation d’outils de mesure', 'att', 1]
+    ], texteAvant: 'attendu dans ce secteur' },
+    comp: { titre: 'Compétences comportementales', items: [
+      ['Précision dans le travail manuel', 'cv', 1], ['Goût du travail manuel', 'cv', 1], ['Adaptation aux différents supports', 'cv', 1],
+      ['Sens du détail', 'att', 1], ['Soin du travail', 'att', 0], ['Endurance physique', 'att', 0], ['Respect des délais', 'att', 0]
+    ], texteAvant: 'proposé pour ce métier' }
+  };
+  var MODE = 'apres';
+  function nbCoches(c) { return LISTES[c].items.filter(function (x) { return x[2]; }).length; }
+  function dessiner() {
+    ['pro', 'comp'].forEach(function (c) {
+      var L = LISTES[c];
+      var lignes = L.items.map(function (x, k) {
+        var signe = (MODE === 'apres') ? '<span class="sg ' + x[1] + '" aria-hidden="true">' + (x[1] === 'cv' ? '●' : '◇') + '</span>' : '';
+        var texteAvant = (MODE === 'avant' && x[1] === 'att') ? ' <em class="ex">' + L.texteAvant + '</em>' : '';
+        return '<label class="' + (x[2] ? '' : 'non') + '"><input type="checkbox" data-k="' + k + '" data-c="' + c + '"' + (x[2] ? ' checked' : '') + '>' + signe + '<span>' + x[0] + '</span>' + texteAvant + '</label>';
+      }).join('');
+      document.getElementById(c === 'pro' ? 'listePro' : 'listeComp').innerHTML =
+        '<div class="miss-tete"><span><b>' + L.titre + '</b> : ' + nbCoches(c) + ' sur ' + L.items.length + ' affichées' + (MODE === 'apres' ? ' <button type="button" class="aide-q" data-q="' + c + '" title="Légende">?</button><span class="sous" style="font-size:.68rem;margin-left:.3rem">Légende</span>' : '') + '</span><button type="button">Remettre la sélection automatique</button></div>' + lignes;
+      var lg = document.querySelector('[data-legende="' + c + '"]');
+      lg.hidden = true;   /* cachée d'office : elle s'ouvre seulement avec le « ? » (décision de Denis) */
+      lg.innerHTML = '<div><span class="sg cv" aria-hidden="true">●</span><span>Tirée de votre CV : vous la possédez.</span></div>' +
+        '<div><span class="sg att" aria-hidden="true">◇</span><span>' + (c === 'pro' ? 'Attendue dans ce secteur' : 'Attendue dans ce métier') + ' : si vous la reconnaissez, cochez-la.</span></div>';
+    });
+    document.querySelectorAll('[data-q]').forEach(function (b) { b.addEventListener('click', function () { var z = document.querySelector('[data-legende="' + b.getAttribute('data-q') + '"]'); z.hidden = !z.hidden; }); });
+    document.querySelectorAll('input[data-k]').forEach(function (cb) {
+      cb.addEventListener('change', function () { LISTES[cb.getAttribute('data-c')].items[+cb.getAttribute('data-k')][2] = cb.checked ? 1 : 0; dessiner(); });
+    });
+  }
+  document.getElementById('btnAvant').onclick = function () { MODE = 'avant'; this.classList.add('on'); document.getElementById('btnApres').classList.remove('on'); dessiner(); };
+  document.getElementById('btnApres').onclick = function () { MODE = 'apres'; this.classList.add('on'); document.getElementById('btnAvant').classList.remove('on'); dessiner(); };
+  document.getElementById('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); };
+  document.getElementById('btnNotes').onclick = function () { document.getElementById('dlgNotes').showModal(); };
+  document.getElementById('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  dessiner();
+</script>
+</body>
+</html>

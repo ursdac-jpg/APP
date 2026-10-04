@@ -20,6 +20,70 @@ Ce fichier est différent de la section "Idées en réserve" de `docs/TACHES_VAL
 
 ## Idées en attente de reclassement
 
+### 2026-09-28 - CV en PDF : bouton "Personnaliser" avec placement libre des rubriques (largeur, longueur, position)
+
+**Idée** : en plus du choix automatique de mise en page (colonnes, ordre), donner à la personne un bouton "Personnaliser" où elle peut déplacer et redimensionner librement chaque bloc de rubrique (Expérience professionnelle, Formations, Expérience personnelle...) sur la page, avec un aperçu en temps réel sur ses vraies données ; ce qu'elle construit devient la mise en page appliquée. Une première version plus simple a aussi été évoquée (choisir parmi des agencements pré-établis, façon petite maquette cliquable) avant que Denis ne précise vouloir la version complète (placement libre, tailles ajustables).
+
+**Contexte d'origine** : discussion pendant le chantier "rubriques qui débordent une colonne" (voir `docs/MAQUETTE_RUBRIQUES_DEBORDANTES_2026-09-28.html`, Proposition B retenue pour le correctif automatique immédiat). Denis souhaite explicitement garder cette idée pour un temps séparé, plus tard - "pour l'instant on fait ce qu'on a de concret."
+
+**Avis donné à Denis (franchise sur la faisabilité)** : la brique technique de base existe déjà en partie (glisser-déposer + "Plan 1/2/3" pour les rectangles de compétences dans l'en-tête, chantier P11 du 2026-09-28) mais l'étendre à TOUTES les rubriques du corps du CV est un changement d'architecture majeur (document qui "coule" aujourd'hui, jamais de texte coupé/caché - un placement libre casse cette garantie). Limite plus dure : ceci resterait **PDF uniquement**, jamais identique en Word - déjà tranché dans le chantier Word ("positionnement libre de l'en-tête : jamais envisagé pour le Word, mise en page fixe par nature", `docs/CHANTIER_WORD_DEPUIS_PDF_2026-09-26.md`). Un CV en Word doit garder un ordre de lecture logique pour les logiciels de recrutement, incompatible avec un placement 100% libre.
+
+**Recommandation** : module CV / "La mise en page" - destination déjà claire, mais chantier à part, avec cadrage et maquette dédiés avant tout code (risque architectural réel, jamais en mode nuit). À reprendre après consolidation de l'écran unique de mise en page.
+
+**Statut** : `[SANS MODULE]`, mis de côté à la demande explicite de Denis, pas de code écrit.
+
+---
+
+### 2026-09-20 - Localité des expériences et des formations/diplômes/certifications sur le CV
+
+**Idée** : afficher la ville/localité à la fois pour les expériences professionnelles et pour les formations, diplômes, certifications - pas seulement le nom de l'entreprise/de l'établissement et les dates.
+
+**Contexte d'origine** : question de Denis pendant le chantier Bilan (« Analyser ma candidature »), en marge d'une discussion sur l'âge sur le CV (voir entrée écartée juste en dessous). Vérifié dans le code avant de répondre : le champ `lieu` **existe déjà** dans `dossier.experiences[]` et **est déjà utilisé** par les modèles d'export PDF et Word (`js/app.js` ~lignes 27141/31602) - mais l'éditeur principal utilisé presque partout aujourd'hui (`contenuExperiencesProInline()`/`_expInlineConstruireObjet()`, utilisé par Vos informations, Modifier mon CV, et le panneau d'édition en place du Bilan) **n'a pas de champ pour le saisir** (`lieu: ''` figé en dur). Seul un éditeur plus ancien, réservé désormais aux expériences personnelles (`ouvrirFenetreModifierExperienceUnique()`/`construireChampsFormulaireExperience()`), a encore ce champ. Pour les formations (`dossier.formations[]`), aucun champ de lieu n'existe nulle part, ni donnée ni export.
+
+**Recommandation** : module **CV** (Créer un nouveau CV / Vos informations / export PDF-Word) - destination déjà claire. Deux tailles de travail distinctes : (1) expériences - ajouter le champ manquant à l'éditeur principal, la donnée et l'export existent déjà, travail ciblé ; (2) formations - créer le champ de zéro (donnée + formulaire + les 2 modèles d'export), travail plus large. Denis a précisé vouloir revenir sur l'ensemble du sujet CV prochainement (modèles pré-remplis / gabarits) - ce chantier pourrait s'y greffer.
+
+**Statut** : `[RECLASSÉ -> futur chantier CV]`, pas encore commencé, validé par Denis (« je veux bien avoir les localités »).
+
+---
+
+### 2026-09-20 - Mise en page « Logiciels et outils » / « Centres d'intérêt » sur le CV
+
+**Idée** : ces deux rubriques s'affichent aujourd'hui en liste verticale simple (un élément par ligne), alors que « Compétences professionnelles » utilise déjà des pastilles compactes. Denis propose soit le même traitement en pastilles, soit un passage en deux colonnes - dans les deux cas pour mieux occuper l'espace de la page.
+
+**Contexte d'origine** : repéré par Denis sur un CV réel généré pendant le test de la Carte 3 du chantier Bilan (capture d'écran à l'appui), sans rapport avec le Bilan lui-même - une remarque de mise en page en passant.
+
+**Recommandation** : module **CV**, à greffer sur le chantier déjà ouvert `docs/CHANTIER_MISE_EN_PAGE_CV_2026-09-18.md` (interligne par rubrique, frise chronologique, mini-grille) plutôt qu'un chantier séparé - même famille de sujet (occuper l'espace de la page intelligemment).
+
+**Statut** : `[RECLASSÉ -> chantier mise en page du CV, 2026-09-18]`, pas encore commencé.
+
+---
+
+### 2026-09-20 - Axe "âge" dans l'analyse du CV - ÉCARTÉ, ne pas reproposer
+
+**Idée proposée par Denis** : ajouter un axe d'analyse lié à l'âge de la personne, avec une tranche "recherchée par les employeurs" (proposée par Denis : ~25-40 ans, au-delà considéré "senior", jugé plus coûteux et moins investi par les employeurs faute de temps avant la retraite).
+
+**Pourquoi c'est écarté** : la discrimination à l'embauche fondée sur l'âge est interdite par la loi française (Code du travail art. L1132-1, Code pénal art. 225-1/225-2). Construire une fonctionnalité qui indique à une personne qu'elle est dans une tranche d'âge défavorable irait directement contre la règle déjà posée dans `CLAUDE.md` ("jamais poser de diagnostic sur la personne", public à la confiance fragile), reproduirait une généralisation contestable (beaucoup de métiers valorisent l'expérience), et exposerait le projet à un vrai risque, y compris pour le partenaire Inkéo si cette logique devenait visible ou documentée.
+
+**Décision de Denis, après explication** : validée, il ne veut pas conserver cette idée ("je valide ton avis, je ne veux pas conserver l'âge"). Si le sujet "emploi et âge" revient un jour, il n'a sa place qu'en **contenu informatif neutre** (façon "Comprendre le cadre"), jamais comme un score ou une recommandation appliquée au CV de quelqu'un.
+
+**Statut** : `[ÉCARTÉ]` - ne pas reproposer sans relire cette entrée d'abord.
+
+**Idée différente, notée le 2026-09-20 (à distinguer de l'idée écartée ci-dessus)** : si l'âge ou la date de naissance de la personne apparaît sur son CV, la signaler dans une recommandation invitant à la retirer - non pas pour juger la personne, mais pour la protéger d'une discrimination à l'embauche qu'elle ne soupçonne pas forcément. Cohérent avec l'anonymisation déjà pratiquée par l'app avant analyse, et avec les guides CV courants qui déconseillent d'indiquer l'âge. Denis précise le vrai point dur : détecter fiablement un âge/une date de naissance dans le texte sans le confondre avec un numéro de rue, des années d'expérience, ou une année de diplôme - à cadrer côté prompt avant de coder, pas une consigne triviale. Recommandation à formuler de façon neutre/factuelle, jamais comme un jugement.
+
+---
+
+### 2026-09-20 - Adresse/quartier prioritaire comme facteur discriminant potentiel - mise en attente
+
+**Idée proposée par Denis** : dans le même esprit que l'alerte âge ci-dessus, se demander si l'adresse indiquée sur le CV (notamment un quartier prioritaire de la politique de la ville) ne devrait pas, elle aussi, faire l'objet d'une alerte protectrice - une adresse peut être un facteur de discrimination à l'embauche au même titre que l'âge.
+
+**Pourquoi c'est mis en attente plutôt que construit tout de suite** : contrairement à l'âge ou la date de naissance (motif protégé, détectable de façon fiable par un format de texte réutilisant `detecterCoordonneesSensibles()`), il n'existe aucun moyen fiable, gratuit et sans service externe de déterminer si une adresse postale se situe en quartier prioritaire - cela demanderait une liste de référence (zonage QPV) ou un service de géocodage, contraire au principe fondateur d'APP (pas d'API, pas de serveur, pas de budget). Une détection approximative (mot-clé sur le nom de rue/ville) risquerait des faux positifs ou négatifs sur un sujet sensible, pire qu'une absence de fonctionnalité.
+
+**Recommandation** : rester `[SANS MODULE]` pour l'instant. À reprendre seulement si une source de zonage QPV fiable et utilisable sans service externe est identifiée. Discussion mise de côté par Denis lui-même pour continuer le chantier Bilan en cours ("bref, on continue sur quoi on est resté").
+
+**Statut** : `[SANS MODULE]`.
+
+---
+
 ### 2026-09-13 - "Mon style" : mémoriser les réglages de mise en page du CV et les réappliquer à un futur CV
 
 **Idée** : dans le panneau "La mise en page" (niveau "Je veux tout régler" > "Reprendre la main"), permettre d'enregistrer la combinaison de réglages actuelle (allure, couleur, police, colonnes, densité...) sous un nom ("mon style"), puis de la réappliquer en un clic à un futur CV (nouveau document, ou CV recommencé) sans tout reregler à la main.
@@ -79,7 +143,7 @@ Ce fichier est différent de la section "Idées en réserve" de `docs/TACHES_VAL
 
 **Idée / besoin** : quand une personne importe la réponse d'une plateforme IA dans le Bilan, elle aimerait récupérer en une fois (a) son CV structuré en rubriques (expériences, formations, compétences...) ET (b) le diagnostic du Bilan - sans avoir à faire deux passages IA séparés. Aujourd'hui, l'écran "Organiser mon CV en rubriques" (`structurerTexteExistant()` / `assurerCVStructure()`, `data/metiers.js`) relance un passage IA dédié : il réinjecte bien le texte du CV déposé (pas une reconstruction à vide), mais c'est un aller-retour IA de plus, distinct du diagnostic.
 
-**Contexte d'origine** : tâche `[À FAIRE]` "Pré-remplissage de Organiser mon CV en rubriques" (depuis `docs/ETAT_DES_CHANTIERS_2026-08-24.md`), restée ambiguë. Lors de la B3 de la Carte 3, Denis avait imaginé la résoudre en **fusionnant le prompt de diagnostic et le prompt d'extraction** en un seul. Cette fusion (prompt V3) a été testée, déployée, et retirée le jour même : en usage réel, l'IA laissait parfois tomber le bloc extraction. C'est devenu la règle [[LECONS §1bis]] : "jamais un prompt fourre-tout".
+**Contexte d'origine** : tâche `[À FAIRE]` "Pré-remplissage de Organiser mon CV en rubriques" (depuis `docs/ETAT_DES_CHANTIERS.md`), restée ambiguë. Lors de la B3 de la Carte 3, Denis avait imaginé la résoudre en **fusionnant le prompt de diagnostic et le prompt d'extraction** en un seul. Cette fusion (prompt V3) a été testée, déployée, et retirée le jour même : en usage réel, l'IA laissait parfois tomber le bloc extraction. C'est devenu la règle [[LECONS §1bis]] : "jamais un prompt fourre-tout".
 
 **Ce qui reste** : la fusion de prompts est écartée définitivement, mais le besoin (éviter le double passage IA) est réel. Une autre voie est à concevoir - par exemple réutiliser l'extraction que le diagnostic produit déjà, ou faire de la structuration une étape légère non-IA quand c'est possible.
 
@@ -805,3 +869,17 @@ prompt par prompt.
 
 **Statut** : `[SANS MODULE - dépend d'un chantier de cohérence inter-modules pas encore
 ouvert, pas à traiter module par module]`
+
+---
+
+### 2026-09-22 - Nouveau module : déposer un CV, découvrir les métiers accessibles par compétences transversales, générer un CV par métier
+
+**Idée, telle que dite par Denis** : un module où la personne dépose son CV ; l'application identifie les compétences qui en ressortent et propose une liste de métiers auxquels candidater - pas seulement le métier évident, mais aussi des métiers d'autres secteurs qui demandent les mêmes compétences sous un intitulé différent (compétences transversales : un diplôme, un poste ou une expérience peut couvrir un métier qui n'a pas le même nom mais les mêmes attendus). Deuxième partie, dans le même module : générer un CV pour chacun de ces métiers identifiés - Denis pense que l'essentiel (expériences, missions) resterait à peu près identique d'un CV à l'autre, seuls l'intitulé et la phrase d'accroche changeraient vraiment.
+
+**Contexte d'origine** : discussion sur la suite du chantier « Refonte totale de la mise en page du CV en PDF » (`docs/CHANTIER_REFONTE_MISE_EN_PAGE_PDF_2026-09-21.md`), au moment de faire le point sur les chantiers ouverts avant la Phase 5. Idée nouvelle, jamais discutée avant cette date.
+
+**Recommandation** : un vrai nouveau module, pas un ajout à un module existant - le plus proche par la logique est le principe déjà présent dans `competencesCommunesAvecMetierVise()` (`js/app.js` ~9063, carte métier de « Des métiers à regarder », infobulle « compétences en commun ») qui compare déjà les compétences d'une fiche métier à celles du métier visé - mais cette fonction compare deux *fiches* entre elles, jamais un CV déposé à l'ensemble du référentiel métiers. Le deuxième volet (générer plusieurs CV à partir d'un seul, en ne changeant que l'intitulé et l'accroche) recoupe directement le chantier Composeur en attente (`docs/CHANTIER_COMPOSEUR_STRATEGIES_CV_2026-09-18.md`) et le principe déjà construit cette session (§ 3.3 du chantier PDF : contrôle du lien compétences/métier visé). Non chiffré, non cadré - un vrai cadrage Mode A serait nécessaire avant tout code (parcours réel, écrans, où ça vit dans l'accueil).
+
+**Statut** : `[SANS MODULE - idée neuve, pas cadrée, à reprendre quand Denis voudra l'ouvrir]`
+
+**Complément 2026-09-25 (Denis, même idée reformulée, apport nouveau)** : la finalité est d'abord **de savoir où et sous quel nom chercher pour multiplier ses chances**, avant même le CV par métier. Deux réalités à couvrir : (1) **un même métier porte des appellations différentes** selon les entreprises, les secteurs ou les offres (ex. un même poste annoncé sous 3 intitulés) ; (2) **des métiers de secteurs différents demandent les mêmes compétences**. La personne repart avec : la liste des intitulés à taper dans les moteurs d'offres et sur les sites d'emploi (avec les variantes), les secteurs où ses compétences sont recherchées, et pourquoi (compétences en commun avec son CV). Piste à vérifier au cadrage : le référentiel métiers déjà présent dans l'application (appellations, fiches métiers) porte-t-il déjà les intitulés voisins ? Sinon, quelle source (ROME de France Travail) et comment la maintenir. Garder à l'esprit : jamais un score, jamais un diagnostic sur la personne, formulation « pistes à regarder ». Rapprochement à examiner : `modules/ats/` (vocabulaire CV / offre) et « Comparer mes pistes » pour ne pas dupliquer.

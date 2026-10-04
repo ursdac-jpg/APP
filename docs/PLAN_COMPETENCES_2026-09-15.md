@@ -330,7 +330,7 @@ mécanisme actif (`metiersTriesParPertinence`) inchangé, aucune erreur console.
 - **Jamais de score/pourcentage affiché à l'utilisateur pour un métier.** Décision du 2026-09-15,
   fondée sur 2 éléments trouvés dans l'audit : (a) les 2 failles de `calculerScoreMetier()`
   peuvent gonfler artificiellement le score d'un profil incomplet ; (b) précédent produit déjà acté
-  dans le module Bilan de candidature (`docs/ETAT_DES_CHANTIERS_2026-08-24.md:141`) : un « score de
+  dans le module Bilan de candidature (`docs/ETAT_DES_CHANTIERS.md:141`) : un « score de
   compétitivité chiffré » a été explicitement écarté au profit d'une échelle qualitative, pour ce
   même public à confiance fragile. La barre `% de cohérence` existante (accordéon replié « Pourquoi
   ces métiers ? ») n'est pas touchée par ce chantier mais reste un point de vigilance : elle

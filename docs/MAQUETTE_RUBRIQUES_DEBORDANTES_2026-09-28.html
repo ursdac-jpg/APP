@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Rubriques qui debordent une colonne (PDF + Word), 2026-09-28.
+
+  Origine (retour Denis, capture d'ecran a l'appui) : "Quand je choisis 2 colonnes et que j'ai les
+  competences perso developpe, alors cette rubrique sera toujours dans la colonne de droite !
+  Comment faire pour m'assurer que si jamais je ne peux pas avoir deux rubrique sur la meme ligne,
+  alors soit il part sur une nouvelle ligne en s'alignant avec les autres en partant de la droite
+  comme : formations dans notre cas mais ne pas avoir des telles incoherences visuelle [...] et ceci
+  est une regle generale qui s'applique pour l'ensemble des options et sur Word et PDF."
+
+  Audit du code reel fait avant cette maquette (voir docs/CHANTIER_CORRECTIONS_MISE_EN_PAGE_P1_P12_2026-09-27.md,
+  section "Nouveau point 2026-09-28") : aucun mecanisme de recalcul dynamique n'existe aujourd'hui, ni en
+  PDF ni en Word -- chaque rubrique a une colonne fixee a l'avance (gabarit ou ordre personnalise "Organisation
+  du CV > Personnaliser"), jamais recalculee selon sa hauteur reelle.
+
+  Precision technique importante (trouvee en construisant cette maquette, corrige ce qui avait ete dit a
+  Denis le soir meme) : le Word n'est PAS regenere par un moteur separe qui devrait deviner les hauteurs a
+  l'avance -- exporterCvWord() (modules/cv-word/wordExport.js, chantier "le CV en Word repris depuis le PDF")
+  RECOPIE la position reelle de chaque mot du rendu PDF deja affiche dans le navigateur (mesure au pixel pres).
+  Consequence : si le PDF decide, en le mesurant reellement dans le navigateur, ou placer une rubrique qui
+  deborde, le Word HERITE AUTOMATIQUEMENT de cette meme decision, sans code Word separe. Le point bloquant
+  n'est donc pas "impossible en Word" (ce qui avait ete dit un peu vite) mais "il faut construire la mesure
+  et la decision une seule fois, cote PDF, et le reste suit".
+
+  Cette page montre le probleme (Aujourd'hui) puis 2 variantes de correction possibles (Proposition A et B),
+  pour que Denis choisisse avant tout code. Francais impeccable, aucun tiret cadratin, jamais le mot IA
+  visible, icones = objets, meme palette que les autres maquettes du panneau "La mise en page".
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Rubriques qui debordent une colonne</title>
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text: #33404f; --text-muted: #4a5b6e;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd;
+    --warning: #b45309; --warning-bg-subtle: #fdf1d9; --warning-border: #f0c675;
+    --success: #157347; --success-bg-subtle: #e7f6ee; --success-border: #86d3ac;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+    --radius: 12px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #1e2940;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text: #cdd6e1; --text-muted: #9aa8ba;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940;
+    --warning: #e2b877; --warning-bg-subtle: #33270f; --warning-border: #6b5424;
+    --success: #6fcf9c; --success-bg-subtle: #10281c; --success-border: #2f6b4a;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 14px; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: "Segoe UI", -apple-system, Roboto, Helvetica, Arial, sans-serif; line-height: 1.45; }
+  button { font: inherit; cursor: pointer; }
+  svg.ic { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;
+    padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font-size: .78rem; color: var(--text-muted); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text);
+    border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; }
+
+  .ecran { max-width: 1180px; margin: 0 auto; padding: .8rem 1.1rem 4rem; }
+  .entete { display: flex; align-items: center; gap: .7rem; margin-bottom: 1rem; }
+  .entete .rond { width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border);
+    display: grid; place-items: center; color: var(--accent); box-shadow: var(--shadow); flex: 0 0 auto; }
+  .entete h1 { margin: 0; font-size: 1.15rem; color: var(--text-strong); }
+  .entete p { margin: 0; color: var(--text-muted); font-size: .82rem; line-height: 1.3; }
+
+  .bloc { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: .9rem 1.1rem; margin-bottom: .9rem; }
+  .bloc h2 { margin: 0 0 .4rem; font-size: 1rem; color: var(--text-strong); display: flex; align-items: center; gap: .5rem; }
+  .bloc h2 .num { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--accent-bg-subtle); color: var(--accent); font-size: .8rem; font-weight: 700; flex: 0 0 auto; }
+  .bloc p.explication { margin: 0 0 .7rem; font-size: .84rem; color: var(--text); }
+  .bloc p.explication b { color: var(--text-strong); }
+
+  .note { padding: .55rem .7rem; border-radius: 9px; font-size: .8rem; line-height: 1.4; margin: .5rem 0; }
+  .note.avertir { border: 1px dashed var(--warning-border); background: var(--warning-bg-subtle); color: var(--text-strong); }
+  .note.avertir b { color: var(--warning); }
+  .note.confirme { border: 1px dashed var(--success-border); background: var(--success-bg-subtle); color: var(--text-strong); }
+  .note.confirme b { color: var(--success); }
+
+  .comparaison { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+  @media (max-width: 820px) { .comparaison { grid-template-columns: 1fr; } }
+  .comparaison-col { display: flex; flex-direction: column; gap: .4rem; }
+  .etiquette { display: inline-flex; align-self: flex-start; align-items: center; gap: .35rem; font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: .2rem .55rem; border-radius: 999px; }
+  .etiquette.probleme { color: var(--warning); background: var(--warning-bg-subtle); }
+  .etiquette.solution { color: var(--success); background: var(--success-bg-subtle); }
+
+  /* Feuille de CV miniature */
+  .feuille { background: #fff; color: #1c1c1c; border-radius: 8px; box-shadow: var(--shadow); padding: .85rem .95rem; font-size: .68rem; }
+  .feuille .entete-cv { font-weight: 700; font-size: .82rem; color: #0b1a33; margin-bottom: .5rem; padding-bottom: .4rem; border-bottom: 2px solid #0d6efd; }
+  .deux-col { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; align-items: start; }
+  .colonne { display: flex; flex-direction: column; gap: .5rem; }
+  .rub { border-radius: 5px; padding: .35rem .45rem; }
+  .rub h3 { margin: 0 0 .25rem; font-size: .66rem; letter-spacing: .03em; text-transform: uppercase; color: #0d6efd; }
+  .rub .ligne { height: .4rem; border-radius: 3px; background: #e2e8f0; margin-bottom: .22rem; }
+  .rub .ligne:last-child { margin-bottom: 0; }
+  .rub.pousse { outline: 2px dashed var(--warning); outline-offset: 2px; }
+  .rub.corrige { outline: 2px dashed var(--success); outline-offset: 2px; }
+  .pleine-largeur { grid-column: 1 / -1; }
+  .vide-signale { border: 2px dashed #cbd5e1; border-radius: 5px; min-height: 1.6rem; display: flex; align-items: center; justify-content: center; font-size: .6rem; color: #94a3b8; font-style: italic; }
+
+  .questions { border: 2px solid var(--accent); border-radius: var(--radius); background: var(--accent-bg-subtle); padding: 1rem 1.1rem; }
+  .questions h2 { margin: 0 0 .6rem; color: var(--text-strong); font-size: 1rem; }
+  .question { background: var(--bg-card); border: 1px solid var(--border); border-radius: 9px; padding: .6rem .75rem; margin-bottom: .6rem; }
+  .question:last-child { margin-bottom: 0; }
+  .question b.qn { color: var(--accent); }
+  .question .options { margin: .4rem 0 0; padding-left: 1.1rem; font-size: .82rem; color: var(--text); }
+  .question .options li { margin-bottom: .25rem; }
+  .question .options li b { color: var(--text-strong); }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Thème :</span>
+  <button onclick="document.body.classList.remove('dark')">Clair</button>
+  <button onclick="document.body.classList.add('dark')">Sombre</button>
+</div>
+<div class="ecran">
+  <div class="entete">
+    <div class="rond"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/></svg></div>
+    <div>
+      <h1>Rubriques qui débordent une colonne</h1>
+      <p>Ton constat : une rubrique développée reste toujours dans la même colonne, même quand ça crée un grand vide en face. À regarder ensemble avant de coder - aucune ligne écrite pour l'instant.</p>
+    </div>
+  </div>
+
+  <div class="bloc">
+    <h2><span class="num">1</span>Le problème aujourd'hui</h2>
+    <p class="explication">Chaque rubrique a une colonne <b>fixée à l'avance</b> (par le modèle, ou par ton ordre personnalisé dans « Organisation du CV »). Elle y reste toujours, même si elle grandit beaucoup plus que l'autre colonne - jamais de recalcul selon ce qu'il y a vraiment dedans.</p>
+    <span class="etiquette probleme">Exemple avec ton CV</span>
+    <div class="feuille" style="margin-top:.5rem">
+      <div class="entete-cv">Denis Delacroix - Éducateur</div>
+      <div class="deux-col">
+        <div class="colonne">
+          <div class="rub" style="background:#eef2fd"><h3>Compétences professionnelles</h3><div class="ligne" style="width:70%"></div><div class="ligne" style="width:55%"></div></div>
+          <div class="rub" style="background:#eef2fd"><h3>Formations</h3><div class="ligne" style="width:80%"></div><div class="ligne" style="width:60%"></div></div>
+          <div class="vide-signale">espace vide, rien à mettre ici</div>
+        </div>
+        <div class="colonne">
+          <div class="rub" style="background:#eef2fd"><h3>Expérience professionnelle</h3><div class="ligne"></div><div class="ligne"></div><div class="ligne" style="width:80%"></div><div class="ligne"></div><div class="ligne" style="width:65%"></div></div>
+          <div class="rub pousse" style="background:#fdf1d9"><h3>Expérience personnelle</h3><div class="ligne"></div><div class="ligne"></div><div class="ligne" style="width:85%"></div><div class="ligne"></div><div class="ligne" style="width:70%"></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="explication" style="margin:.5rem 0 0"><b>Expérience personnelle</b> est développée (missions ajoutées à la main) : elle reste coincée à droite, la colonne de gauche se retrouve avec un grand vide en dessous. C'est exactement ce que tu as vu sur ta capture d'écran.</p>
+  </div>
+
+  <div class="bloc">
+    <h2><span class="num">2</span>Ce que l'audit a trouvé</h2>
+    <div class="note avertir"><b>Confirmé :</b> aucun système de recalcul automatique n'existe aujourd'hui, ni en PDF ni en Word. Une règle strictement identique, appliquée en direct sur les deux formats en même temps, n'a pas de sens technique : Word ne peut pas mesurer une hauteur avant que le fichier existe.</div>
+    <div class="note confirme"><b>Bonne nouvelle trouvée en préparant cette maquette :</b> le Word n'est plus généré séparément aujourd'hui - il recopie la position réelle de chaque mot du CV en PDF déjà affiché dans le navigateur, mesurée au pixel près. Donc si le PDF <i>mesure vraiment</i> ses colonnes dans le navigateur et décide où recaser une rubrique, le Word récupère automatiquement la même décision, sans code séparé à écrire pour lui. Un seul mécanisme à construire, pas deux.</div>
+  </div>
+
+  <div class="bloc">
+    <h2><span class="num">3</span>Deux façons de corriger - à choisir</h2>
+    <p class="explication">Dans les deux cas : le PDF mesure réellement la hauteur de chaque colonne pendant sa construction (comme il le fait déjà pour savoir « le CV tient sur 1 page »). Si l'écart entre les deux colonnes dépasse un seuil, la rubrique la plus encombrante bouge - jamais une case à cocher en plus pour toi, ça se fait tout seul.</p>
+    <div class="comparaison">
+      <div class="comparaison-col">
+        <span class="etiquette solution">Proposition A - rejoint la colonne courte</span>
+        <div class="feuille">
+          <div class="entete-cv">Denis Delacroix - Éducateur</div>
+          <div class="deux-col">
+            <div class="colonne">
+              <div class="rub" style="background:#eef2fd"><h3>Compétences professionnelles</h3><div class="ligne" style="width:70%"></div><div class="ligne" style="width:55%"></div></div>
+              <div class="rub" style="background:#eef2fd"><h3>Formations</h3><div class="ligne" style="width:80%"></div><div class="ligne" style="width:60%"></div></div>
+              <div class="rub corrige" style="background:#e7f6ee"><h3>Expérience personnelle</h3><div class="ligne"></div><div class="ligne"></div><div class="ligne" style="width:85%"></div><div class="ligne"></div><div class="ligne" style="width:70%"></div></div>
+            </div>
+            <div class="colonne">
+              <div class="rub" style="background:#eef2fd"><h3>Expérience professionnelle</h3><div class="ligne"></div><div class="ligne"></div><div class="ligne" style="width:80%"></div><div class="ligne"></div><div class="ligne" style="width:65%"></div></div>
+            </div>
+          </div>
+        </div>
+        <p class="explication">Les deux colonnes finissent à peu près à la même hauteur. Change l'ordre de lecture (« Expérience personnelle » avant « Formations » à gauche) - à surveiller si ça peut dérouter.</p>
+      </div>
+      <div class="comparaison-col">
+        <span class="etiquette solution">Proposition B - pleine largeur en dessous</span>
+        <div class="feuille">
+          <div class="entete-cv">Denis Delacroix - Éducateur</div>
+          <div class="deux-col">
+            <div class="colonne">
+              <div class="rub" style="background:#eef2fd"><h3>Compétences professionnelles</h3><div class="ligne" style="width:70%"></div><div class="ligne" style="width:55%"></div></div>
+              <div class="rub" style="background:#eef2fd"><h3>Formations</h3><div class="ligne" style="width:80%"></div><div class="ligne" style="width:60%"></div></div>
+            </div>
+            <div class="colonne">
+              <div class="rub" style="background:#eef2fd"><h3>Expérience professionnelle</h3><div class="ligne"></div><div class="ligne"></div><div class="ligne" style="width:80%"></div><div class="ligne"></div><div class="ligne" style="width:65%"></div></div>
+            </div>
+            <div class="rub corrige pleine-largeur" style="background:#e7f6ee"><h3>Expérience personnelle</h3><div class="ligne" style="width:45%"></div><div class="ligne" style="width:40%"></div></div>
+          </div>
+        </div>
+        <p class="explication">Les 2 colonnes gardent leur ordre habituel ; la rubrique qui déborde part sous les deux, sur toute la largeur (déjà le comportement actuel d'« Expérience personnelle » dans le modèle Standard).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="questions">
+    <h2>Ce qu'il reste à décider avec toi avant de coder</h2>
+    <div class="question">
+      <b class="qn">Question 1</b> - Entre les deux propositions ci-dessus, laquelle préfères-tu ?
+      <ul class="options">
+        <li><b>Proposition A</b> (rejoint la colonne courte) : garde le principe « 2 colonnes pleines », mais change parfois l'ordre de lecture.</li>
+        <li><b>Proposition B</b> (pleine largeur en dessous, recommandé) : ne change jamais l'ordre des rubriques déjà en place, comportement déjà connu (c'est ce que fait « Expérience personnelle » aujourd'hui dans le modèle Standard) - le plus simple et le plus prévisible.</li>
+      </ul>
+    </div>
+    <div class="question">
+      <b class="qn">Question 2</b> - Quelles rubriques ont le droit de bouger si elles débordent ? Je recommande de commencer par celles qui n'ont pas de règle de position stricte aujourd'hui : <b>Formations</b>, <b>Expérience personnelle</b>, <b>Certifications</b>, <b>Centres d'intérêt</b>. Jamais « Expérience professionnelle » (toujours à droite, règle déjà actée) ni les blocs de compétences en haut de page.
+    </div>
+    <div class="question">
+      <b class="qn">Question 3</b> - À partir de quel écart déclencher la correction ? Une petite différence (une ligne ou deux) ne doit pas déplacer une rubrique à chaque réglage - sinon le CV « bouge » sans arrêt. Je recommande un seuil autour de 3 à 4 lignes d'écart, à ajuster une fois vu en vrai sur plusieurs CV.
+    </div>
+  </div>
+</div>
+</body>
+</html>

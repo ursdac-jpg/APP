@@ -2,11 +2,11 @@
 
 Audit en lecture seule (aucun fichier de code modifié), mené le 2026-09-12 à la demande de Denis, première étape d'un chantier de stabilisation générale de l'application. Périmètre : les 4 parcours de la carte d'accueil « Mes documents » : **Créer un nouveau CV**, **Reformuler et présenter mon CV**, **Mettre à jour mon CV**, **Préparer ma lettre et mon entretien**.
 
-Méthode : deux passes indépendantes par lecture directe du code (pas seulement des documents de suivi, qui peuvent être périmés), croisées avec `docs/AUDIT_ZERO_REGRESSION_CREER_MON_CV.md`, `docs/CHANTIER_REFORMULER_ET_PRESENTER_CV.md`, `docs/BRIQUES_COMMUNES.md`, `docs/ETAT_DES_CHANTIERS_2026-08-24.md`, `docs/LECONS_A_NE_PAS_REPRODUIRE.md`. Chaque écran des 4 parcours a été tracé de bout en bout : boutons et contrôles, effet réel des choix saisis, navigation « Retour »/« Accueil », mode sombre, français, fidélité des données transmises aux prompts, suivi d'usage, doublons de composants, couverture de tests.
+Méthode : deux passes indépendantes par lecture directe du code (pas seulement des documents de suivi, qui peuvent être périmés), croisées avec `docs/AUDIT_ZERO_REGRESSION_CREER_MON_CV.md`, `docs/CHANTIER_REFORMULER_ET_PRESENTER_CV.md`, `docs/BRIQUES_COMMUNES.md`, `docs/ETAT_DES_CHANTIERS.md`, `docs/LECONS_A_NE_PAS_REPRODUIRE.md`. Chaque écran des 4 parcours a été tracé de bout en bout : boutons et contrôles, effet réel des choix saisis, navigation « Retour »/« Accueil », mode sombre, français, fidélité des données transmises aux prompts, suivi d'usage, doublons de composants, couverture de tests.
 
 ## Verdict d'ensemble
 
-**Aucune anomalie bloquante trouvée sur les 4 parcours.** Aucun bouton mort, aucun choix saisi sans effet réel, aucune boucle ou saut incohérent du bouton « Retour ». Le bug de navigation RC-03 (déjà repéré comme « à vérifier » dans `docs/ETAT_DES_CHANTIERS_2026-08-24.md`) est en réalité déjà corrigé sur toute la carte « Mes documents » : ce document de suivi est simplement resté périmé sur ce point (voir finding 8).
+**Aucune anomalie bloquante trouvée sur les 4 parcours.** Aucun bouton mort, aucun choix saisi sans effet réel, aucune boucle ou saut incohérent du bouton « Retour ». Le bug de navigation RC-03 (déjà repéré comme « à vérifier » dans `docs/ETAT_DES_CHANTIERS.md`) est en réalité déjà corrigé sur toute la carte « Mes documents » : ce document de suivi est simplement resté périmé sur ce point (voir finding 8).
 
 Les 7 écarts trouvés sont tous **gênants ou mineurs** : deux trous de mode sombre, une incohérence de suivi d'usage, deux textes à corriger, un trou de couverture de tests, et une fragilité d'état à surveiller.
 
@@ -50,7 +50,7 @@ Les 7 écarts trouvés sont tous **gênants ou mineurs** : deux trous de mode so
 - **Fichier** : `data/metiers.js:5107`.
 - **Problème** : `_prepLEEcran` est mis à `'intro'` juste avant l'ouverture de la fenêtre modale de dépôt, alors que l'écran affiché à l'écran reste la page « Préparer » dépliante. Sans conséquence dans tous les cas testés par lecture du code (le bouton « Retour » du wizard est un no-op volontaire et documenté, fermer la fenêtre suffit). Risque théorique seulement : si la personne quitte la fenêtre par un autre biais qu'un clic du wizard pendant que cet état vaut déjà `'intro'`, un rendu ultérieur pourrait retomber sur l'écran d'intro plutôt que sur le dépôt en cours. À surveiller plutôt qu'à corriger dans l'immédiat.
 
-### 8. Document de suivi périmé : `docs/ETAT_DES_CHANTIERS_2026-08-24.md` (documentation seulement)
+### 8. Document de suivi périmé : `docs/ETAT_DES_CHANTIERS.md` (documentation seulement)
 - **Problème** : la section 3 (point RC-03) liste encore comme ouverts, au 2026-09-04 : *« le bouton Retour de la 2ᵉ page de "Créer mon CV" ramène à l'accueil »* et *« le reste du parcours de création est à vérifier écran par écran »*. Les deux sont en réalité déjà corrigés dans le code (commentaires explicites datés du 2026-09-04 et du 2026-09-10 : `pageObjectif()` calcule dynamiquement sa destination Retour selon l'historique réel, et chaque écran du chemin `votre-parcours → projet → revelation → assistant → resultats` fait de même via `resultatsCibleRetour()`). Rien à corriger dans le code ; le document de suivi doit être mis à jour pour ne pas déclencher un futur audit inutile sur un point déjà réglé.
 
 ---

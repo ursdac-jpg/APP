@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : déplacer les rubriques à la souris</title>
+<style>
+:root {
+  --bg: #f4f6fa; --card: #ffffff; --text: #1c2430; --muted: #5b6675; --border: #d5dbe4;
+  --accent: #2f6690; --accent-bg: #e8f0f7; --slot: #2f6690; --danger: #b23a3a; --ok: #2e7d5b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #141a22; --card: #1b212c; --text: #e8edf5; --muted: #a3afc0; --border: #33405a; --accent: #6fa8d6; --accent-bg: #1e2940; --slot: #6fa8d6; --danger: #e07a7a; --ok: #6fcf9f; }
+}
+:root[data-theme="dark"] { --bg: #141a22; --card: #1b212c; --text: #e8edf5; --muted: #a3afc0; --border: #33405a; --accent: #6fa8d6; --accent-bg: #1e2940; --slot: #6fa8d6; --danger: #e07a7a; --ok: #6fcf9f; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; }
+.tete { display: flex; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--card); flex-wrap: wrap; }
+.tete .retour { border: 1px solid var(--accent); color: var(--accent); background: var(--card); border-radius: 8px; padding: 6px 12px; cursor: default; }
+.tete .hint { color: var(--muted); font-size: 14px; flex: 1; min-width: 220px; }
+.corps { display: grid; grid-template-columns: 250px 1fr; gap: 16px; padding: 16px; max-width: 1100px; margin: 0 auto; }
+@media (max-width: 760px) { .corps { grid-template-columns: 1fr; } }
+.outils { display: flex; flex-direction: column; gap: 8px; align-content: start; }
+.t { text-align: left; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 10px; padding: 9px 12px; font-size: 14px; cursor: pointer; }
+.t:hover { border-color: var(--accent); }
+.t.on { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); font-weight: 700; }
+.t:disabled { opacity: .4; cursor: default; }
+.note-aide { border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 9px 12px; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.bandeau-perso { display: none; border: 1px solid var(--accent); background: var(--accent-bg); border-radius: 10px; padding: 9px 12px; font-size: 13px; line-height: 1.4; }
+.bandeau-perso.visible { display: block; }
+.bandeau-perso button { margin-top: 6px; }
+.feuille { background: var(--card); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.12); padding: 0 0 18px; min-height: 620px; position: relative; }
+.entete { background: linear-gradient(135deg, #2f6690, #6d97bd); color: #fff; padding: 18px 24px; border-radius: 6px 6px 0 0; }
+.entete b { font-size: 20px; display: block; } .entete span { font-size: 13px; opacity: .9; }
+.colonnes { display: grid; grid-template-columns: 36% 1fr; gap: 22px; padding: 16px 24px 0; }
+.col { display: flex; flex-direction: column; min-height: 200px; position: relative; }
+.bloc { position: relative; margin: 0; padding: 6px 0 10px; }
+.bloc h4 { margin: 0 0 4px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--border); padding: 0 0 3px; display: flex; align-items: center; gap: 6px; }
+.bloc .l { height: 8px; background: var(--border); border-radius: 4px; margin: 6px 0; opacity: .8; }
+.bloc .l.c { width: 70%; } .bloc .l.cc { width: 45%; }
+.poignee { display: none; cursor: grab; user-select: none; font-size: 16px; line-height: 1; color: var(--accent); padding: 0 4px; touch-action: none; }
+.cadenas { display: none; font-size: 12px; }
+.mode-rub .bloc { outline: 1px dashed var(--accent); outline-offset: 3px; margin: 4px 0; padding: 6px 6px 10px; border-radius: 4px; }
+.mode-rub .poignee { display: inline-block; }
+.mode-rub .bloc.verrou .poignee { display: none; }
+.mode-rub .bloc.verrou .cadenas { display: inline; }
+.bloc.leve { opacity: .25; }
+.slot { height: 0; margin: 0; border-radius: 4px; transition: height .12s, margin .12s; position: relative; }
+.mode-rub.glisse .slot { height: 14px; margin: 3px 0; border: 2px dashed var(--slot); background: transparent; }
+.mode-rub.glisse .slot.actif { background: var(--accent-bg); border-style: solid; height: 26px; }
+.mode-rub.glisse .slot.interdit { border-color: var(--danger); }
+.fantome { position: fixed; pointer-events: none; z-index: 50; width: 260px; opacity: .92; background: var(--card); border: 2px solid var(--accent); border-radius: 8px; padding: 6px 10px 10px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.fantome h4 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; color: var(--accent); }
+.msg { min-height: 22px; font-size: 13px; margin-bottom: 8px; color: var(--muted); }
+.msg.ok { color: var(--ok); } .msg.ko { color: var(--danger); font-weight: 600; }
+.legende { font-size: 13px; color: var(--muted); max-width: 1100px; margin: 0 auto; padding: 0 16px 24px; line-height: 1.5; }
+.legende b { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="tete">
+  <span class="retour">&larr; Revenir aux réglages</span>
+  <span class="hint" id="hint">Vous agissez directement sur le CV.</span>
+</div>
+
+<div class="corps">
+  <div class="outils">
+    <button class="t" disabled>&#9997;&#65039; Modifier le texte</button>
+    <button class="t" disabled>&#127912; Modifier les couleurs</button>
+    <button class="t" disabled>&#8597; Déplacer une expérience</button>
+    <button class="t" id="tRub">&#10021; Déplacer les rubriques</button>
+    <div class="note-aide" id="aide">Cliquez sur « Déplacer les rubriques », puis prenez une rubrique par sa poignée &#10303; et déposez-la sur un <b>emplacement bleu</b>.</div>
+    <div class="bandeau-perso" id="bandeauPerso">
+      <b>Vous avez choisi votre disposition.</b> Elle n'est plus recalculée automatiquement.
+      <br><button class="t" id="bAuto">&#8634; Revenir à la disposition automatique</button>
+    </div>
+    <button class="t" id="bAnnuler" disabled>&#8617; Annuler le dernier déplacement</button>
+  </div>
+
+  <div>
+    <div class="msg" id="msg">&nbsp;</div>
+    <div class="feuille" id="feuille">
+      <div class="entete"><b>Camille MARTIN</b><span>Agent de sécurité &middot; Limoges</span></div>
+      <div class="colonnes" id="colonnes">
+        <div class="col" id="col-gauche" data-col="gauche"></div>
+        <div class="col" id="col-droite" data-col="droite"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="legende">
+  <b>Ce que montre cette maquette.</b> (1) Un bouton « Déplacer les rubriques » dans la barre d'outils du grand aperçu. (2) Chaque rubrique reçoit une poignée &#10303;
+  et un contour en pointillés. (3) Quand on la prend, des <b>emplacements prédéfinis</b> apparaissent entre les rubriques, dans les deux colonnes ; l'emplacement visé se colore. (4) Au lâcher, la rubrique se place.
+  (5) « Expérience professionnelle » est verrouillée dans la colonne de droite (&#128274;) : la déposer à gauche est refusé avec un message. (6) Après un déplacement, le CV n'est plus recalculé
+  automatiquement ; un bouton ramène la disposition automatique. (7) « Annuler le dernier déplacement » à volonté.
+  <br>Cette maquette ne modifie aucun vrai CV : elle sert à valider le geste et l'aspect avant de coder.
+</div>
+
+<script>
+(function () {
+  var NOMS = { pro: 'Compétences professionnelles', comp: 'Compétences comportementales', logi: 'Logiciels et outils', langues: 'Langues', centres: 'Centres d’intérêt',
+    exp: 'Expérience professionnelle', form: 'Formations', perso: 'Expérience personnelle' };
+  var LIGNES = { pro: 3, comp: 3, logi: 2, langues: 1, centres: 2, exp: 6, form: 2, perso: 2 };
+  var DEPART = { gauche: ['comp', 'logi', 'langues', 'centres'], droite: ['pro', 'exp', 'form', 'perso'] };
+  var etat = copie(DEPART), historique = [], modeRub = false, personnalise = false;
+  var $ = function (id) { return document.getElementById(id); };
+  function copie(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function bloc(k) {
+    var lignes = ''; for (var i = 0; i < LIGNES[k]; i++) { lignes += '<div class="l ' + (i % 3 === 1 ? 'c' : i % 3 === 2 ? 'cc' : '') + '"></div>'; }
+    return '<div class="bloc' + (k === 'exp' ? ' verrou' : '') + '" data-k="' + k + '"><h4><span class="poignee" title="Glisser pour déplacer">&#10303;</span><span class="cadenas" title="Reste toujours dans la colonne de droite">&#128274;</span>' + NOMS[k] + '</h4>' + lignes + '</div>';
+  }
+  function slot(col, i) { return '<div class="slot" data-col="' + col + '" data-i="' + i + '"></div>'; }
+  function dessiner() {
+    ['gauche', 'droite'].forEach(function (c) {
+      var h = slot(c, 0);
+      etat[c].forEach(function (k, i) { h += bloc(k) + slot(c, i + 1); });
+      $('col-' + c).innerHTML = h;
+    });
+    $('feuille').classList.toggle('mode-rub', modeRub);
+    $('tRub').classList.toggle('on', modeRub);
+    $('bandeauPerso').classList.toggle('visible', personnalise);
+    $('bAnnuler').disabled = !historique.length;
+    $('hint').textContent = modeRub ? 'Prenez une rubrique par sa poignée et déposez-la sur un emplacement bleu.' : 'Vous agissez directement sur le CV.';
+    $('feuille').querySelectorAll('.poignee').forEach(function (p) { p.addEventListener('pointerdown', debut); });
+  }
+  function message(t, cl) { var m = $('msg'); m.textContent = t || ' '; m.className = 'msg' + (cl ? ' ' + cl : ''); }
+
+  var glisse = null;
+  function debut(e) {
+    e.preventDefault();
+    var b = e.target.closest('.bloc'); if (!b) { return; }
+    var k = b.getAttribute('data-k');
+    b.classList.add('leve');
+    var f = document.createElement('div'); f.className = 'fantome'; f.innerHTML = '<h4>' + NOMS[k] + '</h4><div class="l"></div><div class="l c"></div>';
+    document.body.appendChild(f);
+    glisse = { k: k, f: f, cible: null };
+    $('feuille').classList.add('glisse');
+    deplacer(e);
+    window.addEventListener('pointermove', deplacer); window.addEventListener('pointerup', fin, { once: true });
+  }
+  function deplacer(e) {
+    if (!glisse) { return; }
+    glisse.f.style.left = (e.clientX + 12) + 'px'; glisse.f.style.top = (e.clientY + 8) + 'px';
+    // colonne visee : celle dont la moitie horizontale contient le pointeur ; emplacement = le plus proche verticalement
+    var meilleur = null, dmin = 1e9;
+    document.querySelectorAll('.slot').forEach(function (s) {
+      s.classList.remove('actif', 'interdit');
+      var r = s.getBoundingClientRect(), col = $('col-' + s.getAttribute('data-col')).getBoundingClientRect();
+      if (e.clientX < col.left - 20 || e.clientX > col.right + 20) { return; }
+      var d = Math.abs((r.top + r.bottom) / 2 - e.clientY);
+      if (d < dmin) { dmin = d; meilleur = s; }
+    });
+    glisse.cible = meilleur;
+    if (meilleur) {
+      var refuse = (glisse.k === 'exp' && meilleur.getAttribute('data-col') !== 'droite');
+      meilleur.classList.add(refuse ? 'interdit' : 'actif');
+      if (refuse) { message('« Expérience professionnelle » reste toujours dans la colonne de droite.', 'ko'); } else { message(''); }
+    }
+  }
+  function fin() {
+    window.removeEventListener('pointermove', deplacer);
+    var g = glisse; glisse = null; if (!g) { return; }
+    g.f.remove(); $('feuille').classList.remove('glisse');
+    var s = g.cible;
+    if (s) {
+      var col = s.getAttribute('data-col'), i = parseInt(s.getAttribute('data-i'), 10);
+      if (g.k === 'exp' && col !== 'droite') { message('« Expérience professionnelle » reste toujours dans la colonne de droite.', 'ko'); dessiner(); return; }
+      historique.push(copie(etat));
+      // retirer de son ancienne place, puis insérer (en corrigeant l'index si on reste dans la même colonne, au-dessus)
+      ['gauche', 'droite'].forEach(function (c) { var j = etat[c].indexOf(g.k); if (j !== -1) { etat[c].splice(j, 1); if (c === col && j < i) { i--; } } });
+      etat[col].splice(i, 0, g.k);
+      personnalise = true;
+      message('« ' + NOMS[g.k] + ' » déplacée.', 'ok');
+    }
+    dessiner();
+  }
+  $('tRub').addEventListener('click', function () { modeRub = !modeRub; message(''); dessiner(); });
+  $('bAnnuler').addEventListener('click', function () { if (historique.length) { etat = historique.pop(); if (!historique.length) { personnalise = false; } message('Dernier déplacement annulé.', 'ok'); dessiner(); } });
+  $('bAuto').addEventListener('click', function () { etat = copie(DEPART); historique = []; personnalise = false; message('Disposition automatique rétablie.', 'ok'); dessiner(); });
+  dessiner();
+})();
+</script>
+</body>
+</html>

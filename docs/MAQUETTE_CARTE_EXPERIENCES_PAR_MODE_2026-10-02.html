@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE (version 2, 2026-10-02) - Carte « Expériences professionnelles » de « La mise en page » : le bas de la carte s'adapte au mode.
+  Reprise de la demande de Denis : « prends ce que j'ai actuellement ». Cette maquette réutilise donc la VRAIE carte :
+  le vrai balisage (copié de l'application), les vraies feuilles de style (css/style.css et css/mise-en-page-maquette.css)
+  et les mêmes composants (zones dépliantes « choix-exp », lignes « ligne-bloc », boutons « btn-miss », curseurs « pas »).
+  Seul ce qui change est marqué : bouton « Montrer ce qui change » dans la barre de la maquette (hors écran réel).
+  Rien n'est enregistré ; le contenu est fictif. Notes et verdict : bouton « Notes de la maquette ».
+  Thème sombre : bouton de la barre (attribut data-theme="sombre", comme l'application).
+  Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Carte Expériences par mode (v2)</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font-size: .78rem; color: var(--text-muted); font-family: "Segoe UI", sans-serif; }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 920px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  /* Marquage de ce qui change (maquette seulement) */
+  body.marquer [data-change] { outline: 2px dashed #e08a00; outline-offset: 2px; position: relative; }
+  body.marquer [data-change]::before { content: attr(data-change); position: absolute; top: -.85rem; right: 0; background: #e08a00; color: #fff; font: 600 .62rem "Segoe UI", sans-serif; padding: .05rem .4rem; border-radius: 4px; z-index: 5; white-space: nowrap; }
+  /* Version réduite du grand bouton « Éditer les expériences » : même composant que « Modifier mes expériences et leurs missions », en plus bas */
+  .mep-mq .bouton-editer { display: flex; align-items: center; justify-content: center; gap: .6rem; width: 100%; box-sizing: border-box; margin: .55rem 0 .15rem; min-height: 2.4rem; padding: .35rem .8rem;
+    border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .mep-mq .bouton-editer:hover { background: var(--bg-hover); }
+  .mep-mq .bouton-editer.on { background: var(--accent); color: #fff; }
+  .mep-mq .bouton-editer small { font-weight: 400; color: inherit; opacity: .85; font-size: .7rem; }
+  .mep-mq .bouton-editer svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .mep-mq .gris { opacity: .45; pointer-events: none; }
+  .mep-mq .ligne-theme .nom { font-weight: 700; }
+  .mep-mq .ligne-choix .btn-ordre { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; width: 1.5rem; padding: .0875rem 0; font-size: .7rem; cursor: pointer; }
+  .mep-mq .ligne-choix .btn-ordre:disabled { opacity: .4; cursor: not-allowed; }
+  .mep-mq .ligne-choix.off .nom { opacity: .45; text-decoration: line-through; }
+  .mep-mq .ligne-choix.niveau .nom { opacity: .5; text-decoration: none; }
+  .mep-mq .nom[contenteditable="true"] { outline: 2px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 4px; padding: 0 .2rem; }
+  [hidden] { display: none !important; }
+  dialog { max-width: 720px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); }
+  dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+
+<div class="ecran"><div class="mep-mq">
+<details class="mep-carte" id="cExp" open>
+  <summary><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><div><h3>Expériences professionnelles</h3><span class="sous">Choisissez la façon de présenter vos expériences.</span></div><span class="chev">&#8963;</span></summary>
+  <div class="carte-corps">
+    <div class="quatre">
+      <div class="boite"><h4>Mode de présentation</h4>
+        <label class="rad"><input type="radio" name="mode" value="A" checked> Chronologique (classique)</label>
+        <label class="rad"><input type="radio" name="mode" value="C"> Par compétences</label>
+        <label class="rad"><input type="radio" name="mode" value="B"> Mixte (compétences, puis expériences détaillées)</label>
+        <label class="ck" style="margin-top:.25rem" data-hors="A"><input type="checkbox"> Indiquer l'expérience entre parenthèses</label>
+      </div>
+      <div class="boite"><h4>Expériences à afficher</h4>
+        <label class="rad"><input type="radio" name="tout" checked> Toutes les expériences<small>Affiche l'ensemble de votre parcours.</small></label>
+        <label class="rad"><input type="radio" name="tout"> Les plus pertinentes<small>Met en avant celles en lien avec votre projet.</small></label>
+      </div>
+      <div class="boite" id="boiteNiveau" data-change="Reste accessible en « Par compétences » : agit sur les missions de la zone ci-dessous"><h4>Niveau de détail</h4>
+        <label class="rad"><input type="radio" name="niv" value="auto" checked> Automatique<small>Complet, raccourci seulement si le CV déborde.</small></label>
+        <label class="rad"><input type="radio" name="niv" value="complet"> Complet</label>
+        <label class="rad"><input type="radio" name="niv" value="resume"> Résumé</label>
+      </div>
+      <div class="boite"><h4>Position des dates</h4>
+        <label class="rad"><input type="radio" name="dates" checked> À droite du poste</label>
+        <label class="rad"><input type="radio" name="dates"> Sous le poste</label>
+        <label class="rad"><input type="radio" name="dates"> Avant le poste</label>
+      </div>
+    </div>
+
+    <!-- CHANGE : « Éditer les expériences » devient un vrai bouton (même famille que « Modifier mes expériences… »), juste sous les quatre boîtes, dans les 3 modes -->
+    <button type="button" class="bouton-editer" id="btnEditer" data-change="Nouveau : bouton visible, dans les 3 modes (avant : petite case en bas)">
+      <svg viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <span>Éditer les expériences <small>(intitulé, lieu, dates, missions)</small></span>
+    </button>
+    <p class="choix-aide" id="aideEdition" hidden><b>Mode édition :</b> cliquez sur le nom d'une expérience pour la modifier, puis sur « Valider ». Les autres restent fermées.</p>
+
+    <!-- CHANGE : zone « compétences et leurs missions » (modes Par compétences et Mixte), même composant que la zone des expériences -->
+    <details class="choix-exp" id="zoneComp" data-hors="A" data-change="Nouveau : les missions qui s'affichent en « Par compétences » et en « Compétences en action » (Mixte)">
+      <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir" id="titreComp">Modifier mes compétences et leurs missions</span><span class="cb-fermer">Refermer mes compétences</span></b><small id="resumeComp">4 missions affichées &middot; cliquez pour modifier</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+      <div class="choix-corps">
+        <p class="choix-aide" id="aideComp">Voici les missions qui s'affichent sur votre CV, rangées par compétence. Pour chacune : la garder ou non, la modifier, la monter ou la descendre.</p>
+        <div class="mep-liste-choix-exp" id="listeComp" style="grid-template-columns:1fr"></div>
+        <p class="choix-aide" id="aideNiveau" data-change="Nouveau : explique l'effet du niveau de détail sur cette liste"></p>
+      </div>
+    </details>
+
+
+    <!-- CHANGE (Mixte seulement) : accès aux compétences professionnelles restantes (pastilles). Même composant que « Les montrer et les choisir » de la carte Compétences. -->
+    <details class="choix-exp" id="zonePro" hidden data-change="Nouveau en Mixte : garder ou enlever les compétences professionnelles (pastilles), sans quitter cette carte">
+      <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Modifier mes compétences professionnelles</span><span class="cb-fermer">Refermer mes compétences professionnelles</span></b><small id="resumePro">6 sur 8 affichées &middot; cliquez pour modifier</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+      <div class="choix-corps">
+        <p class="choix-aide">En Mixte, ces compétences s&rsquo;affichent en pastilles sous « Compétences professionnelles », à côté des missions en action. Décochez celles que vous ne voulez pas montrer.</p>
+        <div class="miss-tete" style="display:flex;justify-content:space-between;gap:.5rem"><span><b>Compétences professionnelles</b> : <span id="nbPro">6</span> sur 8 affichées</span><button type="button" class="btn-miss">Remettre l&rsquo;ordre automatique</button></div>
+        <div id="listePro" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.15rem .8rem;margin-top:.3rem"></div>
+      </div>
+    </details>
+
+    <!-- Zone existante, inchangée : « Modifier mes expériences et leurs missions » -->
+    <details class="choix-exp" id="zoneChoixExp" data-hors="C">
+      <summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Modifier mes expériences et leurs missions</span><span class="cb-fermer">Refermer mes expériences</span></b><small>3 expériences affichées &middot; cliquez pour modifier</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>
+      <div class="choix-corps">
+        <p class="choix-aide">Toutes vos expériences sont affichées. Pour chacune, choisissez les missions à garder : la 5e à la place de la 4e, c’est possible.</p>
+        <div class="mep-liste-choix-exp">
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom"><b>Agent de sécurité</b> - Sécuritas <em>(2022 - 2024)</em></span><span class="pas"><button type="button">&minus;</button><span>2</span><button type="button">+</button></span><span class="sur">/4</span><button type="button" class="btn-miss">Missions &#9662;</button></label></div>
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom"><b>Vendeuse</b> - Boulangerie Dupont <em>(2019 - 2021)</em></span><span class="pas"><button type="button">&minus;</button><span>2</span><button type="button">+</button></span><span class="sur">/3</span><button type="button" class="btn-miss">Missions &#9662;</button></label></div>
+          <div class="ligne-bloc"><label class="ligne-choix"><input type="checkbox" checked disabled><span class="nom"><b>Employée polyvalente</b> - Café du centre <em>(2017 - 2018)</em></span><span class="pas"><button type="button">&minus;</button><span>2</span><button type="button">+</button></span><span class="sur">/3</span><button type="button" class="btn-miss">Missions &#9662;</button></label></div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Zone existante, inchangée -->
+    <details class="choix-exp desactivee" data-hors="A"><summary class="choix-titre choix-bouton" aria-disabled="true" tabindex="-1"><span class="cb-texte"><b><span class="cb-ouvrir">Relier mes compétences à mes expériences</span><span class="cb-fermer">Refermer cette zone</span></b><small>Cochez d’abord « Indiquer l’expérience entre parenthèses »</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary></details>
+
+    <div class="ligne-plus">
+      <div class="inline"><label>Ordre</label><select><option>Du plus récent au plus ancien</option><option>Du plus ancien au plus récent</option><option>Mon ordre</option><option>Du plus pertinent</option></select></div>
+      <div class="inline" id="ligneMissionsExp"><label>Missions par expérience</label><div class="pas"><button type="button">&minus;</button><span>2</span><button type="button">+</button></div></div>
+      <div class="inline"><label>Style des missions</label><div class="seg seg-mini"><button type="button" class="on">Épurées<small>Une par ligne</small></button><button type="button">Condensées<small>À la suite</small></button></div></div>
+      <div class="inline" data-change="Déjà présent ailleurs dans l'application : le signe devant chaque mission (rond, carré, triangle)"><label>Signe devant chaque mission</label><div class="seg seg-mini"><button type="button" class="on">&bull;</button><button type="button">&#9632;</button><button type="button">&#9656;</button><button type="button">&ndash;</button></div></div>
+      <div class="inline"><label>Dates <span class="sous" style="font-weight:400">Le poste reste en gras seul</span></label><span class="grp"><button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">S</button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">I</button></span></div>
+      <div class="inline"><label>Entreprise</label><span class="grp"><button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">S</button> <button type="button" class="btn-g-i" style="border:1px solid var(--border-strong);background:var(--bg-card);color:var(--text-strong);border-radius:7px;padding:.25rem .55rem;font-size:.78rem">I</button></span></div>
+      <label class="ck"><input type="checkbox" checked> Afficher le lieu</label>
+      <div class="inline"><label>Style du lieu</label><div class="seg seg-mini"><button type="button">Normal</button><button type="button" class="on">Italique</button><button type="button">Gris</button></div></div>
+    </div>
+    <div class="champ"><div class="ligne-comp" style="flex-wrap:wrap"><span class="sous-aide" style="margin:0">Taille du texte, interligne et espace de cette rubrique : directement sur le CV.</span><button type="button" class="btn-miss">Régler sur le CV &#8594;</button></div></div>
+  </div>
+</details>
+</div></div>
+
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette (version 2)</h3>
+  <p><b>Ce qui est conservé tel quel</b> (vrai balisage et vrais styles de l'application) : les quatre boîtes du haut, la zone « Modifier mes expériences et leurs missions » avec ses « + / − » et « Missions », la zone « Relier mes compétences à mes expériences », la ligne de réglages (ordre, style des missions, dates, entreprise, lieu), « Régler sur le CV ».</p>
+  <p><b>Ce qui change, en tout</b> (bouton « Montrer ce qui change ») :</p>
+  <ul>
+    <li><b>Éditer les expériences</b> : la petite case devient un bouton de la même famille que « Modifier mes expériences… », mais plus bas et plus petit que lui. Placé juste sous les quatre boîtes. Présent dans les trois modes.</li>
+    <li><b>Par compétences</b> : une zone « Modifier mes compétences et leurs missions » (même composant que la zone des expériences) remplace celle des expériences, car c'est elle qui montre les missions affichées. Chaque mission : case, crayon, ↑ ↓.</li>
+    <li><b>Mixte</b> : trois zones : les compétences en action, les compétences professionnelles restantes (pastilles, à garder ou enlever, même composant que « Les montrer et les choisir » de la carte Compétences), puis les expériences.</li>
+    <li><b>Niveau de détail reste accessible en Par compétences</b> (décision de Denis, 2026-10-02) et agit sur la liste des missions : Automatique = autant que la page peut en contenir, les dernières de la liste sautent d'abord si le CV déborde ; Complet = toutes ; Résumé = moins (les premières seulement).</li>
+    <li>Le « Signe devant chaque mission » existe déjà dans l'application (6 signes) : rien de nouveau ici. Il reste à vérifier à quelles listes il s'applique (compétences, expérience personnelle).</li>
+  </ul>
+  <p><b>Verdict de faisabilité : GO AVEC RÉSERVES.</b></p>
+  <ul>
+    <li><b>Déjà en place, à brancher</b> : masquer une mission, modifier son texte, « entre parenthèses », ordre des expériences, dates, lieu, style et signe.</li>
+    <li><b>À créer</b> : l'ordre des missions et des compétences (aucun réglage n'existe aujourd'hui).</li>
+    <li><b>Tests</b> : le PDF, le Word, le plein écran et le Mini CV A5 lisent les mêmes compétences groupées. Un test par format pour que l'ordre soit identique partout. Aucune fonction existante n'est retirée : la zone des expériences, « Relier mes compétences », les réglages et leurs boutons restent.</li>
+  </ul>
+  <p style="text-align:right"><button type="button" class="btn-miss" id="btnFermerNotes">Fermer</button></p>
+</dialog>
+
+<script>
+  var DONNEES = [
+    { theme: 'Pose et adaptation du carrelage', items: [
+      { t: 'Pose de carrelage sur sols et murs', s: 'Agent de sécurité' },
+      { t: 'Découpe et ajustement du carrelage', s: 'Vendeuse' } ] },
+    { theme: 'Préparation et finitions', items: [
+      { t: 'Préparation des supports', s: 'Employée polyvalente' },
+      { t: 'Techniques de finition', s: 'Employée polyvalente' } ] }
+  ];
+  var PRO = [{ t: 'Pose de carrelage', on: true }, { t: 'Peinture en bâtiment', on: true }, { t: 'Préparation des supports', on: true }, { t: 'Lecture de plans', on: true }, { t: 'Utilisation d’outils', on: true }, { t: 'Respect des consignes de sécurité', on: true }, { t: 'Calcul de surfaces', on: false }, { t: 'Conduite de chantier', on: false }];
+  function dessinerPro() {
+    var c = document.getElementById('listePro'); c.innerHTML = ''; var n = 0;
+    PRO.forEach(function (x, i) {
+      if (x.on) { n++; }
+      var l = document.createElement('label'); l.className = 'ligne-choix' + (x.on ? '' : ' off');
+      l.innerHTML = '<input type="checkbox"' + (x.on ? ' checked' : '') + ' data-pro="' + i + '"><span class="nom">' + x.t + '</span>';
+      c.appendChild(l);
+    });
+    document.getElementById('nbPro').textContent = n; document.getElementById('resumePro').innerHTML = n + ' sur ' + PRO.length + ' affichées &middot; cliquez pour modifier';
+  }
+  function dessiner() {
+    var cont = document.getElementById('listeComp'); cont.innerHTML = '';
+    var nb = 0, rang = 0;
+    var niveau = (document.querySelector('input[name=niv]:checked') || {}).value || 'auto';
+    var total = DONNEES.reduce(function (t, g) { return t + g.items.length; }, 0);
+    DONNEES.forEach(function (g, gi) {
+      var th = document.createElement('div'); th.className = 'ligne-bloc';
+      th.innerHTML = '<label class="ligne-choix ligne-theme"><span class="nom">' + g.theme + '</span>' +
+        '<button type="button" class="btn-ordre" data-act="gh" data-gi="' + gi + '" title="Monter cette compétence"' + (gi === 0 ? ' disabled' : '') + '>&uarr;</button>' +
+        '<button type="button" class="btn-ordre" data-act="gb" data-gi="' + gi + '" title="Descendre cette compétence"' + (gi === DONNEES.length - 1 ? ' disabled' : '') + '>&darr;</button></label>';
+      cont.appendChild(th);
+      g.items.forEach(function (it, ii) {
+        rang++;
+        var note = '';
+        if (niveau === 'resume' && rang > 3) { note = ' <em>(non affichée en Résumé)</em>'; }
+        else if (niveau === 'auto' && rang > total - 2) { note = ' <em>(retirée en premier si le CV ne tient pas)</em>'; }
+        var cachee = it.off || (niveau === 'resume' && rang > 3);
+        if (!cachee) { nb++; }
+        var l = document.createElement('div'); l.className = 'ligne-bloc';
+        l.innerHTML = '<label class="ligne-choix' + (it.off ? ' off' : (cachee ? ' niveau' : '')) + '" style="padding-left:1rem"><input type="checkbox"' + (it.off ? '' : ' checked') + ' data-act="ck" data-gi="' + gi + '" data-ii="' + ii + '">' +
+          '<span class="nom">' + it.t + ' <em>(' + it.s + ')</em>' + note + '</span>' +
+          '<button type="button" class="btn-miss" data-act="ed">Modifier</button>' +
+          '<button type="button" class="btn-ordre" data-act="mh" data-gi="' + gi + '" data-ii="' + ii + '" title="Monter"' + (ii === 0 ? ' disabled' : '') + '>&uarr;</button>' +
+          '<button type="button" class="btn-ordre" data-act="mb" data-gi="' + gi + '" data-ii="' + ii + '" title="Descendre"' + (ii === g.items.length - 1 ? ' disabled' : '') + '>&darr;</button></label>';
+        cont.appendChild(l);
+      });
+    });
+    document.getElementById('aideNiveau').innerHTML = niveau === 'complet' ? '<b>Complet</b> : toutes les missions sont affichées.'
+      : (niveau === 'resume' ? '<b>Résumé</b> : seules les premières missions sont affichées (les plus importantes sont en haut de la liste).'
+      : '<b>Automatique</b> : toutes les missions que la page peut contenir. Si le CV déborde, les dernières de la liste sont retirées d’abord, une par une, avant d’enlever quoi que ce soit d’autre.');
+    document.getElementById('resumeComp').innerHTML = nb + ' mission' + (nb > 1 ? 's' : '') + ' affichée' + (nb > 1 ? 's' : '') + ' &middot; cliquez pour modifier';
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b) { return; }
+    var act = b.getAttribute('data-act'), gi = +b.getAttribute('data-gi'), ii = +b.getAttribute('data-ii');
+    if (act === 'ed') { var n = b.parentNode.querySelector('.nom'); var on = n.getAttribute('contenteditable') === 'true'; n.setAttribute('contenteditable', on ? 'false' : 'true'); b.textContent = on ? 'Modifier' : 'Valider'; if (!on) { n.focus(); } return; }
+    if (act === 'ck') { return; }
+    if (act === 'gh' || act === 'gb') { DONNEES.splice(act === 'gh' ? gi - 1 : gi + 1, 0, DONNEES.splice(gi, 1)[0]); }
+    if (act === 'mh' || act === 'mb') { var l = DONNEES[gi].items; l.splice(act === 'mh' ? ii - 1 : ii + 1, 0, l.splice(ii, 1)[0]); }
+    dessiner();
+  });
+  document.addEventListener('change', function (ev) {
+    var pr = ev.target.closest('[data-pro]'); if (pr) { PRO[+pr.getAttribute('data-pro')].on = pr.checked; dessinerPro(); return; }
+    var c = ev.target.closest('[data-act="ck"]'); if (!c) { return; }
+    DONNEES[+c.getAttribute('data-gi')].items[+c.getAttribute('data-ii')].off = !c.checked; dessiner();
+  });
+  function appliquerMode() {
+    var mode = document.querySelector('input[name=mode]:checked').value;
+    document.querySelectorAll('[data-hors]').forEach(function (z) { z.hidden = (z.getAttribute('data-hors') === mode); });
+    document.getElementById('zoneComp').hidden = (mode === 'A');
+    document.getElementById('zonePro').hidden = (mode !== 'B');
+    document.getElementById('titreComp').textContent = (mode === 'B') ? 'Modifier mes compétences en action' : 'Modifier mes compétences et leurs missions';
+    document.getElementById('aideComp').textContent = (mode === 'B')
+      ? 'Ces missions s’affichent en haut du CV, sous « Compétences en action ». Les autres restent dans vos expériences : une mission n’est jamais répétée.'
+      : 'Voici les missions qui s’affichent sur votre CV, rangées par compétence. Pour chacune : la garder ou non, la modifier, la monter ou la descendre.';
+    dessiner();
+  }
+  document.querySelectorAll('input[name=mode]').forEach(function (r) { r.addEventListener('change', appliquerMode); });
+  document.querySelectorAll('input[name=niv]').forEach(function (r) { r.addEventListener('change', dessiner); });
+  document.getElementById('btnEditer').addEventListener('click', function () {
+    var on = this.classList.toggle('on'); document.getElementById('aideEdition').hidden = !on;
+  });
+  document.getElementById('btnMarquer').addEventListener('click', function () { this.classList.toggle('on'); document.body.classList.toggle('marquer'); });
+  document.getElementById('btnNotes').addEventListener('click', function () { document.getElementById('dlgNotes').showModal(); });
+  document.getElementById('btnFermerNotes').addEventListener('click', function () { document.getElementById('dlgNotes').close(); });
+  document.getElementById('btnSombre').addEventListener('click', function () {
+    var h = document.documentElement; if (h.getAttribute('data-theme') === 'sombre') { h.removeAttribute('data-theme'); } else { h.setAttribute('data-theme', 'sombre'); }
+  });
+  dessinerPro(); dessiner(); appliquerMode();
+</script>
+</body>
+</html>

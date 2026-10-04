@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Lisibilité et cartes objectif (Paquet C)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+<style>
+  :root {
+    --bg-page: #f0f4fa;
+    --bg-card: #ffffff;
+    --bg-subtle: #f8fafc;
+    --border: #e2e8f0;
+    --border-strong: #d5dbe4;
+    --text-strong: #0b1a33;
+    --text-soft: #3a4a5e;
+    --text-muted: #4a5b6e;
+    --accent: #0d6efd;
+    --accent-solide: #0d6efd;
+    --accent-bg-subtle: #eef2fd;
+    --warning-bg-subtle: #fdf1d9;
+    --warning-border: #f0c675;
+    --warning-strong: #92400e;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+  }
+  :root[data-theme="sombre"] {
+    --bg-page: #12161f;
+    --bg-card: #1b212c;
+    --bg-subtle: #222834;
+    --border: #313a4a;
+    --border-strong: #3d4759;
+    --text-strong: #e8edf5;
+    --text-soft: #c3ccd9;
+    --text-muted: #a8b3c4;
+    --accent: #4d94ff;
+    --accent-solide: #1d4ed8;
+    --accent-bg-subtle: #1e2940;
+    --warning-bg-subtle: #3a2c14;
+    --warning-border: #6b4e1e;
+    --warning-strong: #ffc46b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg-page); color: var(--text-strong);
+    padding: 1.5rem 1rem 4rem;
+  }
+  .page { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 0.3rem; }
+  .intro {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.2rem; margin-bottom: 1.8rem; font-size: 0.92rem; color: var(--text-soft);
+    line-height: 1.5;
+  }
+  .intro strong { color: var(--text-strong); }
+  .barre-outils {
+    display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.8rem;
+  }
+  .barre-outils button {
+    border: 1.5px solid var(--border-strong); background: var(--bg-subtle); color: var(--text-strong);
+    border-radius: 8px; padding: 0.45rem 0.9rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  }
+  .barre-outils button:hover { border-color: var(--accent); }
+
+  h2 { font-size: 1.1rem; margin: 0 0 0.2rem; }
+  .sous-titre { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.9rem; }
+  section { margin-bottom: 2.4rem; }
+
+  /* ---------- Cartes objectif ---------- */
+  .grille-objectif {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.7rem, 1.5vw, 1.1rem);
+  }
+  @media (max-width: 640px) { .grille-objectif { grid-template-columns: repeat(2, 1fr); } }
+
+  .carte-objectif {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: clamp(0.4rem, 1vw, 0.6rem);
+    padding: clamp(1rem, 2.4vw, 1.5rem) clamp(0.7rem, 2vw, 1.1rem);
+    border: 2px solid var(--border-strong); border-radius: 14px;
+    background: var(--bg-card); color: var(--text-strong); cursor: pointer;
+    box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+    transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  .carte-objectif:hover { border-color: var(--accent); }
+  .carte-objectif .icone-objectif {
+    width: clamp(3rem, 7vw, 4rem); height: clamp(3rem, 7vw, 4rem);
+    border-radius: 999px; background: var(--accent-bg-subtle); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  }
+  .carte-objectif .titre-objectif {
+    font-weight: 700; font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.25;
+  }
+  .carte-objectif .desc-objectif {
+    font-size: clamp(0.8rem, 1.4vw, 0.9rem); color: var(--text-muted); line-height: 1.35;
+  }
+  /* Pulse sequentiel : une seule carte a la fois passe en surbrillance bleue */
+  .carte-objectif.pulse-actif {
+    border-color: var(--accent); background: var(--accent-bg-subtle);
+    box-shadow: 0 0 0 4px var(--accent-bg-subtle), 0 4px 14px rgba(13,110,253,.25);
+  }
+  .carte-objectif.pulse-actif .icone-objectif { background: var(--accent); color: #fff; }
+
+  /* ---------- Bloc Candidature (avant / apres cote a cote) ---------- */
+  .comparaison { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  @media (max-width: 720px) { .comparaison { grid-template-columns: 1fr; } }
+  .carte-demo {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem;
+  }
+  .etiquette-demo {
+    display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .04em; padding: 0.15rem 0.55rem; border-radius: 999px; margin-bottom: 0.7rem;
+  }
+  .etiquette-demo.avant { background: var(--warning-bg-subtle); color: var(--warning-strong); border: 1px solid var(--warning-border); }
+  .etiquette-demo.apres { background: var(--accent-bg-subtle); color: var(--accent); border: 1px solid var(--accent); }
+
+  .titre-candidature-avant { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.7rem; }
+  .titre-candidature-apres { font-size: clamp(1.1rem, 2.2vw, 1.35rem); font-weight: 700; margin: 0 0 0.9rem; }
+
+  .jeton-avant {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.85rem; border-radius: 9px; border: 1.5px solid var(--border-strong);
+    background: var(--bg-card); color: var(--text-soft); font-size: 0.85rem; font-weight: 500;
+    margin: 0 0.4rem 0.4rem 0;
+  }
+  .jeton-apres {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: clamp(0.7rem, 1.6vw, 0.95rem) clamp(1rem, 2.2vw, 1.3rem);
+    border-radius: 12px; border: 2.5px solid var(--accent);
+    background: var(--accent-bg-subtle); color: var(--text-strong);
+    font-size: clamp(0.95rem, 1.9vw, 1.1rem); font-weight: 700;
+    margin: 0 0.5rem 0.5rem 0; cursor: pointer;
+  }
+  .jeton-apres i { color: var(--accent); font-size: 1.15em; }
+  .jeton-apres.jeton-secondaire { background: var(--bg-card); border-color: var(--border-strong); color: var(--text-strong); }
+  .jeton-apres.jeton-secondaire i { color: var(--text-muted); }
+  .jeton-apres.jeton-secondaire:hover { border-color: var(--accent); }
+
+  .note-bas {
+    margin-top: 0.9rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;
+  }
+  code { background: var(--bg-subtle); padding: 0.1rem 0.35rem; border-radius: 5px; font-size: 0.85em; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1><i class="bi bi-eye"></i> Maquette - Lisibilité et cartes objectif</h1>
+
+  <div class="intro">
+    Deux idées à valider ici : <strong>l'agrandissement automatique selon la largeur de l'écran</strong> (redimensionnez la fenêtre du navigateur, ou rétrécissez ce panneau, pour voir les tailles réagir en continu - c'est le même principe qui s'appliquerait partout dans l'application), et <strong>le nouveau visuel des cartes objectif + le pulse qui montre qu'elles sont cliquables</strong>.
+    <div class="barre-outils">
+      <button type="button" id="btnTheme"><i class="bi bi-moon-stars"></i> Mode sombre</button>
+      <button type="button" id="btnRejouerPulse"><i class="bi bi-arrow-repeat"></i> Rejouer le pulse</button>
+    </div>
+  </div>
+
+  <section>
+    <h2>1. Cartes objectif - nouveau visuel</h2>
+    <p class="sous-titre">Icône et titre agrandis pour remplir la carte ; taille continue selon la largeur de l'écran. Au premier passage, un pulse bleu parcourt les cartes une par une (2 cycles) pour montrer qu'elles se cliquent.</p>
+    <div class="grille-objectif" id="grilleObjectif">
+      <button type="button" class="carte-objectif" data-id="offre">
+        <span class="icone-objectif"><i class="bi bi-file-earmark-text"></i></span>
+        <span class="titre-objectif">Répondre à une offre</span>
+        <span class="desc-objectif">Adapter votre CV à une offre.</span>
+      </button>
+      <button type="button" class="carte-objectif" data-id="spontanee">
+        <span class="icone-objectif"><i class="bi bi-building"></i></span>
+        <span class="titre-objectif">Candidature spontanée</span>
+        <span class="desc-objectif">Créer un CV pour une entreprise.</span>
+      </button>
+      <button type="button" class="carte-objectif" data-id="reconversion">
+        <span class="icone-objectif"><i class="bi bi-arrow-repeat"></i></span>
+        <span class="titre-objectif">Changer de métier</span>
+        <span class="desc-objectif">Valoriser vos compétences.</span>
+      </button>
+      <button type="button" class="carte-objectif" data-id="stage">
+        <span class="icone-objectif"><i class="bi bi-mortarboard"></i></span>
+        <span class="titre-objectif">Stage</span>
+        <span class="desc-objectif">CV adapté à une recherche de stage.</span>
+      </button>
+      <button type="button" class="carte-objectif" data-id="alternance">
+        <span class="icone-objectif"><i class="bi bi-people"></i></span>
+        <span class="titre-objectif">Alternance</span>
+        <span class="desc-objectif">CV adapté à une alternance.</span>
+      </button>
+      <button type="button" class="carte-objectif" data-id="pmsmp">
+        <span class="icone-objectif"><i class="bi bi-search"></i></span>
+        <span class="titre-objectif">PMSMP (immersion)</span>
+        <span class="desc-objectif">Préparer une période d'immersion en entreprise.</span>
+      </button>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Bloc Candidature - avant / après</h2>
+    <p class="sous-titre">Même écran (« Comment souhaitez-vous rechercher un emploi ? »), avant et après : titre agrandi, boutons plus grands, contraste renforcé même quand le bouton n'est pas sélectionné.</p>
+    <div class="comparaison">
+      <div class="carte-demo">
+        <span class="etiquette-demo avant">Aujourd'hui</span>
+        <p class="titre-candidature-avant">Votre recherche porte sur :</p>
+        <div>
+          <span class="jeton-avant"><i class="bi bi-circle"></i> Un métier précis</span>
+          <span class="jeton-avant"><i class="bi bi-circle"></i> Plusieurs métiers d'un même domaine</span>
+        </div>
+      </div>
+      <div class="carte-demo">
+        <span class="etiquette-demo apres">Proposé</span>
+        <p class="titre-candidature-apres">Votre recherche porte sur :</p>
+        <div>
+          <button type="button" class="jeton-apres"><i class="bi bi-person-badge"></i> Un métier précis</button>
+          <button type="button" class="jeton-apres jeton-secondaire"><i class="bi bi-diagram-3"></i> Plusieurs métiers d'un même domaine</button>
+        </div>
+      </div>
+    </div>
+    <p class="note-bas">Rétrécissez ce panneau (ou la fenêtre) pour voir le titre et les boutons grandir encore un peu plus, comme sur un petit écran d'ordinateur portable.</p>
+  </section>
+
+  <div class="note-bas">
+    Fichier de maquette autonome, hors application - <code>docs/MAQUETTE_LISIBILITE_CARTES_OBJECTIF_2026-09-26.html</code>. Rien n'est encore codé dans l'application.
+  </div>
+</div>
+
+<script>
+  var btnTheme = document.getElementById('btnTheme');
+  btnTheme.addEventListener('click', function () {
+    var sombre = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', sombre ? 'clair' : 'sombre');
+    btnTheme.innerHTML = sombre
+      ? '<i class="bi bi-moon-stars"></i> Mode sombre'
+      : '<i class="bi bi-sun"></i> Mode clair';
+  });
+
+  var ordreCartes = ['offre', 'spontanee', 'reconversion', 'stage', 'alternance', 'pmsmp'];
+  var cartes = ordreCartes.map(function (id) {
+    return document.querySelector('.carte-objectif[data-id="' + id + '"]');
+  });
+  var minuteriePulse = null;
+
+  function jouerPulse() {
+    if (minuteriePulse) { clearTimeout(minuteriePulse); }
+    cartes.forEach(function (c) { c.classList.remove('pulse-actif'); });
+    var pas = 3000; // duree d'affichage par carte (3 secondes, demande Denis)
+    var total = cartes.length * 2; // 2 cycles complets
+    var i = 0;
+    function etape() {
+      cartes.forEach(function (c) { c.classList.remove('pulse-actif'); });
+      if (i >= total) { return; }
+      cartes[i % cartes.length].classList.add('pulse-actif');
+      i++;
+      minuteriePulse = setTimeout(etape, pas);
+    }
+    etape();
+  }
+
+  document.getElementById('btnRejouerPulse').addEventListener('click', jouerPulse);
+  window.addEventListener('load', function () { setTimeout(jouerPulse, 400); });
+</script>
+</body>
+</html>

@@ -153,7 +153,7 @@ Nouvelle fonction dans `js/app.js`, à côté des 4 anciennes.
   `etatSelectionCatalogue`, `_intervalIntroOnglets`, `etatCatalogue`.
   Sinon (par prudence) : la laisser, marquer « code mort candidat » dans
   `docs/TACHES_VALIDEES.md`.
-- `docs/BRIQUES_COMMUNES.md`, `docs/ETAT_DES_CHANTIERS_2026-08-24.md`,
+- `docs/BRIQUES_COMMUNES.md`, `docs/ETAT_DES_CHANTIERS.md`,
   `docs/CHANTIER_*` : mettre à jour.
 
 ---

@@ -1,0 +1,1002 @@
+<!doctype html>
+<!--
+  MAQUETTE - nouveau parcours d'entrée de l'outil de veille (outils/veille.html).
+  Rien de branché : aucun prompt réel, aucune vraie donnée. Sert à valider le PRINCIPE
+  (accueil à 3 modules, sous-menu par fréquence, parcours pas à pas) avant de toucher au vrai fichier.
+
+  Origine : Denis trouve l'outil actuel trop complexe (message du 2026-09-22) : trop de prompts
+  visibles à la fois, pas clair où aller, où copier, quel assistant utiliser à quelle étape.
+  Décision prise avec Denis avant cette maquette :
+   - Bloc 1 (cette maquette) : 3 parcours séparés, un par module nourri (Comprendre le cadre /
+     Comprendre les chiffres / Lexique), écran par écran façon module de l'application, jamais deux
+     prompts visibles en même temps.
+   - Fréquences : on GARDE les 3 rythmes déjà réels de l'outil (mensuel / trimestriel / annuel),
+     on ne fait que les rendre très visibles. Pas d'hebdomadaire ni de semestriel : ça n'existe pas
+     aujourd'hui comme tâche, ce serait à inventer séparément si un jour voulu.
+   - Bloc 2 (dépôt final via une session Claude plutôt que Git à la main) : pas construit ici,
+     juste indiqué en dernière étape comme un emplacement réservé, pour ne pas mélanger les décisions.
+
+  Un seul parcours est détaillé jusqu'au bout (Comprendre le cadre -> Contrôle mensuel d'un rayon),
+  pour juger du PRINCIPE pas à pas. Les deux autres modules ne montrent que leur sous-menu, avec une
+  note disant que le même principe s'appliquerait à chacune de leurs tâches.
+
+  Couleurs reprises telles quelles de outils/veille.html (.groupe-module.cadre/.chiffres/.lexique) :
+  bleu #0369a1, violet #7c3aed, sarcelle #0f766e. Pour que la maquette ressemble à une vraie capture
+  du futur outil, pas à un exercice de style à part.
+
+  Français impeccable, jamais de tiret cadratin. Thème sombre : classe .dark sur <body>.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - nouveau parcours de l'outil de veille</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --cadre:#0369a1; --cadre-bg:#e2f0f8;
+    --chiffres:#7c3aed; --chiffres-bg:#efe6fd;
+    --lexique:#0f766e; --lexique-bg:#e2f5f3;
+    --radius:12px; --shadow:0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+    --cadre:#38bdf8; --cadre-bg:#16283a;
+    --chiffres:#c4a3fb; --chiffres-bg:#2e1a4d;
+    --lexique:#7ee8dc; --lexique-bg:#0f2e2b;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:720px; margin:0 auto; padding:1.2rem 1rem 4rem; }
+  h1 { font-size:1.3rem; color:var(--text-strong); margin:.2rem 0; }
+  h2 { font-size:1.15rem; color:var(--text-strong); margin:0 0 .3rem; }
+  h3 { font-size:.95rem; color:var(--text-strong); margin:.8rem 0 .3rem; }
+  p { margin:.5rem 0; }
+  .sous-titre { color:var(--text-muted); font-size:.9rem; margin:.2rem 0 1rem; }
+
+  .toggle-theme { position:fixed; top:.6rem; right:.6rem; font-size:.8rem; z-index:20; }
+  .barre-maquette { background:var(--warn-bg); border:1px solid var(--warn); border-radius:10px;
+    padding:.6rem .8rem; font-size:.82rem; margin-bottom:1rem; display:flex; gap:.6rem; align-items:flex-start; }
+  .barre-maquette select { font:inherit; border-radius:8px; border:1px solid var(--border-strong); padding:.25rem .4rem; }
+
+  .vue { display:none; }
+  .vue.active { display:block; animation:apparait .16s ease; }
+  @keyframes apparait { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce) { .vue.active { animation:none; } }
+
+  .btn { font:inherit; border-radius:10px; padding:.55rem 1.1rem; border:1px solid var(--border-strong);
+    background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:700; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .btn.primaire { color:#04202e; }
+  .btn.grand { padding:.85rem 1.2rem; font-size:1.02rem; width:100%; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-rangee { display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.9rem; }
+  .lien-retour { background:none; border:none; color:var(--text-muted); font:inherit; font-weight:600;
+    cursor:pointer; padding:.3rem 0; margin-bottom:.6rem; display:inline-flex; align-items:center; gap:.3rem; }
+  .lien-retour:hover { color:var(--text-strong); }
+
+  /* -- Écran d'accueil : 3 cartes module -- */
+  .carte-module { display:block; width:100%; text-align:left; background:var(--bg-card);
+    border:2px solid var(--border-strong); border-radius:16px; padding:1.1rem 1.2rem; margin-bottom:.9rem;
+    cursor:pointer; box-shadow:var(--shadow); transition:transform .1s ease; }
+  .carte-module:hover { transform:translateY(-2px); }
+  .carte-module.cadre { border-color:var(--cadre); }
+  .carte-module.chiffres { border-color:var(--chiffres); }
+  .carte-module.lexique { border-color:var(--lexique); }
+  .carte-module .entete { display:flex; align-items:center; gap:.6rem; margin-bottom:.3rem; }
+  .carte-module .icone { font-size:1.6rem; }
+  .carte-module .titre { font-size:1.05rem; font-weight:800; color:var(--text-strong); }
+  .carte-module .desc { color:var(--text-muted); font-size:.88rem; margin:.2rem 0 .6rem; }
+  .badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.78rem; font-weight:700;
+    border-radius:999px; padding:.25rem .65rem; }
+  .badge.a-faire { background:var(--warn-bg); color:var(--warn); }
+  .badge.a-jour { background:var(--ok-bg); color:var(--ok); }
+  .carte-module.cadre .badge.a-faire { background:var(--cadre-bg); color:var(--cadre); }
+  .carte-module.chiffres .badge.a-faire { background:var(--chiffres-bg); color:var(--chiffres); }
+
+  /* -- Sous-menu module : groupes par fréquence -- */
+  .entete-module { display:flex; align-items:center; gap:.6rem; margin-bottom:.2rem; }
+  .entete-module .pastille { width:2.2rem; height:2.2rem; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:1.15rem; flex-shrink:0; }
+  .entete-module.cadre .pastille { background:var(--cadre-bg); color:var(--cadre); }
+  .entete-module.chiffres .pastille { background:var(--chiffres-bg); color:var(--chiffres); }
+  .entete-module.lexique .pastille { background:var(--lexique-bg); color:var(--lexique); }
+
+  .groupe-frequence { margin:1.1rem 0; }
+  .etiquette-frequence { display:inline-block; font-size:.72rem; font-weight:800; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--text-muted); border-bottom:2px solid var(--border-strong);
+    padding-bottom:.25rem; margin-bottom:.55rem; }
+  .carte-tache { display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+    background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:.75rem .95rem;
+    margin-bottom:.55rem; cursor:pointer; box-shadow:0 2px 8px rgba(20,35,60,.05); }
+  .carte-tache:hover { border-color:var(--border-strong); }
+  .carte-tache .titre-tache { font-weight:700; color:var(--text-strong); font-size:.95rem; }
+  .carte-tache .sous-tache { color:var(--text-muted); font-size:.82rem; margin-top:.1rem; }
+  .carte-tache .fleche { color:var(--text-muted); font-size:1.1rem; flex-shrink:0; }
+  .etat-tache { font-size:.76rem; font-weight:700; border-radius:999px; padding:.2rem .6rem; white-space:nowrap; }
+  .etat-tache.du { background:var(--warn-bg); color:var(--warn); }
+  .etat-tache.fait { background:var(--ok-bg); color:var(--ok); }
+  .etat-tache.a-venir { background:var(--bg-subtle); color:var(--text-muted); }
+
+  /* -- Parcours pas à pas -- */
+  .fil-etapes { display:flex; align-items:center; gap:.35rem; margin:.2rem 0 1.1rem; }
+  .fil-etapes .point { width:1.9rem; height:1.9rem; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:.82rem; font-weight:800; background:var(--bg-subtle);
+    color:var(--text-muted); border:2px solid var(--border-strong); }
+  .fil-etapes .point.faite { background:var(--ok); color:#fff; border-color:var(--ok); }
+  .fil-etapes .point.actif { background:var(--cadre); color:#fff; border-color:var(--cadre); }
+  .fil-etapes .trait { flex:1; height:2px; background:var(--border-strong); }
+  .fil-etapes .trait.faite { background:var(--ok); }
+
+  .carte-etape { background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
+    padding:1.3rem 1.3rem 1.4rem; box-shadow:var(--shadow); }
+  .carte-etape .num-etape { font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--cadre); margin-bottom:.3rem; }
+  .carte-etape h2 { margin-bottom:.5rem; }
+
+  .choix-rayon { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin:.9rem 0; }
+  .choix-rayon button { text-align:left; background:var(--bg-subtle); border:2px solid var(--border);
+    border-radius:10px; padding:.6rem .7rem; font:inherit; font-weight:600; color:var(--text-strong); cursor:pointer; }
+  .choix-rayon button.selectionne { border-color:var(--cadre); background:var(--cadre-bg); color:var(--cadre); }
+
+  /* Date de derniere verification par rayon, sur le bouton lui-meme (demande de Denis, 2026-09-22) :
+     vert = aujourd'hui, orange = cette semaine, rouge = plus d'une semaine, gris = jamais verifie.
+     Couleur seule ne suffit jamais (daltonisme) : le mot lui-meme ("Verifie le" / "Jamais verifie")
+     porte l'info, la couleur ne fait que la renforcer visuellement. */
+  .date-verif { display:block; font-size:.72rem; font-weight:600; margin-top:.2rem; }
+  .date-verif.frais { color:var(--ok); }
+  .date-verif.tiede { color:var(--warn); }
+  .date-verif.perime { color:var(--alert); }
+  .date-verif.jamais { color:var(--text-muted); font-weight:400; font-style:italic; }
+
+  .bloc-destinataire { display:flex; align-items:center; gap:.6rem; background:var(--cadre-bg);
+    border:1px solid var(--cadre); border-radius:10px; padding:.6rem .8rem; margin:.8rem 0; font-size:.88rem; }
+  .bloc-destinataire strong { color:var(--cadre); }
+  .bloc-retour { display:flex; align-items:center; gap:.6rem; background:var(--bg-subtle);
+    border:1px dashed var(--border-strong); border-radius:10px; padding:.55rem .8rem; margin:.6rem 0 0; font-size:.85rem; color:var(--text-muted); }
+
+  /* Etape reservee a Claude (jamais ChatGPT/Perplexity) : couleur alerte, jamais confondue avec
+     .bloc-destinataire (bleu, ChatGPT/Perplexity) -- demande explicite de Denis (2026-09-22) que
+     cette distinction saute aux yeux, pas seulement ecrite en prose. */
+  .bloc-claude { display:flex; align-items:center; gap:.6rem; background:var(--alert-bg);
+    border:2px solid var(--alert); border-radius:10px; padding:.65rem .85rem; margin:.8rem 0; font-size:.88rem; }
+  .bloc-claude strong { color:var(--alert); }
+  .etiquette-claude { display:inline-flex; align-items:center; gap:.35rem; font-size:.74rem; font-weight:800;
+    text-transform:uppercase; letter-spacing:.04em; background:var(--alert); color:#fff; border-radius:999px;
+    padding:.2rem .6rem; margin-bottom:.5rem; }
+
+  .code { background:var(--bg-subtle); border:1px solid var(--border); border-radius:10px; padding:.85rem .95rem;
+    font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace; font-size:.8rem; color:var(--text);
+    white-space:pre-wrap; line-height:1.5; margin:.7rem 0; }
+
+  textarea.zone-reponse { width:100%; min-height:130px; font:inherit; color:var(--text); background:var(--bg-page);
+    border:2px dashed var(--border-strong); border-radius:10px; padding:.7rem .8rem; margin:.5rem 0; }
+
+  .note-etape { display:flex; gap:.5rem; align-items:flex-start; background:var(--bg-subtle);
+    border-left:3px solid var(--text-muted); border-radius:8px; padding:.55rem .8rem; margin:.7rem 0; font-size:.85rem; color:var(--text-muted); }
+
+  .reserve-bloc2 { background:var(--bg-subtle); border:1px dashed var(--border-strong); border-radius:10px;
+    padding:.8rem .9rem; margin-top:.8rem; font-size:.85rem; color:var(--text-muted); }
+
+  .pied { color:var(--text-muted); font-size:.8rem; text-align:center; margin-top:2rem; }
+</style>
+</head>
+<body>
+<button class="btn toggle-theme" onclick="document.body.classList.toggle('dark')">Mode sombre</button>
+
+<main>
+
+  <div class="barre-maquette">
+    <span>&#128204;</span>
+    <span>Maquette de discussion, rien n'est branché. Sauter à un écran :
+      <select id="devnav"></select>
+    </span>
+  </div>
+
+  <!-- ===================== ÉCRAN 0 : accueil de l'outil ===================== -->
+  <div class="vue" data-vue="accueil">
+    <h1>Outil de veille</h1>
+    <p class="sous-titre">Qu'est-ce que vous voulez mettre à jour aujourd'hui ?</p>
+
+    <button class="carte-module cadre" onclick="aller('menuCadre')">
+      <div class="entete"><span class="icone">&#128240;</span><span class="titre">Comprendre le cadre</span></div>
+      <div class="desc">Les fiches d'information : aides, démarches, droits, dispositifs.</div>
+      <span class="badge a-faire">&#9888; 4 tâches à faire</span>
+    </button>
+
+    <button class="carte-module chiffres" onclick="aller('menuChiffres')">
+      <div class="entete"><span class="icone">&#128202;</span><span class="titre">Comprendre les chiffres</span></div>
+      <div class="desc">Les indicateurs datés : chômage, emploi, métiers qui recrutent.</div>
+      <span class="badge a-faire">&#9888; 1 tâche à faire</span>
+    </button>
+
+    <button class="carte-module lexique" onclick="aller('menuLexique')">
+      <div class="entete"><span class="icone">&#128213;</span><span class="titre">Lexique</span></div>
+      <div class="desc">Le dictionnaire des mots du monde du travail.</div>
+      <span class="badge a-jour">&#10003; à jour</span>
+    </button>
+
+    <div class="note-etape" style="margin-top:1rem">
+      <span>&#128161;</span>
+      <span>Le nombre de « tâches à faire » vient des 3 rythmes déjà connus de l'outil (mensuel,
+        trimestriel, annuel) : rien de nouveau n'est inventé ici, on les rend seulement visibles
+        d'entrée, avant même de choisir un module.</span>
+    </div>
+  </div>
+
+  <!-- ===================== ÉCRAN 1 : sous-menu Comprendre le cadre ===================== -->
+  <div class="vue" data-vue="menuCadre">
+    <button class="lien-retour" onclick="aller('accueil')">&#8592; Tous les modules</button>
+    <div class="entete-module cadre">
+      <span class="pastille">&#128240;</span>
+      <div><h2>Comprendre le cadre</h2><p class="sous-titre" style="margin:0">Ce qu'il y a à faire, classé par rythme.</p></div>
+    </div>
+
+    <div class="groupe-frequence" id="groupeAttente">
+      <span class="etiquette-frequence">En attente de traitement</span>
+      <div id="listeAttente"></div>
+      <div class="note-etape" style="margin-top:.5rem">
+        <span>&#128161;</span>
+        <span>Question de Denis (2026-09-22) : une fiche signalée par un Contrôle reste-t-elle
+          accessible si on passe à un autre rayon sans la traiter tout de suite ? Réponse : oui,
+          désormais — elle reste listée ici, peu importe le rayon contrôlé depuis, jusqu'à ce qu'elle
+          soit traitée. Rien ne se perd en changeant de rayon.</span>
+      </div>
+    </div>
+
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">Hebdomadaire (nouveau)</span>
+      <div class="carte-tache" onclick="alert('Ouvrirait un parcours court : sources qui bougent vite (Légifrance, service-public, annonces budgétaires), pas une revérification complète des fiches.')">
+        <div><div class="titre-tache">Veille rapide des dispositifs</div><div class="sous-tache">Un passage court et ciblé, pour repérer vite une nouveauté comme « AAH plus cumulable avec le RSA »</div></div>
+        <span class="etat-tache du">À faire</span>
+      </div>
+      <div class="note-etape" style="margin-top:.5rem">
+        <span>&#128161;</span>
+        <span>Ajoutée suite à votre remarque du 2026-09-22 (rythme des dispositifs, période de coupes
+          budgétaires). Volontairement courte et ciblée pour rester tenable chaque semaine : le
+          Contrôle mensuel ci-dessous, lui, garde exactement sa profondeur actuelle, sans régression.</span>
+      </div>
+    </div>
+
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">À la demande, quand vous trouvez une info</span>
+      <div class="carte-tache" onclick="aller('etapeFicheRayon')">
+        <div><div class="titre-tache">Créer ou compléter une fiche</div><div class="sous-tache">Un sujet nouveau, ou une info trouvée avec ChatGPT / Perplexity à ranger</div></div>
+        <span class="fleche">&#8250;</span>
+      </div>
+    </div>
+
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">Mensuel</span>
+      <div class="carte-tache" onclick="aller('etapeRayon')">
+        <div><div class="titre-tache">Contrôle des rayons</div><div class="sous-tache">Vérifier que les fiches existantes sont toujours exactes</div></div>
+        <span class="etat-tache du">Dû depuis le 1ᵉʳ septembre</span>
+      </div>
+    </div>
+
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">Trimestriel</span>
+      <div class="carte-tache" onclick="alert('Ouvrirait le parcours « Balayage trimestriel », même principe pas à pas.')">
+        <div><div class="titre-tache">Balayage : ce qui a changé</div><div class="sous-tache">Les changements officiels des 3 derniers mois</div></div>
+        <span class="etat-tache du">À faire</span>
+      </div>
+      <div class="carte-tache" onclick="alert('Ouvrirait le parcours « Annuaire associatif ».')">
+        <div><div class="titre-tache">Compléter avec le monde associatif</div><div class="sous-tache">Garages solidaires, épiceries, aide administrative...</div></div>
+        <span class="etat-tache fait">Fait le 8 septembre</span>
+      </div>
+      <div class="carte-tache" onclick="aller('etapeConfCopier')">
+        <div><div class="titre-tache">À confronter : le non officiel, recoupé</div><div class="sous-tache">Ce qui circule dans le réseau (réseaux sociaux, lettres, groupes métier), comparé aux sources officielles</div></div>
+        <span class="etat-tache du">À faire</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ÉCRAN 2 : sous-menu Comprendre les chiffres (aperçu) ===================== -->
+  <div class="vue" data-vue="menuChiffres">
+    <button class="lien-retour" onclick="aller('accueil')">&#8592; Tous les modules</button>
+    <div class="entete-module chiffres">
+      <span class="pastille">&#128202;</span>
+      <div><h2>Comprendre les chiffres</h2><p class="sous-titre" style="margin:0">Ce qu'il y a à faire, classé par rythme.</p></div>
+    </div>
+
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">Trimestriel</span>
+      <div class="carte-tache" onclick="alert('Même principe pas à pas que « Contrôle des rayons », détaillé côté Comprendre le cadre.')">
+        <div><div class="titre-tache">Les 5 chiffres clés du trimestre</div><div class="sous-tache">Chômage, demandeurs, emploi salarié, offres, longue durée</div></div>
+        <span class="etat-tache du">À faire</span>
+      </div>
+    </div>
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">Annuel</span>
+      <div class="carte-tache" onclick="alert('Même principe pas à pas.')">
+        <div><div class="titre-tache">Portrait du territoire</div><div class="sous-tache">Ce qui bouge lentement : emploi, salaires, formation</div></div>
+        <span class="etat-tache a-venir">Prochaine fois : été 2027</span>
+      </div>
+      <div class="carte-tache" onclick="alert('Même principe pas à pas.')">
+        <div><div class="titre-tache">La France dans l'Union européenne</div><div class="sous-tache">11 indicateurs, comparaison Eurostat</div></div>
+        <span class="etat-tache a-venir">Prochaine fois : été 2027</span>
+      </div>
+    </div>
+    <div class="note-etape">
+      <span>&#8505;</span>
+      <span>Ce sous-menu suit exactement le même principe que « Comprendre le cadre ». Je ne détaille
+        pas ses parcours pas à pas dans cette maquette pour ne pas répéter trois fois la même chose :
+        dites-moi si vous voulez les voir aussi avant de valider.</span>
+    </div>
+  </div>
+
+  <!-- ===================== ÉCRAN 3 : sous-menu Lexique (aperçu) ===================== -->
+  <div class="vue" data-vue="menuLexique">
+    <button class="lien-retour" onclick="aller('accueil')">&#8592; Tous les modules</button>
+    <div class="entete-module lexique">
+      <span class="pastille">&#128213;</span>
+      <div><h2>Lexique</h2><p class="sous-titre" style="margin:0">Ce qu'il y a à faire, classé par rythme.</p></div>
+    </div>
+
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">Trimestriel</span>
+      <div class="carte-tache" onclick="alert('Même principe pas à pas.')">
+        <div><div class="titre-tache">Nourrir le Lexique</div><div class="sous-tache">Nouveaux mots, sigles et dispositifs à définir</div></div>
+        <span class="etat-tache fait">Fait le 18 septembre</span>
+      </div>
+    </div>
+    <div class="groupe-frequence">
+      <span class="etiquette-frequence">À la demande</span>
+      <div class="carte-tache" onclick="alert('Même principe pas à pas.')">
+        <div><div class="titre-tache">Ajouter un mot précis</div><div class="sous-tache">Vous avez déjà le terme et sa définition en tête</div></div>
+        <span class="fleche">&#8250;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PARCOURS DÉTAILLÉ : Contrôle mensuel d'un rayon ===================== -->
+
+  <!-- Étape 1 / 4 : choisir le rayon -->
+  <div class="vue" data-vue="etapeRayon">
+    <button class="lien-retour" onclick="aller('menuCadre')">&#8592; Comprendre le cadre</button>
+    <div class="fil-etapes">
+      <div class="point actif">1</div><div class="trait"></div>
+      <div class="point">2</div><div class="trait"></div>
+      <div class="point">3</div><div class="trait"></div>
+      <div class="point">4</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 1 sur 4</div>
+      <h2>Quel rayon voulez-vous contrôler ?</h2>
+      <p class="sous-titre" style="margin-top:0">Un seul à la fois. Les autres attendront le mois prochain.</p>
+      <div class="choix-rayon">
+        <button class="selectionne" onclick="choisirRayon(this,'Emploi et contrats')">Emploi et contrats</button>
+        <button onclick="choisirRayon(this,'Se former et se reconvertir')">Se former et se reconvertir</button>
+        <button onclick="choisirRayon(this,'Accompagnement et structures de l\'insertion')">Accompagnement et structures de l'insertion</button>
+        <button onclick="choisirRayon(this,'Créer son activité')">Créer son activité</button>
+        <button onclick="choisirRayon(this,'Employeurs et entrepreneurs')">Employeurs et entrepreneurs</button>
+        <button onclick="choisirRayon(this,'Moins de 26 ans')">Moins de 26 ans</button>
+        <button onclick="choisirRayon(this,'Handicap et emploi')">Handicap et emploi</button>
+        <button onclick="choisirRayon(this,'Étranger : séjour et droit au travail')">Étranger : séjour et droit au travail</button>
+        <button onclick="choisirRayon(this,'Étranger : démarches et équivalences')">Étranger : démarches et équivalences</button>
+        <button onclick="choisirRayon(this,'Justice : sortie de détention')">Justice : sortie de détention</button>
+        <button onclick="choisirRayon(this,'Budget, dettes, droits sociaux')">Budget, dettes, droits sociaux</button>
+        <button onclick="choisirRayon(this,'Mobilité')">Mobilité</button>
+        <button onclick="choisirRayon(this,'Logement')">Logement</button>
+        <button onclick="choisirRayon(this,'Garde d\'enfant')">Garde d'enfant</button>
+        <button onclick="choisirRayon(this,'Apprendre le français')">Apprendre le français</button>
+        <button onclick="choisirRayon(this,'Questions juridiques')">Questions juridiques</button>
+        <button onclick="choisirRayon(this,'Travailler après 50 ans et retraite')">Travailler après 50 ans et retraite</button>
+        <button onclick="choisirRayon(this,'Accès aux soins')">Accès aux soins</button>
+      </div>
+      <p class="sous-titre">Les 18 rayons réels de l'outil actuel, au complet : rien de raccourci ni d'inventé pour la maquette.</p>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" onclick="document.getElementById('noteReverif').style.display='none';aller('etapeCopier')">Continuer avec « Emploi et contrats »</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Étape 2 / 4 : copier le prompt -->
+  <div class="vue" data-vue="etapeCopier">
+    <button class="lien-retour" onclick="aller('etapeRayon')">&#8592; Changer de rayon</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">2</div><div class="trait"></div>
+      <div class="point">3</div><div class="trait"></div>
+      <div class="point">4</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 2 sur 4</div>
+      <h2>Copiez ce texte</h2>
+      <p class="sous-titre" style="margin-top:0">Un seul bouton : il copie tout, vous n'avez rien à lire ici pour l'instant.</p>
+      <div class="note-etape" id="noteReverif" style="display:none"></div>
+      <div class="code">Vous êtes conseiller en insertion professionnelle. Vérifiez si les informations
+suivantes, sur le rayon « Emploi et contrats », sont toujours exactes en Dordogne
+(24) et en Haute-Vienne (87)... [texte complet identique à l'outil actuel]</div>
+      <button class="btn primaire grand" onclick="marquerCopie(this,'btnSuiteCopie')">&#128203; Copier ce texte</button>
+
+      <div class="bloc-destinataire">
+        <span>&#128226;</span>
+        <span><strong>Où aller :</strong> ChatGPT ou Perplexity, l'un des deux suffit pour ce contrôle.
+          Vous pouvez faire les deux si vous voulez comparer, mais ce n'est pas nécessaire ici.
+          Collez, validez, attendez la réponse en entier.</span>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
+        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+      </div>
+      <div class="bloc-retour">
+        <span>&#8617;</span>
+        <span><strong>Pour récupérer sa réponse :</strong> une fois qu'il a répondu, sélectionnez toute
+          sa réponse (Ctrl+A puis Ctrl+C dans la fenêtre de l'assistant), puis revenez ici.</span>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnSuiteCopie" disabled onclick="aller('etapeColler')">J'ai copié, l'étape suivante</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Étape 3 / 4 : coller la réponse -->
+  <div class="vue" data-vue="etapeColler">
+    <button class="lien-retour" onclick="aller('etapeCopier')">&#8592; Revoir le texte à copier</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">3</div><div class="trait"></div>
+      <div class="point">4</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 3 sur 4</div>
+      <h2>Collez ici la réponse de ChatGPT ou Perplexity</h2>
+      <p class="sous-titre" style="margin-top:0">La réponse au prompt de contrôle copié à l'étape précédente. Toute la réponse, en une fois (Ctrl+A puis Ctrl+C chez l'assistant, puis Ctrl+V ici).</p>
+      <textarea class="zone-reponse" placeholder="Collez ici la réponse de ChatGPT ou Perplexity au prompt de contrôle." oninput="document.getElementById('btnLire').disabled = !this.value.trim()"></textarea>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnLire" disabled onclick="aller('etapeFin')">C'est collé, je continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Étape 4 / 4 : résultat -->
+  <div class="vue" data-vue="etapeFin">
+    <button class="lien-retour" onclick="aller('etapeColler')">&#8592; Recoller une réponse</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">4</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 4 sur 4</div>
+      <h2>C'est lu</h2>
+      <p class="sous-titre" style="margin-top:0">2 fiches toujours à jour, 1 fiche à revoir.</p>
+      <div class="code">&#9989; CDI, période d'essai : à jour
+&#9989; Rupture conventionnelle : à jour</div>
+
+      <div class="note-etape" style="margin-top:.9rem">
+        <span>&#8505;</span>
+        <span>Ce résultat reste pour l'instant dans l'outil de veille, nulle part ailleurs : rien ne
+          change encore dans l'application tant qu'une fiche signalée n'a pas été traitée.</span>
+      </div>
+
+      <div class="carte-tache" style="cursor:default;align-items:flex-start;margin-top:.6rem">
+        <div>
+          <div class="titre-tache">&#9888; L'aide au permis de France Travail : changement repéré</div>
+          <div class="sous-tache">Le rapport de l'assistant dit que le montant aurait changé</div>
+          <button class="btn primaire" style="margin-top:.6rem" onclick="traiterFiche('L\'aide au permis de France Travail', 'Emploi et contrats', 'Le montant de l\'aide au permis aurait changé selon le rapport de contrôle.')">Traiter cette fiche</button>
+        </div>
+      </div>
+      <p class="sous-titre">« Traiter » ouvre le parcours « Créer ou compléter une fiche », avec le
+        rayon et le problème déjà pré-remplis : vous n'avez pas à les ressaisir.</p>
+
+      <div class="reserve-bloc2">
+        <strong>Emplacement réservé (Bloc 2, pas encore construit) :</strong> à la toute fin du
+        parcours « Traiter », un bouton « Copier le message pour Claude » viendrait déposer et
+        committer la fiche corrigée sans manipuler de fichier ni Git à la main.
+      </div>
+      <div class="btn-rangee">
+        <button class="btn grand" onclick="aller('accueil')">Rien à traiter, retour à l'accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PARCOURS DÉTAILLÉ : Créer ou compléter une fiche ===================== -->
+
+  <!-- Fiche, étape 1 / 7 : choisir le rayon -->
+  <div class="vue" data-vue="etapeFicheRayon">
+    <button class="lien-retour" onclick="aller('menuCadre')">&#8592; Comprendre le cadre</button>
+    <div class="fil-etapes">
+      <div class="point actif">1</div><div class="trait"></div>
+      <div class="point">2</div><div class="trait"></div>
+      <div class="point">3</div><div class="trait"></div>
+      <div class="point">4</div><div class="trait"></div>
+      <div class="point">5</div><div class="trait"></div>
+      <div class="point">6</div><div class="trait"></div>
+      <div class="point">7</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 1 sur 7</div>
+      <h2>De quel sujet s'agit-il ?</h2>
+      <p class="sous-titre" style="margin-top:0">Un sujet nouveau, ou une fiche déjà écrite que vous complétez.</p>
+      <div class="choix-rayon">
+        <button class="selectionne" onclick="choisirRayonFiche(this,'Emploi et contrats')">Emploi et contrats</button>
+        <button onclick="choisirRayonFiche(this,'Se former et se reconvertir')">Se former et se reconvertir</button>
+        <button onclick="choisirRayonFiche(this,'Accompagnement et structures de l\'insertion')">Accompagnement et structures de l'insertion</button>
+        <button onclick="choisirRayonFiche(this,'Créer son activité')">Créer son activité</button>
+        <button onclick="choisirRayonFiche(this,'Employeurs et entrepreneurs')">Employeurs et entrepreneurs</button>
+        <button onclick="choisirRayonFiche(this,'Moins de 26 ans')">Moins de 26 ans</button>
+        <button onclick="choisirRayonFiche(this,'Handicap et emploi')">Handicap et emploi</button>
+        <button onclick="choisirRayonFiche(this,'Étranger : séjour et droit au travail')">Étranger : séjour et droit au travail</button>
+        <button onclick="choisirRayonFiche(this,'Étranger : démarches et équivalences')">Étranger : démarches et équivalences</button>
+        <button onclick="choisirRayonFiche(this,'Justice : sortie de détention')">Justice : sortie de détention</button>
+        <button onclick="choisirRayonFiche(this,'Budget, dettes, droits sociaux')">Budget, dettes, droits sociaux</button>
+        <button onclick="choisirRayonFiche(this,'Mobilité')">Mobilité</button>
+        <button onclick="choisirRayonFiche(this,'Logement')">Logement</button>
+        <button onclick="choisirRayonFiche(this,'Garde d\'enfant')">Garde d'enfant</button>
+        <button onclick="choisirRayonFiche(this,'Apprendre le français')">Apprendre le français</button>
+        <button onclick="choisirRayonFiche(this,'Questions juridiques')">Questions juridiques</button>
+        <button onclick="choisirRayonFiche(this,'Travailler après 50 ans et retraite')">Travailler après 50 ans et retraite</button>
+        <button onclick="choisirRayonFiche(this,'Accès aux soins')">Accès aux soins</button>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" onclick="document.getElementById('notePreRempli').style.display='none';aller('etapeFicheCollecte')">Continuer avec « Emploi et contrats »</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fiche, étape 2 / 7 : copier le prompt de collecte -->
+  <div class="vue" data-vue="etapeFicheCollecte">
+    <button class="lien-retour" onclick="aller('etapeFicheRayon')">&#8592; Changer de sujet</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">2</div><div class="trait"></div>
+      <div class="point">3</div><div class="trait"></div>
+      <div class="point">4</div><div class="trait"></div>
+      <div class="point">5</div><div class="trait"></div>
+      <div class="point">6</div><div class="trait"></div>
+      <div class="point">7</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 2 sur 7 &mdash; prompt de collecte</div>
+      <h2>Copiez ce texte</h2>
+      <p class="sous-titre" style="margin-top:0">Son rôle : ramasser le maximum d'informations officielles sur ce sujet. Rien n'est rédigé à cette étape.</p>
+      <div class="note-etape" id="notePreRempli" style="display:none"></div>
+      <div class="code">Vous êtes conseiller en insertion professionnelle. Rassemblez toutes les informations
+officielles disponibles sur « Emploi et contrats », en Dordogne (24) et en
+Haute-Vienne (87)... [texte complet identique à l'outil actuel, bloc [COLLECTE]]</div>
+      <button class="btn primaire grand" onclick="marquerCopie(this,'btnSuiteFicheCollecte')">&#128203; Copier ce texte</button>
+
+      <div class="bloc-destinataire">
+        <span>&#128226;</span>
+        <span><strong>Où aller :</strong> ChatGPT ou Perplexity. Un seul suffit, mais faire <strong>les
+          deux</strong> peut vous donner plus d'informations pour un sujet large : dans ce cas, gardez
+          les deux réponses, vous les collerez l'une après l'autre à l'étape suivante.</span>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
+        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+      </div>
+      <div class="bloc-retour">
+        <span>&#8617;</span>
+        <span><strong>Pour récupérer sa réponse :</strong> Ctrl+A puis Ctrl+C dans sa réponse, puis
+          revenez ici.</span>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnSuiteFicheCollecte" disabled onclick="aller('etapeFicheCollerCollecte')">J'ai copié, l'étape suivante</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fiche, étape 3 / 7 : coller la collecte -->
+  <div class="vue" data-vue="etapeFicheCollerCollecte">
+    <button class="lien-retour" onclick="aller('etapeFicheCollecte')">&#8592; Revoir le texte à copier</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">3</div><div class="trait"></div>
+      <div class="point">4</div><div class="trait"></div>
+      <div class="point">5</div><div class="trait"></div>
+      <div class="point">6</div><div class="trait"></div>
+      <div class="point">7</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 3 sur 7</div>
+      <h2>Collez ici la réponse de ChatGPT ou Perplexity</h2>
+      <p class="sous-titre" style="margin-top:0">La réponse au prompt de collecte copié à l'étape précédente. Si vous avez interrogé les deux assistants, collez la 2ᵉ réponse à la suite de la 1ʳᵉ.</p>
+      <textarea class="zone-reponse" placeholder="Collez ici la réponse de ChatGPT ou Perplexity au prompt de collecte." oninput="document.getElementById('btnSuiteFicheCollerCollecte').disabled = !this.value.trim()"></textarea>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnSuiteFicheCollerCollecte" disabled onclick="aller('etapeFicheRedaction')">C'est collé, je continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fiche, étape 4 / 7 : copier le prompt de rédaction (Claude uniquement) -->
+  <div class="vue" data-vue="etapeFicheRedaction">
+    <button class="lien-retour" onclick="aller('etapeFicheCollerCollecte')">&#8592; Revoir la collecte</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">4</div><div class="trait"></div>
+      <div class="point">5</div><div class="trait"></div>
+      <div class="point">6</div><div class="trait"></div>
+      <div class="point">7</div>
+    </div>
+    <div class="carte-etape">
+      <span class="etiquette-claude">&#9888; Étape réservée à Claude</span>
+      <div class="num-etape">Étape 4 sur 7 &mdash; prompt de rédaction</div>
+      <h2>Copiez ce texte</h2>
+      <p class="sous-titre" style="margin-top:0">Tout ce qui vient d'être collecté est déjà glissé dedans, vous n'avez rien à recopier. Cette fois, la fiche est rédigée pour de vrai.</p>
+      <div class="code">À partir du matériau ci-dessous, rédige la fiche « Emploi et contrats » avec la même
+exigence que le reste de l'application (ton simple et rassurant, jamais de jargon)...
+[texte complet identique à l'outil actuel, matériau de collecte inclus, bloc [FICHE]]</div>
+      <button class="btn primaire grand" onclick="marquerCopie(this,'btnSuiteFicheRedaction')">&#128203; Copier ce texte</button>
+
+      <div class="bloc-claude">
+        <span>&#9888;&#65039;</span>
+        <span><strong>Où aller : uniquement Claude</strong> (une conversation Claude Code sur ce projet).
+          Jamais ChatGPT, jamais Perplexity : cette étape rédige la fiche elle-même, pas seulement des faits.</span>
+      </div>
+      <div class="bloc-retour">
+        <span>&#8617;</span>
+        <span><strong>Pour récupérer sa réponse :</strong> Ctrl+A puis Ctrl+C dans la réponse de Claude, puis revenez ici.</span>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnSuiteFicheRedaction" disabled onclick="aller('etapeFicheCollerRedaction')">J'ai copié, l'étape suivante</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fiche, étape 5 / 7 : coller la fiche rédigée -->
+  <div class="vue" data-vue="etapeFicheCollerRedaction">
+    <button class="lien-retour" onclick="aller('etapeFicheRedaction')">&#8592; Revoir le texte à copier</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">5</div><div class="trait"></div>
+      <div class="point">6</div><div class="trait"></div>
+      <div class="point">7</div>
+    </div>
+    <div class="carte-etape">
+      <span class="etiquette-claude">&#9888; Réponse de Claude</span>
+      <div class="num-etape">Étape 5 sur 7</div>
+      <h2>Collez ici la réponse de Claude</h2>
+      <p class="sous-titre" style="margin-top:0">La réponse au prompt de rédaction copié à l'étape précédente. Jamais une réponse de ChatGPT ou Perplexity ici : cette étape est réservée à Claude.</p>
+      <textarea class="zone-reponse" placeholder="Collez ici la réponse de Claude au prompt de rédaction." oninput="document.getElementById('btnSuiteFicheCollerRedaction').disabled = !this.value.trim()"></textarea>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnSuiteFicheCollerRedaction" disabled onclick="aller('etapeFicheRelecture')">C'est collé, je continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fiche, étape 6 / 7 : relecture -->
+  <div class="vue" data-vue="etapeFicheRelecture">
+    <button class="lien-retour" onclick="aller('etapeFicheCollerRedaction')">&#8592; Recoller la fiche</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">6</div><div class="trait"></div>
+      <div class="point">7</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 6 sur 7</div>
+      <h2>Relisez, corrigez un mot si besoin</h2>
+      <p class="sous-titre" style="margin-top:0">Tout est déjà pré-rempli, texte compris. Vous ne rédigez jamais vous-même, vous relisez seulement.</p>
+      <label class="sous-titre" style="margin:0">Titre (la question qui s'affiche)</label>
+      <input type="text" class="zone-reponse" style="min-height:auto" value="Quels sont mes droits pendant une période d'essai ?">
+      <label class="sous-titre" style="margin:.6rem 0 0">Le texte de la fiche</label>
+      <textarea class="zone-reponse">Pendant une période d'essai, chacun (vous ou l'employeur) peut rompre le contrat sans
+justification particulière, en respectant un délai de prévenance qui dépend de la durée
+déjà travaillée...</textarea>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" onclick="aller('etapeFicheFin')">C'est bon, je valide</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fiche, étape 7 / 7 : les deux fichiers -->
+  <div class="vue" data-vue="etapeFicheFin">
+    <button class="lien-retour" onclick="aller('etapeFicheRelecture')">&#8592; Revenir à la relecture</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">7</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 7 sur 7</div>
+      <h2>C'est prêt</h2>
+      <p class="sous-titre" style="margin-top:0">2 fichiers : la fiche elle-même, et le matériau brut de la collecte (gardé à part, réutilisable pour les prochaines mises à jour de ce rayon).</p>
+      <div class="code">emploi-et-contrats-periode-essai.md
+emploi.collecte.md</div>
+
+      <div class="reserve-bloc2">
+        <strong>Emplacement réservé (Bloc 2, pas encore construit) :</strong> ici viendrait un bouton
+        « Copier le message pour Claude », pour que ces 2 fichiers soient déposés et committés sans
+        manipuler de fichier ni Git à la main. Pour cette maquette, on s'arrête au téléchargement.
+      </div>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" onclick="aller('accueil')">Terminé, retour à l'accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PARCOURS DÉTAILLÉ : À confronter (le non officiel, recoupé) ===================== -->
+
+  <!-- Confronter, étape 1 / 3 : copier le prompt -->
+  <div class="vue" data-vue="etapeConfCopier">
+    <button class="lien-retour" onclick="aller('menuCadre')">&#8592; Comprendre le cadre</button>
+    <div class="fil-etapes">
+      <div class="point actif">1</div><div class="trait"></div>
+      <div class="point">2</div><div class="trait"></div>
+      <div class="point">3</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 1 sur 3</div>
+      <h2>Copiez ce texte</h2>
+      <p class="sous-titre" style="margin-top:0">Pas de rayon à choisir : ce texte couvre tout le trimestre d'un coup. Il demande d'aller chercher ce qui circule dans le réseau professionnel, puis de le confronter aux sources officielles.</p>
+      <div class="code">Cherche ce qui se dit dans le réseau des professionnels de l'insertion ce trimestre
+(publications LinkedIn, lettres de réseaux, groupes métier), puis confronte chaque
+signal aux sources officielles et classe-le... [texte complet identique à l'outil
+actuel, bloc [CONFRONTER]]</div>
+      <button class="btn primaire grand" onclick="marquerCopie(this,'btnSuiteConfCopier')">&#128203; Copier ce texte</button>
+
+      <div class="bloc-destinataire">
+        <span>&#128226;</span>
+        <span><strong>Où aller :</strong> ChatGPT ou Perplexity. Ici, faire <strong>les deux</strong> est
+          particulièrement utile : on cherche large dans le réseau, et chaque assistant voit des
+          sources différentes. Gardez les deux réponses si vous le pouvez.</span>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
+        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+      </div>
+      <div class="bloc-retour">
+        <span>&#8617;</span>
+        <span><strong>Pour récupérer sa réponse :</strong> Ctrl+A puis Ctrl+C dans sa réponse, puis revenez ici.</span>
+      </div>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnSuiteConfCopier" disabled onclick="aller('etapeConfColler')">J'ai copié, l'étape suivante</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confronter, étape 2 / 3 : coller la réponse -->
+  <div class="vue" data-vue="etapeConfColler">
+    <button class="lien-retour" onclick="aller('etapeConfCopier')">&#8592; Revoir le texte à copier</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">2</div><div class="trait"></div>
+      <div class="point">3</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 2 sur 3</div>
+      <h2>Collez ici la réponse de ChatGPT ou Perplexity</h2>
+      <p class="sous-titre" style="margin-top:0">La réponse au prompt « à confronter » copié à l'étape précédente. Si vous avez interrogé les deux assistants, collez la 2ᵉ réponse à la suite de la 1ʳᵉ.</p>
+      <textarea class="zone-reponse" placeholder="Collez ici la réponse de ChatGPT ou Perplexity au prompt « à confronter »." oninput="document.getElementById('btnSuiteConfColler').disabled = !this.value.trim()"></textarea>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" id="btnSuiteConfColler" disabled onclick="aller('etapeConfFin')">C'est collé, je continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confronter, étape 3 / 3 : résultat -->
+  <div class="vue" data-vue="etapeConfFin">
+    <button class="lien-retour" onclick="aller('etapeConfColler')">&#8592; Recoller une réponse</button>
+    <div class="fil-etapes">
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point faite">&#10003;</div><div class="trait faite"></div>
+      <div class="point actif">3</div>
+    </div>
+    <div class="carte-etape">
+      <div class="num-etape">Étape 3 sur 3</div>
+      <h2>C'est lu</h2>
+      <p class="sous-titre" style="margin-top:0">2 signaux ce trimestre, chacun confronté à l'officiel.</p>
+      <div class="code">&#9888; Signal : un délai d'instruction du RSA qui s'allongerait en Dordogne
+   Confrontation : rien trouvé côté officiel pour l'instant
+   Statut : PAS DE POSITION &mdash; à recouper vous-même aupres du Département
+
+&#10003; Signal : un dispositif d'aide au permis qui ne serait plus cumulable avec une autre aide
+   Confrontation : confirmé par un décret récent sur service-public.fr
+   Statut : CONFIRMÉ</div>
+
+      <div class="reserve-bloc2">
+        <strong>Emplacement réservé (Bloc 2, pas encore construit) :</strong> ici viendrait un bouton
+        « Copier le message pour Claude », pour déposer et committer ce digest sans manipuler de
+        fichier ni Git à la main.
+      </div>
+      <div class="btn-rangee">
+        <button class="btn primaire grand" onclick="aller('accueil')">Terminé, retour à l'accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="pied">Maquette du 2026-09-22 &mdash; docs/CHANTIER_VEILLE_PARCOURS_2026-09-22.md (à créer une fois la direction validée)</p>
+</main>
+
+<script>
+  var vues = Array.prototype.slice.call(document.querySelectorAll('.vue'));
+  var devnav = document.getElementById('devnav');
+  var noms = {
+    accueil: '0 - Accueil de l\'outil (3 modules)',
+    menuCadre: '1 - Sous-menu Comprendre le cadre',
+    menuChiffres: '2 - Sous-menu Comprendre les chiffres (aperçu)',
+    menuLexique: '3 - Sous-menu Lexique (aperçu)',
+    etapeRayon: 'Contrôle mensuel : étape 1, choisir le rayon',
+    etapeCopier: 'Contrôle mensuel : étape 2, copier le texte',
+    etapeColler: 'Contrôle mensuel : étape 3, coller la réponse',
+    etapeFin: 'Contrôle mensuel : étape 4, résultat',
+    etapeFicheRayon: 'Créer une fiche : étape 1, choisir le sujet',
+    etapeFicheCollecte: 'Créer une fiche : étape 2, copier (collecte)',
+    etapeFicheCollerCollecte: 'Créer une fiche : étape 3, coller (collecte)',
+    etapeFicheRedaction: 'Créer une fiche : étape 4, copier (rédaction, Claude)',
+    etapeFicheCollerRedaction: 'Créer une fiche : étape 5, coller (rédaction, Claude)',
+    etapeFicheRelecture: 'Créer une fiche : étape 6, relecture',
+    etapeFicheFin: 'Créer une fiche : étape 7, résultat',
+    etapeConfCopier: 'À confronter : étape 1, copier le texte',
+    etapeConfColler: 'À confronter : étape 2, coller la réponse',
+    etapeConfFin: 'À confronter : étape 3, résultat'
+  };
+  vues.forEach(function (v) {
+    var o = document.createElement('option');
+    o.value = v.dataset.vue; o.textContent = noms[v.dataset.vue] || v.dataset.vue;
+    devnav.appendChild(o);
+  });
+  devnav.addEventListener('change', function (e) { if (e.target.value) aller(e.target.value); });
+
+  function aller(nom) {
+    vues.forEach(function (v) { v.classList.toggle('active', v.dataset.vue === nom); });
+    devnav.value = nom;
+    if (nom === 'menuCadre') { rendreAttente(); }
+    window.scrollTo(0, 0);
+  }
+
+  // Fraicheur d'une date (demande de Denis, 2026-09-22, appliquee ensuite a 2 endroits : la date de
+  // derniere verification d'un rayon, et maintenant la date de signalement d'une fiche en attente) :
+  // verte aujourd'hui, orange dans la semaine, rouge au-dela. Un seul calcul, reutilise partout,
+  // jamais duplique (LECONS 13).
+  var AUJOURD_HUI = new Date('2026-09-22');
+  var MOIS_ABBR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  function classerFraicheur(iso) {
+    if (!iso) { return { classe: 'jamais', jours: null, texte: '' }; }
+    var d = new Date(iso);
+    var jours = Math.round((AUJOURD_HUI - d) / 86400000);
+    var classe = jours === 0 ? 'frais' : jours < 7 ? 'tiede' : 'perime';
+    var texte = jours === 0 ? 'aujourd\'hui' : 'le ' + d.getDate() + ' ' + MOIS_ABBR[d.getMonth()];
+    return { classe: classe, jours: jours, texte: texte };
+  }
+
+  // -- Fiches en attente de traitement : accumule tout ce qu'un Contrôle (ou un Balayage plus tard)
+  // signale, quel que soit le rayon, jusqu'à ce que ce soit vraiment traité (question de Denis,
+  // 2026-09-22 : rien ne doit se perdre en passant a un autre rayon sans traiter tout de suite).
+  // Dans le vrai outil, l'equivalent est "Ma base", qui accumule tous les rayons deja controles --
+  // ici, une simple liste en memoire suffit pour montrer le principe.
+  // dateSignal : quand le contrôle a repéré ce changement -- demande de Denis (2026-09-22), un
+  // signal trop vieux (perime, >= 7 jours) invite a revérifier plutôt qu'à traiter tel quel, au cas
+  // où la situation aurait encore bougé depuis.
+  var _fichesEnAttente = [
+    { rayon: 'Emploi et contrats', titre: 'L\'aide au permis de France Travail', contexte: 'Le montant de l\'aide au permis aurait changé selon le rapport de contrôle.', dateSignal: '2026-09-22' },
+    { rayon: 'Mobilité', titre: 'Le remboursement des transports en commun', contexte: 'Un contrôle plus ancien a signalé un changement de plafond, jamais traité depuis.', dateSignal: '2026-09-10' }
+  ];
+
+  function rendreAttente() {
+    var conteneur = document.getElementById('listeAttente');
+    var groupe = document.getElementById('groupeAttente');
+    if (!_fichesEnAttente.length) {
+      groupe.style.display = 'none';
+      return;
+    }
+    groupe.style.display = '';
+    conteneur.innerHTML = _fichesEnAttente.map(function (f) {
+      var fr = classerFraicheur(f.dateSignal);
+      var esc = function (s) { return s.replace(/'/g, '\\\''); };
+      var action = fr.classe === 'perime'
+        ? '<button class="btn primaire" style="margin-top:.6rem" onclick="reverifierRayon(\'' + esc(f.rayon) + '\')">Revérifier ce rayon</button>'
+          + '<button class="btn" style="margin-top:.6rem;margin-left:.5rem" onclick="traiterFiche(\'' + esc(f.titre) + '\',\'' + esc(f.rayon) + '\',\'' + esc(f.contexte) + '\')">Traiter quand même</button>'
+        : '<button class="btn primaire" style="margin-top:.6rem" onclick="traiterFiche(\'' + esc(f.titre) + '\',\'' + esc(f.rayon) + '\',\'' + esc(f.contexte) + '\')">Traiter cette fiche</button>';
+      var alerteRevoir = fr.classe === 'perime'
+        ? '<div class="date-verif perime">Signalé ' + fr.texte + ' &mdash; plus d\'une semaine : la situation a peut-être encore changé, mieux vaut revérifier avant de traiter.</div>'
+        : '<div class="date-verif ' + fr.classe + '">Signalé ' + fr.texte + '</div>';
+      return '<div class="carte-tache" style="cursor:default;align-items:flex-start">'
+        + '<div><div class="titre-tache">&#9888; ' + f.titre + '</div>'
+        + '<div class="sous-tache">' + f.rayon + ' &mdash; ' + f.contexte + '</div>'
+        + alerteRevoir + action
+        + '</div></div>';
+    }).join('');
+  }
+
+  // Une fiche en attente trop ancienne (>= 7 jours) : mieux vaut relancer un Controle sur ce rayon
+  // que de rediger directement a partir d'un signal qui a peut-etre bouge depuis. Renvoie vers
+  // l'etape "copier" du Controle mensuel, rayon deja connu (meme esprit que traiterFiche()).
+  function reverifierRayon(rayon) {
+    var note = document.getElementById('noteReverif');
+    note.style.display = 'flex';
+    note.innerHTML = '<span>&#8635;</span><span><strong>Rayon à revérifier :</strong> « ' + rayon
+      + ' », signalé il y a plus d\'une semaine sans avoir été traité.</span>';
+    aller('etapeCopier');
+  }
+
+  function choisirRayon(btn, nomRayon) {
+    var vue = btn.closest('.vue');
+    vue.querySelectorAll('.choix-rayon button').forEach(function (b) { b.classList.remove('selectionne'); });
+    btn.classList.add('selectionne');
+    vue.querySelector('.btn.primaire.grand').textContent = 'Continuer avec « ' + nomRayon + ' »';
+  }
+  var choisirRayonFiche = choisirRayon;
+
+  function marquerCopie(btn, idSuite) {
+    btn.textContent = '✓ Copié';
+    if (idSuite) { document.getElementById(idSuite).disabled = false; }
+    setTimeout(function () { btn.textContent = '📋 Copier ce texte'; }, 1400);
+  }
+
+  // « Traiter » une fiche signalée par le Contrôle mensuel : rejoint le parcours de création de
+  // fiche directement à l'étape de collecte, rayon et contexte déjà remplis (même principe que
+  // traiter() dans outils/veille.html, qui pré-remplit fRayon/sousTheme/ctxCible et saute le choix
+  // du rayon). Denis a confirmé vouloir ce pont visible plutôt que seulement explique en chat.
+  function traiterFiche(titreFiche, rayon, contexte) {
+    _fichesEnAttente = _fichesEnAttente.filter(function (f) { return !(f.titre === titreFiche && f.rayon === rayon); });
+    var note = document.getElementById('notePreRempli');
+    note.style.display = 'flex';
+    note.innerHTML = '<span>&#8635;</span><span><strong>Déjà pré-rempli depuis le Contrôle :</strong> rayon « '
+      + rayon + ' », fiche « ' + titreFiche + ' ». Ce que le contrôle a signalé : ' + contexte + '</span>';
+    aller('etapeFicheCollecte');
+  }
+
+  // Date de derniere verification par rayon (demande de Denis, 2026-09-22) : meme code couleur que
+  // ci-dessus (classerFraicheur), grise en plus si jamais verifie. Exemples ecrits en dur pour cette
+  // maquette -- dans le vrai outil, ces dates viendraient de "Ma base" (fiches chargees), deja
+  // suivies par rayon (voir baseTableauBord() dans outils/veille.html).
+  var DATES_VERIF = {
+    'Emploi et contrats': '2026-09-22',
+    'Se former et se reconvertir': '2026-09-20',
+    'Accompagnement et structures de l\'insertion': '2026-09-17',
+    'Créer son activité': '2026-09-10',
+    'Employeurs et entrepreneurs': null,
+    'Moins de 26 ans': '2026-09-21',
+    'Handicap et emploi': '2026-09-22',
+    'Étranger : séjour et droit au travail': '2026-09-13',
+    'Étranger : démarches et équivalences': '2026-09-19',
+    'Justice : sortie de détention': null,
+    'Budget, dettes, droits sociaux': '2026-08-23',
+    'Mobilité': '2026-09-22',
+    'Logement': '2026-09-16',
+    'Garde d\'enfant': '2026-09-07',
+    'Apprendre le français': '2026-09-18',
+    'Questions juridiques': '2026-09-14',
+    'Travailler après 50 ans et retraite': null,
+    'Accès aux soins': '2026-09-20'
+  };
+  function appliquerDatesVerif() {
+    document.querySelectorAll('.choix-rayon button').forEach(function (btn) {
+      var nom = btn.textContent.trim();
+      if (!(nom in DATES_VERIF)) { return; }
+      var fr = classerFraicheur(DATES_VERIF[nom]);
+      var span = document.createElement('span');
+      span.className = 'date-verif ' + fr.classe;
+      span.textContent = fr.classe === 'jamais' ? 'Jamais vérifié' : 'Vérifié ' + fr.texte;
+      btn.appendChild(span);
+    });
+  }
+  appliquerDatesVerif();
+
+  aller('accueil');
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Dates par rubrique (2026-10-04). Mode A : rien n'est codé dans l'application.
+  Montre : (1) la boîte « Dates » qui serait dans chaque rubrique qui capte une date ; (2) l'effet sur des lignes d'exemple ;
+  (3) l'adaptation quand deux rubriques sont côte à côte. Contenu fictif. Vraies feuilles de style.
+  Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Dates par rubrique</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { position: sticky; top: 0; z-index: 5; display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  body.marquer [data-change] { outline: 3px dashed #e08a00; outline-offset: 2px; }
+  .ecran { max-width: 760px; margin: 0 auto; padding: 1rem 1rem 4rem; zoom: 1.25; }
+  .vide { color: var(--text-muted); font-size: .8rem; margin: .25rem 0; }
+  .rad { display: flex; gap: .35rem; align-items: center; font-size: .78rem; margin: .15rem 0; }
+  .apercu { border: 1px solid var(--border-strong); border-radius: 8px; background: #fff; color: #222; padding: .55rem .7rem; margin-top: .5rem; font: .8rem "Segoe UI", sans-serif; }
+  [data-theme="sombre"] .apercu { background: #1d2430; color: #e8edf5; }
+  .apercu h5 { margin: .1rem 0 .3rem; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+  .apercu .ligne { display: flex; justify-content: space-between; gap: .6rem; }
+  .apercu .dates { color: #666; white-space: nowrap; } [data-theme="sombre"] .apercu .dates { color: #b8c2d4; }
+  .apercu .meta { color: #666; font-size: .75rem; } [data-theme="sombre"] .apercu .meta { color: #b8c2d4; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .grise { opacity: .5; }
+  dialog { max-width: 820px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); } dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+<div class="ecran"><div class="mep-mq" id="cartes"></div></div>
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Une boîte « Dates » identique</b> dans chaque rubrique qui capte une date : Expériences, Formations, Certifications, Expérience personnelle. Rien ne change dans le reste des cartes.</li>
+    <li><b>« Comme l'ensemble des rubriques »</b> (coché au départ) : la rubrique suit la case « Dates alignées » et « Afficher les mois » de la carte Organisation du CV. Décoché : les choix propres apparaissent (position, forme, mois).</li>
+    <li><b>Forme</b> : « Années » (comme aujourd'hui), « Entre parenthèses », « Année de fin seule ». Les lignes d'exemple montrent l'effet tout de suite.</li>
+    <li><b>Position</b> : à droite, sous le titre, avant le titre, juste après le titre (nouveau pour les expériences et l'expérience personnelle).</li>
+    <li><b>Deux rubriques côte à côte</b> : la date passe automatiquement « juste après le titre », en parenthèses si la place manque, pour que les deux tiennent sur la ligne. Un choix fait à la main dans la rubrique reste prioritaire.</li>
+    <li><b>Aucune date inventée</b> : une rubrique sans date n'affiche rien ; « Depuis » ou une durée calculée ne sont pas proposés.</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+<script>
+  var RUBS = {
+    exp: { titre: 'Expériences professionnelles', debut: '2019', fin: '2021', lignes: [['Agent de sécurité', 'Sécuritas, Limoges']] },
+    form: { titre: 'Formations', debut: '2021', fin: '2021', lignes: [['CAP - Agent de prévention', 'AFPA, Limoges']] },
+    cert: { titre: 'Certifications', debut: '2023', fin: '2023', lignes: [['Habilitation électrique BS/BEM', 'Limoges']] },
+    perso: { titre: 'Expérience personnelle', debut: '2018', fin: '', lignes: [['Bricolage', 'Atelier du quartier']] }
+  };
+  var etat = {}; Object.keys(RUBS).forEach(function (k) { etat[k] = { suit: true, pos: 'droite', forme: 'annees', mois: false }; });
+  var adaptation = true;
+  function texteDate(r, forme) {
+    var d = r.debut, f = r.fin;
+    var plage = d ? ((f && f !== d) ? d + ' - ' + f : (f || !d ? d : d + ' - en cours')) : '';
+    if (!r.fin && r.debut && r.debut === r.debut && r.titre === 'Expérience personnelle') { plage = r.debut + ' - en cours'; }
+    if (forme === 'parentheses') { return '(' + plage + ')'; }
+    if (forme === 'fin') { return r.fin || (r.titre === 'Expérience personnelle' ? 'en cours' : r.debut); }
+    return plage;
+  }
+  function ligneApercu(r, e, forceApres) {
+    var pos = forceApres ? 'apres' : e.pos, t = r.lignes[0][0], m = r.lignes[0][1];
+    var forme = (forceApres && e.forme === 'annees') ? 'parentheses' : e.forme;
+    var d = texteDate(r, forme);
+    var h;
+    if (pos === 'droite') { h = '<div class="ligne"><span><b>' + t + '</b> - ' + m + '</span><span class="dates">' + d + '</span></div>'; }
+    else if (pos === 'sous') { h = '<div><b>' + t + '</b> - ' + m + '</div><div class="meta">' + d + '</div>'; }
+    else if (pos === 'avant') { h = '<div><span class="dates" style="display:inline-block;min-width:78px">' + d + '</span><b>' + t + '</b> - ' + m + '</div>'; }
+    else { h = '<div><b>' + t + '</b> ' + d + ' - ' + m + '</div>'; }
+    return h;
+  }
+  function boiteDates(k) {
+    var e = etat[k], g = e.suit ? ' grise' : '';
+    var rad = function (nom, val, lib) { return '<label class="rad"><input type="radio" name="' + k + nom + '" data-k="' + k + '" data-n="' + nom + '" data-v="' + val + '"' + (e[nom] === val ? ' checked' : '') + (e.suit ? ' disabled' : '') + '> ' + lib + '</label>'; };
+    return '<div class="boite" style="margin-top:.6rem" data-change="Nouvelle boîte"><h4>Dates</h4>' +
+      '<label class="ck"><input type="checkbox" data-k="' + k + '" data-n="suit"' + (e.suit ? ' checked' : '') + '> Comme l&rsquo;ensemble des rubriques <button type="button" class="aide-option" title="Suit « Dates alignées » et « Afficher les mois » de la carte Organisation du CV.">?</button></label>' +
+      '<div class="' + g.trim() + '"><div class="titre-mini" style="margin-top:.4rem">Position</div>' +
+      rad('pos', 'droite', '&Agrave; droite') + rad('pos', 'sous', 'Sous le titre') + rad('pos', 'avant', 'Avant le titre') + rad('pos', 'apres', 'Juste apr&egrave;s le titre') +
+      '<div class="titre-mini" style="margin-top:.4rem">Forme</div>' +
+      rad('forme', 'annees', 'Ann&eacute;es (2019 - 2021)') + rad('forme', 'parentheses', 'Entre parenth&egrave;ses (2019 - 2021)') + rad('forme', 'fin', 'Ann&eacute;e de fin seule (2021)') +
+      '<label class="ck" style="margin-top:.3rem"><input type="checkbox" data-k="' + k + '" data-n="mois"' + (e.mois ? ' checked' : '') + (e.suit ? ' disabled' : '') + '> Afficher les mois</label></div>' +
+      (e.suit ? '<p class="vide">Les choix propres sont gris&eacute;s tant que la case est coch&eacute;e.</p>' : '') +
+      '<div class="apercu"><h5>' + RUBS[k].titre + '</h5>' + ligneApercu(RUBS[k], e.suit ? { pos: 'droite', forme: 'annees' } : e, false) + '</div></div>';
+  }
+  function carte(k) {
+    return '<details class="mep-carte" open><summary><div><h3>' + RUBS[k].titre + '</h3></div><span class="chev">&#8963;</span></summary><div class="carte-corps"><p class="vide">&hellip; options existantes de la carte (inchang&eacute;es) &hellip;</p>' + boiteDates(k) + '</div></details>';
+  }
+  function cote() {
+    var ef = etat.form.suit ? { pos: 'droite', forme: 'annees' } : etat.form, ec = etat.cert.suit ? { pos: 'droite', forme: 'annees' } : etat.cert;
+    var manuelF = !etat.form.suit, manuelC = !etat.cert.suit;
+    var aF = adaptation && !manuelF, aC = adaptation && !manuelC;
+    return '<details class="mep-carte" open data-change="Adaptation sur une ligne partagée"><summary><div><h3>Deux rubriques c&ocirc;te &agrave; c&ocirc;te <span class="sous" style="font-weight:400">exemple : Formations et Certifications</span></h3></div><span class="chev">&#8963;</span></summary><div class="carte-corps">' +
+      '<label class="ck"><input type="checkbox" id="ckAdapt"' + (adaptation ? ' checked' : '') + '> Adapter les dates quand deux rubriques sont c&ocirc;te &agrave; c&ocirc;te <button type="button" class="aide-option" title="La date passe juste après le titre, en parenthèses, pour que chaque rubrique tienne sur sa moitié de ligne. Un choix fait à la main dans la rubrique reste prioritaire.">?</button></label>' +
+      '<div class="deux"><div class="apercu"><h5>Formations</h5>' + ligneApercu(RUBS.form, ef, aF) + '</div><div class="apercu"><h5>Certifications</h5>' + ligneApercu(RUBS.cert, ec, aC) + '</div></div>' +
+      '<p class="vide">' + (adaptation ? 'Les dates suivent le titre : les deux rubriques tiennent côte à côte, une rangée de moins.' : 'Les dates restent à droite : sur une demi-ligne, le titre est coupé ou passe à la ligne.') + '</p></div></details>';
+  }
+  function dessiner() {
+    document.getElementById('cartes').innerHTML = ['exp', 'form', 'cert', 'perso'].map(carte).join('') + cote();
+  }
+  document.getElementById('cartes').addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (t.id === 'ckAdapt') { adaptation = t.checked; dessiner(); return; }
+    var k = t.getAttribute('data-k'), n = t.getAttribute('data-n'); if (!k) { return; }
+    if (t.type === 'checkbox') { etat[k][n] = t.checked; } else { etat[k][n] = t.getAttribute('data-v'); }
+    dessiner();
+  });
+  document.getElementById('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); };
+  document.getElementById('btnNotes').onclick = function () { document.getElementById('dlgNotes').showModal(); };
+  document.getElementById('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  dessiner();
+</script>
+</body>
+</html>

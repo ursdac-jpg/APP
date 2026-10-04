@@ -24,7 +24,7 @@ Dans cet ordre :
 5. `docs/BRIQUES_COMMUNES.md` - registre des composants transverses (source unique + qui l'utilise + dette). Avant de creer un ecran / un champ / un composant : verifier ici, reutiliser, jamais recopier.
 6. `docs/LANGAGE_VISUEL_COMMUN.md` - le vocabulaire de formes commun a tous les modules.
 7. `docs/TRAVAILLER_AVEC_DENIS.md` - modes de collaboration, longueur des reponses, comment presenter des choix.
-8. `docs/ETAT_DES_CHANTIERS_2026-08-24.md` - la photo d'ensemble la plus a jour (mais anterieure a la semaine ecoulee, voir section 4 ci-dessous).
+8. `docs/ETAT_DES_CHANTIERS.md` - la photo d'ensemble la plus a jour (mais anterieure a la semaine ecoulee, voir section 4 ci-dessous).
 9. S'il existe un `docs/CHANTIER_<sujet>.md` pour le sujet en cours : le lire aussi.
 
 ### 2.2 Modes de collaboration - a annoncer au debut de chaque tache
@@ -92,7 +92,7 @@ Quand une maquette est validee, le visuel et l'interaction peuvent changer, c'es
 
 ## 3. Ce qui a change ces sept derniers jours (24 au 31 aout 2026)
 
-`docs/ETAT_DES_CHANTIERS_2026-08-24.md` est la derniere photo d'ensemble, mais elle date du 24. Depuis :
+`docs/ETAT_DES_CHANTIERS.md` est la derniere photo d'ensemble, mais elle date du 24. Depuis :
 
 - **Consolidation du module Bilan « Analyser ma candidature »** : gros chantier mene bloc par bloc (plan `docs/CONSOLIDATION_BILAN_PLAN_2026-08-29.md`, retours `docs/CONSOLIDATION_BILAN_RETOURS_2026-08-30.md`, maquette de reference `docs/MAQUETTE_BILAN_PARCOURS_CONSOLIDE_2026-08-29.html`). Essentiel CLOS le 30/08, 2e batch de retours CLOS le 31/08 (fin de parcours claire, acces CV sur les 3 modes, filet anti tiret cadratin, lignes de resume du rapport, bandeau agrandi). **Reste** : dette B.1 (fusion des ~5 collecteurs de contexte de candidature en un `htmlPanneauCandidature()` unique), fusion `bilan-v1.md` + rubriques, mini-chantier « prompt `bilan-v1.md` sature » (2 points : questions Carte 3 sur CV leger, synthese trop maigre).
 - **Langage visuel commun** : `docs/LANGAGE_VISUEL_COMMUN.md` + `docs/maquettes/_skeleton-intro-module.html` crees le 30/08. Le module Bilan consolide est l'exemple vivant.

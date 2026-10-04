@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Intitulés de rubriques modifiables (2026-10-03). Effort haut.
+  VRAI balisage des cartes de « La mise en page » (en-tête de carte, .champ, .seg, .btn-miss : copié de l'application), VRAIES feuilles de style
+  (css/style.css et css/mise-en-page-maquette.css). Seul ce qui change est marqué : bouton « Montrer ce qui change ».
+  Principe voulu par Denis : quand la personne change l'intitulé d'une rubrique, le CV ET le titre de la carte dans le panneau changent ensemble,
+  pour qu'elle retrouve tout de suite où régler cette rubrique.
+  Suggestions : variantes courantes des guides CV français (France Travail, universités, centres de gestion, JobTeaser) ; à relire par Denis.
+  Rien n'est enregistré ; contenu fictif (carreleur). Thème sombre : bouton de la barre. Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Intitulés de rubriques</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font: .78rem "Segoe UI", sans-serif; color: var(--text); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .barre-maquette button.on { background: #fff3e0; border-color: #e08a00; color: #7a4500; }
+  .ecran { max-width: 1100px; margin: 0 auto; padding: 1rem 1rem 4rem; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 860px) { .ecran { grid-template-columns: 1fr; } }
+  body.marquer [data-change] { outline: 2px dashed #e08a00; outline-offset: 2px; position: relative; }
+  body.marquer [data-change]::before { content: attr(data-change); position: absolute; top: -.85rem; right: 0; background: #e08a00; color: #fff; font: 600 .62rem "Segoe UI", sans-serif; padding: .05rem .4rem; border-radius: 4px; z-index: 2; }
+  [hidden] { display: none !important; }
+  /* NOUVEAU (maquette) : ligne « Intitulé sur le CV » */
+  .ligne-intitule { margin-bottom: .6rem; padding-bottom: .55rem; border-bottom: 1px dashed var(--border); }
+  .ligne-intitule .libre { display: flex; gap: .4rem; margin-top: .4rem; align-items: center; }
+  .ligne-intitule input[type=text] { flex: 1; border: 1px solid var(--border-strong); border-radius: 8px; padding: .3rem .5rem; font-size: .8rem; background: var(--bg-card); color: var(--text-strong); }
+  .ligne-intitule .rappel { font-size: .68rem; color: var(--text-muted); margin-top: .25rem; }
+  .ligne-intitule .retour { border: 0; background: none; color: var(--accent); font-size: .7rem; cursor: pointer; padding: 0; text-decoration: underline; }
+  .sous-rub { margin-top: .6rem; }
+  .ligne-intitule .sous, .sous-rub .sous { font-size: .7rem; color: var(--text-muted); font-weight: 400; }
+  /* Aperçu du CV (maquette seulement) */
+  .cv { position: sticky; top: .6rem; background: #fff; color: #1c2430; border: 1px solid var(--border-strong); border-radius: 8px; padding: 1rem 1.1rem; font: .74rem "Segoe UI", sans-serif; box-shadow: var(--shadow); }
+  .cv h1 { font-size: 1.05rem; margin: 0; color: #2f6690; } .cv .sous-titre { color: #555; margin-bottom: .5rem; }
+  .cv h2 { font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; color: #2f6690; border-bottom: 1px solid #b9c4d2; margin: .7rem 0 .25rem; padding-bottom: .1rem; transition: background .6s; }
+  .cv h2.flash { background: #fff3cd; }
+  .cv ul { margin: 0; padding-left: 1rem; } .cv p { margin: 0; }
+  dialog { max-width: 760px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); color: var(--text); padding: 1rem 1.2rem; font-family: "Segoe UI", sans-serif; }
+  dialog h3 { margin-top: 0; color: var(--text-strong); } dialog li { margin-bottom: .35rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : rien n'est enregistré, le contenu est fictif.</span>
+  <button type="button" id="btnMarquer">Montrer ce qui change</button>
+  <button type="button" id="btnNotes">Notes de la maquette</button>
+  <button type="button" id="btnSombre">Mode sombre</button>
+</div>
+
+<div class="ecran">
+<div class="mep-mq" id="panneau"></div>
+
+<div class="cv" id="cv" data-change="Le CV reprend en direct l'intitulé choisi (le même texte que la carte)">
+  <h1>Marc DUPONT</h1><div class="sous-titre">Carreleur - Peintre en bâtiment</div>
+  <h2 data-r="competences"></h2><p style="color:#777;font-style:italic">(bandeau général, selon le modèle)</p>
+  <h2 data-r="pro"></h2><p>Pose de carrelage, découpe et ajustement, préparation des supports</p>
+  <h2 data-r="comp"></h2><p>Précision, sens du détail, travail en équipe</p>
+  <h2 data-r="enaction"></h2><p style="color:#777;font-style:italic">(en mode Mixte)</p>
+  <h2 data-r="savoirs"></h2><p style="color:#777;font-style:italic">(modèle Rectangles arrondis)</p>
+  <h2 data-r="exp"></h2><ul><li>Carreleur, entreprise Lybie, 2018 - 2021</li><li>Peintre en bâtiment, 2022 - 2024</li></ul>
+  <h2 data-r="form"></h2><p>Sans diplôme. Habilitation travail en hauteur (2026)</p>
+  <h2 data-r="perso"></h2><ul><li>Bricolage : petits travaux, finitions</li></ul>
+  <h2 data-r="logiciels"></h2><p>Outils de mesure, applications de chantier</p>
+  <h2 data-r="certifs"></h2><p style="color:#777;font-style:italic">(si les certifications forment une rubrique à part)</p>
+  <h2 data-r="langues"></h2><p>Français courant, anglais notions</p>
+  <h2 data-r="loisirs"></h2><p>Bricolage, cuisine</p>
+  <h2 data-r="infos"></h2><p>Permis B, disponible immédiatement</p>
+</div>
+</div>
+
+<dialog id="dlgNotes">
+  <h3>Notes de la maquette</h3>
+  <ul>
+    <li><b>Ce que voit la personne</b> : en haut de chaque carte, un bouton « Changer l'intitulé ». Au clic s'ouvrent 3 propositions (la première est le nom d'origine) et « Autre... » pour écrire le sien (40 lettres au plus). Un clic : le CV et le titre de la carte changent <b>ensemble</b>, sur le même texte.</li>
+    <li><b>Pourquoi le titre de la carte change aussi</b> (exigence de Denis) : la personne retrouve tout de suite où régler cette rubrique. Le nom d'origine reste rappelé sous le champ, et « Revenir au nom d'origine » remet tout.</li>
+    <li><b>Tous les titres que l'application donne d'office sont modifiables</b> : Compétences (titre général, qui est aussi le titre de la carte), Compétences professionnelles, Compétences comportementales, Compétences en action (mode Mixte), Savoirs (modèle Rectangles arrondis), Expérience professionnelle, Formations, Expérience personnelle, et dans « Autres rubriques » : Logiciels et outils, Langues, Certifications (si rubrique à part), Centres d'intérêt, Informations complémentaires. Seul le regroupement « Autres rubriques » garde son nom : ce n'est pas une rubrique du CV.</li>
+    <li><b>Boutons</b> : exactement les mêmes que les autres boutons de l'application (même classe, même taille, même couleur).</li>
+    <li><b>Suggestions, tirées des guides CV français</b> (France Travail, universités, centres de gestion, JobTeaser), à relire par Denis : Compétences → Savoir-faire ; Comportementales → Savoir-être, Qualités ; Expérience → Parcours professionnel ; Formation / Diplômes et formations ; Loisirs, Passions ; Informations complémentaires. Les propositions pour Expérience personnelle (Engagements, Autres expériences), Logiciels et outils (Outils, Logiciels), Langues (Langues parlées) et Informations complémentaires (Informations pratiques, Autres informations) viennent de moi, sans source précise : à valider ou à retirer par Denis.</li>
+    <li><b>« Formations et certifications »</b> n'est proposé que si les certifications sont déjà rangées dans les formations (comme décidé pour ne pas inventer de fusion).</li>
+    <li><b>Rien n'est fait en silence</b> : un titre vide revient au nom d'origine ; les titres trop longs sont refusés ; le Word et le PDF affichent exactement le même intitulé.</li>
+    <li><b>Mode sombre et grands boutons</b> : les boutons de propositions suivent les mêmes réglages que les autres boutons de choix.</li>
+    <li><b>Déjà possible aujourd'hui</b> : « Modifier le texte » dans le grand aperçu corrige un titre pour CE CV. La nouvelle ligne le rend plus simple, plus visible, et garde un seul nom partout.</li>
+  </ul>
+  <p><button type="button" onclick="document.getElementById('dlgNotes').close()">Fermer</button></p>
+</dialog>
+
+<script>
+  /* Rubriques : cle, nom d'origine, propositions, icone (copiee des cartes de l'application) */
+  var IC = {
+    comp: '<circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/>',
+    exp: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    form: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+    plus: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'
+  };
+  var RUB = {
+    competences: { origine: 'Compétences', props: ['Compétences clés', 'Savoir-faire'], note: 'Titre général de la carte, et du bandeau « Compétences » du modèle Rectangles arrondis' },
+    pro:       { origine: 'Compétences professionnelles', props: ['Compétences', 'Savoir-faire'] },
+    comp:      { origine: 'Compétences comportementales', props: ['Savoir-être', 'Qualités'] },
+    enaction:  { origine: 'Compétences en action', props: ['Savoir-faire en action', 'Compétences en pratique'], note: 'Seulement en mode de présentation « Mixte »' },
+    savoirs:   { origine: 'Savoirs', props: ['Connaissances'], note: 'Boîte du modèle Rectangles arrondis' },
+    exp:       { origine: 'Expérience professionnelle', props: ['Parcours professionnel', 'Expériences professionnelles'] },
+    form:      { origine: 'Formations', props: ['Formation', 'Diplômes et formations'], conditionnel: { si: 'certifs-dans-formations', texte: 'Formations et certifications' } },
+    perso:     { origine: 'Expérience personnelle', props: ['Engagements', 'Autres expériences'] },
+    logiciels: { origine: 'Logiciels et outils', props: ['Outils', 'Logiciels'] },
+    langues:   { origine: 'Langues', props: ['Langues parlées'] },
+    certifs:   { origine: 'Certifications', props: ['Habilitations', 'Certificats'], note: 'Seulement quand les certifications forment une rubrique à part' },
+    loisirs:   { origine: 'Centres d’intérêt', props: ['Loisirs', 'Passions'] },
+    infos:     { origine: 'Informations complémentaires', props: ['Informations pratiques', 'Autres informations'] }
+  };
+  var CARTES = [
+    { id: 'cComp', titre: ['competences', 'pro', 'comp', 'enaction', 'savoirs'], icone: IC.comp, sous: 'Professionnelles et comportementales : lesquelles montrer, et dans quel ordre.', libelle: 'Compétences' },
+    { id: 'cExp', titre: ['exp'], icone: IC.exp, sous: 'Choisissez la façon de présenter vos expériences.' },
+    { id: 'cForm', titre: ['form'], icone: IC.form, sous: 'Choisissez quelles formations afficher.' },
+    { id: 'cPerso', titre: ['perso'], icone: IC.plus, sous: 'Choisissez ce qui apparaît dans cette rubrique.' },
+    { id: 'cAutres', titre: ['logiciels', 'langues', 'certifs', 'loisirs', 'infos'], icone: IC.plus, sous: 'Logiciels, langues, centres d’intérêt, informations complémentaires.', libelle: 'Autres rubriques' }
+  ];
+  var ETAT = {}; Object.keys(RUB).forEach(function (k) { ETAT[k] = RUB[k].origine; });
+  var OUVERT = {};
+  var CERTIFS_DANS_FORMATIONS = true; /* maquette : cochez/décochez pour voir la proposition conditionnelle */
+
+  /* Le titre d'une carte suit son premier intitulé (Compétences : le titre général) ; « Autres rubriques » est un simple regroupement du panneau (pas une rubrique du CV). */
+  function nomCarte(c) { return c.id === 'cAutres' ? c.libelle : ETAT[c.titre[0]]; }
+  function ligneIntitule(k) {
+    var R = RUB[k], courant = ETAT[k];
+    var props = [R.origine].concat(R.props);
+    if (R.conditionnel && CERTIFS_DANS_FORMATIONS) { props.push(R.conditionnel.texte); }
+    var estLibre = props.indexOf(courant) === -1;
+    var ouvert = !!OUVERT[k] || estLibre;
+    return '<div class="ligne-intitule" data-k="' + k + '"' + (k === 'pro' ? ' data-change="Nouveau bouton « Changer l’intitulé » : il ouvre les propositions et « Autre... »"' : '') + '>' +
+      '<div class="ligne-comp" style="flex-wrap:wrap"><button type="button" class="btn-miss" data-ouvrir aria-expanded="' + ouvert + '">&#9998; Changer l&rsquo;intitulé' + (ouvert ? ' &#9652;' : ' &#9662;') + '</button>' +
+      (courant !== R.origine ? '<span class="sous">Sur le CV : « ' + courant + ' »</span>' : '') + '</div>' +
+      '<div class="zone-propositions" ' + (ouvert ? '' : 'hidden') + ' style="margin-top:.45rem"><div class="seg seg-mini">' + props.map(function (p, i) { return '<button type="button" data-p="' + p.replace(/"/g, '&quot;') + '"' + (courant === p ? ' class="on"' : '') + '>' + p + (i === 0 ? '<small>nom d’origine</small>' : '') + '</button>'; }).join('') +
+        '<button type="button" data-autre' + (estLibre ? ' class="on"' : '') + '>Autre...</button></div>' +
+      '<div class="libre ligne-comp" ' + (estLibre ? '' : 'hidden') + '><input type="text" maxlength="40" value="' + (estLibre ? courant : '') + '" placeholder="Écrivez votre intitulé (40 lettres au plus)" aria-label="Votre intitulé"><button type="button" class="btn-miss" data-valider>Valider</button></div>' +
+      '<div class="rappel">' + (courant !== R.origine ? 'Nom d’origine : « ' + R.origine + ' ». <button type="button" class="retour" data-retour>Revenir au nom d’origine</button>' : 'Le nouvel intitulé change aussi sur le CV.') + '</div></div></div>';
+  }
+  function dessiner() {
+    document.getElementById('panneau').innerHTML = CARTES.map(function (c) {
+      var corps = c.titre.map(function (k, i) {
+        var t = (c.titre.length > 1) ? '<div class="sous-rub"><b style="font-size:.78rem;color:var(--text-strong)">' + ETAT[k] + '</b>' + (RUB[k].note ? ' <span class="sous">(' + RUB[k].note + ')</span>' : '') + '</div>' : '';
+        return t + ligneIntitule(k);
+      }).join('');
+      return '<details class="mep-carte" open id="' + c.id + '"><summary><svg class="ic" viewBox="0 0 24 24">' + c.icone + '</svg><div><h3>' + nomCarte(c) + ' <span class="sous" style="font-weight:400;margin-left:.5rem">' + c.sous + '</span></h3></div><span class="chev">&#8963;</span></summary>' +
+        '<div class="carte-corps">' + corps + '<p class="sous" style="margin:.2rem 0 0">(les autres réglages de la carte restent comme aujourd’hui)</p></div></details>';
+    }).join('') +
+      '<p style="font-size:.72rem;color:var(--text-muted)"><label><input type="checkbox" id="ckCertifs"' + (CERTIFS_DANS_FORMATIONS ? ' checked' : '') + '> Maquette : les certifications sont rangées dans les formations</label></p>';
+    document.querySelectorAll('#cv h2').forEach(function (h) { h.textContent = ETAT[h.getAttribute('data-r')]; });
+    document.querySelectorAll('.ligne-intitule').forEach(function (z) {
+      var k = z.getAttribute('data-k');
+      z.querySelector('[data-ouvrir]').onclick = function () { OUVERT[k] = !OUVERT[k]; dessiner(); };
+      z.querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { appliquer(k, b.getAttribute('data-p')); }; });
+      z.querySelector('[data-autre]').onclick = function () { z.querySelector('.libre').hidden = false; z.querySelector('input').focus(); };
+      z.querySelector('[data-valider]').onclick = function () { var v = z.querySelector('input').value.trim().slice(0, 40); appliquer(k, v || RUB[k].origine); };
+      z.querySelector('input').onkeydown = function (e) { if (e.key === 'Enter') { z.querySelector('[data-valider]').click(); } };
+      var r = z.querySelector('[data-retour]'); if (r) { r.onclick = function () { appliquer(k, RUB[k].origine); }; }
+    });
+    document.getElementById('ckCertifs').onchange = function () { CERTIFS_DANS_FORMATIONS = this.checked; if (!this.checked && ETAT.form === RUB.form.conditionnel.texte) { ETAT.form = RUB.form.origine; } dessiner(); };
+  }
+  function appliquer(k, valeur) {
+    ETAT[k] = valeur; dessiner();
+    var h = document.querySelector('#cv h2[data-r="' + k + '"]'); h.classList.add('flash'); setTimeout(function () { h.classList.remove('flash'); }, 700);
+  }
+  document.getElementById('btnMarquer').onclick = function () { document.body.classList.toggle('marquer'); this.classList.toggle('on'); };
+  document.getElementById('btnNotes').onclick = function () { document.getElementById('dlgNotes').showModal(); };
+  document.getElementById('btnSombre').onclick = function () { var r = document.documentElement; if (r.getAttribute('data-theme') === 'sombre') { r.removeAttribute('data-theme'); } else { r.setAttribute('data-theme', 'sombre'); } };
+  dessiner();
+</script>
+</body>
+</html>

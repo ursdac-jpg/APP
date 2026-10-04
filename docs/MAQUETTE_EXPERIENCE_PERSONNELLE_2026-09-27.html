@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Nouvelle carte "Expérience personnelle" dans le panneau "La mise en page" du CV, 2026-09-27.
+  Mise a jour le 2026-09-27 (nuit) : Denis a tranche, apres la premiere version de cette maquette, que
+  le savoir-faire personnel et les engagements doivent avoir RIGOUREUSEMENT le meme comportement dans
+  cette rubrique - "on ne puisse pas faire la difference entre quelle est la source, parce que les deux
+  vont nourrir le meme bloc". Consequence sur cette maquette (voir docs/CHANTIER_EXPERIENCE_PERSONNELLE_2026-09-27.md) :
+  - Retire le badge de couleur qui distinguait "Savoir-faire perso" / "Engagement" sur chaque ligne de
+    la liste a cocher : plus aucune marque visuelle de la source dans cette liste.
+  - Un engagement recoit desormais lui aussi un compteur de missions (l'assistant lui redige 2 a 3
+    missions, prompts/cv.md point 17, cf. chantier ci-dessus) - jamais plus "texte simple, pas de
+    missions".
+  - L'encart "A trancher ensemble" est devenu une regle actee, reformulee en consequence.
+  Le reste de cette maquette (position de la carte, sources, aperçu CV) reste valide tel quel.
+
+  Sujet d'origine (P3, retours de Denis du 2026-09-27) :
+  - Nouvelle rubrique CV "EXPERIENCE PERSONNELLE", positionnée juste APRÈS "Expérience professionnelle"
+    sur le CV lui-même (jamais dans ce panneau : c'est l'ordre des RUBRIQUES DU CV, déjà réglé par
+    ailleurs, "Organisation du CV").
+  - Nouvelle CARTE de réglages dans le panneau, positionnée juste APRÈS la carte "Formations" (ordre du
+    PANNEAU, distinct de l'ordre du CV ci-dessus).
+  - Sources : dossier.experiencesPerso (savoir-faire perso, avec missions - même forme qu'une expérience
+    pro) + dossier.engagements (compléments, avec missions elles aussi désormais). Jamais les loisirs.
+  - Conséquence sur "Centres d'intérêt" : ne garde plus que les loisirs dès que cette nouvelle rubrique
+    existe (les engagements n'y apparaissent plus, pour ne jamais montrer deux fois la même information).
+
+  Reprend à l'identique les jetons de couleur et les classes de la maquette de référence
+  (MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html) : "Expériences professionnelles" et "Formations" sont
+  affichées ci-dessous EN VRAI (repliées) uniquement comme repères de position et de style, jamais à
+  modifier ici. Le sujet de cette maquette est la carte "Expérience personnelle", ouverte, et l'aperçu
+  CV à droite.
+
+  Français impeccable, aucun tiret cadratin, jamais le mot IA visible, icônes = objets.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Carte "Expérience personnelle"</title>
+<style>
+  :root {
+    --bg-page: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --bg-hover: #edf4ff;
+    --border: #e2e8f0; --border-strong: #d5dbe4;
+    --text-strong: #0b1a33; --text: #33404f; --text-muted: #4a5b6e;
+    --accent: #0d6efd; --accent-hover: #0a58ca; --accent-bg-subtle: #eef2fd;
+    --warning: #b45309; --warning-bg-subtle: #fdf1d9; --warning-border: #f0c675;
+    --shadow: 0 10px 30px rgba(20,35,60,.10);
+    --radius: 12px;
+  }
+  body.dark {
+    --bg-page: #12161f; --bg-card: #1b212c; --bg-subtle: #222834; --bg-hover: #1e2940;
+    --border: #313a4a; --border-strong: #3d4759;
+    --text-strong: #e8edf5; --text: #cdd6e1; --text-muted: #9aa8ba;
+    --accent: #4d94ff; --accent-hover: #6ba5ff; --accent-bg-subtle: #1e2940;
+    --warning: #e2b877; --warning-bg-subtle: #33270f; --warning-border: #6b5424;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 14px; }
+  body { margin: 0; background: var(--bg-page); color: var(--text);
+    font-family: "Segoe UI", -apple-system, Roboto, Helvetica, Arial, sans-serif; line-height: 1.45; }
+  button { font: inherit; cursor: pointer; }
+  svg.ic { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .barre-maquette { display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap;
+    padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font-size: .78rem; color: var(--text-muted); }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle); color: var(--text);
+    border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; }
+
+  .ecran { max-width: 1400px; margin: 0 auto; padding: .8rem 1.1rem 4rem; }
+  .entete { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
+  .entete .rond { width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border);
+    display: grid; place-items: center; color: var(--accent); box-shadow: var(--shadow); flex: 0 0 auto; }
+  .entete h1 { margin: 0; font-size: 1.15rem; color: var(--text-strong); }
+  .entete p { margin: 0; color: var(--text-muted); font-size: .82rem; line-height: 1.3; }
+
+  .grille { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 1050px) { .grille { grid-template-columns: 1fr; } }
+
+  details.carte, .carte { border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius); margin-bottom: .55rem; }
+  details.carte > summary { list-style: none; display: flex; align-items: center; gap: .6rem; padding: .45rem .8rem; cursor: pointer; }
+  details.carte > summary::-webkit-details-marker { display: none; }
+  .carte-tete .ic, summary .ic { color: var(--accent); flex: 0 0 auto; }
+  summary h3 { margin: 0; font-size: .95rem; color: var(--text-strong); }
+  summary .sous { color: var(--text-muted); font-size: .76rem; font-weight: 400; }
+  summary .chev { margin-left: auto; color: var(--accent); transition: transform .15s; font-size: 1.1rem; }
+  details[open] > summary .chev { transform: rotate(180deg); }
+  .carte-corps { padding: 0 .8rem .7rem; }
+  .carte-corps > p.aide { margin: 0 0 .5rem; color: var(--text-muted); font-size: .8rem; line-height: 1.35; }
+  .carte.repere { opacity: .68; }
+  .carte.repere summary { cursor: default; }
+  .carte.sujet { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+
+  .quatre { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: .5rem; align-items: stretch; }
+  .boite { border: 1px solid var(--border); border-radius: 9px; padding: .4rem .55rem; background: var(--bg-card); }
+  .boite h4 { margin: 0 0 .2rem; font-size: .82rem; color: var(--text-strong); }
+  .rad { display: block; padding: .1rem 0; font-size: .84rem; color: var(--text-strong); cursor: pointer; }
+  .rad input { accent-color: var(--accent); margin-right: .45rem; }
+  .rad small { display: block; margin-left: 1.4rem; color: var(--text-muted); font-size: .7rem; line-height: 1.2; }
+
+  .source-rappel { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: .55rem; }
+  .source-puce { flex: 1 1 200px; display: flex; flex-direction: column; gap: .4rem; align-items: flex-start; padding: .4rem .55rem; border: 1px dashed var(--border-strong); border-radius: 9px; background: var(--bg-subtle); font-size: .78rem; color: var(--text-muted); }
+  .source-puce b { display: block; color: var(--text-strong); font-size: .82rem; margin-bottom: .1rem; }
+  /* TACHE (retour Denis 2026-09-27) : jamais une ligne de texte cliquable -- un vrai bouton, meme
+     langage que le reste de l'application (rectangulaire, contour net). Emmene vers "Vos informations"
+     (l'ecran ou ces entrees se modifient reellement -- rien ne se saisit dans ce panneau). */
+  .btn-vers-infos { align-self: flex-start; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent);
+    border-radius: 8px; padding: .25rem .6rem; font-size: .74rem; font-weight: 600; }
+  .btn-vers-infos:hover { background: var(--accent-bg-subtle); }
+
+  .choix-exp { margin-top: .5rem; padding: .45rem .6rem .5rem; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 9px; }
+  .choix-exp > summary { list-style: none; cursor: pointer; margin-bottom: 0; align-items: center; display: flex; }
+  .choix-exp > summary::-webkit-details-marker { display: none; }
+  .choix-titre { display: flex; flex-wrap: wrap; gap: .1rem .6rem; align-items: baseline; margin-bottom: .3rem; font-size: .84rem; color: var(--text-strong); }
+  .choix-titre span { font-size: .74rem; color: var(--text-muted); }
+  .choix-exp > summary .chev { margin-left: auto; color: var(--accent); font-size: 1.1rem; transition: transform .15s; }
+  .choix-exp[open] > summary .chev { transform: rotate(180deg); }
+  .choix-exp[open] > summary { margin-bottom: .3rem; }
+  .choix-aide { margin: 0 0 .35rem; font-size: .76rem; color: var(--text-muted); }
+  #listeChoixPerso { display: flex; flex-direction: column; gap: .05rem; }
+  .ligne-choix { display: flex; align-items: center; gap: .45rem; font-size: .8rem; color: var(--text-strong); padding: .22rem 0; flex-wrap: wrap; }
+  .ligne-choix input[type=checkbox] { width: 1rem; height: 1rem; accent-color: var(--accent); flex: 0 0 auto; }
+  .ligne-choix .nom { flex: 1; min-width: 160px; line-height: 1.2; }
+  .ligne-choix .nom em { color: var(--text-muted); font-style: normal; font-size: .74rem; }
+  .ligne-choix .tag-source { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; padding: .05rem .4rem; border-radius: 6px; }
+  .tag-source.savoirfaire { color: var(--accent); background: var(--accent-bg-subtle); }
+  .tag-source.engagement { color: var(--warning); background: var(--warning-bg-subtle); }
+  .pas { display: inline-flex; align-items: center; border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; }
+  .pas button { border: 0; background: var(--bg-subtle); color: var(--text-strong); width: 1.5rem; height: 1.5rem; font-size: .95rem; }
+  .pas span { min-width: 1.6rem; text-align: center; font-weight: 700; color: var(--text-strong); font-size: .8rem; }
+  .ligne-choix.off { opacity: .55; }
+  .sans-missions { font-size: .72rem; color: var(--text-muted); font-style: italic; }
+
+  .note { margin-top: .6rem; padding: .5rem .65rem; border: 1px dashed var(--warning-border); background: var(--warning-bg-subtle); border-radius: 9px; font-size: .78rem; color: var(--text-strong); line-height: 1.35; }
+  .note b { color: var(--warning); }
+
+  /* Aperçu CV (extrait, jamais le CV complet) */
+  .cv-extrait { position: sticky; top: .8rem; background: #fff; color: #1c1c1c; border-radius: 10px; box-shadow: var(--shadow); padding: 1.4rem 1.5rem; font-size: .78rem; }
+  .cv-extrait h2 { font-size: .72rem; letter-spacing: .04em; color: var(--accent); text-transform: uppercase; margin: 1.1rem 0 .4rem; border-bottom: 1px solid #e2e8f0; padding-bottom: .2rem; }
+  .cv-extrait h2:first-child { margin-top: 0; }
+  .cv-extrait h2.nouveau { color: #b45309; }
+  .cv-item-titre { font-weight: 700; display: flex; justify-content: space-between; gap: .5rem; }
+  .cv-item-titre span.dates { font-weight: 400; color: #6b7684; font-size: .74rem; }
+  .cv-item ul { margin: .2rem 0 .55rem; padding-left: 1.1rem; }
+  .cv-item ul li { margin-bottom: .12rem; }
+  .cv-etiquette-nouveau { display: inline-block; margin-left: .4rem; font-size: .62rem; font-weight: 700; color: #fff; background: #b45309; border-radius: 5px; padding: .05rem .35rem; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Thème :</span>
+  <button onclick="document.body.classList.remove('dark')">Clair</button>
+  <button onclick="document.body.classList.add('dark')">Sombre</button>
+</div>
+<div class="ecran">
+  <div class="entete">
+    <div class="rond"><svg class="ic" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div>
+      <h1>Maquette - Carte "Expérience personnelle"</h1>
+      <p>À regarder ensemble : la nouvelle carte de réglages (à gauche) et son effet sur le CV (à droite, extrait). "Expériences professionnelles" et "Formations" sont affichées repliées juste comme repères de position, jamais à modifier ici.</p>
+    </div>
+  </div>
+
+  <div class="grille">
+    <div>
+      <!-- Repère de position 1 : déjà existant, jamais touché -->
+      <details class="carte repere">
+        <summary><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><div><h3>Expériences professionnelles <span class="sous">(déjà existant, non modifiées ici)</span></h3></div><span class="chev">⌄</span></summary>
+      </details>
+
+      <!-- Repère de position 2 : déjà existant, jamais touché -->
+      <details class="carte repere">
+        <summary><svg class="ic" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><div><h3>Formations <span class="sous">(déjà existant, non modifiées ici)</span></h3></div><span class="chev">⌄</span></summary>
+      </details>
+
+      <!-- LE SUJET DE CETTE MAQUETTE -->
+      <details class="carte sujet" open id="cExpPerso">
+        <summary><svg class="ic" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div><h3>Expérience personnelle <span class="sous">Choisissez ce qui apparaît dans cette nouvelle rubrique.</span></h3></div><span class="chev">⌃</span></summary>
+        <div class="carte-corps">
+          <p class="aide">Cette rubrique rassemble votre savoir-faire personnel et vos engagements. Rien ne se saisit ici : pour ajouter ou modifier une entrée, retournez dans "Vos informations".</p>
+
+          <div class="source-rappel">
+            <div class="source-puce"><b>🧭 2 savoir-faire personnels</b>Bricolage et petits travaux, Soutien scolaire bénévole<button type="button" class="btn-vers-infos" title="Ajouter, modifier ou retirer un savoir-faire personnel">Modifier dans Vos informations</button></div>
+            <div class="source-puce"><b>🤝 1 engagement</b>Bénévole à la banque alimentaire (2022 - aujourd'hui)<button type="button" class="btn-vers-infos" title="Ajouter, modifier ou retirer un engagement">Modifier dans Vos informations</button></div>
+          </div>
+
+          <div class="quatre" style="grid-template-columns:1fr">
+            <div class="boite"><h4>Expériences à afficher</h4>
+              <label class="rad"><input type="radio" name="expPersoTout" value="toutes" checked> Toutes<small>Affiche tout votre savoir-faire personnel et vos engagements.</small></label>
+              <label class="rad"><input type="radio" name="expPersoTout" value="pertinentes"> Les plus pertinentes<small>Met en avant celles en lien avec votre projet.</small></label>
+            </div>
+          </div>
+
+          <details class="choix-exp" open>
+            <summary class="choix-titre"><b>Vos expériences personnelles et leurs missions</b><span>3 affichées</span><span class="chev" aria-hidden="true">⌄</span></summary>
+            <p class="choix-aide">Cochez ce qui doit apparaître, et choisissez les missions à garder pour chacune - un savoir-faire personnel et un engagement se traitent exactement de la même façon.</p>
+            <div id="listeChoixPerso">
+              <div class="ligne-choix">
+                <input type="checkbox" checked>
+                <span class="nom"><b>Bricolage et petits travaux</b> <em>(depuis 2019)</em></span>
+                <span class="pas" title="De 1 à 6 missions"><button>&minus;</button><span>2</span><button>+</button></span>
+              </div>
+              <div class="ligne-choix">
+                <input type="checkbox" checked>
+                <span class="nom"><b>Soutien scolaire bénévole</b> <em>(2021 - 2023)</em></span>
+                <span class="pas" title="De 1 à 4 missions"><button>&minus;</button><span>1</span><button>+</button></span>
+              </div>
+              <div class="ligne-choix">
+                <input type="checkbox" checked>
+                <span class="nom"><b>Bénévole à la banque alimentaire</b> <em>(2022 - aujourd'hui)</em></span>
+                <span class="pas" title="De 1 à 3 missions"><button>&minus;</button><span>2</span><button>+</button></span>
+              </div>
+            </div>
+          </details>
+
+          <div class="note"><b>Règle appliquée :</b> un savoir-faire personnel et un engagement se comportent exactement de la même façon dans cette rubrique - même compteur de missions, aucune distinction visible entre les deux sources. Les missions sont rédigées par l'assistant lors de la génération du CV (vous pouvez toujours les modifier à l'écran de relecture) ; rien à taper ici.</div>
+        </div>
+      </details>
+    </div>
+
+    <div>
+      <div class="cv-extrait">
+        <div style="font-weight:700;font-size:1rem;">Denis DELACROIX</div>
+        <div style="color:#6b7684;font-size:.74rem;">Formateur / Éducateur</div>
+
+        <h2>Expérience professionnelle</h2>
+        <div class="cv-item">
+          <div class="cv-item-titre">Éducateur - Capsport <span class="dates">2020 - en cours</span></div>
+          <ul><li>Préparer et organiser les activités d'éducation.</li><li>Présenter les consignes aux équipes.</li></ul>
+        </div>
+
+        <h2 class="nouveau">Expérience personnelle <span class="cv-etiquette-nouveau">nouveau</span></h2>
+        <div class="cv-item">
+          <div class="cv-item-titre">Bricolage et petits travaux <span class="dates">depuis 2019</span></div>
+          <ul><li>Réaliser des réparations et petits aménagements pour l'entourage.</li><li>Utiliser en autonomie l'outillage courant (électroportatif, plomberie de base).</li></ul>
+        </div>
+        <div class="cv-item">
+          <div class="cv-item-titre">Soutien scolaire bénévole <span class="dates">2021 - 2023</span></div>
+          <ul><li>Accompagner un enfant dans ses devoirs plusieurs soirs par semaine.</li></ul>
+        </div>
+        <div class="cv-item">
+          <div class="cv-item-titre">Bénévole à la banque alimentaire <span class="dates">2022 - aujourd'hui</span></div>
+          <ul><li>Accueillir et orienter les bénéficiaires à leur arrivée.</li><li>Préparer et répartir les colis alimentaires selon les besoins.</li></ul>
+        </div>
+
+        <h2>Formations</h2>
+        <div class="cv-item"><div class="cv-item-titre">Bac général <span class="dates">2004</span></div></div>
+
+        <h2>Centres d'intérêt</h2>
+        <div class="cv-item" style="color:#33404f;">Randonnée, Lecture</div>
+      </div>
+      <p style="font-size:.76rem;color:var(--text-muted);margin-top:.5rem;">À droite : ordre réel sur le CV (différent de l'ordre du panneau à gauche). "Centres d'intérêt" ne montre plus que les loisirs - "Bénévole à la banque alimentaire" n'y apparaît plus, il est monté dans la nouvelle rubrique.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
