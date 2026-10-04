@@ -31,7 +31,7 @@ Tu prépares des repères pour une personne accompagnée par un conseiller en in
 - `url` : donne l'URL seulement si tu l'as réellement ouverte dans cette recherche ; sinon `url = null` et garde le `nom`. Ne fabrique jamais une URL. Cas Légifrance : pas de lien d'article (`/loda/article_lc/LEGIARTI...`, `/jorf/id/JORF...`), mets la référence de l'arrêté dans `nom` et `url = null`.
 - `date_info` : la date de publication ou de mise à jour affichée sur la page. Si la page n'affiche pas de date : `null`. Jamais la date d'aujourd'hui ni la date de consultation.
 - `portee` : cherche au niveau le plus local disponible, puis régional, puis national. Indique le niveau retenu, exactement l'un de ces mots sans accent : `departementale`, `regionale`, `nationale`, ou `null`.
-- Aucune citation ni URL dans les champs `durable` : les références vont uniquement dans `a_verifier`.
+- Aucune citation ni URL dans les champs `durable` : les références vont uniquement dans `a_verifier`. N'ajoute aucune étiquette de source à la fin d'une phrase ou d'une valeur (pas de « Onisep », pas de « France Travail+1 »), dans aucun champ.
 
 ## 4. Format de réponse
 

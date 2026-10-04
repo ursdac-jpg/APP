@@ -18,6 +18,8 @@
 
   <!-- Styles de l'application -->
   <link rel="stylesheet" href="css/style.css">
+  <!-- Panneau "La mise en page" du CV (PDF) : feuille de style reprise de la maquette, limitee a .mep-mq -->
+  <link rel="stylesheet" href="css/mise-en-page-maquette.css">
   <!-- Module « Repères » — premier module avec sa propre feuille de
        style (voir modules/reperes/ARCHITECTURE_TECHNIQUE.md). Charge
        après css/style.css pour pouvoir réutiliser ses variables, ne
@@ -76,6 +78,12 @@
       <span class="pref-affichage-label">Confort de lecture</span>
       <button type="button" data-pref-confort="0">Désactivé</button>
       <button type="button" data-pref-confort="1">Activé</button>
+    </div>
+    <!-- Grands boutons (retour Denis 2026-10-03) : cibles d'au moins 44 px et texte plus grand sur l'ecran « La mise en page », sans toucher au CV. Reglage d'interface, par appareil. -->
+    <div class="pref-affichage-groupe">
+      <span class="pref-affichage-label">Grands boutons</span>
+      <button type="button" data-pref-boutons="0">Désactivé</button>
+      <button type="button" data-pref-boutons="1">Activé</button>
     </div>
     <!-- TACHE (retour utilisateur, meme demande que ci-dessus) : <details>/
          <summary> natifs (deja utilises ailleurs dans l'appli pour ce
@@ -200,8 +208,25 @@
   <button type="button" id="btnCarnet" aria-label="Carnet" title="Carnet"><i class="bi bi-journal-text" aria-hidden="true"></i></button>
   <div id="panneauCarnet" hidden></div>
 
+  <!-- Module « Comparer mes pistes » — icone globale, visible partout des
+       la 1re piste de cote (voir modules/comparer-pistes/index.js,
+       _comparerMettreAJourIconePanier). Meme icone (bi-signpost-split) que
+       partout ailleurs dans ce module (carte d'accueil, boutons) : jamais
+       une 2e icone a apprendre pour la meme fonction. Meme principe de
+       coquille vide que #btnJournalParcours juste au-dessus : masquee par
+       defaut, jamais de comportement ecrit ici. -->
+  <button type="button" id="btnComparerPanier" hidden aria-label="Comparer mes pistes" title="Comparer mes pistes"><i class="bi bi-signpost-split" aria-hidden="true"></i></button>
+  <div id="panneauComparerPanier" hidden></div>
+
+  <!-- Message ephemere generique (afficherToast(), js/app.js) : apparait,
+       reste lisible, disparait tout seul. Un seul a la fois pour toute
+       l'application, jamais un par module. -->
+  <div id="toastEphemere" hidden role="status" aria-live="polite"></div>
+
   <!-- Ordre important : du plus stable (donnees + moteur) au plus mouvant (interface) -->
   <!-- charset UTF-8 explicite : garantit un affichage correct des accents en ouverture locale -->
+  <script src="data/certificationsConnues.js" charset="UTF-8"></script>
+  <script src="data/incoherencesImport.js" charset="UTF-8"></script>
   <script src="data/metiers.js" charset="UTF-8"></script>
   <script src="data/competences.js" charset="UTF-8"></script>
   <script src="data/actionsProfessionnelles.js" charset="UTF-8"></script>
@@ -210,6 +235,8 @@
   <script src="data/valeursProfessionnelles.js" charset="UTF-8"></script>
   <script src="data/baseConnaissancesERIP.js" charset="UTF-8"></script>
   <script src="data/secteurs.js" charset="UTF-8"></script>
+  <script src="data/competencesSecteurs.js" charset="UTF-8"></script>
+  <script src="data/microFormations.js" charset="UTF-8"></script>
   <script src="data/dictionnaireLexicalERIP.js" charset="UTF-8"></script>
   <script src="data/toleranceOrthographiqueERIP.js" charset="UTF-8"></script>
   <script src="data/extractionConceptsERIP.js" charset="UTF-8"></script>
@@ -230,6 +257,12 @@
        en 2 fiches dans l'univers Lexique "urgences". Chargé après data/lexique.js
        (il pousse dans LEXIQUE_FICHES). -->
   <script src="data/urgences.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/dates.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/genreCandidat.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/identiteFormat.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/couleursEntreprise.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/certifications.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/moteurDecisionCV.js" charset="UTF-8"></script>
   <script src="modules/cv-core/extraireDonneesCV.js" charset="UTF-8"></script>
   <script src="modules/cv-core/normaliserDonneesCV.js" charset="UTF-8"></script>
   <script src="modules/cv-editor/rendreTemplate.js" charset="UTF-8"></script>
@@ -264,6 +297,7 @@
   <script src="modules/cv-composeur/composeurProfil.js" charset="UTF-8"></script>
   <script src="modules/cv-composeur/composeurComposants.js" charset="UTF-8"></script>
   <script src="modules/cv-composeur/composeurRegles.js" charset="UTF-8"></script>
+  <script src="modules/cv-composeur/composeurDedoublonnage.js" charset="UTF-8"></script>
   <script src="modules/cv-composeur/composeurComposition.js" charset="UTF-8"></script>
   <!-- TACHE (contrat composeur-strategies-cv-v2.md, étape 2) : nouvelle
        couche, ajoutée en cohabitation avec l'existant -- dépend de
@@ -313,14 +347,31 @@
        les DECISIONS de contenu (jamais dupliquees ici). -->
   <script src="modules/cv-pdf-html/cvPdfDonnees.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfTemplateA4.js" charset="UTF-8"></script>
+  <!-- Couleur de chaque zone d'un CV creatif : registre des zones + generation des couleurs (lu par le rendu ci-dessous et par le plein ecran). -->
+  <script src="modules/cv-pdf-html/cvPdfCouleursZones.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfTemplateMaquette.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfPleinEcranMaquette.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfCartesMaquette.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfOptionsParModele.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfTemplateA5.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfPanneauReglages.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfExport.js" charset="UTF-8"></script>
+  <!-- TACHE (chantier "le CV en Word repris depuis le PDF", 2026-09-26/27) : extrait le rendu
+       final du PDF (construirePageInteractivePdfA4 ci-dessus) vers un .docx ecrit a la main,
+       jamais de recodage des modeles. Voir docs/CHANTIER_WORD_DEPUIS_PDF_2026-09-26.md. -->
+  <script src="modules/cv-word/wordUnites.js" charset="UTF-8"></script>
+  <script src="modules/cv-word/wordCouleurs.js" charset="UTF-8"></script>
+  <script src="modules/cv-word/wordXml.js" charset="UTF-8"></script>
+  <script src="modules/cv-word/wordPaquet.js" charset="UTF-8"></script>
+  <script src="modules/cv-word/wordExtracteur.js" charset="UTF-8"></script>
+  <script src="modules/cv-word/wordExport.js" charset="UTF-8"></script>
   <!-- TACHE (chantier "La mise en page du CV", sous-etape 1) : modele de
        reglages canonique + traducteurs. Isole, aucune dependance ; branche a
        l'UI a partir de la sous-etape 4. Voir docs/CADRAGE_MISE_EN_PAGE_2026-09-03.md. -->
   <script src="modules/cv-mise-en-page/reglagesMiseEnPage.js" charset="UTF-8"></script>
   <script src="modules/cv-mise-en-page/reglagesTraducteurs.js" charset="UTF-8"></script>
+  <!-- Recadrage de la photo du CV (zoom + deplacement), appele par ajouterPhotoAuDossier() de js/app.js. -->
+  <script src="modules/photo-cadrage/photoCadrage.js" charset="UTF-8"></script>
   <script src="modules/lettre-core/normaliserDonneesLettre.js" charset="UTF-8"></script>
   <script src="modules/lettre-editor/modelesDisponiblesLettre.js" charset="UTF-8"></script>
   <!-- TACHE (traitement DOCX natif etendu a la lettre) : meme principe

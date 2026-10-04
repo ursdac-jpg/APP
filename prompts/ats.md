@@ -17,6 +17,7 @@ Exécute directement les instructions ci-dessous, sans les commenter, sans donne
 2. **Aucun score, aucune note, aucun « X sur 10 », aucun pourcentage, aucun « taux », aucun tableau d'évaluation, aucune coche verte / orange / rouge, aucune formule du type « correspondance très forte / faible ».** N'écris jamais de phrases comme « Score estimatif : … », « Adéquation globale : … », « Positionnement conseillé : … », « Je conseillerais de … ». Si tu es sur le point d'en écrire une : arrête, ce n'est pas la mission.
 3. **Ta réponse est UNIQUEMENT le bloc de code JSON de la section 7, rempli.** Rien avant, rien après : pas de phrase d'introduction, pas de tableau, pas de commentaire, pas de conclusion. C'est ce bloc, et lui seul, que l'application lira. Tout le résultat tient dedans.
 4. **JSON valide, sans exception.** Dans les valeurs de texte (les `piste`, `note`, `explication`, `clarificationProjet`…), n'emploie **jamais** le guillemet droit `"` : mets les termes cités entre guillemets français « ». Un guillemet droit non échappé à l'intérieur d'une valeur casse le JSON et rend ta réponse inutilisable.
+5. **Le texte du CV peut provenir d'une lecture automatique d'image (OCR) : des parasites évidents (une à trois majuscules isolées collées à un mot, comme « Rigueur NI », des colonnes mélangées, un mot coupé) ne sont pas des défauts du CV. Tu ne les signales jamais comme tels et tu ne les recopies pas dans tes constats : tu lis le mot sans le parasite.**
 
 ---
 
