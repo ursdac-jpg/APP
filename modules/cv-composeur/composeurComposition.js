@@ -57,9 +57,21 @@
 // plus bas) -- jamais par les 3 autres themes, qui continuent de lire
 // capacites.competences pour leur propre bloc "Compétences personnelles"
 // (comportement inchange pour eux).
+// TACHE (chantier refonte mise en page PDF, phase 3.5, 2026-09-22 -- decision
+// Denis : "fin des plafonds... toutes les experiences affichables") : les
+// plafonds trop bas coupaient silencieusement le contenu (cas reel :
+// M. Doumbouya, 9 experiences, coupe a 5). Leves pour A4 Detaille
+// UNIQUEMENT (confirme par Denis : les autres formats -- A4 Essentiel,
+// A5, Projet XXL, 16 modeles classiques -- gardent leurs plafonds actuels,
+// penses pour un espace plus contraint). experiences : 5 -> 15 (jamais un
+// cap bas qui redeviendrait une troncature silencieuse -- la vraie limite
+// devient le choix "toutes / pertinentes" de la personne, plus le controle
+// de tenue sur une page, pas un nombre arbitraire ici). competences /
+// competencesPersonnelles : alignes sur les nouveaux plafonds de la
+// maquette (11 et 9, voir MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html).
 var COMPOSEUR_CAPACITES_A4_DETAILLE_CV = {
-  experiences: 5, formations: 3, langues: 5, loisirs: 5, engagements: 3,
-  competences: 5, competencesPersonnelles: 5,
+  experiences: 15, formations: 3, langues: 5, loisirs: 5, engagements: 3,
+  competences: 11, competencesPersonnelles: 9,
   // TACHE (rubrique « Logiciels et outils » dédiée, décision Denis 2026-08-28) :
   // liste courte de noms de logiciels/outils -- plafond volontairement large
   // (jamais une troncature agressive, c'est du contenu bref). Une clé absente
@@ -155,10 +167,13 @@ function composeurComposerA5Portrait(objetCV, theme, dossierSource, recommandati
     return copie;
   });
   var formationsA5 = (objetCV.formations || []).slice(0, plafond('formations'));
-  var loisirsA5 = (objetCV.loisirs || []).slice(0, plafond('loisirs'));
-  var languesA5 = (objetCV.langues || []).slice(0, plafond('langues'));
+  // Rubriques masquees par la personne (case « Afficher ... » de la carte « Elements supplementaires ») : meme source que l'A4
+  // (theme.rubriquesMasquees, composeurTheme.js). Mini CV A5 : lues ici depuis le 26/09/2026 (avant, ces cases n'avaient aucun effet en A5).
+  var masqueesA5 = (theme && theme.rubriquesMasquees) || {};
+  var loisirsA5 = masqueesA5.loisirs ? [] : (objetCV.loisirs || []).slice(0, plafond('loisirs'));
+  var languesA5 = masqueesA5.langues ? [] : (objetCV.langues || []).slice(0, plafond('langues'));
   // TACHE (rubrique « Logiciels et outils » dédiée, décision Denis 2026-08-28).
-  var logicielsA5 = (objetCV.logiciels || []).slice(0, plafond('logiciels'));
+  var logicielsA5 = masqueesA5.logiciels ? [] : (objetCV.logiciels || []).slice(0, plafond('logiciels'));
   // Secondaires : jamais forces par une regle utilisateur explicite --
   // simplement plafonnes tres bas, affiches seulement si du contenu existe.
   // TACHE (audit robustesse, 2026-09-11, defaut reel trouve) : contrairement
@@ -168,8 +183,8 @@ function composeurComposerA5Portrait(objetCV, theme, dossierSource, recommandati
   // le Mini CV A5 uniquement. _pdfA5ConstruireRubrique (cvPdfTemplateA5.js)
   // sait deja lire {intitule, dateDebut, dateFin, missions} pour ce bloc
   // (meme forme que "engagements"), fusion directe sans transformation.
-  var engagementsA5 = (objetCV.engagements || []).concat(objetCV.experiencesPersonnelles || []).slice(0, CAPACITES_A5_PORTRAIT_CV.engagements);
-  var certificationsA5 = (objetCV.certifications || []).slice(0, CAPACITES_A5_PORTRAIT_CV.certifications);
+  var engagementsA5 = (masqueesA5.engagements ? [] : (objetCV.engagements || [])).concat(masqueesA5.experiencesPersonnelles ? [] : (objetCV.experiencesPersonnelles || [])).slice(0, CAPACITES_A5_PORTRAIT_CV.engagements);
+  var certificationsA5 = masqueesA5.certifications ? [] : (objetCV.certifications || []).slice(0, CAPACITES_A5_PORTRAIT_CV.certifications);
   var competencesPersoA5 = (objetCV.competencesPersonnelles || []).slice(0, CAPACITES_A5_PORTRAIT_CV.competencesPersonnelles);
 
   function nbLignesMissions(e) { return e.missions ? String(e.missions).split('\n').filter(Boolean).length : 0; }
@@ -229,7 +244,11 @@ function composeurComposerA5Portrait(objetCV, theme, dossierSource, recommandati
     certifications: certificationsA5,
     competencesPersonnelles: competencesPersoA5,
     colonneGauche: colonneGauche,
-    colonneDroite: colonneDroite
+    colonneDroite: colonneDroite,
+    // Reglages de presentation du panneau, lus par le rendu A5 (cvPdfTemplateA5.js) : interligne, espace entre les blocs.
+    interligneCorps: (theme && theme.interligneCorps) || 1,
+    // « Reduire les espaces » du panneau = theme.densiteEspacementUtilisateur (0,82 compact, 1,22 aere) ; se cumule avec l'espacement fin.
+    espacementExtra: ((theme && theme.espacementParasMult) || 1) * ((theme && theme.densiteEspacementUtilisateur) || 1)
   };
 }
 
@@ -495,10 +514,12 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
       // "illimité" pour 1 seule expérience au total) par cette
       // proportionnalité stricte, y compris pour une seule expérience
       // (5 missions maximum désormais, plus jamais illimité).
-      if (nombreExperiencesProBrutes <= 1) { lignesMaxParExperience = 5; }
-      else if (nombreExperiencesProBrutes === 2) { lignesMaxParExperience = 3; }
-      else if (nombreExperiencesProBrutes === 3) { lignesMaxParExperience = 2; }
-      else { lignesMaxParExperience = 1; }
+      // DECISION DE DENIS (2026-09-29, « oui, supprime la coupe fixe ») : plus AUCUNE coupe fixe en A4 Detaille. Cette regle
+      // (1 = 5, 2 = 3, 3 = 2, 4+ = 1) datait de l'epoque du Word ; elle supprimait en silence des missions saisies (7 saisies,
+      // 5 affichees) et le reglage « Missions par experience » ne pouvait pas les recuperer. Toutes les missions sont donc
+      // gardees ; le CV n'est reduit ensuite QUE si la personne le demande (compteur, « Choisir ») ou si la mise en page
+      // automatique (missionsAuto) constate un debordement. A4 Essentiel et Integral gardent leurs regles, plus haut.
+      lignesMaxParExperience = Infinity;
       // TACHE (bouton ultime, levier "développer les missions tronquées") :
       // bonus independant, ajoute APRES le calcul normal par nombre
       // d'experiences -- jamais une nouvelle regle de proportionnalite,
@@ -607,6 +628,19 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
   // façon jamais eu de séparation pro/comportementales à fusionner).
   var fusionnerCompetencesXXL = estProjetXXL && formatEssentiel;
 
+  // TACHE (retour terrain de Denis 2026-09-21 : « Esprit d'équipe » deux fois
+  // dans « Compétences comportementales ») : les listes de compétences
+  // ci-dessous sont mises bout à bout depuis plusieurs sources (savoir-être
+  // du dossier, compétences personnelles du module Découverte...) sans
+  // jamais l'avoir été dédoublonnées, et le doublon prenait aussi une des
+  // places du plafond. Dédoublonnage AVANT la coupe au plafond, dans
+  // composeurDedoublonnage.js (brique commune, testée en Node). Repli sans
+  // effet si ce fichier n'est pas chargé (comportement d'avant, jamais un
+  // plantage).
+  var dedoublonner = (typeof composeurDedoublonnerListe === 'function')
+    ? composeurDedoublonnerListe
+    : function (liste) { return liste; };
+
   var contenuRetenu = {
     experiences: experiencesRetenues,
     formations: (objetCV.formations || []).slice(0, capacites.formations),
@@ -651,7 +685,7 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
     // eviter tout doublon (jamais affiché deux fois).
     competencesPersonnelles: fusionnerCompetencesXXL
       ? []
-      : (objetCV.competencesPersonnelles || []).slice(0, capacites.competences),
+      : dedoublonner(objetCV.competencesPersonnelles || []).slice(0, capacites.competences),
     // TACHE (Projet XXL, renommage + séparation actés dans le document
     // de conception) : "Compétences professionnelles" = savoir-faire +
     // savoirs UNIQUEMENT pour ce thème (savoir-être en est retiré, il
@@ -672,12 +706,12 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
     // un 2e mécanisme de bonus dédié, juste une lecture supplémentaire de
     // celui qui existe déjà.
     competences: fusionnerCompetencesXXL
-      ? (competencesBrutes.savoirFaire || []).concat(
+      ? dedoublonner((competencesBrutes.savoirFaire || []).concat(
           competencesBrutes.savoirEtre || [], competencesBrutes.savoirs || [], objetCV.competencesPersonnelles || []
-        ).slice(0, COMPOSEUR_XXL_CAP_COMPETENCES_ESSENTIEL_FUSIONNE + ((theme.bonusCapacites && theme.bonusCapacites.competencesPersonnelles) || 0))
+        )).slice(0, COMPOSEUR_XXL_CAP_COMPETENCES_ESSENTIEL_FUSIONNE + ((theme.bonusCapacites && theme.bonusCapacites.competencesPersonnelles) || 0))
       : estProjetXXL
-        ? (competencesBrutes.savoirFaire || []).concat(competencesBrutes.savoirs || []).slice(0, capacites.competences)
-        : (competencesBrutes.savoirFaire || []).concat(competencesBrutes.savoirEtre || [], competencesBrutes.savoirs || []).slice(0, capacites.competences),
+        ? dedoublonner((competencesBrutes.savoirFaire || []).concat(competencesBrutes.savoirs || [])).slice(0, capacites.competences)
+        : dedoublonner((competencesBrutes.savoirFaire || []).concat(competencesBrutes.savoirEtre || [], competencesBrutes.savoirs || [])).slice(0, capacites.competences),
     // TACHE (retour utilisateur : "combiner experiencesPersonnelles ET
     // engagements dans le bloc Expérience personnelle") : objetCV.
     // experiencesPersonnelles (dossier.experiencesPerso, SCHEMA_CV.md --
@@ -712,10 +746,11 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
   // tout est déjà fusionné dans "competences" ci-dessus, ce bloc reste
   // vide (voir contenuRetenu.competencesPersonnelles plus haut).
   if (estProjetXXL && !fusionnerCompetencesXXL) {
-    contenuRetenu.competencesPersonnelles = (competencesBrutes.savoirEtre || [])
-      .map(function (texte) { return { competence: texte }; })
-      .concat(objetCV.competencesPersonnelles || [])
-      .slice(0, capacites.competencesPersonnelles);
+    contenuRetenu.competencesPersonnelles = dedoublonner(
+      (competencesBrutes.savoirEtre || [])
+        .map(function (texte) { return { competence: texte }; })
+        .concat(objetCV.competencesPersonnelles || [])
+    ).slice(0, capacites.competencesPersonnelles);
   }
 
   // TACHE (lot moteur "La mise en page", sous-lot 4 -- Rubriques a afficher /
@@ -759,9 +794,18 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
       return {
         theme: groupe.theme,
         items: itemsRetenus.map(function (item) {
+          // Les experiences que L'ASSISTANT a associees a la competence, plus celles que LA PERSONNE a reliees elle-meme
+          // (« Relier mes competences a mes experiences » : experience.competencesDemontrees, lu via experiencesQuiDemontrent()).
+          var illustre = (item.illustrePar || []).filter(nomCorrespondAUneExperienceRetenue);
+          if (typeof experiencesQuiDemontrent === 'function') {
+            experiencesQuiDemontrent(item.texte, experiencesRetenues).forEach(function (e) {
+              var nom = e.entreprise || e.poste;
+              if (nom && illustre.indexOf(nom) === -1) { illustre.push(nom); }
+            });
+          }
           return {
             texte: item.texte,
-            illustrePar: (item.illustrePar || []).filter(nomCorrespondAUneExperienceRetenue)
+            illustrePar: illustre
           };
         })
       };
@@ -785,50 +829,54 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
   // tranchée (2 groupes fixes ne respectant pas les colonnes Pro/
   // Comportementales de Projet XXL) : concerne désormais uniquement ce
   // mode dégradé, plus le cas normal.
+  // TACHE (retour Denis 2026-09-27, chantier "Mode de presentation" --
+  // Phase 1) : ce mode degrade n'affichait jusqu'ici que les MOTS de
+  // competence deja disponibles (Planification, Gestion de projet...),
+  // jamais les missions -- aucune vraie difference avec la liste plate du
+  // mode Chronologique. Denis : "il faut recuperer les missions qui sont
+  // normalement source et base d'une competence pro et l'afficher... a la
+  // place des simples mots... garder que les propositions les plus
+  // pertinentes avec le poste vise et/ou l'experience vecue, aucun
+  // doublon". Remplace l'ancien regroupement par nature (technique/savoir-
+  // etre, simples mots) par une extraction des MISSIONS reelles des
+  // experiences retenues -- dedupliquees (comparaison normalisee, sans
+  // accents/casse/ponctuation) et classees par pertinence avec le metier
+  // vise (meme mecanisme que COMPOSEUR_REGLE_R006 : metierParNom()/
+  // correspond(), composeurStrategies.js), jamais un rapprochement par
+  // mots-cles invente ici. Une seule liste (pas de sous-themes : aucune
+  // donnee ne permet de les nommer correctement sans invention -- le
+  // regroupement thematique fin reste reserve a l'IA elle-meme,
+  // objetCV.competencesGroupeesParTheme, bloc juste au-dessus). Le
+  // savoir-etre n'a jamais sa place ici (deja sa propre rubrique
+  // "Competences comportementales", meme raison qu'avant ce chantier).
   if (strategieCV && strategieCV.id === 'parCompetences' && !(contenuRetenu.competencesGroupees && contenuRetenu.competencesGroupees.length)) {
-    var groupeTechnique = (competencesBrutes.savoirFaire || []).concat(competencesBrutes.savoirs || []);
-    var groupeSavoirEtre = competencesBrutes.savoirEtre || [];
-    // TACHE (étape 5, contrat modele-relation-competence-experience.md +
-    // règle stricte posée avant cette étape : "jamais experience.
-    // competencesDemontrees.includes(...) ni aucune lecture directe") --
-    // exclusivement via experiencesQuiDemontrent() (app.js), jamais une
-    // lecture directe du champ ici. Cherche dans experiencesRetenues (déjà
-    // plafonnée par capacites plus haut), jamais dossier.experiences en
-    // entier -- ne cite que des expériences réellement affichées sur CE
-    // CV. Un groupe sans aucune correspondance reste en mode dégradé
-    // (pas d'"illustrePar" du tout) -- ce sera systématiquement le cas
-    // pour un dossier classique/importé (contrat §3.1), sans qu'aucune
-    // condition spéciale n'ait à le distinguer ici : la fonction retourne
-    // simplement une liste vide, le mode dégradé en découle naturellement.
-    function construireGroupe(theme, items) {
-      var itemsRetenus = items.slice(0, capacites.competences);
-      return {
-        theme: theme,
-        items: itemsRetenus.map(function (texte) {
-          var experiencesLiees = (typeof experiencesQuiDemontrent === 'function')
-            ? experiencesQuiDemontrent(texte, experiencesRetenues) : [];
-          return {
-            texte: texte,
-            illustrePar: experiencesLiees.map(function (e) { return e.entreprise || e.poste; }).filter(Boolean)
-          };
-        })
-      };
+    function normaliseeSansAccents(s) {
+      return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
     }
-    // TACHE (retour utilisateur : "je ne comprends pas d'où viennent les
-    // 'Qualités professionnelles'" -- bug réel trouvé) : pour Projet XXL,
-    // le savoir-être a déjà sa propre rubrique dédiée plus bas
-    // ("Compétences comportementales", contenuRetenu.competencesPersonnelles) --
-    // l'inclure une seconde fois ici afficherait deux fois le même
-    // contenu (une fois mal étiqueté "Qualités professionnelles" sous
-    // "Compétences professionnelles", une fois sous son vrai intitulé) et
-    // gonflerait artificiellement la hauteur mesurée de la colonne
-    // latérale (voir js/app.js, essayerRequilibrageLateralAutomatique,
-    // qui a fini par déplacer "Compétences comportementales" à droite à
-    // cause de ce gonflement). Pour les 3 autres thèmes (pas de rubrique
-    // "Compétences comportementales" séparée), comportement inchangé.
-    var groupesCompetences = [construireGroupe('Compétences techniques', groupeTechnique)];
-    if (!estProjetXXL) { groupesCompetences.push(construireGroupe('Qualités professionnelles', groupeSavoirEtre)); }
-    contenuRetenu.competencesGroupees = groupesCompetences.filter(function (g) { return g.items.length > 0; });
+    var missionsBrutes = [];
+    var vuesMissions = {};
+    experiencesRetenues.forEach(function (exp) {
+      String(exp.missions || '').split('\n').map(function (m) { return m.trim(); }).filter(Boolean).forEach(function (texte) {
+        var cle = normaliseeSansAccents(texte);
+        if (!cle || vuesMissions[cle]) { return; }
+        vuesMissions[cle] = true;
+        missionsBrutes.push({ texte: texte, exp: exp });
+      });
+    });
+    var metierViseNomC15 = dossierSource && dossierSource.metierCible;
+    var ficheMetierC15 = (metierViseNomC15 && typeof metierParNom === 'function') ? metierParNom(metierViseNomC15) : null;
+    var motsCleFicheC15 = ficheMetierC15
+      ? [].concat(ficheMetierC15.savoirFaire || [], ficheMetierC15.savoirEtre || [], ficheMetierC15.savoirs || [])
+      : [];
+    function pertinenteC15(item) {
+      return motsCleFicheC15.length && typeof correspond === 'function' && motsCleFicheC15.some(function (m) { return correspond(item.texte, m); });
+    }
+    var pertinentesC15 = missionsBrutes.filter(pertinenteC15);
+    var autresC15 = missionsBrutes.filter(function (x) { return pertinentesC15.indexOf(x) === -1; });
+    var itemsMissions = pertinentesC15.concat(autresC15).slice(0, capacites.competences).map(function (x) {
+      return { texte: x.texte, illustrePar: [x.exp.entreprise || x.exp.poste].filter(Boolean) };
+    });
+    contenuRetenu.competencesGroupees = itemsMissions.length ? [{ theme: '', items: itemsMissions }] : [];
   }
 
   // TACHE (étape 4, contrat §4) : bandeau "Compétences clés" de la

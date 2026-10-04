@@ -64,7 +64,8 @@ function _obtenirDocxPreview() {
 function _configApercuDocx(type) {
   var configs = {
     cv: {
-      titre: 'Aperçu du CV (Word)', nomFichier: 'cv.docx',
+      // « NOM_poste.docx » (retour Denis 2026-10-01, cv-core/identiteFormat.js) ; module absent : « cv.docx »
+      titre: 'Aperçu du CV (Word)', nomFichier: function () { return (typeof nomFichierCV === 'function' && typeof dossier !== 'undefined') ? nomFichierCV(dossier, 'docx') : 'cv.docx'; },
       modeles: function () { return typeof MODELES_CV_DISPONIBLES !== 'undefined' ? MODELES_CV_DISPONIBLES : []; },
       modelesNatifs: function () { return typeof MODELES_AVEC_DOCX_NATIF_CV !== 'undefined' ? MODELES_AVEC_DOCX_NATIF_CV : []; },
       // TACHE (format A5) : genererDocxNatifCVFormat() (formatA5CV.js) en
@@ -452,7 +453,7 @@ function _reconstruireContenuPanneau(type, modeleActif, couleurActive, formatPag
     cfg.generer(modele, _couleurActifPanneau, _formatPageActifPanneau).then(function (blob) {
       var url = URL.createObjectURL(blob);
       var lien = document.createElement('a');
-      lien.href = url; lien.download = cfg.nomFichier;
+      lien.href = url; lien.download = (typeof cfg.nomFichier === 'function') ? cfg.nomFichier() : cfg.nomFichier;
       document.body.appendChild(lien); lien.click(); lien.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
       boutonRef.textContent = texteOriginal;

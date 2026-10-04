@@ -153,9 +153,28 @@ function composeurAppliquerRegroupementExperiences(objetCV, regroupementExperien
     };
   });
 
+  // LOT 3 (2026-09-29, constate au test n°2 sur ChatGPT) : une experience que l'assistant n'a placee NI dans les experiences retenues NI
+  // dans un groupe (oubli, ou experience remontee en professionnel par la personne apres coup, R8-3) disparaissait du CV des que le
+  // regroupement etait actif. Elle est maintenant gardee telle quelle, apres les groupes : jamais de perte silencieuse.
+  var normaliserPoste = function (t) { return (typeof normaliserTexte === 'function') ? normaliserTexte(t || '') : String(t || '').toLowerCase().trim(); };
+  var estCouverte = function (e) {
+    var poste = normaliserPoste(e.poste);
+    var dansRetenues = retenuesValides.some(function (r) {
+      return r.type === 'professionnelle' && ((e.poste && correspond(e.poste, r.poste)) || (e.entreprise && r.entreprise && correspond(e.entreprise, r.entreprise)));
+    });
+    var dansGroupes = groupes.some(function (g) {
+      return (g.metiers || []).some(function (m) {
+        var nm = normaliserPoste(m);
+        return !!poste && !!nm && (nm.indexOf(poste) !== -1 || poste.indexOf(nm) !== -1 || correspond(e.poste, m));
+      });
+    });
+    return dansRetenues || dansGroupes;
+  };
+  var experiencesOubliees = experiencesReelles.filter(function (e) { return !estCouverte(e); });
+
   var copie = {};
   Object.keys(objetCV).forEach(function (cle) { copie[cle] = objetCV[cle]; });
-  copie.experiences = itemsRetenus.concat(groupesItems);
+  copie.experiences = itemsRetenus.concat(groupesItems, experiencesOubliees);
   // TACHE (bouton "Mettre en avant + regrouper") : indicateur lu par
   // composeurComposition.js pour neutraliser SA propre troncature par
   // nombre de lignes (lignesMaxParExperience, base sur le nombre

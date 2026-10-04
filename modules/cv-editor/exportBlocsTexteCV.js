@@ -69,7 +69,7 @@ function genererBlocsTexteCV(objetCV) {
     titre('Formations');
     formations.forEach(function (f) {
       ligne(libelleFormation(f));
-      var meta = [f.etablissement, f.annee].filter(Boolean).join(' · ');
+      var meta = [f.etablissement, f.lieu, f.annee].filter(Boolean).join(' · ');
       if (meta) { ligne(meta); }
     });
   }

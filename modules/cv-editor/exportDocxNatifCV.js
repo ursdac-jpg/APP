@@ -161,8 +161,8 @@ function _dnConstruireDeuxColonnes(docx, objetCV, opts) {
     contenuSidebar.push(titreSidebar('Formations'));
     formations.forEach(function (f) {
       contenuSidebar.push(texteSidebarLigne(libelleFormation(f), { bold: true, after: 20 }));
-      if (f.etablissement || f.annee) {
-        contenuSidebar.push(texteSidebarLigne([f.etablissement, f.annee].filter(Boolean).join(' · '), { italics: true, size: 16, after: 100 }));
+      if (f.etablissement || f.lieu || f.annee) {
+        contenuSidebar.push(texteSidebarLigne([f.etablissement, f.lieu, f.annee].filter(Boolean).join(' · '), { italics: true, size: 16, after: 100 }));
       }
     });
   }
@@ -384,7 +384,7 @@ function _dnConstruireTrajectoire(docx, objetCV, opts) {
     contenuPrincipal.push(bandeauSection('Formations'));
     contenuPrincipal.push(new Paragraph({ children: [] }));
     formations.forEach(function (f) {
-      contenuPrincipal.push(ligneFrise(f.annee || '', libelleFormation(f), f.etablissement, null));
+      contenuPrincipal.push(ligneFrise(f.annee || '', libelleFormation(f), [f.etablissement, f.lieu].filter(Boolean).join(', '), null));
       contenuPrincipal.push(new Paragraph({ spacing: { after: 120 }, children: [] }));
     });
   }
@@ -514,7 +514,7 @@ function _dnConstruireUneColonne(docx, objetCV, opts) {
       var r = [ titreSection('Formations') ];
       f.forEach(function (fo) {
         r.push(texte(fo.niveau + (fo.intitule ? ' - ' + fo.intitule : ''), { bold: true, size: 19, after: 20 }));
-        var meta = [fo.etablissement, fo.annee].filter(Boolean).join(' · ');
+        var meta = [fo.etablissement, fo.lieu, fo.annee].filter(Boolean).join(' · ');
         if (meta) { r.push(texte(meta, { italics: true, size: 18, color: SECONDAIRE, after: 100 })); }
       });
       return r;

@@ -49,11 +49,13 @@ function extraireDonneesCV(dossierSource) {
       civilite: id.civilite || null,
       nom: id.nom || '',
       prenom: id.prenom || '',
-      telephone: id.telephone || '',
+      // Retour Denis 2026-10-01 : un point toutes les deux chiffres (06.12.34.56.78), partout (cv-core/identiteFormat.js ; absent : tel quel).
+      telephone: (typeof formaterTelephone === 'function') ? formaterTelephone(id.telephone) : (id.telephone || ''),
       email: id.email || '',
       adresse: id.adresse || '',
       codePostal: id.codePostal || '',
-      ville: id.ville || ''
+      ville: id.ville || '',
+      lien: id.lien || ''
     },
     // TACHE (retour utilisateur : "j'ai choisi 'Ouvrier polyvalent du
     // bâtiment' mais le CV affiche 'BTP'") : dossier.titreCV (choisi/
@@ -81,7 +83,10 @@ function extraireDonneesCV(dossierSource) {
         // deja existant, tableau global). Facultatif : chaine vide si non
         // renseigne, la rubrique disparait alors normalement cote template
         // (meme convention generique {{#if}} que tous les autres champs).
-        contrat: e.contrat || ''
+        contrat: e.contrat || '',
+        // Competences que CETTE experience demontre (lien etabli par la personne ou par Decouverte). Etait perdu ici : le lien
+        // n'arrivait donc jamais au Composeur (2026-09-26). Lu uniquement via experiencesQuiDemontrent() (js/app.js).
+        competencesDemontrees: (e.competencesDemontrees || []).slice()
       };
     }),
     // TACHE (retour utilisateur : "expérience personnelle... désactivé,
@@ -93,7 +98,10 @@ function extraireDonneesCV(dossierSource) {
     // ne plus jamais perdre cette information entre le dossier et le CV
     // final.
     experiencesPersonnelles: (d.experiencesPerso || []).map(function (e) {
-      return { intitule: e.intitule || '', detail: e.detail || '', dateDebut: e.dateDebut || '', dateFin: e.dateFin || '', missions: e.missions || '' };
+      // R8-3 (2026-09-29) : remonteeEnPro / entreprise / lieu = choix de la personne de faire figurer cette expérience
+      // dans l'expérience PROFESSIONNELLE (lu par normaliserDonneesCV, jamais automatique).
+      return { intitule: e.intitule || '', detail: e.detail || '', dateDebut: e.dateDebut || '', dateFin: e.dateFin || '', missions: e.missions || '',
+        remonteeEnPro: e.remonteeEnPro === true, entreprise: e.entreprise || '', lieu: e.lieu || '' };
     }),
     // TACHE (Tache 1 : formations en tableau) : dossier.formations est
     // desormais un veritable tableau (plusieurs formations possibles),
@@ -109,7 +117,7 @@ function extraireDonneesCV(dossierSource) {
       // Corrige a l'identique du fix deja applique a experiencesPersonnelles
       // ci-dessus : jamais perdre un champ deja saisi entre le dossier et
       // le CV final.
-      return { niveau: f.niveau || '', intitule: f.intitule || '', annee: f.annee || '', etablissement: f.etablissement || '', missions: f.missions || '' };
+      return { niveau: f.niveau || '', intitule: f.intitule || '', annee: f.annee || '', etablissement: f.etablissement || '', lieu: f.lieu || '', missions: f.missions || '' };
     }),
     certifications: (d.certifications || []).slice(),
     langues: (d.langues || []).map(function (l) { return { langue: l.langue, niveau: l.niveau }; }),

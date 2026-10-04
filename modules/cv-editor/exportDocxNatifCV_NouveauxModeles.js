@@ -124,7 +124,7 @@ function _dnConstruireImpact(docx, objetCV, opts) {
     sidebar.push(titreSidebar('Formations'));
     formations.forEach(function (f) {
       sidebar.push(texteSidebar(libelleFormation(f), { gras: true, after: 20 }));
-      if (f.etablissement || f.annee) { sidebar.push(texteSidebar([f.etablissement, f.annee].filter(Boolean).join(' · '), { italique: true, size: 15, after: 100 })); }
+      if (f.etablissement || f.lieu || f.annee) { sidebar.push(texteSidebar([f.etablissement, f.lieu, f.annee].filter(Boolean).join(' · '), { italique: true, size: 15, after: 100 })); }
     });
   }
   var langues = _dnListe(objetCV.langues);

@@ -173,7 +173,7 @@ function _dnConstruireChic(docx, objetCV, opts) {
     principal.push(bandeauSombre('Formation'));
     formations.forEach(function (f) {
       principal.push(texte(libelleFormation(f), { gras: true, after: 15 }));
-      var meta = [f.etablissement, f.annee].filter(Boolean).join(' | ');
+      var meta = [f.etablissement, f.lieu, f.annee].filter(Boolean).join(' | ');
       if (meta) { principal.push(texte(meta, { italique: true, size: 15, couleur: '6B6560', after: 100 })); }
     });
   }
