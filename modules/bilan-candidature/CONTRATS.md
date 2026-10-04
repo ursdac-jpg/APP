@@ -22,6 +22,7 @@
 | `id` | string | oui | généré à la création |
 | `cv` | string | oui | texte, jamais vide |
 | `metierVise` | string \| null | non | |
+| `metierViseEstDomaine` | boolean | non | 🗨️ **Amendement, ajout additif (2026-09-19).** `true` quand `metierVise` provient d'un domaine large choisi par la personne (`dossier.secteurCible`) plutôt que d'un métier précis (`dossier.metierCible`), lu par `diagnosticPromptBuilder` pour qualifier explicitement le champ transmis au prompt, sans quoi l'assistant traitait un domaine comme un métier précis. |
 | `offreEmploi` | string \| null | non | |
 | `entrepriseCiblee` | string \| null | non | |
 | `siteEntreprise` | string \| null | non | 🗨️ **Amendement, ajout additif.** Site internet de l'entreprise ciblée, déjà saisi séparément du lien d'offre par un chantier antérieur (`siteCibleActuel()`, `js/app.js`) — sert à consigner au prompt d'aller rechercher les valeurs/le secteur de l'entreprise (même mécanisme déjà utilisé par `prompts/entretien.md`). |

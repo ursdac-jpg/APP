@@ -30,6 +30,14 @@ function ctCreerDossierTransversal(donnees) {
     // Toujours saisie libre (jamais auto-lue depuis l'app), meme principe
     // que questionsPersonne.
     typeStructure: donnees.typeStructure || null,
+    // TACHE (panneau Candidature partage, 2026-09-29, DECISION DE DENIS) :
+    // situation (reconversion, stage, offre...) et metier/domaine vise,
+    // lus dans les champs globaux du panneau. Facultatifs. Transmis aux
+    // prompts pour que le changement de metier voulu ne soit pas signale
+    // comme une incoherence, et pour comparer les documents a la cible
+    // meme sans offre.
+    situationCandidature: donnees.situationCandidature || null,
+    cibleVisee: donnees.cibleVisee || null,
     // TACHE (chantier "Coherence transversale", 2026-08-25, DECISION DE
     // DENIS) : questions concretes de la personne sur sa candidature
     // ("est-ce que j'ai assez insiste sur...", "aurais-je du mettre plus
@@ -49,7 +57,8 @@ function ctCreerDossierTransversal(donnees) {
   };
   dossier.hashContenu = ctCalculerHashContenu([
     dossier.cv, dossier.lettre, dossier.offreEmploi, dossier.entrepriseCiblee,
-    dossier.siteEntreprise, dossier.preparationEntretien, dossier.questionsPersonne
+    dossier.siteEntreprise, dossier.preparationEntretien, dossier.questionsPersonne,
+    dossier.situationCandidature, dossier.cibleVisee
   ]);
   return dossier;
 }

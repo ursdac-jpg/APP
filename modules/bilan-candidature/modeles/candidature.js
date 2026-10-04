@@ -30,6 +30,11 @@ function bilanCreerCandidature(donnees) {
     id: donnees.id,
     cv: donnees.cv || '',
     metierVise: donnees.metierVise || null,
+    // TACHE (retour Denis 2026-09-19, 5e vague, champ additif CONTRATS.md) :
+    // distingue un domaine large (dossier.secteurCible) d'un metier
+    // precis (dossier.metierCible) -- lu par diagnosticPromptBuilder pour
+    // adapter la consigne donnee a l'assistant, voir hostDataAdapter.js.
+    metierViseEstDomaine: !!donnees.metierViseEstDomaine,
     offreEmploi: donnees.offreEmploi || null,
     entrepriseCiblee: donnees.entrepriseCiblee || null,
     // TACHE (ciblage offre d'emploi, 2026-08-24, demande de Denis) : 3
@@ -73,7 +78,7 @@ function bilanCreerCandidature(donnees) {
     confidentialiteValidee: false
   };
   candidature.hashContenu = bilanCalculerHashContenu([
-    candidature.cv, candidature.metierVise, candidature.offreEmploi,
+    candidature.cv, candidature.metierVise, candidature.metierViseEstDomaine, candidature.offreEmploi,
     candidature.entrepriseCiblee, candidature.siteEntreprise, candidature.typeStructure,
     candidature.typeStructureAutre, candidature.objectif, candidature.nombreExperiencesProfessionnelles,
     candidature.lettreMotivation, candidature.preparationEntretien, candidature.pointsDejaConnus,
@@ -99,7 +104,7 @@ function bilanValiderCandidature(candidature) {
 // main ailleurs dans le module.
 function bilanRecalculerHashCandidature(candidature) {
   candidature.hashContenu = bilanCalculerHashContenu([
-    candidature.cv, candidature.metierVise, candidature.offreEmploi,
+    candidature.cv, candidature.metierVise, candidature.metierViseEstDomaine, candidature.offreEmploi,
     candidature.entrepriseCiblee, candidature.siteEntreprise, candidature.typeStructure,
     candidature.typeStructureAutre, candidature.objectif, candidature.nombreExperiencesProfessionnelles,
     candidature.lettreMotivation, candidature.preparationEntretien, candidature.pointsDejaConnus,

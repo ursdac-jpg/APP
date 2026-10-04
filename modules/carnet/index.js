@@ -46,6 +46,11 @@ function _carnetGenererId() {
 // exact que _reperesJournalNombreAffiche (modules/reperes/index.js).
 var _CARNET_PANNEAU_NB_DEPART = 3;
 var _carnetPanneauNombreAffiche = _CARNET_PANNEAU_NB_DEPART;
+// TACHE (retour Denis 2026-09-20) : pulse l'infobulle "i" du panneau a la
+// toute premiere ouverture reelle -- meme principe exact que
+// _reperesJournalInfoPulseDejaDeclenche (modules/reperes/index.js), jamais
+// partage entre les 2 (2 panneaux distincts, 2 premieres fois distinctes).
+var _carnetInfoPulseDejaDeclenche = false;
 
 // Date complète stockée directement, jamais recalculée depuis
 // l'identifiant -- voir docs/CHANTIER_CARNET.md, partie 2 : leçon
@@ -575,7 +580,16 @@ function _carnetOuvrirDetail(id) {
 function _carnetRenduPanneau() {
   var tous = _carnetListe();
   return '<div class="carnet-panneau-entete">' +
+      '<div class="carnet-panneau-entete-titre">' +
       '<h6><i class="bi bi-journal-text"></i> Carnet</h6>' +
+      // TACHE (retour Denis 2026-09-20) : meme bulle au survol que
+      // #btnJournalParcours (.reperes-journal-info, modules/reperes/index.js)
+      // -- meme mecanisme partage .bulle-info-hover (css/style.css),
+      // jamais une 2e logique de bulle.
+      '<button type="button" class="bulle-info-hover bulle-info-icone" ' +
+      'data-tooltip="Un raccourci pour noter une idée, une question ou un texte utile sans quitter votre page. Retrouvez tout dans le Carnet, accessible aussi depuis la Boîte à outils." ' +
+      'aria-label="À quoi sert le Carnet ? Un raccourci pour noter une idée sans quitter votre page. Retrouvez tout dans le Carnet, accessible aussi depuis la Boîte à outils.">&#8505;</button>' +
+      '</div>' +
       // TACHE (retour utilisateur : "la petite croix pour fermer... si la
       // personne change d'avis et ne veut rien marquer") : jusqu'ici, seul
       // un second clic sur #btnCarnet refermait le panneau -- geste peu
@@ -599,16 +613,22 @@ function _carnetRenduPanneau() {
           ? '<button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-2" data-carnet-basculer-historique>' +
             (_carnetPanneauNombreAffiche > _CARNET_PANNEAU_NB_DEPART ? 'Afficher moins' : 'Afficher plus') + '</button>'
           : '')
-      // TACHE (refonte 2026-09-09) : etat vide du panneau -- une ligne calme
-      // plutot que rien (l'ancien panneau ne montrait aucun texte a 0 note).
-      : '<p class="carnet-panneau-vide">Rien encore. Notez ce qui vous vient, ci-dessus.</p>') +
+      // TACHE (retour Denis 2026-09-20) : revient sur la ligne d'etat vide
+      // ajoutee le 2026-09-09 -- rien a noter, rien n'est affiche, ce n'est
+      // pas un probleme a signaler.
+      : '') +
     // TACHE (retour utilisateur : "je veux que le bouton voir tout mon
     // carnet soit un bouton cliquable") : classes Bootstrap identiques à
     // « + Garder » ci-dessus (mais outline, pour rester secondaire par
     // rapport à la capture, l'action première de ce panneau), plutôt
     // qu'un lien texte -- l'ancien style ne se distinguait pas assez d'un
     // simple texte pour donner envie de cliquer.
-    '<button type="button" class="btn btn-outline-primary btn-sm w-100 mt-3" data-carnet-voir-tout>Voir tout mon Carnet &#8594;</button>';
+    // TACHE (retour Denis 2026-09-20) : marge reduite quand rien n'est
+    // encore note (mt-3 pensee pour separer ce bouton de la liste
+    // d'aperçu au-dessus -- depuis le retrait de la ligne "Rien encore",
+    // ce grand espace ne separe plus rien et se voit trop).
+    '<button type="button" class="btn btn-outline-primary btn-sm w-100 ' + (tous.length ? 'mt-3' : 'mt-1') +
+    '" data-carnet-voir-tout>Voir tout mon Carnet &#8594;</button>';
 }
 
 // ============================================================
@@ -949,16 +969,17 @@ function _carnetPositionnerPanneau() {
 // Referme le panneau au passage : un panneau resté ouvert d'une page à
 // l'autre se retrouverait mal positionné (mesuré pour l'ancienne page)
 // et n'a de toute façon plus de sens une fois la page changée.
-// TACHE (retour utilisateur, 2026-08-25) : reference #btnAide, jamais
-// #btnJournalParcours -- #btnCarnet doit rester la premiere icone de la
-// colonne (toujours visible), #btnJournalParcours vient se placer sous
-// elle (voir _reperesPositionnerBoutonJournal(), modules/reperes/index.js).
+// TACHE (retour Denis 2026-09-20, revient sur le calcul dynamique du
+// 2026-08-25/2026-09-20) : #btnCarnet reste desormais a une position FIXE
+// (voir carnet.css), quelle que soit la page -- plus jamais recalculee en
+// fonction du <h1> ou de #btnComparerPanier. Decision assumee malgre le
+// risque signale (une page au titre tres haut, ex. barre d'etapes sur 2
+// lignes, pourrait faire chevaucher l'icone et le texte) : Denis a choisi
+// la position constante plutot que le calcul dynamique, pour ne plus
+// jamais voir les icones "sauter" d'une page a l'autre.
 function carnetApresNavigation() {
   var panneau = document.getElementById('panneauCarnet');
   if (panneau) { panneau.hidden = true; }
-  if (typeof positionnerIconePersistante === 'function') {
-    positionnerIconePersistante('btnCarnet', 'btnAide');
-  }
 }
 
 // Appelée une seule fois au chargement (DOMContentLoaded, js/app.js).
@@ -985,6 +1006,17 @@ function carnetInitialiser() {
         _carnetBrancherEvenementsPanneau();
         _carnetPositionnerPanneau();
         if (typeof trackEvenement === 'function') { trackEvenement('carnet_panneau_ouvert'); }
+        // TACHE (retour Denis 2026-09-20) : pulse l'infobulle "i" a la
+        // toute premiere ouverture REELLE (jamais a la fermeture, jamais
+        // rejoue ensuite) -- MEME classe/duree/intensite que
+        // .reperes-journal-info (modules/reperes/index.js), meme
+        // principe de drapeau en memoire, jamais persiste.
+        var boutonInfo = panneau.querySelector('.bulle-info-hover');
+        if (!_carnetInfoPulseDejaDeclenche && boutonInfo) {
+          _carnetInfoPulseDejaDeclenche = true;
+          boutonInfo.classList.add('carnet-pulse-confirmation');
+          setTimeout(function () { boutonInfo.classList.remove('carnet-pulse-confirmation'); }, 10000);
+        }
       }
     });
   }

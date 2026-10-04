@@ -70,6 +70,7 @@ function bilanCollecterCandidature(saisieLibre, dependances) {
     var candidature = bilanCreerCandidature({
       cv: brut.cv,
       metierVise: brut.metierVise,
+      metierViseEstDomaine: brut.metierViseEstDomaine,
       // TACHE (transfert Coherence transversale -> Bilan, 2026-08-25,
       // DECISION DE DENIS) : repli sur brut.offreEmploi (memorise app-wide
       // par Coherence transversale) -- meme principe que siteEntreprise

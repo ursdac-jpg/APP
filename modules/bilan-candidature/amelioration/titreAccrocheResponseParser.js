@@ -45,13 +45,22 @@ function bilanParserReponseTitreAccroche(texteColle, dependances) {
   }
 
   var titre = (typeof extraction.titre === 'string') ? extraction.titre.trim() : '';
-  var accroches = _bilanListeDeChainesTARP(extraction.accroches);
+  // R9 (partie 2) : chaque accroche peut avoir une version COURTE (une phrase), de MEME rang dans `accrochesCourtes`. Les deux listes sont
+  // filtrees ensemble pour que le rang reste valable meme si une accroche invalide est ecartee ; sans version courte : chaine vide.
+  var accroches = [];
+  var accrochesCourtes = [];
+  (Array.isArray(extraction.accroches) ? extraction.accroches : []).forEach(function (a, i) {
+    if (typeof a !== 'string' || !a.trim()) { return; }
+    var brute = Array.isArray(extraction.accrochesCourtes) ? extraction.accrochesCourtes[i] : '';
+    accroches.push(a.trim());
+    accrochesCourtes.push(typeof brute === 'string' ? brute.trim() : '');
+  });
 
   if (!titre && !accroches.length) {
     throw bilanCreerErreurMetier('ReponseIncomplete', 'Ni titre ni accroche exploitable dans le texte collé.', { extraction: extraction });
   }
 
-  return { titre: titre, accroches: accroches };
+  return { titre: titre, accroches: accroches, accrochesCourtes: accrochesCourtes };
 }
 
 if (typeof module !== 'undefined') {

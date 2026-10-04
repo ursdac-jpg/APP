@@ -31,7 +31,16 @@ function bilanCreerRecommandation(donnees) {
     // phrase courte avec des trous "___" ou des chiffres renforceraient le
     // propos (recommandations impact/credibilite portant sur une experience).
     // Optionnelle, jamais un invariant -- reste null pour toutes les autres.
-    phraseAChiffrer: donnees.phraseAChiffrer || null
+    phraseAChiffrer: donnees.phraseAChiffrer || null,
+    // TACHE (retour Denis 2026-09-20, "point C") : question ouverte pour
+    // une recommandation generale (typiquement posture/differenciation)
+    // sans extraitConcerne -- voir prompts/bilan-v1.md section 5. BUG REEL
+    // CORRIGE : ce champ existait deja dans le prompt et dans l'ecran "Vos
+    // precisions" (Carte 3), mais jamais recopie ici -- il etait donc
+    // silencieusement perdu des la construction de l'objet Recommandation,
+    // quel que soit ce que l’assistant avait repondu. Meme statut optionnel
+    // que phraseAChiffrer, jamais un invariant.
+    questionApprofondir: donnees.questionApprofondir || null
   };
 }
 

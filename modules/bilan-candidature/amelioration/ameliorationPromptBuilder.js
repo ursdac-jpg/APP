@@ -65,7 +65,11 @@ function bilanFormaterValeursCandidatureAmelioration(candidature) {
     // reformulation savoir-etre s'il sait que ce profil s'appuie
     // particulierement dessus -- meme principe deja applique a
     // entretien.md/lettre.md le meme jour.
-    PROFIL_RECONVERSION_OU_DEBUTANT: bilanProfilRequiertPosturePrioritaire(candidature) ? 'Oui' : 'Non'
+    PROFIL_RECONVERSION_OU_DEBUTANT: bilanProfilRequiertPosturePrioritaire(candidature) ? 'Oui' : 'Non',
+    // Fragment commun « voix humaine » (prompts/_voix-humaine.md), charge par js/app.js ; absent (tests, chargement en echec) : chaine vide.
+    // + genre du candidat (retour Denis 2026-10-01, source unique cv-core/genreCandidat.js, global navigateur) : les reformulations sont accordees a la personne.
+    VOIX_HUMAINE: ((typeof promptsExternesCharges !== 'undefined' && promptsExternesCharges && promptsExternesCharges['voix-humaine']) || '') +
+      ((typeof consigneGenreCandidat === 'function') ? '\n\n' + consigneGenreCandidat() : '')
   };
 }
 

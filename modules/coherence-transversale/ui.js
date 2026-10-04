@@ -274,6 +274,7 @@ function ctHtmlExplication(detour) {
 // auto-refermee -- ce n'est pas ca le probleme). ouvrirFenetreAssistantIA()
 // (choix d'assistant, deja une page) n'est pas concernee par ce module.
 var _ctEnCollecte = false;
+var _ctCollecteAffichee = false; // vrai tant que le dernier rendu du module etait la collecte
 var _ctCollecteEtat = null; // { cv, lettre, entretien: {texte, dejaRelu} | null }
 
 // "Retour" depuis l'ecran de collecte -> revient a la presentation
@@ -305,38 +306,59 @@ function ctHtmlCollecte() {
     '<p>Déposez votre CV, ou collez son texte. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong> à ce stade.</p>' +
     '<button type="button" id="btnCtCollecteDeposerCv" class="btn btn-primary btn-sm">Déposer mon CV</button>',
     '<div class="carte-preparer-ok"><strong>&#9989; Déposé</strong>' +
-    '<button type="button" id="btnCtCollecteChangerCv" class="btn btn-outline-secondary btn-sm ms-2">Changer de CV</button></div>',
-    !cvPresent);
+    '<button type="button" id="btnCtCollecteChangerCv" class="btn btn-changer-document btn-sm ms-2">Changer de CV</button></div>',
+    ouvertBlocDepliManuel(etat, 'blocCv', !cvPresent));
 
   var bloc2 = blocDocument(2, 'ctCollecteBlocLettre', 'Votre lettre de motivation', true, lettrePresente,
     '<p>Formats acceptés : PDF, Word (.docx), texte (.txt), ou une photo/scan. Votre document est lu directement dans votre navigateur, il n’est envoyé nulle part.</p>' +
     '<button type="button" id="btnCtCollecteDeposerLettre" class="btn btn-primary btn-sm">Déposer ma lettre</button>',
     '<div class="carte-preparer-ok"><strong>&#9989; Déposée</strong>' +
-    '<button type="button" id="btnCtCollecteChangerLettre" class="btn btn-outline-secondary btn-sm ms-2">Changer de lettre</button></div>',
-    cvPresent && !lettrePresente);
+    '<button type="button" id="btnCtCollecteChangerLettre" class="btn btn-changer-document btn-sm ms-2">Changer de lettre</button></div>',
+    ouvertBlocDepliManuel(etat, 'blocLettre', cvPresent && !lettrePresente));
 
-  var bloc3 = '<details class="bloc-depli' + (entretienTraite ? ' bd-ok' : '') + '" id="ctCollecteBlocEntretien"' + (cvPresent && lettrePresente && !entretienTraite ? ' open' : '') + '>' +
+  // TACHE (Paquet B, decision de Denis 2026-09-26) : "open" ne se recalcule
+  // plus depuis la completion a chaque rendu (fermeture automatique bannie) --
+  // voir ouvertBlocDepliManuel()/cablerBlocDepliManuel() (data/metiers.js).
+  var bloc3 = '<details class="bloc-depli' + (entretienTraite ? ' bd-ok' : '') + '" id="ctCollecteBlocEntretien"' + (ouvertBlocDepliManuel(etat, 'blocEntretien', cvPresent && lettrePresente && !entretienTraite) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">3</span><span class="preparer-titre">Votre préparation d’entretien d’embauche</span>' +
     '<span class="preparer-oblig">facultatif</span>' +
     '<span class="pilule-etat ' + (entretienPresent ? 'pe-ok">Déposée' : entretienTraite ? 'pe-info">Non fournie' : 'pe-attente">À déposer') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
     (entretienPresent
       ? '<div class="carte-preparer-ok"><strong>&#9989; Déposée</strong>' +
-        '<button type="button" id="btnCtCollecteChangerEntretien" class="btn btn-outline-secondary btn-sm ms-2">Changer</button></div>'
+        '<button type="button" id="btnCtCollecteChangerEntretien" class="btn btn-changer-document btn-sm ms-2">Changer</button></div>'
       : '<p>Si vous avez déjà préparé un entretien (texte, ou photo d’une synthèse imprimée), déposez-le ici - sinon, passez cette étape, ce n’est pas obligatoire.</p>' +
+        // TACHE (retour Denis 2026-09-27) : une fois "Je n'en ai pas" choisi
+        // (entretienTraite sans entretienPresent), ce bouton devient
+        // l'option active (plein) et "Deposer" repasse en secondaire -- la
+        // personne garde la main pour changer d'avis dans les deux sens,
+        // aucun des deux boutons n'est jamais desactive.
         '<div class="d-flex gap-2 flex-wrap">' +
-        '<button type="button" id="btnCtCollecteDeposerEntretien" class="btn btn-primary btn-sm">Déposer</button>' +
-        '<button type="button" id="btnCtCollecteSansEntretien" class="btn btn-outline-secondary btn-sm">Je n’en ai pas</button>' +
+        '<button type="button" id="btnCtCollecteDeposerEntretien" class="btn btn-sm ' + (entretienTraite ? 'btn-outline-secondary' : 'btn-primary') + '">Déposer</button>' +
+        '<button type="button" id="btnCtCollecteSansEntretien" class="btn btn-sm ' + (entretienTraite ? 'btn-primary' : 'btn-outline-secondary') + '">Je n’en ai pas</button>' +
         '</div>') +
     '</div></details>';
 
-  var bloc4 = '<details class="bloc-depli" id="ctCollecteBlocOffre"' + (cvPresent && lettrePresente ? ' open' : '') + '>' +
-    '<summary><span class="preparer-num">4</span><span class="preparer-titre">L’offre et l’entreprise visées</span>' +
+  // TACHE (panneau Candidature partage, 2026-09-29, DECISION DE DENIS) :
+  // situation + metier ou domaine vise + offre/entreprise/site/type de
+  // structure, avec le MEME panneau que « Votre objectif » (briques
+  // partagees de js/app.js), sans « Le poste que vous recherchez » ni
+  // civilite/couleur (aucun effet sur cette analyse). Les donnees vont
+  // directement dans les champs globaux, relus au lancement par
+  // hostDataAdapter.js. Voir docs/CHANTIER_PANNEAU_CANDIDATURE_PAR_MODULE_2026-09-29.md.
+  if (typeof amorcerPanneauCandidaturePartage === 'function') { amorcerPanneauCandidaturePartage(etat); }
+  var situationConnue = !!(typeof dossier !== 'undefined' && dossier.objectif);
+  var bloc4 = '<details class="bloc-depli' + (situationConnue ? ' bd-ok' : '') + '" id="ctCollecteBlocOffre"' + (ouvertBlocDepliManuel(etat, 'blocOffre', true) ? ' open' : '') + '>' +
+    '<summary><span class="preparer-num">4</span><span class="preparer-titre">Votre situation et l’offre visée</span>' +
     '<span class="preparer-oblig">facultatif</span>' +
     '<span class="pilule-etat pe-info">Facultatif &middot; conseillé si vous l’avez</span></summary>' +
     '<div class="bloc-depli-corps">' +
-    '<p>Si vous n’avez pas d’offre précise (candidature spontanée), laissez vide.</p>' +
-    '<div id="ctCollecteOffreCorps">' + bilanCorpsCiblageOffreHTML() + '</div>' +
+    '<p>Cela permet de juger vos documents par rapport à ce que vous visez : un changement de métier, par exemple, n’est pas une incohérence. Si vous avez une offre, le métier peut rester vide : l’offre suffit. Sans réponse, l’analyse se fait sur vos seuls documents.</p>' +
+    htmlCartesSituationPartagees('data-ct-situation') +
+    '<p class="preparer-detail">Cette information est réutilisée ailleurs dans l’application (elle a pu être renseignée pendant un autre parcours).</p>' +
+    '<div class="mt-3 pt-3" style="border-top:1px solid var(--border);">' +
+    htmlPanneauCandidaturePartage({ projet: false, sansCiviliteCouleur: true }) +
+    '</div>' +
     '<p class="small text-muted mb-3">&#128247; Vous avez seulement une photo de l’offre ? Envoyez-la directement à votre assistant habituel (il sait lire une image), demandez-lui de vous en recopier le texte, puis collez ce texte ici.</p>' +
     '<h4 class="h6">&#128172; Une question ou une demande précise ? <span class="text-muted small">(facultatif)</span></h4>' +
     '<p class="text-muted small mb-2">Par exemple : « Ai-je assez insisté sur mon autonomie ? », « J’aimerais plus d’ambition dans mes phrases », « Où pourrais-je mettre en avant mes résultats ? ».</p>' +
@@ -376,10 +398,26 @@ function ctRendreCollecte() {
 function ctBrancherCollecte() {
   var etat = _ctCollecteEtat;
 
+  // TACHE (Paquet B) : memorise tout clic manuel sur les 4 blocs numerotes.
+  cablerBlocDepliManuel(etat, 'blocCv', 'ctCollecteBlocCv');
+  cablerBlocDepliManuel(etat, 'blocLettre', 'ctCollecteBlocLettre');
+  cablerBlocDepliManuel(etat, 'blocEntretien', 'ctCollecteBlocEntretien');
+  cablerBlocDepliManuel(etat, 'blocOffre', 'ctCollecteBlocOffre');
+  // Tant que le CV n'est pas depose et valide, les autres points sont
+  // desactives (decision Denis 2026-09-29).
+  var _cvOk = !!(etat.cv && etat.cv.texte);
+  appliquerVerrouBlocs(['ctCollecteBlocLettre', 'ctCollecteBlocEntretien', 'ctCollecteBlocOffre'].map(function (idBloc) {
+    return { id: idBloc, actif: _cvOk, message: MSG_VERROU_CV_A_DEPOSER };
+  }));
+
   var btnDeposerCv = document.getElementById('btnCtCollecteDeposerCv');
   if (btnDeposerCv) {
     btnDeposerCv.addEventListener('click', function () {
+      // Le drapeau reste arme tant qu'un CV n'a pas ete REELLEMENT depose : annuler
+      // la fenetre ne doit pas faire revenir l'ancien CV (bug signale par Denis).
+      var forcer = !!etat.forcerNouveauDepotCv;
       obtenirOuDeposerTexteCV(function (resultat) {
+        etat.forcerNouveauDepotCv = false;
         // TACHE (comportement inchange : un CV en photo/scan n'est pas
         // exploitable par ce module -- deja le cas avant ce chantier,
         // ctDemarrerCollecte() abandonnait alors tout le parcours ;
@@ -388,11 +426,17 @@ function ctBrancherCollecte() {
         if (!resultat || resultat.texte === null) { return; }
         etat.cv = resultat;
         ctHtmlCollecte();
-      });
+      }, forcer);
     });
   }
   var btnChangerCv = document.getElementById('btnCtCollecteChangerCv');
-  if (btnChangerCv) { btnChangerCv.addEventListener('click', function () { etat.cv = null; ctHtmlCollecte(); }); }
+  if (btnChangerCv) {
+    btnChangerCv.addEventListener('click', function () {
+      etat.cv = null;
+      etat.forcerNouveauDepotCv = true;
+      ctHtmlCollecte();
+    });
+  }
 
   var btnDeposerLettre = document.getElementById('btnCtCollecteDeposerLettre');
   if (btnDeposerLettre) {
@@ -423,8 +467,12 @@ function ctBrancherCollecte() {
   var btnChangerEntretien = document.getElementById('btnCtCollecteChangerEntretien');
   if (btnChangerEntretien) { btnChangerEntretien.addEventListener('click', function () { etat.entretien = null; ctHtmlCollecte(); }); }
 
-  var racineOffre = document.getElementById('ctCollecteOffreCorps');
-  if (racineOffre && typeof bilanCablerCiblageOffre === 'function') { bilanCablerCiblageOffre(racineOffre); }
+  // Panneau Candidature partage (situation, metier/domaine, offre...) : ecrit
+  // directement dans les champs globaux, aucune lecture a faire au lancement.
+  if (typeof wireCartesSituationPartagees === 'function') {
+    wireCartesSituationPartagees('data-ct-situation', etat, ctHtmlCollecte);
+    wirePanneauCandidaturePartage(ctHtmlCollecte, { projet: false });
+  }
   var champQuestions = document.getElementById('ctChampQuestions');
   if (champQuestions) {
     champQuestions.addEventListener('input', function () { etat.questionsPersonne = champQuestions.value; });
@@ -434,26 +482,19 @@ function ctBrancherCollecte() {
   if (btnContinuer) {
     btnContinuer.addEventListener('click', function () {
       if (btnContinuer.disabled || !etat.cv || !etat.lettre) { return; }
-      var ciblage = racineOffre && typeof bilanLireCiblageOffre === 'function' ? bilanLireCiblageOffre(racineOffre) : {};
-
+      // Offre, entreprise, site, type de structure, situation et cible visee :
+      // relus dans les champs globaux du panneau par hostDataAdapter.js
+      // (ctLireDonneesBrutes), jamais dans le DOM.
       var saisieLibre = {
         cv: etat.cv.texte,
         lettre: etat.lettre.texte,
         preparationEntretien: etat.entretien ? etat.entretien.texte : null,
-        offreEmploi: ciblage.offreEmploi,
-        entrepriseCiblee: ciblage.entrepriseCiblee,
-        siteEntreprise: ciblage.siteEntreprise,
-        typeStructure: (ciblage.typeStructure === 'Autre' && ciblage.typeStructureAutre) ? ciblage.typeStructureAutre : ciblage.typeStructure,
         questionsPersonne: (champQuestions && champQuestions.value.trim()) || null
       };
 
-      // TACHE (offre/site/type de structure memorises app-wide, 2026-08-25,
-      // DECISION DE DENIS) : ecrit dans dossier.rechercheCandidature
-      // (structure deja initialisee ailleurs dans l'app -- additif, ne
-      // modifie jamais sa forme existante) pour que ces informations soient
-      // retrouvees partout ailleurs, notamment par le Bilan au moment de
-      // "Corriger dans le Bilan" (voir hostDataAdapter.js du Bilan).
-      ctMemoriserCandidatureAppWide({ entrepriseCiblee: saisieLibre.entrepriseCiblee, offreEmploi: saisieLibre.offreEmploi, siteEntreprise: saisieLibre.siteEntreprise, typeStructure: saisieLibre.typeStructure });
+      // (Memorisation app-wide de l'offre, de l'entreprise, du site et du type
+      // de structure : plus necessaire ici, le panneau partage les ecrit deja
+      // directement dans dossier.rechercheCandidature a chaque saisie.)
 
       if (typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_depose'); }
 
@@ -562,9 +603,17 @@ function pageCoherenceTransversale() {
   // dossier soit depose, jamais en meme temps qu'un diagnostic.
   // Auto-suffisant (mount + cablage), meme style que le detour ci-dessus.
   if (_ctEnCollecte && !dossierExistant && !diagnostic) {
+    // Arrivee sur la collecte depuis la presentation : on repart en HAUT de
+    // page. Depuis que les 4 blocs sont ouverts des l'arrivee, la page est
+    // longue et gardait la position du bouton « Je commence » (en bas de la
+    // presentation). Un re-rendu de la collecte elle-meme garde sa position.
+    var _arriveeCollecte = !_ctCollecteAffichee;
+    _ctCollecteAffichee = true;
     ctRendreCollecte();
+    if (_arriveeCollecte) { window.scrollTo(0, 0); }
     return;
   }
+  _ctCollecteAffichee = false;
   if (!dossierExistant && !diagnostic) {
     html = ctHtmlExplication(false);
   } else if (!diagnostic) {
@@ -612,6 +661,7 @@ function ctHtmlEtapeChoixIA() {
     '<p class="text-muted small mb-3">Cliquez sur un assistant ci-dessous. L’application prépare et copie tout pour vous, puis ouvre l’assistant.</p>' +
     htmlChoixAssistantBilanCorps({
       idErreur: 'ctErreurChoixIA', attrAssistant: 'data-assistant-coherence',
+      recapContexte: ['situation', 'cible', 'offre', 'entreprise', 'structure'],
       etapes: ETAPES_DETAIL_CHOIX_IA,
       texteConfidentialite: 'Rien n’est envoyé avant que vous ayez relu et validé vos documents.'
     }) +
@@ -715,8 +765,8 @@ function ctDocumentsDepuisAncrage(ancrage) {
 // TACHE (retour utilisateur, 2026-08-25 : "cliquez pour en savoir plus"
 // manquant sur les accordeons de la rubrique "Ce que l'analyse montre"/
 // "Recommandations") : meme motif EXACT que "Garder comme repere"/"Vos
-// documents relus" (ctHtmlGarderCommeRepere()/ctHtmlAnonymisation() plus
-// bas, classe bilan-accordeon-invite partagee) -- jamais une variante.
+// documents relus" (ces deux rectangles ont ete retires depuis, classe
+// bilan-accordeon-invite partagee) -- jamais une variante.
 // TACHE (retour utilisateur, 2026-08-25 : "ce n'est pas beau, les deux
 // invites se retrouvent collees l'une a l'autre") : quand plusieurs
 // details voisinent sur une meme ligne (buckets "Ce que l'analyse
@@ -800,7 +850,7 @@ function ctRendreCarteRecommandation(reco) {
     actions += '<button type="button" class="btn btn-primary btn-sm" data-ct-appliquer-lettre="' + echapperAttribut(reco.id) + '">&#9997; Appliquer à ma lettre de motivation</button>';
   }
   if (peutCorrigerCv) {
-    actions += '<button type="button" class="btn btn-outline-primary btn-sm" data-ct-corriger-cv="' + echapperAttribut(reco.id) + '">&#128202; Corriger dans le Bilan</button>';
+    actions += '<button type="button" class="btn btn-outline-primary btn-sm" data-ct-corriger-cv="' + echapperAttribut(reco.id) + '">&#128202; Corriger dans l’analyse de candidature</button>';
   }
   // TACHE (reperes, 2026-08-25, DECISION DE DENIS) : repere UNIQUEMENT si
   // rien n'est directement actionnable ICI (peutCorrigerLettre false) --
@@ -829,7 +879,7 @@ function ctRendreCarteRecommandation(reco) {
     (reco.textePropose && reco.modeApplication !== 'conseil' ? '<p class="mb-0 mt-1"><strong>Proposition :</strong> ' + echapperAttribut(reco.textePropose) + '</p>' : '') +
     (actions ? '<div class="d-flex gap-2 flex-wrap mt-2" id="ct-reco-actions-' + echapperAttribut(reco.id) + '">' + actions + '</div>' : '') +
     (peutCorrigerCv
-      ? '<p class="text-muted small mb-0 mt-2">&#128274; En allant sur le Bilan, vous quittez cette analyse. Pour revenir : Boîte à outils → Cohérence de mon dossier → Reprendre mon analyse (tant que vous ne rechargez pas la page - sauvegardez votre session, icône disquette, si vous comptez revenir un autre jour).</p>'
+      ? '<p class="text-muted small mb-0 mt-2">&#128274; En allant dans l’analyse de candidature, vous quittez cette analyse de cohérence. Pour revenir : Boîte à outils → Cohérence de mon dossier → Reprendre mon analyse (tant que vous ne rechargez pas la page - sauvegardez votre session, icône disquette, si vous comptez revenir un autre jour).</p>'
       : '') +
     '</div>';
 }
@@ -942,7 +992,7 @@ function ctHtmlRapport(diagnostic) {
     ctHtmlSynthese(resultat) +
     ctHtmlTableauDeBord(diagnostic) +
     htmlConstats + htmlRecommandations +
-    ctHtmlGarderCommeRepere() + ctHtmlAnonymisation() + ctHtmlRappelSauvegarde() +
+    ctHtmlRappelSauvegarde() +
     '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: 'ctRetour()' }) + '</div>';
 }
@@ -1574,7 +1624,7 @@ function ctHtmlTableauDeBord(diagnostic) {
     '<label class="small text-muted mb-1 d-block">Entreprise ciblée</label>' +
     '<input type="text" id="ctChampEntrepriseTdb" class="form-control form-control-sm mb-2" value="' + echapperAttribut(dossierAffiche.entrepriseCiblee || '') + '" placeholder="Non renseignée">' +
     '<label class="small text-muted mb-1 d-block">Type de structure</label>' +
-    '<select id="ctChampTypeStructureTdb" class="form-select form-select-sm mb-2">' +
+    '<select id="ctChampTypeStructureTdb" class="form-select select-type-structure mb-2">' +
     '<option value="">Non précisé</option>' +
     (typeof BILAN_TYPES_STRUCTURE !== 'undefined' ? BILAN_TYPES_STRUCTURE.map(function (t) {
       return '<option value="' + echapperAttribut(t) + '"' + (dossierAffiche.typeStructure === t ? ' selected' : '') + '>' + echapperAttribut(t) + '</option>';
@@ -2283,44 +2333,8 @@ function ctBrancherEntretienAvanceImportIA() {
   }
 }
 
-// Repris a l'identique de htmlBilanRapport() (js/app.js) - meme texte, meme
-// mecanisme <details>/<summary>, jamais une 2e redaction independante pour
-// une explication qui doit rester coherente partout dans l'app.
-function ctHtmlGarderCommeRepere() {
-  return '<div class="cv-section" style="margin-bottom:1rem;">' +
-    '<details><summary style="cursor:pointer;">' +
-    '<p class="fw-bold mb-1 d-flex align-items-center">' +
-    '<span><i class="bi bi-bookmark-star"></i> Garder comme repère</span>' +
-    '<span class="bilan-accordeon-invite" style="margin-left:auto;font-weight:600;">Cliquez pour en savoir plus</span>' +
-    '</p>' +
-    '<p class="text-muted mb-0">Conservez un point précis du rapport pour y revenir plus tard, seul ou avec votre conseiller.</p>' +
-    '</summary>' +
-    '<p class="mb-0 mt-2">Sur chaque point du rapport (un constat, une recommandation...), vous trouverez un ' +
-    'bouton <strong>« <i class="bi bi-bookmark-star"></i> Garder comme Repère »</strong>. Il vous permet de conserver ce point précis pour y revenir plus ' +
-    'tard, sans avoir à retrouver ce rapport dans son intégralité : il rejoint votre espace <strong>« Repères »</strong> ' +
-    '(section « 🧭 Votre profil »), où vous pouvez noter vos propres réflexions à côté. Utile par exemple pour garder ' +
-    'trace d’un point que vous voulez creuser plus tard, en discuter avec un conseiller, ou simplement y repenser au ' +
-    'calme avant de vous lancer dans les corrections.</p></details></div>';
-}
-
-// Adapte htmlAnonymisation() (js/app.js, rapport du Bilan) : "vos documents"
-// plutot que "le CV" seul -- CV ET lettre passent tous les deux par le meme
-// ecran de relecture/masquage (collecte/relectureConfidentialite.js, meme
-// composant partage htmlVerificationDocument()).
-function ctHtmlAnonymisation() {
-  return '<div class="cv-section" style="background:var(--accent-bg-subtle);border-radius:12px;padding:0.85rem 1.25rem;margin-bottom:1rem;">' +
-    '<details><summary style="cursor:pointer;">' +
-    '<p class="fw-bold mb-1 d-flex align-items-center">' +
-    '<span>&#128274; Vos documents relus avant l’analyse</span>' +
-    '<span class="bilan-accordeon-invite" style="margin-left:auto;font-weight:600;">Cliquez pour en savoir plus</span>' +
-    '</p>' +
-    '<p class="text-muted mb-0">Vos informations personnelles n’ont jamais été envoyées à l’assistant.</p>' +
-    '</summary>' +
-    '<p class="mb-0 mt-2">Votre CV et votre lettre de motivation ont été relus avant leur envoi à l’assistant. Les ' +
-    'informations personnelles (nom, coordonnées, photo...) ont pu être masquées et ne sont donc pas prises en compte ' +
-    'dans cette analyse. Pensez simplement à vérifier, sur vos documents d’origine, que ces informations sont bien ' +
-    'présentes et correctement positionnées.</p></details></div>';
-}
+// Retour Denis 2026-09-30 (C9) : les rectangles explicatifs « Garder comme repere » et « Vos documents relus avant l'analyse » sont retires de cet
+// ecran (ils repetaient la page de presentation du module). Les boutons « Garder comme Repere » de chaque carte restent.
 
 // ---------- Branchement des evenements ----------
 
@@ -2567,8 +2581,19 @@ function ctBrancherActionsRecommandations(diagnostic) {
 
   document.querySelectorAll('[data-ct-appliquer-lettre]').forEach(function (bouton) {
     bouton.addEventListener('click', function () {
-      var reco = recommandations.filter(function (r) { return r.id === bouton.dataset.ctAppliquerLettre; })[0];
-      if (!reco) { return; }
+      var idReco = bouton.dataset.ctAppliquerLettre;
+      var reco = recommandations.filter(function (r) { return r.id === idReco; })[0];
+      if (!reco) {
+        // Retour Denis 2026-09-30 (C7) : jamais un clic sans réaction. Deuxième chance sur le diagnostic enregistré, sinon un message visible.
+        var diagnosticEnregistre = (typeof ctObtenirDiagnostic === 'function') ? ctObtenirDiagnostic() : null;
+        var autres = (diagnosticEnregistre && diagnosticEnregistre.resultat && diagnosticEnregistre.resultat.recommandations) || [];
+        reco = autres.filter(function (r) { return r.id === idReco; })[0];
+      }
+      if (!reco) {
+        var zoneSansReco = document.getElementById('ct-reco-actions-' + idReco);
+        if (zoneSansReco) { zoneSansReco.innerHTML = '<span class="text-muted small">Cette recommandation n’est plus disponible. Relancez l’analyse pour la retrouver.</span>'; }
+        return;
+      }
       var succes = ctAppliquerCorrectionLettre(reco);
       if (typeof trackEvenement === 'function') { trackEvenement('coherence_transversale_correction_appliquee', { document: 'lettre', succes: succes }); }
       var zoneActions = document.getElementById('ct-reco-actions-' + reco.id);
@@ -2592,6 +2617,9 @@ function ctBrancherActionsRecommandations(diagnostic) {
       if (succes) {
         _ctRecommandationsLettreAppliquees[reco.id] = true;
         ctActualiserBoutonRelancer();
+        // Retour Denis 2026-09-30 (C7) : « Appliquer à ma lettre » ne semblait rien faire. La personne arrive maintenant directement sur
+        // l'écran de sa lettre, à jour, où elle peut la relire et la modifier.
+        ctVoirImprimerLettre();
       }
     });
   });
@@ -2611,7 +2639,9 @@ function ctBrancherActionsRecommandations(diagnostic) {
       var elements = ctConstruireElementsPourBilan(recommandations);
       if (elements && typeof window !== 'undefined') { window._ctElementsPourBilan = elements; }
       if (typeof demarrerBilanCandidatureAvecDepot === 'function') {
-        demarrerBilanCandidatureAvecDepot();
+        // Le CV est le meme que celui deja depose, relu et masque pour cette analyse : il est repris, sans le faire revalider.
+        var dossierCT = (typeof ctObtenirDossier === 'function') ? ctObtenirDossier() : null;
+        demarrerBilanCandidatureAvecDepot({ cvDejaRelu: (dossierCT && typeof dossierCT.cv === 'string') ? dossierCT.cv : undefined });
       } else {
         naviguerVers('bilan');
       }

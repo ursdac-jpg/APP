@@ -338,7 +338,15 @@ function bilanReconstruireRecommandation(recoBrute, index, observationsResoluble
     observationsLiees: observationsLiees,
     // TACHE (Carte 3, ecran de preparation, 2026-08-28) : champ optionnel,
     // jamais requis -- une recommandation sans phrase a chiffrer reste valide.
-    phraseAChiffrer: (typeof recoBrute.phraseAChiffrer === 'string' && recoBrute.phraseAChiffrer) || null
+    phraseAChiffrer: (typeof recoBrute.phraseAChiffrer === 'string' && recoBrute.phraseAChiffrer) || null,
+    // TACHE (retour Denis 2026-09-20, "point C", BUG REEL CORRIGE) : ce
+    // champ manquait ici -- present dans prompts/bilan-v1.md et lu par
+    // l'ecran "Vos precisions" (bilanAssistanceQuestionsApprofondir()),
+    // mais jamais recopie depuis la reponse brute de l'assistant. La
+    // section "Experiences a enrichir" ne pouvait donc jamais s'afficher,
+    // quel que soit le contenu reel de la reponse. Meme garde de type que
+    // phraseAChiffrer, optionnel.
+    questionApprofondir: (typeof recoBrute.questionApprofondir === 'string' && recoBrute.questionApprofondir) || null
   });
 
   if (!bilanRecommandationEstValide(recommandation)) {

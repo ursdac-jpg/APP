@@ -74,6 +74,24 @@ function bilanLecteursParDefaut() {
     lireMetierVise: function () {
       return typeof posteCibleActuel === 'function' ? (posteCibleActuel() || '') : '';
     },
+    // TACHE (retour Denis 2026-09-19, 5e vague) : posteCibleActuel()
+    // (js/app.js) renvoie une simple chaine, sans dire si la personne a
+    // choisi un metier precis (dossier.metierCible) ou un domaine large
+    // (dossier.secteurCible) -- le prompt de diagnostic ne pouvait donc
+    // jamais faire la difference, ce qui produisait des recommandations
+    // eparpillees hors du domaine choisi (retour terrain : "je choisis
+    // batiment et travaux publics, il me propose du commerce, de
+    // l'administratif..."). Meme precedence EXACTE que posteCibleActuel()
+    // (obj.poste > metierCible > secteurCible), jamais dupliquee ici --
+    // seulement la SOURCE du texte, pas le texte lui-meme.
+    lireMetierViseEstDomaine: function () {
+      if (typeof dossier === 'undefined' || !dossier) { return false; }
+      var o = dossier.objectif;
+      var obj = o && dossier[o];
+      if (obj && obj.poste) { return false; }
+      if (dossier.metierCible) { return false; }
+      return !!dossier.secteurCible;
+    },
     lireEntrepriseCiblee: function () {
       return typeof entrepriseCibleActuelle === 'function' ? (entrepriseCibleActuelle() || '') : '';
     },
@@ -105,7 +123,9 @@ function bilanLecteursParDefaut() {
     // repli (saisieLibre reste prioritaire, voir contexteCandidatureCollector.js) --
     // jamais un remplacement de la saisie libre existante.
     lireOffreEmploi: function () {
-      return (typeof dossier !== 'undefined' && dossier.rechercheCandidature && dossier.rechercheCandidature.texteOffre) || '';
+      // Repli sur lienOffre (lien ou texte), ecrit par le panneau Candidature
+      // partage : sans lui, l'offre saisie la n'atteignait jamais le Bilan.
+      return (typeof dossier !== 'undefined' && dossier.rechercheCandidature && (dossier.rechercheCandidature.texteOffre || dossier.rechercheCandidature.lienOffre)) || '';
     },
     // TACHE (transfert Coherence transversale -> Bilan, 2026-08-25,
     // DECISION DE DENIS) : type de structure, memorise app-wide par
@@ -205,6 +225,7 @@ function bilanLireDonneesBrutesCandidat(lecteurs) {
   return {
     cv: lecteurs.lireCv() || '',
     metierVise: lecteurs.lireMetierVise() || null,
+    metierViseEstDomaine: !!(lecteurs.lireMetierViseEstDomaine && lecteurs.lireMetierViseEstDomaine()),
     entrepriseCiblee: lecteurs.lireEntrepriseCiblee() || null,
     // TACHE (ciblage offre d'emploi, 2026-08-24, prolongee 2026-08-25) :
     // siteEntreprise (contrat additif, voir CONTRATS.md).

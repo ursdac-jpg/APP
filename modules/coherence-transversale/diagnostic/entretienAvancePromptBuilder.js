@@ -44,6 +44,8 @@ function ctConstruireValeursPlaceholdersEntretienAvance(dossier, diagnosticPrece
     ENTREPRISE_OU_NON_FOURNIE: ctFormaterValeurOptionnelleEA(dossier.entrepriseCiblee),
     SITE_ENTREPRISE_OU_NON_FOURNI: ctFormaterValeurOptionnelleEA(dossier.siteEntreprise),
     TYPE_STRUCTURE_OU_NON_FOURNI: ctFormaterValeurOptionnelleEA(dossier.typeStructure),
+    SITUATION_OU_NON_FOURNIE: ctFormaterValeurOptionnelleEA(dossier.situationCandidature),
+    CIBLE_VISEE_OU_NON_FOURNIE: ctFormaterValeurOptionnelleEA(dossier.cibleVisee),
     SYNTHESE_ANALYSE_PRECEDENTE: ctFormaterValeurOptionnelleEA(resultatPrecedent.syntheseGenerale),
     QUESTIONS_REPONSES_PERSONNE: ctFormaterQuestionsReponsesEA(questionsReponses),
     RECOMMANDATIONS_APPLIQUEES_OU_AUCUNE: ctFormaterListeRecommandationsEA(recommandationsAppliquees),

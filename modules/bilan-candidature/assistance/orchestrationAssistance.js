@@ -55,10 +55,35 @@ function bilanClasserRecommandationAssistance(recommandation, donnees, catalogue
     // 'experiences' pour rester compatible avec un resolveur qui ne le
     // fournirait pas encore.
     var destinationExtrait = { liste: resolution.cible.liste || 'experiences', index: resolution.cible.index, champ: resolution.cible.champ };
+    // Retour Denis 2026-09-30 (C6) : une experience SANS mission n'a que son titre a citer comme extrait. La proposition de l'assistant
+    // est alors un texte de missions : elle vient s'ecrire dans les missions (creation), jamais a la place du titre du poste.
+    if (resolution.cible.champ === 'poste' && !String(resolution.cible.missions || '').trim()) {
+      destinationExtrait.champ = 'missions';
+      return { recommandation: recommandation, mecanisme: 'remplacement', destination: destinationExtrait, texteActuel: '' };
+    }
     return {
       recommandation: recommandation, mecanisme: 'remplacement',
       destination: destinationExtrait, texteActuel: resolution.cible[resolution.cible.champ]
     };
+  }
+
+  // BUG REEL CORRIGE (retour Denis 2026-09-20, verifie avec un vrai
+  // diagnostic reel) : une recommandation portant une questionApprofondir
+  // (1er prompt, jamais d'extraitConcerne par construction du prompt) etait
+  // malgre tout routee par son axe principal comme n'importe quelle autre --
+  // une reco liee a `adequation` (axe determinant -> destination
+  // 'candidature') partait ainsi se faire absorber silencieusement dans la
+  // Famille 2 (ecran "Candidature"), qui ne lit jamais questionApprofondir.
+  // La question n'atteignait donc jamais "Vos precisions" (Carte 3), meme
+  // apres que le champ ait ete correctement transporte par le parseur. Une
+  // question a approfondir doit toujours rejoindre hors-automatisation/
+  // hors-modalite, quel que soit l'axe -- seul un extrait CONCRET (branche
+  // ci-dessus) prime encore sur elle.
+  if (recommandation && recommandation.questionApprofondir) {
+    if (donnees.structurationDisponible) {
+      return { recommandation: recommandation, mecanisme: 'hors-automatisation', destination: null, texteActuel: null };
+    }
+    return { recommandation: recommandation, mecanisme: 'hors-modalite', destination: null, texteActuel: null };
   }
 
   if (resolution.type === 'axe' && resolution.cible === 'experiences') {

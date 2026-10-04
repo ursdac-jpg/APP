@@ -144,7 +144,31 @@ function bilanValiderElementsRelectureAvantEcriture(dossier, elements) {
 // dans ce cas et produit une version complete amelioree qui l'incorpore
 // (voir prompts/bilan-v2.md), remplacer y est correct, deja valide par les
 // tests de ce fichier.
-function _bilanValeurApresEcriture(valeurExistante, texteApres, modeEcriture) {
+// Retour Denis 2026-09-30 (C6) : l'assistant met parfois dans sa proposition une consigne entre crochets a l'attention de la personne
+// (« [À compléter avec les tâches réellement effectuées...] »). Ce texte n'a jamais sa place dans un CV : il est retire avant l'ecriture.
+// Un crochet qui ne parle pas de completer (ex. « [Word] ») est laisse tel quel.
+function _bilanRetirerPassagesACompleter(texte) {
+  var brut = String(texte == null ? '' : texte);
+  var propre = brut.replace(/\s*\[[^\]]*compl[ée]t[^\]]*\]/gi, '').replace(/[ \t]{2,}/g, ' ').trim();
+  return propre;
+}
+
+// Retour Denis 2026-09-30 (C6) : une proposition de missions commence parfois par le titre du poste suivi de deux-points
+// (« Entretien chez les particuliers : realisation de... ») : ce titre est deja affiche au-dessus, il est retire de la mission.
+function _bilanRetirerTitreEnTete(texte, poste) {
+  var brut = String(texte == null ? '' : texte);
+  var titre = String(poste == null ? '' : poste).trim();
+  if (!titre || brut.toLowerCase().indexOf(titre.toLowerCase()) !== 0) { return brut; }
+  var suite = brut.slice(titre.length);
+  var m = /^\s*:\s*(\S[\s\S]*)$/.exec(suite);
+  if (!m) { return brut; }
+  var reste = m[1];
+  return reste.charAt(0).toUpperCase() + reste.slice(1);
+}
+
+function _bilanValeurApresEcriture(valeurExistante, texteBrut, modeEcriture) {
+  var texteApres = _bilanRetirerPassagesACompleter(texteBrut);
+  if (!texteApres) { return (valeurExistante == null) ? '' : valeurExistante; }
   if (modeEcriture !== 'ajout') { return texteApres; }
   var existant = (valeurExistante && String(valeurExistante).trim()) || '';
   return existant ? existant + '\n' + texteApres : texteApres;
@@ -166,7 +190,9 @@ function bilanAppliquerElementsRelecture(dossier, elements) {
     var tableau = _bilanTableauDestination(dossier, element.destination);
     var champReel = _bilanChampReelEcriture(element.destination.liste || 'experiences', element.destination.champ);
     var valeurExistante = tableau[element.destination.index][champReel];
-    tableau[element.destination.index][champReel] = _bilanValeurApresEcriture(valeurExistante, element.texteApres, element.ecriture);
+    var texteAEcrire = element.texteApres;
+    if (champReel === 'missions') { texteAEcrire = _bilanRetirerTitreEnTete(texteAEcrire, tableau[element.destination.index].poste); }
+    tableau[element.destination.index][champReel] = _bilanValeurApresEcriture(valeurExistante, texteAEcrire, element.ecriture);
   });
   return dossier;
 }

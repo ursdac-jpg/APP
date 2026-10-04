@@ -42,18 +42,71 @@ if (typeof require !== 'undefined') {
   var bilanDestinationPourAxe = _bilanDestReg.bilanDestinationPourAxe;
 }
 
-// Recherche verbatim, insensible a une casse/accentuation identique
-// (aucune normalisation -- un assistant qui reformule meme legerement doit
-// echouer ce test, c'est le comportement voulu, voir prompts/bilan-v1.md
-// section 5 : "copie mot pour mot... jamais reconstruit ni approxime").
-// experiences : [{ index, poste, missions }] (jamais un champ concatene,
-// voir hostDataAdapter.js) -- cherche dans poste PUIS missions, dans cet
-// ordre, et rapporte lequel a matche (champ) : une future application
-// automatique des propositions (evolution validee, non construite ici)
-// aura besoin de savoir PRECISEMENT ou ecrire, pas seulement dans quelle
-// experience.
+// Recherche verbatim -- un assistant qui reformule (mots differents,
+// paraphrase) doit toujours echouer ce test, c'est le comportement voulu,
+// voir prompts/bilan-v1.md section 5 : "copie mot pour mot... jamais
+// reconstruit ni approxime". experiences : [{ index, poste, missions }]
+// (jamais un champ concatene, voir hostDataAdapter.js) -- cherche dans
+// poste PUIS missions, dans cet ordre, et rapporte lequel a matche
+// (champ) : une future application automatique des propositions
+// (evolution validee, non construite ici) aura besoin de savoir
+// PRECISEMENT ou ecrire, pas seulement dans quelle experience.
+// TACHE (retour Denis 2026-09-20, Carte 3 "Vos chiffres" disparue par
+// intermittence) : jusqu'ici, la comparaison etait un indexOf() strict,
+// meme un simple double espace, une casse differente ou une ponctuation
+// legere (apostrophe courbe vs droite, espace avant un point) suffisait a
+// faire echouer un extrait par ailleurs authentiquement verbatim --
+// perdant alors silencieusement la recommandation (et sa phraseAChiffrer)
+// vers "hors-automatisation". _bilanNormaliserExtrait() ne tolere QUE la
+// mise en forme (espaces/casse/ponctuation legere) -- les MOTS doivent
+// toujours etre identiques et dans le meme ordre (indexOf reste un test
+// de sous-chaine strict sur le texte normalise), jamais une comparaison
+// approximative/floue qui risquerait de rattacher a la mauvaise
+// experience. Le test "extrait reformule (non verbatim)" (voir
+// tests/bilanResolutionDestination.test.js) continue d'echouer comme
+// avant : les mots y sont reellement differents, la normalisation n'y
+// change rien.
+// TACHE (retour Denis 2026-09-20, bug reel confirme avec un vrai JSON de
+// diagnostic) : un extrait qui cite PLUSIEURS missions a la suite (ex.
+// "Gestion des agendas\n\nOrganisation de reunions") echouait a matcher
+// dossier.experiences[].missions, meme normalise -- l'assistant les
+// separe par des retours a la ligne (double saut, tel qu'il percoit la
+// liste), alors que joindreMissionsImport() (js/app.js) les joint par
+// ". " (point + espace) cote code. Deux points, deux virgules ne sont
+// jamais des MOTS differents : traites ici comme de simples separateurs
+// interchangeables, au meme titre que les espaces. Consequence reelle du
+// bug avant ce correctif : la recommandation tombait dans le repli sur
+// l'axe (faute d'extrait retrouve), ouvrant un ecran totalement etranger
+// a la correction demandee (ex. la fenetre "Candidature" pour une reco
+// d'adequation, au lieu du bon panneau d'experience).
+// TACHE (retour Denis 2026-09-20, bug reel confirme avec un vrai JSON de
+// diagnostic) : un extrait qui cite une liste de missions commence parfois
+// par une etiquette de rubrique ("Missions :", "Missions\n\n...") avant la
+// liste elle-meme -- l'assistant introduit la citation avant de la
+// recopier verbatim. Cette etiquette ne fait jamais partie du champ
+// `missions` du dossier (qui ne contient QUE les missions), donc la
+// recherche de sous-chaine echouait TOUJOURS des qu'elle etait presente --
+// meme consequence que le bug des separateurs ci-dessus (repli silencieux
+// sur l'axe, ouverture d'un ecran etranger a la recommandation, ex. la
+// fenetre "Candidature" pour une reco de contenu d'experience). Une seule
+// etiquette courte (2-30 caracteres) suivie de ':' est retiree en tete,
+// jamais au milieu du texte (une vraie mission ne commence jamais par
+// "quelque chose :" suivi du reste de la liste).
+function _bilanNormaliserExtrait(texte) {
+  return String(texte || '')
+    .toLowerCase()
+    .replace(/[‘’]/g, '\'')
+    .replace(/[“”]/g, '"')
+    .replace(/[.;]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([.,;:!?])/g, '$1')
+    .trim()
+    .replace(/^[a-zàâäéèêëîïôöùûüç' -]{2,30}:\s*/, '');
+}
 function bilanTrouverExperienceParExtrait(extrait, experiences) {
   if (!extrait || !experiences || !experiences.length) { return null; }
+  var extraitNormalise = _bilanNormaliserExtrait(extrait);
+  if (!extraitNormalise) { return null; }
   for (var i = 0; i < experiences.length; i += 1) {
     var e = experiences[i];
     // TACHE (chantier "enrichissement CV legers via experiencesPerso",
@@ -61,8 +114,30 @@ function bilanTrouverExperienceParExtrait(extrait, experiences) {
     // provenant de dossier.experiencesPerso (voir hostDataAdapter.js) --
     // `liste` (deja porte par chaque element) est simplement propage,
     // jamais reinterprete ici (ce module ignore toujours d'ou vient e).
-    if (e.poste && e.poste.indexOf(extrait) !== -1) { return { index: e.index, liste: e.liste || 'experiences', poste: e.poste, missions: e.missions, champ: 'poste' }; }
-    if (e.missions && e.missions.indexOf(extrait) !== -1) { return { index: e.index, liste: e.liste || 'experiences', poste: e.poste, missions: e.missions, champ: 'missions' }; }
+    if (e.poste && _bilanNormaliserExtrait(e.poste).indexOf(extraitNormalise) !== -1) { return { index: e.index, liste: e.liste || 'experiences', poste: e.poste, missions: e.missions, champ: 'poste' }; }
+    if (e.missions && _bilanNormaliserExtrait(e.missions).indexOf(extraitNormalise) !== -1) { return { index: e.index, liste: e.liste || 'experiences', poste: e.poste, missions: e.missions, champ: 'missions' }; }
+  }
+  // TACHE (retour Denis 2026-09-20, bug reel confirme avec une vraie
+  // capture d'ecran) : un extrait peut citer le poste PUIS enchainer,
+  // colle, l'entreprise/les dates/toutes les missions ("Assistante
+  // administrative Entreprise : ABC Services - BergeracPeriode : Mars
+  // 2023 - Aujourd'hui Missions : ...") -- jamais une simple citation
+  // d'UN champ, donc jamais trouve par les 2 tests ci-dessus (qui
+  // cherchent l'extrait ENTIER dans le champ). 2e passe, UNIQUEMENT si la
+  // 1ere n'a rien trouve : l'extrait commence-t-il par le poste d'une
+  // experience (sens inverse -- le champ est contenu DANS l'extrait,
+  // jamais l'inverse) ? Seuil de longueur (8 caracteres) pour eviter
+  // qu'un intitule tres court et generique ("Agent", "Vendeur") ne
+  // matche par coincidence un extrait sans rapport -- un rattachement a
+  // la mauvaise experience serait pire que le repli sur l'axe qu'on
+  // cherche justement a eviter ici.
+  for (var j = 0; j < experiences.length; j += 1) {
+    var e2 = experiences[j];
+    if (!e2.poste) { continue; }
+    var posteNormalise = _bilanNormaliserExtrait(e2.poste);
+    if (posteNormalise.length >= 8 && extraitNormalise.indexOf(posteNormalise) === 0) {
+      return { index: e2.index, liste: e2.liste || 'experiences', poste: e2.poste, missions: e2.missions, champ: 'poste' };
+    }
   }
   return null;
 }

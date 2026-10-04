@@ -157,6 +157,8 @@ function ouvrirAts() {
   if (premiereFois) { _atsEtat = atsEtatNeuf(); _atsTrack('ats_session_demarree'); }
   var app = document.getElementById('app');
   if (!app) { return; }
+  // Position a conserver si l'ecran ne change pas (voir la fin de la fonction).
+  var scrollAvant = (typeof window !== 'undefined') ? (window.scrollY || 0) : 0;
 
   var ecran = _atsEtat.ecran || 'preparer';
   var rendu = ({
@@ -191,10 +193,18 @@ function ouvrirAts() {
 
   if (typeof appliquerGelModule === 'function') { appliquerGelModule(_atsReprisePendante); }
   if (typeof armerFinPulseEncartReprise === 'function') { armerFinPulseEncartReprise(); }
-  if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
+  // On ne remonte en haut que pour un VRAI changement d'ecran. Un re-rendu du
+  // meme ecran (clic dans le panneau Candidature, bloc replie...) garde la
+  // position : avant, chaque clic renvoyait la page en haut.
+  var arrivee = (typeof consommerArriveeDepuisPresentation === 'function') && consommerArriveeDepuisPresentation();
+  var memeEcran = !arrivee && (ecran === _atsDernierEcranRendu);
+  _atsDernierEcranRendu = ecran;
+  if (memeEcran && typeof window !== 'undefined' && typeof window.scrollTo === 'function') { window.scrollTo(0, scrollAvant); }
+  if (!memeEcran && typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
+var _atsDernierEcranRendu = null;
 
 // « Retour » de la barre du bas : vers l'ecran REELLEMENT precedent
 // (jamais sauter la presentation, jamais l'accueil nu).
@@ -278,6 +288,10 @@ function _atsConfirmerRecommencer() {
 function _atsRendrePreparer() {
   var e = _atsEtat;
   var cvOk = !!(e.cvTexte || '').trim();
+  // Panneau Candidature partage (2026-09-29) : la reference vient des champs
+  // globaux (offre collee => mode offre, sinon metier choisi => mode metier).
+  _atsSynchroniserReference();
+  if (typeof amorcerPanneauCandidaturePartage === 'function') { amorcerPanneauCandidaturePartage(e); }
   var refOk = e.modeReference === 'offre'
     ? !!(e.ciblage && (e.ciblage.saisieLibre || '').trim())
     : !!(e.metier && e.metier.nom);
@@ -296,41 +310,24 @@ function _atsRendrePreparer() {
       '<p>Déposez votre CV, sous la forme que vous avez : PDF, Word, .txt, une photo ou une capture d’écran. Il est lu directement dans votre navigateur. Vous le relisez ensuite à l’écran et vous <strong>masquez vous-même</strong> ce que vous ne voulez pas transmettre (nom, adresse, téléphone) : rien n’est masqué à votre place.</p>' +
       '<button type="button" class="btn btn-primary btn-sm" id="btnAtsDeposerCV">' + (cvOk ? 'Changer de CV' : 'Déposer mon CV') + '</button>' +
       (cvOk
-        ? '<div class="cv-section" style="background:var(--success-bg-subtle);margin-top:.6rem;"><strong>&#9989; Déposé et relu</strong> ' +
+        ? '<div class="cv-section" style="margin-top:.6rem;"><strong>&#9989; Déposé et relu</strong> ' +
           (e.cvNom ? echapperAttribut(e.cvNom) : 'texte collé') + '</div>'
-        : '') +
-      '<p style="color:var(--text-muted);font-size:.9rem;margin-top:.5rem;">Vous n’avez pas encore de CV ? ' +
-      '<button type="button" class="btn btn-link btn-sm p-0 align-baseline" id="btnAtsCreerCV">Le créer d’abord avec « Créer un CV »</button></p>') +
+        : '')) +
 
-    // -- Bloc 2 : la reference
-    // TACHE (audit de stabilisation, 2026-09-13, finding 7) : "ouvert" ne
-    // doit plus etre fige a false -- l'ecran entier est reconstruit a
-    // chaque choix (data-ats-ref, fiche metier), un bloc toujours ferme
-    // cachait le bouton qui venait d'apparaitre juste apres le clic qui
-    // l'affichait. Reste ouvert des qu'on a commence a y repondre.
-    _atsDetails('atsDep2', '2', 'La référence', 'à quoi comparer votre vocabulaire', refOk ? 'Choisie' : 'À choisir', refOk || !!e.blocReferenceOuvert,
-      '<div class="d-flex gap-2 flex-wrap mb-2">' +
-      '<button type="button" class="btn btn-sm ' + (e.modeReference === 'offre' ? 'btn-primary' : 'btn-outline-secondary') + '" data-ats-ref="offre">J’ai une offre</button>' +
-      '<button type="button" class="btn btn-sm ' + (e.modeReference === 'metier' ? 'btn-primary' : 'btn-outline-secondary') + '" data-ats-ref="metier">Je n’ai pas d’offre</button>' +
-      '</div>' +
+    // -- Bloc 2 : la reference (panneau Candidature partage, 2026-09-29,
+    // DECISION DE DENIS : metier ou domaine, offre, entreprise, site, type de
+    // structure ; sans situation, projet, civilite ni couleur, que ce prompt
+    // ne lit pas). Le mode « offre » ou « metier » se deduit tout seul :
+    // une offre collee => on compare a l'offre, sinon a la fiche du metier.
+    _atsDetails('atsDep2', '2', 'La référence', 'à quoi comparer votre vocabulaire', refOk ? 'Choisie' : 'À choisir', true,
+      '<p>Vos mots sont comparés à ceux d’une <strong>offre d’emploi</strong> si vous en avez une, sinon à ceux de la <strong>fiche officielle du métier</strong> visé. Il faut l’un ou l’autre : collez l’offre, ou choisissez un métier précis. Avec une offre, le métier peut rester vide.</p>' +
+      '<div id="atsPanneau">' + (typeof htmlPanneauCandidaturePartage === 'function'
+        ? htmlPanneauCandidaturePartage({ projet: false, sansCiviliteCouleur: true, sansSituation: true }) : '') + '</div>' +
+      '<p style="color:var(--text-muted);font-size:.85rem;margin-top:.4rem;">' +
       (e.modeReference === 'offre'
-        ? '<p style="color:var(--text-muted);font-size:.9rem;">Les mots-clés seront extraits <strong>strictement</strong> du texte de l’offre.</p>' +
-          '<div id="atsCiblageHote">' + (typeof bilanCorpsCiblageOffreHTML === 'function' ? bilanCorpsCiblageOffreHTML() : '') + '</div>' +
-          '<p style="color:var(--text-muted);font-size:.85rem;margin-top:.4rem;">Le type de structure sert à l’assistant : une association et une entreprise privée n’emploient pas toujours les mêmes mots. Facultatif.</p>'
-        : '<p>Sans offre, on part d’une <strong>fiche métier officielle</strong>.</p>' +
-          '<button type="button" class="btn btn-primary btn-sm" id="btnAtsChoisirMetier">Choisir une fiche métier</button>' +
-          (e.metier && e.metier.nom
-            ? '<div class="cv-section" style="background:var(--accent-bg-subtle);margin-top:.5rem;"><strong>Fiche retenue :</strong> ' + echapperAttribut(e.metier.nom) + '</div>'
-            : '') +
-          '<p style="color:var(--text-muted);font-size:.85rem;margin-top:.4rem;">L’objectif devient : employer le vocabulaire du métier, et clarifier votre projet. Ces termes proviennent d’une fiche générale et peuvent varier selon les employeurs.</p>')) +
-
-    // -- Bloc 3 : recap de la relecture (faite au depot, option B)
-    _atsDetails('atsDep3', '3', 'Relire et masquer', 'fait au moment du dépôt', e.cvRelu ? 'Fait' : 'À faire', false,
-      (e.cvRelu
-        ? '<p>&#9989; Vous avez relu votre CV et masqué ce que vous ne vouliez pas transmettre, au moment du dépôt. L’analyse se fera sur ce texte anonymisé.</p>' +
-          '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAtsRevoirRelecture">Revoir la relecture</button>'
-        : '<p>Cette vérification se fait juste après le dépôt de votre CV (partie 1) : vous relisez le texte à l’écran et vous masquez vous-même votre nom, votre adresse et votre téléphone. Rien n’est masqué à votre place.</p>' +
-          (cvOk ? '' : '<p style="color:var(--text-muted);font-size:.85rem;">Déposez d’abord votre CV (partie 1).</p>'))) +
+        ? 'Les mots-clés seront extraits <strong>strictement</strong> du texte de l’offre. Le type de structure sert à l’assistant : une association et une entreprise privée n’emploient pas toujours les mêmes mots.'
+        : 'Sans offre, l’objectif devient : employer le vocabulaire du métier, et clarifier votre projet. Ces termes proviennent d’une fiche générale et peuvent varier selon les employeurs.') +
+      '</p>') +
 
     '<div class="text-center" style="margin-top:1.25rem;">' +
     '<button type="button" id="btnAtsVersAssistant" class="btn btn-primary btn-lg"' + (actif ? '' : ' disabled') + '>Choisir mon assistant &#8594;</button>' +
@@ -340,8 +337,13 @@ function _atsRendrePreparer() {
 
 // details/summary a la mode de l'app (bloc-depli n'existe pas partout :
 // on rend un <details> simple, style cv-section).
+// TACHE (decision Denis 2026-09-29) : bloc toujours ouvert a l'arrivee, seul
+// un clic de la personne le referme (ouvertBlocDepliManuel/
+// cablerBlocDepliManuel, data/metiers.js) -- le parametre "ouvert" n'est
+// plus lu.
 function _atsDetails(id, num, titre, gloss, etat, ouvert, corpsHTML) {
-  return '<details class="cv-section ats-depli"' + (ouvert ? ' open' : '') + ' id="' + id + '">' +
+  var estOuvert = (typeof ouvertBlocDepliManuel === 'function') ? ouvertBlocDepliManuel(_atsEtat, id, true) : true;
+  return '<details class="cv-section ats-depli"' + (estOuvert ? ' open' : '') + ' id="' + id + '">' +
     '<summary style="cursor:pointer;font-weight:600;list-style:none;">' +
     '<span class="ats-num">' + num + '</span> ' + titre +
     (gloss ? ' <span style="font-weight:400;color:var(--text-muted);font-size:.9rem;">(' + gloss + ')</span>' : '') +
@@ -371,41 +373,27 @@ function _atsOuvrirDepotCV() {
 }
 
 function _atsBrancherPreparer() {
+  // Points suivants desactives tant que le CV n'est pas depose et valide
+  // (decision Denis 2026-09-29).
+  if (typeof appliquerVerrouBlocs === 'function') {
+    var _cvValide = !!((_atsEtat.cvTexte || '').trim() && _atsEtat.cvRelu);
+    appliquerVerrouBlocs([
+      { id: 'atsDep2', actif: _cvValide, message: MSG_VERROU_CV_A_DEPOSER }
+    ]);
+  }
   var e = _atsEtat;
 
+  if (typeof cablerBlocDepliManuel === 'function') {
+    ['atsDep1', 'atsDep2'].forEach(function (idBloc) { cablerBlocDepliManuel(_atsEtat, idBloc, idBloc); });
+  }
   var dep = document.getElementById('btnAtsDeposerCV');
   if (dep) { dep.addEventListener('click', _atsOuvrirDepotCV); }
-  var rev = document.getElementById('btnAtsRevoirRelecture');
-  if (rev) { rev.addEventListener('click', _atsOuvrirDepotCV); }
 
-  var creer = document.getElementById('btnAtsCreerCV');
-  if (creer) { creer.addEventListener('click', function () { if (typeof naviguerVers === 'function') { naviguerVers('creer-cv'); } }); }
-
-  Array.prototype.forEach.call(document.querySelectorAll('[data-ats-ref]'), function (btn) {
-    btn.addEventListener('click', function () {
-      _atsEtat.modeReference = btn.getAttribute('data-ats-ref');
-      _atsEtat.blocReferenceOuvert = true;
-      ouvrirAts();
-    });
-  });
-
-  if (e.modeReference === 'offre' && typeof bilanCablerCiblageOffre === 'function') {
-    var hote = document.getElementById('atsCiblageHote');
-    if (hote) {
-      bilanCablerCiblageOffre(hote, function () {
-        if (typeof bilanLireCiblageOffre === 'function') {
-          _atsEtat.ciblage = bilanLireCiblageOffre(hote);
-        }
-      });
-      // pre-remplissage depuis un ciblage deja saisi ailleurs
-      if (!e.ciblage && typeof dossier !== 'undefined' && dossier && dossier.rechercheCandidature) {
-        _atsEtat.ciblage = null; // le composant lira dossier.rechercheCandidature de lui-meme si branche pour
-      }
-    }
+  // Panneau Candidature partage : ecrit dans les champs globaux, chaque choix
+  // re-rend la page.
+  if (typeof wirePanneauCandidaturePartage === 'function') {
+    wirePanneauCandidaturePartage(ouvrirAts, { projet: false, sansSituation: true });
   }
-
-  var met = document.getElementById('btnAtsChoisirMetier');
-  if (met) { met.addEventListener('click', _atsOuvrirFenetreMetier); }
 
   var suite = document.getElementById('btnAtsVersAssistant');
   if (suite && !suite.disabled) { suite.addEventListener('click', function () { atsAllerA('choix-assistant'); }); }
@@ -438,6 +426,7 @@ function _atsRendreChoixAssistant() {
       ? htmlChoixAssistantBilanCorps({
           idErreur: 'atsErreurChoixIA',
           attrAssistant: 'data-assistant-ats',
+          recapContexte: ['cible', 'offre', 'entreprise', 'structure'],
           etapes: ATS_ETAPES_CHOIX_IA,
           texteConfidentialite: 'Rien n’est envoyé avant que vous ayez relu et masqué votre CV. Votre nom et vos coordonnées ne partent pas.'
         })
@@ -501,6 +490,7 @@ function _atsPreparerEtEnvoyer(assistantId) {
         : Promise.reject(new Error('chargement du prompt indisponible')));
 
   charger.then(function (template) {
+    _atsSynchroniserReference();
     var texte = _atsConstruirePrompt(template);
     if (typeof ouvrirFenetreAssistantIA === 'function') {
       ouvrirFenetreAssistantIA({
@@ -596,49 +586,40 @@ function _atsBrancherChezAssistant() {
 //  ECRAN 2e -- COLLER LA REPONSE (brique partagee htmlCollageInstantane)
 // ============================================================
 
+// Retour Denis 2026-09-30 (C11) : meme bloc « De retour : collez la reponse » que le reste de l'application (carte teintee, composant
+// partage en rendu par defaut : « Coller la reponse » / « Coller manuellement », puis Importer et Effacer et recoller). Ce module
+// utilisait l'ancien rendu de compatibilite (htmlCollageInstantane sans options), d'ou son aspect different.
 function _atsRendreColler() {
   var nom = (_etatTransitionIA && _etatTransitionIA.nomAssistant) || 'l’assistant';
-  return '<div class="text-center"><h1>De retour : coller la réponse</h1>' +
-    '<p class="sousTitre">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : le texte reste caché, vous n’avez rien à relire.</p></div>' +
-    (typeof htmlCollageInstantane === 'function' ? htmlCollageInstantane('Ats') : '<p style="color:var(--text-muted);">Collage (composant partagé).</p>') +
-    '<div id="atsMessageImport" class="small text-center mt-2"></div>' +
-    '<div class="text-center" style="margin-top:1rem;">' +
-    '<button type="button" id="btnAtsImporter" class="btn btn-primary btn-lg bouton-incitation-action">&#128229; Importer</button>' +
+  return '<div class="text-center"><h1>Coller la réponse</h1></div>' +
+    '<div class="cv-section bilan-etape-import-ia">' +
+    '<h4>&#128229; De retour : collez la réponse</h4>' +
+    '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '<div class="bilan-zone-collage">' +
+    (typeof htmlCollageInstantane === 'function' ? htmlCollageInstantane('Ats', {}) : '<p style="color:var(--text-muted);">Collage (composant partagé).</p>') +
+    '</div>' +
     '</div>';
 }
 
 function _atsBrancherColler() {
-  var msg = document.getElementById('atsMessageImport');
   if (typeof activerCollageInstantane === 'function') {
     activerCollageInstantane({
-      idZoneAuto: 'zoneCollageAutoAts',
-      idZoneApercu: 'zoneApercuCollageAts',
-      idTextarea: 'texteCollageAts',
-      idBoutonColler: 'btnCollerAutoAts',
-      idBoutonCollerManuel: 'btnCollerManuelAts',
-      idBoutonEffacerRecoller: 'btnEffacerRecollerAts',
-      idBoutonImporter: 'btnAtsImporter',
-      onSucces: function (texte) {
-        _atsEtat.reponseCollee = String(texte || '');
-        if (msg) { msg.style.color = 'var(--success)'; msg.textContent = '✅ Réponse collée. Cliquez sur « Importer ».'; }
-      },
-      onErreur: function (m) { if (msg) { msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ ' + m; } },
-      onEffacer: function () { _atsEtat.reponseCollee = ''; if (msg) { msg.textContent = ''; } },
-      onCollerManuel: function () { if (msg) { msg.textContent = ''; } }
+      idZoneAuto: 'zoneCollageAutoAts', idZoneApercu: 'zoneApercuCollageAts',
+      idTextarea: 'texteCollageAts', idBoutonColler: 'btnCollerAutoAts'
     });
   }
-  var imp = document.getElementById('btnAtsImporter');
+  var imp = document.getElementById('btnImporterAts');
   if (imp) {
     imp.addEventListener('click', function () {
-      // Repli : si le collage manuel est utilise, lire le textarea directement.
-      if (!(_atsEtat.reponseCollee || '').trim()) {
-        var ta = document.getElementById('texteCollageAts');
-        if (ta && ta.value.trim()) { _atsEtat.reponseCollee = ta.value; }
-      }
-      if (!(_atsEtat.reponseCollee || '').trim()) {
+      var msg = document.getElementById('messageImportAts');
+      if (msg) { msg.textContent = ''; msg.style.color = ''; }
+      var ta = document.getElementById('texteCollageAts');
+      var texte = ta ? String(ta.value || '') : '';
+      if (!texte.trim()) {
         if (msg) { msg.style.color = 'var(--danger)'; msg.textContent = '⚠️ Collez d’abord la réponse de l’assistant.'; }
         return;
       }
+      _atsEtat.reponseCollee = texte;
       _atsImporterReponse();
     });
   }
@@ -875,9 +856,11 @@ function _atsRendreEmporter() {
       : '<p style="color:var(--text-muted);">Rien à cocher : la comparaison n’a pas dégagé de mot à travailler.</p>') +
     '<div class="d-flex gap-2 flex-wrap">' +
     '<button type="button" class="btn btn-primary btn-sm" id="btnAtsCopierFiche">&#128203; Copier ma fiche</button>' +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAtsEnregistrerFiche">&#128190; Enregistrer en fichier</button>' +
     '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAtsImprimerFiche">&#128424;&#65039; Imprimer</button>' +
     '</div>' +
-    '<p style="color:var(--text-muted);font-size:.85rem;margin-top:.4rem;">Le texte est copié : vous pouvez le coller dans un mail, un document, ou le garder.</p>' +
+    // Retour Denis 2026-09-30 (C12) : « Fiche copiee » ne disait ni ou, ni comment la retrouver.
+    '<p id="atsFicheMessage" style="color:var(--text-muted);font-size:.85rem;margin-top:.4rem;">« Copier ma fiche » place le texte dans votre presse-papiers : rien n’est enregistré dans l’application. Collez-le ensuite (Ctrl+V) dans un mail ou un document pour le garder. « Enregistrer en fichier » crée un fichier texte dans le dossier Téléchargements de votre ordinateur. « Imprimer » en fait une copie papier ou un fichier PDF.</p>' +
     '</div>' +
 
     _atsBlocQuestionsConseiller(r) +
@@ -945,10 +928,18 @@ function _atsBrancherEmporter() {
   });
   var cop = document.getElementById('btnAtsCopierFiche');
   if (cop) { cop.addEventListener('click', _atsCopierFiche); }
+  var enr = document.getElementById('btnAtsEnregistrerFiche');
+  if (enr) { enr.addEventListener('click', _atsEnregistrerFiche); }
   var imp = document.getElementById('btnAtsImprimerFiche');
-  if (imp) { imp.addEventListener('click', function () { if (typeof window !== 'undefined' && window.print) { window.print(); } }); }
+  if (imp) { imp.addEventListener('click', _atsImprimerFiche); }
   var ed = document.getElementById('btnAtsEditeurCV');
-  if (ed) { ed.addEventListener('click', function () { if (typeof ouvrirAtelierCV === 'function') { ouvrirAtelierCV(); } else if (typeof naviguerVers === 'function') { naviguerVers('cv'); } }); }
+  // TACHE (retour Denis 2026-09-27, P1) : l'ancienne fenetre "Atelier CV"
+  // (ouvrirAtelierCV/htmlAtelierCV) gardait son propre choix Word/PDF perime
+  // -- l'ecran unique "La mise en page" (Vos documents -> resultats) fait
+  // desormais tout ce qu'elle faisait, seul appelant restant de l'ancienne
+  // fenetre dans tout le depot (docs/PLAN_PANNEAU_UNIQUE_WORD_PDF_2026-09-27.md).
+  // Meme chemin que "Voir mon CV" ailleurs dans l'app.
+  if (ed) { ed.addEventListener('click', function () { dossier.dernierDocumentPrepare = 'cv'; if (typeof naviguerVers === 'function') { naviguerVers('resultats'); } }); }
   var le = document.getElementById('btnAtsLettre');
   if (le) { le.addEventListener('click', function () { if (typeof naviguerVers === 'function') { naviguerVers('co-lettre'); } }); }
   var bi = document.getElementById('btnAtsBilan');
@@ -985,13 +976,66 @@ function _atsFicheTexte() {
   return lignes.join('\n');
 }
 
+function _atsMessageFiche(html, ok) {
+  var zone = document.getElementById('atsFicheMessage');
+  if (!zone) { return; }
+  zone.style.color = ok ? 'var(--success-strong)' : 'var(--danger)';
+  zone.innerHTML = html;
+}
+
 function _atsCopierFiche() {
   var texte = _atsFicheTexte();
+  var pasCopie = '&#9888;&#65039; La copie n’a pas pu se faire automatiquement. Utilisez « Imprimer » pour garder une copie de votre fiche.';
   if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(texte).then(function () {
-      if (typeof afficherToast === 'function') { afficherToast('Fiche copiée.'); }
-    }, function () { /* silencieux */ });
+      if (typeof afficherToast === 'function') { afficherToast('Fiche copiée dans le presse-papiers.'); }
+      _atsMessageFiche('&#9989; <strong>Fiche copiée dans votre presse-papiers.</strong> Elle n’est enregistrée nulle part dans l’application : collez-la maintenant (Ctrl+V) dans un mail ou un document pour la garder.', true);
+    }, function () { _atsMessageFiche(pasCopie, false); });
+  } else {
+    _atsMessageFiche(pasCopie, false);
   }
+}
+
+// Enregistrement de la fiche dans un fichier texte (retour Denis 2026-09-30, C12) : le fichier arrive dans le dossier « Téléchargements »
+// de l'ordinateur. Marque UTF-8 et fins de ligne Windows pour que les accents s'affichent correctement dans le Bloc-notes.
+function _atsEnregistrerFiche() {
+  var contenu = '\uFEFF' + _atsFicheTexte().replace(/\n/g, '\r\n');
+  if (typeof telechargerFichierTexte !== 'function') {
+    _atsMessageFiche('&#9888;&#65039; L’enregistrement n’a pas pu se faire. Utilisez « Copier ma fiche » puis collez-la dans un document.', false);
+    return;
+  }
+  try {
+    telechargerFichierTexte('aide-memoire-mots-du-cv.txt', contenu, 'text/plain;charset=utf-8');
+    _atsMessageFiche('&#9989; <strong>Fiche enregistrée dans un fichier</strong> nommé « aide-memoire-mots-du-cv.txt ». Il se trouve dans le dossier « Téléchargements » de votre ordinateur (ou là où votre navigateur range ses téléchargements). Double-cliquez dessus pour l’ouvrir.', true);
+  } catch (e) {
+    _atsMessageFiche('&#9888;&#65039; L’enregistrement n’a pas pu se faire. Utilisez « Copier ma fiche » puis collez-la dans un document.', false);
+  }
+}
+
+// Impression de la fiche seule (retour Denis 2026-09-30, C13 : window.print() sur la page de l'application donnait des pages blanches).
+// La fiche est ecrite dans un cadre invisible, puis imprimee : elle peut aussi etre enregistree en PDF depuis la fenetre d'impression.
+function _atsImprimerFiche() {
+  var lignes = _atsFicheTexte().split('\n');
+  var corps = lignes.map(function (l, i) {
+    if (!l) { return '<div style="height:.6rem"></div>'; }
+    if (i === 0) { return '<h1 style="font-size:1.4rem;margin:0 0 .6rem;">' + echapperAttribut(l) + '</h1>'; }
+    return '<p style="margin:.15rem 0;">' + echapperAttribut(l) + '</p>';
+  }).join('');
+  var ancien = document.getElementById('atsCadreImpression');
+  if (ancien) { ancien.remove(); }
+  var cadre = document.createElement('iframe');
+  cadre.id = 'atsCadreImpression';
+  cadre.setAttribute('aria-hidden', 'true');
+  cadre.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(cadre);
+  var doc = cadre.contentWindow.document;
+  doc.open();
+  doc.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Aide-mémoire : les mots de mon CV</title>' +
+    '<style>body{font-family:"Segoe UI",Roboto,Arial,sans-serif;font-size:12pt;color:#111;margin:2cm;line-height:1.45}</style></head><body>' + corps + '</body></html>');
+  doc.close();
+  setTimeout(function () {
+    try { cadre.contentWindow.focus(); cadre.contentWindow.print(); } catch (e) { _atsMessageFiche('&#9888;&#65039; L’impression n’a pas pu s’ouvrir. Copiez la fiche, puis collez-la dans un document.', false); }
+  }, 150);
 }
 
 // ============================================================
@@ -1048,35 +1092,37 @@ function _atsOuvrirFenetreForme() {
   _atsOuvrirFenetre('Mise en forme et logiciels de tri', corps);
 }
 
-function _atsOuvrirFenetreMetier() {
-  var metiers = _atsMetiersBase();
-  var corps = '<p style="color:var(--text-muted);">Ces fiches viennent du référentiel officiel des métiers (France Travail).</p>' +
-    '<input type="text" class="form-control mb-2" id="atsMetierRecherche" placeholder="Chercher un métier (accueil, vente, aide à domicile...)">' +
-    '<div id="atsMetierListe">' +
-    metiers.map(function (m) {
-      return '<button type="button" class="btn btn-outline-secondary btn-sm d-block w-100 text-start mb-1" data-ats-metier="' + echapperAttribut(m.id) + '">' + echapperAttribut(m.nom) + '</button>';
-    }).join('') +
-    '</div>';
-  _atsOuvrirFenetre('Choisir une fiche métier', corps);
-  var champ = document.getElementById('atsMetierRecherche');
-  if (champ) {
-    champ.addEventListener('input', function () {
-      var q = champ.value.toLowerCase();
-      Array.prototype.forEach.call(document.querySelectorAll('#atsMetierListe [data-ats-metier]'), function (b) {
-        b.style.display = b.textContent.toLowerCase().indexOf(q) === -1 ? 'none' : '';
-      });
-    });
-  }
-  Array.prototype.forEach.call(document.querySelectorAll('#atsMetierListe [data-ats-metier]'), function (b) {
-    b.addEventListener('click', function () {
-      var m = metiers.filter(function (x) { return x.id === b.getAttribute('data-ats-metier'); })[0];
-      if (m) {
-        _atsEtat.metier = { nom: m.nom, rome: m.rome, vocabulaire: m.vocabulaire };
+// Deduit la reference de comparaison des champs du panneau Candidature partage :
+// offre collee => mode 'offre' ; sinon metier choisi => mode 'metier' (fiche
+// officielle si le metier est dans le repertoire). Renseigne aussi
+// e.ciblage dans la forme lue par _atsConstruirePrompt().
+function _atsSynchroniserReference(etat) {
+  var e = etat || _atsEtat;
+  if (!e || typeof dossier === 'undefined' || !dossier) { return; }
+  var rc = dossier.rechercheCandidature || {};
+  var offre = String(rc.texteOffre || rc.lienOffre || '').trim();
+  var metierNom = String(dossier.metierCible || '').trim();
+  e.ciblage = {
+    metierCible: metierNom || null,
+    entreprise: String(rc.entreprise || '').trim(),
+    site: String(rc.site || '').trim(),
+    saisieLibre: offre,
+    typeStructure: String(rc.typeStructure || '').trim()
+  };
+  var fiche = null;
+  if (metierNom) {
+    var cle = metierNom.toLowerCase();
+    fiche = _atsMetiersBase().filter(function (m) { return String(m.nom).toLowerCase() === cle; })[0] || null;
+    if (!fiche && typeof metierParNom === 'function') {
+      var f = metierParNom(metierNom);
+      if (f) {
+        fiche = { nom: f.nom, rome: f.rome || '', vocabulaire: [].concat(f.savoirFaire || [], f.savoirEtre || [], f.savoirs || []).join(', ') };
       }
-      if (typeof fermerFenetreERIP === 'function') { fermerFenetreERIP(); }
-      ouvrirAts();
-    });
-  });
+    }
+    if (!fiche) { fiche = { nom: metierNom, rome: '', vocabulaire: '' }; }
+  }
+  e.metier = fiche;
+  e.modeReference = offre ? 'offre' : 'metier';
 }
 
 // Amorce de vocabulaire tiree de data/metiers.js (baseMetiers). Pas de
@@ -1118,6 +1164,7 @@ if (typeof module !== 'undefined' && module.exports) {
     _atsFaq: _atsFaq,
     _atsMetiersBase: _atsMetiersBase,
     _atsConstruirePrompt: _atsConstruirePrompt,
+    _atsSynchroniserReference: _atsSynchroniserReference,
     ATS_ETAPES: ATS_ETAPES
   };
 }

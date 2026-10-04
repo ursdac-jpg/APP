@@ -36,8 +36,22 @@ function ctLecteursParDefaut() {
     // dossier.rechercheCandidature.texteOffre au meme titre que entreprise/
     // site (nouveau champ additif -- voir ui.js pour l'ecriture). Distinct
     // de lienOffreCibleActuel() (js/app.js), qui ne garde qu'un lien.
+    // Repli sur lienOffre (lien ou texte) : c'est ce champ qu'ecrit le
+    // panneau Candidature partage (2026-09-29).
     lireTexteOffre: function () {
-      return (typeof dossier !== 'undefined' && dossier.rechercheCandidature && dossier.rechercheCandidature.texteOffre) || '';
+      return (typeof dossier !== 'undefined' && dossier.rechercheCandidature && (dossier.rechercheCandidature.texteOffre || dossier.rechercheCandidature.lienOffre)) || '';
+    },
+    // TACHE (panneau Candidature partage, 2026-09-29) : type de structure,
+    // situation et cible visee, ecrits directement dans les champs globaux
+    // par le panneau -- meme source que le reste de l'application.
+    lireTypeStructure: function () {
+      return (typeof dossier !== 'undefined' && dossier.rechercheCandidature && dossier.rechercheCandidature.typeStructure) || '';
+    },
+    lireSituationCandidature: function () {
+      return typeof contexteCandidaturePourAnalyse === 'function' ? (contexteCandidaturePourAnalyse().situation || '') : '';
+    },
+    lireCibleVisee: function () {
+      return typeof contexteCandidaturePourAnalyse === 'function' ? (contexteCandidaturePourAnalyse().cible || '') : '';
     },
     // Texte integral deja redige de la lettre de motivation (pas
     // seulement sa strategie -- accroche/arguments). La Cohérence
@@ -85,7 +99,10 @@ function ctLireDonneesBrutes(lecteurs) {
     lettre: (lecteurs.lireLettreTexte && lecteurs.lireLettreTexte()) || null,
     preparationEntretien: (lecteurs.lireEntretienTexte && lecteurs.lireEntretienTexte()) || null,
     accrocheCv: (lecteurs.lireAccrocheCv && lecteurs.lireAccrocheCv()) || null,
-    texteOffre: (lecteurs.lireTexteOffre && lecteurs.lireTexteOffre()) || null
+    texteOffre: (lecteurs.lireTexteOffre && lecteurs.lireTexteOffre()) || null,
+    typeStructure: (lecteurs.lireTypeStructure && lecteurs.lireTypeStructure()) || null,
+    situationCandidature: (lecteurs.lireSituationCandidature && lecteurs.lireSituationCandidature()) || null,
+    cibleVisee: (lecteurs.lireCibleVisee && lecteurs.lireCibleVisee()) || null
   };
 }
 

@@ -27,6 +27,19 @@ function bilanFormaterValeurOptionnelle(valeur) {
   return valeur ? valeur : 'Non fourni.';
 }
 
+// TACHE (retour Denis 2026-09-19, 5e vague) : sans ce qualificatif,
+// l'assistant recevait "Metier vise : Batiment et travaux publics" et le
+// traitait comme un intitule de poste precis, ce qui produisait des
+// recommandations eparpillees hors du domaine choisi (retour terrain :
+// "il me propose du commerce, de l'administratif..."). Le qualificatif
+// renvoie vers la consigne dediee du prompt (section "Metier vise :
+// metier precis ou domaine"), jamais reexplique ici.
+function bilanFormaterMetierVise(candidature) {
+  if (!candidature.metierVise) { return 'Non fourni.'; }
+  if (!candidature.metierViseEstDomaine) { return candidature.metierVise; }
+  return candidature.metierVise + ' (domaine large choisi par la personne, pas un métier précis : voir la consigne « Métier visé : métier précis ou domaine »)';
+}
+
 function bilanFormaterObservationsDeterministes(observations) {
   if (!observations || observations.length === 0) { return 'Aucune observation déterministe disponible.'; }
   return observations.map(function (obs) { return '- ' + obs.contenu; }).join('\n');
@@ -48,7 +61,7 @@ function bilanConstruireValeursPlaceholders(candidature, contexteAnalyse) {
   return {
     NIVEAU_ANALYSE: String(contexteAnalyse.niveau),
     CV: candidature.cv,
-    METIER_VISE_OU_NON_FOURNI: bilanFormaterValeurOptionnelle(candidature.metierVise),
+    METIER_VISE_OU_NON_FOURNI: bilanFormaterMetierVise(candidature),
     OFFRE_EMPLOI_OU_NON_FOURNIE: bilanFormaterValeurOptionnelle(candidature.offreEmploi),
     ENTREPRISE_CIBLEE_OU_NON_FOURNIE: bilanFormaterValeurOptionnelle(candidature.entrepriseCiblee),
     SITE_ENTREPRISE_OU_NON_FOURNI: bilanFormaterValeurOptionnelle(candidature.siteEntreprise),
@@ -104,6 +117,7 @@ function bilanConstruirePromptDiagnostic(texteTemplate, candidature, contexteAna
 if (typeof module !== 'undefined') {
   module.exports = {
     bilanFormaterValeurOptionnelle: bilanFormaterValeurOptionnelle,
+    bilanFormaterMetierVise: bilanFormaterMetierVise,
     bilanFormaterObservationsDeterministes: bilanFormaterObservationsDeterministes,
     bilanFormaterTypeStructure: bilanFormaterTypeStructure,
     bilanConstruireValeursPlaceholders: bilanConstruireValeursPlaceholders,

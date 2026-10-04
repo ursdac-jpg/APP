@@ -58,7 +58,9 @@ function ctCollecterDossierTransversal(saisieLibre, dependances) {
       siteEntreprise: saisieLibre.siteEntreprise || brut.siteEntreprise,
       preparationEntretien: saisieLibre.preparationEntretien || brut.preparationEntretien,
       questionsPersonne: saisieLibre.questionsPersonne || null,
-      typeStructure: saisieLibre.typeStructure || null,
+      typeStructure: saisieLibre.typeStructure || brut.typeStructure || null,
+      situationCandidature: saisieLibre.situationCandidature || brut.situationCandidature || null,
+      cibleVisee: saisieLibre.cibleVisee || brut.cibleVisee || null,
       accrocheCv: brut.accrocheCv,
       dateCreation: maintenant()
     });

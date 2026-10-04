@@ -24,6 +24,12 @@ function _bilanValeurOuNonFournieTAPB(valeur) {
   return (valeur && String(valeur).trim()) ? String(valeur).trim() : 'Non fourni.';
 }
 
+// Genre du candidat (retour Denis 2026-10-01) : le titre et l'accroche doivent etre accordes a la personne. Source unique : modules/cv-core/genreCandidat.js
+// (global navigateur) ; absente (tests Node) : aucune consigne ajoutee.
+function _bilanConsigneGenreTAPB() {
+  try { return (typeof consigneGenreCandidat === 'function') ? '\n\n' + consigneGenreCandidat() : ''; } catch (e) { return ''; }
+}
+
 // Retourne { texte, dateGeneration } -- meme forme que
 // bilanConstruirePromptAmelioration()/bilanConstruirePromptAmeliorationLot(),
 // jamais une forme differente pour ce seul prompt.
@@ -34,7 +40,9 @@ function bilanConstruirePromptTitreAccroche(texteTemplate, contexte, horodatage)
   var texte = texteTemplate
     .replace('{METIER_VISE_OU_NON_FOURNI}', _bilanValeurOuNonFournieTAPB(contexte.metierVise))
     .replace('{OFFRE_EMPLOI_OU_NON_FOURNIE}', _bilanValeurOuNonFournieTAPB(contexte.offreEmploi))
-    .replace('{CV_TEXTE}', (contexte.cv && String(contexte.cv).trim()) || 'Non fourni.');
+    .replace('{CV_TEXTE}', function () { return (contexte.cv && String(contexte.cv).trim()) || 'Non fourni.'; })
+    // Fragment commun « voix humaine » (prompts/_voix-humaine.md), charge par js/app.js ; absent (tests, chargement en echec) : le repere disparait.
+    .replace('{VOIX_HUMAINE}', function () { return ((typeof promptsExternesCharges !== 'undefined' && promptsExternesCharges && promptsExternesCharges['voix-humaine']) || '') + _bilanConsigneGenreTAPB(); });
 
   return { texte: texte, dateGeneration: maintenant() };
 }

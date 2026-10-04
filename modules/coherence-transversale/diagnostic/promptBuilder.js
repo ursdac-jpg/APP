@@ -34,6 +34,8 @@ function ctConstruireValeursPlaceholders(dossier, constatsDeterministes) {
     ENTREPRISE_OU_NON_FOURNIE: ctFormaterValeurOptionnelle(dossier.entrepriseCiblee),
     SITE_ENTREPRISE_OU_NON_FOURNI: ctFormaterValeurOptionnelle(dossier.siteEntreprise),
     TYPE_STRUCTURE_OU_NON_FOURNI: ctFormaterValeurOptionnelle(dossier.typeStructure),
+    SITUATION_OU_NON_FOURNIE: ctFormaterValeurOptionnelle(dossier.situationCandidature),
+    CIBLE_VISEE_OU_NON_FOURNIE: ctFormaterValeurOptionnelle(dossier.cibleVisee),
     PREPARATION_ENTRETIEN_OU_NON_FOURNIE: ctFormaterValeurOptionnelle(dossier.preparationEntretien),
     CONSTATS_DETERMINISTES: ctFormaterConstatsDeterministes(constatsDeterministes),
     QUESTIONS_PERSONNE_OU_NON_FOURNIES: ctFormaterValeurOptionnelle(dossier.questionsPersonne)
