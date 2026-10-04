@@ -645,7 +645,7 @@
    déjà bien dégagé de tout contenu de page, icône agrandie au passage. */
 #btnJournalParcours {
   position: fixed;
-  top: 152px;
+  top: 154px;
   right: 20px;
   z-index: 2700;
   width: 58px;
@@ -661,11 +661,13 @@
 #btnJournalParcours:hover { background: var(--bg-hover); }
 [data-theme="sombre"] #btnJournalParcours { border: 2px solid var(--border-strong); box-shadow: none; }
 @media (max-width: 768px) {
-  #btnJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 50px); right: 8px; width: 42px; height: 42px; font-size: 1.2rem; }
-  /* TACHE (retour utilisateur, 2026-08-26) : reste centre (voir la regle
-     de base ci-dessus, width deja calculee pour ne jamais deborder d'un
-     petit ecran) -- seul le "top" a encore besoin d'un ajustement mobile. */
-  #panneauJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 100px); }
+  /* TACHE (retour Denis 2026-09-20) : position fixe, EN DESSOUS de
+     #btnCarnet (top: calc(var(--hauteur-progression) + 46px), 42px de
+     haut, carnet.css) -- jamais recalculee en JS desormais. */
+  #btnJournalParcours { top: calc(var(--hauteur-progression, 5rem) + 96px); right: 8px; width: 42px; height: 42px; font-size: 1.2rem; }
+  /* TACHE (retour Denis 2026-09-20) : redocke a droite (voir la regle de
+     base ci-dessus) -- meme repli mobile que #panneauCarnet. */
+  #panneauJournalParcours { right: 8px; width: calc(100vw - 16px); max-width: 320px; }
 }
 /* TACHE (retour utilisateur, 2026-08-26, "je veux que le i apparaisse à
    l'intérieur de journal") : bouton d'info DANS l'entête du panneau
@@ -756,13 +758,23 @@
    pas avant que ce panneau soit centré/élargi (voir plus haut) : dans
    son coin d'origine, il ne recouvrait jamais une fenêtre elle-même
    centrée. */
+/* TACHE (retour Denis 2026-09-20) : redocke sur le cote, sous son icone --
+   "comme le carnet, comme les pistes de cote", pour qu'on comprenne que
+   Journal fait partie de cette meme famille de boutons. Revient sur le
+   centrage du 2026-08-26 (voir le commentaire juste au-dessus, laisse
+   pour memoire) : ce centrage compensait un panneau qui coupait son
+   propre contenu en bas -- ce risque est deja couvert ici par le
+   defilement interne (max-height + overflow-y, MEME mecanisme que
+   #panneauCarnet, modules/carnet/carnet.css), pas besoin de le recentrer
+   pour ca. `top` recalcule en JS a l'ouverture (_reperesPositionnerPanneauJournal(),
+   modules/reperes/index.js), meme principe que #panneauCarnet -- la
+   valeur ci-dessous n'est qu'un repli avant ce calcul. */
 #panneauJournalParcours {
   position: fixed;
   top: 220px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 20px;
   z-index: 1900;
-  width: min(560px, calc(100vw - 32px));
+  width: 320px;
   max-height: 70vh;
   overflow-y: auto;
   background: var(--bg-card);

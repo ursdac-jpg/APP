@@ -2590,34 +2590,27 @@ function reperesMarquerApprofondis(ids) {
 // viendrait s'ajouter, sans jamais toucher à nouveau js/app.js pour ça.
 // TACHE (regard critique final du module Regard extérieur, "positionnement
 // du bouton Journal de parcours") : remplace une valeur fixe en pixels
-// (top:90px), qui entrait en collision avec le <h1> de pratiquement
-// toutes les pages. Délègue depuis l'implémentation du module Carnet à
-// positionnerIconePersistante() (js/app.js), généralisée dès qu'un
-// deuxième bouton persistant en a eu besoin -- ne mesure plus la
-// géométrie elle-même ici, un seul endroit porte ce calcul désormais.
-// TACHE (retour utilisateur, 2026-08-25) : reference #btnCarnet (jamais
-// cache, toujours en premier) plutot que #btnAide -- #btnCarnet etant
-// visible en permanence, jamais de risque de lire un rectangle a zero
-// (contrairement a l'ancien sens carnet->journal, ou #btnJournalParcours
-// pouvait etre encore cache au moment du calcul). #panneauJournalParcours
-// repositionne ici aussi, meme principe que _carnetPositionnerPanneau()
-// (modules/carnet/index.js) : plus jamais une valeur fixe devinee en CSS.
+// TACHE (retour Denis 2026-09-20) : revient sur le calcul dynamique
+// (positionnerIconePersistante()) qui datait du 2026-08-25 -- #btnJournalParcours
+// reste desormais a une position FIXE (voir reperes.css), quelle que soit
+// la page. Decision assumee : les barres de navigation des modules sont
+// deja uniformes (jamais plus hautes les unes que les autres), certains
+// modules n'en ont meme pas -- le risque de chevauchement avec un titre
+// exceptionnellement haut, qui justifiait ce calcul, est juge negligeable
+// par Denis face au benefice de 3 icones qui ne bougent plus jamais d'une
+// page a l'autre. #panneauJournalParcours reste, lui, repositionne ici
+// (meme principe que _carnetPositionnerPanneau()) : lui n'a jamais bouge
+// entre les pages, seule l'icone posait probleme.
 function _reperesPositionnerBoutonJournal() {
-  if (typeof positionnerIconePersistante === 'function') {
-    positionnerIconePersistante('btnJournalParcours', 'btnCarnet');
-  }
   var bouton = document.getElementById('btnJournalParcours');
   var panneau = document.getElementById('panneauJournalParcours');
-  // TACHE (retour utilisateur, 2026-08-26, "je vois toujours les titres
-  // des pages où je suis, mais je vois aussi bien la fenêtre") : le
-  // panneau, désormais centré horizontalement (reperes.css), se cale
-  // maintenant sous le <h1> RÉEL de la page courante -- jamais sous
-  // #btnJournalParcours (qui reste, lui, dans la colonne d'icônes à
-  // droite, sans rapport avec la position du panneau une fois centré).
-  var h1 = document.querySelector('#app h1');
-  var basTitre = h1 ? h1.getBoundingClientRect().bottom : 0;
+  // TACHE (retour Denis 2026-09-20) : redocke sous #btnJournalParcours,
+  // MEME principe que _carnetPositionnerPanneau() (modules/carnet/index.js)
+  // -- revient sur le calage au <h1> du 2026-08-26 (panneau alors centre,
+  // voir reperes.css pour le detail de ce retour en arriere et pourquoi
+  // il reste sans risque cette fois).
   if (bouton && panneau && !bouton.hidden) {
-    panneau.style.top = (basTitre + 16) + 'px';
+    panneau.style.top = (bouton.getBoundingClientRect().bottom + 10) + 'px';
   }
 }
 
@@ -2649,6 +2642,10 @@ function reperesInitialiser() {
     bouton.innerHTML = '<i class="bi bi-journals"></i>';
     bouton.addEventListener('click', function () {
       panneau.hidden = !panneau.hidden;
+      // TACHE (retour Denis 2026-09-20) : recalcule au moment precis de
+      // l'ouverture, meme principe que _carnetPositionnerPanneau() --
+      // jamais une position perimee d'une navigation precedente.
+      if (!panneau.hidden) { _reperesPositionnerBoutonJournal(); }
       // TACHE (retour utilisateur, 2026-08-26) : pulse le bouton "i" DANS
       // l'entête du panneau (déjà rendu à ce stade, voir
       // _reperesMettreAJourJournal()) dès la 1ère ouverture RÉELLE (jamais

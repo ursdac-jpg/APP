@@ -21,15 +21,27 @@
    fenetres ouvertes par window.open).
    ============================================================ */
 
-// TACHE (retour utilisateur 2026-09-15) : "juste apres avoir choisi le
-// format PDF, je veux voir le CV en integralite -- dans l'apercu a taille
-// reelle c'est le cas, pourquoi pas ici ?" -- meme mecanique de mise a
-// l'echelle que _mepGrandAjusterEchelleCv (js/app.js, grand apercu PDF) :
-// mesure la hauteur reelle de .page-a4 (min-height, grandit avec le
-// contenu) en 2 temps (iframe agrandie a une hauteur genereuse d'abord,
-// jamais une mesure faussee par la taille d'un rendu precedent), puis
-// transform:scale() pour faire tenir la page entiere dans le conteneur,
-// jamais un CV coupe qu'il faudrait faire defiler pour voir le bas.
+// TACHE (Denis, 2026-09-23 : "le CV doit etre bien plus grand, il ne
+// remplit pas la partie de la page qu'il devrait remplir") : bug reel
+// confirme -- l'echelle etait calculee sur LARGEUR *ET* HAUTEUR
+// (Math.min(dispoL/pageL, dispoH/pageH, 1)) contre un conteneur a hauteur
+// FIXE (75vh, voir ouvrirApercuPdfHtml plus bas), alors que la maquette
+// (ajusterEchelle(), MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html) ne
+// contraint QUE la largeur (k = Math.min(1, larg/794)) -- la hauteur suit
+// librement, la colonne entiere reste visible via position:sticky (pas un
+// conteneur a hauteur limitee). Meme calcul repris ici a l'identique :
+// plus de dependance a `conteneurVisible` pour la hauteur.
+// TACHE (Denis, 2026-09-23 : "une barre de navigation horizontale, une
+// verticale, dans une fenetre qui a deja une barre de navigation... c'est
+// moche comme pas possible") : cause reelle trouvee -- .zone-apercu
+// (cvPdfPanneauReglages.js) a "overflow: auto; padding: 24px" ; l'iframe
+// n'etait dimensionnee QUE sur la taille de .page-a4 (sans les 24px de
+// marge tout autour), donc systematiquement 48px trop petite dans les 2
+// sens -- .zone-apercu debordait alors de son propre conteneur et
+// affichait ses PROPRES scrollbars natives (visibles, reduites par le
+// meme transform:scale() que le reste). Mesure desormais .zone-apercu
+// elle-meme (scrollWidth/scrollHeight, qui inclut son padding), jamais
+// seulement .page-a4.
 function _pdfInlineAjusterEchelle(iframe, scaleWrap, conteneurVisible) {
   if (!iframe || !scaleWrap || !conteneurVisible || !iframe.contentDocument) { return; }
   var PAGE_L = 794;
@@ -37,17 +49,39 @@ function _pdfInlineAjusterEchelle(iframe, scaleWrap, conteneurVisible) {
   iframe.style.width = PAGE_L + 'px';
   iframe.style.height = '4000px';
   var page = iframe.contentDocument.querySelector('.page-a4');
+  var zoneApercu = iframe.contentDocument.querySelector('.zone-apercu');
   if (!page) { return; }
-  var pageL = PAGE_L, pageH = page.offsetHeight;
+  var pageH = page.offsetHeight;
   if (!pageH) { return; }
+  var pageL = zoneApercu ? zoneApercu.scrollWidth : PAGE_L;
+  var pageHTotal = zoneApercu ? zoneApercu.scrollHeight : pageH;
+  // Un CV court : la zone remplit toute la hauteur provisoire de l'iframe (4000 px) ; on ne garde que la hauteur reellement occupee
+  // (bas de la derniere page + la marge de 24 px), sinon le CV d'une page serait reduit comme s'il en faisait quatre.
+  var pagesCV = iframe.contentDocument.querySelectorAll('.page-a4');
+  if (pagesCV.length) {
+    var dernierePage = pagesCV[pagesCV.length - 1];
+    var basUtile = dernierePage.getBoundingClientRect().bottom + (iframe.contentWindow.pageYOffset || 0) + 6;
+    if (basUtile > 0 && basUtile < pageHTotal) { pageHTotal = Math.ceil(basUtile); }
+  }
   iframe.style.width = pageL + 'px';
-  iframe.style.height = pageH + 'px';
-  var dispoL = conteneurVisible.clientWidth - 16, dispoH = conteneurVisible.clientHeight - 16;
-  var echelle = Math.max(0.05, Math.min(dispoL / pageL, dispoH / pageH, 1));
+  iframe.style.height = pageHTotal + 'px';
+  var dispoL = conteneurVisible.clientWidth - 8;
+  var echelle = Math.max(0.05, Math.min(dispoL / pageL, 1));
+  // Le CV doit tenir EN ENTIER dans l'ecran (hauteur comprise) : la colonne du CV reste collee (sticky) et la personne le voit en entier
+  // pendant qu'elle defile dans les reglages, sans barre de defilement propre (2026-09-26). Un CV de deux pages est reduit en consequence
+  // (jusqu'a 30 % : en dessous, il devient illisible et garde l'echelle de la largeur, avec un defilement interne).
+  if (window.innerHeight > 300) {
+    // Place reellement disponible : la colonne collee (max-height 100vh - 6,5rem) moins ce qu'elle contient hors du CV (legende, info-page...).
+    var colonneApercu = conteneurVisible.closest ? conteneurVisible.closest('.mep-2col-apercu') : null;
+    var horsCV = colonneApercu ? Math.max(0, colonneApercu.scrollHeight - scaleWrap.offsetHeight) : 0;
+    var placeCV = colonneApercu ? (window.innerHeight - 104 - horsCV - 6) : (window.innerHeight - 150);
+    var echelleHauteur = placeCV / pageHTotal;
+    if (echelleHauteur >= 0.3) { echelle = Math.max(0.05, Math.min(echelle, echelleHauteur)); }
+  }
   iframe.style.transform = 'scale(' + echelle + ')';
   iframe.style.transformOrigin = 'top left';
   scaleWrap.style.width = (pageL * echelle) + 'px';
-  scaleWrap.style.height = (pageH * echelle) + 'px';
+  scaleWrap.style.height = (pageHTotal * echelle) + 'px';
 }
 
 function ouvrirApercuPdfHtml(type, dossierSource) {
@@ -77,9 +111,15 @@ function ouvrirApercuPdfHtml(type, dossierSource) {
   // l'iframe ne change jamais sa boite de mise en page reelle, seul son
   // rendu visuel retrecit, un wrap dimensionne a la taille reduite evite
   // donc un debordement scrollable parasite autour d'un CV deja entier.
+  // TACHE (Denis, 2026-09-23) : plus de hauteur FIXE (75vh) -- comme la
+  // maquette (.cadre-cv, jamais de hauteur imposee), la hauteur suit
+  // librement celle du CV a l'echelle calculee ; la colonne entiere reste
+  // visible en defilant grace a position:sticky sur .mep-2col-apercu
+  // (js/app.js, construireMiseEnPageCV), jamais un conteneur qui coupe/
+  // reduit le CV pour tenir dans un cadre trop petit.
   var conteneurVisible = document.createElement('div');
-  conteneurVisible.style.cssText = 'width:100%;height:75vh;min-height:480px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;' +
-    'border:1px solid var(--border);border-radius:8px;background:var(--bg-subtle);';
+  conteneurVisible.style.cssText = 'width:100%;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;' +
+    'border:1px solid var(--border);border-radius:8px;background:var(--bg-subtle);padding:4px;';
   var scaleWrap = document.createElement('div');
   // TACHE (retour utilisateur 2026-09-15, bug reel confirme : "une image
   // de CV en grand format apparait une microseconde puis retrecit") :
@@ -114,6 +154,13 @@ function ouvrirApercuPdfHtml(type, dossierSource) {
   iframe.contentDocument.open();
   iframe.contentDocument.write(html);
   iframe.contentDocument.close();
+  // Apercu integre : aucune barre de defilement dans le cadre (le CV est mis a l'echelle pour tenir), marge reduite autour de la feuille
+  // pour que le CV occupe toute la place disponible (2026-09-26, demande de Denis).
+  try {
+    var styleApercuIntegre = iframe.contentDocument.createElement('style');
+    styleApercuIntegre.textContent = 'html,body{overflow:hidden !important;} .zone-apercu{padding:6px !important;overflow:hidden !important;}';
+    iframe.contentDocument.head.appendChild(styleApercuIntegre);
+  } catch (e) { /* l'apercu reste utilisable avec ses marges d'origine */ }
   // TACHE (retour utilisateur 2026-09-15) : delai court, le temps que
   // l'iframe applique sa propre mise en page (meme delai que
   // _mepGrandAjusterEchelleCv, js/app.js) -- une mesure immediate peut
@@ -125,4 +172,17 @@ function ouvrirApercuPdfHtml(type, dossierSource) {
     _pdfInlineAjusterEchelle(iframe, scaleWrap, conteneurVisible);
     scaleWrap.style.visibility = 'visible';
   }, 30);
+  // Quand la fenetre change de taille apres l'affichage (fenetre redimensionnee, panneau elargi), le CV est re-mis a l'echelle :
+  // avant, il gardait l'echelle du moment de l'ouverture et depassait sur les cotes (2026-09-26).
+  window._pdfInlineDerniersElements = { iframe: iframe, scaleWrap: scaleWrap, conteneurVisible: conteneurVisible };
+  if (!window._pdfInlineResizeCable) {
+    window._pdfInlineResizeCable = true;
+    window.addEventListener('resize', function () {
+      clearTimeout(window._pdfInlineResizeMinuteur);
+      window._pdfInlineResizeMinuteur = setTimeout(function () {
+        var e = window._pdfInlineDerniersElements;
+        if (e && e.iframe && e.iframe.isConnected) { _pdfInlineAjusterEchelle(e.iframe, e.scaleWrap, e.conteneurVisible); }
+      }, 150);
+    });
+  }
 }

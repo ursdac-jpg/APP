@@ -118,7 +118,8 @@
   font-size: .95rem; margin: .1rem 0 .35rem; color: var(--rr-texte-fort);
 }
 .regard-recruteur-parcours .rr-carte-ok {
-  background: var(--rr-ok-bg);
+  background: transparent;   /* plus de fond vert (decision Denis 2026-09-29) */
+  border: 1px solid var(--rr-bord);
   border-radius: 10px;
   padding: .7rem .85rem;
   margin: .55rem 0;

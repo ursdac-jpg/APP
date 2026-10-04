@@ -302,7 +302,25 @@ function _decouverteDedupliquerSousEnsembles(liste) {
 }
 
 function appliquerMisesAJourDossier(dossierCible, misesAJour) {
-  dossierCible.experiences = (dossierCible.experiences || []).concat(misesAJour.experiences);
+  // Jamais d'experience en double (2026-09-26) : un 2e parcours Decouverte (autre session, meme recit) recreait les memes experiences.
+  // Une experience deja presente (meme poste ET meme employeur, a la casse et aux accents pres) n'est pas rajoutee : ses competences
+  // demontrees s'ajoutent a celles qui existent deja, rien n'est perdu ni ecrase.
+  var normaliserExp = function (t) {
+    var n = (typeof normaliserTexte === 'function') ? normaliserTexte(t || '') : String(t || '').toLowerCase();
+    return n.trim();
+  };
+  var experiencesFinales = (dossierCible.experiences || []).slice();
+  (misesAJour.experiences || []).forEach(function (nouvelle) {
+    var existante = experiencesFinales.filter(function (e) {
+      return e && normaliserExp(e.poste) && normaliserExp(e.poste) === normaliserExp(nouvelle.poste) &&
+        normaliserExp(e.entreprise) === normaliserExp(nouvelle.entreprise);
+    })[0];
+    if (!existante) { experiencesFinales.push(nouvelle); return; }
+    var dejaLa = (existante.competencesDemontrees || []).slice();
+    (nouvelle.competencesDemontrees || []).forEach(function (c) { if (dejaLa.indexOf(c) === -1) { dejaLa.push(c); } });
+    if (dejaLa.length) { existante.competencesDemontrees = dejaLa; }
+  });
+  dossierCible.experiences = experiencesFinales;
 
   ['loisirs', 'engagements'].forEach(function (champ) {
     var existants = dossierCible[champ] || [];
@@ -343,8 +361,10 @@ function appliquerMisesAJourDossier(dossierCible, misesAJour) {
   // classique, cv.md, et reste conditionné au déclencheur -- voir
   // appliquerMoteurDecisionCV) -- fusionné avec lui au moment de la
   // génération, jamais ici.
-  dossierCible.competencesPersonnellesDecouverte = (dossierCible.competencesPersonnellesDecouverte || [])
-    .concat(misesAJour.competencesPersonnelles);
+  var dejaPersonnelles = dossierCible.competencesPersonnellesDecouverte || [];
+  dossierCible.competencesPersonnellesDecouverte = dejaPersonnelles.concat(misesAJour.competencesPersonnelles.filter(function (c) {
+    return !dejaPersonnelles.some(function (d) { return d && c && d.competence === c.competence; });
+  }));
 
   return dossierCible;
 }

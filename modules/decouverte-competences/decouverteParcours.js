@@ -153,23 +153,19 @@ var _decouverteExperiencesBlocAmorce = false;
 var _decouverteInfosBlocsInitialisees = false;
 // TACHE (retour Denis, 2026-09-19, point 5 de sa 3e liste de corrections,
 // UNIQUEMENT pour Decouverte -- confirme par Denis, jamais applique a la
-// VRAIE page "Vos informations") : cascade d'ouverture/fermeture entre
-// les 4 blocs de "Vos informations", au-dela de la simple regle
-// "pasDeFermetureAuto" deja partagee (verifierTransitionsCompletionBlocs()) :
-//   - des qu'on repond a QUOI QUE CE SOIT dans "Formations et diplomes",
-//     "Ce que vous avez appris ailleurs" ET "Complements" s'ouvrent tous
-//     les deux (pour qu'ils soient visibles sans clic manuel en plus) ;
-//   - des qu'on repond dans "Ce que vous avez appris ailleurs", les blocs
-//     au-dessus (Vous, Formations) se referment ;
-//   - des qu'on repond dans "Complements", le bloc juste au-dessus (Ce
-//     que vous avez appris ailleurs) se referme.
-// Drapeaux "une seule fois" (edge-triggered), meme principe que
+// VRAIE page "Vos informations") : des qu'on repond a QUOI QUE CE SOIT dans
+// "Formations et diplomes", "Ce que vous avez appris ailleurs" ET
+// "Complements" s'ouvrent tous les deux (pour qu'ils soient visibles sans
+// clic manuel en plus). TACHE (Paquet B, decision de Denis 2026-09-26) :
+// les 2 fermetures automatiques que cette cascade imposait en plus (Vous/
+// Parcours, puis Ce que vous avez appris ailleurs) sont retirees -- plus
+// aucun bloc ne se referme sans un clic explicite sur son titre ; les 2
+// drapeaux qui ne servaient qu'a ces fermetures ont ete retires avec elles.
+// Drapeau "une seule fois" (edge-triggered), meme principe que
 // _decouverteExperiencesBlocAmorce plus haut -- jamais reimpose a chaque
 // rendu (sinon impossible de refermer/rouvrir manuellement ensuite).
 // Remis a false par fermerDecouverteCompetences().
 var _decouverteCascadeParcoursFaite = false;
-var _decouverteCascadeExperiencesPersoFaite = false;
-var _decouverteCascadeComplementsFaite = false;
 
 // Route 'decouverte' : redessine l'etape courante si une session existe,
 // sinon renvoie vers la presentation du module.
@@ -236,8 +232,6 @@ function fermerDecouverteCompetences() {
   _decouverteExperiencesBlocAmorce = false;
   _decouverteInfosBlocsInitialisees = false;
   _decouverteCascadeParcoursFaite = false;
-  _decouverteCascadeExperiencesPersoFaite = false;
-  _decouverteCascadeComplementsFaite = false;
   _decouverteDetourPresentation = false;
   _decouverteReprisePendante = false;
   window._decouverteVersResultats = false;
@@ -823,7 +817,7 @@ function ouvrirDecouverteCompetences() {
     var html = '<p class="text-muted mb-2">Le poste ou le type de démarche que vous visez.</p>' +
       '<div class="grille-objectif">' +
       OBJECTIF_CHOIX_CANDIDATURE.filter(function (o) { return CARTES_OBJECTIF_DECOUVERTE.indexOf(o.id) !== -1; }).map(function (o) {
-        return '<button type="button" class="carte-objectif' + (dossier.objectif === o.id ? ' carte-objectif--actif' : '') + '" data-action="objectif-decouverte" data-value="' + o.id + '">' +
+        return '<button type="button" class="carte-objectif' + ((typeof carteObjectifActive === 'function' ? carteObjectifActive(o.id) : dossier.objectif === o.id) ? ' carte-objectif--actif' : '') + '" data-action="objectif-decouverte" data-value="' + o.id + '">' +
           '<i class="bi ' + o.icon + '" aria-hidden="true"></i>' +
           '<span class="carte-objectif-titre">' + o.title + '</span>' +
           '<span class="carte-objectif-desc">' + o.desc + '</span>' +
@@ -1969,31 +1963,27 @@ function ouvrirDecouverteCompetences() {
       etatBlocsERIPOuverts.complements = false;
       _decouverteInfosBlocsInitialisees = true;
     }
-    // TACHE : même mécanisme que pageProjet() -- referme le bandeau qui
-    // vient de se compléter, ouvre le suivant encore incomplet (voir
-    // verifierTransitionsCompletionBlocs(), js/app.js).
+    // TACHE : ouvre le bandeau suivant encore incomplet des que le
+    // precedent devient complet (voir verifierTransitionsCompletionBlocs(),
+    // js/app.js) -- ne referme plus rien depuis le Paquet B (decision de
+    // Denis 2026-09-26, voir cette fonction, mode blocMultiOuvert).
     verifierTransitionsCompletionBlocs(configsInfosDecouverte, false);
     // TACHE (retour Denis, 2026-09-19, point 5, UNIQUEMENT pour Decouverte
-    // -- voir _decouverteCascadeParcoursFaite plus haut pour le detail du
-    // comportement demande) : "touche" = au moins une sous-question de ce
-    // bloc a deja une reponse (compteurBlocERIP().complet > 0), meme
-    // signal que le badge "a completer/complete" deja affiche -- jamais
-    // une detection de champ dossier reinventee ici. Edge-triggered (une
-    // seule fois) : un manque de re-imposer l'etat a chaque rendu, sinon
-    // impossible de refermer/rouvrir manuellement par la suite.
+    // -- voir _decouverteCascadeParcoursFaite plus haut) : "touche" = au
+    // moins une sous-question de ce bloc a deja une reponse
+    // (compteurBlocERIP().complet > 0), meme signal que le badge
+    // "a completer/complete" deja affiche -- jamais une detection de champ
+    // dossier reinventee ici. Edge-triggered (une seule fois), n'OUVRE que
+    // les bandeaux suivants pour qu'ils soient visibles sans clic
+    // supplementaire. TACHE (Paquet B, decision de Denis 2026-09-26) : les
+    // 2 fermetures automatiques que ce mecanisme imposait ici (Vous/Parcours
+    // au 1er repondu de "Ce que vous avez appris ailleurs", ce dernier au 1er
+    // repondu de "Complements") sont retirees -- plus aucun bloc ne se
+    // referme sans un clic explicite de la personne sur son titre.
     if (!_decouverteCascadeParcoursFaite && compteurBlocERIP(CONFIG_BLOC_PARCOURS).complet > 0) {
       etatBlocsERIPOuverts['experiences-perso'] = true;
       etatBlocsERIPOuverts.complements = true;
       _decouverteCascadeParcoursFaite = true;
-    }
-    if (!_decouverteCascadeExperiencesPersoFaite && compteurBlocERIP(CONFIG_BLOC_EXPERIENCES_PERSO).complet > 0) {
-      etatBlocsERIPOuverts.vous = false;
-      etatBlocsERIPOuverts.parcours = false;
-      _decouverteCascadeExperiencesPersoFaite = true;
-    }
-    if (!_decouverteCascadeComplementsFaite && compteurBlocERIP(CONFIG_BLOC_COMPLEMENTS).complet > 0) {
-      etatBlocsERIPOuverts['experiences-perso'] = false;
-      _decouverteCascadeComplementsFaite = true;
     }
     return {
       titre: '📋 Vos informations',
@@ -2183,7 +2173,18 @@ function ouvrirDecouverteCompetences() {
         // distingue "rester sur l'import" de "avancer vers la relecture",
         // exactement comme pageResultats() le fait avec ses 2 rectangles
         // (panneauEtapeAction), jamais un mecanisme different.
+        // Depuis le 2026-09-30, les propositions de l'assistant s'appliquent des l'import (ouvrirRelectureIACV) : l'etape 13 n'est plus
+        // atteinte. Un import abouti (compteur incremente) termine donc le parcours ici, apres que l'application ait fini son travail
+        // (report d'un tour de boucle : l'import rappelle aussi le rerender apres onValider, et lance l'optimisation ensuite).
+        var compteVu = _compteRelecturesAutoAppliquees, terminaisonPlanifiee = false;
         wireImportIA('cv', function () {
+          if (_compteRelecturesAutoAppliquees !== compteVu) {
+            if (!terminaisonPlanifiee) {
+              terminaisonPlanifiee = true;
+              setTimeout(function () { terminerParcoursDecouverte(); }, 0);
+            }
+            return;
+          }
           afficherEtape(etatAccordeon['relecture-ia'] ? 13 : 12);
         }, 'relecture-ia');
       }

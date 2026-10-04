@@ -352,8 +352,33 @@ function ouvrirRegardRecruteur() {
     return String(nom || 'cv').replace(/\.[a-z0-9]+$/i, '') + '-masque.png';
   }
 
+  // Bloc numerote toujours ouvert a l'arrivee, seul un clic de la personne le
+  // referme (decision Denis 2026-09-29, ouvertBlocDepliManuel dans data/metiers.js).
+  function _rrOuvert(cle) {
+    var ouvert = (typeof ouvertBlocDepliManuel === 'function') ? ouvertBlocDepliManuel(etat, cle, true) : true;
+    return ouvert ? ' open' : '';
+  }
+
+  // Panneau Candidature partage (2026-09-29) : metier ou domaine, offre,
+  // entreprise, site et type de structure vivent dans les champs globaux ;
+  // on les recopie dans etat.ciblage (sauvegarde disquette, prompt).
+  function _rrLireCiblageGlobal() {
+    var rc = (typeof dossier !== 'undefined' && dossier && dossier.rechercheCandidature) || {};
+    etat.ciblage = etat.ciblage || {};
+    // « Domaine visé (pas un métier précis) : X » quand la personne vise un domaine
+    // sans métier (voir contexteCandidaturePourAnalyse dans js/app.js).
+    var cible = (typeof contexteCandidaturePourAnalyse === 'function') ? (contexteCandidaturePourAnalyse().cible || '') : '';
+    etat.ciblage.posteVise = cible.replace(/^Métier visé : /, '');
+    etat.ciblage.entrepriseCiblee = (typeof entrepriseCibleActuelle === 'function' ? entrepriseCibleActuelle() : '') || null;
+    etat.ciblage.siteEntreprise = (typeof siteCibleActuel === 'function' ? siteCibleActuel() : '') || null;
+    etat.ciblage.offreEmploi = rc.texteOffre || rc.lienOffre || null;
+    etat.ciblage.typeStructure = rc.typeStructure || null;
+    etat.ciblage.typeStructureAutre = null;
+  }
+
   // Construit le texte du prompt a partir du contexte courant.
   function construireTexteAssistant() {
+    _rrLireCiblageGlobal();
     var dep = {};
     if (typeof promptsExternesCharges !== 'undefined' && promptsExternesCharges['regard-recruteur']) {
       dep.template = promptsExternesCharges['regard-recruteur'];
@@ -417,7 +442,7 @@ function ouvrirRegardRecruteur() {
       : '';
 
     var bloc1 =
-      '<details class="rr-bloc" open>' +
+      '<details class="rr-bloc" id="rrBloc1"' + _rrOuvert('rrBloc1') + '>' +
       '<summary><span class="rr-num">1</span> L’image de votre CV <span class="rr-pilule bleu">Fortement conseillé</span></summary>' +
       '<div class="rr-bloc-corps">' +
       '<p>Un regard sur mon CV s’appuie sur une <strong>image</strong> de votre CV, pas seulement le texte : c’est ce qui permet de parler de la mise en page, des couleurs, de l’aération. Sans image, une lecture plus courte reste possible (voir ci-dessous).</p>' +
@@ -439,7 +464,7 @@ function ouvrirRegardRecruteur() {
       ? '<div class="rr-encart warn"><span>&#9888;&#65039;</span><span>Vous avez déposé une image : ce dépôt-ci ne sait pas la garder pour l’outil de masquage du module. Pour une lecture qui regarde aussi la présentation, utilisez plutôt <strong>Revenir au mode image</strong> ci-dessous. En Mode texte, déposez un texte, un PDF ou un Word.</span></div>'
       : '';
     var bloc1Texte =
-      '<details class="rr-bloc" open>' +
+      '<details class="rr-bloc" id="rrBloc1"' + _rrOuvert('rrBloc1') + '>' +
       '<summary><span class="rr-num">1</span> Le texte de votre CV <span class="rr-pilule bleu">Mode texte</span></summary>' +
       '<div class="rr-bloc-corps">' +
       '<p>En Mode texte, la lecture porte sur le <strong>contenu</strong> de votre CV : la première impression, le message qu’il renvoie, les questions d’entretien. Pas d’avis sur la mise en page ni les couleurs (cela demande une image).</p>' +
@@ -469,9 +494,10 @@ function ouvrirRegardRecruteur() {
         if (document.getElementById('rrBtnMasquerImages')) { afficherVue('preparer'); }
       }, 10000);
     }
+    if (typeof amorcerPanneauCandidaturePartage === 'function') { amorcerPanneauCandidaturePartage(etat); }
     var pulseMasquerActif = !toutesMasq && _rrPulseMasquerJusquA !== null && Date.now() < _rrPulseMasquerJusquA;
     var bloc2Image =
-      '<details class="rr-bloc"' + (img.length && !toutesMasq ? ' open' : '') + '>' +
+      '<details class="rr-bloc" id="rrBloc2"' + _rrOuvert('rrBloc2') + '>' +
       '<summary><span class="rr-num">2</span> Masquer ce qui est personnel <span class="rr-pilule bleu">Obligatoire</span>' +
       (toutesMasq ? '<span class="rr-etat ok">Fait</span>' : '') + '</summary>' +
       '<div class="rr-bloc-corps">' +
@@ -486,13 +512,15 @@ function ouvrirRegardRecruteur() {
       '</div></details>';
 
     var bloc3 =
-      '<details class="rr-bloc"' + (prepImagePrete() ? ' open' : '') + '>' +
+      '<details class="rr-bloc" id="rrBloc3"' + _rrOuvert('rrBloc3') + '>' +
       '<summary><span class="rr-num">3</span> Le poste, l’entreprise, son site <span class="rr-pilule bleu">Facultatif · conseillé</span></summary>' +
       '<div class="rr-bloc-corps">' +
-      '<p>Le poste visé et l’offre aident l’assistant à repérer ce qu’un recruteur de <strong>ce</strong> poste regarderait en premier.</p>' +
-      '<div class="mb-3"><label class="form-label small fw-bold">Poste ou métier visé</label>' +
-      '<input type="text" class="form-control form-control-sm" data-rr-poste value="' + _rrEchapAttr(etat.ciblage.posteVise || '') + '" placeholder="Ex. Agent d’accueil"></div>' +
-      '<div id="rrBlocCiblage">' + (typeof bilanCorpsCiblageOffreHTML === 'function' ? bilanCorpsCiblageOffreHTML() : '') + '</div>' +
+      '<p>Le métier visé et l’offre aident l’assistant à repérer ce qu’un recruteur de <strong>ce</strong> poste regarderait en premier. Si vous avez une offre, le métier peut rester vide : l’assistant le déduit de l’offre.</p>' +
+      // Panneau Candidature partage (2026-09-29, DECISION DE DENIS) : metier ou
+      // domaine, offre, entreprise, site, type de structure ; ecrit dans les
+      // champs globaux, relus par _rrLireCiblageGlobal().
+      '<div id="rrBlocCiblage">' + (typeof htmlPanneauCandidaturePartage === 'function'
+        ? htmlPanneauCandidaturePartage({ projet: false, sansCiviliteCouleur: true, sansSituation: true }) : '') + '</div>' +
       '<div class="rr-carte-plat">' +
       '<strong>&#127912; Le site internet de l’entreprise</strong>' +
       '<p class="rr-detail" style="margin-top:.3rem;">Votre CV ne contient que le nom de l’entreprise. Si vous ajoutez son <strong>site internet</strong> (champ ci-dessus), l’assistant peut y voir ses couleurs dominantes et vous dire si votre CV les reprend. <strong>Sans le site, pas d’avis sur ce point.</strong> Ce n’est jamais une obligation.</p>' +
@@ -500,7 +528,7 @@ function ouvrirRegardRecruteur() {
       '</div></details>';
 
     return '<div class="regard-recruteur-preparer">' +
-      '<p class="rr-accroche">On rassemble ici tout ce dont la lecture a besoin. Les parties sont <strong>fermées, sauf la première</strong> ; le bouton du bas s’active quand ' +
+      '<p class="rr-accroche">On rassemble ici tout ce dont la lecture a besoin. Les parties restent <strong>ouvertes</strong> tant que vous ne les refermez pas ; le bouton du bas s’active quand ' +
       (etat.modeTexte ? 'le texte de votre CV est relu et masqué' : 'l’image de votre CV est prête') + '.</p>' +
       (etat.modeTexte ? bloc1Texte : bloc1) +
       (etat.modeTexte ? '' : bloc2Image) +
@@ -517,6 +545,17 @@ function ouvrirRegardRecruteur() {
     var z = document.getElementById('rrContenu');
     if (!z) { return; }
 
+    // Point 3 desactive tant que l'image (ou le texte) du CV n'est pas prete
+    // (decision Denis 2026-09-29) ; le masquage (point 2) l'est tant qu'il n'y
+    // a pas d'image.
+    if (typeof appliquerVerrouBlocs === 'function') {
+      appliquerVerrouBlocs([
+        { id: 'rrBloc2', actif: etat.images.length > 0, message: 'Ajoutez d’abord une image de votre CV (partie 1) : ce point s’active ensuite.' },
+        { id: 'rrBloc3', actif: prepImagePrete(), message: etat.modeTexte
+          ? 'Déposez, relisez et enregistrez d’abord le texte de votre CV (partie 1) : ce point s’active ensuite.'
+          : 'Ajoutez d’abord votre CV en image et masquez ce qui est personnel (parties 1 et 2) : ce point s’active ensuite.' }
+      ]);
+    }
     var champFichier = z.querySelector('[data-rr-ajouter-images]');
     if (champFichier) {
       champFichier.addEventListener('change', function () {
@@ -563,45 +602,20 @@ function ouvrirRegardRecruteur() {
       b.addEventListener('click', function () { afficherVue(this.dataset.rrAller); });
     });
 
-    var champPoste = z.querySelector('[data-rr-poste]');
-    if (champPoste) {
-      champPoste.addEventListener('input', function () { etat.ciblage.posteVise = this.value; });
+    // Panneau Candidature partage : les donnees sont dans les champs globaux
+    // (aucun champ a relire dans le DOM), recopiees dans etat.ciblage au clic.
+    if (typeof wirePanneauCandidaturePartage === 'function') {
+      wirePanneauCandidaturePartage(function () { afficherVue('preparer'); }, { projet: false, sansSituation: true });
     }
-    var blocCiblage = document.getElementById('rrBlocCiblage');
-    var lireCiblageDansEtat = function () {
-      if (!blocCiblage || typeof bilanLireCiblageOffre !== 'function') { return; }
-      var lu = bilanLireCiblageOffre(blocCiblage);
-      etat.ciblage.entrepriseCiblee = lu.entrepriseCiblee;
-      etat.ciblage.siteEntreprise = lu.siteEntreprise;
-      etat.ciblage.offreEmploi = lu.offreEmploi;
-      etat.ciblage.typeStructure = lu.typeStructure;
-      etat.ciblage.typeStructureAutre = lu.typeStructureAutre;
-    };
-    if (blocCiblage && typeof bilanCablerCiblageOffre === 'function') {
-      // bilanCorpsCiblageOffreHTML() pre-remplit depuis `dossier`, jamais
-      // depuis notre etat : on re-injecte les valeurs deja saisies dans ce
-      // module (persistance a travers un aller-retour preparer <-> masquer).
-      var c = etat.ciblage || {};
-      var mettre = function (id, v) { var el = blocCiblage.querySelector('#' + id); if (el && v) { el.value = v; } };
-      mettre('ciblageEntreprise', c.entrepriseCiblee);
-      mettre('ciblageSite', c.siteEntreprise);
-      mettre('ciblageOffre', c.offreEmploi);
-      if (c.typeStructure) {
-        var sel = blocCiblage.querySelector('#ciblageTypeStructure');
-        if (sel) { sel.value = c.typeStructure; }
-        if (c.typeStructure === 'Autre') {
-          var aut = blocCiblage.querySelector('#ciblageTypeStructureAutre');
-          if (aut) { aut.style.display = ''; aut.value = c.typeStructureAutre || ''; }
-        }
-      }
-      bilanCablerCiblageOffre(blocCiblage, lireCiblageDansEtat);
-    }
+    ['rrBloc1', 'rrBloc2', 'rrBloc3'].forEach(function (idBloc) {
+      if (typeof cablerBlocDepliManuel === 'function') { cablerBlocDepliManuel(etat, idBloc, idBloc); }
+    });
 
     var btnAssistant = document.getElementById('rrBtnVersAssistant');
     if (btnAssistant) {
       btnAssistant.addEventListener('click', function () {
         if (!prepImagePrete()) { return; }
-        lireCiblageDansEtat();
+        _rrLireCiblageGlobal();
         afficherVue('choix-assistant');
       });
     }
@@ -769,6 +783,7 @@ function ouvrirRegardRecruteur() {
         ? htmlChoixAssistantBilanCorps({
           idErreur: 'rrErreurChoixIA',
           attrAssistant: 'data-assistant-regard-recruteur',
+          recapContexte: ['cible', 'offre', 'entreprise', 'structure'],
           etapes: etapes,
           texteConfidentialite: 'Vous avez masqué vous-même votre nom, votre photo et vos coordonnées' + (etat.modeTexte ? ' dans le texte' : ' sur l’image') + '. Rien d’autre n’est envoyé.'
         })

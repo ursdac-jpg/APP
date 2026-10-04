@@ -43,8 +43,19 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
   });
   var aDesGroupesRegroupement = (recoRegroupement.groupes || []).length > 0;
   var regroupementUtilisable = !!(aUneRetenueRegroupement || aDesGroupesRegroupement);
+  // TACHE (phase 5.2, galerie de modeles) : les 5 modeles Creatif reels
+  // (sur les 11 de _PDF_CREATIF_RECETTES) retenus pour la galerie visible,
+  // decision Denis (RECOMMANDATIONS_PHASE1_MISE_EN_PAGE_PDF_2026-09-21.md
+  // § 5 bis). "Colonne et frise" (le 6e, construit le 2026-09-23 -- voir
+  // _pdfConstruireFrise(), cvPdfTemplateA4.js) rejoint desormais les 5
+  // autres. Les 5 modeles reels restants restent atteignables par "Un
+  // autre modele" (tirage aleatoire existant, _pdfProposerAutreModeleCreatif),
+  // jamais retires du code.
+  // TACHE (Denis, 2026-09-25, tranche 2) : TOUS les modeles (maquette + application) ont leur bouton cache.
+  var _PDF_GALERIE_CREATIF_IDS = ['mqBandeau', 'mqDiagonale', 'mqColonne', 'mqCadre', 'mqPicto', 'frise', 'photoFrise', 'rectangles', 'sidebarVague', 'rubanDiagonal', 'duoOvale', 'cadreBarre', 'pastille', 'bandeauVertical', 'triangleSavoir', 'vagueMarine', 'diagonalesContrastees', 'losangeVert', 'medaillon'];
   return '<!DOCTYPE html>' +
-'<html lang="fr"><head><meta charset="UTF-8"><title>CV design (PDF) - ' + _pdfEscaperHtml(nomComplet) + '</title>' +
+// Le titre de la page devient le nom propose a l'enregistrement en PDF : « NOM_poste » (retour Denis 2026-10-01, cv-core/identiteFormat.js).
+'<html lang="fr"><head><meta charset="UTF-8"><title>' + _pdfEscaperHtml((typeof nomFichierCV === 'function') ? nomFichierCV(dossierSource) : ('CV design (PDF) - ' + nomComplet)) + '</title>' +
 '<style id="styleChrome">' +
 '  * { box-sizing: border-box; }' +
 '  body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: #e9e9e9; display: flex; height: 100vh; overflow: hidden; }' +
@@ -168,7 +179,13 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  .champ-reglage input[type="color"] { width: 100%; height: 28px; border: none; border-radius: 4px; padding: 0; background: none; }' +
 '  .ligne-couleurs { display: flex; gap: 8px; }' +
 '  .ligne-couleurs .champ-reglage { flex: 1; }' +
-'  .bouton-imprimer { width: 100%; margin-top: 16px; padding: 10px; border: none; border-radius: 6px; background: #2f6690; color: #fff; font-size: 14px; cursor: pointer; }' +
+// TACHE (chantier refonte "La mise en page" du CV, phase 5.1, cahier
+// docs/CHANTIER_REFONTE_MISE_EN_PAGE_PDF_2026-09-21.md § 4 "Panneau et
+// exportation" -- "Imprimer / Enregistrer en PDF" retire du panneau,
+// l'enregistrement se fait desormais a "Valider le CV > Exporter") :
+// bouton masque (jamais retire du DOM -- Exporter le cible encore par
+// .querySelector('.bouton-imprimer') puis .click(), js/app.js).
+'  .bouton-imprimer { display: none; width: 100%; margin-top: 16px; padding: 10px; border: none; border-radius: 6px; background: #2f6690; color: #fff; font-size: 14px; cursor: pointer; }' +
 '  .bouton-imprimer:hover { filter: brightness(1.15); }' +
 '  .bouton-mise-en-page { width: 100%; padding: 9px; border: 1px solid #555; border-radius: 6px; background: #333; color: #fff; font-size: 13px; cursor: pointer; }' +
 '  .bouton-mise-en-page:hover { background: #3d3d3d; }' +
@@ -255,6 +272,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // apercu/mode normal ne doivent jamais afficher ce curseur/contour). Pas
 // de style de curseur "grab"/drag ici (deja neutralise en ne branchant
 // plus _pdfActiverGlisserDeposer du tout dans ce mode, voir _pdfRafraichir()).
+'  #conteneurPage [data-vide] { display: none !important; }' +
 '  body.mode-edition-texte #conteneurPage [data-edit-id] { cursor: text; }' +
 '  body.mode-edition-texte #conteneurPage [data-edit-id]:hover { outline: 1px dashed rgba(47,102,144,0.6); outline-offset: 2px; }' +
 '  body.mode-edition-texte #conteneurPage [data-edit-id][contenteditable="true"] { outline: 2px solid var(--degrade-debut, #2f6690); outline-offset: 2px; background: rgba(47,102,144,0.06); }' +
@@ -289,7 +307,18 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // TACHE (retour utilisateur 2026-09-15, meme raisonnement exact que
 // juste au-dessus pour la nouvelle poignee de largeur de colonnes) :
 // meme classe qui vit dans .zone-apercu.
-'    .poignee-redim-largeur-colonnes { display: none; }' +
+// TACHE (retour Denis 2026-09-21 : une barre grise verticale apparaissait
+// entre les colonnes dans le PDF enregistre, bug reel confirme) : cause =
+// specificite CSS. cvPdfTemplateA4.js pose `body.mode-grand-apercu
+// .poignee-redim-largeur-colonnes { display: block }` (specificite 0,2,1)
+// pour montrer la poignee dans le grand apercu ; la regle d'impression
+// ci-dessus (`.poignee-redim-largeur-colonnes`, specificite 0,1,0) perdait
+// donc toujours, et la poignee etait imprimee quand on enregistrait depuis
+// le grand apercu. Les 3 autres poignees n'ont pas cette regle plus
+// specifique, d'ou le seul cas de la largeur de colonnes. !important +
+// selecteur au moins aussi specifique : impossible a battre en impression.
+'    body .poignee-redim-largeur-colonnes, body.mode-grand-apercu .poignee-redim-largeur-colonnes { display: none !important; }' +
+'    body.mode-edition-texte #conteneurPage [data-edit-id], body.mode-edition-texte #conteneurPage [contenteditable] { outline: none !important; background: none !important; }' +
 '  }' +
 '</style>' +
 '<style id="styleCv"></style>' +
@@ -368,6 +397,23 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // bas) -- les 2 visent des effets contraires, aucun sens a les cumuler.
 '<button type="button" class="carte-outil-pdf" id="btnCreatifPdf" title="Colonne colorée en bande, formes arrondies, icônes et pastilles -- un CV plus visuel, pensé pour les secteurs créatifs/communication."><span class="icone-outil">🎨</span><span id="libelleCreatifPdf">CV Créatif</span></button>' +
 '<input type="checkbox" id="regCreatifActif" style="display:none">' +
+// TACHE (chantier refonte "La mise en page", phase 5.2, galerie de
+// modeles reels -- docs/CHANTIER_REFONTE_MISE_EN_PAGE_PDF_2026-09-21.md
+// § 6, docs/RECOMMANDATIONS_PHASE1_MISE_EN_PAGE_PDF_2026-09-21.md § 5 bis
+// "Proposition de galerie", validee par Denis) : boutons CACHES (jamais
+// montres a la personne -- memes convention exacte que regSobreActif/
+// regCreatifActif juste au-dessus), un par modele de la galerie, pour
+// que le panneau parent (construireMiseEnPageCV(), js/app.js) puisse
+// choisir un modele PRECIS par programme (meme mecanisme _mepClicMoteur
+// deja utilise partout ailleurs pour parler a cette iframe -- jamais un
+// 2e canal de communication invente). _pdfChoisirModeleCreatif()/
+// _pdfChoisirVarianteSobre() (plus bas) font le vrai travail.
+_PDF_GALERIE_CREATIF_IDS.map(function (id) {
+  return '<button type="button" id="pdfChoisirCreatif_' + id + '" style="display:none" onclick="_pdfChoisirModeleCreatif(\'' + id + '\')"></button>';
+}).join('') +
+['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles'].map(function (v) {
+  return '<button type="button" id="pdfChoisirSobre_' + v + '" style="display:none" onclick="_pdfChoisirVarianteSobre(\'' + v + '\')"></button>';
+}).join('') +
 '</div>' +
 // TACHE (retour utilisateur : "Mise en page seul en bas") : rangee
 // dediee, un seul bouton -- .carte-outil-pdf grandit tout seul jusqu'a
@@ -456,10 +502,11 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // Actif en A4 ET en A5 (le tri ne depend pas de l\'espace disponible).
 '<div class="champ-reglage" style="margin-top:10px;"><label>Ordre d\'affichage des expériences</label><select id="regOrdreExperiences">' +
 '<option value="pertinence">Pertinence (ordre recommandé)</option>' +
-'<option value="date-desc">Date (plus récent d\'abord)</option>' +
+'<option value="date-desc" selected>Date (plus récent d\'abord)</option>' +
 '<option value="date-asc">Date (plus ancien d\'abord)</option>' +
 '<option value="poste-asc">Intitulé de poste (A→Z)</option>' +
 '<option value="poste-desc">Intitulé de poste (Z→A)</option>' +
+'<option value="mien">Mon ordre</option>' +
 '</select></div>' +
 // TACHE (retour utilisateur : "je puisse facilement identifier le poste,
 // la date et l'entreprise -- lisible et clair") : 2e forme d\'affichage,
@@ -480,7 +527,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '<h3>Mise en page</h3>' +
 '<div class="contenu-accordeon">' +
 '<div id="sectionA4SeulementMiseEnPage">' +
-'<div class="champ-reglage"><label>Colonnes</label><select id="regColonnes"><option value="2">2 colonnes</option><option value="1">1 colonne</option></select></div>' +
+'<div class="champ-reglage"><label>Colonnes</label><select id="regColonnes"><option value="2">2 colonnes</option><option value="1" selected>1 colonne</option></select></div>' +
 // TACHE (retour utilisateur : "si la personne met en avant la rubrique
 // Formation comme point fort, toutes les formations/certifications
 // restent visibles, la plus pertinente est developpee -- meme sans
@@ -522,7 +569,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '<div class="champ-reglage" id="sectionA4SeulementCouleurFin"><label>Accent (clair)</label><input type="color" id="regCouleurFin" value="#d9e8f2"></div>' +
 '</div>' +
 '<div id="sectionA4SeulementFondColonnes">' +
-'<div class="champ-reglage"><label>Fond des colonnes</label><select id="regFondColonnes"><option value="droite">Droite</option><option value="gauche">Gauche</option><option value="lesDeux">Les deux</option><option value="aucun">Aucun</option></select></div>' +
+'<div class="champ-reglage"><label>Fond des colonnes</label><select id="regFondColonnes"><option value="droite">Droite</option><option value="gauche">Gauche</option><option value="lesDeux">Les deux</option><option value="aucun" selected>Aucun</option></select></div>' +
 '<div class="champ-reglage"><label>Effet du fond des colonnes</label><select id="regFondColonnesEffet"><option value="fondSeul">Fond plein</option><option value="titres">Titres seulement</option></select></div>' +
 '<div class="champ-reglage"><label>Dégradé des colonnes</label><select id="regDegradeColonnes"><option value="fonce-clair">Foncé → clair</option><option value="clair-fonce">Clair → foncé</option><option value="aucun">Couleur unie</option></select></div>' +
 // TACHE (retour utilisateur : "le fond de colonne, sa couleur, je veux
@@ -574,7 +621,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '<h3>En-tête</h3>' +
 '<div class="contenu-accordeon">' +
 '<div id="sectionA4SeulementEnTete">' +
-'<div class="champ-reglage case"><input type="checkbox" id="regBandeauEnTete" checked><label for="regBandeauEnTete">Bandeau en-tête coloré</label></div>' +
+'<div class="champ-reglage case"><input type="checkbox" id="regBandeauEnTete"><label for="regBandeauEnTete">Bandeau en-tête coloré</label></div>' +
 '<div class="champ-reglage"><label>Forme de l\'en-tête</label><select id="regFormeEnTete"><option value="rectangle">Rectangle</option><option value="diagonale">Diagonale</option></select></div>' +
 '<div class="champ-reglage"><label>Dégradé du bandeau</label><select id="regDegradeBandeau"><option value="fonce-clair">Foncé → clair</option><option value="clair-fonce">Clair → foncé</option><option value="aucun">Couleur unie</option></select></div>' +
 '<div class="champ-reglage case"><input type="checkbox" id="regBandeauDisponibilite"><label for="regBandeauDisponibilite">Bandeau coordonnées à part</label></div>' +
@@ -641,6 +688,8 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // par un gros point « · », jamais de point final (voir cvPdfTemplateA4.js).
 '<div class="champ-reglage"><label>Missions (Expériences)</label><select id="regStyleProfessionnel"><option value="epure">Épuré (1 mission par ligne)</option><option value="condense">Condensé (missions à la suite)</option></select></div>' +
 '<div class="champ-reglage"><label>Missions (Expérience personnelle)</label><select id="regStylePersonnel"><option value="epure">Épuré (1 mission par ligne)</option><option value="condense">Condensé (missions à la suite)</option></select></div>' +
+'<div class="champ-reglage"><label>Missions (Formations)</label><select id="regStyleFormations"><option value="epure">Épuré (1 mission par ligne)</option><option value="condense">Condensé (missions à la suite)</option></select></div>' +
+'<div class="champ-reglage"><label>Signe entre les missions condensées</label><select id="regSeparateurMissions"><option value="pointvirgule">Point-virgule ;</option><option value="pointmedian">Point médian ·</option><option value="rond">Rond ●</option><option value="carre">Carré ■</option><option value="losange">Losange ◆</option><option value="barre">Barre |</option></select></div>' +
 // TACHE (retour utilisateur : "souligner le poste, les dates,
 // l'entreprise... et pareil pour l'italique") : 3 reglages GLOBAUX
 // (jamais par item individuel -- les experiences n'ont pas d'identifiant
@@ -686,8 +735,8 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // besoin d'un reglage de coordination supplementaire ici.
 '<div class="champ-reglage case"><input type="checkbox" id="regIconesCoordonnees"><label for="regIconesCoordonnees">✉️ Icônes coordonnées</label></div>' +
 '<div class="champ-reglage"><label>Police</label><select id="regPolice">' +
-'<option value="segoe">Segoe UI (par défaut)</option>' +
-'<option value="arial">Arial</option>' +
+'<option value="segoe">Segoe UI</option>' +
+'<option value="arial" selected>Arial (recommandée)</option>' +
 '<option value="calibri">Calibri</option>' +
 '<option value="tahoma">Tahoma</option>' +
 '<option value="trebuchet">Trebuchet MS</option>' +
@@ -739,7 +788,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // a chaque appel (voir son propre commentaire dans app.js) -- pas besoin
 // d'un window.parent.pageResultats() en plus, qui rebatirait inutilement
 // toute la page en dessous de cette fenetre plein ecran.
-'<button type="button" class="bouton-imprimer" onclick="if(window.parent&&window.parent.trackEvenement){window.parent.trackEvenement(\'cv_telecharge\',{format:\'pdf\'});} if(window.parent&&window.parent.marquerDocumentEnregistre){window.parent.marquerDocumentEnregistre(\'cv\');} window.print();">Imprimer / Enregistrer en PDF</button>' +
+'<button type="button" class="bouton-imprimer" onclick="if(window.parent&&window.parent.trackEvenement){window.parent.trackEvenement(\'cv_telecharge\',{format:\'pdf\'});} if(window.parent&&window.parent.marquerDocumentEnregistre){window.parent.marquerDocumentEnregistre(\'cv\');} _pdfImprimerAvecNom();">Imprimer / Enregistrer en PDF</button>' +
 '</div>' +
 
 // TACHE (retour utilisateur : "les boutons doivent etre en contact ou sur
@@ -888,6 +937,220 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // CONTENU, pas un style visuel) -- seul "Reinitialiser" le remet a null.
 'var _cvPdfOrdrePersonnalise = null;' +
 'var _cvPdfElementGlisse = null;' +
+// TACHE (chantier refonte "La mise en page", phase 5.4 -- carte
+// "Experiences professionnelles" de la maquette, Denis 2026-09-23 : "il
+// fallait l'implementer aussi") : le vrai moteur (composeurComposition.js)
+// decidait JUSQU'ICI seul, en automatique, quelles experiences et
+// combien de missions montrer -- aucun controle manuel n'existait. Ces
+// variables portent les choix manuels de la personne, jamais touchees
+// par le style aleatoire (ce sont des choix de CONTENU, pas de style --
+// meme regle que _cvPdfOrdrePersonnalise juste au-dessus). null/vide =
+// comportement automatique inchange (zero regression pour qui ne touche
+// a rien).
+// - _cvPdfModePresentation : 'A' (chronologique, defaut) | 'B' (mixte,
+//   competences groupees + historique complet) | 'C' (par competences
+//   seul) -- memes 3 valeurs EXACTES que la maquette (S.presentation).
+'var _cvPdfModePresentation = "A";' +
+// - _cvPdfExperiencesTout : null (jamais touche -- comportement
+//   AUTOMATIQUE inchange, le moteur garde sa propre decision) | 'toutes'
+//   | 'pertinentes'. PAS "toutes" par defaut (meme si c'est la valeur
+//   pre-cochee dans la maquette) : remplacer contenu.experiences (deja
+//   decide par le moteur) par objetCV.experiences (brut) pourrait
+//   differer subtilement (ordre, cas limites) meme quand le resultat
+//   VISIBLE est cense etre identique -- reserve donc a un choix
+//   EXPLICITE de la personne, jamais applique en silence a qui n\'a
+//   jamais ouvert cette carte.
+'var _cvPdfExperiencesTout = "toutes";' +
+// - _cvPdfExperiencesChoisies : Set d'index (dans objetCV.experiences,
+//   la liste BRUTE complete -- jamais contenu.experiences, deja tronquee
+//   par le moteur) choisis par la personne quand "pertinentes" est actif.
+//   null = pas encore initialise (rempli au 1er passage avec les plus
+//   pertinentes, meme logique que S.sel de la maquette).
+'var _cvPdfExperiencesChoisies = null;' +
+// - _cvPdfMissionsParExperience : { index: nombre } -- nombre de missions
+//   VOULU pour CETTE experience, ecrase le nombre global (voir plus bas)
+//   pour cette experience seulement. Absent = suit le nombre global.
+'var _cvPdfMissionsParExperience = {};' +
+// - _cvPdfMissionsChoisies : { index: [indices de missions] } -- quand la
+//   personne choisit des missions PRECISES (pas juste un nombre) pour une
+//   experience, via "Choisir" dans le panneau. Absent = les N premieres
+//   missions (par pertinence) sont prises, pas un choix precis.
+'var _cvPdfMissionsChoisies = {};' +
+// - _cvPdfMissionsGlobal : nombre de missions VOULU pour toutes les
+//   experiences sans reglage individuel (1 a 10, meme plage que la
+//   maquette S.missions). null = jamais touche -- comportement
+//   AUTOMATIQUE inchange (le moteur garde sa propre troncature), zero
+//   regression pour qui ne touche jamais a ce reglage. Ne devient un
+//   nombre reel (4 par defaut, comme la maquette) qu\'au 1er clic sur
+//   +/-, voir _pdfDefinirMissionsGlobal plus bas.
+'var _cvPdfMissionsGlobal = null;' +
+// - _cvPdfAfficherLieu / _cvPdfStyleLieu : le lieu d\'une experience
+//   (e.lieu) est deja TOUJOURS affiche aujourd\'hui des qu\'il existe, en
+//   texte SANS style particulier (_pdfEntrepriseAvecLieu, cvPdfTemplateA4.js,
+//   aucun reglage) -- ajoute ici la possibilite de le masquer et de
+//   choisir son style, comme la maquette (S.lieu/S.lieuStyle). Defaut
+//   "normal" (PAS "italique" comme la maquette) : zero regression pour
+//   qui ne touche jamais a ce reglage -- le style italique par defaut de
+//   la maquette est un choix VISUEL neuf, a activer soi-meme.
+'var _cvPdfAfficherLieu = true;' +
+// LOT 3.5 : qualites attendues pour le poste visé (assistant) : COCHE par defaut ; decocher les retire du CV et de « Choisir ».
+'var _cvPdfQualitesMetierActives = true;' +
+// Cases « Afficher les competences professionnelles / comportementales » : cochees par defaut, decochees = rubrique retiree du CV.
+'var _cvPdfAfficherCompPro = true;' +
+'var _cvPdfAfficherCompComp = true;' +
+'var _cvPdfStyleLieu = "italique";' +
+// - _cvPdfPositionDates : 'droite' (defaut, comportement actuel) | 'sous'
+//   | 'avant' -- meme 3 valeurs que la maquette (S.dates).
+'var _cvPdfPositionDates = "droite";' +
+'var _cvPdfPositionDatesChoisie = false;' +
+// Retour Denis 2026-09-30 : position des dates des formations et de l'experience personnelle. Par defaut (alignees) elles suivent celle des
+// experiences professionnelles ; dissociees, chaque rubrique a la sienne ("" = celle du modele, comme avant).
+'var _cvPdfDatesAlignees = true;' +
+'var _cvPdfPositionDatesFormations = "";' +
+'var _cvPdfPositionDatesPerso = "";' +
+// TACHE (chantier "Experience personnelle", 2026-09-27, DECISION DE DENIS :
+// "meme comportement, aucune distinction de source" entre savoir-faire
+// personnel (objetCV.experiencesPersonnelles) et engagements
+// (objetCV.engagements) -- memes 3 variables EXACTES que les experiences
+// pro juste au-dessus (_cvPdfExperiencesTout/Choisies/MissionsPar...), mais
+// la CLE n\'est pas un index (2 tableaux sources distincts, jamais un
+// index commun) -- c\'est le texte normalise de l\'item (intitule ou texte,
+// voir _pdfCleExpPerso, cvPdfTemplateA4.js), stable tant que la personne ne
+// modifie pas l\'intitule dans "Vos informations". Synchronisee AVEC
+// Expériences professionnelles pour la presentation (dates/missions/lieu) :
+// aucune variable de style dediee ici, cette carte reutilise directement
+// _cvPdfPositionDates/_cvPdfStyleLieu/etc. ci-dessus (decision de Denis
+// 2026-09-27 : pas de bouton synchroniser/dissocier, toujours pareil).
+'var _cvPdfExpPersoTout = "toutes";' +
+'var _cvPdfExpPersoChoisies = null;' +
+// { cle: nombre } -- 0 = explicitement "sans mission" (presentation breve),
+// distinct de absent/null (comportement automatique du moteur).
+'var _cvPdfExpPersoMissionsParItem = {};' +
+// TACHE (retour Denis 2026-09-28, point 13 -- "je dois pouvoir choisir
+// laquelle mission je garde, pas juste combien") : meme mecanisme EXACT
+// que _cvPdfMissionsChoisies (experiences) plus haut, cle = texte normalise
+// de l\'item -- un choix PRECIS prime toujours sur le simple compteur.
+'var _cvPdfExpPersoMissionsChoisies = {};' +
+// TACHE (retour Denis 2026-09-28 : "je dois pouvoir changer l'intitule de
+// l'experience et ses missions, ajouter des missions a la main") : { cle:
+// { titre, missions } } -- ecrase l'affichage sur le CV UNIQUEMENT, ne
+// touche jamais dossier.experiencesPerso/engagements (source, "Vos
+// informations"). Quand "missions" est rempli, il remplace le texte ET le
+// plafond du curseur (l'utilisateur reprend la main a la place du curseur
+// automatique). Champ absent ou vide = comportement automatique inchange.
+'var _cvPdfExpPersoTexteParItem = {};' +
+// TACHE (retour Denis 2026-09-28, point 12, chantier "Citer / Developper") : "developper"
+// (comportement actuel, zero regression) ou "citer" (une simple enumeration des titres, jamais
+// les missions -- voir blocEngagements(), cvPdfTemplateMaquette.js).
+'var _cvPdfExpPersoModeAffichage = "citer";' +
+// TACHE (phase 5.3, carte "Formations" -- oFormMissions/rgEspForm) :
+// meme convention "jamais touche = comportement actuel" que
+// _cvPdfMissionsGlobal ci-dessus. Missions de formation : AUCUN reglage
+// n\'existait avant (toujours masquees, cvPdfTemplateA4.js) -- false est
+// donc a la fois le defaut de la maquette (oFormMissions decoche) ET le
+// comportement actuel, aucune divergence a gerer. Espacement : 4px
+// (valeur de depart de rgEspForm), deja la valeur codee en dur cote
+// gabarit -- 4 n\'est PAS traite comme "jamais touche" ici (deja un
+// nombre reel, pas de sentinelle null necessaire).
+// TACHE (P10, retour Denis 2026-09-28 : developper davantage les missions de
+// formation pour combler le vide du mode Mixte) : null = "jamais touche" --
+// l'affichage effectif suit alors le mode (active automatiquement en Mixte,
+// desactive dans les 2 autres, voir _pdfLireOptions ci-dessous) ; true/false
+// = choix EXPLICITE de la personne (bascule ou reglage d\'un compteur de
+// missions), qui prime alors sur le mode quel qu\'il soit.
+'var _cvPdfAfficherMissionsFormation = null;' +
+'var _cvPdfEspacementFormations = 4;' +
+// TACHE (chantier "Formations", 2026-09-28, DECISION DE DENIS : "toutes les
+// formations seront visibles et toutes les formations auront des missions",
+// meme comportement que la carte "Experience personnelle") : memes 3
+// variables EXACTES que _cvPdfExpPersoTout/Choisies/MissionsParItem, cle =
+// texte normalise de l\'intitule (_pdfCleFormation, cvPdfTemplateA4.js).
+'var _cvPdfFormationsTout = "toutes";' +
+'var _cvPdfFormationsChoisies = null;' +
+// { cle: nombre } -- 0 = explicitement "sans mission" (presentation breve).
+'var _cvPdfFormationsMissionsParItem = {};' +
+// TACHE (retour Denis 2026-09-28, point 13) : meme mecanisme EXACT que
+// _cvPdfExpPersoMissionsChoisies juste au-dessus, pour les formations.
+'var _cvPdfFormationsMissionsChoisies = {};' +
+// TACHE (retour Denis 2026-09-28) : meme mecanisme EXACT que
+// _cvPdfExpPersoTexteParItem ci-dessus, pour les formations.
+'var _cvPdfFormationsTexteParItem = {};' +
+// TACHE (phase 5.3, carte "Elements supplementaires" -- pasPro/pasComp) :
+// meme convention "jamais touche = comportement automatique inchange"
+// que _cvPdfMissionsGlobal (voir plus haut).
+'var _cvPdfCompetencesProMax = null;' +
+'var _cvPdfCompetencesComportementalesMax = null;' +
+// TACHE (phase 5.4, carte "Organisation du CV", cOrg -- Denis, 2026-09-23 :
+// "tout a ete deja cadre... reproduis a l'identique"). Defauts a false :
+// AUCUN de ces reglages n'existait avant ce jour (verifie par grep) --
+// false = comportement actuel exact (ordre par defaut inchange), jamais
+// le defaut propre de la maquette (qui, lui, part de "Competences en
+// haut" coche) -- meme regle que partout ailleurs dans ce chantier.
+// TACHE (Denis, 2026-09-25, tranche 2) : TROIS etats -- null = « comme le modele » (oui pour
+// les modeles de la maquette, non pour les anciens), true / false = choix explicite de la
+// personne. _pdfCompetencesEnHautEffectif() donne la valeur reellement appliquee.
+'var _cvPdfCompetencesEnHaut = null;' +
+// Colonnes choisies AVANT un modele « 2 colonnes seulement » (null = aucun modele de ce genre actif), pour les retrouver en le quittant.
+'var _cvPdfColonnesAvantModele = null;' +
+// TACHE (Denis, 2026-09-25, tranche 4 « plein ecran de la maquette ») : etat propre au plein ecran de la maquette.
+// Competences retirees de CE CV (noms), « Mon ordre » des experiences (indices dans la liste brute), reglages d'UNE
+// rubrique (taille, interligne, par titre), en-tete libre (positions, largeurs, hauteur, styles), textes corriges.
+'var _cvPdfCompetencesRetirees = [];' +
+// TACHE (J4, 2026-09-28, "Retirer une rubrique ou une mission") : memes principes que
+// _cvPdfCompetencesRetirees juste au-dessus -- rubriquesRetirees (intitules complets, ex.
+// "Formations") et missionsRetirees (cles data-ed, ex. "fm:0:1", memes cles que "Modifier le
+// texte"). _cvPdfHistoriqueRetraits (ordre chronologique, {type, valeur}) sert UNIQUEMENT aux 2
+// fleches d'annulation (dernier retrait / tout remettre) -- jamais lu par le rendu du CV lui-meme.
+'var _cvPdfRubriquesRetirees = [];' +
+'var _cvPdfMissionsRetirees = [];' +
+'var _cvPdfHistoriqueRetraits = [];' +
+'var _cvPdfOrdreExperiencesMien = null;' +
+// Retour Denis 2026-09-30 : « Mon ordre » pour les formations (liste des cles de formation, meme cle que le choix des formations).
+'var _cvPdfOrdreFormationsMien = null;' +
+'var _cvPdfOrdreFormations = "pertinence";' +
+'var _cvPdfOrdreExpPersoMien = null;' +
+'var _cvPdfOrdreExpPerso = "pertinence";' +
+'var _cvPdfCertifsRubrique = null;' +
+'var _cvPdfOrdreMissionsMq = {};' +
+'var _cvPdfReglagesRubriquesMq = {};' +
+// TACHE (P11, audit "La mise en page" 2026-09-28, retour Denis : "pouvoir
+// poser rectangle sur rectangle mais sans cacher le texte -- il faut
+// rajouter seulement quel est le plan, 1er, 2e ou 3e") : "plan" (uniquement
+// pour le modele "Rectangles arrondis", { b1: 1|2|3, ... }) -- z-index
+// choisi par la personne pour chaque rectangle de competences, remplace le
+// z-index fixe (b1=1, b2=2, b3=3, cvPdfTemplateMaquette.js) des qu'elle
+// clique "1er/2e/3e plan" en plein ecran.
+'var _cvPdfEnteteLibreMq = { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };' +
+'var _cvPdfEnteteParModele = {};' +
+'var _cvPdfCleModeleEntete = null;' +
+'var _cvPdfFormatPrecedent = null;' +
+'var _cvPdfAvantA5 = null;' +
+'var _cvPdfTextesEditesMq = {};' +
+// TACHE (Denis, 2026-09-25, tranche 3 « les 7 cartes de la maquette ») : « sac » des choix de la maquette qui n'avaient
+// pas encore de variable dediee (Blocs courts, marges en mm, taille des titres, style du titre des formations G/I/S,
+// petits carres devant les coordonnees, choix des competences une par une, titre du CV et accroche choisis...). Une cle =
+// une option lue telle quelle par le rendu (cvPdfTemplateMaquette.js) ; valeur absente = comportement de la maquette.
+// Enregistre avec le CV (dossier.pdfReglages.choixMq) et efface par « Revenir au modele de depart ».
+'var _cvPdfChoixMq = {};' +
+// TACHE (Denis, 2026-09-25, tranche 6 -- « Niveau de detail : Automatique » de la maquette, C36 / C45) : nombre de missions
+// AUTOMATIQUEMENT ramene a n pour certaines experiences afin que le CV tienne sur une page (index de l'experience dans la liste du
+// moteur -> n). Recalcule a chaque rafraichissement, jamais enregistre.
+'var _cvPdfMissionsAuto = {};' +
+// Par competences, niveau Automatique : nombre de missions retirees EN BAS de la liste des competences pour que le CV tienne sur une page (calcule a chaque rendu, jamais enregistre).
+'var _cvPdfCompCoupe = 0;' +
+// TACHE (P10-bis, retour Denis 2026-09-28, "Proposition B" validee) : cle de la rubrique renvoyee en pleine
+// largeur par _pdfEquilibrerColonnes ci-dessous ('perso'/'form'/'certifs'/'centres') ou null -- jamais
+// persistee (dossier.pdfReglages), recalculee a zero a chaque rafraichissement, meme principe que
+// _cvPdfMissionsAuto juste au-dessus.
+'var _cvPdfRubriquePleineLargeurAuto = null;' +
+// Denis, 2026-09-29 : meme principe (jamais persistee, recalculee a chaque rafraichissement) -- competences PROFESSIONNELLES en tete de la
+// colonne de droite quand il y a de la place (2 colonnes, disposition d'office seulement).
+'var _cvPdfCompProDroiteAuto = false;' +
+'var _cvPdfPersoGaucheAuto = false;' +
+'var _cvPdfFormationsAvantExp = false;' +
+'var _cvPdfTitresAgrandis = false;' +
+'var _cvPdfOrganisationPerso = false;' +
+'var _cvPdfOrdrePersoRubriques = null;' +
 // TACHE (agrandissement par rubrique) : { cle: echelle } (defaut {}) --
 // persiste comme _cvPdfOrdrePersonnalise ci-dessus, jamais touche par le
 // style aleatoire, efface uniquement par "Reinitialiser".
@@ -936,20 +1199,40 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // recreerait exactement le risque de cocktail que cette regle interdit.
 // Ajouter une 3e variante = ajouter une 3e entree ici, jamais toucher au
 // code qui les consomme plus bas (_pdfLireOptions/_pdfAppliquerRecetteCreatifDOM).
+// TACHE (retour Denis 2026-09-27, decision explicite) : les recettes
+// ci-dessous portaient chacune leur propre `police` (verdana/segoe/
+// trebuchet/georgia/times selon le modele) -- retiree partout. _pdfEcrireRecetteDOM()
+// n'ecrit QUE les champs presents sur l'objet recette (Object.keys) : sans
+// ce champ, #regPolice n'est plus jamais touche par un choix de modele
+// (manuel ou "Un autre modele"), quel que soit le modele affiche -- seule
+// la personne la change, via le select #regPolice. Ne JAMAIS reintroduire
+// `police` dans une recette de ce catalogue.
 'var _PDF_CREATIF_RECETTES = {' +
+// TACHE (Denis, 2026-09-25, tranche 2 « feuille et modeles ») : les 5 modeles Créatif de la MAQUETTE
+// (rendu cvPdfTemplateMaquette.js, `gabaritMaquette`). Ils n'ecrivent que ce que fait appliquerGabarit()
+// de la maquette (fond, pastilles, icones, colonnes pour « Colonne colorée », couleur de depart) +
+// la remise a neutre des reglages de l'ancien rendu, pour qu'aucun reste d'une ancienne recette ne
+// s'y melange. « respecteCouleur » : la couleur choisie par la personne n'est JAMAIS ecrasee.
+'  mqBandeau: { gabaritMaquette: "bandeau", respecteCouleur: true, icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2", texteFondColonnes: "blanc" },' +
+'  mqDiagonale: { gabaritMaquette: "diagonale", respecteCouleur: true, icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2", texteFondColonnes: "blanc" },' +
+'  mqColonne: { gabaritMaquette: "colonne", respecteCouleur: true, icones: true, styleCompetences: "pastille", fondColonnes: "droite", colonnes: 2, coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2", texteFondColonnes: "blanc" },' +
+'  mqCadre: { gabaritMaquette: "cadre", respecteCouleur: true, icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#1c3d52", couleurFin: "#dbe4ea", texteFondColonnes: "blanc" },' +
+'  mqPicto: { gabaritMaquette: "picto", respecteCouleur: true, icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#7d2e43", couleurFin: "#f0dde2", texteFondColonnes: "blanc" },' +
 '  sidebarVague: {' +
+'    gabaritMaquette: "lateral", colonneVague: true,' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "pastille", coinsArrondis: true, styleTitres: "bandeau",' +
 '    lectureGuidee: false, anneauPhoto: true, formatExperiences: "ameliore", pilluleExperiences: true,' +
 '    separateurColonnes: false, bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
 '    fondColonnePleineHauteur: true, fondColonnes: "gauche", fondColonnesEffet: "fondSeul",' +
-'    degradeColonnes: "fonce-clair", formeColonnes: "vague", colonnes: 2, largeurColonneGauche: 35,' +
+'    degradeColonnes: "fonce-clair", formeColonnes: "rectangle", colonnes: 2, largeurColonneGauche: 35,' +
 '    colonnesInversees: false, dispositionEntete: "2colonnes", bandeauDisponibilite: false,' +
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "verdana", couleurDebut: "#3B2E5C", couleurFin: "#8172B0", texteFondColonnes: "blanc"' +
+'    couleurDebut: "#3B2E5C", couleurFin: "#8172B0", texteFondColonnes: "blanc"' +
 '  },' +
 '  rubanDiagonal: {' +
+'    gabaritMaquette: "diagonale",' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "pastille", coinsArrondis: true, styleTitres: "bandeau",' +
 '    lectureGuidee: false, anneauPhoto: true, formatExperiences: "ameliore", pilluleExperiences: true,' +
 '    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "diagonale", degradeBandeau: "fonce-clair",' +
@@ -959,7 +1242,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#0F6E56", couleurFin: "#5DCAA5", texteFondColonnes: "blanc"' +
+'    couleurDebut: "#0F6E56", couleurFin: "#5DCAA5", texteFondColonnes: "blanc"' +
 '  },' +
 // TACHE (chantier "10 nouveaux modeles Créatif", retour utilisateur : "je
 // prends tout, mais j'en veux encore -- au moins une bonne dizaine") : 7
@@ -973,6 +1256,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // volontairement absentes -- voir echange avec l\'utilisateur, gardees
 // pour un chantier separe plus tard.
 '  duoOvale: {' +
+'    gabaritMaquette: "bandeau",' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "texte", coinsArrondis: true, styleTitres: "bandeau",' +
 '    lectureGuidee: false, anneauPhoto: true, formatExperiences: "standard", pilluleExperiences: false,' +
 '    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
@@ -982,10 +1266,11 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#2f6690", couleurFin: "#6fa3c7", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#2f6690", couleurFin: "#6fa3c7", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: true, cadrePage: false, enteteCentree: false, nomVertical: false, filetHaut: false, photoMedaillon: false' +
 '  },' +
 '  cadreBarre: {' +
+'    gabaritMaquette: "cadre",' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "pastille", coinsArrondis: false, styleTitres: "bandeau",' +
 '    lectureGuidee: false, anneauPhoto: true, formatExperiences: "ameliore", pilluleExperiences: true,' +
 '    separateurColonnes: true, bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
@@ -995,10 +1280,11 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#1c3d52", couleurFin: "#3d6a8a", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#1c3d52", couleurFin: "#3d6a8a", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: false, cadrePage: true, enteteCentree: true, nomVertical: false, filetHaut: false, photoMedaillon: false' +
 '  },' +
 '  bandeauVertical: {' +
+'    gabaritMaquette: "bandeau",' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "pastille", coinsArrondis: false, styleTitres: "bandeau",' +
 '    lectureGuidee: false, anneauPhoto: false, formatExperiences: "ameliore", pilluleExperiences: true,' +
 '    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
@@ -1008,10 +1294,11 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#1c1c1c", couleurFin: "#333333", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#1c1c1c", couleurFin: "#333333", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: false, cadrePage: false, enteteCentree: false, nomVertical: true, filetHaut: false, photoMedaillon: false' +
 '  },' +
 '  triangleSavoir: {' +
+'    gabaritMaquette: "bandeau",' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "rectangle", coinsArrondis: false, styleTitres: "souligne",' +
 '    lectureGuidee: false, anneauPhoto: true, formatExperiences: "ameliore", pilluleExperiences: false,' +
 '    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "coin", degradeBandeau: "aucun",' +
@@ -1021,23 +1308,25 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#0b5c47", couleurFin: "#3f9478", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#0b5c47", couleurFin: "#3f9478", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: false, cadrePage: false, enteteCentree: false, nomVertical: false, filetHaut: false, photoMedaillon: false' +
 '  },' +
 '  vagueMarine: {' +
+'    gabaritMaquette: "bandeau", enteteVague: true,' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "pastille", coinsArrondis: true, styleTitres: "bandeau",' +
 '    lectureGuidee: false, anneauPhoto: true, formatExperiences: "ameliore", pilluleExperiences: true,' +
-'    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "vague", degradeBandeau: "aucun",' +
+'    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
 '    fondColonnePleineHauteur: false, fondColonnes: "aucun", fondColonnesEffet: "fondSeul",' +
 '    degradeColonnes: "fonce-clair", formeColonnes: "rectangle", colonnes: 2, largeurColonneGauche: 50,' +
 '    colonnesInversees: false, dispositionEntete: "2colonnes", bandeauDisponibilite: false,' +
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#1c3d52", couleurFin: "#3d6a8a", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#1c3d52", couleurFin: "#3d6a8a", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: false, cadrePage: false, enteteCentree: false, nomVertical: false, filetHaut: false, photoMedaillon: false' +
 '  },' +
 '  diagonalesContrastees: {' +
+'    gabaritMaquette: "diagonale",' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "pastille", coinsArrondis: false, styleTitres: "bandeau",' +
 '    lectureGuidee: false, anneauPhoto: true, formatExperiences: "ameliore", pilluleExperiences: false,' +
 '    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "diagonale", degradeBandeau: "fonce-clair",' +
@@ -1047,10 +1336,11 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#111111", couleurFin: "#F2B705", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#111111", couleurFin: "#F2B705", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: false, cadrePage: false, enteteCentree: false, nomVertical: false, filetHaut: false, photoMedaillon: false' +
 '  },' +
 '  losangeVert: {' +
+'    gabaritMaquette: "neutre",' +
 '    icones: false, iconesCoordonnees: false, styleCompetences: "barre", coinsArrondis: false, styleTitres: "souligne",' +
 '    lectureGuidee: false, anneauPhoto: false, formatExperiences: "ameliore", pilluleExperiences: false,' +
 '    separateurColonnes: false, bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
@@ -1060,7 +1350,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "segoe", couleurDebut: "#3d6b2c", couleurFin: "#7fae3f", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#3d6b2c", couleurFin: "#7fae3f", texteFondColonnes: "blanc",' +
 '    photoForme: "losange", blocsCompetencesEncadres: false, cadrePage: false, enteteCentree: false, nomVertical: false, filetHaut: false, photoMedaillon: false' +
 '  },' +
 // TACHE (retour utilisateur : "va chercher sur internet des CV qui se
@@ -1077,6 +1367,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // "Créatif reste pauvre en icônes" du chantier precedent est levee des
 // que le rendu s'y prete).
 '  pastille: {' +
+'    gabaritMaquette: "picto",' +
 '    icones: true, iconesCoordonnees: true, styleCompetences: "pastille", coinsArrondis: true, styleTitres: "pastille",' +
 '    lectureGuidee: false, anneauPhoto: false, formatExperiences: "ameliore", pilluleExperiences: false,' +
 '    separateurColonnes: false, bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
@@ -1086,10 +1377,11 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "trebuchet", couleurDebut: "#7d2e43", couleurFin: "#c98a9a", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#7d2e43", couleurFin: "#c98a9a", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: false, cadrePage: false, enteteCentree: false, nomVertical: false, filetHaut: true, photoMedaillon: false' +
 '  },' +
 '  medaillon: {' +
+'    gabaritMaquette: "bandeau",' +
 '    icones: true, iconesCoordonnees: true, styleCompetences: "pastille", coinsArrondis: true, styleTitres: "souligne",' +
 '    lectureGuidee: false, anneauPhoto: false, formatExperiences: "ameliore", pilluleExperiences: false,' +
 '    separateurColonnes: false, bandeauEnTete: true, formeEnTete: "rectangle", degradeBandeau: "aucun",' +
@@ -1099,10 +1391,34 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    styleProfessionnel: "epure", stylePersonnel: "epure", styleBordures: "fine",' +
 '    soulignerPoste: false, italiquePoste: false, soulignerDates: false, italiqueDates: false,' +
 '    soulignerEntreprise: false, italiqueEntreprise: false, ordreExperiences: "pertinence",' +
-'    police: "georgia", couleurDebut: "#33475b", couleurFin: "#6f88a3", texteFondColonnes: "blanc",' +
+'    couleurDebut: "#33475b", couleurFin: "#6f88a3", texteFondColonnes: "blanc",' +
 '    photoForme: "rond", blocsCompetencesEncadres: false, cadrePage: false, enteteCentree: false, nomVertical: false, filetHaut: false, photoMedaillon: true' +
-'  }' +
+'  },' +
+// TACHE (phase 5.2, 6e modele de la galerie, port de la maquette) :
+// recette MINIMALE -- contrairement aux 10 autres, "frise" ne passe pas
+// par le rendu standard de _pdfConstruireStyleEtPage (dispatch immediat
+// vers _pdfConstruireFrise(), voir cvPdfTemplateA4.js) : la plupart des
+// champs de recette habituels (colonnes, bandeauEnTete, styleTitres...)
+// n\'ont donc aucun sens ici, jamais lus. Seule la couleur de depart
+// compte reellement (meme teinte chaude "orange" que MODEL_COULEUR.frise
+// de la maquette, C46/§2.5 du cahier : "le modele Colonne et frise garde
+// son orange de depart"), reprise par _pdfConstruireFrise via opts.couleurDebut
+// (deja lu normalement, un controle DOM existe bien : regCouleurDebut).
+'  rectangles: { gabaritMaquette: "rectangles", respecteCouleur: true, icones: false, iconesCoordonnees: false, colonnes: 1, couleurDebut: "#2f5597", couleurFin: "#8faadc", texteFondColonnes: "blanc" },' +
+'  photoFrise: { gabaritMaquette: "photo", respecteCouleur: true, icones: true, iconesCoordonnees: true, colonnes: 2, couleurDebut: "#1f4e9c", couleurFin: "#5b83c4", texteFondColonnes: "blanc" },' +
+'  frise: { respecteCouleur: true, couleurDebut: "#d4974f", couleurFin: "#e8bf8f", texteFondColonnes: "blanc" }' +
 '};' +
+// TACHE (Denis, 2026-09-23 : "ok pour 1" -- suite au constat que 6 des 12
+// modeles reels etaient devenus injoignables, ni galerie ni de, des que
+// le de s'est mis a cycler sur la seule galerie de 6 au lieu des 11
+// recettes reelles) : _PDF_GALERIE_CREATIF_IDS (qui ne servait plus qu'a
+// ca cote iframe) est retiree d'ici -- _pdfProposerAutreModeleCreatif()
+// (plus bas) cycle desormais directement sur Object.keys(_PDF_CREATIF_RECETTES),
+// les 12 modeles reels, jamais une liste separee a synchroniser a la
+// main. La galerie de vignettes cliquables (6 modeles, cote PARENT --
+// js/app.js, _MEP_GALERIE_CREATIF -- et sa propre _PDF_GALERIE_CREATIF_IDS
+// qui fabrique les boutons caches juste en haut de ce fichier) reste,
+// elle, inchangee : la vitrine montre 6 modeles, le de les atteint TOUS.
 // TACHE (memes 7 recettes) : les recettes deja existantes (sidebarVague/
 // rubanDiagonal) n\'avaient pas encore les 5 nouveaux champs partages --
 // ajoutes ici a la valeur neutre (identique au comportement d\'avant ce
@@ -1132,15 +1448,32 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // (_pdfAppliquerCreatifPdf/_pdfAnnulerCreatifPdf/le reroll du de) --
 // risque reel sinon qu\'un champ ajoute a une recette soit oublie dans un
 // des 3 listages et cree silencieusement un cocktail partiel.
+'function _pdfCouleurChoisieParLaPersonne() {' +
+'  try { return !!window.parent.dossier.reglagesMiseEnPageCV._couleurChoisie; } catch (e) { return false; }' +
+'}' +
 'function _pdfIdControlePour(champ) { return "reg" + champ.charAt(0).toUpperCase() + champ.slice(1); }' +
-'function _pdfAppliquerRecetteCreatifDOM(variante) {' +
-'  var recette = _PDF_CREATIF_RECETTES[variante] || _PDF_CREATIF_RECETTES.sidebarVague;' +
+'function _pdfEcrireRecetteDOM(recette) {' +
 '  Object.keys(recette).forEach(function (champ) {' +
 '    if (champ === "pilluleExperiences") { return; }' +
+'    if (recette.respecteCouleur && (champ === "couleurDebut" || champ === "couleurFin") && _pdfCouleurChoisieParLaPersonne()) { return; }' +
 '    var el = document.getElementById(_pdfIdControlePour(champ));' +
 '    if (!el) { return; }' +
 '    if (el.type === "checkbox") { el.checked = recette[champ]; } else { el.value = recette[champ]; }' +
 '  });' +
+'}' +
+// TACHE (Denis, 2026-09-25, tranche 2) : retour au STANDARD de la maquette (appliquerGabarit() sans modele : fond
+// aucun, pastilles, sans icones, couleur de depart si la personne n\'en a pas choisi une). Sert quand le retour
+// depuis Sobre / Créatif n\'a plus son instantane « avant » (le panneau est reconstruit a chaque changement) : sans
+// cela, les icones, le fond ou les reglages d\'un modele restaient sur le Standard.
+'var _PDF_RECETTE_STANDARD_MAQUETTE = { respecteCouleur: true, icones: false, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2" };' +
+'function _pdfAppliquerStandardMaquetteDOM() {' +
+'  _pdfEcrireRecetteDOM(_PDF_RECETTE_STANDARD_MAQUETTE);' +
+'  _cvPdfOrdrePersonnalise = null;' +
+'  _cvPdfPositionsEntete = {};' +
+'}' +
+'function _pdfAppliquerRecetteCreatifDOM(variante) {' +
+'  var recette = _PDF_CREATIF_RECETTES[variante] || _PDF_CREATIF_RECETTES.sidebarVague;' +
+'  _pdfEcrireRecetteDOM(recette);' +
 // TACHE (meme bug que documente plus bas pour sidebarVague) : ordrePersonnalise
 // n\'est PAS un champ de recette generique (structure {gauche,droite}, pas
 // une simple valeur de controle) -- reste gere a part, par variante.
@@ -1213,7 +1546,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 'var _PDF_NOMS_RUBRIQUES = {' +
 '  profil: "Profil", experiences: "Expériences", formations: "Formations", competences: "Compétences professionnelles",' +
 '  competencesComportementales: "Compétences comportementales",' +
-'  langues: "Langues", loisirs: "Centres d\'intérêt", engagements: "Expérience personnelle", certifications: "Certifications",' +
+'  langues: "Langues", loisirs: "Centres d\'intérêt", engagements: "Expérience personnelle", infos: "Informations complémentaires", certifications: "Certifications",' +
 // TACHE (rubrique « Logiciels et outils » dédiée, décision Denis 2026-08-28) :
 // libellé de la mini-barre flottante quand la rubrique est sélectionnée
 // (sinon la clé brute "logiciels" s'afficherait comme titre).
@@ -1261,6 +1594,8 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    lectureGuidee: document.getElementById("regLectureGuidee").checked,' +
 '    styleProfessionnel: document.getElementById("regStyleProfessionnel").value,' +
 '    stylePersonnel: document.getElementById("regStylePersonnel").value,' +
+'    styleFormations: document.getElementById("regStyleFormations").value,' +
+'    separateurMissions: document.getElementById("regSeparateurMissions").value,' +
 '    soulignerPoste: document.getElementById("regSoulignerPoste").checked,' +
 '    italiquePoste: document.getElementById("regItaliquePoste").checked,' +
 '    soulignerDates: document.getElementById("regSoulignerDates").checked,' +
@@ -1291,7 +1626,63 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // cvPdfDonnees.js), jamais transmis tel quel a _pdfConstruireStyleEtPage.
 '    regroupementActif: document.getElementById("regRegroupementActif").checked,' +
 '    ordreExperiences: document.getElementById("regOrdreExperiences").value,' +
-'    formatExperiences: document.getElementById("regFormatExperiences").value' +
+'    formatExperiences: document.getElementById("regFormatExperiences").value,' +
+// TACHE (phase 5.4, carte "Experiences professionnelles") : nouveaux
+// champs, tous des variables hors-DOM (voir leur declaration plus haut,
+// meme convention que _cvPdfOrdrePersonnalise -- pas de controle DOM
+// dedie ici, la carte elle-meme vit dans le panneau PARENT, js/app.js,
+// pas dans cette iframe -- _mepClicMoteur()/appels directs pilotent ces
+// variables a distance).
+'    modePresentation: _cvPdfModePresentation,' +
+'    experiencesTout: _cvPdfExperiencesTout,' +
+'    experiencesChoisies: _cvPdfExperiencesChoisies,' +
+'    missionsParExperience: _cvPdfMissionsParExperience,' +
+'    missionsChoisies: _cvPdfMissionsChoisies,' +
+'    missionsGlobal: _cvPdfMissionsGlobal,' +
+'    afficherLieu: _cvPdfAfficherLieu,' +
+'    qualitesMetierActives: _cvPdfQualitesMetierActives,' +
+'    afficherCompetencesPro: _cvPdfAfficherCompPro,' +
+'    afficherCompetencesComportementales: _cvPdfAfficherCompComp,' +
+'    styleLieu: _cvPdfStyleLieu,' +
+'    positionDates: _cvPdfPositionDates,' +
+// TACHE (chantier "Experience personnelle", 2026-09-27) : meme convention
+// que les 3 champs juste au-dessus (experiencesTout/Choisies/missionsParExperience).
+'    experiencePersoTout: _cvPdfExpPersoTout,' +
+'    experiencePersoChoisies: _cvPdfExpPersoChoisies,' +
+'    missionsParExpPerso: _cvPdfExpPersoMissionsParItem,' +
+'    missionsChoisiesExpPerso: _cvPdfExpPersoMissionsChoisies,' +
+'    texteParExpPerso: _cvPdfExpPersoTexteParItem,' +
+'    expPersoModeAffichage: _cvPdfExpPersoModeAffichage,' +
+'    formationsTout: _cvPdfFormationsTout,' +
+'    formationsChoisies: _cvPdfFormationsChoisies,' +
+'    missionsParFormation: _cvPdfFormationsMissionsParItem,' +
+'    missionsChoisiesFormation: _cvPdfFormationsMissionsChoisies,' +
+'    texteParFormation: _cvPdfFormationsTexteParItem,' +
+// TACHE (P10-bis, retour Denis 2026-09-28) : jamais persistee (voir _pdfEquilibrerColonnes), juste
+// transmise au gabarit pour la construction EN COURS.
+'    rubriquePleineLargeur: _cvPdfRubriquePleineLargeurAuto,' +
+'    compProDroiteAuto: _cvPdfCompProDroiteAuto,' +
+'    persoGaucheAuto: _cvPdfPersoGaucheAuto,' +
+'    positionDatesChoisie: _cvPdfPositionDatesChoisie,' +
+'    datesAlignees: _cvPdfDatesAlignees,' +
+'    positionDatesFormations: _pdfPositionDatesRubrique("formations"),' +
+'    positionDatesPerso: _pdfPositionDatesRubrique("perso"),' +
+// TACHE (P10, retour Denis 2026-09-28) : valeur EFFECTIVE transmise au gabarit --
+// null (jamais touche) suit le mode de presentation (actif par defaut en Mixte),
+// sinon le choix explicite de la personne prime toujours.
+'    afficherMissionsFormation: (_cvPdfAfficherMissionsFormation === null || _cvPdfAfficherMissionsFormation === undefined) ? (_cvPdfModePresentation === "B") : !!_cvPdfAfficherMissionsFormation,' +
+'    espacementFormations: _cvPdfEspacementFormations,' +
+'    competencesProfessionnellesMax: _cvPdfCompetencesProMax,' +
+'    competencesComportementalesMax: _cvPdfCompetencesComportementalesMax,' +
+'    competencesEnHaut: _cvPdfCompetencesEnHaut,' +
+'    formationsAvantExp: _cvPdfFormationsAvantExp,' +
+'    titresAgrandis: _cvPdfTitresAgrandis,' +
+'    organisationPerso: _cvPdfOrganisationPerso,' +
+'    ordrePersoRubriques: _cvPdfOrdrePersoRubriques,' +
+'    missionsAuto: _cvPdfMissionsAuto,' +
+'    niveauDetail: _pdfNiveauDetail(),' +
+'    compCoupe: _cvPdfCompCoupe,' +
+'    missionsDefaut: _pdfMissionsDefautNb()' +
 '  };' +
 // TACHE (retour utilisateur, repete plusieurs fois : "peu importe les
 // modes que je vais avoir, le mode Sobre doit les faire disparaitre ou
@@ -1332,7 +1723,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // calcule la teinte PALE reelle via _pdfMelangerHex -- jamais la couleur
 // d\'accent brute, jamais recalcule ici (utilitaire absent du scope iframe).
 '    opts.sobreActif = true;' +
-'    opts.sobreVariante = _cvPdfSobreVariante || "aucune";' +
+'    opts.sobreVariante = _pdfMigrerVarianteSobre(_cvPdfSobreVariante) || "mq-bandeau";' +
 '    opts.fondColonnes = (opts.sobreVariante === "colonne") ? (document.getElementById("regFondColonnes").value === "aucun" ? "lesDeux" : document.getElementById("regFondColonnes").value) : "aucun";' +
 '    opts.fondColonnesEffet = "fondSeul";' +
 // TACHE (bug reel trouve en relisant cvPdfTemplateA4.js : "Couleur unie"
@@ -1361,6 +1752,27 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // (jamais la nuance "variante palee" du A4 ci-dessus : systeme de couleur
 // distinct --a5-accent/--a5-texte-fond, jamais branche sur _pdfMelangerHex).
 '    opts.fondColonnesA5 = "aucun";' +
+// TACHE (Denis, 2026-09-25, tranche 2) : modele Sobre de la MAQUETTE : le rendu est celui de la maquette
+// (gabaritMaquette) et les reglages restent ceux de la PERSONNE (lus des controles), pas ceux forces
+// pour les anciennes variantes ci-dessus.
+'    if ((opts.sobreVariante || "").indexOf("mq-") === 0) {' +
+'      opts.gabaritMaquette = "sobre-" + opts.sobreVariante.slice(3);' +
+'      opts.iconesRubriques = document.getElementById("regIcones").checked;' +
+'      opts.iconesCoordonnees = document.getElementById("regIconesCoordonnees").checked;' +
+'      opts.styleCompetences = document.getElementById("regStyleCompetences").value;' +
+'      opts.coinsArrondis = document.getElementById("regCoinsArrondis").checked;' +
+'      opts.styleTitres = document.getElementById("regStyleTitres").value;' +
+'      opts.lectureGuidee = document.getElementById("regLectureGuidee").checked;' +
+'      opts.fondColonnePleineHauteur = document.getElementById("regFondColonnePleineHauteur").checked;' +
+'      opts.formeColonnes = document.getElementById("regFormeColonnes").value;' +
+'      opts.formeEnTete = document.getElementById("regFormeEnTete").value;' +
+'      opts.styleBordures = document.getElementById("regStyleBordures").value;' +
+'      opts.fondColonnes = document.getElementById("regFondColonnes").value;' +
+'      opts.fondColonnesEffet = document.getElementById("regFondColonnesEffet").value;' +
+'      opts.degradeColonnes = document.getElementById("regDegradeColonnes").value;' +
+'      opts.bandeauEnTete = document.getElementById("regBandeauEnTete").checked;' +
+'      opts.degradeBandeau = document.getElementById("regDegradeBandeau").value;' +
+'    }' +
 '  }' +
 // TACHE (chantier "CV Créatif") : au choix/tirage d\'un modele,
 // _pdfAppliquerRecetteCreatifDOM (plus haut) ecrit deja la recette
@@ -1390,7 +1802,30 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    opts.creatifVariante = _creatifVar;' +
 '    var _creatifRecette = _PDF_CREATIF_RECETTES[_creatifVar] || _PDF_CREATIF_RECETTES.sidebarVague;' +
 '    Object.keys(_creatifRecette).forEach(function (champ) { if (!document.getElementById(_pdfIdControlePour(champ))) { opts[champ] = _creatifRecette[champ]; } });' +
+// TACHE (phase 5.2, modele "Colonne et frise") : seul le gabarit "frise"
+// a une STRUCTURE differente (grille propre, jamais le systeme standard
+// 1/2 colonnes) -- ce simple indicateur suffit a _pdfConstruireStyleEtPage
+// (cvPdfTemplateA4.js) pour dispatcher tout au debut, voir sa propre
+// note. Les autres champs de la recette "frise" (couleurDebut...) restent
+// lus normalement par la boucle juste au-dessus.
+'    opts.gabaritCreatif = (_creatifVar === "frise") ? "frise" : "";' +
 '  }' +
+// TACHE (Denis, 2026-09-25) : valeur EFFECTIVE de « Competences en haut » (null = comme le modele).
+'  opts.competencesEnHaut = (_cvPdfCompetencesEnHaut === null || _cvPdfCompetencesEnHaut === undefined) ? window.parent._pdfCompetencesEnHautParDefaut(opts) : !!_cvPdfCompetencesEnHaut;' +
+'  opts.competencesRetirees = _cvPdfCompetencesRetirees;' +
+'  opts.rubriquesRetirees = _cvPdfRubriquesRetirees;' +
+'  opts.missionsRetirees = _cvPdfMissionsRetirees;' +
+'  opts.ordreExperiencesMien = _cvPdfOrdreExperiencesMien;' +
+'  opts.ordreFormationsMien = _cvPdfOrdreFormationsMien;' +
+'  opts.ordreFormations = _cvPdfOrdreFormations;' +
+'  opts.ordreExpPersoMien = _cvPdfOrdreExpPersoMien;' +
+'  opts.ordreExpPerso = _cvPdfOrdreExpPerso;' +
+'  opts.certifsRubrique = _cvPdfCertifsRubrique;' +
+'  opts.ordreMissions = _cvPdfOrdreMissionsMq;' +
+'  opts.reglagesRubriques = _cvPdfReglagesRubriquesMq;' +
+'  opts.enteteLibre = _cvPdfEnteteLibreMq;' +
+'  opts.textesEdites = _cvPdfTextesEditesMq;' +
+'  Object.keys(_cvPdfChoixMq).forEach(function (k) { opts[k] = _cvPdfChoixMq[k]; });' +
 '  return opts;' +
 '}' +
 // TACHE (extension Essentiel/Integral/A5) : bascule l'affichage des
@@ -1437,7 +1872,205 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // composeurComposerA5Portrait() (formatPage 'A5-portrait'/'A5-paysage',
 // voir composeurComposition.js) -- jamais une 2e logique de decision de
 // contenu ecrite ici, uniquement le choix du moteur de RENDU.
+// TACHE (Denis, 2026-09-25, tranche 4) : construit { css, pageHtml, ... } SANS toucher au DOM de ce panneau. Partage
+// par _pdfRafraichir (petit apercu) et par le plein ecran de la maquette (js/app.js -> _pdfMqResultat).
+'function _pdfConstruireResultatCourant(format, opts) {' +
+'  var donnees = window.parent.construireDonneesPdfCV(window.__cvPdfDossierSource, format, opts.bandeauDisponibilite, opts.regroupementActif, (opts.modePresentation === "B" || opts.modePresentation === "C") ? "parCompetences" : null, (opts.modePresentation === "B" || opts.modePresentation === "C") ? opts.modePresentation : null);' +
+'  window.parent._mepExperiencesMoteur = donnees.objetCV.experiences || [];' +
+'  window.parent._mepQualitesMetier = donnees.qualitesAttenduesMetier || [];' +
+'  window.parent._mepProAttendues = donnees.competencesProAttendues || [];' +
+'  window.parent._mepSecteurReferentiel = donnees.secteurReferentiel || null;' +
+// TACHE (chantier "Experience personnelle", 2026-09-27) : meme principe que
+// la ligne juste au-dessus, pour la carte "Experience personnelle" -- liste
+// FUSIONNEE (savoir-faire perso + engagements), ordre du moteur.
+'  window.parent._mepExperiencePersoMoteur = (donnees.objetCV.experiencesPersonnelles || []).concat(donnees.objetCV.engagements || []);' +
+// TACHE (retour Denis 2026-09-28, chantier "Formations regroupent tout") : meme principe EXACT
+// que les 2 lignes juste au-dessus -- SANS ce miroir, le panneau lisait dossier.formations BRUT
+// (jamais enrichi des missions IA de formationsAvecMissions/certificationsAvecMissions,
+// moteurDecisionCV.js, appliquees seulement au rendu) -- bug reel, meme famille que les autres
+// "trous" de captation deja corriges aujourd'hui. _pdfFormationsEtCertifications (cvPdfTemplateA4.js)
+// fusionne aussi les certifications, meme liste que ce que le rendu affiche reellement.
+// TACHE (bug reel trouve en verifiant : cvPdfTemplateA4.js/cvPdfTemplateMaquette.js ne sont
+// PAS dans le script de cette iframe -- window.parent.construireDonneesPdfCV juste au-dessus le
+// prouve deja -- un appel BARE a _pdfFormationsEtCertifications echouait donc silencieusement
+// (undefined) et retombait toujours sur le repli. Prefixe window.parent., comme le reste de
+// cette fonction.
+'  window.parent._mepFormationsMoteur = (typeof window.parent._pdfFormationsEtCertifications === "function") ? window.parent._pdfFormationsEtCertifications(donnees.objetCV) : (donnees.objetCV.formations || []);' +
+'  var resultat;' +
+'  if (format === "A5-portrait" || format === "A5-paysage") {' +
+'    resultat = window.parent._pdfConstruireStyleEtPageA5(donnees.objetCV, donnees.composition, opts);' +
+'  } else {' +
+'    opts.competencesCles = donnees.competencesCles;' +
+'    opts.competencesProfessionnelles = donnees.competencesProfessionnelles;' +
+'    opts.competencesComportementales = donnees.competencesComportementales;' +
+'    opts.qualitesAttenduesMetier = donnees.qualitesAttenduesMetier;' +
+'    opts.placesQualitesMetier = donnees.placesQualitesMetier;' +
+'    opts.reservoirCompetences = donnees.reservoirCompetences;' +
+'    window.__cvPdfCompetencesInfo = { autoPro: opts.competencesProfessionnelles, autoComp: opts.competencesComportementales, pool: donnees.reservoirCompetences };' +
+'    resultat = window.parent._pdfConstruireStyleEtPage(donnees.objetCV, donnees.composition, opts);' +
+'  }' +
+'  return resultat;' +
+'}' +
+'function _pdfMqResultat() {' +
+'  var opts = _pdfLireOptions();' +
+'  return { resultat: _pdfConstruireResultatCourant(document.getElementById("regFormatCV").value, opts), opts: opts };' +
+'}' +
+'function _pdfInjecterResultat(resultat) {' +
+'  document.getElementById("styleCv").textContent = resultat.css;' +
+'  document.getElementById("conteneurPage").innerHTML = resultat.pageHtml;' +
+'}' +
+// « Automatique » (maquette) : seulement en A4 sur une page, mode chronologique, et tant que la personne n'a choisi ni « Complet »
+// (10) ni « Resume » (1). Le nombre de missions par defaut (ou choisi avec − / +) est un MAXIMUM.
+// LIM-4 : nombre de missions montrees par defaut par experience (2 si le CV compte 3 experiences ou plus, sinon 3) ; regle unique
+// dans modules/cv-core/normaliserDonneesCV.js, jamais un chiffre ecrit ici.
+'function _pdfMissionsDefautNb() {' +
+'  var n = ((typeof window.parent._mepListeExperiencesMoteur === "function") ? window.parent._mepListeExperiencesMoteur() : (window.parent._mepExperiencesMoteur || [])).length;' +
+'  return (typeof window.parent._cvMissionsParDefaut === "function") ? window.parent._cvMissionsParDefaut(n) : 3;' +
+'}' +
+// Niveau de detail (« Automatique » / « Complet » / « Resume »), meme regle que la carte Experiences (cvPdfCartesMaquette.js) : 1 = Resume ; le maximum reel de
+// missions d\'une experience (ou plus) = Complet ; sinon Automatique. Valable pour TOUS les modes de presentation (retour Denis 2026-10-02).
+'function _pdfNiveauDetail() {' +
+'  if (_cvPdfMissionsGlobal === 1) { return "resume"; }' +
+'  var liste = (typeof window.parent._mepListeExperiencesMoteur === "function") ? window.parent._mepListeExperiencesMoteur() : (window.parent._mepExperiencesMoteur || []);' +
+'  var max = 1; liste.forEach(function (e) { max = Math.max(max, window.parent._pdfDecouperMissions(e.missions || "").length); });' +
+'  return (_cvPdfMissionsGlobal !== null && _cvPdfMissionsGlobal !== undefined && _cvPdfMissionsGlobal >= max) ? "complet" : "auto";' +
+'}' +
+// Automatique : chronologique ET mixte (les missions des experiences raccourcissent d\'abord les moins pertinentes) ; « Complet » ne raccourcit jamais (avant : seul un
+// reglage a exactement 10 etait reconnu, un « Complet » a 4 missions pouvait encore etre raccourci).
+'function _pdfAutoActif(format) {' +
+'  return format === "A4-detaille" && (_cvPdfModePresentation === "A" || _cvPdfModePresentation === "B") && _pdfNiveauDetail() === "auto";' +
+'}' +
+// Candidate : l'experience la MOINS pertinente (la derniere de la liste du moteur) qui a encore plus d'une mission et dont la personne
+// n\'a fixe ni le nombre ni le choix. Jamais une experience retiree : au minimum une mission.
+'function _pdfAutoCandidat() {' +
+'  var liste = window.parent._mepExperiencesMoteur || [];' +
+'  var plafond = _cvPdfMissionsGlobal || _pdfMissionsDefautNb();' +
+'  var candidat = null;' +
+'  for (var i = 0; i < liste.length; i++) {' +
+'    if (_cvPdfExperiencesTout === "pertinentes" && _cvPdfExperiencesChoisies && _cvPdfExperiencesChoisies.indexOf(i) === -1) { continue; }' +
+'    if (_cvPdfMissionsParExperience[i] != null || _cvPdfMissionsChoisies[i]) { continue; }' +
+'    var total = window.parent._pdfDecouperMissions(liste[i].missions).length;' +
+'    var n = (_cvPdfMissionsAuto[i] != null) ? _cvPdfMissionsAuto[i] : Math.min(total, plafond);' +
+'    if (n > 1) { candidat = { idx: i, n: n }; }' +
+'  }' +
+'  return candidat;' +
+'}' +
+// Par competences, niveau Automatique (retour Denis 2026-10-02) : autant de missions que la page peut en contenir ; si le CV deborde, on retire d\'abord les DERNIERES
+// missions de la liste (les plus importantes sont en haut), une par une, en mesurant, avant de toucher a quoi que ce soit d\'autre.
+'function _pdfRaccourcirCompetencesAuto(format, resultat) {' +
+'  _cvPdfCompCoupe = 0;' +
+'  if (format !== "A4-detaille" || _cvPdfModePresentation !== "C" || _pdfNiveauDetail() !== "auto") { return resultat; }' +
+'  _pdfInjecterResultat(resultat);' +
+'  var essais = 0;' +
+'  while (_pdfMesurerHauteurPage() > 1125 && essais < 60) {' +
+'    essais++;' +
+'    var nb = 0; (window.parent._mepGroupesCompTous || []).forEach(function (g) { g.items.forEach(function (it) { if (it.affichee) { nb++; } }); });' +
+'    if (nb <= 1) { break; }' +
+'    _cvPdfCompCoupe++;' +
+'    resultat = _pdfConstruireResultatCourant(format, _pdfLireOptions());' +
+'    _pdfInjecterResultat(resultat);' +
+'  }' +
+'  return resultat;' +
+'}' +
+'function _pdfRaccourcirAutomatiquement(format, resultat) {' +
+'  _cvPdfMissionsAuto = {};' +
+'  window.parent._mepMissionsAuto = _cvPdfMissionsAuto;' +
+'  window.parent._mepAutoRaccourcies = 0;' +
+'  _cvPdfCompCoupe = 0;' +
+'  if (!_pdfAutoActif(format)) { return _pdfRaccourcirCompetencesAuto(format, resultat); }' +
+'  _pdfInjecterResultat(resultat);' +
+'  var essais = 0;' +
+'  while (_pdfMesurerHauteurPage() > 1125 && essais < 90) {' +
+'    essais++;' +
+'    var c = _pdfAutoCandidat();' +
+'    if (!c) { break; }' +
+'    _cvPdfMissionsAuto[c.idx] = c.n - 1;' +
+'    resultat = _pdfConstruireResultatCourant(format, _pdfLireOptions());' +
+'    _pdfInjecterResultat(resultat);' +
+'  }' +
+'  window.parent._mepAutoRaccourcies = Object.keys(_cvPdfMissionsAuto).length;' +
+'  return resultat;' +
+'}' +
+// TACHE (P10-bis, retour Denis 2026-09-28, "Quand je choisis 2 colonnes et que j'ai les competences perso
+// developpe, alors cette rubrique sera toujours dans la colonne de droite" -- maquette
+// docs/MAQUETTE_RUBRIQUES_DEBORDANTES_2026-09-28.html, "Proposition B" validee) : mesure REELLEMENT la
+// hauteur des 2 colonnes (meme principe que _pdfRaccourcirAutomatiquement -- injecter, mesurer, ajuster,
+// re-injecter), et si l\'ecart depasse le seuil, fait passer la rubrique responsable en pleine largeur sous
+// les 2 colonnes (jamais une case a cocher, recalcule a chaque rafraichissement). Rubriques candidates :
+// Expérience personnelle, Formations, Certifications, Centres d\'interet (jamais Experience professionnelle,
+// toujours a droite par regle deja actee, ni les blocs de competences, deja regles a part par P10). Priorite
+// donnee a la rubrique la plus recemment developpee (perso, cf. le cas concret signale par Denis) en cas de
+// plusieurs candidates presentes a la fois dans la colonne la plus longue.
+// TACHE (retour Denis 2026-09-28, point 14) : "centres" retire (Langues + Centres d'interet
+// toujours en pleine largeur en bas de page desormais, jamais equilibrees ici -- voir
+// cvPdfTemplateMaquette.js, _PDF_RUBRIQUES_PLEINE_LARGEUR).
+'var _PDF_RUBRIQUES_PL_NOMS = { perso: "Expérience personnelle", form: "Formations", certifs: "Certifications" };' +
+'var _PDF_RUBRIQUES_PL_ORDRE = ["perso", "form", "certifs"];' +
+'var _PDF_SEUIL_EQUILIBRE_COLONNES_PX = 56;' +
+// Denis, 2026-09-29 (deux colonnes, disposition d'office) : « si jamais il y a de la place pour mettre les competences professionnelles avant les
+// experiences professionnelles, on le fait ; sinon elles restent en tete de la colonne de gauche ». Essai puis MESURE : gardees a droite seulement si
+// la page tient toujours (meme cible que « Mise en page »). Jamais si la personne a personnalise l'ordre (Personnaliser) ou refuse (compProDroite false).
+'function _pdfEssayerCompProDroite(format, resultat) {' +
+'  if (["A4-detaille", "A4-integral", "A4-essentiel"].indexOf(format) === -1) { return resultat; }' +
+'  if (_cvPdfChoixMq.compProDroite === false) { return resultat; }' +
+'  if (_pdfLireOptions().organisationPerso || _cvPdfChoixMq.ordreColonnes || _cvPdfOrdrePersoRubriques) { return resultat; }' +
+'  _pdfInjecterResultat(resultat);' +
+'  var corps = document.querySelector("#conteneurPage .corps.deux");' +
+'  if (!corps || corps.children.length < 2) { return resultat; }' +
+'  var pro = document.querySelector("#conteneurPage [data-rub=\\"" + window.parent._PDF_INTITULES.competencesPro + "\\"]");' +
+'  if (!pro || !corps.children[0].contains(pro)) { return resultat; }' +
+'  var cible = HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable();' +
+'  if (_pdfMesurerHauteurPage() > cible + 2) { return resultat; }' +
+'  _cvPdfCompProDroiteAuto = true;' +
+'  var essai = _pdfConstruireResultatCourant(format, _pdfLireOptions());' +
+'  _pdfInjecterResultat(essai);' +
+// Gardee a droite si la page tient. Dans ce cas _pdfEquilibrerColonnes() ne touche plus a rien : l'experience personnelle reste dans la colonne de droite,
+// apres les formations (Denis : jamais envoyee en pleine largeur en bas de page).
+'  if (_pdfMesurerHauteurPage() <= cible + 2) { return essai; }' +
+'  _cvPdfCompProDroiteAuto = false;' +
+'  _pdfInjecterResultat(resultat);' +
+'  return resultat;' +
+'}' +
+'function _pdfEquilibrerColonnes(format, resultat) {' +
+'  if (["A4-detaille", "A4-integral", "A4-essentiel"].indexOf(format) === -1) { return resultat; }' +
+'  if (_cvPdfCompProDroiteAuto) { return resultat; }' +
+'  _pdfInjecterResultat(resultat);' +
+'  var corps = document.querySelector("#conteneurPage .corps.deux");' +
+'  if (!corps || corps.children.length < 2) { return resultat; }' +
+'  var hG = corps.children[0].getBoundingClientRect().height;' +
+'  var hD = corps.children[1].getBoundingClientRect().height;' +
+'  if (Math.abs(hG - hD) <= _PDF_SEUIL_EQUILIBRE_COLONNES_PX) { return resultat; }' +
+'  var pluslongue = (hG > hD) ? corps.children[0] : corps.children[1];' +
+'  var candidat = null;' +
+'  for (var i = 0; i < _PDF_RUBRIQUES_PL_ORDRE.length; i++) {' +
+'    var cle = _PDF_RUBRIQUES_PL_ORDRE[i];' +
+'    if (pluslongue.querySelector("[data-rub=\\"" + _PDF_RUBRIQUES_PL_NOMS[cle] + "\\"]")) { candidat = cle; break; }' +
+'  }' +
+'  if (!candidat) { return resultat; }' +
+// Denis, 2026-09-29 : l'experience personnelle, faute de place apres les formations, passe ENTIEREMENT dans la colonne de gauche (jamais en pleine largeur).
+'  if (candidat === "perso" && pluslongue === corps.children[1]) { _cvPdfPersoGaucheAuto = true; }' +
+'  else { _cvPdfRubriquePleineLargeurAuto = candidat; }' +
+'  resultat = _pdfConstruireResultatCourant(format, _pdfLireOptions());' +
+'  _pdfInjecterResultat(resultat);' +
+'  return resultat;' +
+'}' +
+// Impression depuis l\'iframe : Chrome propose pour le PDF le titre de la PAGE PRINCIPALE, pas celui de l\'iframe (retour Denis 2026-10-02 : le PDF n\'avait pas
+// « NOM_poste »). Le titre de la page principale est donc posé le temps de l\'impression, puis rétabli.
+'function _pdfImprimerAvecNom() {' +
+'  var pageHote = null, titreAvant = "";' +
+'  try {' +
+'    if (window.parent && window.parent !== window && typeof window.parent.nomFichierCV === "function") {' +
+'      pageHote = window.parent.document; titreAvant = pageHote.title;' +
+'      pageHote.title = window.parent.nomFichierCV(window.__cvPdfDossierSource || window.parent.dossier);' +
+'    }' +
+'  } catch (e) { pageHote = null; }' +
+'  try { window.print(); } finally { if (pageHote) { try { pageHote.title = titreAvant; } catch (e2) { /* rien */ } } }' +
+'}' +
 'function _pdfRafraichir() {' +
+// Nom propose a l'enregistrement en PDF = titre de la page : « NOM_poste » (retour Denis 2026-10-01), tenu a jour si l\'identite ou le metier change.
+'  try { if (window.parent && typeof window.parent.nomFichierCV === "function") { document.title = window.parent.nomFichierCV(window.__cvPdfDossierSource || window.parent.dossier); } } catch (e) { /* titre inchange */ }' +
+'  _pdfEchangerReglagesSiFormatChange();' +
+'  _pdfEchangerEnteteSiModeleChange();' +
 // TACHE (retour utilisateur, bug reel confirme en testant : "je change de
 // format et le message de mise en page reste affiche, perime") : le
 // message reflete un etat PRECIS (taille de police calculee pour LE
@@ -1454,19 +2087,21 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // qu\'on repasse sur pastille/rectangle, valeur deja choisie conservee).
 '  document.getElementById("sectionPastilleCouleurFond").style.display = (document.getElementById("regStyleCompetences").value === "texte") ? "none" : "";' +
 '  var format = document.getElementById("regFormatCV").value;' +
+// TACHE (P10-bis, retour Denis 2026-09-28) : reinitialise a CHAQUE rafraichissement, jamais une valeur qui
+// reste collee d'un reglage a l'autre -- _pdfEquilibrerColonnes() ci-dessous la recalcule a partir de zero.
+'  _cvPdfRubriquePleineLargeurAuto = null;' +
+'  _cvPdfCompProDroiteAuto = false;' +
+'  _cvPdfPersoGaucheAuto = false;' +
 '  var opts = _pdfLireOptions();' +
-'  var donnees = window.parent.construireDonneesPdfCV(window.__cvPdfDossierSource, format, opts.bandeauDisponibilite, opts.regroupementActif);' +
-'  var resultat;' +
-'  if (format === "A5-portrait" || format === "A5-paysage") {' +
-'    resultat = window.parent._pdfConstruireStyleEtPageA5(donnees.objetCV, donnees.composition, opts);' +
-'  } else {' +
-'    opts.competencesCles = donnees.competencesCles;' +
-'    opts.competencesProfessionnelles = donnees.competencesProfessionnelles;' +
-'    opts.competencesComportementales = donnees.competencesComportementales;' +
-'    resultat = window.parent._pdfConstruireStyleEtPage(donnees.objetCV, donnees.composition, opts);' +
-'  }' +
-'  document.getElementById("styleCv").textContent = resultat.css;' +
-'  document.getElementById("conteneurPage").innerHTML = resultat.pageHtml;' +
+'  var resultat = _pdfConstruireResultatCourant(format, opts);' +
+'  resultat = _pdfRaccourcirAutomatiquement(format, resultat);' +
+'  resultat = _pdfEssayerCompProDroite(format, resultat);' +
+'  resultat = _pdfEquilibrerColonnes(format, resultat);' +
+'  _pdfInjecterResultat(resultat);' +
+// TACHE (Denis, 2026-09-25, cadre commun) : previent la page hote (ecran « La mise en page ») que le CV vient
+// de changer, pour mettre a jour « n experiences affichees / le CV tient sur 1 page » et le message de depassement.
+'  if (window.parent && typeof window.parent._pdfMqApresRendu === "function") { window.parent._pdfMqApresRendu(document.querySelector("#conteneurPage .cv")); }' +
+'  setTimeout(function () { if (window.parent && typeof window.parent._mepMajInfoPage === "function") { window.parent._mepMajInfoPage(); } }, 0);' +
 '  document.getElementById("stylePage").textContent = "@page { size: " + resultat.largeurPage + " " + resultat.hauteurPage + "; margin: 0; }";' +
 '  document.getElementById("valeurEchelle").textContent = Math.round(_cvPdfEchelle * 11 * 10) / 10;' +
 '  document.getElementById("regEchelle").value = Math.round(_cvPdfEchelle * 11 * 10) / 10;' +
@@ -1479,13 +2114,18 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  document.getElementById("valeurLargeurColonnes").textContent = document.getElementById("regLargeurColonneGauche").value + "%";' +
 '  document.getElementById("valeurLargeurAccroche").textContent = document.getElementById("regLargeurAccrocheLibre").value + "%";' +
 '  document.getElementById("valeurLargeurMetier").textContent = document.getElementById("regLargeurMetierLibre").value + "%";' +
-// TACHE (auto-ajustement du bandeau, voir _pdfAutoAjusterBandeauSiDebordement
-// plus bas) : verifie/corrige AVANT de cabler les listeners de glisser-
-// depose ci-dessous (inutile de les poser sur un DOM sur le point d\'etre
-// remplace par le rafraichissement recursif) -- return immediat, le
-// rafraichissement recursif se charge lui-meme de la suite (listeners,
-// repositionnement barre d\'outils, persistance).' +
-'  if (_pdfAutoAjusterBandeauSiDebordement()) { _pdfRafraichir(); return; }' +
+// TACHE (retour Denis 2026-09-19, 5e vague, decision ferme de Denis :
+// "si ca retrecit, c'est parce que c'est moi qui decide, pas parce que le
+// programme me le fait a ma place") : l'ancien garde-fou automatique
+// (_pdfAutoAjusterBandeauSiDebordement(), qui reduisait la taille toute
+// seule a chaque rafraichissement des que le metier/l'accroche depassait
+// ou chevauchait) est retire d'ici -- retrecissait silencieusement TOUTE
+// augmentation manuelle (curseur ou glisser-depose), meme deliberee.
+// Seul le cadre rouge visuel (.hors-cadre, voir _pdfVerifierDebordementBlocLibre()
+// plus bas, desormais etendu au chevauchement entre blocs) signale encore
+// le probleme -- jamais de correction automatique de la taille en dehors
+// du bouton explicite "Mise en page" (_pdfAjusterMiseEnPageCalcul(),
+// mecanisme separe, inchange, jamais declenche sans clic).' +
 // TACHE (glisser-deposer des rubriques) : #conteneurPage vient d\'etre
 // entierement remplace (innerHTML ci-dessus, qui detache au passage tout
 // listener pose sur l\'ancien contenu) -- reattache systematiquement a
@@ -1671,8 +2311,16 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 'function _pdfReappliquerTextesEdites() {' +
 '  Object.keys(_cvPdfTextesEdites).forEach(function (id) {' +
 '    var el = document.querySelector(\'#conteneurPage [data-edit-id="\' + id + \'"]\');' +
-'    if (el) { el.innerHTML = _cvPdfTextesEdites[id]; }' +
+'    if (el) { el.innerHTML = _cvPdfTextesEdites[id]; _pdfMasquerSiVide(el); }' +
 '  });' +
+'}' +
+// Retour Denis 2026-10-02 : un texte entièrement effacé laissait sa puce (rond, carré...) seule devant rien. Un élément vide est donc retiré de la page
+// (avec son <li> s'il est seul dedans) ; la puce est dessinée par l\'élément ou son <li>. Appliqué à la sortie du champ, jamais pendant la frappe.
+'function _pdfMasquerSiVide(el) {' +
+'  var li = el.closest("li");' +
+'  var cible = (li && li.querySelectorAll(_PDF_SELECTEUR_EDITABLE).length <= 1) ? li : el;' +
+'  var vide = el.textContent.replace(/[\\u200b\\s]/g, "") === "";' +
+'  if (vide) { cible.setAttribute("data-vide", "1"); } else { cible.removeAttribute("data-vide"); if (cible !== el) { el.removeAttribute("data-vide"); } }' +
 '}' +
 // TACHE (mode edition de texte) : SEUL cablage actif sur #conteneurPage
 // quand _cvPdfModeEditionTexte est vrai (voir _pdfRafraichir(), qui ne
@@ -1708,6 +2356,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    el.addEventListener("blur", function () {' +
 '      _cvPdfTextesEdites[el.getAttribute("data-edit-id")] = el.innerHTML;' +
 '      el.removeAttribute("contenteditable");' +
+'      _pdfMasquerSiVide(el);' +
 '      _pdfFermerBarreFormatTexte();' +
 '    });' +
 '  });' +
@@ -1877,11 +2526,25 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // taille de page. Un clic SANS deplacement (aBouge=false) ouvre quand
 // meme la mini-barre flottante (taille/police) -- meme UX que le mode
 // empile, juste sans le glisser-depose HTML5 concurrent.
+// TACHE (retour Denis 2026-09-19, 5e vague) : verifie desormais AUSSI le
+// chevauchement avec les AUTRES blocs de l'en-tete (pas seulement les
+// limites du cadre .entete-libre) -- meme geometrie que l'ancienne
+// _pdfAutoAjusterBandeauSiDebordement() (retiree, voir plus haut), mais
+// ici pour ALLUMER le cadre rouge, jamais pour corriger la taille a la
+// place de la personne (decision Denis : "si ca retrecit, c'est moi qui
+// decide"). _pdfRectanglesSeChevauchent() deja definie plus haut, jamais
+// une 2e version.
 'function _pdfVerifierDebordementBlocLibre(bloc, entete) {' +
 '  var br = bloc.getBoundingClientRect();' +
 '  var er = entete.getBoundingClientRect();' +
 '  var deborde = br.left < er.left - 0.5 || br.top < er.top - 0.5 || br.right > er.right + 0.5 || br.bottom > er.bottom + 0.5;' +
-'  bloc.classList.toggle("hors-cadre", deborde);' +
+'  var chevauche = false;' +
+'  if (!deborde) {' +
+'    Array.prototype.forEach.call(entete.querySelectorAll(".bloc-libre"), function (autre) {' +
+'      if (autre !== bloc && _pdfRectanglesSeChevauchent(br, autre.getBoundingClientRect())) { chevauche = true; }' +
+'    });' +
+'  }' +
+'  bloc.classList.toggle("hors-cadre", deborde || chevauche);' +
 '}' +
 // TACHE (retour utilisateur, bug reel confirme : "le texte a depasse le
 // bandeau autorise... le code doit ajuster la taille du texte pour que ca
@@ -1912,53 +2575,14 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 'function _pdfRectanglesSeChevauchent(a, b) {' +
 '  return !(a.right <= b.left + 0.5 || a.left >= b.right - 0.5 || a.bottom <= b.top + 0.5 || a.top >= b.bottom - 0.5);' +
 '}' +
-// Un seul ajustement (d\'un seul bloc) par appel -- volontaire : la
-// recursion deja en place dans _pdfRafraichir() (voir plus bas, "if
-// (_pdfAutoAjusterBandeauSiDebordement()) { _pdfRafraichir(); return; }")
-// re-mesure entierement apres CHAQUE changement, jamais sur des rectangles
-// perimes -- essaie toujours "metier" en premier (le plus souvent
-// responsable : titre court en apparence mais qui replie sur plusieurs
-// lignes des qu'il est repositionne/retreci), "accroche" seulement si
-// metier est deja au plancher et que le probleme persiste malgre tout.
-// TACHE (meme retour utilisateur, cas plus rare mais rencontre en testant
-// -- "nom" chevauchant occasionnellement "metier") : le nom (x fixe a
-// gauche, jamais deplace automatiquement -- voir positionsLibresDefaut)
-// n\'est jamais retreci ici (une personne ne veut jamais voir SON PROPRE
-// nom rapetisser tout seul), mais un chevauchement AVEC lui declenche
-// quand meme un retrecissement de metier/accroche -- c\'est generalement
-// leur boite, pas celle du nom, qui s\'est etendue jusqu\'a le toucher.
-'function _pdfAutoAjusterBandeauSiDebordement() {' +
-'  var entete = document.querySelector("#conteneurPage .entete-libre");' +
-'  if (!entete) { return false; }' +
-'  var er = entete.getBoundingClientRect();' +
-'  var blocNom = document.querySelector("#conteneurPage .entete-libre .bloc-libre[data-entete-bloc=\\"nom\\"]");' +
-'  var blocMetier = document.querySelector("#conteneurPage .entete-libre .bloc-libre[data-entete-bloc=\\"metier\\"]");' +
-'  var blocAccroche = document.querySelector("#conteneurPage .entete-libre .bloc-libre[data-entete-bloc=\\"accroche\\"]");' +
-// TACHE (point 19) : coordonnees, comme nom, n'est jamais retreci ici
-// (candidats plus bas reste limite a metier/accroche) mais un
-// chevauchement AVEC lui doit quand meme declencher un retrecissement --
-// meme raisonnement exact que pour nom (voir le commentaire du haut de
-// cette fonction).
-'  var blocCoordonnees = document.querySelector("#conteneurPage .entete-libre .bloc-libre[data-entete-bloc=\\"coordonnees\\"]");' +
-'  function seChevauchentSiPresents(a, b) { return (a && b) ? _pdfRectanglesSeChevauchent(a.getBoundingClientRect(), b.getBoundingClientRect()) : false; }' +
-'  var chevauchement = seChevauchentSiPresents(blocMetier, blocAccroche) || seChevauchentSiPresents(blocNom, blocMetier) || seChevauchentSiPresents(blocNom, blocAccroche) ||' +
-'    seChevauchentSiPresents(blocCoordonnees, blocMetier) || seChevauchentSiPresents(blocCoordonnees, blocAccroche) || seChevauchentSiPresents(blocNom, blocCoordonnees);' +
-'  var candidats = [["metier", blocMetier], ["accroche", blocAccroche]];' +
-'  for (var i = 0; i < candidats.length; i++) {' +
-'    var cle = candidats[i][0];' +
-'    var bloc = candidats[i][1];' +
-'    if (!bloc) { continue; }' +
-'    var br = bloc.getBoundingClientRect();' +
-'    var deborde = br.bottom > er.bottom + 0.5 || br.right > er.right + 0.5;' +
-'    if (!deborde && !chevauchement) { continue; }' +
-'    var cleEchelle = "entete-" + cle;' +
-'    var actuelle = _cvPdfEchellesRubriques[cleEchelle] || 1;' +
-'    if (actuelle <= _PDF_ECHELLE_LOCALE_MIN_AUTOFIT) { continue; }' +
-'    _cvPdfEchellesRubriques[cleEchelle] = Math.max(_PDF_ECHELLE_LOCALE_MIN_AUTOFIT, Math.round((actuelle - 0.05) * 100) / 100);' +
-'    return true;' +
-'  }' +
-'  return false;' +
-'}' +
+// TACHE (retour Denis 2026-09-19, 5e vague, decision ferme de Denis) :
+// _pdfAutoAjusterBandeauSiDebordement() (retrecissement automatique et
+// silencieux du metier/de l'accroche a chaque rafraichissement) est
+// retiree d'ici -- son seul appelant (_pdfRafraichir()) ne la declenche
+// plus. Le signalement visuel (cadre rouge) reste seul, voir
+// _pdfVerifierDebordementBlocLibre() plus bas, desormais etendue au
+// chevauchement entre blocs (elle ne verifiait jusqu'ici que les limites
+// du cadre de l'en-tete).' +
 'function _pdfActiverGlisserLibreEntete() {' +
 '  var entete = document.querySelector("#conteneurPage .entete-libre");' +
 '  if (!entete) { return; }' +
@@ -2265,6 +2889,12 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  if (!_cvPdfRubriqueSelectionnee) { return; }' +
 '  _cvPdfEchellesRubriques[_cvPdfRubriqueSelectionnee] = parseInt(this.value, 10) / 100;' +
 '  document.getElementById("valeurEchelleRubrique").textContent = this.value + "%";' +
+// TACHE (retour Denis 2026-09-19, 5e vague, decision ferme de Denis) :
+// _pdfRafraichir() simple -- plus de garde-fou automatique a sauter (voir
+// son commentaire), la taille choisie ici est toujours respectee telle
+// quelle. Le cadre rouge (_pdfVerifierDebordementBlocLibre(), rebranche a
+// chaque rafraichissement par _pdfActiverGlisserLibreEntete()) signale
+// seul un depassement/chevauchement eventuel.
 '  _pdfRafraichir();' +
 '});' +
 'document.getElementById("btnResetRubrique").addEventListener("click", function () {' +
@@ -2577,6 +3207,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  var el = document.getElementById("messageMiseEnPage");' +
 '  if (!texte) { el.classList.remove("visible"); el.innerHTML = ""; return; }' +
 '  el.innerHTML = "🪄 <strong>Mise en page :</strong> " + texte;' +
+'  if (texte.indexOf("Calcul en cours") === -1 && window.parent && typeof window.parent._mepMessageMEPRecu === "function") { window.parent._mepMessageMEPRecu(texte); }' +
 '  el.classList.add("visible");' +
 '}' +
 // TACHE (retour utilisateur, bug reel confirme sur plusieurs captures :
@@ -2823,6 +3454,580 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  }' +
 '  return ["regroupement des expériences appliqué"];' +
 '}' +
+'function _pdfLireTheme(cle, defaut) {' +
+'  var c = (window.parent.dossier && window.parent.dossier.reglagesMiseEnPageCV) || {};' +
+'  return c[cle] || defaut;' +
+'}' +
+'function _pdfPoserTheme(cle, val) {' +
+'  var p = window.parent;' +
+'  p._assurerReglagesMiseEnPageCV();' +
+'  p.dossier.reglagesMiseEnPageCV[cle] = val;' +
+'  if (p.etatApercuInline && p.etatApercuInline.cv) {' +
+'    if (!p.etatApercuInline.cv.reglagesProjetXXL) { p.etatApercuInline.cv.reglagesProjetXXL = {}; }' +
+'    p.etatApercuInline.cv.reglagesProjetXXL[cle] = val;' +
+'  }' +
+'}' +
+'function _pdfInstantaneMEP() {' +
+'  return {' +
+'    echelle: _cvPdfEchelle,' +
+'    entete: _cvPdfEchellesRubriques["entete-nom"] || 1,' +
+'    interligne: _pdfLireTheme("interligne", "normal"),' +
+'    espParas: _pdfLireTheme("espacementParas", "normal"),' +
+'    marge: (typeof _cvPdfChoixMq.margePage === "number") ? _cvPdfChoixMq.margePage : 10,' +
+'    espForm: _cvPdfEspacementFormations' +
+'  };' +
+'}' +
+'function _pdfLeviersEspaces() {' +
+'  var pas = function (cle, ordre, sens, poser) {' +
+'    return function () {' +
+'      var i = ordre.indexOf(_pdfLireTheme(cle, "normal"));' +
+'      var j = i + sens;' +
+'      if (i === -1 || j < 0 || j >= ordre.length) { return null; }' +
+'      var avant = ordre[i];' +
+'      _pdfPoserTheme(cle, ordre[j]);' +
+'      return function () { _pdfPoserTheme(cle, avant); };' +
+'    };' +
+'  };' +
+'  return {' +
+'    interligne: function (sens) { return pas("interligne", ["serre", "normal", "aere"], sens)(); },' +
+'    espParas: function (sens) { return pas("espacementParas", ["serre", "normal", "large"], sens)(); },' +
+'    marge: function (sens) {' +
+'      var m = (typeof _cvPdfChoixMq.margePage === "number") ? _cvPdfChoixMq.margePage : 10;' +
+'      var liste = [6, 8, 10, 14];' +
+'      var i = liste.indexOf(m);' +
+'      if (i === -1) { return null; }' +
+'      var j = i + sens;' +
+'      if (j < 0 || j >= liste.length) { return null; }' +
+'      _pdfMqChoix("margePage", liste[j]);' +
+'      return function () { _pdfMqChoix("margePage", m); };' +
+'    },' +
+'    espForm: function (sens) {' +
+'      var e = _cvPdfEspacementFormations;' +
+'      var cible = sens < 0 ? Math.max(2, e - 2) : Math.min(8, e + 2);' +
+'      if (cible === e) { return null; }' +
+'      _cvPdfEspacementFormations = cible;' +
+'      return function () { _cvPdfEspacementFormations = e; };' +
+'    },' +
+// TACHE (retour Denis 2026-09-28, tard : "je pense qu'il peut nous apporter
+// des gros benefices") : "Style des missions" (Epurees = 1 par ligne /
+// Condensees = a la suite) -- condense prend nettement moins de hauteur.
+// POINT CORRIGE APRES VERIFICATION EN DIRECT (le premier essai, via
+// _pdfLireTheme/_pdfPoserTheme comme interligne/espParas, N\'AVAIT AUCUN EFFET
+// VISUEL -- teste et confirme : _pdfLireOptions() lit ces 2 champs depuis les
+// <select> caches regStyleProfessionnel/regStylePersonnel de CET iframe
+// (document.getElementById), jamais depuis dossier.reglagesMiseEnPageCV en
+// direct pendant _pdfRafraichir(). interligne/espacementParas semblent
+// partager ce meme gap (a verifier separement, hors scope de ce soir) --
+// mais PAS suppose ici, verifie precisement pour ces 2 champs avant de
+// committer). Corrige : ecrit sur le <select> cache (effet immediat, ce que
+// _pdfRafraichir() lit reellement) ET sur dossier.reglagesMiseEnPageCV
+// (persistance, canal normalement synchronise par le clic reel sur le
+// segmente du panneau) -- les 2, jamais un seul.
+'    missionsPro: function (sens) {' +
+'      var el = document.getElementById("regStyleProfessionnel");' +
+'      var actuel = el.value || "epure";' +
+'      if (sens < 0 && actuel !== "condense") {' +
+'        el.value = "condense"; _pdfPoserTheme("styleProfessionnel", "condense");' +
+'        return function () { el.value = actuel; _pdfPoserTheme("styleProfessionnel", actuel); };' +
+'      }' +
+'      if (sens > 0 && actuel === "condense") {' +
+'        el.value = "epure"; _pdfPoserTheme("styleProfessionnel", "epure");' +
+'        return function () { el.value = actuel; _pdfPoserTheme("styleProfessionnel", actuel); };' +
+'      }' +
+'      return null;' +
+'    },' +
+// TACHE (chantier "style des missions etendu", 2026-09-29) : le rendu de la galerie lit desormais stylePersonnel
+// et styleFormations (cvPdfTemplateMaquette.js) -- ces 2 leviers sont donc actifs, comme missionsPro.
+'    missionsPerso: function (sens) {' +
+'      var el = document.getElementById("regStylePersonnel");' +
+'      var actuel = el.value || "epure";' +
+'      if (sens < 0 && actuel !== "condense") {' +
+'        el.value = "condense"; _pdfPoserTheme("stylePersonnel", "condense");' +
+'        return function () { el.value = actuel; _pdfPoserTheme("stylePersonnel", actuel); };' +
+'      }' +
+'      if (sens > 0 && actuel === "condense") {' +
+'        el.value = "epure"; _pdfPoserTheme("stylePersonnel", "epure");' +
+'        return function () { el.value = actuel; _pdfPoserTheme("stylePersonnel", actuel); };' +
+'      }' +
+'      return null;' +
+'    },' +
+'    missionsFormations: function (sens) {' +
+'      var el = document.getElementById("regStyleFormations");' +
+'      var actuel = el.value || "epure";' +
+'      if (sens < 0 && actuel !== "condense") {' +
+'        el.value = "condense"; _pdfPoserTheme("styleFormations", "condense");' +
+'        return function () { el.value = actuel; _pdfPoserTheme("styleFormations", actuel); };' +
+'      }' +
+'      if (sens > 0 && actuel === "condense") {' +
+'        el.value = "epure"; _pdfPoserTheme("styleFormations", "epure");' +
+'        return function () { el.value = actuel; _pdfPoserTheme("styleFormations", actuel); };' +
+'      }' +
+'      return null;' +
+'    },' +
+// TACHE (K5, 2026-09-28, retour Denis : "un texte prend moins de place qu'une
+// pastille, ca pourrait etre un levier") : bascule vers "texte" (le plus
+// compact, sans pastille/rectangle decoratifs) pour tasser ; bascule vers
+// "pastille" pour aerer. Convention interne "texte" (jamais "texte-seul",
+// reserve au champ canonique dossier.reglagesMiseEnPageCV -- traduit par
+// modules/cv-mise-en-page/reglagesTraducteurs.js, verifie non un decalage).
+'    styleCompetences: function (sens) {' +
+'      var actuel = _cvPdfChoixMq.styleCompetences || "pastille";' +
+'      if (sens < 0 && actuel !== "texte") {' +
+'        _pdfMqChoix("styleCompetences", "texte");' +
+'        return function () { _pdfMqChoix("styleCompetences", actuel); };' +
+'      }' +
+'      if (sens > 0 && actuel === "texte") {' +
+'        _pdfMqChoix("styleCompetences", "pastille");' +
+'        return function () { _pdfMqChoix("styleCompetences", actuel); };' +
+'      }' +
+'      return null;' +
+'    }' +
+'  };' +
+'}' +
+'function _pdfEssayerTasserEspaces(hauteur, cible) {' +
+'  var leviers = _pdfLeviersEspaces();' +
+'  var noms = ["interligne", "espParas", "marge", "espForm", "missionsPro", "missionsPerso", "missionsFormations", "styleCompetences"];' +
+'  var progres = true;' +
+'  while (progres && hauteur > cible + 2) {' +
+'    progres = false;' +
+'    for (var k = 0; k < noms.length && hauteur > cible + 2; k++) {' +
+'      if (leviers[noms[k]](-1)) { hauteur = _pdfRafraichirEtMesurer(); progres = true; }' +
+'    }' +
+'  }' +
+'  return hauteur;' +
+'}' +
+'function _pdfEssayerAererEspaces(hauteur) {' +
+'  var leviers = _pdfLeviersEspaces();' +
+'  var noms = ["espForm", "interligne", "espParas", "marge", "missionsPro", "missionsPerso", "missionsFormations", "styleCompetences"];' +
+'  var progres = true;' +
+'  while (progres && hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
+'    progres = false;' +
+'    for (var k = 0; k < noms.length && hauteur < HAUTEUR_CIBLE_PX * 0.82; k++) {' +
+'      var annuler = leviers[noms[k]](1);' +
+'      if (!annuler) { continue; }' +
+'      var apres = _pdfRafraichirEtMesurer();' +
+'      if (apres > HAUTEUR_CIBLE_PX + 2) { annuler(); _pdfRafraichirEtMesurer(); continue; }' +
+'      hauteur = apres; progres = true;' +
+'    }' +
+'  }' +
+'  return hauteur;' +
+'}' +
+'function _pdfCompteRenduMEP(avant, cas) {' +
+'  var apres = _pdfInstantaneMEP();' +
+'  var noms = { serre: "serrés", normal: "normaux", aere: "aérés" };' +
+'  var nomsEsp = { serre: "serré", normal: "normal", large: "large" };' +
+'  var l = [];' +
+'  if (isFinite(avant.echelle) && isFinite(apres.echelle) && avant.echelle !== apres.echelle) { l.push("Texte : " + _pdfAfficherTaillePx(avant.echelle) + " px → " + _pdfAfficherTaillePx(apres.echelle) + " px"); }' +
+'  if (Math.abs(avant.entete - apres.entete) > 0.001) { l.push("En-tête : " + (apres.entete > avant.entete ? "agrandi" : "réduit") + " de " + Math.round(Math.abs(apres.entete - avant.entete) / avant.entete * 100) + " %"); }' +
+'  if (avant.interligne !== apres.interligne) { l.push("Interlignes : " + noms[avant.interligne] + " → " + noms[apres.interligne]); }' +
+'  if (avant.espParas !== apres.espParas) { l.push("Espace entre les blocs : " + nomsEsp[avant.espParas] + " → " + nomsEsp[apres.espParas]); }' +
+'  if (avant.marge !== apres.marge) { l.push("Marges : " + avant.marge + " mm → " + apres.marge + " mm"); }' +
+'  if (avant.espForm !== apres.espForm) { l.push("Espace entre les formations : " + avant.espForm + " px → " + apres.espForm + " px"); }' +
+'  if (cas === "tient") { l.push("Le CV tient maintenant sur une page."); }' +
+'  else if (cas === "depasse") { l.push("Même resserré au maximum, le CV dépasse encore un peu la page : essayez « Résumé » ou les suggestions ci-dessous."); }' +
+'  else if (cas === "rempli") { l.push("La page est mieux remplie."); }' +
+'  else if (cas === "incomplet") { l.push("La page reste incomplète : vous pouvez ajouter des informations ou consulter les suggestions."); }' +
+'  else if (!l.length) { l.push("Rien à ajuster : la mise en page tient déjà bien sur une page."); }' +
+'  l.push("Aucune information n’a été retirée ni ajoutée.");' +
+'  return l.join("<br>");' +
+'}' +
+'function _pdfNbLignesRubrique(titre) {' +
+'  var secs = document.querySelectorAll(".page-a4 [data-rub]");' +
+'  for (var i = 0; i < secs.length; i++) {' +
+'    if (secs[i].getAttribute("data-rub") === titre) {' +
+'      var pills = secs[i].querySelectorAll(".pill").length;' +
+'      return pills || secs[i].querySelectorAll(":scope > div > div").length || secs[i].querySelectorAll("li").length;' +
+'    }' +
+'  }' +
+'  return 0;' +
+'}' +
+'function _pdfCandidatsSuggestions(sens) {' +
+'  var l = [];' +
+'  var deja = _cvPdfChoixMq.listesDeuxColonnes || [];' +
+'  var styleComp = document.getElementById("regStyleCompetences").value;' +
+'  if (sens === "gagner") {' +
+// Retour Denis 2026-09-30 (C4) : aucune suggestion ne fait repasser en presentation chronologique. La personne a choisi son mode
+// (Mixte, Par competences) : les suggestions s'adaptent a ce choix, elles ne le changent jamais.
+'    if (styleComp !== "texte") {' +
+'      l.push({ id: "texte", titre: "Compétences en texte, sans pastilles", detail: "Les compétences ne sont plus dans des pastilles mais écrites simplement, à la suite : elles prennent moins de place.", picto: "une", changes: [{ cle: "__reg", id: "regStyleCompetences", valeur: "texte", canon: "texte-seul" }] });' +
+'    }' +
+'    var titres = ["Compétences professionnelles", "Savoirs", "Logiciels et outils", "Langues", "Certifications", "Centres d’intérêt"];' +
+'    var eligibles = [];' +
+'    for (var k = 0; k < titres.length; k++) {' +
+'      if (deja.indexOf(titres[k]) === -1 && _pdfNbLignesRubrique(titres[k]) >= 2) {' +
+'        eligibles.push(titres[k]);' +
+'        l.push({ id: "col2-" + k, titre: "« " + _pdfNA(titres[k]) + " » sur 2 colonnes", detail: "La rubrique « " + _pdfNA(titres[k]) + " » passe de une à deux colonnes : deux éléments par ligne, moins de hauteur (au moins une ligne gagnée). Le contenu ne change pas.", picto: "deux", changes: [{ cle: "listesDeuxColonnes", valeur: deja.concat([titres[k]]) }] });' +
+'      }' +
+'    }' +
+'    if (eligibles.length >= 2) {' +
+'      l.push({ id: "col2-toutes", titre: "Toutes les listes courtes sur 2 colonnes", detail: "Les rubriques « " + eligibles.map(_pdfNA).join(" », « ") + " » passent toutes sur deux colonnes en une seule fois, pour gagner un maximum de lignes. Le contenu ne change pas.", picto: "deux", changes: [{ cle: "listesDeuxColonnes", valeur: deja.concat(eligibles) }] });' +
+'    }' +
+'    var uneColonne = document.getElementById("regColonnes").value === "1";' +
+'    var modeleLibre = !document.getElementById("regCreatifActif").checked && !document.getElementById("regSobreActif").checked;' +
+'    if (uneColonne && _cvPdfChoixMq.blocsCourts === "dessous") {' +
+'      l.push({ id: "cote", titre: "Blocs courts côte à côte", detail: "Compétences, logiciels, langues et certifications se placent deux par deux, côte à côte : moins de hauteur. Le contenu ne change pas.", picto: "deux", changes: [{ cle: "blocsCourts", valeur: null }] });' +
+'    }' +
+'    if (uneColonne && modeleLibre && _cvPdfChoixMq.blocsCourts !== "dessous" && !_cvPdfChoixMq.petitesUneLigne && !document.querySelector(".paire.trois")) {' +
+'      l.push({ id: "petites-ligne", titre: _pdfNA("Logiciels et outils") + ", " + _pdfNA("Langues") + " et " + _pdfNA("Centres d’intérêt") + " sur une ligne", detail: "Les trois petites rubriques se placent côte à côte, sur une seule ligne, au lieu d’être sur deux lignes : moins de hauteur. Le contenu ne change pas.", picto: "deux", changes: [{ cle: "petitesUneLigne", valeur: true }] });' +
+'    }' +
+'    if (uneColonne && modeleLibre && !_cvPdfChoixMq.logicielsAcoteFormations && !document.querySelector(".paire.trois") && document.querySelector(\'[data-rub="Logiciels et outils"]\') && document.querySelector(\'[data-rub="Formations"]\')) {' +
+'      l.push({ id: "logi-form", titre: "« " + _pdfNA("Logiciels et outils") + " » à côté de « " + _pdfNA("Formations") + " »", detail: "La rubrique « " + _pdfNA("Logiciels et outils") + " » se place à droite de « " + _pdfNA("Formations") + " », dans la place libre : moins de hauteur. Le contenu ne change pas.", picto: "deux", changes: [{ cle: "logicielsAcoteFormations", valeur: true }] });' +
+'    }' +
+'    if (uneColonne && modeleLibre && !_cvPdfChoixMq.formCertifsCoteACote && document.querySelector(\'[data-rub="Formations"]\') && document.querySelector(\'[data-rub="Certifications"]\')) {' +
+'      l.push({ id: "dates-apres", titre: "Dates juste après le titre : « " + _pdfNA("Formations") + " » et « " + _pdfNA("Certifications") + " » côte à côte", detail: "Pour ces deux rubriques, la date s’écrit juste après le titre (au lieu d’être à droite) et elles se placent côte à côte : une rangée de moins. Les autres rubriques gardent leurs dates comme elles sont. Aucune information n’est retirée.", picto: "deux", changes: [{ cle: "datesApresTitre", valeur: ["Formations", "Certifications"] }, { cle: "formCertifsCoteACote", valeur: true }] });' +
+'    }' +
+'    if (uneColonne && modeleLibre) {' +
+'      l.push({ id: "deuxcol", titre: "Passer en 2 colonnes", detail: "Le CV passe sur deux colonnes : les compétences, langues et autres rubriques courtes à gauche, les expériences et formations à droite. Le contenu ne change pas.", picto: "deux", changes: [{ cle: "__reg", id: "regColonnes", valeur: "2" }] });' +
+'    }' +
+'    if (!_pdfDispositionPropre()) {' +
+'      var enHaut = _pdfCompetencesEnHautEffectif();' +
+'      l.push({ id: "comphaut", titre: enHaut ? "Compétences en bas de page" : "Compétences en haut de page", detail: enHaut ? "Le bloc des compétences descend après les expériences et les formations : la page peut mieux se répartir. Le contenu ne change pas." : "Le bloc des compétences monte tout en haut, sous l’en-tête. Le contenu ne change pas.", picto: "une", changes: [{ cle: "__comp_haut", valeur: !enHaut }] });' +
+'    }' +
+'    if (_cvPdfChoixMq.formationsLigne !== "ligne" && _pdfNbLignesRubrique("Formations") >= 3) {' +
+'      l.push({ id: "formligne", titre: "« " + _pdfNA("Formations") + " » sur une seule ligne chacune", detail: "Pour chaque formation, l’année, le diplôme, le centre et le lieu sont écrits sur la même ligne quand ils tiennent.", picto: "une", changes: [{ cle: "formationsLigne", valeur: "ligne" }] });' +
+'    }' +
+'    if (document.getElementById("regColonnes").value === "2" && !_cvPdfChoixMq.formationsAGauche && _pdfNbLignesRubrique("Formations") >= 1) {' +
+'      l.push({ id: "formgauche", titre: "« " + _pdfNA("Formations") + " » dans la colonne de gauche", detail: "Le bloc « " + _pdfNA("Formations") + " » passe dans la colonne de gauche : les deux colonnes sont mieux équilibrées.", picto: "deux", changes: [{ cle: "formationsAGauche", valeur: true }] });' +
+'    }' +
+// Retour Denis 2026-10-01 : les reglages de mise en forme DEJA existants qui gagnent de la place sans rien retirer. Chaque candidat est mesure comme les autres
+// (une suggestion n'apparait que si elle gagne vraiment des lignes), la personne reste libre de l\'accepter ou non.
+'    var elMisPro = document.getElementById("regStyleProfessionnel"), elMisForm = document.getElementById("regStyleFormations"), elMisPerso = document.getElementById("regStylePersonnel");' +
+'    if (elMisPro && elMisPro.value !== "condense") {' +
+'      l.push({ id: "mis-condense", titre: "Missions des expériences à la suite", detail: "Les missions de chaque expérience s’écrivent à la suite, séparées par des points-virgules, au lieu d’une par ligne : moins de hauteur. Rien n’est retiré.", picto: "une", changes: [{ cle: "__reg", id: "regStyleProfessionnel", valeur: "condense" }] });' +
+'    }' +
+'    if (elMisForm && elMisForm.value !== "condense") {' +
+'      l.push({ id: "mis-form-condense", titre: "Missions des formations à la suite", detail: "Les missions de chaque formation s’écrivent à la suite, au lieu d’une par ligne : moins de hauteur. Rien n’est retiré.", picto: "une", changes: [{ cle: "__reg", id: "regStyleFormations", valeur: "condense" }] });' +
+'    }' +
+'    if (elMisPerso && elMisPerso.value !== "condense") {' +
+'      l.push({ id: "mis-perso-condense", titre: "Missions de l’expérience personnelle à la suite", detail: "Les missions de l’expérience personnelle s’écrivent à la suite, au lieu d’une par ligne : moins de hauteur. Rien n’est retiré.", picto: "une", changes: [{ cle: "__reg", id: "regStylePersonnel", valeur: "condense" }] });' +
+'    }' +
+'    if (_cvPdfPositionDates !== "droite") {' +
+'      l.push({ id: "dates-droite", titre: "Dates à droite des intitulés", detail: "Les dates passent sur la ligne de l’intitulé, à droite, au lieu d’une ligne à part : moins de hauteur. Rien n’est retiré.", picto: "une", changes: [{ cle: "__dates", valeur: "droite" }] });' +
+'    }' +
+'    if (_cvPdfTitresAgrandis) {' +
+'      l.push({ id: "titres-normaux", titre: "Titres de rubriques à leur taille normale", detail: "Les titres des rubriques reprennent leur taille de départ : un peu moins de hauteur. Rien n’est retiré.", picto: "une", changes: [{ cle: "__titres", valeur: false }] });' +
+'    }' +
+'    _pdfCandidatsExpACote().forEach(function (c) { l.push(c); });' +
+'    _pdfCandidatsTroisLigne().forEach(function (c) { l.push(c); });' +
+'  } else {' +
+'    if (styleComp === "texte") {' +
+'      l.push({ id: "pastille", titre: "Compétences en pastilles", detail: "Les compétences sont mises dans des pastilles : plus lisibles et plus aérées, elles remplissent mieux la page.", picto: "une", changes: [{ cle: "__reg", id: "regStyleCompetences", valeur: "pastille", canon: "pastille" }] });' +
+'    }' +
+'    var uneColonneR = document.getElementById("regColonnes").value === "1";' +
+'    var modeleLibreR = !document.getElementById("regCreatifActif").checked && !document.getElementById("regSobreActif").checked;' +
+'    if (uneColonneR && _cvPdfChoixMq.blocsCourts !== "dessous") {' +
+'      l.push({ id: "dessous", titre: "Blocs courts l’un sous l’autre", detail: "Compétences, logiciels, langues et certifications ne sont plus côte à côte mais l’un sous l’autre : plus aéré, la page se remplit mieux. Le contenu ne change pas.", picto: "une", changes: [{ cle: "blocsCourts", valeur: "dessous" }] });' +
+'    }' +
+'    if (!uneColonneR && modeleLibreR) {' +
+'      l.push({ id: "unecol", titre: "Passer en 1 colonne", detail: "Le CV passe sur une seule colonne : plus aéré, la page se remplit mieux. Le contenu ne change pas.", picto: "une", changes: [{ cle: "__reg", id: "regColonnes", valeur: "1" }] });' +
+'    }' +
+'    if (!_pdfDispositionPropre()) {' +
+'      var enHautR = _pdfCompetencesEnHautEffectif();' +
+'      l.push({ id: "comphaut", titre: enHautR ? "Compétences en bas de page" : "Compétences en haut de page", detail: enHautR ? "Le bloc des compétences descend après les expériences et les formations. Le contenu ne change pas." : "Le bloc des compétences monte tout en haut, sous l’en-tête. Le contenu ne change pas.", picto: "une", changes: [{ cle: "__comp_haut", valeur: !enHautR }] });' +
+'    }' +
+'    if (deja.length) {' +
+'      l.push({ id: "raz2col", titre: "Remettre les listes sur une colonne", detail: "Les listes passent de deux colonnes à une : plus aérées, elles remplissent mieux la page.", picto: "une", changes: [{ cle: "listesDeuxColonnes", valeur: null }] });' +
+'    }' +
+// Retour Denis 2026-10-01 : « Espacer les rubriques » (meme calcul que le bouton du grand apercu) : les rubriques s\'ecartent pour mieux remplir la page.
+'    if (document.querySelectorAll(".page-a4 .rub-sec[data-rub]").length > 2 && !Object.keys(_cvPdfReglagesRubriquesMq || {}).some(function (k) { return _cvPdfReglagesRubriquesMq[k] && _cvPdfReglagesRubriquesMq[k].esp > 0; })) {' +
+'      l.push({ id: "espacer", titre: "Espacer les rubriques", detail: "Les rubriques s’écartent un peu les unes des autres pour mieux remplir la page, sans jamais la dépasser. À deux colonnes, la disposition actuelle est gardée. Le contenu ne change pas.", picto: "une", changes: [{ cle: "__espacer", valeur: "toutes" }] });' +
+'    }' +
+'    if (_cvPdfChoixMq.formationsLigne !== "dessous" && _pdfNbLignesRubrique("Formations") >= 2) {' +
+'      l.push({ id: "formdessous", titre: "« " + _pdfNA("Formations") + " » sur deux lignes", detail: "Pour chaque formation, le diplôme est sur une ligne et le centre, le lieu et l’année en dessous : plus aéré.", picto: "une", changes: [{ cle: "formationsLigne", valeur: "dessous" }] });' +
+'    }' +
+// Retour Denis 2026-10-01 : le contraire des suggestions « gagner », avec les memes reglages deja existants.
+'    var elMisProR = document.getElementById("regStyleProfessionnel");' +
+'    if (elMisProR && elMisProR.value === "condense") {' +
+'      l.push({ id: "mis-epure", titre: "Missions des expériences une par ligne", detail: "Les missions de chaque expérience passent chacune sur sa ligne, au lieu d’être à la suite : plus lisible, la page se remplit mieux. Rien n’est ajouté.", picto: "une", changes: [{ cle: "__reg", id: "regStyleProfessionnel", valeur: "epure" }] });' +
+'    }' +
+'    if (_cvPdfPositionDates === "droite") {' +
+'      l.push({ id: "dates-sous", titre: "Dates sous les intitulés", detail: "Les dates passent sur une ligne à part, sous l’intitulé : plus aéré, la page se remplit mieux. Rien n’est ajouté.", picto: "une", changes: [{ cle: "__dates", valeur: "sous" }] });' +
+'    }' +
+'    if (!_cvPdfTitresAgrandis) {' +
+'      l.push({ id: "titres-grands", titre: "Agrandir les titres des rubriques", detail: "Les titres des rubriques sont un peu plus grands : plus lisibles, la page se remplit mieux. Rien n’est ajouté.", picto: "une", changes: [{ cle: "__titres", valeur: true }] });' +
+'    }' +
+'  }' +
+'  return l;' +
+'}' +
+// Retour Denis 2026-10-01 : a UNE colonne, quand les experiences sont legeres (peu de missions, courtes), l\'Experience professionnelle peut partager sa ligne avec UNE
+// rubrique courte (Certifications, Logiciels, Langues, Centres d\'interet, Informations) : l\'experience a gauche (60 %), la rubrique a droite (40 %). Proposition
+// mesuree comme les autres (elle n\'apparait que si elle gagne des lignes) ; la personne peut aussi le faire a la main dans le grand apercu (« Regler le corps du CV »).
+// Retour Denis 2026-10-03 : a UNE colonne, quand trois rubriques COURTES (sans missions : certifications, langues, logiciels, centres d\'interet, formations ou experience personnelle sans
+// missions) sont chacune seule sur sa ligne, les mettre toutes les trois sur la meme ligne, avec la date juste apres le titre (Formations, Certifications) pour tenir dans la largeur.
+// Proposition mesuree comme les autres (elle n\'apparait que si elle gagne des lignes), jamais appliquee d\'office.
+'function _pdfCandidatsTroisLigne() {' +
+'  var l = [];' +
+'  try {' +
+'    if (document.getElementById("regColonnes").value !== "1" || !window.parent || typeof window.parent._mqUnitesRubriques !== "function") { return l; }' +
+'    var feuille = document.querySelector(".page-a4"); if (!feuille) { return l; }' +
+'    var info = window.parent._mqUnitesRubriques(feuille);' +
+'    if (info.deux || !info.colonnes.length) { return l; }' +
+'    var rangs = info.colonnes[0].rangs, seules = [];' +
+'    rangs.forEach(function (r, i) { if (r.length === 1 && window.parent._mqClasseRubrique(r[0]) === "court") { seules.push(i); } });' +
+'    if (seules.length < 3) { return l; }' +
+'    var tr = seules.slice(0, 3), TC = window.parent._MEP_TITRES_COLONNES, IN = window.parent._PDF_INTITULES;' +
+'    var cles = tr.map(function (i) { return rangs[i][0].cle; });' +
+'    var rows = [];' +
+'    rangs.forEach(function (r, i) {' +
+'      if (i === tr[0]) { rows.push(cles); }' +
+'      else if (tr.indexOf(i) === -1) { rows.push(r.map(function (x) { return x.cle; })); }' +
+'    });' +
+'    var titresDates = [];' +
+'    cles.forEach(function (k) { if (k === "form" || k === "certifs") { titresDates.push(IN[TC[k]]); } });' +
+'    var deja = _cvPdfChoixMq.datesApresTitre || [];' +
+'    var changes = [{ cle: "__lignes1col", valeur: rows }];' +
+'    if (titresDates.length) { changes.unshift({ cle: "datesApresTitre", valeur: deja.concat(titresDates.filter(function (t) { return deja.indexOf(t) === -1; })) }); }' +
+'    var noms = cles.map(function (k) { return "« " + _pdfNA(IN[TC[k]]) + " »"; });' +
+'    l.push({ id: "trois-ligne", titre: "Trois rubriques sur une ligne : " + noms.join(", "), detail: "Ces trois rubriques courtes se placent côte à côte sur une seule ligne" + (titresDates.length ? ", avec la date juste après le titre pour tenir dans la largeur" : "") + " : deux rangées de moins. Rien n’est retiré.", picto: "deux", changes: changes });' +
+'  } catch (e) { l = []; }' +
+'  return l;' +
+'}' +
+'function _pdfCandidatsExpACote() {' +
+'  var l = [];' +
+'  try {' +
+'    if (document.getElementById("regColonnes").value !== "1" || !window.parent || typeof window.parent._mqUnitesRubriques !== "function") { return l; }' +
+'    var feuille = document.querySelector(".page-a4"); if (!feuille) { return l; }' +
+'    var info = window.parent._mqUnitesRubriques(feuille);' +
+'    if (info.deux || !info.colonnes.length) { return l; }' +
+'    var rangs = info.colonnes[0].rangs, iExp = -1;' +
+'    rangs.forEach(function (r, i) { if (r.length === 1 && r[0].cle === "exp") { iExp = i; } });' +
+'    if (iExp === -1) { return l; }' +
+'    var lis = rangs[iExp][0].el.querySelectorAll("li"), nbExp = Math.max(1, rangs[iExp][0].el.querySelectorAll(".item").length), longues = 0;' +
+'    for (var k = 0; k < lis.length; k++) { if ((lis[k].textContent || "").length > 85) { longues++; } }' +
+'    if (longues > 0 || lis.length > 2 * nbExp) { return l; }' +
+'    var noms = { certifs: _pdfNA("Certifications"), logi: _pdfNA("Logiciels et outils"), langues: _pdfNA("Langues"), centres: _pdfNA("Centres d’intérêt"), infos: _pdfNA("Informations complémentaires") };' +
+'    var cles = ["certifs", "logi", "langues", "centres", "infos"];' +
+'    rangs.forEach(function (r) {' +
+'      r.forEach(function (u) {' +
+'        if (cles.indexOf(u.cle) === -1) { return; }' +
+'        var rows = [];' +
+'        rangs.forEach(function (r2, i2) {' +
+'          var ks = r2.map(function (x) { return x.cle; }).filter(function (c) { return c !== u.cle; });' +
+'          if (i2 === iExp) { ks = ["exp", u.cle]; }' +
+'          if (ks.length) { rows.push(ks); }' +
+'        });' +
+'        l.push({ id: "exp-cote-" + u.cle, titre: "Expériences à côté de « " + noms[u.cle] + " »", detail: "Les expériences, peu chargées, se placent à gauche (60 % de la largeur) et la rubrique « " + noms[u.cle] + " » à leur droite : moins de hauteur. Le contenu ne change pas. À deux colonnes ou avec beaucoup de missions, cette suggestion ne vous est pas proposée.", picto: "deux", changes: [{ cle: "__lignes1col", valeur: rows }] });' +
+'      });' +
+'    });' +
+'  } catch (e) { l = []; }' +
+'  return l.slice(0, 3);' +
+'}' +
+'function _pdfAppliquerChangementsSuggestion(changes) {' +
+'  var avant = { choix: _cvPdfChoixMq, mode: _cvPdfModePresentation, regs: {}, proMax: _cvPdfCompetencesProMax, compMax: _cvPdfCompetencesComportementalesMax, compHaut: _cvPdfCompetencesEnHaut,' +
+'    rub: JSON.parse(JSON.stringify(_cvPdfReglagesRubriquesMq || {})), perso: _cvPdfOrganisationPerso, ordrePerso: _cvPdfOrdrePersoRubriques, dates: _cvPdfPositionDates, titres: _cvPdfTitresAgrandis };' +
+'  var copie = {}, espacer = null;' +
+'  Object.keys(_cvPdfChoixMq).forEach(function (k) { copie[k] = _cvPdfChoixMq[k]; });' +
+'  changes.forEach(function (c) {' +
+'    if (c.cle === "__espacer") { espacer = c.valeur; }' +
+'    else if (c.cle === "__dates") { _cvPdfPositionDates = c.valeur; }' +
+'    else if (c.cle === "__titres") { _cvPdfTitresAgrandis = !!c.valeur; }' +
+'    else if (c.cle === "__lignes1col") { _cvPdfOrganisationPerso = true; if (!_cvPdfOrdrePersoRubriques) { _cvPdfOrdrePersoRubriques = ["comp", "exp", "form", "bas"]; } copie.lignesUneColonne = c.valeur; }' +
+'    else if (c.cle === "__mode") { _cvPdfModePresentation = c.valeur; }' +
+'    else if (c.cle === "__reg") { var el = document.getElementById(c.id); avant.regs[c.id] = el.value; el.value = c.valeur; }' +
+'    else if (c.cle === "__comp") { if (c.quoi === "pro") { _cvPdfCompetencesProMax = c.valeur; } else { _cvPdfCompetencesComportementalesMax = c.valeur; } }' +
+'    else if (c.cle === "__comp_haut") { _cvPdfCompetencesEnHaut = c.valeur; }' +
+'    else if (c.cle === "__ouvrirChoix") { c.valeur = c.valeur; }' +
+'    else if (c.valeur === null) { delete copie[c.cle]; }' +
+'    else { copie[c.cle] = c.valeur; }' +
+'  });' +
+'  _cvPdfChoixMq = copie;' +
+// « Espacer les rubriques » (retour Denis 2026-10-01) : meme calcul que le bouton du grand apercu (cvPdfPleinEcranMaquette.js, _mqEspacerRubriques),
+// execute sur la page du panneau ; il reecrit l\'apercu lui-meme a chaque reglage, d\'ou sa place APRES l\'application des autres changements.
+'  if (espacer && window.parent && typeof window.parent._mqEspacerRubriques === "function") {' +
+'    window.parent._mqEspacerRubriques({ portee: espacer, panneau: window, feuille: function () { return document.querySelector(".page-a4"); }, rendre: function () {} });' +
+'  }' +
+'  return avant;' +
+'}' +
+'function _pdfRestaurerChangementsSuggestion(avant) {' +
+'  if (avant.rub) { _cvPdfReglagesRubriquesMq = avant.rub; }' +
+'  if (avant.perso !== undefined) { _cvPdfOrganisationPerso = avant.perso; _cvPdfOrdrePersoRubriques = avant.ordrePerso; }' +
+'  if (avant.dates !== undefined) { _cvPdfPositionDates = avant.dates; }' +
+'  if (avant.titres !== undefined) { _cvPdfTitresAgrandis = avant.titres; }' +
+'  _cvPdfChoixMq = avant.choix;' +
+'  _cvPdfModePresentation = avant.mode;' +
+'  _cvPdfCompetencesProMax = avant.proMax;' +
+'  _cvPdfCompetencesComportementalesMax = avant.compMax;' +
+'  _cvPdfCompetencesEnHaut = avant.compHaut;' +
+'  Object.keys(avant.regs).forEach(function (id) { document.getElementById(id).value = avant.regs[id]; });' +
+'}' +
+'function _pdfHauteurContenuRub(sec) {' +
+'  var haut = sec.getBoundingClientRect().top, bas = haut;' +
+'  var els = sec.querySelectorAll("*");' +
+'  for (var i = 0; i < els.length; i++) { var b = els[i].getBoundingClientRect().bottom; if (b > bas) { bas = b; } }' +
+'  return bas - haut;' +
+'}' +
+'function _pdfEquilibreCompetences() {' +
+'  if (document.querySelector(".page-a4.cv-rect")) { return null; }' +
+'  var tt = window.parent._PDF_INTITULES || {};' +
+'  var sp = null, sc = null;' +
+'  var secs = document.querySelectorAll(".page-a4 [data-rub]");' +
+'  for (var i = 0; i < secs.length; i++) {' +
+'    if (secs[i].tagName === "H2") { continue; }' +
+'    var t = secs[i].getAttribute("data-rub");' +
+'    if (t === tt.competencesPro) { sp = secs[i]; } else if (t === tt.competencesComp) { sc = secs[i]; }' +
+'  }' +
+'  if (!sp || !sc) { return null; }' +
+'  var rp = sp.getBoundingClientRect(), rc = sc.getBoundingClientRect();' +
+'  var cote = Math.abs(rp.top - rc.top) < 24 && (rp.right <= rc.left + 4 || rc.right <= rp.left + 4);' +
+'  if (!cote) { return null; }' +
+'  return { hPro: _pdfHauteurContenuRub(sp), hComp: _pdfHauteurContenuRub(sc) };' +
+'}' +
+'function _pdfCandidatsEquilibre() {' +
+'  var l = [];' +
+'  var eq = _pdfEquilibreCompetences();' +
+'  if (!eq) { return l; }' +
+'  var ecart = eq.hPro - eq.hComp;' +
+'  if (Math.abs(ecart) < 45) { return l; }' +
+'  var aff = window.parent._mepCompetencesAffichees || {};' +
+'  var nPro = (aff.pro || []).length, nComp = (aff.comp || []).length, poolComp = (aff.poolComp || []).length;' +
+'  var proAvant = _cvPdfCompetencesProMax, compAvant = _cvPdfCompetencesComportementalesMax, choixAvant = _cvPdfChoixMq;' +
+'  try {' +
+'    if (ecart >= 45) {' +
+'    if (!_cvPdfChoixMq.competencesCompChoisies && poolComp > nComp) {' +
+'      var n = nComp;' +
+'      while (n < poolComp) {' +
+'        n++;' +
+'        _cvPdfCompetencesComportementalesMax = n;' +
+'        _pdfRafraichir();' +
+'        var e2 = _pdfEquilibreCompetences();' +
+'        if (!e2 || e2.hPro - e2.hComp < 20) { break; }' +
+'      }' +
+'      if (n > nComp) {' +
+'        l.push({ id: "eq-plus-comp", equilibre: true, libelle: "Équilibre : " + nComp + " compétences comportementales deviennent " + n,' +
+'          titre: "Ajouter " + (n - nComp) + (n - nComp > 1 ? " compétences comportementales" : " compétence comportementale"),' +
+'          detail: "Affiche " + (n - nComp) + (n - nComp > 1 ? " compétences comportementales de plus" : " compétence comportementale de plus") + ", tirées de votre dossier, pour que les deux blocs de compétences aient à peu près la même hauteur. Aucune compétence n’est inventée.",' +
+'          picto: "deux", changes: [{ cle: "__comp", quoi: "comp", valeur: n }] });' +
+'      }' +
+'      _cvPdfCompetencesComportementalesMax = compAvant;' +
+'      _pdfRafraichir();' +
+'    }' +
+'    if (!_cvPdfChoixMq.competencesProChoisies && nPro > 4) {' +
+'      var plancher = Math.max(4, Math.ceil(nPro / 2));' +
+'      var m = nPro;' +
+'      while (m > plancher) {' +
+'        m--;' +
+'        _cvPdfCompetencesProMax = m;' +
+'        _pdfRafraichir();' +
+'        var e3 = _pdfEquilibreCompetences();' +
+'        if (!e3 || e3.hPro - e3.hComp < 20) { break; }' +
+'      }' +
+'      if (m < nPro) {' +
+'        l.push({ id: "eq-moins-pro", equilibre: true, libelle: "Équilibre : " + nPro + " compétences professionnelles deviennent " + m,' +
+'          titre: "Garder les " + m + " compétences professionnelles les plus pertinentes",' +
+'          detail: "Le bloc des compétences professionnelles passe de " + nPro + " à " + m + " compétences (les mieux classées restent). Les autres restent dans votre dossier et dans « " + _pdfNA("Compétences") + " > Les montrer et les choisir » : rien n’est supprimé.",' +
+'          picto: "deux", changes: [{ cle: "__comp", quoi: "pro", valeur: m }] });' +
+'      }' +
+'      _cvPdfCompetencesProMax = proAvant;' +
+'      _pdfRafraichir();' +
+'    }' +
+'    if (!_cvPdfChoixMq.competencesProChoisies && nPro >= 5) {' +
+'      l.push({ id: "eq-choisir", equilibre: true, libelle: "Équilibre : c’est vous qui choisissez",' +
+'        titre: "Choisir moi-même mes compétences professionnelles",' +
+'        detail: "Ouvre la liste « Les montrer et les choisir » de la carte « " + _pdfNA("Compétences") + " » : cochez les compétences professionnelles à garder. Les autres sont considérées comme secondaires et restent dans votre dossier.",' +
+'        picto: "deux", changes: [{ cle: "__ouvrirChoix", valeur: "pro" }] });' +
+'    }' +
+// TACHE (J5, 2026-09-28, regle de priorite donnee par Denis) : sens inverse, jamais traite avant
+// -- competences comportementales trop hautes par rapport aux pro. "Motivation"/"Apprentissage"
+// (repli par defaut, js/app.js ~3511, ne s'affiche QUE si la personne n'a renseigne aucune vraie
+// competence comportementale) doivent toujours partir EN PREMIER, jamais une competence reellement
+// saisie -- on retrie la liste affichee pour les mettre en dernier, la reduction par compte (meme
+// principe que eq-moins-pro) les coupe alors en priorite via competencesCompChoisies (liste
+// explicite), pas un simple maximum (l'ordre naturel de la liste les met en tete, pas en queue).
+'    } else if (!_cvPdfChoixMq.competencesCompChoisies && nComp > 2) {' +
+'      var compActuels = (aff.comp || []).slice();' +
+'      var resteComp = compActuels.filter(function (x) { return x !== "Motivation" && x !== "Apprentissage"; });' +
+'      var sacrificesComp = compActuels.filter(function (x) { return x === "Motivation" || x === "Apprentissage"; });' +
+'      var cibleOrdre = resteComp.concat(sacrificesComp);' +
+'      var plancherComp = Math.max(2, Math.ceil(nComp / 2));' +
+'      var mc = nComp;' +
+'      while (mc > plancherComp) {' +
+'        mc--;' +
+'        var copieTest = {};' +
+'        Object.keys(choixAvant).forEach(function (k) { copieTest[k] = choixAvant[k]; });' +
+'        copieTest.competencesCompChoisies = cibleOrdre.slice(0, mc);' +
+'        _cvPdfChoixMq = copieTest;' +
+'        _pdfRafraichir();' +
+'        var e4 = _pdfEquilibreCompetences();' +
+'        if (!e4 || e4.hComp - e4.hPro < 20) { break; }' +
+'      }' +
+'      if (mc < nComp) {' +
+'        l.push({ id: "eq-moins-comp", equilibre: true, libelle: "Équilibre : " + nComp + " compétences comportementales deviennent " + mc,' +
+'          titre: "Garder les " + mc + " compétences comportementales les plus pertinentes",' +
+'          detail: "Le bloc des compétences comportementales passe de " + nComp + " à " + mc + " compétences" + (sacrificesComp.length ? " (« Motivation »/« Apprentissage », ajoutées par défaut, partent en premier)" : "") + ". Les autres restent dans votre dossier et dans « " + _pdfNA("Compétences") + " > Les montrer et les choisir » : rien n’est supprimé.",' +
+'          picto: "deux", changes: [{ cle: "competencesCompChoisies", valeur: cibleOrdre.slice(0, mc) }] });' +
+'      }' +
+'      _cvPdfChoixMq = choixAvant;' +
+'      _pdfRafraichir();' +
+'    }' +
+'  } catch (e) { l = []; }' +
+'  _cvPdfCompetencesProMax = proAvant;' +
+'  _cvPdfCompetencesComportementalesMax = compAvant;' +
+'  _cvPdfChoixMq = choixAvant;' +
+'  _pdfRafraichir();' +
+'  return l;' +
+'}' +
+'function _pdfDefinirCompetencesMaxAbsolu(quoi, n) {' +
+'  if (quoi === "pro") { _cvPdfCompetencesProMax = n; } else { _cvPdfCompetencesComportementalesMax = n; }' +
+'  _pdfMqChoix(quoi === "pro" ? "competencesProChoisies" : "competencesCompChoisies", null);' +
+'}' +
+'function _pdfRecalculerSuggestions(sens) {' +
+'  var liste = [];' +
+'  try { _pdfRafraichir(); liste = _pdfCalculerSuggestions(_pdfMesurerHauteurPage(), sens || undefined); } catch (e) { liste = []; }' +
+'  if (window.parent && typeof window.parent._mepSuggestionsRecues === "function") { window.parent._mepSuggestionsRecues(liste, true); }' +
+'}' +
+'function _pdfNA(origine) { try { return window.parent._mepIntitule(origine) || origine; } catch (e) { return origine; } }' +
+'function _pdfCalculerSuggestions(hauteurBase, sensImpose) {' +
+'  var resultat = [];' +
+'  try {' +
+'    var sens = sensImpose || ((hauteurBase < HAUTEUR_CIBLE_PX * 0.82) ? "remplir" : "gagner");' +
+'    _pdfCandidatsEquilibre().forEach(function (c) { c.gain = 0; c.sens = sens; resultat.push(c); });' +
+'    var candidats = _pdfCandidatsSuggestions(sens);' +
+'    for (var i = 0; i < candidats.length; i++) {' +
+'      var avant = _pdfAppliquerChangementsSuggestion(candidats[i].changes);' +
+'      var h = _pdfRafraichirEtMesurer();' +
+'      _pdfRestaurerChangementsSuggestion(avant);' +
+'      var ecartPx = (sens === "gagner") ? (hauteurBase - h) : (h - hauteurBase);' +
+'      var gain = Math.round(ecartPx / 17);' +
+'      var listeCourte = String(candidats[i].id).indexOf("col2-") === 0;' +
+'      if (listeCourte && gain < 1 && ecartPx >= 8) { gain = 1; }' +
+'      if (gain >= (listeCourte ? 1 : 2) && (sens === "gagner" || h <= HAUTEUR_CIBLE_PX + 2)) { candidats[i].gain = gain; candidats[i].sens = sens; resultat.push(candidats[i]); }' +
+'    }' +
+'    _pdfRafraichir();' +
+'  } catch (e) { resultat = []; }' +
+'  resultat.sort(function (a, b) { return ((b.equilibre ? 1 : 0) - (a.equilibre ? 1 : 0)) || (b.gain - a.gain); });' +
+'  return resultat.slice(0, 9);' +
+'}' +
+'function _pdfEssayerEquilibreCompetencesAuto(hauteurCible) {' +
+'  var eq = _pdfEquilibreCompetences();' +
+'  if (!eq || eq.hPro - eq.hComp < 45) { return ""; }' +
+'  var titrePro = window.parent._PDF_INTITULES.competencesPro;' +
+'  var deja = _cvPdfChoixMq.listesDeuxColonnes || [];' +
+'  var hAvant = _pdfMesurerHauteurPage();' +
+'  var ecart = eq.hPro - eq.hComp;' +
+'  var essais = [];' +
+'  if (deja.indexOf(titrePro) === -1) { essais.push({ cle: "listesDeuxColonnes", valeur: deja.concat([titrePro]), texte: "« " + _pdfNA("Compétences professionnelles") + " » sur 2 colonnes, pour équilibrer les deux blocs de compétences." }); }' +
+'  if (_cvPdfChoixMq.blocsCourts !== "dessous") { essais.push({ cle: "blocsCourts", valeur: "dessous", texte: "Blocs courts (compétences, logiciels, langues...) placés l’un sous l’autre, pour équilibrer les deux blocs de compétences." }); }' +
+'  var notes = [];' +
+'  for (var i = 0; i < essais.length; i++) {' +
+'    var avant = _cvPdfChoixMq;' +
+'    _pdfMqChoix(essais[i].cle, essais[i].valeur);' +
+'    var e2 = _pdfEquilibreCompetences();' +
+'    var h2 = _pdfMesurerHauteurPage();' +
+'    var ecart2 = e2 ? (e2.hPro - e2.hComp) : 0;' +
+'    var mieux = !e2 || ecart2 < ecart - 30;' +
+'    var tient = h2 <= Math.max(hAvant, hauteurCible) + 2;' +
+'    if (mieux && tient) {' +
+'      notes.push(essais[i].texte);' +
+'      ecart = ecart2;' +
+'      hAvant = h2;' +
+'      if (ecart2 < 45) { break; }' +
+'    } else {' +
+'      _cvPdfChoixMq = avant;' +
+'      _pdfRafraichir();' +
+'    }' +
+'  }' +
+'  return notes.join("<br>");' +
+'}' +
 'function _pdfAjusterMiseEnPageCalcul() {' +
 // TACHE (chantier "remplissage automatique par defaut", Partie C -- meme
 // raisonnement EXACT que le Word, js/app.js activerMiseEnFormeUltimeXXL,
@@ -2840,6 +4045,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    if (_reglagesPdf.bonusCapacites) { Object.keys(_reglagesPdf.bonusCapacites).forEach(function (cle) { _reglagesPdf.bonusCapacites[cle] = 0; }); }' +
 '    _reglagesPdf.missionsBonus = 0;' +
 '  }' +
+'  var avantMEP = _pdfInstantaneMEP();' +
 '  _cvPdfEchelle = 1;' +
 // TACHE (retour utilisateur : "les deux [en-tete et corps] grandissent
 // ensemble, mais en commencant toujours par l'en-tete") : repart d'un
@@ -2866,6 +4072,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // chevauchement (un texte plus petit ne deborde jamais plus qu'un texte
 // plus grand) -- aucune verification supplementaire necessaire ici,
 // contrairement a la phase de croissance plus bas.
+'    hauteur = _pdfEssayerTasserEspaces(hauteur, hauteurCible);' +
 '    while (_pdfAjusterEchelleEnteteEnsemble(-0.05) && hauteur > hauteurCible + 2) {' +
 '      hauteur = _pdfRafraichirEtMesurer();' +
 '    }' +
@@ -2874,9 +4081,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '      hauteur = _pdfRafraichirEtMesurer();' +
 '    }' +
 '    _pdfGarantirEnteteAuMoinsAussiGrandeQueCorps();' +
-'    message = (hauteur > hauteurCible + 2)' +
-'      ? "Resserré au maximum (en-tête et corps, taille " + _pdfAfficherTaillePx(_cvPdfEchelle) + "px) mais dépasse encore un peu la page -- essayez de réduire le contenu."' +
-'      : "Ajusté pour tenir (corps " + _pdfAfficherTaillePx(_cvPdfEchelle) + "px).";' +
+'    message = _pdfCompteRenduMEP(avantMEP, hauteur > hauteurCible + 2 ? "depasse" : "tient");' +
 '  } else if (hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
 // TACHE (retour utilisateur : "on commence par l'en-tete pour grandir et
 // apres par le corps de texte" + "je prefere avoir les deux qui restent a
@@ -2935,28 +4140,19 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // qu\'elle pouvait, pour rester un ajout additif au mecanisme deja teste,
 // jamais une reecriture de son ordre existant. Chaque levier re-mesure
 // avant de decider si le suivant est encore necessaire.' +
-'    var messagesContenuAjoute = [];' +
-'    if (hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
-'      messagesContenuAjoute = messagesContenuAjoute.concat(_pdfEssayerMissionsSupplementaires());' +
-'      hauteur = _pdfRafraichirEtMesurer();' +
-'    }' +
-'    if (hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
-'      messagesContenuAjoute = messagesContenuAjoute.concat(_pdfEssayerCroissanceContenu());' +
-'      hauteur = _pdfRafraichirEtMesurer();' +
-'    }' +
-'    if (hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
-'      messagesContenuAjoute = messagesContenuAjoute.concat(_pdfEssayerRegroupementExperiences());' +
-'      hauteur = _pdfRafraichirEtMesurer();' +
-'    }' +
-'    message = (hauteur < HAUTEUR_CIBLE_PX * 0.82)' +
-'      ? "Agrandi au maximum (en-tête et corps, taille " + _pdfAfficherTaillePx(_cvPdfEchelle) + "px" + (messagesContenuAjoute.length ? (", " + messagesContenuAjoute.join(", ")) : "") + ") mais la page reste incomplète -- ajoutez du contenu (missions, rubriques) pour mieux la remplir."' +
-'      : (messagesContenuAjoute.length' +
-'        ? "Élargi pour mieux remplir la page (" + messagesContenuAjoute.join(", ") + ")."' +
-'        : "Élargi pour mieux remplir la page (en-tête et corps).");' +
+// Le bouton ne fait plus que la PRESENTATION (decision de Denis, 2026-09-26) : jamais de missions, de loisirs, de certifications,
+// de formations ou de langues ajoutes automatiquement, ni de regroupement des experiences. Les changements de STRUCTURE seront
+// PROPOSES (lot « Mise en page : propositions »), jamais appliques d'office.
+'    hauteur = _pdfEssayerAererEspaces(hauteur);' +
+'    message = _pdfCompteRenduMEP(avantMEP, hauteur < HAUTEUR_CIBLE_PX * 0.82 ? "incomplet" : "rempli");' +
 '  } else {' +
-'    message = "La mise en page actuelle tient déjà bien sur 1 page.";' +
+'    message = _pdfCompteRenduMEP(avantMEP, "deja");' +
 '  }' +
+'  var noteEq = _pdfEssayerEquilibreCompetencesAuto(hauteurCible);' +
+'  if (noteEq) { var lignesMsg = message.split("<br>"); lignesMsg.splice(lignesMsg.length - 1, 0, noteEq); message = lignesMsg.join("<br>"); }' +
 '  _pdfAfficherMessageMiseEnPage(message);' +
+'  var suggestionsMEP = _pdfCalculerSuggestions(_pdfMesurerHauteurPage());' +
+'  if (window.parent && typeof window.parent._mepSuggestionsRecues === "function") { window.parent._mepSuggestionsRecues(suggestionsMEP); }' +
 '}' +
 'document.getElementById("btnMiseEnPage").addEventListener("click", _pdfAjusterMiseEnPage);' +
 // TACHE (retour utilisateur : "le bouton Mise en page doit aussi marcher
@@ -3081,7 +4277,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // "recruteur" aplati -- voir git blame pour l'ancienne logique, retiree sur
 // demande explicite). _pdfTirerVarianteSobre() choisit seulement OU la
 // couleur pale ira (colonne/bandeau/aucune), jamais le nombre de colonnes.
-'  _pdfTirerVarianteSobre();' +
+'  _cvPdfSobreVariante = "mq-bandeau";' +
   // TACHE (meme retour utilisateur : "je ne veux pas voir du tout des
   // pastilles") : un override PAR RUBRIQUE (bandeauDisponibilite/
   // competencesCles) prime toujours sur regStyleCompetences ci-dessus
@@ -3096,9 +4292,14 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // qui ferait clignoter la couleur a chaque reglage touche. 2 colonnes :
 // jamais "aucune" (retour utilisateur explicite : pas de CV entierement
 // sans couleur des qu'il y a 2 colonnes). 1 colonne : bandeau ou rien.
+// Les 3 anciens modeles Sobre de l'application (Bandeau fin, Colonne pale, Sans couleur) ont ete retires le 2026-09-26 : doublons
+// des modeles Sobre de la maquette. Un dossier enregistre avec l'un d'eux bascule sur son equivalent.
+'function _pdfMigrerVarianteSobre(v) {' +
+'  return ({ bandeau: "mq-bandeau", colonne: "mq-fond", aucune: "mq-epure" })[v] || v || null;' +
+'}' +
 'function _pdfTirerVarianteSobre() {' +
-'  var deuxColonnes = document.getElementById("regColonnes").value !== "1";' +
-'  _cvPdfSobreVariante = deuxColonnes ? _pdfChoixAleatoire(["colonne", "bandeau"]) : _pdfChoixAleatoire(["bandeau", "aucune"]);' +
+'  _cvPdfSobreVariante = _pdfChoixAleatoire(["mq-bandeau", "mq-fond", "mq-epure"]);' +
+'  _pdfColonnesPourVarianteSobre(_cvPdfSobreVariante);' +
 '}' +
 // TACHE (retour utilisateur, bug reel confirme : "je desactive Sobre, le
 // CV ne redevient pas comme avant") : restaure le snapshot pris par
@@ -3106,7 +4307,8 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // (_cvPdfOrdrePersonnalise/regColonnes), qui ne sont plus touches par
 // Sobre du tout (voir plus haut), rien a restaurer sur ces 2 champs.
 'function _pdfAnnulerSobrePdf() {' +
-'  if (!_cvPdfReglagesAvantSobre) { return; }' +
+'  if (_cvPdfColonnesAvantModele !== null) { document.getElementById("regColonnes").value = _cvPdfColonnesAvantModele; _cvPdfColonnesAvantModele = null; }' +
+'  if (!_cvPdfReglagesAvantSobre) { _pdfAppliquerStandardMaquetteDOM(); _cvPdfSobreVariante = null; return; }' +
 '  var s = _cvPdfReglagesAvantSobre;' +
 '  document.getElementById("regIcones").checked = s.icones;' +
 '  document.getElementById("regStyleCompetences").value = s.styleCompetences;' +
@@ -3169,27 +4371,106 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '    _etatAvant.ordrePersonnalise = _cvPdfOrdrePersonnalise;' +
 '    _cvPdfReglagesAvantCreatif = _etatAvant;' +
 '  }' +
-'  _cvPdfCreatifVariante = _cvPdfCreatifVariante || _pdfChoixAleatoire(Object.keys(_PDF_CREATIF_RECETTES));' +
-'  _pdfAppliquerRecetteCreatifDOM(_cvPdfCreatifVariante);' +
+'  _pdfAppliquerModeleCreatifComplet(_cvPdfCreatifVariante || "mqBandeau");' +
 '}' +
-// TACHE (meme retour utilisateur) : seul chemin qui change de modele une
-// fois Créatif deja actif -- jamais un champ a la fois, toujours la
-// recette COMPLETE d\'un AUTRE modele (exclu le modele actuel pour que
-// chaque clic propose vraiment quelque chose de different, tant qu\'il
-// existe au moins 2 modeles). Snapshot deja pris par _pdfAppliquerCreatifPdf(),
-// jamais repris ici (on reste dans "Créatif actif", pas de retour a
-// l\'etat d\'avant).
+// TACHE (chantier refonte "La mise en page", phase 5.2, cahier § 6 --
+// Denis, 2026-09-23 : "tout a ete tranche, tu suis la maquette") : ce
+// bouton, une fois Créatif deja actif, ne tire PLUS au hasard -- il
+// CYCLE, dans l\'ORDRE, exactement comme tirer() de la maquette
+// (docs/MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html, "S.gabarit = ids[(i +
+// 1) % ids.length]") -- jamais un simple exclu-le-courant-au-hasard
+// comme avant. Snapshot deja pris par _pdfAppliquerCreatifPdf(), jamais
+// repris ici (on reste dans "Créatif actif", pas de retour a l\'etat
+// d\'avant).
+// TACHE (Denis, 2026-09-23, "ok pour 1") : cycle sur Object.keys(_PDF_CREATIF_RECETTES),
+// les 12 modeles REELS (pas seulement les 6 de la galerie visible) --
+// premiere version restreinte a la galerie, 6 des 11 modeles d\'origine
+// (bandeauVertical, triangleSavoir, vagueMarine, diagonalesContrastees,
+// losangeVert, medaillon) etaient devenus injoignables (ni vignette, ni
+// de plus aucun chemin), contredisant une decision deja actee avant
+// cette nuit (RECOMMANDATIONS_PHASE1_MISE_EN_PAGE_PDF_2026-09-21.md :
+// "ecartes de la vitrine, mais atteignables par Un autre modele"). La
+// vitrine (6 vignettes cliquables) reste inchangee -- seul le CYCLE du
+// de s\'etend desormais a la liste complete, toujours dans l\'ordre,
+// jamais au hasard.
+// TACHE (Denis, 2026-09-25, tranche 2) : ordre de la galerie ET du de = les modeles de la maquette
+// d'abord (Bandeau entier, Bandeau diagonal, Colonne colorée, Cadre de page, Titres a pictogrammes,
+// Colonne et frise), puis ceux de l'application. Meme liste cote parent (js/app.js) : lue ici en
+// direct, jamais deux listes a synchroniser.
+'var _PDF_ORDRE_MAQUETTE_CREATIF = ["mqBandeau", "mqDiagonale", "mqColonne", "mqCadre", "mqPicto", "frise"];' +
+'function _pdfIdsModelesCreatif() {' +
+'  var autres = Object.keys(_PDF_CREATIF_RECETTES).filter(function (id) { return _PDF_ORDRE_MAQUETTE_CREATIF.indexOf(id) === -1; });' +
+'  return _PDF_ORDRE_MAQUETTE_CREATIF.concat(autres);' +
+'}' +
+'function _pdfModeleUneColonneSeulement(id) {' +
+'  var r = _PDF_CREATIF_RECETTES[id];' +
+'  return !!(r && r.gabaritMaquette === "rectangles");' +
+'}' +
+'function _pdfModeleDeuxColonnesSeulement(id) {' +
+'  var r = _PDF_CREATIF_RECETTES[id];' +
+'  return id === "frise" || !!(r && (r.gabaritMaquette === "colonne" || r.gabaritMaquette === "photo"));' +
+'}' +
+// « Colonne colorée » et « Colonne et frise » n'existent que par leur colonne : les choisir passe en 2
+// colonnes, les quitter retrouve le choix d'avant (comme quitterFrise() de la maquette).
+'function _pdfAppliquerModeleCreatifComplet(id) {' +
+'  var sel = document.getElementById("regColonnes");' +
+'  if (_pdfModeleDeuxColonnesSeulement(id) || _pdfModeleUneColonneSeulement(id)) {' +
+'    if (_cvPdfColonnesAvantModele === null) { _cvPdfColonnesAvantModele = sel.value; }' +
+'    sel.value = _pdfModeleUneColonneSeulement(id) ? "1" : "2";' +
+'  } else if (_cvPdfColonnesAvantModele !== null) {' +
+'    sel.value = _cvPdfColonnesAvantModele;' +
+'    _cvPdfColonnesAvantModele = null;' +
+'  }' +
+'  _cvPdfCreatifVariante = id;' +
+'  _pdfAppliquerRecetteCreatifDOM(id);' +
+'}' +
+// La personne change « Deux colonnes » a la main pendant qu'un modele 2 colonnes est actif : son choix
+// devient la valeur a retrouver en quittant le modele.
+'function _pdfNotifierColonnesManuelles(valeur) {' +
+'  if (_cvPdfColonnesAvantModele !== null) { _cvPdfColonnesAvantModele = valeur; }' +
+'}' +
 'function _pdfProposerAutreModeleCreatif() {' +
-'  var variantes = Object.keys(_PDF_CREATIF_RECETTES);' +
-'  var autres = variantes.filter(function (v) { return v !== _cvPdfCreatifVariante; });' +
-'  _cvPdfCreatifVariante = _pdfChoixAleatoire(autres.length ? autres : variantes);' +
-'  _pdfAppliquerRecetteCreatifDOM(_cvPdfCreatifVariante);' +
+'  var ids = _pdfIdsModelesCreatif();' +
+'  var i = ids.indexOf(_cvPdfCreatifVariante);' +
+'  _pdfAppliquerModeleCreatifComplet(ids[(i + 1) % ids.length]);' +
 '  _pdfAfficherMessageMiseEnPage("");' +
 '  _pdfRafraichir();' +
 '  _pdfEssayerRequilibrageColonnes();' +
 '}' +
+// TACHE (meme decision, cote Sobre) : meme principe exact -- cycle DANS
+// L\'ORDRE sur les variantes reelles valides pour le nombre de colonnes
+// actuel (2 colonnes : bandeau/colonne ; 1 colonne : bandeau/aucune,
+// meme contrainte que _pdfChoisirVarianteSobre), jamais un tirage au
+// hasard comme _pdfTirerVarianteSobre() (qui reste utilisee, elle,
+// seulement a la 1re activation de Sobre -- voir _pdfAppliquerSobrePdf).
+// TACHE (Denis, 2026-09-25, tranche 2) : les 3 modeles Sobre de la maquette d'abord, puis les 2 variantes
+// de l'application compatibles avec le nombre de colonnes (jamais une combinaison invalide).
+'function _pdfIdsVariantesSobre() {' +
+'  var deuxColonnes = document.getElementById("regColonnes").value !== "1";' +
+'  return ["mq-bandeau", "mq-fond", "mq-epure"].concat(deuxColonnes ? ["mq-photo"] : ["mq-rectangles"]);' +
+'}' +
+// « Photo et frise » (Sobre) n'existe qu'en 2 colonnes : le choisir passe en 2 colonnes, le quitter retrouve le choix d'avant
+// (meme regle que les modeles Créatif « 2 colonnes seulement »).
+'function _pdfColonnesPourVarianteSobre(variante) {' +
+'  var sel = document.getElementById("regColonnes");' +
+'  if (variante === "mq-photo" || variante === "mq-rectangles") {' +
+'    if (_cvPdfColonnesAvantModele === null) { _cvPdfColonnesAvantModele = sel.value; }' +
+'    sel.value = (variante === "mq-photo") ? "2" : "1";' +
+'  } else if (_cvPdfColonnesAvantModele !== null) {' +
+'    sel.value = _cvPdfColonnesAvantModele;' +
+'    _cvPdfColonnesAvantModele = null;' +
+'  }' +
+'}' +
+'function _pdfProposerVarianteSobreSuivante() {' +
+'  var ids = _pdfIdsVariantesSobre();' +
+'  var i = ids.indexOf(_cvPdfSobreVariante);' +
+'  _cvPdfSobreVariante = ids[(i + 1) % ids.length];' +
+'  _pdfColonnesPourVarianteSobre(_cvPdfSobreVariante);' +
+'  _pdfRafraichir();' +
+'}' +
 'function _pdfAnnulerCreatifPdf() {' +
-'  if (!_cvPdfReglagesAvantCreatif) { return; }' +
+'  if (_cvPdfColonnesAvantModele !== null) { document.getElementById("regColonnes").value = _cvPdfColonnesAvantModele; _cvPdfColonnesAvantModele = null; }' +
+'  if (!_cvPdfReglagesAvantCreatif) { _pdfAppliquerStandardMaquetteDOM(); _cvPdfCreatifVariante = null; return; }' +
 '  var s = _cvPdfReglagesAvantCreatif;' +
 '  Object.keys(s).forEach(function (champ) {' +
 '    if (champ === "ordrePersonnalise") { return; }' +
@@ -3199,6 +4480,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  });' +
 '  _cvPdfOrdrePersonnalise = s.ordrePersonnalise;' +
 '  _cvPdfCreatifVariante = null;' +
+'  _cvPdfColonnesAvantModele = null;' +
 '  _cvPdfReglagesAvantCreatif = null;' +
 '}' +
 'function _pdfMettreAJourBoutonCreatif() {' +
@@ -3242,6 +4524,540 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  _pdfRafraichir();' +
 '});' +
 '_pdfMettreAJourBoutonCvOptimise();' +
+// TACHE (phase 5.2, galerie de modeles) : jusqu'ici, un modele Sobre/
+// Creatif precis ne pouvait etre obtenu qu'au hasard
+// (_pdfTirerVarianteSobre/_pdfProposerAutreModeleCreatif, tirage
+// aleatoire uniquement -- aucun moyen de CHOISIR). Ces 2 fonctions
+// permettent de choisir un modele PRECIS (vignette cliquee dans la
+// galerie du panneau parent) -- reutilisent EXACTEMENT le meme chemin
+// d\'activation que les boutons Sobre/Creatif existants (le bouton reel
+// est clique par programme s\'il n\'est pas deja actif, jamais une 2e
+// logique d\'activation ecrite a part) puis imposent le modele demande a
+// la place d\'un tirage.
+'function _pdfChoisirModeleCreatif(id) {' +
+'  if (!_PDF_CREATIF_RECETTES[id]) { return; }' +
+'  if (!document.getElementById("regCreatifActif").checked) { document.getElementById("btnCreatifPdf").click(); }' +
+'  _pdfAppliquerModeleCreatifComplet(id);' +
+'  _pdfAfficherMessageMiseEnPage("");' +
+'  _pdfRafraichir();' +
+'  _pdfEssayerRequilibrageColonnes();' +
+'}' +
+// TACHE (meme principe) : "colonne" n\'a de sens qu\'en 2 colonnes,
+// "aucune" (epure) qu\'en 1 colonne (meme contrainte reelle que
+// _pdfTirerVarianteSobre plus haut -- jamais une combinaison invalide) ;
+// le panneau parent ne propose deja que les variantes valides pour le
+// nombre de colonnes actuel (voir la galerie, construireMiseEnPageCV()),
+// ce repli reste le filet de securite final si jamais appele autrement.
+'function _pdfChoisirVarianteSobre(variante) {' +
+'  variante = _pdfMigrerVarianteSobre(variante);' +
+'  if (["mq-bandeau", "mq-fond", "mq-epure", "mq-photo", "mq-rectangles"].indexOf(variante) === -1) { return; }' +
+'  if (!document.getElementById("regSobreActif").checked) { document.getElementById("btnSobrePdf").click(); }' +
+'  _cvPdfSobreVariante = variante;' +
+'  _pdfColonnesPourVarianteSobre(variante);' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (phase 5.4, carte "Experiences professionnelles") : fonctions
+// appelees DIRECTEMENT depuis le panneau parent (js/app.js) via
+// iframe.contentWindow._pdfXxx(...) -- meme principe que _mepClicMoteur
+// ailleurs (parler a cette iframe depuis l\'exterieur), mais appel de
+// fonction direct plutot qu\'un bouton cache : ces reglages prennent des
+// PARAMETRES (index, delta, valeur precise), pas juste un declenchement,
+// un bouton cache par valeur possible serait ingerable (jusqu\'a 10 x
+// nombre d\'experiences pour le seul compteur de missions).
+'function _pdfDefinirModePresentation(mode) {' +
+'  if (["A", "B", "C"].indexOf(mode) === -1) { return; }' +
+'  _cvPdfModePresentation = mode;' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (meme carte) : au 1er passage vers "pertinentes", jamais de
+// retrait silencieux -- tout reste coche (la personne decoche elle-meme
+// ce qu\'elle ne veut pas), plutot que de deviner une pertinence qui
+// pourrait retirer une experience a l\'insu de la personne (regle du
+// chantier, § "rien ne doit passer silencieusement").
+'function _pdfDefinirExperiencesTout(valeur, nbExperiences) {' +
+'  if (["toutes", "pertinentes"].indexOf(valeur) === -1) { return; }' +
+'  _cvPdfExperiencesTout = valeur;' +
+'  if (valeur === "pertinentes" && !_cvPdfExperiencesChoisies) {' +
+'    _cvPdfExperiencesChoisies = [];' +
+'    for (var i = 0; i < nbExperiences; i++) { _cvPdfExperiencesChoisies.push(i); }' +
+'  }' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerExperienceChoisie(index) {' +
+'  if (!_cvPdfExperiencesChoisies) { return; }' +
+'  var pos = _cvPdfExperiencesChoisies.indexOf(index);' +
+'  if (pos === -1) { _cvPdfExperiencesChoisies.push(index); } else { _cvPdfExperiencesChoisies.splice(pos, 1); }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (meme carte) : compteur "Missions par experience" -- reprend
+// EXACTEMENT le geste de la maquette (boutons -/+, plage 1 a 10, "pas"),
+// par experience (index) si fourni, sinon le reglage GLOBAL par defaut.
+// TACHE (audit "La mise en page" 2026-09-27, P8/P12 -- bug reel confirme et
+// reproduit en direct) : "actuelAffiche" (3e argument, transmis par
+// data-mep-exp-missions-n depuis la carte, js/app.js) est le compteur
+// REELLEMENT affiche sur cette experience -- deja plafonne par son nombre
+// reel de missions, contrairement a l\'ancienne base (_cvPdfMissionsGlobal
+// || 4) qui ignorait ce plafond. Sans lui, une experience avec moins de
+// missions que le reglage global voyait son 1er clic sur "-" ne rien
+// changer (ex. 4-1=3, deja la valeur affichee) -- corrige en repartant de
+// la valeur reellement affichee quand elle est connue.
+'function _pdfDefinirMissionsExperience(index, delta, actuelAffiche) {' +
+'  var actuel = (actuelAffiche != null && !isNaN(actuelAffiche)) ? actuelAffiche : ((_cvPdfMissionsParExperience[index] != null) ? _cvPdfMissionsParExperience[index] : (_cvPdfMissionsGlobal || _pdfMissionsDefautNb()));' +
+'  _cvPdfMissionsParExperience[index] = Math.max(1, Math.min(10, actuel + delta));' +
+'  delete _cvPdfMissionsChoisies[index];' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfReinitialiserMissionsExperience(index) {' +
+'  delete _cvPdfMissionsParExperience[index];' +
+'  delete _cvPdfMissionsChoisies[index];' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (chantier "Experience personnelle", 2026-09-27) : memes 3 fonctions
+// EXACTES que _pdfDefinirExperiencesTout/_pdfBasculerExperienceChoisie/
+// _pdfDefinirMissionsExperience ci-dessus, mais avec une cle TEXTE (pas un
+// index) -- 2 tableaux sources distincts (experiencesPersonnelles/engagements),
+// jamais un index commun. "cles" = la liste ordonnee de toutes les cles
+// possibles (transmise par la carte, comme "nbExperiences" pour les pros).
+// TACHE (retour Denis 2026-09-28, point 12) : bascule "Citer seulement" / "Developper".
+'function _pdfDefinirExpPersoModeAffichage(valeur) {' +
+'  if (["citer", "developper"].indexOf(valeur) === -1) { return; }' +
+'  _cvPdfExpPersoModeAffichage = valeur;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirExpPersoTout(valeur, cles) {' +
+'  if (["toutes", "pertinentes"].indexOf(valeur) === -1) { return; }' +
+'  _cvPdfExpPersoTout = valeur;' +
+'  if (valeur === "pertinentes" && !_cvPdfExpPersoChoisies) { _cvPdfExpPersoChoisies = (cles || []).slice(); }' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerExpPersoChoisie(cle) {' +
+'  if (!_cvPdfExpPersoChoisies) { return; }' +
+'  var pos = _cvPdfExpPersoChoisies.indexOf(cle);' +
+'  if (pos === -1) { _cvPdfExpPersoChoisies.push(cle); } else { _cvPdfExpPersoChoisies.splice(pos, 1); }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (retour Denis 2026-09-28, bouton "Afficher sur mon CV") : coche
+// d\'un coup TOUTES les cles d\'une source (savoir-faire perso OU engagements)
+// -- remplace l\'ancien bouton "Modifier dans Vos informations" (navigation,
+// risquait de perimer les missions deja generees). Sans effet en mode
+// "toutes" (_cvPdfExpPersoChoisies est alors null : rien a cocher, tout est
+// deja affiche) -- le bouton est de toute facon desactive dans ce cas.
+'function _pdfAfficherSourceExpPerso(cles) {' +
+'  if (!_cvPdfExpPersoChoisies) { return; }' +
+'  (cles || []).forEach(function (c) { if (_cvPdfExpPersoChoisies.indexOf(c) === -1) { _cvPdfExpPersoChoisies.push(c); } });' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (retour Denis 2026-09-28 : "cacher sur le cv" -- bascule inverse de
+// _pdfAfficherSourceExpPerso ci-dessus) : decoche d\'un coup toutes les cles
+// d\'une source. En mode "toutes" (_cvPdfExpPersoChoisies encore null), on
+// bascule d\'abord sur "pertinentes" en partant de la liste complete, sinon
+// rien n\'existerait a decocher.
+'function _pdfMasquerSourceExpPerso(cles, toutesLesCles) {' +
+// Defaut corrige le 2026-10-02 : en mode « Toutes » avec une ancienne selection encore en memoire (apres un passage par « Les plus pertinentes »), « Cacher sur le CV »
+// ne faisait rien (la selection oubliee etait filtree sans changer de mode). Le mode « Toutes » repart toujours de la liste complete.
+'  if (!_cvPdfExpPersoChoisies || _cvPdfExpPersoTout !== "pertinentes") { _cvPdfExpPersoTout = "pertinentes"; _cvPdfExpPersoChoisies = (toutesLesCles || []).slice(); }' +
+'  _cvPdfExpPersoChoisies = _cvPdfExpPersoChoisies.filter(function (c) { return (cles || []).indexOf(c) === -1; });' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirMissionsExpPerso(cle, delta, actuelAffiche) {' +
+'  var actuel = (actuelAffiche != null && !isNaN(actuelAffiche)) ? actuelAffiche : ((_cvPdfExpPersoMissionsParItem[cle] != null) ? _cvPdfExpPersoMissionsParItem[cle] : 4);' +
+'  _cvPdfExpPersoMissionsParItem[cle] = Math.max(0, Math.min(10, actuel + delta));' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (retour Denis 2026-09-28 : bouton "Modifier", changer l\'intitule
+// et les missions, en ajouter a la main) : ecrase l\'affichage CV pour cet
+// item. Champ vide (titre ET missions) = on efface le forcage, retour au
+// comportement automatique (texte d\'origine + curseur).
+// Lot N1 (2026-10-04) : champs supplementaires modifiables POUR CE CV SEULEMENT (dates, structure, lieu...). `champs` ne contient que ce que la personne a CHANGE
+// par rapport au dossier (un champ absent = valeur du dossier) ; une valeur vide est un choix (rien d'ecrit).
+'function _pdfChampsPropresEdition(champs, noms) {' +
+'  var sortie = null;' +
+'  (noms || []).forEach(function (n) { if (champs && typeof champs[n] === "string") { if (!sortie) { sortie = {}; } sortie[n] = champs[n].trim(); } });' +
+'  return sortie;' +
+'}' +
+'function _pdfDefinirTexteExpPerso(cle, titre, missionsTexte, champs) {' +
+'  var t = (titre || "").trim(); var m = (missionsTexte || "").trim(); var ex = _pdfChampsPropresEdition(champs, ["dateDebut", "dateFin", "entreprise", "lieu"]);' +
+'  if (!t && !m && !ex) { delete _cvPdfExpPersoTexteParItem[cle]; } else { var o = { titre: t, missions: m }; if (ex) { Object.keys(ex).forEach(function (k) { o[k] = ex[k]; }); } _cvPdfExpPersoTexteParItem[cle] = o; }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (chantier "Formations", 2026-09-28) : memes 3 fonctions EXACTES que
+// les 3 juste au-dessus (Experience personnelle), pour dossier.formations.
+'function _pdfDefinirFormationsTout(valeur, cles) {' +
+'  if (["toutes", "pertinentes"].indexOf(valeur) === -1) { return; }' +
+'  _cvPdfFormationsTout = valeur;' +
+'  if (valeur === "pertinentes" && !_cvPdfFormationsChoisies) { _cvPdfFormationsChoisies = (cles || []).slice(); }' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerFormationChoisie(cle) {' +
+'  if (!_cvPdfFormationsChoisies) { return; }' +
+'  var pos = _cvPdfFormationsChoisies.indexOf(cle);' +
+'  if (pos === -1) { _cvPdfFormationsChoisies.push(cle); } else { _cvPdfFormationsChoisies.splice(pos, 1); }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (retour Denis : "je veux que le curseur soit le seul controle,
+// jamais un 2e bouton separe pour afficher/masquer les missions") : ce
+// reglage touche desormais aussi _cvPdfAfficherMissionsFormation -- des que
+// la personne regle un compteur de missions pour une formation precise,
+// les missions deviennent visibles sans qu\'elle ait besoin de cocher une
+// case separee ("Afficher les missions de la formation", restee inchangee
+// par ailleurs pour qui ne touche jamais ce nouveau reglage).
+'function _pdfDefinirMissionsFormationItem(cle, delta, actuelAffiche) {' +
+'  var actuel = (actuelAffiche != null && !isNaN(actuelAffiche)) ? actuelAffiche : ((_cvPdfFormationsMissionsParItem[cle] != null) ? _cvPdfFormationsMissionsParItem[cle] : 4);' +
+'  _cvPdfFormationsMissionsParItem[cle] = Math.max(0, Math.min(10, actuel + delta));' +
+'  _cvPdfAfficherMissionsFormation = true;' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (retour Denis 2026-09-28) : meme fonction EXACTE que
+// _pdfDefinirTexteExpPerso ci-dessus, pour les formations.
+'function _pdfDefinirTexteFormation(cle, titre, missionsTexte, champs) {' +
+'  var t = (titre || "").trim(); var m = (missionsTexte || "").trim(); var ex = _pdfChampsPropresEdition(champs, ["niveau", "annee", "etablissement", "lieu"]);' +
+'  if (!t && !m && !ex) { delete _cvPdfFormationsTexteParItem[cle]; } else { var o = { titre: t, missions: m }; if (ex) { Object.keys(ex).forEach(function (k) { o[k] = ex[k]; }); } _cvPdfFormationsTexteParItem[cle] = o; }' +
+'  if (m) { _cvPdfAfficherMissionsFormation = true; }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (retour Denis 2026-09-28) : plafond desormais le maximum REEL de missions parmi les
+// experiences du dossier (transmis par le panneau, data-mep-missions-max), plus le 10 fixe --
+// au-dela, cliquer sur "+" ne changeait deja plus rien a l'affichage (chaque experience
+// re-plafonne de toute facon a son propre nombre de missions), seul le chiffre affiche montait.
+'function _pdfDefinirMissionsGlobal(delta, maxReel) {' +
+'  var plafond = (typeof maxReel === "number" && maxReel > 0) ? maxReel : 10;' +
+'  _cvPdfMissionsGlobal = Math.max(1, Math.min(plafond, (_cvPdfMissionsGlobal || _pdfMissionsDefautNb()) + delta));' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (meme carte) : choix PRECIS des missions d\'une experience
+// (panneau "Choisir", coche/decoche chaque mission une par une) --
+// distinct du simple COMPTEUR ci-dessus (qui garde les N premieres par
+// pertinence) : des qu\'une personne choisit une mission precise, ce
+// choix devient la source de verite pour cette experience.
+'function _pdfBasculerMissionChoisie(indexExp, indexMission, nbMissionsTotal) {' +
+'  var liste = _cvPdfMissionsChoisies[indexExp];' +
+'  if (!liste) {' +
+'    var n = (_cvPdfMissionsParExperience[indexExp] != null) ? _cvPdfMissionsParExperience[indexExp] : (_cvPdfMissionsGlobal || _pdfMissionsDefautNb());' +
+'    liste = [];' +
+'    for (var i = 0; i < Math.min(n, nbMissionsTotal); i++) { liste.push(i); }' +
+'  }' +
+'  var pos = liste.indexOf(indexMission);' +
+'  if (pos === -1) { liste.push(indexMission); } else { liste.splice(pos, 1); }' +
+'  liste.sort(function (a, b) { return a - b; });' +
+'  _cvPdfMissionsChoisies[indexExp] = liste;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfPositionDatesRubrique(rub) {' +
+'  if (_cvPdfDatesAlignees) { return _cvPdfPositionDatesChoisie ? _cvPdfPositionDates : ""; }' +
+'  return (rub === "formations" ? _cvPdfPositionDatesFormations : _cvPdfPositionDatesPerso) || "";' +
+'}' +
+'function _pdfDefinirDatesAlignees(oui) {' +
+'  _cvPdfDatesAlignees = !!oui;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirPositionDatesRubrique(rub, valeur) {' +
+'  var v = (valeur === "droite" || valeur === "sous" || valeur === "avant") ? valeur : "";' +
+'  if (rub === "formations") { _cvPdfPositionDatesFormations = v; } else if (rub === "perso") { _cvPdfPositionDatesPerso = v; } else { return; }' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirPositionDates(valeur) {' +
+'  if (["droite", "sous", "avant", "apres"].indexOf(valeur) === -1) { return; }' +
+'  _cvPdfPositionDates = valeur;' +
+'  _cvPdfPositionDatesChoisie = true;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerAfficherComp(cle) {' +
+'  if (cle === "pro") { _cvPdfAfficherCompPro = !_cvPdfAfficherCompPro; } else if (cle === "comp") { _cvPdfAfficherCompComp = !_cvPdfAfficherCompComp; } else { return; }' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerQualitesMetier() {' +
+'  _cvPdfQualitesMetierActives = !_cvPdfQualitesMetierActives;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerAfficherLieu() {' +
+'  _cvPdfAfficherLieu = !_cvPdfAfficherLieu;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirStyleLieu(valeur) {' +
+'  if (["normal", "italique", "gris"].indexOf(valeur) === -1) { return; }' +
+'  _cvPdfStyleLieu = valeur;' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (phase 5.3, carte "Formations") : memes fonctions simples que
+// _pdfBasculerAfficherLieu/_pdfDefinirStyleLieu juste au-dessus.
+// TACHE (P10, retour Denis 2026-09-28) : bascule sur la valeur EFFECTIVE (pas
+// la valeur brute, qui peut valoir null = "jamais touche, suit le mode") --
+// sinon un premier clic en Mixte (deja coche par defaut) n\'aurait aucun
+// effet visible (!null vaut true, deja la valeur affichee).
+'function _pdfBasculerAfficherMissionsFormation() {' +
+'  var effectif = (_cvPdfAfficherMissionsFormation === null || _cvPdfAfficherMissionsFormation === undefined) ? (_cvPdfModePresentation === "B") : !!_cvPdfAfficherMissionsFormation;' +
+'  _cvPdfAfficherMissionsFormation = !effectif;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirMissionsChoisies(indexExp, liste) {' +
+'  _cvPdfMissionsChoisies[indexExp] = liste;' +
+'}' +
+// TACHE (retour Denis 2026-09-28, point 13) : meme mecanique EXACTE que
+// _pdfBasculerMissionChoisie (experiences) juste en dessous, cle texte au
+// lieu d\'index -- Formations et Experience personnelle partagent la meme
+// fonction, seul le nom de la variable change (2e argument).
+'function _pdfBasculerMissionChoisieParCle(varChoisies, varParItem, cle, indexMission, nbMissionsTotal) {' +
+'  var liste = varChoisies[cle];' +
+'  if (!liste) {' +
+'    var n = (varParItem[cle] != null) ? varParItem[cle] : 4;' +
+'    liste = [];' +
+'    for (var i = 0; i < Math.min(n, nbMissionsTotal); i++) { liste.push(i); }' +
+'  }' +
+'  var pos = liste.indexOf(indexMission);' +
+'  if (pos === -1) { liste.push(indexMission); } else { liste.splice(pos, 1); }' +
+'  liste.sort(function (a, b) { return a - b; });' +
+'  varChoisies[cle] = liste;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerMissionChoisieFormation(cle, indexMission, nbMissionsTotal) {' +
+'  _pdfBasculerMissionChoisieParCle(_cvPdfFormationsMissionsChoisies, _cvPdfFormationsMissionsParItem, cle, indexMission, nbMissionsTotal);' +
+'}' +
+'function _pdfBasculerMissionChoisieExpPerso(cle, indexMission, nbMissionsTotal) {' +
+'  _pdfBasculerMissionChoisieParCle(_cvPdfExpPersoMissionsChoisies, _cvPdfExpPersoMissionsParItem, cle, indexMission, nbMissionsTotal);' +
+'}' +
+'function _pdfMqRemettrePremieresMissionsFormation(cle) {' +
+'  delete _cvPdfFormationsMissionsChoisies[cle];' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqRemettrePremieresMissionsExpPerso(cle) {' +
+'  delete _cvPdfExpPersoMissionsChoisies[cle];' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirEspacementFormations(valeur) {' +
+'  var n = parseInt(valeur, 10);' +
+'  if (isNaN(n)) { return; }' +
+'  _cvPdfEspacementFormations = Math.max(0, Math.min(32, n));' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (phase 5.3, carte "Elements supplementaires") : meme mecanique
+// de compteur que _pdfDefinirMissionsGlobal (voir plus haut) -- defaut
+// affiche 8 (pro) / 6 (comportementales), comme la maquette, seulement
+// au 1er clic (avant ca, null = automatique, jamais touche).
+// TACHE (Denis, 2026-09-25, tranche 3, maquette « pas(...) ») : de 3 au nombre de competences du dossier ; part du nombre
+// AFFICHE (jamais d'un 8 ou 6 invente) ; un clic sur − / + abandonne le choix personnel (comme la maquette : S.selPro = null).
+'function _pdfDefinirCompetencesProMax(delta) {' +
+'  var info = window.__cvPdfCompetencesInfo || {};' +
+// Defaut = le nombre REELLEMENT affiche (retour Denis 2026-10-02 : avec les qualites attendues ajoutees, 9 comportementales etaient affichees et le premier « − » tombait a 3, car le depart
+// etait la liste de l'assistant seule) ; a defaut de donnees, l'ancienne base.
+'  var affPro = (window.parent._mepCompetencesAffichees || {}).pro;' +
+'  var actuel = (_cvPdfCompetencesProMax !== null && _cvPdfCompetencesProMax !== undefined) ? _cvPdfCompetencesProMax : (affPro ? affPro.length : (info.autoPro ? info.autoPro.length : 8));' +
+'  var plafond = (info.pool && info.pool.pro.length > 3) ? info.pool.pro.length : 3;' +
+'  _cvPdfCompetencesProMax = Math.max(3, Math.min(plafond, actuel + delta));' +
+'  _pdfMqChoixCompetences("competencesProChoisies", null, (window.parent._mepCompetencesAffichees || {}).poolPro);' +
+'}' +
+'function _pdfDefinirCompetencesComportementalesMax(delta) {' +
+'  var info = window.__cvPdfCompetencesInfo || {};' +
+'  var affComp = (window.parent._mepCompetencesAffichees || {}).comp;' +
+'  var actuel = (_cvPdfCompetencesComportementalesMax !== null && _cvPdfCompetencesComportementalesMax !== undefined) ? _cvPdfCompetencesComportementalesMax : (affComp ? affComp.length : (info.autoComp ? info.autoComp.length : 6));' +
+'  var plafond = (info.pool && info.pool.comportementales.length > 3) ? info.pool.comportementales.length : 3;' +
+'  _cvPdfCompetencesComportementalesMax = Math.max(3, Math.min(plafond, actuel + delta));' +
+'  _pdfMqChoixCompetences("competencesCompChoisies", null, (window.parent._mepCompetencesAffichees || {}).poolComp);' +
+'}' +
+// TACHE (phase 5.4, carte "Organisation du CV") : cases simples --
+// basculent juste un booleen, meme convention que _pdfBasculerAfficherLieu.
+'function _pdfModeleMaquetteDe(opts) {' +
+'  try { return window.parent._pdfGabaritMaquette(opts) !== null; } catch (e) { return false; }' +
+'}' +
+// Le modele place lui-meme les dates (barre, frise, colonne de dates) : « Position des dates » n'a alors rien a regler.
+'function _pdfPositionDatesEffective() {' +
+'  try {' +
+'    var o = _pdfLireOptions();' +
+'    if (o.positionDatesChoisie) { return o.positionDates || "droite"; }' +
+'    if (["photo", "sobre-photo", "rectangles", "sobre-rectangles"].indexOf(o.gabaritMaquette) !== -1) { return "avant"; }' +
+'    return o.gabaritCreatif === "frise" ? "sous" : "droite";' +
+'  } catch (e) { return "droite"; }' +
+'}' +
+'function _pdfDatesPlaceesParModele() {' +
+'  try {' +
+'    var o = _pdfLireOptions();' +
+'    return o.formatExperiences === "ameliore" || o.gabaritCreatif === "frise" || ["photo", "sobre-photo", "rectangles", "sobre-rectangles"].indexOf(o.gabaritMaquette) !== -1;' +
+'  } catch (e) { return false; }' +
+'}' +
+'function _pdfListesDeuxColonnesPossibles() {' +
+'  try {' +
+'    var o = _pdfLireOptions();' +
+'    return !_pdfDispositionPropre() || ["rectangles", "sobre-rectangles"].indexOf(o.gabaritMaquette) !== -1;' +
+'  } catch (e) { return true; }' +
+'}' +
+'function _pdfDispositionPropre() {' +
+'  try {' +
+'    var o = _pdfLireOptions();' +
+'    return o.gabaritCreatif === "frise" || ["photo", "sobre-photo", "rectangles", "sobre-rectangles"].indexOf(o.gabaritMaquette) !== -1;' +
+'  } catch (e) { return false; }' +
+'}' +
+'function _pdfModeleMaquetteActif() {' +
+'  return _pdfModeleMaquetteDe(_pdfLireOptions());' +
+'}' +
+'function _pdfCompetencesEnHautEffectif() {' +
+'  return (_cvPdfCompetencesEnHaut === null || _cvPdfCompetencesEnHaut === undefined) ? window.parent._pdfCompetencesEnHautParDefaut(_pdfLireOptions()) : !!_cvPdfCompetencesEnHaut;' +
+'}' +
+'function _pdfBasculerCompetencesEnHaut() {' +
+'  _cvPdfCompetencesEnHaut = !_pdfCompetencesEnHautEffectif();' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerFormationsAvantExp() {' +
+'  _cvPdfFormationsAvantExp = !_cvPdfFormationsAvantExp;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfBasculerTitresAgrandis() {' +
+'  _cvPdfTitresAgrandis = !_cvPdfTitresAgrandis;' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (retour Denis 2026-09-27, P7, bug reel confirme : "je n\'appuie
+// que sur Standard/Personnaliser et la mise en forme change completement,
+// ce n\'est pas normal") : "Standard" ecrasait jusqu\'ici Competences en
+// haut/Formations avant a un defaut fige (compHaut=true, formAvant=false),
+// MEME quand la personne avait deja choisi autre chose via les cases a
+// cocher de la carte -- un simple aller-retour Standard <-> Personnaliser
+// suffisait a perdre ce choix sans le demander. "Standard" ne fait plus
+// que masquer le panneau de reordonnancement manuel ; il ne touche plus
+// jamais ces 2 reglages, qui restent ce que la personne a deja choisi.
+'function _pdfDefinirOrganisationStandard() {' +
+'  _cvPdfOrganisationPerso = false;' +
+'  _pdfRafraichir();' +
+'}' +
+// Denis, 2026-09-29 : deplacer les rubriques a la SOURIS dans le grand aperçu (cahier CHANTIER_DISPOSITION_PAR_DEFAUT). Un geste = passage en ordre PERSONNALISE
+// (les automatismes ne recalculent plus rien) ; l'etat d'avant est memorise cote plein ecran pour « Annuler le dernier deplacement ».
+'function _pdfMqEtatDisposition() {' +
+'  return { perso: !!_cvPdfOrganisationPerso, ordreColonnes: _cvPdfChoixMq.ordreColonnes ? JSON.parse(JSON.stringify(_cvPdfChoixMq.ordreColonnes)) : null,' +
+'    ordreGroupes: _cvPdfOrdrePersoRubriques ? _cvPdfOrdrePersoRubriques.slice() : null,' +
+'    lignes1col: _cvPdfChoixMq.lignesUneColonne ? JSON.parse(JSON.stringify(_cvPdfChoixMq.lignesUneColonne)) : null,' +
+// les espaces entre rubriques (retour Denis 2026-10-01) reviennent aussi avec « Annuler le dernier deplacement »
+'    rub: JSON.parse(JSON.stringify(_cvPdfReglagesRubriquesMq || {})) };' +
+'}' +
+'function _pdfMqRestaurerDisposition(e) {' +
+'  if (e.rub) { _cvPdfReglagesRubriquesMq = JSON.parse(JSON.stringify(e.rub)); }' +
+'  _cvPdfOrganisationPerso = !!e.perso;' +
+'  _cvPdfOrdrePersoRubriques = e.ordreGroupes ? e.ordreGroupes.slice() : null;' +
+'  _cvPdfChoixMq = Object.assign({}, _cvPdfChoixMq); if (e.lignes1col) { _cvPdfChoixMq.lignesUneColonne = e.lignes1col; } else { delete _cvPdfChoixMq.lignesUneColonne; }' +
+'  _pdfMqChoix("ordreColonnes", e.ordreColonnes);' +
+'}' +
+'function _pdfMqDefinirDispositionColonnes(dispo) {' +
+'  _cvPdfOrganisationPerso = true;' +
+'  _pdfMqChoix("ordreColonnes", dispo);' +
+'}' +
+// Une colonne, 2e version : lignes composees a la souris (1 a 3 rubriques par ligne) ; l'ordre par groupes n'est plus lu (le rendu suit les lignes).
+'function _pdfMqDefinirLignes1Col(lignes) {' +
+'  _cvPdfOrganisationPerso = true;' +
+'  if (!_cvPdfOrdrePersoRubriques) { _cvPdfOrdrePersoRubriques = ["comp", "exp", "form", "bas"]; }' +
+'  _pdfMqChoix("lignesUneColonne", lignes);' +
+'}' +
+// Fige la disposition AFFICHEE a deux colonnes (retour Denis 2026-10-01) : a deux colonnes, la mise en page automatique replace des rubriques d'une colonne
+// a l'autre quand les hauteurs changent ; avant d'espacer les rubriques, on garde donc exactement ce que la personne voit (meme principe que « Personnaliser »).
+// Renvoie true si la disposition a ete figee. Sans effet a une colonne ou si la disposition est deja choisie.
+'function _pdfMqFigerDisposition() {' +
+'  var corpsD = document.querySelector("#conteneurPage .corps.deux");' +
+'  if (!corpsD || corpsD.children.length < 2 || _cvPdfChoixMq.ordreColonnes || !window.parent._MEP_TITRES_COLONNES) { return false; }' +
+'  var inv = {}; var TC = window.parent._MEP_TITRES_COLONNES, IN = window.parent._PDF_INTITULES;' +
+'  Object.keys(TC).forEach(function (k) { inv[IN[TC[k]]] = k; });' +
+'  var lire = function (col) { var l = []; col.querySelectorAll("[data-rub]").forEach(function (s) { var k = inv[s.getAttribute("data-rub")]; if (k && !l.some(function (x) { return x[0] === k; })) { l.push([k]); } }); return l; };' +
+'  var g0 = lire(corpsD.children[0]), d0 = lire(corpsD.children[1]);' +
+'  if (!d0.some(function (x) { return x[0] === "exp"; }) && !g0.some(function (x) { return x[0] === "exp"; })) { return false; }' +
+'  var droite = d0.some(function (x) { return x[0] === "exp"; }) ? d0 : g0, gauche = droite === d0 ? g0 : d0;' +
+'  _cvPdfOrganisationPerso = true;' +
+'  _cvPdfChoixMq = Object.assign({}, _cvPdfChoixMq, { ordreColonnes: { gauche: gauche, droite: droite } });' +
+'  return true;' +
+'}' +
+'function _pdfMqDefinirOrdreGroupes(ordre) {' +
+'  _cvPdfOrganisationPerso = true;' +
+'  _cvPdfOrdrePersoRubriques = ordre.slice();' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (meme retour, meme bug) : l\'ordre initial de "Personnaliser"
+// etait fige a ["comp","exp","form","bas"], quel que soit l\'etat REEL des
+// 2 cases au moment du clic -- un saut visuel immediat des que compHaut
+// ou formAvant valait autre chose. Reprend exactement le meme calcul que
+// l\'ordre "Standard" (cvPdfTemplateMaquette.js, ~ligne 1102-1103) : la
+// personne entre dans Personnaliser depuis EXACTEMENT ce qu\'elle voit
+// deja, jamais un ordre neutre impose.
+'function _pdfDefinirOrganisationPerso() {' +
+// Denis, 2026-09-29 : a 2 colonnes, « Personnaliser » demarre EXACTEMENT sur la disposition affichee (competences professionnelles a droite quand la place le permet,
+// etc.) : rien ne bouge au clic. La disposition affichee est relue dans le rendu, avant de passer en mode personnalise.
+'  var corpsD = document.querySelector("#conteneurPage .corps.deux");' +
+'  if (corpsD && corpsD.children.length >= 2 && !_cvPdfChoixMq.ordreColonnes && window.parent._MEP_TITRES_COLONNES) {' +
+'    var inv = {}; var TC = window.parent._MEP_TITRES_COLONNES, IN = window.parent._PDF_INTITULES;' +
+'    Object.keys(TC).forEach(function (k) { inv[IN[TC[k]]] = k; });' +
+'    var lire = function (col) { var l = []; col.querySelectorAll("[data-rub]").forEach(function (s) { var k = inv[s.getAttribute("data-rub")]; if (k && !l.some(function (x) { return x[0] === k; })) { l.push([k]); } }); return l; };' +
+'    var g0 = lire(corpsD.children[0]), d0 = lire(corpsD.children[1]);' +
+'    if (d0.some(function (x) { return x[0] === "exp"; })) { _cvPdfChoixMq = Object.assign({}, _cvPdfChoixMq, { ordreColonnes: { gauche: g0, droite: d0 } }); }' +
+'  }' +
+// Retour Denis 2026-10-02 : meme principe a UNE colonne. Avant, « Personnaliser » rangeait l'experience personnelle et les petites rubriques autrement que
+// l'affichage « Standard » (la page changeait au clic). L'affichage est donc relu dans le rendu : une ligne par bloc (ou par rangee de rubriques cote a cote).
+'  var corps1 = document.querySelector("#conteneurPage .corps:not(.deux)");' +
+'  if (corps1 && !_cvPdfChoixMq.lignesUneColonne && window.parent._MEP_TITRES_COLONNES) {' +
+'    var inv1 = {}; var TC1 = window.parent._MEP_TITRES_COLONNES, IN1 = window.parent._PDF_INTITULES;' +
+'    Object.keys(TC1).forEach(function (k) { inv1[IN1[TC1[k]]] = k; });' +
+'    var lignes = [], vus = {};' +
+'    Array.prototype.forEach.call(corps1.children, function (groupe) {' +
+'      Array.prototype.forEach.call(groupe.children, function (bloc) {' +
+'        var ks = [];' +
+'        bloc.querySelectorAll("[data-rub]").forEach(function (t) { var k = inv1[t.getAttribute("data-rub")]; if (k && !vus[k] && ks.indexOf(k) === -1) { ks.push(k); } });' +
+'        ks.forEach(function (k) { vus[k] = true; });' +
+'        if (ks.length === 1 || (ks.length >= 2 && ks.length <= 3 && bloc.classList.contains("paire"))) { lignes.push(ks); }' +
+'        else { ks.forEach(function (k) { lignes.push([k]); }); }' +
+'      });' +
+'    });' +
+'    if (lignes.some(function (l) { return l[0] === "exp"; })) { _cvPdfChoixMq = Object.assign({}, _cvPdfChoixMq, { lignesUneColonne: lignes }); }' +
+'  }' +
+'  _cvPdfOrganisationPerso = true;' +
+'  if (!_cvPdfOrdrePersoRubriques) {' +
+'    var ordre = _pdfCompetencesEnHautEffectif() ? ["comp", "exp", "form", "bas"] : ["exp", "form", "comp", "bas"];' +
+'    if (_cvPdfFormationsAvantExp) { ordre = ordre.filter(function (k) { return k !== "form"; }); ordre.splice(ordre.indexOf("exp"), 0, "form"); }' +
+'    _cvPdfOrdrePersoRubriques = ordre;' +
+'  }' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDeplacerGroupePerso(index, delta) {' +
+'  if (!_cvPdfOrdrePersoRubriques) { _cvPdfOrdrePersoRubriques = ["comp", "exp", "form", "bas"]; }' +
+'  var i = index, j = index + delta;' +
+'  if (j < 0 || j >= _cvPdfOrdrePersoRubriques.length) { return; }' +
+'  var arr = _cvPdfOrdrePersoRubriques.slice();' +
+'  arr.splice(j, 0, arr.splice(i, 1)[0]);' +
+'  _cvPdfOrdrePersoRubriques = arr;' +
+// les anciennes fleches de « Personnaliser » reprennent la main : les lignes composees a la souris sont abandonnees
+'  if (_cvPdfChoixMq.lignesUneColonne) { var cc = Object.assign({}, _cvPdfChoixMq); delete cc.lignesUneColonne; _cvPdfChoixMq = cc; }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (Reinitialiser / Style au hasard) : ces choix de CONTENU (jamais
+// de style) doivent revenir a l\'automatique par ces 2 chemins, meme
+// regle que _cvPdfOrdrePersonnalise (voir sa propre note plus haut) --
+// sinon un choix precis fait un jour resterait fige pour toujours, y
+// compris apres "Style au hasard" ou une remise a zero complete.
+'function _pdfReinitialiserChoixExperiences() {' +
+'  _cvPdfModePresentation = "A";' +
+'  _cvPdfExperiencesTout = "toutes";' +
+'  _cvPdfExperiencesChoisies = null;' +
+'  _cvPdfMissionsParExperience = {};' +
+'  _cvPdfMissionsChoisies = {};' +
+'  _cvPdfMissionsGlobal = null;' +
+'  _cvPdfAfficherLieu = true;' +
+'  _cvPdfQualitesMetierActives = true;' +
+'  _cvPdfAfficherCompPro = true;' +
+'  _cvPdfAfficherCompComp = true;' +
+'  _cvPdfStyleLieu = "italique";' +
+'  _cvPdfPositionDates = "droite";' +
+'  _cvPdfPositionDatesChoisie = false;' +
+'  _cvPdfDatesAlignees = true;' +
+'  _cvPdfPositionDatesFormations = "";' +
+'  _cvPdfPositionDatesPerso = "";' +
+'  _cvPdfAfficherMissionsFormation = null;' +
+'  _cvPdfEspacementFormations = 4;' +
+'  _cvPdfCompetencesProMax = null;' +
+'  _cvPdfCompetencesComportementalesMax = null;' +
+'  _cvPdfCompetencesEnHaut = null;' +
+'  _cvPdfFormationsAvantExp = false;' +
+'  _cvPdfTitresAgrandis = false;' +
+'  _cvPdfOrganisationPerso = false;' +
+'  _cvPdfOrdrePersoRubriques = null;' +
+'  _cvPdfExpPersoTout = "toutes";' +
+'  _cvPdfExpPersoChoisies = null;' +
+'  _cvPdfExpPersoMissionsParItem = {};' +
+'  _cvPdfExpPersoTexteParItem = {};' +
+'  _cvPdfFormationsTout = "toutes";' +
+'  _cvPdfFormationsChoisies = null;' +
+'  _cvPdfFormationsMissionsParItem = {};' +
+'  _cvPdfFormationsTexteParItem = {};' +
+'}' +
 // TACHE (retour utilisateur : "Mettre en avant les formations" -- meme
 // principe que btnCvOptimisePdf juste au-dessus : etat de reference vit
 // sur window.parent.dossier.pdfReglages.regFormationsMisesEnAvant (deja
@@ -3297,6 +5113,8 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // formats restent le meme modele visuel coherent (voir appliquerCreatifXXL(),
 // js/app.js, qui ecrit ce meme champ dans dossier.pdfReglages).
 '  etat.creatifVariante = _cvPdfCreatifVariante;' +
+// TACHE (Denis, 2026-09-25, tranche 2) : le modele Sobre choisi survit lui aussi a la reconstruction du panneau.
+'  etat.sobreVariante = _cvPdfSobreVariante;' +
 '  etat.echellesRubriques = _cvPdfEchellesRubriques;' +
 '  etat.policesRubriques = _cvPdfPolicesRubriques;' +
 '  etat.stylesPuceRubriques = _cvPdfStylesPuceRubriques;' +
@@ -3305,12 +5123,83 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  etat.stylesTexteEntete = _cvPdfStylesTexteEntete;' +
 '  etat.rubriquesForceesColonne = _cvPdfRubriquesForceesColonne;' +
 '  etat.textesEdites = _cvPdfTextesEdites;' +
+// TACHE (Denis, 2026-09-23 : "le panneau experience est catastrophique,
+// il ne fait que bugger... je ne peux pas choisir le nombre
+// d'experiences... il n'y a rien" -- bug reel confirme, cause racine
+// trouvee) : TOUS les etats des phases 5.3/5.4 (cartes Experiences/
+// Formations/Elements supplementaires/Organisation) etaient des variables
+// UNIQUEMENT locales a cette iframe -- jamais capturees ici. Or
+// pageResultats() reconstruit une iframe NEUVE a CHAQUE interaction (voir
+// ouvrirApercuPdfHtml, cvPdfExport.js) : chaque reglage revenait donc a
+// son defaut a la fin du MEME clic qui venait de le changer (le setter
+// appelle _pdfRafraichir() -> _pdfPersisterReglages() -> ce depart, qui
+// ne les connaissait pas). Ajoutes ici, memes noms que les variables
+// elles-memes, meme convention que tout le reste de cette fonction.
+'  etat.modePresentation = _cvPdfModePresentation;' +
+'  etat.experiencesTout = _cvPdfExperiencesTout;' +
+'  etat.experiencesChoisies = _cvPdfExperiencesChoisies;' +
+'  etat.missionsParExperience = _cvPdfMissionsParExperience;' +
+'  etat.missionsChoisies = _cvPdfMissionsChoisies;' +
+'  etat.missionsGlobal = _cvPdfMissionsGlobal;' +
+'  etat.afficherLieuExp = _cvPdfAfficherLieu;' +
+'  etat.qualitesMetierActives = _cvPdfQualitesMetierActives;' +
+'  etat.afficherCompPro = _cvPdfAfficherCompPro;' +
+'  etat.afficherCompComp = _cvPdfAfficherCompComp;' +
+'  etat.styleLieuExp = _cvPdfStyleLieu;' +
+'  etat.positionDatesExp = _cvPdfPositionDates;' +
+'  etat.positionDatesChoisie = _cvPdfPositionDatesChoisie;' +
+'  etat.datesAlignees = _cvPdfDatesAlignees;' +
+'  etat.positionDatesFormations = _cvPdfPositionDatesFormations;' +
+'  etat.positionDatesPerso = _cvPdfPositionDatesPerso;' +
+'  etat.afficherMissionsFormation = _cvPdfAfficherMissionsFormation;' +
+'  etat.espacementFormations = _cvPdfEspacementFormations;' +
+'  etat.competencesProMax = _cvPdfCompetencesProMax;' +
+'  etat.competencesComportementalesMax = _cvPdfCompetencesComportementalesMax;' +
+'  etat.competencesEnHaut = _cvPdfCompetencesEnHaut;' +
+'  etat.colonnesAvantModele = _cvPdfColonnesAvantModele;' +
+'  etat.competencesRetirees = _cvPdfCompetencesRetirees;' +
+'  etat.rubriquesRetirees = _cvPdfRubriquesRetirees;' +
+'  etat.missionsRetirees = _cvPdfMissionsRetirees;' +
+'  etat.historiqueRetraits = _cvPdfHistoriqueRetraits;' +
+'  etat.ordreExperiencesMien = _cvPdfOrdreExperiencesMien;' +
+'  etat.ordreFormationsMien = _cvPdfOrdreFormationsMien;' +
+'  etat.ordreFormations = _cvPdfOrdreFormations;' +
+'  etat.ordreExpPersoMien = _cvPdfOrdreExpPersoMien;' +
+'  etat.ordreExpPerso = _cvPdfOrdreExpPerso;' +
+'  etat.certifsRubrique = _cvPdfCertifsRubrique;' +
+'  etat.ordreMissions = _cvPdfOrdreMissionsMq;' +
+'  etat.reglagesRubriquesMq = _cvPdfReglagesRubriquesMq;' +
+'  etat.enteteLibreMq = _cvPdfEnteteLibreMq;' +
+'  etat.enteteParModele = _cvPdfEnteteParModele;' +
+'  etat.cleModeleEntete = _cvPdfCleModeleEntete;' +
+'  etat.avantA5 = _cvPdfAvantA5;' +
+'  etat.formatPrecedent = _cvPdfFormatPrecedent;' +
+'  etat.textesEditesMq = _cvPdfTextesEditesMq;' +
+'  etat.choixMq = _cvPdfChoixMq;' +
+'  etat.formationsAvantExp = _cvPdfFormationsAvantExp;' +
+'  etat.titresAgrandis = _cvPdfTitresAgrandis;' +
+'  etat.organisationPerso = _cvPdfOrganisationPerso;' +
+'  etat.ordrePersoRubriques = _cvPdfOrdrePersoRubriques;' +
+// TACHE (chantier "Experience personnelle", 2026-09-27) : meme convention
+// que experiencesTout/experiencesChoisies/missionsParExperience plus haut.
+'  etat.experiencePersoTout = _cvPdfExpPersoTout;' +
+'  etat.experiencePersoChoisies = _cvPdfExpPersoChoisies;' +
+'  etat.missionsParExpPerso = _cvPdfExpPersoMissionsParItem;' +
+'  etat.missionsChoisiesExpPerso = _cvPdfExpPersoMissionsChoisies;' +
+'  etat.texteParExpPerso = _cvPdfExpPersoTexteParItem;' +
+'  etat.expPersoModeAffichage = _cvPdfExpPersoModeAffichage;' +
+'  etat.formationsTout = _cvPdfFormationsTout;' +
+'  etat.formationsChoisies = _cvPdfFormationsChoisies;' +
+'  etat.missionsParFormation = _cvPdfFormationsMissionsParItem;' +
+'  etat.missionsChoisiesFormation = _cvPdfFormationsMissionsChoisies;' +
+'  etat.texteParFormation = _cvPdfFormationsTexteParItem;' +
 '  return etat;' +
 '}' +
 'function _pdfAppliquerEtatPersistant(etat) {' +
 '  _pdfAppliquerEtat(etat);' +
 '  _cvPdfOrdrePersonnalise = etat.ordrePersonnalise || null;' +
 '  _cvPdfCreatifVariante = etat.creatifVariante || null;' +
+'  _cvPdfSobreVariante = _pdfMigrerVarianteSobre(etat.sobreVariante);' +
 '  _cvPdfEchellesRubriques = etat.echellesRubriques || {};' +
 '  _cvPdfPolicesRubriques = etat.policesRubriques || {};' +
 '  _cvPdfStylesPuceRubriques = etat.stylesPuceRubriques || {};' +
@@ -3319,11 +5208,290 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  _cvPdfStylesTexteEntete = etat.stylesTexteEntete || {};' +
 '  _cvPdfRubriquesForceesColonne = etat.rubriquesForceesColonne || {};' +
 '  _cvPdfTextesEdites = etat.textesEdites || {};' +
+'  _cvPdfModePresentation = etat.modePresentation || "A";' +
+'  _cvPdfExperiencesTout = etat.experiencesTout || "toutes";' +
+'  _cvPdfExperiencesChoisies = etat.experiencesChoisies || null;' +
+'  _cvPdfMissionsParExperience = etat.missionsParExperience || {};' +
+'  _cvPdfMissionsChoisies = etat.missionsChoisies || {};' +
+'  _cvPdfMissionsGlobal = (typeof etat.missionsGlobal === "number") ? etat.missionsGlobal : null;' +
+'  _cvPdfExpPersoTout = etat.experiencePersoTout || "toutes";' +
+'  _cvPdfExpPersoChoisies = etat.experiencePersoChoisies || null;' +
+'  _cvPdfExpPersoMissionsParItem = etat.missionsParExpPerso || {};' +
+'  _cvPdfExpPersoMissionsChoisies = etat.missionsChoisiesExpPerso || {};' +
+'  _cvPdfExpPersoTexteParItem = etat.texteParExpPerso || {};' +
+'  _cvPdfExpPersoModeAffichage = (etat.expPersoModeAffichage === "developper") ? "developper" : "citer";' +
+'  _cvPdfFormationsTout = etat.formationsTout || "toutes";' +
+'  _cvPdfFormationsChoisies = etat.formationsChoisies || null;' +
+'  _cvPdfFormationsMissionsParItem = etat.missionsParFormation || {};' +
+'  _cvPdfFormationsMissionsChoisies = etat.missionsChoisiesFormation || {};' +
+'  _cvPdfFormationsTexteParItem = etat.texteParFormation || {};' +
+'  _cvPdfAfficherLieu = (etat.afficherLieuExp !== false);' +
+'  _cvPdfQualitesMetierActives = (etat.qualitesMetierActives !== false);' +
+'  _cvPdfAfficherCompPro = (etat.afficherCompPro !== false);' +
+'  _cvPdfAfficherCompComp = (etat.afficherCompComp !== false);' +
+'  _cvPdfStyleLieu = etat.styleLieuExp || "normal";' +
+'  _cvPdfPositionDates = etat.positionDatesExp || "droite";' +
+'  _cvPdfPositionDatesChoisie = !!etat.positionDatesChoisie;' +
+'  _cvPdfDatesAlignees = (etat.datesAlignees === undefined) ? true : !!etat.datesAlignees;' +
+'  _cvPdfPositionDatesFormations = etat.positionDatesFormations || "";' +
+'  _cvPdfPositionDatesPerso = etat.positionDatesPerso || "";' +
+'  _cvPdfAfficherMissionsFormation = (typeof etat.afficherMissionsFormation === "boolean") ? etat.afficherMissionsFormation : null;' +
+'  _cvPdfEspacementFormations = (typeof etat.espacementFormations === "number") ? etat.espacementFormations : 4;' +
+'  _cvPdfCompetencesProMax = (typeof etat.competencesProMax === "number") ? etat.competencesProMax : null;' +
+'  _cvPdfCompetencesComportementalesMax = (typeof etat.competencesComportementalesMax === "number") ? etat.competencesComportementalesMax : null;' +
+'  _cvPdfCompetencesEnHaut = (etat.competencesEnHaut === null || etat.competencesEnHaut === undefined) ? null : !!etat.competencesEnHaut;' +
+'  _cvPdfColonnesAvantModele = (etat.colonnesAvantModele === undefined) ? null : etat.colonnesAvantModele;' +
+'  _cvPdfCompetencesRetirees = etat.competencesRetirees || [];' +
+'  _cvPdfRubriquesRetirees = etat.rubriquesRetirees || [];' +
+'  _cvPdfMissionsRetirees = etat.missionsRetirees || [];' +
+'  _cvPdfHistoriqueRetraits = etat.historiqueRetraits || [];' +
+'  _cvPdfOrdreExperiencesMien = etat.ordreExperiencesMien || null;' +
+'  _cvPdfOrdreFormationsMien = etat.ordreFormationsMien || null;' +
+'  _cvPdfOrdreFormations = etat.ordreFormations || (etat.ordreFormationsMien ? "mien" : "pertinence");' +
+'  _cvPdfOrdreExpPersoMien = etat.ordreExpPersoMien || null;' +
+'  _cvPdfOrdreExpPerso = etat.ordreExpPerso || (etat.ordreExpPersoMien ? "mien" : "pertinence");' +
+'  _cvPdfCertifsRubrique = (etat.certifsRubrique === true || etat.certifsRubrique === false) ? etat.certifsRubrique : (etat.certifsUneParUne ? false : null);' +
+'  _cvPdfOrdreMissionsMq = etat.ordreMissions || {};' +
+'  _cvPdfReglagesRubriquesMq = etat.reglagesRubriquesMq || {};' +
+'  _cvPdfEnteteLibreMq = etat.enteteLibreMq || { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };' +
+'  _cvPdfEnteteParModele = etat.enteteParModele || {};' +
+'  _cvPdfCleModeleEntete = etat.cleModeleEntete || null;' +
+'  _cvPdfAvantA5 = etat.avantA5 || null;' +
+'  _cvPdfFormatPrecedent = etat.formatPrecedent || null;' +
+'  _cvPdfTextesEditesMq = etat.textesEditesMq || {};' +
+'  _cvPdfChoixMq = etat.choixMq || {};' +
+'  _cvPdfFormationsAvantExp = !!etat.formationsAvantExp;' +
+'  _cvPdfTitresAgrandis = !!etat.titresAgrandis;' +
+'  _cvPdfOrganisationPerso = !!etat.organisationPerso;' +
+'  _cvPdfOrdrePersoRubriques = etat.ordrePersoRubriques || null;' +
 '}' +
 // window.parent.dossier (jamais window.__cvPdfDossierSource) : robuste
 // a un "Recommencer" survenu cote fenetre principale pendant que cette
 // iframe etait ouverte (meme raisonnement que le reste de ce fichier,
 // qui appelle deja window.parent pour tout le reste).
+// TACHE (Denis, 2026-09-25, tranche 4) : API du plein ecran de la maquette. Le parent (js/app.js) parle a ce panneau par
+// ces fonctions, jamais en ecrivant directement dans ses variables.
+// Remet une competence retiree (case recochee dans « Modifier mes competences et leurs missions », carte Experiences). Retire aussi la ligne de l\'historique.
+'function _pdfMqRemettreCompetence(nom) {' +
+'  _cvPdfCompetencesRetirees = _cvPdfCompetencesRetirees.filter(function (x) { return x !== nom; });' +
+'  _cvPdfHistoriqueRetraits = _cvPdfHistoriqueRetraits.filter(function (h) { return !(h.type === "competence" && h.valeur === nom); });' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqRetirerCompetence(nom) {' +
+'  if (_cvPdfCompetencesRetirees.indexOf(nom) === -1) { _cvPdfCompetencesRetirees = _cvPdfCompetencesRetirees.concat([nom]); _cvPdfHistoriqueRetraits = _cvPdfHistoriqueRetraits.concat([{ type: "competence", valeur: nom }]); }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (J4, 2026-09-28) : memes principes que _pdfMqRetirerCompetence juste au-dessus, pour une
+// rubrique entiere (rub = intitule complet, ex. "Formations") et pour une mission precise (cle =
+// meme cle data-ed que "Modifier le texte", ex. "fm:0:1") -- 3 mecanismes de retrait paralleles,
+// un seul historique commun pour les 2 fleches d'annulation ci-dessous.
+'function _pdfMqRetirerRubrique(rub) {' +
+'  if (_cvPdfRubriquesRetirees.indexOf(rub) === -1) { _cvPdfRubriquesRetirees = _cvPdfRubriquesRetirees.concat([rub]); _cvPdfHistoriqueRetraits = _cvPdfHistoriqueRetraits.concat([{ type: "rubrique", valeur: rub }]); }' +
+'  _pdfRafraichir();' +
+'}' +
+// TACHE (Denis, 2026-09-29, inventaire « bouton x modele ») : les cases « afficher / masquer une rubrique » des cartes n'ecrivaient que dans un reglage lu par
+// l'ancien moteur Word ; le PDF (et donc le Word) masque les rubriques par CETTE liste (meme que « Retirer une rubrique » du plein ecran). rub = intitule complet.
+'function _pdfMqRubriqueVisible(rub, visible) {' +
+'  var dedans = _cvPdfRubriquesRetirees.indexOf(rub) !== -1;' +
+'  if (visible && dedans) {' +
+'    _cvPdfRubriquesRetirees = _cvPdfRubriquesRetirees.filter(function (x) { return x !== rub; });' +
+'    _cvPdfHistoriqueRetraits = _cvPdfHistoriqueRetraits.filter(function (h) { return !(h.type === "rubrique" && h.valeur === rub); });' +
+'  } else if (!visible && !dedans) {' +
+'    _cvPdfRubriquesRetirees = _cvPdfRubriquesRetirees.concat([rub]);' +
+'    _cvPdfHistoriqueRetraits = _cvPdfHistoriqueRetraits.concat([{ type: "rubrique", valeur: rub }]);' +
+'  }' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqRetirerMission(cle) {' +
+'  if (_cvPdfMissionsRetirees.indexOf(cle) === -1) { _cvPdfMissionsRetirees = _cvPdfMissionsRetirees.concat([cle]); _cvPdfHistoriqueRetraits = _cvPdfHistoriqueRetraits.concat([{ type: "mission", valeur: cle }]); }' +
+'  _pdfRafraichir();' +
+'}' +
+// Annulation : une fleche simple (dernier retrait seulement, tous mecanismes confondus, dans
+// l\'ordre chronologique reel) et une double fleche (tout remettre). Retourne un booleen (simple)
+// pour que l\'appelant sache s\'il y avait bien quelque chose a annuler (bouton grise sinon).
+'function _pdfMqAnnulerDernierRetrait() {' +
+'  if (!_cvPdfHistoriqueRetraits.length) { return false; }' +
+'  var dernier = _cvPdfHistoriqueRetraits[_cvPdfHistoriqueRetraits.length - 1];' +
+'  _cvPdfHistoriqueRetraits = _cvPdfHistoriqueRetraits.slice(0, -1);' +
+'  if (dernier.type === "competence") { _cvPdfCompetencesRetirees = _cvPdfCompetencesRetirees.filter(function (x) { return x !== dernier.valeur; }); }' +
+'  else if (dernier.type === "rubrique") { _cvPdfRubriquesRetirees = _cvPdfRubriquesRetirees.filter(function (x) { return x !== dernier.valeur; }); }' +
+'  else if (dernier.type === "mission") { _cvPdfMissionsRetirees = _cvPdfMissionsRetirees.filter(function (x) { return x !== dernier.valeur; }); }' +
+'  _pdfRafraichir();' +
+'  return true;' +
+'}' +
+'function _pdfMqToutRemettreRetraits() {' +
+'  var yAvaitQqchose = !!(_cvPdfCompetencesRetirees.length || _cvPdfRubriquesRetirees.length || _cvPdfMissionsRetirees.length);' +
+'  _cvPdfCompetencesRetirees = []; _cvPdfRubriquesRetirees = []; _cvPdfMissionsRetirees = []; _cvPdfHistoriqueRetraits = [];' +
+'  _pdfRafraichir();' +
+'  return yAvaitQqchose;' +
+'}' +
+'function _pdfMqDefinirOrdreMissions(prefixe, textes) {' +
+'  var copie = {};' +
+'  Object.keys(_cvPdfOrdreMissionsMq).forEach(function (k) { copie[k] = _cvPdfOrdreMissionsMq[k]; });' +
+'  if (textes && textes.length) { copie[prefixe] = textes; } else { delete copie[prefixe]; }' +
+'  _cvPdfOrdreMissionsMq = copie;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirCritereFormations(critere) {' +
+'  _cvPdfOrdreFormations = (critere === "date-desc" || critere === "date-asc" || critere === "mien") ? critere : "pertinence";' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirCertifsRubrique(v) {' +
+'  _cvPdfCertifsRubrique = (v === true || v === false) ? v : null;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirCritereExpPerso(critere) {' +
+'  _cvPdfOrdreExpPerso = (critere === "date-desc" || critere === "date-asc" || critere === "mien") ? critere : "pertinence";' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirOrdreExpPerso(ordre) {' +
+'  _cvPdfOrdreExpPersoMien = (ordre && ordre.length) ? ordre : null;' +
+'  _cvPdfOrdreExpPerso = _cvPdfOrdreExpPersoMien ? "mien" : "pertinence";' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirOrdreFormations(ordre) {' +
+'  _cvPdfOrdreFormationsMien = (ordre && ordre.length) ? ordre : null;' +
+'  _cvPdfOrdreFormations = _cvPdfOrdreFormationsMien ? "mien" : "pertinence";' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirOrdreExperiences(ordre) {' +
+'  _cvPdfOrdreExperiencesMien = ordre;' +
+'  document.getElementById("regOrdreExperiences").value = "mien";' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqStyleRubrique(cle, style) {' +
+'  var copie = {};' +
+'  Object.keys(_cvPdfReglagesRubriquesMq).forEach(function (k) { copie[k] = _cvPdfReglagesRubriquesMq[k]; });' +
+'  if (style) { copie[cle] = style; } else { delete copie[cle]; }' +
+'  _cvPdfReglagesRubriquesMq = copie;' +
+'  _pdfRafraichir();' +
+'}' +
+// Espace AU-DESSUS de chaque rubrique (retour Denis 2026-10-01) : « Espacer les rubriques » (automatique) et crans a la main. map = { titre de rubrique : px }
+// (0 ou absent = retire l'espace) ; une seule actualisation pour tout le lot. Les autres reglages de la rubrique (taille, interligne) sont conserves.
+'function _pdfMqEspacesRubriques(map) {' +
+'  var copie = {};' +
+'  Object.keys(_cvPdfReglagesRubriquesMq).forEach(function (k) { copie[k] = Object.assign({}, _cvPdfReglagesRubriquesMq[k]); });' +
+'  Object.keys(map || {}).forEach(function (cle) {' +
+'    var px = Math.max(0, Math.min(80, Math.round(+map[cle] || 0)));' +
+'    var st = copie[cle] || {};' +
+'    if (px > 0) { st.esp = px; } else { delete st.esp; }' +
+'    if (Object.keys(st).length) { copie[cle] = st; } else { delete copie[cle]; }' +
+'  });' +
+'  _cvPdfReglagesRubriquesMq = copie;' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqDefinirEntete(etat) {' +
+'  _cvPdfEnteteLibreMq = etat;' +
+'  _pdfRafraichir();' +
+'}' +
+// « Revenir aux valeurs par defaut » des competences (2026-10-04) : efface toutes les corrections de texte des competences (cles « k:... »), qu'elles viennent du panneau ou du plein ecran.
+'function _pdfMqRemettreTextesCompetences() {' +
+'  var copie = {};' +
+'  Object.keys(_cvPdfTextesEditesMq).forEach(function (k) { if (k.indexOf("k:") !== 0) { copie[k] = _cvPdfTextesEditesMq[k]; } });' +
+'  _cvPdfTextesEditesMq = copie;' +
+'  _pdfPersisterReglages();' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqTexteEdite(ed, original, nouveau) {' +
+'  var copie = {};' +
+'  Object.keys(_cvPdfTextesEditesMq).forEach(function (k) { copie[k] = _cvPdfTextesEditesMq[k]; });' +
+'  if (nouveau === original) { delete copie[ed]; } else { copie[ed] = { t: original, x: nouveau }; }' +
+'  _cvPdfTextesEditesMq = copie;' +
+'  _pdfPersisterReglages();' +
+'}' +
+// « Revenir au modele de depart » (maquette : S = DEFAUT) : tout ce qui est propre au plein ecran est efface.
+'function _pdfCleModeleEntete() {' +
+'  var cre = document.getElementById("regCreatifActif"), sob = document.getElementById("regSobreActif");' +
+'  if (cre && cre.checked) { return "creatif:" + _cvPdfCreatifVariante; }' +
+'  if (sob && sob.checked) { return "sobre:" + _cvPdfSobreVariante; }' +
+'  return "standard";' +
+'}' +
+'function _pdfEnteteVierge() {' +
+'  return { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };' +
+'}' +
+'function _pdfEchangerReglagesSiFormatChange() {' +
+'  var fmt = String(document.getElementById("regFormatCV").value);' +
+'  var estA5 = fmt.indexOf("A5") === 0;' +
+'  if (_cvPdfFormatPrecedent === null) { _cvPdfFormatPrecedent = fmt; return; }' +
+'  var etaitA5 = _cvPdfFormatPrecedent.indexOf("A5") === 0;' +
+'  _cvPdfFormatPrecedent = fmt;' +
+'  if (estA5 === etaitA5) { return; }' +
+'  if (estA5) {' +
+'    _cvPdfAvantA5 = { tout: _cvPdfExperiencesTout, choisies: _cvPdfExperiencesChoisies, missions: _cvPdfMissionsGlobal };' +
+'    var cap = ((window.parent && window.parent.CAPACITES_A5_PORTRAIT_CV) || {}).experiences || 2;' +
+'    var capMissions = ((window.parent && window.parent.CAPACITES_A5_PORTRAIT_CV) || {}).missionsParExperience || 2;' +
+'    var nb = ((window.parent && window.parent._mepExperiencesMoteur) || []).length;' +
+'    if (_cvPdfExperiencesTout === "toutes" && !_cvPdfExperiencesChoisies) {' +
+'      _cvPdfExperiencesTout = "pertinentes";' +
+'      _cvPdfExperiencesChoisies = [];' +
+'      for (var i = 0; i < Math.min(cap, nb || cap); i++) { _cvPdfExperiencesChoisies.push(i); }' +
+'    }' +
+'    if (_cvPdfMissionsGlobal === null || _cvPdfMissionsGlobal === undefined) { _cvPdfMissionsGlobal = capMissions; }' +
+'  } else if (_cvPdfAvantA5) {' +
+'    _cvPdfExperiencesTout = _cvPdfAvantA5.tout;' +
+'    _cvPdfExperiencesChoisies = _cvPdfAvantA5.choisies;' +
+'    _cvPdfMissionsGlobal = _cvPdfAvantA5.missions;' +
+'    _cvPdfAvantA5 = null;' +
+'  }' +
+'}' +
+'function _pdfEchangerEnteteSiModeleChange() {' +
+'  var cle = _pdfCleModeleEntete();' +
+'  if (_cvPdfCleModeleEntete === null) { _cvPdfCleModeleEntete = cle; return; }' +
+'  if (cle === _cvPdfCleModeleEntete) { return; }' +
+'  var copie = {};' +
+'  Object.keys(_cvPdfEnteteParModele).forEach(function (k) { copie[k] = _cvPdfEnteteParModele[k]; });' +
+'  copie[_cvPdfCleModeleEntete] = JSON.parse(JSON.stringify(_cvPdfEnteteLibreMq));' +
+'  _cvPdfEnteteParModele = copie;' +
+'  _cvPdfEnteteLibreMq = _cvPdfEnteteParModele[cle] ? JSON.parse(JSON.stringify(_cvPdfEnteteParModele[cle])) : _pdfEnteteVierge();' +
+'  _cvPdfCleModeleEntete = cle;' +
+'}' +
+'function _pdfMqChoix(cle, valeur) {' +
+'  var copie = {};' +
+'  Object.keys(_cvPdfChoixMq).forEach(function (k) { copie[k] = _cvPdfChoixMq[k]; });' +
+'  if (valeur === null || valeur === undefined) { delete copie[cle]; } else { copie[cle] = valeur; }' +
+'  _cvPdfChoixMq = copie;' +
+'  _pdfRafraichir();' +
+'}' +
+// Competences choisies une par une (« Choisir ») : la liste vient du parent ; les croix du plein ecran de CETTE categorie
+// (competences retirees) sont effacees puisque la liste choisie les exclut deja.
+'function _pdfMqChoixCompetences(cleChoix, liste, poolNoms) {' +
+'  var pool = poolNoms || [];' +
+'  _cvPdfCompetencesRetirees = _cvPdfCompetencesRetirees.filter(function (x) { return pool.indexOf(x) === -1; });' +
+'  _pdfMqChoix(cleChoix, liste);' +
+'}' +
+// « Remettre les premieres » (maquette : delete S.mSel[id]) : le nombre de missions reste, seul le choix a la carte est efface.
+'function _pdfMqRemettrePremieresMissions(index) {' +
+'  delete _cvPdfMissionsChoisies[index];' +
+'  _pdfRafraichir();' +
+'}' +
+// « Taille de : Texte » (maquette : curseur en px, 12,5 par defaut = echelle 1 du rendu).
+'function _pdfMqTailleTexte(px) {' +
+'  var v = parseFloat(px);' +
+'  if (isNaN(v)) { return; }' +
+'  _cvPdfEchelle = Math.max(0.5, Math.min(1.6, v / 12.5));' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfMqToutRemettre() {' +
+'  _cvPdfCompetencesRetirees = [];' +
+'  _cvPdfRubriquesRetirees = [];' +
+'  _cvPdfMissionsRetirees = [];' +
+'  _cvPdfHistoriqueRetraits = [];' +
+'  _cvPdfOrdreExperiencesMien = null;' +
+'  _cvPdfOrdreFormationsMien = null;' +
+'  _cvPdfOrdreFormations = "pertinence";' +
+'  _cvPdfOrdreExpPersoMien = null;' +
+'  _cvPdfOrdreExpPerso = "pertinence";' +
+'  _cvPdfCertifsRubrique = null;' +
+'  _cvPdfOrdreMissionsMq = {};' +
+'  _cvPdfReglagesRubriquesMq = {};' +
+'  _cvPdfEnteteLibreMq = { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };' +
+'  _cvPdfEnteteParModele = {};' +
+'  _cvPdfTextesEditesMq = {};' +
+'  var intitulesGardes = _cvPdfChoixMq.intitulesPerso;' +
+'  _cvPdfChoixMq = intitulesGardes ? { intitulesPerso: intitulesGardes } : {};' +
+'  document.getElementById("regOrdreExperiences").value = "date-desc";' +
+'  _pdfPersisterReglages();' +
+'}' +
 'function _pdfPersisterReglages() {' +
 '  if (window.parent && window.parent.dossier) {' +
 '    window.parent.dossier.pdfReglages = _pdfCapturerEtatPersistant();' +
@@ -3340,10 +5508,10 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // desormais alignee des l'arrivee sur la page, sans qu'il soit necessaire
 // de toucher au curseur (30-70 toujours disponible pour qui veut un autre
 // equilibre).
-'  regColonnes: "2", regColonnesInversees: false, regSeparateurColonnes: false, regFormeColonnes: "rectangle", regLargeurColonneGauche: "35",' +
-'  regCouleurDebut: "#2f6690", regCouleurFin: "#d9e8f2", regFondColonnes: "droite", regFondColonnesEffet: "fondSeul", regDegradeColonnes: "fonce-clair",' +
-'  regBandeauEnTete: true, regFormeEnTete: "rectangle", regDegradeBandeau: "fonce-clair", regBandeauDisponibilite: false, regAnneauPhoto: false,' +
-'  regStyleTitres: "souligne", regLectureGuidee: false, regStyleProfessionnel: "epure", regStylePersonnel: "epure", regStyleBordures: "fine", regIcones: false, regIconesCoordonnees: false, regPolice: "segoe", regTexteFondColonnes: "blanc", regBandeauCompetencesCles: false,' +
+'  regColonnes: "1", regColonnesInversees: false, regSeparateurColonnes: false, regFormeColonnes: "rectangle", regLargeurColonneGauche: "35",' +
+'  regCouleurDebut: "#2f6690", regCouleurFin: "#d9e8f2", regFondColonnes: "aucun", regFondColonnesEffet: "fondSeul", regDegradeColonnes: "fonce-clair",' +
+'  regBandeauEnTete: false, regFormeEnTete: "rectangle", regDegradeBandeau: "fonce-clair", regBandeauDisponibilite: false, regAnneauPhoto: false,' +
+'  regStyleTitres: "souligne", regLectureGuidee: false, regStyleProfessionnel: "epure", regStylePersonnel: "epure", regStyleFormations: "epure", regSeparateurMissions: "pointvirgule", regStyleBordures: "fine", regIcones: false, regIconesCoordonnees: false, regPolice: "arial", regTexteFondColonnes: "blanc", regBandeauCompetencesCles: false,' +
 '  regStyleCompetences: "pastille", regCouleurFondCompetences: "#e9e9e9", regCouleurTextePuces: "#1b1b1b",' +
 '  regCoinsArrondis: false, regFondColonnesA5: "droite", regEnteteInverseeA5: false, regRemplirPageA5: false, regSansAccroche: false, regPositionLibreEntete: true, regLargeurAccrocheLibre: "30", regLargeurMetierLibre: "32", regFondColonnePleineHauteur: false,' +
 '  regLettreJointe: false, regRegroupementActif: false, regOrdreExperiences: "pertinence", regFormatExperiences: "standard", regDispositionEntete: "3colonnes",' +
@@ -3369,6 +5537,10 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // l\'ordre AUTOMATIQUE (efface tout glisser-depose precedent) -- seul
 // endroit qui touche a cet etat en dehors du drop lui-meme.
 '  _cvPdfOrdrePersonnalise = null;' +
+// TACHE (phase 5.4, carte "Experiences professionnelles") : "Reinitialiser"
+// remet aussi ces choix de CONTENU a l\'automatique (meme principe exact
+// que _cvPdfOrdrePersonnalise juste au-dessus).
+'  _pdfReinitialiserChoixExperiences();' +
 // TACHE (agrandissement par rubrique) : meme principe -- "Reinitialiser"
 // remet aussi ces etats a zero, seul endroit en dehors de leurs propres
 // interactions (curseur/glisser).
@@ -3514,8 +5686,35 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  };' +
 '}' +
 'var _cvPdfDernierTirageAleatoire = null;' +
+// TACHE (Denis, 2026-09-23 : "a une condition tres importante, que tous
+// les reglages qui seront dans un panneau separe ne vont pas interferer
+// et ne seront pas integres dans le mode aleatoire... a une epoque il y
+// en avait beaucoup qui etaient integres, aujourd'hui je ne le veux
+// pas") : tous les reglages PDF reels SANS equivalent dans les 8 blocs
+// de la maquette (carte "Reglages supplementaires", js/app.js) --
+// jusqu'ici encore re-tires par "Style au hasard" comme le reste. Fige
+// leur valeur juste avant le tirage, la restaure juste apres (avant le
+// rafraichissement) : desormais strictement manuels, jamais touches par
+// le de, quel que soit ce que le tirage a pu leur assigner au passage.
+'var _PDF_CHAMPS_HORS_MAQUETTE_JAMAIS_ALEATOIRES = ["regAnneauPhoto", "regBandeauCompetencesCles", "regBandeauDisponibilite", "regCoinsArrondis", "regDegradeBandeau", "regDispositionEntete", "regEnteteInverseeA5", "regFondColonnePleineHauteur", "regFondColonnesA5", "regFondColonnesEffet", "regFormatExperiences", "regFormeColonnes", "regFormeEnTete", "regItaliqueDates", "regItaliqueEntreprise", "regItaliquePoste", "regSoulignerDates", "regSoulignerEntreprise", "regSoulignerPoste", "regLargeurAccrocheLibre", "regLargeurMetierLibre", "regLargeurColonneGauche", "regLectureGuidee", "regStyleBordures", "regStylePersonnel", "regStyleProfessionnel", "regStyleTitres", "regTexteFondColonnes"];' +
+'function _pdfFigerChampsHorsMaquette() {' +
+'  var etat = {};' +
+'  _PDF_CHAMPS_HORS_MAQUETTE_JAMAIS_ALEATOIRES.forEach(function (id) {' +
+'    var el = document.getElementById(id);' +
+'    if (el) { etat[id] = (el.type === "checkbox") ? el.checked : el.value; }' +
+'  });' +
+'  return etat;' +
+'}' +
+'function _pdfRestaurerChampsHorsMaquette(etat) {' +
+'  Object.keys(etat).forEach(function (id) {' +
+'    var el = document.getElementById(id);' +
+'    if (!el) { return; }' +
+'    if (el.type === "checkbox") { el.checked = etat[id]; } else { el.value = etat[id]; }' +
+'  });' +
+'}' +
 'function _pdfGenererStyleAleatoire() {' +
 '  _cvPdfEtatAvantAleatoire = _pdfCapturerEtatPersistant();' +
+'  var _etatHorsMaquetteAvant = _pdfFigerChampsHorsMaquette();' +
 '  document.getElementById("btnAnnulerAleatoire").disabled = false;' +
 // TACHE (retour utilisateur, bug reel confirme : "tout ce que j'ai
 // modifie a la main reste modifie -- ca devrait redemarrer a zero a
@@ -3529,7 +5728,17 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // vierge, meme reset que "Reinitialiser" (_pdfReinitialiser plus haut),
 // jamais une 2e copie de cette liste.
 '  _cvPdfEchelle = 1;' +
-'  _cvPdfOrdrePersonnalise = null;' +
+// CORRECTIF (chantier refonte mise en page PDF, phase 3.6, 2026-09-22 --
+// Denis : "c'etait une mauvaise idee de mettre a zero l'ordre glisse-
+// depose des rubriques dans le style au hasard, je ne veux pas conserver
+// ce comportement, ni ici ni dans la maquette") : la ligne "_cvPdfOrdrePersonnalise
+// = null" du 2026-09-15 (voir commentaire juste au-dessus, "ardoise
+// vierge a chaque tirage") est ANNULEE ici pour ce seul reglage --
+// l'ordre des rubriques, glisse-depose a la main, n'est PLUS jamais
+// touche par "Style au hasard" (C2/C20 du cahier de chantier). Les autres
+// personnalisations manuelles listees dans ce meme commentaire (echelle,
+// police, position libre de l'en-tete...) restent, elles, reinitialisees
+// -- decision du 2026-09-15 non remise en cause pour elles.
 '  _cvPdfEchellesRubriques = {};' +
 '  _cvPdfPolicesRubriques = {};' +
 '  _cvPdfStylesPuceRubriques = {};' +
@@ -3623,6 +5832,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  document.getElementById("regLectureGuidee").checked = Math.random() < 0.45;' +
 '  document.getElementById("regStyleProfessionnel").value = _pdfChoixAleatoire(["epure", "condense"]);' +
 '  document.getElementById("regStylePersonnel").value = _pdfChoixAleatoire(["epure", "condense"]);' +
+'  document.getElementById("regStyleFormations").value = _pdfChoixAleatoire(["epure", "condense"]);' +
 // TACHE (retour utilisateur : "souligner le poste, les dates,
 // l'entreprise... et pareil pour l'italique -- je veux ca aussi dans le
 // mode aleatoire") : 6 tirages INDEPENDANTS (jamais un seul "profil"
@@ -3638,32 +5848,41 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 '  document.getElementById("regStyleBordures").value = _pdfChoixAleatoire(["fine", "epaisse"]);' +
 // TACHE (retour utilisateur : "je veux que toutes ces options qui on est
 // en train de construire apparaissent dans l'option aleatoire") : options
-// purement VISUELLES uniquement (tri/mise en forme des experiences) --
+// purement VISUELLES uniquement (mise en forme des experiences) --
 // lettre jointe et regroupement restent volontairement hors du tirage
 // (choix editorial de contenu, jamais declenche par surprise -- reponse
 // explicite de l'utilisateur, meme principe que le Word qui ne les
 // randomise jamais non plus). Reste modifiable a la main ensuite, comme
 // tout le reste de ce panneau.
-'  document.getElementById("regOrdreExperiences").value = _pdfChoixAleatoire(["pertinence", "pertinence", "date-desc", "date-asc", "poste-asc"]);' +
+// CORRECTIF (chantier refonte mise en page PDF, phase 3.6, 2026-09-22 --
+// bug reel de Denis : "j'ai essaye de changer l'ordre sans succes, y
+// compris en modifiant le code") : regOrdreExperiences n'etait PAS un
+// reglage "purement visuel" contrairement a ce que disait le commentaire
+// ci-dessus -- trier par date ou par poste change reellement la POSITION
+// de chaque experience, ecrasant silencieusement l'ordre choisi a la main
+// sur l'ecran de relecture (fleches ▲▼) des que "Style au hasard" tombait
+// sur autre chose que "pertinence" (3 chances sur 5). Retire du tirage :
+// reste sur la valeur deja choisie par la personne, jamais ecrase par
+// surprise (C2/C20 du cahier de chantier : "le hasard ne melange plus
+// rien d'autre que le style").
 '  document.getElementById("regFormatExperiences").value = _pdfChoixAleatoire(["standard", "ameliore"]);' +
 '  document.getElementById("regIcones").checked = Math.random() < 0.5;' +
 '  document.getElementById("regIconesCoordonnees").checked = Math.random() < 0.5;' +
-// TACHE (retour utilisateur : polices supplementaires) : "artistique"
-// (manuscrite) exclue du tirage aleatoire -- adaptee a un usage ponctuel
-// (nom/accroche/1 rubrique via la mini-barre flottante), jamais a tout
-// le corps d'un CV, y compris tire au hasard.
-'  document.getElementById("regPolice").value = _pdfChoixAleatoire(["segoe", "georgia", "verdana", "garamond", "arial", "calibri", "tahoma", "trebuchet", "times", "palatino"]);' +
+// TACHE (retour Denis 2026-09-27) : la police n'est plus tiree au hasard,
+// ni ici ni via un modele (Sobre/Creatif, voir CREATIF_MODELES_XXL,
+// js/app.js) -- seule la personne la choisit explicitement (select #regPolice),
+// quel que soit le modele affiche. Reste donc a la valeur deja en place,
+// jamais ecrasee par ce tirage.
 '  document.getElementById("regBandeauCompetencesCles").checked = Math.random() < 0.4;' +
-// TACHE (retour utilisateur : "adapter le PDF au Word -- le dé du Word
-// randomise déjà 'bloc mis en avant', qui peut tomber sur Formations")
-// : contrairement a lettre jointe/regroupement (choix de contenu
-// exclus du tirage), celui-ci est inclus VOLONTAIREMENT sur demande
-// explicite -- l'utilisateur veut que le hasard puisse parfois reveler
-// toutes les formations + la plus pertinente developpee, pour "eveiller
-// des idees" a la personne. Probabilite moderee (35%, comme
-// fondPleineHauteurActif plus haut) -- pas systematique, garde de la
-// variete dans les tirages.
-'  document.getElementById("regFormationsMisesEnAvant").checked = Math.random() < 0.35;' +
+// TACHE (retour utilisateur historique : "adapter le PDF au Word -- le de
+// du Word randomise deja 'bloc mis en avant'") : ce reglage etait inclus
+// volontairement dans le tirage -- DECISION ANNULEE (chantier refonte
+// mise en page PDF, phase 3.6, 2026-09-22, Denis : "c'etait une mauvaise
+// idee, je ne veux pas conserver ce comportement, ni ici ni dans la
+// maquette"). "Mettre en avant les formations" choisit CE QUI est montre
+// (toutes les formations ou seulement la plus pertinente developpee) --
+// un choix de CONTENU, jamais du style : retire du tirage, comme
+// regOrdreExperiences juste au-dessus (C2/C20 du cahier de chantier).
 // Couleurs des puces (couleurFondCompetences/couleurTextePuces) jamais
 // randomisees -- pas de logique de contraste calculee pour cette paire
 // independante (contrairement a couleurDebut/Fin, deja gerees juste
@@ -3689,6 +5908,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // voir plus haut). Apres _pdfTirerChampsStructurels ci-dessus (regColonnes
 // peut avoir change), jamais avant.
 '  if (document.getElementById("regSobreActif").checked) { _pdfTirerVarianteSobre(); }' +
+'  _pdfRestaurerChampsHorsMaquette(_etatHorsMaquetteAvant);' +
 '  _pdfAfficherMessageMiseEnPage("");' +
 '  _pdfRafraichir();' +
 // TACHE (retour utilisateur, bug reel confirme : "trop de fois quand
@@ -3708,8 +5928,17 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 // mecanisme-la qui creerait un cocktail) mais propose un AUTRE modele
 // Créatif complet (_pdfProposerAutreModeleCreatif). Comportement inchange
 // hors Créatif (y compris sous Sobre, deja gere par ce dernier lui-meme).
+// TACHE (phase 5.2, Denis 2026-09-23) : le Sobre actif n\'etait pas du
+// tout distingue ici -- un clic tombait tout droit dans le tirage
+// complet (_pdfGenererStyleAleatoire), qui re-tire bien la variante
+// Sobre au passage (voir son propre commentaire) mais aussi tout le
+// reste (couleurs...), jamais coherent avec "Un autre modele (n sur N)"
+// qui ne doit changer QUE le modele. Meme branchement que Creatif
+// desormais.
 'document.getElementById("btnStyleAleatoire").addEventListener("click", function () {' +
-'  if (document.getElementById("regCreatifActif").checked) { _pdfProposerAutreModeleCreatif(); } else { _pdfGenererStyleAleatoire(); }' +
+'  if (document.getElementById("regCreatifActif").checked) { _pdfProposerAutreModeleCreatif(); }' +
+'  else if (document.getElementById("regSobreActif").checked) { _pdfProposerVarianteSobreSuivante(); }' +
+'  else { _pdfGenererStyleAleatoire(); }' +
 '});' +
 // TACHE (retour utilisateur : "accordeon, gagner de la place") : chaque
 // h3 de .panneau-reglages replie/deplie le .contenu-accordeon qui le suit

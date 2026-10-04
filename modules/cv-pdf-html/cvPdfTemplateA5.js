@@ -26,12 +26,16 @@
    ============================================================ */
 
 var _PDF_A5_TITRES_RUBRIQUES = {
-  experiences: 'Expérience professionnelle', competences: 'Compétences', formations: 'Formations et diplômes',
+  experiences: 'Expériences professionnelles', competences: 'Compétences', formations: 'Formations et diplômes',
   loisirs: 'Centres d’intérêt', langues: 'Langues', engagements: 'Engagements',
   certifications: 'Certifications', competencesPersonnelles: 'Compétences personnelles',
   // TACHE (rubrique « Logiciels et outils » dédiée, décision Denis 2026-08-28).
   logiciels: 'Logiciels et outils'
 };
+// Intitulés choisis par la personne (retour Denis 2026-10-03) : clé A5 -> nom d'origine (A4) de la rubrique ; le texte choisi remplace le titre A5,
+// sans choix le titre A5 habituel reste (data-rub = nom d'origine, pour que le panneau sache quelles rubriques sont sur le CV).
+var _PDF_A5_CLE_INTITULE = { experiences: 'experience', competences: 'competencesPro', formations: 'formations', loisirs: 'loisirs', langues: 'langues',
+  engagements: 'experiencePerso', certifications: 'certifications', competencesPersonnelles: 'competencesComp', logiciels: 'logiciels' };
 // TACHE (memes pictogrammes "trait fin" que l'A4 -- _PDF_ICONES_SVG,
 // cvPdfTemplateA4.js, meme scope global) : cles au lieu d'emoji, meme
 // principe. competencesPersonnelles ('✨' avant -- aussi vague que l'etoile
@@ -55,6 +59,38 @@ function _pdfA5TexteItem(item) {
   return (typeof item === 'string') ? item : ((item && (item.texte || item.competence)) || '');
 }
 
+// ---- Mini CV A5 : les reglages des experiences du panneau (2026-09-26, demande de Denis « le Mini CV A5 complet et fonctionnel ») ----
+// Meme source que l'A4 (_pdfPreparerContenuExperiences, cvPdfTemplateA4.js) : choix des experiences, « Mon ordre », nombre ou choix des
+// missions ; puis lieu, style du lieu, position des dates et mois. Tant que la personne n'a rien regle, le Mini CV garde la composition
+// automatique de d'origine (2 experiences, 2 missions : voir CAPACITES_A5_PORTRAIT_CV).
+var _pdfA5OptionsExp = {};
+function _pdfA5Vide(o) { return !o || !Object.keys(o).some(function (k) { return o[k] !== null && o[k] !== undefined && !(Array.isArray(o[k]) && !o[k].length); }); }
+function _pdfA5ReglageManuelExperiences(opts) {
+  return (opts.experiencesTout === 'pertinentes' && !!opts.experiencesChoisies) || !!opts.missionsGlobal || !_pdfA5Vide(opts.missionsParExperience) || !_pdfA5Vide(opts.missionsChoisies) ||
+    (opts.ordreExperiences === 'mien' && !!opts.ordreExperiencesMien);
+}
+function _pdfA5ExperiencesReglees(objetCV, opts) {
+  var brutes = (objetCV.experiences || []).map(function (e, i) {
+    var c = {};
+    Object.keys(e).forEach(function (k) { c[k] = e[k]; });
+    c.__idxBrut = i;
+    return c;
+  });
+  var prepare = _pdfPreparerContenuExperiences({ experiences: brutes }, objetCV, opts);
+  var capMissions = (typeof CAPACITES_A5_PORTRAIT_CV !== 'undefined' && CAPACITES_A5_PORTRAIT_CV.missionsParExperience) || 2;
+  return (prepare.experiences || []).map(function (e) {
+    var i = e.__idxBrut;
+    var fixe = (opts.missionsChoisies && opts.missionsChoisies[i]) || (opts.missionsParExperience && opts.missionsParExperience[i] != null) || opts.missionsGlobal;
+    if (fixe) { return e; }
+    var segments = _pdfDecouperMissions(e.missions);
+    if (segments.length <= capMissions) { return e; }
+    var copie = {};
+    Object.keys(e).forEach(function (k) { copie[k] = e[k]; });
+    copie.missions = segments.slice(0, capMissions).join('\n');
+    return copie;
+  });
+}
+
 // Port de construireRubriqueA5 (composeurRender.js:708-744), en HTML.
 // TACHE (retour utilisateur : "souligner le poste, les dates,
 // l'entreprise... et pareil pour l'italique") : `styleParties` (optionnel,
@@ -71,7 +107,8 @@ function _pdfA5TexteItem(item) {
 // _pdfLireOptions()/cvPdfPanneauReglages.js -- mais que ce fichier
 // ignorait completement, un 2e systeme de rendu jamais branche sur le 1er).
 function _pdfA5ConstruireRubrique(cle, compositionA5, iconesActives, styleParties, styleCompetences) {
-  var titre = _PDF_A5_TITRES_RUBRIQUES[cle];
+  var origineIntitule = (typeof _PDF_INTITULES !== 'undefined') ? _PDF_INTITULES[_PDF_A5_CLE_INTITULE[cle]] : '';
+  var titre = (origineIntitule && typeof _pdfLibelle === 'function' && _pdfLibelle(origineIntitule) !== (_PDF_LIBELLES_DEFAUT[origineIntitule] || origineIntitule)) ? _pdfLibelle(origineIntitule) : _PDF_A5_TITRES_RUBRIQUES[cle];
   var icone = _PDF_A5_ICONES_RUBRIQUES[cle] || '';
   var stylePoste = styleParties && styleParties.poste;
   var styleDates = styleParties && styleParties.dates;
@@ -82,8 +119,17 @@ function _pdfA5ConstruireRubrique(cle, compositionA5, iconesActives, stylePartie
       var periode = _pdfFormaterPeriode(e.dateDebut, e.dateFin);
       // TACHE (retour utilisateur : "Carrelage : 2017-2022", pas de
       // parentheses) : meme convention deux-points que l'A4.
-      var titreHtml = [_pdfSpanStylePartie(e.poste, stylePoste), _pdfSpanStylePartie(e.entreprise, styleEntreprise)].filter(Boolean).join(' - ');
-      return '<div class="item-a5"><strong>' + titreHtml + (periode ? ' : ' + _pdfSpanStylePartie(periode, styleDates) : '') + '</strong>' + _pdfLignesMissions(e.missions) + '</div>';
+      // TACHE (phase 3.4, 2026-09-22) : meme correctif que l'A4 -- e.lieu
+      // etait capture mais jamais affiche ici non plus (_pdfEntrepriseAvecLieu
+      // definie dans cvPdfTemplateA4.js, charge avant ce fichier).
+      var oe = _pdfA5OptionsExp || {};
+      var titreHtml = [_pdfSpanStylePartie(e.poste, stylePoste), _pdfLigneEntrepriseLieu(e.entreprise, e.lieu, styleEntreprise, oe.afficherLieu, oe.styleLieu)].filter(Boolean).join(' - ');
+      var datesHtml = periode ? _pdfSpanStylePartie(periode, styleDates) : '';
+      // Position des dates (reglage du panneau) : « sous » le poste, « avant » le poste, « a droite » (au bout de la ligne) ; sans choix, comme avant.
+      if (oe.positionDates === 'sous') { return '<div class="item-a5"><strong>' + titreHtml + '</strong>' + (datesHtml ? '<div class="item-a5-secondaire">' + datesHtml + '</div>' : '') + _pdfLignesMissions(e.missions) + '</div>'; }
+      if (oe.positionDates === 'avant') { return '<div class="item-a5"><strong>' + (datesHtml ? datesHtml + ' : ' : '') + titreHtml + '</strong>' + _pdfLignesMissions(e.missions) + '</div>'; }
+      if (oe.positionDates === 'droite') { return '<div class="item-a5"><div style="display:flex;justify-content:space-between;gap:6px"><strong>' + titreHtml + '</strong>' + (datesHtml ? '<span style="white-space:nowrap">' + datesHtml + '</span>' : '') + '</div>' + _pdfLignesMissions(e.missions) + '</div>'; }
+      return '<div class="item-a5"><strong>' + titreHtml + (datesHtml ? ' : ' + datesHtml : '') + '</strong>' + _pdfLignesMissions(e.missions) + '</div>';
     }).join('');
   } else if (cle === 'competences') {
     corpsHtml = (styleCompetences === 'texte')
@@ -95,7 +141,7 @@ function _pdfA5ConstruireRubrique(cle, compositionA5, iconesActives, stylePartie
     corpsHtml = (compositionA5.formations || []).map(function (f) {
       // TACHE (retour utilisateur : "jamais BTS (2015) mais plutot
       // BTS - 2015") : tiret simple au lieu de parentheses.
-      var diplomeTexte = [f.niveau, f.intitule].filter(Boolean).join(' - ');
+      var diplomeTexte = _pdfTexteDiplome(f);
       var ligne = _pdfSpanStylePartie(diplomeTexte, stylePoste) + (f.annee ? ' - ' + _pdfSpanStylePartie(f.annee, styleDates) : '');
       var premiereMission = _pdfDecouperMissions(f.missions)[0];
       return '<div class="item-a5">' + (diplomeTexte || f.annee ? ligne : '') +
@@ -142,7 +188,7 @@ function _pdfA5ConstruireRubrique(cle, compositionA5, iconesActives, stylePartie
   // puce) ET edition de texte directe (_pdfAssignerIdentifiantsEdition,
   // cvPdfPanneauReglages.js) ciblent tous generiquement [data-rubrique],
   // jamais un attribut different pour l'A5.
-  return _pdfEnvelopperRubriqueDrag('<div class="rubrique-a5">' + _pdfTitreH2(icone, titre, iconesActives) + corpsHtml + '</div>', cle);
+  return _pdfEnvelopperRubriqueDrag('<div class="rubrique-a5"' + (origineIntitule ? ' data-rub="' + _pdfEscaperHtml(origineIntitule) + '"' : '') + '>' + _pdfTitreH2(icone, titre, iconesActives) + corpsHtml + '</div>', cle);
 }
 
 function _pdfA5ConstruireColonne(cles, compositionA5, iconesActives, styleParties, styleCompetences) {
@@ -224,13 +270,30 @@ function _pdfA5BlocIdentitePaysage(objetCV, anneauPhoto, iconesCoordonnees) {
 function _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options) {
   var opts = options || {};
   var composition = compositionA5 || {};
+  _pdfMoisAffiches = !!opts.moisAffiches;
+  _pdfIntitulesPerso = (opts.intitulesPerso && typeof opts.intitulesPerso === 'object') ? opts.intitulesPerso : {};
+  _pdfA5OptionsExp = { afficherLieu: opts.afficherLieu, styleLieu: opts.styleLieu, positionDates: opts.positionDatesChoisie ? ((opts.positionDates === 'apres' ? 'droite' : opts.positionDates) || 'droite') : '' };
+  var manuelExpA5 = _pdfA5ReglageManuelExperiences(opts);
+  if (manuelExpA5 && objetCV && (objetCV.experiences || []).length && typeof _pdfPreparerContenuExperiences === 'function') {
+    var compositionReglee = {};
+    Object.keys(composition).forEach(function (cle) { compositionReglee[cle] = composition[cle]; });
+    compositionReglee.experiences = _pdfA5ExperiencesReglees(objetCV, opts);
+    composition = compositionReglee;
+  }
+  // Retour Denis 2026-09-30 : « Mon ordre » des formations aussi pour le Mini CV.
+  if (opts.ordreFormationsMien && opts.ordreFormationsMien.length && (composition.formations || []).length > 1 && typeof _pdfOrdonnerFormationsMien === 'function') {
+    var compositionFormOrdre = {};
+    Object.keys(composition).forEach(function (cle) { compositionFormOrdre[cle] = composition[cle]; });
+    compositionFormOrdre.formations = _pdfOrdonnerFormationsMien(composition.formations, opts);
+    composition = compositionFormOrdre;
+  }
   // TACHE (retour utilisateur : "je veux pouvoir choisir l'ordre
   // d'affichage, par date ou par poste") : meme reglage/logique que l'A4
   // (cvPdfTemplateA4.js) -- "pertinence" (defaut) ne trie pas. Copie de
   // `composition` (jamais de mutation de compositionA5, reutilise tel
   // quel par l'appelant).
   var ordreExperiencesA5 = opts.ordreExperiences || 'pertinence';
-  if (composition.experiences && composition.experiences.length && ordreExperiencesA5 !== 'pertinence') {
+  if (!manuelExpA5 && composition.experiences && composition.experiences.length && ordreExperiencesA5 !== 'pertinence') {
     var experiencesA5Triees = composition.experiences.slice();
     var _pdfA5CleDateExperience = function (e) { return (e && (e.dateDebut || e.dateFin)) || ''; };
     if (ordreExperiencesA5 === 'date-desc') { experiencesA5Triees.sort(function (a, b) { return _pdfA5CleDateExperience(b).localeCompare(_pdfA5CleDateExperience(a)); }); }
@@ -278,6 +341,13 @@ function _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options) {
   // Word, une police plus grande suffit a mieux remplir la page sans
   // bouleverser toute la mise en page).
   var echelleA5 = opts.echelleContenu || 1;
+  // Reglages du panneau lus aussi en Mini CV (2026-09-26) : interligne, espace entre les blocs (« Reduire les espaces »), marges, taille des
+  // titres, « Agrandir les titres ». Sans reglage, tout vaut 1 : rendu identique a avant.
+  var interligneA5 = composition.interligneCorps || 1;
+  var espacementA5 = composition.espacementExtra || 1;
+  var margeA5 = (typeof opts.margePage === 'number' && opts.margePage > 0) ? opts.margePage / 10 : 1;
+  var titresA5 = ((typeof opts.tailleTitres === 'number' && opts.tailleTitres > 0) ? opts.tailleTitres / 13 : 1) * (opts.titresAgrandis ? 1.2 : 1);
+  var mmA5 = function (v) { return (v * margeA5).toFixed(1) + 'mm'; };
   var separateurColonnes = !!opts.separateurColonnes;
   var enteteInverseeA5 = !!opts.enteteInverseeA5;
   var anneauPhoto = !!opts.anneauPhoto;
@@ -358,9 +428,9 @@ function _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options) {
     // disparues a l'impression sans ce reglage, voir commentaire la-bas).
     '* { print-color-adjust: exact; -webkit-print-color-adjust: exact; }' +
     '.page-a5 { width: ' + largeurPage + '; min-height: ' + hauteurPage + '; margin: 24px auto; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,0.25); font-family: ' + police + '; color: #1b1b1b; overflow: hidden; }' +
-    '.rubrique-a5 { margin-bottom: 9px; }' +
-    '.rubrique-a5 h2 { font-size: ' + (10.5 * echelleA5).toFixed(2) + 'px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--a5-accent); border-bottom: ' + (styleBorduresA5 === 'epaisse' ? '4px' : '2px') + ' solid #e0e0e0; padding-bottom: 3px; margin: 0 0 5px 0; }' +
-    '.item-a5 { font-size: ' + (9 * echelleA5).toFixed(2) + 'px; line-height: 1.35; margin-bottom: 4px; }' +
+    '.rubrique-a5 { margin-bottom: ' + Math.max(3, Math.round(9 * espacementA5)) + 'px; }' +
+    '.rubrique-a5 h2 { font-size: ' + (10.5 * echelleA5 * titresA5).toFixed(2) + 'px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--a5-accent); border-bottom: ' + (styleBorduresA5 === 'epaisse' ? '4px' : '2px') + ' solid #e0e0e0; padding-bottom: 3px; margin: 0 0 5px 0; }' +
+    '.item-a5 { font-size: ' + (9 * echelleA5).toFixed(2) + 'px; line-height: ' + (1.35 * interligneA5).toFixed(3) + '; margin-bottom: ' + Math.max(1, Math.round(4 * espacementA5)) + 'px; }' +
     '.item-a5 strong { display: block; font-size: ' + (9.5 * echelleA5).toFixed(2) + 'px; }' +
     '.item-a5-secondaire { font-style: italic; opacity: 0.85; }' +
     // TACHE (retour utilisateur : "souligner le poste, les dates,
@@ -369,12 +439,12 @@ function _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options) {
     // format.
     '.style-partie-souligne { text-decoration: underline; }' +
     '.style-partie-italique { font-style: italic; }' +
-    '.ligne-mission { font-size: ' + (9 * echelleA5).toFixed(2) + 'px; line-height: 1.35; }' +
+    '.ligne-mission { font-size: ' + (9 * echelleA5).toFixed(2) + 'px; line-height: ' + (1.35 * interligneA5).toFixed(3) + '; }' +
     '.puce-competence-a5 { display: inline-block; background: ' + couleurFondCompetencesA5 + '; color: ' + couleurTextePucesA5 + '; border-radius: 8px; padding: 2px 7px; font-size: ' + (8.5 * echelleA5).toFixed(2) + 'px; margin: 0 3px 3px 0; }' +
     // TACHE (retour utilisateur : mode Sobre sur Mini CV A5) : equivalent
     // A5 de .texte-competences (cvPdfTemplateA4.js) -- aucun fond, jamais
     // un cas particulier de .puce-competence-a5 avec un rayon a 0.
-    '.texte-competences-a5 { font-size: ' + (8.5 * echelleA5).toFixed(2) + 'px; line-height: 1.4; margin: 0; }' +
+    '.texte-competences-a5 { font-size: ' + (8.5 * echelleA5).toFixed(2) + 'px; line-height: ' + (1.4 * interligneA5).toFixed(3) + '; margin: 0; }' +
     // TACHE (retour utilisateur : "le modèle A5 doit profiter de la
     // richesse des autres modèles") : memes 3 styles de titre que l'A4
     // (cvPdfTemplateA4.js), memes noms de classe portes par .page-a5 --
@@ -435,8 +505,8 @@ function _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options) {
     css +=
       '.zone-a5, .bloc-identite-a5 { text-align: center; }' +
       '.corps-a5-paysage { display: flex; min-height: ' + hauteurPage + '; }' +
-      '.colonne-a5 { flex: 1; min-width: 0; padding: 8mm 6mm; }' +
-      '.bloc-identite-a5-colonne { flex: 0 0 32mm; display: flex; align-items: center; justify-content: center; padding: 8mm 4mm; }' +
+      '.colonne-a5 { flex: 1; min-width: 0; padding: ' + mmA5(8) + ' ' + mmA5(6) + '; }' +
+      '.bloc-identite-a5-colonne { flex: 0 0 32mm; display: flex; align-items: center; justify-content: center; padding: ' + mmA5(8) + ' ' + mmA5(4) + '; }' +
       (separateurColonnes
         ? '.corps-a5-paysage > .colonne-a5:first-child, .corps-a5-paysage > .bloc-identite-a5-colonne { border-right: 1px solid rgba(0,0,0,0.15); }'
         : '');
@@ -449,9 +519,9 @@ function _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options) {
   } else {
     css +=
       '.zone-a5 { text-align: center; }' +
-      '.entete-a5-portrait { display: flex; padding: 8mm 6mm 6px 6mm; gap: 8px; align-items: center; }' +
+      '.entete-a5-portrait { display: flex; padding: ' + mmA5(8) + ' ' + mmA5(6) + ' 6px ' + mmA5(6) + '; gap: 8px; align-items: center; }' +
       '.entete-a5-portrait > .zone-a5 { flex: 1; min-width: 0; }' +
-      '.corps-a5-portrait { display: flex; gap: 8px; padding: 0 6mm 8mm 6mm; }' +
+      '.corps-a5-portrait { display: flex; gap: 8px; padding: 0 ' + mmA5(6) + ' ' + mmA5(8) + ' ' + mmA5(6) + '; }' +
       '.colonne-a5 { flex: 1; min-width: 0; padding: 6px 8px; border-radius: 4px; }' +
       (separateurColonnes ? '.corps-a5-portrait > .colonne-a5:first-child { border-right: 1px solid rgba(0,0,0,0.15); }' : '');
     var zoneIdentitePortrait = _pdfA5ZoneIdentitePortrait(objetCV, anneauPhoto, iconesCoordonnees);
@@ -491,7 +561,7 @@ function _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options) {
 function construireHtmlPdfA5(objetCV, compositionA5, options) {
   var resultat = _pdfConstruireStyleEtPageA5(objetCV, compositionA5, options);
   return '<!DOCTYPE html>' +
-'<html lang="fr"><head><meta charset="UTF-8"><title>CV -- ' + _pdfEscaperHtml(resultat.nomComplet) + '</title><style>' +
+'<html lang="fr"><head><meta charset="UTF-8"><title>' + _pdfEscaperHtml((typeof nomFichierCV === 'function') ? nomFichierCV((typeof dossier !== 'undefined' && dossier) ? dossier : objetCV) : ('CV -- ' + resultat.nomComplet)) + '</title><style>' +
 '  body { margin: 0; background: #e9e9e9; }' +
 '  .barre-outils { padding: 12px 16px; background: #222; color: #fff; display: flex; gap: 12px; align-items: center; font-size: 14px; }' +
 '  .barre-outils button { padding: 8px 14px; border: none; border-radius: 6px; background: #2f6690; color: #fff; cursor: pointer; font-size: 14px; }' +

@@ -37,7 +37,7 @@ function normaliserDonneesLettre(dossierSource) {
       adresse: id.adresse || '',
       codePostal: id.codePostal || '',
       ville: id.ville || '',
-      telephone: id.telephone || '',
+      telephone: (typeof formaterTelephone === 'function') ? formaterTelephone(id.telephone) : (id.telephone || ''),   // 06.12.34.56.78 (retour Denis 2026-10-01)
       email: id.email || ''
     },
     date: dateAujourdhui,

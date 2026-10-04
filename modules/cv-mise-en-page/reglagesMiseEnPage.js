@@ -104,6 +104,8 @@ var REGLAGES_MISE_EN_PAGE_CHAMPS = {
   styleBordures:     { type: 'enum', valeurs: ['fine', 'epaisse'], defaut: 'fine', word: false, section: 'texte' },
   styleProfessionnel: { type: 'enum', valeurs: ['epure', 'condense'], defaut: 'epure', word: true, section: 'texte' },
   stylePersonnel:    { type: 'enum', valeurs: ['epure', 'condense'], defaut: 'epure', word: true, section: 'texte' },
+  styleFormations:   { type: 'enum', valeurs: ['epure', 'condense'], defaut: 'epure', word: false, section: 'texte' },
+  separateurMissions: { type: 'enum', valeurs: ['pointvirgule', 'pointmedian', 'rond', 'carre', 'losange', 'barre'], defaut: 'pointvirgule', word: false, section: 'texte' },
   bandeauCompetencesCles: { type: 'bool', defaut: false, word: false, section: 'texte' },
   coinsArrondis:     { type: 'bool', defaut: false, word: false, section: 'texte' },
   // "Mettre en evidence" : les 6 vraies cases du code (souligne + italique

@@ -365,6 +365,8 @@ function traduireVersRegPdf(canon) {
     regStyleBordures: g('styleBordures', 'fine'),
     regStyleProfessionnel: g('styleProfessionnel', 'epure'),
     regStylePersonnel: g('stylePersonnel', 'epure'),
+    regStyleFormations: g('styleFormations', 'epure'),
+    regSeparateurMissions: g('separateurMissions', 'pointvirgule'),
     regBandeauCompetencesCles: !!canon.bandeauCompetencesCles,
     regCoinsArrondis: !!canon.coinsArrondis,
     regSoulignerPoste: !!s.poste,
@@ -535,6 +537,8 @@ function lireDepuisRegPdf(g) {
   if (g.regStyleBordures) { p.styleBordures = g.regStyleBordures; }
   if (g.regStyleProfessionnel) { p.styleProfessionnel = g.regStyleProfessionnel; }
   if (g.regStylePersonnel) { p.stylePersonnel = g.regStylePersonnel; }
+  if (g.regStyleFormations) { p.styleFormations = g.regStyleFormations; }
+  if (g.regSeparateurMissions) { p.separateurMissions = g.regSeparateurMissions; }
   p.bandeauCompetencesCles = b('regBandeauCompetencesCles');
   p.coinsArrondis = b('regCoinsArrondis');
   p.souligner = { poste: b('regSoulignerPoste'), dates: b('regSoulignerDates'), entreprise: b('regSoulignerEntreprise') };
