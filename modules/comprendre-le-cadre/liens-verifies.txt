@@ -62,21 +62,21 @@ service-civique | https://www.service-civique.gouv.fr/ | 2026-09-06 | national
 agefiph | https://www.agefiph.fr/ | 2026-09-06 | national
 
 # --- Rayon « Venir de l'étranger » (fiches rédigées le 2026-09-04, adresses à vérifier) ---
-service-public-travail-salarie-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F15898 | 2026-09-06 | national
-service-public-etudiant-etranger-travail | https://www.service-public.gouv.fr/particuliers/vosdroits/F2728 | 2026-09-06 | national
+service-public-travail-salarie-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F15898 | 2026-10-05 | national
+service-public-etudiant-etranger-travail | https://www.service-public.gouv.fr/particuliers/vosdroits/F2728 | 2026-10-05 | national
 service-public-reconnaissance-diplome-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F463 | 2026-09-06 | national
-service-public-attestation-comparabilite | https://www.service-public.gouv.fr/particuliers/vosdroits/R38515 | 2026-09-06 | national
+service-public-attestation-comparabilite | https://www.service-public.gouv.fr/particuliers/vosdroits/R38515 | 2026-10-05 | national
 france-education-international-enic-naric | https://www.france-education-international.fr/expertises/enic-naric | 2026-09-06 | national
-service-public-echange-permis-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F1460 | 2026-09-06 | national
-service-public-naturalisation-decret | https://www.service-public.gouv.fr/particuliers/vosdroits/F2213 | 2026-09-05 | national
-service-public-niveau-francais-nationalite | https://www.service-public.gouv.fr/particuliers/vosdroits/F11926 | 2026-09-05 | national
+service-public-echange-permis-etranger | https://www.service-public.gouv.fr/particuliers/vosdroits/F1460 | 2026-10-05 | national
+service-public-naturalisation-decret | https://www.service-public.gouv.fr/particuliers/vosdroits/F2213 | 2026-10-05 | national
+service-public-niveau-francais-nationalite | https://www.service-public.gouv.fr/particuliers/vosdroits/F11926 | 2026-10-05 | national
 interieur-examen-civique | https://www.interieur.gouv.fr/actualites/communiques-de-presse/a-partir-du-1er-janvier-2026-reussite-a-lexamen-civique-sera-necessaire-pour-obtenir-carte-de-sejour | 2026-09-06 | national
-service-public-contrat-integration-republicaine | https://www.service-public.gouv.fr/particuliers/vosdroits/F17048 | 2026-09-08 | national
+service-public-contrat-integration-republicaine | https://www.service-public.gouv.fr/particuliers/vosdroits/F17048 | 2026-10-05 | national
 ofii-accueil-integration | https://www.ofii.fr/procedure/accueil-integration/ | 2026-09-06 | national
-service-public-acces-travail-demandeur-asile | https://www.service-public.gouv.fr/particuliers/vosdroits/F2741 | 2026-09-05 | national
-service-public-protection-subsidiaire | https://www.service-public.gouv.fr/particuliers/vosdroits/F2689 | 2026-09-06 | national
+service-public-acces-travail-demandeur-asile | https://www.service-public.gouv.fr/particuliers/vosdroits/F2741 | 2026-10-05 | national
+service-public-protection-subsidiaire | https://www.service-public.gouv.fr/particuliers/vosdroits/F2689 | 2026-10-05 | national
 immigration-interieur-protection-internationale | https://www.immigration.interieur.gouv.fr/limmigration-en-france/sejour-des-etrangers/beneficiaires-de-protection-internationale | 2026-09-06 | national
-legifrance-ceseda-admission-exceptionnelle | https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006070158/LEGISCTA000042772028/ | 2026-09-06 | national
+legifrance-ceseda-admission-exceptionnelle | https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006070158/LEGISCTA000042772028/ | 2026-10-05 | national
 interieur-metiers-en-tension | https://www.immigration.interieur.gouv.fr/limmigration-en-france/sejour-des-etrangers/liste-des-metiers-en-tension-pour-travailleurs-etrangers | 2026-09-06 | national
 prefecture-ardennes-tarifs-titres-sejour | https://www.ardennes.gouv.fr/Actions-de-l-Etat/Citoyennete-Elections/Demarches-pour-les-etrangers-dans-les-Ardennes-asile-sejour-naturalisation/Informations-pratiques-toutes-les-informations-utiles-pour-les-documents-de-sejour/A-partir-du-1er-mai-2026-nouvelle-tarification-des-titres-de-sejour | 2026-09-14 | national
 
@@ -92,21 +92,21 @@ spada-dordogne | https://www.asd24.org/ | 2026-09-06 | 24
 asso-france-terre-d-asile-24 | https://www.france-terre-asile.org/etablissement/cada-de-perigueux | 2026-09-08 | 24
 
 # --- Rayon « Budget, dettes, droits sociaux » (fiches rédigées le 2026-09-04) ---
-service-public-surendettement | https://www.service-public.gouv.fr/particuliers/vosdroits/N99 | 2026-09-05 | national
+service-public-surendettement | https://www.service-public.gouv.fr/particuliers/vosdroits/N99 | 2026-10-05 | national
 banque-france-procedure-surendettement | https://www.banque-france.fr/fr/a-votre-service/intervenants-sociaux/comprendre-procedure-surendettement | 2026-09-06 | national
-banque-france-detail-procedure-surendettement | https://www.banque-france.fr/fr/detail-de-la-procedure-de-surendettement | 2026-09-06 | national
-solidarites-point-conseil-budget | https://solidarites.gouv.fr/point-conseil-budget-pcb | 2026-09-06 | national
-service-public-rsa | https://www.service-public.gouv.fr/particuliers/vosdroits/N19775 | 2026-09-05 | national
-service-public-prime-activite | https://www.service-public.gouv.fr/particuliers/vosdroits/F2882 | 2026-09-05 | national
-caf-rsa-prime-activite | https://www.caf.fr/allocataires/aides-et-demarches/ma-situation/vie-professionnelle/je-beneficie-du-rsa-et-je-souhaite-la-prime-d-activite | 2026-09-06 | national
+banque-france-detail-procedure-surendettement | https://www.banque-france.fr/fr/detail-de-la-procedure-de-surendettement | 2026-10-05 | national
+solidarites-point-conseil-budget | https://solidarites.gouv.fr/point-conseil-budget-pcb | 2026-10-05 | national
+service-public-rsa | https://www.service-public.gouv.fr/particuliers/vosdroits/N19775 | 2026-10-05 | national
+service-public-prime-activite | https://www.service-public.gouv.fr/particuliers/vosdroits/F2882 | 2026-10-05 | national
+caf-rsa-prime-activite | https://www.caf.fr/allocataires/aides-et-demarches/ma-situation/vie-professionnelle/je-beneficie-du-rsa-et-je-souhaite-la-prime-d-activite | 2026-10-05 | national
 solidarites-revalorisation-2026 | https://solidarites.gouv.fr/revalorisation-annuelle-des-prestations-sociales-au-1er-avril-2026 | 2026-09-05 | national
-service-public-microcredit-personnel | https://www.service-public.gouv.fr/particuliers/vosdroits/F21375 | 2026-09-05 | national
-banque-france-microcredit | https://www.banque-france.fr/fr/a-votre-service/particuliers/connaitre-pratiques-bancaires-assurance/credit/microcredit | 2026-09-06 | national
-service-public-ficp | https://www.service-public.gouv.fr/particuliers/vosdroits/F17608 | 2026-09-05 | national
-banque-france-ficp | https://www.banque-france.fr/fr/a-votre-service/particuliers/fichiers-incident-bancaire/fichier-incidents-remboursement-credits | 2026-09-06 | national
-service-public-droit-au-compte | https://www.service-public.gouv.fr/particuliers/vosdroits/F2417 | 2026-09-05 | national
-banque-france-droit-au-compte | https://www.banque-france.fr/fr/a-votre-service/particuliers/droit-au-compte-bancaire | 2026-09-06 | national
-service-public-saisie-remuneration | https://www.service-public.gouv.fr/particuliers/vosdroits/F115 | 2026-09-05 | national
+service-public-microcredit-personnel | https://www.service-public.gouv.fr/particuliers/vosdroits/F21375 | 2026-10-05 | national
+banque-france-microcredit | https://www.banque-france.fr/fr/a-votre-service/particuliers/connaitre-pratiques-bancaires-assurance/credit/microcredit | 2026-10-05 | national
+service-public-ficp | https://www.service-public.gouv.fr/particuliers/vosdroits/F17608 | 2026-10-05 | national
+banque-france-ficp | https://www.banque-france.fr/fr/a-votre-service/particuliers/fichiers-incident-bancaire/fichier-incidents-remboursement-credits | 2026-10-05 | national
+service-public-droit-au-compte | https://www.service-public.gouv.fr/particuliers/vosdroits/F2417 | 2026-10-05 | national
+banque-france-droit-au-compte | https://www.banque-france.fr/fr/a-votre-service/particuliers/droit-au-compte-bancaire | 2026-10-05 | national
+service-public-saisie-remuneration | https://www.service-public.gouv.fr/particuliers/vosdroits/F115 | 2026-10-05 | national
 
 # Rayon « Budget » : structures « à qui s'adresser »
 asso-mission-locale-du-bergeracois-24 | https://www.missionlocaledubergeracois.com/ | 2026-09-07 | 24
@@ -121,8 +121,8 @@ msa-dordogne-lot-et-garonne | https://dlg.msa.fr/lfp | 2026-09-06 | 24
 udaf-dordogne | https://www.udaf24.fr/acces-au-microcredit-personnel-accompagne-udaf/ | 2026-09-06 | 24
 cresus-nouvelle-aquitaine | https://www.cresus.org/ | 2026-09-06 | region
 croix-rouge-secours-catholique-microcredit | https://www.service-public.gouv.fr/particuliers/vosdroits/F21375 | 2026-09-06 | national
-solidarites-precarite-alimentaire | https://solidarites.gouv.fr/lutter-contre-la-precarite-alimentaire | 2026-09-06 | national
-restos-du-coeur-aide-alimentaire | https://www.restosducoeur.org/nos-actions/aide-alimentaire/ | 2026-09-06 | national
+solidarites-precarite-alimentaire | https://solidarites.gouv.fr/lutter-contre-la-precarite-alimentaire | 2026-10-05 | national
+restos-du-coeur-aide-alimentaire | https://www.restosducoeur.org/nos-actions/aide-alimentaire/ | 2026-10-05 | national
 restos-du-coeur-dordogne | https://ad24.restosducoeur.org/ | 2026-09-06 | 24
 banque-alimentaire-dordogne | https://www.banquealimentaire.org/ | 2026-09-06 | 24
 secours-populaire-dordogne | https://www.secourspopulaire.fr/ | 2026-09-06 | 24
@@ -204,7 +204,7 @@ france-vae | https://vae.gouv.fr/ | 2026-09-06 | national
 service-public-ptp | https://www.service-public.gouv.fr/particuliers/vosdroits/F14018 | 2026-09-05 | national
 transitionspro-demission-reconversion | https://www.transitionspro.fr/nos-dispositifs/demission-reconversion/ | 2026-09-06 | national
 transitionspro-ptp | https://www.transitionspro.fr/nos-dispositifs/projet-de-transition-professionnelle/ | 2026-09-06 | national
-francetravail-demission-reconversion | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/a-chaque-situation-son-allocatio/quelle-est-ma-situation-professi/je-perds-ou-je-quitte-un-emploi/je-veux-demissionner-et-jai-un-p.html | 2026-09-06 | national
+francetravail-demission-reconversion | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/a-chaque-situation-son-allocatio/quelle-est-ma-situation-professi/je-perds-ou-je-quitte-un-emploi/je-veux-demissionner-et-jai-un-p.html | 2026-10-05 | national
 service-public-cep | https://www.service-public.gouv.fr/particuliers/vosdroits/F32457 | 2026-09-05 | national
 mon-cep | https://mon-cep.org/ | 2026-09-06 | national
 service-public-formation-demandeur-emploi | https://www.service-public.gouv.fr/particuliers/vosdroits/F3147 | 2026-09-05 | national
@@ -225,31 +225,31 @@ france-vae-point-relais-conseil | https://vae.gouv.fr/ | 2026-09-06 | region
 afpa-greta-cnam-dordogne | https://www.afpa.fr/ | 2026-09-06 | 24
 
 # --- Rayon « Emploi et contrats » (fiches rédigées le 2026-09-04) ---
-service-public-periode-essai | https://www.service-public.gouv.fr/particuliers/vosdroits/F1643 | 2026-09-05 | national
-service-public-rupture-conventionnelle | https://www.service-public.gouv.fr/particuliers/vosdroits/F19030 | 2026-09-05 | national
+service-public-periode-essai | https://www.service-public.gouv.fr/particuliers/vosdroits/F1643 | 2026-10-05 | national
+service-public-rupture-conventionnelle | https://www.service-public.gouv.fr/particuliers/vosdroits/F19030 | 2026-10-05 | national
 travail-emploi-rupture-conventionnelle | https://travail-emploi.gouv.fr/la-rupture-conventionnelle-du-contrat-de-travail-duree-indeterminee | 2026-09-06 | national
-service-public-cdd | https://www.service-public.gouv.fr/particuliers/vosdroits/F36 | 2026-09-05 | national
-service-public-fin-cdd | https://www.service-public.gouv.fr/particuliers/vosdroits/F40 | 2026-09-06 | national
-service-public-prime-precarite | https://www.service-public.gouv.fr/particuliers/vosdroits/F803 | 2026-09-06 | national
-service-public-interim | https://www.service-public.gouv.fr/particuliers/vosdroits/F11215 | 2026-09-06 | national
-service-public-cddi | https://www.service-public.gouv.fr/particuliers/vosdroits/F14100 | 2026-09-06 | national
+service-public-cdd | https://www.service-public.gouv.fr/particuliers/vosdroits/F36 | 2026-10-05 | national
+service-public-fin-cdd | https://www.service-public.gouv.fr/particuliers/vosdroits/F40 | 2026-10-05 | national
+service-public-prime-precarite | https://www.service-public.gouv.fr/particuliers/vosdroits/F803 | 2026-10-05 | national
+service-public-interim | https://www.service-public.gouv.fr/particuliers/vosdroits/F11215 | 2026-10-05 | national
+service-public-cddi | https://www.service-public.gouv.fr/particuliers/vosdroits/F14100 | 2026-10-05 | national
 travail-emploi-pec | https://travail-emploi.gouv.fr/le-parcours-emploi-competences-pec | 2026-09-06 | national
-francetravail-cdd-tremplin | https://www.francetravail.fr/candidat/handicap-et-talents/a-la-une/handicap-inserez-vous-dans-le-mo.html | 2026-09-06 | national
+francetravail-cdd-tremplin | https://www.francetravail.fr/candidat/handicap-et-talents/a-la-une/handicap-inserez-vous-dans-le-mo.html | 2026-10-05 | national
 unedic-rupture-conventionnelle | https://www.unedic.org/la-reglementation/fiches-thematiques/rupture-conventionnelle | 2026-09-05 | national
-service-public-licenciement-motif-personnel | https://www.service-public.gouv.fr/particuliers/vosdroits/F2839 | 2026-09-05 | national
-service-public-indemnite-licenciement | https://www.service-public.gouv.fr/particuliers/vosdroits/F987 | 2026-09-05 | national
-service-public-demission | https://www.service-public.gouv.fr/particuliers/vosdroits/F2883 | 2026-09-05 | national
+service-public-licenciement-motif-personnel | https://www.service-public.gouv.fr/particuliers/vosdroits/F2839 | 2026-10-05 | national
+service-public-indemnite-licenciement | https://www.service-public.gouv.fr/particuliers/vosdroits/F987 | 2026-10-05 | national
+service-public-demission | https://www.service-public.gouv.fr/particuliers/vosdroits/F2883 | 2026-10-05 | national
 
 # --- Rayon « Emploi et contrats » : 4 fiches ajoutees le 2026-09-11, verifiees par Denis le 2026-09-11 ---
-service-public-csp | https://www.service-public.gouv.fr/particuliers/vosdroits/F13819 | 2026-09-11 | national
+service-public-csp | https://www.service-public.gouv.fr/particuliers/vosdroits/F13819 | 2026-10-05 | national
 travail-emploi-csp | https://travail-emploi.gouv.fr/le-contrat-de-securisation-professionnelle-csp | 2026-09-11 | national
 travail-emploi-abandon-poste | https://travail-emploi.gouv.fr/droit-du-travail/la-rupture-du-contrat-de-travail/article/questions-reponses-presomption-de-demission-en-cas-d-abandon-de-poste | 2026-09-11 | national
 legifrance-decret-abandon-poste | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000047455109 | 2026-09-11 | national
-service-public-emploi-franc | https://entreprendre.service-public.gouv.fr/vosdroits/F34547 | 2026-09-11 | national
+service-public-emploi-franc | https://entreprendre.service-public.gouv.fr/vosdroits/F34547 | 2026-10-05 | national
 service-public-simulateur-frr | https://www.service-public.gouv.fr/simulateur/calcul/zonageFranceRuralitesRevitalisation | 2026-09-11 | national
 francetravail-qpv | https://www.francetravail.fr/faq/candidat/mes-allocations---mes-aides/les-aides/pour-la-reprise-demploi/quartiers-prioritaires-politique.html | 2026-09-11 | national
 francetravail-cesu | https://www.francetravail.fr/employeur/vous-etes-un-particulier-employe/particulier-employeur--le-cheque.html | 2026-09-11 | national
-code-travail-numerique-cesu | https://code.travail.gouv.fr/fiche-ministere-travail/le-cheque-emploi-service-universel-cesu-declaratif | 2026-09-11 | national
+code-travail-numerique-cesu | https://code.travail.gouv.fr/fiche-ministere-travail/le-cheque-emploi-service-universel-cesu-declaratif | 2026-10-05 | national
 
 # Rayon « Emploi » : structures « à qui s'adresser »
 france-travail | https://www.francetravail.fr/ | 2026-09-06 | national
@@ -452,15 +452,15 @@ asso-ligue-de-l-enseignement-24 | https://laligue24.org/ | 2026-09-08 | 24
 asso-lire-87 | https://www.associationlire.com/ | 2026-09-08 | 87
 
 # --- Rayon « Questions juridiques » (fiches rédigées le 2026-09-04) ---
-service-public-consulter-avocat-gratuit | https://www.service-public.gouv.fr/particuliers/vosdroits/F20706 | 2026-09-05 | national
-service-public-aide-juridictionnelle | https://www.service-public.gouv.fr/particuliers/vosdroits/F18074 | 2026-09-05 | national
+service-public-consulter-avocat-gratuit | https://www.service-public.gouv.fr/particuliers/vosdroits/F20706 | 2026-10-05 | national
+service-public-aide-juridictionnelle | https://www.service-public.gouv.fr/particuliers/vosdroits/F18074 | 2026-10-05 | national
 aidejuridictionnelle-simulateur | https://www.aidejuridictionnelle.justice.fr/simulateur | 2026-09-06 | national
-code-travail-conseil-prudhommes | https://code.travail.gouv.fr/fiche-ministere-travail/le-conseil-de-prudhommes | 2026-09-05 | national
+code-travail-conseil-prudhommes | https://code.travail.gouv.fr/fiche-ministere-travail/le-conseil-de-prudhommes | 2026-10-05 | national
 service-public-requete-prudhommes-salarie | https://www.service-public.gouv.fr/particuliers/vosdroits/R45128 | 2026-09-05 | national
-francetravail-contester-decision | https://www.francetravail.fr/candidat/vos-droits-et-demarches/reclamations/comment-contester-une-decision-d.html | 2026-09-05 | national
+francetravail-contester-decision | https://www.francetravail.fr/candidat/vos-droits-et-demarches/reclamations/comment-contester-une-decision-d.html | 2026-10-05 | national
 francetravail-recours-discrimination | https://www.francetravail.fr/candidat/vos-recherches/preparer-votre-candidature/accompagne-dans-sa-recherche/les-recours-en-cas-de-discrimina.html | 2026-09-06 | national
-defenseur-des-droits-accueil | https://www.defenseurdesdroits.fr/ | 2026-09-05 | national
-caf-faire-une-reclamation | https://www.service-public.gouv.fr/particuliers/vosdroits/F2474 | 2026-09-05 | national
+defenseur-des-droits-accueil | https://www.defenseurdesdroits.fr/ | 2026-10-05 | national
+caf-faire-une-reclamation | https://www.service-public.gouv.fr/particuliers/vosdroits/F2474 | 2026-10-05 | national
 justice-fr-annuaires | https://www.justice.fr/ | 2026-09-06 | national
 
 # Rayon « Questions juridiques » : structures « à qui s'adresser »
@@ -522,3 +522,12 @@ geoconfluences-desert-medical | https://geoconfluences.ens-lyon.fr/glossaire/des
 cpam-dordogne | https://www.ameli.fr/dordogne/assure | 2026-09-13 | 24
 cpam-haute-vienne | https://www.ameli.fr/haute-vienne/assure | 2026-09-13 | 87
 france-services | https://www.france-services.gouv.fr/ | 2026-09-13 | national
+legifrance-decret-2026-683-prudhommes | https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000054541160 | 2026-10-05 | national
+caf-aah-esat-declaration-trimestrielle | https://www.caf.fr/allocataires/actualites/actualites-nationales/aah-et-esat-une-nouvelle-facon-de-declarer-vos-revenus | 2026-10-05 | national
+service-public-dispense-visite-reprise | https://entreprendre.service-public.gouv.fr/actualites/A18964 | 2026-10-05 | national
+legifrance-decret-2026-866-ald | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054855169 | 2026-10-05 | national
+service-public-plafonnement-arrets-travail | https://www.service-public.gouv.fr/particuliers/actualites/A18962 | 2026-10-05 | national
+service-public-cumul-emploi-retraite-2027 | https://www.service-public.gouv.fr/particuliers/actualites/A18914 | 2026-10-05 | national
+ameli-arret-maladie-salarie | https://www.ameli.fr/assure/remboursements/indemnites-journalieres-maladie-maternite-paternite/indemnites-journalieres-pour-maladie/arret-maladie-salarie | 2026-10-05 | national
+legifrance-decret-2026-308-inscription-etrangers | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053957149 | 2026-10-05 | national
+unedic-csp-prolongation-2026 | https://www.unedic.org/actualites/le-contrat-de-securisation-professionnelle-csp-prolonge-jusqua-fin-2026 | 2026-10-05 | national
