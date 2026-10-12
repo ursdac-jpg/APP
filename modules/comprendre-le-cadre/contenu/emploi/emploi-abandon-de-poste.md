@@ -7,7 +7,7 @@ tags: [abandon de poste, présomption de démission, chômage, prud'hommes]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "abandon de poste"
     definition: "Le fait de cesser de se présenter au travail sans justification ni accord de l'employeur."

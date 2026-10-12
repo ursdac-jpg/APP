@@ -7,7 +7,7 @@ tags: [demande d'asile, OFPRA, autorisation de travail, réfugié, protection su
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "OFPRA"
     definition: "Office français de protection des réfugiés et apatrides. L'établissement qui examine les demandes d'asile et accorde ou refuse une protection."
@@ -30,7 +30,8 @@ ce_qui_change_souvent:
   - "Les effets du Pacte européen sur la migration et l'asile (en vigueur depuis juin 2026)"
   - "Les durées des titres de séjour pour les personnes protégées"
   - "Les conditions d'accès au RSA pour les personnes protégées"
-revisions: []
+revisions:
+  - "2026-10 : depuis le 12 juin 2026 (Pacte européen sur la migration et l'asile), les personnes qui font l'objet d'une décision de transfert vers un autre pays européen (procédure Dublin) n'ont plus accès au marché du travail ; le délai de six mois démarre à l'enregistrement de la demande ; vérifié sur service-public.fr (page vérifiée le 16 septembre 2026) le 2026-10-05"
 collecte: etranger.collecte.md
 ---
 
@@ -46,4 +47,4 @@ Si vous êtes reconnu réfugié, vous recevez une carte de résident de dix ans.
 
 Dans les deux cas, vous êtes inscrit à France Travail si vous cherchez un emploi, vous pouvez avoir accès au revenu de solidarité active sous conditions, et vous signez le contrat d'intégration républicaine. Des dispositifs d'accompagnement vers l'emploi existent pour les personnes protégées.
 
-Les règles de l'asile évoluent en ce moment avec le Pacte européen sur la migration et l'asile, entré en vigueur le 12 juin 2026 : il raccourcit surtout les délais d'examen des demandes et de recours. Le délai de six mois pour accéder au travail, lui, n'a pas changé à ce jour. Pour votre situation précise, appuyez-vous sur l'OFII, sur une association d'aide aux demandeurs d'asile, ou sur une permanence d'accès au droit.
+Les règles de l'asile évoluent en ce moment avec le Pacte européen sur la migration et l'asile, entré en vigueur le 12 juin 2026 : il raccourcit surtout les délais d'examen des demandes et de recours. Le délai de six mois pour accéder au travail, lui, n'a pas changé. Une exception est nouvelle : si vous faites l'objet d'une décision de transfert vers un autre pays européen (procédure dite « Dublin »), vous n'avez plus le droit de travailler depuis le 12 juin 2026. Pour votre situation précise, appuyez-vous sur l'OFII, sur une association d'aide aux demandeurs d'asile, ou sur une permanence d'accès au droit.

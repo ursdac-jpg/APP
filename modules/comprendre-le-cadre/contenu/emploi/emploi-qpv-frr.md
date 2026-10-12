@@ -7,7 +7,7 @@ tags: [QPV, FRR, ZRR, territoire, emploi franc]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "QPV"
     definition: "Quartier prioritaire de la politique de la ville, classé fragile par l'État selon le niveau de revenu de ses habitants."

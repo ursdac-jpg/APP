@@ -7,7 +7,7 @@ tags: [RSA, prime d'activité, reprise d'emploi, cumul, CAF, MSA, déclaration t
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "prime d'activité"
     definition: "Complément de revenu versé aux personnes qui travaillent et gagnent peu. Elle est recalculée tous les trois mois selon les revenus déclarés."

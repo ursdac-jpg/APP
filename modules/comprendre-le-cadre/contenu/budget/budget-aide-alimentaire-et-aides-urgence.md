@@ -7,7 +7,7 @@ tags: [aide alimentaire, Restos du Cœur, banque alimentaire, Secours populaire,
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "épicerie sociale et solidaire"
     definition: "Magasin où l'on achète des produits alimentaires et d'hygiène à 10 à 30 % de leur prix, pour une période donnée, sur orientation d'un travailleur social."

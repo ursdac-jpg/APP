@@ -7,7 +7,7 @@ tags: [CSP, licenciement économique, ASP, France Travail, reclassement]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "contrat de sécurisation professionnelle (CSP)"
     definition: "Dispositif proposé par l'employeur en cas de licenciement économique, dans les entreprises de moins de 1 000 salariés : sortie anticipée de l'entreprise contre un accompagnement renforcé et une allocation spécifique."
@@ -16,12 +16,14 @@ lexique:
 voir_aussi_lexique:
   - csp
 sources:
+  - unedic-csp-prolongation-2026
   - service-public-csp
   - travail-emploi-csp
 ce_qui_change_souvent:
   - "Le montant et la durée exacts de l'ASP selon l'ancienneté"
   - "La durée du délai de réflexion et les modalités de la mise en demeure"
-revisions: []
+revisions:
+  - "2026-10 : le CSP est prolongé jusqu'au 31 décembre 2026 dans les conditions actuelles (avenant n° 11 du 25 novembre 2025) ; vérifié sur unedic.org le 2026-10-05"
 collecte: emploi.collecte.md
 ---
 
@@ -32,5 +34,7 @@ Vous avez un délai de réflexion de 21 jours pour accepter ou refuser. Sans ré
 Si vous acceptez : le contrat de travail prend fin à l'issue du délai de réflexion, sans préavis à effectuer. En échange, vous bénéficiez d'un accompagnement renforcé par France Travail pendant 12 mois maximum, et d'une allocation de sécurisation professionnelle (ASP) qui remplace l'allocation de retour à l'emploi classique. Pour les salariés ayant au moins un an d'ancienneté, l'ASP est en général plus favorable que l'ARE sur les premiers mois.
 
 Refuser le CSP ne vous prive de rien d'autre : vous conservez tous vos droits liés au licenciement économique (préavis, indemnité de licenciement, allocation chômage classique).
+
+Le CSP est prolongé, dans les mêmes conditions, jusqu'au 31 décembre 2026. Au-delà, vérifiez qu'il existe toujours auprès de France Travail ou de votre employeur.
 
 Avant de vous décider, un conseil en évolution professionnelle (CEP) peut vous aider à comparer les deux options selon votre situation.

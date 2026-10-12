@@ -7,7 +7,7 @@ tags: [titre de séjour, autorisation de travail, droit au travail, étranger, r
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "autorisation de travail"
     definition: "Accord donné par l'administration pour qu'une personne étrangère occupe un emploi précis, chez un employeur précis. C'est l'employeur qui la demande."
@@ -24,12 +24,14 @@ sources:
   - service-public-travail-salarie-etranger
   - service-public-etudiant-etranger-travail
   - immigration-interieur-protection-internationale
+  - legifrance-decret-2026-308-inscription-etrangers
 ce_qui_change_souvent:
   - "Les listes de métiers en tension qui dispensent d'examen de la situation de l'emploi"
   - "Le nombre d'heures autorisées pour un titre étudiant"
   - "Le coût des titres de séjour pour motif professionnel"
   - "Les règles d'inscription à France Travail selon le titre"
-revisions: []
+revisions:
+  - "2026-04 : depuis le décret du 24 avril 2026 (en vigueur le 26 avril), pour s'inscrire comme demandeur d'emploi, il faut un document de séjour, un document provisoire ou une autorisation provisoire de séjour qui autorise à travailler comme salarié ; vérifié sur Légifrance le 2026-10-05"
 collecte: etranger.collecte.md
 ---
 
@@ -42,5 +44,7 @@ D'autres titres demandent une autorisation de travail liée à un emploi et à u
 Un titre « étudiant » permet de travailler comme salarié sans autorisation, mais dans une limite d'heures fixée sur l'année. Au-delà de cette limite, l'employeur doit demander une autorisation.
 
 Un récépissé demande à être lu attentivement. S'il prolonge un titre qui autorisait déjà le travail, ce droit continue. S'il accompagne une première demande, il ne permet pas toujours de travailler : la mention est portée sur le document.
+
+Pour vous inscrire comme demandeur d'emploi à France Travail, il faut un document de séjour (ou un document provisoire) qui vous autorise à travailler comme salarié, depuis un décret d'avril 2026.
 
 Votre situation exacte se lit sur votre titre et se vérifie auprès de la préfecture. En cas de doute, une permanence d'accès au droit des étrangers peut vous aider gratuitement.

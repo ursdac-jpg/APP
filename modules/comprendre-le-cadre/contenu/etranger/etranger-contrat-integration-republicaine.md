@@ -7,7 +7,7 @@ tags: [contrat d'intégration républicaine, CIR, OFII, formation civique, forma
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "OFII"
     definition: "Office français de l'immigration et de l'intégration. L'établissement public qui reçoit les personnes étrangères arrivant en France et organise leur parcours d'intégration."
@@ -26,7 +26,8 @@ ce_qui_change_souvent:
   - "Le volume d'heures des formations en français"
   - "Les règles de l'examen civique en fin de formation civique"
   - "Le lien entre le contrat et la délivrance de la carte pluriannuelle"
-revisions: []
+revisions:
+  - "2026-10 : depuis le 1er janvier 2026, la formation civique se termine par l'examen civique (40 questions, 80 % de réussite), nécessaire pour une carte pluriannuelle ; niveau de français demandé : A2 pour une carte pluriannuelle, B1 pour une carte de résident ; vérifié sur service-public.fr (page vérifiée le 26 juin 2026) le 2026-10-05"
 collecte: etranger.collecte.md
 ---
 
@@ -34,9 +35,9 @@ Si vous obtenez un premier titre de séjour et que vous voulez rester en France,
 
 Tout commence par un entretien personnalisé à l'OFII, avec une évaluation de votre niveau de français.
 
-Vous suivez ensuite une formation civique de quatre journées, sur les valeurs de la République, les institutions, vos droits et vos devoirs, l'histoire et la culture. Elle est gratuite et se termine par un questionnaire.
+Vous suivez ensuite une formation civique de quatre journées, sur les valeurs de la République, les institutions, vos droits et vos devoirs, l'histoire et la culture. Elle est gratuite et se termine par l'examen civique : un questionnaire de quarante questions, à réussir à quatre-vingts pour cent. Depuis le 1er janvier 2026, cette réussite est nécessaire pour obtenir une carte de séjour pluriannuelle.
 
-Si votre niveau de français est en dessous du niveau A2, une formation en français gratuite vous est proposée pour atteindre ce niveau. Sa durée dépend de votre niveau de départ ; la fiche « Les cours de français de l'OFII » du rayon « Apprendre le français » en détaille le déroulement.
+Si votre niveau de français est en dessous du niveau A2, une formation en français gratuite vous est proposée pour atteindre ce niveau. Sa durée dépend de votre niveau de départ ; la fiche « Les cours de français de l'OFII » du rayon « Apprendre le français » en détaille le déroulement. Depuis 2026, le niveau de français demandé est A2 pour une carte pluriannuelle et B1 pour une carte de résident.
 
 L'OFII vous oriente aussi vers un conseiller emploi, pour que la recherche de travail commence en même temps que l'apprentissage du français.
 

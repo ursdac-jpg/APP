@@ -7,7 +7,7 @@ tags: [surendettement, recevabilité, suspension des saisies, expulsion, droit a
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "plan conventionnel de redressement"
     definition: "Accord négocié entre vous et vos créanciers, sous l'égide de la commission : étalement des dettes, baisse des mensualités ou du taux, report, parfois vente d'un bien."
@@ -30,13 +30,14 @@ ce_qui_change_souvent:
   - "La durée maximale d'un plan et la durée d'inscription au FICP"
   - "La liste des dettes qui ne peuvent jamais être effacées"
 revisions:
+  - "2026-10 : précision sur l'expulsion (c'est la commission qui saisit le juge, à la demande de la personne) ; vérifié sur banque-france.fr et Légifrance (articles L722-2 et suivants du code de la consommation) le 2026-10-05"
   - "2026-09 : fiche créée par scission de « La procédure de surendettement : comment ça marche ? », à partir du détail de la procédure publié par la Banque de France."
 collecte: budget.collecte.md
 ---
 
 Quand la commission déclare votre dossier recevable, les saisies et les poursuites de vos créanciers s'arrêtent et aucun créancier ne peut en engager de nouvelle. Cette suspension dure jusqu'à la mise en place de la solution, et au maximum deux ans. Elle ne joue pas pour les pensions alimentaires ni pour les amendes pénales : ces sommes peuvent continuer à être réclamées.
 
-D'autres protections s'ouvrent. Si une expulsion de votre logement est engagée, vous pouvez demander au juge de la suspendre. Votre banque ne peut pas fermer votre compte pour ce seul motif : vous gardez le compte et des moyens de paiement adaptés, sans frais de rejet, avec des frais d'incident plafonnés.
+D'autres protections s'ouvrent. Si une expulsion de votre logement est engagée, la commission peut, à votre demande, saisir le juge pour la suspendre : c'est le juge qui décide. Votre banque ne peut pas fermer votre compte pour ce seul motif : vous gardez le compte et des moyens de paiement adaptés, sans frais de rejet, avec des frais d'incident plafonnés.
 
 La commission choisit ensuite une solution, selon ce que vous pouvez rembourser :
 

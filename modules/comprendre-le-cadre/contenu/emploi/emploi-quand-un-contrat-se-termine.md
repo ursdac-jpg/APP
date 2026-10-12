@@ -7,7 +7,7 @@ tags: [fin de contrat, certificat de travail, attestation France Travail, solde 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "attestation destinée à France Travail"
     definition: "Document de fin de contrat. L'employeur le transmet directement à France Travail (le plus souvent par la déclaration sociale) et vous en remet un exemplaire signé. Il sert à ouvrir des droits au chômage."

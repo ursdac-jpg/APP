@@ -27,6 +27,10 @@ sources:
   - "francetravail-qpv | Quartiers prioritaires de la politique de la ville (QPV) | https://www.francetravail.fr/faq/candidat/mes-allocations---mes-aides/les-aides/pour-la-reprise-demploi/quartiers-prioritaires-politique.html | 2026-09-11"
   - "francetravail-cesu | Particulier employeur : le chèque emploi service universel (CESU) | https://www.francetravail.fr/employeur/vous-etes-un-particulier-employe/particulier-employeur--le-cheque.html | 2026-09-11"
   - "code-travail-numerique-cesu | Le chèque emploi-service universel (CESU) déclaratif | https://code.travail.gouv.fr/fiche-ministere-travail/le-cheque-emploi-service-universel-cesu-declaratif | 2026-09-11"
+  - "ameli-arret-maladie-salarie | Arrêt de travail pour maladie : les indemnités journalières du salarié | https://www.ameli.fr/assure/remboursements/indemnites-journalieres-maladie-maternite-paternite/indemnites-journalieres-pour-maladie/arret-maladie-salarie | 2026-10-05"
+  - "service-public-plafonnement-arrets-travail | La durée des arrêts de travail plafonnée depuis le 1er septembre | https://www.service-public.gouv.fr/particuliers/actualites/A18962 | 2026-10-05"
+  - "legifrance-decret-2026-866-ald | Décret n° 2026-866 du 16 septembre 2026 relatif à la durée maximale dérogatoire d'indemnisation pour arrêt de travail | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054855169 | 2026-10-05"
+  - "service-public-dispense-visite-reprise | Visites de préreprise et de reprise : nouvelles modalités | https://entreprendre.service-public.gouv.fr/actualites/A18964 | 2026-10-05"
 structures:
   - "france-travail | France Travail : inscription, accompagnement, information sur les droits liés à un contrat et à sa fin | https://www.francetravail.fr/ | 2026-09-04"
   - "inspection-du-travail-ddets-dordogne | Inspection du travail (DDETS de la Dordogne) : renseignements sur le droit du travail, signalement d'un recours abusif aux contrats précaires | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-04"
@@ -216,3 +220,16 @@ cotisations automatiquement, pas de bulletin de paie à établir soi-même pour 
 Ce n'est pas un type de contrat en soi : le salarié a les mêmes droits qu'un salarié classique
 (congés payés, protection sociale). Très répandu dans les services à la personne, un secteur qui
 recrute beaucoup localement (aide à domicile notamment).
+
+## 13. L'arrêt maladie (ajoutée le 2026-10-05)
+
+Matériau rassemblé par recherche web le 2026-10-05 (ameli.fr, service-public.gouv.fr, Légifrance).
+
+- Transmission : 48 heures à l'employeur et à la caisse (ameli, page mise à jour le 2026-09-01).
+- Plafonnement depuis le 1er septembre 2026 : 31 jours (arrêt initial), 62 jours (prolongation), sauf justification du médecin ; pas à Mayotte (service-public A18962, décret du 12 juin 2026).
+- Délai de carence de 3 jours, sauf ALD, accident du travail, maladie professionnelle (ameli).
+- Durée des indemnités : 360 jours sur 3 ans en règle générale ; avec ALD jusqu'à 3 ans avant la réforme (ameli, 2026-09-01).
+- Décret n° 2026-866 du 16 septembre 2026 (JO du 18 septembre) : durée maximale dérogatoire ramenée à un an pour les assurés dont la participation aux frais n'est pas limitée ou supprimée ; trois ans conservés pour les affections L. 160-14 3° et 4° ; applicable aux arrêts prescrits à partir du 15 octobre 2026 et aux arrêts en cours atteignant six mois à cette date (Légifrance).
+- Visite de reprise : dispense si pré-reprise dans les 30 jours et aucun aménagement nécessaire, pour les arrêts délivrés à partir du 15 juin 2026 ; l'employeur, le médecin du travail ou le salarié peuvent la demander malgré tout (service-public, entreprendre A18964).
+
+À ne pas écrire dans la fiche : les montants (plafond de l'indemnité journalière, taux), qui changent chaque année.

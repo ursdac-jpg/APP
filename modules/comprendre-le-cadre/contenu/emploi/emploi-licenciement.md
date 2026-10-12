@@ -7,7 +7,7 @@ tags: [licenciement, motif personnel, licenciement économique, entretien préal
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "entretien préalable"
     definition: "Rendez-vous obligatoire avant tout licenciement. Vous y êtes convoqué par lettre, vous pouvez être assisté, et l'employeur vous explique ce qu'il vous reproche."

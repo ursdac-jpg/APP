@@ -7,7 +7,7 @@ tags: [surendettement, dettes, commission de surendettement, Banque de France, d
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "commission de surendettement"
     definition: "Groupe qui examine les dossiers de surendettement, dans chaque département. Elle dépend de la Banque de France. C'est elle qui décide de l'orientation du dossier ; elle ne paie pas les dettes et ne prête pas d'argent."

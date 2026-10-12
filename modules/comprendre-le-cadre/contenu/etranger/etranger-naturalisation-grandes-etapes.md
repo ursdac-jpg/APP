@@ -7,7 +7,7 @@ tags: [naturalisation, nationalité française, décret, examen civique, niveau 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "naturalisation par décret"
     definition: "Voie principale pour devenir français quand on ne l'est pas par la naissance ou le mariage. La décision est prise par l'État, elle n'est jamais automatique."
@@ -28,6 +28,7 @@ ce_qui_change_souvent:
   - "Le montant du timbre fiscal et les délais de décision"
   - "Les justificatifs acceptés pour le niveau d'études"
 revisions:
+  - "2026-10 : précision sur les dispenses (réfugiés ou apatrides de plus de 70 ans résidant depuis au moins 15 ans, pour le niveau de français ; handicap ou état de santé, sur certificat médical) ; une dispense pour toutes les personnes réfugiées n'existe pas ; vérifié sur service-public.fr et Légifrance (décret du 15 juillet 2025, arrêté du 30 décembre 2025) le 2026-10-05"
   - "2026-01 : le niveau de français exigé passe à B2 (oral et écrit) et l'examen civique (40 questions, 32 bonnes réponses exigées) devient obligatoire ; confirmé sur service-public.fr le 2026-09-05"
   - "2026-05 : le droit de timbre pour la demande de naturalisation passe de 55 à 255 euros (article 128 de la loi de finances pour 2026, application au 1er mai 2026) ; confirmé sur service-public.fr F2213 le 2026-09-14"
 collecte: etranger.collecte.md
@@ -37,7 +38,7 @@ La naturalisation par décret est la voie principale pour devenir français quan
 
 Les conditions générales sont les suivantes. Il faut en principe résider en France de façon régulière depuis cinq ans. Ce délai est réduit à deux ans si vous avez réussi deux années d'études supérieures en France, et il n'y a pas de durée minimale pour une personne réfugiée. Il faut aussi vivre effectivement en France avec le centre de ses attaches, avoir des ressources stables, un casier judiciaire compatible, et montrer son assimilation à la communauté française.
 
-Deux points ont changé au 1er janvier 2026. Le niveau de français demandé est passé au niveau B2, à l'oral et à l'écrit, à prouver par un diplôme français ou un test récent (le TCF ou le TEF, valables deux ans). Et un examen civique est devenu obligatoire : un questionnaire de quarante questions en français, qu'il faut réussir à quatre-vingts pour cent, soit trente-deux bonnes réponses. Des dispenses existent, notamment pour les personnes réfugiées, les personnes de plus de soixante-dix ans qui vivent en France depuis au moins quinze ans, et en cas de handicap qui rend l'évaluation impossible.
+Deux points ont changé au 1er janvier 2026. Le niveau de français demandé est passé au niveau B2, à l'oral et à l'écrit, à prouver par un diplôme français ou un test récent (le TCF ou le TEF, valables deux ans). Et un examen civique est devenu obligatoire : un questionnaire de quarante questions en français, qu'il faut réussir à quatre-vingts pour cent, soit trente-deux bonnes réponses. Les dispenses sont limitées : les personnes réfugiées ou apatrides de plus de soixante-dix ans qui vivent en France depuis au moins quinze ans n'ont pas à prouver leur niveau de français, et une personne dont le handicap ou l'état de santé rend l'évaluation impossible peut être dispensée, sur certificat médical.
 
 Le déroulement : vous constituez le dossier, vous le déposez en ligne avec un timbre fiscal, vous passez un entretien d'assimilation en préfecture, une enquête a lieu, puis le ministère décide. La réponse peut prendre jusqu'à dix-huit mois. En cas d'accord, votre nom paraît dans un décret au Journal officiel.
 

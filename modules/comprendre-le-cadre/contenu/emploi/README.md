@@ -28,7 +28,7 @@ les 4 questions y figurent, plus 2 ajoutées.
    le 31 décembre 2024, non reconduit en 2025 (recoupé sur plusieurs sources) - présenté comme arrêté
    dans les fiches, jamais comme disponible.
 
-## Les 12 fiches
+## Les 13 fiches
 
 | id | titre |
 |---|---|
@@ -44,6 +44,7 @@ les 4 questions y figurent, plus 2 ajoutées.
 | `emploi-abandon-de-poste` | L'abandon de poste : ce que ça change vraiment depuis 2023 (ajoutée le 2026-09-11) |
 | `emploi-qpv-frr` | QPV et zones rurales fragiles (FRR) : des aides liées au territoire (ajoutée le 2026-09-11) |
 | `emploi-cesu` | Travailler chez un particulier avec le CESU (ajoutée le 2026-09-11) |
+| `emploi-arret-maladie` | L'arrêt maladie : combien de temps, quelles indemnités, et comment préparer la reprise (ajoutée le 2026-10-05, à valider par Denis) |
 
 ## Section « à qui s'adresser »
 

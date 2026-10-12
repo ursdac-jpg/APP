@@ -7,7 +7,7 @@ tags: [régularisation, admission exceptionnelle au séjour, métiers en tension
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "admission exceptionnelle au séjour"
     definition: "Possibilité, laissée à l'appréciation du préfet, de délivrer un titre de séjour à une personne qui ne remplit pas les conditions habituelles, au vu de sa situation. Ce n'est jamais un droit."
@@ -26,6 +26,7 @@ ce_qui_change_souvent:
   - "Les pratiques des préfectures pour l'admission exceptionnelle"
   - "Le coût du droit de visa de régularisation"
 revisions:
+  - "2026-10 : la circulaire qui servait de grille pour l'admission exceptionnelle (circulaire de 2012) a été abrogée le 23 janvier 2025 et remplacée par une circulaire d'orientations générales sur l'admission exceptionnelle au séjour ; texte non relu en entier, ses orientations restent à confirmer ; phrase du corps du texte précisée en conséquence"
   - "2026-09 : la voie « métiers en tension » (article L. 435-4) est une expérimentation applicable jusqu'au 31 décembre 2026 ; la circulaire qui servait de grille pour l'admission exceptionnelle a été abrogée en janvier 2025"
   - "2026-05 : le droit de visa de régularisation passe de 200 à 300 euros, dont une part non remboursable de 100 euros due au dépôt de la demande (article 128 de la loi de finances pour 2026, application au 1er mai 2026) ; confirmé le 2026-09-14"
 collecte: etranger.collecte.md
@@ -37,6 +38,6 @@ Deux voies principales.
 
 La première concerne les métiers en tension. Depuis 2024, et jusqu'au 31 décembre 2026, une personne qui travaille en France peut demander elle-même, sans passer par son employeur, une carte de séjour d'un an. Il faut vivre en France sans interruption depuis au moins trois ans, avoir travaillé au moins douze mois sur les vingt-quatre derniers, dans un métier et une région qui figurent sur la liste officielle, et occuper encore un emploi de ce type. Après 2026, cette voie disparaîtra, sauf si la loi la prolonge.
 
-La seconde voie, l'admission exceptionnelle au séjour, existe en dehors des métiers en tension. Elle repose entièrement sur l'appréciation du préfet, qui regarde l'ancienneté de votre présence en France, la durée et la stabilité de votre travail, votre vie familiale, votre insertion. Il n'y a plus de grille de critères publiée depuis le début de 2025 : les pratiques varient d'un département à l'autre.
+La seconde voie, l'admission exceptionnelle au séjour, existe en dehors des métiers en tension. Elle repose entièrement sur l'appréciation du préfet, qui regarde l'ancienneté de votre présence en France, la durée et la stabilité de votre travail, votre vie familiale, votre insertion. La circulaire qui servait de grille a été remplacée en janvier 2025 par un texte d'orientations générales, qui laisse la décision au préfet : les pratiques varient d'un département à l'autre.
 
 Ces démarches sont complexes, et un refus a des conséquences. Ne les engagez pas seul : faites-vous accompagner par une permanence d'accès au droit des étrangers ou une association spécialisée, qui montera le dossier avec vous.

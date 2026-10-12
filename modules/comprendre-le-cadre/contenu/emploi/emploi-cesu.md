@@ -7,7 +7,7 @@ tags: [CESU, particulier employeur, services à la personne, aide à domicile]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "CESU"
     definition: "Chèque emploi service universel : moyen simplifié pour un particulier de déclarer et payer un salarié à son domicile."

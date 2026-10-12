@@ -7,7 +7,7 @@ tags: [droit au compte, ouvrir un compte, compte bancaire, refus, Banque de Fran
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "droit au compte"
     definition: "Droit, pour toute personne résidant en France, d'obtenir un compte bancaire. Si une banque refuse, la Banque de France en désigne une qui doit ouvrir le compte."
