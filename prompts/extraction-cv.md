@@ -97,7 +97,7 @@ Pour chaque point, fournis :
 
 ## Sur les informations qui ne rentrent dans aucune catégorie
 
-Un CV contient souvent des informations qui n'entrent dans aucune des catégories ci-dessus : disponibilité, mobilité géographique, télétravail, portfolio, prétentions salariales, références disponibles, ou toute autre mention explicite (par exemple une RQTH, uniquement si elle est explicitement écrite dans le texte). Ne les ignore pas et ne les force pas dans une catégorie qui ne leur correspond pas : place-les telles quelles dans `informationsNonClassees`.
+Un CV contient souvent des informations qui n'entrent dans aucune des catégories ci-dessus : disponibilité, mobilité géographique, télétravail, portfolio, prétentions salariales, références disponibles, ou toute autre mention explicite (par exemple une RQTH, uniquement si elle est explicitement écrite dans le texte). Ne les ignore pas et ne les force pas dans une catégorie qui ne leur correspond pas : place-les telles quelles dans `informationsNonClassees`. Les titres de rubriques du CV (par exemple « Compétences professionnelles », « Expérience professionnelle », « Formations », « Langues », « Centres d'intérêt ») ne sont jamais des informations non classées : ce sont des en-têtes, seul leur contenu compte, et il va dans la catégorie qui lui correspond.
 
 ## Respect des types de données
 

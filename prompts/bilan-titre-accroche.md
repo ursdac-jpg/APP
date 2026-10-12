@@ -15,7 +15,7 @@ Exécute directement les instructions ci-dessous, sans les commenter ni donner t
 
 Le CV ci-dessous n'a pas de titre et/ou pas de phrase d'accroche en tête de document, les deux premiers éléments lus par un recruteur. Ta mission : proposer un titre et plusieurs phrases d'accroche, à partir uniquement du contenu réel du CV fourni.
 
-**Tu dois uniquement :** proposer un titre court (l'intitulé affiché sous le nom, ex. « Chargé de clientèle », « En reconversion vers le métier de vendeur ») et 3 à 5 phrases d'accroche distinctes (2 à 3 lignes chacune, un résumé du profil).
+**Tu dois uniquement :** proposer un titre court (l'intitulé affiché sous le nom, ex. « Chargé de clientèle », « En reconversion vers le métier de vendeur ») et 3 à 5 phrases d'accroche distinctes, de longueur MOYENNE (deux phrases, 45 mots au plus, ni une simple ligne ni un long paragraphe), un résumé du profil.
 
 {VOIX_HUMAINE}
 
@@ -49,15 +49,13 @@ Termine ensuite IMPÉRATIVEMENT ta réponse par un bloc de code contenant unique
 ```json
 {
   "titre": "...",
-  "accroches": ["...", "...", "..."],
-  "accrochesCourtes": ["...", "...", "..."]
+  "accroches": ["...", "...", "..."]
 }
 ```
 
 Précisions sur ce schéma :
 - `titre` : un seul intitulé, court, prêt à être affiché tel quel sous le nom.
 - `accroches` : 3 à 5 propositions distinctes, chacune autonome et complète (jamais des variantes d'une même phrase, jamais numérotées dans le texte lui-même).
-- `accrochesCourtes` : pour CHAQUE proposition de `accroches`, une version courte au même rang (même ordre, même nombre) : UNE seule phrase qui garde l'essentiel de cette proposition avec ses propres mots, sans aucune information nouvelle.
 
 ---
 

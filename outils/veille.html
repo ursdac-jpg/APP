@@ -355,7 +355,7 @@
     <button class="lien-retour-guide" onclick="fermerMenuCadreGuide()" style="background:none;border:none;color:var(--text-muted);font:inherit;font-weight:600;cursor:pointer;padding:.3rem 0;margin-bottom:.6rem">&#8592; Tous les modules</button>
     <div class="entete-module-guide">
       <span class="pastille">&#128240;</span>
-      <div><h2 style="margin:0">Comprendre le cadre</h2><p class="sous-titre" style="margin:0">Choisissez un rayon : vous y retrouvez tout ce qui le concerne, jusqu'au bout.</p></div>
+      <div><h2 style="margin:0">Comprendre le cadre</h2><p class="sous-titre" style="margin:0">Vos fiches d'information : les contrôler, voir ce qui a changé, en ajouter.</p></div>
     </div>
 
     <div class="carte-tache" onclick="entrerFocusMaBase()" style="margin-bottom:1rem">
@@ -363,8 +363,26 @@
       <span class="fleche">&#8250;</span>
     </div>
 
+    <span class="etiquette-frequence">Que voulez-vous faire ?</span>
+    <div style="margin:.5rem 0 1rem">
+      <div class="carte-tache" onclick="entrerFocusControleMois()">
+        <div><div class="titre-tache">Contrôler mes fiches</div><div class="sous-tache" id="sousTacheControleMois">Chaque mois : vérifier que les fiches sont toujours exactes</div></div>
+        <span class="fleche">&#8250;</span>
+      </div>
+      <div class="carte-tache" onclick="entrerFocusBalayage()">
+        <div><div class="titre-tache">Voir ce qui a changé</div><div class="sous-tache">Chaque trimestre : les changements officiels des trois derniers mois, puis le triage</div></div>
+        <span class="fleche">&#8250;</span>
+      </div>
+      <div class="carte-tache" onclick="entrerFocusCarte1()">
+        <div><div class="titre-tache">Ajouter ou compléter une fiche</div><div class="sous-tache">Quand vous avez une information à ranger</div></div>
+        <span class="fleche">&#8250;</span>
+      </div>
+    </div>
+
     <div id="blocRevisionsCadre" style="display:none;margin-bottom:1rem"></div>
 
+    <details id="detTousRayons" style="margin-top:.5rem">
+    <summary style="cursor:pointer;font-weight:700;padding:.5rem 0">Tous les rayons et les autres tâches</summary>
     <span class="etiquette-frequence">Vos rayons</span>
     <div id="listeRayonsCadre" style="margin-top:.5rem"></div>
 
@@ -399,6 +417,7 @@
         <span class="fleche">&#8250;</span>
       </div>
     </div>
+    </details>
   </div>
 
   <div id="vueMenuLexiqueGuide" style="display:none">
@@ -479,8 +498,8 @@
       <h3>Le principe, en quatre étapes, toujours le même</h3>
       <p>Que ce soit pour une fiche, pour le contrôle mensuel ou pour un digest trimestriel, le principe ne change jamais :</p>
       <ol>
-        <li><strong>Un bouton bleu « Copier le prompt »</strong> copie un texte tout prêt.</li>
-        <li><strong>Vous ouvrez un site d'assistant en ligne</strong> dans un nouvel onglet (des boutons « Ouvrir ChatGPT » / « Ouvrir Perplexity » sont là pour ça) et vous collez ce texte (Ctrl+V, ou clic droit puis Coller) dans la zone où on lui parle. Vous validez (touche Entrée, ou le bouton d'envoi du site).</li>
+        <li><strong>Un bouton bleu « Copier le prompt et ouvrir Perplexity »</strong> copie un texte tout prêt et ouvre le site dans un nouvel onglet (un second bouton fait pareil avec ChatGPT). Le texte est caché par défaut : le bouton « Afficher le prompt » le montre si vous voulez le relire.</li>
+        <li><strong>Vous ouvrez un site d'assistant en ligne</strong> dans un nouvel onglet (le bouton bleu l'ouvre pour vous) et vous collez ce texte (Ctrl+V, ou clic droit puis Coller) dans la zone où on lui parle. Vous validez (touche Entrée, ou le bouton d'envoi du site).</li>
         <li><strong>Vous attendez sa réponse</strong>, vous la sélectionnez en entier (Ctrl+A dans sa réponse, puis Ctrl+C pour copier), vous revenez sur cette page, et vous la collez dans la grande case « Collez ici... » (Ctrl+V), puis vous cliquez « Coller ici et lire ».</li>
         <li><strong>Cette page transforme la réponse</strong> en fichier(s) prêt(s), affiché(s) à l'écran pour relecture, avec un bouton pour les télécharger.</li>
       </ol>
@@ -497,8 +516,8 @@
       <p>Quelques sites officiels (Légifrance, le ministère de l'Intérieur, education.gouv.fr, monenfant.fr...) refusent d'être lus par un assistant en ligne. Quand une information n'est que sur un de ces sites, c'est à vous d'aller la chercher. La section <strong>« Importer un texte à la main »</strong>, tout en haut de la page, sert à ça : elle contient la liste de ces sites, vous en ouvrez un, vous copiez le passage utile, vous le collez dans l'outil, vous dites de quoi il s'agit (Lexique, Comprendre les chiffres, ou Comprendre le cadre), et l'outil prépare un prompt qui demande à l'assistant de comprendre ce texte et d'en extraire les faits bruts, sourcés (jamais la fiche ou la définition finale : cette partie se rédige ensuite, uniquement avec Claude, comme le reste). Le reste du chemin (relire, déposer) est identique.</p>
       <p>Dans cette liste, les sites sont rangés par module : ceux qui nourrissent <strong>Comprendre le cadre</strong> (textes de loi, dispositifs) et ceux qui nourrissent <strong>Comprendre les chiffres</strong>. Ces derniers sont surtout des bases de données statistiques qui s'affichent en JavaScript (les séries de l'INSEE, les tableaux de bord de France Travail, la base Eurostat, SI-Terr de Cap Métiers) : un assistant en ligne n'en voit rien. Pour un chiffre qui n'est que là, vous ouvrez la page, vous relevez la valeur exacte, sa date et son territoire, et vous la collez dans « Importer un texte à la main » en choisissant « Comprendre les chiffres ».</p>
 
-      <h3>Une fois les fichiers téléchargés, où les mettre</h3>
-      <p>Les fichiers téléchargés arrivent dans le dossier « Téléchargements » habituel de cet ordinateur. Il faut ensuite les déplacer au bon endroit dans les dossiers de l'application, puis prévenir le programme qui gère les versions (un outil appelé « Git ») que ces fichiers ont changé. Cette toute dernière partie (« déposer et committer ») demande un minimum technique : le détail exact est dans la section <strong>« Réglages et gestion » &rarr; « Déposer dans le dépôt »</strong> plus bas sur cette page. Si vous bloquez uniquement sur cette dernière étape, c'est là qu'il faut regarder ; en cas de doute, mieux vaut demander de l'aide pour cette seule étape que de deviner.</p>
+      <h3>Une fois les fichiers préparés, où les mettre</h3>
+      <p><strong>Si vous avez ouvert l'outil avec « Lancer l'outil de veille » :</strong> les boutons « Ajouter ... au Dépôt » rangent les fichiers dans la liste du bouton « Dépôt » (en bas à droite). Vous cliquez ensuite « Publier » : l'outil place chaque fichier au bon endroit, vérifie que tout fonctionne et l'enregistre, puis « Envoyer sur GitHub ». Vous n'avez rien à déplacer à la main. <strong>Avec l'ancien raccourci</strong> (sans le lanceur), voici le détail à suivre. Les fichiers téléchargés arrivent dans le dossier « Téléchargements » habituel de cet ordinateur. Il faut ensuite les déplacer au bon endroit dans les dossiers de l'application, puis prévenir le programme qui gère les versions (un outil appelé « Git ») que ces fichiers ont changé. Cette toute dernière partie (« déposer et committer ») demande un minimum technique : le détail exact est dans la section <strong>« Réglages et gestion » &rarr; « Déposer dans le dépôt »</strong> plus bas sur cette page. Si vous bloquez uniquement sur cette dernière étape, c'est là qu'il faut regarder ; en cas de doute, mieux vaut demander de l'aide pour cette seule étape que de deviner.</p>
 
       <h3>Mettre à jour « Comprendre les chiffres »</h3>
       <p>Ce module (2e sous-carte de « Se tenir informé ») a <strong>trois digests</strong>, dans le rectangle violet « Nourrit : Comprendre les chiffres », section « Entretenir la base ». Chacun a son rythme :</p>
@@ -513,7 +532,7 @@
       <h3>Repérer les nouveautés et décider quoi en faire</h3>
       <p>Le <strong>Balayage trimestriel</strong> liste les changements officiels du trimestre (une nouvelle loi, un montant révisé, un dispositif créé ou supprimé). Mais il ne dit pas, pour chacun, s'il faut <strong>créer une fiche</strong>, <strong>en corriger une</strong>, ou simplement le <strong>laisser dans le digest</strong> (une actualité datée n'a pas vocation à devenir une fiche permanente). Ce tri se fait après.</p>
       <ol>
-        <li>Une fois le Balayage déposé, ouvrez le bloc <strong>« Triage du digest »</strong> ci-dessous (section « Chaque trimestre »), bouton <strong>« Afficher le prompt »</strong> puis « Copier le prompt de triage ». Si vos fiches sont déjà chargées dans <strong>« Ma base »</strong> (même chargement que pour le contrôle mensuel), le digest et la liste des fiches sont repris automatiquement dans le prompt ; sinon, une zone à remplacer à la main reste en place. Collez le tout chez un assistant en ligne : il répond, pour chaque changement, quelle fiche est concernée (ou « sujet nouveau »), et l'action conseillée.</li>
+        <li>Une fois le Balayage déposé, ouvrez le bloc <strong>« Triage du digest »</strong> ci-dessous (section « Chaque trimestre »), bouton <strong>« Préparer le prompt »</strong> puis « Copier le prompt et ouvrir Perplexity ». Si vos fiches sont déjà chargées dans <strong>« Ma base »</strong> (même chargement que pour le contrôle mensuel), le digest et la liste des fiches sont repris automatiquement dans le prompt ; sinon, une zone à remplacer à la main reste en place. Collez le tout chez un assistant en ligne : il répond, pour chaque changement, quelle fiche est concernée (ou « sujet nouveau »), et l'action conseillée.</li>
         <li>Recopiez chaque changement retenu dans le fichier <strong><code>docs/NOUVEAUTES_A_STATUER.md</code></strong> : un tableau, une ligne par nouveauté, avec une colonne « Décision ». Rien de repéré ne se perd. On tranche ligne par ligne, tout de suite ou plus tard.</li>
         <li>Selon la décision : <strong>MISE À JOUR</strong> &rarr; bouton « Traiter » du contrôle mensuel ; <strong>NOUVELLE FICHE</strong> &rarr; « Créer une fiche » ; <strong>ÉCARTÉ</strong> &rarr; ça reste dans le digest, rien à faire.</li>
       </ol>
@@ -526,7 +545,7 @@
       <h3>Nourrir le Lexique (le même principe, pour les mots)</h3>
       <p>Le bloc <strong>« Nourrir le Lexique »</strong> suit le même chemin. Le prompt <strong>[LEXIQUE]</strong> repère les termes, sigles et dispositifs du champ de l'insertion qui sont apparus ou ont changé de sens. Sa réponse, collée dans « Les entrées » puis « Lire », devient un <strong>objet prêt à coller dans <code>data/lexique.js</code></strong> — le fichier que le module Lexique lit vraiment. On relit, on garde ce qui vaut, on le colle, on lance <code>node scripts/checkLexique.js</code> (0 erreur ET 0 avertissement), on committe.</p>
       <p>Avant d'assembler le prompt, cliquez <strong>« Charger <code>data/lexique.js</code> »</strong> : la case « Termes déjà dans le Lexique » se remplit toute seule (une ligne « identifiant | titre » par fiche), comme « Ma base » pour les rayons. Cette liste part dans <strong>[LEXIQUE]</strong> et dans <strong>[TRIAGE-MOTS]</strong> : elle sert aux renvois « voir aussi » et à ne pas reproposer un mot qui existe déjà. À défaut, collez la liste à la main.</p>
-      <p>Si vous avez plusieurs candidats, le bouton <strong>« Afficher le prompt de triage des mots »</strong> ([TRIAGE-MOTS]) dit, pour chacun : le terme existe-t-il déjà dans le Lexique (mise à jour) ou est-il nouveau ? Chaque terme retenu fait une ligne dans <code>docs/NOUVEAUTES_A_STATUER.md</code>, section « Mots du Lexique ».</p>
+      <p>Si vous avez plusieurs candidats, le bouton <strong>« Préparer le prompt de triage des mots »</strong> ([TRIAGE-MOTS]) dit, pour chacun : le terme existe-t-il déjà dans le Lexique (mise à jour) ou est-il nouveau ? Chaque terme retenu fait une ligne dans <code>docs/NOUVEAUTES_A_STATUER.md</code>, section « Mots du Lexique ».</p>
       <p><em>Le vieux fichier <code>docs/CORPUS_LEXIQUE.md</code> est périmé (42 fiches contre 154) : on ne s'en sert plus.</em></p>
 
       <h3>Ce qui ne peut pas se casser</h3>
@@ -573,12 +592,11 @@
       </div>
 
       <div class="btn-rangee"><button class="btn" onclick="genererImport(this)">Régénérer le prompt</button></div>
-      <h3>Texte à copier <span class="sous-titre" style="font-weight:400">(cliquez le cadre pour tout sélectionner)</span></h3>
+      <h3>Texte à copier</h3>
       <div class="code" id="promptImport" onclick="selectionner(this)"></div>
       <div class="btn-rangee">
-        <button class="btn primaire" onclick="copier('promptImport', this)">Copier le prompt</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptImport', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptImport', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="note" id="impDepot"><span>&#128228;</span><span></span></div>
     </div>
@@ -647,12 +665,11 @@
       <label for="ctxCible">Ce que le contrôle a signalé (repris automatiquement depuis « Traiter cette fiche »)</label>
       <textarea id="ctxCible" oninput="assembler1()" style="min-height:60px" placeholder="ex. L'aide au permis de France Travail serait passée de 1200 à 1500 euros au 1er janvier."></textarea>
     </div>
-    <h3>Texte à copier <span class="sous-titre" style="font-weight:400">(cliquez le cadre pour tout sélectionner)</span></h3>
+    <h3>Texte à copier</h3>
     <div class="code" id="prompt1" onclick="selectionner(this)"></div>
     <div class="btn-rangee">
-      <button class="btn primaire" onclick="copier('prompt1', this)">Copier le prompt de collecte</button>
-      <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-      <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+      <button class="btn primaire" onclick="copierEtOuvrir('prompt1', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('prompt1', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
     </div>
     <div class="bloc-destinataire">
       <span>&#128226;</span>
@@ -662,7 +679,7 @@
     </div>
     <div class="bloc-retour">
       <span>&#8617;</span>
-      <span><strong>Pour récupérer sa réponse :</strong> Ctrl+A puis Ctrl+C dans sa réponse, puis revenez ici, à l'étape 2.</span>
+      <span><strong>Pour récupérer sa réponse :</strong> Ctrl+A puis Ctrl+C dans sa réponse, puis revenez ici : elle sera lue automatiquement à l'étape 2 (sinon, « Coller ici et lire »).</span>
     </div>
     <div class="btn-rangee" style="margin-top:1rem">
       <button class="btn primaire grand" style="width:100%" onclick="_entrerFocus('carte2')">Étape suivante : coller la réponse &#8594;</button>
@@ -677,7 +694,6 @@
     <textarea id="reponse1" oninput="memoire()" style="min-height:130px" placeholder="Collez ici la réponse de ChatGPT ou Perplexity au prompt de collecte."></textarea>
     <div class="btn-rangee">
       <button class="btn primaire" onclick="collerDans('reponse1', this, 'lireCollecte')">Coller ici et lire</button>
-      <button class="btn" onclick="lireCollecte()">Lire (si déjà collé)</button>
     </div>
     <div id="msg1"></div>
     <div id="sourcesCollecte"></div>
@@ -691,7 +707,7 @@
     <button class="lien-etape-precedente" onclick="_entrerFocus('carte2')">&#8592; Revoir la collecte</button>
     <span class="etiquette-claude">&#9888; Étape réservée à Claude</span>
     <h2><span class="num">3</span>Prompt de rédaction</h2>
-    <p class="sous-titre" style="margin-top:0">Assemblé avec le matériau collecté à l'intérieur.</p>
+    <p class="sous-titre" style="margin-top:0"><strong>Ce que Perplexity a trouvé (étape 2) est déjà à l'intérieur de ce prompt.</strong> Vous copiez uniquement ce prompt, rien d'autre. Le bouton « Afficher le prompt » le montre si vous voulez vérifier.</p>
     <div class="code" id="prompt2" onclick="selectionner(this)"></div>
     <div class="btn-rangee"><button class="btn primaire" onclick="copier('prompt2', this)">Copier le prompt de rédaction</button></div>
     <div class="bloc-claude">
@@ -703,7 +719,7 @@
     </div>
     <div class="bloc-retour">
       <span>&#8617;</span>
-      <span><strong>Pour récupérer sa réponse :</strong> Ctrl+A puis Ctrl+C dans la réponse de Claude, puis revenez ici, à l'étape 4.</span>
+      <span><strong>Pour récupérer sa réponse :</strong> Ctrl+A puis Ctrl+C dans la réponse de Claude, puis revenez ici : elle sera lue automatiquement à l'étape 4 (sinon, « Coller ici et lire »).</span>
     </div>
     <div class="btn-rangee" style="margin-top:1rem">
       <button class="btn primaire grand" style="width:100%" onclick="_entrerFocus('carte4')">Étape suivante : coller la fiche rédigée &#8594;</button>
@@ -719,7 +735,6 @@
     <textarea id="reponse2" oninput="memoire()" style="min-height:130px" placeholder="Collez ici la réponse de Claude au prompt de rédaction."></textarea>
     <div class="btn-rangee">
       <button class="btn primaire" onclick="collerDans('reponse2', this, 'lireFiche')">Coller ici et lire</button>
-      <button class="btn" onclick="lireFiche()">Lire (si déjà collé)</button>
     </div>
     <div id="msg2"></div>
     <div id="listeFiches"></div>
@@ -821,7 +836,7 @@
     <summary>Ma base : chercher, filtrer, suivre les mises à jour</summary>
     <div class="corps">
       <p class="sous-titre" style="margin-top:.4rem">La base est gardée d'une session à l'autre. Rechargez vos fichiers <code>.md</code> seulement quand vous en avez ajouté ou modifié (pas les <code>.collecte.md</code>).</p>
-      <label for="baseFiles">Recharger les fiches depuis le disque</label>
+      <label for="baseFiles">Recharger les fiches à la main (seulement si la base automatique n'est pas à jour)</label>
       <input type="file" id="baseFiles" multiple accept=".md" onchange="chargerBase(this.files)">
       <div id="baseInfo"></div>
 
@@ -865,7 +880,7 @@
   <details class="avance" id="detControle" data-mode="entretenir">
     <summary>Contrôle mensuel des rayons (prompt 3)</summary>
     <div class="corps">
-      <p class="sous-titre" style="margin-top:.4rem">Le prompt ne réécrit rien : il rend un rapport « à jour / changement / incertain » que vous recollez. Les fiches signalées apparaissent dans « Ma base » avec une pastille et un bouton « Traiter ». Chargez d'abord vos fiches dans « Ma base ».</p>
+      <p class="sous-titre" style="margin-top:.4rem">Le prompt ne réécrit rien : il rend un rapport « à jour / changement / incertain » que vous recollez. Les fiches signalées apparaissent dans « Ma base » avec une pastille et un bouton « Traiter ». Vos fiches sont chargées automatiquement (voir « Ma base »).</p>
 
       <div class="bloc-cycle">
       <h3 style="margin-top:.7rem">Cycle : plusieurs rayons à la suite</h3>
@@ -890,13 +905,12 @@
           <select id="ctrlRayon"></select>
         </div>
       </div>
-      <div class="btn-rangee"><button class="btn primaire" onclick="assemblerControle()">Générer le prompt de contrôle</button></div>
+      <div class="btn-rangee bloc-select-classique"><button class="btn primaire" onclick="assemblerControle()">Générer le prompt de contrôle</button></div>
       <div id="msgCtrl"></div>
       <div class="code" id="prompt3" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="ctrlBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('prompt3', this)">Copier le prompt de contrôle</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('prompt3', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('prompt3', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -907,7 +921,6 @@
       <textarea id="reponseCtrl" oninput="memoire()" style="min-height:120px" placeholder="Collez ici tout le rapport."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseCtrl', this, 'lireControle')">Coller ici et lire</button>
-        <button class="btn" onclick="lireControle()">Lire (si déjà collé)</button>
       </div>
       <div id="msgCtrl2"></div>
     </div>
@@ -928,12 +941,11 @@
         seulement les 7 derniers jours, seulement les dispositifs (aides, minima sociaux, droits) - pas
         une revérification complète de chaque fiche. Ne produit pas de fichier : chaque signal trouvé
         propose directement de créer ou compléter la fiche concernée.</p>
-      <div class="btn-rangee"><button class="btn" onclick="assemblerVeilleRapide()">Afficher le prompt</button></div>
+      <div class="btn-rangee"><button class="btn" onclick="assemblerVeilleRapide()">Préparer le prompt</button></div>
       <div class="code" id="promptVeilleHebdo" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="veilleHebdoBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptVeilleHebdo', this)">Copier le prompt</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptVeilleHebdo', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptVeilleHebdo', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -944,7 +956,6 @@
       <textarea id="reponseVeilleHebdo" oninput="memoire()" style="min-height:120px" placeholder="Collez ici la réponse de ChatGPT ou Perplexity."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseVeilleHebdo', this, 'lireVeilleRapide')">Coller ici et lire</button>
-        <button class="btn" onclick="lireVeilleRapide()">Lire (si déjà collé)</button>
       </div>
       <div id="msgVeilleHebdo2"></div>
       <div id="veilleHebdoResultat" style="margin-top:.6rem"></div>
@@ -977,9 +988,8 @@
       <div id="msgBal"></div>
       <div class="code" id="promptBal" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="balBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptBal', this)">Copier le prompt de balayage</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptBal', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptBal', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -990,7 +1000,6 @@
       <textarea id="reponseBal" oninput="memoire()" style="min-height:140px" placeholder="Collez ici la réponse de ChatGPT ou Perplexity au prompt de balayage."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseBal', this, 'lireBalayage')">Coller ici et lire</button>
-        <button class="btn" onclick="lireBalayage()">Lire (si déjà collé)</button>
       </div>
       <div id="msgBal2"></div>
       <h3 id="balSortieTitre" style="display:none">contenu/balayage/&lt;mois&gt;.md</h3>
@@ -1011,12 +1020,12 @@
     <div class="corps">
       <p class="sous-titre" style="margin-top:.4rem">À faire juste après le Balayage. Ce prompt dit, pour chaque changement du digest : quelle fiche est concernée (ou « sujet nouveau »), et l'action (mettre à jour / créer une fiche / laisser dans le digest). Sa sortie se recopie dans <span class="mono">docs/NOUVEAUTES_A_STATUER.md</span>, où l'on tranche ensuite ligne par ligne. Pas besoin de recherche web : l'assistant travaille sur le digest que vous lui donnez.</p>
       <p class="sous-titre" style="margin:.2rem 0 .5rem">Le bouton reprend tout seul le digest juste au-dessus (une fois « lu ») et la liste des fiches depuis <strong>« Ma base »</strong> plus bas sur cette page (mêmes fiches que pour le contrôle mensuel - chargez-les une fois, ça sert aux deux). Rien de chargé ? Le prompt garde alors un texte à remplacer à la main.</p>
-      <div class="btn-rangee"><button class="btn" onclick="assemblerTriage()">Afficher le prompt</button></div>
+      <div class="btn-rangee"><button class="btn" onclick="assemblerTriage()">Préparer le prompt</button></div>
       <div id="msgTriage"></div>
       <div class="code" id="promptTriage" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="triageBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptTriage', this)">Copier le prompt de triage</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptTriage', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptTriage', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -1030,7 +1039,6 @@
       <textarea id="reponseTriage" oninput="memoire()" style="min-height:110px" placeholder="Collez ici la réponse au prompt de triage."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseTriage', this, 'lireTriage')">Coller ici et lire</button>
-        <button class="btn" onclick="lireTriage()">Lire (si déjà collé)</button>
       </div>
       <div id="msgTriage2"></div>
       <div id="resultatTriage"></div>
@@ -1066,9 +1074,8 @@
       <div class="btn-rangee"><button class="btn" onclick="assemblerControleSource()">Régénérer le prompt</button></div>
       <div class="code" id="promptControleSource" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="csBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptControleSource', this)">Copier le prompt</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptControleSource', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptControleSource', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <p class="sous-titre" style="margin:.6rem 0 0">Ensuite : <strong>relogé</strong> &rarr; corriger la 2e colonne de <span class="mono">liens-verifies.txt</span> + dater la 3e ; <strong>modifié</strong> &rarr; une ligne dans <span class="mono">NOUVEAUTES_A_STATUER.md</span> puis « Traiter » (contrôle mensuel) ; <strong>supprimé</strong> &rarr; retirer la fiche (<span class="mono">statut: retire</span>) ou la remplacer.</p>
     </div>
@@ -1104,9 +1111,8 @@
       <div id="msgConf"></div>
       <div class="code" id="promptConf" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="confBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptConf', this)">Copier le prompt</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptConf', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptConf', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -1118,7 +1124,6 @@
       <textarea id="reponseConf" oninput="memoire()" style="min-height:140px" placeholder="Collez ici toute la réponse."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseConf', this, 'lireConfronter')">Coller ici et lire</button>
-        <button class="btn" onclick="lireConfronter()">Lire (si déjà collé)</button>
       </div>
       <div id="msgConf2"></div>
       <h3 id="confSortieTitre" style="display:none">contenu/a-confronter/&lt;mois&gt;.md</h3>
@@ -1135,12 +1140,11 @@
     <summary>Annuaire associatif Dordogne et Haute-Vienne (structures locales pour « Près de chez moi »)</summary>
     <div class="corps">
       <p class="sous-titre" style="margin-top:.4rem">Une fois par trimestre. Cherche les <strong>associations et structures non officielles</strong> d'aide, d'insertion et d'accompagnement actives en Dordogne (24) et en Haute-Vienne (87), classées par problématique (le rayon de « Comprendre le cadre » qu'elles concernent). Ne produit pas de fiches : des adresses qui viennent <strong>compléter</strong>, dans « Près de chez moi », les structures officielles. Chaque adresse arrive <strong>non datée</strong> : elle s'affiche mais n'est cliquable qu'une fois vérifiée à la main (LECONS 9.16).</p>
-      <div class="btn-rangee"><button class="btn" onclick="assemblerAssociations()">Afficher le prompt</button></div>
+      <div class="btn-rangee"><button class="btn" onclick="assemblerAssociations()">Préparer le prompt</button></div>
       <div class="code" id="promptAsso" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="assoBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptAsso', this)">Copier le prompt</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptAsso', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptAsso', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -1151,7 +1155,6 @@
       <textarea id="reponseAsso" oninput="memoire()" style="min-height:140px" placeholder="Collez ici la réponse de ChatGPT ou Perplexity."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseAsso', this, 'lireAssociations')">Coller ici et lire</button>
-        <button class="btn" onclick="lireAssociations()">Lire (si déjà collé)</button>
       </div>
       <div id="msgAsso"></div>
       <h3 id="assoSortieTitre1" style="display:none">À coller dans les blocs <code>structures:</code> des collectes (par rayon)</h3>
@@ -1193,9 +1196,8 @@
       <div id="msgChi"></div>
       <div class="code" id="promptChi" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="chiBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptChi', this)">Copier le prompt des chiffres</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptChi', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptChi', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -1206,7 +1208,6 @@
       <textarea id="reponseChi" oninput="memoire()" style="min-height:140px" placeholder="Collez ici la réponse de ChatGPT ou Perplexity."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseChi', this, 'lireChiffres')">Coller ici et lire</button>
-        <button class="btn" onclick="lireChiffres()">Lire (si déjà collé)</button>
       </div>
       <div id="msgChi2"></div>
       <h3 id="chiSortieTitre" style="display:none">modules/comprendre-les-chiffres/contenu/&lt;mois&gt;.md</h3>
@@ -1238,7 +1239,6 @@
       <textarea id="reponseLectureChi" oninput="memoire()" style="min-height:140px;display:none" placeholder="Collez ici la réponse de Claude."></textarea>
       <div class="btn-rangee" id="btnLireLectureChi" style="display:none">
         <button class="btn primaire" onclick="collerDans('reponseLectureChi', this, 'lireLectureChiffres')">Coller ici et appliquer</button>
-        <button class="btn" onclick="lireLectureChiffres()">Appliquer (si déjà collé)</button>
       </div>
       <div id="msgLectureChi"></div>
 
@@ -1254,7 +1254,6 @@
       <textarea id="reponseVerifChi" oninput="memoire()" style="min-height:90px" placeholder="Collez ici le [VERIF] rendu par l'assistant."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseVerifChi', this, 'lireVerifChiffres')">Coller ici et appliquer</button>
-        <button class="btn" onclick="lireVerifChiffres()">Appliquer (si déjà collé)</button>
       </div>
     </div>
   </details>
@@ -1272,9 +1271,8 @@
       <div class="btn-rangee"><button class="btn" onclick="assemblerPortrait()">Régénérer le prompt</button></div>
       <div class="code" id="promptPor" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="porBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptPor', this)">Copier le prompt du portrait</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptPor', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptPor', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -1305,9 +1303,8 @@
       <div class="btn-rangee"><button class="btn" onclick="assemblerChiffresUe()">Régénérer le prompt</button></div>
       <div class="code" id="promptUe" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="ueBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptUe', this)">Copier le prompt Union européenne</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptUe', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptUe', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -1387,9 +1384,8 @@
       <div id="msgLex"></div>
       <div class="code" id="promptLex" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="lexBoutons" style="display:none">
-        <button class="btn primaire" onclick="copier('promptLex', this)">Copier le prompt de recherche</button>
-        <button class="btn" onclick="window.open('https://chatgpt.com/','_blank','noopener')">Ouvrir ChatGPT</button>
-        <button class="btn" onclick="window.open('https://www.perplexity.ai/','_blank','noopener')">Ouvrir Perplexity</button>
+        <button class="btn primaire" onclick="copierEtOuvrir('promptLex', this, 'https://www.perplexity.ai/')">Copier le prompt et ouvrir Perplexity</button>
+        <button class="btn" onclick="copierEtOuvrir('promptLex', this, 'https://chatgpt.com/')">Copier et ouvrir ChatGPT</button>
       </div>
       <div class="bloc-destinataire">
         <span>&#128226;</span>
@@ -1400,7 +1396,6 @@
       <textarea id="reponseLexBrut" oninput="memoire()" style="min-height:130px" placeholder="Collez ici la réponse de ChatGPT ou Perplexity."></textarea>
       <div class="btn-rangee">
         <button class="btn primaire" onclick="collerDans('reponseLexBrut', this, 'lireCollecteLexique')">Coller ici et lire</button>
-        <button class="btn" onclick="lireCollecteLexique()">Lire (si déjà collé)</button>
       </div>
       <div id="msgLexBrut"></div>
 
@@ -1426,7 +1421,6 @@
       <textarea id="reponseLex" oninput="memoire()" style="min-height:130px;display:none" placeholder="Collez ici la réponse de Claude."></textarea>
       <div class="btn-rangee" id="btnLireLex" style="display:none">
         <button class="btn primaire" onclick="collerDans('reponseLex', this, 'lireLexique')">Coller ici et lire</button>
-        <button class="btn" onclick="lireLexique()">Lire (si déjà collé)</button>
       </div>
       <div id="msgLex2"></div>
       <h3 id="lexSortieTitre" style="display:none">entrées candidates, à relire puis à coller dans data/lexique.js</h3>
@@ -1436,7 +1430,7 @@
         <button class="btn primaire" onclick="telechargerLexique(this)">Télécharger</button>
       </div>
       <p class="sous-titre" style="margin:.8rem 0 0">Plusieurs candidats ? Passez-les au <strong>triage</strong> : le terme existe-t-il déjà dans le Lexique ? (colle le prompt, puis le bloc [LEXIQUE], puis la liste des termes existants ci-dessus)</p>
-      <div class="btn-rangee"><button class="btn" onclick="assemblerTriageMots()">Afficher le prompt de triage des mots</button></div>
+      <div class="btn-rangee"><button class="btn" onclick="assemblerTriageMots()">Préparer le prompt de triage des mots</button></div>
       <div class="code" id="promptTriageMots" onclick="selectionner(this)" style="display:none"></div>
       <div class="btn-rangee" id="triageMotsBoutons" style="display:none"><button class="btn primaire" onclick="copier('promptTriageMots', this)">Copier le prompt de triage</button></div>
     </div>
@@ -1452,6 +1446,14 @@
     <div class="corps">
       <p class="sous-titre" style="margin-top:.4rem">Tous les rayons ne bougent pas au même rythme. « Ce mois-ci » ne vous réclame un rayon que quand sa cadence est due. Réglé une fois, gardé.</p>
       <div class="cadence-grille" id="cadenceGrille"></div>
+    </div>
+  </details>
+
+  <details class="avance" data-mode="entretenir" id="detLectureAuto">
+    <summary>Lecture automatique des réponses copiées</summary>
+    <div class="corps">
+      <p class="sous-titre" style="margin-top:.4rem">Quand vous revenez sur l'outil avec la réponse de l'assistant déjà copiée, l'outil la lit tout seul, sans que vous cliquiez. Décochez si cela vous gêne : il faudra alors cliquer « Coller ici et lire » à chaque fois.</p>
+      <label style="display:flex;gap:.5rem;align-items:center"><input type="checkbox" id="optLectureAuto" style="width:auto" checked> Lire automatiquement la réponse copiée</label>
     </div>
   </details>
 
@@ -1549,6 +1551,7 @@
   </div><!-- /#outilClassique -->
 </main>
 
+<script src="base_fiches.js"></script>
 <script>
   var $ = function (id) { return document.getElementById(id); };
   function moisCourant() { return new Date().toISOString().slice(0, 7); }
@@ -1618,11 +1621,20 @@
         }).join('') + '</select></div>';
     }).join('');
   }
+  // Date du dernier contrôle d'un rayon : celle notée dans l'outil (ce navigateur) si elle existe, sinon la plus récente date de
+  // vérification des fiches du rayon (champ verifie_le, lu dans les fichiers). Évite « Jamais vérifié » partout dans un navigateur neuf.
+  function dateControleRayon(r) {
+    var rc = (chargerControle().rayons || {})[r];
+    if (rc && rc.date) { return rc.date; }
+    var max = '';
+    _base.forEach(function (x) { if (x.rayon === r && x.statut !== 'retire' && x.verifie_le && x.verifie_le > max) { max = x.verifie_le; } });
+    return max;
+  }
   // un rayon est "dû" s'il n'a jamais été contrôlé, ou si l'intervalle de sa cadence est dépassé
   function rayonDu(r) {
-    var rc = (chargerControle().rayons || {})[r];
-    if (!rc || !rc.date) return true;
-    var ecart = moisEcoules(rc.date);
+    var dc = dateControleRayon(r);
+    if (!dc) return true;
+    var ecart = moisEcoules(dc);
     return ecart === null || ecart >= (MOIS_CADENCE[chargerCadence()[r] || 'trimestriel'] || 3);
   }
 
@@ -2060,11 +2072,26 @@
   /* ---------- Lecture de la collecte + assemblage du prompt 2 ---------- */
   var _collecte = { texte: '', sources: [], detail: [], structures: [] };
 
+  // Retire les parametres de suivi d'une adresse (trk, rut, utm_*, fbclid, gclid) et la langue forcee des pages du service public.
+  function nettoyerAdresse(a) {
+    try {
+      var u = new URL(a);
+      ['trk', 'rut', 'fbclid', 'gclid'].forEach(function (k) { u.searchParams.delete(k); });
+      Array.from(u.searchParams.keys()).forEach(function (k) { if (/^utm_/i.test(k)) { u.searchParams.delete(k); } });
+      if (/service-public\.(gouv\.)?fr$/i.test(u.hostname)) { u.searchParams.delete('lang'); }
+      return u.toString();
+    } catch (e) { return a; }
+  }
   function parseSourceLigne(ligne) {
     var p = ligne.split('|').map(function (s) { return s.trim(); });
     var nomBrut = p[0] || '', titre = p[1] || '', url = '', date = '';
+    var md1 = /^\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)$/i.exec(titre);   // le 2e champ peut deja etre un lien cliquable
+    if (md1) { titre = /^https?:/i.test(md1[1]) ? '' : md1[1]; }
     p.slice(1).forEach(function (x) {
-      if (/^https?:\/\//i.test(x)) url = x;
+      // les assistants rendent souvent les adresses en liens cliquables : [texte](adresse)
+      var md = /^\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)$/i.exec(x);
+      if (md) { if (!url) { url = nettoyerAdresse(md[2]); } if (!/^https?:/i.test(md[1]) && !titre) { titre = md[1]; } return; }
+      if (/^https?:\/\//i.test(x)) url = nettoyerAdresse(x);
       else if (/^\d{4}-\d{2}(-\d{2})?$/.test(x) || /\d{1,2}\s+\p{L}+\s+\d{4}/u.test(x)) date = x;
       else if (!titre && !/^https?:/i.test(x)) titre = x;
     });
@@ -2073,6 +2100,24 @@
     return { nom: nom || 'source', titre: titre || nomBrut, url: url, date: date };
   }
 
+  // Materiau de la collecte. Normalement : le texte qui suit « texte_brut: » dans le bloc [COLLECTE]. Certains assistants n'y mettent qu'un renvoi
+  // (« voir sections 1 a 10 ci-dessus ») et ecrivent le vrai texte AVANT le bloc : dans ce cas on prend le texte situe avant le bloc.
+  // Les citations en double crochet [[site](adresse)] sont retirees (les sources sont deja listees a part).
+  function materiauDeLaReponse(t, dansLeBloc) {
+    var nettoyer = function (x) {
+      return String(x || '')
+        .replace(/\[\[[^\]]*\]\([^)]*\)\]/g, '')                                              // [[site](adresse)] : citation
+        .replace(/[ \t]*\[[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)+\]\(https?:\/\/[^)\s]+\)/g, '')   // [site.fr](adresse) : citation (texte = nom de site)
+        .replace(/\[(https?:\/\/[^\]\s]+)\]\(https?:\/\/[^)\s]+\)/g, '$1')                    // [adresse](adresse) : on garde l'adresse seule
+        .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    };
+    var mots = function (x) { return x.split(/\s+/).filter(Boolean).length; };
+    var interne = nettoyer(dansLeBloc === null || dansLeBloc === undefined ? t : dansLeBloc);
+    if (mots(interne) >= 120) { return { texte: interne, origine: 'bloc' }; }
+    var i = t.search(/\[COLLECTE\]/i), avant = i > 0 ? nettoyer(t.slice(0, i)) : '';
+    if (mots(avant) > mots(interne)) { return { texte: avant, origine: 'avant' }; }
+    return { texte: interne, origine: 'bloc' };
+  }
   function lireCollecte() {
     var t = $('reponse1').value;
     var m = t.match(/\[COLLECTE\]([\s\S]*?)\[\/COLLECTE\]/i);
@@ -2083,7 +2128,8 @@
     _collecte.sources = _collecte.detail.map(function (d) { return d.nom; });
     _collecte.structures = extraireListe(bloc, 'structures').map(parseSourceLigne);
     var tb = bloc.match(/texte_brut\s*:\s*([\s\S]*)$/i);
-    _collecte.texte = (tb ? tb[1] : t)
+    var materiau = materiauDeLaReponse(t, tb ? tb[1] : null);
+    _collecte.texte = materiau.texte
       .split('\n')
       .filter(function (l) { return !/^\s*([A-ZÉÈ]|\+\s*\d+)\s*$/.test(l); }) // puces de citation ChatGPT/Perplexity
       .join('\n').replace(/\n{3,}/g, '\n\n').trim();
@@ -2098,8 +2144,16 @@
     construireMd();
     var mots = _collecte.texte.split(/\s+/).length;
     var nStr = (_collecte.structures || []).length;
+    if (mots < 150) {
+      msg.innerHTML = '<div class="note warn"><span>&#9888;&#65039;</span><span><strong>Le matériau lu est très court (' + mots + ' mots).</strong> L\'assistant n\'a probablement pas donné son texte complet. '
+        + 'Ne passez pas à l\'étape suivante : demandez-lui de « recopier tout le texte collecté, mot pour mot, après texte_brut: », puis recollez sa réponse.</span></div>';
+      memoire();
+      return;
+    }
     msg.innerHTML = '<div class="note ok"><span>&#9989;</span><span>Matériau lu (' + mots + ' mots), ' + _collecte.detail.length + ' source(s)'
-      + (nStr ? ', ' + nStr + ' structure(s) « à qui s\'adresser »' : '') + '. Le prompt de rédaction est prêt en dessous. '
+      + (nStr ? ', ' + nStr + ' structure(s) « à qui s\'adresser »' : '')
+      + (materiau.origine === 'avant' ? ' (le texte se trouvait avant le bloc [COLLECTE] : je l\'ai pris là)' : '')
+      + '. Le prompt de rédaction est prêt en dessous. '
       + 'Vérifie les adresses ci-dessous et ajoute-les au registre.</span></div>';
     memoire();
   }
@@ -2151,6 +2205,14 @@
       + l.map(function (x) { return "- " + x.id + "  |  " + x.titre + "  |  " + (x.tags || ''); }).join('\n')
       + "\n=== FIN DES FICHES EXISTANTES ===\n\n";
   }
+  // Noms courts des sources de la collecte : sans cette liste, l'assistant ne peut pas remplir « sources: » avec des noms EXACTS.
+  function blocSourcesCollecte(detail) {
+    var l = (detail || []).filter(function (d) { return d && d.nom; });
+    if (!l.length) { return ''; }
+    return "=== SOURCES DISPONIBLES (noms-courts à reprendre EXACTEMENT dans le champ « sources ») ===\n"
+      + l.map(function (d) { return '- ' + d.nom + '  |  ' + d.titre + (d.url ? '  |  ' + d.url : ''); }).join('\n')
+      + "\n=== FIN DES SOURCES ===\n\n";
+  }
   function assembler2() {
     var t = "Voici un matériau d'information officiel que j'ai collecté sur un thème large. "
       + "Ce matériau couvre plusieurs sujets distincts. Ton rôle est d'en tirer PLUSIEURS FICHES, "
@@ -2159,6 +2221,7 @@
       + "n'utilise que ce qui, dans le matériau, concerne son sujet.\n\n"
       + blocFichesExistantes($('fRayon').value)
       + "=== MATÉRIAU ===\n" + _collecte.texte + "\n=== FIN DU MATÉRIAU ===\n\n"
+      + blocSourcesCollecte(_collecte.detail)
       + "RÈGLES DE RÉDACTION (communes à toutes les fiches) :\n" + REGLES2 + "\n\n"
       + "Rends une suite de blocs, chacun entre [FICHE n] et [/FICHE n], une information par ligne. "
       + "Le champ « texte » est LA FICHE elle-même, pas un résumé de tes recherches.\n\n" + FICHE_MODELE;
@@ -2484,18 +2547,166 @@
     if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return fallbackCopy(t); });
     return Promise.resolve(fallbackCopy(t));
   }
+  // Copie renforcee pour les fenetres capricieuses (panneau integre d'une application, navigateur restreint) : on tente les DEUX methodes.
+  function copierTexteSur(t) {
+    var ancienne = fallbackCopy(t);   // synchrone, tant que le clic de la personne est « chaud »
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return ancienne; });
+    }
+    return Promise.resolve(ancienne);
+  }
   function selectionner(el) { try { var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {} }
   function flash(btn, txt) { var l = btn.getAttribute('data-l') || btn.textContent; btn.setAttribute('data-l', l); btn.textContent = txt; setTimeout(function () { btn.textContent = l; }, 2200); }
+  // Apres une lecture : fait defiler jusqu'au message de resultat, pour que la personne voie ce qui s'est passe.
+  function trouverMessage(id) {
+    var n = $(id);
+    for (var i = 0; i < 8 && n; i++) {
+      n = n.nextElementSibling;
+      if (n && /^msg/.test(n.id)) { return n; }
+    }
+    return null;
+  }
+  function montrerResultat(id) {
+    var n = trouverMessage(id); if (!n) { return; }
+    try { n.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { n.scrollIntoView(); }
+  }
+  // Apres une lecture REUSSIE : le grand cadre de texte se replie, une phrase simple le remplace, deux boutons permettent de le revoir ou de recommencer.
+  function replierReponse(id) {
+    var ta = $(id); if (!ta || !ta.value.trim()) { return; }
+    var msg = trouverMessage(id), premier = msg && msg.querySelector('.note');
+    if (!premier || !premier.classList.contains('ok')) { return; }   // lecture non reussie : le cadre reste visible pour corriger
+    ta.classList.add('reponse-repliee'); ta.classList.remove('reponse-ouverte');
+    var ancien = $('statut_' + id); if (ancien) { ancien.parentNode.removeChild(ancien); }
+    var s = document.createElement('div'); s.id = 'statut_' + id; s.className = 'reponse-statut';
+    s.innerHTML = '<span><strong>Réponse reçue et lue.</strong></span> '
+      + '<button type="button" class="btn" data-act="voir">Voir la réponse collée</button> '
+      + '<button type="button" class="btn" data-act="refaire">Ce n\'est pas la bonne réponse : recommencer</button>';
+    ta.parentNode.insertBefore(s, ta.nextSibling);
+    s.addEventListener('click', function (e) {
+      var b = e.target; if (!b || !b.getAttribute) { return; }
+      var act = b.getAttribute('data-act');
+      if (act === 'voir') {
+        var ouvert = ta.classList.toggle('reponse-ouverte');
+        b.textContent = ouvert ? 'Cacher la réponse collée' : 'Voir la réponse collée';
+      } else if (act === 'refaire') {
+        ta.value = ''; ta.classList.remove('reponse-repliee', 'reponse-ouverte');
+        if (msg) { msg.innerHTML = ''; }
+        if (s.parentNode) { s.parentNode.removeChild(s); }
+        memoire(); ta.focus();
+      }
+    });
+  }
+  // Un seul bouton : il lit la reponse copiee ; si rien d'utilisable n'est copie mais que la case contient deja une reponse, il lit celle-ci.
   function collerDans(id, btn, apres) {
     var el = $(id);
-    var fini = function () { memoire(); if (apres && typeof window[apres] === 'function') window[apres](); };
+    var fini = function () {
+      memoire();
+      try { _lectureAuto.derniere = normaliserTexte(el.value); } catch (e) { /* tant pis */ }
+      if (apres && typeof window[apres] === 'function') { window[apres](); }
+      replierReponse(id);
+      montrerResultat(id);
+    };
+    var lab = document.querySelector('label[for="' + id + '"]'), mq = lab && /\[([A-Z][A-Z0-9-]*)\]/.exec(lab.textContent);
+    var dejaLa = function () { return el.value.trim().length > 0; };
+    var sansPresse = function (message) { if (dejaLa()) { flash(btn, 'Lu'); fini(); } else { el.focus(); flash(btn, message); } };
     if (navigator.clipboard && navigator.clipboard.readText) {
       navigator.clipboard.readText().then(function (txt) {
-        if (txt) { el.value = txt; flash(btn, 'Collé'); fini(); }
-        else { el.focus(); flash(btn, 'Rien dans le presse-papier'); }
-      }, function () { el.focus(); flash(btn, 'Faites Ctrl+V dans le cadre'); });
-    } else { el.focus(); flash(btn, 'Faites Ctrl+V dans le cadre'); }
+        var t = normaliserTexte(txt);
+        var utilisable = t.length > 0 && !estUnPromptConnu(t) && (!mq || t.indexOf('[' + mq[1]) !== -1 || !dejaLa());
+        if (utilisable) { el.value = txt; flash(btn, 'Collé'); fini(); }
+        else { sansPresse('Rien à lire : copiez d\'abord la réponse'); }
+      }, function () { sansPresse('Faites Ctrl+V dans le cadre, puis recliquez'); });
+    } else { sansPresse('Faites Ctrl+V dans le cadre, puis recliquez'); }
   }
+  /* ---------- Un seul geste : copier le prompt ET ouvrir le site ---------- */
+  function copierEtOuvrir(id, btn, url) {
+    var el = $(id);
+    copierTexteSur(el.textContent).then(function (ok) {
+      if (ok) {
+        try { window.open(url, '_blank', 'noopener'); } catch (e) { /* le navigateur a refuse : le texte est quand meme copie */ }
+        flash(btn, 'Copié. Collez avec Ctrl+V (rien ne se colle ? « Afficher le prompt »)');
+      } else {
+        // la copie automatique a ete refusee : on montre le prompt pour que la personne puisse le selectionner
+        var b = el.previousElementSibling;
+        if (b && b.classList.contains('voir-prompt') && !el.classList.contains('prompt-ouvert')) { b.click(); }
+        selectionner(el);
+        flash(btn, 'Copie refusée : sélectionnez le texte');
+      }
+    });
+  }
+
+  /* ---------- Les prompts sont caches par defaut, un bouton les montre ---------- */
+  function initialiserPromptsReplies() {
+    Array.prototype.forEach.call(document.querySelectorAll('.code[id^="prompt"]'), function (el) {
+      if (el.getAttribute('data-replie')) { return; }
+      el.setAttribute('data-replie', '1'); el.classList.add('prompt-replie');
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn voir-prompt'; b.textContent = 'Afficher le prompt';
+      b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', el.id);
+      b.addEventListener('click', function () {
+        var ouvert = el.classList.toggle('prompt-ouvert');
+        b.textContent = ouvert ? 'Masquer le prompt' : 'Afficher le prompt';
+        b.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+      });
+      el.parentNode.insertBefore(b, el);
+      // le bouton suit l'affichage voulu par la page : il n'apparait que lorsque le prompt est prepare
+      var suivre = function () { b.style.display = (el.style.display === 'none') ? 'none' : ''; };
+      suivre();
+      if (window.MutationObserver) { new MutationObserver(suivre).observe(el, { attributes: true, attributeFilter: ['style'] }); }
+    });
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initialiserPromptsReplies); } else { initialiserPromptsReplies(); }
+
+  /* ---------- Lecture automatique de la reponse copiee, au retour sur cet onglet ---------- */
+  var _lectureAuto = { derniere: '', dernierPassage: 0 };
+  function lectureAutoActive() { try { return localStorage.getItem('veille_lecture_auto') !== 'non'; } catch (e) { return true; } }
+  function normaliserTexte(t) { return String(t || '').replace(/\r\n/g, '\n').trim(); }
+  // Zones « Coller ici et lire » visibles et vides, avec la marque [BLOC] annoncee par leur etiquette.
+  function reponsesAttendues() {
+    var res = [];
+    Array.prototype.forEach.call(document.querySelectorAll('button[onclick*="collerDans("]'), function (b) {
+      var m = /collerDans\('(\w+)',\s*this,\s*'(\w+)'\)/.exec(b.getAttribute('onclick') || ''); if (!m) { return; }
+      var ta = $(m[1]); if (!ta || ta.offsetParent === null || ta.value.trim()) { return; }
+      var lab = document.querySelector('label[for="' + m[1] + '"]'), mq = lab && /\[([A-Z][A-Z0-9-]*)\]/.exec(lab.textContent);
+      if (!mq) { return; }
+      res.push({ id: m[1], marque: mq[1], fn: m[2] });
+    });
+    return res;
+  }
+  function estUnPromptConnu(txt) {
+    var n = normaliserTexte(txt), trouve = false;
+    Array.prototype.forEach.call(document.querySelectorAll('.code[id^="prompt"]'), function (el) { if (normaliserTexte(el.textContent) === n) { trouve = true; } });
+    return trouve;
+  }
+  function lireReponseCopiee() {
+    if (!lectureAutoActive() || document.hidden || !navigator.clipboard || !navigator.clipboard.readText) { return; }
+    var att = reponsesAttendues(); if (!att.length) { return; }   // rien a lire : le presse-papiers n'est pas touche
+    var maintenant = Date.now(); if (maintenant - _lectureAuto.dernierPassage < 1500) { return; }
+    _lectureAuto.dernierPassage = maintenant;
+    navigator.clipboard.readText().then(function (brut) {
+      var txt = normaliserTexte(brut);
+      if (txt.length < 200 || txt === _lectureAuto.derniere || estUnPromptConnu(txt)) { return; }
+      var ok = att.filter(function (a) { return txt.indexOf('[' + a.marque) !== -1; });
+      if (ok.length !== 1) { return; }   // aucune zone, ou plusieurs : on ne devine pas
+      var a = ok[0], ta = $(a.id);
+      if (ta.value.trim() || typeof window[a.fn] !== 'function') { return; }
+      _lectureAuto.derniere = txt;
+      ta.value = brut; memoire();
+      window[a.fn]();
+      replierReponse(a.id);
+      montrerResultat(a.id);
+    }, function () { /* permission refusee : « Coller ici et lire » reste la voie normale */ });
+  }
+  function brancherReglageLectureAuto() {
+    var c = document.getElementById('optLectureAuto'); if (!c) { return; }
+    c.checked = lectureAutoActive();
+    c.addEventListener('change', function () { try { localStorage.setItem('veille_lecture_auto', c.checked ? 'oui' : 'non'); } catch (e) { /* tant pis */ } });
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', brancherReglageLectureAuto); } else { brancherReglageLectureAuto(); }
+  window.addEventListener('focus', lireReponseCopiee);
+  document.addEventListener('click', function () { setTimeout(lireReponseCopiee, 500); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { lireReponseCopiee(); } });
+
   function copier(id, btn) {
     var el = $(id);
     copierTexte(el.textContent).then(function (ok) {
@@ -2640,11 +2851,77 @@
       + "etat: A JOUR | CHANGEMENT | PRINCIPE OBSOLETE | INCERTAIN\n"
       + "depuis: AAAA-MM (seulement si CHANGEMENT ou PRINCIPE OBSOLETE ; le mois de la dernière vérification rappelé plus haut)\n"
       + "resume: deux ou trois lignes maximum, ce qui a changé concrètement (« rien à signaler » si A JOUR)\n"
-      + "sources:\n- une adresse officielle par ligne, celles où tu l'as vérifié\n";
+      + "sources:\n- une adresse officielle par ligne, celles où tu l'as vérifié\n\n"
+      + "Ensuite, APRÈS la ligne [/CONTROLE], ajoute un second bloc entre [NOUVEAUX-SUJETS] et [/NOUVEAUX-SUJETS] : jusqu'à 5 sujets IMPORTANTS pour ce rayon, utiles à une personne en insertion professionnelle, "
+      + "que les fiches ci-dessus ne couvrent pas du tout. Ne propose rien qui soit déjà traité par l'une de ces fiches. Si tu n'en vois aucun, écris seulement « aucun » dans ce bloc. Une entrée par sujet :\n"
+      + "sujet: une question qu'une personne se pose vraiment\n"
+      + "resume: une phrase, pourquoi ce sujet manque et ce qu'il faudrait y dire\n"
+      + "sources:\n- une adresse officielle par ligne, celles où tu as vu l'information\n";
     $('prompt3').textContent = t;
     $('prompt3').style.display = 'block';
     $('ctrlBoutons').style.display = 'flex';
     msg.innerHTML = '<div class="note ok"><span>&#9989;</span><span>' + l.length + ' fiche(s) dans le prompt. Copiez-le, lancez-le en recherche web, recollez le rapport ci-dessous.</span></div>';
+  }
+  // Sujets nouveaux proposes par le controle : bloc [NOUVEAUX-SUJETS] place apres [/CONTROLE]. Rend au plus 5 sujets.
+  function nouveauxSujetsDeLaReponse(t) {
+    var m = /\[NOUVEAUX-SUJETS\]([\s\S]*?)\[\/NOUVEAUX-SUJETS\]/i.exec(t || ''); if (!m) { return []; }
+    var out = [];
+    m[1].split(/\n(?=\s*[-*]?\s*sujet\s*:)/i).forEach(function (e) {
+      var s1 = /sujet\s*:\s*(.+)/i.exec(e); if (!s1) { return; }
+      var r = /resume\s*:\s*([\s\S]*?)(\n\s*sources\s*:|$)/i.exec(e), srcs = [], sm = /sources\s*:\s*\n([\s\S]*)$/i.exec(e);
+      if (sm) { sm[1].split('\n').forEach(function (l) { var it = l.replace(/^\s*[-*]\s*/, '').trim(); if (it) { srcs.push(it); } }); }
+      var titre = s1[1].replace(/^[-*\s]+/, '').trim();
+      if (titre && !/^aucun/i.test(titre)) { out.push({ sujet: titre, resume: r ? r[1].trim().replace(/\s+/g, ' ') : '', sources: srcs }); }
+    });
+    return out.slice(0, 5);
+  }
+  // Fiche RETIREE (jamais supprimee : Git garde tout, l'application ne l'affiche plus). Reprend l'en-tete de la fiche d'origine, change le statut, ajoute la raison.
+  function fabriquerFicheRetiree(texte, raison, remplace, mois, moisLisible) {
+    var m = /^---\n([\s\S]*?)\n---\n?/.exec(String(texte).replace(/\r\n/g, '\n')); if (!m) { return null; }
+    var motif = String(raison || 'Cette information n\'est plus à jour.').replace(new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']', 'g'), ' ').replace(/\s+/g, ' ').trim();
+    var fm = m[1].split('\n').filter(function (l) { return !/^(retire_le|retire_raison|remplace_par)\s*:/.test(l); }), vu = false;
+    fm = fm.map(function (l) {
+      if (/^statut\s*:/.test(l)) { vu = true; return 'statut: retire'; }
+      if (/^verifie_le\s*:/.test(l)) { return 'verifie_le: ' + mois; }
+      return l;
+    });
+    if (!vu) { fm.push('statut: retire'); }
+    var ajout = ['retire_le: ' + mois, 'retire_raison: "' + motif.replace(/"/g, '\\"') + '"'];
+    if (remplace) { ajout.push('remplace_par: ' + remplace); }
+    var i = -1; fm.forEach(function (l, k) { if (i === -1 && /^collecte\s*:/.test(l)) { i = k; } });
+    if (i === -1) { fm = fm.concat(ajout); } else { fm.splice.apply(fm, [i, 0].concat(ajout)); }
+    return '---\n' + fm.join('\n') + '\n---\n\nCette information a été retirée en ' + moisLisible + '.\n\n' + motif + '\n';
+  }
+  function envoyerFicheRetiree(texte, nom, rayon) { fichierBrut(texte, nom); }   // enveloppee par le Depot quand le lanceur est utilise
+  function retirerDepuisControle(id, btn) {
+    var e = _base.filter(function (x) { return x.id === id; })[0]; if (!e) { return; }
+    var brute = window.BASE_VEILLE && (window.BASE_VEILLE.fiches || []).filter(function (x) { return x.fichier === id + '.md'; })[0];
+    if (!brute) { window.alert('La fiche est introuvable dans la base de l\'outil. Utilisez « Mettre à jour la base de l\'outil de veille » puis recommencez.'); return; }
+    var rc = (chargerControle().rayons || {})[e.rayon], info = rc && rc.parId[id] ? rc.parId[id] : {};
+    if (!window.confirm('Retirer la fiche « ' + e.titre + ' » ?\n\nElle ne sera plus affichée dans l\'application. Elle reste dans l\'historique : on peut la remettre.')) { return; }
+    var md = fabriquerFicheRetiree(brute.texte, info.resume, '', moisCourant(), moisFr(moisCourant()));
+    if (!md) { window.alert('La fiche n\'a pas pu être lue (en-tête introuvable).'); return; }
+    marquerTraite(e.rayon, id);
+    envoyerFicheRetiree(md, id + '.md', e.rayon);
+    var serveur = !!document.querySelector('meta[name="veille-jeton"]');
+    if (btn && btn.parentNode) {
+      btn.parentNode.innerHTML = '<strong>Retrait préparé.</strong> ' + (serveur ? 'Cliquez sur « Dépôt » en bas à droite, puis « Publier ».'
+        : 'Le fichier a été téléchargé : remplacez la fiche du même nom dans le dossier du rayon.');
+    }
+  }
+  function preparerNouvelleFiche(rayon, i) {
+    var rc = (chargerControle().rayons || {})[rayon], n = rc && rc.nouveaux && rc.nouveaux[i]; if (!n) { return; }
+    setMode('creer');
+    $('selPrompt').value = 'fiche-ciblee';
+    if (Array.prototype.some.call($('fRayon').options, function (o) { return o.value === rayon; })) { $('fRayon').value = rayon; }
+    assembler1();
+    $('sousTheme').value = n.sujet;
+    $('ctxCible').value = n.resume || '';
+    assembler1();
+    $('fId').value = ''; if ($('fIdFige')) { $('fIdFige').checked = false; }
+    n.fait = true; try { localStorage.setItem('veille_controle', JSON.stringify(_controle)); } catch (e2) { /* tant pis */ }
+    $('msg1').innerHTML = '<div class="note"><span>&#10133;</span><span>Prompt de collecte préparé pour le nouveau sujet « ' + echap(n.sujet) + ' ». Copiez-le avec le bouton, lancez-le sur Perplexity, puis revenez coller la réponse à l\'étape 2.</span></div>';
+    _entrerFocus('carte1');
   }
   function lireControle() {
     var t = $('reponseCtrl').value, msg = $('msgCtrl2');
@@ -2660,7 +2937,7 @@
       var depM = e.match(/depuis\s*:\s*(\d{4}-\d{2})/i);
       var resM = e.match(/resume\s*:\s*([\s\S]*?)(\n\s*sources\s*:|\n\[|$)/i);
       var srcs = [], sM = e.match(/sources\s*:\s*\n([\s\S]*?)(\n\[|$)/i);
-      if (sM) sM[1].split('\n').forEach(function (l) { var it = l.replace(/^\s*-\s*/, '').trim(); if (it) srcs.push(it); });
+      if (sM) sM[1].split('\n').forEach(function (l) { var it = l.replace(/^\s*[-*]\s*/, '').trim(); if (it) srcs.push(it); });
       var etatBrut = etatM ? etatM[1].toUpperCase().replace(/É/g, 'E').replace(/\s+/g, '_') : 'INCERTAIN';
       if (etatBrut === 'DISPOSITIF_FERME' || etatBrut === 'OBSOLETE') etatBrut = 'PRINCIPE_OBSOLETE';
       parId[id] = {
@@ -2677,14 +2954,50 @@
     // "verifie aujourd'hui / cette semaine / il y a plus d'une semaine" de l'accueil guide. Retro-
     // compatible : moisEcoules() ne lit que le prefixe AAAA-MM, une date complete continue de marcher
     // partout ou elle est deja utilisee (rayonDu, rayonFaitCeMois, panneauMois...).
-    _controle.rayons[rayon] = { date: new Date().toISOString().slice(0, 10), parId: parId };
+    var nouveaux = nouveauxSujetsDeLaReponse(t);
+    _controle.rayons[rayon] = { date: new Date().toISOString().slice(0, 10), parId: parId, nouveaux: nouveaux };
     try { localStorage.setItem('veille_controle', JSON.stringify(_controle)); } catch (e) {}
     var chg = Object.keys(parId).filter(function (k) { return parId[k].etat === 'CHANGEMENT'; }).length;
     var inc = Object.keys(parId).filter(function (k) { return parId[k].etat === 'INCERTAIN'; }).length;
     var obs = Object.keys(parId).filter(function (k) { return parId[k].etat === 'PRINCIPE_OBSOLETE'; }).length;
-    msg.innerHTML = '<div class="note ok"><span>&#9989;</span><span>' + n + ' fiche(s) lues : ' + chg + ' changement(s), '
-      + (obs ? obs + ' au principe obsolète (à retirer ou refondre), ' : '') + inc + ' incertain(s). Voir « Ma base » : colonne « Contrôle » et bouton « Traiter ».</span></div>';
-    if ($('detBase')) $('detBase').open = true;
+    var aJour = n - chg - inc - obs;
+    var aRetirer = Object.keys(parId).filter(function (k) { return parId[k].etat === 'PRINCIPE_OBSOLETE'; });
+    var aRegarder = Object.keys(parId).filter(function (k) { return parId[k].etat === 'CHANGEMENT' || parId[k].etat === 'INCERTAIN'; });
+    var libEtat = { CHANGEMENT: 'à mettre à jour', INCERTAIN: 'à vérifier à la main' };
+    var titreDe = function (k) { var fiche = _base.filter(function (x) { return x.id === k; })[0]; return echap(fiche ? fiche.titre : k); };
+    var h = '<div class="note ok"><span>&#10003;</span><span><strong>Rapport lu pour « ' + echap(RAYONS[rayon] || rayon) + ' » :</strong> ' + n + ' fiche' + (n > 1 ? 's' : '') + ', ' + aJour + ' à jour, '
+      + chg + ' à mettre à jour, ' + inc + ' incertaine' + (inc > 1 ? 's' : '') + (obs ? ', ' + obs + ' à retirer' : '') + ', ' + nouveaux.length + ' nouveau' + (nouveaux.length > 1 ? 'x' : '') + ' sujet' + (nouveaux.length > 1 ? 's' : '') + ' proposé' + (nouveaux.length > 1 ? 's' : '') + '.</span></div>';
+    if (aRetirer.length) {
+      h += '<h3 style="margin:.8rem 0 .3rem">Fiches qui ne sont plus d\'actualité (' + aRetirer.length + ')</h3>';
+      h += aRetirer.map(function (k) {
+        return '<div class="note warn"><span>&#128683;</span><span><strong>' + titreDe(k) + '</strong>' + (parId[k].resume ? '<br>' + echap(parId[k].resume) : '')
+          + (/^[a-z0-9-]+$/.test(k) ? '<br><button type="button" class="btn" onclick="retirerDepuisControle(\'' + k + '\', this)">Retirer cette fiche</button>' : '') + '</span></div>';
+      }).join('');
+    }
+    if (aRegarder.length) {
+      h += '<h3 style="margin:.8rem 0 .3rem">Fiches à regarder (' + aRegarder.length + ')</h3>';
+      h += aRegarder.map(function (k) {
+        var p = parId[k];
+        return '<div class="note"><span>&#128221;</span><span><strong>' + titreDe(k) + '</strong> (' + libEtat[p.etat] + ')' + (p.resume ? '<br>' + echap(p.resume) : '')
+          + (/^[a-z0-9-]+$/.test(k) ? '<br><button type="button" class="btn" onclick="traiter(\'' + k + '\')">Préparer la mise à jour de cette fiche</button>' : '') + '</span></div>';
+      }).join('');
+    }
+    if (nouveaux.length) {
+      h += '<h3 style="margin:.8rem 0 .3rem">Nouveaux sujets possibles (' + nouveaux.length + ')</h3>';
+      h += nouveaux.map(function (x, i) {
+        return '<div class="note"><span>&#10133;</span><span><strong>' + echap(x.sujet) + '</strong>' + (x.resume ? '<br>' + echap(x.resume) : '')
+          + '<br><button type="button" class="btn" onclick="preparerNouvelleFiche(\'' + rayon + '\', ' + i + ')">Préparer cette fiche</button></span></div>';
+      }).join('');
+    }
+    if (!aRetirer.length && !aRegarder.length && !nouveaux.length) { h += '<div class="note ok"><span>&#10003;</span><span>Rien à modifier ni à ajouter pour ce rayon.</span></div>'; }
+    var suivant = Object.keys(RAYONS).filter(function (r) { return r !== rayon && fichesDuRayon(r).length && rayonDu(r) && !rayonFaitCeMois(r); })[0];
+    h += '<h3 style="margin:.8rem 0 .3rem">Et maintenant ?</h3><div class="btn-rangee">';
+    if (suivant) { h += '<button type="button" class="btn primaire" onclick="entrerFocusControleRayon(\'' + suivant + '\')">Contrôler le rayon suivant : ' + echap(RAYONS[suivant]) + '</button>'; }
+    h += '<button type="button" class="btn" onclick="fermerFocusGuide()">Terminé, retour à « Comprendre le cadre »</button></div>';
+    if (!suivant) { h += '<p class="sous-titre">Tous les rayons à contrôler ce mois-ci sont faits.</p>'; }
+    msg.innerHTML = h;
+    if ($('detBase') && !document.body.classList.contains('focus-guide')) { $('detBase').open = true; }
+    rendreGrilleControle();
     rendreBase();
     if (_cycle.rayons.length && _cycle.rayons[_cycle.pos] === rayon) { _cycle.pos++; cycleEtape(); }
     else rendreCycle();
@@ -2743,7 +3056,19 @@
     if (Array.prototype.some.call($('ctrlRayon').options, function (o) { return o.value === r; })) $('ctrlRayon').value = r;
     $('reponseCtrl').value = '';
     assemblerControle();
-    $('cycleProgres').innerHTML = '<div class="note"><span>&#128260;</span><span><strong>Cycle ' + (_cycle.pos + 1) + ' / ' + _cycle.rayons.length + ' : ' + echap(RAYONS[r] || r) + '.</strong> Copiez le prompt « Ou un rayon isolé » ci-dessous, lancez-le, recollez le rapport. L\'outil passera au suivant tout seul.</span></div>';
+    var enteteCycle = '<strong>Cycle ' + (_cycle.pos + 1) + ' / ' + _cycle.rayons.length + ' : ' + echap(RAYONS[r] || r) + '.</strong> ';
+    $('cycleProgres').innerHTML = '<div class="note"><span>&#128260;</span><span>' + enteteCycle + 'Préparation du prompt...</span></div>';
+    var pos0 = _cycle.pos;
+    copierTexteSur($('prompt3').textContent).then(function (ok) {
+      if (_cycle.pos !== pos0 || !_cycle.rayons.length) { return; }   // la personne a deja avance ou arrete
+      var suite = lectureAutoActive() ? 'Quand la réponse est prête, copiez-la et revenez ici : elle sera lue automatiquement, puis l\'outil passera au rayon suivant.'
+        : 'Quand la réponse est prête, copiez-la, revenez ici et cliquez « Coller ici et lire » : l\'outil passera au rayon suivant.';
+      $('cycleProgres').innerHTML = '<div class="note"><span>&#128260;</span><span>' + enteteCycle
+        + (ok ? 'Le prompt est <strong>déjà copié</strong> : ouvrez le site, collez-le (Ctrl+V) et lancez-le. ' : 'Cliquez ci-dessous pour copier le prompt et ouvrir le site. ')
+        + suite + '</span></div>'
+        + '<div class="btn-rangee"><button class="btn primaire" type="button" onclick="copierEtOuvrir(\'prompt3\', this, \'https://www.perplexity.ai/\')">' + (ok ? 'Ouvrir Perplexity (prompt déjà copié)' : 'Copier le prompt et ouvrir Perplexity') + '</button>'
+        + '<button class="btn" type="button" onclick="copierEtOuvrir(\'prompt3\', this, \'https://chatgpt.com/\')">Copier et ouvrir ChatGPT</button></div>';
+    });
     rendreCycle();
     if ($('detControle')) { $('detControle').open = true; $('detControle').scrollIntoView({ block: 'start' }); }
     memoire();
@@ -4560,6 +4885,12 @@
     var jours = Math.round((new Date() - d) / 86400000);
     var classe = jours <= 0 ? 'frais' : jours < 7 ? 'tiede' : 'perime';
     var texte = jours <= 0 ? 'aujourd\'hui' : 'le ' + d.getDate() + ' ' + MOIS_ABBR_GUIDE[d.getMonth()];
+    if (dateIso.length <= 7) {
+      // date au mois seulement (champ verifie_le des fiches) : on ne prétend pas connaître le jour
+      var ecartMois = moisEcoules(dateIso);
+      classe = ecartMois <= 0 ? 'frais' : ecartMois === 1 ? 'tiede' : 'perime';
+      texte = 'en ' + MOIS_ABBR_GUIDE[d.getMonth()] + ' ' + d.getFullYear();
+    }
     return { classe: classe, jours: jours, texte: texte };
   }
   function moisDe(revision) { var m = String(revision).match(/(\d{4}-\d{2})/); return m ? m[1] : ''; }
@@ -4577,6 +4908,31 @@
     } catch (e) {}
   }
 
+  // Analyse UNE fiche (texte complet du fichier .md) : meme code pour la fenetre de choix de fichiers et pour la base generee (outils/base_fiches.js).
+  function analyserFiche(nomFichier, t) {
+    var fm = t.match(/^---\s*\n([\s\S]*?)\n---/);
+    var idLigne = fm ? ((fm[1].match(/^\s*id\s*:\s*(.+)$/m) || [])[1] || '') : '';
+    if (fm && !/\.collecte$/.test(idLigne)) {
+      var g = function (k) { var mm = fm[1].match(new RegExp('^\\s*' + k + '\\s*:\\s*(.+)$', 'm')); return mm ? mm[1].replace(/^["']|["']$/g, '').trim() : ''; };
+      var bloc = function (k) {
+        var out = [], b = fm[1].match(new RegExp(k + ':\\s*\\n([\\s\\S]*?)(\\n[a-z_]+:|\\n---|$)'));
+        if (b) b[1].split('\n').forEach(function (l) { var it = l.replace(/^\s*-\s*/, '').replace(/^["']|["']$/g, '').trim(); if (it) out.push(it); });
+        return out;
+      };
+      var revs = bloc('revisions');
+      return ({
+        fichier: nomFichier, id: idLigne, rayon: g('rayon'), titre: g('titre'),
+        tags: (fm[1].match(/tags:\s*\[([^\]]*)\]/) || ['', ''])[1],
+        verifie_le: g('verifie_le'), statut: g('statut') || 'actif',
+        change: bloc('ce_qui_change_souvent'),
+        corps: t.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '').trim(),
+        revisions: revs, derniereRevision: revs.length ? revs[revs.length - 1] : '',
+        moisRevision: revs.length ? moisDe(revs[revs.length - 1]) : ''
+      });
+    }
+    return null;
+  }
+
   function chargerBase(files) {
     _base = [];
     var restants = files.length;
@@ -4584,27 +4940,8 @@
     Array.prototype.forEach.call(files, function (file) {
       var fr = new FileReader();
       fr.onload = function () {
-        var t = fr.result || '';
-        var fm = t.match(/^---\s*\n([\s\S]*?)\n---/);
-        var idLigne = fm ? ((fm[1].match(/^\s*id\s*:\s*(.+)$/m) || [])[1] || '') : '';
-        if (fm && !/\.collecte$/.test(idLigne)) {
-          var g = function (k) { var mm = fm[1].match(new RegExp('^\\s*' + k + '\\s*:\\s*(.+)$', 'm')); return mm ? mm[1].replace(/^["']|["']$/g, '').trim() : ''; };
-          var bloc = function (k) {
-            var out = [], b = fm[1].match(new RegExp(k + ':\\s*\\n([\\s\\S]*?)(\\n[a-z_]+:|\\n---|$)'));
-            if (b) b[1].split('\n').forEach(function (l) { var it = l.replace(/^\s*-\s*/, '').replace(/^["']|["']$/g, '').trim(); if (it) out.push(it); });
-            return out;
-          };
-          var revs = bloc('revisions');
-          _base.push({
-            fichier: file.name, id: idLigne, rayon: g('rayon'), titre: g('titre'),
-            tags: (fm[1].match(/tags:\s*\[([^\]]*)\]/) || ['', ''])[1],
-            verifie_le: g('verifie_le'), statut: g('statut') || 'actif',
-            change: bloc('ce_qui_change_souvent'),
-            corps: t.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '').trim(),
-            revisions: revs, derniereRevision: revs.length ? revs[revs.length - 1] : '',
-            moisRevision: revs.length ? moisDe(revs[revs.length - 1]) : ''
-          });
-        }
+        var o = analyserFiche(file.name, fr.result || '');
+        if (o) { _base.push(o); }
       };
       fr.onloadend = function () {
         restants--;
@@ -4618,6 +4955,17 @@
       };
       fr.readAsText(file, 'utf-8');
     });
+  }
+
+  // Base chargee automatiquement depuis outils/base_fiches.js (genere par scripts/genererBaseVeille.js) : plus de fenetre « choisir les fichiers ».
+  function chargerBaseAuto() {
+    var b = window.BASE_VEILLE;
+    if (!b || !b.fiches || !b.fiches.length) { return false; }
+    _base = [];
+    b.fiches.forEach(function (x) { var o = analyserFiche(x.fichier, x.texte); if (o) { _base.push(o); } });
+    if ($('baseInfo')) { $('baseInfo').innerHTML = '<div class="note ok"><span>&#9989;</span><span>Base chargée automatiquement : ' + _base.length + ' fiche(s), copie du ' + echap(b.genere || '') + '. Rien à choisir à la main.</span></div>'; }
+    rendreBase();
+    return true;
   }
 
   function rendreBase() {
@@ -4901,6 +5249,7 @@
     setMode('entretenir');
     if (Array.prototype.some.call($('ctrlRayon').options, function (o) { return o.value === rayon; })) $('ctrlRayon').value = rayon;
     rendreGrilleControle();
+    $('reponseCtrl').value = ''; $('msgCtrl2').innerHTML = '';
     assemblerControle();
     _entrerFocus('detControle');
   }
@@ -4911,9 +5260,8 @@
   // assemblerControle(), reste le <select> d'origine, juste caché en mode guidé) et régénère aussitôt.
   function rendreGrilleControle() {
     var box = $('grilleRayonsControle'); if (!box) return;
-    var c = chargerControle().rayons || {};
     box.innerHTML = Object.keys(RAYONS).map(function (r) {
-      var fr = classerFraicheur(c[r] && c[r].date);
+      var fr = classerFraicheur(dateControleRayon(r));
       var texte = fr.classe === 'jamais' ? 'Jamais vérifié' : 'Vérifié ' + fr.texte;
       var actif = $('ctrlRayon').value === r ? ' selectionne' : '';
       return '<button type="button" class="' + actif.trim() + '" onclick="choisirRayonControle(\'' + r + '\', this)">'
@@ -4924,6 +5272,7 @@
     $('ctrlRayon').value = r;
     document.querySelectorAll('#grilleRayonsControle button').forEach(function (b) { b.classList.remove('selectionne'); });
     btn.classList.add('selectionne');
+    $('reponseCtrl').value = ''; $('msgCtrl2').innerHTML = '';
     assemblerControle();
   }
 
@@ -4960,7 +5309,19 @@
   // jamais un écran intermédiaire de plus. La liste "En attente de traitement" globale a disparu
   // en tant que telle : chaque signal apparaît maintenant dans la ligne de SON rayon (une seule
   // source de vérité, LECONS règle 13) au lieu d'être dupliqué à deux endroits.
+  // Geste « Contrôler mes fiches » : ouvre le contrôle du premier rayon à contrôler (sinon du premier rayon de la liste).
+  function entrerFocusControleMois() {
+    var dus = _base.length ? Object.keys(RAYONS).filter(rayonDu) : [];
+    entrerFocusControleRayon(dus.length ? dus[0] : Object.keys(RAYONS)[0]);
+  }
+  function majAccueilCadreSimple() {
+    var el = $('sousTacheControleMois'); if (!el) return;
+    if (!_base.length) { el.textContent = 'Chaque mois : vérifier que les fiches sont toujours exactes'; return; }
+    var dus = Object.keys(RAYONS).filter(rayonDu);
+    el.textContent = dus.length ? dus.length + ' rayon' + (dus.length > 1 ? 's' : '') + ' à contrôler : ' + dus.slice(0, 3).map(function (r) { return RAYONS[r]; }).join(', ') + (dus.length > 3 ? '…' : '') : 'Tous les rayons sont à jour pour ce mois.';
+  }
   function rendreMenuCadreGuide() {
+    majAccueilCadreSimple();
     var attentePar = {};
     fichesEnAttente().forEach(function (f) { (attentePar[f.rayon] = attentePar[f.rayon] || []).push(f); });
     var box = $('listeRayonsCadre');
@@ -4968,7 +5329,7 @@
       box.innerHTML = Object.keys(RAYONS).map(function (r) {
         var esc = function (s) { return String(s).replace(/'/g, '\\\''); };
         var rc = (chargerControle().rayons || {})[r];
-        var frC = classerFraicheur(rc && rc.date);
+        var frC = classerFraicheur(dateControleRayon(r));
         var fichesR = fichesDuRayon(r);
         var n = fichesR.length;
         var nRev = fichesR.filter(function (f) { return f.revisions && f.revisions.length; }).length;
@@ -4986,22 +5347,24 @@
           return '<div class="date-verif ' + frS.classe + '" style="margin-top:.5rem">&#9888; Signalé ' + frS.texte
             + (f.resume ? ' &mdash; ' + echap(f.resume) : '') + '</div>' + action;
         }).join('');
+        var nouveauxHtml = ((rc && rc.nouveaux) || []).map(function (x, i) {
+          if (x.fait) { return ''; }
+          return '<div class="date-verif" style="margin-top:.5rem">&#10133; Sujet proposé : ' + echap(x.sujet) + '</div>'
+            + '<button class="btn" style="margin-top:.3rem" onclick="preparerNouvelleFiche(\'' + r + '\', ' + i + ')">Préparer cette fiche</button>';
+        }).join('');
         return '<div class="carte-tache" style="align-items:flex-start;cursor:default">'
           + '<div style="flex:1"><div class="titre-tache">' + echap(RAYONS[r]) + pill + '</div>'
           + '<div class="sous-tache">' + sousTexte + '</div>'
           + attenteHtml
-          + '<div class="btn-rangee" style="margin-top:.5rem">'
-          + '<button class="btn primaire" onclick="entrerFocusCreerFicheRayon(\'' + r + '\')">Créer / compléter une fiche</button>'
-          + '<button class="btn" onclick="entrerFocusControleRayon(\'' + r + '\')">Contrôle</button>'
-          + '</div>'
-          + '<button class="lien-etape-precedente" style="padding:.3rem 0 0;margin:0" onclick="entrerFocusColleCollecteRayon(\'' + r + '\')">J\'ai déjà mon matériau &rarr; coller directement</button>'
+          + nouveauxHtml
+          + '<div class="btn-rangee" style="margin-top:.5rem"><button class="btn primaire" onclick="entrerFocusControleRayon(\'' + r + '\')">Contrôler ce rayon</button></div>'
           + '</div></div>';
       }).join('');
     }
     var sousMaBase = $('sousTacheMaBaseGuide');
     if (sousMaBase) {
       sousMaBase.textContent = _base.length
-        ? (_base.length + ' fiche(s) chargée(s)')
+        ? ('Rien à faire ici : vos ' + _base.length + ' fiches sont déjà chargées')
         : 'Charger vos fiches : sert aux rayons ci-dessous et au Triage';
     }
     rendreRevisionsCadre();
@@ -5067,6 +5430,7 @@
   chargerControle();
   chargerCadence();
   chargerBaseCache();
+  chargerBaseAuto();
   rendreRegistre();
   rendreCadenceGrille();
   if ($('porAnneeInput') && !$('porAnneeInput').value) $('porAnneeInput').value = anneeCourante();
@@ -5099,5 +5463,532 @@
   setMode(modeInit);
   rendreAccueilGuideBadges();
 </script>
+<!-- ===================================================================
+     PANNEAU « DÉPÔT » (2026-10-07) : seulement quand l'outil est ouvert par « Lancer l'outil de veille.bat » (serveur local, jeton dans la page).
+     Avec le raccourci habituel (fichier local), ce bloc ne s'affiche pas et rien ne change : l'aide-mémoire « Déposer dans le dépôt » reste la méthode.
+     « Publier » : écrit les fichiers au bon endroit, ajoute la ligne du README, régénère la base, lance les vérifications, enregistre dans Git (local, annulable).
+     « Envoyer sur GitHub » : prépare des lots de 100 fichiers au plus, avec SEULEMENT les fichiers modifiés depuis le dernier envoi, rangés comme dans le dépôt.
+     Jamais de « push » : rien n'est envoyé nulle part par cet outil. Le Lexique et la datation des adresses restent manuels.
+     =================================================================== -->
+<style>
+  #depotPastille { position:fixed; right:14px; bottom:14px; z-index:900; display:none; }
+  #depotPanneau { position:fixed; right:14px; bottom:62px; z-index:901; width:min(460px, calc(100vw - 28px)); max-height:78vh; overflow:auto; display:none;
+    background:var(--bg-card); color:var(--text); border:1px solid var(--border-strong); border-radius:12px; box-shadow:var(--shadow); padding:.9rem 1rem; }
+  #depotPanneau h2 { margin:.2rem 0 .4rem; }
+  #depotPanneau .sep { border-top:1px solid var(--border); margin:.9rem 0 .5rem; }
+  #depotPanneau ul { margin:.3rem 0; padding-left:1.1rem; font-size:.84rem; }
+  #depotPanneau li { margin:.15rem 0; word-break:break-all; }
+  #depotPanneau .retirer { border:0; background:none; color:var(--alert); cursor:pointer; font-weight:700; padding:0 .3rem; }
+  #depotPanneau .mini { font-size:.8rem; color:var(--text-muted); }
+  #depotPanneau input[type=text] { max-width:11rem; }
+  #depotPanneau #ghConfigBloc input[type=text], #depotPanneau #ghConfigBloc input[type=password] { max-width:none; }
+  .code.prompt-replie:not(.prompt-ouvert) { display:none !important; }
+  /* Apres une lecture reussie, le grand cadre de la reponse se replie (il n'a plus d'utilite) ; vide, il reapparait tout seul. */
+  textarea.reponse-repliee:not(:placeholder-shown):not(.reponse-ouverte) { display:none !important; }
+  textarea.reponse-repliee:placeholder-shown + .reponse-statut { display:none; }
+  .reponse-statut { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.5rem 0; padding:.55rem .75rem; border:1px solid var(--border-strong); border-radius:8px; background:var(--bg-card); }
+  .voir-prompt { margin:.2rem 0 .5rem; }
+  .lecture-auto-note { margin:.4rem 0; }
+  #liensFenetre { position:fixed; inset:2vh 2vw; z-index:950; display:none; background:var(--bg-card); color:var(--text); border:1px solid var(--border-strong); border-radius:12px; box-shadow:var(--shadow); overflow:auto; padding:.9rem 1.1rem 5rem; }
+  #liensFenetre h2 { margin:.1rem 0 .3rem; }
+  #liensFenetre .barre { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.5rem 0; }
+  #liensFenetre .barre > * { flex:0 1 auto; }
+  #liensFenetre input[type=text], #liensFenetre select { width:auto; min-width:9rem; max-width:100%; }
+  #liensFenetre table { width:100%; border-collapse:collapse; font-size:.86rem; }
+  #liensFenetre th { text-align:left; color:var(--text-muted); font-weight:600; padding:.3rem .4rem; border-bottom:1px solid var(--border-strong); position:sticky; top:0; background:var(--bg-card); }
+  #liensFenetre td { padding:.35rem .4rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  #liensFenetre td.adresse { word-break:break-all; max-width:26rem; }
+  #liensFenetre .vieux { color:var(--warn); font-weight:600; } #liensFenetre .jamais { color:var(--alert); font-weight:600; } #liensFenetre .bon { color:var(--ok); }
+  #liensFenetre .attente { background:var(--warn-bg); }
+  #liensFenetre .petit { font:inherit; font-size:.8rem; padding:.2rem .55rem; }
+  #liensFenetre .pied { position:sticky; bottom:-5rem; background:var(--bg-card); border-top:1px solid var(--border-strong); padding:.6rem 0; margin-top:.6rem; display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; }
+</style>
+<button class="btn primaire" id="depotPastille" type="button" aria-expanded="false" aria-controls="depotPanneau">Dépôt</button>
+<div id="depotPanneau" role="dialog" aria-label="Dépôt : publier et envoyer sur GitHub">
+  <div style="display:flex;justify-content:space-between;align-items:center"><strong>Dépôt</strong><button class="btn" type="button" id="depotFermer" aria-label="Fermer">Fermer</button></div>
+
+  <h2>1. Publier dans le dépôt</h2>
+  <p class="mini">Les fichiers que vous préparez ici ne se téléchargent plus : ils s'ajoutent à cette liste. « Publier » les range au bon endroit, vérifie que tout fonctionne et les enregistre dans Git sur cet ordinateur.</p>
+  <div id="depotListe"></div>
+  <div class="btn-rangee">
+    <button class="btn primaire" type="button" id="depotPublier">Publier</button>
+    <button class="btn" type="button" id="depotVider">Vider la liste</button>
+    <button class="btn" type="button" id="depotAnnuler" style="display:none">Annuler cette publication</button>
+  </div>
+  <div id="depotResultat" aria-live="polite"></div>
+
+  <div class="sep"></div>
+  <h2>2. Envoyer directement sur GitHub</h2>
+  <p class="mini">Un clic : l'outil compare vos fichiers à ceux de GitHub et n'envoie que ceux qui diffèrent, en un seul enregistrement. Il ne supprime rien sur GitHub et ne réécrit jamais son historique.</p>
+  <div id="ghConfigBloc" style="display:none">
+    <details class="avance" id="ghAide">
+      <summary>Comment créer le jeton (une seule fois, 3 minutes)</summary>
+      <div class="corps">
+        <ol class="mini" style="padding-left:1.1rem">
+          <li>Sur GitHub, cliquez sur votre photo en haut à droite, puis « Settings », tout en bas « Developer settings », « Personal access tokens », « Fine-grained tokens », « Generate new token ».</li>
+          <li>Nom : « Outil de veille ». Expiration : 90 jours (vous en recréerez un). « Repository access » : <strong>Only select repositories</strong>, puis choisissez votre dépôt.</li>
+          <li>« Permissions », « Repository permissions » : <strong>Contents : Read and write</strong>. Rien d'autre.</li>
+          <li>« Generate token », puis copiez le jeton (il commence par <span class="mono">github_pat_</span>) et collez-le ci-dessous. GitHub ne le montre qu'une fois.</li>
+        </ol>
+        <p class="mini">Le jeton est gardé sur cet ordinateur seulement, dans votre dossier utilisateur Windows, hors du dépôt. Vous pouvez le révoquer à tout moment sur GitHub, ou cliquer « Oublier le jeton » ici.</p>
+      </div>
+    </details>
+    <label for="ghCompte">Votre compte GitHub (le nom dans l'adresse du dépôt)</label>
+    <input type="text" id="ghCompte" autocomplete="off" placeholder="par exemple : denis-dupont">
+    <label for="ghDepot">Nom du dépôt</label>
+    <input type="text" id="ghDepot" autocomplete="off">
+    <label for="ghBranche">Branche</label>
+    <input type="text" id="ghBranche" autocomplete="off" value="main">
+    <label for="ghJeton">Jeton (laissez vide pour garder l'ancien)</label>
+    <input type="password" id="ghJeton" autocomplete="off" placeholder="github_pat_...">
+    <div class="btn-rangee"><button class="btn primaire" type="button" id="ghEnregistrer">Enregistrer et tester</button></div>
+  </div>
+  <div id="ghActionsBloc" style="display:none">
+    <div id="ghResume"></div>
+    <div id="ghGroupes" style="margin:.4rem 0">
+      <label style="display:flex;gap:.4rem;align-items:center;margin:.2rem 0"><input type="checkbox" value="cadre" checked style="width:auto"> Comprendre le cadre</label>
+      <label style="display:flex;gap:.4rem;align-items:center;margin:.2rem 0"><input type="checkbox" value="chiffres" checked style="width:auto"> Comprendre les chiffres</label>
+      <label style="display:flex;gap:.4rem;align-items:center;margin:.2rem 0"><input type="checkbox" value="lexique" checked style="width:auto"> Lexique</label>
+      <label style="display:flex;gap:.4rem;align-items:center;margin:.2rem 0"><input type="checkbox" value="autres" checked style="width:auto"> Le reste de l'application (code, données, documents)</label>
+    </div>
+    <div class="btn-rangee">
+      <button class="btn" type="button" id="ghComparer">Voir ce qui diffère</button>
+      <button class="btn primaire" type="button" id="ghEnvoyer">Envoyer maintenant sur GitHub</button>
+    </div>
+    <div class="btn-rangee">
+      <button class="btn" type="button" id="ghModifier">Modifier le compte ou le jeton</button>
+      <button class="btn" type="button" id="ghOublier">Oublier le jeton</button>
+    </div>
+  </div>
+  <div id="ghResultat" aria-live="polite"></div>
+
+  <div class="sep"></div>
+  <h2>3. Ou préparer des lots à glisser sur GitHub (sans jeton)</h2>
+  <p class="mini">Prépare des lots de 100 fichiers au plus, avec seulement les fichiers modifiés depuis votre dernier envoi, rangés dans leurs dossiers. Vous les glissez ensuite dans « Add file, Upload files » sur GitHub.</p>
+  <div id="depotEnvoiEtat"></div>
+  <div id="depotDateBloc" style="display:none">
+    <label for="depotDate">Date de votre dernier envoi sur GitHub (JJ/MM/AAAA, ou laissez vide pour tout préparer)</label>
+    <input type="text" id="depotDate" placeholder="JJ/MM/AAAA" inputmode="numeric" autocomplete="off">
+    <p class="mini">En cas de doute, mettez une date un peu plus ancienne : quelques fichiers en trop ne gênent pas, un fichier oublié, si.</p>
+  </div>
+  <div class="btn-rangee">
+    <button class="btn primaire" type="button" id="depotPreparer">Préparer les lots</button>
+    <button class="btn" type="button" id="depotOuvrir" style="display:none">Ouvrir le dossier des lots</button>
+    <button class="btn" type="button" id="depotMarquer" style="display:none">J'ai tout envoyé</button>
+  </div>
+  <div id="depotEnvoiResultat" aria-live="polite"></div>
+
+  <div class="sep"></div>
+  <h2>4. Les adresses des fiches (liens)</h2>
+  <p class="mini">Toutes les adresses de « liens-verifies.txt » : vous cliquez pour ouvrir, puis vous validez, corrigez ou supprimez ; vous pouvez aussi en ajouter.</p>
+  <div class="btn-rangee"><button class="btn primaire" type="button" id="liensOuvrir">Ouvrir la liste des adresses</button></div>
+</div>
+<div id="liensFenetre" role="dialog" aria-label="Les adresses des fiches">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem">
+    <h2>Les adresses des fiches</h2>
+    <button class="btn" type="button" id="liensFermer">Fermer</button>
+  </div>
+  <p class="mini" id="liensStats"></p>
+  <div class="note"><span>&#128161;</span><span>Cliquez sur l'adresse : elle s'ouvre dans un nouvel onglet. Si la page est bonne, « Valider » (date du jour). Si le site a changé, « Modifier » (collez la nouvelle adresse). Si la page n'existe plus, « Supprimer ». Rien n'est enregistré avant « Enregistrer les modifications » en bas.</span></div>
+  <div class="barre">
+    <input type="text" id="liensRecherche" placeholder="Chercher (nom ou adresse)" autocomplete="off">
+    <select id="liensFiltre" aria-label="Filtre">
+      <option value="tout">Toutes les adresses</option>
+      <option value="averifier">À vérifier (sans date ou plus de 12 mois)</option>
+      <option value="sansdate">Jamais vérifiées</option>
+      <option value="attente">Mes modifications en attente</option>
+    </select>
+    <select id="liensTri" aria-label="Ordre">
+      <option value="fichier">Ordre du fichier</option>
+      <option value="anciennes">Les plus anciennes d'abord</option>
+    </select>
+    <button class="btn" type="button" id="liensAjouterBascule">Ajouter une adresse</button>
+  </div>
+  <div id="liensAjout" style="display:none" class="note">
+    <div style="width:100%">
+      <div class="barre">
+        <input type="text" id="liensNouveauNom" placeholder="nom court (par exemple : caf-aides-logement)" autocomplete="off" style="min-width:16rem">
+        <input type="text" id="liensNouvelleAdresse" placeholder="https://..." autocomplete="off" style="min-width:20rem">
+        <select id="liensNouvellePortee" aria-label="Portée"><option value="national">national</option><option value="region">région</option><option value="24">Dordogne (24)</option><option value="87">Haute-Vienne (87)</option></select>
+      </div>
+      <label style="display:flex;gap:.4rem;align-items:center;margin:.2rem 0"><input type="checkbox" id="liensNouvelleDatee" style="width:auto"> Je l'ai ouverte, la page est bonne (elle sera datée d'aujourd'hui)</label>
+      <button class="btn primaire" type="button" id="liensAjouterOk">Mettre dans la liste</button> <span id="liensAjoutMessage" class="mini"></span>
+    </div>
+  </div>
+  <table><thead><tr><th>Nom</th><th>Adresse</th><th>Dernière vérification</th><th>Portée</th><th>Actions</th></tr></thead><tbody id="liensCorps"></tbody></table>
+  <div id="liensResultat" aria-live="polite"></div>
+  <div class="pied">
+    <span id="liensAttente"><strong>0</strong> modification en attente</span>
+    <button class="btn primaire" type="button" id="liensEnregistrer" disabled>Enregistrer les modifications</button>
+    <button class="btn" type="button" id="liensToutAnnuler" disabled>Tout annuler</button>
+    <button class="btn" type="button" id="liensAnnulerPub" style="display:none">Annuler la dernière publication</button>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var meta = document.querySelector('meta[name="veille-jeton"]');
+  if (!meta || !/^https?:$/.test(location.protocol) || typeof window.fichierBrut !== 'function') { return; }   // raccourci habituel : rien ne change
+  var JETON = meta.getAttribute('content');
+  var $d = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+
+  function appeler(chemin, corps) {
+    return fetch(chemin, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Veille-Jeton': JETON }, body: JSON.stringify(corps || {}) })
+      .then(function (r) { return r.json(); })
+      .catch(function () { return { ok: false, erreur: 'Le serveur local ne répond plus. Relancez « Lancer l\'outil de veille » puis rechargez la page.' }; });
+  }
+
+  // ---------- panier : les fichiers que l'outil allait télécharger ----------
+  var panier = [];
+  try { panier = JSON.parse(sessionStorage.getItem('veille_panier') || '[]'); } catch (e) { panier = []; }
+  function sauver() { try { sessionStorage.setItem('veille_panier', JSON.stringify(panier)); } catch (e) { /* tant pis */ } }
+  function ajouter(type, rayon, nom, texte) {
+    panier = panier.filter(function (f) { return !(f.type === type && f.rayon === rayon && f.nom === nom); });
+    panier.push({ type: type, rayon: rayon, nom: nom, texte: texte });
+    sauver(); rendrePanier();
+    var p = $d('depotPastille'); p.textContent = 'Dépôt (' + panier.length + ')';
+  }
+  var _contexte = null;
+  var _fichierBrutOriginal = window.fichierBrut;
+  window.fichierBrut = function (texte, nom) {
+    if (!_contexte) { return _fichierBrutOriginal.apply(this, arguments); }   // autres fichiers (Lexique, digests annuels, À confronter) : téléchargement comme avant
+    var c = _contexte;
+    if (c.type === 'fiche' && /\.collecte\.md$/.test(nom)) { ajouter('collecte', c.rayon, nom, texte); }
+    else { ajouter(c.type, c.rayon, nom, texte); }
+    $d('depotPastille').style.display = 'inline-block';
+    $d('depotPastille').textContent = 'Dépôt (' + panier.length + ')';
+    return undefined;
+  };
+  function envelopper(nomFonction, fabriquerContexte) {
+    var original = window[nomFonction];
+    if (typeof original !== 'function') { return; }
+    window[nomFonction] = function () {
+      var avant = _contexte;
+      _contexte = fabriquerContexte.apply(null, arguments);
+      try { return original.apply(this, arguments); } finally { _contexte = avant; }
+    };
+  }
+  // Avec le lanceur, les boutons « Telecharger » AJOUTENT au Depot : les libelles et les messages le disent.
+  var _dernierAjout = 0;
+  var _fichierBrutDepot = window.fichierBrut;
+  window.fichierBrut = function () { var r = _fichierBrutDepot.apply(this, arguments); _dernierAjout = Date.now(); return r; };
+  if (typeof window.flash === 'function') {
+    var _flashOriginal = window.flash;
+    window.flash = function (btn, txt) {
+      return _flashOriginal(btn, (Date.now() - _dernierAjout < 1500 && /téléchargé/i.test(txt)) ? 'Ajouté au Dépôt : cliquez « Dépôt » en bas à droite' : txt);
+    };
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('button[onclick^="telecharger"]'), function (b) {
+    if ((b.getAttribute('onclick') || '').indexOf('annuaire-associatif') !== -1) { return; }   // l'annuaire reste un vrai telechargement
+    var t = b.textContent.trim();
+    if (t === 'Télécharger') { b.textContent = 'Ajouter au Dépôt'; }
+    else if (/^Télécharger /.test(t)) { b.textContent = 'Ajouter ' + t.slice('Télécharger '.length) + ' au Dépôt'; }
+  });
+  envelopper('telecharger', function () { var r = document.getElementById('fRayon'); return { type: 'fiche', rayon: r ? r.value : '' }; });
+  envelopper('telechargerBalayage', function () { return { type: 'balayage', rayon: '' }; });
+  envelopper('telechargerChiffres', function () { return { type: 'chiffres', rayon: '' }; });
+  envelopper('telechargerLexique', function () { return { type: 'lexique', rayon: '' }; });
+  envelopper('telechargerConfronter', function () { return { type: 'confronter', rayon: '' }; });
+  envelopper('envoyerFicheRetiree', function (texte, nom, rayon) { return { type: 'fiche', rayon: rayon }; });
+  // Digests annuels : seuls les noms portrait-AAAA.md et ue-AAAA.md sont pris en charge ; les autres reponses brutes se telechargent comme avant.
+  envelopper('telechargerReponseBrute', function (idZone, nom) {
+    if (/^portrait-\d{4}\.md$/.test(nom)) { return { type: 'portrait', rayon: '' }; }
+    if (/^ue-\d{4}\.md$/.test(nom)) { return { type: 'ue', rayon: '' }; }
+    return null;
+  });
+
+  function libelle(f) {
+    var d = f.type === 'balayage' ? 'balayage' : (f.type === 'chiffres' ? 'chiffres' : (f.type === 'lexique' ? 'Lexique' : (f.type === 'portrait' ? 'portrait annuel' : (f.type === 'ue' ? 'comparatif européen' : (f.type === 'confronter' ? 'à confronter (archive)' : f.rayon)))));
+    return (f.type === 'collecte' ? 'collecte (' + f.rayon + ')' : d) + ' : ' + f.nom;
+  }
+  function rendrePanier() {
+    var z = $d('depotListe');
+    if (!panier.length) { z.innerHTML = '<p class="mini">Aucun fichier pour l\'instant. Préparez une fiche ou un digest, puis cliquez sur son bouton de téléchargement habituel : il l\'ajoute ici.</p>'; $d('depotPublier').disabled = true; return; }
+    $d('depotPublier').disabled = false;
+    z.innerHTML = '<ul>' + panier.map(function (f, i) { return '<li>' + esc(libelle(f)) + ' <button type="button" class="retirer" data-i="' + i + '" aria-label="Retirer ' + esc(f.nom) + '">&times;</button></li>'; }).join('') + '</ul>';
+  }
+  $d('depotListe').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.retirer') : null; if (!b) { return; }
+    panier.splice(parseInt(b.getAttribute('data-i'), 10), 1); sauver(); rendrePanier();
+    $d('depotPastille').textContent = panier.length ? 'Dépôt (' + panier.length + ')' : 'Dépôt';
+  });
+  $d('depotVider').addEventListener('click', function () { panier = []; sauver(); rendrePanier(); $d('depotPastille').textContent = 'Dépôt'; $d('depotResultat').innerHTML = ''; });
+
+  // ---------- publier / annuler ----------
+  function note(classe, html) { return '<div class="note ' + classe + '"><span>' + html + '</span></div>'; }
+  function lancerPublication(remplacer) {
+    var b = $d('depotPublier'); b.disabled = true; b.textContent = 'Publication en cours...';
+    $d('depotResultat').innerHTML = note('', 'Vérification et enregistrement en cours (quelques secondes)...');
+    appeler('/api/publier', { fichiers: panier, remplacerExistants: !!remplacer }).then(function (r) {
+      b.textContent = 'Publier'; b.disabled = !panier.length;
+      // Un mot du Lexique existe deja : on demande confirmation avant de le REMPLACER (rien n'a encore ete ecrit).
+      if (!r.ok && r.code === 'lexique-existant') {
+        if (window.confirm(r.erreur)) { lancerPublication(true); return; }
+        $d('depotResultat').innerHTML = note('warn', '<strong>Rien n\'a été publié.</strong> Vous avez gardé la version actuelle du mot. Vos fichiers restent dans la liste.');
+        return;
+      }
+      if (r.ok) {
+        var html = '<strong>Publié et enregistré</strong> (' + r.fichiers.length + ' fichier' + (r.fichiers.length > 1 ? 's' : '') + ', enregistrement ' + esc(r.commit) + '). Les vérifications automatiques sont vertes.';
+        if (r.nouvelles && r.nouvelles.length) { html += '<br>Fiche' + (r.nouvelles.length > 1 ? 's' : '') + ' nouvelle' + (r.nouvelles.length > 1 ? 's' : '') + ' ajoutée' + (r.nouvelles.length > 1 ? 's' : '') + ' au tableau du rayon.'; }
+        if (r.motsRemplaces && r.motsRemplaces.length) { html += '<br>Lexique : ' + r.motsRemplaces.length + ' mot' + (r.motsRemplaces.length > 1 ? 's' : '') + ' remplacé' + (r.motsRemplaces.length > 1 ? 's' : '') + ' (' + r.motsRemplaces.map(esc).join(', ') + '), les champs supplémentaires sont conservés.'; }
+        if (r.nouveauxMots && r.nouveauxMots.length) { html += '<br>Lexique : ' + r.nouveauxMots.length + ' mot' + (r.nouveauxMots.length > 1 ? 's' : '') + ' nouveau' + (r.nouveauxMots.length > 1 ? 'x' : '') + ' ajouté' + (r.nouveauxMots.length > 1 ? 's' : '') + ' (' + r.nouveauxMots.map(esc).join(', ') + '), vérifié' + (r.nouveauxMots.length > 1 ? 's' : '') + '.'; }
+        if (r.avertissementsLexique && r.avertissementsLexique.length) { html += '<br><strong>À regarder dans le Lexique :</strong><ul>' + r.avertissementsLexique.map(function (l) { return '<li>' + esc(l.replace(/^\s*-\s*/, '')) + '</li>'; }).join('') + '</ul>'; }
+        if (r.remplaces && r.remplaces.length) { html += '<br>Fichier' + (r.remplaces.length > 1 ? 's' : '') + ' existant' + (r.remplaces.length > 1 ? 's' : '') + ' remplacé' + (r.remplaces.length > 1 ? 's' : '') + ' par votre version : ' + r.remplaces.map(function (c) { return esc(c.split('/').pop()); }).join(', ') + '. (« Annuler cette publication » les remet comme avant.)'; }
+        if (r.resteAFaire && r.resteAFaire.length) { html += '<br><strong>Reste à faire à la main :</strong> ' + r.resteAFaire.map(esc).join(' '); }
+        html += '<br>Vérifiez maintenant dans l\'application (pas dans cet outil) que la fiche apparaît.';
+        $d('depotResultat').innerHTML = note('ok', html);
+        panier = []; sauver(); rendrePanier(); $d('depotPastille').textContent = 'Dépôt'; $d('depotAnnuler').style.display = 'inline-block';
+        rafraichirEnvoi();
+      } else {
+        var h = '<strong>Rien n\'a été publié.</strong> ' + esc(r.erreur || 'Erreur inconnue.');
+        if (r.echecs && r.echecs.length) { h += '<ul>' + r.echecs.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>'; }
+        h += '<br>Vos fichiers restent dans la liste : corrigez puis recommencez, ou prévenez Claude en lui copiant ce message.';
+        $d('depotResultat').innerHTML = note('warn', h);
+      }
+    });
+  }
+  $d('depotPublier').addEventListener('click', function () { lancerPublication(false); });
+  $d('depotAnnuler').addEventListener('click', function () {
+    if (!window.confirm('Défaire la dernière publication ? Un nouvel enregistrement remet les fichiers comme avant.')) { return; }
+    appeler('/api/annuler').then(function (r) {
+      $d('depotResultat').innerHTML = r.ok ? note('ok', 'Publication annulée (enregistrement ' + esc(r.commit) + ').') : note('warn', '<strong>Annulation impossible.</strong> ' + esc(r.erreur || ''));
+      if (r.ok) { $d('depotAnnuler').style.display = 'none'; rafraichirEnvoi(); }
+    });
+  });
+
+  // ---------- envoyer sur GitHub ----------
+  function dateIso() {
+    var v = ($d('depotDate').value || '').trim(); if (!v) { return null; }
+    var m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(v); if (!m) { return false; }
+    var p = function (n) { return (n.length < 2 ? '0' : '') + n; };
+    return m[3] + '-' + p(m[2]) + '-' + p(m[1]);
+  }
+  function rafraichirEnvoi() {
+    var d = dateIso();
+    appeler('/api/envoi/etat', { depuis: d || undefined }).then(function (r) {
+      if (!r.ok) { $d('depotEnvoiEtat').innerHTML = note('warn', esc(r.erreur || '')); return; }
+      var depart = r.depart || {};
+      $d('depotDateBloc').style.display = depart.origine === 'etiquette' ? 'none' : 'block';
+      var quand = depart.origine === 'etiquette' ? 'depuis votre dernier envoi' : (depart.origine === 'date' ? 'depuis la date indiquée' : 'au total (aucun envoi précédent connu)');
+      $d('depotEnvoiEtat').innerHTML = note(r.nbFichiers ? 'warn' : 'ok', '<strong>' + r.nbFichiers + ' fichier' + (r.nbFichiers > 1 ? 's' : '') + '</strong> à envoyer ' + quand + (r.nbFichiers ? ', soit ' + r.nbLots + ' lot' + (r.nbLots > 1 ? 's' : '') + ' de 100 au plus.' : '.') + (r.nbSupprimes ? ' ' + r.nbSupprimes + ' fichier(s) à supprimer sur GitHub.' : ''));
+    });
+  }
+  $d('depotPreparer').addEventListener('click', function () {
+    var d = dateIso();
+    if (d === false) { $d('depotEnvoiResultat').innerHTML = note('warn', 'Date non reconnue : écrivez-la sous la forme JJ/MM/AAAA, par exemple 25/09/2026.'); return; }
+    var b = this; b.disabled = true; b.textContent = 'Préparation...';
+    appeler('/api/envoi/preparer', { depuis: d || undefined }).then(function (r) {
+      b.disabled = false; b.textContent = 'Préparer les lots';
+      if (!r.ok) { $d('depotEnvoiResultat').innerHTML = note('warn', '<strong>Préparation impossible.</strong> ' + esc(r.erreur || '')); return; }
+      var h = '<strong>' + r.nbFichiers + ' fichier' + (r.nbFichiers > 1 ? 's' : '') + ' prêt' + (r.nbFichiers > 1 ? 's' : '') + ' en ' + r.nbLots + ' lot' + (r.nbLots > 1 ? 's' : '') + '.</strong> Cliquez « Ouvrir le dossier des lots » : le fichier LISEZ-MOI.txt explique les trois gestes à faire sur GitHub.';
+      if (r.supprimes && r.supprimes.length) { h += '<br>' + r.supprimes.length + ' fichier(s) à supprimer sur GitHub : liste dans A_SUPPRIMER_sur_GitHub.txt.'; }
+      if (r.tropGros && r.tropGros.length) { h += '<br><strong>Attention :</strong> ' + r.tropGros.length + ' fichier(s) de plus de 25 Mo, refusés par GitHub (site web).'; }
+      if (r.modificationsNonEnregistrees) { h += '<br><span class="mini">' + r.modificationsNonEnregistrees + ' modification(s) en cours de travail ne sont pas dans les lots : seule la version enregistrée part.</span>'; }
+      $d('depotEnvoiResultat').innerHTML = note('ok', h);
+      $d('depotOuvrir').style.display = 'inline-block'; $d('depotMarquer').style.display = 'inline-block';
+    });
+  });
+  $d('depotOuvrir').addEventListener('click', function () { appeler('/api/envoi/ouvrir'); });
+  $d('depotMarquer').addEventListener('click', function () {
+    if (!window.confirm('Confirmez-vous avoir envoyé TOUS les lots sur GitHub ? Le prochain envoi ne contiendra alors que les nouveautés.')) { return; }
+    appeler('/api/envoi/marquer').then(function (r) {
+      $d('depotEnvoiResultat').innerHTML = r.ok ? note('ok', 'Noté. Le prochain envoi partira de ce point.') : note('warn', esc(r.erreur || ''));
+      $d('depotMarquer').style.display = 'none'; $d('depotOuvrir').style.display = 'none'; rafraichirEnvoi();
+    });
+  });
+  $d('depotDate').addEventListener('change', rafraichirEnvoi);
+
+  // ---------- envoi direct sur GitHub ----------
+  function groupesChoisis() { return Array.prototype.slice.call(document.querySelectorAll('#ghGroupes input:checked')).map(function (i) { return i.value; }); }
+  function ghEtat() {
+    return appeler('/api/github/etat').then(function (r) {
+      var cfg = !!(r && r.configure);
+      $d('ghConfigBloc').style.display = cfg ? 'none' : 'block';
+      $d('ghActionsBloc').style.display = cfg ? 'block' : 'none';
+      if (cfg) {
+        $d('ghResume').innerHTML = note('', 'Connecté à <strong>' + esc(r.proprietaire) + '/' + esc(r.depot) + '</strong>, branche <strong>' + esc(r.branche) + '</strong> (jeton se terminant par ' + esc(r.jetonFin) + ').');
+        $d('ghCompte').value = r.proprietaire; $d('ghDepot').value = r.depot; $d('ghBranche').value = r.branche; $d('ghJeton').value = '';
+      }
+    });
+  }
+  $d('ghEnregistrer').addEventListener('click', function () {
+    var b = this; b.disabled = true; b.textContent = 'Test de la connexion...';
+    appeler('/api/github/config', { proprietaire: $d('ghCompte').value, depot: $d('ghDepot').value, branche: $d('ghBranche').value || 'main', jeton: $d('ghJeton').value }).then(function (r) {
+      if (!r.ok) { b.disabled = false; b.textContent = 'Enregistrer et tester'; $d('ghResultat').innerHTML = note('warn', esc(r.erreur || '')); return; }
+      return appeler('/api/github/tester').then(function (t) {
+        b.disabled = false; b.textContent = 'Enregistrer et tester';
+        $d('ghJeton').value = '';
+        if (t.ok) { $d('ghResultat').innerHTML = note('ok', '<strong>Connexion réussie</strong> au dépôt ' + esc(t.depot || '') + ' (branche ' + esc(t.branche || '') + '). Vous pouvez comparer, puis envoyer.'); }
+        else { $d('ghResultat').innerHTML = note('warn', '<strong>La connexion a échoué.</strong> ' + esc(t.erreur || '')); }
+        return ghEtat();
+      });
+    });
+  });
+  $d('ghModifier').addEventListener('click', function () { $d('ghConfigBloc').style.display = 'block'; $d('ghActionsBloc').style.display = 'none'; $d('ghResultat').innerHTML = ''; });
+  $d('ghOublier').addEventListener('click', function () {
+    if (!window.confirm('Oublier le jeton ? Vous devrez en coller un nouveau pour envoyer sur GitHub (le jeton lui-même reste valable sur GitHub tant que vous ne le révoquez pas).')) { return; }
+    appeler('/api/github/config', { effacer: true }).then(function () { $d('ghResultat').innerHTML = note('ok', 'Jeton oublié sur cet ordinateur. Pensez à le révoquer aussi sur GitHub si vous ne vous en servez plus.'); ghEtat(); });
+  });
+  var NOMS_GROUPES = { cadre: 'Comprendre le cadre', chiffres: 'Comprendre les chiffres', lexique: 'Lexique', autres: 'reste de l\'application' };
+  $d('ghComparer').addEventListener('click', function () {
+    var b = this; b.disabled = true; b.textContent = 'Comparaison...';
+    appeler('/api/github/comparer', { groupes: groupesChoisis() }).then(function (r) {
+      b.disabled = false; b.textContent = 'Voir ce qui diffère';
+      if (!r.ok) { $d('ghResultat').innerHTML = note('warn', '<strong>Comparaison impossible.</strong> ' + esc(r.erreur || '')); return; }
+      var lignes = Object.keys(NOMS_GROUPES).filter(function (g) { return r.parGroupe[g]; }).map(function (g) { return '<li>' + esc(NOMS_GROUPES[g]) + ' : ' + r.parGroupe[g] + ' fichier' + (r.parGroupe[g] > 1 ? 's' : '') + '</li>'; }).join('');
+      var h = r.nbDifferents ? '<strong>' + r.nbDifferents + ' fichier' + (r.nbDifferents > 1 ? 's' : '') + ' diffèrent</strong> de GitHub (dont ' + r.nouveaux + ' nouveau' + (r.nouveaux > 1 ? 'x' : '') + ' parmi ceux que vous avez cochés).<ul>' + lignes + '</ul>' : '<strong>GitHub est à jour.</strong> Aucun fichier ne diffère.';
+      if (r.seulementSurGithub) { h += '<br><span class="mini">' + r.seulementSurGithub + ' fichier' + (r.seulementSurGithub > 1 ? 's' : '') + ' existe' + (r.seulementSurGithub > 1 ? 'nt' : '') + ' seulement sur GitHub : ils ne sont jamais touchés.</span>'; }
+      if (r.nbDifferents > 150) { h += '<br><span class="mini">Beaucoup de fichiers diffèrent : c\'est normal la première fois (retours à la ligne différents après un envoi par le site web). L\'envoi remet GitHub exactement comme votre dépôt.</span>'; }
+      if (r.modificationsNonEnregistrees) { h += '<br><span class="mini">' + r.modificationsNonEnregistrees + ' modification(s) en cours de travail ne partent pas : seule la version enregistrée est envoyée.</span>'; }
+      if (r.nonSuivis) { h += '<br><strong>' + r.nonSuivis + ' nouveau' + (r.nonSuivis > 1 ? 'x' : '') + ' fichier' + (r.nonSuivis > 1 ? 's' : '') + ' pas encore enregistré' + (r.nonSuivis > 1 ? 's' : '') + ' dans Git</strong> (par exemple un module en construction) : ' + (r.nonSuivis > 1 ? 'ils ne partent' : 'il ne part') + ' pas. Une fois le travail terminé et enregistré dans Git, ' + (r.nonSuivis > 1 ? 'ils seront reconnus' : 'il sera reconnu') + ' comme nouveau' + (r.nonSuivis > 1 ? 'x' : '') + ' et créé' + (r.nonSuivis > 1 ? 's' : '') + ' au bon endroit sur GitHub.'; }
+      $d('ghResultat').innerHTML = note(r.nbDifferents ? 'warn' : 'ok', h);
+    });
+  });
+  $d('ghEnvoyer').addEventListener('click', function () {
+    var g = groupesChoisis(); if (!g.length) { $d('ghResultat').innerHTML = note('warn', 'Cochez au moins une partie à envoyer.'); return; }
+    if (!window.confirm('Envoyer maintenant sur GitHub les fichiers qui diffèrent ? Un seul enregistrement sera ajouté sur GitHub (rien n\'est supprimé ni écrasé en dehors de ces fichiers).')) { return; }
+    var b = this; b.disabled = true; b.textContent = 'Envoi en cours...';
+    $d('ghResultat').innerHTML = note('', 'Envoi en cours (de quelques secondes à quelques minutes selon le nombre de fichiers)...');
+    appeler('/api/github/envoyer', { groupes: g, message: 'Mise à jour du contenu (' + new Date().toLocaleDateString('fr-FR') + ')' }).then(function (r) {
+      b.disabled = false; b.textContent = 'Envoyer maintenant sur GitHub';
+      if (!r.ok) { $d('ghResultat').innerHTML = note('warn', '<strong>Rien n\'a été modifié sur GitHub.</strong> ' + esc(r.erreur || '')); return; }
+      if (r.rien) { $d('ghResultat').innerHTML = note('ok', '<strong>GitHub est déjà à jour.</strong> Rien à envoyer.'); return; }
+      var h = '<strong>Envoyé sur GitHub</strong> : ' + r.nbFichiers + ' fichier' + (r.nbFichiers > 1 ? 's' : '') + ' dans un seul enregistrement (' + esc(r.commit) + '). <a href="' + esc(r.adresse) + '" target="_blank" rel="noopener noreferrer">Voir sur GitHub</a>';
+      if (r.tropGros && r.tropGros.length) { h += '<br><strong>Non envoyés (plus de 25 Mo) :</strong> ' + r.tropGros.map(esc).join(', '); }
+      $d('ghResultat').innerHTML = note('ok', h);
+    });
+  });
+
+  // ---------- les adresses des fiches (liens) ----------
+  var liens = [], aujourdhuiLiens = '', enAttente = {}, modifEnCours = null;
+  function dateFr(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; }
+  function ageMois(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''), a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(aujourdhuiLiens); if (!m || !a) { return 9999; } return (parseInt(a[1], 10) - parseInt(m[1], 10)) * 12 + (parseInt(a[2], 10) - parseInt(m[2], 10)); }
+  function nbAttente() { return Object.keys(enAttente).length; }
+  function libellePortee(p) { return ({ national: 'national', region: 'région', '24': 'Dordogne', '87': 'Haute-Vienne' })[p] || p; }
+  function rendreLiens() {
+    var q = ($d('liensRecherche').value || '').trim().toLowerCase(), filtre = $d('liensFiltre').value, tri = $d('liensTri').value;
+    var lignes = liens.map(function (l, i) { return { l: l, i: i }; }).filter(function (x) {
+      var l = x.l;
+      if (q && (l.nom + ' ' + l.adresse).toLowerCase().indexOf(q) === -1) { return false; }
+      if (filtre === 'averifier') { return !l.date || ageMois(l.date) >= 12; }
+      if (filtre === 'sansdate') { return !l.date; }
+      if (filtre === 'attente') { return !!enAttente[l.nom]; }
+      return true;
+    });
+    if (tri === 'anciennes') { lignes.sort(function (a, b) { return (a.l.date || '') < (b.l.date || '') ? -1 : ((a.l.date || '') > (b.l.date || '') ? 1 : a.i - b.i); }); }
+    var sansDate = liens.filter(function (l) { return !l.date; }).length, vieux = liens.filter(function (l) { return l.date && ageMois(l.date) >= 12; }).length;
+    $d('liensStats').textContent = liens.length + ' adresses : ' + sansDate + ' jamais vérifiée' + (sansDate > 1 ? 's' : '') + ', ' + vieux + ' vérifiée' + (vieux > 1 ? 's' : '') + ' il y a plus de 12 mois. ' + lignes.length + ' affichée' + (lignes.length > 1 ? 's' : '') + '.';
+    var h = lignes.map(function (x) {
+      var l = x.l, ac = enAttente[l.nom];
+      var etat = ac ? ({ valider: 'sera validée aujourd\'hui', modifier: 'adresse corrigée, sera datée', supprimer: 'sera supprimée' })[ac.op] : (l.date ? 'vérifiée le ' + dateFr(l.date) : 'jamais vérifiée');
+      var classe = ac ? 'attente' : '', cetat = ac ? '' : (!l.date ? 'jamais' : (ageMois(l.date) >= 12 ? 'vieux' : 'bon'));
+      var adr = '<a href="' + esc(l.adresse) + '" target="_blank" rel="noopener noreferrer">' + esc(l.adresse) + '</a>';
+      if (ac && ac.op === 'modifier') { adr = '<s>' + esc(l.adresse) + '</s><br><a href="' + esc(ac.adresse) + '" target="_blank" rel="noopener noreferrer">' + esc(ac.adresse) + '</a>'; }
+      var utilise = l.nbFiches ? '<br><span class="mini">utilisée par ' + l.nbFiches + ' fiche' + (l.nbFiches > 1 ? 's' : '') + '</span>' : '';
+      var actions;
+      if (modifEnCours === l.nom) {
+        actions = '<input type="text" class="liensModAdresse" value="' + esc(ac && ac.adresse ? ac.adresse : l.adresse) + '" style="min-width:18rem"> <button class="btn petit primaire" type="button" data-lien-ok="' + esc(l.nom) + '">OK</button> <button class="btn petit" type="button" data-lien-non="' + esc(l.nom) + '">Annuler</button>';
+      } else if (ac) {
+        actions = '<button class="btn petit" type="button" data-lien-retirer="' + esc(l.nom) + '">Annuler ce choix</button>';
+      } else {
+        actions = '<button class="btn petit" type="button" data-lien-valider="' + esc(l.nom) + '">Valider</button> <button class="btn petit" type="button" data-lien-modifier="' + esc(l.nom) + '">Modifier</button> '
+          + '<button class="btn petit" type="button" data-lien-supprimer="' + esc(l.nom) + '"' + (l.nbFiches ? ' disabled title="Utilisée par ' + l.nbFiches + ' fiche(s) : retirez-la d\'abord de ces fiches"' : '') + '>Supprimer</button>';
+      }
+      return '<tr class="' + classe + '"><td class="mono">' + esc(l.nom) + utilise + '</td><td class="adresse">' + adr + '</td><td class="' + cetat + '">' + esc(etat) + '</td><td>' + esc(libellePortee(l.portee)) + '</td><td>' + actions + '</td></tr>';
+    }).join('');
+    // adresses AJOUTEES en attente (pas encore dans le registre)
+    var ajoutees = Object.keys(enAttente).filter(function (n) { return enAttente[n].op === 'ajouter'; }).map(function (n) {
+      var ac = enAttente[n];
+      return '<tr class="attente"><td class="mono">' + esc(n) + '<br><span class="mini">nouvelle adresse</span></td><td class="adresse"><a href="' + esc(ac.adresse) + '" target="_blank" rel="noopener noreferrer">' + esc(ac.adresse) + '</a></td><td>' + (ac.dater ? 'sera datée d\'aujourd\'hui' : 'pas encore vérifiée') + '</td><td>' + esc(libellePortee(ac.portee)) + '</td><td><button class="btn petit" type="button" data-lien-retirer="' + esc(n) + '">Annuler ce choix</button></td></tr>';
+    }).join('');
+    $d('liensCorps').innerHTML = ajoutees + h;
+    var n = nbAttente();
+    $d('liensAttente').innerHTML = '<strong>' + n + '</strong> modification' + (n > 1 ? 's' : '') + ' en attente';
+    $d('liensEnregistrer').disabled = !n; $d('liensToutAnnuler').disabled = !n;
+  }
+  function chargerLiens() {
+    return appeler('/api/liens/lister').then(function (r) {
+      if (!r.ok) { $d('liensResultat').innerHTML = note('warn', esc(r.erreur || 'Liste impossible.')); return; }
+      liens = r.liens; aujourdhuiLiens = r.aujourdhui; rendreLiens();
+    });
+  }
+  $d('liensOuvrir').addEventListener('click', function () { $d('liensFenetre').style.display = 'block'; $d('liensResultat').innerHTML = ''; chargerLiens(); });
+  $d('liensFermer').addEventListener('click', function () {
+    if (nbAttente() && !window.confirm('Vous avez des modifications non enregistrées. Fermer quand même (elles seront perdues) ?')) { return; }
+    enAttente = {}; modifEnCours = null; $d('liensFenetre').style.display = 'none';
+  });
+  ['liensRecherche', 'liensFiltre', 'liensTri'].forEach(function (id) { $d(id).addEventListener('input', rendreLiens); $d(id).addEventListener('change', rendreLiens); });
+  $d('liensCorps').addEventListener('click', function (e) {
+    var t = e.target; if (!t || !t.getAttribute) { return; }
+    var v = t.getAttribute('data-lien-valider'), m = t.getAttribute('data-lien-modifier'), su = t.getAttribute('data-lien-supprimer'), re = t.getAttribute('data-lien-retirer'), ok = t.getAttribute('data-lien-ok'), non = t.getAttribute('data-lien-non');
+    if (v) { enAttente[v] = { op: 'valider', nom: v }; }
+    else if (m) { modifEnCours = m; }
+    else if (su) { enAttente[su] = { op: 'supprimer', nom: su }; }
+    else if (re) { delete enAttente[re]; }
+    else if (non) { modifEnCours = null; }
+    else if (ok) {
+      var champ = t.parentNode.querySelector('.liensModAdresse'), a = (champ && champ.value || '').trim();
+      var courante = liens.filter(function (l) { return l.nom === ok; })[0];
+      if (!/^https?:\/\/\S+$/.test(a) || a.indexOf('|') !== -1) { window.alert('Cette adresse n\'est pas valide : elle doit commencer par https:// et ne contenir ni espace ni barre verticale.'); return; }
+      if (courante && a === courante.adresse) { enAttente[ok] = { op: 'valider', nom: ok }; } else { enAttente[ok] = { op: 'modifier', nom: ok, adresse: a, dater: true }; }
+      modifEnCours = null;
+    } else { return; }
+    rendreLiens();
+  });
+  $d('liensAjouterBascule').addEventListener('click', function () { var z = $d('liensAjout'); z.style.display = z.style.display === 'none' ? 'block' : 'none'; });
+  $d('liensAjouterOk').addEventListener('click', function () {
+    var nom = ($d('liensNouveauNom').value || '').trim().toLowerCase(), a = ($d('liensNouvelleAdresse').value || '').trim(), msg = $d('liensAjoutMessage');
+    if (!/^[a-z0-9][a-z0-9-]{0,80}$/.test(nom)) { msg.textContent = 'Le nom court ne peut contenir que des lettres minuscules sans accent, des chiffres et des tirets.'; return; }
+    if (liens.some(function (l) { return l.nom === nom; }) || enAttente[nom]) { msg.textContent = 'Ce nom existe déjà : choisissez-en un autre.'; return; }
+    if (!/^https?:\/\/\S+$/.test(a) || a.indexOf('|') !== -1) { msg.textContent = 'Adresse non valide : elle doit commencer par https://, sans espace.'; return; }
+    enAttente[nom] = { op: 'ajouter', nom: nom, adresse: a, portee: $d('liensNouvellePortee').value, dater: $d('liensNouvelleDatee').checked };
+    $d('liensNouveauNom').value = ''; $d('liensNouvelleAdresse').value = ''; $d('liensNouvelleDatee').checked = false; msg.textContent = 'Ajoutée à la liste (en attente d\'enregistrement).';
+    rendreLiens();
+  });
+  $d('liensToutAnnuler').addEventListener('click', function () { enAttente = {}; modifEnCours = null; rendreLiens(); });
+  $d('liensEnregistrer').addEventListener('click', function () {
+    var actions = Object.keys(enAttente).map(function (n) { return enAttente[n]; });
+    if (!actions.length) { return; }
+    var b = this; b.disabled = true; b.textContent = 'Enregistrement...';
+    $d('liensResultat').innerHTML = note('', 'Vérification et enregistrement en cours (quelques secondes)...');
+    appeler('/api/publier', { fichiers: [{ type: 'liens', actions: actions }] }).then(function (r) {
+      b.textContent = 'Enregistrer les modifications';
+      if (r.ok) {
+        var rs = r.resumeLiens || {};
+        $d('liensResultat').innerHTML = note('ok', '<strong>Enregistré</strong> (enregistrement ' + esc(r.commit) + ') : ' + (rs.valides || 0) + ' validée(s), ' + (rs.modifies || 0) + ' corrigée(s), ' + (rs.ajoutes || 0) + ' ajoutée(s), ' + (rs.supprimes || 0) + ' supprimée(s). Les vérifications automatiques sont vertes.');
+        enAttente = {}; modifEnCours = null; $d('liensAnnulerPub').style.display = 'inline-block'; $d('depotAnnuler').style.display = 'inline-block'; chargerLiens();
+      } else {
+        b.disabled = false;
+        $d('liensResultat').innerHTML = note('warn', '<strong>Rien n\'a été enregistré.</strong> ' + esc(r.erreur || '') + '<br>Vos choix restent à l\'écran : corrigez puis recommencez.');
+      }
+    });
+  });
+  $d('liensAnnulerPub').addEventListener('click', function () {
+    if (!window.confirm('Défaire la dernière publication ? Un nouvel enregistrement remet les adresses comme avant.')) { return; }
+    appeler('/api/annuler').then(function (r) {
+      $d('liensResultat').innerHTML = r.ok ? note('ok', 'Publication annulée (enregistrement ' + esc(r.commit) + ').') : note('warn', '<strong>Annulation impossible.</strong> ' + esc(r.erreur || ''));
+      if (r.ok) { $d('liensAnnulerPub').style.display = 'none'; $d('depotAnnuler').style.display = 'none'; chargerLiens(); }
+    });
+  });
+
+  // ---------- ouverture du panneau ----------
+  var pastille = $d('depotPastille'), panneau = $d('depotPanneau');
+  function basculer(ouvrir) {
+    var o = (ouvrir === undefined) ? panneau.style.display !== 'block' : ouvrir;
+    panneau.style.display = o ? 'block' : 'none'; pastille.setAttribute('aria-expanded', o ? 'true' : 'false');
+    if (o) { rendrePanier(); rafraichirEnvoi(); ghEtat(); }
+  }
+  pastille.addEventListener('click', function () { basculer(); });
+  $d('depotFermer').addEventListener('click', function () { basculer(false); });
+  pastille.style.display = 'inline-block'; pastille.textContent = panier.length ? 'Dépôt (' + panier.length + ')' : 'Dépôt';
+  rendrePanier();
+
+  // Un mot dans l'aide-mémoire habituel : avec le lanceur, le bouton « Dépôt » fait ces étapes.
+  var det = document.getElementById('detDeposerDepot');
+  if (det) { det.insertAdjacentHTML('afterbegin', '<div class="note ok" style="margin:.5rem 0"><span>&#128640;</span><span><strong>Vous avez ouvert l\'outil par le lanceur :</strong> le bouton « Dépôt » (en bas à droite) range les fichiers, vérifie et enregistre pour vous. Cet aide-mémoire reste valable pour le Lexique et pour dater les adresses.</span></div>'); }
+})();
+</script>
+
 </body>
 </html>
