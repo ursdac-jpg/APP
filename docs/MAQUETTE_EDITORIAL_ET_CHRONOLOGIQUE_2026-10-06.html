@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : planches Éditorial et Chronologique</title>
+<style>
+:root { --bg:#f4f6fa; --card:#fff; --text:#1d2733; --strong:#0f1a2a; --muted:#5b6777; --border:#d5dbe5; --accent:#1a63d6; --accent-bg:#e7f0ff; --ok:#1f7a4d; --warn-bg:#fff4e0; --warn:#b26a00; }
+@media (prefers-color-scheme: dark) { :root { --bg:#10151c; --card:#18202b; --text:#dde4ee; --strong:#fff; --muted:#9aa7b8; --border:#334055; --accent:#6aa2ff; --accent-bg:#1c2c47; --ok:#5fd09a; --warn-bg:#3a2d12; --warn:#ffb84d; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 "Segoe UI", system-ui, sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 60px; }
+h1 { font-size: 1.5rem; color: var(--strong); margin: 0 0 4px; }
+h2 { font-size: 1.25rem; color: var(--strong); margin: 34px 0 8px; }
+h3 { font-size: 1rem; color: var(--strong); margin: 0 0 6px; }
+p { margin: 6px 0; }
+.sous { color: var(--muted); font-size: .92rem; }
+.encart { background: var(--accent-bg); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 12px 0; }
+.encart.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+.carte { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin: 12px 0; }
+.btn { border: 1.5px solid var(--accent); background: var(--card); color: var(--accent); border-radius: 12px; padding: 7px 13px; font: inherit; font-size: .92rem; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--accent-bg); }
+.btn[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.barre { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.barre b { margin-right: 4px; }
+.planche { display: grid; grid-template-columns: 590px minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 1000px) { .planche { grid-template-columns: 1fr; } }
+.feuille { width: 590px; height: 834px; background: #fff; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,.15); position: relative; overflow: hidden; margin: 6px 0; max-width: 100%; }
+.config { background: var(--bg); border: 1px dashed var(--border); border-radius: 10px; padding: 8px 12px; font-family: Consolas, monospace; font-size: .85rem; white-space: pre-wrap; }
+.liste { margin: 4px 0 0 18px; padding: 0; font-size: .92rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+th { background: var(--accent-bg); }
+.reco { display: inline-block; background: var(--ok); color: #fff; border-radius: 999px; padding: 1px 10px; font-size: .78rem; margin-left: 6px; }
+.refs { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+.refs figure { margin: 0; width: 150px; font-size: .8rem; color: var(--muted); }
+.refs img { width: 150px; border: 1px solid var(--border); border-radius: 4px; display: block; }
+
+/* ---------- La page A4 de la maquette (794 x 1123 px, réduite à 0,743) ---------- */
+.a4 { width: 794px; height: 1123px; transform: scale(.743); transform-origin: 0 0; position: absolute; left: 0; top: 0; background: var(--papier, #fff); color: #1c2430; font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.38; padding: 40px 44px; --acc: #1e3a5f; --papier: #fff; }
+.a4.teinte { --papier: #fbf6ec; }
+.a4 h2 { margin: 0 0 6px; font-size: 15px; color: var(--acc); }
+.a4 ul { margin: 3px 0 0 16px; padding: 0; }
+.a4 li { margin: 1px 0; }
+.a4 small { font-size: 11px; }
+.a4 .gris { color: #5b6470; }
+.a4 .bloc { margin-bottom: 15px; }
+.a4 .exp { margin-bottom: 11px; }
+.a4 .exp .t { display: flex; justify-content: space-between; gap: 10px; font-weight: 700; }
+.a4 .exp .t span.d { font-weight: 400; color: #4b5563; white-space: nowrap; }
+.a4.serif .nom, .a4.serif h2.gd { font-family: Georgia, "Times New Roman", serif; }
+/* Éditorial A : nom en pile */
+.edA .haut { display: flex; gap: 26px; align-items: flex-start; }
+.edA .nom { display: flex; flex-direction: column; font-size: 54px; line-height: .95; font-weight: 700; color: var(--acc); width: 250px; flex: none; letter-spacing: -1px; }
+.edA .droite { flex: 1; padding-top: 4px; }
+.edA .contact { font-size: 11.5px; color: #374151; margin-bottom: 14px; display: flex; gap: 18px; flex-wrap: wrap; }
+.edA .accroche { margin: 0; font-size: 13px; }
+.edA .poste { font-size: 20px; line-height: 1.1; margin: 10px 0 22px; width: 250px; color: #1c2430; }
+.edA .filet { border: 0; border-top: 1px solid var(--acc); opacity: .5; margin: 0 0 18px; }
+.edA .corps { display: flex; gap: 0; }
+.edA .etroite { width: 250px; flex: none; padding-right: 22px; }
+.edA .large { flex: 1; padding-left: 22px; }
+.edA.trait .etroite { border-right: 1.5px solid var(--acc); }
+.edA.col-droite .haut { flex-direction: row-reverse; }
+.edA.col-droite .corps { flex-direction: row-reverse; }
+.edA.col-droite .large { padding-left: 0; padding-right: 22px; }
+.edA.col-droite .etroite { padding-right: 0; padding-left: 22px; }
+.edA.col-droite.trait .etroite { border-right: 0; border-left: 1.5px solid var(--acc); }
+.edA.col-droite .poste { margin-left: auto; }
+/* Éditorial B : nom typographique pleine largeur */
+.edB .nomB { font-size: 46px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase; line-height: 1.02; color: #1c2430; }
+.edB .nomB .p { color: var(--acc); font-size: 46px; }
+.edB .filetB { border: 0; border-top: 2px solid var(--acc); margin: 12px -44px 20px; }
+.edB .corps { display: flex; }
+.edB .large { flex: 1; padding-right: 22px; }
+.edB .etroite { width: 250px; flex: none; padding-left: 22px; }
+.edB.trait .etroite { border-left: 1.5px solid var(--acc); }
+.edB.col-gauche .corps { flex-direction: row-reverse; }
+.edB.col-gauche .large { padding-right: 0; padding-left: 22px; }
+.edB.col-gauche .etroite { padding-left: 0; padding-right: 22px; }
+.edB.col-gauche.trait .etroite { border-left: 0; border-right: 1.5px solid var(--acc); }
+.edB h2 { font-size: 22px; font-weight: 400; text-transform: uppercase; letter-spacing: .5px; }
+.edB .etroite h2 { font-size: 19px; }
+/* Chronologique */
+.ch { padding: 0; --acc: #3f6f66; --col: #cfe3df; }
+.ch .principal { position: absolute; top: 34px; bottom: 30px; left: 40px; right: 270px; }
+.ch .colonne { position: absolute; top: 0; bottom: 0; right: 0; width: 240px; background: var(--col); padding: 26px 22px; }
+.ch.col-gauche .principal { left: 270px; right: 40px; }
+.ch.col-gauche .colonne { right: auto; left: 0; }
+.ch.sans-colonne .colonne { display: none; }
+.ch.sans-colonne .principal { right: 40px; }
+.ch .nomC { font-size: 24px; font-weight: 700; color: var(--acc); margin: 0; }
+.ch .sousC { font-size: 13px; color: #4b5563; margin-bottom: 14px; }
+.ch h2.titreC { font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; color: #111; border-bottom: 1.5px solid var(--acc); padding-bottom: 3px; margin: 14px 0 10px; }
+.ch .lig { display: flex; gap: 12px; margin-bottom: 11px; }
+.ch .marge { width: 100px; flex: none; text-align: right; font-size: 11.5px; color: var(--acc); line-height: 1.3; }
+.ch .marge .lieu { display: none; color: #4b5563; }
+.ch.lieu-marge .marge .lieu { display: block; }
+.ch .det .em { font-weight: 700; }
+.ch .det .role { color: var(--acc); font-weight: 600; }
+.ch .det .duree { display: none; font-size: 11.5px; color: #374151; }
+.ch.duree .det .duree { display: block; }
+.ch .det .lieu-in { color: #4b5563; font-weight: 400; }
+.ch.lieu-marge .det .lieu-in { display: none; }
+.ch .photo { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #9ec5fe, #f8d7a8); border: 3px solid var(--acc); margin: 0 auto 14px; display: block; }
+.ch .colonne h2 { font-size: 12.5px; letter-spacing: 1.5px; text-transform: uppercase; color: #111; border-bottom: 1.5px solid var(--acc); padding-bottom: 3px; margin: 14px 0 6px; }
+.ch .colonne p, .ch .colonne li { font-size: 12px; margin: 2px 0; }
+.ch .colonne ul { margin-left: 14px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Maquette : planches « Éditorial » et « Chronologique »</h1>
+<p class="sous">Préparée le 2026-10-06 pour validation. Rien n'est codé. Ce sont des <b>dessins</b> (HTML) faits pour comparer avec tes exemples, avec un CV fictif ; le vrai rendu viendra du moteur après ton accord. Chaque planche se règle avec les boutons : la <b>configuration résultante</b> s'écrit en dessous.</p>
+
+<div class="encart"><b>Ce que cette maquette te demande de décider</b>
+<ol class="liste">
+<li><b>Éditorial</b> : quelles variantes construire (A « nom en pile », B « nom typographique »), et quels réglages garder (colonne à gauche ou à droite, trait vertical, teinte de page, police à empattement).</li>
+<li><b>Chronologique</b> : la durée en italique, le lieu dans la marge, la colonne à droite ou à gauche, et si on accepte le calcul de durée (voir le risque plus bas).</li>
+<li>Les <b>noms</b> et leur place : ce sont des modèles de l'allure <b>Sobre</b>.</li>
+</ol></div>
+
+<h2>1. Éditorial (famille B, allure Sobre)</h2>
+<p>D'après tes exemples 1, 7 et 17 : un en-tête typographique (grand nom), une colonne étroite avec un trait vertical, pas de fond coloré.</p>
+<div class="refs">
+<figure><img src="modeles_exemples/3.jpg" alt="Exemple 1"><figcaption>Exemple 1 : nom en pile, serif orangé</figcaption></figure>
+<figure><img src="modeles_exemples/9.jpg" alt="Exemple 7"><figcaption>Exemple 7 : nom et poste géants</figcaption></figure>
+<figure><img src="modeles_exemples/19.png" alt="Exemple 17"><figcaption>Exemple 17 : nom gras, filet, colonne grise</figcaption></figure>
+</div>
+
+<div class="carte">
+<div class="barre"><b>Variante</b>
+<button class="btn" data-ed="var" data-v="A" aria-pressed="true" type="button">A. Nom en pile <span class="reco">Recommandé</span></button>
+<button class="btn" data-ed="var" data-v="B" aria-pressed="false" type="button">B. Nom typographique pleine largeur</button></div>
+<div class="barre"><b>Réglages</b>
+<button class="btn" data-ed="col" aria-pressed="false" type="button">Colonne étroite à droite</button>
+<button class="btn" data-ed="trait" aria-pressed="true" type="button">Trait vertical</button>
+<button class="btn" data-ed="serif" aria-pressed="true" type="button">Nom à empattement (Georgia)</button>
+<button class="btn" data-ed="teinte" aria-pressed="false" type="button">Teinte de page (crème)</button></div>
+<div class="barre"><b>Couleur</b>
+<button class="btn" data-ed="coul" data-c="#1e3a5f" aria-pressed="true" type="button">Marine</button>
+<button class="btn" data-ed="coul" data-c="#b5553a" aria-pressed="false" type="button">Terre cuite</button>
+<button class="btn" data-ed="coul" data-c="#2f6b4f" aria-pressed="false" type="button">Vert</button>
+<button class="btn" data-ed="coul" data-c="#33383d" aria-pressed="false" type="button">Ardoise</button></div>
+<div class="planche">
+<div class="feuille" id="feuilleEd"></div>
+<div>
+<div class="config" id="configEd"></div>
+<h3 style="margin-top:12px">Ce que le moteur sait déjà faire, et ce qui est nouveau</h3>
+<table>
+<tr><th>Élément</th><th>Aujourd'hui</th><th>Coût et risque</th></tr>
+<tr><td>Deux colonnes, colonne étroite</td><td>Existe (Épuré, Standard)</td><td>Aucun</td></tr>
+<tr><td>Trait vertical entre les colonnes</td><td>Existe (« Trait entre les deux colonnes »)</td><td>Aucun</td></tr>
+<tr><td>Colonne étroite à droite</td><td>Existe sur certains modèles (« colonnes inversées »)</td><td>À vérifier pour ce modèle</td></tr>
+<tr><td>Police du nom à empattement</td><td>Georgia et Garamond existent (police du CV entier)</td><td>Réglage « police du nom » : nouveau, faible. Word : Georgia est présente sur Windows et Mac</td></tr>
+<tr><td>Grand nom en pile</td><td>Nouveau (en-tête sobre)</td><td>Moyen. Word : deux lignes de texte, pas de dessin, donc sûr</td></tr>
+<tr><td>Teinte de page (crème)</td><td><b>Nouveau : le fond de page est blanc en dur</b></td><td>PDF : facile. <b>Word : une couleur de page ne s'imprime pas par défaut</b> ; il faudrait un grand rectangle de fond, ou ne pas l'offrir dans Word</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<h2>2. Chronologique (famille C, allure Sobre)</h2>
+<p>D'après tes exemples 4 et 16 : les dates (et parfois le lieu) dans la marge à gauche de chaque expérience, une colonne claire pour le reste, la durée en italique.</p>
+<div class="refs">
+<figure><img src="modeles_exemples/6.png" alt="Exemple 4"><figcaption>Exemple 4 : dates en marge, colonne claire à droite, durée en italique</figcaption></figure>
+<figure><img src="modeles_exemples/18.jpg" alt="Exemple 16"><figcaption>Exemple 16 : dates et lieu en marge (colonne foncée : traitée par « Colonne foncée »)</figcaption></figure>
+</div>
+
+<div class="carte">
+<div class="barre"><b>Réglages</b>
+<button class="btn" data-ch="col" data-v="droite" aria-pressed="true" type="button">Colonne à droite <span class="reco">Recommandé</span></button>
+<button class="btn" data-ch="col" data-v="gauche" aria-pressed="false" type="button">Colonne à gauche</button>
+<button class="btn" data-ch="col" data-v="aucune" aria-pressed="false" type="button">Sans colonne</button></div>
+<div class="barre">
+<button class="btn" data-ch="duree" aria-pressed="true" type="button">Durée en italique</button>
+<button class="btn" data-ch="lieu" aria-pressed="false" type="button">Lieu dans la marge</button>
+<button class="btn" data-ch="coul" data-c="#3f6f66" data-f="#cfe3df" aria-pressed="true" type="button">Vert d'eau</button>
+<button class="btn" data-ch="coul" data-c="#1e3a5f" data-f="#dde5ee" aria-pressed="false" type="button">Marine</button>
+<button class="btn" data-ch="coul" data-c="#b5553a" data-f="#f3e0d6" aria-pressed="false" type="button">Terre cuite</button>
+<button class="btn" data-ch="coul" data-c="#33383d" data-f="#e8eaed" aria-pressed="false" type="button">Gris</button></div>
+<div class="planche">
+<div class="feuille" id="feuilleCh"></div>
+<div>
+<div class="config" id="configCh"></div>
+<h3 style="margin-top:12px">Ce que le moteur sait déjà faire, et ce qui est nouveau</h3>
+<table>
+<tr><th>Élément</th><th>Aujourd'hui</th><th>Coût et risque</th></tr>
+<tr><td>Dates dans la marge</td><td>Existe (modèle Sobre « Photo et frise »), d'après l'analyse du 2026-10-01, à revérifier dans le code</td><td>Faible. Word : déjà géré pour ce modèle</td></tr>
+<tr><td>Colonne claire avec photo ronde</td><td>Photo ronde et colonne pleine hauteur : existent (Colonne claire)</td><td>Faible</td></tr>
+<tr><td>Colonne à gauche ou à droite</td><td>« Colonnes inversées » : sur certains modèles</td><td>À vérifier</td></tr>
+<tr><td>Lieu dans la marge</td><td>Nouveau (le lieu suit aujourd'hui le poste)</td><td>Faible à moyen</td></tr>
+<tr><td><b>Durée en italique</b></td><td><b>Nouveau : la durée est calculée, elle n'est pas saisie</b></td><td><b>Risque de contenu</b> (voir l'encadré)</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<div class="encart warn"><b>Risque à trancher : la durée.</b> Pour écrire « 2 ans et 5 mois », on déduit la durée de deux dates. Or tu as fixé la règle de ne jamais déduire à partir des dates : une année seule veut dire cette année-là, rien de plus. Ma proposition : la durée ne s'affiche <b>que si les deux dates ont un mois</b> (janvier 2022 à juin 2024) ; sinon, rien n'est écrit (jamais « environ », jamais d'invention). La personne peut aussi la masquer. Veux-tu ce calcul, ou préfères-tu retirer la durée du modèle ?</div>
+
+<h2>3. Mes recommandations</h2>
+<table>
+<tr><th>Choix</th><th>Recommandé</th><th>Pourquoi</th></tr>
+<tr><td>Éditorial : variantes à construire</td><td><b>A seule d'abord</b> (nom en pile). B plus tard si tu la veux</td><td>A reprend l'exemple 1 et réutilise le plus de l'existant ; B demande un deuxième en-tête et un titre de rubrique en grand</td></tr>
+<tr><td>Teinte de page</td><td><b>Ne pas l'offrir au départ</b></td><td>Le blanc reste le plus sûr à l'impression ; en Word elle ne s'imprime pas sans astuce. Je l'ajoute plus tard si tu y tiens</td></tr>
+<tr><td>Chronologique : colonne</td><td><b>Colonne claire à droite</b>, avec le choix « à gauche » et « sans colonne »</td><td>Comme l'exemple 4 ; les choix gauche et sans colonne sont de simples réglages</td></tr>
+<tr><td>Durée</td><td>Oui, <b>seulement avec deux mois connus</b>, masquable</td><td>Respecte ta règle sur les dates</td></tr>
+<tr><td>Ordre de construction</td><td>Chronologique d'abord (plus proche de l'existant), puis Éditorial</td><td>Moins de risque en premier</td></tr>
+<tr><td>Noms</td><td>« Éditorial » et « Chronologique »</td><td>Courts, compréhensibles ; à changer si tu préfères</td></tr>
+</table>
+<p class="sous">Garde-fous : option éteinte par défaut, aucun modèle existant touché, banc de non-régression avant et après, vérification dans un vrai Word à chaque modèle.</p>
+</main>
+
+<script>
+var DONNEES = {
+  nom: 'Camille Martin', prenom: 'Camille', famille: 'Martin', poste: 'Agent de sécurité',
+  accroche: 'Rigoureuse et calme, j\'ai trois ans d\'expérience dans la surveillance et l\'accueil. Je cherche un poste en CDI à Limoges.',
+  contact: ['06 00 00 00 00', 'camille@exemple.fr', 'Limoges (87000)'],
+  exps: [
+    { poste: 'Agent de sécurité', ent: 'Sécuritas', lieu: 'Limoges', dates: 'Janv. 2022 - Juin 2024', dm: ['Janv. 2022 -', 'Juin 2024'], duree: '2 ans et 5 mois', missions: ['Surveiller les accès', 'Contrôler les badges', 'Rédiger des rapports'] },
+    { poste: 'Vendeuse', ent: 'Boulangerie Dupont', lieu: 'Limoges', dates: '2019 - 2021', dm: ['2019 -', '2021'], duree: '', missions: ['Accueillir les clients', 'Tenir la caisse'] },
+    { poste: 'Employée polyvalente', ent: 'Café du centre', lieu: 'Limoges', dates: 'Mai 2017 - Déc. 2018', dm: ['Mai 2017 -', 'Déc. 2018'], duree: '1 an et 7 mois', missions: ['Servir en salle', 'Encaisser'] }
+  ],
+  forms: [['CAP Agent de prévention', 'AFPA, 2021'], ['BEP Vente', 'Lycée Turgot, 2018']],
+  comp: ['Sens du contact', 'Rigueur', 'Gestion du stress', 'Travail en équipe'],
+  langues: ['Anglais : niveau B1'], certifs: ['Sauveteur secouriste du travail (2026)', 'Habilitation électrique BS (2026)'], loisirs: ['Course à pied', 'Cuisine']
+};
+var D = DONNEES;
+var ul = function (t) { return '<ul>' + t.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>'; };
+var expEd = D.exps.map(function (e) { return '<div class="exp"><div class="t"><span>' + e.poste + ' <span style="font-weight:400">- ' + e.ent + ', ' + e.lieu + '</span></span><span class="d">' + e.dates + '</span></div>' + ul(e.missions) + '</div>'; }).join('');
+var formEd = D.forms.map(function (f) { return '<div class="exp"><div class="t"><span>' + f[0] + '</span></div><span class="gris">' + f[1] + '</span></div>'; }).join('');
+var etroiteA = '<div class="bloc"><h2>Compétences</h2>' + ul(D.comp) + '</div><div class="bloc"><h2>Langues</h2>' + ul(D.langues) + '</div><div class="bloc"><h2>Certifications</h2>' + ul(D.certifs) + '</div><div class="bloc"><h2>Centres d\'intérêt</h2>' + ul(D.loisirs) + '</div>';
+function htmlEdA() {
+  return '<div class="a4 edA"><div class="haut"><div class="nom"><span>' + D.prenom + '</span><span>' + D.famille + '</span></div><div class="droite"><div class="contact">' + D.contact.map(function (c) { return '<span>' + c + '</span>'; }).join('') + '</div><p class="accroche">' + D.accroche + '</p></div></div>' +
+    '<div class="poste">' + D.poste + '</div><hr class="filet"><div class="corps"><div class="etroite">' + etroiteA + '</div><div class="large"><div class="bloc"><h2>Expériences professionnelles</h2>' + expEd + '</div><div class="bloc"><h2>Formations</h2>' + formEd + '</div></div></div></div>';
+}
+function htmlEdB() {
+  return '<div class="a4 edB"><div class="nomB">' + D.nom + '<br><span class="p">' + D.poste + '</span></div><hr class="filetB"><div class="corps"><div class="large"><p style="margin:0 0 14px">' + D.accroche + '</p><div class="bloc"><h2 class="gd">Expériences professionnelles</h2>' + expEd + '</div><div class="bloc"><h2 class="gd">Formations</h2>' + formEd + '</div></div>' +
+    '<div class="etroite"><div class="bloc">' + D.contact.map(function (c) { return '<div>' + c + '</div>'; }).join('') + '</div>' + etroiteA.replace(/<h2>/g, '<h2 class="gd">') + '</div></div></div>';
+}
+var ed = { v: 'A', col: false, trait: true, serif: true, teinte: false, c: '#1e3a5f' };
+function rendreEd() {
+  var f = document.getElementById('feuilleEd');
+  f.innerHTML = ed.v === 'A' ? htmlEdA() : htmlEdB();
+  var p = f.firstChild;
+  p.style.setProperty('--acc', ed.c);
+  if (ed.trait) { p.classList.add('trait'); }
+  if (ed.serif) { p.classList.add('serif'); }
+  if (ed.teinte) { p.classList.add('teinte'); }
+  if (ed.v === 'A' && ed.col) { p.classList.add('col-droite'); }
+  if (ed.v === 'B' && !ed.col) { p.classList.add('col-gauche'); }
+  // Variante B : par défaut la colonne est à droite (comme l'exemple 7) ; le bouton « à droite » est coché en A seulement pour la symétrie
+  document.querySelectorAll('[data-ed]').forEach(function (b) {
+    var k = b.getAttribute('data-ed'), on;
+    if (k === 'var') { on = b.getAttribute('data-v') === ed.v; }
+    else if (k === 'coul') { on = b.getAttribute('data-c') === ed.c; }
+    else { on = !!ed[k]; }
+    b.setAttribute('aria-pressed', on);
+  });
+  var colTxt = ed.v === 'A' ? (ed.col ? 'à droite' : 'à gauche') : (ed.col ? 'à droite' : 'à gauche');
+  if (ed.v === 'B') { colTxt = ed.col ? 'à droite' : 'à gauche'; }
+  document.getElementById('configEd').textContent = 'CONFIG ÉDITORIAL (à recopier dans le code)\nvariante : ' + (ed.v === 'A' ? 'A, nom en pile (prénom sur une ligne, nom sur la suivante), poste dessous, accroche et contact à droite du nom' : 'B, nom et poste sur toute la largeur, filet pleine largeur') +
+    '\ncolonne étroite : ' + colTxt + '\ntrait vertical : ' + (ed.trait ? 'oui' : 'non') + '\npolice du nom : ' + (ed.serif ? 'Georgia (empattement)' : 'police du CV') + '\nteinte de page : ' + (ed.teinte ? 'crème (à confirmer, voir risque Word)' : 'aucune (blanc)') + '\ncouleur d\'accent : ' + ed.c + '\nallure : Sobre';
+}
+// Dans B la colonne est à droite par défaut : le bouton « Colonne étroite à droite » est inversé pour B
+document.querySelectorAll('[data-ed]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var k = this.getAttribute('data-ed');
+    if (k === 'var') { ed.v = this.getAttribute('data-v'); ed.col = (ed.v === 'B'); }
+    else if (k === 'coul') { ed.c = this.getAttribute('data-c'); }
+    else { ed[k] = !ed[k]; }
+    rendreEd();
+  });
+});
+
+var ch = { col: 'droite', duree: true, lieu: false, c: '#3f6f66', f: '#cfe3df' };
+function htmlCh() {
+  var lignes = D.exps.map(function (e) {
+    return '<div class="lig"><div class="marge">' + e.dm[0] + '<br>' + e.dm[1] + '<span class="lieu"><br>' + e.lieu + '</span></div><div class="det"><div class="em">' + e.ent + ' <span class="lieu-in">, ' + e.lieu + '</span></div><div class="role">' + e.poste + '</div>' + (e.duree ? '<i class="duree">' + e.duree + '</i>' : '') + ul(e.missions) + '</div></div>';
+  }).join('');
+  var forms = D.forms.map(function (f) { var a = f[1].split(', '); return '<div class="lig"><div class="marge">' + a[1] + '</div><div class="det"><div class="em">' + f[0] + '</div><div class="role">' + a[0] + '</div></div></div>'; }).join('');
+  return '<div class="a4 ch"><div class="principal"><h1 class="nomC">' + D.nom + '</h1><div class="sousC">' + D.poste + ' à Limoges</div><h2 class="titreC">Expériences</h2>' + lignes + '<h2 class="titreC">Formation</h2>' + forms + '</div>' +
+    '<div class="colonne"><span class="photo"></span><h2>Contact</h2>' + D.contact.map(function (c) { return '<p>' + c + '</p>'; }).join('') + '<h2>Compétences</h2>' + ul(D.comp) + '<h2>Langues</h2>' + ul(D.langues) + '<h2>Certifications</h2>' + ul(D.certifs) + '<h2>Centres d\'intérêt</h2>' + ul(D.loisirs) + '</div></div>';
+}
+function rendreCh() {
+  var f = document.getElementById('feuilleCh');
+  f.innerHTML = htmlCh();
+  var p = f.firstChild;
+  p.style.setProperty('--acc', ch.c); p.style.setProperty('--col', ch.f);
+  if (ch.col === 'gauche') { p.classList.add('col-gauche'); }
+  if (ch.col === 'aucune') { p.classList.add('sans-colonne'); }
+  if (ch.duree) { p.classList.add('duree'); }
+  if (ch.lieu) { p.classList.add('lieu-marge'); }
+  document.querySelectorAll('[data-ch]').forEach(function (b) {
+    var k = b.getAttribute('data-ch'), on;
+    if (k === 'col') { on = b.getAttribute('data-v') === ch.col; }
+    else if (k === 'coul') { on = b.getAttribute('data-c') === ch.c; }
+    else { on = !!ch[k]; }
+    b.setAttribute('aria-pressed', on);
+  });
+  document.getElementById('configCh').textContent = 'CONFIG CHRONOLOGIQUE (à recopier dans le code)\ncolonne : ' + (ch.col === 'aucune' ? 'aucune (une seule colonne)' : 'étroite, ' + ch.col + ', teinte pâle ' + ch.f + ', photo ronde en haut') +
+    '\ndates : dans la marge, à gauche de chaque expérience et de chaque formation' + '\nlieu : ' + (ch.lieu ? 'dans la marge, sous les dates' : 'après le nom de l\'entreprise') + '\ndurée en italique : ' + (ch.duree ? 'oui, seulement si les deux dates ont un mois (sinon rien)' : 'non') + '\ncouleur d\'accent : ' + ch.c + '\nallure : Sobre';
+}
+document.querySelectorAll('[data-ch]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var k = this.getAttribute('data-ch');
+    if (k === 'col') { ch.col = this.getAttribute('data-v'); }
+    else if (k === 'coul') { ch.c = this.getAttribute('data-c'); ch.f = this.getAttribute('data-f'); }
+    else { ch[k] = !ch[k]; }
+    rendreCh();
+  });
+});
+rendreEd(); rendreCh();
+</script>
+</body>
+</html>

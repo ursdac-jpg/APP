@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : ambiances et couleurs regroupées</title>
+<style>
+  :root { --fond: #f4f6f8; --bg-card: #ffffff; --bg-subtle: #f3f5f8; --text: #1c2430; --text-strong: #121821; --text-muted: #5b6573; --border: #d5dbe3; --border-strong: #b9c2cf; --accent: #2f6690; --accent-bg-subtle: #e6eff7; --ok: #1f7a4d; --alerte: #b4561f; --sur-accent: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #12161c; --bg-card: #1b212a; --bg-subtle: #171c23; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; --sur-accent: #0e1722; } }
+  :root[data-theme="sombre"] { --fond: #12161c; --bg-card: #1b212a; --bg-subtle: #171c23; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; --sur-accent: #0e1722; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--text); font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 30px 0 8px; }
+  p { margin: 6px 0; }
+  .discret { color: var(--text-muted); font-size: .92rem; }
+  .note { border-left: 4px solid var(--accent); background: var(--bg-card); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+  .alerte { border-left-color: var(--alerte); }
+  .barre { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .barre button { font: inherit; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .cadre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin: 10px 0; }
+  .cadre h3 { margin: 0 0 8px; font-size: .95rem; }
+  .etiq { color: var(--text-muted); font-size: .82rem; margin-bottom: 8px; }
+
+  /* ===== reproduction du panneau ===== */
+  .mep { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: 12px; font-size: 0.78rem; }
+  .mep.large { width: 650px; max-width: 100%; }
+  .mep.tel { width: 320px; max-width: 100%; }
+  .entete-boutons { display: flex; gap: 8px; margin-bottom: 10px; }
+  .gros { flex: 1; display: flex; flex-direction: column; background: #0d6efd; color: #fff; border-radius: 10px; padding: 6px 10px; }
+  .gros b { font-size: .85rem; } .gros small { font-size: .66rem; opacity: .9; }
+  .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+  .mep.tel .grille { grid-template-columns: 1fr; }
+  .col-g > * + *, .col-d > * + * { margin-top: 10px; }
+  .titre-mini { font-size: .8rem; font-weight: 700; color: var(--text-strong); margin-bottom: 4px; }
+  .zone-mep { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 8px; background: var(--bg-subtle); color: var(--text-muted); }
+  .btn-clair { border: 1px solid var(--border-strong); color: var(--accent); background: var(--bg-card); border-radius: 8px; padding: 4px 11px; font-size: .74rem; display: inline-block; font-family: inherit; cursor: pointer; }
+  .btn-clair.on { border-color: var(--accent); background: var(--accent-bg-subtle); font-weight: 700; }
+  .aide { display: inline-grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 50%; border: 1.5px solid var(--accent); color: var(--accent); font-weight: 700; font-size: .72rem; }
+  .ligne-btn { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .ligne-allure { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .seg { display: flex; gap: 7px; flex: 1; min-width: 220px; }
+  .seg span { flex: 1; text-align: center; border: 1.5px solid var(--border-strong); border-radius: 9px; padding: 0.55rem 0.4rem 0.4rem; font-weight: 700; color: var(--text-strong); }
+  .seg span.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+  .org { margin-top: 12px; border-radius: 10px; background: #0d6efd; color: #fff; padding: 8px 10px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+
+  /* carte d'ambiance (bouton) */
+  .amb { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--text); border-radius: 12px; padding: 9px 10px; font-family: inherit; cursor: pointer; }
+  .amb:hover { background: var(--accent-bg-subtle); }
+  .amb .pal { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, 12px); gap: 3px; }
+  .amb .pal i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .amb .txt { flex: 1; min-width: 0; }
+  .amb .txt b { display: block; color: var(--accent); font-size: .88rem; }
+  .amb .txt small { display: block; color: var(--text-muted); font-size: .68rem; line-height: 1.25; margin-top: 1px; }
+  .amb .bout { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--accent); font-size: .7rem; font-weight: 700; }
+  .amb .rond { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-size: 1rem; line-height: 1; }
+  .amb.ouvert { background: var(--accent); border-color: var(--accent); }
+  .amb.ouvert .txt b, .amb.ouvert .txt small, .amb.ouvert .bout { color: var(--sur-accent); }
+  .amb.ouvert .rond { transform: rotate(180deg); }
+
+  /* panneau regroupe */
+  .pan { position: relative; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); padding: 8px; margin-top: 14px; }
+  .pan::before { content: ""; position: absolute; top: -9px; left: 24%; width: 14px; height: 14px; background: var(--accent); transform: rotate(45deg); border-radius: 2px; }
+  .mep.tel .pan::before { left: 50%; margin-left: -7px; }
+  .pan .intro { font-size: .7rem; color: var(--text-muted); margin: 0 0 6px; }
+  .tuiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .mep.tel .tuiles { grid-template-columns: 1fr 1fr; }
+  .tuile { text-align: left; border: 1.5px solid var(--border-strong); border-radius: 9px; background: var(--bg-card); padding: 6px 8px; font-family: inherit; color: var(--text); min-width: 0; }
+  .tuile b { display: block; color: var(--text-strong); font-size: .76rem; }
+  .tuile .p { display: flex; gap: 3px; margin: 3px 0; } .tuile .p i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+  .tuile small { color: var(--text-muted); font-size: .64rem; line-height: 1.25; display: block; }
+  .tuile.special { border-style: dashed; }
+  .tuile.grise { opacity: .55; }
+  .tuile.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); }
+  .autre { margin-top: 8px; }
+  .nuancier { margin-top: 6px; padding: 8px; border: 1px dashed var(--border-strong); border-radius: 9px; background: var(--bg-card); }
+  .nuancier .pastilles { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .nuancier .pastilles i { width: 18px; height: 18px; border-radius: 50%; display: block; }
+  .pied { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between; }
+  .pied .g, .pied .d { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pied .annuler { border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 9px; padding: 4px 11px; font-size: .74rem; font-weight: 600; font-family: inherit; }
+  .pied .annuler.vide { opacity: .45; }
+  .pied .couleurs { border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 9px; padding: 4px 11px; font-size: .74rem; font-weight: 700; font-family: inherit; cursor: pointer; }
+  .pied .couleurs.on { background: var(--accent); color: var(--sur-accent); }
+  .sobre-note { font-size: .7rem; color: var(--text-muted); margin-top: 6px; }
+
+  /* familles creatif */
+  .fam { border: 1.5px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); margin-top: 6px; }
+  .fam.ouverte { border-color: var(--accent); }
+  .fam .tete { display: flex; align-items: center; gap: 8px; padding: 6px 10px; cursor: pointer; width: 100%; background: none; border: 0; font-family: inherit; color: var(--text); text-align: left; }
+  .fam .tete b { color: var(--text-strong); }
+  .fam .tete small { color: var(--text-muted); }
+  .fam .bout { margin-left: auto; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--accent); font-size: .66rem; font-weight: 700; }
+  .fam .rond { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-size: .95rem; line-height: 1; }
+  .fam.ouverte .rond { transform: rotate(180deg); }
+  .fam .corps { padding: 6px 10px 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .onglets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
+  .mep.tel .onglets { grid-template-columns: 1fr 1fr; }
+  .onglet { text-align: center; border: 1.5px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); color: var(--text-strong); padding: 7px 4px; font-family: inherit; cursor: pointer; position: relative; }
+  .onglet:hover { border-color: var(--accent); background: var(--accent-bg-subtle); }
+  .onglet b { display: block; font-size: .76rem; color: var(--accent); }
+  .onglet .n { display: block; font-size: .64rem; color: var(--text-muted); margin: 1px 0 4px; }
+  .onglet .mini3 { display: flex; gap: 3px; justify-content: center; }
+  .onglet .mini3 i { width: 14px; height: 18px; border: 1px solid var(--border-strong); border-radius: 2px; background: var(--bg-subtle); display: block; }
+  .onglet.on { background: var(--accent); border-color: var(--accent); }
+  .onglet.on b, .onglet.on .n { color: var(--sur-accent); }
+  .onglet.on .mini3 i { border-color: var(--sur-accent); }
+  .onglet.on::after { content: ""; position: absolute; left: 50%; bottom: -8px; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--accent); border-bottom: 0; }
+  .corps-ong { margin-top: 10px; padding: 8px; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); display: flex; gap: 6px; flex-wrap: wrap; }
+  .vig { width: 64px; height: 82px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--bg-subtle); display: grid; place-items: end center; font-size: .6rem; color: var(--text-muted); padding: 3px; text-align: center; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--bg-card); border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: .9rem; }
+  th { background: var(--accent-bg-subtle); }
+  .oui { color: var(--ok); font-weight: 700; } .non { color: var(--alerte); font-weight: 700; }
+  .vignette-cv { display: inline-block; width: 120px; vertical-align: top; margin: 4px 8px 4px 0; font-size: .72rem; color: var(--text-muted); }
+  .vignette-cv .feuille { background: #fff; color: #20262e; border: 1px solid #d9dee6; border-radius: 4px; padding: 7px; height: 150px; font-size: 7px; line-height: 1.3; }
+  .vignette-cv .h2 { display: inline-block; font-weight: 700; padding: 1px 5px; margin: 4px 0 2px; font-size: 7px; letter-spacing: .04em; }
+  .vignette-cv .h2.mal { background: #1f7a72; color: #20262e; border-radius: 6px; }
+  .vignette-cv .h2.bien { background: #1f7a72; color: #fff; border-radius: 6px; }
+  .vignette-cv .h2.sobre { border-bottom: 2px solid #1f7a72; padding-left: 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : les couleurs regroupées dans « Choisir une ambiance », et le mode Sobre</h1>
+  <p class="discret">Étape « maquette » : rien n'est codé pour cette partie. Les panneaux sont à la taille réelle. Les cartes et boutons sont cliquables.</p>
+  <div class="barre"><button type="button" id="basculeSombre">Voir en mode sombre</button></div>
+
+  <h2>0. Déjà fait avant cette maquette (commit 4b334cc9)</h2>
+  <div class="note">Le rond « Ouvrir / Fermer » est maintenant sur tous les panneaux qui s'ouvrent (Organisation du CV, En-tête, Compétences, etc.). Au survol, la carte « Choisir une ambiance » ouverte reste lisible (bleu un peu plus foncé, comme « Style rapide »). En mode « Boutons plus grands », Sobre, Standard et Créatif sont sur la même ligne, sous le titre.</div>
+
+  <h2>1. Le constat</h2>
+  <div class="note">Aujourd'hui il y a deux endroits où choisir une couleur : le bloc « Couleurs » (douze pastilles, couleur de l'entreprise, couleur libre) et, plus bas, les six ambiances qui portent chacune leur couleur. Une personne qui découvre ne comprend pas pourquoi. En plus, en mode Sobre la carte d'ambiance est grisée.</div>
+
+  <h2>2. Proposition : un seul endroit pour les couleurs et les ambiances</h2>
+  <div class="note">
+    <b>Ce qui change :</b><br>
+    1. Le bloc « Couleurs » du haut disparaît. Dans la colonne de gauche il ne reste que la carte « Choisir une ambiance » (sa petite palette montre la couleur en cours), puis <b>« Dégradé » avec son « ? » et « Options supplémentaires »</b>, toujours visibles.<br>
+    2. Ouverte, la carte montre <b>les six ambiances</b>, puis trois tuiles de plus : <b>« Personnalisée »</b> (vos réglages à vous), <b>« Couleurs de l'entreprise »</b> (grisée avec sa raison quand elles n'ont pas été captées), et un bouton <b>« Autre couleur »</b> qui déplie les douze pastilles et la couleur libre. Les couleurs n'existent donc qu'à un seul endroit.<br>
+    3. Au pied du panneau : « Annuler l'ambiance » à gauche. <b>En mode Sobre, « Activer les couleurs » est à droite, sur la même ligne.</b><br>
+    4. En mode Sobre, la carte d'ambiance s'ouvre comme dans les autres allures : la restriction saute.
+  </div>
+  <p class="discret">Clique sur la carte pour l'ouvrir ; sur « Autre couleur » pour déplier les couleurs ; sur « Activer les couleurs » pour l'allumer. Le sélecteur ci-dessous change l'allure.</p>
+  <div class="barre"><button type="button" data-allure="standard">Allure Standard</button><button type="button" data-allure="sobre">Allure Sobre</button></div>
+  <div class="cadre"><h3>Ordinateur</h3><div class="mep large" id="large"></div></div>
+  <div class="cadre"><h3>Téléphone</h3><div class="mep tel" id="tel"></div></div>
+
+  <h2>3. Ce que je peux promettre sur le mode Sobre (franchise)</h2>
+  <div class="note alerte">
+    <b>J'ai testé sur un modèle Sobre réel</b> en lui appliquant les réglages de l'ambiance « Moderne » : les titres deviennent des pastilles vert foncé <b>avec du texte sombre dessus</b>, presque illisible (dessin ci-dessous, à gauche). Les modèles Sobre sont écrits avec des titres sombres ; ils ne sont pas prévus pour porter des titres en bandeau coloré.
+  </div>
+  <div>
+    <span class="vignette-cv"><div class="feuille"><b>Camille MARTIN</b><br><span class="h2 mal">■ COMPÉTENCES</span><br>Ponctualité · Rigueur<br><span class="h2 mal">■ EXPÉRIENCES</span><br>Agent, Limoges<br><br>Aujourd'hui, si on force l'ambiance</div>Texte sombre sur fond foncé : illisible.</span>
+    <span class="vignette-cv"><div class="feuille"><b>Camille MARTIN</b><br><span class="h2 sobre">COMPÉTENCES</span><br>Ponctualité · Rigueur<br><span class="h2 sobre">EXPÉRIENCES</span><br>Agent, Limoges<br><br>Niveau 1 : couleur en filets et teintes pâles</div>Déjà possible, rien à réécrire.</span>
+    <span class="vignette-cv"><div class="feuille"><b>Camille MARTIN</b><br><span class="h2 bien">■ COMPÉTENCES</span><br>Ponctualité · Rigueur<br><span class="h2 bien">■ EXPÉRIENCES</span><br>Agent, Limoges<br><br>Niveau 2 : titres colorés lisibles</div>Texte blanc sur la couleur : à écrire.</span>
+  </div>
+  <table>
+    <tr><th>Partie</th><th>Verdict</th><th>Ce que ça veut dire</th></tr>
+    <tr><td>Ouvrir la carte d'ambiance en mode Sobre (lever la restriction)</td><td class="oui">Simple</td><td>Il suffit d'enlever le grisage et le blocage. Le choix d'une couleur marche déjà en Sobre : elle apparaît en filets et en teintes pâles.</td></tr>
+    <tr><td><b>Niveau 1</b> de « Activer les couleurs » : la couleur choisie s'affiche en filets et teintes pâles, plus marquée</td><td class="oui">Faible risque</td><td>Réglages de couleur seulement ; aucun changement de mise en page. À vérifier sur les 12 modèles Sobre et sur le Word.</td></tr>
+    <tr><td><b>Niveau 2</b> de « Activer les couleurs » : titres en bandeaux, pastilles, icônes en couleur dans un modèle Sobre</td><td class="non">Risqué</td><td>À réécrire modèle par modèle (12 modèles) : texte blanc sur les titres colorés, pastilles, icônes. Un oubli donne un titre illisible. Il faut revérifier l'impression PDF et le Word de chaque modèle. Estimation : gros chantier à part, pas une retouche.</td></tr>
+    <tr><td>« Annuler l'ambiance » et « Activer les couleurs » sur la même ligne</td><td class="oui">Simple</td><td>Disposition seulement.</td></tr>
+  </table>
+  <div class="note"><b>Recommandation :</b> commencer par le <b>niveau 1</b>. Le bouton « Activer les couleurs » existe, il fait apparaître la couleur choisie en filets et teintes pâles (ce qu'un CV sobre fait de mieux). Si, à l'usage, des personnes réclament des titres colorés dans Sobre, on décidera du niveau 2 comme chantier séparé, avec ses propres maquettes.</div>
+
+  <h2>4. Les familles de modèles Créatif : deux façons de les rendre évidentes</h2>
+  <div class="note">
+    <b>Ta question : faut-il le même rond « Ouvrir / Fermer » pour les familles ?</b> Pas tout à fait. Le rond sert à <b>ouvrir ou refermer</b> un panneau qui reste là. Aujourd'hui les familles (Colonnes, Bandeaux et en-têtes, Cadres et blocs, Formes et pictogrammes) sont des <b>onglets</b> : on en choisit UNE à la fois, les autres se cachent. Ce n'est pas le même geste. Deux solutions :<br>
+    <b>A (recommandée) : des blocs qui s'ouvrent, un seul ouvert à la fois.</b> Les quatre familles sont toujours visibles comme quatre lignes, avec le rond et « Ouvrir ». On devine tout de suite qu'il y en a plusieurs et qu'on clique pour voir leurs modèles. Même geste que partout ailleurs dans l'application.<br>
+    <b>B : garder les onglets, mais les rendre bien visibles.</b> Un titre « Choisissez une famille », de grands onglets avec le nombre de modèles, un aperçu de trois petits modèles dans chaque onglet, l'onglet choisi plein de la couleur du thème. Moins haut que A, mais on découvre moins vite que les autres familles existent.
+  </div>
+  <div class="cadre"><h3>A. Blocs qui s'ouvrent (un seul à la fois)</h3><div class="mep large" id="familles"></div></div>
+  <div class="cadre"><h3>B. Onglets bien visibles</h3><div class="mep large" id="familles-onglets"></div></div>
+
+  <h2>5. Questions pour toi</h2>
+  <ol>
+    <li><b>« Dégradé ? » et « Options supplémentaires »</b> restent visibles sous la carte, même fermée (ma recommandation), ou vont dans le panneau ouvert ?</li>
+    <li><b>« Personnalisée »</b> : la tuile se met en surbrillance dès que la personne a changé un réglage à la main (titres, compétences, coins, icônes), et un clic dessus ouvre « Options supplémentaires » pour régler. C'est bien ce que tu imagines ?</li>
+    <li><b>« Activer les couleurs » en Sobre :</b> niveau 1 d'abord (recommandé) ou tu veux directement le niveau 2 (titres colorés), sachant que c'est un chantier à part ?</li>
+    <li><b>Familles Créatif</b> : solution A (quatre blocs qui s'ouvrent, un seul à la fois, avec le rond) ou solution B (onglets plus visibles) ?</li>
+    <li>Quand on choisit une ambiance en Sobre sans avoir activé les couleurs : elle ne règle que la couleur en filets et teintes pâles, jamais les titres colorés ni les icônes. D'accord ?</li>
+  </ol>
+</main>
+<script>
+  var AMB = [
+    ['Sérieux', '#1f2d4a', '#dfe5ef', 'Marine, titres soulignés.'],
+    ['Chaleureux', '#b5573b', '#f6e0d6', 'Terre cuite, coins arrondis.'],
+    ['Moderne', '#2f7d62', '#dcefe7', 'Turquoise, titres en bandeau.'],
+    ['Discret', '#4d555e', '#e4e6e8', 'Gris ardoise, très sobre.'],
+    ['Nature', '#3d7a46', '#e0efe0', 'Verts, titres en pastille.'],
+    ['Affirmé', '#8a2f3f', '#f3dde0', 'Bordeaux, traits épais.']
+  ];
+  var etat = { allure: 'standard', large: true, tel: true, autreLarge: false, autreTel: false, couleurs: false, fam: { 0: true } };
+  function pal() { return '<span class="pal"><i style="background:#1f2d4a"></i><i style="background:#b5573b"></i><i style="background:#2f7d62"></i><i style="background:#4d555e"></i><i style="background:#3d7a46"></i><i style="background:#8a2f3f"></i></span>'; }
+  function entete() { return '<div class="entete-boutons"><div class="gros"><b>Style rapide</b><small>Un style complet en un clic.</small></div><div class="gros"><b>Mise en page</b><small>Fait tenir sur une page.</small></div></div>'; }
+  function carte(o) {
+    return '<button type="button" class="amb' + (o ? ' ouvert' : '') + '" data-amb>' + pal() + '<span class="txt"><b>Choisir une ambiance</b><small>' + (o ? 'Ouverte : choisissez une ambiance ou une couleur.' : 'Un clic règle la couleur, les titres, les compétences, les coins et les icônes. Votre texte ne change jamais.') + '</small></span><span class="bout"><span class="rond">⌄</span>' + (o ? 'Fermer' : 'Ouvrir') + '</span></button>';
+  }
+  function bas() { return '<div class="ligne-allure"><div class="titre-mini" style="margin:0">Allure générale</div><div class="seg"><span class="' + (etat.allure === 'sobre' ? 'on' : '') + '">Sobre</span><span class="' + (etat.allure === 'standard' ? 'on' : '') + '">Standard</span><span>Créatif</span></div></div><div class="org"><span>Organisation du CV</span><span style="font-size:.7rem">Ouvrir ⌄</span></div>'; }
+  function gauche(o) { return '<div class="col-g">' + carte(o) + '<div class="ligne-btn"><span class="btn-clair on">✓ Dégradé</span><span class="aide">?</span><span class="btn-clair">Options supplémentaires →</span></div>' + (etat.allure === 'sobre' ? '<div class="sobre-note">Le dégradé est sans objet en mode Sobre.</div>' : '') + '</div>'; }
+  function droite() { return '<div class="col-d"><div class="zone-mep"><div class="titre-mini">🪄 Ce que « Mise en page » a fait</div>Cliquez sur « Mise en page » : ce qui a été ajusté s\'affichera ici.</div></div>'; }
+  function tuiles(cleAutre) {
+    var h = '<div class="tuiles">' + AMB.map(function (a) { return '<button type="button" class="tuile"><b>' + a[0] + '</b><span class="p"><i style="background:' + a[1] + '"></i><i style="background:' + a[2] + '"></i></span><small>' + a[3] + '</small></button>'; }).join('') +
+      '<button type="button" class="tuile special"><b>Personnalisée</b><span class="p"><i style="background:#2f6690"></i><i style="background:#e6eff7"></i></span><small>Vos réglages à vous : cliquez pour les régler.</small></button>' +
+      '<button type="button" class="tuile special grise"><b>Couleurs de l\'entreprise</b><span class="p"><i style="background:#d8dde5"></i><i style="background:#eef0f3"></i></span><small>Non captées pour cette candidature.</small></button></div>';
+    h += '<div class="autre"><button type="button" class="btn-clair ' + (etat[cleAutre] ? 'on' : '') + '" data-autre="' + cleAutre + '">' + (etat[cleAutre] ? '⌃ Masquer les autres couleurs' : 'Autre couleur ⌄') + '</button></div>';
+    if (etat[cleAutre]) h += '<div class="nuancier"><div class="titre-mini">Douze couleurs</div><div class="pastilles"><i style="background:#2e7d5b"></i><i style="background:#2f6690;outline:2px solid var(--accent);outline-offset:2px"></i><i style="background:#8a97a6"></i><i style="background:#b83a3a"></i><i style="background:#6b3fa0"></i><i style="background:#1f2d4a"></i><i style="background:#1f7a7a"></i><i style="background:#c0623a"></i><i style="background:#8a2f3f"></i><i style="background:#4d555e"></i><i style="background:#8a6d1f"></i><i style="background:#4d5a1f"></i><span class="btn-clair">🎨 Couleur libre</span></div></div>';
+    var sobre = etat.allure === 'sobre';
+    h += '<div class="pied"><div class="g"><span class="annuler vide">↺ Annuler l\'ambiance</span></div>' + (sobre ? '<div class="d"><button type="button" class="couleurs ' + (etat.couleurs ? 'on' : '') + '" data-couleurs>' + (etat.couleurs ? '✓ Couleurs activées' : 'Activer les couleurs') + '</button><span class="aide">?</span></div>' : '') + '</div>';
+    if (sobre) h += '<div class="sobre-note">' + (etat.couleurs ? 'Couleurs activées : la couleur choisie s\'affiche en filets et en teintes pâles. Les titres restent sobres.' : 'Par défaut, un CV Sobre n\'a pas de couleur. Activez-les si vous aimez ce modèle mais voulez une touche de couleur.') + '</div>';
+    return h;
+  }
+  function famille(i, nom, n, vue) {
+    var o = !!etat.fam[i];
+    return '<div class="fam' + (o ? ' ouverte' : '') + '"><button type="button" class="tete" data-fam="' + i + '"><b>' + nom + '</b><small>' + n + ' modèles</small><span class="bout"><span class="rond">⌄</span>' + (o ? 'Fermer' : 'Ouvrir') + '</span></button>' +
+      (o ? '<div class="corps">' + vue.map(function (v) { return '<div class="vig">' + v + '</div>'; }).join('') + '</div>' : '') + '</div>';
+  }
+  function dessiner() {
+    ['large', 'tel'].forEach(function (id) {
+      var o = etat[id], cle = id === 'large' ? 'autreLarge' : 'autreTel';
+      var e = document.getElementById(id);
+      e.innerHTML = entete() + '<div class="grille">' + gauche(o) + droite() + '</div>' +
+        (o ? '<div class="pan"><p class="intro">Choisissez une ambiance : elle règle d\'un coup la couleur, les titres, les compétences, les coins et les icônes. Votre texte ne change jamais.</p>' + tuiles(cle) + '</div>' : '') + bas();
+      e.querySelector('[data-amb]').addEventListener('click', function () { etat[id] = !etat[id]; dessiner(); });
+      var a = e.querySelector('[data-autre]'); if (a) a.addEventListener('click', function () { etat[cle] = !etat[cle]; dessiner(); });
+      var c = e.querySelector('[data-couleurs]'); if (c) c.addEventListener('click', function () { etat.couleurs = !etat.couleurs; dessiner(); });
+    });
+    var f = document.getElementById('familles');
+    f.innerHTML = '<div class="titre-mini">Choisissez un modèle (24)</div>' + famille(0, 'Colonnes', 10, ['Colonne colorée', 'Colonne et frise', 'Colonne foncée', 'Colonne claire']) + famille(1, 'Bandeaux et en-têtes', 6, ['Bandeau entier', 'Bandeau diagonal', 'Duo ovale']) + famille(2, 'Cadres et blocs', 3, ['Cadre de page']) + famille(3, 'Formes et pictogrammes', 5, ['Titres à pictogrammes']);
+    f.querySelectorAll('[data-fam]').forEach(function (b) { b.addEventListener('click', function () { var i = b.getAttribute('data-fam'); var avant = !!etat.fam[i]; etat.fam = {}; etat.fam[i] = !avant; dessiner(); }); });
+    var FAMS = [['Colonnes', 10, ['Colonne colorée', 'Colonne et frise', 'Colonne foncée', 'Colonne claire', 'Colonne et bandeau']], ['Bandeaux et en-têtes', 6, ['Bandeau entier', 'Bandeau diagonal', 'Duo ovale', 'Ruban diagonal']], ['Cadres et blocs', 3, ['Cadre de page', 'Cartes', 'Grille']], ['Formes et pictogrammes', 5, ['Titres à pictogrammes', 'Vague marine', 'Médaillon']]];
+    var o = etat.ong == null ? 0 : etat.ong, g = document.getElementById('familles-onglets');
+    g.innerHTML = '<div class="titre-mini">Choisissez une famille de modèles <span style="font-weight:400;color:var(--text-muted)">(24 modèles en tout)</span></div><div class="onglets">' +
+      FAMS.map(function (x, i) { return '<button type="button" class="onglet' + (i === o ? ' on' : '') + '" data-ong="' + i + '"><b>' + x[0] + '</b><span class="n">' + x[1] + ' modèles</span><span class="mini3">' + x[2].slice(0, 3).map(function () { return '<i></i>'; }).join('') + '</span></button>'; }).join('') + '</div>' +
+      '<div class="corps-ong">' + FAMS[o][2].map(function (v) { return '<div class="vig">' + v + '</div>'; }).join('') + '</div>';
+    g.querySelectorAll('[data-ong]').forEach(function (b) { b.addEventListener('click', function () { etat.ong = parseInt(b.getAttribute('data-ong'), 10); dessiner(); }); });
+  }
+  document.querySelectorAll('[data-allure]').forEach(function (b) { b.addEventListener('click', function () { etat.allure = b.getAttribute('data-allure'); dessiner(); }); });
+  dessiner();
+  document.getElementById('basculeSombre').addEventListener('click', function () {
+    var r = document.documentElement, s = r.getAttribute('data-theme') === 'sombre';
+    r.setAttribute('data-theme', s ? 'clair' : 'sombre');
+    this.textContent = s ? 'Voir en mode sombre' : 'Voir en mode clair';
+  });
+</script>
+</body>
+</html>

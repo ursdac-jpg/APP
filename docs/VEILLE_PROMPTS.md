@@ -500,7 +500,7 @@ concerné le signale dans le mois ou les deux qui suivent (pastille « CHANGEMEN
 ### 5bis.2 - `[TRIAGE]` : du digest à la liste de travail
 
 > Un bloc « Triage du digest » existe dans `veille.html` (mode « Entretenir la base », section
-> « Chaque trimestre », juste après le Balayage) : bouton « Afficher le prompt » puis « Copier ».
+> « Chaque trimestre », juste après le Balayage) : bouton « Préparer le prompt » puis « Copier le prompt et ouvrir Perplexity ».
 > Le texte de référence est ci-dessous. Pas besoin de recherche web : l'assistant travaille sur
 > le digest fourni.
 

@@ -1,0 +1,76 @@
+```
+[
+  {
+    "id": 1,
+    "metier": "Peintre en bâtiment",
+    "accroches": [
+      "Titulaire d’un CAP Peintre applicateur de revêtements, avec pratique de la préparation des supports, de la peinture intérieure et des finitions.",
+      "Projet d’alternance sur deux ans, avec envie de progresser en entreprise et de mettre en pratique les acquis de la formation."
+    ]
+  },
+  {
+    "id": 2,
+    "metier": "Électricien d’entretien",
+    "accroches": [
+      "Habilitation électrique BS et pratique des dépannages en électricité de base en résidence, pour préparer une formation en électricité du bâtiment.",
+      "Projet de formation en électricité du bâtiment, avec motivation pour développer les bases déjà acquises par l’expérience sur le terrain."
+    ]
+  },
+  {
+    "id": 3,
+    "metier": "Plombier",
+    "accroches": [
+      "Pratique des dépannages en petite plomberie dans une résidence de 120 logements, avec intervention sur les logements et parties communes.",
+      "Projet d’alternance sur deux ans, avec envie d’apprendre le métier de plombier en entreprise et de progresser par la pratique."
+    ]
+  },
+  {
+    "id": 4,
+    "metier": "Ouvrier paysagiste",
+    "accroches": [
+      "Expérience en entretien des espaces verts lors d’un poste dans les services techniques d’une commune, avec intervention sur les extérieurs.",
+      "Démarche spontanée auprès d’une collectivité ou d’une entreprise, avec envie de découvrir davantage les métiers des espaces verts et de s’investir."
+    ]
+  },
+  {
+    "id": 5,
+    "metier": "Poseur de revêtements muraux",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et pratique des revêtements muraux, de la préparation des supports et des finitions.",
+      "Recherche d’une alternance sur deux ans pour apprendre davantage en entreprise, avec assiduité et envie de mettre en pratique la formation."
+    ]
+  },
+  {
+    "id": 6,
+    "metier": "Agent de propreté",
+    "accroches": [
+      "Expérience en entretien de parties communes et remise en état de logements, avec intervention dans une résidence de 120 logements.",
+      "Candidature spontanée pour rejoindre une équipe en entretien, avec envie de découvrir les besoins de la structure et de s’investir dans la durée."
+    ]
+  },
+  {
+    "id": 7,
+    "metier": "Agent de service en collectivité",
+    "accroches": [
+      "Expérience dans les services techniques d’une commune, entre entretien des bâtiments communaux, espaces verts et petits travaux.",
+      "Démarche directe auprès d’une collectivité, avec envie de retrouver le travail de terrain et de mettre à profit la polyvalence acquise."
+    ]
+  },
+  {
+    "id": 8,
+    "metier": "Agent logistique",
+    "accroches": [
+      "Pratique de la gestion de stock de produits et expérience de la mise en rayon et du réassort dans le commerce.",
+      "Candidature spontanée pour découvrir la logistique en entreprise, avec envie de travailler en équipe et de s’investir dans un poste durable."
+    ]
+  },
+  {
+    "id": 9,
+    "metier": "Gardien d’immeuble",
+    "accroches": [
+      "Expérience en résidence de 120 logements, entre entretien des parties communes, remise en état, petits dépannages et relation avec les locataires.",
+      "Intérêt pour ce poste de gardien d’immeuble, qui permet de retrouver le contact avec les locataires et l’entretien quotidien d’une résidence."
+    ]
+  }
+]
+```

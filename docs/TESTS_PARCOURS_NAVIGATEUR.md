@@ -29,7 +29,7 @@ Le vrai presse-papiers, la vraie ouverture de l'assistant, le contenu réel des 
 
 - Les parcours **modifient le dossier en cours** (données de test) : jamais sur une vraie session de Denis.
 - **Un défaut corrigé = un essai ajouté** dans `scripts/parcours/parcours_smoke.js` (fonction `cas(nom, condition, détail)`), dans le même commit.
-- Pour le rendu du CV, le banc `scripts/word/banc_b7.js` reste l'outil de non-régression (référence : `scripts/word/banc_b7_reference.json`).
+- Pour le rendu du CV, l'outil de non-régression est le **banc de rendu** `scripts/rendu/banc.js` (registre : `scripts/rendu/registre.json`, mode d'emploi en tête du fichier, essai `banc` de la suite). L'ancien `scripts/word/banc_b7.js` est périmé.
 
 ## Banc de rendu du CV : un piège (2026-10-01)
 
@@ -40,3 +40,11 @@ Les empreintes **Word** du banc (`scripts/word/banc_b7.js`) dépendent de la **l
 Rejoué sur 25 modèles, 2 259 réglages cliqués (`scripts/word/matrice_options.js`, ~100 minutes) : **0 erreur JavaScript**, taux de « dérive » identique à celui du 2026-09-29 (25 %, artefact de mesure : un deuxième clic ne remet pas toujours la page à l'octet près). 19 réglages cliquables sans effet trouvés, tous **grisés depuis** (`cvPdfOptionsParModele.js`) : « Blocs courts » sur les 12 modèles à deux colonnes propres, « Dates à la même place » sur 5 modèles qui placent eux-mêmes leurs dates, « Couleur du texte » et « Dégradé du bandeau » sur Sobre Rectangles. Résultat brut : `scripts/word/resultats_matrice/matrice_2026-10-01.json`.
 Un inventaire fait APRÈS le grisage ne voit plus les réglages déjà grisés : le fichier de données ne se régénère donc plus depuis zéro, il se **fusionne** (`node scripts/word/matrice_fusion.js <nouveau.js>`).
 Vérifiés aussi le même jour : retour au modèle de départ (7 modèles, revient à l'octet près), aller-retour sauvegarde puis restauration d'une session (4 modèles, identique), mode sombre (393 textes, 0 contraste insuffisant), largeur de téléphone (aucun débordement du panneau).
+
+## Suite complète par lots (2026-10-11)
+
+La suite complète (`__parcours()` sans argument, 96 essais) ne se lance pas d'un bloc : l'état du panneau et du stockage d'un essai fausse le suivant, et la durée dépasse la limite d'un appel. **Procédure** : fenêtre de 738 x 698, puis pour chaque lot de 5 ou 6 essais : vider `localStorage` et `sessionStorage`, recharger la page, attendre `typeof dossier !== 'undefined'`, charger `parcours_smoke.js`, lancer le lot, suivre l'avancement avec `window.__parcoursCourant` et attendre `window.__fini`. Les essais lents (60 s chacun) : `dispoComp`, `carteComp`, `carteForm`, `infosEntete`, `enteteDecale`, `coordEnLigne`, `tirageStandard`. L'essai `banc` se lance seul. Premier passage complet réussi le 2026-10-11 (hors `banc`).
+
+**Défaut connu corrigé le 2026-10-11** : `enteteDecale` échouait sur deux contrôles (Ruban diagonal et Diagonales contrastées avec photo : 35,5 % pour un plafond de 35 %). Le plafond datait d'avant l'agrandissement voulu des en-têtes (2026-10-07) ; il est maintenant de 36 %. Plus aucun défaut connu dans la suite.
+
+**Pièges constatés le 2026-10-11** : (1) l'onglet de test doit être AU PREMIER PLAN (`tabs_select`) : si une autre page (une maquette) a été ouverte au premier plan, `window.scrollTo` ne défile plus et l'essai `annulerCouleur` (« l'écran ne remonte pas ») échoue à tort ; (2) un essai qui clique « Voir tous les modèles » doit remettre `_mepGalerieTous = false` et `_mepGalerieChoix = null` à la fin, sinon `looksFamilles` échoue (les essais bordColonne, bordBandeau, autresCouleurs et repriseCouleurs le font).

@@ -1,0 +1,159 @@
+```
+{
+  "synthese": {
+    "metier": "Agent d’entretien des bâtiments",
+    "competencesCles": [
+      "Petite plomberie",
+      "Peinture et finitions",
+      "Électricité de base (BS)",
+      "Entretien des espaces verts",
+      "Petite maçonnerie et menuiserie",
+      "Gestion de stock",
+      "Relation avec le public",
+      "Travail en équipe"
+    ],
+    "experiences": [
+      {
+        "intitule": "Agent d’entretien en résidence (bailleur social), Limoges (87)",
+        "missionsPrincipales": [
+          "Entretien courant de 120 logements et des parties communes (halls, escaliers, caves, locaux poubelles)",
+          "Petits dépannages : plomberie (robinets, siphons, joints, chasses d’eau), remplacement de prises, d’interrupteurs et d’ampoules",
+          "Peinture de cages d’escalier et remise en état des logements libérés (état des lieux de sortie, petites réparations, nettoyage)",
+          "Gestion d’un stock de produits et de petit matériel, commandes mensuelles"
+        ],
+        "competencesRetirees": [
+          "Petite plomberie",
+          "Électricité de base (BS)",
+          "Peinture et finitions",
+          "Gestion de stock"
+        ]
+      },
+      {
+        "intitule": "Agent polyvalent des services techniques, commune de 6 000 habitants (87)",
+        "missionsPrincipales": [
+          "Entretien des bâtiments communaux (école, salle des fêtes, mairie) et des espaces verts (tonte, taille de haies, désherbage)",
+          "Petits travaux de maçonnerie (rebouchage, joints de carrelage) et de menuiserie (serrures, portes, étagères)",
+          "Montage et démontage de barnums, tables et scènes pour les fêtes locales ; déneigement et salage en hiver",
+          "Respect des consignes de sécurité, port des équipements de protection, entretien des outils"
+        ],
+        "competencesRetirees": [
+          "Entretien des espaces verts",
+          "Petite maçonnerie et menuiserie",
+          "Respect des consignes de sécurité",
+          "Travail en équipe"
+        ]
+      },
+      {
+        "intitule": "Aide-peintre, entreprise de peinture en bâtiment, Limoges",
+        "missionsPrincipales": [
+          "Préparation des supports (ponçage, enduit, rebouchage), peinture intérieure, pose de revêtements muraux, finitions",
+          "Chargement et rangement du matériel, protection des sols et du mobilier"
+        ],
+        "competencesRetirees": [
+          "Peinture et finitions",
+          "Préparation des supports",
+          "Pose de revêtements muraux",
+          "Protection des sols et du mobilier"
+        ]
+      },
+      {
+        "intitule": "Employé de libre-service, supermarché (CDD et intérim)",
+        "missionsPrincipales": [
+          "Mise en rayon, réassort, contrôle des dates, étiquetage",
+          "Accueil et renseignement des clients, aide en caisse en renfort"
+        ],
+        "competencesRetirees": [
+          "Mise en rayon",
+          "Réassort",
+          "Accueil et renseignement des clients",
+          "Relation avec le public"
+        ]
+      }
+    ]
+  },
+  "intitulesMemeMetier": [
+    {
+      "intitule": "Agent de maintenance des bâtiments",
+      "retrouveDansLeCV": "Le CV mentionne des petits dépannages en plomberie et en électricité, ainsi que des travaux de peinture et de remise en état."
+    },
+    {
+      "intitule": "Agent technique de maintenance",
+      "retrouveDansLeCV": "Le CV indique l’entretien des bâtiments communaux et des interventions en plomberie, électricité, peinture, menuiserie et petite maçonnerie."
+    },
+    {
+      "intitule": "Ouvrier de maintenance des bâtiments",
+      "retrouveDansLeCV": "Le CV décrit dix ans d’entretien de logements, de parties communes et de bâtiments communaux avec différents petits travaux."
+    },
+    {
+      "intitule": "Agent technique du bâtiment",
+      "retrouveDansLeCV": "Le CV mentionne l’entretien des bâtiments et des compétences en plomberie, peinture, électricité de base, menuiserie et petite maçonnerie."
+    }
+  ],
+  "autresMetiers": [
+    {
+      "metier": "Peintre en bâtiment",
+      "retrouveDansLeCV": [
+        "Préparation des supports (ponçage, enduit, rebouchage), peinture intérieure, pose de revêtements muraux, finitions",
+        "2014 | CAP Peintre applicateur de revêtements"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metier": "Électricien d’entretien",
+      "retrouveDansLeCV": [
+        "Remplacement de prises, d’interrupteurs et d’ampoules",
+        "2021 | Habilitation électrique BS (électricité de base)"
+      ],
+      "aVerifier": "Une qualification professionnelle en électricité peut être demandée selon les travaux confiés."
+    },
+    {
+      "metier": "Plombier",
+      "retrouveDansLeCV": [
+        "Petits dépannages : plomberie (robinets, siphons, joints, chasses d’eau)",
+        "Petite plomberie"
+      ],
+      "aVerifier": "Une qualification professionnelle en plomberie peut être demandée pour exercer certaines activités."
+    },
+    {
+      "metier": "Ouvrier paysagiste",
+      "retrouveDansLeCV": [
+        "Entretien des espaces verts (tonte, taille de haies, désherbage)",
+        "Entretien des espaces verts"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metier": "Poseur de revêtements muraux",
+      "retrouveDansLeCV": [
+        "Pose de revêtements muraux",
+        "2014 | CAP Peintre applicateur de revêtements"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metier": "Agent de propreté",
+      "retrouveDansLeCV": [
+        "Entretien courant de 120 logements et des parties communes (halls, escaliers, caves, locaux poubelles)",
+        "Autonome, ponctuel, attentif aux consignes de sécurité"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metier": "Agent de service en collectivité",
+      "retrouveDansLeCV": [
+        "Entretien des bâtiments communaux (école, salle des fêtes, mairie)",
+        "Respect des consignes de sécurité, port des équipements de protection, entretien des outils"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metier": "Agent logistique",
+      "retrouveDansLeCV": [
+        "Chargement et rangement du matériel, protection des sols et du mobilier",
+        "Outils numériques : messagerie, tableur simple (suivi de stock)"
+      ],
+      "aVerifier": ""
+    }
+  ]
+}
+```

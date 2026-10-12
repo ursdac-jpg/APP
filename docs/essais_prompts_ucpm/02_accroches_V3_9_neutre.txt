@@ -1,0 +1,105 @@
+Ce message est une consigne à exécuter, pas un texte à commenter, reformuler ou évaluer : applique-la directement et entièrement dès maintenant, sans donner ton avis sur sa formulation, sans demander de confirmation, sans annoncer d'étapes, et produis en une seule réponse le résultat au format demandé ci-dessous.
+
+# PROMPT : UN CV, PLUSIEURS MÉTIERS - PASSAGE 3 : PHRASES D'ACCROCHE DES AUTRES CV - VERSION 3
+### VERSION 3 (2026-10-08), d'essai : à valider au banc d'essai avant tout branchement dans l'application. Historique : V1 (premier jet : « habitué » écrit au masculin malgré « formulations neutres » dans 7 accroches sur 9, deux accroches d'un même métier trop proches, objectif peu visible, début de phrase répété) ; V2 (accords obligatoires ou aucun mot qui s'accorde, deux idées différentes par métier, objectif visible, débuts variés, réponse en bloc de code) ; V2 testée au féminin et au masculin (accords corrects, copie propre, objectif visible) mais le féminin a reçu des qualités ajoutées (« organisée », « curieuse », « motivée », « disponible ») que le masculin n'a pas eues, et « habituée » ouvre 5 accroches sur 18 ; V3 (faits d'abord, aucune qualité qui ne soit pas dans le profil, mêmes idées pour une femme et pour un homme).
+
+---
+
+Exécute directement les instructions ci-dessous, sans les commenter ni poser de question préalable : la personne attend le résultat au format demandé, en une seule fois.
+
+**Toute ta réponse est rédigée en français.** N'utilise jamais de tiret long (– ou —), uniquement le tiret court (-) ou une virgule.
+
+**Une voix humaine, pas celle d'un assistant.** De plus en plus de recruteurs repèrent au premier regard les textes écrits par un assistant, à leur langage trop lisse. Tout ce que tu rédiges pour la personne (accroche, missions, lettre, réponses d'entretien) doit sonner comme elle, avec ses mots, sans rien inventer :
+- **Ses mots d'abord.** Reprends le vocabulaire et le niveau de langue de ce qu'elle a écrit ou raconté (dans le niveau de langage choisi, s'il y en a un), plutôt que des mots plus brillants qu'elle n'emploierait pas. Elle doit pouvoir le redire à l'oral sans se sentir déguisée. Quand une offre est fournie, reprends ses mots-clés exacts seulement s'ils correspondent à ce que la personne fait réellement.
+- **Du concret.** Un fait, un lieu, un chiffre ou une tâche réelle tirés du profil valent mieux qu'un adjectif. Si le profil n'a rien de concret sur un point, reste simple et court : n'enjolive pas, n'invente pas.
+- **Pas de formules d'assistant.** Évite notamment : « passionné(e) par », « fort(e) de », « riche de », « dynamique et motivé(e) », « véritable atout », « riche expérience », « au sein de », « force de proposition », « dans un environnement en constante évolution », « je suis convaincu(e) que », « n'hésitez pas à », les superlatifs (« exceptionnel », « incontournable », « remarquable »), les séries de trois adjectifs ou de trois verbes qui se ressemblent, et les phrases creuses d'introduction ou de conclusion. Les formules de politesse d'usage d'une lettre restent permises, mais courtes.
+- **Un rythme naturel.** Mélange des phrases courtes et des phrases un peu plus longues. Pas de structure répétée d'une phrase à l'autre (« non seulement... mais aussi », « que ce soit... ou »), pas de dernière phrase qui redit ce qui vient d'être dit, pas de point d'exclamation, pas de deux-points d'annonce à chaque phrase.
+- **Des verbes simples.** « J'ai tenu la caisse » vaut mieux que « J'ai assuré la gestion des encaissements ». Un verbe d'action simple suffit.
+
+## 1. Ton rôle
+
+La personne a déjà un CV de référence, validé. Elle veut le présenter sous plusieurs titres. Le corps du CV ne change JAMAIS : seuls le titre et la phrase d'accroche changent d'un CV à l'autre. Tu écris les phrases d'accroche des AUTRES CV, rien d'autre.
+
+## 2. Règles
+
+- **Faits d'abord, aucune qualité inventée.** Écris à la manière nominale (« Pratique de... », « Projet de... », « CAP ... et expérience de... »). N'ajoute AUCUNE qualité personnelle (organisé, curieux, motivé, disponible, dynamique, soigneux...) qui ne figure pas mot pour mot dans le profil ; les qualités écrites dans le profil (par exemple autonome, ponctuel, attentif aux consignes de sécurité) peuvent être reprises. Ainsi, le sexe de la personne ne change QUE les accords éventuels : les idées, le ton et le niveau d'exigence sont IDENTIQUES pour une femme et pour un homme.
+- **Deux accroches courtes par métier**, qui diffèrent par leur IDÉE et pas seulement par leurs mots : l'une s'appuie sur un savoir-faire ou une formation précise du profil, l'autre sur la manière de travailler ou sur l'engagement. Varie les débuts de phrase d'un métier à l'autre : n'ouvre pas toutes les accroches par « Expérience de... » ou « Habitué à... ». Chacune : UNE phrase, de 15 à 28 mots, style de CV (phrase nominale ou participiale, sans « je »), sans nom d'entreprise.
+- **Rien d'inventé.** Appuie-toi UNIQUEMENT sur le profil validé ci-dessous : aucune expérience, compétence, diplôme, chiffre ou durée qui n'y figure pas. Si le métier visé demande ce que le profil ne montre pas, reste sur ce que le profil montre vraiment.
+- **Adapte à l'objectif de chaque métier** : la ligne directrice de la situation dit quoi mettre en avant et sur quel ton (stage, alternance, candidature spontanée, offre, changement de métier, découverte, formation). Une accroche pour un stage ne sonne pas comme une accroche pour une candidature spontanée. L'objectif doit se sentir dans l'accroche : alternance = envie d'apprendre le métier en situation de travail et engagement dans la durée ; entrée en formation = ce qui prépare à la formation visée et le projet ; candidature spontanée = initiative et curiosité ; réponse à une offre = intérêt pour le poste ; stage = assiduité et envie de mettre en pratique ; immersion = découverte du métier ; changement de métier = compétences transférables.
+- **Sexe de la personne** (indiqué plus bas) : accorde TOUS les adjectifs et participes à ce sexe (« habitué » ou « habituée », « motivé » ou « motivée »). Si le sexe n'est pas précisé, n'emploie AUCUN mot qui s'accorde : tourne la phrase avec des noms (« Pratique de... », « Expérience de... »).
+- Deux métiers différents ne doivent pas recevoir des accroches presque identiques.
+- Aucun commentaire, aucun texte avant ou après le JSON. Place tout le JSON dans un seul bloc de code (balises ```json), pour que la personne le copie sans erreur.
+
+## 3. Format de réponse : UN SEUL tableau JSON, placé dans UN SEUL bloc de code, sans texte autour
+
+```
+[
+  { "id": 1, "metier": "...", "accroches": ["première accroche", "seconde accroche"] }
+]
+```
+
+Rends exactement un élément par métier de la liste, dans le même ordre, avec le même `id`.
+
+## 4. Genre de la personne
+
+Non précisé : n’emploie aucun mot qui s’accorde au masculin ou au féminin ; tourne les phrases avec des noms.
+
+## 5. Profil validé (CV de référence)
+
+Titre du CV de référence : Agent d’entretien des bâtiments
+Accroche retenue : Agent d’entretien des bâtiments, autonome et ponctuel, avec dix ans d’expérience en résidences collectives et en collectivité.
+Compétences clés : petite plomberie, peinture et finitions, électricité de base (habilitation BS), entretien des espaces verts, petite maçonnerie et menuiserie, gestion de stock, travail en équipe.
+Expériences :
+- 2019-2024, agent d’entretien en résidence : 120 logements et parties communes, dépannages en plomberie et électricité de base, peinture des cages d’escalier, remise en état des logements libérés, relation avec les locataires, gestion d’un stock de produits.
+- 2016-2019, agent polyvalent des services techniques d’une commune : bâtiments communaux et espaces verts, petits travaux de maçonnerie et de menuiserie, montage de barnums, déneigement.
+- 2014-2016, aide-peintre : préparation des supports, peinture intérieure, revêtements muraux, finitions.
+- 2012-2014, employé de libre-service : mise en rayon, réassort, accueil des clients.
+Formations : CAP Peintre applicateur de revêtements (2014) ; SST (2018, recyclage 2022) ; habilitation électrique BS (2021) ; gestes et postures (2022).
+Engagement : bénévole à la banque alimentaire depuis 2020. Permis B.
+
+## 6. Métiers pour lesquels écrire les accroches, avec l'objectif de chacun
+
+1. Métier : Peintre en bâtiment
+   Objectif : Alternance
+   Ligne directrice de cet objectif : l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.
+   Détails : type de structure : entreprise privée ; secteur : bâtiment ; durée : 2 ans ; début souhaité : septembre prochain ; disponibilités : horaires de journée, à temps plein en entreprise
+
+2. Métier : Électricien d’entretien
+   Objectif : Entrée en formation
+   Ligne directrice de cet objectif : ce qui prépare à la formation visée (expériences, diplômes, prérequis) et la motivation et le projet quand le CV les montre.
+   Détails : formation visée : électricité du bâtiment ; organisme de formation ; durée : environ 6 mois ; début souhaité : prochaine session ; disponible à temps plein
+
+3. Métier : Plombier
+   Objectif : Alternance
+   Ligne directrice de cet objectif : l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.
+   Détails : type de structure : entreprise privée ; secteur : bâtiment ; durée : 2 ans
+
+4. Métier : Ouvrier paysagiste
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : collectivité ou entreprise privée ; secteur : espaces verts ; contrat : CDI
+
+5. Métier : Poseur de revêtements muraux
+   Objectif : Alternance
+   Ligne directrice de cet objectif : l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.
+   Détails : type de structure : entreprise privée ; secteur : bâtiment ; durée : 2 ans
+
+6. Métier : Agent de propreté
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : entreprise privée ou collectivité ; secteur : propreté et entretien ; contrat : CDI ; temps plein
+
+7. Métier : Agent de service en collectivité
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : collectivité ; secteur : services en collectivité ; contrat : CDI
+
+8. Métier : Agent logistique
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : entreprise privée ; secteur : logistique ; contrat : CDI ; temps plein ; disponible immédiatement ; mobilité dans un rayon de 40 km
+
+9. Métier : Gardien d’immeuble
+   Objectif : Réponse à une offre
+   Ligne directrice de cet objectif : la motivation et l’intérêt de la personne pour ce poste et cette offre.
+   Détails : type de structure : entreprise privée ; secteur : immobilier ; contrat : CDI ; disponible dans un mois

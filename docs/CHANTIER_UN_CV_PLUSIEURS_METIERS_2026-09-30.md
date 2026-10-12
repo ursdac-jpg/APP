@@ -127,3 +127,61 @@ Image : `docs/images_chantiers/un_cv_plusieurs_metiers_concept_ecran_fin_2026-10
 ## 15. ALERTE du 2026-10-01 (soir) : Perplexity exige maintenant un compte, même par adresse `?q=`
 
 Retest fait par Claude dans le navigateur intégré : `perplexity.ai/search?q=...` lance bien la recherche, puis affiche « Inscrivez-vous et répétez votre demande » (aucune réponse sans compte). Denis constate la même chose dans la fenêtre de dialogue, même avec un texte court. Le test du 2026-09-30 (qui fonctionnait) est **périmé** : le risque « dépendance à un service tiers » de la section 5 s'est réalisé en un jour. **La décision « un seul moteur : Perplexity » est à rouvrir.** Piste recommandée : bouton « Copier ma demande » + ouverture de l'assistant au choix de la personne (brique de choix d'assistant déjà présente dans l'application ; un essai ChatGPT sans compte avait réussi le 2026-09-29), sans dépendre d'une adresse qui peut changer de politique. À trancher avec Denis.
+
+## 16. Prototype de fusion PDF et faisabilité Word (2026-10-07, Mode A, effort haut)
+
+**PDF fusionné : FAISABLE, prouvé par une vraie impression** (`docs/PROTOTYPE_FUSION_5_CV_2026-10-07.pdf`, 5 CV de 5 métiers, 5 pages, un CV par page). Méthode : pour chaque variante, une copie légère du dossier (seuls `titreCV`, `metierCible` et `ia.cv.profil` changent) est rendue par le moteur existant (`construirePageInteractivePdfA4` dans une iframe cachée, comme `exporterCvWord`), on garde le HTML de la page et la feuille de style (identique pour les 5, mêmes réglages), puis un seul document avec une section par CV et un saut de page entre chaque. Rien dupliqué : le moteur de rendu n'est pas touché. Vérifié en imprimant avec Chrome sans interface (`--print-to-pdf`), pages comptées.
+
+**Point d'attention, trouvé en vrai (voir `docs/ERREURS_ET_BUGS.md`)** : un CV qui tient sur une page à l'écran peut passer sur deux à l'impression (cas « Vendeuse » de l'essai, bas de la colonne de gauche). Aussi présent hors fusion. Conséquence pour le module : une marge de sécurité par CV (au moins une quarantaine de pixels libres, à calibrer), un avertissement par CV (« ce CV est très rempli »), et un test d'impression réelle avant clôture.
+
+**Word : décision de Denis (2026-10-07), le module ne propose PAS de Word fusionné.** Faisabilité : un fichier Word par CV existe déjà (`exporterCvWord` accepte n'importe quel dossier, donc une variante). Un Word unique de 5 CV demanderait des sections multiples dans `wordPaquet.js` (les décors de page sont dans l'en-tête de la section unique) et Word ne garantit pas « une page par CV » (il remet le texte en page lui-même). Non retenu.
+
+**Prochaines étapes** : maquette concept (écrans 1, édition, fin, versions téléphone), carte de faisabilité des lettres, puis maquette détaillée.
+
+## 17. Carte de faisabilité des lettres de motivation (2026-10-07, Mode A, effort haut) : VERDICT GO AVEC RÉSERVES
+
+Lu dans le code réel : `prompts/lettre.md`, `prompts/lettre-co.md`, la construction du profil transmis (`js/app.js` ~30395-30535), l'import (`js/app.js` ~13738, `analyserReponseIALettre`), `modules/lettre-core/normaliserDonneesLettre.js`, `modules/lettre-editor/` (modèle « Sobre » HTML, Word natif `exportDocxNatifLettre.js`), impression par iframe (`js/app.js` ~25104).
+
+**Simple (reprise de l'existant)** : rendu d'une lettre (HTML « Sobre », Word natif, impression PDF par iframe, même méthode que le CV) ; une lettre prend déjà `objet` + `texte` + `texteCourt` (version pour email) ; règles de fiabilité du prompt (rien d'inventé, le « VOUS » reste sur le secteur et le type de structure quand aucun site n'est connu, jamais de nom de site cité) ; formule d'appel « Madame, Monsieur, » ; la règle « ne jamais recopier l'accroche du CV » existe déjà.
+
+**Ce qui bloque l'existant (donc à construire)** :
+1. **Le parcours actuel de candidature spontanée exige une entreprise ET un poste** (`js/app.js` ~7160). Le module ne peut pas s'y brancher : il aura sa propre entrée, sans entreprise.
+2. **Une seule lettre en mémoire** : `dossier.ia.lettre` contient UNE lettre (avec ses 2 versions). Y écrire 10 lettres écraserait la lettre de la personne (même famille d'incident que `project_collision_savoirfaire_ancien_module_bilan`). Le module garde **sa propre liste** (une entrée par CV : métier, accroche, lettre), jamais `dossier.ia.lettre`.
+3. **Le prompt actuel fait 1 lettre en 2 versions** (4 textes avec les versions courtes). Dix lettres en un seul passage, c'est une réponse très longue : risque réel de coupure, de JSON invalide (chaque valeur doit tenir sur une ligne) et de lettres qui se ressemblent. **Un prompt dédié est nécessaire** (`prompts/`), pas une réutilisation de `lettre.md`.
+
+**Réserves, à lever par un essai réel avec l'assistant sur de vrais CV (jamais prouvé à ce jour)** :
+- **Combien de lettres par passage.** Recommandation de départ : 1 lettre par métier (une seule version, plus la version courte pour email), 5 lettres au plus par passage, donc 2 passages pour 10. À confirmer par essai.
+- **Lettres trop interchangeables** sans nom d'entreprise : le « VOUS » ne peut parler que du secteur ou du type de structure. Prévoir une consigne anti-généralités et vérifier sur 6 CV (grille identique).
+- **Le CV n'est transmis qu'une fois**, suivi de la liste (métier, accroche) : sinon 10 copies du CV dans le prompt.
+- **Un seul PDF de lettres** : même méthode que le CV (un document, une section par lettre, saut de page), à prouver par impression réelle ; une lettre doit tenir sur une page (mesure + marge de sécurité, voir `docs/ERREURS_ET_BUGS.md`, débordement du 2026-10-07).
+- **Nouveau parseur** de réponse (liste de lettres) à écrire et tester, sans toucher `analyserReponseIALettre`.
+
+**À décider avec Denis à la maquette** : lettres dans le même PDF que les CV (une lettre après chaque CV) ou dans un second PDF ; Word : un fichier par lettre (déjà possible) ou rien.
+
+## 18. Décisions de Denis du 2026-10-07 et conception des prompts du module (Mode A, effort haut)
+
+**Décisions de Denis** :
+- **Ordre de sortie** : les CV d'abord, les lettres de motivation ensuite (à la demande), dans un second PDF. Pour chaque CV : l'intitulé et la phrase d'accroche, longue ou courte, au choix de la personne (mécanisme des versions d'accroche existant).
+- **Prompts propres au module, pour les CV comme pour les lettres.** On ne charge jamais `prompts/cv.md` ni `prompts/reformuler-cv.md` (déjà très conséquents). Aucun de leurs fichiers n'est modifié par ce module.
+- **La démarche choisie par la personne doit converger avec la lettre** : candidature spontanée, changement de métier, stage, alternance, etc. Vaut pour la lettre actuelle ET pour les lettres du module.
+- **Affichage des propositions (tranché)** : TOUT est montré d'emblée, dans les deux colonnes (autres intitulés du même métier et autres métiers), jamais de « Voir d'autres » : on ne veut effrayer ni perdre personne. Remplace la question laissée ouverte en section 12. Conséquence à traiter à la maquette : cartes compactes, lisibles sur téléphone.
+- **Choix laissé à la personne** : même aspect pour tous les CV, ou un aspect propre à chacun. À étudier : réorganisation par métier.
+
+**Constat dans le code (lu, pas testé en qualité)** : la lettre actuelle reçoit déjà l'objectif choisi pour les 7 démarches (`Objectif :` + la ligne directrice de `LIGNES_DIRECTRICES_SITUATION`, `js/app.js` ~5418 et ~30421) et `lettre.md` comme `lettre-co.md` l'appliquent. Ce qui n'existe pas : un contrôle réel de la qualité des lettres sur les 7 démarches. À faire en banc d'essai (effort moyen), sans alourdir les prompts : la table est lue UNE ligne à la fois (celle de la démarche choisie), donc elle ne grossit pas le prompt.
+
+**Les trois prompts du module (chacun court, une seule mission)** :
+1. **Métiers proches** : reçoit le texte du CV (masqué) ; rend la synthèse (métier, compétences clés, expériences), les autres intitulés du même métier, jusqu'à 10 autres métiers qui utilisent les mêmes compétences, avec pour chacun 1 ou 2 éléments réellement présents dans le CV et la mention « À vérifier » quand un diplôme ou une habilitation est en jeu. Ne reçoit ni département ni lettre.
+2. **Titres et accroches** : reçoit la synthèse du CV (jamais le CV entier), la liste des métiers choisis (10 au plus), la démarche, le type de structure s'il est connu, le genre (accords). Rend par métier : le titre (poste visé), 2 accroches courtes et 2 longues. Dit expressément que le corps du CV ne change pas : seuls le titre et l'accroche sont produits.
+3. **Lettres** : reçoit la synthèse du CV, par métier le titre et l'accroche retenue (pour ne pas la recopier), la démarche et sa ligne directrice, le type de structure. Rend par métier une lettre et sa version courte pour email, 5 lettres au plus par passage.
+
+**Aspect de chaque CV et réorganisation** : voir la réponse donnée à Denis ; recommandation : trois niveaux, seul le premier dans la première version. (1) Même aspect et même corps pour tous (défaut). (2) Option « un aspect propre à chaque CV » limitée au look et à la couleur (6 looks existants), le rendu lit déjà `pdfReglages` du dossier qu'on lui donne ; **à prouver par un second prototype** : avec des modèles différents le style d'un CV peut contaminer celui d'un autre dans le PDF fusionné (mêmes noms de classes, règles différentes), isolation à tester. (3) Ordre des rubriques et des compétences par métier, sans toucher au contenu. **Non recommandé** : sélectionner ou réécrire les expériences par métier (risque d'invention, multiplie par 10 la relecture, c'est le rôle de « Reformuler mon CV »).
+
+## 19. Second prototype (2026-10-08, nuit) : un PDF qui mêle plusieurs MODÈLES de CV : FAISABLE, isolation prouvée
+
+**Question** (section 18, « aspect différent par CV ») : peut-on mettre dans un seul PDF des CV de modèles différents sans que le style de l'un déforme l'autre ?
+**Méthode** : quatre CV rendus par le moteur existant (Bandeau, Colonne foncée, Sobre épuré, Rectangles arrondis), chacun avec sa feuille de style ; assemblés dans un seul document, avec ou sans isolation ; imprimés par Chrome sans interface (`--print-to-pdf`), pages comptées ; hauteur de chaque feuille comparée à celle du même CV rendu seul.
+**Résultats** :
+- **Sans isolation** (tout dans la même page) : contamination réelle. Hauteurs 1160, 1123, 1148, 1510 px au lieu de 1123, 1123, 1123, 1502 ; 7 pages imprimées au lieu de 5.
+- **Avec un « shadow root » par CV** (chaque CV et ses règles de style dans un compartiment étanche, `attachShadow`) : hauteurs 1123, 1123, 1123, 1496 (écart de 6 px sur le dernier, arrondi de largeur) ; **5 pages imprimées** : 3 CV d'une page et « Rectangles arrondis » sur 2 pages, exactement comme quand on l'imprime seul.
+**Conclusion** : l'aspect propre à chaque CV est faisable dans le PDF fusionné, à condition d'isoler chaque CV dans son compartiment. Le même mécanisme règle au passage le cas des CV de modèles identiques. **Point de vigilance** : les modèles qui tiennent sur plus d'une page (Rectangles arrondis) font plus de pages dans le PDF (le nombre de pages n'est plus « une par CV » ; à dire à la personne sur l'écran de fin). **Hors périmètre** : le Word (aucune fusion).
+**Reste pour la maquette de demain** (décisions de Denis) : où se règle l'aspect de chaque CV (look et couleur seulement, comme recommandé en section 18, ou modèle complet) ; combien de pages annoncer ; relecture du défaut d'impression noté dans `docs/ERREURS_ET_BUGS.md` (un CV rempli au bord peut passer sur 2 pages) : le calcul « Mise en page » rempli d'office l'atténue, une marge de sécurité par CV reste à prévoir.

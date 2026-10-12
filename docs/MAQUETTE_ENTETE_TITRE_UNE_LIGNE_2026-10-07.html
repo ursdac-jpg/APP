@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : titre du CV sur une ligne, accroche dessous</title>
+<style>
+  :root { --fond: #f4f6f8; --carte: #ffffff; --texte: #1c2430; --discret: #5b6573; --trait: #d5dbe3; --accent: #2f6690; --alerte: #b4561f; --ok: #1f7a4d; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #12161c; --carte: #1b212a; --texte: #e8ecf1; --discret: #a2acb9; --trait: #323b47; --accent: #7fb3dd; --alerte: #e39a6a; --ok: #6fcf9d; } }
+  :root[data-theme="sombre"] { --fond: #12161c; --carte: #1b212a; --texte: #e8ecf1; --discret: #a2acb9; --trait: #323b47; --accent: #7fb3dd; --alerte: #e39a6a; --ok: #6fcf9d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--texte); font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+  main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 26px 0 8px; }
+  p { margin: 6px 0; }
+  .discret { color: var(--discret); font-size: .92rem; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .duo { grid-template-columns: 1fr; } }
+  .bloc { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: 12px; }
+  .bloc h3 { margin: 0 0 8px; font-size: .95rem; }
+  .etat-avant h3 { color: var(--alerte); }
+  .etat-apres h3 { color: var(--ok); }
+  /* petit apercu de feuille */
+  .feuille { background: #fff; color: #1c2430; border: 1px solid #c9d0d9; border-radius: 4px; padding: 14px; font-size: 12px; }
+  .feuille .nom { font-size: 21px; font-weight: 700; color: #2f6690; line-height: 1.1; }
+  .feuille .coord { font-size: 11px; color: #3a4452; line-height: 1.6; }
+  .feuille .metier { font-weight: 700; color: #2f6690; }
+  .feuille .accroche { font-style: italic; color: #333; }
+  .feuille .corps { margin-top: 12px; border-top: 3px solid #2f6690; padding-top: 8px; color: #6b7684; font-size: 11px; }
+  /* aujourd'hui : trois colonnes etroites */
+  .tete3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: start; }
+  .tete3 .metier { font-size: 19px; line-height: 1.15; }
+  .tete3 .accroche { font-size: 12px; }
+  /* proposition : empilee */
+  .teteE .rang1 { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+  .teteE .metier { font-size: 26px; line-height: 1.1; margin-top: 8px; white-space: nowrap; }
+  .teteE .accroche { font-size: 15px; margin-top: 6px; max-width: 100%; }
+  .variante-photo .tete3 { grid-template-columns: 84px 1fr 1fr; }
+  .photo { width: 84px; height: 84px; border-radius: 50%; background: #c8d6e3; }
+  .teteE .photo { width: 64px; height: 64px; }
+  .note { border-left: 4px solid var(--accent); background: var(--carte); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--carte); border: 1px solid var(--trait); }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--trait); vertical-align: top; font-size: .9rem; }
+  th { background: color-mix(in srgb, var(--accent) 12%, var(--carte)); }
+  .oui { color: var(--ok); font-weight: 700; } .non { color: var(--alerte); font-weight: 700; }
+  button { font: inherit; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : le titre du CV sur une ligne, l'accroche dessous</h1>
+  <p class="discret">Étape « maquette » : rien n'est codé. Les dessins ci-dessous sont des schémas, pas le vrai rendu. Ils servent à valider le principe avant l'audit détaillé de chaque modèle.</p>
+  <p><button type="button" id="basculeSombre">Voir en mode sombre</button></p>
+
+  <h2>1. Le problème d'aujourd'hui</h2>
+  <div class="note">Le nom, le métier et l'accroche sont rangés côte à côte, en trois colonnes étroites. Dès qu'on agrandit l'en-tête, le métier passe sur deux lignes et l'accroche se tasse à droite. Le calcul automatique s'arrête alors pour ne pas empirer : le CV reste trop vide en bas.</div>
+
+  <div class="duo">
+    <div class="bloc etat-avant">
+      <h3>Aujourd'hui : trois colonnes</h3>
+      <div class="feuille">
+        <div class="tete3">
+          <div><div class="nom">Camille MARTIN</div><div class="coord">06.00.00.00.00<br>camille@exemple.fr<br>Limoges, 87000</div></div>
+          <div class="metier">Agent de sécurité et de prévention</div>
+          <div class="accroche">Agent de sécurité attentif, habitué à accueillir le public et à prévenir les situations tendues.</div>
+        </div>
+        <div class="corps">… le reste du CV, avec de la place vide en bas …</div>
+      </div>
+    </div>
+    <div class="bloc etat-apres">
+      <h3>Proposition : disposition « empilée »</h3>
+      <div class="feuille">
+        <div class="teteE">
+          <div class="rang1"><div><div class="nom">Camille MARTIN</div><div class="coord">06.00.00.00.00 · camille@exemple.fr · Limoges, 87000</div></div></div>
+          <div class="metier">Agent de sécurité et de prévention</div>
+          <div class="accroche">Agent de sécurité attentif, habitué à accueillir le public et à prévenir les situations tendues.</div>
+        </div>
+        <div class="corps">… le reste du CV, mieux réparti …</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>2. Ce que la proposition change</h2>
+  <ul>
+    <li><b>Le titre du métier est tout en haut, sur une seule ligne, plus grand.</b> On le voit tout de suite.</li>
+    <li><b>La phrase d'accroche passe dessous</b>, sur toute la largeur : elle respire, elle n'est plus tassée dans une colonne.</li>
+    <li><b>Le nom et les coordonnées</b> restent ensemble au-dessus.</li>
+    <li><b>L'en-tête peut grandir beaucoup plus</b> avant qu'un titre ne passe sur une deuxième ligne : le calcul « Mise en page » remplit mieux la page.</li>
+    <li><b>Rien n'est retiré, rien n'est ajouté</b> : seule la place des éléments change.</li>
+  </ul>
+
+  <h2>3. Avec une photo</h2>
+  <div class="duo variante-photo">
+    <div class="bloc etat-avant"><h3>Aujourd'hui</h3>
+      <div class="feuille"><div class="tete3"><div class="photo"></div><div><div class="nom">Camille MARTIN</div><div class="coord">06.00.00.00.00<br>Limoges</div></div><div class="metier">Agent de sécurité et de prévention</div></div>
+      <div class="accroche" style="margin-top:8px">Agent de sécurité attentif, habitué à accueillir le public.</div></div></div>
+    <div class="bloc etat-apres"><h3>Proposition</h3>
+      <div class="feuille"><div class="teteE"><div class="rang1" style="grid-template-columns:auto 1fr;align-items:center"><div class="photo"></div><div><div class="nom">Camille MARTIN</div><div class="coord">06.00.00.00.00 · Limoges</div></div></div>
+      <div class="metier" style="font-size:22px;white-space:normal">Agent de sécurité et de prévention</div>
+      <div class="accroche">Agent de sécurité attentif, habitué à accueillir le public.</div></div></div></div>
+  </div>
+
+  <h2>4. Quand la disposition « empilée » se déclenche</h2>
+  <ul>
+    <li><b>D'office</b> si le métier passe sur deux lignes dans la disposition actuelle (ta proposition).</li>
+    <li><b>À la main</b> : un choix « Disposition de l'en-tête » reste disponible ; la personne peut revenir à trois colonnes à tout moment (choix révocable).</li>
+    <li>Si le métier est vraiment très long (plus d'environ 40 caractères), il passe sur deux lignes dans tous les cas : le calcul ne force jamais une ligne unique au prix d'une taille minuscule.</li>
+  </ul>
+
+  <h2>5. Famille par famille : ce que je dois vérifier dans le code avant de coder</h2>
+  <p class="discret">Je n'ai pas encore lu chaque en-tête. Ce tableau annonce ce qui sera audité (étape « audit » de la méthode), avec mon premier avis.</p>
+  <table>
+    <tr><th>Famille de modèles</th><th>Premier avis</th><th>Point à vérifier</th></tr>
+    <tr><td>Modèle de base (trois colonnes)</td><td class="oui">Faisable</td><td>Le réglage « 2 colonnes » existe mais n'a pas d'effet visible : à comprendre avant d'ajouter une disposition.</td></tr>
+    <tr><td>Rectangles</td><td class="oui">Faisable</td><td>Titre et accroche dans des blocs séparés.</td></tr>
+    <tr><td>Photo</td><td class="oui">Faisable</td><td>Photo à gauche, texte à droite : empiler le texte.</td></tr>
+    <tr><td>Frise</td><td>À voir</td><td>Colonne latérale : le titre doit tenir dans la largeur disponible.</td></tr>
+    <tr><td>Colonne foncée, claire, ruban</td><td>À voir</td><td>L'en-tête se trouve peut-être dans la colonne étroite : le titre sur une ligne ne tiendrait pas.</td></tr>
+    <tr><td>Éditorial, Technique, Chronologique</td><td>À voir</td><td>En-têtes très particuliers (nom en grand, filet) : à ne pas modifier sans accord.</td></tr>
+    <tr><td>Mini CV A5</td><td class="non">Hors périmètre</td><td>Gabarit à part, traité plus tard si tu le veux.</td></tr>
+  </table>
+
+  <h2>6. Questions pour toi</h2>
+  <ol>
+    <li>Le principe te convient-il : titre sur une ligne en haut, accroche dessous sur toute la largeur ?</li>
+    <li>Les modèles à en-tête très particulier (Éditorial, Technique, Chronologique) : on n'y touche pas dans un premier temps. D'accord ?</li>
+    <li>Déclenchement : d'office quand le métier passe sur deux lignes, avec un retour possible à trois colonnes. D'accord ?</li>
+  </ol>
+</main>
+<script>
+  document.getElementById('basculeSombre').addEventListener('click', function () {
+    var r = document.documentElement, s = r.getAttribute('data-theme') === 'sombre';
+    r.setAttribute('data-theme', s ? 'clair' : 'sombre');
+    this.textContent = s ? 'Voir en mode sombre' : 'Voir en mode clair';
+  });
+</script>
+</body>
+</html>

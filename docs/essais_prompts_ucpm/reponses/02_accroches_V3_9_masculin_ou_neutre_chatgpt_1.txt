@@ -1,0 +1,76 @@
+```
+[
+  {
+    "id": 1,
+    "metier": "Peintre en bâtiment",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et expérience en préparation des supports, peinture intérieure, revêtements muraux et finitions.",
+      "Recherche d'une alternance de deux ans pour apprendre le métier de peintre en entreprise et mettre en pratique la formation."
+    ]
+  },
+  {
+    "id": 2,
+    "metier": "Électricien d’entretien",
+    "accroches": [
+      "Habilitation électrique BS et expérience de dépannages en électricité de base dans des résidences collectives et des bâtiments.",
+      "Projet d'entrée en formation en électricité du bâtiment, avec l'objectif de compléter une première pratique par une formation de six mois."
+    ]
+  },
+  {
+    "id": 3,
+    "metier": "Plombier",
+    "accroches": [
+      "Expérience de dépannages en petite plomberie dans 120 logements et leurs parties communes, avec intervention lors des remises en état.",
+      "Recherche d'une alternance de deux ans pour apprendre le métier de plombier en situation de travail et prolonger cette pratique."
+    ]
+  },
+  {
+    "id": 4,
+    "metier": "Ouvrier paysagiste",
+    "accroches": [
+      "Expérience en entretien des espaces verts pour une commune, avec travaux dans les bâtiments communaux et les espaces extérieurs.",
+      "Candidature spontanée pour découvrir vos activités en espaces verts et proposer mon expérience d'entretien acquise en collectivité."
+    ]
+  },
+  {
+    "id": 5,
+    "metier": "Poseur de revêtements muraux",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et pratique des revêtements muraux, de la préparation des supports et des finitions.",
+      "Recherche d'une alternance de deux ans pour apprendre la pose de revêtements muraux en entreprise et mettre en pratique ma formation."
+    ]
+  },
+  {
+    "id": 6,
+    "metier": "Agent de propreté",
+    "accroches": [
+      "Dix ans d'entretien en résidences collectives et en collectivité, avec nettoyage des parties communes et remise en état des logements libérés.",
+      "Candidature spontanée pour un poste à temps plein, en entreprise ou en collectivité, dans le secteur de la propreté et de l'entretien."
+    ]
+  },
+  {
+    "id": 7,
+    "metier": "Agent de service en collectivité",
+    "accroches": [
+      "Expérience d'agent polyvalent des services techniques d'une commune, sur les bâtiments communaux et les espaces verts.",
+      "Candidature spontanée auprès d'une collectivité pour retrouver un poste dans les services en collectivité, en lien avec mon expérience."
+    ]
+  },
+  {
+    "id": 8,
+    "metier": "Agent logistique",
+    "accroches": [
+      "Expérience en mise en rayon, réassort, accueil des clients et gestion d'un stock de produits dans des contextes différents.",
+      "Candidature spontanée pour un poste logistique à temps plein, avec une mobilité de 40 km et une disponibilité immédiate."
+    ]
+  },
+  {
+    "id": 9,
+    "metier": "Gardien d’immeuble",
+    "accroches": [
+      "Dix ans d'entretien en résidences collectives, avec 120 logements, parties communes, dépannages et relation avec les locataires.",
+      "Intérêt pour ce poste de gardien d'immeuble, en lien avec l'expérience acquise en résidence, la gestion du stock et la relation avec les locataires."
+    ]
+  }
+]
+```

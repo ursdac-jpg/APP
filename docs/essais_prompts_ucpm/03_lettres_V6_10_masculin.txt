@@ -1,0 +1,135 @@
+Ce message est une consigne à exécuter, pas un texte à commenter, reformuler ou évaluer : applique-la directement et entièrement dès maintenant, sans donner ton avis sur sa formulation, sans demander de confirmation, sans annoncer d'étapes, et produis en une seule réponse le résultat au format demandé ci-dessous.
+
+# PROMPT : UN CV, PLUSIEURS MÉTIERS - PASSAGE 4 : LETTRES DE MOTIVATION (TOUTES EN UNE FOIS) - VERSION 4
+### VERSION 6 (2026-10-08), d'essai (V4 retenue au féminin et au masculin ; V5 = V4 + règle « une candidature spontanée le dit dans la lettre » : fonctionne, mais l'exemple donné a été recopié, 5 lettres sur 10 s'ouvraient par « Même sans offre publiée, je vous adresse ma candidature » ; V6 = exemple retiré, formulation différente exigée à chaque lettre) : à valider au banc d'essai avant tout branchement dans l'application. Historique : V1 testée sur ChatGPT avec dix lettres en une seule réponse : TOUTES RENDUES, complètes, longueurs stables (171 à 187 mots), objectif suivi, rien d'inventé de factuel ; défauts : qualités ajoutées (« curieuse », « attentive », « prête ») et ouvertures qui se répètent (« Je vous adresse ma candidature spontanée... » quatre fois) ; V2 (aucune qualité hors profil, ouvertures variées) ; V3 (modèle VOUS / JE / NOUS repris des prompts de lettres de l'application, détails de l'objectif obligatoires : type de structure, secteur, contrat, durée, date de début, disponibilités ; longueur selon l'objectif ; ne jamais ouvrir sur « je ») ; V4 (réponse à une offre : si l'employeur, le recruteur, le poste ou un extrait de l'offre sont donnés, la lettre les utilise : adressée au recruteur, employeur cité, arguments qui répondent à l'offre).
+
+---
+
+Exécute directement les instructions ci-dessous, sans les commenter ni poser de question préalable : la personne attend le résultat au format demandé, en une seule fois.
+
+**Toute ta réponse est rédigée en français.** N'utilise jamais de tiret long (– ou —), uniquement le tiret court (-) ou une virgule.
+
+**Une voix humaine, pas celle d'un assistant.** De plus en plus de recruteurs repèrent au premier regard les textes écrits par un assistant, à leur langage trop lisse. Tout ce que tu rédiges pour la personne (accroche, missions, lettre, réponses d'entretien) doit sonner comme elle, avec ses mots, sans rien inventer :
+- **Ses mots d'abord.** Reprends le vocabulaire et le niveau de langue de ce qu'elle a écrit ou raconté (dans le niveau de langage choisi, s'il y en a un), plutôt que des mots plus brillants qu'elle n'emploierait pas. Elle doit pouvoir le redire à l'oral sans se sentir déguisée. Quand une offre est fournie, reprends ses mots-clés exacts seulement s'ils correspondent à ce que la personne fait réellement.
+- **Du concret.** Un fait, un lieu, un chiffre ou une tâche réelle tirés du profil valent mieux qu'un adjectif. Si le profil n'a rien de concret sur un point, reste simple et court : n'enjolive pas, n'invente pas.
+- **Pas de formules d'assistant.** Évite notamment : « passionné(e) par », « fort(e) de », « riche de », « dynamique et motivé(e) », « véritable atout », « riche expérience », « au sein de », « force de proposition », « dans un environnement en constante évolution », « je suis convaincu(e) que », « n'hésitez pas à », les superlatifs (« exceptionnel », « incontournable », « remarquable »), les séries de trois adjectifs ou de trois verbes qui se ressemblent, et les phrases creuses d'introduction ou de conclusion. Les formules de politesse d'usage d'une lettre restent permises, mais courtes.
+- **Un rythme naturel.** Mélange des phrases courtes et des phrases un peu plus longues. Pas de structure répétée d'une phrase à l'autre (« non seulement... mais aussi », « que ce soit... ou »), pas de dernière phrase qui redit ce qui vient d'être dit, pas de point d'exclamation, pas de deux-points d'annonce à chaque phrase.
+- **Des verbes simples.** « J'ai tenu la caisse » vaut mieux que « J'ai assuré la gestion des encaissements ». Un verbe d'action simple suffit.
+
+## 1. Ton rôle
+
+La personne a plusieurs CV, un par métier, chacun avec son objectif. Tu écris UNE lettre de motivation par CV, toutes dans cette même réponse. Une lettre pour une entrée en formation ne s'écrit pas comme une candidature spontanée, ni comme une réponse à une offre, ni comme un stage, une alternance, une immersion ou un changement de métier : chaque lettre suit l'objectif de son CV.
+
+## 2. Règles
+
+- **Exactement le nombre de lettres demandé**, une par CV, dans le même ordre, avec le même `id`. Si tu manques de place, RACCOURCIS chaque lettre : ne supprime jamais une lettre et ne t'arrête jamais en cours de réponse.
+- **Longueur selon l'objectif**, chaque lettre étant complète et en 3 ou 4 paragraphes séparés par une ligne vide : environ 150 à 200 mots pour un stage, une alternance, une immersion ou une entrée en formation (l'essentiel est la motivation et le projet) ; environ 170 à 220 mots pour une candidature spontanée (cohérence du projet, connaissance du secteur) ; environ 200 à 260 mots pour une réponse à une offre ou un changement de métier (chaque argument répond à une attente du poste). Elle s'ouvre par « Madame, Monsieur, » (ou par la civilité et le nom du recruteur quand il est donné) et se termine par une formule de politesse courte, sans signature.
+- **Le modèle VOUS, JE, NOUS**, dans cet ordre, pour répondre aux trois questions d'un recruteur : « Pourquoi cette personne ? Pourquoi notre structure ? Pourquoi maintenant ? ». **VOUS** (début) : ce que la personne a compris du secteur et du type de structure visés, de façon concrète et sûre, sans nom d'entreprise et sans aucun fait inventé sur un employeur ; si tu ne peux rien dire de concret et de certain, reste sobre. Aucune généralité interchangeable (« j'admire votre dynamisme »). **JE** (milieu) : ce que la personne a fait, choisi dans le profil parce que cela sert CE poste, dit dans le vocabulaire du secteur visé sans changer le contenu réel de l'expérience. **NOUS** (fin) : ce que la personne apportera concrètement, ce qu'elle espère apprendre ou trouver (stage, alternance, immersion, formation) et ce qu'on pourra construire ensemble : ne termine jamais sur un simple récapitulatif du parcours.
+- **Ne commence JAMAIS la lettre par « je » ni par « j'ai ».** Dans chaque lettre, moins de la moitié des phrases commencent par « je » ou « j'ai » : varie le sujet (la structure, le poste, une situation, une réalisation).
+- **Reprends dans la lettre les informations de l'objectif quand elles sont données** (une phrase suffit pour chacune, jamais une liste) : le type de structure et le secteur, le contrat et le temps de travail, la durée, la date de début souhaitée, les disponibilités, la formation visée. Pour un stage, une alternance ou une immersion, la durée et la date de début doivent figurer dans la lettre.
+- **Candidature spontanée** : la lettre dit en une phrase simple que la personne écrit sans qu'une offre soit publiée, et donne la raison de ce choix. Écris cette phrase avec des mots DIFFÉRENTS dans chaque lettre spontanée (jamais deux lettres avec la même formule), à n'importe quel endroit du premier paragraphe, et ne la place pas toujours en première phrase.
+- **Ne recopie pas l'accroche** : la lettre doit apporter un autre angle ou d'autres arguments que l'accroche donnée, tout en racontant la même histoire que le CV.
+- **Par défaut, aucun nom d'entreprise ni de personne** : la lettre sert alors à plusieurs employeurs. N'écris aucune parenthèse ni crochet à compléter.
+- **MAIS si les informations du CV donnent l'EMPLOYEUR, le RECRUTEUR (civilité et nom), l'intitulé du POSTE ou un extrait de l'OFFRE, tu DOIS les utiliser** : adresse la lettre au recruteur nommé (« Madame Martin, » ou « Monsieur Martin, ») à la place de « Madame, Monsieur, » ; cite l'employeur par son nom dans la partie VOUS, avec seulement ce que l'application te donne sur lui (rien d'inventé sur son activité ou ses valeurs) ; reprends l'intitulé exact du poste ; quand un extrait d'offre est fourni, chaque argument de la partie JE répond à une attente de l'offre, en s'appuyant sur le profil. Une réponse à une offre se construit autour de l'offre.
+- **Rien d'inventé.** Appuie-toi UNIQUEMENT sur le profil validé et sur l'objectif donnés : aucune expérience, compétence, diplôme, formation, chiffre ou durée qui n'y figure pas. Si le métier visé demande ce que le profil ne montre pas, mets en avant ce que le profil montre vraiment (compétences transférables).
+- **Suis la ligne directrice de l'objectif** (donnée pour chaque CV) : elle dit quoi mettre en avant et sur quel ton.
+- **Aucune qualité inventée.** N'attribue à la personne AUCUNE qualité personnelle (curieuse, attentive, organisée, dynamique, prête à tout...) qui ne figure pas dans le profil. La motivation et l'engagement, que demande la ligne directrice de l'objectif, s'expriment par des intentions et des faits (« je m'engage à... », « je souhaite apprendre... », « j'ai fait... »), jamais par des adjectifs sur la personne.
+- **Varie les ouvertures.** Deux lettres au plus peuvent s'ouvrir par la même formule (« Je vous adresse ma candidature... »). Une lettre peut s'ouvrir sur un fait du parcours, une autre sur le projet ou l'objectif. Dans une même lettre, ne commence pas plusieurs phrases par « Je souhaite ».
+- **Les lettres doivent se distinguer** : ouvertures différentes, constructions différentes, exemples différents choisis dans le profil. Pas de lettre qui ressemble à la précédente avec un autre titre.
+- **Sexe de la personne** (indiqué plus bas) : accorde TOUS les adjectifs et participes à ce sexe. Si le sexe n'est pas précisé, n'emploie AUCUN mot qui s'accorde : tourne les phrases avec des noms.
+- Aucun commentaire, aucun texte avant ou après le JSON. Place tout le JSON dans un seul bloc de code (balises ```json), pour que la personne le copie sans erreur.
+
+## 3. Format de réponse : UN SEUL tableau JSON, placé dans UN SEUL bloc de code, sans texte autour
+
+```
+[
+  { "id": 1, "metier": "...", "lettre": "Madame, Monsieur,\n\nParagraphe 1...\n\nParagraphe 2...\n\nCordialement." }
+]
+```
+
+Dans la chaîne `lettre`, les paragraphes sont séparés par `\n\n`.
+
+## 4. Genre de la personne
+
+Masculin : la personne est un homme. Accorde tous les adjectifs et participes au masculin (habitué, motivé...).
+
+## 5. Profil validé (CV de référence)
+
+Titre du CV de référence : Agent d’entretien des bâtiments
+Accroche retenue : Agent d’entretien des bâtiments, autonome et ponctuel, avec dix ans d’expérience en résidences collectives et en collectivité.
+Compétences clés : petite plomberie, peinture et finitions, électricité de base (habilitation BS), entretien des espaces verts, petite maçonnerie et menuiserie, gestion de stock, travail en équipe.
+Expériences :
+- 2019-2024, agent d’entretien en résidence : 120 logements et parties communes, dépannages en plomberie et électricité de base, peinture des cages d’escalier, remise en état des logements libérés, relation avec les locataires, gestion d’un stock de produits.
+- 2016-2019, agent polyvalent des services techniques d’une commune : bâtiments communaux et espaces verts, petits travaux de maçonnerie et de menuiserie, montage de barnums, déneigement.
+- 2014-2016, aide-peintre : préparation des supports, peinture intérieure, revêtements muraux, finitions.
+- 2012-2014, employé de libre-service : mise en rayon, réassort, accueil des clients.
+Formations : CAP Peintre applicateur de revêtements (2014) ; SST (2018, recyclage 2022) ; habilitation électrique BS (2021) ; gestes et postures (2022).
+Engagement : bénévole à la banque alimentaire depuis 2020. Permis B.
+
+## 6. Les CV pour lesquels écrire une lettre, avec l'objectif complet de chacun
+
+1. Titre du CV : Agent d’entretien des bâtiments
+   Accroche retenue : Agent d’entretien des bâtiments, autonome et ponctuel, avec dix ans d’expérience en résidences collectives et en collectivité.
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : entreprise privée ou collectivité ; secteur : entretien et maintenance des bâtiments ; contrat : CDI ; temps plein
+
+2. Titre du CV : Peintre en bâtiment
+   Accroche retenue : CAP Peintre applicateur de revêtements et expérience en peinture intérieure, avec préparation des supports, revêtements muraux et finitions.
+   Objectif : Alternance
+   Ligne directrice de cet objectif : l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.
+   Détails : type de structure : entreprise privée ; secteur : bâtiment ; durée : 2 ans ; début souhaité : septembre prochain ; disponibilités : horaires de journée, à temps plein en entreprise
+   Employeur : Lacroix Peinture (entreprise fictive pour l’essai)
+   Poste visé : Peintre en bâtiment en alternance
+
+3. Titre du CV : Électricien d’entretien
+   Accroche retenue : Habilitation électrique BS et expérience des dépannages en électricité de base en résidence, pour préparer une formation en électricité du bâtiment.
+   Objectif : Entrée en formation
+   Ligne directrice de cet objectif : ce qui prépare à la formation visée (expériences, diplômes, prérequis) et la motivation et le projet quand le CV les montre.
+   Détails : formation visée : électricité du bâtiment ; organisme de formation ; durée : environ 6 mois ; début souhaité : prochaine session ; disponible à temps plein
+
+4. Titre du CV : Plombier
+   Accroche retenue : Pratique des dépannages en plomberie en résidence, sur 120 logements, avec expérience de l’entretien courant et de la remise en état.
+   Objectif : Alternance
+   Ligne directrice de cet objectif : l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.
+   Détails : type de structure : entreprise privée ; secteur : bâtiment ; durée : 2 ans
+
+5. Titre du CV : Ouvrier paysagiste
+   Accroche retenue : Expérience des espaces verts dans les services techniques d’une commune, avec entretien des extérieurs et travaux réalisés sur les bâtiments communaux.
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : collectivité ou entreprise privée ; secteur : espaces verts ; contrat : CDI
+
+6. Titre du CV : Poseur de revêtements muraux
+   Accroche retenue : CAP Peintre applicateur de revêtements et pratique des revêtements muraux, de la préparation des supports et des finitions.
+   Objectif : Alternance
+   Ligne directrice de cet objectif : l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.
+   Détails : type de structure : entreprise privée ; secteur : bâtiment ; durée : 2 ans
+
+7. Titre du CV : Agent de propreté
+   Accroche retenue : Expérience de l’entretien de parties communes et de 120 logements en résidence, avec remise en état des logements libérés.
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : entreprise privée ou collectivité ; secteur : propreté et entretien ; contrat : CDI ; temps plein
+
+8. Titre du CV : Agent de service en collectivité
+   Accroche retenue : Expérience d’agent polyvalent des services techniques d’une commune, sur les bâtiments communaux, les espaces verts et les petits travaux.
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : collectivité ; secteur : services en collectivité ; contrat : CDI
+
+9. Titre du CV : Agent logistique
+   Accroche retenue : Expérience de la gestion d’un stock de produits en résidence, complétée par la mise en rayon et le réassort en libre-service.
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : entreprise privée ; secteur : logistique ; contrat : CDI ; temps plein ; disponible immédiatement ; mobilité dans un rayon de 40 km
+
+10. Titre du CV : Gardien d’immeuble
+   Accroche retenue : Expérience de 2019 à 2024 dans une résidence de 120 logements, avec entretien des parties communes, dépannages et relation avec les locataires.
+   Objectif : Réponse à une offre
+   Ligne directrice de cet objectif : la motivation et l’intérêt de la personne pour ce poste et cette offre.
+   Détails : type de structure : entreprise privée ; secteur : immobilier ; contrat : CDI ; disponible dans un mois
+   Employeur : Résidences des Tilleuls (entreprise fictive pour l’essai)
+   Recruteur : Madame Claire Martin
+   Poste visé : Gardien d’immeuble (H/F)
+   Extrait de l’offre : Poste en CDI dans une résidence de 90 logements. Missions : entretien des parties communes, petits dépannages, relation avec les locataires, suivi des interventions des entreprises extérieures. Profil attendu : sens du contact, autonomie, notions de plomberie et d’électricité, rigueur dans le suivi.

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : les trois boutons d'allure</title>
+<style>
+  :root { --fond: #f4f6f8; --bg-card: #ffffff; --text: #1c2430; --text-strong: #121821; --text-muted: #5b6573; --border: #d5dbe3; --border-strong: #b9c2cf; --accent: #2f6690; --accent-bg-subtle: #e6eff7; --ok: #1f7a4d; --alerte: #b4561f; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #12161c; --bg-card: #1b212a; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; } }
+  :root[data-theme="sombre"] { --fond: #12161c; --bg-card: #1b212a; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--text); font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 28px 0 8px; }
+  p { margin: 6px 0; }
+  .discret { color: var(--text-muted); font-size: .92rem; }
+  .note { border-left: 4px solid var(--accent); background: var(--bg-card); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+  .barre { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .barre button, .btn { font: inherit; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+  .cadre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  .cadre h3 { margin: 0 0 8px; font-size: .95rem; }
+  .cadre .etiq { color: var(--text-muted); font-size: .8rem; margin-bottom: 8px; }
+  .panneau { max-width: 360px; border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px; background: var(--fond); }
+  .panneau.tel { max-width: 300px; }
+  .titre-mini { font-size: .78rem; font-weight: 700; color: var(--text-strong); margin: 0 0 6px; }
+  .titre-mini .sous { font-weight: 400; color: var(--text-muted); }
+
+  /* ===== AUJOURD'HUI : trois boutons identiques ===== */
+  .seg { display: flex; gap: 0.4375rem; flex-wrap: wrap; }
+  .seg button { flex: 1; min-width: 80px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 9px; padding: 0.28rem 0.4375rem; font-size: 0.7525rem; font-family: inherit; cursor: pointer; }
+  .seg button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+
+  /* ===== PROPOSITION A : vignette + trois mots ===== */
+  .allures { container-type: inline-size; }
+  .allure-liste { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4375rem; }
+  .allure { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; padding: 0.5rem 0.35rem 0.45rem; font-family: inherit; cursor: pointer; }
+  .allure:hover { border-color: var(--accent); }
+  .allure:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .allure .nom { font-size: 0.82rem; font-weight: 700; line-height: 1.1; }
+  .allure .phrase { font-size: 0.68rem; color: var(--text-muted); line-height: 1.2; }
+  .allure .coche { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: var(--bg-card); font-size: 11px; line-height: 16px; display: none; }
+  .allure.on { border: 2px solid var(--accent); padding: calc(0.5rem - 1px) calc(0.35rem - 1px) calc(0.45rem - 1px); background: var(--accent-bg-subtle); box-shadow: 0 0 0 2px var(--accent-bg-subtle); }
+  .allure.on .nom { color: var(--accent); }
+  .allure.on .phrase { color: var(--text-strong); }
+  .allure.on .coche { display: block; }
+  /* vignette de CV (même technique que la galerie : 56 px de haut, traits positionnés) */
+  .mini { width: 46px; height: 58px; background: #fff; border: 1px solid #d9dee6; border-radius: 4px; position: relative; overflow: hidden; flex: 0 0 auto; }
+  .mini i { position: absolute; display: block; }
+  /* petits écrans : une ligne par bouton, vignette à gauche */
+  @container (max-width: 330px) {
+    .allure-liste { grid-template-columns: 1fr; }
+    .allure { flex-direction: row; text-align: left; gap: 0.7rem; padding: 0.4rem 0.6rem; }
+    .allure.on { padding: calc(0.4rem - 1px) calc(0.6rem - 1px); }
+    .allure .texte { flex: 1; }
+    .allure .coche { top: 50%; transform: translateY(-50%); right: 8px; }
+    .allure .nom { font-size: 0.9rem; }
+    .allure .phrase { font-size: 0.75rem; }
+  }
+
+  /* ===== PROPOSITION B : trait de couleur ===== */
+  .allure-b { border-top-width: 5px; }
+  .allure-b.sobre { border-top-color: #8a97a6; }
+  .allure-b.standard { border-top-color: var(--accent); }
+  .allure-b.creatif { border-top-color: transparent; border-image: linear-gradient(90deg, #e53935, #fdd835, #43a047, #1e88e5, #8e24aa) 1; border-image-width: 5px 0 0 0; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--bg-card); border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: .9rem; }
+  th { background: var(--accent-bg-subtle); }
+  .oui { color: var(--ok); font-weight: 700; } .non { color: var(--alerte); font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : les trois boutons d'allure (Sobre, Standard, Créatif)</h1>
+  <p class="discret">Étape « maquette » : rien n'est codé. Les panneaux ci-dessous sont à la taille réelle de la colonne « Allure générale » (environ 340 px) et à celle d'un téléphone (300 px). Les boutons sont cliquables pour voir le bouton actif.</p>
+  <div class="barre"><button type="button" id="basculeSombre">Voir en mode sombre</button></div>
+
+  <h2>1. Aujourd'hui</h2>
+  <div class="note">Trois boutons de même forme : rien n'indique que « Sobre » donne 12 modèles discrets, que « Standard » donne un CV libre avec « Style rapide », et que « Créatif » donne 24 modèles colorés avec des icônes.</div>
+  <div class="grille">
+    <div class="cadre"><h3>Colonne (ordinateur)</h3>
+      <div class="panneau"><div class="titre-mini">Allure générale <span class="sous">Choisissez le style visuel de votre CV.</span></div>
+        <div class="seg" data-groupe="actuel"><button type="button" data-v="sobre">Sobre</button><button type="button" data-v="standard" class="on">Standard</button><button type="button" data-v="creatif">Créatif</button></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>2. Proposition recommandée (A) : une vignette de CV et trois mots dans chaque bouton</h2>
+  <div class="note">On comprend sans lire : le petit CV montre le genre de rendu, les trois mots disent ce qu'on peut faire. Le bouton actif a un cadre épais, un fond teinté et une pastille ✓ : il se repère même sans la couleur.</div>
+  <div class="grille">
+    <div class="cadre"><h3>Colonne (ordinateur)</h3><div class="etiq">Les trois boutons côte à côte, vignette au-dessus du texte.</div>
+      <div class="panneau allures"><div class="titre-mini">Allure générale <span class="sous">Choisissez le style visuel de votre CV.</span></div>
+        <div class="allure-liste" data-groupe="a1" role="group" aria-label="Allure générale"></div>
+      </div>
+    </div>
+    <div class="cadre"><h3>Téléphone (300 px)</h3><div class="etiq">Les boutons passent sur une ligne chacun, vignette à gauche : texte plus grand, zone de toucher large.</div>
+      <div class="panneau tel allures"><div class="titre-mini">Allure générale <span class="sous">Choisissez le style visuel de votre CV.</span></div>
+        <div class="allure-liste" data-groupe="a2" role="group" aria-label="Allure générale"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3. Variante (B) : un trait de couleur propre à chaque bouton, sans vignette</h2>
+  <div class="note">Plus léger, mais les deux premiers boutons ne disent toujours pas ce qu'ils contiennent. Le trait multicolore de « Créatif » demande de tenir trois couleurs de plus en mode sombre.</div>
+  <div class="grille">
+    <div class="cadre"><h3>Colonne (ordinateur)</h3>
+      <div class="panneau allures"><div class="titre-mini">Allure générale</div>
+        <div class="allure-liste" data-groupe="b1" data-variante="b"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>4. Comparaison</h2>
+  <table>
+    <tr><th>Critère</th><th>Aujourd'hui</th><th>A : vignette + trois mots</th><th>B : trait de couleur</th></tr>
+    <tr><td>On comprend ce que contient chaque allure</td><td class="non">Non</td><td class="oui">Oui</td><td class="non">À peine</td></tr>
+    <tr><td>Bouton actif repérable sans la couleur</td><td>Gras seulement</td><td class="oui">Cadre épais + ✓</td><td>Gras seulement</td></tr>
+    <tr><td>Place prise (ordinateur)</td><td class="oui">1 ligne fine</td><td>Environ 110 px de haut</td><td class="oui">1 ligne fine</td></tr>
+    <tr><td>Téléphone</td><td class="oui">Correct</td><td>3 lignes de 64 px, toucher confortable</td><td class="oui">Correct</td></tr>
+    <tr><td>Code à écrire</td><td>Rien</td><td>Réutilise les vignettes de la galerie : faible</td><td>Très faible</td></tr>
+    <tr><td>Mode sombre</td><td class="oui">Déjà fait</td><td class="oui">La vignette reste une feuille blanche, comme dans la galerie</td><td>3 couleurs de plus à valider</td></tr>
+  </table>
+
+  <h2>5. Questions pour toi</h2>
+  <ol>
+    <li>La proposition A te convient-elle (vignette de CV et trois mots dans chaque bouton) ?</li>
+    <li>Les trois phrases : « Discret et classique », « Libre, à votre main », « Coloré, avec des modèles ». Tu préfères d'autres mots ? (Elles doivent rester vraies : Sobre = 12 modèles discrets, Standard = CV libre avec « Style rapide », Créatif = 24 modèles colorés.)</li>
+    <li>Sur téléphone, une ligne par bouton comme ci-dessus : d'accord ?</li>
+  </ol>
+</main>
+<script>
+  var DEF = [
+    { id: 'sobre', nom: 'Sobre', phrase: 'Discret et classique',
+      mini: '<i style="left:7px;top:7px;width:26px;height:4px;background:#444"></i><i style="left:7px;top:15px;right:7px;height:1px;background:#444"></i><i style="left:7px;top:24px;width:20px;height:1px;background:#777"></i><i style="left:7px;top:29px;right:7px;height:3px;background:#e2e2e2"></i><i style="left:7px;top:35px;right:7px;height:3px;background:#e2e2e2"></i><i style="left:7px;top:43px;width:20px;height:1px;background:#777"></i><i style="left:7px;top:48px;right:7px;height:3px;background:#e2e2e2"></i>' },
+    { id: 'standard', nom: 'Standard', phrase: 'Libre, à votre main',
+      mini: '<i style="left:0;top:0;right:0;height:14px;background:#2f6690"></i><i style="left:6px;top:5px;width:22px;height:4px;background:#fff"></i><i style="left:6px;top:20px;width:20px;height:3px;background:#2f6690"></i><i style="left:6px;top:26px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:32px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:40px;width:20px;height:3px;background:#2f6690"></i><i style="left:6px;top:46px;right:6px;height:3px;background:#ddd"></i>' },
+    { id: 'creatif', nom: 'Créatif', phrase: 'Coloré, avec des modèles',
+      mini: '<i style="left:0;top:0;bottom:0;width:15px;background:#2f6690"></i><i style="left:4px;top:5px;width:7px;height:7px;border-radius:50%;background:#fff"></i><i style="left:4px;top:18px;width:7px;height:2px;background:#fff"></i><i style="left:4px;top:24px;width:7px;height:2px;background:#fff"></i><i style="left:20px;top:5px;right:5px;height:6px;background:#e0702f;border-radius:2px"></i><i style="left:20px;top:17px;width:6px;height:6px;border-radius:50%;background:#2f6690"></i><i style="left:29px;top:19px;right:5px;height:3px;background:#ddd"></i><i style="left:20px;top:28px;width:6px;height:6px;border-radius:50%;background:#2f6690"></i><i style="left:29px;top:30px;right:5px;height:3px;background:#ddd"></i><i style="left:20px;top:39px;width:6px;height:6px;border-radius:50%;background:#2f6690"></i><i style="left:29px;top:41px;right:5px;height:3px;background:#ddd"></i>' }
+  ];
+  function dessiner(zone) {
+    var b = zone.getAttribute('data-variante') === 'b';
+    var actif = zone.getAttribute('data-actif') || 'standard';
+    zone.innerHTML = DEF.map(function (d) {
+      return '<button type="button" class="allure' + (b ? ' allure-b ' + d.id : '') + (d.id === actif ? ' on' : '') + '" data-v="' + d.id + '" aria-pressed="' + (d.id === actif) + '">' +
+        '<span class="coche" aria-hidden="true">✓</span>' +
+        (b ? '' : '<span class="mini">' + d.mini + '</span>') +
+        '<span class="texte"><span class="nom">' + d.nom + '</span>' + (b ? '' : '<br><span class="phrase">' + d.phrase + '</span>') + '</span></button>';
+    }).join('');
+    zone.querySelectorAll('.allure').forEach(function (btn) {
+      btn.addEventListener('click', function () { zone.setAttribute('data-actif', btn.getAttribute('data-v')); dessiner(zone); });
+    });
+  }
+  document.querySelectorAll('.allure-liste').forEach(dessiner);
+  document.querySelectorAll('.seg[data-groupe="actuel"] button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.parentNode.querySelectorAll('button').forEach(function (x) { x.classList.remove('on'); });
+      btn.classList.add('on');
+    });
+  });
+  document.getElementById('basculeSombre').addEventListener('click', function () {
+    var r = document.documentElement, s = r.getAttribute('data-theme') === 'sombre';
+    r.setAttribute('data-theme', s ? 'clair' : 'sombre');
+    this.textContent = s ? 'Voir en mode sombre' : 'Voir en mode clair';
+  });
+</script>
+</body>
+</html>

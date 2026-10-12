@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette libre : l'en-tête du CV</title>
+<style>
+  :root { --fond: #f4f6f8; --carte: #ffffff; --texte: #1c2430; --discret: #5b6573; --trait: #d5dbe3; --accent: #2f6690; --accent-fond: #e3eef7; --ok: #1f7a4d; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #12161c; --carte: #1b212a; --texte: #e8ecf1; --discret: #a2acb9; --trait: #323b47; --accent: #7fb3dd; --accent-fond: #243645; --ok: #6fcf9d; } }
+  :root[data-theme="sombre"] { --fond: #12161c; --carte: #1b212a; --texte: #e8ecf1; --discret: #a2acb9; --trait: #323b47; --accent: #7fb3dd; --accent-fond: #243645; --ok: #6fcf9d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--texte); font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  h2 { font-size: 1rem; margin: 0 0 8px; }
+  p { margin: 6px 0; }
+  .discret { color: var(--discret); font-size: .92rem; }
+  .disposition { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; margin-top: 12px; }
+  @media (max-width: 860px) { .disposition { grid-template-columns: 1fr; } }
+  .carte { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  button, select { font: inherit; color: var(--accent); background: transparent; border: 1px solid var(--accent); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+  select { color: var(--texte); background: var(--carte); }
+  button:hover { background: var(--accent-fond); }
+  button.plein { background: var(--accent); color: #fff; }
+  :root[data-theme="sombre"] button.plein { color: #10161d; }
+  button:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .rang { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+  /* la feuille A4 */
+  .zone-feuille { background: var(--carte); border: 1px solid var(--trait); border-radius: 10px; padding: 10px; }
+  .feuille { position: relative; width: 100%; aspect-ratio: 210 / 297; background: #fff; color: #1c2430; border: 1px solid #c3cbd6; overflow: hidden; touch-action: none; user-select: none; --u: 1px; }
+  .zone-entete { position: absolute; left: 0; right: 0; top: 0; background: rgba(47, 102, 144, .07); border-bottom: 2px dashed #2f6690; pointer-events: none; }
+  .limite-label { position: absolute; right: 8px; bottom: 5px; font: 11px Arial, sans-serif; color: #2f6690; background: rgba(255, 255, 255, .85); padding: 1px 6px; border-radius: 4px; }
+  .poignee-limite { position: absolute; left: 50%; width: 150px; margin-left: -75px; height: 16px; background: var(--accent); border: 2px solid #fff; border-radius: 9px; cursor: ns-resize; z-index: 7; display: flex; align-items: center; justify-content: center; touch-action: none; }
+  .poignee-limite span { font: 10px Arial, sans-serif; color: #fff; pointer-events: none; }
+  :root[data-theme="sombre"] .poignee-limite span { color: #10161d; }
+  .el.depasse { border: 2px solid #b4561f; background: rgba(180, 86, 31, .1); }
+  .el.depasse .etiquette { display: block; background: #b4561f; }
+  .bilan-place { font-size: .92rem; margin-top: 8px; padding: 8px 10px; border-left: 4px solid var(--accent); background: var(--accent-fond); border-radius: 0 8px 8px 0; }
+  .bilan-place.alerte { border-left-color: #b4561f; background: rgba(180, 86, 31, .12); }
+  .corps-faux { position: absolute; left: 6%; right: 6%; top: 20%; bottom: 4%; border-top: calc(3 * var(--u)) solid #2f6690; padding-top: calc(10 * var(--u)); }
+  .corps-faux i { display: block; height: calc(9 * var(--u)); background: #e6eaf0; margin: calc(8 * var(--u)) 0; border-radius: 2px; }
+  .corps-faux i.c { width: 60%; } .corps-faux i.l { width: 85%; } .corps-faux b { display: block; height: calc(11 * var(--u)); width: 38%; background: #c9d6e3; margin-top: calc(18 * var(--u)); border-radius: 2px; }
+  .el { position: absolute; cursor: grab; border: 1px dashed transparent; padding: 1px 3px; border-radius: 3px; }
+  .el:hover { border-color: #8aa4bd; }
+  .el.choisi { border: 2px solid var(--accent); background: rgba(47, 102, 144, .07); z-index: 5; }
+  .el.glisse { cursor: grabbing; }
+  .el .etiquette { display: none; position: absolute; left: 0; top: -17px; background: var(--accent); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; font-family: Arial, sans-serif; }
+  :root[data-theme="sombre"] .el .etiquette { color: #10161d; }
+  .el.choisi .etiquette { display: block; }
+  .poignee { display: none; position: absolute; background: var(--accent); border: 2px solid #fff; z-index: 6; touch-action: none; }
+  .el.choisi .poignee, .el:hover .poignee { display: block; }
+  .poignee.bord { top: 20%; bottom: 20%; right: -6px; width: 10px; border-radius: 5px; cursor: ew-resize; min-height: 14px; }
+  .poignee.coin { right: -7px; bottom: -7px; width: 14px; height: 14px; border-radius: 50%; cursor: nwse-resize; }
+  .nom { font-weight: 700; color: #2f6690; line-height: 1.1; }
+  .coord { color: #3a4452; line-height: 1.55; }
+  .metier { font-weight: 700; color: #2f6690; line-height: 1.12; }
+  .accroche { font-style: italic; color: #2b323c; line-height: 1.35; }
+  .photo { background: #c8d6e3; border-radius: 50%; }
+  /* panneau de commandes */
+  .commandes h2 { display: flex; justify-content: space-between; align-items: center; }
+  .liste-el { display: grid; gap: 6px; }
+  .liste-el button { text-align: left; width: 100%; }
+  .liste-el button.on { background: var(--accent-fond); border-width: 2px; font-weight: 700; }
+  .reglages { display: grid; grid-template-columns: 1fr auto auto auto; gap: 6px 6px; align-items: center; }
+  .reglages label { font-size: .92rem; }
+  .petit { padding: 4px 11px; min-width: 38px; }
+  .valeur { min-width: 52px; text-align: center; font-size: .9rem; color: var(--discret); }
+  textarea { width: 100%; min-height: 150px; font: 12px/1.45 Consolas, monospace; background: var(--fond); color: var(--texte); border: 1px solid var(--trait); border-radius: 8px; padding: 8px; }
+  .message { color: var(--ok); font-size: .9rem; min-height: 1.3em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette libre : l'en-tête du CV</h1>
+  <p class="discret">Clique sur un élément pour le choisir, puis <b>fais-le glisser</b> avec la souris ou le doigt. Pour <b>agrandir le rectangle</b> d'un élément : tire la <b>barre bleue</b> sur son bord droit (elle change la largeur) ou le <b>rond bleu</b> dans son coin bas droit (il agrandit la largeur ET la taille du texte). Les boutons à droite font la même chose en plus précis. Quand ta disposition te plaît, appuie sur « Copier ma disposition » et colle-la dans la conversation. Rien n'est enregistré dans l'application : c'est un schéma pour réfléchir.</p>
+
+  <div class="rang">
+    <button type="button" id="presetAujourdhui">Disposition d'aujourd'hui</button>
+    <button type="button" id="presetEmpilee">Proposition « empilée »</button>
+    <button type="button" id="presetPhoto">Empilée avec photo</button>
+    <button type="button" id="presetDecalees">Colonnes décalées</button>
+    <button type="button" class="plein" data-copier="1">Copier ma disposition</button>
+    <label class="discret" style="display:flex;align-items:center;gap:6px">Métier :
+      <select id="choixMetier" aria-label="Exemple de métier">
+        <option value="court">Cariste</option>
+        <option value="moyen" selected>Agent de sécurité et de prévention</option>
+        <option value="long">Employé polyvalent de restauration et de service en salle</option>
+      </select>
+    </label>
+    <button type="button" id="basculeSombre">Mode sombre</button>
+  </div>
+
+  <div class="message" id="messageHaut" role="status"></div>
+  <div class="disposition">
+    <div class="zone-feuille">
+      <div class="feuille" id="feuille" aria-label="Feuille A4 du CV">
+        <div class="zone-entete" id="zoneEntete" aria-hidden="true"><span class="limite-label" id="limiteLabel"></span></div>
+        <div class="poignee-limite" id="poigneeLimite" title="Tirer vers le bas ou vers le haut pour changer la hauteur de l'en-tête" role="separator" aria-label="Limite de l'en-tête, à déplacer"><span>limite de l'en-tête</span></div>
+        <div class="corps-faux" aria-hidden="true"><b></b><i class="l"></i><i></i><i class="c"></i><b></b><i class="l"></i><i></i><i class="c"></i><i></i><b></b><i class="l"></i><i></i></div>
+        <div class="el photo" data-id="photo" tabindex="0" role="button" aria-label="Photo"><span class="etiquette">Photo</span></div>
+        <div class="el nom" data-id="nom" tabindex="0" role="button" aria-label="Nom"><span class="etiquette">Nom</span><span class="texte">Camille MARTIN</span></div>
+        <div class="el coord" data-id="coord" tabindex="0" role="button" aria-label="Coordonnées"><span class="etiquette">Coordonnées</span><span class="texte">06.00.00.00.00<br>camille@exemple.fr<br>Limoges, 87000</span></div>
+        <div class="el metier" data-id="metier" tabindex="0" role="button" aria-label="Titre du métier"><span class="etiquette">Titre du métier</span><span class="texte" id="texteMetier">Agent de sécurité et de prévention</span></div>
+        <div class="el accroche" data-id="accroche" tabindex="0" role="button" aria-label="Phrase d'accroche"><span class="etiquette">Phrase d'accroche</span><span class="texte">Agent de sécurité attentif, habitué à accueillir le public et à prévenir les situations tendues.</span></div>
+      </div>
+      <div class="bilan-place" id="bilanPlace" role="status"></div>
+      <p class="discret" style="margin:8px 2px 0">La zone bleutée est <b>l'en-tête</b> ; son bord pointillé est la <b>limite</b> : en dessous commence le corps du CV (faux contenu ici). Tire la barre bleue « limite de l'en-tête » pour la descendre ou la remonter. Plus l'en-tête est haut, moins il reste de place pour le corps.</p>
+    </div>
+
+    <div class="commandes">
+      <div class="carte">
+        <h2>Éléments</h2>
+        <div class="liste-el" id="listeEl"></div>
+      </div>
+      <div class="carte">
+        <h2 id="titreReglage">Réglages</h2>
+        <div class="reglages">
+          <label>Taille</label>
+          <button type="button" class="petit" data-r="taille" data-d="-0.1" aria-label="Plus petit">A−</button><span class="valeur" id="vTaille"></span><button type="button" class="petit" data-r="taille" data-d="0.1" aria-label="Plus grand">A+</button>
+          <label>Largeur</label>
+          <button type="button" class="petit" data-r="larg" data-d="-4" aria-label="Moins large">−</button><span class="valeur" id="vLarg"></span><button type="button" class="petit" data-r="larg" data-d="4" aria-label="Plus large">+</button>
+        </div>
+        <p class="discret" style="margin-top:8px">Astuce : les flèches du clavier déplacent l'élément choisi.</p>
+      </div>
+      <div class="carte">
+        <h2>Ma disposition</h2>
+        <div class="rang">
+          <button type="button" class="plein" data-copier="1">Copier ma disposition</button>
+          <button type="button" id="remettre">Tout remettre</button>
+        </div>
+        <textarea id="sortie" readonly aria-label="Ma disposition en texte"></textarea>
+        <div class="message" id="message" role="status"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var EXEMPLES = { court: 'Cariste', moyen: 'Agent de sécurité et de prévention', long: 'Employé polyvalent de restauration et de service en salle' };
+  var NOMS = { photo: 'Photo', nom: 'Nom', coord: 'Coordonnées', metier: 'Titre du métier', accroche: 'Phrase d’accroche' };
+  var BASE = { photo: 0, nom: 21, coord: 11.5, metier: 19, accroche: 12 };   // tailles de texte d'origine (px sur une feuille de 794 px de large)
+  // x, y en % de la feuille ; larg en % de la largeur ; taille = coefficient
+  var PRESETS = {
+    aujourdhui: { haut: 17, photo: { x: 6, y: 3, larg: 13, taille: 1, vu: false }, nom: { x: 6, y: 4, larg: 30, taille: 1 }, coord: { x: 6, y: 11.5, larg: 30, taille: 1 }, metier: { x: 38, y: 4, larg: 26, taille: 1 }, accroche: { x: 66, y: 4, larg: 28, taille: 1 } },
+    empilee: { haut: 26, photo: { x: 80, y: 3, larg: 13, taille: 1, vu: false }, nom: { x: 6, y: 3, larg: 60, taille: 1.2 }, coord: { x: 6, y: 8.2, larg: 70, taille: 1 }, metier: { x: 6, y: 13.5, larg: 88, taille: 1.45 }, accroche: { x: 6, y: 19.5, larg: 88, taille: 1.25 } },
+    decalees: { haut: 19, photo: { x: 80, y: 3, larg: 13, taille: 1, vu: false }, nom: { x: 6, y: 3.5, larg: 32, taille: 1.1 }, coord: { x: 6, y: 9, larg: 32, taille: 1 }, metier: { x: 40, y: 3, larg: 54, taille: 1.3 }, accroche: { x: 40, y: 8.8, larg: 54, taille: 1.2 } },
+    photo: { haut: 28, photo: { x: 6, y: 3, larg: 16, taille: 1, vu: true }, nom: { x: 26, y: 3.5, larg: 60, taille: 1.2 }, coord: { x: 26, y: 8.5, larg: 66, taille: 1 }, metier: { x: 6, y: 17, larg: 88, taille: 1.45 }, accroche: { x: 6, y: 23, larg: 88, taille: 1.25 } }
+  };
+  var etat = null, choisi = 'metier';
+  var feuille = document.getElementById('feuille');
+  var cle = 'maquette-entete-libre-2026-10-07';
+
+  function copie(o) { return JSON.parse(JSON.stringify(o)); }
+  function lire() { try { var t = localStorage.getItem(cle); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+  function ecrire() { try { localStorage.setItem(cle, JSON.stringify(etat)); } catch (e) { /* sans effet */ } }
+
+  function unite() { return feuille.getBoundingClientRect().width / 794; }
+  function dessiner() {
+    var u = unite();
+    feuille.style.setProperty('--u', u + 'px');
+    Object.keys(NOMS).forEach(function (id) {
+      var e = feuille.querySelector('[data-id="' + id + '"]'), d = etat[id];
+      e.style.left = d.x + '%'; e.style.top = d.y + '%'; e.style.width = d.larg + '%';
+      if (id === 'coord') {
+        // quand le bloc est large, les coordonnées tiennent sur une seule ligne (comme dans le vrai CV en disposition empilée)
+        e.querySelector('.texte').innerHTML = (d.larg >= 50) ? '06.00.00.00.00 &middot; camille@exemple.fr &middot; Limoges, 87000' : '06.00.00.00.00<br>camille@exemple.fr<br>Limoges, 87000';
+      }
+      if (id === 'photo') {
+        var cote = d.larg / 100 * feuille.getBoundingClientRect().width;
+        e.style.height = cote + 'px'; e.style.width = d.larg + '%'; e.style.display = (d.vu === false) ? 'none' : 'block';
+      } else {
+        e.style.fontSize = (BASE[id] * d.taille * u) + 'px';
+      }
+      e.classList.toggle('choisi', id === choisi);
+    });
+    zoneEntete();
+    listeEl(); reglages(); sortie();
+  }
+  function zoneEntete() {
+    var h = etat.haut || 20, fr = feuille.getBoundingClientRect(), limitePx = h / 100 * fr.height;
+    document.getElementById('zoneEntete').style.height = h + '%';
+    document.getElementById('poigneeLimite').style.top = (limitePx - 8) + 'px';
+    document.querySelector('.corps-faux').style.top = (h + 1.5) + '%';
+    document.getElementById('limiteLabel').textContent = 'fin de l’en-tête : ' + Math.round(h) + ' % de la page';
+    var dehors = [];
+    Object.keys(NOMS).forEach(function (id) {
+      var e = feuille.querySelector('[data-id="' + id + '"]'); if (!e || e.style.display === 'none') { return; }
+      var bas = (e.getBoundingClientRect().bottom - fr.top);
+      var sort = bas > limitePx + 1;
+      e.classList.toggle('depasse', sort); if (sort) { dehors.push(NOMS[id]); }
+    });
+    var b = document.getElementById('bilanPlace');
+    b.className = 'bilan-place' + (dehors.length ? ' alerte' : '');
+    b.textContent = dehors.length
+      ? 'Attention : ' + dehors.join(', ') + (dehors.length > 1 ? ' dépassent' : ' dépasse') + ' la limite de l’en-tête (en orange). Descends la limite ou remonte l’élément.'
+      : 'L’en-tête occupe ' + Math.round(h) + ' % de la hauteur de la page ; il reste ' + Math.round(100 - h) + ' % pour le corps du CV.';
+  }
+  function listeEl() {
+    var l = document.getElementById('listeEl'); l.innerHTML = '';
+    Object.keys(NOMS).forEach(function (id) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = (id === choisi ? 'on' : ''); b.textContent = NOMS[id] + (id === 'photo' && etat.photo.vu === false ? ' (masquée)' : '');
+      b.addEventListener('click', function () { choisi = id; dessiner(); });
+      l.appendChild(b);
+    });
+    var p = document.createElement('button'); p.type = 'button'; p.textContent = etat.photo.vu === false ? 'Afficher la photo' : 'Masquer la photo';
+    p.addEventListener('click', function () { etat.photo.vu = (etat.photo.vu === false); ecrire(); dessiner(); });
+    l.appendChild(p);
+  }
+  function reglages() {
+    document.getElementById('titreReglage').textContent = 'Réglages : ' + NOMS[choisi];
+    var d = etat[choisi];
+    document.getElementById('vTaille').textContent = choisi === 'photo' ? '' : Math.round(BASE[choisi] * d.taille * 10) / 10 + ' px';
+    document.getElementById('vLarg').textContent = Math.round(d.larg) + ' %';
+    [].forEach.call(document.querySelectorAll('[data-r="taille"]'), function (b) { b.disabled = (choisi === 'photo'); });
+  }
+  function sortie() {
+    var l = ['Disposition de l’en-tête (position en % de la feuille, du coin haut gauche) :'];
+    Object.keys(NOMS).forEach(function (id) {
+      var d = etat[id];
+      if (id === 'photo' && d.vu === false) { l.push('- Photo : masquée'); return; }
+      l.push('- ' + NOMS[id] + ' : à ' + Math.round(d.x) + ' % du bord gauche et ' + Math.round(d.y * 10) / 10 + ' % du haut, largeur ' + Math.round(d.larg) + ' %' + (id === 'photo' ? '' : ', taille ' + Math.round(BASE[id] * d.taille * 10) / 10 + ' px'));
+    });
+    l.push('Hauteur de l’en-tête (limite avec le corps du CV) : ' + Math.round(etat.haut || 20) + ' % de la page.');
+    l.push('Métier de l’exemple : ' + document.getElementById('choixMetier').selectedOptions[0].textContent + '.');
+    document.getElementById('sortie').value = l.join('\n');
+  }
+  function message(t) { ['message', 'messageHaut'].forEach(function (id) { var m = document.getElementById(id); m.textContent = t; setTimeout(function () { if (m.textContent === t) { m.textContent = ''; } }, 3500); }); }
+
+  // glisser
+  var drag = null;
+  feuille.addEventListener('pointerdown', function (ev) {
+    if (ev.target.closest('#poigneeLimite')) {
+      drag = { mode: 'haut', r: feuille.getBoundingClientRect(), el: document.getElementById('poigneeLimite') };
+      try { drag.el.setPointerCapture(ev.pointerId); } catch (x) { /* sans effet */ } ev.preventDefault(); return;
+    }
+    var e = ev.target.closest('.el'); if (!e) { return; }
+    choisi = e.getAttribute('data-id'); var r = feuille.getBoundingClientRect(), d = etat[choisi];
+    var po = ev.target.closest('.poignee');
+    if (po) {
+      drag = { id: choisi, mode: po.getAttribute('data-poignee'), x0: ev.clientX, larg0: d.larg, taille0: d.taille, r: r, el: e };
+      try { e.setPointerCapture(ev.pointerId); } catch (x) { /* sans effet */ } dessiner(); ev.preventDefault(); return;
+    }
+    drag = { id: choisi, dx: ev.clientX - (r.left + d.x / 100 * r.width), dy: ev.clientY - (r.top + d.y / 100 * r.height), r: r, el: e };
+    e.classList.add('glisse'); try { e.setPointerCapture(ev.pointerId); } catch (x) { /* sans effet */ }
+    dessiner(); ev.preventDefault();
+  });
+  feuille.addEventListener('pointermove', function (ev) {
+    if (!drag) { return; }
+    if (drag.mode === 'haut') { etat.haut = Math.max(8, Math.min(48, (ev.clientY - drag.r.top) / drag.r.height * 100)); zoneEntete(); sortie(); return; }
+    var d = etat[drag.id], r = drag.r;
+    if (drag.mode) {
+      var nl = Math.max(8, Math.min(100 - d.x, drag.larg0 + (ev.clientX - drag.x0) / r.width * 100));
+      d.larg = nl;
+      if (drag.mode === 'echelle') { d.taille = Math.max(0.5, Math.min(3, Math.round(drag.taille0 * (nl / drag.larg0) * 100) / 100)); }
+      dessiner(); return;
+    }
+    d.x = Math.max(0, Math.min(100 - d.larg * 0.3, (ev.clientX - drag.dx - r.left) / r.width * 100));
+    d.y = Math.max(0, Math.min(97, (ev.clientY - drag.dy - r.top) / r.height * 100));
+    var e = drag.el; e.style.left = d.x + '%'; e.style.top = d.y + '%'; zoneEntete(); sortie();
+  });
+  function fin() { if (!drag) { return; } drag.el.classList.remove('glisse'); drag = null; ecrire(); dessiner(); }
+  window.__etatMaquette = function () { return etat; };
+  feuille.addEventListener('pointerup', fin); feuille.addEventListener('pointercancel', fin);
+
+  // clavier
+  feuille.addEventListener('keydown', function (ev) {
+    var e = ev.target.closest('.el'); if (!e) { return; }
+    var id = e.getAttribute('data-id'), d = etat[id], pas = ev.shiftKey ? 3 : 0.5, bouge = true;
+    choisi = id;
+    if (ev.key === 'ArrowLeft') { d.x = Math.max(0, d.x - pas); } else if (ev.key === 'ArrowRight') { d.x = Math.min(100, d.x + pas); }
+    else if (ev.key === 'ArrowUp') { d.y = Math.max(0, d.y - pas); } else if (ev.key === 'ArrowDown') { d.y = Math.min(97, d.y + pas); } else { bouge = false; }
+    if (bouge) { ev.preventDefault(); ecrire(); dessiner(); var n = feuille.querySelector('[data-id="' + id + '"]'); if (n) { n.focus(); } }
+  });
+
+  // réglages
+  [].forEach.call(document.querySelectorAll('[data-r]'), function (b) {
+    b.addEventListener('click', function () {
+      var d = etat[choisi], k = b.getAttribute('data-r'), delta = parseFloat(b.getAttribute('data-d'));
+      if (k === 'taille') { d.taille = Math.max(0.5, Math.min(3, Math.round((d.taille + delta) * 100) / 100)); }
+      else { d.larg = Math.max(8, Math.min(100, d.larg + delta)); }
+      ecrire(); dessiner();
+    });
+  });
+  function preset(nom) { etat = copie(PRESETS[nom]); choisi = 'metier'; ecrire(); dessiner(); }
+  document.getElementById('presetAujourdhui').addEventListener('click', function () { preset('aujourdhui'); });
+  document.getElementById('presetEmpilee').addEventListener('click', function () { preset('empilee'); });
+  document.getElementById('presetPhoto').addEventListener('click', function () { preset('photo'); });
+  document.getElementById('presetDecalees').addEventListener('click', function () { preset('decalees'); });
+  document.getElementById('remettre').addEventListener('click', function () { preset('empilee'); message('Disposition remise au départ (empilée).'); });
+  document.getElementById('choixMetier').addEventListener('change', function () { document.getElementById('texteMetier').textContent = EXEMPLES[this.value]; sortie(); });
+  [].forEach.call(document.querySelectorAll('[data-copier]'), function (bc) { bc.addEventListener('click', copierDisposition); });
+  function copierDisposition() {
+    var t = document.getElementById('sortie').value;
+    function ok() { message('Copié : colle-le dans la conversation.'); }
+    function repli() { var s = document.getElementById('sortie'); s.removeAttribute('readonly'); s.select(); try { document.execCommand('copy'); ok(); } catch (e) { message('Sélectionne le texte et copie-le à la main.'); } s.setAttribute('readonly', ''); }
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(ok, repli); } else { repli(); }
+  }
+  document.getElementById('basculeSombre').addEventListener('click', function () {
+    var r = document.documentElement, s = r.getAttribute('data-theme') === 'sombre';
+    r.setAttribute('data-theme', s ? 'clair' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair';
+  });
+  window.addEventListener('resize', dessiner);
+
+  [].forEach.call(feuille.querySelectorAll('.el'), function (e) {
+    var b = document.createElement('span'); b.className = 'poignee bord'; b.setAttribute('data-poignee', 'larg'); b.title = 'Tirer pour changer la largeur'; e.appendChild(b);
+    if (e.getAttribute('data-id') !== 'photo') { var c = document.createElement('span'); c.className = 'poignee coin'; c.setAttribute('data-poignee', 'echelle'); c.title = 'Tirer pour agrandir le rectangle et le texte'; e.appendChild(c); }
+    else { var c2 = document.createElement('span'); c2.className = 'poignee coin'; c2.setAttribute('data-poignee', 'larg'); c2.title = 'Tirer pour agrandir la photo'; e.appendChild(c2); }
+  });
+  etat = lire() || copie(PRESETS.aujourdhui);
+  document.getElementById('texteMetier').textContent = EXEMPLES[document.getElementById('choixMetier').value];
+  dessiner();
+})();
+</script>
+</body>
+</html>

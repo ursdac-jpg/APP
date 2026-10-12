@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Un CV, plusieurs métiers</title>
+<style>
+  :root { --fond: #f4f6f8; --bg-card: #ffffff; --text: #1c2430; --text-strong: #121821; --text-muted: #5b6573; --border: #d5dbe3; --border-strong: #b9c2cf; --accent: #2f6690; --accent-bg-subtle: #e6eff7; --ok: #1f7a4d; --ok-bg: #e5f4ec; --alerte: #b4561f; --alerte-bg: #fbeee4; --papier: #ffffff; --papier-trait: #d9dee6; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #12161c; --bg-card: #1b212a; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --ok-bg: #1d3328; --alerte: #e39a6a; --alerte-bg: #3a2b20; --papier: #f4f6f8; --papier-trait: #aeb6c2; } }
+  :root[data-theme="sombre"] { --fond: #12161c; --bg-card: #1b212a; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --ok-bg: #1d3328; --alerte: #e39a6a; --alerte-bg: #3a2b20; --papier: #f4f6f8; --papier-trait: #aeb6c2; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--text); font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+  main { max-width: 1240px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 22px 0 8px; }
+  p { margin: 6px 0; }
+  .discret { color: var(--text-muted); font-size: .92rem; }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ===== Chapeau de la maquette ===== */
+  .onglets { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 6px; }
+  .onglet { border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 12px; padding: 8px 14px; font-weight: 700; }
+  .onglet.on { background: var(--accent); color: var(--bg-card); }
+  .bandeau-notes { border-left: 4px solid var(--accent); background: var(--accent-bg-subtle); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; font-size: .93rem; }
+  .vues { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 12px; align-items: center; }
+  .vues .discret { margin-left: 6px; }
+  .cadre { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--fond); container-type: inline-size; position: relative; }
+  .cadre[hidden] { display: none; }
+  .cadre.tel { width: 375px; max-width: 100%; height: 780px; overflow: auto; margin: 0 auto; border-radius: 28px; border-width: 4px; }
+
+  /* ===== Le module (rendu une fois pour l'ordinateur, une fois pour le téléphone) ===== */
+  .mod { padding: 18px 22px 0; }
+  .cadre.tel .mod { padding: 14px 14px 0; }
+  .cadre.tel .barre { margin: 14px -14px 0; padding: 10px 14px; }
+  .mod h3 { margin: 0 0 6px; font-size: 1.05rem; color: var(--text-strong); }
+  .mod .fil { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .btn { border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 12px; padding: 0.42rem 0.8rem; font-weight: 600; }
+  .btn:hover { background: var(--accent-bg-subtle); }
+  .btn.plein { background: var(--accent); color: var(--bg-card); }
+  .btn.plein:hover { filter: brightness(1.08); }
+  .btn.petit { padding: 0.25rem 0.55rem; font-size: .82rem; }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .pilule-revoir { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-muted); border-radius: 999px; padding: 0.25rem 0.7rem; font-size: .82rem; }
+  .encart { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 8px 0; font-size: .92rem; }
+  .encart.alerte { border-left-color: var(--alerte); background: var(--alerte-bg); }
+  .encart.ok { border-left-color: var(--ok); background: var(--ok-bg); }
+  .carte { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin: 10px 0; }
+  .titre-etape { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .rond { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--bg-card); font-weight: 700; display: grid; place-items: center; font-size: .9rem; }
+  .titre-etape strong { color: var(--text-strong); }
+  .jetons { display: flex; flex-wrap: wrap; gap: 6px; }
+  .jeton { border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 999px; padding: 0.3rem 0.75rem; font-size: .88rem; }
+  .jeton.on { background: var(--accent); color: var(--bg-card); font-weight: 700; }
+  .pilule { display: inline-block; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: .74rem; border: 1px solid var(--border-strong); color: var(--text-muted); background: var(--bg-card); }
+  .pilule.verif { border-color: var(--alerte); color: var(--alerte); background: var(--alerte-bg); }
+  .pilule.actuel { border-color: var(--ok); color: var(--ok); background: var(--ok-bg); }
+  .pilule.dem { border-color: var(--accent); color: var(--accent); background: var(--accent-bg-subtle); }
+  .synthese dl { margin: 4px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: .92rem; }
+  .synthese dt { color: var(--text-muted); }
+  .synthese dd { margin: 0; color: var(--text-strong); }
+
+  /* colonnes */
+  .colonnes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @container (max-width: 560px) { .colonnes { grid-template-columns: 1fr; } .scene2 { grid-template-columns: 1fr !important; } .grille-cartes { grid-template-columns: 1fr !important; } }
+  .col h4 { margin: 0 0 2px; font-size: .95rem; color: var(--text-strong); }
+  .col .sous { color: var(--text-muted); font-size: .84rem; margin: 0 0 8px; }
+  .metier { display: flex; gap: 9px; align-items: flex-start; border: 1px solid var(--border); background: var(--bg-card); border-radius: 12px; padding: 9px 10px; margin: 6px 0; }
+  .metier.coche { border: 1.5px solid var(--accent); background: var(--accent-bg-subtle); }
+  .metier.grise { opacity: .55; }
+  .metier input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); flex: 0 0 auto; }
+  .metier .corps { flex: 1; min-width: 0; }
+  .metier label { display: block; cursor: pointer; }
+  .metier .nom { font-weight: 700; color: var(--text-strong); }
+  .metier .retrouve { color: var(--text-muted); font-size: .82rem; margin-top: 2px; }
+  .metier .ligne { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 5px; }
+  .pied-col { margin-top: 8px; }
+
+  /* barre du bas */
+  .barre { position: sticky; bottom: 0; margin: 14px -22px 0; padding: 10px 22px; background: var(--bg-card); border-top: 1.5px solid var(--accent); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; z-index: 3; }
+  .barre .compte { font-weight: 700; color: var(--text-strong); }
+  .barre .compte small { display: block; font-weight: 400; color: var(--text-muted); font-size: .8rem; }
+
+  /* édition */
+  .rangee-cv { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+  .btn-cv { border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 12px; padding: 0.3rem 0.65rem; font-size: .86rem; text-align: left; max-width: 100%; }
+  .btn-cv b { margin-right: 4px; }
+  .btn-cv.on { background: var(--accent); color: var(--bg-card); }
+  .scene2 { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .champ { display: block; width: 100%; font: inherit; color: var(--text-strong); background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 8px; }
+  textarea.champ { min-height: 62px; resize: vertical; }
+  .lab { display: block; font-weight: 700; font-size: .88rem; color: var(--text-strong); margin: 10px 0 3px; }
+  .choix-accroche { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; }
+  .choix-accroche input { margin-top: 3px; accent-color: var(--accent); width: 18px; height: 18px; flex: 0 0 auto; }
+  .case { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+  .case input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .nuancier { display: flex; gap: 6px; flex-wrap: wrap; }
+  .teinte { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--border-strong); padding: 0; }
+  .teinte.on { border-color: var(--text-strong); box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--accent); }
+  .note-lien { font-size: .82rem; color: var(--text-muted); margin: 3px 0 0; }
+  .feuille { aspect-ratio: 210 / 297; width: 100%; background: var(--papier); border: 1px solid var(--papier-trait); border-radius: 4px; padding: 9px 9px; overflow: hidden; color: #1c2430; font-size: 8px; line-height: 1.25; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .feuille .bandeau { position: absolute; left: 0; right: 0; top: 0; height: 12%; background: var(--c); }
+  .feuille.l-sobre .bandeau { height: 2%; }
+  .feuille.l-classique .bandeau { height: 100%; width: 9%; right: auto; }
+  .feuille.l-chaleureux .bandeau { height: 12%; border-radius: 0 0 40% 40% / 0 0 100% 100%; }
+  .feuille.l-elegant .bandeau { top: auto; bottom: 0; height: 5%; }
+  .feuille.l-creatif .bandeau { height: 100%; width: 28%; right: auto; opacity: .22; }
+  .feuille .fond { position: relative; padding-top: 36px; }
+  .feuille.l-classique .fond { padding-left: 11%; padding-top: 6px; }
+  .feuille.l-creatif .fond { padding-left: 30%; padding-top: 6px; }
+  .feuille.l-sobre .fond { padding-top: 10px; }
+  .feuille.l-elegant .fond { padding-top: 10px; }
+  .feuille .tt { font-weight: 700; font-size: 10px; color: var(--c); margin: 2px 0 2px; line-height: 1.15; }
+  .feuille .ac { margin-bottom: 7px; }
+  .feuille i { display: block; height: 3px; background: #c9d0da; border-radius: 2px; margin: 4px 0; }
+  .feuille i.c { width: 55%; } .feuille i.m { width: 80%; }
+  .feuille .rem { position: absolute; left: 0; right: 0; bottom: 0; height: 5%; background: repeating-linear-gradient(45deg, #e9c9b3, #e9c9b3 4px, transparent 4px, transparent 8px); opacity: .9; }
+
+  /* fin */
+  .grille-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cv-carte { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+  .cv-carte h4 { margin: 0 0 3px; font-size: .95rem; color: var(--text-strong); }
+  .cv-carte .acc { font-size: .86rem; color: var(--text); margin: 4px 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .assist { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+  .legende-bas { margin-top: 26px; }
+  .legende-bas li { margin: 4px 0; }
+  .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--text-strong); color: var(--fond); padding: 9px 16px; border-radius: 12px; font-size: .92rem; z-index: 10; max-width: 90vw; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : « Un CV, plusieurs métiers »</h1>
+  <p class="discret">Maquette du 2026-10-08 (Mode A, effort haut). Les trois écrans sont cliquables, en version ordinateur et en version téléphone (boutons juste au-dessus de l'écran). Les textes des CV et des accroches sont des exemples pour la forme, pas le résultat réel de l'assistant.</p>
+  <div class="bandeau-notes"><b>Décisions déjà prises, reprises ici :</b> dépôt de CV seul au départ · 10 métiers au plus, cases partagées entre les deux colonnes, « Créer mes CV » dès 2 cases · tout est affiché d'emblée · aspect propre à chaque CV : ambiance et couleur seulement · modèles d'une page · recherche d'offres par « Copier ma demande » · démarche de départ, modifiable CV par CV · au moins 40 px libres par CV, sinon avertissement.</div>
+
+  <div class="onglets" role="tablist" aria-label="Écrans de la maquette">
+    <button class="onglet on" data-ecran="1" type="button">Écran 1 : synthèse et choix</button>
+    <button class="onglet" data-ecran="2" type="button">Écran 2 : édition de chaque CV</button>
+    <button class="onglet" data-ecran="3" type="button">Écran 3 : mes CV sont prêts</button>
+  </div>
+
+  <div class="vues" role="tablist" aria-label="Taille d'écran">
+    <button class="onglet on" data-vue="bureau" type="button">Voir sur ordinateur</button>
+    <button class="onglet" data-vue="tel" type="button">Voir sur téléphone</button>
+    <span class="discret">C'est le même écran, mis en forme pour la largeur disponible.</span>
+  </div>
+  <div class="cadre" id="hoteBureau"></div>
+  <div class="cadre tel" id="hoteTel" hidden></div>
+  </div>
+
+  <div class="legende-bas">
+    <h2>Ce que cette maquette tranche et ce qu'elle laisse à décider</h2>
+    <ul>
+      <li><b>La démarche</b> se choisit sur l'écran 1 (étape 1), une seule fois pour tous les CV. À l'écran 2, la case « Une démarche différente pour ce CV » (éteinte au départ) permet de changer pour un CV seulement. Chaque CV garde son étiquette de démarche, et sa lettre reprend celle de son CV.</li>
+      <li><b>L'aspect</b> : la case « Un aspect par CV » est éteinte au départ. Éteinte, le choix d'ambiance et de couleur vaut pour tous les CV. Allumée, chaque CV a le sien. Le modèle reste le même pour tous.</li>
+      <li><b>« CV très rempli »</b> : voir le troisième CV de l'exemple (agent de maintenance en établissement de santé). L'avertissement informe, il ne bloque rien.</li>
+      <li><b>Question ouverte pour vous</b> : sur l'écran 3, la liste des assistants proposés (ChatGPT, Copilot, Gemini dans l'exemple) est à confirmer.</li>
+    </ul>
+  </div>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+  var DEMARCHES = [
+    ['spontanee', 'Candidature spontanée'], ['offre', 'Réponse à une offre'], ['reconversion', 'Changement de métier'],
+    ['stage', 'Stage de formation'], ['pmsmp', 'Stage d’immersion'], ['alternance', 'Alternance'], ['formation', 'Entrée en formation']
+  ];
+  var LOOKS = [['sobre', 'Sobre'], ['classique', 'Classique'], ['moderne', 'Moderne'], ['chaleureux', 'Chaleureux'], ['elegant', 'Élégant'], ['creatif', 'Créatif']];
+  var COULEURS = ['#2f6690', '#1f7a4d', '#8a3d6e', '#b4561f', '#4a4f9c', '#5b6573'];
+  var STRUCTURES = ['Entreprise privée', 'Association', 'Collectivité', 'Je ne sais pas'];
+  var ASSISTANTS = ['ChatGPT', 'Copilot', 'Gemini'];
+  var MAX = 10;
+
+  var SYNTHESE = { metier: 'Agent d’entretien des bâtiments', comp: 'petite plomberie, peinture, électricité de base, entretien des espaces verts, respect des consignes de sécurité', exp: '3 expériences : agent d’entretien en résidence, agent polyvalent en collectivité, aide-peintre' };
+  // g = autres intitulés du même métier ; d = autres métiers qui utilisent les mêmes compétences
+  var METIERS = [
+    { id: 'g1', col: 'g', nom: 'Agent d’entretien des bâtiments', retrouve: 'Intitulé de votre CV', actuel: true, atout: 'rigoureux, autonome, attentif à la sécurité' },
+    { id: 'g2', col: 'g', nom: 'Agent technique polyvalent', retrouve: 'Retrouvé : entretien en collectivité, petits travaux', atout: 'polyvalent, à l’aise sur plusieurs types de travaux' },
+    { id: 'g3', col: 'g', nom: 'Agent de maintenance des bâtiments', retrouve: 'Retrouvé : plomberie, électricité de base', atout: 'capable de dépanner vite et proprement' },
+    { id: 'g4', col: 'g', nom: 'Ouvrier d’entretien du bâtiment', retrouve: 'Retrouvé : peinture, petits travaux', atout: 'soigneux, habitué au travail en site occupé' },
+    { id: 'd1', col: 'd', nom: 'Agent de maintenance en hôtellerie', retrouve: 'Retrouvé : dépannage, relation avec les occupants', atout: 'discret, réactif, à l’écoute des occupants' },
+    { id: 'd2', col: 'd', nom: 'Peintre en bâtiment', retrouve: 'Retrouvé : peinture, préparation des supports', atout: 'minutieux, finitions soignées' },
+    { id: 'd3', col: 'd', nom: 'Agent de maintenance en établissement de santé', retrouve: 'Retrouvé : maintenance, consignes de sécurité', atout: 'rigoureux, respectueux des règles d’hygiène', rempli: true },
+    { id: 'd4', col: 'd', nom: 'Jardinier d’espaces verts', retrouve: 'Retrouvé : entretien des espaces verts', atout: 'attentif au vivant, endurant, autonome' },
+    { id: 'd5', col: 'd', nom: 'Gardien d’immeuble', retrouve: 'Retrouvé : résidence, relation avec les occupants', atout: 'présent, sens du contact, vigilant' },
+    { id: 'd6', col: 'd', nom: 'Électricien d’entretien', retrouve: 'Retrouvé : électricité de base', verifier: 'Une habilitation électrique est en général demandée.', atout: 'méthodique, soucieux de la sécurité' },
+    { id: 'd7', col: 'd', nom: 'Plaquiste', retrouve: 'Retrouvé : petits travaux, finitions', atout: 'précis, résistant, à l’aise en équipe' },
+    { id: 'd8', col: 'd', nom: 'Agent de maintenance en industrie', retrouve: 'Retrouvé : maintenance, consignes de sécurité', verifier: 'Une habilitation peut être demandée selon le site.', atout: 'fiable, respectueux des procédures' }
+  ];
+  function metier(id) { return METIERS.filter(function (m) { return m.id === id; })[0]; }
+
+  var etat = {
+    ecran: 1, demarche: null, choix: ['g1', 'g2', 'd3'], cvActif: 0,
+    aspectParCv: false, aspectGlobal: { look: 'moderne', couleur: COULEURS[0] },
+    cv: {}, lettres: {}, assistant: 'ChatGPT', msgOffres: ''
+  };
+  function cvDe(id) {
+    if (!etat.cv[id]) {
+      var m = metier(id);
+      etat.cv[id] = { titre: m.nom, type: 'courte', courte: m.nom + ' : ' + m.atout + '.', longue: 'Fort de plusieurs années d’expérience, je mets mon sérieux et mon sens du concret au service de votre équipe : ' + m.atout + '.', structure: 'Je ne sais pas', demarcheOwn: false, demarche: null, look: 'moderne', couleur: COULEURS[0], voir: false };
+    }
+    return etat.cv[id];
+  }
+  function demarcheDe(id) { var c = cvDe(id); return (c.demarcheOwn && c.demarche) ? c.demarche : etat.demarche; }
+  function nomDemarche(k) { var r = DEMARCHES.filter(function (d) { return d[0] === k; })[0]; return r ? r[1] : ''; }
+  function aspectDe(id) { return etat.aspectParCv ? { look: cvDe(id).look, couleur: cvDe(id).couleur } : etat.aspectGlobal; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+  /* ---------- Écran 1 ---------- */
+  function ligneMetier(m) {
+    var coche = etat.choix.indexOf(m.id) >= 0, grise = !coche && etat.choix.length >= MAX;
+    return '<div class="metier' + (coche ? ' coche' : '') + (grise ? ' grise' : '') + '">' +
+      '<input type="checkbox" id="c_' + m.id + '" data-act="cocher" data-id="' + m.id + '"' + (coche ? ' checked' : '') + (grise ? ' disabled' : '') + '>' +
+      '<div class="corps"><label for="c_' + m.id + '"><span class="nom">' + esc(m.nom) + '</span><div class="retrouve">' + esc(m.retrouve) + '</div></label>' + detailsMetier(m) + '</div>' +
+      '</div>';
+  }
+  function detailsMetier(m) {
+    var h = '<div class="ligne">';
+    if (m.actuel) { h += '<span class="pilule actuel">Titre utilisé actuellement</span>'; }
+    if (m.verifier) { h += '<span class="pilule verif" title="' + esc(m.verifier) + '">À vérifier : ' + esc(m.verifier) + '</span>'; }
+    h += '<button type="button" class="btn petit" data-act="verifier" data-id="' + m.id + '">Vérifier cet intitulé</button></div>';
+    return h;
+  }
+  function ecran1() {
+    var n = etat.choix.length, pret = n >= 2 && etat.demarche;
+    var h = '<div class="fil"><button type="button" class="pilule-revoir" data-act="note" data-msg="Ouvre la présentation du module, sans rien perdre de ce que vous avez fait.">Revoir la présentation</button></div>' +
+      '<h3>Vos CV, pour plusieurs métiers</h3>' +
+      '<div class="encart">Ces propositions servent uniquement à adapter votre candidature. Elles ne rajoutent aucune expérience à votre CV. Vous n’avez pas besoin de tout choisir.</div>';
+    h += '<div class="carte"><div class="titre-etape"><span class="rond">1</span><strong>Votre démarche</strong></div>' +
+      '<p class="discret" style="margin-top:0">Elle vaut pour tous vos CV. Vous pourrez la changer pour un seul CV, à l’étape suivante.</p><div class="jetons">';
+    DEMARCHES.forEach(function (d) { h += '<button type="button" class="jeton' + (etat.demarche === d[0] ? ' on' : '') + '" data-act="demarche" data-k="' + d[0] + '" aria-pressed="' + (etat.demarche === d[0]) + '">' + d[1] + '</button>'; });
+    h += '</div></div>';
+    h += '<div class="carte synthese"><div class="titre-etape"><span class="rond">2</span><strong>Ce que dit votre CV</strong></div><dl>' +
+      '<dt>Métier</dt><dd>' + SYNTHESE.metier + '</dd><dt>Compétences clés</dt><dd>' + SYNTHESE.comp + '</dd><dt>Expériences</dt><dd>' + SYNTHESE.exp + '</dd></dl>' +
+      '<div class="actions"><button type="button" class="btn petit" data-act="note" data-msg="Vous pourrez corriger la synthèse si elle ne vous ressemble pas.">Modifier cette synthèse</button></div></div>';
+    h += '<div class="carte"><div class="titre-etape"><span class="rond">3</span><strong>Choisissez vos métiers (10 au plus)</strong></div>' +
+      '<p class="discret" style="margin-top:0">Cochez ceux pour lesquels vous voulez un CV. Vous pouvez en choisir dans les deux colonnes.</p><div class="colonnes">';
+    h += '<div class="col"><h4>Autres intitulés du même métier</h4><p class="sous">Le même travail, appelé autrement selon les employeurs.</p>';
+    METIERS.filter(function (m) { return m.col === 'g'; }).forEach(function (m) { h += ligneMetier(m); });
+    h += '<div class="pied-col"><button type="button" class="btn" data-act="offres-col" data-col="g">Chercher des offres pour cette colonne</button></div></div>';
+    h += '<div class="col"><h4>Autres métiers qui utilisent vos compétences</h4><p class="sous">Des pistes proches, à vous de voir si elles vous parlent.</p>';
+    METIERS.filter(function (m) { return m.col === 'd'; }).forEach(function (m) { h += ligneMetier(m); });
+    h += '<div class="pied-col"><button type="button" class="btn" data-act="offres-col" data-col="d">Chercher des offres pour cette colonne</button></div></div>';
+    h += '</div><div class="encart" style="margin-top:12px">Au clic sur « Chercher des offres » ou « Vérifier cet intitulé » : la demande est copiée et vous choisissez l’assistant en ligne. <b>Votre CV n’est jamais envoyé</b>, seulement les noms de métiers et votre département.</div></div>';
+    if (n >= MAX) { h += '<div class="encart alerte">Vous avez atteint 10 choix. Décochez-en un pour en choisir un autre.</div>'; }
+    h += '<div class="barre"><div class="compte">' + n + ' choix sur ' + MAX + '<small>' + (!etat.demarche ? 'Choisissez d’abord votre démarche (étape 1).' : (n < 2 ? 'Cochez au moins 2 métiers.' : 'Vous pourrez revenir modifier vos choix.')) + '</small></div>' +
+      '<button type="button" class="btn plein" data-act="creer"' + (pret ? '' : ' disabled') + '>Créer mes CV</button></div>';
+    return h;
+  }
+
+  /* ---------- Écran 2 ---------- */
+  function feuille(id) {
+    var c = cvDe(id), a = aspectDe(id), m = metier(id);
+    return '<div class="feuille l-' + a.look + '" style="--c:' + a.couleur + '"><div class="bandeau"></div><div class="fond"><div class="tt">' + esc(c.titre) + '</div><div class="ac">' + esc(c.type === 'courte' ? c.courte : c.longue) + '</div>' +
+      '<i class="m"></i><i></i><i class="c"></i><i class="m"></i><i></i><i class="c"></i><i></i><i class="m"></i><i class="c"></i><i></i>' + (m.rempli ? '<i></i><i class="m"></i><i></i><i class="c"></i><i></i><i class="m"></i>' : '') + '</div>' + (m.rempli ? '<div class="rem"></div>' : '') + '</div>';
+  }
+  function ecran2() {
+    if (!etat.choix.length) { return '<div class="mod"><div class="encart alerte">Aucun CV à éditer. Revenez à l’écran 1 et cochez au moins deux métiers.</div></div>'; }
+    if (etat.cvActif >= etat.choix.length) { etat.cvActif = 0; }
+    var id = etat.choix[etat.cvActif], c = cvDe(id), m = metier(id), dem = demarcheDe(id), a = aspectDe(id);
+    var h = '<div class="fil"><button type="button" class="pilule-revoir" data-act="ecran" data-e="1">Modifier mes choix</button><button type="button" class="pilule-revoir" data-act="note" data-msg="Ouvre la présentation du module, sans rien perdre.">Revoir la présentation</button></div>' +
+      '<h3>Vos ' + etat.choix.length + ' CV, un par un</h3><p class="discret" style="margin-top:0">Chaque CV arrive déjà mis en page. Vous ne changez que le titre et l’accroche, le reste du CV est le même pour tous.</p><div class="rangee-cv">';
+    etat.choix.forEach(function (x, i) { h += '<button type="button" class="btn-cv' + (i === etat.cvActif ? ' on' : '') + '" data-act="cvactif" data-i="' + i + '"><b>CV ' + (i + 1) + '</b>' + esc(cvDe(x).titre) + '</button>'; });
+    h += '</div><div class="scene2"><div>' + feuille(id) +
+      '<p class="note-lien">Aperçu du CV ' + (etat.cvActif + 1) + '</p>' + (m.rempli ? '<div class="encart alerte" style="font-size:.84rem">CV très rempli : le bas de la page pourrait être coupé à l’impression. Vous pouvez raccourcir l’accroche ou garder tel quel.</div>' : '') + '</div><div>';
+    h += '<span class="pilule dem">Démarche : ' + esc(nomDemarche(dem)) + (c.demarcheOwn ? ' (propre à ce CV)' : ' (pour tous)') + '</span>';
+    h += '<label class="lab" for="t_' + id + '">Titre du CV (poste visé)</label><input class="champ" id="t_' + id + '" data-act="titre" data-id="' + id + '" value="' + esc(c.titre) + '">';
+    h += '<span class="lab">Accroche</span>';
+    h += '<div class="choix-accroche"><input type="radio" name="acc" id="ac1" data-act="typeacc" data-t="courte"' + (c.type === 'courte' ? ' checked' : '') + '><label for="ac1" style="flex:1"><b>Courte</b> (proposée d’office)<textarea class="champ" data-act="texteacc" data-t="courte" data-id="' + id + '">' + esc(c.courte) + '</textarea></label></div>';
+    h += '<div class="choix-accroche"><input type="radio" name="acc" id="ac2" data-act="typeacc" data-t="longue"' + (c.type === 'longue' ? ' checked' : '') + '><label for="ac2" style="flex:1"><b>Plus longue</b><textarea class="champ" data-act="texteacc" data-t="longue" data-id="' + id + '">' + esc(c.longue) + '</textarea></label></div>';
+    h += '<span class="lab">Pour quel type de structure ? <span class="discret" style="font-weight:400">(le langage s’adapte)</span></span><div class="jetons">';
+    STRUCTURES.forEach(function (s) { h += '<button type="button" class="jeton' + (c.structure === s ? ' on' : '') + '" data-act="structure" data-id="' + id + '" data-s="' + esc(s) + '">' + s + '</button>'; });
+    h += '</div><p class="note-lien">Si vous ne savez pas, l’accroche reste générale et convient à tous.</p>';
+    h += '<div class="case"><input type="checkbox" id="dOwn" data-act="demown" data-id="' + id + '"' + (c.demarcheOwn ? ' checked' : '') + '><label for="dOwn">Une démarche différente pour ce CV</label></div>';
+    if (c.demarcheOwn) {
+      h += '<div class="jetons">';
+      DEMARCHES.forEach(function (d) { h += '<button type="button" class="jeton' + (dem === d[0] ? ' on' : '') + '" data-act="demcv" data-id="' + id + '" data-k="' + d[0] + '">' + d[1] + '</button>'; });
+      h += '</div><p class="note-lien">La lettre de motivation de ce CV, si vous en demandez une, suivra cette démarche.</p>';
+    }
+    h += '<div class="case"><input type="checkbox" id="aPar" data-act="aspectpar"' + (etat.aspectParCv ? ' checked' : '') + '><label for="aPar">Un aspect par CV <span class="discret">(éteint : même aspect pour tous)</span></label></div>';
+    h += '<span class="lab">Ambiance ' + (etat.aspectParCv ? 'de ce CV' : 'pour tous les CV') + '</span><div class="jetons">';
+    LOOKS.forEach(function (l) { h += '<button type="button" class="jeton' + (a.look === l[0] ? ' on' : '') + '" data-act="look" data-id="' + id + '" data-l="' + l[0] + '">' + l[1] + '</button>'; });
+    h += '</div><span class="lab">Couleur</span><div class="nuancier">';
+    COULEURS.forEach(function (co) { h += '<button type="button" class="teinte' + (a.couleur === co ? ' on' : '') + '" style="background:' + co + '" aria-label="Couleur" data-act="couleur" data-id="' + id + '" data-c="' + co + '"></button>'; });
+    h += '</div></div></div>';
+    h += '<div class="barre"><div class="compte">' + etat.choix.length + ' CV<small>Chacun tient sur une page.</small></div><button type="button" class="btn plein" data-act="ecran" data-e="3">Voir mes CV</button></div>';
+    return h;
+  }
+
+  /* ---------- Écran 3 ---------- */
+  function ecran3() {
+    if (!etat.choix.length) { return '<div class="mod"><div class="encart alerte">Aucun CV pour l’instant. Revenez à l’écran 1.</div></div>'; }
+    var n = etat.choix.length, nl = etat.choix.filter(function (x) { return etat.lettres[x]; }).length;
+    var h = '<div class="fil"><button type="button" class="pilule-revoir" data-act="ecran" data-e="2">Modifier mes choix</button></div>' +
+      '<h3>Vos ' + n + ' CV sont prêts</h3>' +
+      '<div class="encart ok">Un seul document PDF de ' + n + ' pages, un CV par page. Vous pouvez aussi télécharger chaque CV séparément.</div>' +
+      '<div class="actions" style="margin-bottom:10px"><button type="button" class="btn plein" data-act="note" data-msg="Télécharge un seul PDF avec tous les CV.">Télécharger tous les CV (un seul PDF)</button></div><div class="grille-cartes">';
+    etat.choix.forEach(function (x, i) {
+      var c = cvDe(x), m = metier(x);
+      h += '<div class="cv-carte"><div>' + feuille(x) + '</div><div><h4>CV ' + (i + 1) + ' : ' + esc(c.titre) + '</h4><span class="pilule dem">' + esc(nomDemarche(demarcheDe(x))) + '</span>' + (m.rempli ? ' <span class="pilule verif">CV très rempli</span>' : '') +
+        '<p class="acc">' + esc(c.type === 'courte' ? c.courte : c.longue) + '</p><div class="actions"><button type="button" class="btn petit" data-act="modifier" data-i="' + i + '">Modifier</button><button type="button" class="btn petit" data-act="note" data-msg="Télécharge ce CV seul.">Télécharger ce CV</button></div>' +
+        '<div class="case" style="margin:6px 0 0"><input type="checkbox" id="l_' + x + '" data-act="lettre" data-id="' + x + '"' + (etat.lettres[x] ? ' checked' : '') + '><label for="l_' + x + '">Une lettre pour ce CV</label></div></div></div>';
+    });
+    h += '</div>';
+    h += '<div class="carte"><div class="titre-etape"><span class="rond">A</span><strong>Lettres de motivation, si vous le souhaitez</strong></div>' +
+      '<p class="discret" style="margin-top:0">Cochez les CV pour lesquels vous voulez une lettre (5 au plus à la fois). Chaque lettre reprend la démarche de son CV et ne cite aucun nom d’entreprise. Vous la complétez avant de l’envoyer.</p>' +
+      '<div class="actions"><button type="button" class="btn plein" data-act="faire-lettres"' + (nl ? '' : ' disabled') + '>Créer ' + (nl > 1 ? 'mes ' + nl + ' lettres' : 'ma lettre') + '</button></div>' +
+      '<p class="note-lien">Les lettres sortent dans un second PDF.</p></div>';
+    h += '<div class="carte"><div class="titre-etape"><span class="rond">B</span><strong>Chercher des offres pour vos métiers</strong></div>' +
+      '<p class="discret" style="margin-top:0">La demande ne contient que vos ' + n + ' noms de métiers et votre département, jamais votre CV. Choisissez l’assistant en ligne que vous utilisez, collez la demande, et les offres s’affichent chez lui.</p>' +
+      '<div class="assist">';
+    ASSISTANTS.forEach(function (a) { h += '<button type="button" class="jeton' + (etat.assistant === a ? ' on' : '') + '" data-act="assistant" data-a="' + a + '">' + a + '</button>'; });
+    h += '</div><div class="actions"><button type="button" class="btn plein" data-act="copier">Copier ma demande</button></div></div>';
+    h += '<div class="barre"><div class="compte">' + n + ' CV prêts<small>Vous pouvez encore modifier vos choix.</small></div><button type="button" class="btn" data-act="ecran" data-e="1">Modifier mes choix</button></div>';
+    return h;
+  }
+
+  function rendre() {
+    var f = etat.ecran === 1 ? ecran1 : (etat.ecran === 2 ? ecran2 : ecran3);
+    ['hoteBureau', 'hoteTel'].forEach(function (id) {
+      // Les deux vues sont dans la même page : identifiants et noms de groupes sont suffixés pour ne pas se voler la sélection.
+      var el = document.getElementById(id), haut = el.scrollTop, suf = '_' + id, h = f().replace(/ (id|for|name)="([^"]+)"/g, ' $1="$2' + suf + '"');
+      el.innerHTML = '<div class="mod">' + h.replace(/^<div class="mod">/, '') + '</div>';
+      el.scrollTop = haut;
+    });
+    document.querySelectorAll('[data-ecran]').forEach(function (b) { b.classList.toggle('on', parseInt(b.getAttribute('data-ecran'), 10) === etat.ecran); });
+  }
+  function toast(msg) {
+    var t = document.getElementById('toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 3800);
+  }
+  function aller(e) { etat.ecran = e; rendre(); ['hoteBureau', 'hoteTel'].forEach(function (id) { document.getElementById(id).scrollTop = 0; }); document.querySelector('.onglets').scrollIntoView({ block: 'start' }); }
+
+  document.addEventListener('click', function (ev) {
+    var v = ev.target.closest('[data-vue]');
+    if (v) {
+      var tel = v.getAttribute('data-vue') === 'tel';
+      document.getElementById('hoteBureau').hidden = tel; document.getElementById('hoteTel').hidden = !tel;
+      document.querySelectorAll('[data-vue]').forEach(function (x) { x.classList.toggle('on', x === v); });
+      return;
+    }
+    var o = ev.target.closest('[data-ecran]');
+    if (o) { aller(parseInt(o.getAttribute('data-ecran'), 10)); return; }
+    var b = ev.target.closest('[data-act]'); if (!b) { return; }
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if (['cocher', 'titre', 'texteacc', 'typeacc', 'demown', 'aspectpar', 'lettre'].indexOf(act) >= 0) { return; }   // gérés par "change" / "input"
+    if (act === 'demarche') { etat.demarche = b.getAttribute('data-k'); }
+    else if (act === 'note') { toast(b.getAttribute('data-msg')); return; }
+    else if (act === 'verifier') { toast('Votre demande « Que recouvre l’intitulé ' + metier(id).nom + ' ? » est copiée. Vous choisissez ensuite l’assistant en ligne.'); return; }
+    else if (act === 'offres-col') { toast('Votre demande (noms de métiers de la colonne et département) est copiée. Votre CV n’est pas envoyé.'); return; }
+    else if (act === 'creer') { aller(2); return; }
+    else if (act === 'ecran') { aller(parseInt(b.getAttribute('data-e'), 10)); return; }
+    else if (act === 'cvactif') { etat.cvActif = parseInt(b.getAttribute('data-i'), 10); }
+    else if (act === 'structure') { cvDe(id).structure = b.getAttribute('data-s'); }
+    else if (act === 'demcv') { cvDe(id).demarche = b.getAttribute('data-k'); }
+    else if (act === 'look') { var l = b.getAttribute('data-l'); if (etat.aspectParCv) { cvDe(id).look = l; } else { etat.aspectGlobal.look = l; } }
+    else if (act === 'couleur') { var co = b.getAttribute('data-c'); if (etat.aspectParCv) { cvDe(id).couleur = co; } else { etat.aspectGlobal.couleur = co; } }
+    else if (act === 'modifier') { etat.cvActif = parseInt(b.getAttribute('data-i'), 10); aller(2); return; }
+    else if (act === 'assistant') { etat.assistant = b.getAttribute('data-a'); }
+    else if (act === 'copier') { toast('Votre demande est copiée. Ouvrez ' + etat.assistant + ' et collez-la.'); return; }
+    else if (act === 'faire-lettres') { toast('Les lettres sont créées, 5 au plus à la fois, dans un second PDF.'); return; }
+    rendre();
+  });
+  document.addEventListener('change', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b) { return; }
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if (act === 'cocher') {
+      var i = etat.choix.indexOf(id);
+      if (b.checked && i < 0 && etat.choix.length < MAX) { etat.choix.push(id); } else if (!b.checked && i >= 0) { etat.choix.splice(i, 1); }
+    } else if (act === 'typeacc') { cvDe(etat.choix[etat.cvActif]).type = b.getAttribute('data-t'); }
+    else if (act === 'demown') { var c = cvDe(id); c.demarcheOwn = b.checked; if (b.checked && !c.demarche) { c.demarche = etat.demarche; } }
+    else if (act === 'aspectpar') {
+      etat.aspectParCv = b.checked;
+      if (b.checked) { etat.choix.forEach(function (x) { var c2 = cvDe(x); if (!c2.vuAspect) { c2.look = etat.aspectGlobal.look; c2.couleur = etat.aspectGlobal.couleur; c2.vuAspect = true; } }); }
+    }
+    else if (act === 'lettre') { var nl = etat.choix.filter(function (x) { return etat.lettres[x]; }).length; if (b.checked && nl >= 5) { b.checked = false; toast('Cinq lettres au plus à la fois.'); return; } etat.lettres[id] = b.checked; }
+    else { return; }
+    rendre();
+  });
+  document.addEventListener('input', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b) { return; }
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if (act === 'titre') { cvDe(id).titre = b.value; }
+    else if (act === 'texteacc') { cvDe(id)[b.getAttribute('data-t')] = b.value; }
+  });
+  rendre();
+})();
+</script>
+</body>
+</html>

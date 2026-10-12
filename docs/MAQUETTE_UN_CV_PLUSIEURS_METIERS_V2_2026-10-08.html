@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Un CV, plusieurs métiers (version 2)</title>
+<style>
+  /* Pictogrammes des titres (dessinés dans la page pour qu'ils s'affichent partout) : à l'implémentation, ce sont les icônes Bootstrap de l'application. */
+  .bi { display: inline-block; width: 1em; height: 1em; vertical-align: -.14em; background: currentColor; -webkit-mask: center / contain no-repeat; mask: center / contain no-repeat; }
+  .bi-files { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='1.5' width='8' height='10' rx='1'/%3E%3Cpath d='M2.5 4.5v9a1 1 0 0 0 1 1h7'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='1.5' width='8' height='10' rx='1'/%3E%3Cpath d='M2.5 4.5v9a1 1 0 0 0 1 1h7'/%3E%3C/svg%3E"); }
+  .bi-bullseye { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.5'/%3E%3Ccircle cx='8' cy='8' r='3.8'/%3E%3Ccircle cx='8' cy='8' r='1' fill='black'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.5'/%3E%3Ccircle cx='8' cy='8' r='3.8'/%3E%3Ccircle cx='8' cy='8' r='1' fill='black'/%3E%3C/svg%3E"); }
+  .bi-signpost-split { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 1v14'/%3E%3Cpath d='M7.5 3h5.5l1.2 1.5L13 6H7.5'/%3E%3Cpath d='M7.5 8H3L1.8 9.5 3 11h4.5'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 1v14'/%3E%3Cpath d='M7.5 3h5.5l1.2 1.5L13 6H7.5'/%3E%3Cpath d='M7.5 8H3L1.8 9.5 3 11h4.5'/%3E%3C/svg%3E"); }
+  .bi-slash-circle { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.5'/%3E%3Cpath d='M3.4 3.4l9.2 9.2'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.5'/%3E%3Cpath d='M3.4 3.4l9.2 9.2'/%3E%3C/svg%3E"); }
+  .bi-box-arrow-down { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 6.5v7h11v-7'/%3E%3Cpath d='M8 1.5v8M5 6.8l3 3 3-3'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 6.5v7h11v-7'/%3E%3Cpath d='M8 1.5v8M5 6.8l3 3 3-3'/%3E%3C/svg%3E"); }
+  .bi-info-circle { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.5'/%3E%3Cpath d='M8 7v4.2'/%3E%3Ccircle cx='8' cy='4.8' r='.5' fill='black'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.5'/%3E%3Cpath d='M8 7v4.2'/%3E%3Ccircle cx='8' cy='4.8' r='.5' fill='black'/%3E%3C/svg%3E"); }
+  /* Couleurs et formes relevées sur les modules réels (Regard sur mon CV), clair et sombre */
+  :root { --fond: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --text: #0b1a33; --text-muted: #4a5b6e; --border: #e2e8f0; --border-strong: #d5dbe4; --accent: #0d6efd; --accent-bg-subtle: #eef2fd; --success: #198754; --success-bg: #e6f4ec; --warning: #b45309; --warning-bg: #fdf1e2; --alert: #a3372b; --alert-bg: #fbe6e3; --courante-bg: #fffaeb; --courante-bord: #f5dd94; --courante-txt: #92720c; --papier: #ffffff; --papier-trait: #d9dee6; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #0f1623; --bg-card: #19212f; --bg-subtle: #151d2a; --text: #e8ecf3; --text-muted: #a5b0c0; --border: #2c3748; --border-strong: #3d4a5e; --accent: #6ea8fe; --accent-bg-subtle: #1f2e49; --success: #5fd09a; --success-bg: #17301f; --warning: #f0a35a; --warning-bg: #3a2a18; --alert: #f08a7e; --alert-bg: #3b1f1c; --courante-bg: #3a3118; --courante-bord: #7a6420; --courante-txt: #f0d27a; --papier: #f4f6f8; --papier-trait: #aeb6c2; } }
+  :root[data-theme="sombre"] { --fond: #0f1623; --bg-card: #19212f; --bg-subtle: #151d2a; --text: #e8ecf3; --text-muted: #a5b0c0; --border: #2c3748; --border-strong: #3d4a5e; --accent: #6ea8fe; --accent-bg-subtle: #1f2e49; --success: #5fd09a; --success-bg: #17301f; --warning: #f0a35a; --warning-bg: #3a2a18; --alert: #f08a7e; --alert-bg: #3b1f1c; --courante-bg: #3a3118; --courante-bord: #7a6420; --courante-txt: #f0d27a; --papier: #f4f6f8; --papier-trait: #aeb6c2; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9edf3; color: #1c2430; font-family: "Segoe UI", Roboto, system-ui, sans-serif; line-height: 1.55; }
+  @media (prefers-color-scheme: dark) { body { background: #0a0f18; color: #e8ecf3; } }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ===== Chapeau de la maquette (hors module) ===== */
+  .chapeau { max-width: 1100px; margin: 0 auto; padding: 14px 16px 6px; }
+  .chapeau h1 { font-size: 1.2rem; margin: 0 0 4px; }
+  .chapeau p { margin: 4px 0; font-size: .92rem; opacity: .85; }
+  .vues { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; align-items: center; }
+  .bascule { border: 1.5px solid #0d6efd; background: transparent; color: #0d6efd; border-radius: 10px; padding: 6px 12px; font-weight: 600; font-size: .9rem; }
+  .bascule.on { background: #0d6efd; color: #fff; }
+  .scene { max-width: 1100px; margin: 0 auto 30px; padding: 0 16px; }
+  .cadre { background: var(--fond); color: var(--text); border: 1px solid var(--border-strong); border-radius: 14px; container-type: inline-size; }
+  .cadre[hidden] { display: none; }
+  .cadre.tel { width: 390px; max-width: 100%; height: 800px; overflow: auto; margin: 0 auto; border-radius: 30px; border-width: 4px; }
+
+  /* ===== Le module, comme les autres ===== */
+  .page { padding: 16px 20px 0; }
+  .cadre.tel .page { padding: 12px 12px 0; }
+  .fil-etapes { display: flex; flex-wrap: wrap; gap: 4.8px; justify-content: center; align-items: center; margin: 4px 0 16px; }
+  .pastille { display: inline-flex; align-items: center; gap: 5px; border: 1.6px solid var(--text); background: transparent; color: var(--text); border-radius: 999px; padding: 4px 8.8px; font-size: 12px; font-weight: 700; }
+  .pastille { cursor: default; }
+  .pastille .ico { font-size: 15.2px; line-height: 1; }
+  .pastille.avenir, .chev.avenir { opacity: .4; }
+  .pastille.courante { background: var(--courante-bg); border-color: var(--courante-bord); color: var(--courante-txt); box-shadow: 0 0 0 3px var(--accent-bg-subtle), 0 0 0 5px var(--accent); }
+  .pastille.validee { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+  .chev { width: 16px; height: 16px; border-radius: 5px; background: var(--accent); color: #fff; font-size: .7rem; display: grid; place-items: center; }
+  @container (max-width: 560px) { .titre h1 { font-size: 1.35rem; } .chev { display: none; } .pastille { padding: 3px 8px; font-size: .74rem; } .colonnes { grid-template-columns: 1fr !important; } .scene2 { grid-template-columns: 1fr !important; } .grille-cartes { grid-template-columns: 1fr !important; } .titre h2 { font-size: 1.35rem; } .zone-edit { grid-template-columns: 1fr !important; } }
+  .bande-revoir { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin: 1rem 0 0.6rem; }
+  .bande-revoir .gauche { flex: 1 1 auto; }
+  .btn-revoir-module { display: inline-flex; align-items: center; gap: 0.4rem; font: inherit; font-weight: 700; font-size: 0.85rem; border: 1.5px solid var(--accent); color: var(--accent); background: var(--accent-bg-subtle); border-radius: 999px; padding: 0.34rem 0.9rem 0.34rem 0.7rem; cursor: pointer; white-space: nowrap; }
+  .btn-revoir-module:hover { filter: brightness(0.96); }
+  .note-revoir-module { display: inline-flex; gap: 0.5rem; align-items: flex-start; max-width: min(24rem, 100%); background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.6rem; margin: 0.35rem 0 0.2rem; font-size: 0.8rem; color: var(--text-muted); }
+  .note-revoir-module button { margin-left: auto; flex: none; border: none; background: none; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0 0.15rem; }
+  .bande-revoir .droite { flex: 0 1 24rem; text-align: right; }
+  .encart-reprise { display: inline-block; text-align: left; max-width: 100%; background: var(--accent-bg-subtle); border: 1px solid var(--accent); border-left-width: 3px; border-radius: 10px; padding: 0.6rem 0.85rem; }
+  .encart-reprise p { margin: 0 0 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .encart-reprise .boutons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn-recommencer { background: var(--alert-bg); border: 1px solid var(--alert); color: var(--alert); font-weight: 600; border-radius: 6px; padding: 7px 14px; }
+  .page.gel > *:not(.bande-revoir):not(.barre-bas) { pointer-events: none; opacity: 0.5; user-select: none; }
+  .page.gel .barre-bas { pointer-events: auto; }
+  .titre h1 > .bi { color: var(--accent); }
+  .cv-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; margin: 0 0 1rem; }
+  .cv-section.fond { background: var(--accent-bg-subtle); text-align: center; }
+  .cv-section h3 { margin: 0 0 6px; font-size: 1.15rem; }
+  .cv-section ol, .cv-section ul { margin: 6px 0 0; padding-left: 1.3rem; }
+  .sous-titre { color: var(--text-muted); font-size: 1.05rem; margin: 6px 0 16px; text-align: center; }
+  @container (max-width: 560px) { .bande-revoir .droite { text-align: left; flex-basis: 100%; } }
+  .titre { text-align: center; margin: 14px 0 4px; }
+  .titre .pas { display: inline-block; background: var(--accent-bg-subtle); color: var(--accent); border-radius: 999px; padding: 2px 12px; font-size: .78rem; font-weight: 700; margin-bottom: 4px; }
+  .titre h1 { font-size: 32px; font-weight: 900; margin: 0; color: var(--text); }
+  .intro { text-align: left; color: var(--text-muted); font-size: 16.3px; margin: 4px 0 14px; }
+  .bloc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin: 12px 0; overflow: hidden; }
+  .bloc > .entete { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 12px 16px; font-weight: 700; border-bottom: 1px solid var(--border); }
+  .bloc > .corps { padding: 14px 16px; }
+  .rond { flex: 0 0 auto; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: .85rem; }
+  .pilule { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: .72rem; font-weight: 700; background: var(--accent-bg-subtle); color: var(--accent); }
+  .pilule.verif { background: var(--warning-bg); color: var(--warning); }
+  .pilule.ok { background: var(--success-bg); color: var(--success); }
+  .pilule.perso { background: var(--accent-bg-subtle); color: var(--accent); border: 1px solid var(--accent); }
+  .discret { color: var(--text-muted); font-size: .9rem; }
+  .encart { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: .92rem; }
+  .encart.alerte { border-left-color: var(--warning); background: var(--warning-bg); }
+  .encart.ok { border-left-color: var(--success); background: var(--success-bg); }
+  .btn-p { background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 6px; padding: 7px 14px; }
+  .btn-p:hover { filter: brightness(1.08); }
+  .btn-p[disabled] { opacity: .45; cursor: not-allowed; }
+  .btn-s { background: var(--bg-card); color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 7px 14px; }
+  .btn-s:hover { background: var(--accent-bg-subtle); }
+  .btn-s[disabled] { opacity: .45; cursor: not-allowed; }
+  .btn-s.petit, .btn-p.petit { padding: 3px 9px; font-size: .84rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  /* jetons : carrés pour plusieurs choix, ronds pour un seul choix, comme les autres modules */
+  .jetons { display: flex; flex-wrap: wrap; gap: 8px; }
+  .jeton { display: inline-flex; align-items: center; gap: 8px; background: var(--bg-card); color: var(--text); border: 1.6px solid var(--border-strong); border-radius: 11px; padding: 8px 14px 8px 11px; font-size: .95rem; }
+  .jeton::before { content: ""; width: 16px; height: 16px; border: 2px solid var(--border-strong); border-radius: 4px; flex: 0 0 auto; background: var(--bg-card); }
+  .jeton.radio::before { border-radius: 50%; }
+  .jeton:hover { border-color: var(--accent); }
+  .jeton.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+  .jeton.on::before { background: var(--accent); border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent-bg-subtle); }
+  .jeton.compact { padding: 4px 10px 4px 8px; font-size: .82rem; gap: 6px; border-radius: 9px; }
+  .jeton.compact::before { width: 13px; height: 13px; }
+  .champ { display: block; width: 100%; font: inherit; color: var(--text); background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 7px 9px; }
+  textarea.champ { min-height: 66px; resize: vertical; }
+  .lab { display: block; font-weight: 700; font-size: .9rem; margin: 12px 0 4px; }
+  .case { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+  .case input, .metier input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); flex: 0 0 auto; }
+  .barre-bas { position: sticky; bottom: 0; margin: 16px -20px 0; padding: 10px 20px; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; z-index: 4; }
+  .cadre.tel .barre-bas { margin: 16px -12px 0; padding: 8px 12px; }
+  .btn-nav { border: 1.2px solid var(--accent); background: var(--accent-bg-subtle); color: var(--accent); border-radius: 40px; padding: 7px 16px; font-weight: 600; font-size: .88rem; }
+  .barre-bas .centre { text-align: center; font-size: .82rem; color: var(--text-muted); }
+  .barre-bas .centre .btn-p { font-size: .95rem; padding: 9px 18px; border-radius: 8px; }
+  .note-lien { font-size: .82rem; color: var(--text-muted); margin: 3px 0 0; }
+
+  /* passage 2 */
+  .texte-cv { background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 10px; padding: 12px 14px; font-size: .92rem; line-height: 1.7; }
+  .masque { background: var(--text); color: var(--bg-card); border-radius: 4px; padding: 0 6px; font-size: .8rem; }
+  .masque.off { background: var(--warning-bg); color: var(--warning); border: 1px dashed var(--warning); }
+  .liste-masques { display: grid; gap: 6px; margin-top: 10px; }
+  .ligne-masque { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 10px; padding: 6px 10px; }
+  .ligne-masque span.t { flex: 1; min-width: 140px; }
+
+  /* passage 4 */
+  .synth { width: 100%; font-size: .92rem; border-collapse: collapse; }
+  .synth td { padding: 5px 10px 5px 0; vertical-align: top; border-top: 1px solid var(--border); }
+  .synth tr:first-child td { border-top: 0; }
+  .synth td:first-child { color: var(--text-muted); white-space: nowrap; width: 1%; }
+  .puces { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .colonnes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .col h4 { margin: 0 0 2px; font-size: 1rem; }
+  .col .sous { margin: 0 0 8px; color: var(--text-muted); font-size: .86rem; }
+  .metier { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--border); background: var(--bg-card); border-radius: 12px; padding: 9px 11px; margin: 7px 0; }
+  .metier.coche { border: 1.6px solid var(--accent); background: var(--accent-bg-subtle); }
+  .metier.grise { opacity: .55; }
+  .metier .corps { flex: 1; min-width: 0; }
+  .metier label { display: block; cursor: pointer; }
+  .metier .nom { font-weight: 700; }
+  .metier .retrouve { color: var(--text-muted); font-size: .82rem; margin-top: 2px; }
+  .metier .ligne { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+  .metier .obj { margin-top: 8px; padding-top: 7px; border-top: 1px dashed var(--border-strong); font-size: .84rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .metier .obj small { color: var(--text-muted); }
+  .ajout { border: 1.6px dashed var(--accent); border-radius: 12px; padding: 10px 12px; margin: 10px 0; background: var(--bg-card); }
+  .ajout .ligne-ajout { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ajout .ligne-ajout .champ { flex: 1; min-width: 160px; }
+  .modif { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+  .modif .champ { flex: 1; min-width: 140px; }
+  .panneau-obj { border: 2px solid var(--accent); border-radius: 12px; background: var(--bg-card); margin: 12px 0; overflow: hidden; }
+  .panneau-obj > .entete { background: var(--accent-bg-subtle); color: var(--accent); padding: 10px 16px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .panneau-obj > .corps { padding: 12px 16px 16px; }
+  .grille-champs { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  @container (max-width: 560px) { .grille-champs { grid-template-columns: 1fr; } }
+  .portee { border: 1px solid var(--border-strong); border-radius: 10px; padding: 8px 12px; margin-top: 12px; background: var(--bg-subtle); }
+
+  /* passages 6 et 7 */
+  .rangee-cv { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+  .btn-cv { border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 10px; padding: 5px 11px; font-size: .86rem; text-align: left; }
+  .btn-cv b { margin-right: 4px; }
+  .btn-cv.on { background: var(--accent); color: #fff; }
+  .scene2 { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .zone-edit { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .choix-accroche { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; }
+  .choix-accroche input { margin-top: 4px; accent-color: var(--accent); width: 18px; height: 18px; flex: 0 0 auto; }
+  .nuancier { display: flex; gap: 6px; flex-wrap: wrap; }
+  .teinte { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--border-strong); padding: 0; }
+  .teinte.on { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--accent); }
+  .carte-ed { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; text-align: left; background: var(--bg-card); border: 1.5px solid var(--accent); border-radius: 12px; padding: 9px 12px; margin: 7px 0; color: var(--accent); font-weight: 700; box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 30%, transparent); }
+  .carte-ed:hover { background: var(--accent-bg-subtle); }
+  .carte-ed.ouverte { background: var(--accent); color: #fff; box-shadow: none; }
+  .carte-ed .ouvrir { font-size: .74rem; border: 1.5px solid currentColor; border-radius: 999px; padding: 1px 9px; font-weight: 700; }
+  .feuille { aspect-ratio: 210 / 297; width: 100%; background: var(--papier); border: 1px solid var(--papier-trait); border-radius: 4px; padding: 9px; overflow: hidden; color: #1c2430; font-size: 8px; line-height: 1.25; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .feuille .bandeau { position: absolute; left: 0; right: 0; top: 0; height: 12%; background: var(--c); }
+  .feuille.l-sobre .bandeau { height: 2%; }
+  .feuille.l-classique .bandeau { height: 100%; width: 9%; right: auto; }
+  .feuille.l-chaleureux .bandeau { height: 12%; border-radius: 0 0 40% 40% / 0 0 100% 100%; }
+  .feuille.l-elegant .bandeau { top: auto; bottom: 0; height: 5%; }
+  .feuille.l-creatif .bandeau { height: 100%; width: 28%; right: auto; opacity: .22; }
+  .feuille .fond { position: relative; padding-top: 36px; }
+  .feuille.l-classique .fond { padding-left: 11%; padding-top: 6px; }
+  .feuille.l-creatif .fond { padding-left: 30%; padding-top: 6px; }
+  .feuille.l-sobre .fond, .feuille.l-elegant .fond { padding-top: 10px; }
+  .feuille .tt { font-weight: 700; font-size: 10px; color: var(--c); margin: 2px 0; line-height: 1.15; }
+  .feuille .ac { margin-bottom: 7px; }
+  .feuille i { display: block; height: 3px; background: #c9d0da; border-radius: 2px; margin: 4px 0; }
+  .feuille i.c { width: 55%; } .feuille i.m { width: 80%; }
+  .feuille .rem { position: absolute; left: 0; right: 0; bottom: 0; height: 5%; background: repeating-linear-gradient(45deg, #e9c9b3, #e9c9b3 4px, transparent 4px, transparent 8px); }
+
+  /* passage 8 */
+  .grille-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cv-carte { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+  .cv-carte h4 { margin: 0 0 3px; font-size: .98rem; }
+  .cv-carte .acc { font-size: .88rem; margin: 5px 0; }
+  .bandeau-obj { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 22px; text-align: center; border: 2px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 12px; padding: 12px 16px; margin: 0 0 14px; }
+  .bandeau-obj .txt { flex: 1 1 260px; }
+  .btn-p.gros { font-size: 1.05rem; padding: 10px 24px; border-radius: 8px; }
+  .carte-ed.inactive { opacity: .5; cursor: not-allowed; border-style: dashed; box-shadow: none; color: var(--text-muted); }
+  .bandeau-dept { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; padding: 8px 12px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px; }
+  .bandeau-dept .champ { max-width: 260px; }
+  .cv7 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @container (max-width: 900px) { .cv7 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @container (max-width: 560px) { .cv7 { grid-template-columns: 1fr; } }
+  .carte-cv7 { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+  .carte-cv7 .tete { display: flex; gap: 10px; align-items: flex-start; }
+  .carte-cv7 .mini { flex: 0 0 74px; }
+  .carte-cv7 .inf { min-width: 0; }
+  .carte-cv7 .ligne7 { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .carte-cv7 .btn-s.petit, .carte-cv7 .btn-p.petit { margin-top: 6px; }
+  .carte-cv7 .feuille { font-size: 5px; padding: 5px; }
+  .carte-cv7 .feuille .tt { font-size: 6px; }
+  .demande { white-space: pre-wrap; background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: 10px; padding: 10px 12px; font-size: .85rem; line-height: 1.5; margin: 6px 0; }
+  .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: #121821; color: #fff; padding: 9px 16px; border-radius: 12px; font-size: .92rem; z-index: 20; max-width: 90vw; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="chapeau">
+  <h1>Maquette « Un CV, plusieurs métiers » : version 2, en sept pages</h1>
+  <p>Même apparence que les autres modules (fil d'étapes, cartes numérotées, boutons, barre « Retour / Accueil »). Seul le concept est propre à ce module. Le fil d'étapes en haut est seulement visuel, comme dans les autres modules (décision de Denis). Pour visiter une page directement, utilisez les boutons « Aller à la page » ci-dessous : les pages d'avant sont alors remplies avec un exemple.</p>
+  <div class="vues">
+    <button class="bascule on" type="button" data-vue="bureau">Voir sur ordinateur</button>
+    <button class="bascule" type="button" data-vue="tel">Voir sur téléphone</button>
+    <button class="bascule" type="button" id="btnRaz">Tout recommencer à zéro</button>
+    <button class="bascule" type="button" id="btnArrivee">Arrivée dans le module (présentation)</button>
+    <button class="bascule" type="button" id="btnRetour">Retour avec un travail en cours</button>
+    <span style="margin-left:10px;font-size:.9rem">Aller à la page :</span>
+    <button class="bascule" type="button" data-act="aller" data-n="1">1</button><button class="bascule" type="button" data-act="aller" data-n="2">2</button><button class="bascule" type="button" data-act="aller" data-n="3">3</button><button class="bascule" type="button" data-act="aller" data-n="4">4</button><button class="bascule" type="button" data-act="aller" data-n="5">5</button><button class="bascule" type="button" data-act="aller" data-n="6">6</button><button class="bascule" type="button" data-act="aller" data-n="7">7</button>
+  </div>
+</div>
+<div class="scene">
+  <div class="cadre" id="hoteBureau"></div>
+  <div class="cadre tel" id="hoteTel" hidden></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+  var PASSAGES = [
+    ['Mon CV', 'Mon CV : le déposer, le masquer, l’envoyer', '📄'], ['Métiers', 'Choisir mes métiers et mes objectifs', '🧭'], ['Référence', 'Mon CV de référence', '✏️'], ['Accroches', 'Phrases d’accroche des autres CV', '💬'], ['Mes CV', 'Mes autres CV', '🗂'], ['Lettres', 'Mes lettres de motivation', '✉️'], ['Fin', 'Mes documents sont prêts', '📑']
+  ];
+  var DEMARCHES = [['spontanee', 'Candidature spontanée'], ['offre', 'Réponse à une offre'], ['reconversion', 'Changement de métier'], ['stage', 'Stage de formation'], ['pmsmp', 'Stage d’immersion (PMSMP)'], ['alternance', 'Alternance'], ['formation', 'Entrée en formation']];
+  var EMPLOI = ['spontanee', 'offre', 'reconversion'];
+  var TYPES_STRUCTURE = ['Entreprise privée (secteur marchand)', 'Fonction publique d’État (administrations, ministères, écoles publiques...)', 'Fonction publique territoriale (mairies, départements, régions...)', 'Fonction publique hospitalière (hôpitaux publics, EHPAD publics...)', 'Établissement sanitaire ou médico-social privé (cliniques privées, EHPAD privés, cabinets)', 'Association (loi 1901) / économie sociale et solidaire', 'Coopérative (SCOP, SCIC...)', 'Artisanat / commerce de proximité', 'Établissement d’enseignement (public ou privé, formation)', 'Autre'];
+  var CONTRATS = ['CDI', 'CDD', 'Intérim', 'Remplacements'], TEMPS = ['Temps plein', 'Temps partiel'], DISPO = ['Matin', 'Après-midi', 'Week-end', 'Horaires décalés'];
+  var LOOKS = [['sobre', 'Sobre'], ['classique', 'Classique'], ['moderne', 'Moderne'], ['chaleureux', 'Chaleureux'], ['elegant', 'Élégant'], ['creatif', 'Créatif']];
+  var COULEURS = ['#0d6efd', '#198754', '#8a3d6e', '#b45309', '#4a4f9c', '#5b6573'];
+  var ASSISTANTS = ['Claude', 'ChatGPT', 'Gemini', 'Perplexity', 'Mistral', 'DeepSeek'];
+  var MAX = 10;
+  var SYNTHESE = {
+    metier: 'Agent d’entretien des bâtiments',
+    comp: 'petite plomberie, peinture, électricité de base, entretien des espaces verts, consignes de sécurité',
+    exp: [
+      ['Agent d’entretien en résidence', 'Entretien courant de 120 logements, dépannages', ['plomberie de dépannage', 'électricité de base', 'relation avec les occupants']],
+      ['Agent polyvalent en collectivité', 'Entretien des bâtiments communaux et des espaces verts', ['petits travaux', 'tonte et taille', 'consignes de sécurité']],
+      ['Aide-peintre', 'Préparation des supports et peinture des parties communes', ['préparation des supports', 'peinture', 'finitions']]
+    ]
+  };
+  var GAUCHE0 = [
+    { id: 'g1', nom: 'Agent d’entretien des bâtiments', retrouve: 'Intitulé de votre CV', actuel: true, secteur: 'Entretien et maintenance des bâtiments', atout: 'rigoureux, autonome, attentif à la sécurité' },
+    { id: 'g2', nom: 'Agent technique polyvalent', retrouve: 'Retrouvé : entretien en collectivité, petits travaux', secteur: 'Collectivités et services techniques', atout: 'polyvalent, à l’aise sur plusieurs types de travaux' },
+    { id: 'g3', nom: 'Agent de maintenance des bâtiments', retrouve: 'Retrouvé : plomberie, électricité de base', secteur: 'Entretien et maintenance des bâtiments', atout: 'capable de dépanner vite et proprement' },
+    { id: 'g4', nom: 'Ouvrier d’entretien du bâtiment', retrouve: 'Retrouvé : peinture, petits travaux', secteur: 'Bâtiment', atout: 'soigneux, habitué au travail en site occupé' }
+  ];
+  var DROITE = [
+    { id: 'd1', nom: 'Agent de maintenance en hôtellerie', retrouve: 'Retrouvé : dépannage, relation avec les occupants', secteur: 'Hôtellerie', atout: 'discret, réactif, à l’écoute des occupants' },
+    { id: 'd2', nom: 'Peintre en bâtiment', retrouve: 'Retrouvé : peinture, préparation des supports', secteur: 'Bâtiment', atout: 'minutieux, finitions soignées' },
+    { id: 'd3', nom: 'Agent de maintenance en établissement de santé', retrouve: 'Retrouvé : maintenance, consignes de sécurité', secteur: 'Santé', atout: 'rigoureux, respectueux des règles d’hygiène', rempli: true },
+    { id: 'd4', nom: 'Jardinier d’espaces verts', retrouve: 'Retrouvé : entretien des espaces verts', secteur: 'Espaces verts', atout: 'attentif au vivant, endurant, autonome' },
+    { id: 'd5', nom: 'Gardien d’immeuble', retrouve: 'Retrouvé : résidence, relation avec les occupants', secteur: 'Immobilier', atout: 'présent, sens du contact, vigilant' },
+    { id: 'd6', nom: 'Électricien d’entretien', retrouve: 'Retrouvé : électricité de base', secteur: 'Électricité', verifier: 'Une habilitation électrique est en général demandée.', atout: 'méthodique, soucieux de la sécurité' },
+    { id: 'd7', nom: 'Plaquiste', retrouve: 'Retrouvé : petits travaux, finitions', secteur: 'Bâtiment', atout: 'précis, résistant, à l’aise en équipe' },
+    { id: 'd8', nom: 'Agent de maintenance en industrie', retrouve: 'Retrouvé : maintenance, consignes de sécurité', secteur: 'Industrie', verifier: 'Une habilitation peut être demandée selon le site.', atout: 'fiable, respectueux des procédures' }
+  ];
+  var MASQUES = [['Nom et prénom', 'Marie Dupont'], ['Téléphone', '06 12 34 56 78'], ['Adresse', '12 rue des Lilas, 87000 Limoges'], ['Courriel', 'marie.dupont@exemple.fr'], ['Date de naissance', '14/03/1985']];
+  var CARTES_EDITEUR = ['Style rapide', 'Mise en page', 'Suggestions de mise en page', 'Allure générale : Sobre, Standard, Créatif', 'Organisation des rubriques', 'En-tête', 'Compétences', 'Missions et expériences', 'Informations complémentaires'];
+
+  var etat;
+  function neuf() {
+    return { p: 1, depose: false, masques: MASQUES.map(function () { return true; }), relu: false, copie: false, reponse: false, copieRef: false, reponseRef: false, copie2: false, reponse2: false, copie3: false, reponse3: false, lettreTxt: {},
+      gauche: GAUCHE0.map(function (m) { return Object.assign({}, m); }), choix: [], obj: {}, panneau: null, edit: null, nvInt: '', ref: null, edAmbiance: false, cvActif: 0, cv: {},
+      aspectGlobal: { look: 'moderne', couleur: COULEURS[0] }, lettres: {}, assistant: 'ChatGPT', ajoutOuvert: false, telecharge: false, offresSel: {}, dept: '', max: 1, vue: 'travail', detour: false, noteVue: false, reprise: false, confirmRaz: false, lettreActive: 0, editAspect: null, draft: null, vd: {}, assistantOffres: 'Perplexity', offresPanel: null, offresFait: {} };
+  }
+  etat = neuf();
+  function tous() { return etat.gauche.concat(DROITE); }
+  function metier(id) { return tous().filter(function (m) { return m.id === id; })[0]; }
+  function colonneDe(id) { return id.charAt(0) === 'd' ? 'd' : 'g'; }
+  function cvDe(id) {
+    if (!etat.cv[id]) {
+      var m = metier(id);
+      etat.cv[id] = { titre: m.nom, accChoisie: false, accOuverte: false, accIdx: 0, acc: [m.nom + ' : ' + (m.atout || 'sérieux et motivé') + '.', 'Avec une expérience solide, je suis ' + (m.atout || 'sérieux et motivé') + ' et je souhaite la mettre au service de votre équipe.'], propre: false, look: 'moderne', couleur: COULEURS[0] };
+    }
+    return etat.cv[id];
+  }
+  function veutLettre(id) { return etat.lettres[id] !== false; }
+  function veutOffres(id) { return etat.offresSel[id] !== false; }
+  var PHRASES = {
+    spontanee: ['Sans attendre une offre, je vous propose ma candidature : je suis convaincu(e) que mon expérience peut être utile à votre équipe.', 'Je suis disponible pour échanger et vous présenter mon parcours.'],
+    offre: ['Votre offre a retenu toute mon attention : mon parcours correspond aux missions que vous décrivez.', 'Je serais heureux(se) de vous en dire plus lors d’un entretien.'],
+    reconversion: ['Je change de métier et je souhaite valoriser mes acquis : ils se transposent directement à ce poste.', 'Je suis prêt(e) à compléter ma formation sur le terrain.'],
+    stage: ['Je recherche un stage dans le cadre de ma formation : il me permettrait de mettre en pratique ce que j’apprends.', 'Je m’engage à être assidu(e) et à m’investir pleinement.'],
+    pmsmp: ['Je souhaite découvrir ce métier de près grâce à un stage d’immersion, pour confirmer mon projet.', 'Je serais très reconnaissant(e) de pouvoir observer votre quotidien.'],
+    alternance: ['Je recherche une alternance pour apprendre ce métier en situation de travail.', 'Je m’engage dans la durée et je ferai le lien entre ma formation et votre entreprise.'],
+    formation: ['Je souhaite entrer en formation : mon expérience et ma motivation me préparent à ce projet.', 'Je serais heureux(se) de vous présenter mon parcours.']
+  };
+  function lettreDe(id) {
+    if (!etat.lettreTxt[id]) {
+      var c = cvDe(id), o = etat.obj[id], ph = PHRASES[o ? o.k : 'spontanee'];
+      etat.lettreTxt[id] = { longue: 'Madame, Monsieur,\n\nJe vous adresse ma candidature pour le poste suivant : ' + c.titre + '. ' + ph[0] + '\n\nMon parcours m’a appris à être ' + (metier(id).atout || 'sérieux et motivé') + '. Au fil de mes expériences, j’ai acquis des gestes professionnels précis et le sens du travail bien fait. ' + ph[1] + '\n\nDans l’attente de votre réponse, je vous prie d’agréer, Madame, Monsieur, mes salutations distinguées.' };
+    }
+    return etat.lettreTxt[id];
+  }
+  function nomDem(k) { var r = DEMARCHES.filter(function (d) { return d[0] === k; })[0]; return r ? r[1] : ''; }
+  function aspectDe(id) { if (etat.editAspect === id && etat.draft) { return etat.draft; } var c = cvDe(id); return (c.propre && id !== etat.ref) ? { look: c.look, couleur: c.couleur } : etat.aspectGlobal; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function recVide(k, m) { return { k: k, structure: '', structureAutre: '', employeur: '', recruteurNom: '', poste: '', offre: '', secteur: m ? m.secteur : '', contrat: [], temps: [], duree: '', debut: '', fin: '', heures: '', dispo: [], formation: '' }; }
+  function structCourte(o) { if (!o.structure) { return ''; } if (o.structure === 'Autre') { return o.structureAutre || 'Autre'; } return o.structure.split(' (')[0].split(' /')[0]; }
+  function resume(o) { return nomDem(o.k) + (o.structure ? ' · ' + structCourte(o) : ''); }
+  function sansObjectif() { return etat.choix.filter(function (id) { return !etat.obj[id]; }).length; }
+  function exemplePour(n) {
+    if (n > 1) { etat.depose = true; etat.relu = true; etat.copie = true; etat.reponse = true; }
+    if (n > 2 && etat.choix.length < 2) { etat.choix = ['g1', 'g2', 'd3']; }
+    if (n > 2) { etat.choix.forEach(function (id) { if (!etat.obj[id]) { etat.obj[id] = recVide(id === 'd3' ? 'stage' : 'spontanee', metier(id)); } }); }
+    if (n > 3) { etat.copieRef = true; etat.reponseRef = true; if (!etat.ref) { etat.ref = etat.choix[0]; } }
+    if (n > 4) { etat.copie2 = true; etat.reponse2 = true; }
+    if (n > 5) { etat.choix.forEach(function (id) { cvDe(id).accChoisie = true; }); }
+    if (n > 6 && etat.choix.some(veutLettre)) { etat.copie3 = true; etat.reponse3 = true; }
+  }
+
+  /* ---------- Éléments communs ---------- */
+  var ICONES = ['📄', '🧭', '✏️', '💬', '🗂️', '✉️', '✅'];
+  function filEtapes() {
+    var h = '<div class="fil-etapes" role="list">';
+    PASSAGES.forEach(function (x, i) {
+      var n = i + 1, fait = n !== etat.p && n <= etat.max, cl = n === etat.p ? ' courante' : (fait ? ' validee' : ' avenir');
+      h += '<span class="pastille' + cl + '" role="listitem" aria-label="Passage ' + n + ' : ' + x[1] + '"><span class="ico">' + ICONES[i] + '</span>' + x[0] + '</span>';
+      if (n < PASSAGES.length) { h += '<span class="chev' + (n + 1 > etat.max ? ' avenir' : '') + '">»</span>'; }
+    });
+    return h + '</div>';
+  }
+  var LOGO = 'bi-files';
+  function bandeRevoir(detour) {
+    var gauche = '<div class="gauche"><button type="button" class="btn-revoir-module" data-act="' + (detour ? 'revenir' : 'revoir') + '"><i class="bi ' + LOGO + '"></i> ' + (detour ? 'Revenir au module' : 'Revoir la présentation') + '</button>' +
+      (etat.noteVue ? '' : '<div><div class="note-revoir-module"><span>' + (detour ? 'Ce bouton vous ramène à l’endroit où vous en étiez dans le module. Vous ne perdez rien.' : 'Ce bouton vous ramène à la page qui explique ce module. Vous ne perdez rien.') + '</span><button type="button" aria-label="J’ai compris" data-act="note-fermer">&#10005;</button></div></div>') + '</div>';
+    var droite = '';
+    if (etat.reprise && !detour) {
+      droite = '<div class="droite"><div class="encart-reprise">' + (etat.confirmRaz
+        ? '<p>Recommencer efface vos choix, vos CV et vos lettres de ce module. Mes Repères et Mon Carnet ne changent pas. Cette action ne peut pas être annulée.</p><div class="boutons"><button type="button" class="btn-recommencer" data-act="reprise-oui">Oui, tout recommencer</button><button type="button" class="btn-s" data-act="reprise-non">Non, je continue</button></div>'
+        : '<p>Vous avez un travail en cours dans ce module.</p><div class="boutons"><button type="button" class="btn-p" data-act="reprise-continuer">Continuer</button><button type="button" class="btn-recommencer" data-act="reprise-recommencer">Recommencer</button></div>') + '</div></div>';
+    }
+    return '<div class="bande-revoir">' + gauche + droite + '</div>';
+  }
+  function entete() {
+    var x = PASSAGES[etat.p - 1];
+    return filEtapes() + bandeRevoir(false) +
+      '<div class="titre"><span class="pas">Passage ' + etat.p + ' sur 7</span><h1><i class="bi ' + LOGO + '"></i> ' + x[1] + '</h1></div>';
+  }
+  // Page de présentation du module (patron commun, docs/LANGAGE_VISUEL_COMMUN.md section 5) : jamais de barre d'étapes ici.
+  function pPresentation() {
+    var sec = function (cl, h, corps) { return '<div class="cv-section ' + cl + '">' + (h ? '<h3>' + h + '</h3>' : '') + corps + '</div>'; };
+    return (etat.detour ? bandeRevoir(true) : '') +
+      '<div class="titre"><h1><i class="bi ' + LOGO + '"></i> Un CV, plusieurs métiers</h1></div><p class="sous-titre">Un CV, et les autres en découlent, pour chacun des métiers que vous envisagez.</p>' +
+      sec('fond', '', '<p style="margin:0">Vous n’avez pas besoin de choisir un seul métier. Ce module vous aide à présenter votre parcours sous plusieurs titres, <b>sans rien inventer</b> : votre CV reste le même, seuls le titre et la phrase d’accroche changent.</p>') +
+      sec('', '<i class="bi bi-bullseye"></i> À quoi ça sert', '<p style="margin:0">Vous hésitez entre plusieurs métiers, ou vous voulez candidater à plusieurs endroits avec le titre qui convient à chacun. Vous obtenez un CV par métier, une lettre de motivation par CV si vous le souhaitez, et un moyen de voir les offres du moment.</p>') +
+      sec('', '<i class="bi bi-signpost-split"></i> Ce qui va se passer', '<ol><li>Vous déposez votre CV et vous masquez ce qui est personnel. L’assistant en ligne propose d’autres intitulés pour votre métier et d’autres métiers qui utilisent vos compétences.</li><li>Vous cochez les métiers qui vous intéressent et vous dites votre objectif pour chacun.</li><li>Vous réglez votre CV de référence.</li><li>L’assistant propose des phrases d’accroche pour vos autres CV, et vous choisissez.</li><li>Vous vérifiez vos autres CV.</li><li>Vous obtenez vos lettres de motivation, une par CV.</li><li>Vous téléchargez vos documents et vous regardez les offres du moment.</li></ol>') +
+      sec('', '<i class="bi bi-slash-circle"></i> Ce que ce module ne fait pas', '<p style="margin:0">Il ne choisit pas à votre place, ne note pas vos métiers, ne rajoute aucune expérience à votre CV et n’importe aucune offre d’emploi : les offres s’affichent chez l’assistant que vous choisissez.</p>') +
+      sec('', '<i class="bi bi-box-arrow-down"></i> Ce que vous pourrez faire ensuite', '<p style="margin:0">Télécharger tous vos CV en un seul PDF, toutes vos lettres en un seul PDF, et chercher des offres dans votre département.</p>') +
+      sec('', '<i class="bi bi-info-circle"></i> Bon à savoir', '<p style="margin:0">Vous ferez quatre échanges avec l’assistant en ligne (copier, coller). Prévoyez un moment tranquille. Votre CV est masqué avant tout envoi : jamais votre nom, votre téléphone ni votre adresse.</p>') +
+      '<div class="actions" style="justify-content:center;margin:0 0 6px"><button type="button" class="btn-p" data-act="revenir">' + (etat.detour ? 'Revenir au module' : 'Commencer') + '</button></div>' +
+      '<div class="barre-bas"><button type="button" class="btn-nav" data-act="note" data-msg="Retour à la page précédente de l’application.">← Retour</button><div></div><button type="button" class="btn-nav" data-act="note" data-msg="Retour à l’accueil de l’application. Votre travail est gardé.">🏠 Accueil</button></div>';
+  }
+  function barre(libelle, ok, aide, act) {
+    return '<div class="barre-bas"><button type="button" class="btn-nav" data-act="retour">← Retour</button>' +
+      (libelle ? '<div class="centre"><button type="button" class="btn-p" data-act="' + (act || 'suite') + '"' + (ok ? '' : ' disabled') + '>' + libelle + '</button>' + (!ok && aide ? '<div>' + aide + '</div>' : '') + '</div>' : '<div></div>') +
+      '<button type="button" class="btn-nav" data-act="note" data-msg="Retour à l’accueil de l’application. Votre travail est gardé.">🏠 Accueil</button></div>';
+  }
+  function bloc(num, titre, pilule, corps) { return '<div class="bloc"><div class="entete"><span class="rond">' + num + '</span>' + titre + (pilule ? ' <span class="pilule">' + pilule + '</span>' : '') + '</div><div class="corps">' + corps + '</div></div>'; }
+  function jetonsAssistant() { var h = '<div class="jetons">'; ASSISTANTS.forEach(function (a) { h += '<button type="button" class="jeton radio' + (etat.assistant === a ? ' on' : '') + '" data-act="assistant" data-a="' + a + '">' + a + '</button>'; }); return h + '</div>'; }
+
+  /* ---------- Passage 1 : déposer ---------- */
+  function cartesDepot() {
+    var c = '';
+    if (!etat.depose) { c = '<p style="margin-top:0">Déposez votre CV en fichier (PDF ou Word), ou collez son texte. Il sera lu pour retrouver votre métier, vos compétences et vos expériences.</p><div class="actions"><button type="button" class="btn-p" data-act="deposer">Ajouter mon CV</button><button type="button" class="btn-s" data-act="deposer">Coller le texte de mon CV</button></div>'; }
+    else { c = '<div class="encart ok">CV lu : <b>CV_Marie_Dupont.pdf</b>. Nous avons retrouvé votre parcours : 3 expériences, 5 compétences, 1 formation.</div><div class="actions"><button type="button" class="btn-s petit" data-act="changer-cv">Changer de CV</button></div>'; }
+    return bloc('1a', 'Déposer mon CV', 'Obligatoire', c);
+  }
+
+  function cartesMasque() {
+    if (!etat.depose) { return bloc('1b', 'Masquer ce qui est personnel', 'Obligatoire', '<p class="note-lien" style="margin:0">Déposez d’abord votre CV (carte 1a).</p>'); }
+    var m = etat.masques;
+    function mq(i, t) { return m[i] ? '<span class="masque">' + t + ' masqué</span>' : '<span class="masque off">' + esc(MASQUES[i][1]) + ' (visible)</span>'; }
+    var c = '<div class="texte-cv">' + mq(0, 'Nom') + ' · ' + mq(1, 'Téléphone') + ' · ' + mq(3, 'Courriel') + '<br>' + mq(2, 'Adresse') + ' · né le ' + mq(4, 'Date') + '<br><b>Agent d’entretien des bâtiments</b><br>Entretien courant de 120 logements, petits dépannages (plomberie, électricité de base), peinture des parties communes…</div><div class="liste-masques">';
+    MASQUES.forEach(function (x, i) { c += '<div class="ligne-masque"><span class="t"><b>' + x[0] + '</b> <span class="discret">trouvé dans votre CV</span></span><button type="button" class="btn-s petit" data-act="masque" data-i="' + i + '">' + (m[i] ? 'Masqué : le montrer' : 'Visible : le masquer') + '</button></div>'; });
+    c += '</div><div class="case"><input type="checkbox" id="relu" data-act="relu"' + (etat.relu ? ' checked' : '') + '><label for="relu">J’ai relu : rien de personnel ne reste visible.</label></div>';
+    return bloc('1b', 'Masquer ce qui est personnel', 'Obligatoire', c);
+  }
+
+  /* ---------- Passage 1 : mon CV (déposer, masquer, premier aller-retour avec l'assistant) ---------- */
+  function p1() { return '<p class="intro">Trois étapes sur la même page : vous déposez votre CV, vous masquez ce qui est personnel, puis l’assistant propose d’autres intitulés pour votre métier et d’autres métiers qui utilisent vos compétences. Ces cartes sont les fenêtres communes de l’application (dépôt, masquage, envoi à l’assistant) : elles seront reprises telles quelles, dans leur version la plus claire.</p>' + cartesDepot() + cartesMasque() + cartesAssistant() + barre('Voir les propositions', etat.reponse, 'Terminez les cartes ci-dessus pour continuer.'); }
+  function cartesAssistant() {
+    if (!etat.relu) { return bloc('1c', 'Demander à l’assistant', '', '<p class="note-lien" style="margin:0">Relisez d’abord le masquage (carte 1b).</p>'); }
+    var a = '<div class="encart">Ce qui part : <b>votre CV masqué</b>. Jamais votre nom, votre téléphone ni votre adresse.</div><span class="lab" style="margin-top:0">Choisissez votre assistant</span>' + jetonsAssistant() +
+      '<div class="actions"><button type="button" class="btn-p" data-act="copier">Copier ma demande</button></div>' + (etat.copie ? '<p class="note-lien">Demande copiée. Ouvrez ' + etat.assistant + ', collez-la, puis revenez ici.</p>' : '');
+    var b = etat.reponse ? '<div class="encart ok">Réponse lue : 4 intitulés pour votre métier et 8 autres métiers trouvés.</div>' : '<p style="margin-top:0">Quand l’assistant a répondu, copiez sa réponse et collez-la ici.</p><div class="actions"><button type="button" class="btn-s" data-act="coller"' + (etat.copie ? '' : ' disabled') + '>Coller la réponse</button></div>' + (etat.copie ? '' : '<p class="note-lien">Copiez d’abord votre demande.</p>');
+    return bloc('1c', 'Envoyer ma demande', '', a) + bloc('1d', 'Coller sa réponse', '', b);
+  }
+
+  /* ---------- Passage 4 : métiers et objectifs ---------- */
+  function ligneMetier(m, droite) {
+    var coche = etat.choix.indexOf(m.id) >= 0, grise = !coche && etat.choix.length >= MAX, o = etat.obj[m.id];
+    var h = '<div class="metier' + (coche ? ' coche' : '') + (grise ? ' grise' : '') + '"><input type="checkbox" id="c_' + m.id + '" data-act="cocher" data-id="' + m.id + '"' + (coche ? ' checked' : '') + (grise ? ' disabled' : '') + '><div class="corps">';
+    if (etat.edit === m.id) { h += '<div class="modif"><input class="champ" id="e_' + m.id + '" data-act="editer" data-id="' + m.id + '" value="' + esc(m.nom) + '"><button type="button" class="btn-p petit" data-act="ok-edit">Enregistrer</button><button type="button" class="btn-s petit" data-act="ok-edit">Fermer</button></div>'; }
+    else { h += '<label for="c_' + m.id + '"><span class="nom">' + esc(m.nom) + '</span><div class="retrouve">' + esc(m.retrouve) + '</div></label>'; }
+    h += '<div class="ligne">';
+    if (m.actuel) { h += '<span class="pilule ok">Titre utilisé actuellement</span>'; }
+    if (m.perso) { h += '<span class="pilule perso">Écrit par vous</span>'; }
+    if (m.modifie) { h += '<span class="pilule perso">Corrigé par vous</span>'; }
+    if (m.verifier) { h += '<span class="pilule verif">À vérifier : ' + esc(m.verifier) + '</span>'; }
+    if (!droite && etat.edit !== m.id) {
+      h += '<button type="button" class="btn-s petit" data-act="modifier-int" data-id="' + m.id + '">✏️ Modifier</button>';
+      if (m.perso) { h += '<button type="button" class="btn-s petit" data-act="retirer" data-id="' + m.id + '">Retirer</button>'; }
+    }
+    h += '</div>';
+    if (coche) {
+      h += '<div class="obj"><b>Objectif :</b> ' + (o ? '<span class="pilule">' + esc(nomDem(o.k)) + '</span><small>' + esc((o.structure ? structCourte(o) + ' · ' : '') + (o.secteur || '')) + '</small><button type="button" class="btn-s petit" data-act="obj-ouvrir" data-id="' + m.id + '">Changer l’objectif</button>'
+        : '<small>pas encore choisi</small><button type="button" class="btn-p petit" data-act="obj-ouvrir" data-id="' + m.id + '">Choisir mon objectif</button>') + '</div>';
+    }
+    return h + '</div></div>';
+  }
+  function champsPanneau(p) {
+    var r = p.rec, emploi = EMPLOI.indexOf(r.k) >= 0, h = '';
+    function jt(champ, liste) { var s2 = '<div class="jetons">'; liste.forEach(function (v) { var on = r[champ].indexOf(v) >= 0; s2 += '<button type="button" class="jeton compact' + (on ? ' on' : '') + '" data-act="pj" data-f="' + champ + '" data-v="' + esc(v) + '">' + v + '</button>'; }); return s2 + '</div>'; }
+    h += '<div class="grille-champs"><div><label class="lab" for="pf_structure">' + (emploi ? 'Type de structure' : 'Organisme ou type de structure') + '</label><select class="champ" id="pf_structure" data-act="pf" data-f="structure"><option value="">Choisir un type de structure</option>';
+    TYPES_STRUCTURE.forEach(function (t) { h += '<option value="' + esc(t) + '"' + (r.structure === t ? ' selected' : '') + '>' + t + '</option>'; });
+    h += '</select>' + (r.structure === 'Autre' ? '<input class="champ" style="margin-top:6px" data-act="pf" data-f="structureAutre" placeholder="Précisez le type de structure" value="' + esc(r.structureAutre) + '">' : '') + '</div>';
+    h += '<div><label class="lab" for="pf_secteur">Secteur ' + (p.portee === 'ce' ? '<span class="pilule ok">repéré</span>' : '') + '</label>' + (p.portee === 'ce' ? '<input class="champ" id="pf_secteur" data-act="pf" data-f="secteur" value="' + esc(r.secteur) + '">' : '<div class="note-lien" style="margin-top:8px">Le secteur est repéré métier par métier. Vous pourrez le corriger sur chacun.</div>') + '</div></div>';
+    if (p.portee === 'ce' && ['offre', 'stage', 'alternance', 'pmsmp'].indexOf(r.k) >= 0) {
+      h += '<div class="encart" style="margin:12px 0 0"><b>Si vous connaissez l’employeur</b> (facultatif) : la lettre s’adressera au recruteur et citera l’employeur.</div><div class="grille-champs"><div><label class="lab" for="pf_employeur">Nom de l’employeur</label><input class="champ" id="pf_employeur" data-act="pf" data-f="employeur" value="' + esc(r.employeur) + '"></div><div><label class="lab" for="pf_recruteur">Recruteur ou recruteuse (civilité et nom)</label><input class="champ" id="pf_recruteur" data-act="pf" data-f="recruteurNom" placeholder="Par exemple : Madame Martin" value="' + esc(r.recruteurNom) + '"></div></div>';
+      if (r.k === 'offre') { h += '<div class="grille-champs"><div><label class="lab" for="pf_poste">Intitulé du poste</label><input class="champ" id="pf_poste" data-act="pf" data-f="poste" value="' + esc(r.poste) + '"></div></div><label class="lab" for="pf_offre">Lien ou texte de l’offre</label><textarea class="champ" id="pf_offre" data-act="pf" data-f="offre" placeholder="Collez l’offre : la lettre répondra à ce qu’elle demande">' + esc(r.offre) + '</textarea>'; }
+    }
+    if (emploi) {
+      h += '<span class="lab">Contrat recherché</span>' + jt('contrat', CONTRATS) + '<span class="lab">Temps de travail</span>' + jt('temps', TEMPS);
+    } else {
+      if (r.k === 'formation') { h += '<label class="lab" for="pf_formation">Formation visée</label><input class="champ" id="pf_formation" data-act="pf" data-f="formation" value="' + esc(r.formation) + '" placeholder="Par exemple : titre professionnel agent de maintenance">'; }
+      h += '<div class="grille-champs"><div><label class="lab" for="pf_duree">Durée</label><input class="champ" id="pf_duree" data-act="pf" data-f="duree" value="' + esc(r.duree) + '" placeholder="Par exemple : 6 semaines"></div><div><label class="lab" for="pf_heures">Heures par semaine</label><input class="champ" id="pf_heures" data-act="pf" data-f="heures" value="' + esc(r.heures) + '" placeholder="Par exemple : 35"></div>' +
+        '<div><label class="lab" for="pf_debut">Début</label><input class="champ" id="pf_debut" type="date" data-act="pf" data-f="debut" value="' + esc(r.debut) + '"></div><div><label class="lab" for="pf_fin">Fin</label><input class="champ" id="pf_fin" type="date" data-act="pf" data-f="fin" value="' + esc(r.fin) + '"></div></div>';
+      h += '<span class="lab">Mes disponibilités</span>' + jt('dispo', DISPO);
+    }
+    return h;
+  }
+  var PORTEES = [['tous', 'Tous mes métiers (les deux colonnes)'], ['g', 'La colonne de gauche : mon métier, appelé autrement'], ['d', 'La colonne de droite : les métiers qui utilisent mes compétences transférables']];
+  function ciblesDe(p) {
+    if (p.portee === 'ce') { return [p.id]; }
+    if (p.portee === 'g') { return etat.gauche.map(function (m) { return m.id; }); }
+    if (p.portee === 'd') { return DROITE.map(function (m) { return m.id; }); }
+    return tous().map(function (m) { return m.id; });
+  }
+  function panneauObjectif() {
+    var p = etat.panneau; if (!p) { return ''; }
+    var h = '<div class="panneau-obj" id="panneauObj"><div class="entete"><span>🎯 Choisir mon objectif' + (p.id ? ' : ' + esc(metier(p.id).nom) : '') + '</span><button type="button" class="btn-s petit" data-act="obj-fermer">Fermer sans appliquer</button></div><div class="corps">';
+    if (!p.id) {
+      h += '<span class="lab" style="margin-top:0">1. Pour quels métiers ?</span><div class="jetons">';
+      PORTEES.forEach(function (x) { h += '<button type="button" class="jeton radio' + (p.portee === x[0] ? ' on' : '') + '" data-act="portee" data-v="' + x[0] + '">' + x[1] + '</button>'; });
+      h += '</div>';
+    }
+    if (p.portee) {
+      h += '<span class="lab"' + (p.id ? ' style="margin-top:0"' : '') + '>' + (p.id ? '' : '2. ') + 'Pour quel objectif ?</span><div class="jetons">';
+      DEMARCHES.forEach(function (d) { h += '<button type="button" class="jeton radio' + (p.rec.k === d[0] ? ' on' : '') + '" data-act="pk" data-k="' + d[0] + '">' + d[1] + '</button>'; });
+      h += '</div>';
+      if (p.rec.k) { h += champsPanneau(p) + '<p class="note-lien">Aucun nom d’entreprise : ces CV servent à plusieurs employeurs.</p>'; }
+      var nb = ciblesDe(p).length;
+      h += '<div class="actions"><button type="button" class="btn-p" data-act="obj-appliquer"' + (p.rec.k ? '' : ' disabled') + '>Appliquer à ' + (p.id ? 'ce métier' : nb + ' métiers') + '</button><button type="button" class="btn-s" data-act="obj-fermer">Annuler</button></div>';
+    } else { h += '<p class="note-lien">Choisissez d’abord les métiers concernés, puis l’objectif s’affichera.</p>'; }
+    return h + '</div></div>';
+  }
+  function selectAssistantOffres() {
+    var a = etat.assistantOffres, opt = ASSISTANTS.map(function (n) { return '<option value="' + n + '"' + (a === n ? ' selected' : '') + '>' + n + (n === 'Perplexity' ? ' (conseillé pour chercher des offres)' : '') + '</option>'; }).join('');
+    var info = a === 'Perplexity' ? '<div class="note-lien">Perplexity cherche sur Internet : c’est celui que nous conseillons pour les offres.</div>'
+      : (a === 'ChatGPT' ? '<div class="encart alerte" style="margin:6px 0 0"><b>Avec ChatGPT, activez d’abord l’option de recherche web</b>, sinon il répondra sans consulter les offres du moment.</div>' : '<div class="note-lien">Choisissez un assistant qui sait chercher sur Internet, et vérifiez que cette option est activée.</div>');
+    return '<label class="lab" for="assOffres">Assistant</label><select class="champ" id="assOffres" data-act="assistant-offres" style="max-width:340px">' + opt + '</select>' + info;
+  }
+  // Panneau de recherche d'offres d'une colonne ('g', 'd') ou de la fin ('f') : ce qui est coché, le département, l'assistant, puis la copie.
+  function panneauOffres(cle, ids) {
+    if (etat.offresPanel !== cle) { return ''; }
+    var manque = ids.filter(function (x) { return !etat.obj[x]; });
+    var nom = cle === 'g' ? 'ma colonne de gauche' : (cle === 'd' ? 'ma colonne de droite' : 'mes métiers');
+    var h = '<div class="panneau-obj" style="margin:8px 0"><div class="entete"><span>🔎 Chercher des offres : ' + nom + '</span><button type="button" class="btn-s petit" data-act="offres-fermer">Fermer</button></div><div class="corps">';
+    h += '<p class="note-lien" style="margin:0 0 6px">' + (cle === 'f' ? 'Cette recherche concerne les métiers cochés ci-dessous.' : 'Cette recherche ne concerne que cette colonne. L’autre colonne a sa propre recherche.') + '</p>';
+    h += '<span class="lab" style="margin-top:0">' + ids.length + (cle === 'g' ? ' intitulé' : ' métier') + (ids.length > 1 ? 's cochés' : ' coché') + '</span>';
+    ids.forEach(function (x) { var o = etat.obj[x]; h += '<div style="margin:3px 0"><b>' + esc(cvDe(x).titre) + '</b> ' + (o ? '<span class="pilule">' + esc(resume(o)) + '</span>' : '<span class="pilule verif">objectif à choisir</span>') + '</div>'; });
+    if (manque.length) { h += '<div class="encart alerte">Pour trouver le bon type d’offre (stage, alternance, emploi…), choisissez d’abord l’objectif de ' + (manque.length > 1 ? 'ces ' + manque.length + ' métiers' : 'ce métier') + '. <button type="button" class="btn-p petit" data-act="obj-pour-offres" data-col="' + cle + '">Choisir mon objectif</button></div>'; }
+    h += '<label class="lab" for="dept">Département</label><input class="champ" id="dept" data-act="dept" placeholder="Par exemple : Haute-Vienne (87)" value="' + esc(etat.dept) + '" style="max-width:340px"><div class="note-lien">Il est gardé pour la suite.</div>';
+    h += selectAssistantOffres();
+    var ok = !!etat.dept && !manque.length;
+    h += '<div class="actions"><button type="button" class="btn-p" data-act="offres-copier" data-col="' + cle + '" data-manque="' + (manque.length ? '1' : '0') + '"' + (ok ? '' : ' disabled') + '>Copier la demande et ouvrir ' + etat.assistantOffres + '</button></div>';
+    h += '<div class="note-lien">' + (!ok ? (manque.length ? 'Choisissez d’abord l’objectif des métiers cochés.' : 'Indiquez votre département.') : (etat.offresFait[cle] ? 'Demande copiée. Collez-la dans l’onglet de ' + etat.assistantOffres + '.' : 'Votre CV n’est jamais envoyé : seulement les noms des métiers cochés, leur objectif et votre département.')) + '</div>';
+    return h + '</div></div>';
+  }
+  function voirDemande(cle, ids) {
+    if (!ids.length) { return ''; }
+    return '<div class="actions" style="margin-top:4px"><button type="button" class="btn-s petit" data-act="voir-demande" data-k="' + cle + '">' + (etat.vd[cle] ? 'Masquer la demande' : 'Voir la demande qui sera copiée') + '</button></div>' + (etat.vd[cle] ? '<div class="demande">' + esc(texteOffres(ids)) + '</div>' : '');
+  }
+  function cochesDe(col) { return etat.choix.filter(function (x) { return colonneDe(x) === col; }); }
+  function bandeauObjectif() {
+    var n = etat.choix.length, ok = etat.choix.filter(function (x) { return etat.obj[x]; }).length;
+    return '<div class="bandeau-obj"><div class="txt"><b>🎯 Quel est votre objectif ?</b><div class="discret">Pour tous vos métiers, ou pour une colonne seulement. Vous pourrez ensuite l’ajuster métier par métier.</div>' + (n ? '<div class="note-lien">' + ok + ' métier' + (ok > 1 ? 's' : '') + ' coché' + (ok > 1 ? 's' : '') + ' sur ' + n + ' avec un objectif</div>' : '') + '</div><button type="button" class="btn-p gros" data-act="obj-global">Choisir mon objectif</button></div>';
+  }
+  function p2() {
+    var n = etat.choix.length, nSans = sansObjectif(), nId = etat.gauche.filter(function (m) { return !m.perso; }).length, nPerso = etat.gauche.filter(function (m) { return m.perso; }).length;
+    var h = '<p class="intro">Cochez les métiers pour lesquels vous voulez un CV (10 au plus), puis dites pour quel objectif. Vous pouvez en choisir dans les deux colonnes.</p>';
+    h += '<div class="encart">Ces propositions servent uniquement à adapter votre candidature. Elles ne rajoutent aucune expérience à votre CV. Vous n’avez pas besoin de tout choisir.</div>';
+    var s = '<table class="synth"><tr><td>Métier</td><td><b>' + SYNTHESE.metier + '</b></td></tr><tr><td>Compétences clés</td><td>' + SYNTHESE.comp + '</td></tr><tr><td>Expériences</td><td>';
+    SYNTHESE.exp.forEach(function (e) { s += '<div style="margin-bottom:6px"><b>' + e[0] + '</b><div class="discret">' + e[1] + '</div><div class="puces">' + e[2].map(function (x) { return '<span class="pilule">' + x + '</span>'; }).join('') + '</div></div>'; });
+    s += '</td></tr></table><p class="note-lien">Simple lecture : ce que l’assistant a retrouvé dans votre CV, pour vérifier que les propositions sont cohérentes avec votre parcours.</p>';
+    h += bloc('2a', 'Ce que dit mon CV', '', s);
+    h += panneauObjectif();
+    var c = bandeauObjectif() + '<div class="colonnes"><div class="col"><h4>Mon métier, appelé autrement (' + nId + ' identifiés' + (nPerso ? ', ' + nPerso + ' écrit' + (nPerso > 1 ? 's' : '') + ' par vous' : '') + ')</h4><p class="sous">Le même travail, nommé autrement selon les employeurs. Vous pouvez corriger ces intitulés ou écrire les vôtres.</p>';
+    etat.gauche.forEach(function (m) { h += ''; c += ligneMetier(m, false); });
+    if (etat.ajoutOuvert) { c += '<div class="ajout"><label class="lab" for="nv" style="margin-top:0">Écrire mon propre intitulé</label><div class="ligne-ajout"><input class="champ" id="nv" data-act="nvint" placeholder="Par exemple : Agent de service technique" value="' + esc(etat.nvInt) + '"><button type="button" class="btn-p" data-act="ajouter-int">Ajouter</button><button type="button" class="btn-s" data-act="ajout-fermer">Fermer</button></div><p class="note-lien">Il s’ajoute à la liste et vous pouvez le cocher comme les autres.</p></div>'; }
+    else { c += '<div class="actions"><button type="button" class="btn-s" data-act="ajout-ouvrir">＋ Écrire mon propre intitulé</button></div>'; }
+    c += '<div class="actions"><button type="button" class="btn-s" data-act="offres" data-col="g"' + (cochesDe('g').length ? '' : ' disabled') + '>Chercher des offres pour cette colonne</button></div><p class="note-lien">' + (cochesDe('g').length ? 'La recherche utilise seulement les ' + cochesDe('g').length + ' intitulé' + (cochesDe('g').length > 1 ? 's cochés' : ' coché') + ', tels qu’ils sont écrits maintenant (corrigés et ajoutés compris).' : 'Cochez au moins un intitulé de cette colonne pour chercher des offres.') + '</p>' + panneauOffres('g', cochesDe('g')) + '</div>';
+    c += '<div class="col"><h4>Autres métiers qui utilisent mes compétences (' + DROITE.length + ')</h4><p class="sous">Des pistes proches, à vous de voir si elles vous parlent.</p>';
+    DROITE.forEach(function (m) { c += ligneMetier(m, true); });
+    c += '<div class="actions"><button type="button" class="btn-s" data-act="offres" data-col="d"' + (cochesDe('d').length ? '' : ' disabled') + '>Chercher des offres pour cette colonne</button></div><p class="note-lien">' + (cochesDe('d').length ? 'La recherche utilise seulement les ' + cochesDe('d').length + ' métier' + (cochesDe('d').length > 1 ? 's cochés' : ' coché') + '.' : 'Cochez au moins un métier de cette colonne pour chercher des offres.') + '</p>' + panneauOffres('d', cochesDe('d')) + '</div></div>';
+    c += '<div class="encart" style="margin-top:12px">Au clic sur « Chercher des offres » : vous indiquez votre département et vous choisissez l’assistant, puis la demande est copiée et l’assistant s’ouvre dans un nouvel onglet. Chaque colonne a sa propre recherche. <b>Votre CV n’est jamais envoyé</b>, seulement les noms des métiers cochés, leur objectif et votre département.</div>';
+    h += bloc('2b', 'Mes métiers (' + n + ' sur ' + MAX + ')', '', c);
+    if (n >= MAX) { h += '<div class="encart alerte">Vous avez atteint 10 choix. Décochez-en un pour en choisir un autre.</div>'; }
+    var aide = n < 2 ? n + ' choix sur ' + MAX + ' : cochez au moins 2 métiers.' : (nSans ? nSans + ' métier' + (nSans > 1 ? 's' : '') + ' sans objectif : choisissez-le.' : '');
+    return h + barre('Créer mes CV', n >= 2 && !nSans, aide);
+  }
+
+  /* ---------- Passage 5 : titres et accroches (second aller-retour) ---------- */
+  function p4() {
+    var autres = etat.choix.filter(function (x) { return x !== etat.ref; }), n = autres.length;
+    var a = '<div class="encart">Ce qui part : <b>votre CV de référence validé</b>, vos ' + n + ' autres métiers et, pour chacun, <b>tout son objectif</b> (type de structure, secteur, dates…). Jamais vos coordonnées.</div>' + jetonsAssistant() +
+      '<div class="actions"><button type="button" class="btn-p" data-act="copier2">Copier ma demande</button></div>' + (etat.copie2 ? '<p class="note-lien">Demande copiée. Ouvrez ' + etat.assistant + ', collez-la, puis revenez ici.</p>' : '');
+    var b = etat.reponse2 ? '<div class="encart ok">Réponse lue : deux propositions d’accroche courte pour chacun de vos ' + n + ' autres CV.</div>' : '<div class="actions" style="margin-top:0"><button type="button" class="btn-s" data-act="coller2"' + (etat.copie2 ? '' : ' disabled') + '>Coller la réponse</button></div>' + (etat.copie2 ? '' : '<p class="note-lien">Copiez d’abord votre demande.</p>');
+    return '<p class="intro">En partant de votre CV de référence, l’assistant propose, pour chacun de vos autres métiers, deux phrases d’accroche courtes adaptées à l’objectif. Le titre de chaque CV est le métier que vous avez choisi : vous pourrez le modifier. Le reste de votre CV ne change pas.</p>' + bloc('4a', 'Envoyer ma demande', '', a) + bloc('4b', 'Coller sa réponse', '', b) + barre('Voir mes CV', etat.reponse2, 'Collez la réponse de l’assistant pour continuer.');
+  }
+
+  /* ---------- Feuille d'aperçu ---------- */
+  function feuille(id) {
+    var c = cvDe(id), a = aspectDe(id), m = metier(id);
+    return '<div class="feuille l-' + a.look + '" style="--c:' + a.couleur + '"><div class="bandeau"></div><div class="fond"><div class="tt">' + esc(c.titre) + '</div><div class="ac">' + esc(c.acc[c.accIdx]) + '</div><i class="m"></i><i></i><i class="c"></i><i class="m"></i><i></i><i class="c"></i><i></i><i class="m"></i><i class="c"></i><i></i>' + (m.rempli ? '<i></i><i class="m"></i><i></i><i class="c"></i><i></i><i class="m"></i>' : '') + '</div>' + (m.rempli ? '<div class="rem"></div>' : '') + '</div>';
+  }
+  function champsTitreAccroche(id) {
+    var c = cvDe(id), h = '<label class="lab" for="t_' + id + '" style="margin-top:0">Titre du CV (poste visé)</label><input class="champ" id="t_' + id + '" data-act="titre" data-id="' + id + '" value="' + esc(c.titre) + '"><span class="lab">Phrase d’accroche</span><p class="note-lien" style="margin:0 0 4px">Choisissez l’une des deux propositions. Vous pouvez la modifier ou écrire la vôtre.</p>';
+    c.acc.forEach(function (t, i) { h += '<div class="choix-accroche"><input type="radio" name="acc" id="ac' + i + '" data-act="typeacc" data-t="' + i + '" data-id="' + id + '"' + (c.accIdx === i ? ' checked' : '') + '><label for="ac' + i + '" style="flex:1"><b>Proposition ' + (i + 1) + '</b><textarea class="champ" data-act="texteacc" data-t="' + i + '" data-id="' + id + '">' + esc(t) + '</textarea></label></div>'; });
+    return h;
+  }
+  function choixAmbiance(id) {
+    var a = (etat.editAspect === id && etat.draft) ? etat.draft : etat.aspectGlobal;
+    var h = '<span class="lab">Ambiance</span><div class="jetons">';
+    LOOKS.forEach(function (l) { h += '<button type="button" class="jeton radio compact' + (a.look === l[0] ? ' on' : '') + '" data-act="look" data-id="' + id + '" data-l="' + l[0] + '">' + l[1] + '</button>'; });
+    h += '</div><span class="lab">Couleur</span><div class="nuancier">';
+    COULEURS.forEach(function (co) { h += '<button type="button" class="teinte' + (a.couleur === co ? ' on' : '') + '" style="background:' + co + '" aria-label="Couleur" data-act="couleur" data-id="' + id + '" data-c="' + co + '"></button>'; });
+    return h + '</div>';
+  }
+
+  /* ---------- Passage 6 : CV de référence (l'éditeur réel) ---------- */
+  function p3() {
+    var id = etat.ref || etat.choix[0], m = metier(id), o = etat.obj[id];
+    var h = '<p class="intro">Vous faites ici un vrai CV complet, avec tous les réglages de l’application. Une fois qu’il vous convient, les autres CV en découlent : même modèle, même corps, seuls le titre et l’accroche changent.</p>';
+    var r = '<div class="jetons">';
+    etat.choix.forEach(function (x) { r += '<button type="button" class="jeton radio compact' + (x === id ? ' on' : '') + '" data-act="ref" data-id="' + x + '">' + esc(cvDe(x).titre) + '</button>'; });
+    r += '</div><p class="note-lien">Vous pouvez prendre n’importe lequel : le corps du CV est le même pour tous. Par défaut, le métier de votre CV.</p>';
+    h += bloc('3a', 'Quel CV sert de référence ?', '', r);
+    var a = '<div class="encart">Ce qui part : <b>votre CV masqué</b>, le métier de référence (<b>' + esc(cvDe(id).titre) + '</b>) et <b>tout son objectif</b>' + (o ? ' (' + esc(resume(o)) + ')' : '') + '. Jamais vos coordonnées.</div>' + jetonsAssistant() +
+      '<div class="actions"><button type="button" class="btn-p" data-act="copierRef">Copier ma demande</button></div>' + (etat.copieRef ? '<p class="note-lien">Demande copiée. Ouvrez ' + etat.assistant + ', collez-la, puis revenez ici.</p>' : '');
+    h += bloc('3b', 'Demander mon CV complet à l’assistant', '', a);
+    var b = etat.reponseRef ? '<div class="encart ok">Réponse lue : votre CV complet est prêt, pour le métier de référence et son objectif.</div>' : '<div class="actions" style="margin-top:0"><button type="button" class="btn-s" data-act="collerRef"' + (etat.copieRef ? '' : ' disabled') + '>Coller la réponse</button></div>' + (etat.copieRef ? '' : '<p class="note-lien">Copiez d’abord votre demande.</p>');
+    h += bloc('3c', 'Coller sa réponse', '', b);
+    if (!etat.reponseRef) { return h + barre('Ce CV me convient', false, 'Collez la réponse de l’assistant pour régler votre CV.'); }
+    var ed = '<div class="zone-edit"><div>' + feuille(id) + '<p class="note-lien">Aperçu en direct</p>' + (m.rempli ? '<div class="encart alerte" style="font-size:.84rem">CV très rempli : le bas de la page pourrait être coupé à l’impression. Vous pouvez raccourcir l’accroche ou garder tel quel.</div>' : '') + '</div><div>';
+    ed += '<div class="encart" style="margin-top:0">C’est <b>le même éditeur que dans « Mon CV »</b> : tous ses panneaux, sans exception. Ici, seuls les modèles d’une page sont proposés.</div>';
+    CARTES_EDITEUR.forEach(function (t) { ed += '<button type="button" class="carte-ed" data-act="note" data-msg="S’ouvre ici le panneau « ' + t + ' » de l’éditeur de CV de l’application, à l’identique.">' + t + '<span class="ouvrir">Ouvrir</span></button>'; });
+    ed += '<div class="carte-ed inactive" aria-disabled="true">Phrase d’accroche longue<span class="ouvrir">Grisée dans ce module : l’accroche reste courte</span></div>';
+    ed += '<button type="button" class="carte-ed' + (etat.edAmbiance ? ' ouverte' : '') + '" data-act="amb-toggle">Choisir une ambiance<span class="ouvrir">' + (etat.edAmbiance ? 'Fermer' : 'Ouvrir') + '</span></button>';
+    if (etat.edAmbiance) { ed += '<div class="bloc" style="margin:6px 0"><div class="corps">' + choixAmbiance(id, false) + '</div></div>'; }
+    ed += '</div></div>';
+    h += bloc('3d', 'Mon CV, réglage par réglage', '', ed);
+    h += bloc('3e', 'Titre et accroche de ce CV', '', champsTitreAccroche(id));
+    return h + barre('Ce CV me convient : créer les autres', true, '', 'suite');
+  }
+
+  /* ---------- Passage 7 : autres CV ---------- */
+  var CARTES_ASPECT = ['Style rapide', 'Mise en page', 'Suggestions de mise en page', 'Allure générale : Sobre, Standard, Créatif', 'En-tête'];
+  function pAspect() {
+    var id = etat.editAspect, c = cvDe(id);
+    var h = '<p class="intro">Même éditeur que celui de votre CV de référence. Réglez l’aspect de ce CV, puis validez : vous reviendrez à vos CV.</p>';
+    var ed = '<div class="zone-edit"><div>' + feuille(id) + '<p class="note-lien">Aperçu en direct</p></div><div>';
+    ed += '<div class="encart" style="margin-top:0">Ce sont <b>les panneaux d’aspect</b> de l’éditeur de CV. Ceux qui changent le contenu (rubriques, compétences, missions) restent au CV de référence : le corps du CV est le même pour tous. Seuls les modèles d’une page sont proposés.</div>';
+    CARTES_ASPECT.forEach(function (t) { ed += '<button type="button" class="carte-ed" data-act="note" data-msg="S’ouvre ici le panneau « ' + t + ' » de l’éditeur de CV, à l’identique.">' + t + '<span class="ouvrir">Ouvrir</span></button>'; });
+    ed += '<button type="button" class="carte-ed' + (etat.edAmbiance ? ' ouverte' : '') + '" data-act="amb-toggle">Choisir une ambiance<span class="ouvrir">' + (etat.edAmbiance ? 'Fermer' : 'Ouvrir') + '</span></button>';
+    if (etat.edAmbiance) { ed += '<div class="bloc" style="margin:6px 0"><div class="corps">' + choixAmbiance(id) + '</div></div>'; }
+    ed += '</div></div>';
+    h += bloc('5', 'Aspect du CV : ' + esc(c.titre), '', ed);
+    return h + barre('Valider cet aspect', true, '', 'aspect-valider').replace('data-act="retour">← Retour', 'data-act="aspect-annuler">← Annuler');
+  }
+  function p5() {
+    if (etat.editAspect) { return pAspect(); }
+    var manque = etat.choix.filter(function (x) { return x !== etat.ref && !cvDe(x).accChoisie; }).length;
+    var anyOwn = etat.choix.some(function (x) { return x !== etat.ref && cvDe(x).propre; });
+    var h = '<p class="intro">Ces CV reprennent le modèle et le corps de votre CV de référence. Pour chacun, vérifiez le titre, choisissez sa phrase d’accroche et changez son aspect si vous le souhaitez.</p>';
+    h += '<div class="encart">Par défaut, tous vos CV ont <b>l’aspect de votre CV de référence</b>. Vous choisissez seulement ceux dont vous voulez changer l’aspect.</div>';
+    if (anyOwn) { h += '<div class="actions" style="margin:0 0 8px"><button type="button" class="btn-s" data-act="aspect-tous">Remettre l’aspect du CV de référence à tous les CV</button></div>'; }
+    var cartes = '<div class="cv7">';
+    etat.choix.forEach(function (x, i) {
+      var c = cvDe(x), o = etat.obj[x], estRef = x === etat.ref, m = metier(x), choisie = c.accChoisie || estRef;
+      cartes += '<div class="carte-cv7"><div class="tete"><div class="mini">' + feuille(x) + '</div><div class="inf"><b>CV ' + (i + 1) + '</b>' + (estRef ? ' <span class="pilule ok">CV de référence</span>' : '') + '<div style="margin-top:4px"><span class="pilule">' + esc(o ? resume(o) : '') + '</span></div>' + (m.rempli ? '<div style="margin-top:4px"><span class="pilule verif">CV très rempli</span></div>' : '') + '</div></div>';
+      cartes += '<label class="lab" for="t_' + x + '" style="margin-top:8px">Titre</label><input class="champ" id="t_' + x + '" data-act="titre" data-id="' + x + '" value="' + esc(c.titre) + '">';
+      cartes += '<div class="ligne7"><span class="lab" style="margin:0">Phrase d’accroche</span>' + (choisie ? '<span class="pilule ok">✓ choisie</span>' : '<span class="pilule verif">à choisir</span>') + '</div>';
+      if (c.accOuverte && !estRef) {
+        c.acc.forEach(function (t, k) { cartes += '<div class="choix-accroche"><input type="radio" name="acc_' + x + '" id="ac_' + x + '_' + k + '" data-act="typeacc" data-t="' + k + '" data-id="' + x + '"' + (c.accChoisie && c.accIdx === k ? ' checked' : '') + '><label for="ac_' + x + '_' + k + '" style="flex:1"><b>Proposition ' + (k + 1) + '</b><textarea class="champ" data-act="texteacc" data-t="' + k + '" data-id="' + x + '">' + esc(t) + '</textarea></label></div>'; });
+        cartes += '<button type="button" class="btn-s petit" data-act="acc-fermer" data-id="' + x + '">Fermer</button>';
+      } else if (!estRef) {
+        cartes += '<button type="button" class="' + (choisie ? 'btn-s' : 'btn-p') + ' petit" data-act="acc-ouvrir" data-id="' + x + '">' + (choisie ? 'Changer ma phrase d’accroche' : 'Choisir ma phrase d’accroche') + '</button>';
+      } else { cartes += '<p class="note-lien" style="margin:4px 0 0">Choisie au passage 3.</p>'; }
+      cartes += '<div class="ligne7"><span class="lab" style="margin:0">Aspect</span>' + (c.propre && !estRef ? '<span class="pilule perso">propre à ce CV</span>' : '<span class="pilule">comme la référence</span>') + '</div>';
+      if (estRef) { cartes += '<button type="button" class="btn-s petit" data-act="aller" data-n="3">Modifier le CV de référence</button>'; }
+      else {
+        cartes += '<button type="button" class="btn-s petit" data-act="aspect-edit" data-id="' + x + '">Changer l’aspect</button>';
+        if (c.propre) { cartes += ' <button type="button" class="btn-s petit" data-act="aspect-reset" data-id="' + x + '">Revenir à l’aspect de référence</button>'; }
+      }
+      cartes += '</div>';
+    });
+    h += bloc('5', 'Mes ' + etat.choix.length + ' CV', '', cartes + '</div>');
+    return h + barre('Passer aux lettres', manque === 0, manque + ' CV sans phrase d’accroche : choisissez-la.');
+  }
+
+  /* ---------- Passage 8 : lettres (choix des CV par leur nom, puis UN SEUL aller-retour pour toutes) ---------- */
+  function p6() {
+    var ids = etat.choix.filter(veutLettre), nl = ids.length;
+    var h = '<p class="intro">Vos CV sont validés. Vous pouvez maintenant avoir une lettre de motivation pour chacun. L’assistant les écrit toutes en une seule fois.</p>';
+    var l = '<p style="margin-top:0">Une lettre par CV. Décochez les CV pour lesquels vous n’en voulez pas.</p>';
+    etat.choix.forEach(function (x, i) { var o = etat.obj[x]; l += '<div class="metier' + (veutLettre(x) ? ' coche' : '') + '"><input type="checkbox" id="l_' + x + '" data-act="lettre" data-id="' + x + '"' + (veutLettre(x) ? ' checked' : '') + '><div class="corps"><label for="l_' + x + '"><span class="nom">Lettre pour le CV ' + (i + 1) + ' : ' + esc(cvDe(x).titre) + '</span></label><div class="ligne"><span class="pilule">' + esc(o ? nomDem(o.k) : '') + '</span></div></div></div>'; });
+    l += '<p class="note-lien">Chaque lettre suit l’objectif de son CV. Aucun nom d’entreprise n’y figure : vous l’ajoutez avant d’envoyer.</p>';
+    h += bloc('6a', 'Pour quels CV voulez-vous une lettre ?', '', l);
+    if (nl > 0) {
+      var a = '<div class="encart">Ce qui part : <b>la synthèse de votre CV</b> et, pour chacun de vos ' + nl + ' CV choisis, <b>son titre, son accroche et tout son objectif</b> (démarche, type de structure, secteur, durée, dates…). Une lettre pour un stage ne s’écrit pas comme une candidature spontanée : chaque lettre suit l’objectif de son CV. Jamais votre CV entier, jamais vos coordonnées.</div>' + jetonsAssistant() +
+        '<div class="actions"><button type="button" class="btn-p" data-act="copier3">Copier ma demande</button></div>' + (etat.copie3 ? '<p class="note-lien">Demande copiée : une seule demande pour vos ' + nl + ' lettres. Ouvrez ' + etat.assistant + ', collez-la, puis revenez ici.</p>' : '');
+      var b = etat.reponse3 ? '<div class="encart ok">Réponse lue : ' + nl + ' lettre' + (nl > 1 ? 's' : '') + ', une pour chaque CV choisi.</div>' : '<div class="actions" style="margin-top:0"><button type="button" class="btn-s" data-act="coller3"' + (etat.copie3 ? '' : ' disabled') + '>Coller la réponse</button></div>' + (etat.copie3 ? '' : '<p class="note-lien">Copiez d’abord votre demande.</p>');
+      h += bloc('6b', 'Envoyer ma demande', '', a) + bloc('6c', 'Coller sa réponse', '', b);
+      if (etat.reponse3) {
+        var c = '<div class="encart">Choisissez une lettre, lisez-la et modifiez-la si besoin. Ajoutez le nom de l’employeur avant de l’envoyer.</div><div class="rangee-cv">';
+        ids.forEach(function (x, i) { c += '<button type="button" class="btn-cv' + (i === etat.lettreActive ? ' on' : '') + '" data-act="lettreactive" data-i="' + i + '"><b>Lettre ' + (i + 1) + '</b>' + esc(cvDe(x).titre) + '</button>'; });
+        c += '</div>'; if (etat.lettreActive >= ids.length) { etat.lettreActive = 0; }
+        var xa = ids[etat.lettreActive], ta = lettreDe(xa);
+        c += '<div class="bloc" style="margin:0"><div class="entete">Lettre pour : ' + esc(cvDe(xa).titre) + ' <span class="pilule">' + esc(etat.obj[xa] ? resume(etat.obj[xa]) : '') + '</span></div><div class="corps"><textarea class="champ" style="min-height:300px" data-act="lettretxt" data-t="longue" data-id="' + xa + '">' + esc(ta.longue) + '</textarea></div></div>';
+
+        h += bloc('6d', 'Mes lettres', '', c);
+      }
+    } else {
+      h += '<div class="encart alerte">Aucune lettre demandée. Vous pouvez continuer sans, ou cocher un CV ci-dessus pour avoir sa lettre.</div>';
+    }
+    var ok = nl === 0 || etat.reponse3;
+    return h + barre('Voir mes documents', ok, 'Collez la réponse de l’assistant pour continuer.');
+  }
+
+  /* ---------- Passage 9 : fin, les deux documents ---------- */
+  function offresBloc() {
+    if (!etat.telecharge) { return '<p class="note-lien" style="text-align:center">Après le téléchargement de vos documents, vous pourrez chercher des offres en direct pour vos métiers.</p>'; }
+    var ids = etat.choix.filter(veutOffres), sel = ids.length;
+    var l = '<p style="margin-top:0">Choisissez les métiers pour lesquels chercher des offres en direct : tous, ou seulement un ou deux.</p><div class="actions" style="margin:0 0 6px"><button type="button" class="btn-s petit" data-act="offres-tous">Tout cocher</button><button type="button" class="btn-s petit" data-act="offres-aucun">Tout décocher</button></div>';
+    etat.choix.forEach(function (x) { var o = etat.obj[x]; l += '<div class="metier' + (veutOffres(x) ? ' coche' : '') + '"><input type="checkbox" id="o_' + x + '" data-act="offre-sel" data-id="' + x + '"' + (veutOffres(x) ? ' checked' : '') + '><div class="corps"><label for="o_' + x + '"><span class="nom">' + esc(cvDe(x).titre) + '</span></label><div class="ligne"><span class="pilule">' + esc(o ? nomDem(o.k) : '') + '</span></div></div></div>'; });
+    l += '<div class="actions"><button type="button" class="btn-p" data-act="offres" data-col="f"' + (sel ? '' : ' disabled') + '>Chercher des offres pour ' + sel + ' métier' + (sel > 1 ? 's' : '') + '</button></div>' + panneauOffres('f', ids);
+    return bloc('7d', 'Chercher des offres en direct', 'Métiers au choix', l);
+  }
+  function p7() {
+    var n = etat.choix.length, ids = etat.choix.filter(veutLettre), nl = ids.length;
+    var h = '<div class="encart ok">Vos documents sont prêts : <b>' + n + ' CV</b> et <b>' + nl + ' lettre' + (nl > 1 ? 's' : '') + '</b>.</div>';
+    var d1 = '<p style="margin-top:0">Un seul document PDF de ' + n + ' pages, un CV par page.</p><div class="puces">' + etat.choix.map(function (x, i) { return '<span class="pilule">CV ' + (i + 1) + ' : ' + esc(cvDe(x).titre) + '</span>'; }).join('') + '</div><div class="actions"><button type="button" class="btn-p" data-act="telecharger" data-msg="Télécharge un seul PDF avec tous les CV, un CV par page.">Télécharger mes CV (un seul PDF)</button></div>';
+    h += bloc('7a', 'Document 1 : mes CV', '', d1);
+    var d2 = nl ? '<p style="margin-top:0">Un seul document PDF de ' + nl + ' page' + (nl > 1 ? 's' : '') + ', une lettre par page.</p><div class="puces">' + ids.map(function (x) { return '<span class="pilule">Lettre : ' + esc(cvDe(x).titre) + '</span>'; }).join('') + '</div><div class="actions"><button type="button" class="btn-p" data-act="telecharger" data-msg="Télécharge un seul PDF avec toutes les lettres, une lettre par page.">Télécharger mes lettres (un seul PDF)</button></div>'
+      : '<p style="margin-top:0">Vous n’avez pas demandé de lettre.</p>';
+    h += bloc('7b', 'Document 2 : mes lettres de motivation', '', d2);
+    var cartes = '<div class="grille-cartes">';
+    etat.choix.forEach(function (x, i) {
+      var c = cvDe(x), m = metier(x), o = etat.obj[x];
+      cartes += '<div class="cv-carte"><div>' + feuille(x) + '</div><div><h4>CV ' + (i + 1) + ' : ' + esc(c.titre) + '</h4><span class="pilule">' + esc(o ? nomDem(o.k) : '') + '</span>' + (m.rempli ? ' <span class="pilule verif">CV très rempli</span>' : '') +
+        '<p class="acc">' + esc(c.acc[c.accIdx]) + '</p><div class="actions"><button type="button" class="btn-s petit" data-act="telecharger" data-msg="Télécharge ce CV seul.">Télécharger ce CV</button>' + (veutLettre(x) ? '<button type="button" class="btn-s petit" data-act="telecharger" data-msg="Télécharge un seul fichier : ce CV, puis sa lettre.">Télécharger ce CV avec sa lettre</button>' : '') + '</div></div></div>';
+    });
+    h += bloc('7c', 'Mes CV, un par un', '', cartes + '</div><p class="note-lien">« Ce CV avec sa lettre » donne un seul fichier de deux pages, prêt à envoyer pour une candidature.</p>');
+    h += offresBloc();
+    return h + barre('', true);
+  }
+
+  function rendre() {
+    etat.max = Math.max(etat.max || 1, etat.p);
+    var f = [null, p1, p2, p3, p4, p5, p6, p7][etat.p];
+    ['hoteBureau', 'hoteTel'].forEach(function (id) {
+      var el = document.getElementById(id), haut = el.scrollTop, suf = '_' + id;
+      var corps = etat.vue === 'presentation' ? pPresentation() : entete() + f();
+      el.innerHTML = ('<div class="page' + (etat.reprise && etat.vue !== 'presentation' ? ' gel' : '') + '">' + corps + '</div>').replace(/ (id|for|name)="([^"]+)"/g, ' $1="$2' + suf + '"');
+      el.scrollTop = haut;
+    });
+  }
+  function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 4800); }
+  function aller(n) { etat.p = n; rendre(); ['hoteBureau', 'hoteTel'].forEach(function (id) { document.getElementById(id).scrollTop = 0; }); window.scrollTo(0, document.querySelector('.scene').offsetTop - 8); }
+  function voirPanneau() { var el = document.querySelector('.cadre:not([hidden]) .panneau-obj'); if (el) { el.scrollIntoView({ block: 'center' }); } }
+  function appliquerObjectif() {
+    var p = etat.panneau, cibles = ciblesDe(p);
+    cibles.forEach(function (id) { var r = JSON.parse(JSON.stringify(p.rec)); if (p.portee !== 'ce') { r.secteur = metier(id).secteur; } etat.obj[id] = r; });
+    etat.panneau = null; toast('Objectif appliqué à ' + cibles.length + ' métier' + (cibles.length > 1 ? 's' : '') + '.');
+  }
+
+  document.addEventListener('click', function (ev) {
+    var v = ev.target.closest('[data-vue]');
+    if (v) { var tel = v.getAttribute('data-vue') === 'tel'; document.getElementById('hoteBureau').hidden = tel; document.getElementById('hoteTel').hidden = !tel; document.querySelectorAll('[data-vue]').forEach(function (x) { x.classList.toggle('on', x === v); }); return; }
+    if (ev.target.id === 'btnRaz') { etat = neuf(); aller(1); return; }
+    if (ev.target.id === 'btnArrivee') { etat = neuf(); etat.vue = 'presentation'; aller(1); return; }
+    if (ev.target.id === 'btnRetour') { var nv2 = etat.noteVue; etat = neuf(); etat.noteVue = nv2; exemplePour(3); etat.p = 3; etat.reprise = true; aller(3); return; }
+    var b = ev.target.closest('[data-act]'); if (!b) { return; }
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if (['cocher', 'editer', 'nvint', 'titre', 'texteacc', 'typeacc', 'lettre', 'lettretxt', 'offre-sel', 'relu', 'pf', 'meme', 'dept', 'assistant-offres'].indexOf(act) >= 0) { return; }
+    if (act === 'aller') { var n = parseInt(b.getAttribute('data-n'), 10); exemplePour(n); aller(n); return; }
+    else if (act === 'suite') { exemplePour(etat.p + 1); aller(Math.min(7, etat.p + 1)); return; }
+    else if (act === 'retour') { aller(Math.max(1, etat.p - 1)); return; }
+    else if (act === 'retour-metiers') { aller(2); return; }
+    else if (act === 'revoir') { etat.vue = 'presentation'; etat.detour = true; aller(etat.p); return; }
+    else if (act === 'revenir') { etat.vue = 'travail'; etat.detour = false; aller(etat.p); return; }
+    else if (act === 'note-fermer') { etat.noteVue = true; }
+    else if (act === 'reprise-continuer') { etat.reprise = false; etat.confirmRaz = false; }
+    else if (act === 'reprise-recommencer') { etat.confirmRaz = true; }
+    else if (act === 'reprise-non') { etat.confirmRaz = false; }
+    else if (act === 'reprise-oui') { var nv = etat.noteVue; etat = neuf(); etat.noteVue = nv; toast('Le module est remis à zéro.'); aller(1); return; }
+    else if (act === 'note') { toast(b.getAttribute('data-msg')); return; }
+    else if (act === 'offres') { var cl = b.getAttribute('data-col'); etat.offresPanel = (etat.offresPanel === cl) ? null : cl; }
+    else if (act === 'offres-fermer') { etat.offresPanel = null; }
+    else if (act === 'obj-pour-offres') { var cj = b.getAttribute('data-col'); etat.panneau = { id: null, portee: cj === 'g' ? 'g' : (cj === 'd' ? 'd' : 'tous'), rec: recVide(null, null) }; rendre(); voirPanneau(); return; }
+    else if (act === 'offres-copier') {
+      var ck = b.getAttribute('data-col'), idsC = ck === 'f' ? etat.choix.filter(veutOffres) : cochesDe(ck);
+      etat.offresFait[ck] = true;
+      toast('Votre demande est copiée pour ' + idsC.length + (ck === 'g' ? ' intitulé' : ' métier') + (idsC.length > 1 ? 's cochés' : ' coché') + ' : ' + idsC.map(function (x) { return cvDe(x).titre; }).join(' ; ') + ' (département : ' + etat.dept + '). ' + etat.assistantOffres + ' s’ouvre dans un nouvel onglet : collez-y la demande.' + (etat.assistantOffres === 'ChatGPT' ? ' Activez d’abord l’option de recherche web.' : ''));
+    }
+    else if (act === 'deposer') { etat.depose = true; }
+    else if (act === 'changer-cv') { etat.depose = false; }
+    else if (act === 'masque') { var i = parseInt(b.getAttribute('data-i'), 10); etat.masques[i] = !etat.masques[i]; }
+    else if (act === 'assistant') { etat.assistant = b.getAttribute('data-a'); }
+    else if (act === 'copier') { etat.copie = true; toast('Votre demande est copiée. Ouvrez ' + etat.assistant + ' et collez-la.'); }
+    else if (act === 'copierRef') { etat.copieRef = true; toast('Votre demande est copiée. Ouvrez ' + etat.assistant + ' et collez-la.'); }
+    else if (act === 'collerRef') { etat.reponseRef = true; if (!etat.ref) { etat.ref = etat.choix[0]; } }
+    else if (act === 'copier2') { etat.copie2 = true; toast('Votre demande est copiée. Ouvrez ' + etat.assistant + ' et collez-la.'); }
+    else if (act === 'telecharger') { etat.telecharge = true; toast(b.getAttribute('data-msg')); }
+    else if (act === 'voir-demande') { var k2 = b.getAttribute('data-k'); etat.vd[k2] = !etat.vd[k2]; }
+    else if (act === 'offres-tous') { etat.choix.forEach(function (x) { etat.offresSel[x] = true; }); }
+    else if (act === 'offres-aucun') { etat.choix.forEach(function (x) { etat.offresSel[x] = false; }); }
+    else if (act === 'coller') { etat.reponse = true; }
+    else if (act === 'lettreactive') { etat.lettreActive = parseInt(b.getAttribute('data-i'), 10); }
+    else if (act === 'copier3') { etat.copie3 = true; toast('Votre demande est copiée. Ouvrez ' + etat.assistant + ' et collez-la.'); }
+    else if (act === 'coller3') { etat.reponse3 = true; }
+    else if (act === 'coller2') { etat.reponse2 = true; if (!etat.ref) { etat.ref = (etat.choix.indexOf('g1') >= 0 ? 'g1' : etat.choix[0]); } }
+    else if (act === 'modifier-int') { etat.edit = id; }
+    else if (act === 'ok-edit') { etat.edit = null; }
+    else if (act === 'ajouter-int') {
+      var t = (etat.nvInt || '').trim(); if (!t) { toast('Écrivez d’abord votre intitulé.'); return; }
+      var nid = 'g' + (10 + etat.gauche.length); etat.gauche.push({ id: nid, nom: t, retrouve: 'Intitulé écrit par vous', perso: true, secteur: 'À préciser', atout: 'sérieux et motivé' }); etat.nvInt = ''; etat.ajoutOuvert = false;
+      if (etat.choix.length < MAX) { etat.choix.push(nid); }
+    }
+    else if (act === 'retirer') { etat.gauche = etat.gauche.filter(function (m) { return m.id !== id; }); etat.choix = etat.choix.filter(function (x) { return x !== id; }); delete etat.obj[id]; }
+    else if (act === 'obj-ouvrir') { var o0 = etat.obj[id]; etat.panneau = { id: id, rec: o0 ? JSON.parse(JSON.stringify(o0)) : recVide(null, metier(id)), portee: 'ce' }; rendre(); voirPanneau(); return; }
+    else if (act === 'obj-ouvrir-cv') { toast('S’ouvre ici le même panneau « Choisir mon objectif » qu’au passage 2, pour ce CV seulement.'); return; }
+    else if (act === 'obj-global') { etat.panneau = { id: null, portee: null, rec: recVide(null, null) }; rendre(); voirPanneau(); return; }
+    else if (act === 'ajout-ouvrir') { etat.ajoutOuvert = true; rendre(); var inp = document.querySelector('.cadre:not([hidden]) [data-act=nvint]'); if (inp) { inp.focus(); } return; }
+    else if (act === 'ajout-fermer') { etat.ajoutOuvert = false; }
+    else if (act === 'obj-fermer') { etat.panneau = null; }
+    else if (act === 'pk') { var k = b.getAttribute('data-k'); var ancien = etat.panneau.rec; etat.panneau.rec = recVide(k, etat.panneau.id ? metier(etat.panneau.id) : null); etat.panneau.rec.structure = ancien.structure; etat.panneau.rec.structureAutre = ancien.structureAutre; etat.panneau.rec.secteur = ancien.secteur || etat.panneau.rec.secteur; }
+    else if (act === 'pj') { var f = b.getAttribute('data-f'), val = b.getAttribute('data-v'), r = etat.panneau.rec, ix = r[f].indexOf(val); if (ix >= 0) { r[f].splice(ix, 1); } else { r[f].push(val); } }
+    else if (act === 'portee') { etat.panneau.portee = b.getAttribute('data-v'); }
+    else if (act === 'obj-appliquer') { appliquerObjectif(); }
+    else if (act === 'ref') { etat.ref = id; }
+    else if (act === 'amb-toggle') { etat.edAmbiance = !etat.edAmbiance; }
+    else if (act === 'cvactif') { etat.cvActif = parseInt(b.getAttribute('data-i'), 10); }
+    else if (act === 'acc-ouvrir') { cvDe(id).accOuverte = true; }
+    else if (act === 'acc-fermer') { cvDe(id).accOuverte = false; }
+    else if (act === 'aspect-edit') { etat.draft = JSON.parse(JSON.stringify(aspectDe(id))); etat.editAspect = id; etat.edAmbiance = false; aller(5); return; }
+    else if (act === 'aspect-valider') { var cv2 = cvDe(etat.editAspect); cv2.propre = true; cv2.look = etat.draft.look; cv2.couleur = etat.draft.couleur; etat.editAspect = null; etat.draft = null; toast('Aspect enregistré pour ce CV.'); aller(5); return; }
+    else if (act === 'aspect-annuler') { etat.editAspect = null; etat.draft = null; aller(5); return; }
+    else if (act === 'aspect-reset') { cvDe(id).propre = false; }
+    else if (act === 'aspect-tous') { etat.choix.forEach(function (x) { cvDe(x).propre = false; }); toast('Tous les CV ont de nouveau l’aspect du CV de référence.'); }
+    else if (act === 'look') { var l = b.getAttribute('data-l'); if (etat.editAspect && etat.draft) { etat.draft.look = l; } else { etat.aspectGlobal.look = l; } }
+    else if (act === 'couleur') { var co = b.getAttribute('data-c'); if (etat.editAspect && etat.draft) { etat.draft.couleur = co; } else { etat.aspectGlobal.couleur = co; } }
+    else if (act === 'modifier') { etat.cvActif = parseInt(b.getAttribute('data-i'), 10); aller(5); return; }
+    rendre();
+  });
+  document.addEventListener('change', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b) { return; }
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if (act === 'cocher') { var i = etat.choix.indexOf(id); if (b.checked && i < 0 && etat.choix.length < MAX) { etat.choix.push(id); } else if (!b.checked && i >= 0) { etat.choix.splice(i, 1); } }
+    else if (act === 'relu') { etat.relu = b.checked; }
+    else if (act === 'typeacc') { cvDe(id).accIdx = parseInt(b.getAttribute('data-t'), 10); cvDe(id).accChoisie = true; }
+    else if (act === 'meme') { var c = cvDe(id); c.propre = !b.checked; if (c.propre) { c.look = etat.aspectGlobal.look; c.couleur = etat.aspectGlobal.couleur; } }
+    else if (act === 'lettre') { etat.lettres[id] = b.checked; etat.copie3 = false; etat.reponse3 = false; }
+    else if (act === 'offre-sel') { etat.offresSel[id] = b.checked; }
+    else if (act === 'editer') { var m = metier(id); if (m) { m.nom = b.value; if (!m.perso && !m.actuel) { m.modifie = true; } if (etat.cv[id]) { etat.cv[id].titre = b.value; } } }
+    else if (act === 'assistant-offres') { etat.assistantOffres = b.value; }
+    else if (act === 'dept') { etat.dept = b.value; }
+    else if (act === 'pf') { etat.panneau.rec[b.getAttribute('data-f')] = b.value; if (b.getAttribute('data-f') === 'structure') { rendre(); } return; }
+    else { return; }
+    rendre();
+  });
+  document.addEventListener('input', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b) { return; }
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if (act === 'titre') { cvDe(id).titre = b.value; }
+    else if (act === 'texteacc') { cvDe(id).acc[parseInt(b.getAttribute('data-t'), 10)] = b.value; }
+    else if (act === 'lettretxt') { lettreDe(id)[b.getAttribute('data-t')] = b.value; }
+    else if (act === 'nvint') { etat.nvInt = b.value; }
+    else if (act === 'editer') { var m = metier(id); if (m) { m.nom = b.value; } }
+    else if (act === 'dept') { etat.dept = b.value; document.querySelectorAll('[data-act=offres-copier]').forEach(function (bt) { bt.disabled = !etat.dept || bt.getAttribute('data-manque') === '1'; }); }
+    else if (act === 'pf') { etat.panneau.rec[b.getAttribute('data-f')] = b.value; }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter' && ev.target && ev.target.getAttribute && ev.target.getAttribute('data-act') === 'nvint') { ev.preventDefault(); var bt = document.querySelector('.cadre:not([hidden]) [data-act="ajouter-int"]'); if (bt) { bt.click(); } }
+  });
+  rendre();
+})();
+</script>
+</body>
+</html>

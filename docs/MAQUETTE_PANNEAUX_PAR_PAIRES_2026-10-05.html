@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--
+  MAQUETTE - Boutons « Modifier... » de la carte Expériences, rangés par paires (retour de Denis, 2026-10-05). Mode A : rien n'est codé dans l'application.
+  Constat : en Mixte, quatre grandes barres pleine largeur sont empilées ; quand l'une est ouverte, on ne voit plus à quelle barre appartiennent les options.
+  Proposition : deux paires de deux boutons côte à côte. Un clic ouvre LES DEUX de la paire (on peut modifier les deux), les deux boutons deviennent bleus
+  (même règle que « Options supplémentaires » ouvertes, 2026-10-04), et leurs listes s'affichent dessous, sur toute la largeur, sous un cadre qui porte le nom de la paire.
+  Contenu fictif. Vraies feuilles de style. Français impeccable, aucun tiret cadratin, jamais le mot « IA ».
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Panneaux par paires</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/mise-en-page-maquette.css">
+<style>
+  body { margin: 0; background: var(--bg-page, #f0f4fa); }
+  .barre-maquette { position: sticky; top: 0; z-index: 5; display: flex; gap: .5rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; padding: .4rem 1rem; background: var(--bg-card); border-bottom: 1px dashed var(--border-strong); font-size: .78rem; }
+  .barre-maquette button { border: 1px solid var(--border-strong); background: var(--bg-subtle, #f8fafc); color: var(--text); border-radius: 8px; padding: .25rem .6rem; font-size: .78rem; cursor: pointer; }
+  .deux-colonnes { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 1100px; margin: 0 auto; padding: 1rem; align-items: start; }
+  @media (max-width: 760px) { .deux-colonnes { grid-template-columns: 1fr; } }
+  .volet h2 { font-size: .95rem; color: var(--text-strong); margin: 0 0 .4rem; }
+  .volet .legende { font-size: .75rem; color: var(--text-muted); margin: 0 0 .6rem; }
+  .carte-maq { border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); padding: .7rem; }
+  .note-texte { font-size: .75rem; color: var(--text-muted); margin: .35rem 0; }
+  /* Aujourd'hui : barres empilées (copie du rendu réel) */
+  .vrai-empile .ligne-bar { display: flex; align-items: center; justify-content: center; min-height: 3.6rem; box-sizing: border-box; border: 1.5px solid var(--accent); background: var(--bg-card); border-radius: var(--radius); padding: .55rem .8rem; margin-top: .4375rem; cursor: pointer; width: 100%; font: inherit; }
+  .vrai-empile .ligne-bar b { color: var(--accent); font-size: .85rem; display: block; }
+  .vrai-empile .ligne-bar small { color: var(--text-muted); font-size: .68rem; }
+  .vrai-empile .corps-vide { border-left: 3px solid var(--border-strong); margin: .3rem 0 0 .3rem; padding: .3rem .6rem; font-size: .78rem; color: var(--text-muted); }
+  /* Proposition : paires */
+  .paire-ensemble { margin-top: .6rem; }
+  .paire-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+  .paire-boutons .bt { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 3.4rem; box-sizing: border-box; border: 1.5px solid var(--accent); background: var(--bg-card); border-radius: var(--radius); padding: .45rem .55rem; cursor: pointer; font: inherit; gap: .3rem; }
+  .paire-boutons .bt b { color: var(--accent); font-size: .8rem; display: block; }
+  .paire-boutons .bt small { color: var(--text-muted); font-size: .66rem; display: block; }
+  .paire-boutons .bt:hover { background: var(--bg-hover); }
+  .paire-ensemble.ouverte .bt { background: var(--accent); border-color: var(--accent); }
+  .paire-ensemble.ouverte .bt b, .paire-ensemble.ouverte .bt small { color: #fff; }
+  .paire-ensemble.ouverte .bt .chev { transform: rotate(180deg); }
+  .bt .chev { margin-left: auto; font-size: 1.2rem; color: var(--accent); }
+  .paire-ensemble.ouverte .bt .chev { color: #fff; }
+  .cadre-paire { display: none; margin-top: .35rem; border: 1.5px solid var(--accent); border-radius: var(--radius); padding: .5rem .65rem .6rem; background: var(--bg-card); }
+  .paire-ensemble.ouverte .cadre-paire { display: block; }
+  .cadre-paire .titre-cadre { font-size: .72rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .03em; margin-bottom: .35rem; }
+  .cadre-paire .bloc-liste { margin-top: .4rem; padding-top: .4rem; border-top: 1px dashed var(--border-strong); }
+  .cadre-paire .bloc-liste:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+  .cadre-paire h4 { margin: 0 0 .2rem; font-size: .82rem; color: var(--text-strong); }
+  .cadre-paire p { margin: 0 0 .25rem; font-size: .74rem; color: var(--text-muted); }
+  .cadre-paire .ex { font-size: .78rem; margin: .1rem 0; display: flex; align-items: center; gap: .4rem; }
+  .cadre-paire .ex .fl { margin-left: auto; display: inline-flex; gap: .2rem; }
+  .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: .175rem .48rem; font-size: .68rem; cursor: pointer; }
+  .questions { max-width: 1100px; margin: 0 auto; padding: 0 1rem 3rem; }
+  .questions li { margin-bottom: .45rem; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="barre-maquette">
+  <span>Maquette : cliquez sur les boutons des deux colonnes.</span>
+  <button type="button" id="mTout">Tout fermer</button>
+</div>
+
+<div class="deux-colonnes mep-mq">
+  <section class="volet">
+    <h2>Aujourd'hui (mode Mixte)</h2>
+    <p class="legende">Quatre grandes barres empilées : une barre ouverte ne dit pas ce qu'elle partage avec sa voisine.</p>
+    <div class="carte-maq vrai-empile">
+      <button type="button" class="ligne-bar"><span><b>Modifier « Compétences en action »</b><small>5 missions</small></span></button>
+      <button type="button" class="ligne-bar"><span><b>Modifier « Compétences professionnelles »</b><small>12 affichées</small></span></button>
+      <button type="button" class="ligne-bar"><span><b>Modifier « Expériences professionnelles »</b><small>Sous les compétences · 3 expériences</small></span></button>
+      <button type="button" class="ligne-bar"><span><b>Relier mes compétences à mes expériences</b><small>2 liens</small></span></button>
+    </div>
+  </section>
+
+  <section class="volet">
+    <h2>Proposition : deux paires</h2>
+    <p class="legende">Un clic ouvre les deux boutons de la paire. Ils deviennent bleus, leurs listes apparaissent dessous, sur toute la largeur, sous le nom de la paire.</p>
+    <div class="carte-maq">
+
+      <div class="paire-ensemble" id="p1">
+        <div class="paire-boutons">
+          <button type="button" class="bt" data-paire="p1"><span><b>Compétences en action</b><small>5 missions</small></span><span class="chev">&#8964;</span></button>
+          <button type="button" class="bt" data-paire="p1"><span><b>Compétences professionnelles</b><small>12 affichées</small></span><span class="chev">&#8964;</span></button>
+        </div>
+        <div class="cadre-paire">
+          <div class="titre-cadre">Les compétences du CV</div>
+          <div class="bloc-liste">
+            <h4>Compétences en action</h4>
+            <p>Pour chaque mission : la garder ou non, la modifier, la monter ou la descendre.</p>
+            <div class="ex"><input type="checkbox" checked> Accompagner les personnes âgées dans les gestes du quotidien <span class="fl"><button type="button" class="btn-miss">&#9650;</button><button type="button" class="btn-miss">&#9660;</button></span></div>
+            <div class="ex"><input type="checkbox" checked> Préparer les repas adaptés aux besoins <span class="fl"><button type="button" class="btn-miss">&#9650;</button><button type="button" class="btn-miss">&#9660;</button></span></div>
+          </div>
+          <div class="bloc-liste">
+            <h4>Compétences professionnelles</h4>
+            <p>Les mots-clés qui s'affichent en pastilles. Même sélection que dans la carte « Compétences ».</p>
+            <div class="ex"><input type="checkbox" checked> Règles d'hygiène <span class="fl"><button type="button" class="btn-miss">&#9650;</button><button type="button" class="btn-miss">&#9660;</button></span></div>
+            <div class="ex"><input type="checkbox" checked> Gestes de premiers secours <span class="fl"><button type="button" class="btn-miss">&#9650;</button><button type="button" class="btn-miss">&#9660;</button></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="paire-ensemble" id="p2">
+        <div class="paire-boutons">
+          <button type="button" class="bt" data-paire="p2"><span><b>Expériences professionnelles</b><small>3 expériences</small></span><span class="chev">&#8964;</span></button>
+          <button type="button" class="bt" data-paire="p2"><span><b>Relier mes expériences</b><small>2 liens</small></span><span class="chev">&#8964;</span></button>
+        </div>
+        <div class="cadre-paire">
+          <div class="titre-cadre">Mes expériences</div>
+          <div class="bloc-liste">
+            <h4>Expériences professionnelles</h4>
+            <p>Cochez les expériences à afficher, puis choisissez les missions à garder.</p>
+            <div class="ex"><input type="checkbox" checked> Stagiaire, CIAS de Beaumont (2026)</div>
+          </div>
+          <div class="bloc-liste">
+            <h4>Relier mes compétences à mes expériences</h4>
+            <p>Montrez quelle expérience illustre chaque compétence.</p>
+            <div class="ex"><input type="checkbox"> Aide aux actes de la vie quotidienne : Stagiaire, CIAS de Beaumont</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="note-texte">En « Par compétences », la première paire n'a qu'un bouton (pas de compétences professionnelles en mots-clés) : il prend toute la largeur. En Chronologique, il n'y a que la deuxième paire.</p>
+    </div>
+  </section>
+</div>
+
+<ol class="questions">
+  <li><b>Question 1.</b> Les listes de la paire s'affichent <b>l'une sous l'autre, sur toute la largeur</b> (comme ici), plutôt que côte à côte en demi-largeur : sur un panneau étroit ou un téléphone, deux listes côte à côte seraient illisibles. D'accord ?</li>
+  <li><b>Question 2.</b> Un clic sur l'un des deux boutons ouvre <b>les deux listes</b>. On ne peut pas n'en ouvrir qu'une seule. D'accord, ou tu préfères pouvoir les ouvrir séparément ?</li>
+  <li><b>Question 3.</b> Les deux boutons de la paire ouverte deviennent <b>bleus</b> (comme les « Options supplémentaires » ouvertes), pour savoir tout de suite quelle paire est ouverte. D'accord ?</li>
+</ol>
+
+<script>
+  document.querySelectorAll('[data-paire]').forEach(function (b) {
+    b.addEventListener('click', function () { document.getElementById(b.getAttribute('data-paire')).classList.toggle('ouverte'); });
+  });
+  document.getElementById('mTout').addEventListener('click', function () { document.querySelectorAll('.paire-ensemble').forEach(function (p) { p.classList.remove('ouverte'); }); });
+</script>
+</body>
+</html>

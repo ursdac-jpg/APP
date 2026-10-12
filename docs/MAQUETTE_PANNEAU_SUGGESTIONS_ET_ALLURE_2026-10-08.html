@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : panneau de suggestions et ligne Allure</title>
+<style>
+  :root { --fond: #f4f6f8; --bg-card: #ffffff; --bg-subtle: #f3f5f8; --text: #1c2430; --text-strong: #121821; --text-muted: #5b6573; --border: #d5dbe3; --border-strong: #b9c2cf; --accent: #2f6690; --accent-bg-subtle: #e6eff7; --ok: #1f7a4d; --alerte: #b4561f; --sur-accent: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #12161c; --bg-card: #1b212a; --bg-subtle: #171c23; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; --sur-accent: #0e1722; } }
+  :root[data-theme="sombre"] { --fond: #12161c; --bg-card: #1b212a; --bg-subtle: #171c23; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; --sur-accent: #0e1722; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--text); font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 30px 0 8px; }
+  p { margin: 6px 0; }
+  .discret { color: var(--text-muted); font-size: .92rem; }
+  .note { border-left: 4px solid var(--accent); background: var(--bg-card); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+  .barre { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .barre button { font: inherit; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .cadre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin: 10px 0; }
+  .cadre h3 { margin: 0 0 8px; font-size: .95rem; }
+  .etiq { color: var(--text-muted); font-size: .82rem; margin-bottom: 8px; }
+  .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; align-items: start; }
+
+  /* ===== Reproduction du panneau « La mise en page » (même proportions que l'application) ===== */
+  .mep { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: 12px; font-size: 0.78rem; }
+  .mep.large { width: 650px; max-width: 100%; }
+  .mep.tel { width: 320px; max-width: 100%; }
+  .entete-boutons { display: flex; gap: 8px; margin-bottom: 10px; }
+  .gros { flex: 1; display: flex; flex-direction: column; background: #0d6efd; color: #fff; border-radius: 10px; padding: 6px 10px; font-size: .78rem; }
+  .gros b { font-size: .85rem; } .gros small { font-size: .66rem; opacity: .9; }
+  .gros.actif { box-shadow: 0 0 0 3px var(--accent-bg-subtle), 0 0 0 5px #0d6efd; }
+  .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+  .mep.tel .grille { grid-template-columns: 1fr; }
+  .col-g > * + *, .col-d > * + * { margin-top: 10px; }
+  .bloc-ambiance { border: 1.5px solid var(--accent); border-radius: 10px; padding: 8px; text-align: center; color: var(--text-muted); }
+  .bloc-ambiance b { display: block; color: var(--accent); font-size: .9rem; }
+  .titre-mini { font-size: .8rem; font-weight: 700; color: var(--text-strong); margin-bottom: 4px; }
+  .titre-mini .sous { font-weight: 400; color: var(--text-muted); font-size: .68rem; }
+  .pastilles { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pastilles i { width: 18px; height: 18px; border-radius: 50%; display: block; }
+  .btn-degrade { border: 0; border-radius: 8px; background: #0d6efd; color: #fff; padding: 6px 14px; font-weight: 700; font-family: inherit; }
+  .btn-clair { border: 1px solid var(--accent); color: var(--accent); background: var(--bg-card); border-radius: 8px; padding: 3px 10px; font-size: .7rem; display: inline-block; }
+  .seg { display: flex; gap: 7px; }
+  .seg button { position: relative; overflow: hidden; flex: 1; min-width: 70px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong); border-radius: 9px; padding: 0.4rem 0.4rem; font-size: 0.78rem; font-family: inherit; }
+  .seg button::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; }
+  .seg .s::before { background: #8a97a6; } .seg .d::before { background: var(--accent); } .seg .c::before { background: linear-gradient(90deg, #e53935, #fdd835, #43a047, #1e88e5, #8e24aa); }
+  .seg button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+  .legende { border: 1px dashed var(--border-strong); background: var(--bg-subtle); border-radius: 8px; padding: 6px 8px; font-size: .72rem; color: var(--text-strong); }
+  .zone-mep { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 8px; background: var(--bg-subtle); }
+  .resultat { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 6px; padding: 5px 8px; font-size: .74rem; color: var(--text-strong); margin-top: 6px; }
+  .vide-fantome { border: 1px dashed var(--border); border-radius: 8px; color: var(--text-muted); font-size: .7rem; display: flex; align-items: center; justify-content: center; text-align: center; padding: 8px; background: repeating-linear-gradient(135deg, transparent 0 8px, var(--bg-subtle) 8px 16px); }
+
+  /* bouton Suggestions */
+  .sugg { width: 100%; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--text); border-radius: 10px; padding: 6px 10px; font-family: inherit; cursor: pointer; }
+  .sugg b { display: block; color: var(--accent); font-size: .8rem; }
+  .sugg small { color: var(--text-muted); font-size: .66rem; }
+  .sugg .badge { display: inline-block; background: var(--accent); color: var(--sur-accent); border-radius: 999px; font-size: .65rem; padding: 0 .45rem; margin-left: .3rem; }
+  .sugg .chev { font-size: 1.1rem; line-height: 1; transition: transform .15s; color: var(--accent); }
+  /* proposition : bouton ouvert bien marqué, relié au panneau */
+  .sugg.ouvert { background: var(--accent); border-color: var(--accent); }
+  .sugg.ouvert b, .sugg.ouvert small, .sugg.ouvert .chev { color: var(--sur-accent); }
+  .sugg.ouvert .badge { background: var(--sur-accent); color: var(--accent); }
+  .sugg.ouvert .chev { transform: rotate(180deg); }
+  /* ancien comportement (aujourd'hui) : seule la flèche tourne */
+  .sugg.ouvert-ancien .chev { transform: rotate(180deg); }
+  .panneau { border: 1.5px solid var(--accent); border-top: 0; border-radius: 0 0 10px 10px; background: var(--bg-card); padding: 8px; }
+  .panneau.pleine { border-top: 1.5px solid var(--accent); border-radius: 10px; margin-top: 12px; background: var(--accent-bg-subtle); }
+  /* panneau pleine largeur de la proposition : une pointe le relie au bouton ouvert */
+  .panneau.relie { position: relative; border-top: 1.5px solid var(--accent); border-radius: 10px; margin-top: 14px; background: var(--accent-bg-subtle); }
+  .panneau.relie::before { content: ""; position: absolute; top: -9px; right: 24%; width: 14px; height: 14px; background: var(--accent); transform: rotate(45deg); border-radius: 2px; }
+  .mep.tel .panneau.relie::before { right: 50%; margin-right: -7px; }
+  .mep.tel .cartes.trois { grid-template-columns: 1fr; }
+  .mep.tel .cartes.trois .carte { flex-direction: row; align-items: center; }
+  .panneau .intro { font-size: .7rem; color: var(--text-muted); margin: 0 0 6px; }
+  .cartes { display: grid; gap: 6px; }
+  .cartes.trois { grid-template-columns: repeat(3, 1fr); }
+  .carte { display: flex; gap: 8px; align-items: center; text-align: left; border: 1.5px solid var(--border-strong); border-radius: 9px; padding: 5px 7px; background: var(--bg-card); color: var(--text); font-family: inherit; }
+  .cartes.trois .carte { flex-direction: column; align-items: flex-start; }
+  .carte.choisie { border-color: var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 0 0 2px var(--accent-bg-subtle); }
+  .carte .pic { flex: 0 0 auto; width: 30px; height: 36px; background: #fff; border: 1px solid #d9dee6; border-radius: 3px; position: relative; }
+  .carte .pic i { position: absolute; left: 4px; right: 4px; height: 2px; background: #cfd5dc; } .carte .pic i:nth-child(1) { top: 5px; background: var(--accent); } .carte .pic i:nth-child(2) { top: 12px; } .carte .pic i:nth-child(3) { top: 17px; } .carte .pic i:nth-child(4) { top: 22px; } .carte .pic i:nth-child(5) { top: 27px; }
+  .carte b { display: block; font-size: .74rem; color: var(--text-strong); }
+  .carte .gain { color: var(--accent); font-weight: 700; font-size: .66rem; }
+  .detail { margin-top: 6px; font-size: .7rem; color: var(--text-strong); }
+  .detail button { margin-top: 5px; border: 0; background: var(--accent); color: var(--sur-accent); border-radius: 8px; padding: 5px 12px; font-weight: 700; font-family: inherit; }
+  .pager { display: flex; justify-content: space-between; align-items: center; font-size: .68rem; color: var(--text-muted); margin-top: 6px; }
+  .pager span.b { border: 1px solid var(--border-strong); border-radius: 7px; padding: 2px 8px; color: var(--text-strong); }
+  .org { margin-top: 12px; border-radius: 10px; background: #0d6efd; color: #fff; padding: 8px 10px; font-weight: 700; }
+
+  /* ligne Allure en pleine largeur */
+  .ligne-allure { margin-top: 12px; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; }
+  .ligne-allure .legende { grid-column: 1 / -1; }
+  .mep.tel .ligne-allure { grid-template-columns: 1fr; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--bg-card); border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: .9rem; }
+  th { background: var(--accent-bg-subtle); }
+  .oui { color: var(--ok); font-weight: 700; } .non { color: var(--alerte); font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : le panneau de suggestions et la ligne « Allure »</h1>
+  <p class="discret">Étape « maquette » : rien n'est codé. Les panneaux sont à la taille réelle (650 px sur ordinateur, 320 px sur téléphone). Les boutons « Suggestions de mise en page » sont cliquables.</p>
+  <div class="barre"><button type="button" id="basculeSombre">Voir en mode sombre</button></div>
+
+  <h2>1. Aujourd'hui : ce que tu as signalé</h2>
+  <div class="note">Le panneau de suggestions s'ouvre tout en bas, après « Allure » : on ne voit pas qu'il vient du bouton « Suggestions de mise en page ». Le bouton ouvert ne change presque pas (seule la petite flèche tourne). Et la colonne de droite reste vide à côté de « Couleurs » et d'« Allure ».</div>
+  <div class="cadre">
+    <div class="mep large" id="aujourdhui"></div>
+  </div>
+
+  <h2>2. Proposition recommandée</h2>
+  <div class="note">
+    <b>Trois changements :</b><br>
+    1. Le panneau s'ouvre <b>sur toute la largeur</b>, avec les trois suggestions côte à côte comme aujourd'hui, mais <b>juste sous les deux colonnes et avant « Allure »</b>. Une petite pointe de la couleur du thème le relie au bouton qui l'a ouvert.<br>
+    2. Le bouton ouvert est <b>plein, de la couleur du thème</b> (comme le gros bouton « Mise en page »), avec la mention « Ouvert, cliquez pour refermer ». Le cadre du panneau est de la même couleur.<br>
+    3. <b>« Allure générale » passe sur toute la largeur</b>, sous les deux colonnes : les trois boutons sont sur la même ligne que le titre, et la phrase qui explique l'allure choisie tient sur une ligne dessous. Plus de blanc à droite.
+  </div>
+  <p class="discret">Clique sur « Suggestions de mise en page » pour ouvrir et refermer. Sur téléphone, les trois suggestions s'empilent (il n'y a pas la place de les mettre côte à côte).</p>
+  <div class="cadre"><h3>Ordinateur</h3>
+    <div class="mep large" id="propo-large"></div>
+  </div>
+  <div class="cadre"><h3>Téléphone</h3><div class="etiq">Une seule colonne : le panneau s'ouvre sous le bouton, les suggestions s'empilent, puis vient « Allure générale ».</div>
+    <div class="mep tel" id="propo-tel"></div>
+  </div>
+
+  <h2>3. Autres façons de remplir la ligne « Allure » (écartées, pour comparer)</h2>
+  <table>
+    <tr><th>Idée</th><th>Bénéfice</th><th>Risque</th><th>Avis</th></tr>
+    <tr><td><b>Allure en pleine largeur</b> (recommandée, ci-dessus)</td><td>Plus de vide : les boutons et la phrase tiennent sur deux lignes au lieu de cinq</td><td>Allure n'est plus dans la colonne de gauche, il faut s'habituer</td><td class="oui">Recommandé</td></tr>
+    <tr><td>Mettre la phrase explicative à droite des trois boutons</td><td>Utilise le vide sans rien déplacer</td><td>Quand le panneau de suggestions s'ouvre, la phrase se retrouve poussée ou séparée du titre</td><td class="non">Fragile</td></tr>
+    <tr><td>Ajouter dans le vide un aperçu agrandi du modèle choisi</td><td>Comble le vide, utile à voir</td><td>Doublon avec l'aperçu du CV juste à côté, plus de code, plus de poids</td><td class="non">Inutile</td></tr>
+    <tr><td>Ne rien changer à la colonne, réduire seulement le cadre pointillé</td><td>Très peu de code</td><td>Le blanc reste, il est juste moins encadré</td><td class="non">Insuffisant</td></tr>
+  </table>
+
+  <h2>4. Questions pour toi</h2>
+  <ol>
+    <li>Le panneau sur toute la largeur, trois suggestions côte à côte, juste avant « Allure » et relié au bouton par la pointe : d'accord ?</li>
+    <li>Le bouton ouvert plein de la couleur du thème, avec « Ouvert, cliquez pour refermer » : d'accord ?</li>
+    <li>« Allure générale » sur toute la largeur sous les deux colonnes : d'accord, ou tu préfères une autre idée du tableau ?</li>
+    <li>Par défaut, le panneau doit-il s'ouvrir tout seul après un clic sur « Mise en page » (on le voit tout de suite), ou rester fermé jusqu'à ce que la personne clique ? (Aujourd'hui il reste fermé. Recommandé : rester fermé, pour ne pas surcharger.)</li>
+  </ol>
+</main>
+<script>
+  var CARTES = [
+    { t: 'Ranger en deux colonnes', g: 'Remplit environ 6 lignes de plus', d: 'Passe les compétences et les formations en deux colonnes pour mieux remplir la page.' },
+    { t: 'Compétences en haut', g: 'Gain : environ 3 lignes', d: 'Place les compétences sous l\'en-tête, avant les expériences.' },
+    { t: 'Resserrer les titres', g: 'Équilibre visuel', d: 'Réduit un peu l\'espace autour des titres de rubriques.' }
+  ];
+  var TOUT = '';
+  function pic() { return '<span class="pic"><i></i><i></i><i></i><i></i><i></i></span>'; }
+  function cartesHtml(trois) {
+    return '<div class="cartes' + (trois ? ' trois' : '') + '">' + CARTES.map(function (c, k) {
+      return '<button type="button" class="carte' + (k === 0 ? ' choisie' : '') + '">' + pic() + '<span><b>' + c.t + '</b><span class="gain">' + c.g + '</span></span></button>';
+    }).join('') + '</div>';
+  }
+  function detailHtml() { return '<div class="detail"><b>Ce que fera « Appliquer » :</b> ' + CARTES[0].d + '<br><button type="button">Appliquer</button></div><div class="pager"><span class="b">‹ Précédentes</span><span>1 / 2</span><span class="b">Suivantes ›</span></div>'; }
+  function gauche() {
+    return '<div class="col-g"><div class="bloc-ambiance"><b>Choisir une ambiance</b>Un clic règle la couleur, les titres, les compétences.</div>' +
+      '<div><div class="titre-mini">Couleurs</div><div class="pastilles"><i style="background:#2e7d5b"></i><i style="background:#2f6690"></i><i style="background:#8a97a6"></i><i style="background:#b83a3a"></i><i style="background:#6b3fa0"></i><i style="background:#1f2d4a;outline:2px solid var(--accent);outline-offset:2px"></i><i style="background:#1f7a7a"></i><i style="background:#c0623a"></i></div></div>' +
+      '<div><span class="btn-degrade">✓ Dégradé</span></div><div><span class="btn-clair">Options supplémentaires →</span></div></div>';
+  }
+  function allureSeg() { return '<div class="seg"><button type="button" class="s">Sobre</button><button type="button" class="d on">Standard</button><button type="button" class="c">Créatif</button></div>'; }
+  var LEG = '<div class="legende"><b>Standard</b> : la base libre. Le bouton « Style rapide » compose une ambiance au hasard et respecte le nombre de colonnes choisi. Votre contenu ne change jamais.</div>';
+  function resultat() { return '<div class="titre-mini">🪄 Ce que « Mise en page » a fait</div><div class="resultat">Texte : 11 px → 11.6 px<br>En-tête : agrandi de 25 %<br>La page est mieux remplie.</div>'; }
+  function bouton(ouvert, mode) {
+    var cl = 'sugg' + (ouvert ? (mode === 'ancien' ? ' ouvert-ancien' : ' ouvert') : '');
+    var petit = ouvert && mode !== 'ancien' ? 'Ouvert, cliquez pour refermer' : 'Cliquez pour voir';
+    return '<button type="button" class="' + cl + '" data-bsugg><span><b>Suggestions de mise en page <span class="badge">4</span></b><small>' + petit + '</small></span><span class="chev">⌄</span></button>';
+  }
+  var etat = { propoLarge: false, propoTel: false };
+  function dessiner() {
+    document.getElementById('aujourdhui').innerHTML =
+      '<div class="entete-boutons"><div class="gros"><b>Style rapide</b><small>Un style complet en un clic.</small></div><div class="gros"><b>Mise en page</b><small>Fait tenir sur une page.</small></div></div>' +
+      '<div class="grille">' + gauche() +
+      '<div class="col-d"><div class="zone-mep" style="min-height:16rem">' + resultat() + bouton(true, 'ancien') + '</div></div></div>' +
+      '<div class="ligne-allure" style="grid-template-columns:1fr;max-width:300px"><div class="titre-mini" style="margin:0">Allure générale</div>' + allureSeg() + LEG + '</div>' +
+      '<div class="panneau pleine"><p class="intro">Autres façons d\'agencer votre CV. Cliquez sur une suggestion pour lire ce qu\'elle fait.</p>' + cartesHtml(true) + detailHtml() + '</div>' +
+      '<div class="org">Organisation du CV</div>';
+    function propo(id, cle, large) {
+      var o = etat[cle];
+      document.getElementById(id).innerHTML =
+        '<div class="entete-boutons"><div class="gros"><b>Style rapide</b><small>Un style complet en un clic.</small></div><div class="gros actif"><b>Mise en page</b><small>Fait tenir sur une page.</small></div></div>' +
+        '<div class="grille">' + gauche() + '<div class="col-d"><div class="zone-mep">' + resultat() + bouton(o, 'propo') + '</div></div></div>' +
+        (o ? '<div class="panneau relie"><p class="intro">Autres façons d\'agencer votre CV. Cliquez sur une suggestion pour lire ce qu\'elle fait ; vous pouvez en appliquer plusieurs, l\'une après l\'autre. Aucune ne change votre dossier.</p>' + cartesHtml(true) + detailHtml() + '</div>' : '') +
+        '<div class="ligne-allure"><div class="titre-mini" style="margin:0">Allure générale <span class="sous">Choisissez le style visuel de votre CV.</span></div>' + allureSeg() + LEG + '</div>' +
+        '<div class="org">Organisation du CV</div>';
+      document.getElementById(id).querySelector('[data-bsugg]').addEventListener('click', function () { etat[cle] = !etat[cle]; dessiner(); });
+    }
+    propo('propo-large', 'propoLarge', true);
+    propo('propo-tel', 'propoTel', false);
+  }
+  dessiner();
+  document.getElementById('basculeSombre').addEventListener('click', function () {
+    var r = document.documentElement, s = r.getAttribute('data-theme') === 'sombre';
+    r.setAttribute('data-theme', s ? 'clair' : 'sombre');
+    this.textContent = s ? 'Voir en mode sombre' : 'Voir en mode clair';
+  });
+</script>
+</body>
+</html>

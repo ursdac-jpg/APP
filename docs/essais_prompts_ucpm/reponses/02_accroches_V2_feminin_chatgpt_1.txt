@@ -1,0 +1,76 @@
+```
+[
+  {
+    "id": 1,
+    "metier": "Peintre en bâtiment",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et pratique de la peinture intérieure, avec envie d’apprendre le métier en entreprise sur deux ans.",
+      "Habituée au travail soigné et aux consignes, avec l’envie de s’investir dans la durée pour progresser en situation de travail."
+    ]
+  },
+  {
+    "id": 2,
+    "metier": "Électricienne d’entretien",
+    "accroches": [
+      "Habilitation électrique BS et pratique de dépannages en électricité de base, deux bases concrètes pour préparer une formation en électricité du bâtiment.",
+      "Motivée pour approfondir ses bases et construire un projet en électricité du bâtiment grâce à une formation d’environ six mois."
+    ]
+  },
+  {
+    "id": 3,
+    "metier": "Plombière",
+    "accroches": [
+      "Pratique de dépannages en plomberie en résidence, avec envie de renforcer ces bases et d’apprendre le métier en entreprise sur deux ans.",
+      "Habituée à intervenir dans des logements occupés, avec le souci des consignes et l’envie de s’investir durablement dans une alternance."
+    ]
+  },
+  {
+    "id": 4,
+    "metier": "Ouvrière paysagiste",
+    "accroches": [
+      "Entretien des espaces verts pratiqué en collectivité, avec l’envie de retrouver ce domaine et de découvrir les besoins d’une équipe paysagiste.",
+      "Curieuse de découvrir d’autres façons de travailler dans les espaces verts, avec une démarche directe et l’envie de s’investir durablement."
+    ]
+  },
+  {
+    "id": 5,
+    "metier": "Poseuse de revêtements muraux",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements, préparation des supports et pose de revêtements muraux, avec envie d’apprendre davantage en entreprise pendant deux ans.",
+      "Habituée aux travaux de préparation et aux finitions, avec l’envie de s’investir dans la durée pour apprendre la pose en situation réelle."
+    ]
+  },
+  {
+    "id": 6,
+    "metier": "Agent de propreté",
+    "accroches": [
+      "Entretien des parties communes et remise en état de logements, avec une pratique régulière des consignes et du travail dans des résidences collectives.",
+      "Disponible pour découvrir une nouvelle organisation de travail, avec l’envie de mettre son expérience d’entretien au service d’une équipe sur la durée."
+    ]
+  },
+  {
+    "id": 7,
+    "metier": "Agent de service en collectivité",
+    "accroches": [
+      "Expérience dans une commune, avec entretien des bâtiments communaux, petits travaux et interventions sur les espaces verts.",
+      "Habituée à travailler pour une collectivité et à intervenir sur des tâches variées, avec l’envie de retrouver un poste utile au quotidien."
+    ]
+  },
+  {
+    "id": 8,
+    "metier": "Agent logistique",
+    "accroches": [
+      "Gestion d’un stock de produits et expérience de la mise en rayon, avec l’envie de découvrir les tâches d’une équipe logistique.",
+      "Organisée dans le suivi des produits et habituée aux tâches variées, avec l’envie de s’investir dans un poste logistique sur la durée."
+    ]
+  },
+  {
+    "id": 9,
+    "metier": "Gardienne d’immeuble",
+    "accroches": [
+      "Expérience dans une résidence de 120 logements, avec entretien des parties communes, petits dépannages et relation avec les locataires.",
+      "Habituée aux résidences collectives et aux consignes de sécurité, avec un intérêt concret pour un poste mêlant entretien, présence et relation avec les locataires."
+    ]
+  }
+]
+```

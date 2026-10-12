@@ -1,0 +1,76 @@
+```
+[
+  {
+    "id": 1,
+    "metier": "Peintre en bâtiment",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et expérience en peinture intérieure, avec projet d'apprendre le métier en entreprise sur deux ans.",
+      "Dix ans d'expérience en entretien des bâtiments, avec pratique de la préparation des supports et des finitions, pour une alternance dans la durée."
+    ]
+  },
+  {
+    "id": 2,
+    "metier": "Électricien d’entretien",
+    "accroches": [
+      "Habilitation électrique BS et pratique de dépannages en électricité de base, préparant une entrée en formation en électricité du bâtiment.",
+      "Expérience en entretien de bâtiments et projet d'évolution vers l'électricité du bâtiment, avec une formation d'environ six mois à temps plein."
+    ]
+  },
+  {
+    "id": 3,
+    "metier": "Plombier",
+    "accroches": [
+      "Pratique des dépannages en plomberie en résidence, avec projet d'apprendre le métier de plombier en entreprise dans le cadre d'une alternance.",
+      "Dix ans d'expérience en entretien des bâtiments, avec pratique de la petite plomberie et projet de formation en alternance sur deux ans."
+    ]
+  },
+  {
+    "id": 4,
+    "metier": "Ouvrier paysagiste",
+    "accroches": [
+      "Expérience en entretien des espaces verts dans une commune, avec projet de rejoindre une structure dédiée aux espaces verts.",
+      "Pratique de l'entretien des espaces verts et des petits travaux en collectivité, avec démarche de candidature spontanée dans ce secteur."
+    ]
+  },
+  {
+    "id": 5,
+    "metier": "Poseur de revêtements muraux",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et pratique des revêtements muraux, avec projet d'apprendre le métier en alternance sur deux ans.",
+      "Expérience en préparation des supports, peinture intérieure et finitions, avec projet de développer ces pratiques en entreprise dans la durée."
+    ]
+  },
+  {
+    "id": 6,
+    "metier": "Agent de propreté",
+    "accroches": [
+      "Dix ans d'expérience en entretien de résidences collectives, avec pratique de la remise en état des logements et des parties communes.",
+      "Entretien de 120 logements et des parties communes, avec démarche de candidature spontanée pour un poste à temps plein dans la propreté."
+    ]
+  },
+  {
+    "id": 7,
+    "metier": "Agent de service en collectivité",
+    "accroches": [
+      "Expérience d'agent polyvalent des services techniques d'une commune, avec entretien des bâtiments communaux et des espaces verts.",
+      "Dix ans d'expérience en entretien des bâtiments et expérience en collectivité, avec démarche de candidature spontanée auprès des services communaux."
+    ]
+  },
+  {
+    "id": 8,
+    "metier": "Agent logistique",
+    "accroches": [
+      "Expérience de libre-service avec mise en rayon et réassort, complétée par la gestion d'un stock de produits en résidence.",
+      "Pratique de la mise en rayon, du réassort et de la gestion de stock, avec candidature spontanée pour un poste à temps plein."
+    ]
+  },
+  {
+    "id": 9,
+    "metier": "Gardien d’immeuble",
+    "accroches": [
+      "Dix ans d'expérience en résidence, avec entretien de 120 logements, remise en état et relation avec les locataires.",
+      "Expérience en entretien de résidences collectives et relation avec les locataires, avec intérêt pour un poste de gardien d'immeuble en CDI."
+    ]
+  }
+]
+```

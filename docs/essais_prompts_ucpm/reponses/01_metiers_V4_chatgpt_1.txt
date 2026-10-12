@@ -1,0 +1,30 @@
+```
+{
+  "synthese": {
+    "metier": "Agent d’entretien des bâtiments",
+    "competencesCles": ["Petite plomberie", "Peinture et finitions", "Électricité de base (BS)", "Entretien des espaces verts", "Petite maçonnerie et menuiserie", "Gestion de stock", "Relation avec le public", "Travail en équipe"],
+    "experiences": [
+      { "intitule": "Agent d’entretien en résidence (bailleur social)", "missionsPrincipales": ["Entretien courant de 120 logements et des parties communes (halls, escaliers, caves, locaux poubelles)", "Petits dépannages : plomberie (robinets, siphons, joints, chasses d’eau), remplacement de prises, d’interrupteurs et d’ampoules", "Peinture de cages d’escalier et remise en état des logements libérés (état des lieux de sortie, petites réparations, nettoyage)", "Gestion d’un stock de produits et de petit matériel, commandes mensuelles"], "competencesRetirees": ["Petite plomberie", "Électricité de base (BS)", "Peinture et finitions", "Gestion de stock"] },
+      { "intitule": "Agent polyvalent des services techniques, commune de 6 000 habitants", "missionsPrincipales": ["Entretien des bâtiments communaux (école, salle des fêtes, mairie) et des espaces verts (tonte, taille de haies, désherbage)", "Petits travaux de maçonnerie (rebouchage, joints de carrelage) et de menuiserie (serrures, portes, étagères)", "Montage et démontage de barnums, tables et scènes pour les fêtes locales ; déneigement et salage en hiver", "Respect des consignes de sécurité, port des équipements de protection, entretien des outils"], "competencesRetirees": ["Entretien des espaces verts", "Petite maçonnerie et menuiserie", "Travail en équipe", "Respect des consignes de sécurité"] },
+      { "intitule": "Aide-peintre, entreprise de peinture en bâtiment", "missionsPrincipales": ["Préparation des supports (ponçage, enduit, rebouchage), peinture intérieure, pose de revêtements muraux, finitions", "Chargement et rangement du matériel, protection des sols et du mobilier"], "competencesRetirees": ["Peinture et finitions", "Préparation des supports", "Pose de revêtements muraux", "Chargement et rangement du matériel"] },
+      { "intitule": "Employé de libre-service, supermarché", "missionsPrincipales": ["Mise en rayon, réassort, contrôle des dates, étiquetage", "Accueil et renseignement des clients, aide en caisse en renfort"], "competencesRetirees": ["Relation avec le public", "Mise en rayon", "Réassort", "Étiquetage"] }
+    ]
+  },
+  "intitulesMemeMetier": [
+    { "intituleMasculin": "Agent de maintenance des bâtiments", "intituleFeminin": "Agente de maintenance des bâtiments", "retrouveDansLeCV": "Le CV mentionne l’entretien des bâtiments, les petits dépannages et les petites réparations." },
+    { "intituleMasculin": "Ouvrier d’entretien du bâtiment", "intituleFeminin": "Ouvrière d’entretien du bâtiment", "retrouveDansLeCV": "Le CV mentionne l’entretien courant, la peinture, les petites réparations et les petits dépannages." },
+    { "intituleMasculin": "Employé de maintenance des bâtiments", "intituleFeminin": "Employée de maintenance des bâtiments", "retrouveDansLeCV": "Le CV mentionne l’entretien des bâtiments communaux et de logements ainsi que le suivi des interventions." },
+    { "intituleMasculin": "Agent technique de maintenance des bâtiments", "intituleFeminin": "Agente technique de maintenance des bâtiments", "retrouveDansLeCV": "Le CV mentionne l’entretien des bâtiments, l’électricité de base, la plomberie et les petites réparations." }
+  ],
+  "autresMetiers": [
+    { "metierMasculin": "Peintre en bâtiment", "metierFeminin": "Peintre en bâtiment", "retrouveDansLeCV": ["Peinture de cages d’escalier et remise en état des logements libérés", "CAP Peintre applicateur de revêtements"], "aVerifier": "" },
+    { "metierMasculin": "Électricien du bâtiment", "metierFeminin": "Électricienne du bâtiment", "retrouveDansLeCV": ["remplacement de prises, d’interrupteurs et d’ampoules", "Habilitation électrique BS (électricité de base)"], "aVerifier": "Un diplôme ou titre en électricité du bâtiment et une habilitation adaptée aux travaux concernés peuvent être demandés." },
+    { "metierMasculin": "Plombier", "metierFeminin": "Plombière", "retrouveDansLeCV": ["Petits dépannages : plomberie (robinets, siphons, joints, chasses d’eau)", "Petite plomberie"], "aVerifier": "Une qualification professionnelle en plomberie peut être demandée selon les travaux et le poste." },
+    { "metierMasculin": "Gardien d’immeuble", "metierFeminin": "Gardienne d’immeuble", "retrouveDansLeCV": ["Relation avec les locataires, signalement des pannes au gestionnaire", "Entretien courant de 120 logements et des parties communes"], "aVerifier": "Un CAP ou une certification de gardien d’immeubles peut être demandé selon l'employeur." },
+    { "metierMasculin": "Agent d’entretien des espaces verts", "metierFeminin": "Agente d’entretien des espaces verts", "retrouveDansLeCV": ["Entretien des bâtiments communaux et des espaces verts (tonte, taille de haies, désherbage)", "Entretien des espaces verts"], "aVerifier": "" },
+    { "metierMasculin": "Manœuvre du bâtiment", "metierFeminin": "Manœuvre du bâtiment", "retrouveDansLeCV": ["Petits travaux de maçonnerie (rebouchage, joints de carrelage)", "Travail en équipe"], "aVerifier": "" },
+    { "metierMasculin": "Agent d’accueil", "metierFeminin": "Agente d’accueil", "retrouveDansLeCV": ["Accueil et renseignement des clients, aide en caisse en renfort", "Relation avec le public"], "aVerifier": "" },
+    { "metierMasculin": "Employé de rayon", "metierFeminin": "Employée de rayon", "retrouveDansLeCV": ["Mise en rayon, réassort, contrôle des dates, étiquetage", "Accueil et renseignement des clients"], "aVerifier": "" }
+  ]
+}
+```

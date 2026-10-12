@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la carte Choisir une ambiance</title>
+<style>
+  :root { --fond: #f4f6f8; --bg-card: #ffffff; --bg-subtle: #f3f5f8; --text: #1c2430; --text-strong: #121821; --text-muted: #5b6573; --border: #d5dbe3; --border-strong: #b9c2cf; --accent: #2f6690; --accent-bg-subtle: #e6eff7; --ok: #1f7a4d; --alerte: #b4561f; --sur-accent: #ffffff; --ombre: 0 2px 0 rgba(20,40,70,.18); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #12161c; --bg-card: #1b212a; --bg-subtle: #171c23; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; --sur-accent: #0e1722; --ombre: 0 2px 0 rgba(0,0,0,.5); } }
+  :root[data-theme="sombre"] { --fond: #12161c; --bg-card: #1b212a; --bg-subtle: #171c23; --text: #e8ecf1; --text-strong: #f4f7fa; --text-muted: #a2acb9; --border: #323b47; --border-strong: #4a5563; --accent: #7fb3dd; --accent-bg-subtle: #22344a; --ok: #6fcf9d; --alerte: #e39a6a; --sur-accent: #0e1722; --ombre: 0 2px 0 rgba(0,0,0,.5); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--text); font-family: Arial, Helvetica, sans-serif; line-height: 1.45; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 30px 0 8px; }
+  p { margin: 6px 0; }
+  .discret { color: var(--text-muted); font-size: .92rem; }
+  .note { border-left: 4px solid var(--accent); background: var(--bg-card); padding: 8px 12px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+  .barre { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .barre button { font: inherit; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .cadre { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin: 10px 0; }
+  .cadre h3 { margin: 0 0 8px; font-size: .95rem; }
+  .etiq { color: var(--text-muted); font-size: .82rem; margin-bottom: 8px; }
+
+  /* ===== reproduction du panneau ===== */
+  .mep { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; padding: 12px; font-size: 0.78rem; }
+  .mep.large { width: 650px; max-width: 100%; }
+  .mep.tel { width: 320px; max-width: 100%; }
+  .entete-boutons { display: flex; gap: 8px; margin-bottom: 10px; }
+  .gros { flex: 1; display: flex; flex-direction: column; background: #0d6efd; color: #fff; border-radius: 10px; padding: 6px 10px; }
+  .gros b { font-size: .85rem; } .gros small { font-size: .66rem; opacity: .9; }
+  .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+  .mep.tel .grille { grid-template-columns: 1fr; }
+  .col-g > * + *, .col-d > * + * { margin-top: 10px; }
+  .titre-mini { font-size: .8rem; font-weight: 700; color: var(--text-strong); margin-bottom: 4px; }
+  .pastilles { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pastilles i { width: 18px; height: 18px; border-radius: 50%; display: block; }
+  .btn-clair { border: 1px solid var(--border-strong); color: var(--accent); background: var(--bg-card); border-radius: 8px; padding: 3px 10px; font-size: .72rem; display: inline-block; }
+  .zone-mep { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 8px; background: var(--bg-subtle); color: var(--text-muted); }
+  .sugg { width: 100%; margin-top: 8px; border: 1.5px solid var(--accent); background: var(--bg-card); border-radius: 10px; padding: 6px 10px; font-family: inherit; color: var(--accent); font-weight: 700; font-size: .8rem; }
+  .ligne-allure { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .seg { display: flex; gap: 7px; flex: 1; min-width: 220px; }
+  .seg span { flex: 1; text-align: center; border: 1.5px solid var(--border-strong); border-radius: 9px; padding: 0.55rem 0.4rem 0.4rem; font-weight: 700; color: var(--text-strong); }
+  .seg span.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+  .org { margin-top: 12px; border-radius: 10px; background: #0d6efd; color: #fff; padding: 8px 10px; font-weight: 700; }
+
+  /* ===== AUJOURD'HUI : la carte ===== */
+  .carte-auj { width: 100%; border: 1px solid var(--accent); border-radius: 10px; background: var(--bg-card); padding: 8px; text-align: center; font-family: inherit; color: var(--text-muted); font-size: .72rem; }
+  .carte-auj b { display: block; color: var(--accent); font-size: .85rem; margin-bottom: 2px; }
+  .carte-auj .fleche { display: block; text-align: right; color: var(--accent); font-size: .9rem; line-height: .6; }
+  .bloc-auj { margin-top: 6px; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 9px; padding: 8px; }
+
+  /* ===== PROPOSITION : la carte-bouton ===== */
+  .amb { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--text); border-radius: 12px; padding: 9px 10px; font-family: inherit; cursor: pointer; box-shadow: var(--ombre); }
+  .amb:hover { background: var(--accent-bg-subtle); }
+  .amb .pal { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, 12px); gap: 3px; }
+  .amb .pal i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .amb .txt { flex: 1; min-width: 0; }
+  .amb .txt b { display: block; color: var(--accent); font-size: .88rem; }
+  .amb .txt small { display: block; color: var(--text-muted); font-size: .68rem; line-height: 1.25; margin-top: 1px; }
+  .amb .bout { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--accent); font-size: .62rem; font-weight: 700; }
+  .amb .rond { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--accent); display: grid; place-items: center; font-size: 1rem; line-height: 1; transition: transform .15s; }
+  /* ouverte : pleine, couleur du theme (comme le bouton Suggestions et les gros boutons) */
+  .amb.ouvert { background: var(--accent); border-color: var(--accent); box-shadow: none; }
+  .amb.ouvert .txt b, .amb.ouvert .txt small, .amb.ouvert .bout { color: var(--sur-accent); }
+  .amb.ouvert .rond { border-color: var(--sur-accent); transform: rotate(180deg); }
+  .amb.ouvert .pal i { outline: 1.5px solid var(--sur-accent); }
+  /* panneau des six ambiances */
+  .pan { position: relative; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); padding: 8px; margin-top: 14px; }
+  .pan::before { content: ""; position: absolute; top: -9px; left: 24%; width: 14px; height: 14px; background: var(--accent); transform: rotate(45deg); border-radius: 2px; }
+  .mep.tel .pan::before { left: 50%; margin-left: -7px; }
+  .pan .intro { font-size: .7rem; color: var(--text-muted); margin: 0 0 6px; }
+  .tuiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .mep.tel .tuiles { grid-template-columns: 1fr 1fr; }
+  .tuile { text-align: left; border: 1.5px solid var(--border-strong); border-radius: 9px; background: var(--bg-card); padding: 6px 8px; font-family: inherit; color: var(--text); }
+  .tuile b { display: block; color: var(--text-strong); font-size: .78rem; }
+  .tuile .p { display: flex; gap: 3px; margin: 3px 0; } .tuile .p i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+  .tuile small { color: var(--text-muted); font-size: .66rem; line-height: 1.25; display: block; }
+  .pan .pied { margin-top: 6px; font-size: .7rem; }
+  .pan .pied span { border: 1px solid var(--border-strong); border-radius: 8px; padding: 2px 9px; color: var(--text-muted); background: var(--bg-card); }
+  /* variante soudee, etroite */
+  .amb.ouvert.soude { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .pan.soude { margin-top: 0; border-top: 0; border-radius: 0 0 10px 10px; }
+  .pan.soude::before { display: none; }
+  .pan.soude .tuiles { grid-template-columns: 1fr 1fr; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--bg-card); border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: .9rem; }
+  th { background: var(--accent-bg-subtle); }
+  .oui { color: var(--ok); font-weight: 700; } .non { color: var(--alerte); font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Maquette : la carte « Choisir une ambiance »</h1>
+  <p class="discret">Étape « maquette » : rien n'est codé. Deux questions : comment faire comprendre que la carte se clique, et comment montrer que les ambiances viennent d'elle une fois ouverte. Les cartes sont cliquables.</p>
+  <div class="barre"><button type="button" id="basculeSombre">Voir en mode sombre</button></div>
+
+  <h2>1. Aujourd'hui</h2>
+  <div class="note">Fermée, la carte ressemble à un simple encadré de texte : une petite flèche discrète en bas à droite, rien qui dise « cliquez ». Ouverte, les six ambiances apparaissent dans un bloc bleuté étroit, sans lien visible avec la carte.</div>
+  <div class="cadre"><div class="mep large" id="auj"></div></div>
+
+  <h2>2. Proposition recommandée</h2>
+  <div class="note">
+    <b>Pour qu'on comprenne que la carte se clique :</b> elle devient un vrai bouton, avec une ombre sous elle, le titre aligné à gauche, une petite palette de couleurs à gauche (elle annonce ce qu'on va trouver), et à droite un rond avec une flèche et le mot « Ouvrir ». Au survol, elle se teinte.<br>
+    <b>Pour qu'on comprenne que les ambiances viennent d'elle :</b> ouverte, la carte devient pleine, de la couleur du thème, avec « Fermer » et la flèche retournée (comme le bouton « Suggestions de mise en page »). Les six ambiances s'ouvrent en dessous sur toute la largeur, avec le même cadre de couleur et la pointe qui désigne la carte.<br>
+    <b>Pas de pulsation sur cette carte.</b> La pulsation est réservée à ce qui est à faire (« Mise en page ») et aux trois allures à la première arrivée. Une pulsation de plus noierait les autres : la carte-bouton suffit.
+  </div>
+  <p class="discret">Clique sur la carte pour l'ouvrir et la refermer.</p>
+  <div class="cadre"><h3>Ordinateur</h3><div class="mep large" id="propo-large"></div></div>
+  <div class="cadre"><h3>Téléphone</h3><div class="etiq">Une colonne ; les ambiances par deux.</div><div class="mep tel" id="propo-tel"></div></div>
+
+  <h2>3. Variante : panneau soudé à la carte, dans la colonne de gauche</h2>
+  <div class="note">Les ambiances restent dans la colonne étroite, collées sous la carte pleine. Le lien est évident (aucun espace entre les deux), mais les tuiles sont serrées (deux par ligne) et le panneau pousse vers le bas les couleurs et « Options supplémentaires ».</div>
+  <div class="cadre"><div class="mep large" id="soude"></div></div>
+
+  <h2>4. Comparaison</h2>
+  <table>
+    <tr><th>Idée</th><th>Bénéfice</th><th>Risque</th><th>Avis</th></tr>
+    <tr><td><b>Carte-bouton (ombre, palette, rond « Ouvrir »)</b></td><td>On comprend qu'on peut cliquer sans lire</td><td>Un peu plus haute qu'aujourd'hui (environ 14 px de plus)</td><td class="oui">Recommandé</td></tr>
+    <tr><td><b>Carte pleine à l'ouverture + panneau pleine largeur et pointe</b></td><td>Même logique que « Suggestions de mise en page » : on apprend un seul geste ; lien visible</td><td>Si les deux panneaux sont ouverts, ils s'empilent (deux blocs sous les colonnes)</td><td class="oui">Recommandé</td></tr>
+    <tr><td>Faire pulser la carte</td><td>Attire l'œil</td><td>Trois choses qui pulsent au premier affichage : on ne sait plus laquelle regarder</td><td class="non">Déconseillé</td></tr>
+    <tr><td>Panneau soudé dans la colonne</td><td>Lien immédiat, pas de pointe à comprendre</td><td>Tuiles serrées, colonne de gauche très longue</td><td>Possible</td></tr>
+  </table>
+
+  <h2>5. Questions pour toi</h2>
+  <ol>
+    <li>La carte-bouton fermée (palette, ombre, « Ouvrir ») te convient-elle, ou veux-tu une autre façon de dire « cliquez » ?</li>
+    <li>Ouverte : carte pleine et ambiances sur toute la largeur avec la pointe (recommandé), ou panneau soudé dans la colonne ?</li>
+    <li>Pas de pulsation sur cette carte : d'accord ?</li>
+    <li>Si le panneau des ambiances et celui des suggestions sont ouverts en même temps, ils s'empilent l'un sous l'autre. D'accord, ou on referme l'un quand on ouvre l'autre ?</li>
+  </ol>
+</main>
+<script>
+  var AMB = [
+    ['Sérieux', '#1f2d4a', '#dfe5ef', 'Marine, titres soulignés, angles droits.'],
+    ['Chaleureux', '#b5573b', '#f6e0d6', 'Terre cuite, coins arrondis, pastilles.'],
+    ['Moderne', '#2f7d62', '#dcefe7', 'Turquoise, titres en bandeau, icônes.'],
+    ['Discret', '#4d555e', '#e4e6e8', 'Gris ardoise, très sobre, texte seul.'],
+    ['Nature', '#3d7a46', '#e0efe0', 'Verts, titres en pastille, icônes.'],
+    ['Affirmé', '#8a2f3f', '#f3dde0', 'Bordeaux, titres en bandeau, traits épais.']
+  ];
+  var etat = { large: false, tel: false, soude: false };
+  function pal() { return '<span class="pal"><i style="background:#1f2d4a"></i><i style="background:#b5573b"></i><i style="background:#2f7d62"></i><i style="background:#4d555e"></i><i style="background:#3d7a46"></i><i style="background:#8a2f3f"></i></span>'; }
+  function entete() { return '<div class="entete-boutons"><div class="gros"><b>Style rapide</b><small>Un style complet en un clic.</small></div><div class="gros"><b>Mise en page</b><small>Fait tenir sur une page.</small></div></div>'; }
+  function milieu() { return '<div><div class="titre-mini">Couleurs</div><div class="pastilles"><i style="background:#2e7d5b"></i><i style="background:#2f6690;outline:2px solid var(--accent);outline-offset:2px"></i><i style="background:#8a97a6"></i><i style="background:#b83a3a"></i><i style="background:#6b3fa0"></i><i style="background:#1f2d4a"></i></div></div><div><span class="btn-clair">Dégradé</span> <span class="btn-clair">Options supplémentaires →</span></div>'; }
+  function droite() { return '<div class="col-d"><div class="zone-mep"><div class="titre-mini">🪄 Ce que « Mise en page » a fait</div>Cliquez sur « Mise en page » : ce qui a été ajusté s\'affichera ici.</div></div>'; }
+  function bas() { return '<div class="ligne-allure"><div class="titre-mini" style="margin:0">Allure générale</div><div class="seg"><span>Sobre</span><span class="on">Standard</span><span>Créatif</span></div></div><div class="org">Organisation du CV</div>'; }
+  function tuiles() { return '<div class="tuiles">' + AMB.map(function (a) { return '<button type="button" class="tuile"><b>' + a[0] + '</b><span class="p"><i style="background:' + a[1] + '"></i><i style="background:' + a[2] + '"></i></span><small>' + a[3] + '</small></button>'; }).join('') + '</div><div class="pied"><span>↺ Annuler l\'ambiance</span></div>'; }
+  function carte(ouvert, soude) {
+    return '<button type="button" class="amb' + (ouvert ? ' ouvert' : '') + (soude ? ' soude' : '') + '" data-amb><span class="pal">' + (ouvert ? '' : '') + '</span>' +
+      '<span class="txt"><b>Choisir une ambiance</b><small>' + (ouvert ? 'Ouverte : cliquez sur une ambiance ci-dessous.' : 'Un clic règle la couleur, les titres, les compétences, les coins, les traits et les icônes. Votre texte ne change jamais.') + '</small></span>' +
+      '<span class="bout"><span class="rond">⌄</span>' + (ouvert ? 'Fermer' : 'Ouvrir') + '</span></button>';
+  }
+  function dessiner() {
+    document.getElementById('auj').innerHTML = entete() + '<div class="grille"><div class="col-g"><button type="button" class="carte-auj" data-auj><b>Choisir une ambiance</b>Un clic règle la couleur, les titres, les compétences, les coins, les traits et les icônes. Votre texte ne change jamais.<span class="fleche">' + (etat.auj ? '^' : '⌄') + '</span></button>' +
+      (etat.auj ? '<div class="bloc-auj"><div class="tuiles" style="grid-template-columns:1fr 1fr">' + AMB.map(function (a) { return '<div class="tuile"><b>' + a[0] + '</b><span class="p"><i style="background:' + a[1] + '"></i><i style="background:' + a[2] + '"></i></span><small>' + a[3] + '</small></div>'; }).join('') + '</div></div>' : '') + milieu() + '</div>' + droite() + '</div>' + bas();
+    var a = document.querySelector('[data-auj]'); a.addEventListener('click', function () { etat.auj = !etat.auj; dessiner(); });
+    function propo(id, cle) {
+      var o = etat[cle];
+      var h = entete() + '<div class="grille"><div class="col-g">' + carte(o, false).replace('<span class="pal"></span>', pal()) + milieu() + '</div>' + droite() + '</div>' +
+        (o ? '<div class="pan"><p class="intro">Choisissez une ambiance : elle règle d\'un coup la couleur, les titres, les compétences, les coins et les icônes. Votre texte ne change jamais.</p>' + tuiles() + '</div>' : '') + bas();
+      var e = document.getElementById(id); e.innerHTML = h;
+      e.querySelector('[data-amb]').addEventListener('click', function () { etat[cle] = !etat[cle]; dessiner(); });
+    }
+    propo('propo-large', 'large'); propo('propo-tel', 'tel');
+    var s = document.getElementById('soude'), o = etat.soude;
+    s.innerHTML = entete() + '<div class="grille"><div class="col-g">' + carte(o, true).replace('<span class="pal"></span>', pal()) + (o ? '<div class="pan soude">' + tuiles() + '</div>' : '') + milieu() + '</div>' + droite() + '</div>' + bas();
+    s.querySelector('[data-amb]').addEventListener('click', function () { etat.soude = !etat.soude; dessiner(); });
+  }
+  dessiner();
+  document.getElementById('basculeSombre').addEventListener('click', function () {
+    var r = document.documentElement, s = r.getAttribute('data-theme') === 'sombre';
+    r.setAttribute('data-theme', s ? 'clair' : 'sombre');
+    this.textContent = s ? 'Voir en mode sombre' : 'Voir en mode clair';
+  });
+</script>
+</body>
+</html>

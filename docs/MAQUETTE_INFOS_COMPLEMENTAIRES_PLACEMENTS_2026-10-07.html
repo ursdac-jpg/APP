@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Informations complémentaires déplaçables</title>
+<style>
+:root {
+  --bg: #f4f6f9; --carte: #ffffff; --texte: #1c2430; --doux: #5b6676; --bord: #cfd6df; --accent: #0d6efd; --accent-pale: #eaf1ff;
+  --cv: #1f2a44; --feuille: #ffffff; --nouveau: #137a4b; --nouveau-pale: #e4f5ec; --alerte: #a15c00; --alerte-pale: #fff3df;
+}
+[data-theme="sombre"] {
+  --bg: #12161d; --carte: #1b212b; --texte: #e8ecf2; --doux: #9aa6b8; --bord: #384152; --accent: #6ea8ff; --accent-pale: #1f2c45;
+  --cv: #8fa6d6; --feuille: #242b37; --nouveau: #5fd59a; --nouveau-pale: #17342a; --alerte: #f0b35a; --alerte-pale: #3a2d17;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--texte); }
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 1.5rem; margin: .2rem 0 .3rem; }
+h2 { font-size: 1.15rem; margin: 0 0 .5rem; }
+p.doux { color: var(--doux); margin: .2rem 0 .8rem; }
+.carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+.bouton { font: inherit; border: 1px solid var(--accent); background: var(--carte); color: var(--accent); border-radius: 10px; padding: .55rem .9rem; cursor: pointer; font-weight: 600; }
+.bouton[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.bouton.nouveau { border-color: var(--nouveau); color: var(--nouveau); }
+.bouton.nouveau[aria-pressed="true"] { background: var(--nouveau); color: #fff; }
+.rangee { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0; }
+.etiquette-nouveau { background: var(--nouveau-pale); color: var(--nouveau); border-radius: 999px; padding: 0 .5rem; font-size: .75rem; font-weight: 700; margin-left: .3rem; }
+.deux { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 800px) { .deux { grid-template-columns: 1fr; } }
+
+/* la feuille A4 dessinée */
+.feuille { width: 100%; max-width: 380px; aspect-ratio: 210 / 297; background: var(--feuille); border: 1px solid var(--bord); border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.12); display: flex; flex-direction: column; overflow: hidden; font-size: 9px; color: var(--texte); }
+.f-tete { padding: 10px 12px 6px; border-bottom: 2px solid var(--cv); }
+.f-nom { font-weight: 700; font-size: 15px; color: var(--cv); }
+.f-metier { font-size: 10px; color: var(--doux); }
+.f-coord { margin-top: 3px; color: var(--doux); font-size: 8px; }
+.f-corps { flex: 1; display: grid; grid-template-columns: 34% 1fr; min-height: 0; }
+.f-g { background: var(--cv); color: #fff; padding: 8px; }
+.f-d { padding: 8px 10px; }
+.rub { margin-bottom: 7px; }
+.rub h3 { margin: 0 0 2px; font-size: 8px; letter-spacing: .04em; text-transform: uppercase; }
+.f-g h3 { color: #fff; border-bottom: 1px solid rgba(255,255,255,.5); }
+.f-d h3 { color: var(--cv); border-bottom: 1px solid var(--cv); }
+.ligne-grise { height: 4px; background: var(--bord); border-radius: 2px; margin: 3px 0; }
+.f-g .ligne-grise { background: rgba(255,255,255,.35); }
+.infos-bloc { outline: 2px dashed var(--nouveau); outline-offset: 2px; background: var(--nouveau-pale); color: var(--texte); border-radius: 3px; padding: 3px 4px; }
+.infos-bloc h3 { color: var(--cv) !important; border-color: var(--cv) !important; }
+.f-g .infos-bloc .ligne-texte { color: var(--texte); }
+.ligne-texte { font-size: 8px; line-height: 1.35; }
+.bande { padding: 5px 12px; border-top: 1px solid var(--bord); border-bottom: 1px solid var(--bord); }
+.bande .deux-rubs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.slot { display: none; }
+.feuille[data-place="g"] .slot-g, .feuille[data-place="d"] .slot-d, .feuille[data-place="haut"] .slot-haut, .feuille[data-place="tete"] .slot-tete, .feuille[data-place="bas"] .slot-bas, .feuille[data-place="cote"] .slot-cote { display: block; }
+.feuille[data-place="g"] .slot-g, .feuille[data-place="d"] .slot-d { display: block; }
+.f-pied-vide { flex: 0 0 auto; }
+
+/* maquette de panneau */
+.panneau { border: 1px solid var(--bord); border-radius: 10px; padding: 10px 12px; background: var(--carte); }
+.panneau h3 { margin: 0 0 .4rem; font-size: 1rem; }
+.zone { border: 1px dashed var(--bord); border-radius: 8px; padding: 6px 8px; margin: 6px 0; }
+.zone.nv { border-color: var(--nouveau); background: var(--nouveau-pale); }
+.zone b { font-size: .85rem; }
+.bloc-ligne { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin: .2rem 0; font-size: .85rem; }
+.bloc-nom { min-width: 11rem; }
+.mini { font: inherit; font-size: .75rem; border: 1px solid var(--bord); background: var(--carte); color: var(--texte); border-radius: 6px; padding: .1rem .4rem; cursor: default; }
+.mini.actif { border-color: var(--nouveau); color: var(--nouveau); font-weight: 700; }
+.barre-rub { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; border: 1px solid var(--bord); border-radius: 10px; padding: 8px 10px; background: var(--carte); box-shadow: 0 2px 8px rgba(0,0,0,.12); font-size: .85rem; }
+.note { border-left: 3px solid var(--accent); background: var(--accent-pale); padding: .5rem .75rem; border-radius: 6px; margin: .6rem 0; font-size: .92rem; }
+.note.alerte { border-color: var(--alerte); background: var(--alerte-pale); }
+.liste li { margin: .25rem 0; }
+.legende { font-size: .85rem; color: var(--doux); }
+</style>
+</head>
+<body>
+<main>
+<h1>Informations complémentaires : la mettre où l'on veut</h1>
+<p class="doux">Maquette pour validation (2026-10-07). Rien n'est codé. Cette rubrique est la <b>seule</b> qui aura toute cette liberté ; les autres rubriques gardent leurs deux colonnes. Le cadre vert pointillé repère la rubrique sur chaque dessin.</p>
+
+<section class="carte">
+<h2>1. Les six endroits possibles</h2>
+<p class="doux">Choisissez un endroit : la feuille change. Les contenus sont des exemples.</p>
+<div class="rangee" id="choix" role="group" aria-label="Endroit de la rubrique">
+  <button class="bouton" type="button" data-p="g" aria-pressed="false">Colonne de gauche <small>(existe déjà)</small></button>
+  <button class="bouton" type="button" data-p="d" aria-pressed="true">Colonne de droite <small>(existe déjà)</small></button>
+  <button class="bouton nouveau" type="button" data-p="haut" aria-pressed="false">Bandeau du haut <span class="etiquette-nouveau">nouveau</span></button>
+  <button class="bouton nouveau" type="button" data-p="tete" aria-pressed="false">Dans l'en-tête <span class="etiquette-nouveau">nouveau</span></button>
+  <button class="bouton nouveau" type="button" data-p="bas" aria-pressed="false">Bandeau du bas <span class="etiquette-nouveau">nouveau</span></button>
+  <button class="bouton nouveau" type="button" data-p="cote" aria-pressed="false">À côté d'une autre rubrique <span class="etiquette-nouveau">nouveau</span></button>
+</div>
+<div class="deux">
+  <div class="feuille" id="feuille" data-place="d" aria-label="Dessin d'un CV">
+    <div class="f-tete">
+      <div class="f-nom">Camille MARTIN</div>
+      <div class="f-metier">Agent de sécurité</div>
+      <div class="f-coord">Limoges · 06 00 00 00 00 · camille@exemple.fr</div>
+      <div class="slot slot-tete">
+        <div class="infos-bloc" style="margin-top:4px"><div class="ligne-texte">linkedin.com/in/camille · github.com/camille · Disponible immédiatement</div></div>
+      </div>
+    </div>
+    <div class="slot slot-haut bande"><div class="infos-bloc"><h3 style="margin:0 0 2px;font-size:8px;text-transform:uppercase;">Informations complémentaires</h3><div class="ligne-texte">Disponible immédiatement · Mobile sur toute la France · github.com/camille</div></div></div>
+    <div class="f-corps">
+      <div class="f-g">
+        <div class="rub"><h3>Langues</h3><div class="ligne-texte">Anglais, niveau B1</div></div>
+        <div class="rub"><h3>Certifications</h3><div class="ligne-grise"></div><div class="ligne-grise"></div></div>
+        <div class="slot slot-g"><div class="rub infos-bloc"><h3>Informations complémentaires</h3><div class="ligne-texte">Disponible immédiatement</div><div class="ligne-texte">Mobile sur toute la France</div></div></div>
+      </div>
+      <div class="f-d">
+        <div class="rub"><h3>Expériences professionnelles</h3><div class="ligne-texte"><b>Agent de sécurité</b>, Sécuritas</div><div class="ligne-grise"></div><div class="ligne-grise"></div><div class="ligne-texte"><b>Vendeuse</b>, Boulangerie</div><div class="ligne-grise"></div></div>
+        <div class="rub"><h3>Formations</h3><div class="ligne-texte"><b>CAP Agent de prévention</b>, AFPA</div></div>
+        <div class="slot slot-d"><div class="rub infos-bloc"><h3>Informations complémentaires</h3><div class="ligne-texte">Disponible immédiatement</div><div class="ligne-texte">Mobile sur toute la France</div></div></div>
+      </div>
+    </div>
+    <div class="slot slot-cote bande"><div class="deux-rubs"><div class="infos-bloc"><h3 style="margin:0 0 2px;font-size:8px;text-transform:uppercase;">Informations complémentaires</h3><div class="ligne-texte">Disponible immédiatement</div><div class="ligne-texte">github.com/camille</div></div><div><h3 style="margin:0 0 2px;font-size:8px;text-transform:uppercase;color:var(--cv)">Centres d'intérêt</h3><div class="ligne-texte">Cuisine, course à pied</div></div></div></div>
+    <div class="slot slot-bas bande"><div class="infos-bloc"><h3 style="margin:0 0 2px;font-size:8px;text-transform:uppercase;">Informations complémentaires</h3><div class="ligne-texte">Disponible immédiatement · Mobile sur toute la France · github.com/camille</div></div></div>
+  </div>
+  <div>
+    <div class="note" id="explication"></div>
+    <ul class="liste legende">
+      <li><b>Colonnes :</b> comme aujourd'hui, avec les flèches ▲ ▼ et « Passer dans l'autre colonne ».</li>
+      <li><b>Bandeaux :</b> une bande sur toute la largeur, en haut (sous l'en-tête) ou en bas. Le texte court sur une ou deux lignes, séparé par des points.</li>
+      <li><b>Dans l'en-tête :</b> jusqu'à <b>3 lignes courtes</b> sous les coordonnées, séparées par des points. C'est la place qui attire le plus l'œil (liens, disponibilité).</li>
+      <li><b>À côté d'une autre rubrique :</b> dans un bandeau, deux rubriques côte à côte (ici avec « Centres d'intérêt »).</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<section class="carte">
+<h2>2. Où l'on choisit (carte « Organisation du CV »)</h2>
+<p class="doux">La carte existe déjà : « Personnaliser en 2 colonnes », avec ▲ ▼ et « Passer dans la colonne… ». On y ajoute <b>seulement</b> trois zones et, pour <b>cette seule rubrique</b>, un petit choix d'endroit. Les autres rubriques ne changent pas.</p>
+<div class="panneau">
+  <h3>Personnaliser en 2 colonnes</h3>
+  <div class="zone nv"><b>En-tête</b> <span class="etiquette-nouveau">nouveau</span>
+    <div class="bloc-ligne"><span class="bloc-nom">Informations complémentaires</span><span class="mini actif">Dans l'en-tête</span></div></div>
+  <div class="zone nv"><b>Bandeau du haut</b> <span class="etiquette-nouveau">nouveau</span> <span class="legende">(vide)</span></div>
+  <div class="zone"><b>Colonne de gauche</b>
+    <div class="bloc-ligne"><span class="bloc-nom">Langues</span><span class="mini">▲</span><span class="mini">▼</span><span class="mini">→ droite</span></div>
+    <div class="bloc-ligne"><span class="bloc-nom">Certifications</span><span class="mini">▲</span><span class="mini">▼</span><span class="mini">→ droite</span></div></div>
+  <div class="zone"><b>Colonne de droite</b>
+    <div class="bloc-ligne"><span class="bloc-nom">🔒 Expérience professionnelle</span></div>
+    <div class="bloc-ligne"><span class="bloc-nom">Formations</span><span class="mini">▲</span><span class="mini">▼</span><span class="mini">→ gauche</span></div></div>
+  <div class="zone nv"><b>Bandeau du bas</b> <span class="etiquette-nouveau">nouveau</span> <span class="legende">(vide)</span></div>
+  <div class="bloc-ligne" style="margin-top:.6rem"><b>Informations complémentaires : où ?</b>
+    <span class="mini">Colonne gauche</span><span class="mini">Colonne droite</span><span class="mini">Bandeau du haut</span><span class="mini actif">En-tête</span><span class="mini">Bandeau du bas</span></div>
+  <p class="legende" style="margin:.3rem 0 0">Ce choix n'apparaît que pour « Informations complémentaires ». Il n'est actif que si la rubrique contient au moins une ligne cochée.</p>
+</div>
+</section>
+
+<section class="carte">
+<h2>3. Son propre panneau dans l'aperçu en plein écran</h2>
+<p class="doux">Bonne nouvelle vérifiée dans l'application : cliquer sur le titre « Informations complémentaires » dans le plein écran ouvre <b>déjà</b> la barre de cette rubrique (taille du texte, interligne, espace au-dessus), comme pour toutes les autres. On ne la recrée pas.</p>
+<div class="barre-rub"><b>Informations complémentaires</b>
+  <span>Taille du texte <input type="range" min="70" max="140" value="100" disabled> 100 %</span>
+  <span>Interligne <input type="range" min="110" max="180" value="138" disabled> 1,38</span>
+  <span>Espace au-dessus <input type="range" min="0" max="48" value="0" disabled> 0 px</span>
+  <span class="mini">Remettre</span></div>
+<div class="note"><b>Ce qu'on ajoute à cette barre, pour cette rubrique seulement :</b> « Présentation » en trois boutons (<b>Liste</b>, <b>Sur une ligne</b>, <b>Pastilles</b>) et « Colonnes » (1 ou 2) quand la rubrique est dans une colonne. Dans un bandeau ou dans l'en-tête, la présentation « Sur une ligne » est celle d'office.</div>
+<div class="note"><b>En-tête :</b> en mode « Régler l'en-tête », le texte des informations apparaît comme les autres blocs de l'en-tête (nom, titre, coordonnées, accroche) : on le déplace, on change la taille, le gras, la couleur avec la barre déjà existante.</div>
+</section>
+
+<section class="carte">
+<h2>4. Ce qui se passe dans Word</h2>
+<ul class="liste">
+  <li><b>Colonnes et bandeaux :</b> Word les reproduit (ce sont des blocs de texte ordinaires, comme « Langues et Centres d'intérêt » aujourd'hui en pleine largeur).</li>
+  <li><b>Dans l'en-tête :</b> à vérifier dans un vrai Word modèle par modèle, car l'en-tête est un bloc positionné et chaque modèle le construit différemment. S'il y a un écart visible, il sera inscrit dans le message « conseillé : PDF » déjà en place à l'export.</li>
+</ul>
+<div class="note alerte"><b>Honnêteté sur le risque :</b> « Dans l'en-tête » est la partie la plus délicate (37 modèles, chacun son en-tête). On la fera en <b>dernier</b>, derrière une option éteinte par défaut, avec le banc de non-régression avant et après. Les modèles Frise, Photo et Rectangles arrondis gardent leur disposition propre : la rubrique y reste à sa place actuelle (décision de Denis), avec seulement la barre de taille.</div>
+</section>
+
+<section class="carte">
+<h2>5. Ordre de réalisation proposé</h2>
+<ol class="liste">
+  <li><b>I1</b> Bandeaux du haut et du bas, et « à côté d'une autre rubrique » (réglage éteint par défaut).</li>
+  <li><b>I3</b> Boutons « Présentation » et « Colonnes » dans la barre existante de la rubrique.</li>
+  <li><b>I4</b> Empilement dans la colonne étroite si la maquette le montre lisible (sinon on s'en tient à la colonne large).</li>
+  <li><b>I2</b> Dans l'en-tête, modèle par modèle, vérifié dans Word.</li>
+  <li><b>I5</b> Message Word pour tout écart constaté.</li>
+</ol>
+<p class="doux">À chaque étape : les 37 modèles d'avant restent identiques (banc), Word ouvert pour de vrai, essai de parcours ajouté.</p>
+</section>
+</main>
+<script>
+(function () {
+  var EXPL = {
+    g: 'Colonne de gauche : la rubrique est dans la colonne étroite, sous les autres. C’est possible aujourd’hui.',
+    d: 'Colonne de droite : sous les formations. C’est possible aujourd’hui.',
+    haut: 'Bandeau du haut : une bande sur toute la largeur, sous l’en-tête. Les informations tiennent sur une ou deux lignes.',
+    tete: 'Dans l’en-tête : jusqu’à 3 lignes courtes sous les coordonnées. La place qui attire le plus l’œil.',
+    bas: 'Bandeau du bas : la dernière chose lue. Pratique pour la disponibilité ou la mobilité.',
+    cote: 'À côté d’une autre rubrique : deux rubriques sur la même ligne dans un bandeau, ici avec « Centres d’intérêt ».'
+  };
+  var f = document.getElementById('feuille'), ex = document.getElementById('explication');
+  function aller(p) {
+    f.setAttribute('data-place', p); ex.textContent = EXPL[p];
+    document.querySelectorAll('#choix .bouton').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-p') === p ? 'true' : 'false'); });
+  }
+  document.querySelectorAll('#choix .bouton').forEach(function (b) { b.addEventListener('click', function () { aller(this.getAttribute('data-p')); }); });
+  aller('d');
+})();
+</script>
+</body>
+</html>

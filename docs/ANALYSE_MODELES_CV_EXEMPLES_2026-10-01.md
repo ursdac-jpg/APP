@@ -49,7 +49,12 @@ Photo ronde (3, 5, 6, 10, 12), pictos ronds sur les titres (2, 10), coin ou diag
 Barres de niveau et logos d'entreprises : toujours écartés (score sur la personne, donnée absente).
 
 ### Ordre recommandé (mis à jour)
-1. **Gabarit « Colonne pleine hauteur »** (famille A) avec options couleur, frise, bandeau haut ou coin, photo ronde, pictos de titre : version créative et version sobre claire. Coût moyen à élevé ; risque Word modéré.
+1. **FAIT le 2026-10-05 (versions Créatif foncée et claire : « Colonne foncée », « Colonne claire », voir le plan).** Reste de cette ligne : frise, bandeau haut ou coin, pictos de titre, version Sobre séparée, si Denis les veut. **Gabarit « Colonne pleine hauteur »** (famille A) avec options couleur, frise, bandeau haut ou coin, photo ronde, pictos de titre : version créative et version sobre claire. Coût moyen à élevé ; risque Word modéré.
 2. **Sobre « Éditorial »** (famille B), colonne à droite ou à gauche. Coût faible à moyen.
 3. **Sobre « Chronologique »** (famille C). Coût moyen.
 4. Ensuite, si tu en veux : « Grille » (D), puis cartes (E).
+
+---
+
+## Bilan au 2026-10-07 : tout ce qui a été retenu est fait
+Modèles : Colonne foncée, claire, et bandeau, chronologique foncée, avec frise, avec rubans ; Sobre Éditorial (2 variantes), Chronologique, Grille, Cartes (2), Technique. Options : teinte de page, titres avec filet prolongé ou souligné court, coin coloré en haut à gauche. Écartés volontairement : barres de niveau des compétences (un score sur la personne), logos d'entreprises (donnée absente), exemple 12 (doublon). Détail : `docs/ETAT_DES_CHANTIERS.md` blocs 3a à 3g.

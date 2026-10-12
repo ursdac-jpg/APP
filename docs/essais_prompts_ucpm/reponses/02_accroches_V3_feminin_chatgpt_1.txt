@@ -1,0 +1,76 @@
+```
+[
+  {
+    "id": 1,
+    "metier": "Peintre en bâtiment",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et expérience en peinture intérieure, avec préparation des supports, revêtements muraux et finitions.",
+      "Expérience de 2014 à 2024 dans l'entretien et la remise en état des bâtiments, avec volonté d'apprendre le métier en alternance sur deux ans."
+    ]
+  },
+  {
+    "id": 2,
+    "metier": "Électricienne d’entretien",
+    "accroches": [
+      "Habilitation électrique BS et expérience des dépannages en électricité de base en résidence, pour préparer une formation en électricité du bâtiment.",
+      "Pratique de l'électricité de base dans 120 logements, avec projet d'approfondir ces compétences par une formation d'environ six mois."
+    ]
+  },
+  {
+    "id": 3,
+    "metier": "Plombière",
+    "accroches": [
+      "Pratique des dépannages en plomberie en résidence, sur 120 logements, avec expérience de l'entretien courant et de la remise en état.",
+      "Expérience de 2019 à 2024 en résidence et projet d'apprendre le métier de plombière en alternance sur deux ans."
+    ]
+  },
+  {
+    "id": 4,
+    "metier": "Ouvrière paysagiste",
+    "accroches": [
+      "Expérience des espaces verts dans les services techniques d'une commune, avec entretien des extérieurs et travaux réalisés sur les bâtiments communaux.",
+      "Démarche de candidature directe appuyée par une expérience en espaces verts et un engagement bénévole à la banque alimentaire depuis 2020."
+    ]
+  },
+  {
+    "id": 5,
+    "metier": "Poseuse de revêtements muraux",
+    "accroches": [
+      "CAP Peintre applicateur de revêtements et pratique des revêtements muraux, de la préparation des supports et des finitions.",
+      "Expérience de 2014 à 2024 dans la peinture et la remise en état des logements, avec projet d'apprendre ce métier en alternance sur deux ans."
+    ]
+  },
+  {
+    "id": 6,
+    "metier": "Agent de propreté",
+    "accroches": [
+      "Expérience de l'entretien de parties communes et de 120 logements en résidence, avec remise en état des logements libérés.",
+      "Candidature spontanée fondée sur cinq années d'entretien en résidence et un engagement bénévole régulier à la banque alimentaire depuis 2020."
+    ]
+  },
+  {
+    "id": 7,
+    "metier": "Agent de service en collectivité",
+    "accroches": [
+      "Expérience d'agent polyvalent des services techniques d'une commune, sur les bâtiments communaux, les espaces verts et les petits travaux.",
+      "Pratique du travail en équipe et expérience dans une commune, avec candidature spontanée pour un poste de service en collectivité."
+    ]
+  },
+  {
+    "id": 8,
+    "metier": "Agent logistique",
+    "accroches": [
+      "Expérience de la gestion d'un stock de produits en résidence, complétée par la mise en rayon et le réassort en libre-service.",
+      "Candidature spontanée appuyée par la gestion de stock, le travail en équipe et une expérience de mise en rayon et de réassort."
+    ]
+  },
+  {
+    "id": 9,
+    "metier": "Gardienne d’immeuble",
+    "accroches": [
+      "Expérience de 2019 à 2024 dans une résidence de 120 logements, avec entretien des parties communes, dépannages et relation avec les locataires.",
+      "Intérêt pour un poste en résidence appuyé par cinq années d'entretien, de remise en état des logements et de relation avec les locataires."
+    ]
+  }
+]
+```

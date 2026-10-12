@@ -1,0 +1,169 @@
+```
+{
+  "synthese": {
+    "metier": "Agent d’entretien des bâtiments",
+    "competencesCles": [
+      "Petite plomberie",
+      "Peinture et finitions",
+      "Électricité de base (BS)",
+      "Entretien des espaces verts",
+      "Petite maçonnerie et menuiserie",
+      "Gestion de stock",
+      "Relation avec le public",
+      "Travail en équipe"
+    ],
+    "experiences": [
+      {
+        "intitule": "Agent d’entretien en résidence (bailleur social), Limoges (87)",
+        "missionsPrincipales": [
+          "Entretien courant de 120 logements et des parties communes (halls, escaliers, caves, locaux poubelles)",
+          "Petits dépannages : plomberie (robinets, siphons, joints, chasses d’eau), remplacement de prises, d’interrupteurs et d’ampoules",
+          "Peinture de cages d’escalier et remise en état des logements libérés (état des lieux de sortie, petites réparations, nettoyage)",
+          "Relation avec les locataires, signalement des pannes au gestionnaire, suivi des interventions des entreprises extérieures"
+        ],
+        "competencesRetirees": [
+          "Petite plomberie",
+          "Électricité de base (BS)",
+          "Peinture et finitions",
+          "Relation avec le public"
+        ]
+      },
+      {
+        "intitule": "Agent polyvalent des services techniques, commune de 6 000 habitants (87)",
+        "missionsPrincipales": [
+          "Entretien des bâtiments communaux (école, salle des fêtes, mairie) et des espaces verts (tonte, taille de haies, désherbage)",
+          "Petits travaux de maçonnerie (rebouchage, joints de carrelage) et de menuiserie (serrures, portes, étagères)",
+          "Montage et démontage de barnums, tables et scènes pour les fêtes locales ; déneigement et salage en hiver",
+          "Respect des consignes de sécurité, port des équipements de protection, entretien des outils"
+        ],
+        "competencesRetirees": [
+          "Entretien des espaces verts",
+          "Petite maçonnerie et menuiserie",
+          "Travail en équipe",
+          "Lecture de consignes et d’états des lieux"
+        ]
+      },
+      {
+        "intitule": "Aide-peintre, entreprise de peinture en bâtiment, Limoges",
+        "missionsPrincipales": [
+          "Préparation des supports (ponçage, enduit, rebouchage), peinture intérieure, pose de revêtements muraux, finitions",
+          "Chargement et rangement du matériel, protection des sols et du mobilier"
+        ],
+        "competencesRetirees": [
+          "Peinture et finitions",
+          "Préparation des supports",
+          "Pose de revêtements muraux"
+        ]
+      },
+      {
+        "intitule": "Employé de libre-service, supermarché (CDD et intérim)",
+        "missionsPrincipales": [
+          "Mise en rayon, réassort, contrôle des dates, étiquetage",
+          "Accueil et renseignement des clients, aide en caisse en renfort"
+        ],
+        "competencesRetirees": [
+          "Gestion de stock",
+          "Relation avec le public",
+          "Travail en équipe"
+        ]
+      }
+    ]
+  },
+  "intitulesMemeMetier": [
+    {
+      "intituleMasculin": "Agent polyvalent des bâtiments",
+      "intituleFeminin": "Agent polyvalent des bâtiments",
+      "retrouveDansLeCV": "Le CV mentionne un poste d’Agent polyvalent des services techniques avec entretien des bâtiments, plomberie, électricité, maçonnerie, menuiserie et peinture."
+    },
+    {
+      "intituleMasculin": "Agent technique des bâtiments",
+      "intituleFeminin": "Agent technique des bâtiments",
+      "retrouveDansLeCV": "Le CV décrit l’entretien de logements et de bâtiments communaux ainsi que des petits dépannages en plomberie et électricité."
+    },
+    {
+      "intituleMasculin": "Agent d’entretien et de maintenance des bâtiments",
+      "intituleFeminin": "Agent d’entretien et de maintenance des bâtiments",
+      "retrouveDansLeCV": "Le CV associe l’entretien courant des bâtiments à des petits dépannages, des réparations et la remise en état des logements."
+    },
+    {
+      "intituleMasculin": "Ouvrier de maintenance des bâtiments",
+      "intituleFeminin": "Ouvrière de maintenance des bâtiments",
+      "retrouveDansLeCV": "Le CV mentionne des interventions d’entretien, de réparation et de remise en état sur des logements et des bâtiments communaux."
+    }
+  ],
+  "autresMetiers": [
+    {
+      "metierMasculin": "Peintre en bâtiment",
+      "metierFeminin": "Peintre en bâtiment",
+      "retrouveDansLeCV": [
+        "Préparation des supports (ponçage, enduit, rebouchage), peinture intérieure, pose de revêtements muraux, finitions",
+        "2014 | CAP Peintre applicateur de revêtements"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metierMasculin": "Électricien d’entretien",
+      "metierFeminin": "Électricienne d’entretien",
+      "retrouveDansLeCV": [
+        "remplacement de prises, d’interrupteurs et d’ampoules",
+        "2021 | Habilitation électrique BS (électricité de base)"
+      ],
+      "aVerifier": "Un diplôme ou titre de niveau CAP/BEP en électricité peut être demandé selon le poste, en complément de l’habilitation électrique adaptée."
+    },
+    {
+      "metierMasculin": "Gardien d’immeuble",
+      "metierFeminin": "Gardienne d’immeuble",
+      "retrouveDansLeCV": [
+        "Relation avec les locataires, signalement des pannes au gestionnaire, suivi des interventions des entreprises extérieures",
+        "Lecture de consignes et d’états des lieux"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metierMasculin": "Jardinier",
+      "metierFeminin": "Jardinière",
+      "retrouveDansLeCV": [
+        "Entretien des bâtiments communaux (école, salle des fêtes, mairie) et des espaces verts (tonte, taille de haies, désherbage)",
+        "entretien des outils"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metierMasculin": "Magasinier",
+      "metierFeminin": "Magasinière",
+      "retrouveDansLeCV": [
+        "Gestion d’un stock de produits et de petit matériel, commandes mensuelles",
+        "Outils numériques : messagerie, tableur simple (suivi de stock)"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metierMasculin": "Employé de logistique",
+      "metierFeminin": "Employée de logistique",
+      "retrouveDansLeCV": [
+        "Chargement et rangement du matériel, protection des sols et du mobilier",
+        "Gestion de stock"
+      ],
+      "aVerifier": ""
+    },
+    {
+      "metierMasculin": "Électricien de maintenance",
+      "metierFeminin": "Électricienne de maintenance",
+      "retrouveDansLeCV": [
+        "Petits dépannages : plomberie (robinets, siphons, joints, chasses d’eau), remplacement de prises, d’interrupteurs et d’ampoules",
+        "2021 | Habilitation électrique BS (électricité de base)"
+      ],
+      "aVerifier": "Un diplôme ou titre de niveau CAP/BEP en électricité peut être demandé selon le poste, en complément de l’habilitation électrique adaptée."
+    },
+    {
+      "metierMasculin": "Agent d’accueil en résidence",
+      "metierFeminin": "Agent d’accueil en résidence",
+      "retrouveDansLeCV": [
+        "Relation avec les locataires, signalement des pannes au gestionnaire, suivi des interventions des entreprises extérieures",
+        "Relation avec le public"
+      ],
+      "aVerifier": ""
+    }
+  ]
+}
+```

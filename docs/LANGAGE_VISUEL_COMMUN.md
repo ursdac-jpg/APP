@@ -106,6 +106,7 @@ Briques : `htmlBoutonRevoirModule`, `htmlEncartRepriseModule`, `htmlBandeReprise
 | **Regard recruteur** (module non construit) | ✅ `MAQUETTE_INTRO_REGARD_RECRUTEUR.html` (validée 2026-08-31, bouton d'entrée désactivé) | ❌ module pas construit |
 | **Se tenir informé** (module non construit) | ✅ `MAQUETTE_INTRO_SE_TENIR_INFORME.html` (validée 2026-08-31, bouton d'entrée désactivé) | ❌ module pas construit |
 | **Comparer mes pistes** (aide à la décision d'orientation) | ✅ intro `MAQUETTE_INTRO_AIDE_DECISION.html` + flux `MAQUETTE_COMPARER_PISTES_FLUX_2026-08-31.html` (v8) | ✅ implémenté 2026-09-01 (`pageIntroAideDecision` + `modules/comparer-pistes/index.js`, route `comparer-pistes`, CTA actif) |
+| **Un CV, plusieurs métiers** | ✅ `MAQUETTE_UN_CV_PLUSIEURS_METIERS_V2_2026-10-08.html` (7 pages) | ✅ implémenté 2026-10-10 (`pageIntroUnCvPlusieursMetiers`, `modules/un-cv-plusieurs-metiers/`) : barre de sept étapes seulement visuelle, aucune fenêtre sauf avertissements et explication du collage, cartes en grille (3, 2 ou 1 par ligne), boutons rectangulaires bordés, mode sombre par jetons, vérifié à 375 px |
 
 Les 3 dernières lignes : maquettes de page de présentation faites **avant** le module, pour préparer
 l'organisation de la page d'accueil. Chacune porte, en tête de fichier, ses exigences fonctionnelles
