@@ -7,7 +7,7 @@ tags: [cumul emploi-retraite, retraite, reprise d'activité, taux plein, seconde
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "cumul intégral"
     definition: "Possibilité de percevoir sa pension de retraite en entier en même temps qu'un revenu d'activité, sans limite de montant. Il faut avoir liquidé toutes ses retraites et remplir une condition d'âge ou de durée."
@@ -19,10 +19,12 @@ voir_aussi_lexique:
 sources:
   - travail-emploi-cumul-emploi-retraite
   - lassuranceretraite
+  - service-public-cumul-emploi-retraite-2027
 ce_qui_change_souvent:
   - "Les conditions du cumul intégral"
   - "Les règles de la seconde pension ouverte par l'activité reprise"
-revisions: []
+revisions:
+  - "2026-10 : la loi de financement de la Sécurité sociale pour 2026 change le cumul emploi-retraite pour les retraites qui démarrent à partir du 1er janvier 2027 (l'âge devient le critère principal, plafond entre l'âge légal et 67 ans, cumul libre à partir de 67 ans) ; ceux dont la retraite a démarré avant ne sont pas concernés ; vérifié sur service-public.fr le 2026-10-05"
 collecte: seniors.collecte.md
 ---
 
@@ -33,5 +35,7 @@ Deux situations. Si vous avez liquidé toutes vos pensions (de base et compléme
 Si ces conditions ne sont pas réunies, le cumul est plafonné : le total de votre pension et de votre salaire ne doit pas dépasser un certain montant. Au-delà, votre pension est réduite d'autant. En pratique, il faut alors souvent attendre un délai avant de reprendre chez le même employeur.
 
 Depuis la réforme de 2023, l'activité reprise en cumul intégral peut ouvrir une seconde pension, calculée sur les nouvelles cotisations. Elle est plafonnée et ne peut être demandée qu'une seule fois.
+
+À savoir : ces règles vont changer pour les retraites qui démarrent à partir du 1er janvier 2027. L'âge deviendra le critère principal. Avant l'âge légal, votre revenu d'activité sera déduit de votre pension. Entre l'âge légal et 67 ans, le cumul sera possible jusqu'à un plafond de revenus, au-delà duquel la pension est réduite. À partir de 67 ans, le cumul sera libre. Si votre retraite a démarré avant 2027, rien ne change pour vous. Vérifiez votre cas sur le site de l'Assurance retraite avant de décider de votre date de départ.
 
 Dans tous les cas, prévenez votre caisse de retraite de votre reprise d'activité. Pour vérifier votre situation exacte, voyez la fiche « Où m'informer sur ma retraite, à qui m'adresser ».

@@ -7,7 +7,7 @@ tags: [conseil de prud'hommes, licenciement, salaire impayé, délais de prescri
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "conseil de prud'hommes"
     definition: "Tribunal qui règle les litiges individuels entre un salarié et son employeur nés du contrat de travail."
@@ -19,11 +19,14 @@ voir_aussi_lexique:
 sources:
   - code-travail-conseil-prudhommes
   - service-public-requete-prudhommes-salarie
+  - legifrance-decret-2026-683-prudhommes
 ce_qui_change_souvent:
   - "Les délais pour agir selon le type de litige"
   - "Le barème des indemnités de licenciement sans cause réelle et sérieuse"
   - "Les frais de saisine"
+  - "Les pièces à joindre à la saisine"
 revisions:
+  - "2026-10 : pour les affaires portées devant le conseil à partir du 1er octobre 2026 (décret du 27 juillet 2026), il n'est plus nécessaire de joindre toutes ses pièces à la requête : la liste des pièces et le dernier bulletin de salaire suffisent, les pièces étant transmises ensuite à l'autre partie avant l'audience ; vérifié sur Légifrance le 2026-10-05"
   - "2026-03 : un timbre fiscal de 50 euros est exigé pour saisir le conseil de prud'hommes, sauf aide juridictionnelle"
 collecte: juridique.collecte.md
 ---
@@ -35,6 +38,8 @@ Avant d'aller au tribunal, un courrier recommandé à l'employeur, l'appui de l'
 Les délais pour agir comptent. Il faut saisir le conseil dans les 12 mois après un licenciement, dans les 2 ans pour un problème lié à l'exécution du contrat, et dans les 3 ans pour des salaires non payés.
 
 La procédure passe d'abord par une tentative de conciliation, puis par un jugement. La saisine se fait avec un formulaire. Depuis le 1er mars 2026, il faut un timbre fiscal de 50 euros, sauf si vous avez l'aide juridictionnelle. L'avocat n'est pas obligatoire, mais il est utile.
+
+Depuis le 1er octobre 2026, il n'est plus nécessaire de joindre toutes vos pièces dès le départ. Vous joignez à la demande la liste de vos pièces et votre dernier bulletin de salaire en lien avec le litige. Le greffe vous demandera ensuite d'envoyer vos pièces à l'employeur avant la séance de conciliation ou l'audience : gardez-les donc toutes sous la main, bien classées.
 
 Si le licenciement est jugé sans motif valable, un barème fixe l'indemnité selon votre ancienneté. Ce barème ne s'applique pas quand le licenciement est nul, par exemple pour discrimination ou harcèlement.
 

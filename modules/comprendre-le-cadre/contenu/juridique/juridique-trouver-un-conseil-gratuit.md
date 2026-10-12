@@ -7,7 +7,7 @@ tags: [point-justice, accès au droit, consultation d'avocat gratuite, CDAD, inf
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "point-justice"
     definition: "Lieu d'accueil gratuit et confidentiel qui renseigne sur les droits et les démarches, oriente vers le bon interlocuteur et propose des consultations d'avocats. Regroupe les anciens points d'accès au droit et maisons de justice et du droit."

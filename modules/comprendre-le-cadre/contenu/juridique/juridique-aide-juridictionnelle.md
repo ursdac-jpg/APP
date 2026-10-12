@@ -7,7 +7,7 @@ tags: [aide juridictionnelle, frais d'avocat, frais de justice, bureau d'aide ju
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "aide juridictionnelle"
     definition: "Prise en charge par l'État de tout ou partie des frais d'avocat, d'huissier et de justice, quand les ressources et le patrimoine sont sous les plafonds fixés chaque année."
@@ -22,7 +22,8 @@ ce_qui_change_souvent:
   - "Les plafonds de ressources et de patrimoine, révisés chaque année"
   - "La part prise en charge en aide partielle"
   - "Le formulaire et les pièces à fournir"
-revisions: []
+revisions:
+  - "2026-10 : la demande peut se faire en ligne (système d'information de l'aide juridictionnelle, depuis le 1er janvier 2026) ; vérifié sur justice.gouv.fr et service-public.fr le 2026-10-05"
 collecte: juridique.collecte.md
 ---
 
@@ -32,7 +33,7 @@ Trois conditions sont examinées ensemble : vos ressources et votre patrimoine, 
 
 Selon vos revenus, l'aide est totale ou partielle.
 
-La demande se dépose au bureau d'aide juridictionnelle du tribunal de votre domicile, avec un formulaire et des justificatifs de ressources. Un simulateur en ligne, sur aidejuridictionnelle.justice.fr, vous dit rapidement si vous y avez droit.
+La demande se dépose au bureau d'aide juridictionnelle du tribunal de votre domicile, avec un formulaire et des justificatifs de ressources. Vous pouvez aussi la faire en ligne, sur le site de l'aide juridictionnelle. Un simulateur en ligne, sur aidejuridictionnelle.justice.fr, vous dit rapidement si vous y avez droit.
 
 Un point à connaître : depuis le 1er mars 2026, saisir un tribunal civil ou le conseil de prud'hommes suppose d'acheter un timbre fiscal de 50 euros. Les personnes qui ont l'aide juridictionnelle en sont dispensées.
 

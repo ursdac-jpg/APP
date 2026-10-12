@@ -7,7 +7,7 @@ tags: [médecine du travail, visite de reprise, aménagement de poste, inaptitud
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "visite de reprise"
     definition: "Visite auprès du médecin du travail après un arrêt d'au moins 60 jours pour maladie ou accident non professionnels, d'au moins 30 jours après un accident du travail, ou après une maladie professionnelle ou un congé maternité. Elle vérifie l'aptitude au poste."
@@ -26,11 +26,12 @@ sources:
 ce_qui_change_souvent:
   - "Les règles de la visite de reprise et de la procédure d'inaptitude"
   - "Les indemnités en cas de licenciement pour inaptitude"
-revisions: []
+revisions:
+  - "2026-10 : pour les arrêts de travail délivrés à partir du 15 juin 2026, la visite de reprise peut être évitée si une visite de pré-reprise récente (30 jours) a conclu qu'aucun aménagement n'était nécessaire ; chacun peut tout de même la demander ; vérifié sur service-public.fr le 2026-10-05"
 collecte: handicap.collecte.md
 ---
 
-Le médecin du travail suit votre santé au fil de votre carrière, à travers des visites : à l'embauche, régulières, et une visite de reprise après un arrêt long (au moins soixante jours pour une maladie ordinaire, trente jours après un accident du travail) ou après une maladie professionnelle ou un congé maternité.
+Le médecin du travail suit votre santé au fil de votre carrière, à travers des visites : à l'embauche, régulières, et une visite de reprise après un arrêt long (au moins soixante jours pour une maladie ordinaire, trente jours après un accident du travail) ou après une maladie professionnelle ou un congé maternité. Depuis le 15 juin 2026, cette visite de reprise n'est plus obligatoire si une visite de pré-reprise a eu lieu dans les trente jours avant votre retour et que le médecin a conclu qu'aucun aménagement n'était nécessaire ; vous pouvez malgré tout la demander.
 
 Son premier rôle est de vous aider à garder votre emploi. Il peut demander un aménagement de votre poste, de vos horaires, ou du matériel adapté. L'employeur doit en tenir compte.
 

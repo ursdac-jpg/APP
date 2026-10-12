@@ -7,7 +7,7 @@ tags: [discrimination, Défenseur des droits, embauche, égalité de traitement,
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10
 lexique:
   - terme: "Défenseur des droits"
     definition: "Autorité indépendante qui défend les personnes dont les droits ne sont pas respectés, notamment en cas de discrimination ou de litige avec un service public. La saisine est gratuite."
