@@ -91,11 +91,7 @@ function _cvRacinesQualite(t) {
   });
   return racines;
 }
-// R9 (2026-09-29) : phrase d'accroche AFFICHEE sur le CV. Par defaut la version longue choisie (dossier.ia.cv.profil). Quand la personne a
-// active « Version courte » (dossier.reglagesMiseEnPageCV.accrocheCourte), la version courte de la MEME proposition (l'assistant en fournit
-// une par proposition, meme rang : accrochesCourtesProposees[i] pour accrochesProposees[i]) ; sans version courte pour cette proposition
-// (ancienne reponse, proposition ecrite a la main), la version longue reste affichee : jamais une accroche inventee ni raccourcie par le code.
-// Le rang de la proposition choisie est accrocheIdx (memorise au choix), a defaut le rang du texte dans accrochesProposees.
+// Rang de la proposition d'accroche choisie (le Bilan en garde encore les versions courtes eventuelles, meme rang). Le rang de la proposition choisie est accrocheIdx (memorise au choix), a defaut le rang du texte dans accrochesProposees.
 // Le rang memorise (accrocheIdx) n'est cru que si le texte de l'accroche n'a pas ete change par un AUTRE circuit depuis (Bilan, import...) :
 // accrocheIdxProfil garde le texte au moment ou le rang a ete memorise ; s'il differe du texte actuel, on retombe sur le rang du texte.
 function _cvMemoriserRangAccroche(iaCv, rang) {
@@ -130,18 +126,11 @@ function _cvAjouterAccrochesAvecCourtes(iaCv, propositions, courtes, texteChoisi
   iaCv.profil = texteChoisi || iaCv.profil || '';
   _cvMemoriserRangAccroche(iaCv, kChoisi);
 }
-function _cvAccrocheCourteChoisie(iaCv) {
-  var cv = iaCv || {};
-  var rang = _cvRangAccrocheChoisie(cv);
-  var courte = (rang >= 0 && Array.isArray(cv.accrochesCourtesProposees)) ? cv.accrochesCourtesProposees[rang] : '';
-  return String(courte || '').trim();
-}
+// Phrase d'accroche AFFICHEE sur le CV : la proposition choisie (dossier.ia.cv.profil). Les accroches sont courtes par definition (une phrase, cv.md) :
+// plus de « Version courte » (decision de Denis, 2026-10-10). Les anciennes versions courtes eventuellement presentes dans un dossier sont ignorees.
 function _cvAccrocheAffichee(dossierSource) {
   var cv = (dossierSource && dossierSource.ia && dossierSource.ia.cv) || {};
-  var longue = cv.profil || '';
-  if (!longue) { return ''; }
-  var reglages = (dossierSource && dossierSource.reglagesMiseEnPageCV) || {};
-  return (reglages.accrocheCourte && _cvAccrocheCourteChoisie(cv)) || longue;
+  return cv.profil || '';
 }
 function _cvQualitesSimilaires(a, b) {
   var na = _cvNettoyerPhrase(a), nb = _cvNettoyerPhrase(b);
@@ -310,4 +299,4 @@ function normaliserDonneesCV(dossierSource) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) { module.exports = { _cvMemoriserRangAccroche: _cvMemoriserRangAccroche, _cvAjouterAccrochesAvecCourtes: _cvAjouterAccrochesAvecCourtes, _cvAccrocheAffichee: _cvAccrocheAffichee, _cvAccrocheCourteChoisie: _cvAccrocheCourteChoisie, _cvRangAccrocheChoisie: _cvRangAccrocheChoisie, _cvSansMissionsRedondantes: _cvSansMissionsRedondantes, _cvRepartirExperiencesPersonnelles: _cvRepartirExperiencesPersonnelles, _cvMissionsSimilaires: _cvMissionsSimilaires, _cvMissionsParDefaut: _cvMissionsParDefaut, _cvQualitesSimilaires: _cvQualitesSimilaires, _cvAssemblerParPriorite: _cvAssemblerParPriorite, _cvProfilLignesExperiencesPerso: _cvProfilLignesExperiencesPerso, _cvProfilEngagements: _cvProfilEngagements, _cvPeriodeProfil: _cvPeriodeProfil }; }
+if (typeof module !== 'undefined' && module.exports) { module.exports = { _cvMemoriserRangAccroche: _cvMemoriserRangAccroche, _cvAjouterAccrochesAvecCourtes: _cvAjouterAccrochesAvecCourtes, _cvAccrocheAffichee: _cvAccrocheAffichee, _cvRangAccrocheChoisie: _cvRangAccrocheChoisie, _cvSansMissionsRedondantes: _cvSansMissionsRedondantes, _cvRepartirExperiencesPersonnelles: _cvRepartirExperiencesPersonnelles, _cvMissionsSimilaires: _cvMissionsSimilaires, _cvMissionsParDefaut: _cvMissionsParDefaut, _cvQualitesSimilaires: _cvQualitesSimilaires, _cvAssemblerParPriorite: _cvAssemblerParPriorite, _cvProfilLignesExperiencesPerso: _cvProfilLignesExperiencesPerso, _cvProfilEngagements: _cvProfilEngagements, _cvPeriodeProfil: _cvPeriodeProfil }; }

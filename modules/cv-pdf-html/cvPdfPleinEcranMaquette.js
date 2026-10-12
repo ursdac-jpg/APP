@@ -142,6 +142,22 @@ function _mqMajBarreRub() {
   _mqEl('mqRubT').value = Math.round(st.t * 100); _mqEl('mqRubTv').textContent = Math.round(st.t * 100) + ' %';
   _mqEl('mqRubIl').value = Math.round(st.il * 100); _mqEl('mqRubIlv').textContent = st.il.toFixed(2).replace('.', ',');
   _mqEl('mqRubEsp').value = st.esp; _mqEl('mqRubEspv').textContent = st.esp + ' px';
+  _mqMajReglagesInfos();
+}
+// Lot I3 : presentation (liste, sur une ligne, pastilles) et colonnes de « Informations complementaires » ; groupe cache pour toute autre rubrique.
+function _mqMajReglagesInfos() {
+  var g = _mqEl('mqRubInfos'); if (!g) { return; }
+  var estInfos = !!_mqPlein.rub && typeof _PDF_INTITULES !== 'undefined' && _mqPlein.rub === _PDF_INTITULES.infos;
+  g.style.display = estInfos ? 'inline-flex' : 'none';
+  if (!estInfos) { return; }
+  var w = _mqPanneau(), ch = (w && w._cvPdfChoixMq) || {};
+  var pres = (ch.infosPresentation === 'ligne' || ch.infosPresentation === 'pastilles') ? ch.infosPresentation : 'liste';
+  Array.prototype.forEach.call(g.querySelectorAll('[data-mqinfos]'), function (b) { b.classList.toggle('on', b.getAttribute('data-mqinfos') === pres); });
+  var enBandeau = (ch.infosPlace === 'haut' || ch.infosPlace === 'bas');
+  var deux = (ch.listesDeuxColonnes || []).indexOf(_PDF_INTITULES.infos) !== -1;
+  // Colonnes : seulement en liste, dans une colonne de la page (un bandeau repartit lui-meme les lignes).
+  _mqEl('mqRubInfosCol').style.display = (pres === 'liste' && !enBandeau) ? 'inline-flex' : 'none';
+  Array.prototype.forEach.call(g.querySelectorAll('[data-mqinfoscol]'), function (b) { b.classList.toggle('on', (b.getAttribute('data-mqinfoscol') === '2') === deux); });
 }
 function _mqAppliquerStyleRub(patch) {
   var w = _mqPanneau(); if (!w) { return; }
@@ -1325,7 +1341,7 @@ function ouvrirPleinEcranMaquette(cible) {
     '<button type="button" class="t" id="mqTEntete">&#10530; R&eacute;gler l&rsquo;en-t&ecirc;te</button>' +
     '<button type="button" class="t" id="mqTCouleurs">&#127912; Modifier les couleurs</button>' +
     '<div id="mqZoneDisp"><b>Disposition de d&eacute;part</b>' +
-    '<div class="seg seg-mini" id="mqSegDisp"><button type="button" data-v="3">3 colonnes</button><button type="button" data-v="2">2 colonnes</button></div>' +
+    '<div class="seg seg-mini" id="mqSegDisp"><button type="button" data-v="3">3 colonnes</button><button type="button" data-v="2">2 colonnes</button><button type="button" data-v="4">Décalée</button></div>' +
     '<button type="button" class="t" id="mqTRaz" style="width:100%">&#8634; Remettre l&rsquo;en-t&ecirc;te &agrave; sa place</button></div>' +
     '<button type="button" class="t" id="mqTEcarter" style="display:none">&#8645; &Eacute;carter les rectangles</button>' +
     '<button type="button" class="t" id="mqTDeplacer">&#8597; D&eacute;placer exp&eacute;riences, formations et missions</button>' +
@@ -1345,6 +1361,10 @@ function ouvrirPleinEcranMaquette(cible) {
     '<span class="grp"><label for="mqRubT">Taille du texte</label><input type="range" id="mqRubT" min="70" max="140" step="5"><output id="mqRubTv"></output></span>' +
     '<span class="grp"><label for="mqRubIl">Interligne</label><input type="range" id="mqRubIl" min="110" max="180" step="5"><output id="mqRubIlv"></output></span>' +
     '<span class="grp"><label for="mqRubEsp">Espace au-dessus</label><input type="range" id="mqRubEsp" min="0" max="48" step="4"><output id="mqRubEspv"></output></span>' +
+    // Lot I3 (2026-10-07) : reglages propres a « Informations complementaires » (visibles seulement pour elle).
+    '<span class="grp" id="mqRubInfos" style="display:none"><label>Pr&eacute;sentation</label><span class="seg">' +
+    '<button type="button" data-mqinfos="liste">Liste</button><button type="button" data-mqinfos="ligne">Sur une ligne</button><button type="button" data-mqinfos="pastilles">Pastilles</button></span>' +
+    '<span id="mqRubInfosCol" style="display:inline-flex;align-items:center;gap:.26rem"><label>Colonnes</label><span class="seg"><button type="button" data-mqinfoscol="1">1</button><button type="button" data-mqinfoscol="2">2</button></span></span></span>' +
     '<button type="button" id="mqRubRaz">Remettre</button><button type="button" id="mqRubFermer" class="barre-rub-fermer" aria-label="Fermer">&times;</button></div>' +
     '<div class="barre-rub" id="mqBarreBloc" style="display:none" role="dialog" aria-label="R&eacute;glages de ce bloc de l&rsquo;en-t&ecirc;te"><b id="mqBlNom"></b>' +
     '<span class="grp">Taille <button type="button" data-bt="-0.1" aria-label="Plus petit">A&minus;</button><button type="button" data-bt="0.1" aria-label="Plus grand">A+</button></span>' +
@@ -1450,6 +1470,25 @@ function ouvrirPleinEcranMaquette(cible) {
     var w = _mqPanneau(); if (w) { _mqPlein.histRub.push(w._pdfMqEtatDisposition()); w._pdfMqStyleRubrique(_mqPlein.rub, null); }
     _mqRendu(); _mqMajBarreRub();
   };
+  Array.prototype.forEach.call(document.querySelectorAll('#mqBarreRub [data-mqinfos]'), function (b) {
+    b.onclick = function () {
+      var w = _mqPanneau(); if (!w) { return; }
+      _mqPlein.histRub.push(w._pdfMqEtatDisposition());
+      var v = b.getAttribute('data-mqinfos');
+      w._pdfMqChoix('infosPresentation', v === 'liste' ? null : v);
+      _mqRendu(); _mqMajBarreRub();
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#mqBarreRub [data-mqinfoscol]'), function (b) {
+    b.onclick = function () {
+      var w = _mqPanneau(); if (!w) { return; }
+      _mqPlein.histRub.push(w._pdfMqEtatDisposition());
+      var liste = ((w._cvPdfChoixMq || {}).listesDeuxColonnes || []).slice(), titre = _PDF_INTITULES.infos, i = liste.indexOf(titre);
+      if (b.getAttribute('data-mqinfoscol') === '2') { if (i === -1) { liste.push(titre); } } else if (i !== -1) { liste.splice(i, 1); }
+      w._pdfMqChoix('listesDeuxColonnes', liste.length ? liste : null);
+      _mqRendu(); _mqMajBarreRub();
+    };
+  });
   _mqEl('mqRubFermer').onclick = function () { _mqEl('mqBarreRub').style.display = 'none'; _mqPlein.rub = null; };
   // Barre d'un bloc de l'en-tete
   function sty(ent) { var bl = _mqPlein.bl; if (!ent.sty[bl]) { ent.sty[bl] = {}; } return ent.sty[bl]; }

@@ -285,6 +285,11 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var colonnesDiagonales = opts.formeColonnes === 'diagonale';
   var effetTitres = opts.fondColonnesEffet === 'titres';
   var texteSurFond = opts.texteFondColonnes === 'noir' ? '#1b1b1b' : '#ffffff';
+  // Texte du bandeau d'en-tete : suit celui des colonnes, sauf si le modele le fixe (Colonne et bandeau : bandeau fonce, colonne pale a texte noir).
+  var texteSurBandeau = opts.texteBandeau === 'blanc' ? '#ffffff' : texteSurFond;
+  // Couleur PROPRE de la colonne pleine hauteur (modele « Colonne claire ») : la colonne reste pale, l'accent (titres, filets) garde la couleur choisie.
+  // Choix de la personne depuis la carte d'ambiance (_pdfMqChoix) ou couleur du modele ; jamais en dehors des modeles Creatif (un choix fait en Creatif ne colore pas un modele Sobre).
+  var couleurColonne = (opts.creatifActif && /^#[0-9a-fA-F]{6}$/.test(opts.couleurColonne || '')) ? opts.couleurColonne : '';
   var degradeInverse = opts.degradeColonnes === 'clair-fonce';
   var degradeBandeau = opts.degradeBandeau || 'fonce-clair';
   var bandeauCouleur = !!opts.bandeauEnTete;
@@ -304,11 +309,18 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var enteteCentree = !!opts.enteteCentree;
   // Lot 3 : en-tete a bord ondule (Vague marine), colonne coloree pleine hauteur a bord ondule (Colonne a vague),
   // bande verticale du nom (Bandeau vertical).
-  var enteteVague = !!opts.enteteVague;
+  // BORD DU BANDEAU au choix (modeles Creatif Bandeau entier, Duo ovale, Vague marine : recette `bordBandeauChoix`) : 'droit', 'arrondi' ou 'vallonne'. Sans ce choix, rien ne change.
+  var bordBandeau = (opts.bordBandeauChoix && /^(droit|arrondi|vallonne)$/.test(opts.bordBandeau || '')) ? opts.bordBandeau : '';
+  var enteteVague = bordBandeau ? (bordBandeau === 'vallonne') : !!opts.enteteVague;
   var nomVert = !!opts.nomVertical;
   var colVague = !!opts.colonneVague && deux && (fond === 'gauche' || fond === 'droite');
   var colVagueDroite = colVague && (fond === 'gauche' ? inversees : !inversees);
   var colVagueMm = 0;
+  // Largeur du FOND de la colonne : 1,9 mm de moins que la zone reservee a la colonne, pour laisser de l'air entre le fond et le texte de l'autre colonne (retour de Denis, 2026-10-11 : texte colle au fond, 1 px d'air).
+  // Tout le reste de la mise en page garde colVagueMm : seule la couleur de fond rentre un peu.
+  var colFondRentre = 1.9;
+  // « Colonne claire » en CARTE (option du modele, colonneCarte) : le fond de la colonne devient une carte detachee de la page, aux coins arrondis, avec un filet de la couleur d'accent ; la page reste blanche.
+  var colonneCarte = !!opts.colonneCarte && !!opts.colonneVague;
   if (colVague) {
     var largInterieure = 210 - 2 * marge, partGauche = largeurGauche / 100;
     colVagueMm = Math.round((marge + ((fond === 'gauche') ? partGauche * largInterieure : largInterieure * (1 - partGauche) - 4.2) + 4) * 10) / 10;
@@ -323,7 +335,8 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   if (colVague) {
     var pg = ['0 0'], pd = ['100% 0'];
     for (var ic = 0; ic <= 60; ic++) {
-      var dx = r2(1.5 - 1.5 * Math.sin(ic / 60 * Math.PI * 6));
+      // Bord droit (modeles Colonne foncee / claire) : meme colonne pleine hauteur que « Colonne a vague », sans l'ondulation.
+      var dx = opts.colonneBordDroit ? 0 : r2(1.5 - 1.5 * Math.sin(ic / 60 * Math.PI * 6));
       pg.push('calc(100% - ' + dx + 'mm) ' + r2(ic / 60 * 100) + '%');
       pd.push(dx + 'mm ' + r2(ic / 60 * 100) + '%');
     }
@@ -332,7 +345,14 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   }
   var competencesEncadrees = !!opts.blocsCompetencesEncadres;
   function encadre(html) { return (competencesEncadrees && html) ? '<div class="bloc-encadre">' + html + '</div>' : html; }
-  function titreH2(texte, cle) { return _pdfMqTitreH2(texte, cle, titresPastille ? (_PDF_MQ_ICONES_RUBRIQUES[texte] || '') : ''); }
+  // Petits reglages de titres (plan 2026-10-07, exemples 1, 6, 14, 17) : « Filet prolonge » (un filet fin continue le titre jusqu'au bout de la ligne) et « Souligne court »
+  // (une courte barre sous le titre). Choix de la personne (styleTitres = 'filet' ou 'court'), jamais d'office ; sans lui le titre est inchange. Un VRAI element (pas un
+  // pseudo-element) que l'export Word lit comme un petit rectangle ; ignore par les constructions propres (Frise, Photo, Rectangles).
+  var titresFilet = ((opts.styleTitres === 'filet' || opts.styleTitres === 'court') && ['frise', 'photo', 'sobre-photo', 'rectangles', 'sobre-rectangles'].indexOf(gabarit) === -1) ? opts.styleTitres : '';
+  function titreH2(texte, cle) {
+    var h2 = _pdfMqTitreH2(texte, cle, titresPastille ? (_PDF_MQ_ICONES_RUBRIQUES[texte] || '') : '');
+    return titresFilet ? h2.replace(/<\/h2>$/, '<span class="filet-' + titresFilet + '"></span></h2>') : h2;
+  }
   var competencesCles = (opts.competencesCles || []).map(function (c) { return (typeof c === 'string') ? c : ((c && c.competence) || ''); }).filter(Boolean);
   var bandeauCles = !!opts.bandeauCompetencesCles && competencesCles.length > 0;
   // TACHE (Denis, 2026-09-25, tranche 4 « plein ecran de la maquette ») : competences retirees, reglages d'une
@@ -356,7 +376,8 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   if (typeof window !== 'undefined') { window._pdfMqEchelleAuto = echelleAuto; }
   // L'en-tete (nom, metier, coordonnees, accroche) suit la taille du texte choisie par la personne, dans la meme proportion, sauf
   // si elle demande de le garder a taille fixe (opts.enteteTailleFixe).
-  var kh = opts.enteteTailleFixe ? 1 : (opts.echelleContenu || 1);
+  // enteteBoost (2026-10-07) : agrandissement de l'en-tete pilote par le calcul « Mise en page » (1 = taille d'origine, absent des anciens dossiers).
+  var kh = opts.enteteTailleFixe ? 1 : (opts.echelleContenu || 1) * (opts.enteteBoost || 1);
   var tailleTitres = (typeof opts.tailleTitres === 'number') ? opts.tailleTitres : 13;
   var interligne = 1.38 * ((composition && composition.interligneCorps) || 1);
   var serre = esp < 0.95;
@@ -366,13 +387,13 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   // Position des dates des experiences : le choix de la personne, sinon le placement d'origine du modele (colonne de dates : « avant » ;
   // frise de la maquette : « sous »). Meme regle pour tous les modeles (decision de Denis, 2026-09-26).
   var positionDates = opts.positionDatesChoisie ? (opts.positionDates || 'droite')
-    : ((gabarit === 'photo' || gabarit === 'sobre-photo' || gabarit === 'rectangles' || gabarit === 'sobre-rectangles') ? 'avant' : (gabarit === 'frise' ? 'sous' : 'droite'));
+    : ((gabarit === 'photo' || gabarit === 'sobre-photo' || gabarit === 'rectangles' || gabarit === 'sobre-rectangles' || gabarit === 'sobre-chrono' || gabarit === 'chrono-fonce') ? 'avant' : (gabarit === 'frise' ? 'sous' : 'droite'));
   // Retour Denis 2026-09-30 : position des dates des formations et de l'experience personnelle (par defaut, celle des experiences).
   // Par defaut (case « dates a la meme place dans toutes les rubriques » cochee), les formations et l'experience personnelle prennent la position EFFECTIVE
   // des experiences, y compris celle d'origine du modele (retour Denis 2026-09-30 : les dates des formations n'etaient pas du tout placees comme
   // celles des experiences tant que la personne n'avait rien choisi). Decochee sans position propre : placement d'origine du modele.
   // « Juste apres le titre » (reglage Dates) n'existe pas dans les modeles a disposition propre (photo, rectangles, frise) : ils gardent leur placement.
-  var gabaritDatesPropre = ['photo', 'sobre-photo', 'rectangles', 'sobre-rectangles', 'frise'].indexOf(gabarit) !== -1;
+  var gabaritDatesPropre = ['photo', 'sobre-photo', 'rectangles', 'sobre-rectangles', 'sobre-chrono', 'chrono-fonce', 'frise'].indexOf(gabarit) !== -1;
   if (positionDates === 'apres' && gabaritDatesPropre) { positionDates = 'droite'; }
   // Adaptation des dates (decision de Denis, 2026-10-04) : une rubrique placee avec une autre sur la MEME ligne (Formations et Certifications cote a cote, Logiciels a droite des
   // Formations, lignes composees dans l'ordre personnalise) ecrit sa date juste apres le titre, entre parentheses, pour tenir sur sa moitie de ligne. Un choix fait a la main
@@ -409,6 +430,22 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var datesApres = function (titre) { return (opts.datesApresTitre || []).indexOf(titre) !== -1; };
   var posDatesForm = posChoisieRub('form') || (datesApres(_PDF_INTITULES.formations) ? 'apres' : (['droite', 'sous', 'avant'].indexOf(opts.positionDatesFormations) !== -1) ? opts.positionDatesFormations : posDefautRubriques);
   var posDatesPerso = posChoisieRub('perso') || ((['droite', 'sous', 'avant'].indexOf(opts.positionDatesPerso) !== -1) ? opts.positionDatesPerso : posDefautRubriques);
+  // Modele « Chronologique » (Sobre, 2026-10-06) : dates dans la marge a gauche de chaque experience, formation et experience personnelle. Sans cette place,
+  // le modele n'aurait plus de sens : la position des dates est donc imposee (« avant », que le CSS met en marge), quel que soit le reglage « Dates ».
+  var chrono = (gabarit === 'sobre-chrono' || gabarit === 'chrono-fonce');   // « chrono-fonce » : meme mise en page, version Creatif a colonne foncee
+  // Modele Sobre « Editorial » (2026-10-06) : grand nom (en pile quand la colonne est etroite), police a empattement au choix, trait entre les deux colonnes.
+  var editoLarge = (gabarit === 'sobre-editorial-large');   // variante B : nom et titre sur toute la largeur
+  var edito = (gabarit === 'sobre-editorial' || editoLarge);
+  // Modeles Sobre « Cartes » (colonne etroite en cartes pales a etiquette blanche, exemples 13 et 15) et « Grille » (rubriques separees par des filets, exemples 8 et 15 bis), 2026-10-06.
+  var cartesCouleurs = (gabarit === 'sobre-cartes-couleurs');   // plan 2026-10-07, E3 (exemples 15 et 5)
+  var cartes = (gabarit === 'sobre-cartes' || cartesCouleurs);
+  var grille = (gabarit === 'sobre-grille');
+  // Modele Sobre « Technique » (plan 2026-10-07, E2 ; exemples 9, 1, 7, 10 : developpeur, ingenieur, consultant) : une page dense, titres en barres pleines, filets entre les experiences, competences en badges a contour.
+  var technique = (gabarit === 'sobre-technique');
+  // Variete (plan docs/PLAN_VARIETE_MODELES_CV_2026-10-11.md, paire 2) : « Epure » devient vraiment epure : aucun filet sous les titres, titres en petites capitales tres espacees et grises, nom fin et plus grand, plus d'air entre les rubriques.
+  var epure = (gabarit === 'sobre-epure');
+  // Les certifications (colonne etroite) gardent leurs dates a droite : une date « avant » y serait collee au titre dans Word.
+  if (chrono) { positionDates = 'avant'; posDatesForm = 'avant'; posDatesPerso = 'avant'; posDefautRubriques = 'droite'; }
   var styleParties = {
     poste: { souligne: !!opts.soulignerPoste, italique: !!opts.italiquePoste },
     dates: { souligne: !!opts.soulignerDates, italique: !!opts.italiqueDates },
@@ -643,6 +680,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   }
   // Missions d'une certification (lot 2026-10-04) : seulement si la personne ou l'assistant en a ecrit ; une certification sans mission reste une ligne simple.
   function missionsCertifHtml(brut, i) {
+    if (!opts.afficherMissionsFormation) { return ''; }
     var entree = (objetCV.certificationsAvecMissions || []).filter(function (e) { return e && e.certification === brut; })[0];
     return (entree && entree.missions) ? missionsHtml(entree.missions, 'cm:' + i) : '';
   }
@@ -662,7 +700,18 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   function blocCentres() { return blocListe(_PDF_INTITULES.loisirs, (contenu.loisirs || []).map(_pdfPremiereMajuscule)); }
   // Informations complementaires : seulement les lignes que la personne a cochees (jamais affichees d'office).
   var infosCompAff = (opts.infosCompAffichees || []).filter(function (x) { return (objetCV.informationsComplementaires || []).indexOf(x) !== -1; });
-  function blocInfos() { return blocListe(_PDF_INTITULES.infos, infosCompAff); }
+  // Lot I3 (plan 2026-10-07) : « Presentation » propre a cette rubrique (opts.infosPresentation, choisie dans sa barre du plein ecran) : 'ligne' = les informations a la suite,
+  // separees par des points ; 'pastilles' = une pastille par information. Sans choix : la liste d'avant, inchangee (meme appel, meme rendu).
+  function blocInfos() {
+    var presInfos = opts.infosPresentation;
+    if ((presInfos === 'ligne' || presInfos === 'pastilles') && infosCompAff.length) {
+      var titreI = _PDF_INTITULES.infos;
+      var itemsI = infosCompAff.map(function (x, i) { return ed('li:' + titreI + ':' + i, x); });
+      return sec(titreI, titreH2(titreI) + '<div>' + (presInfos === 'ligne' ? itemsI.join('<span class="sep-infos"> \u00b7 </span>')
+        : itemsI.map(function (h) { return '<span class="pill pastille">' + h + '</span>'; }).join('')) + '</div>');
+    }
+    return blocListe(_PDF_INTITULES.infos, infosCompAff);
+  }
   function lieuHtml(e) {
     var lieu = afficherLieu ? e.lieu : '';
     return lieu ? ', <span class="lieu lieu-' + lieuStyle + '">' + _pdfEscaperHtml(lieu) + '</span>' : '';
@@ -709,6 +758,25 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var ctl = '<span class="ctl-exp"><button type="button" data-mv="-1" title="Monter">▲</button><button type="button" data-mv="1" title="Descendre">▼</button></span>';
   // Retour Denis 2026-09-30 : fleches ▲ ▼ des formations (visibles seulement en mode « Deplacer » du plein ecran), avec la cle de la formation.
   function attrFormation(f) { return ' data-form="' + _pdfEscaperHtml(String((f && f.__cleForm !== undefined) ? f.__cleForm : _pdfCleFormation(f))) + '"'; }
+  // Modele « Chronologique » : chaque experience / formation / experience personnelle est UNE ligne a deux cellules (dates dans la marge | contenu).
+  // Une grille (comme .ph-item du modele « Photo ») plutot qu'une date flottante : l'export Word lit la geometrie et en fait un tableau.
+  function itemChrono(attrs, ctlHtml, datesHtml, corpsHtml) {
+    return '<div class="item item-chrono"' + attrs + '><div class="cdates">' + datesHtml + '</div><div class="ccorps">' + ctlHtml + corpsHtml + '</div></div>';
+  }
+  function enteteExpChrono(e, index) {
+    var periode = _pdfFormaterPeriode(e.dateDebut, e.dateFin, 'exp');
+    var dates = edDate('da:' + index, periode);
+    var entreprise = ed('en:' + index, e.entreprise || '', function (x) { return _pdfSpanStylePartie(x, styleParties.entreprise); });
+    var poste = ed('po:' + index, _pdfPosteAvecStage(e), function (x) { return _pdfSpanStylePartie(x, styleParties.poste); });
+    // le lieu descend dans la marge, sous les dates, si la personne le demande
+    var lieuMarge = (opts.lieuDansMarge && afficherLieu && e.lieu) ? '<span class="lieu-marge">' + _pdfEscaperHtml(e.lieu) + '</span>' : '';
+    var entLieu = entreprise + (lieuMarge ? '' : lieuHtml(e));
+    if (!entreprise) { entLieu = entLieu.replace(/^, /, ''); }
+    // duree en italique : seulement si les DEUX dates ont un mois (jamais deduite d'une annee seule, ni d'un poste « en cours »)
+    var dureeTxt = (opts.afficherDuree !== false && typeof dureeEntreDates === 'function') ? dureeEntreDates(e.dateDebut, e.dateFin) : '';
+    return { dates: (dates || '') + lieuMarge,
+      corps: '<div><b class="gras">' + poste + '</b>' + (entLieu ? ' - ' + entLieu : '') + '</div>' + (dureeTxt ? '<div class="duree-exp">' + dureeTxt + '</div>' : '') };
+  }
   function enteteExp(e, index) {
     var periode = _pdfFormaterPeriode(e.dateDebut, e.dateFin, 'exp');
     var dates = edDate('da:' + index, periode);
@@ -778,6 +846,11 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var parComp = (opts.modePresentation === 'B' || opts.modePresentation === 'C') && groupesCompetences.length && proVisible;
   var modeParCompC = opts.modePresentation === 'C' && groupesCompetences.length && proVisible;
   var modeMixteB = opts.modePresentation === 'B' && groupesCompetences.length && proVisible;
+  // Lu par la carte « Competences » du panneau : en « Par competences », la liste des professionnelles n'agit que si elle recoupe les missions rangees (voir groupesAffiches).
+  if (typeof window !== 'undefined' && !opts.__sansEtatPanneau) {
+    var _clesProVues = competencesPro.filter(function (x) { return retirees.indexOf(x) === -1; }).map(cleTexte);
+    window._mepProSansEffetC = !!(modeParCompC && !groupesCompetences.some(function (g) { return (g.items || []).some(function (it) { return _clesProVues.indexOf(cleTexte(it.texte)) !== -1; }); }));
+  }
   // Bouton « Competences en pastilles » (Organisation du CV, Denis 2026-10-01) : coche, en « Par competences » sur une colonne, les competences professionnelles
   // (le texte des themes, sur deux lignes si besoin) passent EN PASTILLES, en haut, et partagent la place avec les comportementales : les deux ont la meme forme.
   // Decoche : chaque rubrique garde son comportement (themes en texte au-dessus des experiences, comportementales seules).
@@ -925,7 +998,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       return '<span class="pill ' + pill + '">' + ed(it.cle, it.texte) + '<button type="button" class="x" data-ret="' + _pdfEscaperHtml(it.texte) + '" title="Retirer">×</button></span>';
     }).join('') + '</div>'));
   }
-  var actionCoteC = !!(modeParCompC && opts.actionCote === true && !themesEnHaut);
+  var actionCoteC = !!(modeParCompC && opts.actionCote === true && !themesEnHaut && !deux);
   function blocParCompetences(exps, ligneUnique) {
     // « A cote des comportementales » (retour Denis 2026-10-03) : le bloc est alors place sur la ligne des competences comportementales (voir blocs.comp), pas au-dessus des experiences.
     var themes = ((themesEnHaut && blocProMissionsEnPastilles()) || actionCoteC) ? '' : blocThemes();
@@ -935,6 +1008,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
         var per = _pdfFormaterPeriode(e.dateDebut, e.dateFin, 'exp');
         return '<div class="item" data-exp="' + i + '"><b>' + ed('po:' + i, _pdfPosteAvecStage(e), function (x) { return _pdfSpanStylePartie(x, styleParties.poste); }) + '</b>' + ((e.entreprise || (afficherLieu && e.lieu)) ? ' - ' : '') + ed('en:' + i, e.entreprise || '', function (x) { return _pdfSpanStylePartie(x, styleParties.entreprise); }) + (e.entreprise ? lieuHtml(e) : lieuHtml(e).replace(/^, /, '')) + (per ? ' : ' + edDate('da:' + i, per) : '') + '</div>';
       }
+      if (chrono) { var cx1 = enteteExpChrono(e, i); return itemChrono(' data-exp="' + i + '"', ctl, cx1.dates, cx1.corps); }
       return '<div class="item" data-exp="' + i + '">' + ctl + enteteExp(e, i) + '</div>';
     }).join(''));
     return themes + histo;
@@ -953,6 +1027,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
         var per = _pdfFormaterPeriode(e.dateDebut, e.dateFin, 'exp');
         return '<div class="item" data-exp="' + i + '"><b>' + ed('po:' + i, _pdfPosteAvecStage(e), function (x) { return _pdfSpanStylePartie(x, styleParties.poste); }) + '</b>' + ((e.entreprise || (afficherLieu && e.lieu)) ? ' - ' : '') + ed('en:' + i, e.entreprise || '', function (x) { return _pdfSpanStylePartie(x, styleParties.entreprise); }) + (e.entreprise ? lieuHtml(e) : lieuHtml(e).replace(/^, /, '')) + (per ? ' : ' + edDate('da:' + i, per) : '') + '</div>';
       }
+      if (chrono) { var cx2 = enteteExpChrono(e, i); return itemChrono(' data-exp="' + i + '"', ctl, cx2.dates, cx2.corps + missionsHtml(e.missions, 'mi:' + i, dejaEnAction)); }
       return '<div class="item" data-exp="' + i + '">' + ctl + enteteExp(e, i) + missionsHtml(e.missions, 'mi:' + i, dejaEnAction) + '</div>';
     }).join(''));
   }
@@ -995,6 +1070,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
         var titreF = '<span style="' + styleTitreFormation(f) + '">' + ed('fd:' + fi, diplome) + '</span>';
         var enLigneF = (endroitF && formLigne !== 'dessous') ? ' - ' + endroitF : '';
         var dessousF = (endroitF && formLigne === 'dessous');
+        if (chrono) { return itemChrono(attrFormation(f) + ' style="' + espFormStyle + '"', ctl, dAnnee, '<div>' + titreF + enLigneF + '</div>' + (dessousF ? '<div class="meta">' + endroitF + '</div>' : '') + missions); }
         var corpsF = (posDatesForm === 'apres')
           ? '<div>' + titreF + enLigneF + (dAnnee ? ', ' + dAnnee : '') + '</div>' + (dessousF ? '<div class="meta">' + endroitF + '</div>' : '')
           : (posDatesForm === 'droite')
@@ -1046,6 +1122,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       if (posDatesPerso) {
         var dPe = periode ? edDate('dp:' + pi, periode) : '';
         var tPe = titrePersoHtml('ep:' + pi, titre);
+        if (chrono) { return itemChrono(attrItemPerso, '', dPe, '<div>' + tPe + '</div>' + _pdfPersoEndroitHtml(item) + (detail ? '<div class="meta">' + ed('ed:' + pi, detail) + '</div>' : '') + missionsHtml(item && item.missions, 'em:' + pi)); }
         var cPe = (posDatesPerso === 'apres')
           ? '<div>' + tPe + (dPe ? ' ' + dPe : '') + '</div>'
           : (posDatesPerso === 'droite')
@@ -1079,6 +1156,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var pad = marge + 'mm';
   var classes = ['page-a4', 'cv'];
   if (allure === 'sobre') { classes.push('sobre'); }
+  if (allure === 'sobre' && opts.sobreCouleurs) { classes.push('sobre-couleur'); }
   if (opts.titresAgrandis) { classes.push('agrandir'); }
   if (icones) { classes.push('ico'); }
   if (serre) { classes.push('serre'); }
@@ -1092,7 +1170,22 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   if (filetHaut) { classes.push('filet'); }
   if (cadrePage) { classes.push('cadre-page'); }
   if (colVague) { classes.push(colVagueDroite ? 'col-vague-d' : 'col-vague-g'); }
+  // Le panneau propose « Bord de la colonne : droit ou vallonne » seulement aux modeles Creatif a colonne coloree (jamais a la carte, dont le bord est arrondi d'office).
+  if (colVague && !colonneCarte && opts.creatifActif) { classes.push('bord-choix'); }
+  // Meme idee pour le bandeau d'en-tete : le panneau propose « Bord du bandeau » aux modeles Creatif qui le declarent.
+  if (bordBandeau && enteteFond && opts.creatifActif) { classes.push('bord-bandeau-choix'); }
   if (nomVert) { classes.push('nom-vert'); }
+  if (chrono) { classes.push('chrono'); }
+  // Coin colore en haut a gauche (plan 2026-10-07, exemples 6 et 11) : un triangle en teinte claire de la couleur du CV (le texte sombre reste lisible dessus), au-dessus des fonds mais SANS cacher le texte (z-index positif, que l'export Word sait ordonner comme le coin de la Frise ; mélange « multiplier » : le texte reste lisible a l'ecran ; aucun clic capte). Choix de la personne, jamais d'office. Sans effet (aucun element) quand le coin est deja pris : en-tete en bandeau colore, ou colonne FONCEE a gauche pleine hauteur.
+  var coinCouleur = !!opts.coinCouleur && !enteteFond && !entetePale && !(colVague && !colVagueDroite && opts.texteFondColonnes !== 'noir');
+  if (coinCouleur) { classes.push('coin-actif'); }
+  if (opts.titresRuban) { classes.push('titres-ruban'); }   // plan 2026-10-07, E6 : reserve a la recette « Colonne foncee et rubans »
+  if (cartes) { classes.push('cartes'); }
+  if (epure) { classes.push('epure'); }
+  if (cartesCouleurs) { classes.push('cartes-couleurs'); }
+  if (grille) { classes.push('grille'); }
+  if (technique) { classes.push('technique'); }
+  if (edito) { classes.push('edito'); if (editoLarge) { classes.push('edito-large'); if (inversees && deux) { classes.push('edito-inv'); } } if (opts.nomEmpattement !== false) { classes.push('edito-serif'); } }
   if (pleineHauteur && deux && !colVague) { classes.push('pleine'); }
   if (opts.separateurColonnes && deux) { classes.push('sepcol'); }
   if (!(petitsCarres && !iconesCoord)) { classes.push('sans-icoc'); }
@@ -1103,6 +1196,21 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var trait = (enteteFond || entetePale) ? '' : '<div class="trait" style="margin:0 ' + pad + ' 4px' + (allure === 'sobre' ? ';height:2px;background:var(--cv)' : '') + '"></div>';
   var photo = photoUrl ? '<img class="photo-mq' + (anneauPhoto ? ' anneau' : '') + (opts.photoForme === 'losange' ? ' photo-losange' : '') + (photoMed ? ' medaillon' : '') + '" src="' + _pdfEscaperHtml(photoUrl) + '" alt="Photo">' : '';
   var coordHtml = _pdfMqCoordonnees(objetCV, composition, opts, ed);
+  // Lot I2 (plan 2026-10-07, decision de Denis) : « Informations complementaires » DANS L'EN-TETE, comme des lignes de plus sous les coordonnees (3 lignes au plus ; les suivantes
+  // restent dans la rubrique, rien ne se perd). Un seul point d'entree : coordHtml est lu par tous les en-tetes du gabarit principal (coordonnees, bande des coordonnees, bloc libre
+  // du plein ecran), et Word lit deja ces lignes. Reglage ETEINT par defaut ; les modeles a disposition propre (Frise, Photo, Rectangles) gardent la rubrique a sa place.
+  if (opts.infosPlace === 'entete' && infosCompAff.length && ['frise', 'photo', 'sobre-photo', 'rectangles', 'sobre-rectangles'].indexOf(gabarit) === -1) {
+    var titreInfosE = _PDF_INTITULES.infos, nbInfosE = Math.min(3, infosCompAff.length);
+    var itemsInfosE = infosCompAff.slice(0, nbInfosE).map(function (x, i) { return ed('li:' + titreInfosE + ':' + i, x); });
+    coordHtml += (opts.infosPresentation === 'ligne') ? '<div>' + itemsInfosE.join(' \u00b7 ') + '</div>' : itemsInfosE.map(function (h) { return '<div>' + h + '</div>'; }).join('');
+    var resteInfosE = infosCompAff.slice(nbInfosE);
+    blocInfos = function () {
+      return resteInfosE.length ? sec(titreInfosE, titreH2(titreInfosE) + '<div>' + resteInfosE.map(function (x, j) { return '<div>' + ed('li:' + titreInfosE + ':' + (nbInfosE + j), x) + '</div>'; }).join('') + '</div>') : '';
+    };
+  }
+  // Bande des coordonnees (coordonnees en ligne) : les coordonnees seulement. Les langues restent dans leur rubrique (le moteur de composition ne les retire plus pour le PDF,
+  // voir _pdfConstruireResultatCourant dans cvPdfPanneauReglages.js).
+  var coordBande = function () { return coordHtml; };
   var blocMetierAccroche = '<div class="metier">' + ed('metier', metier) + '</div>' + (accroche ? '<div class="accroche">' + ed('accroche', accroche) + '</div>' : '');
   var tete;
   var posE = ent.pos || {}, largE = ent.larg || {}, echE = ent.ech || {}, styE = ent.sty || {};
@@ -1121,11 +1229,21 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     // largeur (x, largeur) et en px (y).
     var disp = ent.disp || (String(metier).length > 42 ? '2' : '3');
     var d2 = (disp === '2');
+    // Coordonnees EN LIGNE sous l'en-tete (decision de Denis, 2026-10-07) : seulement quand la ligne de separation est droite (ni diagonale, ni vague, ni photo en medaillon, ni nom
+    // vertical). L'en-tete libre n'affiche alors pas le bloc des coordonnees : elles sont dans la bande qui suit (meme bande que l'en-tete d'origine).
+    var coordEnLigne = !!(coordonneesAPart && g !== 'frise' && g !== 'diagonale' && !(enteteFond && enteteVague) && !photoMed && !nomVert);
+    var d4 = (disp === '4');   // « decalee » (2026-10-07, maquette de Denis) : nom et coordonnees a gauche, titre en haut sur une ligne et accroche dessous, a droite, en large
     var mpx = Math.round(marge * 3.78), mx = Math.round(mpx / 794 * 1000) / 10;
     var r1 = function (v) { return Math.round(v * 10) / 10; };
     var xt = photoMed ? r1(32 / 210 * 100) : mx;
     var xm3 = (colVague && !colVagueDroite) ? r1(colVagueMm / 210 * 100 + 1.5) : 35.5;
-    var defs = (g === 'frise') ? { nom: { x: 31, y: 0, w: 48 }, coord: { x: 31, y: 34, w: 41 }, metier: { x: 31, y: 122, w: 55 }, accroche: { x: 31, y: 154, w: 59 } } : {
+    // Disposition decalee : colonne gauche etroite, colonne droite large (titre et accroche partagent le meme bord gauche). Position de l'accroche et des
+    // coordonnees recalculee apres le rendu (_pdfMqApresRendu) : sous le titre et sous le nom, quel que soit le nombre de lignes.
+    var gaucheW4 = 30, droiteX4 = r1(xt + gaucheW4 + 3);
+    // Modeles a colonne coloree a gauche : le nom et les coordonnees restent dans la colonne, le titre commence apres elle (meme repere que la disposition 3 colonnes).
+    if (colVague && !colVagueDroite) { gaucheW4 = r1(Math.max(12, colVagueMm / 210 * 100 - xt - 1.5)); droiteX4 = r1(colVagueMm / 210 * 100 + 1.5); }
+    var defs4 = { nom: { x: xt, y: mpx, w: gaucheW4 }, coord: { x: xt, y: mpx + 36, w: gaucheW4 }, metier: { x: droiteX4, y: mpx, w: r1(100 - mx - droiteX4) }, accroche: { x: droiteX4, y: mpx + 60, w: r1(100 - mx - droiteX4) } };
+    var defs = d4 ? defs4 : (g === 'frise') ? { nom: { x: 31, y: 0, w: 48 }, coord: { x: 31, y: 34, w: 41 }, metier: { x: 31, y: 122, w: 55 }, accroche: { x: 31, y: 154, w: 59 } } : {
       nom: { x: xt, y: mpx, w: r1(Math.min(30, 35 - xt)) },
       coord: { x: xt, y: mpx + 30, w: r1(Math.min(30, 35 - xt)) },
       metier: d2 ? { x: 55, y: mpx, w: r1(Math.min(40, 100 - mx - 55)) } : { x: xm3, y: mpx + 6, w: r1(Math.min(25, 61.5 - xm3)) },
@@ -1136,19 +1254,52 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       return '<div class="blc" data-bl="' + bl + '" style="left:' + pp.x + '%;top:' + pp.y + 'px;width:' + w + '%;--k:' + (echE[bl] || 1) + '">' + inner +
         '<span class="poi-l" title="Tirer pour élargir ou rétrécir : la phrase passe sur plus ou moins de lignes"></span></div>';
     };
-    var haut = ent.haut || ((g === 'frise') ? (235 + (accroche ? 0 : -80)) : ((g === 'diagonale' ? 225 : 172) + (d2 ? 32 : 0)));
+    var haut = ent.haut || (d4 ? (g === 'diagonale' ? 225 : (g === 'frise' ? 150 : 110)) : ((g === 'frise') ? (235 + (accroche ? 0 : -80)) : ((g === 'diagonale' ? 225 : 172) + (d2 ? 32 : 0))));
     tete = '<div class="' + teteCls + ' libre' + (g === 'frise' ? ' large' : '') + '" style="height:' + haut + 'px" data-h0="' + haut + '" data-disp="' + disp + '" data-posc="' + (posE.coord ? 1 : 0) + '" data-posa="' + (posE.accroche ? 1 : 0) + '" data-hfixe="' + (ent.haut ? 1 : 0) + '">' +
-      (photoMed ? photo : '') + blc('nom', ((g === 'frise' || photoMed) ? '' : photo) + '<div class="nom" style="' + styBl('nom') + '">' + (nomVert ? '' : ed('nom', nomComplet)) + '</div>') +
-      blc('coord', '<div class="coord" style="' + styBl('coord') + '">' + coordHtml + '</div>') +
+      (photoMed ? photo : '') + blc('nom', (function () {
+        var nomDiv = '<div class="nom" style="' + styBl('nom') + '">' + (nomVert ? '' : ed('nom', nomComplet)) + '</div>';
+        if (g === 'frise' || photoMed) { return nomDiv; }
+        // Disposition decalee : le nom d'abord, puis la photo dessous, puis les coordonnees (ordre voulu par Denis, 2026-10-07)
+        return d4 ? nomDiv + photo : photo + nomDiv;
+      })()) +
+      (coordEnLigne ? '' : blc('coord', '<div class="coord" style="' + styBl('coord') + '">' + coordHtml + '</div>')) +
       blc('metier', '<div class="metier" style="' + styBl('metier') + '">' + ed('metier', metier) + '</div>') +
       (accroche ? blc('accroche', '<div class="accroche" style="' + styBl('accroche') + '">' + ed('accroche', accroche) + '</div>') : '') +
       '<span class="poi-h" title="Tirer pour changer la hauteur de l’en-tête"></span></div>' + (g === 'frise' ? '' : trait +
+      (coordEnLigne ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordBande().replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
       (bandeauCles ? '<div class="bande-cles" style="margin:6px ' + pad + ' 0">' + pills(competencesCles) + '</div>' : ''));
+  } else if (technique) {
+    // En-tete « Technique » : nom et titre a gauche (phrase d'accroche dessous), photo et coordonnees alignees a droite.
+    tete = '<div class="' + teteCls + ' tete-technique" style="padding:' + pad + ' ' + pad + ' 9px;grid-template-columns:1fr auto"><div><div class="nom">' + ed('nom', nomComplet) + '</div><div class="metier">' + ed('metier', metier) + '</div>' +
+      (accroche ? '<div class="accroche">' + ed('accroche', accroche) + '</div>' : '') + '</div>' +
+      '<div class="infos-tech">' + photo + (coordonneesAPart ? '' : '<div class="coord">' + coordHtml + '</div>') + '</div></div>' + trait +
+      (coordonneesAPart ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordBande().replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
+      (bandeauCles ? '<div class="bande-cles" style="margin:6px ' + pad + ' 0">' + pills(competencesCles) + '</div>' : '');
+  } else if (editoLarge) {
+    // Variante B : nom (leger, majuscules) et titre (couleur d'accent) sur toute la largeur, coordonnees a droite, phrase d'accroche sous le filet.
+    tete = '<div class="' + teteCls + ' tete-edito-large" style="padding:' + pad + ' ' + pad + ' 9px;grid-template-columns:1fr auto"><div><div class="nom">' + ed('nom', nomComplet) + '</div><div class="metier">' + ed('metier', metier) + '</div></div>' +
+      '<div class="infos-large">' + photo + (coordonneesAPart ? '' : '<div class="coord">' + coordHtml + '</div>') + '</div></div>' + trait +
+      (accroche ? '<div class="accroche-large" style="padding:0 ' + pad + '">' + ed('accroche', accroche) + '</div>' : '') +
+      (coordonneesAPart ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordBande().replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
+      (bandeauCles ? '<div class="bande-cles" style="margin:6px ' + pad + ' 0">' + pills(competencesCles) + '</div>' : '');
+  } else if (edito) {
+    var cellNom = '<div>' + photo + '<div class="nom">' + ed('nom', nomComplet) + '</div><div class="metier">' + ed('metier', metier) + '</div></div>';
+    var cellInfos = '<div>' + (coordonneesAPart ? '' : '<div class="coord">' + coordHtml + '</div>') + (accroche ? '<div class="accroche">' + ed('accroche', accroche) + '</div>' : '') + '</div>';
+    tete = '<div class="' + teteCls + ' tete-edito" style="padding:' + pad + ' ' + pad + ' 9px;grid-template-columns:' + ((deux && inversees) ? '1fr ' + largeurGauche + '%' : (deux ? largeurGauche + '% 1fr' : '1fr')) + '">' +
+      ((deux && inversees) ? cellInfos + cellNom : cellNom + cellInfos) + '</div>' + trait +
+      (coordonneesAPart ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordBande().replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
+      (bandeauCles ? '<div class="bande-cles" style="margin:6px ' + pad + ' 0">' + pills(competencesCles) + '</div>' : '');
+  } else if (chrono) {
+    var photoCol = (colVague && colVagueDroite && photo) ? '<div class="photo-col">' + photo + '</div>' : '';
+    tete = '<div class="' + teteCls + ' tete-chrono" style="padding:' + pad + ' ' + pad + ' 9px;grid-template-columns:' + ((colVague && colVagueDroite) ? '1fr ' + r2(colVagueMm - marge - 3.5) + 'mm' : '1fr') + '"><div>' + (photoCol ? '' : photo) +
+      '<div class="nom">' + ed('nom', nomComplet) + '</div>' + blocMetierAccroche + (coordonneesAPart ? '' : '<div class="coord">' + coordHtml + '</div>') + '</div>' + photoCol + '</div>' + trait +
+      (coordonneesAPart ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordBande().replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
+      (bandeauCles ? '<div class="bande-cles" style="margin:6px ' + pad + ' 0">' + pills(competencesCles) + '</div>' : '');
   } else {
     tete = '<div class="' + teteCls + '" style="padding:' + pad + ' ' + pad + ' 9px' + (colVague ? ';grid-template-columns:' + (colVagueDroite ? '1.15fr 1fr ' + r2(colVagueMm - marge - 3.5) + 'mm' : r2(colVagueMm - marge - 3.5) + 'mm 1fr 1.3fr') : '') + '">' +
     (photoMed ? photo : '') + '<div>' + (photoMed ? '' : photo) + '<div class="nom">' + (nomVert ? '' : ed('nom', nomComplet)) + '</div>' + (coordonneesAPart ? '' : '<div class="coord">' + coordHtml + '</div>') + '</div>' +
     blocMetierAccroche + '</div>' + trait +
-    (coordonneesAPart ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordHtml.replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
+    (coordonneesAPart ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordBande().replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
     (bandeauCles ? '<div class="bande-cles" style="margin:6px ' + pad + ' 0">' + pills(competencesCles) + '</div>' : '');
   }
 
@@ -1306,7 +1457,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       (parCompR ? barreR(_PDF_INTITULES.competencesEnAction, 'competences') + themesHtml() : '') +
       corpsLignesR();
     var cssR =
-'  :root { --kh: ' + kh + '; --cv: ' + (sobreR ? 'color-mix(in srgb, ' + couleur + ' 40%, #20262e)' : couleur) + '; --tt: ' + tailleTitres + 'px; }' +
+'  :root { --kh: ' + kh + '; --cv: ' + (sobreR ? (opts.sobreCouleurs ? 'color-mix(in srgb, ' + couleur + ' 80%, #20262e)' : 'color-mix(in srgb, ' + couleur + ' 40%, #20262e)') : couleur) + '; --tt: ' + tailleTitres + 'px; }' +
 '  * { box-sizing: border-box; }' +
 '  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }' +
 '  .page-a4.cv { position: relative; width: 210mm; min-height: 297mm; margin: 24px auto; background: #fff; color: #1c2430; box-shadow: 0 2px 10px rgba(0,0,0,.18); font-family: ' + police + '; font-size: ' + tailleTexte.toFixed(2) + 'px; line-height: ' + interligne.toFixed(3) + '; padding: ' + pad + '; }' +
@@ -1319,6 +1470,8 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 '  .cv-rect .rc-accroche { font-size: calc(12.5px * var(--k, 1) * var(--kh, 1)); }' +
 '  .cv-rect .coord { font-size: calc(12px * var(--k, 1) * var(--kh, 1)); line-height: 1.55; word-break: break-word; }' +
 '  .cv .coord div::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 2px; background: var(--cv); opacity: .8; }' +
+// Retour de Denis (2026-10-10) : un courriel long ne doit pas laisser le carré seul sur sa ligne ni dépasser de la colonne : il se coupe à la largeur, à côté du carré.
+'  .cv .coord div { overflow-wrap: anywhere; } .cv .coord [data-ed="co:email"] { word-break: break-all; }' +
 '  .cv.sans-icoc .coord div::before { display: none; }' +
 '  .cv .icone-ligne { width: 0.85em; height: 0.85em; vertical-align: -0.1em; margin-right: 0.32em; flex-shrink: 0; }' +
 '  .cv-rect .rc-ico .icone-ligne { width: 1.1em; height: 1.1em; margin: 0 8px 0 0; vertical-align: -0.2em; }' +
@@ -1366,6 +1519,9 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 '  .cv .ctl-exp { position: absolute; right: -2px; top: -3px; display: none; gap: 2px; z-index: 4; }' +
 '  .cv .pill .x, .cv li .x { display: none; }' +
 (enteteLibre ? '  .cv .tete.libre { display: block; position: relative; padding: 0 !important; }' +
+'  .cv .tete.libre[data-disp="4"] .metier, .cv .tete.libre[data-disp="4"] .accroche { text-align: left; }' +
+'  .cv .tete.libre[data-disp="4"] .nom, .cv .tete.libre[data-disp="4"] .metier { font-weight: 700; }' +
+'  .cv .tete.libre[data-disp="4"] .photo-mq { width: 84px; height: 84px; margin: 6px 0 4px 0; }' +
 '  .cv-rect .tete.libre { margin-bottom: 14px; }' +
 '  .cv .tete.libre > .blc, .cv-rect .rc-boxes.libre > .blc { position: absolute; }' +
 '  .cv-rect .rc-boxes.libre { display: block; position: relative; padding: 0; margin-bottom: 8px; }' +
@@ -1392,6 +1548,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 '';
     var classesR = ['page-a4', 'cv', 'cv-rect'];
     if (sobreR) { classesR.push('sobre'); }
+    if (sobreR && opts.sobreCouleurs) { classesR.push('sobre-couleur'); }
     if (opts.titresAgrandis) { classesR.push('agrandir'); }
     if (justifie) { classesR.push('justif'); }
     if (!(petitsCarres && !iconesCoord)) { classesR.push('sans-icoc'); }
@@ -1536,7 +1693,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
         (parCompFr ? phH(_PDF_INTITULES.competencesEnAction, 'competences') + themesHtml() : '') +
         (formAvant ? secFormPh + secExpPh : secExpPh + secFormPh) +
         (itemsPersoFr ? phH(_PDF_INTITULES.experiencePerso, 'engagements') + '<div class="ph-perso">' + itemsPersoFr + '</div>' : '');
-      var accentPh = (g === 'sobre-photo') ? 'color-mix(in srgb, var(--cv) 40%, #20262e)' : 'var(--cv)';
+      var accentPh = (g === 'sobre-photo') ? (opts.sobreCouleurs ? 'color-mix(in srgb, var(--cv) 80%, #20262e)' : 'color-mix(in srgb, var(--cv) 40%, #20262e)') : 'var(--cv)';
       var cssPh =
 '  :root { --kh: ' + kh + '; --cv: ' + couleur + '; --tt: ' + tailleTitres + 'px; }' +
 '  * { box-sizing: border-box; }' +
@@ -1556,6 +1713,8 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 '  .cv-photo .ph-li::before { content: "• "; }' +
 '  .cv-photo .coord { margin: 0; font-size: calc(11.5px * var(--k, 1) * var(--kh, 1)); line-height: 1.7; word-break: break-word; }' +
 '  .cv .coord div::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 2px; background: var(--ph-a, var(--cv)); opacity: .8; }' +
+// Retour de Denis (2026-10-10) : un courriel long ne doit pas laisser le carré seul sur sa ligne ni dépasser de la colonne : il se coupe à la largeur, à côté du carré.
+'  .cv .coord div { overflow-wrap: anywhere; } .cv .coord [data-ed="co:email"] { word-break: break-all; }' +
 '  .cv.sans-icoc .coord div::before { display: none; }' +
 '  .cv .icone-ligne { width: 0.85em; height: 0.85em; vertical-align: -0.1em; margin-right: 0.32em; flex-shrink: 0; }' +
 '  .cv-photo .ph-main { padding: 26px 24px 22px 22px; }' +
@@ -1601,6 +1760,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       if (opts.titresAgrandis) { classesPh.push('agrandir'); }
       if (justifie) { classesPh.push('justif'); }
       if (g === 'sobre-photo') { classesPh.push('sobre'); }
+      if (g === 'sobre-photo' && opts.sobreCouleurs) { classesPh.push('sobre-couleur'); }
       if (!(petitsCarres && !iconesCoord)) { classesPh.push('sans-icoc'); }
       return {
         css: cssPh + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees),
@@ -1631,6 +1791,8 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 '  .cv-frise .fr-photo { display: block; width: 92px; height: 92px; border-radius: 50%; object-fit: cover; margin: -8px 0 14px 0; border: 3px solid #fff; }' +
 '  .cv-frise .fr-lat .coord { margin: 0 0 6px; font-size: calc(11.5px * var(--k, 1) * var(--kh, 1)); line-height: 1.7; color: #14202e; word-break: break-word; }' +
 '  .cv .coord div::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 2px; background: var(--cv); opacity: .8; }' +
+// Retour de Denis (2026-10-10) : un courriel long ne doit pas laisser le carré seul sur sa ligne ni dépasser de la colonne : il se coupe à la largeur, à côté du carré.
+'  .cv .coord div { overflow-wrap: anywhere; } .cv .coord [data-ed="co:email"] { word-break: break-all; }' +
 '  .cv.sans-icoc .coord div::before { display: none; }' +
 '  .cv .icone-ligne { width: 0.85em; height: 0.85em; vertical-align: -0.1em; margin-right: 0.32em; flex-shrink: 0; }' +
 '  .cv-frise .fr-lat h3 { font-size: calc(var(--tt, 13px) * 1.15); color: #5f7288; margin: 18px 0 6px; font-weight: 700; overflow-wrap: break-word; }' +
@@ -1653,6 +1815,15 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 '  .cv-frise .fr-poste { font-weight: 700; }' +
 '  .cv-frise .fr-meta { color: #555; }' +
 '  .cv-frise .fr-ent { color: var(--cv); }' +
+// « Colonne foncee et frise » (2026-10-07, E1 du plan) : meme rendu que « Colonne et frise », colonne laterale de la couleur choisie (foncee) a texte clair.
+(opts.friseFoncee ? '  .cv-frise.frise-foncee .fr-lat { background: var(--cv); }' +
+  '  .cv-frise.frise-foncee .fr-lat .coord, .cv-frise.frise-foncee .fr-lat .fr-b { color: #ffffff; }' +
+  '  .cv-frise.frise-foncee .fr-lat h3 { color: rgba(255,255,255,.72); }' +
+  '  .cv-frise.frise-foncee .fr-coin2 { background: color-mix(in srgb, var(--cv) 62%, #ffffff); }' +
+  // Variete (paire 4, 2026-10-11) : la frise de « Colonne foncee et frise » est dans la couleur d'accent : trait plus epais, reperes CARRES (et non ronds), dates en couleur ; « Colonne et frise » garde son trait noir et ses ronds.
+  '  .cv-frise.frise-foncee .fr-frise { border-left: 3px solid var(--cv); }' +
+  '  .cv-frise.frise-foncee .fr-item::before { border-radius: 2px; width: 11px; height: 11px; left: -23px; background: var(--cv); box-shadow: 0 0 0 2px #ffffff; }' +
+  '  .cv-frise.frise-foncee .fr-d { color: var(--cv); font-weight: 700; }' : '') +
 '  .cv-frise .fr-item ul { margin: 3px 0 0 0; padding-left: 16px; }' +
 '  .cv-frise .theme { font-weight: 700; margin: 6px 0 1px; }' +
 '  .cv .src { color: #4b5866; font-size: .88em; }' +
@@ -1671,6 +1842,9 @@ cssPuces +
 '  .cv .lieu-italique { font-style: italic; }' +
 '  .cv .lieu-gris { color: #6b7684; }' +
 '  .cv .tete.libre { display: block; position: relative; padding: 0 !important; }' +
+'  .cv .tete.libre[data-disp="4"] .metier, .cv .tete.libre[data-disp="4"] .accroche { text-align: left; }' +
+'  .cv .tete.libre[data-disp="4"] .nom, .cv .tete.libre[data-disp="4"] .metier { font-weight: 700; }' +
+'  .cv .tete.libre[data-disp="4"] .photo-mq { width: 84px; height: 84px; margin: 6px 0 4px 0; }' +
 '  .cv-frise .tete.libre.large { width: 144.93%; margin-left: -44.93%; }' +
 '  .cv .tete.libre > .blc { position: absolute; }' +
 '  .cv .blc .nom { font-size: calc(20px * var(--k, 1) * var(--kh, 1)); font-weight: 400; color: #222; }' +
@@ -1694,6 +1868,7 @@ cssPuces +
     if (justifie) { classesFr.push('justif'); }
     if (degr) { classesFr.push('degr'); }
     if (!(petitsCarres && !iconesCoord)) { classesFr.push('sans-icoc'); }
+    if (opts.friseFoncee) { classesFr.push('frise-foncee'); }
     return {
       css: cssFr + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees),
       pageHtml: '<div class="' + classesFr.join(' ') + '"><div class="fr-coin"></div><div class="fr-coin2"></div><div class="fr-grille"><aside class="fr-lat">' + latFr + '</aside><main class="fr-main">' + mainFr + '</main></div></div>',
@@ -1702,6 +1877,34 @@ cssPuces +
   }
 
   var corps;
+  // Lot I1 (plan 2026-10-07, decision de Denis) : « Informations complementaires » peut quitter les colonnes pour un BANDEAU pleine largeur, en haut (sous l'en-tete)
+  // ou en bas, eventuellement a cote d'une rubrique courte (Logiciels, Langues, Certifications, Centres d'interet). Reglage ETEINT par defaut (opts.infosPlace absent)
+  // et lu seulement ici, apres les constructions propres (Frise, Photo, Rectangles) qui gardent leur disposition : les autres modeles restent identiques.
+  var bandeInfosHaut = '', bandeInfosBas = '';
+  var placeInfos = (opts.infosPlace === 'haut' || opts.infosPlace === 'bas') ? opts.infosPlace : '';
+  if (placeInfos && infosCompAff.length) {
+    var cleCoteInfos = ({ logi: 1, langues: 1, certifs: 1, centres: 1 })[opts.infosCote] ? opts.infosCote : '';
+    var htmlCoteInfos = '';
+    if (cleCoteInfos === 'logi') { htmlCoteInfos = blocLogi(); blocLogi = function () { return ''; }; }
+    else if (cleCoteInfos === 'langues') { htmlCoteInfos = blocLangues(); blocLangues = function () { return ''; }; }
+    else if (cleCoteInfos === 'certifs') { htmlCoteInfos = blocCertifs(); blocCertifs = function () { return ''; }; }
+    else if (cleCoteInfos === 'centres') { htmlCoteInfos = blocCentres(); blocCentres = function () { return ''; }; }
+    var htmlInfosBande;
+    if (htmlCoteInfos) { htmlInfosBande = '<div class="paire"><div>' + blocInfos() + '</div><div>' + htmlCoteInfos + '</div></div>'; }
+    else if (opts.infosPresentation === 'ligne' || opts.infosPresentation === 'pastilles') { htmlInfosBande = blocInfos(); }
+    else {
+      // Seule, la rubrique se repartit en 1 a 3 colonnes de lignes (blocs explicites, que Word lit comme les autres grilles) pour ne pas laisser une longue liste verticale.
+      var titreInfosB = _PDF_INTITULES.infos;
+      var nbColInfos = Math.min(3, infosCompAff.length), parColInfos = Math.ceil(infosCompAff.length / nbColInfos), colsInfos = [];
+      for (var ci = 0; ci < nbColInfos; ci++) { if (infosCompAff.slice(ci * parColInfos, (ci + 1) * parColInfos).length) { colsInfos.push(ci); } }
+      var lignesInfosB = function (debut, fin) { return infosCompAff.slice(debut, fin).map(function (x, j) { return '<div>' + ed('li:' + titreInfosB + ':' + (debut + j), x) + '</div>'; }).join(''); };
+      htmlInfosBande = sec(titreInfosB, titreH2(titreInfosB) + (colsInfos.length === 1 ? lignesInfosB(0, infosCompAff.length)
+        : '<div class="paire' + (colsInfos.length === 3 ? ' trois' : '') + '">' + colsInfos.map(function (c) { return '<div>' + lignesInfosB(c * parColInfos, (c + 1) * parColInfos) + '</div>'; }).join('') + '</div>'));
+    }
+    var divBandeInfos = '<div class="corps-pleine-largeur bande-infos" style="padding:0 ' + pad + '">' + htmlInfosBande + '</div>';
+    if (placeInfos === 'haut') { bandeInfosHaut = divBandeInfos; } else { bandeInfosBas = divBandeInfos; }
+    blocInfos = function () { return ''; };
+  }
   var bloEngagements = blocEngagements();
   if (deux) {
     var gauche = '', droite = '';
@@ -1717,7 +1920,8 @@ cssPuces +
     // 2 colonnes (jamais un reglage pour la personne : recalcule a chaque rafraichissement).
     var blocsParCle = { pro: blocPro, comp: blocComp, logi: blocLogi, langues: blocLangues, certifs: blocCertifs, centres: blocCentres, infos: blocInfos,
       perso: function () { return bloEngagements; }, exp: blocExperiences, form: blocForm };
-    var rubriquePL = opts.rubriquePleineLargeur;
+    // Formations toujours dans la colonne de droite (decision Denis 2026-10-05) : elles ne passent en pleine largeur que si la personne le choisit (case « Organisation du CV » ou suggestion).
+    var rubriquePL = opts.rubriquePleineLargeur || ((opts.formationsPleineLargeur && !opts.formationsAGauche) ? 'form' : null);
     var candidatPL = (rubriquePL && _PDF_RUBRIQUES_PLEINE_LARGEUR.indexOf(rubriquePL) !== -1) ? rubriquePL : null;
     var contenuPleineLargeur = candidatPL ? blocsParCle[candidatPL]() : '';
     function blocOuPleineLargeur(cle, html) { return (candidatPL === cle) ? '' : html; }
@@ -1765,7 +1969,7 @@ cssPuces +
       if (!actif) { return ''; }
       return 'col-fond' + (effetTitres ? ' col-titres' : '') + (colonnesDiagonales ? (cotePropre === 'gauche' ? ' col-diag-g' : ' col-diag-d') : '');
     };
-    var htmlG = '<div class="' + classeFond(colFondGauche, 'gauche') + '">' + gauche + '</div>';
+    var htmlG = '<div class="' + classeFond(colFondGauche, 'gauche') + (cartes ? ' col-cartes' : '') + '">' + gauche + '</div>';
     var htmlD = '<div class="' + (colFondDroite ? classeFond(true, 'droite') : (g === 'sobre-fond' ? 'col-pale' : '')) + '">' + droite + '</div>';
     corps = '<div class="corps deux" style="padding:0 ' + pad + ';grid-template-columns:' + (inversees ? '1fr ' + largeurGauche + '%' : largeurGauche + '% 1fr') + '">' +
       (inversees ? htmlD + htmlG : htmlG + htmlD) + '</div>' +
@@ -1858,7 +2062,7 @@ cssPuces +
   var largeurPage = '210mm';
   var hauteurPage = '297mm';
   var css =
-'  :root { --kh: ' + kh + '; --cv: ' + couleur + '; --cv2: ' + (/^#[0-9a-fA-F]{6}$/.test(opts.couleurSecondaire || '') ? opts.couleurSecondaire : (couleurFinModele || 'color-mix(in srgb, var(--cv) 45%, #ffffff)')) + '; --tt: ' + tailleTitres + 'px; }' +
+'  :root { --kh: ' + kh + '; --cv: ' + couleur + '; --col: ' + (couleurColonne || couleur) + '; --cv2: ' + (/^#[0-9a-fA-F]{6}$/.test(opts.couleurSecondaire || '') ? opts.couleurSecondaire : (couleurFinModele || 'color-mix(in srgb, var(--cv) 45%, #ffffff)')) + '; --tt: ' + tailleTitres + 'px; }' +
 '  * { box-sizing: border-box; }' +
 '  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }' +
 '  .page-a4.cv { position: relative; width: ' + largeurPage + '; min-height: ' + hauteurPage + '; margin: 24px auto; background: #fff; color: #1c2430; box-shadow: 0 2px 10px rgba(0,0,0,.18); padding-bottom: 8mm; font-family: ' + police + '; font-size: ' + tailleTexte.toFixed(2) + 'px; line-height: ' + interligne.toFixed(3) + '; }' +
@@ -1866,16 +2070,22 @@ cssPuces +
 '  .cv .nom { font-size: calc(21px * var(--kh, 1)); font-weight: 700; color: var(--cv); }' +
 '  .cv .coord { margin-top: 8px; font-size: calc(11.5px * var(--kh, 1)); line-height: 1.7; }' +
 '  .cv .coord div::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 2px; background: var(--cv); opacity: .8; }' +
+// Retour de Denis (2026-10-10) : un courriel long ne doit pas laisser le carré seul sur sa ligne ni dépasser de la colonne : il se coupe à la largeur, à côté du carré.
+'  .cv .coord div { overflow-wrap: anywhere; } .cv .coord [data-ed="co:email"] { word-break: break-all; }' +
 '  .cv .metier { font-size: calc(19px * var(--kh, 1)); text-transform: uppercase; color: var(--cv); text-align: center; padding-top: 6px; line-height: 1.15; letter-spacing: .01em; }' +
 '  .cv .accroche { font-style: italic; font-size: calc(11px * var(--kh, 1)); line-height: 1.4; border-left: 2px solid #cbd3dc; padding-left: 12px; }' +
 '  .cv .photo-mq { display: block; width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin: 0 0 6px 0; }' +
 '  .cv .trait { height: 4px; background: var(--cv); margin: 0 10mm 4px; border-radius: 2px; }' +
+// Colonne pleine hauteur a bord droit : le trait de l'en-tete ne traverse pas la colonne (visible sur une colonne claire).
+(colVague && opts.colonneBordDroit ? '  .cv .trait { margin-' + (colVagueDroite ? 'right' : 'left') + ': ' + r2(colVagueMm + 3) + 'mm !important; }' : '') +
 '  .cv .corps { padding: 0 10mm; }' +
 '  .cv .corps.deux { display: grid; grid-template-columns: 36% 1fr; gap: 16px; align-items: start; }' +
 '  .cv .corps.deux > div { min-width: 0; }' +
 // TACHE (P10-bis, retour Denis 2026-09-28) : rubrique qui deborde une colonne -- rendue sous les 2 colonnes,
 // pleine largeur (Proposition B de la maquette, validee). L'espacement vient deja du h2 de la rubrique (margin-top).
 '  .cv .corps-pleine-largeur { min-width: 0; }' +
+// Lot I1 : un bandeau d'informations complementaires traverse la page ; devant une colonne pleine hauteur, il prend la couleur de la page (sinon son texte, sombre, passerait sur la colonne foncee).
+((bandeInfosHaut || bandeInfosBas) && (colVague || pleineHauteur) ? '  .cv .bande-infos { position: relative; background: #ffffff; }' : '') +
 '  .cv h2 { font-size: var(--tt, 13px); text-transform: uppercase; letter-spacing: .03em; color: var(--cv); margin: ' + Math.max(12, Math.round(13 * esp)) + 'px 0 ' + Math.max(5, Math.round(5 * esp)) + 'px; padding-bottom: 3px; border-bottom: 1px solid #b9c4d2; display: flex; align-items: center; gap: 6px; }' +
 '  .cv h2 span { min-width: 0; overflow-wrap: break-word; }' +
 '  .cv.agrandir h2 { font-size: calc(var(--tt, 13px) * 1.27); }' +
@@ -1934,10 +2144,16 @@ cssPuces +
 '  .cv.sobre .nom, .cv.sobre .metier { color: #20262e; }' +
 '  .cv.sobre .coord div::before { display: none; }' +
 '  .cv.sobre .trait { height: 1px; background: #20262e; }' +
+'  .cv.sobre.sobre-couleur { --pale: color-mix(in srgb, var(--cv) 24%, #ffffff); }' +
+'  .cv.sobre.sobre-couleur h2 { color: color-mix(in srgb, var(--cv) 82%, #20262e); }' +
+'  .cv.sobre.sobre-couleur .nom, .cv.sobre.sobre-couleur .metier { color: color-mix(in srgb, var(--cv) 82%, #20262e); }' +
+'  .cv.sobre.sobre-couleur .trait { height: 2px; background: var(--cv); }' +
 '  .cv .tete-pale { background: var(--pale); border-bottom: 1px solid var(--cv); margin-bottom: 4px; }' +
 '  .cv .col-pale { background: var(--pale); padding: 2px 12px 12px; }' +
 '  .cv .bloc-pale { background: var(--pale); padding: 4px 12px 8px; margin-top: 8px; }' +
 '  .cv.cadre { box-shadow: inset 0 0 0 3px var(--cv), 0 2px 10px rgba(0,0,0,.18); }' +
+// Variete (paire 6, 2026-10-11) : « Cadre de page » devient un DOUBLE cadre (trait de 3 px, espace blanc, filet fin de la meme couleur) ; « Cadre et barre » (cadre-page) garde son cadre simple.
+(g === 'cadre' && !cadrePage ? '  .cv.cadre { box-shadow: inset 0 0 0 3px var(--cv), inset 0 0 0 6px #ffffff, inset 0 0 0 7px var(--cv), 0 2px 10px rgba(0,0,0,.18); }' : '') +
 '  .cv.cadre .tete-centree { justify-items: center; text-align: center; }' +
 '  .cv.cadre .tete-centree .coord { align-items: center; }' +
 '  .cv.cadre .corps.deux > div:first-child { border-right: 1px solid var(--cv); padding-right: 10px; }' +
@@ -1946,6 +2162,9 @@ cssPuces +
 // TACHE (Denis, 2026-09-25) : reglages supplementaires sur les modeles de la maquette (voir cvPdfTemplateMaquette.js, tete de fichier).
 '  .cv .rub-sec { min-width: 0; }' +
 '  .cv .tete.libre { display: block; position: relative; padding: 0 !important; }' +
+'  .cv .tete.libre[data-disp="4"] .metier, .cv .tete.libre[data-disp="4"] .accroche { text-align: left; }' +
+'  .cv .tete.libre[data-disp="4"] .nom, .cv .tete.libre[data-disp="4"] .metier { font-weight: 700; }' +
+'  .cv .tete.libre[data-disp="4"] .photo-mq { width: 84px; height: 84px; margin: 6px 0 4px 0; }' +
 '  .cv .tete.libre > .blc { position: absolute; }' +
 '  .cv .blc .nom { font-size: calc(21px * var(--k, 1) * var(--kh, 1)); }' +
 '  .cv .blc .coord { margin-top: 0; font-size: calc(11.5px * var(--k, 1) * var(--kh, 1)); }' +
@@ -1962,11 +2181,12 @@ cssPuces +
 '  .cv .tete-plat, .cv.degr .tete-plat { background: var(--cv); }' +
 '  .cv.degr .tete-inv:not(.tete-diag) { background: linear-gradient(135deg, var(--cv2), var(--cv)); }' +
 '  .cv .tete-2c { grid-template-columns: 1fr 1.7fr; }' +
-'  .cv .tete-fond .nom, .cv .tete-fond .metier, .cv .tete-fond { color: ' + texteSurFond + '; }' +
+'  .cv .tete-fond .nom, .cv .tete-fond .metier, .cv .tete-fond { color: ' + texteSurBandeau + '; }' +
 '  .cv .col-fond, .cv .bloc-fond { color: ' + texteSurFond + '; }' +
 '  .cv .col-fond h2, .cv .bloc-fond h2 { color: ' + texteSurFond + '; }' +
 '  .cv .col-fond .pill { color: ' + texteSurFond + '; }' +
-'  .cv .tete-fond .coord div::before { background: ' + texteSurFond + '; }' +
+(opts.texteFondColonnes === 'noir' ? '  .cv .col-fond .pill { background: rgba(0,0,0,.08); }  .cv .col-fond h2 { border-bottom-color: rgba(0,0,0,.28); }  .cv .col-fond .meta, .cv .col-fond .lieu-gris { color: rgba(0,0,0,.7); }' : '') +
+'  .cv .tete-fond .coord div::before { background: ' + texteSurBandeau + '; }' +
 (degradeInverse ? '  .cv.degr .col-fond { background: linear-gradient(165deg, var(--cv2), var(--cv)); }' : '') +
 '  .cv .col-titres { background: none !important; color: inherit; padding: 0; }' +
 '  .cv .col-titres h2 { background: var(--cv); color: ' + texteSurFond + '; border-bottom: 0; padding: 3px 8px; border-radius: 4px; }' +
@@ -1978,6 +2198,8 @@ cssPuces +
 '  .cv .photo-mq.anneau { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--cv); }' +
 (lectureGuidee ? '  .cv:not(.sobre) .tete:not(.tete-fond) .nom { text-transform: uppercase; letter-spacing: .04em; }' : '') +
 ((styleTitres === 'sans-decor' || styleTitres === 'aucun') ? '  .cv h2 { border-bottom: 0; }' : '') +
+(titresFilet === 'filet' ? '  .cv h2 { border-bottom: 0; }  .cv h2 .filet-filet { flex: 1 1 auto; min-width: 14px; height: 1px; background: currentColor; align-self: center; }' : '') +
+(titresFilet === 'court' ? '  .cv h2 { border-bottom: 0; display: block; }  .cv h2 .filet-court { display: block; width: 26px; height: 3px; background: currentColor; margin-top: 3px; }' : '') +
 (styleTitres === 'bandeau' ? '  .cv h2 { background: var(--cv); color: #fff; border-bottom: 0; padding: 3px 10px; border-radius: ' + (coinsArrondis ? '10px' : '4px') + '; display: inline-flex; max-width: 100%; }  .cv .col-fond h2, .cv .bloc-fond h2 { background: rgba(255,255,255,.22); }  .cv.ico h2::before { background: #fff; }' : '') +
 '  .cv .icone-titre { display: inline-flex; align-items: center; justify-content: center; width: 1.7em; height: 1.7em; border-radius: 50%; background: var(--cv); flex: none; }' +
 '  .cv .icone-titre .icone-ligne { width: 0.55em; height: 0.55em; margin: 0; stroke: #fff; }' +
@@ -1990,7 +2212,7 @@ cssPuces +
 '  .cv.modele-app .pill.texte { display: inline; }' +
 '  .cv .bloc-encadre { border: 1px solid var(--cv); border-radius: 16px; padding: 2px 10px 8px; margin-top: 10px; }' +
 '  .cv .bloc-encadre h2 { margin-top: 8px; }' +
-(coinsArrondis ? '  .cv .tete-fond:not(.tete-diag):not(.tete-vague) { border-radius: 0 0 26px 26px; }' : '') +
+((bordBandeau ? (bordBandeau === 'arrondi' || (bordBandeau === 'vallonne' && coinsArrondis)) : coinsArrondis) ? '  .cv .tete-fond:not(.tete-diag):not(.tete-vague) { border-radius: 0 0 26px 26px; }' : '') +
 '  .page-a4.cv.filet { border-top: 6px solid var(--cv); }' +
 '  .page-a4.cv.cadre-page { border: 5px solid var(--cv); }' +
 '  .cv .tete-fond.tete-vague { background: none; position: relative; padding-bottom: 34px !important; }' +
@@ -1999,14 +2221,78 @@ cssPuces +
 '  .cv.degr .tete-vague:not(.tete-plat)::before { background: linear-gradient(160deg, var(--cv), var(--cv2)); }' +
 '  .cv .tete-vague > div { position: relative; z-index: 1; }' +
 '  .cv.col-vague-g, .cv.col-vague-d { isolation: isolate; }' +
-'  .cv.col-vague-g::before, .cv.col-vague-d::before { content: ""; position: absolute; top: 0; bottom: 0; width: ' + colVagueMm + 'mm; background: var(--cv); z-index: -1; }' +
+'  .cv.col-vague-g::before, .cv.col-vague-d::before { content: ""; position: absolute; top: 0; bottom: 0; width: ' + (colVague ? r2(colVagueMm - colFondRentre) : colVagueMm) + 'mm; background: var(--col, var(--cv)); z-index: -1; }' +
 '  .cv.degr.col-vague-g::before, .cv.degr.col-vague-d::before { background: linear-gradient(' + (degradeInverse ? '0deg' : '180deg') + ', var(--cv), var(--cv2)); }' +
 '  .cv.col-vague-g::before { left: 0; clip-path: ' + polyColG + '; }' +
 '  .cv.col-vague-d::before { right: 0; clip-path: ' + polyColD + '; }' +
+(colonneCarte ? '  .cv.col-vague-g::before, .cv.col-vague-d::before { top: 6mm; bottom: 6mm; box-sizing: border-box; border-radius: 6mm; clip-path: none; box-shadow: 0 1px 5px rgba(0,0,0,.16); }' +
+  '  .cv.col-vague-g::before { left: 6mm; width: ' + r2(colVagueMm - colFondRentre - 6) + 'mm; border-right: 1.2mm solid var(--cv); }' +
+  '  .cv.col-vague-d::before { right: 6mm; width: ' + r2(colVagueMm - colFondRentre - 6) + 'mm; border-left: 1.2mm solid var(--cv); }' +
+  '  .cv.col-vague-g .corps .col-fond { padding-right: 1.5mm; }  .cv.col-vague-d .corps .col-fond { padding-left: 1.5mm; }' : '') +
 '  .cv.col-vague-g .col-fond, .cv.col-vague-d .col-fond { background: none !important; border-radius: 0; padding-left: 0; padding-right: 0; }' +
-'  .cv.col-vague-g .tete:not(.libre) > div:first-child .nom, .cv.col-vague-g .tete:not(.libre) > div:first-child .coord, .cv.col-vague-g .blc[data-bl="nom"] .nom, .cv.col-vague-g .blc[data-bl="coord"] .coord, .cv.col-vague-d .tete:not(.libre) > .accroche, .cv.col-vague-d .blc[data-bl="accroche"] .accroche { color: ' + texteSurFond + '; }' +
-'  .cv.col-vague-g .tete .coord div::before { background: ' + texteSurFond + '; }' +
+'  .cv.col-vague-g .tete:not(.libre) > div:first-child .nom, .cv.col-vague-g .tete:not(.libre) > div:first-child .coord, .cv.col-vague-g .blc[data-bl="nom"] .nom, .cv.col-vague-g .blc[data-bl="coord"] .coord, .cv.col-vague-d .tete:not(.libre) > .accroche, .cv.col-vague-d .blc[data-bl="accroche"] .accroche { color: ' + texteSurBandeau + '; }' +
+'  .cv.col-vague-g .tete .coord div::before { background: ' + texteSurBandeau + '; }' +
 '  .cv.col-vague-d .tete .accroche { border-left-color: rgba(255,255,255,.5); }' +
+// « Chronologique » : colonne pale (teinte du Sobre), dates dans la marge, duree en italique, photo ronde en haut de la colonne.
+(edito ? '  .cv.edito .tete-edito .nom { font-size: 46px; line-height: 1; font-weight: 700; color: var(--cv); letter-spacing: -.5px; overflow-wrap: anywhere; }' +
+  '  .cv.edito.edito-serif .tete-edito .nom { font-family: Georgia, "Times New Roman", serif; }' +
+  '  .cv.edito .tete-edito .metier { font-size: 19px; text-align: left; margin-top: 10px; line-height: 1.15; }' +
+  '  .cv.edito .tete-edito .accroche { border-left: 0; padding-left: 0; margin-top: 8px; text-align: left; }' +
+  '  .cv.edito .tete-edito .coord { margin-bottom: 4px; }' +
+  '  .cv.edito.sepcol .corps.deux > div:first-child { border-right: 1.5px solid var(--cv); }' : '') +
+(cartesCouleurs ? '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+2) { border-top-color: hsl(from var(--cv) calc(h + 40) s l); }' +
+  '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+3) { border-top-color: hsl(from var(--cv) calc(h + 80) s l); }' +
+  '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+4) { border-top-color: hsl(from var(--cv) calc(h + 160) s l); }' +
+  '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+5) { border-top-color: hsl(from var(--cv) calc(h + 240) s l); }' +
+  // Variete (paire 5, 2026-10-11) : chaque carte prend AUSSI un fond tres pale de sa propre teinte (comme son filet), ce qui distingue vraiment « Cartes colorees » de « Cartes » (cartes toutes de la meme teinte). Fonds tres clairs : lisibles en noir et blanc.
+  '  .cv.cartes-couleurs .col-cartes .rub-sec { background: hsl(from var(--cv) h 45% 95%); }' +
+  '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+2) { background: hsl(from var(--cv) calc(h + 40) 45% 95%); }' +
+  '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+3) { background: hsl(from var(--cv) calc(h + 80) 45% 95%); }' +
+  '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+4) { background: hsl(from var(--cv) calc(h + 160) 45% 95%); }' +
+  '  .cv.cartes-couleurs .col-cartes .rub-sec:nth-child(5n+5) { background: hsl(from var(--cv) calc(h + 240) 45% 95%); }' +
+  '  .cv.cartes-couleurs .tete .accroche { border: 1.5px solid var(--cv); background: var(--pale); }' : '') +
+(opts.titresRuban ? '  .cv.titres-ruban h2 { display: flex; max-width: 100%; background: var(--cv); color: #ffffff; border-bottom: 0; padding: 3px 18px 3px 10px; border-radius: 0; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%); }' +
+  '  .cv.titres-ruban .col-fond h2 { background: #ffffff; color: var(--cv); }' : '') +
+(coinCouleur ? '  .cv.coin-actif { isolation: isolate; }  .cv .coin-couleur { position: absolute; top: 0; left: 0; width: 38mm; height: 38mm; background: color-mix(in srgb, var(--cv) 38%, #ffffff); clip-path: polygon(0 0, 100% 0, 0 100%); z-index: 1; mix-blend-mode: multiply; pointer-events: none; }' : '') +
+(epure ? '  .cv.epure .nom { font-weight: 300; font-size: calc(26px * var(--kh, 1)); letter-spacing: .05em; }' +
+  '  .cv.epure h2 { border-bottom: 0; letter-spacing: .24em; font-weight: 600; color: #7a8696; margin-top: 18px; }' : '') +
+(technique ? '  .cv.technique .tete-technique .nom { font-size: 30px; font-weight: 800; color: var(--cv); line-height: 1.05; }' +
+  '  .cv.technique .tete-technique .metier { font-size: 17px; text-align: left; margin-top: 3px; }' +
+  '  .cv.technique .tete-technique .accroche { border-left: 0; padding-left: 0; margin-top: 6px; text-align: left; }' +
+  '  .cv.technique .tete-technique .infos-tech { text-align: right; }' +
+  '  .cv.technique .tete-technique .infos-tech .photo-mq { margin-left: auto; }' +
+  '  .cv.technique h2 { background: var(--cv); color: #ffffff; padding: 2px 10px; margin-top: 8px; margin-bottom: 6px; border-bottom: 0 !important; text-transform: uppercase; letter-spacing: .6px; }' +
+  '  .cv.technique .item + .item { border-top: 1px solid #8a93a0; padding-top: 7px; margin-top: 7px; }' +
+  '' : '') +
+(cartes ? '  .cv.cartes .col-cartes .rub-sec { background: var(--pale); border-top: 3px solid var(--cv); border-radius: 6px; padding: 6px 10px 8px; margin-bottom: 10px; }' +
+  '  .cv.cartes .col-cartes .rub-sec h2 { display: inline-block; background: #ffffff; padding: 2px 10px; margin: 0 0 6px; border: 0 !important; border-radius: 4px; }' +
+  '  .cv.cartes .tete .accroche { background: var(--pale); padding: 8px 10px; border-radius: 6px; border-left: 0; }' : '') +
+(grille ? '  .cv.grille h2 { text-transform: uppercase; letter-spacing: 2px; color: var(--cv); border-bottom: 0 !important; }' +
+  '  .cv.grille .rub-sec { border-bottom: 1.5px solid var(--cv); padding-bottom: 8px; margin-bottom: 8px; }' +
+  '  .cv.grille .rub-sec:last-child { border-bottom: 0; }' +
+  '  .cv.grille.sepcol .corps.deux > div:first-child { border-right: 1.5px solid var(--cv); }' : '') +
+(editoLarge ? '  .cv.edito-large .tete-edito-large .nom { font-size: 40px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase; line-height: 1.05; color: #1c2430; }' +
+  '  .cv.edito-large .tete-edito-large .metier { font-size: 30px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase; color: var(--cv); text-align: left; margin-top: 2px; line-height: 1.05; }' +
+  '  .cv.edito-large .tete-edito-large .infos-large { text-align: right; }' +
+  '  .cv.edito-large .tete-edito-large .infos-large .photo-mq { margin-left: auto; }' +
+  '  .cv.edito-large .accroche-large { margin: 6px 0 10px; }' +
+  '  .cv.edito-large h2 { text-transform: uppercase; font-weight: 400; font-size: 1.45em; letter-spacing: .5px; color: var(--cv); border-bottom: 0 !important; }' +
+  '  .cv.edito-large.edito-serif h2 { font-family: Georgia, "Times New Roman", serif; }' +
+  '  .cv.edito-large .corps.deux > div:first-child h2 { font-size: 1.05em; letter-spacing: 0; }' +
+  '  .cv.edito-large.edito-inv .corps.deux > div:first-child h2 { font-size: 1.45em; letter-spacing: .5px; }' +
+  '  .cv.edito-large.edito-inv .corps.deux > div:last-child h2 { font-size: 1.05em; letter-spacing: 0; }' : '') +
+(chrono ? (allure === 'sobre' ? '  .cv.chrono.col-vague-g::before, .cv.chrono.col-vague-d::before { background: var(--pale); }' : '') +
+  '  .cv.chrono .item-chrono { display: grid; grid-template-columns: 25mm 1fr; column-gap: 3mm; position: relative; }' +
+  '  .cv.chrono .cdates { text-align: right; color: var(--cv); font-size: .92em; line-height: 1.3; }' +
+  '  .cv.chrono .cdates .lieu-marge { display: block; color: #4b5563; }' +
+  '  .cv.chrono .item:not(.item-chrono) { margin-left: 28mm; }' +
+  '  .cv.chrono .col-fond .item:not(.item-chrono) { margin-left: 0; }' +
+  '  .cv.chrono .duree-exp { font-style: italic; color: #374151; font-size: .92em; }' +
+  '  .cv.chrono .tete-chrono .accroche { border-left: 0; padding-left: 0; }' +
+  '  .cv.chrono .tete-chrono .nom { color: var(--cv); }' +
+  '  .cv.chrono .tete-chrono .metier, .cv.chrono .tete-chrono .accroche { text-align: left; }' +
+  '  .cv.chrono .photo-col { display: flex; justify-content: center; padding-top: 2mm; }' +
+  '  .cv.chrono .photo-col .photo-mq { width: 34mm; height: 34mm; border-radius: 50%; object-fit: cover; }' : '') +
 '  .cv.nom-vert { padding-left: 12mm; }' +
 '  .cv .bande-nom-vert { position: absolute; top: 0; left: 0; width: 12mm; height: 100%; background: var(--cv); display: flex; align-items: center; justify-content: center; z-index: 3; }' +
 '  .cv .bande-nom-vert > span { writing-mode: vertical-rl; transform: rotate(180deg); color: ' + texteSurFond + '; font-weight: 700; font-size: calc(14px * var(--kh, 1)); letter-spacing: .05em; white-space: nowrap; }' +
@@ -2040,7 +2326,8 @@ cssPuces +
 '';
 
   var bandeNom = nomVert ? '<div class="bande-nom-vert"><span>' + ed('nom', nomComplet) + '</span></div>' : '';
-  var pageHtml = '<div class="' + classes.join(' ') + '">' + bandeNom + tete + corps + '</div>';
+  // Aucune teinte sur toute la page (decision de Denis, 2026-10-11 : une page entierement colorée coute de l'encre, photocopie en gris) : seules une colonne, un bandeau ou un coin se colorent.
+  var pageHtml = '<div class="' + classes.join(' ') + '">' + (coinCouleur ? '<div class="coin-couleur"></div>' : '') + bandeNom + tete + bandeInfosHaut + corps + bandeInfosBas + '</div>';
   return { css: css + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees), pageHtml: pageHtml, nomComplet: nomComplet, largeurPage: largeurPage, hauteurPage: hauteurPage };
 }
 
@@ -2086,7 +2373,7 @@ function _pdfMqApresRendu(feuille) {
   if (!t) { return; }
   var qb = function (k) { return t.querySelector('.blc[data-bl="' + k + '"]'); };
   if (t.getAttribute('data-posc') !== '1' && qb('nom') && qb('coord')) { qb('coord').style.top = (qb('nom').offsetTop + qb('nom').offsetHeight + 4) + 'px'; }
-  if (t.getAttribute('data-disp') === '2' && t.getAttribute('data-posa') !== '1' && qb('metier') && qb('accroche')) { qb('accroche').style.top = (qb('metier').offsetTop + qb('metier').offsetHeight + 8) + 'px'; }
+  if ((t.getAttribute('data-disp') === '2' || t.getAttribute('data-disp') === '4') && t.getAttribute('data-posa') !== '1' && qb('metier') && qb('accroche')) { qb('accroche').style.top = (qb('metier').offsetTop + qb('metier').offsetHeight + 8) + 'px'; }
   if (t.getAttribute('data-hfixe') === '1') { return; }
   var maxB = 0;
   Array.prototype.forEach.call(t.querySelectorAll('.blc'), function (b) { maxB = Math.max(maxB, b.offsetTop + b.offsetHeight); });

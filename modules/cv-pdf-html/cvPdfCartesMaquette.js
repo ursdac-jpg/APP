@@ -69,6 +69,9 @@ function _mepEtatChoixMq() {
   } catch (e) { return {}; }
 }
 function _mepRerendre() {
+  // Un rendu de CV hors de la page « Vos documents » (apercu cache de l'export Word, miniatures du module « Un CV, plusieurs metiers ») renvoie lui aussi ses messages
+  // au parent : on ne redessine l'editeur que s'il est la page affichee, sinon il remplacerait la page courante.
+  if (typeof pageActuelle !== 'undefined' && pageActuelle !== 'resultats') { return; }
   var y = window.scrollY;
   pageResultats();
   window.scrollTo(0, y);
@@ -183,7 +186,7 @@ var _MEP_RAISON_A5 = 'le Mini CV A5 a sa propre pr&eacute;sentation';
 // (mesure : chacun a ete actionne, le CV A5 ne change pas). Ce qui marche en A5 reste actif : couleurs, allure, icones, style des competences,
 // police, choix / ordre / missions / dates / lieu / mois des experiences, fond des colonnes A5, en-tete inversee, « Deux par feuille »...
 var _MEP_SANS_EFFET_A5 = [
-  '[data-mep-degrade-simple]', '[data-mep-cote]', '[data-mep-org-perso]', '[data-mep-org-deux]', '[data-mep-org-couleursliees]',
+  '[data-mep-degrade-simple]', '[data-mep-cote]', '[data-mep-org-perso]', '[data-mep-org-colonnes]', '[data-mep-org-couleursliees]',
   '[data-mep-mode-presentation="B"]', '[data-mep-mode-presentation="C"]', '[data-mep-src-exp]',
   '[data-mep-formations]', '[data-mep-form-missions]', '[data-mep-form-aff]', '[data-mep-form-ligne]',
   '[data-mep-select-accroche]', '[data-mep-sans-accroche-case]',
@@ -238,10 +241,17 @@ function _mepGriserSansEffetModele() {
 // grisés avec la raison, et rendus actifs dès que la condition l'est (le panneau est reconstruit à chaque réglage).
 function _mepGriserDependances() {
   if (_mepFormatA5()) { return; }
+  var caseCoin = document.querySelector('[data-mep-coin-couleur]');
+  if (caseCoin && !caseCoin.checked) {
+    try {
+      var wCoin = document.querySelector('#zonePdfInlineCV iframe').contentWindow;
+      if (typeof wCoin._pdfCoinCouleurPossible === 'function' && !wCoin._pdfCoinCouleurPossible()) { _mepGriserElement(caseCoin, 'Sans effet avec ce mod\u00e8le : le coin est d\u00e9j\u00e0 pris (en-t\u00eate color\u00e9 ou colonne fonc\u00e9e) ou ce mod\u00e8le a sa propre pr\u00e9sentation'); }
+    } catch (e) { /* le rendu decide */ }
+  }
   var caseMissions = document.querySelector('[data-mep-form-missions]');
   if (caseMissions && !caseMissions.checked) {
     Array.prototype.forEach.call(document.querySelectorAll('[data-mep-missionsformations]'), function (el) {
-      _mepGriserElement(el, 'Sans effet tant que les missions des formations ne sont pas affichées : cochez « Afficher les missions de la formation »');
+      _mepGriserElement(el, 'Sans effet tant que les missions des formations ne sont pas affichées : cochez « Afficher les missions des formations et des certifications »');
     });
   }
   var rec = (dossier.ia && dossier.ia.cv && dossier.ia.cv.recommandations) || {};
@@ -315,6 +325,12 @@ function _mepEtatDatesRub(rub) {
 }
 var _mepDatesPlusOuvert = {};
 // Le bouton seul (ferme) : « Plus d'options pour les dates » ; bleu quand les options sont ouvertes. Les options ne prennent de la place que si la personne les ouvre.
+// Rappel sous une experience cochee qui n'a AUCUNE mission (retour de Denis, 2026-10-10) : le bouton ouvre sa fiche pour que la personne decrive ce qu'elle a fait. Rien n'est invente.
+function _mepHtmlRappelSansMissions(e, estCochee, nbMissions) {
+  var k = _mepIndexDossierExperience(e);
+  if (!estCochee || nbMissions > 0 || k < 0) { return ''; }
+  return '<div class="conseil-missions rappel-sans-missions">Pas encore de missions pour cette exp&eacute;rience. D&eacute;crivez ce que vous avez fait pour un CV plus pr&eacute;cis. <button type="button" class="btn-miss" data-mep-exp-decrire="' + k + '">D&eacute;crire mes missions</button></div>';
+}
 // Nombre de missions CONSEILLE par l'assistant pour une experience (cv.md, point 14 : nombreMissionsSuggere), retrouve par poste / entreprise. Simple suggestion :
 // rien ne change tant que la personne ne clique pas sur « Appliquer » (decision de Denis, 2026-10-04) ; 0 = aucun conseil.
 function _mepNombreConseilleMissions(e) {
@@ -328,7 +344,7 @@ function _mepNombreConseilleMissions(e) {
 }
 function _mepHtmlDatesBouton(rub) {
   var ouvert = !!_mepDatesPlusOuvert[rub], e = _mepEtatDatesRub(rub);
-  return '<span class="dates-plus"><button type="button" class="btn-miss' + (ouvert ? ' actif' : '') + '" data-mep-dates-plus="' + rub + '" aria-expanded="' + ouvert + '">Plus d&rsquo;options' + (ouvert ? ' &#9652;' : ' &#9662;') + '</button>' +
+  return '<span class="dates-plus"><button type="button" class="btn-miss' + (ouvert ? ' actif' : '') + '" data-mep-dates-plus="' + rub + '" aria-expanded="' + ouvert + '">Plus d&rsquo;options' + _mepRondBtn(ouvert) + '</button>' +
     (e.suit ? '' : ' <span class="sous">choix propres</span>') + '</span>';
 }
 // Les options elles-memes (visibles seulement si le bouton est ouvert).
@@ -443,7 +459,7 @@ function _mepHtmlIntituleMq(origine, avecTitre, note, toujours) {
   var surCV = !!(sur && sur[origine]);
   // « toujours » : le bouton reste VISIBLE mais grisé tant que la rubrique n'est pas sur le CV (informations complémentaires).
   return '<div class="ligne-intitule" data-mep-intitule-zone="' + o + '"' + (toujours ? ' data-toujours="1"' : '') + ((surCV || toujours) ? '' : ' hidden') + '>' + titre +
-    '<div class="ligne-comp" style="flex-wrap:wrap"><button type="button" class="btn-miss' + (ouvert ? ' actif' : '') + '" data-mep-intitule-ouvrir="' + o + '"' + ((toujours && !surCV) ? ' disabled title="Disponible d&egrave;s que cette rubrique est sur le CV"' : '') + ' aria-expanded="' + ouvert + '">&#9998; Changer l&rsquo;intitul&eacute;' + (ouvert ? ' &#9652;' : ' &#9662;') + '</button>' + _mepAideBtn('Change le titre de cette rubrique sur le CV : choisissez une proposition ou &eacute;crivez le v&ocirc;tre. Le m&ecirc;me titre appara&icirc;t aussi dans ce panneau, pour retrouver facilement la rubrique.') +
+    '<div class="ligne-comp" style="flex-wrap:wrap"><button type="button" class="btn-miss' + (ouvert ? ' actif' : '') + '" data-mep-intitule-ouvrir="' + o + '"' + ((toujours && !surCV) ? ' disabled title="Disponible d&egrave;s que cette rubrique est sur le CV"' : '') + ' aria-expanded="' + ouvert + '">&#9998; Changer l&rsquo;intitul&eacute;' + _mepRondBtn(ouvert) + '</button>' + _mepAideBtn('Change le titre de cette rubrique sur le CV : choisissez une proposition ou &eacute;crivez le v&ocirc;tre. Le m&ecirc;me titre appara&icirc;t aussi dans ce panneau, pour retrouver facilement la rubrique.') +
     (courant !== libDefaut ? '<span class="sous">Sur le CV : &laquo;&nbsp;' + echapperAttribut(courant) + '&nbsp;&raquo;</span>' : '') + '</div>' +
     '<div class="zone-propositions"' + (ouvert ? '' : ' hidden') + '>' +
     '<div class="seg seg-mini">' + props.map(function (t, i) {
@@ -471,7 +487,7 @@ function _mepBrancherIntitules(racine) {
       z.hidden = !z.hidden; _mepIntituleOuvert[o] = !z.hidden;
       b.setAttribute('aria-expanded', z.hidden ? 'false' : 'true');
       b.classList.toggle('actif', !z.hidden);
-      b.innerHTML = '&#9998; Changer l&rsquo;intitul&eacute;' + (z.hidden ? ' &#9662;' : ' &#9652;');
+      b.innerHTML = '&#9998; Changer l&rsquo;intitul&eacute;' + _mepRondBtn(!z.hidden);
     });
   });
   racine.querySelectorAll('[data-mep-intitule-choisir]').forEach(function (b) {
@@ -493,6 +509,9 @@ function _mepBrancherIntitules(racine) {
   });
 }
 
+// Rond « Ouvrir / Fermer » des boutons qui ouvrent une liste en dessous (retour de Denis, 2026-10-08) : meme image que la carte « Choisir une ambiance » et les panneaux.
+// Le rond et le mot viennent du CSS (.rond-btn) ; ici on ne dit que l'etat. Remplace les anciennes petites fleches ecrites dans le texte des boutons.
+function _mepRondBtn(ouvert) { return '<span class="rond-btn' + (ouvert ? ' ouvert' : '') + '" aria-hidden="true"></span>'; }
 // Petit « ? » seul (retour Denis 2026-10-03) : à placer dans le texte d'une option ; le complément s'affiche au clic (ligne sous l'option, créée à la demande) et au survol.
 function _mepAideBtn(texte) {
   return '<button type="button" class="aide-option" data-mep-aide-option aria-expanded="false" title="' + texte + '" aria-label="Explication : ' + texte + '">?</button>';
@@ -532,6 +551,30 @@ function _mepHtmlProCompDispoMq() {
     // Retour a l'automatique : seulement quand la personne a fait son propre choix.
     ((!raison && choix.proCompDispo) ? '<div class="inline" style="margin-top:.25rem"><button type="button" class="btn-miss" data-mep-procomp="auto">Revenir au r&eacute;glage g&eacute;n&eacute;ral (&laquo;&nbsp;Blocs courts&nbsp;&raquo;)</button></div>' : '') + '</div>';
 }
+// Panneaux « Modifier ... » de la carte Experiences rangés par PAIRES (retour Denis 2026-10-05, maquette docs/MAQUETTE_PANNEAUX_PAR_PAIRES_2026-10-05.html) :
+// deux boutons côte à côte ; un clic ouvre les deux de la paire (cadre commun, boutons bleus, bouton « Refermer »). Les <details> gardent leurs identifiants.
+function _mepPaireDebutMq(cle, titre) {
+  return '<div class="paire-choix" data-paire="' + cle + '"><div class="paire-titre"><span>' + titre + '</span><button type="button" class="btn-miss" data-paire-fermer>Refermer</button></div>';
+}
+// Après chaque rendu : une paire est ouverte si l'un de ses panneaux l'est ; ouvrir ou refermer l'un fait de même pour l'autre.
+function _mepCablerPairesChoixMq() {
+  document.querySelectorAll('.mep-mq .paire-choix').forEach(function (paire) {
+    var panneaux = [].slice.call(paire.children).filter(function (e) { return e.tagName === 'DETAILS'; });
+    if (panneaux.length < 2) { return; }
+    var actifs = panneaux.filter(function (d) { return !d.classList.contains('desactivee'); });
+    function majCadre() { paire.classList.toggle('ouverte', actifs.some(function (d) { return d.open; })); }
+    if (actifs.some(function (d) { return d.open; })) { actifs.forEach(function (d) { d.open = true; }); }
+    majCadre();
+    actifs.forEach(function (d) {
+      d.addEventListener('toggle', function () {
+        actifs.forEach(function (autre) { if (autre !== d && autre.open !== d.open) { autre.open = d.open; } });
+        majCadre();
+      });
+    });
+    var fermer = paire.querySelector('[data-paire-fermer]');
+    if (fermer) { fermer.addEventListener('click', function () { actifs.forEach(function (d) { d.open = false; }); majCadre(); }); }
+  });
+}
 // Carte Experiences, modes « Par competences » et « Mixte » : disposition du bloc « Competences en action » et style de ses missions.
 function _mepHtmlOptionsActionMq() {
   var choix = _mepEtatChoixMq(), mode = _mepEtatExperiences().mode;
@@ -542,8 +585,12 @@ function _mepHtmlOptionsActionMq() {
   var dispo = [['large', 'Pleine largeur'], ['cote', '&Agrave; c&ocirc;t&eacute; des comportementales']];
   var aideDispo = (mode === 'B')
     ? 'Indisponible ici : en Mixte, les comp&eacute;tences comportementales sont d&eacute;j&agrave; avec les comp&eacute;tences professionnelles ; &laquo;&nbsp;Comp&eacute;tences en action&nbsp;&raquo; a sa propre ligne.'
-    : 'Pleine largeur, bien d&eacute;taill&eacute; ; ou &agrave; gauche, avec les comp&eacute;tences comportementales &agrave; droite (retour &agrave; la ligne si c&rsquo;est long).';
-  var disposHtml = (mode === 'B') ? _mepSegGriseMq('mep-action-dispo', dispo, 'large') : _mepSegMq('mep-action-dispo', dispo, coteActuel);
+    : ((String(c.colonnes) === '2' || _mepDispositionPropre() || _mepFormatA5())
+      ? 'Indisponible avec cette mise en page : sur deux colonnes ou avec ce mod&egrave;le, &laquo;&nbsp;Comp&eacute;tences en action&nbsp;&raquo; prend la largeur de sa colonne.'
+    : 'Pleine largeur, bien d&eacute;taill&eacute; ; ou &agrave; gauche, avec les comp&eacute;tences comportementales &agrave; droite (retour &agrave; la ligne si c&rsquo;est long).');
+  // Impossible : en Mixte, sur deux colonnes, avec un modele a disposition propre ou en A5 (la ligne des comportementales n'existe pas ou est deja occupee).
+  var dispoImpossible = (mode === 'B') || String(c.colonnes) === '2' || _mepDispositionPropre() || _mepFormatA5();
+  var disposHtml = dispoImpossible ? _mepSegGriseMq('mep-action-dispo', dispo, 'large') : _mepSegMq('mep-action-dispo', dispo, coteActuel);
   var m = function (v) { return v === 'condense' ? 'condense' : 'epure'; };
   var styleActuel = (choix.styleMissionsAction === 'condense' || choix.styleMissionsAction === 'epure') ? choix.styleMissionsAction : m(c.styleProfessionnel);
   var miss = [['epure', 'Chaque mission sur une ligne'], ['condense', '&Agrave; la suite, avec un signe']];
@@ -576,7 +623,7 @@ function _mepHtmlMissionsPickerMq(prefixe, cle, segments, choisieListe, n, ouver
         return '<label class="' + (coche ? '' : 'non') + '"><input type="checkbox" data-mep-' + prefixe + '-mission="' + cleAttr + '|' + k + '"' + (coche ? ' checked' : '') + '><span>' + echapperAttribut(m) + '</span></label>';
       }).join('') + '</div>';
   }
-  var bouton = '<button type="button" class="btn-miss' + (perso ? ' perso' : '') + '" data-mep-' + prefixe + '-choisir-missions="' + cleAttr + '">' + (perso ? 'Choix personnel' : 'Missions') + (ouvert ? ' &#9652;' : ' &#9662;') + '</button>';
+  var bouton = '<button type="button" class="btn-miss' + (perso ? ' perso' : '') + '" data-mep-' + prefixe + '-choisir-missions="' + cleAttr + '">' + (perso ? 'Choix personnel' : 'Missions') + _mepRondBtn(ouvert) + '</button>';
   return { html: htmlMissions, bouton: bouton };
 }
 
@@ -634,7 +681,11 @@ function _htmlSecOrganisationMiseEnPage() {
     _mepCkMqSansObjet('data-mep-org-comphaut', 'Comp&eacute;tences en haut', etat.compHaut, _mepFormatA5() || _mepDispositionPropre() || (etat.perso && deuxColonnes), _mepFormatA5() ? _MEP_RAISON_A5 : ((etat.perso && deuxColonnes) ? 'l&rsquo;ordre est r&eacute;gl&eacute; par &laquo;&nbsp;Personnaliser&nbsp;&raquo;' : null), 'Place les compétences avant les expériences.') +
     _mepCkMqSansObjet('data-mep-org-formavant', 'Formations en premier', etat.formAvant, _mepFormatA5() || (etat.perso && deuxColonnes), _mepFormatA5() ? _MEP_RAISON_A5 : 'l&rsquo;ordre est r&eacute;gl&eacute; par &laquo;&nbsp;Personnaliser&nbsp;&raquo;', 'Place les formations avant les expériences professionnelles.') +
     _mepCkMqSansObjet('data-mep-org-formgauche', 'Formations &agrave; gauche', !!_mepEtatChoixMq().formationsAGauche, !deuxColonnes || (etat.perso && deuxColonnes), !deuxColonnes ? 'cette option s&rsquo;applique &agrave; deux colonnes : cochez &laquo;&nbsp;Deux colonnes&nbsp;&raquo;' : 'l&rsquo;ordre est r&eacute;gl&eacute; par &laquo;&nbsp;Personnaliser&nbsp;&raquo;', 'Avec deux colonnes, place les formations dans la colonne de gauche.') +
-    _mepCkMqAide('data-mep-org-deux', 'Deux colonnes', deuxColonnes, 'Répartit le CV sur deux colonnes : rubriques courtes à gauche, expériences à droite.') +
+_mepCkMqSansObjet('data-mep-org-formpleine', 'Formations en bas', !!_mepEtatChoixMq().formationsPleineLargeur && !_mepEtatChoixMq().formationsAGauche, !deuxColonnes || (etat.perso && deuxColonnes), !deuxColonnes ? 'cette option s&rsquo;applique &agrave; deux colonnes : cochez &laquo;&nbsp;Deux colonnes&nbsp;&raquo;' : 'l&rsquo;ordre est r&eacute;gl&eacute; par &laquo;&nbsp;Personnaliser&nbsp;&raquo;', 'Avec deux colonnes, place les formations sous les deux colonnes, sur toute la largeur de la page.') +
+    // Nombre de colonnes (decision de Denis, 2026-10-08) : DEUX CARRES A COCHER comme toutes les autres options (meme composant, « ? » a cote), l'un sous l'autre, AUCUN coche au
+    // depart. Cocher l'un decoche l'autre ; decocher le retire (la personne « ne choisit plus » : « Style rapide » redevient libre de proposer une ou deux colonnes).
+    _mepCkMqAide('data-mep-org-colonnes="1"', 'Une colonne', !!c._colonnesChoisies && !deuxColonnes, 'Le CV tient sur une seule colonne. Tant que vous ne choisissez ni une ni deux colonnes, « Style rapide » peut vous proposer l’une ou l’autre. Décochez pour retirer votre choix.') +
+    _mepCkMqAide('data-mep-org-colonnes="2"', 'Deux colonnes', !!c._colonnesChoisies && deuxColonnes, 'Répartit le CV sur deux colonnes : rubriques courtes à gauche, expériences à droite. Décochez pour retirer votre choix.') +
     _mepCkMqAide('data-mep-org-reduire', 'R&eacute;duire les espaces', c.densite === 'compact', 'Resserre les espaces entre les rubriques et les lignes, pour gagner de la place.') +
     // Retour Denis 2026-10-01 : le contraire de « Reduire les espaces », juste a cote. Meme reglage (densite : compact / normal / aere) : l'un decoche l'autre.
     _mepCkMqAide('data-mep-org-agrandir-espaces', 'Agrandir les espaces', c.densite === 'aere', 'Aère le CV : plus d’espace entre les rubriques et les lignes.') +
@@ -668,6 +719,16 @@ function _mepHtmlPucesParRubrique(choix) {
 // deplace ici : verifie que ce reglage est pilote par les presets de modele de la galerie
 // (cvPdfPanneauReglages.js), pas un choix libre de la personne dans l'ecran actuel -- lui ajouter un
 // controle manuel ici risquerait d'entrer en conflit avec le style choisi, a traiter a part si besoin.
+// Coordonnees « en ligne sous l'en-tete » (decision de Denis, 2026-10-07) : possible seulement quand la ligne qui separe l'en-tete du corps est DROITE. Lu sur l'apercu
+// (classes de l'en-tete : diagonale, vague, photo en medaillon = pas droite ; aucun en-tete = modele a en-tete propre : famille Photo, frises, rectangles).
+function _mepCoordEnLignePossible() {
+  try {
+    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+    var t = d.querySelector('#conteneurPage .tete');
+    if (!t) { return false; }
+    return !/tete-diag|tete-vague|tete-med/.test(t.className) && !d.querySelector('#conteneurPage .cv.nom-vert');
+  } catch (e) { return true; }   // aperçu pas encore là : la case reste utilisable (le rendu ignore de toute façon un modèle qui ne s'y prête pas)
+}
 function _htmlSecEnteteMiseEnPage() {
   if (!_cvEcranUniqueMiseEnPage()) { return ''; }
   var iaCv = (dossier.ia && dossier.ia.cv) || {};
@@ -683,11 +744,8 @@ function _htmlSecEnteteMiseEnPage() {
   // <select> retombe nativement sur sa 1re option (deja le cas avant ce chantier) -- le champ texte
   // doit refleter la MEME valeur affichee, jamais un champ vide qui ferait croire a un titre efface.
   var titreActuel = dossier.titreCV || titres[0] || '';
-  // R9 : « Version courte » (une phrase) : affichee, choisie et modifiee a la place de la version longue de la MEME proposition.
-  // La case n'existe que si l'assistant a fourni une version courte pour la proposition choisie.
-  var accrocheCourteDispo = (typeof _cvAccrocheCourteChoisie === 'function') ? _cvAccrocheCourteChoisie(iaCv) : '';
-  var modeCourt = !!(c.accrocheCourte && accrocheCourteDispo);
-  var accrocheActuelle = modeCourt ? accrocheCourteDispo : (iaCv.profil || accroches[0] || '');
+  // Les accroches sont courtes par definition (une phrase, cv.md) : plus de case « Version courte » (decision de Denis, 2026-10-10).
+  var accrocheActuelle = (iaCv.profil || accroches[0] || '');
   // TACHE (retour Denis 2026-09-28, cohérence visuelle) : bouton "Modifier"/"Choisir" au même style
   // que "Choisir" des compétences (classe .btn-miss), dans le même conteneur .ligne-comp (flex, même
   // gap) -- jamais un lien texte isolé (classe .mep-lien, réservée aux vraies actions secondaires
@@ -716,14 +774,11 @@ function _htmlSecEnteteMiseEnPage() {
     // bouton rond). Mêmes attributs et mêmes gestionnaires qu'avant (data-mep-select-accroche), aucun 2e circuit.
     var accrocheChoisie = (iaCv.profil || accroches[0] || '');
     var htmlAccroches = accroches.map(function (t, i) {
-      // En mode court, la liste montre la version courte de chaque proposition (sa version longue reste la valeur choisie).
-      var rangT = (iaCv.accrochesProposees || []).indexOf(t);
-      var courteT = (modeCourt && rangT >= 0 && iaCv.accrochesCourtesProposees) ? String(iaCv.accrochesCourtesProposees[rangT] || '').trim() : '';
-      var libelleT = courteT || t;
+      var libelleT = t;
       return '<label class="rad rad-accroche' + (t === accrocheChoisie ? ' choisie' : '') + '"><input type="radio" name="mepAccroche" data-mep-select-accroche value="' + echapperAttribut(t) + '"' + (t === accrocheChoisie ? ' checked' : '') + (sansAccroche ? ' disabled' : '') + '> ' +
         '<span class="rad-accroche-texte"><b>Proposition ' + (i + 1) + '</b> ' + echapperAttribut(libelleT) + '</span></label>';
     }).join('');
-    htmlAccrocheChamp = '<div class="ligne-comp"><div class="accroche-actuelle" id="mepSelAccroche">' + echapperAttribut(modeCourt ? accrocheActuelle : accrocheChoisie) + '</div>' +
+    htmlAccrocheChamp = '<div class="ligne-comp"><div class="accroche-actuelle" id="mepSelAccroche">' + echapperAttribut(accrocheChoisie) + '</div>' +
       // Sans accroche : le bouton reste visible mais desactive (decision de Denis 2026-09-29), comme le menu.
       '<button type="button" class="btn-miss" data-mep-accroche-modifier' + (sansAccroche ? ' disabled' : '') + '>&#9998; Modifier</button></div>' +
       (accroches.length > 1 ? '<details class="choix-exp' + (sansAccroche ? ' desactivee' : '') + '" id="zoneAccroches"' + ((!sansAccroche && _mepCarteOuverte('zoneAccroches', false)) ? ' open' : '') + '><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Lire et choisir une autre phrase</span><span class="cb-fermer">Refermer les phrases</span></b>' +
@@ -748,17 +803,21 @@ function _htmlSecEnteteMiseEnPage() {
     // Denis, 2026-09-29 : les deux choix sur UNE ligne, en grands boutons ; « Version courte » a droite, sous le bouton « Modifier ».
     '<div class="ligne-accroche-options">' +
     _mepCkMq('data-mep-sans-accroche-case', 'Sans accroche', sansAccroche, 'ck ck-marque' + (sansAccroche ? ' on' : '')) +
-    // Retour Denis 2026-10-03 : « Version courte » est TOUJOURS visible ; grisée (non cliquable) tant qu'il n'y a pas de phrase d'accroche choisie avec une version courte.
-    _mepCkMq('data-mep-accroche-courte' + ((sansAccroche || !accrocheCourteDispo) ? ' disabled title="' + (sansAccroche ? 'Sans accroche : rien à raccourcir' : 'Aucune version courte proposée pour cette phrase') + '"' : ''), 'Version courte (une phrase)', !!c.accrocheCourte && !!accrocheCourteDispo, 'ck ck-marque' + ((sansAccroche || !accrocheCourteDispo) ? ' sans-objet' : (c.accrocheCourte ? ' on' : ''))) +
     '</div></div>' +
     // TACHE (retour Denis 2026-09-28/29, cohérence + compacité) : bouton dans la continuité du
     // texte (une seule ligne par action, jamais une ligne label + une ligne texte + une ligne
     // bouton) -- garde la carte courte. Toujours un vrai bouton bordé (.btn-miss), jamais un lien.
     // Retour Denis 2026-10-01 : mettre en gras le numero de telephone et/ou l'e-mail d'un clic (deux cases bien identifiees).
     '<div class="champ"><label>Coordonnées</label><div class="checks auto">' +
+    _mepCkMqSansObjet('data-mep-coord-ligne', 'Coordonnées en ligne sous l’en-tête', !!c.bandeauDisponibilite && _mepCoordEnLignePossible(), !_mepCoordEnLignePossible(),
+      'la ligne sous l’en-tête de ce modèle n’est pas droite, ou ce modèle a son propre en-tête',
+      'Les coordonnées (téléphone, e-mail, ville) passent sur une seule ligne, sous l’en-tête, au lieu d’être en colonne sous le nom. Utile quand le nom est long ou qu’il y a une photo : l’en-tête prend moins de place. Décochez pour les remettre en colonne.') +
     _mepCkMq('data-mep-coord-gras="telephone"', 'Téléphone en gras', !!(_mepEtatChoixMq().coordGras || {}).telephone) +
     _mepCkMq('data-mep-coord-gras="email"', 'E-mail en gras', !!(_mepEtatChoixMq().coordGras || {}).email) +
     '</div></div>' +
+    (_mepEtatEditorial().edito ? '<div class="champ"><label>Modèle Éditorial</label><div class="checks auto">' +
+      _mepCkMq('data-mep-nom-empattement', _mepEtatEditorial().large ? 'Titres de rubrique en police à empattement' : 'Nom en police à empattement', _mepEtatEditorial().nomEmpattement) +
+      _mepCkMq('data-mep-trait-vertical', 'Trait entre les deux colonnes', _mepEtatEditorial().traitVertical) + '</div></div>' : '') +
     '<div class="champ"><div class="ligne-comp" style="flex-wrap:wrap">' +
     '<span class="sous-aide" style="margin:0">Taille, gras, italique du titre/de l’accroche/des coordonnées :</span>' +
     '<button type="button" class="btn-miss" data-mep-versgrand>Régler l’en-tête &#8594;</button>' +
@@ -879,7 +938,7 @@ function _htmlSecExperiencesMiseEnPage() {
       '<span class="pas"><button type="button" data-mep-exp-missions-moins="' + i + '" data-mep-exp-missions-n="' + n + '"' + (n <= 1 ? ' disabled' : '') + '>&minus;</button><span>' + n + '</span>' +
       '<button type="button" data-mep-exp-missions-plus="' + i + '" data-mep-exp-missions-n="' + n + '"' + (n >= segments.length ? ' disabled' : '') + '>+</button></span>' +
       '<span class="sur" title="Missions propos&eacute;es pour cette exp&eacute;rience">/' + segments.length + '</span>' +
-      picker.bouton + '</label>' + htmlConseil +
+      picker.bouton + '</label>' + htmlConseil + _mepHtmlRappelSansMissions(e, estCochee, segments.length) +
       htmlMissions + (_mepEditionExp ? _htmlEditionExperienceMq(e, i) : '') + '</div>';
   }).join('');
 
@@ -932,7 +991,7 @@ function _htmlSecExperiencesMiseEnPage() {
     // rendu par _mepRemplirCompetencesMissionsMq (retour Denis 2026-10-02).
     // Retour Denis 2026-10-03 : la liste porte le VRAI NOM de la rubrique du CV (qui suit l'intitule choisi), dit ou elle se trouve, et son intitule se change ici (« Competences en action »,
     // aussi en « Par competences »). Nombre et ordre : cases, fleches monter / descendre, niveau de detail.
-    (etat.mode !== 'A' ? _mepHtmlOptionsActionMq() + _mepHtmlIntituleMq(_PDF_INTITULES.competencesEnAction) + '<details class="choix-exp" id="zoneCompMissions"' + (_mepCarteOuverte('zoneCompMissions', false) ? ' open' : '') + '><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">' +
+    (etat.mode !== 'A' ? _mepHtmlOptionsActionMq() + _mepHtmlIntituleMq(_PDF_INTITULES.competencesEnAction) + (etat.mode === 'B' ? _mepPaireDebutMq('comp', 'Les comp&eacute;tences du CV') : '') + '<details class="choix-exp" id="zoneCompMissions"' + (_mepCarteOuverte('zoneCompMissions', false) ? ' open' : '') + '><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">' +
       'Modifier &laquo;&nbsp;' + _mepNomBlocColonneAfficheEnAction() + '&nbsp;&raquo;</span><span class="cb-fermer">Refermer &laquo;&nbsp;' + _mepNomBlocColonneAfficheEnAction() + '&nbsp;&raquo;</span></b>' +
       '<small id="mepResumeCompMissions"></small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>' +
       '<div class="choix-corps"><p class="choix-aide">Ces missions s&rsquo;affichent en haut du CV, sous &laquo;&nbsp;' + _mepNomBlocColonneAfficheEnAction() + '&nbsp;&raquo;. Pour chacune : la garder ou non, la modifier, la monter ou la descendre. Les autres restent dans vos exp&eacute;riences : une mission n&rsquo;est jamais r&eacute;p&eacute;t&eacute;e.</p>' +
@@ -941,7 +1000,8 @@ function _htmlSecExperiencesMiseEnPage() {
     (etat.mode === 'B' ? '<details class="choix-exp" id="zoneProMixte"' + (_mepCarteOuverte('zoneProMixte', false) ? ' open' : '') + '><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Modifier &laquo;&nbsp;' + echapperAttribut(_mepIntitule(_PDF_INTITULES.competencesPro)) + '&nbsp;&raquo;</span><span class="cb-fermer">Refermer &laquo;&nbsp;' + echapperAttribut(_mepIntitule(_PDF_INTITULES.competencesPro)) + '&nbsp;&raquo;</span></b>' +
       '<small id="mepNbProMixte"></small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>' +
       '<div class="choix-corps"><p class="choix-aide">En Mixte, ces mots-cl&eacute;s s&rsquo;affichent sous &laquo;&nbsp;' + echapperAttribut(_mepIntitule(_PDF_INTITULES.competencesPro)) + '&nbsp;&raquo;, apr&egrave;s les missions de &laquo;&nbsp;' + _mepNomBlocColonneAfficheEnAction() + '&nbsp;&raquo;. D&eacute;cochez celles que vous ne voulez pas montrer. C&rsquo;est la m&ecirc;me s&eacute;lection que dans la carte &laquo;&nbsp;Comp&eacute;tences&nbsp;&raquo;.</p>' +
-      '<div id="mepPickProMixte" class="miss-liste mep-pick-pro"></div></div></details>' : '') +
+      '<div id="mepPickProMixte" class="miss-liste mep-pick-pro"></div></div></details></div>' : '') +
+    (etat.mode !== 'A' ? _mepPaireDebutMq('exp', 'Mes exp&eacute;riences') : '') +
     (experiences.length ? '<details class="choix-exp" id="zoneChoixExp"' + (choixExpOuvert ? ' open' : '') + '><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Modifier &laquo;&nbsp;' + echapperAttribut(_mepIntitule(_PDF_INTITULES.experience)) + '&nbsp;&raquo;</span><span class="cb-fermer">Refermer &laquo;&nbsp;' + echapperAttribut(_mepIntitule(_PDF_INTITULES.experience)) + '&nbsp;&raquo;</span></b>' +
       '<small>' + (etat.mode !== 'A' ? 'Sous les comp&eacute;tences &middot; ' : '') + resumeChoix + '</small></span><span class="chev" aria-hidden="true">&#8964;</span></summary>' +
       '<div class="choix-corps">' +
@@ -950,7 +1010,7 @@ function _htmlSecExperiencesMiseEnPage() {
         : 'Cochez les exp&eacute;riences &agrave; afficher (propos&eacute;es pour le poste vis&eacute; : vous d&eacute;cidez). Pour chacune, choisissez les missions &agrave; garder.') + '</p>' +
       (_mepEditionExp ? '<p class="choix-aide"><b>Mode &eacute;dition :</b> cliquez sur le nom d&rsquo;une exp&eacute;rience pour la modifier, puis sur &laquo;&nbsp;Valider&nbsp;&raquo;. Les autres restent ferm&eacute;es.</p>' : '') +
       '<div class="mep-liste-choix-exp">' + lignesExp + '</div></div></details>' : '') +
-    (etat.mode !== 'A' ? _htmlZoneLiensMq(!!choix.sourceExperience) : '') +
+    (etat.mode !== 'A' ? _htmlZoneLiensMq(!!choix.sourceExperience) + '</div>' : '') +
     (totalMissionsAffichees < totalMissionsExp
       ? '<p class="rappel-missions" id="mepRappelMissions">' + totalMissionsAffichees + ' mission' + (totalMissionsAffichees > 1 ? 's' : '') + ' sur ' + totalMissionsExp + ' affich&eacute;e' + (totalMissionsAffichees > 1 ? 's' : '') + ' pour que votre CV tienne sur une page. Rien n&rsquo;est supprim&eacute; : utilisez le bouton &laquo;&nbsp;+&nbsp;&raquo; de &laquo;&nbsp;Missions par exp&eacute;rience&nbsp;&raquo;, ou choisissez mission par mission dans chaque exp&eacute;rience.</p>'
       : '') +
@@ -976,6 +1036,7 @@ function _htmlSecExperiencesMiseEnPage() {
     '<div class="inline"><label>Entreprise</label><span class="grp">' +
     boutonSI('souligner|entreprise', (c.souligner || {}).entreprise, 'S', 'Soulign&eacute;e') + ' ' + boutonSI('italique|entreprise', (c.italique || {}).entreprise, 'I', 'Italique') + '</span></div>' +
     _mepCkMq('data-mep-afficher-lieu', 'Afficher le lieu', etat.afficherLieu) +
+    (etat.chrono ? _mepCkMq('data-mep-afficher-duree', 'Afficher la durée (si les deux dates ont un mois)', etat.afficherDuree) + _mepCkMq('data-mep-lieu-marge', 'Lieu dans la marge', etat.lieuDansMarge) : '') +
     '<div class="inline"' + (etat.afficherLieu ? '' : ' style="display:none"') + '><label>Style du lieu</label>' +
     _mepSegMq('mep-style-lieu', [['normal', 'Normal'], ['italique', 'Italique'], ['gris', 'Gris']], etat.styleLieu, 'seg-mini') + '</div>' +
     '</div>' +
@@ -1088,7 +1149,7 @@ function _htmlSecFormationsMiseEnPage() {
     _mepSegMq('mep-form-ligne', [['', 'Selon le mod&egrave;le'], ['ligne', 'Sur une ligne'], ['dessous', 'En dessous']], _mepEtatChoixMq().formationsLigne || '', 'seg-mini') +
     '<label class="t" for="mepRgEspForm">Espace entre les formations <span id="mepValEspForm" style="font-weight:400;color:var(--text-muted)">' + etat.espacement + ' px</span></label>' +
     '<input type="range" id="mepRgEspForm" data-mep-form-espacement min="0" max="32" step="1" value="' + etat.espacement + '" style="width:9rem;accent-color:var(--accent)"></div>' +
-    '<div class="rangee"><label class="t">Missions</label>' + _mepCkMq('data-mep-form-missions', 'Afficher les missions de la formation', etat.afficherMissions) +
+    '<div class="rangee"><label class="t">Missions</label>' + _mepCkMq('data-mep-form-missions', 'Afficher les missions des formations et des certifications', etat.afficherMissions) +
     _mepGriserSiStyleCommun(_mepSegMq('mep-missionsformations', [['epure', '&Eacute;pur&eacute;es', 'Une par ligne'], ['condense', 'Condens&eacute;es', '&Agrave; la suite']], styleMissionsForm, 'seg-mini'), styleCommunActif) +
     _mepHtmlSigneMissionsMq(styleMissionsForm === 'condense') + '</div>' +
     (styleCommunActif ? '<p class="choix-aide" style="margin:.2rem 0 0">Le titre et le style des missions suivent les exp&eacute;riences professionnelles. Pour les r&eacute;gler ici, d&eacute;cochez &laquo;&nbsp;M&ecirc;me style d&rsquo;&eacute;criture dans toutes les rubriques&nbsp;&raquo; dans &laquo;&nbsp;Organisation du CV&nbsp;&raquo;.</p>' : '') + '</div>';
@@ -1524,16 +1585,20 @@ function _htmlSecCompetencesMiseEnPage() {
     var perso = !!(cle === 'pro' ? choix.competencesProChoisies : choix.competencesCompChoisies);
     var actif = _mepAfficherCompActif(cle);
     var parComp = (cle === 'pro' && _mepEtatExperiences().mode === 'C');
+    // « Par competences » : si aucune competence de la liste ne figure dans les missions rangees, la liste n'a aucun effet sur le CV (mesure faite a chaque rendu, gabarit).
+    var sansEffet = !!(parComp && window._mepProSansEffetC);
+    var gris = sansEffet ? ' disabled' : '';
     var origineFam = (cle === 'pro') ? (parComp ? _PDF_INTITULES.competencesEnAction : _PDF_INTITULES.competencesPro) : _PDF_INTITULES.competencesComp;
     var renomme = _mepIntitule(origineFam) !== origineFam;
     // Les libellés du panneau suivent l'intitulé choisi (retour Denis 2026-10-03) : on retrouve tout de suite la rubrique.
     var caseAfficher = _mepCkMq('data-mep-afficher-comp="' + cle + '"', renomme ? 'Afficher &laquo;&nbsp;' + echapperAttribut(_mepIntitule(origineFam)) + '&nbsp;&raquo;' : 'Afficher les comp&eacute;tences ' + (cle === 'pro' ? (parComp ? 'en action' : 'professionnelles') : 'comportementales'), actif, 'ck ck-marque' + (actif ? ' on' : ''));
     // Case decochee : la rubrique n'apparait pas sur le CV, donc plus rien a regler ni a choisir : tout le reste du bloc disparait
     // (compteur, bouton, liste). Recochee, le bloc revient tel qu'il etait.
-    if (!actif) { return '<div class="champ">' + caseAfficher + '</div>'; }
+    // « Changer l'intitule » reste AFFICHE mais grise (retour Denis 2026-10-08) : pas de decalage visuel entre les deux colonnes.
+    if (!actif) { return '<div class="champ">' + caseAfficher + _mepHtmlIntituleMq(origineFam, false, '', true) + '</div>'; }
     // « Changer l'intitule » PILE sous la case « Afficher ... » (retour Denis 2026-10-03).
-    return '<div class="champ">' + caseAfficher + _mepHtmlIntituleMq(origineFam) + '<label>' + (renomme ? echapperAttribut(_mepIntitule(origineFam)) + ' &agrave; afficher' : (parComp ? 'Comp&eacute;tences en action &agrave; afficher' : libelle)) + '</label><div class="ligne-comp"><div class="pas"><button type="button" ' + attrMoins + '>&minus;</button><span id="mepNb' + (cle === 'pro' ? 'Pro' : 'Comp') + '">' + nb + '</span><button type="button" ' + attrPlus + '>+</button></div>' +
-      '<button type="button" class="btn-miss' + (perso ? ' perso' : '') + '" data-mep-pick="' + cle + '">' + (perso ? 'Ma s&eacute;lection' : 'Les montrer et les choisir') + (_mepPickOuvert[cle] ? ' &#9652;' : ' &#9662;') + '</button></div>' +
+    return '<div class="champ">' + caseAfficher + _mepHtmlIntituleMq(origineFam, false, '', true) + '<label>' + (renomme ? echapperAttribut(_mepIntitule(origineFam)) + ' &agrave; afficher' : (parComp ? 'Comp&eacute;tences en action &agrave; afficher' : libelle)) + '</label>' + (sansEffet ? _mepAideBtn('Dans ce mode, vos comp&eacute;tences s&rsquo;affichent en missions rang&eacute;es par comp&eacute;tence : ce r&eacute;glage n&rsquo;a pas d&rsquo;effet sur le CV. Elles se r&egrave;glent dans la carte Exp&eacute;riences.') : '') + '<div class="ligne-comp"><div class="pas"><button type="button" ' + attrMoins + gris + '>&minus;</button><span id="mepNb' + (cle === 'pro' ? 'Pro' : 'Comp') + '">' + nb + '</span><button type="button" ' + attrPlus + gris + '>+</button></div>' +
+      '<button type="button" class="btn-miss' + (perso ? ' perso' : '') + '" data-mep-pick="' + cle + '"' + gris + '>' + (perso ? 'Ma s&eacute;lection' : 'Les montrer et les choisir') + _mepRondBtn(!!_mepPickOuvert[cle]) + '</button></div>' +
       _mepHtmlDispositionCompMq(cle) +
       // La liste s'ouvre DANS sa colonne, sous sa rubrique (professionnelles a gauche, comportementales a droite) : elle ne se deplace plus.
       '<div id="mepPick' + (cle === 'pro' ? 'Pro' : 'Comp') + '" class="miss-liste mep-pick-' + cle + '" style="display:none"></div>' + (extra || '') + '</div>';
@@ -1577,7 +1642,7 @@ function _htmlSecSupplementairesMiseEnPage() {
     '<div class="opt-rub opt-rub-large">' + (_mepInfosSaisies().length
       ? _mepCkMq('data-mep-infos-rubrique', '<span class="mot-final">' + echapperAttribut(_mepIntitule(_PDF_INTITULES.infos)) + ' ' + _mepAideBtn('Cette rubrique se remplit avec les informations que vous ajoutez plus bas, avec &laquo;&nbsp;Ajouter une information&nbsp;&raquo;. D&egrave;s que vous en ajoutez une, la case se coche toute seule et la rubrique appara&icirc;t sur le CV.') + '</span>', (choix.infosCompAffichees || []).length > 0)
       : _mepCkMq('data-mep-infos-rubrique disabled title="Aucune information ajout&eacute;e pour le moment"', '<span class="mot-final">' + echapperAttribut(_mepIntitule(_PDF_INTITULES.infos)) + ' ' + _mepAideBtn('Cette rubrique se remplit avec les informations que vous ajoutez plus bas, avec &laquo;&nbsp;Ajouter une information&nbsp;&raquo;. D&egrave;s que vous en ajoutez une, la case se coche toute seule et la rubrique appara&icirc;t sur le CV.') + '</span>', false, 'ck sans-objet')) +
-    _mepHtmlIntituleMq(_PDF_INTITULES.infos, false, '', true) + '</div>' +
+    _mepHtmlIntituleMq(_PDF_INTITULES.infos, false, '', true) + _htmlPlaceInfosMq(choix) + '</div>' +
     '</div>' +
     // TACHE (retour Denis 2026-09-28, chantier "Formations regroupent tout") : "Certifications"
     // retiree de ces 2 listes -- plus une rubrique a part a afficher/masquer ou a mettre sur 2
@@ -1616,6 +1681,22 @@ var _MEP_SUGGESTIONS_INFOS = [
 ];
 var _mepSuggInfosOuvert = false;
 function _mepInfosSaisies() { return (dossier.informationsNonClassees || []).filter(function (x) { return typeof x === 'string' && x.trim(); }); }
+// Lot I1 (plan 2026-10-07) : « Informations complementaires » seule peut quitter les colonnes (bandeau pleine largeur en haut ou en bas, eventuellement a cote d'une
+// rubrique courte). Absente tant que la rubrique est vide ; grisee, avec sa raison, sur les modeles a disposition propre (Frise, Photo, Rectangles) et le Mini CV A5.
+var _MEP_INFOS_COTE = [['', 'Aucune'], ['logi', 'Logiciels'], ['langues', 'Langues'], ['certifs', 'Certifications'], ['centres', 'Centres d&rsquo;int&eacute;r&ecirc;t']];
+function _htmlPlaceInfosMq(choix) {
+  if (!(choix.infosCompAffichees || []).length) { return ''; }
+  var place = (choix.infosPlace === 'haut' || choix.infosPlace === 'bas' || choix.infosPlace === 'entete') ? choix.infosPlace : 'colonne';
+  var raison = _mepFormatA5() ? _MEP_RAISON_A5 : (_mepDispositionPropre() ? 'ce mod&egrave;le a sa propre disposition' : '');
+  var gris = function (html) { return raison ? html.replace(/<button /g, '<button disabled ') : html; };
+  var aide = _mepAideBtn('Par d&eacute;faut, cette rubrique est dans une colonne. Dans l&rsquo;en-t&ecirc;te, elle s&rsquo;ajoute sous vos coordonn&eacute;es (3 lignes au plus). Un bandeau la place sur toute la largeur de la page, sous l&rsquo;en-t&ecirc;te ou tout en bas : pratique pour un lien ou une disponibilit&eacute;.');
+  return '<div class="champ" style="margin-top:.4rem"><label>O&ugrave; placer cette rubrique ? ' + aide + '</label>' +
+    gris(_mepSegMq('mep-infos-place', [['colonne', 'Dans une colonne'], ['entete', 'Dans l&rsquo;en-t&ecirc;te'], ['haut', 'Bandeau du haut'], ['bas', 'Bandeau du bas']], place)) +
+    ((place === 'entete' && (choix.infosCompAffichees || []).length > 3 && !raison) ? '<p class="sous" style="margin:.2rem 0 0">Seules les 3 premi&egrave;res informations vont dans l&rsquo;en-t&ecirc;te ; les autres restent dans la rubrique.</p>' : '') +
+    (raison ? '<p class="sous" style="margin:.2rem 0 0">Indisponible ici : ' + raison + '.</p>' : '') +
+    (((place === 'haut' || place === 'bas') && !raison) ? '<label style="margin-top:.4rem">&Agrave; c&ocirc;t&eacute; de ' + _mepAideBtn('Met une rubrique courte sur la m&ecirc;me ligne que celle-ci, dans le bandeau.') + '</label>' +
+      _mepSegMq('mep-infos-cote', _MEP_INFOS_COTE, choix.infosCote || '', 'seg-mini') : '') + '</div>';
+}
 function _htmlBoiteInfosCompMq() {
   var choix = _mepEtatChoixMq();
   var lien = (dossier.identite && dossier.identite.lien) || '';
@@ -1630,7 +1711,7 @@ function _htmlBoiteInfosCompMq() {
     '<div class="champ" style="margin-top:.4rem"><label for="mepInfoNouvelle">Ajouter une information</label>' +
     '<div style="display:flex;gap:.4rem"><input type="text" id="mepInfoNouvelle" maxlength="120" placeholder="Ex. : Disponible imm&eacute;diatement" style="flex:1;min-width:0">' +
     '<button type="button" class="mep-btn principal" style="white-space:nowrap" data-mep-info-ajouter>+ Ajouter</button>' +
-    '<button type="button" class="mep-btn" style="white-space:nowrap" data-mep-info-sugg-ouvrir aria-expanded="' + (_mepSuggInfosOuvert ? 'true' : 'false') + '">Suggestions ' + (_mepSuggInfosOuvert ? '&#9652;' : '&#9662;') + '</button></div>' +
+    '<button type="button" class="mep-btn" style="white-space:nowrap" data-mep-info-sugg-ouvrir aria-expanded="' + (_mepSuggInfosOuvert ? 'true' : 'false') + '">Suggestions' + _mepRondBtn(_mepSuggInfosOuvert) + '</button></div>' +
     (_mepSuggInfosOuvert ? _htmlSuggestionsInfosCompMq(infos) : '') + '</div>';
   // Meme forme que « Modifier mes certifications » (retour Denis 2026-10-04) : un bouton depliant, sur la meme ligne que les certifications, qui ne prend de la place que s'il est ouvert.
   return '<details class="choix-exp" id="zoneInfos"' + (_mepCarteOuverte('zoneInfos', false) ? ' open' : '') + '><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Informations compl&eacute;mentaires</span></b>' +
@@ -1665,13 +1746,13 @@ function _mepRemplirCompetencesMissionsMq() {
         '<span class="nom" data-mep-cm-nom="' + gi + ':' + ii + '">' + echapperAttribut(it.texteAffiche) + '</span>' +
         (it.source ? ' <em>(' + echapperAttribut(it.source) + ')</em>' : '') + note +
         '<button type="button" class="btn-miss" data-mep-cm-ed="' + gi + ':' + ii + '">Modifier</button>' +
-        '<button type="button" class="btn-miss" data-mep-cm-mh="' + gi + ':' + ii + '" title="Monter"' + (ii === 0 ? ' disabled' : '') + '>&uarr;</button>' +
-        '<button type="button" class="btn-miss" data-mep-cm-mb="' + gi + ':' + ii + '" title="Descendre"' + (ii === g.items.length - 1 ? ' disabled' : '') + '>&darr;</button></label></div>';
+        '<button type="button" class="btn-miss" data-mep-cm-mh="' + gi + ':' + ii + '" title="Monter"' + (ii === 0 ? ' disabled' : '') + '>&#9650;</button>' +
+        '<button type="button" class="btn-miss" data-mep-cm-mb="' + gi + ':' + ii + '" title="Descendre"' + (ii === g.items.length - 1 ? ' disabled' : '') + '>&#9660;</button></label></div>';
     }).join('');
     var tete = (g.theme && groupes.length > 1)
       ? '<div class="ligne-bloc"><label class="ligne-choix"><span class="nom" style="font-weight:700">' + echapperAttribut(g.theme) + '</span>' +
-        '<button type="button" class="btn-miss" data-mep-cm-gh="' + gi + '" title="Monter cette comp&eacute;tence"' + (gi === 0 ? ' disabled' : '') + '>&uarr;</button>' +
-        '<button type="button" class="btn-miss" data-mep-cm-gb="' + gi + '" title="Descendre cette comp&eacute;tence"' + (gi === groupes.length - 1 ? ' disabled' : '') + '>&darr;</button></label></div>' : '';
+        '<button type="button" class="btn-miss" data-mep-cm-gh="' + gi + '" title="Monter cette comp&eacute;tence"' + (gi === 0 ? ' disabled' : '') + '>&#9650;</button>' +
+        '<button type="button" class="btn-miss" data-mep-cm-gb="' + gi + '" title="Descendre cette comp&eacute;tence"' + (gi === groupes.length - 1 ? ' disabled' : '') + '>&#9660;</button></label></div>' : '';
     return tete + lignes;
   }).join('');
   zone.innerHTML = html || '<p class="choix-aide">Aucune mission &agrave; afficher pour le moment.</p>';
@@ -1754,8 +1835,8 @@ function _mepRemplirListeChoixMq(zone, cle, affichees, pool) {
       var posA = affichees.indexOf(x);
       var att = _mepEstCompetenceAttendue(cle, x);
       return '<label class="' + (coche ? '' : 'non') + '"><input type="checkbox" data-mep-pick-item="' + cle + '" data-nom="' + echapperAttribut(x) + '"' + (coche ? ' checked' : '') + '><span class="sg ' + (att ? 'att' : 'cv') + '" aria-hidden="true">' + (att ? '\u25C7' : '\u25CF') + '</span><span>' + echapperAttribut(x) + '</span>' +
-        (coche ? '<button type="button" class="btn-miss" data-mep-pick-haut="' + cle + '" data-nom="' + echapperAttribut(x) + '" title="' + (parCompetences ? 'L&rsquo;ordre se r&egrave;gle dans la liste &laquo;&nbsp;Modifier ' + nomListe + '&nbsp;&raquo; de la carte Exp&eacute;riences.' : 'Monter') + '"' + ((parCompetences || posA === 0) ? ' disabled' : '') + '>&uarr;</button>' +
-          '<button type="button" class="btn-miss" data-mep-pick-bas="' + cle + '" data-nom="' + echapperAttribut(x) + '" title="' + (parCompetences ? 'L&rsquo;ordre se r&egrave;gle dans la liste &laquo;&nbsp;Modifier ' + nomListe + '&nbsp;&raquo; de la carte Exp&eacute;riences.' : 'Descendre') + '"' + ((parCompetences || posA === affichees.length - 1) ? ' disabled' : '') + '>&darr;</button>' : '') + '</label>';
+        (coche ? '<button type="button" class="btn-miss" data-mep-pick-haut="' + cle + '" data-nom="' + echapperAttribut(x) + '" title="' + (parCompetences ? 'L&rsquo;ordre se r&egrave;gle dans la liste &laquo;&nbsp;Modifier ' + nomListe + '&nbsp;&raquo; de la carte Exp&eacute;riences.' : 'Monter') + '"' + ((parCompetences || posA === 0) ? ' disabled' : '') + '>&#9650;</button>' +
+          '<button type="button" class="btn-miss" data-mep-pick-bas="' + cle + '" data-nom="' + echapperAttribut(x) + '" title="' + (parCompetences ? 'L&rsquo;ordre se r&egrave;gle dans la liste &laquo;&nbsp;Modifier ' + nomListe + '&nbsp;&raquo; de la carte Exp&eacute;riences.' : 'Descendre') + '"' + ((parCompetences || posA === affichees.length - 1) ? ' disabled' : '') + '>&#9660;</button>' : '') + '</label>';
     }).join('') + '</div>' + aideLegende + legende;
   var bLeg = zone.querySelector('[data-mep-legende]');
   if (bLeg) {
@@ -1825,10 +1906,12 @@ function _mepMajCompetencesMq() {
     if (nb) { nb.textContent = affichees.length; }
     var moins = document.querySelector('[data-mep-comp-' + d[5] + '-moins]');
     var plus = document.querySelector('[data-mep-comp-' + d[5] + '-plus]');
-    if (moins) { moins.disabled = affichees.length <= 3; }
-    if (plus) { plus.disabled = affichees.length >= pool.length; }
+    var sansEffetPro = (cle === 'pro' && !!window._mepProSansEffetC);
+    if (moins) { moins.disabled = sansEffetPro || affichees.length <= 3; }
+    if (plus) { plus.disabled = sansEffetPro || affichees.length >= pool.length; }
     var btn = document.querySelector('[data-mep-pick="' + cle + '"]');
-    if (btn) { btn.className = 'btn-miss' + (perso ? ' perso' : ''); btn.innerHTML = (perso ? 'Ma s&eacute;lection' : 'Les montrer et les choisir') + (_mepPickOuvert[cle] ? ' &#9652;' : ' &#9662;'); }
+    if (btn) { btn.className = 'btn-miss' + (perso ? ' perso' : ''); btn.innerHTML = (perso ? 'Ma s&eacute;lection' : 'Les montrer et les choisir') + _mepRondBtn(!!_mepPickOuvert[cle]); }
+    if (btn) { btn.disabled = sansEffetPro; }
     var zone = document.getElementById('mepPick' + d[4]);
     if (!zone) { return; }
     zone.style.display = _mepPickOuvert[cle] ? 'block' : 'none';
@@ -1969,6 +2052,7 @@ function _htmlSecAvanceMiseEnPage() {
     '<div class="carte-corps">' +
     _mepCkMq('data-mep-justif-simple', 'Texte justifi&eacute; ' + _mepAideBtn('Les bords droits des lignes sont align&eacute;s.'), c.alignement === 'justifie', 'case') +
     _mepCkMq('data-mep-sepcol-simple', 'Trait entre les deux colonnes', !!c.separateurColonnes, 'case') +
+    _mepCkMq('data-mep-coin-couleur', 'Coin color&eacute; en haut &agrave; gauche ' + _mepAideBtn('Un coin de couleur en haut &agrave; gauche de la page, derri&egrave;re le texte. Sans effet quand l&rsquo;en-t&ecirc;te est d&eacute;j&agrave; un bandeau color&eacute; ou quand une colonne fonc&eacute;e occupe ce coin.'), _mepEtatCoinCouleur(), 'case') +
     (c.iconesCoordonnees
       ? _mepCkMq('data-mep-petits-carres', 'Petits carr&eacute;s devant les coordonn&eacute;es ' + _mepAideBtn('Inutile : les ic&ocirc;nes des coordonn&eacute;es sont allum&eacute;es.'), choix.petitsCarresCoordonnees !== false, 'case').replace('<input ', '<input disabled ')
       : _mepCkMq('data-mep-petits-carres', 'Petits carr&eacute;s devant les coordonn&eacute;es', choix.petitsCarresCoordonnees !== false, 'case')) +
@@ -2063,6 +2147,7 @@ function _mepCablerCartesMaquette() {
     d.addEventListener('toggle', function () { _mepCartesOuvertes[d.id] = d.open; if (d.id === 'zoneLiens') { _mepRemplirZoneLiens(); } });
   });
   _mepRemplirZoneLiens();
+  _mepCablerPairesChoixMq();
   _mepBrancherAidesOptions(document);
   _mepBrancherIntitules(document);
   document.querySelectorAll('[data-mep-exp-stage]').forEach(function (b) {
@@ -2099,7 +2184,9 @@ function _mepCablerCartesMaquette() {
   _mepCablerPersoColonnes();
   // Organisation : formations dans la colonne de gauche (2 colonnes ; par defaut elles restent a droite).
   var cbFormGauche = document.querySelector('[data-mep-org-formgauche]');
-  if (cbFormGauche) { cbFormGauche.addEventListener('change', function () { _mepDefinirChoixMq('formationsAGauche', this.checked); }); }
+  if (cbFormGauche) { cbFormGauche.addEventListener('change', function () { if (this.checked) { _mepDefinirChoixMq('formationsPleineLargeur', false); } _mepDefinirChoixMq('formationsAGauche', this.checked); }); }
+  var cbFormPleine = document.querySelector('[data-mep-org-formpleine]');
+  if (cbFormPleine) { cbFormPleine.addEventListener('change', function () { if (this.checked) { _mepDefinirChoixMq('formationsAGauche', false); } _mepDefinirChoixMq('formationsPleineLargeur', this.checked); }); }
   // Organisation : Blocs courts.
   document.querySelectorAll('[data-mep-cote]').forEach(function (b) {
     b.addEventListener('click', function () { _mepDefinirChoixMq('blocsCourts', this.getAttribute('data-mep-cote')); });
@@ -2172,6 +2259,15 @@ function _mepCablerCartesMaquette() {
     });
   });
   // Informations complementaires : lien, lignes a afficher, ajout d'une ligne.
+  document.querySelectorAll('[data-mep-infos-place]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var v = this.getAttribute('data-mep-infos-place');
+      _mepDefinirChoixMq('infosPlace', v === 'colonne' ? null : v);
+    });
+  });
+  document.querySelectorAll('[data-mep-infos-cote]').forEach(function (b) {
+    b.addEventListener('click', function () { _mepDefinirChoixMq('infosCote', this.getAttribute('data-mep-infos-cote') || null); });
+  });
   var cbLien = document.querySelector('[data-mep-info-lien]');
   if (cbLien) { cbLien.addEventListener('change', function () { _mepDefinirChoixMq('afficherLien', this.checked); }); }
   document.querySelectorAll('[data-mep-infos-rubrique]').forEach(function (cb) {
@@ -2291,15 +2387,6 @@ function _mepCablerCartesMaquette() {
       setTimeout(_mepRerendre, 30);
     });
   });
-  document.querySelectorAll('[data-mep-accroche-courte]').forEach(function (cb) {
-    cb.addEventListener('change', function () {
-      _mepPousserHistorique('accrocheCourte');
-      _assurerReglagesMiseEnPageCV();
-      dossier.reglagesMiseEnPageCV.accrocheCourte = this.checked;
-      _mepEditerAccrocheCV = false;
-      setTimeout(_mepRerendre, 30);
-    });
-  });
   document.querySelectorAll('[data-mep-sans-accroche-case]').forEach(function (cb) {
     cb.addEventListener('change', function () { _mepDefinirSansAccroche(this.checked); });
   });
@@ -2334,17 +2421,9 @@ function _mepCablerCartesMaquette() {
     if (!dossier.ia) { dossier.ia = {}; }
     if (!dossier.ia.cv) { dossier.ia.cv = {}; }
     var cvIa = dossier.ia.cv;
-    // R9 : « Modifier » agit sur la version AFFICHEE. Version courte : on remplace la courte de cette proposition (meme rang) ;
-    // version longue : comme avant, en gardant le rang pour que la version courte reste rattachee.
+    // « Modifier » remplace l'accroche choisie, en gardant son rang.
     var rang = _cvRangAccrocheChoisie(cvIa);
-    var courteAffichee = !!((dossier.reglagesMiseEnPageCV || {}).accrocheCourte && _cvAccrocheCourteChoisie(cvIa));
-    if (courteAffichee) {
-      var courtes = Array.isArray(cvIa.accrochesCourtesProposees) ? cvIa.accrochesCourtesProposees.slice() : [];
-      courtes[rang] = v;
-      cvIa.accrochesCourtesProposees = courtes;
-    } else {
-      cvIa.profil = v;
-    }
+    cvIa.profil = v;
     // Le texte a change par CE circuit, le rang reste valable : on le memorise avec le nouveau texte.
     _cvMemoriserRangAccroche(cvIa, rang);
   });
@@ -2615,7 +2694,7 @@ function _mepMajCorrectionsCV() {
   var abr = function (t) { t = String(t); return echapperAttribut(t.length > 60 ? t.slice(0, 57) + '…' : t); };
   zone.style.display = '';
   zone.open = _mepCorrectionsOuvert;
-  zone.innerHTML = '<summary>&#9998; ' + liste.length + ' correction' + (liste.length > 1 ? 's' : '') + ' faite' + (liste.length > 1 ? 's' : '') + ' directement sur le CV</summary>' +
+  zone.innerHTML = '<summary>&#9998; ' + liste.length + ' correction' + (liste.length > 1 ? 's' : '') + ' faite' + (liste.length > 1 ? 's' : '') + ' directement sur le CV<span class="chev" aria-hidden="true">&#8964;</span></summary>' +
     '<p class="sous-aide">Ces corrections sont propres &agrave; ce CV en PDF : elles ne changent pas votre dossier (ni le fichier Word, ni la lettre, ni l&rsquo;entretien).</p>' +
     liste.map(function (c) {
       return '<div class="corr-ligne"><span>&laquo;&nbsp;' + abr(c.avant) + '&nbsp;&raquo; &rarr; <b>&laquo;&nbsp;' + abr(c.apres) + '&nbsp;&raquo;</b></span>' +
@@ -2816,7 +2895,7 @@ function _mepCablerCertifications() {
         if (!_mepCertifModifiee(k)) { delete _mepBrouillonsCertif[k]; _mepCertifEditee = null; _mepRerendre(); return; }
         var missionsSaisies = _mepMissionsCertifSaisies(k), missionsAvant = _mepTexteMissionsCertif(k);
         if (!_mepEnregistrerCertification(k, _mepChampsCertif(k))) { if (etat) { etat.textContent = 'L’intitulé de la certification ne peut pas être vide.'; } return; }
-        if (missionsSaisies.trim() !== missionsAvant.trim()) { _mepPousserHistorique('missionsCertif' + k); _mepEnregistrerMissionsCertification(k, missionsSaisies); if (typeof sauvegarderSession === 'function') { try { sauvegarderSession(); } catch (err) { /* */ } } _mepAppelerIframePdf('_pdfRafraichir'); }
+        if (missionsSaisies.trim() !== missionsAvant.trim()) { _mepPousserHistorique('missionsCertif' + k); _mepEnregistrerMissionsCertification(k, missionsSaisies); if (typeof sauvegarderSession === 'function') { try { sauvegarderSession(); } catch (err) { /* */ } } if (missionsSaisies.trim()) { _mepAppelerIframePdf('_pdfActiverMissionsFormation'); } _mepAppelerIframePdf('_pdfRafraichir'); }
         delete _mepBrouillonsCertif[k];
         _mepCertifDernier = { k: k, t: Date.now() };
         setTimeout(_mepRerendre, 60);
@@ -2875,6 +2954,15 @@ function _mepCablerEditionExperiences() {
       ev.preventDefault();
       var k = parseInt(this.getAttribute('data-mep-exp-ouvrir'), 10);
       _mepExpEditee = (_mepExpEditee === k) ? null : k;
+      _mepRerendre();
+    });
+  });
+  // Rappel « Décrivez ce que vous avez fait » : ouvre le formulaire de l'expérience sans mission.
+  document.querySelectorAll('[data-mep-exp-decrire]').forEach(function (b) {
+    b.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      _mepEditionExp = true; _mepCartesOuvertes.zoneChoixExp = true;
+      _mepExpEditee = parseInt(this.getAttribute('data-mep-exp-decrire'), 10);
       _mepRerendre();
     });
   });
@@ -2939,6 +3027,8 @@ function _mepNomBlocColonneAfficheEnAction() { return echapperAttribut(_mepIntit
 function _mepNomBlocColonneAffiche(k) { var o = _mepNomBlocColonne(k); return echapperAttribut(_mepIntitule(o)); }
 function _mepBlocPresentSurCV(k) {
   if (k === 'exp') { return true; }
+  // Lot I1 : « Informations complementaires » placee en bandeau n'est plus dans une colonne : inutile de la proposer dans la liste des colonnes.
+  if (k === 'infos') { try { var pl = _mepEtatChoixMq().infosPlace; if (pl === 'haut' || pl === 'bas') { return false; } } catch (e) { /* le rendu decide */ } }
   try {
     var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
     return !!d.querySelector('.page-a4 [data-rub="' + _mepNomBlocColonne(k).replace(/"/g, '') + '"]');

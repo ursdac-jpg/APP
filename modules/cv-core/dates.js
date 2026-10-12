@@ -123,8 +123,23 @@ function trierDuPlusRecent(liste, cle) {
   }).map(function (o) { return o.x; });
 }
 
+// Duree d'une experience (modele « Chronologique », 2026-10-06) : « 2 ans et 6 mois », « 1 an », « 7 mois ». UNIQUEMENT quand les DEUX dates ont un mois (« AAAA-MM »).
+// Une annee seule, une date de fin vide (poste « en cours ») ou une date illisible ne donnent rien : on ne deduit jamais une information absente (regle de Denis,
+// 2026-10-01). Le mois de debut et le mois de fin comptent tous les deux (janv. 2022 a juin 2024 = 2 ans et 6 mois).
+function dureeEntreDates(dateDebut, dateFin) {
+  var d = String(dateDebut || '').match(/^((?:19|20)\d{2})-(0[1-9]|1[0-2])$/);
+  var f = String(dateFin || '').match(/^((?:19|20)\d{2})-(0[1-9]|1[0-2])$/);
+  if (!d || !f) { return ''; }
+  var mois = (parseInt(f[1], 10) - parseInt(d[1], 10)) * 12 + (parseInt(f[2], 10) - parseInt(d[2], 10)) + 1;
+  if (mois < 1) { return ''; }
+  var ans = Math.floor(mois / 12), reste = mois % 12, parties = [];
+  if (ans) { parties.push(ans + (ans > 1 ? ' ans' : ' an')); }
+  if (reste) { parties.push(reste + ' mois'); }
+  return parties.join(' et ');
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { normaliserDateImport: normaliserDateImport, separerDatesDuTitre: separerDatesDuTitre, formaterDateCourte: formaterDateCourte,
+  module.exports = { dureeEntreDates: dureeEntreDates, normaliserDateImport: normaliserDateImport, separerDatesDuTitre: separerDatesDuTitre, formaterDateCourte: formaterDateCourte,
     estMentionEnCours: estMentionEnCours, dateFinImportee: dateFinImportee,
     cleChronologiqueExperience: cleChronologiqueExperience, cleChronologiqueFormation: cleChronologiqueFormation, trierDuPlusRecent: trierDuPlusRecent };
 }

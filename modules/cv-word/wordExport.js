@@ -59,7 +59,9 @@ function exporterCvWord(dossierSource, options) {
         if (essais > 100) { reject(new Error('Page du CV introuvable')); return; }
         setTimeout(attendre, 100); return;
       }
-      var pretes = (doc.fonts && doc.fonts.status ? doc.fonts.status === 'loaded' : true) && Array.prototype.every.call(doc.images || [], function (im) { return im.complete; });
+      // Remplissage d'office (2026-10-07) : au tout premier affichage la page lance le calcul de « Mise en page » ; on attend qu'il soit fini.
+      var remplissagePret = !(doc.defaultView && doc.defaultView.__cvPdfRemplissagePret === false);
+      var pretes = remplissagePret && (doc.fonts && doc.fonts.status ? doc.fonts.status === 'loaded' : true) && Array.prototype.every.call(doc.images || [], function (im) { return im.complete; });
       var hauteur = cv.getBoundingClientRect().height;
       if (pretes && hauteur === derniereHauteur) { resolve(doc); return; }
       derniereHauteur = hauteur;
