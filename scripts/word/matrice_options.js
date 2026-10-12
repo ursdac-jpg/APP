@@ -94,6 +94,8 @@
     if (m.type === 'standard') { clic('[data-mep-allure="defaut"]'); await pause(2200); return true; }
     var allure = m.type === 'sobre' ? 'sobre' : 'creatif';
     clic('[data-mep-allure="' + allure + '"]'); await pause(2600);
+    // La galerie Creatif est rangee par familles (2026-10-06) : « Voir tous les modeles » montre toutes les vignettes.
+    if (allure === 'creatif') { clic('[data-mep-galerie-tous="1"]'); await pause(1500); }
     var ok = clic(m.type === 'sobre' ? '[data-mep-galerie-sobre="' + m.id + '"]' : '[data-mep-galerie-creatif="' + m.id + '"]');
     await pause(2600);
     return ok;
@@ -102,8 +104,8 @@
   window.__typeLent = window.__typeLent || {}; window.__sansEffetConfirme = window.__sansEffetConfirme || {};
   window.__matModeles = function () {
     var l = [{ type: 'standard', id: 'standard' }];
-    ['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles'].forEach(function (v) { l.push({ type: 'sobre', id: v }); });
-    ['mqBandeau', 'mqDiagonale', 'mqColonne', 'mqCadre', 'mqPicto', 'frise', 'photoFrise', 'rectangles', 'sidebarVague', 'rubanDiagonal', 'duoOvale', 'cadreBarre', 'bandeauVertical', 'triangleSavoir', 'vagueMarine', 'diagonalesContrastees', 'losangeVert', 'pastille', 'medaillon'].forEach(function (i) { l.push({ type: 'creatif', id: i }); });
+    ['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].forEach(function (v) { l.push({ type: 'sobre', id: v }); });
+    ['mqBandeau', 'mqDiagonale', 'mqColonne', 'mqCadre', 'mqPicto', 'frise', 'photoFrise', 'rectangles', 'sidebarVague', 'colonneFoncee', 'colonneClaire', 'colonneBandeau', 'colonneRuban', 'chronoFonce', 'friseFoncee', 'rubanDiagonal', 'duoOvale', 'cadreBarre', 'bandeauVertical', 'triangleSavoir', 'vagueMarine', 'diagonalesContrastees', 'losangeVert', 'pastille', 'medaillon'].forEach(function (i) { l.push({ type: 'creatif', id: i }); });
     return l;
   };
 

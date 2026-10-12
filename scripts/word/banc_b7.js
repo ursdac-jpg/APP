@@ -1,5 +1,7 @@
 /* ============================================================
    banc_b7.js  --  BANC DE NON-REGRESSION du CV (PDF + Word), outil de developpement
+   PERIME (2026-10-11) : remplace par scripts/rendu/banc.js (page cachee neuve par modele, photo fixe, registre scripts/rendu/registre.json). Conserve pour l'historique et pour
+   scripts/word/matrice_options.js ; ne plus s'en servir pour verifier le rendu (ses empreintes dependent de la version du navigateur et de l'ordre des modeles).
    ------------------------------------------------------------
    Chantier "nettoyage de la dette B.7" (docs/BRIQUES_COMMUNES.md). Sert a PROUVER qu'une suppression de
    code n'a rien change au rendu : on le lance AVANT (empreintes de reference) puis APRES, et on compare.
@@ -14,6 +16,7 @@
    et l'empreinte du plan du Word (exporterCvWord). Jeu de donnees fixe (fictif).
    ============================================================ */
 window.__preparer = async function () {
+  window.__cvPdfSansRemplissageInitial = true;   // le banc compare des rendus a reglages par defaut : pas de remplissage d'office (2026-10-07)
   var p = function (ms) { return new Promise(function (r) { setTimeout(r, ms || 600); }); };
   dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', adresse: '3 rue des Lilas', codePostal: '87000', telephone: '0600000000', email: 'camille@ex.fr', ville: 'Limoges' };
   dossier.titreCV = 'Agent de sécurité'; dossier.metierCible = 'Agent de sécurité';
@@ -59,11 +62,20 @@ window.__banc = async function () {
   await __preparer();
   var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
   var ids = w()._pdfIdsModelesCreatif();
-  for (var i = 0; i < ids.length; i++) { w()._pdfChoisirModeleCreatif(ids[i]); await __mesurer('creatif:' + ids[i]); }
+  var nouveaux = ['colonneFoncee', 'colonneClaire', 'colonneBandeau', 'chronoFonce', 'friseFoncee', 'colonneRuban'];  // modeles ajoutes depuis la reference : a completer a chaque nouveau modele
+  var anciens = ids.filter(function (id) { return nouveaux.indexOf(id) === -1; });
+  for (var i = 0; i < anciens.length; i++) { w()._pdfChoisirModeleCreatif(anciens[i]); await __mesurer('creatif:' + anciens[i]); }
   var vs = ['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles'];
   for (var j = 0; j < vs.length; j++) {
     try { w()._pdfChoisirVarianteSobre(vs[j]); await __mesurer('sobre:' + vs[j]); }
     catch (e) { window.__res['sobre:' + vs[j]] = 'ERR ' + e.message; }
+  }
+  for (var k = 0; k < nouveaux.length; k++) { if (ids.indexOf(nouveaux[k]) === -1) { continue; } w()._pdfChoisirModeleCreatif(nouveaux[k]); await __mesurer('creatif:' + nouveaux[k]); }
+  // Variantes Sobre ajoutees depuis la reference : mesurees en DERNIER (elles changent le nombre de colonnes et l'etat du panneau).
+  var nouveauxSobre = ['mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'];
+  for (var m = 0; m < nouveauxSobre.length; m++) {
+    try { w()._pdfChoisirVarianteSobre(nouveauxSobre[m]); await __mesurer('sobre:' + nouveauxSobre[m]); }
+    catch (e) { window.__res['sobre:' + nouveauxSobre[m]] = 'ERR ' + e.message; }
   }
   window.__fini = true;
 };

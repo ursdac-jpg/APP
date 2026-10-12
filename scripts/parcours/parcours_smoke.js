@@ -140,7 +140,9 @@
     ta.value = JSON.stringify({ titresProposes: ['Agent d’accueil'], accrochesProposees: ['Une accroche.'], accrochesCourtesProposees: ['Courte'], pointsForts: ['Rigueur'], motsCles: ['accueil'], recommandations: { typeCV: { valeur: 'chronologique', justification: 'ok' }, experiencesAMettreEnAvant: [{ poste: 'Agent', entreprise: 'X', justification: 'ok' }], competencesAValoriser: [{ competence: 'Accueil', justification: 'ok' }] } });
     ta.dispatchEvent(new Event('input', { bubbles: true })); await attente(500);
     bt.click(); await attente(2500);
-    cas('découverte : l’import aboutit sur « Mon CV » (#resultats), titre appliqué, parcours marqué terminé', location.hash === '#resultats' && dossier.titreCV === 'Agent d’accueil' && dossier.decouverteTerminee === true, location.hash + ' / ' + dossier.titreCV);
+    cas('découverte : après l’import, le parcours attend (complément de CV facultatif, bouton « Continuer vers mon CV »)', location.hash !== '#resultats' && !!document.getElementById('btnSuivantNavigation') && !document.getElementById('btnContinuerDecouverte') && !!document.getElementById('btnOuvrirComplementCV') && dossier.titreCV === 'Agent d’accueil');
+    document.getElementById('btnSuivantNavigation').click(); await attente(2000);
+    cas('découverte : « Continuer vers mon CV » aboutit sur « Mon CV » (#resultats), parcours marqué terminé', location.hash === '#resultats' && dossier.decouverteTerminee === true, location.hash);
   }
 
   // ---------------- Prompts : lignes directrices par situation et voix humaine ----------------
@@ -236,6 +238,563 @@
     cas('objectif : aucune erreur JavaScript en changeant de carte', window.__erreursCartes.length === 0, window.__erreursCartes.join(' | '));
   }
 
+  // ---------------- Looks et galerie par familles (2026-10-06, décisions de Denis : maquette docs/MAQUETTE_LOOKS_ET_GALERIE_2026-10-06.html) ----------------
+  async function parcoursLooksEtFamilles() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var champ = function (id) { var e = w().document.getElementById(id); return e ? (e.type === 'checkbox' ? e.checked : e.value) : null; };
+    // le contenu sans la ponctuation ni les espaces : « texte seul » sépare les compétences par des signes, ce qui ne change pas le contenu
+    var texteCv = function () { return w().document.getElementById('conteneurPage').innerText.replace(/[^\p{L}\p{N}]+/gu, '').toLowerCase(); };
+    // familles : tous les modèles Créatif y sont rangés, une seule fois, et la liste n'en invente aucun
+    // Sans photo, les modèles construits autour d'une photo ne sont pas proposés (décision de Denis, 2026-10-08) : la liste attendue est celle des modèles visibles.
+    var tous = _MEP_GALERIE_CREATIF.map(function (m) { return m[0]; }).filter(_mepModeleVisible);
+    var rangés = []; _mepFamillesCreatif().forEach(function (fam) { rangés = rangés.concat(fam[2]); });
+    cas('galerie : chaque modèle Créatif est rangé dans une famille, une seule fois', rangés.length === tous.length && tous.every(function (id) { return rangés.filter(function (x) { return x === id; }).length === 1; }), rangés.join(','));
+    cas('galerie : aucun modèle ne tombe dans « Autres modèles » (famille à compléter)', !_mepFamillesCreatif().some(function (fam) { return fam[0] === 'autres'; }), 'ajouter les nouveaux modèles à _MEP_FAMILLES_CREATIF');
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3000);
+    var nbChips = document.querySelectorAll('.chip-famille').length;
+    cas('galerie : une pastille par famille (' + _mepFamillesCreatif().length + ')', nbChips === _mepFamillesCreatif().length, String(nbChips));
+    var vigs = document.querySelectorAll('.gab-familles .vign').length;
+    cas('galerie : par défaut, seuls les modèles de la famille du modèle actuel sont affichés', vigs > 0 && vigs < tous.length && !!document.querySelector('.gab-familles .vign.on'), String(vigs));
+    document.querySelector('[data-mep-galerie-tous="1"]').click(); await attente(2500);
+    cas('galerie : « Voir tous les modèles » montre les ' + tous.length + ' modèles', document.querySelectorAll('.gab-familles .vign').length === tous.length, String(document.querySelectorAll('.gab-familles .vign').length));
+    document.querySelector('[data-mep-galerie-tous="0"]').click(); await attente(2500);
+    cas('galerie : « Revenir aux familles » rétablit l\'affichage par famille', document.querySelectorAll('.gab-familles .vign').length < tous.length);
+    var autre = document.querySelector('.chip-famille:not(.on)'); autre.click(); await attente(2500);
+    cas('galerie : choisir une autre famille change les modèles affichés sans changer de modèle', !!document.querySelector('.chip-famille.on') && document.querySelector('.chip-famille.on').getAttribute('data-mep-galerie-fam') === autre.getAttribute('data-mep-galerie-fam'));
+
+    // looks : chacun pose ses réglages d'un coup, en UNE étape d'annulation, sans toucher au texte ni au modèle
+    cas('looks : six looks proposés', document.querySelectorAll('[data-mep-look]').length === 6, String(document.querySelectorAll('[data-mep-look]').length));
+    var modele = _mepModeleCreatifActuel(), texte = texteCv();
+    var lireChampsAmbiance = function () { return ['regCouleurDebut', 'regStyleTitres', 'regStyleCompetences', 'regCoinsArrondis', 'regIcones', 'regStyleBordures', 'regDegradeColonnes', 'regFondColonnes'].map(function (id) { return String(champ(id)); }).join(','); };
+    var avantSerie = lireChampsAmbiance();
+    for (var i = 0; i < _MEP_LOOKS.length; i++) {
+      var L = _MEP_LOOKS[i], paire = _MEP_PALETTE_BASES[L.base], pile = _mepHistoCompteur;
+      window._mepAppliquerLook(L.id); await attente(3000);
+      var pdfComp = (L.competences === 'texte-seul') ? 'texte' : L.competences;
+      var ok = champ('regCouleurDebut') === paire[0] && champ('regStyleTitres') === L.titres && champ('regStyleCompetences') === pdfComp &&
+        champ('regCoinsArrondis') === L.coins && champ('regIcones') === L.icones && champ('regStyleBordures') === L.bordures && champ('regDegradeColonnes') === 'aucun';
+      cas('look « ' + L.nom + ' » : tous ses réglages sont posés', ok, [champ('regCouleurDebut'), champ('regStyleTitres'), champ('regStyleCompetences'), champ('regCoinsArrondis'), champ('regIcones'), champ('regStyleBordures'), champ('regDegradeColonnes')].join(' '));
+      cas('look « ' + L.nom + ' » : une seule étape d\'annulation pour toute la série d\'ambiances', _mepHistoCompteur - pile === (i === 0 ? 1 : 0), String(_mepHistoCompteur - pile));
+      cas('look « ' + L.nom + ' » : le texte du CV et le modèle ne changent pas', texteCv() === texte && _mepModeleCreatifActuel() === modele);
+      cas('look « ' + L.nom + ' » : affiché comme appliqué, avec « Annuler le look » actif', !!document.querySelector('[data-mep-look="' + L.id + '"].on') && !document.querySelector('[data-mep-look-annuler]').disabled);
+    }
+    // plusieurs ambiances d'affilée puis « Annuler » : tout revient comme AVANT LA PREMIÈRE ambiance (retour de Denis, 2026-10-11), et le bouton s'éteint
+    document.querySelector('[data-mep-look-annuler]').click(); await attente(3500);
+    var apresSerie = lireChampsAmbiance();
+    cas('look : après six ambiances d\'affilée, un seul « Annuler » revient à l\'état d\'avant la première', apresSerie === avantSerie, avantSerie + ' => ' + apresSerie);
+    cas('look : après cette annulation, le bouton est éteint', document.querySelector('[data-mep-look-annuler]').disabled);
+    // annuler le dernier look : les réglages d'avant reviennent, le bouton s'éteint
+    var avant = champ('regStyleTitres'); window._mepAppliquerLook('moderne'); await attente(2500);
+    var apres = champ('regStyleTitres');
+    document.querySelector('[data-mep-look-annuler]').click(); await attente(3500);
+    cas('look : « Annuler le look » remet le réglage d\'avant', apres === 'bandeau' && champ('regStyleTitres') === avant, avant + ' / ' + apres + ' / ' + champ('regStyleTitres'));
+    cas('look : après l\'annulation, plus aucun look affiché comme appliqué', !document.querySelector('.look-bouton.on') && document.querySelector('[data-mep-look-annuler]').disabled);
+    // l'allure Sobre n'a pas de looks
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    cas('looks : en allure Sobre, les ambiances restent disponibles (plus de restriction)', [].every.call(document.querySelectorAll('[data-mep-look]'), function (b) { return !b.disabled; }));
+    var titresSobre = champ('regStyleTitres'), iconesSobre = champ('regIcones'), Lmod = _MEP_LOOKS.filter(function (l) { return l.id === 'moderne'; })[0];
+    window._mepAppliquerLook('moderne'); await attente(3000);
+    cas('looks : en allure Sobre, une ambiance ne règle que la couleur (ni titres, ni icônes)', champ('regCouleurDebut') === _MEP_PALETTE_BASES[Lmod.base][0] && champ('regStyleTitres') === titresSobre && champ('regIcones') === iconesSobre, champ('regCouleurDebut') + ' ' + champ('regStyleTitres') + ' ' + champ('regIcones'));
+  }
+
+  // ---------------- Modèle Sobre « Chronologique » (2026-10-06, décisions de Denis : maquette docs/MAQUETTE_EDITORIAL_ET_CHRONOLOGIQUE_2026-10-06.html) ----------------
+  async function parcoursChronologique() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    cas('chronologique : le modèle est dans la galerie Sobre', _MEP_GALERIE_SOBRE.some(function (m) { return m[0] === 'mq-chrono'; }));
+    // par l'écran : allure Sobre, puis la vignette
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    var vig = document.querySelector('[data-mep-galerie-sobre="mq-chrono"]');
+    cas('chronologique : la vignette est proposée en allure Sobre', !!vig);
+    if (vig) { vig.click(); await attente(3500); }
+    cas('chronologique : le modèle passe en deux colonnes, colonne pâle à droite', cv().classList.contains('chrono') && cv().classList.contains('col-vague-d') && doc().getElementById('regColonnes').value === '2', cv().className);
+    var lignes = doc().querySelectorAll('.item-chrono');
+    cas('chronologique : chaque expérience et formation est une ligne « dates | contenu »', lignes.length >= 2 && [].every.call(lignes, function (l) { return l.querySelector('.cdates') && l.querySelector('.ccorps'); }), String(lignes.length));
+    var l0 = lignes[0], gd = l0 && l0.querySelector('.cdates').getBoundingClientRect(), co = l0 && l0.querySelector('.ccorps').getBoundingClientRect();
+    cas('chronologique : les dates sont dans la marge, à gauche du contenu', !!l0 && gd.right <= co.left + 1, gd && co ? (gd.right + ' / ' + co.left) : '');
+    cas('chronologique : la durée s\'affiche quand les deux dates ont un mois', /2 ans et 6 mois/.test(doc().body.innerText), '');
+    cas('chronologique : les cases « durée » et « lieu dans la marge » sont proposées (carte Expériences)', !!document.querySelector('[data-mep-afficher-duree]') && !!document.querySelector('[data-mep-lieu-marge]'));
+    // durée masquable, lieu dans la marge
+    w()._pdfBasculerAfficherDuree(); await attente(1500);
+    cas('chronologique : « Afficher la durée » décochée = plus de durée', !doc().querySelector('.duree-exp'));
+    w()._pdfBasculerAfficherDuree(); await attente(1000);
+    w()._pdfBasculerLieuDansMarge(); await attente(1500);
+    cas('chronologique : « Lieu dans la marge » met le lieu sous les dates', !!doc().querySelector('.cdates .lieu-marge'));
+    w()._pdfBasculerLieuDansMarge(); await attente(1000);
+    // colonne à gauche (colonnes inversées), une seule colonne
+    var inv = doc().getElementById('regColonnesInversees'); inv.checked = true; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('chronologique : « Colonnes inversées » met la colonne à gauche', cv().classList.contains('col-vague-g'), cv().className);
+    inv.checked = false; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    var nb = doc().getElementById('regColonnes'); nb.value = '1'; nb.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('chronologique : en une seule colonne, le modèle reste chronologique et sans colonne pâle', cv().classList.contains('chrono') && !/col-vague/.test(cv().className) && doc().querySelectorAll('.item-chrono').length >= 2, cv().className);
+    nb.value = '2'; nb.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    // jamais de déduction : une année seule ne donne aucune durée
+    dossier.experiences[0].dateDebut = '2022'; dossier.experiences[0].dateFin = '2024';
+    naviguerVers('resultats'); await attente(4500);
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(2500);
+    var v2 = document.querySelector('[data-mep-galerie-sobre="mq-chrono"]'); if (v2) { v2.click(); await attente(3500); }
+    cas('chronologique : une année seule ne donne jamais de durée', cv().classList.contains('chrono') && !doc().querySelector('.duree-exp'), doc().querySelector('.duree-exp') ? doc().querySelector('.duree-exp').textContent : '');
+    // un autre modèle Sobre : ni durée ni cases propres au chronologique
+    document.querySelector('[data-mep-galerie-sobre="mq-bandeau"]').click(); await attente(3500);
+    cas('chronologique : les autres modèles Sobre n\'ont ni la durée ni les cases du chronologique', !cv().classList.contains('chrono') && !doc().querySelector('.item-chrono') && !document.querySelector('[data-mep-afficher-duree]'));
+  }
+
+  // ---------------- Modèle Sobre « Éditorial » (2026-10-06, décisions de Denis : maquette docs/MAQUETTE_EDITORIAL_ET_CHRONOLOGIQUE_2026-10-06.html, variante A) ----------------
+  async function parcoursEditorial() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    cas('éditorial : le modèle est dans la galerie Sobre', _MEP_GALERIE_SOBRE.some(function (m) { return m[0] === 'mq-editorial'; }));
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    var vig = document.querySelector('[data-mep-galerie-sobre="mq-editorial"]');
+    cas('éditorial : la vignette est proposée en allure Sobre', !!vig);
+    if (vig) { vig.click(); await attente(3500); }
+    cas('éditorial : deux colonnes, nom à empattement et trait entre les colonnes par défaut', cv().classList.contains('edito') && cv().classList.contains('edito-serif') && cv().classList.contains('sepcol') && doc().getElementById('regColonnes').value === '2', cv().className);
+    cas('éditorial : le nom est dans l\'en-tête éditorial, au-dessus de la colonne étroite', !!doc().querySelector('.tete-edito > div:first-child .nom'));
+    var nom = doc().querySelector('.tete-edito .nom'), cs = nom && w().getComputedStyle(nom);
+    cas('éditorial : le nom est grand (au moins 40 px) et en Georgia', !!cs && parseFloat(cs.fontSize) >= 40 && /Georgia/.test(cs.fontFamily), cs ? (cs.fontSize + ' ' + cs.fontFamily) : '');
+    cas('éditorial : les cases « nom à empattement » et « trait entre les colonnes » sont proposées (carte En-tête)', !!document.querySelector('[data-mep-nom-empattement]') && !!document.querySelector('[data-mep-trait-vertical]'));
+    w()._pdfBasculerNomEmpattement(); await attente(1500);
+    cas('éditorial : « Nom à empattement » décochée = police du CV', !cv().classList.contains('edito-serif'));
+    w()._pdfBasculerNomEmpattement(); await attente(1000);
+    w()._pdfBasculerTraitVertical(); await attente(1500);
+    cas('éditorial : « Trait entre les colonnes » décochée = plus de trait', !cv().classList.contains('sepcol'));
+    w()._pdfBasculerTraitVertical(); await attente(1000);
+    var inv = doc().getElementById('regColonnesInversees'); inv.checked = true; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('éditorial : « Colonnes inversées » met la colonne étroite et le nom à droite', !doc().querySelector('.tete-edito > div:first-child .nom') && !!doc().querySelector('.tete-edito > div:last-child .nom'));
+    inv.checked = false; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    var nb = doc().getElementById('regColonnes'); nb.value = '1'; nb.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('éditorial : en une seule colonne, le modèle reste éditorial, sans trait', cv().classList.contains('edito') && !cv().classList.contains('sepcol') && !!doc().querySelector('.tete-edito .nom'), cv().className);
+    nb.value = '2'; nb.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    document.querySelector('[data-mep-galerie-sobre="mq-bandeau"]').click(); await attente(3500);
+    cas('éditorial : les autres modèles Sobre n\'ont ni l\'en-tête éditorial ni ses cases', !cv().classList.contains('edito') && !doc().querySelector('.tete-edito') && !document.querySelector('[data-mep-nom-empattement]'));
+  }
+
+  // ---------------- Modèle Sobre « Éditorial large » (variante B, 2026-10-06) ----------------
+  async function parcoursEditorialLarge() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    cas('éditorial large : le modèle est dans la galerie Sobre', _MEP_GALERIE_SOBRE.some(function (m) { return m[0] === 'mq-editorial-large'; }));
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    var vig = document.querySelector('[data-mep-galerie-sobre="mq-editorial-large"]');
+    cas('éditorial large : la vignette est proposée en allure Sobre', !!vig);
+    if (vig) { vig.click(); await attente(3500); }
+    cas('éditorial large : deux colonnes, colonne étroite à droite, trait entre les colonnes', cv().classList.contains('edito-large') && cv().classList.contains('edito-inv') && cv().classList.contains('sepcol') && doc().getElementById('regColonnes').value === '2', cv().className);
+    var nom = doc().querySelector('.tete-edito-large .nom'), cs = nom && w().getComputedStyle(nom);
+    cas('éditorial large : le nom est grand, en majuscules, sur toute la largeur de la page', !!cs && parseFloat(cs.fontSize) >= 36 && cs.textTransform === 'uppercase' && nom.getBoundingClientRect().width > 250, cs ? (cs.fontSize + ' ' + cs.textTransform) : '');
+    cas('éditorial large : la case des titres à empattement est proposée (carte En-tête), pas celle du nom', !!document.querySelector('[data-mep-nom-empattement]') && /Titres de rubrique/.test(document.querySelector('[data-mep-nom-empattement]').textContent + (document.querySelector('[data-mep-nom-empattement]').parentElement || {}).textContent));
+    var inv = doc().getElementById('regColonnesInversees'); inv.checked = true; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('éditorial large : « Colonnes inversées » met la colonne étroite à gauche', !cv().classList.contains('edito-inv'), cv().className);
+    inv.checked = false; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    var nb = doc().getElementById('regColonnes'); nb.value = '1'; nb.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('éditorial large : en une seule colonne, le modèle reste éditorial large, sans trait', cv().classList.contains('edito-large') && !cv().classList.contains('sepcol'), cv().className);
+    nb.value = '2'; nb.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    document.querySelector('[data-mep-galerie-sobre="mq-editorial"]').click(); await attente(3500);
+    cas('éditorial large : le passage à l\'Éditorial (variante A) retrouve le nom en pile', !cv().classList.contains('edito-large') && !!doc().querySelector('.tete-edito .nom') && !doc().querySelector('.tete-edito-large'));
+  }
+
+  // ---------------- Extras de la famille A (2026-10-06) : « Colonne et bandeau » et « Colonne foncée chronologique » ----------------
+  async function parcoursExtrasFamilleA() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    ['colonneBandeau', 'chronoFonce'].forEach(function (id) {
+      cas('extras : « ' + id + ' » est dans la galerie Créatif', _MEP_GALERIE_CREATIF.some(function (m) { return m[0] === id; }) && w()._pdfIdsModelesCreatif().indexOf(id) !== -1);
+    });
+    // « Colonne et bandeau » : bandeau d'en-tête sur toute la largeur ET colonne pleine hauteur
+    w()._pdfChoisirModeleCreatif('colonneBandeau'); await attente(2500);
+    var bandeau = doc().querySelector('.tete-fond'), av = w().getComputedStyle(cv(), '::before');
+    cas('colonne et bandeau : bandeau d\'en-tête et colonne pleine hauteur', !!bandeau && cv().classList.contains('col-vague-g') && Math.abs(parseFloat(av.height) - cv().getBoundingClientRect().height) < 2, cv().className);
+    cas('colonne et bandeau : le bandeau couvre toute la largeur de la page', !!bandeau && bandeau.getBoundingClientRect().width >= cv().getBoundingClientRect().width - 2, bandeau ? String(bandeau.getBoundingClientRect().width) : '');
+    // « Colonne foncée chronologique » : colonne foncée à droite, dates dans la marge, durée
+    w()._pdfChoisirModeleCreatif('chronoFonce'); await attente(2500);
+    var av2 = w().getComputedStyle(cv(), '::before');
+    cas('colonne foncée chronologique : colonne foncée à droite sur toute la hauteur', cv().classList.contains('chrono') && cv().classList.contains('col-vague-d') && av2.backgroundColor === 'rgb(31, 42, 68)', cv().className + ' ' + av2.backgroundColor);
+    var lignes = doc().querySelectorAll('.item-chrono'), l0 = lignes[0];
+    cas('colonne foncée chronologique : dates dans la marge, à gauche du contenu', lignes.length >= 2 && !!l0 && l0.querySelector('.cdates').getBoundingClientRect().right <= l0.querySelector('.ccorps').getBoundingClientRect().left + 1);
+    cas('colonne foncée chronologique : la durée s\'affiche quand les deux dates ont un mois', /2 ans et 6 mois/.test(doc().body.innerText));
+    cas('colonne foncée chronologique : le texte de la colonne est clair', w().getComputedStyle(doc().querySelector('.col-fond')).color === 'rgb(255, 255, 255)');
+    var inv = doc().getElementById('regColonnesInversees'); inv.checked = false; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('colonne foncée chronologique : « Colonnes inversées » décochée met la colonne à gauche', cv().classList.contains('col-vague-g'), cv().className);
+    // cases durée / lieu dans la marge proposées par la carte Expériences (après un rendu de l'écran)
+    // le panneau parent ne se redessine pas quand on parle directement à l'iframe : on le redessine, puis on relit ses cases
+    var inv2 = doc().getElementById('regColonnesInversees'); inv2.checked = true; inv2.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    w()._pdfChoisirModeleCreatif('chronoFonce'); await attente(1500);
+    naviguerVers('resultats'); await attente(4500);
+    cas('colonne foncée chronologique : la carte Expériences propose la durée et le lieu dans la marge', !!document.querySelector('[data-mep-afficher-duree]') && !!document.querySelector('[data-mep-lieu-marge]'));
+    // un autre modèle Créatif : rien de tout cela
+    w()._pdfChoisirModeleCreatif('colonneFoncee'); await attente(2500);
+    cas('extras : les autres modèles Créatif n\'ont ni dates en marge ni cases du chronologique', !cv().classList.contains('chrono') && !doc().querySelector('.item-chrono'));
+  }
+
+  // ---------------- Modèles Sobre « Cartes » et « Grille » (2026-10-06, exemples 13, 15 et 8 de Denis) ----------------
+  async function parcoursCartesGrille() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    ['mq-cartes', 'mq-grille'].forEach(function (id) {
+      cas('cartes et grille : « ' + id + ' » est dans la galerie Sobre', _MEP_GALERIE_SOBRE.some(function (m) { return m[0] === id; }) && !!document.querySelector('[data-mep-galerie-sobre="' + id + '"]'));
+    });
+    document.querySelector('[data-mep-galerie-sobre="mq-cartes"]').click(); await attente(3500);
+    var cartes = doc().querySelectorAll('.col-cartes .rub-sec');
+    cas('cartes : deux colonnes, la colonne étroite est faite de cartes pâles', cv().classList.contains('cartes') && doc().getElementById('regColonnes').value === '2' && cartes.length >= 2, cv().className + ' ' + cartes.length);
+    var c0 = cartes[0], st = c0 && w().getComputedStyle(c0), h2 = c0 && c0.querySelector('h2');
+    cas('cartes : chaque carte a un fond pâle, un filet de couleur en haut et une étiquette blanche pour le titre', !!c0 && st.backgroundColor !== 'rgba(0, 0, 0, 0)' && parseFloat(st.borderTopWidth) >= 2 && !!h2 && w().getComputedStyle(h2).backgroundColor === 'rgb(255, 255, 255)', st ? (st.backgroundColor + ' ' + st.borderTopWidth) : '');
+    var inv = doc().getElementById('regColonnesInversees'); inv.checked = true; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1500);
+    cas('cartes : « Colonnes inversées » garde les cartes dans la colonne étroite', doc().querySelectorAll('.col-cartes .rub-sec').length >= 2);
+    inv.checked = false; inv.dispatchEvent(new Event('change', { bubbles: true })); await attente(1000);
+    document.querySelector('[data-mep-galerie-sobre="mq-grille"]').click(); await attente(3500);
+    var rub = doc().querySelectorAll('.rub-sec');
+    cas('grille : deux colonnes, trait entre les colonnes, rubriques séparées par un filet', cv().classList.contains('grille') && cv().classList.contains('sepcol') && doc().getElementById('regColonnes').value === '2' && rub.length >= 3 && [].some.call(rub, function (r) { return parseFloat(w().getComputedStyle(r).borderBottomWidth) > 0; }), cv().className);
+    var t = doc().querySelector('.rub-sec h2');
+    cas('grille : titres en majuscules espacées', !!t && w().getComputedStyle(t).textTransform === 'uppercase' && parseFloat(w().getComputedStyle(t).letterSpacing) >= 1);
+    document.querySelector('[data-mep-galerie-sobre="mq-bandeau"]').click(); await attente(3500);
+    cas('cartes et grille : les autres modèles Sobre n\'ont ni cartes ni grille', !cv().classList.contains('cartes') && !cv().classList.contains('grille') && !doc().querySelector('.col-cartes'));
+  }
+
+  // ---------------- Plan 2026-10-07, E1 : « Colonne foncée et frise » (et « Colonne et frise » inchangé) ----------------
+  async function parcoursFriseFoncee() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    cas('frise foncée : le modèle est dans la galerie Créatif', _MEP_GALERIE_CREATIF.some(function (m) { return m[0] === 'friseFoncee'; }) && w()._pdfIdsModelesCreatif().indexOf('friseFoncee') !== -1);
+    w()._pdfChoisirModeleCreatif('friseFoncee'); await attente(2500);
+    var lat = doc().querySelector('.fr-lat');
+    cas('frise foncée : deux colonnes, colonne latérale de la couleur foncée choisie', cv().classList.contains('frise-foncee') && doc().getElementById('regColonnes').value === '2' && !!lat && w().getComputedStyle(lat).backgroundColor === 'rgb(31, 42, 68)', lat ? w().getComputedStyle(lat).backgroundColor : '');
+    var b = doc().querySelector('.fr-lat .fr-b');
+    cas('frise foncée : le texte de la colonne est clair', !!b && w().getComputedStyle(b).color === 'rgb(255, 255, 255)');
+    cas('frise foncée : les expériences sont sur une frise', doc().querySelectorAll('.fr-frise .fr-item').length >= 2, String(doc().querySelectorAll('.fr-frise .fr-item').length));
+    // « Colonne et frise » d'origine : rien ne change (colonne bleu pâle, aucune classe nouvelle)
+    w()._pdfChoisirModeleCreatif('frise'); await attente(2500);
+    var lat2 = doc().querySelector('.fr-lat');
+    cas('colonne et frise (d\'origine) : inchangée, colonne bleu pâle et texte sombre', !cv().classList.contains('frise-foncee') && !!lat2 && w().getComputedStyle(lat2).backgroundColor === 'rgb(147, 170, 198)', lat2 ? w().getComputedStyle(lat2).backgroundColor : '');
+  }
+
+  // ---------------- Plan 2026-10-07, E2 : modèle Sobre « Technique » (exemples 9, 1, 7, 10) ----------------
+  async function parcoursTechnique() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    var vig = document.querySelector('[data-mep-galerie-sobre="mq-technique"]');
+    cas('technique : le modèle est dans la galerie Sobre', _MEP_GALERIE_SOBRE.some(function (m) { return m[0] === 'mq-technique'; }) && !!vig);
+    if (vig) { vig.click(); await attente(3500); }
+    cas('technique : une seule colonne', cv().classList.contains('technique') && doc().getElementById('regColonnes').value === '1', cv().className);
+    var nom = doc().querySelector('.tete-technique .nom');
+    cas('technique : en-tête à deux blocs (nom et titre à gauche, coordonnées à droite)', !!nom && !!doc().querySelector('.tete-technique .infos-tech .coord') && parseFloat(w().getComputedStyle(nom).fontSize) >= 26, nom ? w().getComputedStyle(nom).fontSize : '');
+    var h2 = doc().querySelector('.rub-sec h2');
+    cas('technique : les titres de rubrique sont des barres pleines à texte clair', !!h2 && w().getComputedStyle(h2).backgroundColor !== 'rgba(0, 0, 0, 0)' && w().getComputedStyle(h2).color === 'rgb(255, 255, 255)');
+    var items = doc().querySelectorAll('.item + .item');
+    cas('technique : un filet sépare les expériences', items.length >= 1 && parseFloat(w().getComputedStyle(items[0]).borderTopWidth) > 0, String(items.length));
+    document.querySelector('[data-mep-galerie-sobre="mq-bandeau"]').click(); await attente(3500);
+    cas('technique : les autres modèles Sobre n\'ont ni barres de titre ni filets entre expériences', !cv().classList.contains('technique') && !doc().querySelector('.tete-technique'));
+  }
+
+  // ---------------- Plan 2026-10-07, E3 : modèle Sobre « Cartes colorées » (filets de couleurs voisines, résumé encadré) ----------------
+  async function parcoursCartesCouleurs() {
+    await preparerCvResultats();
+    dossier.ia = dossier.ia || {}; dossier.ia.cv = Object.assign({}, dossier.ia.cv || {}, { profil: 'Agent de sécurité rigoureuse, trois ans d’expérience en surveillance et accueil.' });
+    naviguerVers('resultats'); await attente(4500);
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    var couleurs = function () { return [].map.call(doc().querySelectorAll('.col-cartes .rub-sec'), function (e) { return w().getComputedStyle(e).borderTopColor; }); };
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    var vig = document.querySelector('[data-mep-galerie-sobre="mq-cartes-couleurs"]');
+    cas('cartes colorées : le modèle est dans la galerie Sobre', _MEP_GALERIE_SOBRE.some(function (m) { return m[0] === 'mq-cartes-couleurs'; }) && !!vig);
+    if (vig) { vig.click(); await attente(3500); }
+    var c = couleurs();
+    cas('cartes colorées : deux colonnes, colonne étroite en cartes', cv().classList.contains('cartes') && cv().classList.contains('cartes-couleurs') && c.length >= 3 && doc().getElementById('regColonnes').value === '2', cv().className + ' ' + c.length);
+    cas('cartes colorées : les filets de couleur des cartes sont différents', c.filter(function (x, i, a) { return a.indexOf(x) === i; }).length >= 3, c.join(' ; '));
+    var ac = doc().querySelector('.tete .accroche');
+    cas('cartes colorées : le résumé est encadré', !!ac && parseFloat(w().getComputedStyle(ac).borderTopWidth) > 0, ac ? w().getComputedStyle(ac).borderTopWidth : 'pas de résumé');
+    // « Cartes » d'origine : inchangé (filets tous de la même couleur, résumé sans cadre)
+    document.querySelector('[data-mep-galerie-sobre="mq-cartes"]').click(); await attente(3500);
+    var c2 = couleurs(), ac2 = doc().querySelector('.tete .accroche');
+    cas('cartes (d\'origine) : inchangé, filets de la même couleur', c2.length >= 3 && c2.filter(function (x, i, a) { return a.indexOf(x) === i; }).length === 1 && !cv().classList.contains('cartes-couleurs'), c2.join(' ; '));
+    cas('cartes (d\'origine) : le résumé n\'a pas de cadre', !ac2 || parseFloat(w().getComputedStyle(ac2).borderTopWidth) === 0, ac2 ? w().getComputedStyle(ac2).borderTopWidth : '');
+  }
+
+  // ---------------- Plan 2026-10-07, E4 : teinte de page optionnelle (éteinte par défaut) ----------------
+  async function parcoursTeintePage() {
+    // La teinte de page (fond creme sur toute la feuille) a ete RETIREE (decision de Denis, 2026-10-11 : encre, impression noir et blanc). L'essai garde qu'elle ne revient pas.
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    cas('teinte de page : plus aucune case « Teinte de page » dans les réglages', !document.querySelector('[data-mep-teinte-page]') && !/Teinte de page/.test(document.body.textContent));
+    var avecFond = [];
+    for (var i = 0, ids = ['mqBandeau', 'colonneFoncee', 'sidebarVague', 'colonneClaire']; i < ids.length; i++) { w()._pdfChoisirModeleCreatif(ids[i]); await attente(1800); if (doc().querySelector('.fond-teinte') || doc().querySelector('.cv.teinte-page')) { avecFond.push(ids[i]); } }
+    cas('teinte de page : aucun modèle ne colore toute la page', avecFond.length === 0, avecFond.join(','));
+    cas('teinte de page : la fonction n’existe plus dans le moteur du CV', typeof w()._pdfBasculerTeintePage === 'undefined');
+  }
+
+  // ---------------- Plan 2026-10-07, E6 : « Colonne foncée et rubans » (titres en ruban à pointe, exemple 5) ----------------
+  async function parcoursColonneRuban() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    var h2s = function () { return [].slice.call(doc().querySelectorAll('#conteneurPage .cv h2')); };
+    cas('rubans : le modèle est dans la galerie Créatif', _MEP_GALERIE_CREATIF.some(function (m) { return m[0] === 'colonneRuban'; }) && w()._pdfIdsModelesCreatif().indexOf('colonneRuban') !== -1);
+    w()._pdfChoisirModeleCreatif('colonneRuban'); await attente(2500);
+    var t = h2s();
+    var tous = t.length >= 3 && t.every(function (h) { var cs = w().getComputedStyle(h); return cs.clipPath.indexOf('polygon') === 0 && cs.borderBottomWidth === '0px'; });
+    cas('rubans : tous les titres de rubrique sont en ruban à pointe', cv().classList.contains('titres-ruban') && tous, cv().className + ' / ' + t.length);
+    var enCol = t.filter(function (h) { return !!h.closest('.col-fond'); }), horsCol = t.filter(function (h) { return !h.closest('.col-fond'); });
+    cas('rubans : ruban blanc dans la colonne foncée, ruban de la couleur du CV ailleurs', enCol.length >= 1 && horsCol.length >= 1 && enCol.every(function (h) { return w().getComputedStyle(h).backgroundColor === 'rgb(255, 255, 255)'; }) && horsCol.every(function (h) { return w().getComputedStyle(h).backgroundColor === 'rgb(31, 42, 68)'; }), enCol.length + ' / ' + horsCol.length);
+    cas('rubans : le CV tient sur une page', doc().querySelectorAll('.page-a4').length === 1, String(doc().querySelectorAll('.page-a4').length));
+    // « Colonne foncée » d'origine : rien ne change (aucune classe, aucun clip-path sur les titres)
+    w()._pdfChoisirModeleCreatif('colonneFoncee'); await attente(2500);
+    var t2 = h2s();
+    cas('colonne foncée (d\'origine) : inchangée, aucun titre en ruban', !cv().classList.contains('titres-ruban') && t2.length >= 3 && t2.every(function (h) { return w().getComputedStyle(h).clipPath === 'none'; }), cv().className);
+  }
+
+  // ---------------- Lot W (2026-10-07) : message « Word ne reproduit pas tout » dans le bloc Exporter ----------------
+  async function parcoursLimitesWord() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var ouvrirExporter = async function () { dossier.cvTermine = true; _rectDocOuvert = 'exporter'; pageResultats(); await attente(3500); };
+    w()._pdfChoisirModeleCreatif('colonneRuban'); await attente(2500);
+    await ouvrirExporter();
+    var av = document.getElementById('avertissementLimitesWord');
+    cas('message Word : « Colonne foncée et rubans » est signalé, avec le conseil PDF', !!av && /ruban/.test(av.textContent) && /PDF/.test(av.textContent), av ? av.textContent : 'absent');
+    var btnPdf = document.querySelector('[data-format-export="pdf-imprimer"]');
+    cas('message Word : le bouton PDF est marqué « conseillé » et le bouton Word reste présent', !!btnPdf && /conseillé/.test(btnPdf.textContent) && !!document.querySelector('[data-format-export="docx"]'), btnPdf ? btnPdf.textContent : 'absent');
+    // « Colonne claire » (carte, 2026-10-11) : Word garde la carte mais pas le filet de couleur ; le message le dit, conseille le PDF et promet l'adaptation dans Word
+    _rectDocOuvert = 'mise-en-page'; pageResultats(); await attente(4500);
+    w()._pdfChoisirModeleCreatif('colonneClaire'); await attente(2500);
+    await ouvrirExporter();
+    var avCarte = document.getElementById('avertissementLimitesWord');
+    cas('message Word : « Colonne claire » (carte) est signalée : filet de couleur, conseil PDF, modèle adapté dans Word', !!avCarte && /filet de couleur/.test(avCarte.textContent) && /PDF/.test(avCarte.textContent) && /adapté/.test(avCarte.textContent), avCarte ? avCarte.textContent : 'absent');
+    // un modèle que Word reproduit : aucun message, aucun marquage
+    _rectDocOuvert = 'mise-en-page'; pageResultats(); await attente(4500);
+    w()._pdfChoisirModeleCreatif('colonneFoncee'); await attente(2500);
+    await ouvrirExporter();
+    var btnPdf2 = document.querySelector('[data-format-export="pdf-imprimer"]');
+    cas('message Word : « Colonne foncée » (reproduit par Word) : aucun message', !document.getElementById('avertissementLimitesWord') && !!btnPdf2 && !/conseillé/.test(btnPdf2.textContent));
+    cas('message Word : les deux boutons de téléchargement restent utilisables', !!document.querySelector('[data-format-export="docx"]') && !document.querySelector('[data-format-export="docx"]').disabled);
+    // remet l'ecran comme il l'etait (mise en page ouverte, export de nouveau verrouille) : les parcours suivants en dependent
+    dossier.cvTermine = false; _rectDocOuvert = 'mise-en-page'; pageResultats(); await attente(4000);
+  }
+
+  // ---------------- Lot I1 (2026-10-07) : « Informations complémentaires » en bandeau pleine largeur (haut, bas, à côté d'une rubrique courte) ----------------
+  async function parcoursInfosBandeaux() {
+    await preparerCvResultats();
+    dossier.informationsNonClassees = ['Disponible immédiatement', 'Mobile sur toute la France', 'github.com/camille'];
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    ['infosPlace', 'infosCote', 'infosPresentation', 'listesDeuxColonnes'].forEach(function (k) { w()._pdfMqChoix(k, null); });   // etat de depart propre : un parcours precedent ne doit rien laisser
+    var doc = function () { return w().document; };
+    var T = 'Informations complémentaires';
+    var enColonne = function (titre) { return !!doc().querySelector('.corps.deux [data-rub="' + titre + '"]'); };
+    var enBande = function (titre) { return !!doc().querySelector('.bande-infos [data-rub="' + titre + '"]'); };
+    var attendre = async function () { await attente(2200); };
+    w()._pdfChoisirModeleCreatif('colonneFoncee'); await attendre();
+    _mepDefinirChoixMq('infosCompAffichees', _mepInfosSaisies()); await attendre();
+    // d'office : dans une colonne, aucun bandeau
+    cas('bandeau infos : par défaut la rubrique est dans une colonne, sans bandeau', enColonne(T) && !doc().querySelector('.bande-infos'));
+    var commande = document.querySelector('[data-mep-infos-place]');
+    cas('bandeau infos : la commande « Où placer cette rubrique ? » est proposée', !!commande);
+    // bandeau du haut : entre l'en-tête et les colonnes
+    _mepDefinirChoixMq('infosPlace', 'haut'); await attendre();
+    var bande = doc().querySelector('.bande-infos'), corps = doc().querySelector('.corps.deux');
+    cas('bandeau du haut : la rubrique est sur toute la largeur, avant les colonnes, plus dans une colonne', !!bande && enBande(T) && !enColonne(T) && !!corps && !!(bande.compareDocumentPosition(corps) & 4), bande ? 'bande présente' : 'pas de bande');
+    cas('bandeau du haut : les trois lignes sont réparties en colonnes de lignes', doc().querySelectorAll('.bande-infos .paire > div').length === 3 || doc().querySelectorAll('.bande-infos .paire.trois > div').length === 3, String(doc().querySelectorAll('.bande-infos .paire > div').length));
+    cas('bandeau du haut : le CV tient sur une page', doc().querySelectorAll('.page-a4').length === 1, String(doc().querySelectorAll('.page-a4').length));
+    // bandeau du bas : apres les colonnes
+    _mepDefinirChoixMq('infosPlace', 'bas'); await attendre();
+    var bande2 = doc().querySelector('.bande-infos'), corps2 = doc().querySelector('.corps.deux');
+    cas('bandeau du bas : la rubrique est après les colonnes', !!bande2 && !!corps2 && !!(corps2.compareDocumentPosition(bande2) & 4) && !enColonne(T));
+    // a cote d'une rubrique courte
+    _mepDefinirChoixMq('infosCote', 'centres'); await attendre();
+    var paire = doc().querySelector('.bande-infos > .paire, .bande-infos .paire');
+    cas('à côté : Centres d\'intérêt est sur la même ligne que la rubrique, et plus dans une colonne', !!doc().querySelector('.bande-infos [data-rub="Centres d’intérêt"]') && !enColonne('Centres d’intérêt') && enBande(T) && !!paire);
+    // retour a la colonne : tout revient
+    _mepDefinirChoixMq('infosPlace', null); await attendre();
+    cas('retour à la colonne : la rubrique et Centres d\'intérêt reviennent dans les colonnes, plus de bandeau', enColonne(T) && enColonne('Centres d’intérêt') && !doc().querySelector('.bande-infos'));
+    // une seule colonne (Sobre) : le bandeau fonctionne aussi
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    w()._pdfChoisirVarianteSobre('mq-bandeau'); await attendre();
+    _mepDefinirChoixMq('infosPlace', 'haut'); await attendre();
+    cas('bandeau (une colonne) : la rubrique est dans le bandeau, une seule fois', !!doc().querySelector('.bande-infos') && doc().querySelectorAll('h2[data-rub="' + T + '"], h3[data-rub="' + T + '"]').length === 1, String(doc().querySelectorAll('h2[data-rub="' + T + '"], h3[data-rub="' + T + '"]').length));
+    _mepDefinirChoixMq('infosPlace', null); await attendre();
+    // un modèle à disposition propre (Colonne et frise) garde sa place et grise la commande
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3000);
+    w()._pdfChoisirModeleCreatif('frise'); await attendre();
+    _mepDefinirChoixMq('infosPlace', 'haut'); await attendre();
+    cas('Colonne et frise : aucun bandeau, la rubrique reste à sa place (une seule fois)', !doc().querySelector('.bande-infos') && doc().querySelectorAll('h2[data-rub="' + T + '"], h3[data-rub="' + T + '"]').length === 1, String(doc().querySelectorAll('h2[data-rub="' + T + '"], h3[data-rub="' + T + '"]').length));
+    var btnGris = document.querySelector('[data-mep-infos-place="haut"]');
+    cas('Colonne et frise : la commande est grisée avec sa raison', !!btnGris && btnGris.disabled);
+    _mepDefinirChoixMq('infosPlace', null); await attendre();
+  }
+
+  // ---------------- Lot I3 (2026-10-07) : presentation (liste, sur une ligne, pastilles) et colonnes de « Informations complémentaires », dans sa barre du plein écran ----------------
+  async function parcoursInfosPresentation() {
+    await preparerCvResultats();
+    dossier.informationsNonClassees = ['Disponible immédiatement', 'Mobile sur toute la France', 'github.com/camille'];
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    ['infosPlace', 'infosCote', 'infosPresentation', 'listesDeuxColonnes'].forEach(function (k) { w()._pdfMqChoix(k, null); });   // etat de depart propre : un parcours precedent ne doit rien laisser
+    var doc = function () { return w().document; };
+    var T = 'Informations complémentaires';
+    var secInfos = function () { return doc().querySelector('.rub-sec[data-rub="' + T + '"]'); };
+    w()._pdfChoisirModeleCreatif('colonneFoncee'); await attente(2200);
+    _mepDefinirChoixMq('infosCompAffichees', _mepInfosSaisies()); await attente(2200);
+    cas('présentation infos : par défaut, une liste (une ligne par information, ni points ni pastilles)', !!secInfos() && secInfos().querySelectorAll('.sep-infos, .pill').length === 0 && secInfos().querySelectorAll(':scope > div > div').length === 3);
+    // la barre du plein ecran : groupe visible pour cette rubrique seulement
+    ouvrirPleinEcranMaquette(); await attendreMq();
+    var frame = function () { return document.getElementById('mqFrame').contentDocument; };
+    var titre = function (nom) { return [].slice.call(frame().querySelectorAll('h2[data-rub]')).filter(function (h) { return h.getAttribute('data-rub') === nom; })[0]; };
+    titre(T).click(); await attente(600);
+    var groupe = document.getElementById('mqRubInfos');
+    cas('barre de la rubrique : « Présentation » et « Colonnes » sont proposées pour Informations complémentaires', !!groupe && groupe.style.display !== 'none' && document.querySelector('[data-mqinfos="liste"]').classList.contains('on'));
+    titre('Langues').click(); await attente(500);
+    cas('barre d’une autre rubrique (Langues) : pas de choix de présentation', document.getElementById('mqRubInfos').style.display === 'none');
+    titre(T).click(); await attente(500);
+    // sur une ligne
+    document.querySelector('[data-mqinfos="ligne"]').click(); await attente(2200);
+    var s1 = frame().querySelector('.rub-sec[data-rub="' + T + '"]');
+    cas('sur une ligne : les informations sont à la suite, séparées par des points', !!s1 && s1.querySelectorAll('.sep-infos').length === 2 && s1.textContent.indexOf('Disponible immédiatement · Mobile sur toute la France · github.com/camille') !== -1, s1 ? s1.textContent : '');
+    cas('sur une ligne : le bouton est marqué actif et les colonnes sont masquées', document.querySelector('[data-mqinfos="ligne"]').classList.contains('on') && document.getElementById('mqRubInfosCol').style.display === 'none');
+    // pastilles
+    document.querySelector('[data-mqinfos="pastilles"]').click(); await attente(2200);
+    var s2 = frame().querySelector('.rub-sec[data-rub="' + T + '"]');
+    cas('pastilles : une pastille par information', !!s2 && s2.querySelectorAll('.pill').length === 3, s2 ? String(s2.querySelectorAll('.pill').length) : '');
+    // retour a la liste, puis deux colonnes
+    document.querySelector('[data-mqinfos="liste"]').click(); await attente(2200);
+    document.querySelector('[data-mqinfoscol="2"]').click(); await attente(2200);
+    var s3 = frame().querySelector('.rub-sec[data-rub="' + T + '"]');
+    cas('deux colonnes : la liste est répartie en deux blocs', !!s3 && !!s3.querySelector('.liste-2col') && s3.querySelectorAll('.liste-2col > div').length === 2);
+    document.querySelector('[data-mqinfoscol="1"]').click(); await attente(2200);
+    cas('une colonne : retour à la liste simple', !frame().querySelector('.rub-sec[data-rub="' + T + '"] .liste-2col'));
+    document.getElementById('mqRetour').click(); await attente(800);
+    // en bandeau, « sur une ligne » donne UNE ligne pleine largeur
+    _mepDefinirChoixMq('infosPlace', 'haut'); await attente(2200);
+    w()._pdfMqChoix('infosPresentation', 'ligne'); await attente(2200);
+    var b = doc().querySelector('.bande-infos');
+    cas('bandeau + sur une ligne : une seule ligne dans le bandeau', !!b && b.querySelectorAll('.sep-infos').length === 2 && !b.querySelector('.paire'));
+    w()._pdfMqChoix('infosPresentation', null); _mepDefinirChoixMq('infosPlace', null); await attente(2200);
+    cas('retour au départ : la rubrique est de nouveau une liste dans une colonne', !!secInfos() && secInfos().querySelectorAll('.sep-infos, .pill').length === 0 && !doc().querySelector('.bande-infos'));
+  }
+
+  // ---------------- Lot I2 (2026-10-07) : « Informations complémentaires » dans l'en-tête, sur TOUS les modèles ----------------
+  async function parcoursInfosEntete() {
+    await preparerCvResultats();
+    dossier.informationsNonClassees = ['Disponible immédiatement', 'Mobile sur toute la France', 'github.com/camille'];
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    ['infosPlace', 'infosCote', 'infosPresentation', 'listesDeuxColonnes'].forEach(function (k) { w()._pdfMqChoix(k, null); });   // etat de depart propre : un parcours precedent ne doit rien laisser
+    var doc = function () { return w().document; };
+    var T = 'Informations complémentaires';
+    var nbTitres = function () { return doc().querySelectorAll('[data-rub="' + T + '"]').length; };
+    var dansEntete = function () { var c = doc().querySelectorAll('.coord, .bande-coord'); for (var i = 0; i < c.length; i++) { if (c[i].textContent.indexOf('Disponible immédiatement') !== -1 && c[i].textContent.indexOf('github.com/camille') !== -1) { return true; } } return false; };
+    w()._pdfChoisirModeleCreatif('colonneFoncee'); await attente(2200);
+    _mepDefinirChoixMq('infosCompAffichees', _mepInfosSaisies()); await attente(2200);
+    _mepDefinirChoixMq('infosPlace', 'entete'); await attente(2500);
+    var ids = w()._pdfIdsModelesCreatif(), mauvais = [], propres = [];
+    for (var i = 0; i < ids.length; i++) {
+      w()._pdfChoisirModeleCreatif(ids[i]); await attente(1800);
+      var propre = !!w()._pdfDispositionPropre();
+      var ok = propre ? (!dansEntete() && nbTitres() >= 1) : (dansEntete() && nbTitres() === 0 && doc().querySelectorAll('.page-a4').length === 1);
+      if (propre) { propres.push(ids[i]); }
+      if (!ok) { mauvais.push(ids[i] + (propre ? ' (propre)' : '')); }
+    }
+    cas('en-tête (Créatif) : les ' + ids.length + ' modèles : informations dans l’en-tête, une page ; Frise, Photo, Rectangles gardent la rubrique à sa place', mauvais.length === 0, mauvais.join(', '));
+    var vs = ['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'], mauvaisS = [];
+    for (var j = 0; j < vs.length; j++) {
+      try {
+        w()._pdfChoisirVarianteSobre(vs[j]); await attente(1800);
+        var propreS = !!w()._pdfDispositionPropre();
+        var okS = propreS ? (!dansEntete() && nbTitres() >= 1) : (dansEntete() && nbTitres() === 0 && doc().querySelectorAll('.page-a4').length === 1);
+        if (!okS) { mauvaisS.push(vs[j] + (propreS ? ' (propre)' : '')); }
+      } catch (e) { mauvaisS.push(vs[j] + ' : ' + e.message); }
+    }
+    cas('en-tête (Sobre) : les ' + vs.length + ' variantes : informations dans l’en-tête, une page ; Photo et Rectangles gardent la rubrique à sa place', mauvaisS.length === 0, mauvaisS.join(', '));
+    // plus de trois informations : trois dans l'en-tête, les autres restent dans la rubrique
+    dossier.informationsNonClassees = ['Disponible immédiatement', 'Mobile sur toute la France', 'github.com/camille', 'linkedin.com/in/camille', 'Permis B'];
+    w()._pdfChoisirVarianteSobre('mq-bandeau'); await attente(1800);
+    _mepDefinirChoixMq('infosCompAffichees', _mepInfosSaisies()); await attente(2500);
+    var coords = doc().querySelector('.coord'), reste = doc().querySelector('.rub-sec[data-rub="' + T + '"]');
+    cas('en-tête : plus de trois informations : trois dans l’en-tête, les deux autres restent dans la rubrique', !!coords && coords.textContent.indexOf('github.com/camille') !== -1 && coords.textContent.indexOf('linkedin.com') === -1 && !!reste && reste.textContent.indexOf('linkedin.com/in/camille') !== -1 && reste.textContent.indexOf('Permis B') !== -1 && reste.textContent.indexOf('github.com/camille') === -1, reste ? reste.textContent : 'pas de rubrique');
+    _mepDefinirChoixMq('infosPlace', null); await attente(2200);
+    cas('en-tête : retour à la colonne : plus rien dans l’en-tête, la rubrique complète est revenue', !dansEntete() && nbTitres() >= 1);
+  }
+
+  // ---------------- Petits reglages de style (2026-10-07) : titres « Filet prolongé » / « Souligné court » et « Coin coloré en haut à gauche » ----------------
+  async function parcoursTitresEtCoin() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cs = function (el, p) { return w().getComputedStyle(el)[p]; };
+    var attendre = async function () { await attente(2200); };
+    var redessiner = async function () { _mepRerendre(); await attente(2500); };
+    var choisirTitres = async function (v) { var b = document.querySelector('[data-mep-styletitres="' + v + '"]'); if (b) { b.click(); } await attendre(); };
+    w()._pdfChoisirModeleCreatif('colonneClaire'); await attendre();
+    // --- titres ---
+    cas('titres : par défaut, aucun filet ajouté et le souligné d\'origine est là', doc().querySelectorAll('h2 .filet-filet, h2 .filet-court').length === 0 && parseFloat(cs(doc().querySelector('h2'), 'borderBottomWidth')) > 0);
+    cas('titres : « Filet prolongé » et « Souligné court » sont proposés', !!document.querySelector('[data-mep-styletitres="filet"]') && !!document.querySelector('[data-mep-styletitres="court"]'));
+    await choisirTitres('filet');
+    var nbH2 = doc().querySelectorAll('.cv h2').length, f1 = doc().querySelector('h2 .filet-filet');
+    cas('filet prolongé : un filet fin suit chaque titre, sans souligné dessous', nbH2 >= 3 && doc().querySelectorAll('h2 .filet-filet').length === nbH2 && !!f1 && cs(f1, 'height') === '1px' && parseFloat(cs(doc().querySelector('h2'), 'borderBottomWidth')) === 0, nbH2 + ' / ' + doc().querySelectorAll('h2 .filet-filet').length);
+    var largeurMax = 0; [].forEach.call(doc().querySelectorAll('h2 .filet-filet'), function (e) { largeurMax = Math.max(largeurMax, e.getBoundingClientRect().width); });
+    cas('filet prolongé : le filet occupe le reste de la ligne (le plus long dépasse 40 px)', largeurMax > 40, String(Math.round(largeurMax)));
+    await choisirTitres('court');
+    var f2 = doc().querySelector('h2 .filet-court');
+    cas('souligné court : une courte barre sous chaque titre', !!f2 && doc().querySelectorAll('h2 .filet-court').length === doc().querySelectorAll('.cv h2').length && cs(f2, 'width') === '26px' && cs(f2, 'height') === '3px');
+    await choisirTitres('souligne');
+    cas('retour au souligné : plus aucun filet ajouté', doc().querySelectorAll('h2 .filet-filet, h2 .filet-court').length === 0 && parseFloat(cs(doc().querySelector('h2'), 'borderBottomWidth')) > 0);
+    // --- coin ---
+    var caseCoin = function () { return document.querySelector('[data-mep-coin-couleur]'); };
+    cas('coin coloré : la case existe, décochée d\'office, et aucun coin sur la page', !!caseCoin() && !caseCoin().checked && !doc().querySelector('.coin-couleur') && !caseCoin().disabled);
+    caseCoin().click(); await attendre();
+    var coin = doc().querySelector('.coin-couleur');
+    cas('coin coloré : un triangle en haut à gauche, qui ne capte aucun clic (Colonne claire)', !!coin && cs(coin, 'clipPath').indexOf('polygon') === 0 && parseInt(cs(coin, 'zIndex'), 10) > 0 && cs(coin, 'pointerEvents') === 'none' && coin.getBoundingClientRect().left <= doc().querySelector('.cv').getBoundingClientRect().left + 1, coin ? cs(coin, 'clipPath') : 'absent');
+    caseCoin().click(); await attendre();
+    cas('coin coloré : décoché, le coin disparaît', !doc().querySelector('.coin-couleur'));
+    // modele a colonne FONCEE a gauche : coin deja pris, case grisee et aucun element meme si l'option est allumee
+    w()._pdfChoisirModeleCreatif('colonneFoncee'); await attendre(); await redessiner();
+    cas('coin coloré : sur « Colonne foncée » la case est grisée (le coin est pris par la colonne)', !!caseCoin() && caseCoin().disabled);
+    w()._pdfBasculerCoinCouleur(); await attendre();
+    cas('coin coloré : allumé de force sur « Colonne foncée », aucun coin n\'est dessiné', !doc().querySelector('.coin-couleur'));
+    w()._pdfBasculerCoinCouleur(); await attendre();
+    // en-tete en bandeau colore et modele a disposition propre : grise
+    w()._pdfChoisirModeleCreatif('mqBandeau'); await attendre(); await redessiner();
+    cas('coin coloré : sur « Bandeau entier » la case est grisée', !!caseCoin() && caseCoin().disabled);
+    w()._pdfChoisirModeleCreatif('frise'); await attendre(); await redessiner();
+    cas('coin coloré et titres : sur « Colonne et frise » les deux réglages sont grisés', !!caseCoin() && caseCoin().disabled && !!document.querySelector('[data-mep-styletitres="filet"]') && document.querySelector('[data-mep-styletitres="filet"]').disabled);
+    // un modele ordinaire en une colonne : le coin fonctionne
+    w()._pdfChoisirModeleCreatif('mqCadre'); await attendre(); await redessiner();
+    var okCadre = !caseCoin().disabled;
+    if (okCadre) { caseCoin().click(); await attendre(); }
+    cas('coin coloré : un modèle ordinaire (Cadre de page) accepte le coin', okCadre && !!doc().querySelector('.coin-couleur'));
+    if (okCadre && caseCoin()) { caseCoin().click(); await attendre(); }
+  }
+
+  // ---------------- Non-régression de TOUS les modèles de CV : banc B7 comparé à sa référence (2026-10-06, consigne « 0 régression » de Denis) ----------------
+  // Rejoue scripts/word/banc_b7.js (PDF, plan Word et XML Word de chaque modèle Créatif et Sobre) et le compare à scripts/word/banc_b7_reference.json.
+  // Un modèle qui change sans l'avoir voulu fait échouer l'essai. Si le changement EST voulu (ex. correction commune à tous les modèles) :
+  // relire le rendu, puis régénérer la référence (voir docs/BRIQUES_COMMUNES.md). Un nouveau modèle se déclare dans la liste `nouveaux` de banc_b7.js ET s'ajoute à la référence.
+  // Prérequis : fenêtre de 738 de large (les empreintes Word en dépendent) et page fraîchement rechargée ; à lancer SEUL (await window.__parcours(['banc'])), jamais dans la suite complète (voir __parcours).
+  async function parcoursBancNonRegression() {
+    // Nouveau banc de rendu (plan docs/PLAN_BANC_ET_MINIATURES_2026-10-11.md) : chaque modèle dans une page cachée neuve, jeu d'essai fixe, comparé à scripts/rendu/registre.json.
+    // À lancer SEUL, sur une page rechargée au stockage vide (le dossier par défaut est pris au chargement du script), fenêtre de 738 de large : environ 2 min 30.
+    if (window.innerWidth !== 738) { cas('banc : la fenêtre doit faire 738 de large (les empreintes Word en dépendent), elle fait ' + window.innerWidth, false, 'redimensionner à 738 x 698 puis recharger la page'); return; }
+    (0, eval)(await (await fetch('/scripts/rendu/banc.js?' + Date.now())).text());
+    var etat = await window.__rendu.lancer('verifier');
+    cas('banc : les ' + Object.keys(etat.res).length + ' modèles sont identiques au registre (HTML, style, Word, pages)', etat.ecarts.length === 0 && etat.erreurs.length === 0 && !etat.avertissement, 'écarts : ' + etat.ecarts.join(', ') + ' ; erreurs : ' + etat.erreurs.join(', ') + ' ; ' + etat.avertissement);
+    cas('banc : aucun modèle sans entrée au registre', etat.sansReference.length === 0, 'à ajouter (mode régénérer) : ' + etat.sansReference.join(', '));
+    // Règle de Denis (2026-10-11) : jamais toute la feuille colorée (une colonne ou un bandeau oui) : lisibilité en noir et blanc et encre
+    cas('banc : aucun modèle ne colore toute la feuille (plus de ' + etat.plafondCouverture + ' % de la page en zones colorées)', etat.tropColores.length === 0, etat.tropColores.join(', '));
+  }
+
   // ---------------- CV sur une colonne : Certifications juste après Formations (retour Denis 2026-10-01) ----------------
   // Le grand aperçu met un temps variable à s'ouvrir : on attend sa présence (jusqu'à 10 s) au lieu d'un délai fixe.
   async function attendreMq() { for (var i = 0; i < 20 && !(document.getElementById('mqFrame') && document.getElementById('mqFrame').contentDocument && document.getElementById('mqFrame').contentDocument.querySelector('.page-a4')); i++) { await attente(500); } await attente(800); }
@@ -264,6 +823,31 @@
       var o = ordre(), f = o.indexOf('Formations'), c = o.indexOf('Certifications');
       cas('cv une colonne (' + ids[i] + ') : la rubrique Certifications vient juste après Formations', f !== -1 && c === f + 1, o.join(' > '));
     }
+  }
+
+  // ---------------- Modèles « Colonne foncée » et « Colonne claire » : colonne pleine hauteur à bord droit (2026-10-05) ----------------
+  async function parcoursModelesColonne() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var ids = ['colonneFoncee', 'colonneClaire'];
+    // la rangée de vignettes n'est dessinée que dans l'allure « Créatif » : on contrôle la liste qui l'alimente et le moteur du CV
+    cas('colonnes : les deux modèles sont dans la galerie de choix', ids.every(function (id) { return _MEP_GALERIE_CREATIF.some(function (m) { return m[0] === id; }) && w()._pdfIdsModelesCreatif().indexOf(id) !== -1; }));
+    for (var i = 0; i < ids.length; i++) {
+      w()._pdfChoisirModeleCreatif(ids[i]); await attente(1500);
+      var d = w().document, cv = d.querySelector('#conteneurPage .cv'), av = w().getComputedStyle(cv, '::before');
+      // « Colonne claire » est une CARTE depuis le 2026-10-11 : 6 mm de marge en haut et en bas de la page (12 mm de moins que la hauteur), « Colonne foncée » reste sur toute la hauteur.
+      var attendue = (ids[i] === 'colonneClaire') ? cv.getBoundingClientRect().height - 12 * 96 / 25.4 : cv.getBoundingClientRect().height;
+      cas('colonnes (' + ids[i] + ') : ' + (ids[i] === 'colonneClaire' ? 'carte à 6 mm du haut et du bas de la page' : 'colonne sur toute la hauteur de la page'), cv.classList.contains('col-vague-g') && Math.abs(parseFloat(av.height) - attendue) < 2, av.height + ' pour ' + cv.getBoundingClientRect().height);
+      var fond = d.querySelector('.col-fond');
+      var clair = ids[i] === 'colonneClaire';
+      var texte = fond ? w().getComputedStyle(fond).color : '';
+      cas('colonnes (' + ids[i] + ') : texte ' + (clair ? 'foncé sur colonne claire' : 'blanc sur colonne foncée'), clair ? texte === 'rgb(27, 27, 27)' : texte === 'rgb(255, 255, 255)', texte);
+      cas('colonnes (' + ids[i] + ') : le CV tient sur une page', d.querySelectorAll('.page-a4').length === 1, String(d.querySelectorAll('.page-a4').length));
+    }
+    // un modèle d'origine n'est pas touché : « Colonne à vague » garde sa colonne de la couleur choisie
+    w()._pdfChoisirModeleCreatif('sidebarVague'); await attente(1500);
+    var cv2 = w().document.querySelector('#conteneurPage .cv'), av2 = w().getComputedStyle(cv2, '::before');
+    cas('colonnes : « Colonne à vague » garde sa couleur propre (pas celle de « Colonne claire »)', av2.backgroundColor !== 'rgb(230, 225, 214)', av2.backgroundColor);
   }
 
   // ---------------- Grand aperçu : déplacer les rubriques (déposée seulement au relâchement), « Agrandir les espaces » (retour Denis 2026-10-01) ----------------
@@ -1017,7 +1601,7 @@
     };
     await attente(500);
     var cb = document.querySelector('[data-mep-grands-boutons]');
-    cas('grands boutons : le bouton existe en haut de « La mise en page », à côté de « Aide »', !!cb && cb.tagName === 'BUTTON' && !!cb.parentElement.querySelector('#btnMepAide'), '');
+    cas('grands boutons : le bouton existe en haut de « La mise en page », au milieu de la rangée, entre « Aperçu en plein écran » et « Revenir au modèle de départ » (demande de Denis, 2026-10-10)', !!cb && cb.tagName === 'BUTTON' && !!cb.previousElementSibling && cb.previousElementSibling.id === 'btnMepOuvrirGrandApercu' && !!cb.nextElementSibling && cb.nextElementSibling.id === 'btnMepDepart', '');
     if (cb.getAttribute('aria-pressed') === 'true') { cb.click(); await attente(500); }
     var avant = mesure();
     cas('grands boutons : au départ, rien ne change (beaucoup de petits contrôles, pas d’attribut)', !document.documentElement.getAttribute('data-grands-boutons') && avant.petits > 50, JSON.stringify(avant));
@@ -1025,18 +1609,22 @@
     var apres = mesure();
     cas('grands boutons : activés, tous les boutons, cases et lignes font au moins 44 px (hors curseurs)', document.documentElement.getAttribute('data-grands-boutons') === '1' && apres.petits <= 2, JSON.stringify(apres));
     cas('grands boutons : rien ne déborde de sa carte', apres.debord === 0, JSON.stringify(apres));
-    // Retour Denis 2026-10-03 : en mode Grands boutons, toutes les options de couleur sont derrière UN bouton « Choisir mes couleurs ».
-    var zc = document.getElementById('zoneCouleurs');
+    // Les cartes de modèles Créatif et Sobre s'agrandissent : aucun nom coupé (retour de Denis, 2026-10-08)
+    var nomsCoupes = function () { return [].filter.call(document.querySelectorAll('.gab-familles .vign .vign-nom, .gab-ligne .vign .vign-nom'), function (n) { return n.scrollHeight > n.clientHeight + 1 || n.scrollWidth > n.clientWidth + 1; }).map(function (n) { return n.textContent; }); };
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3500);
+    cas('grands boutons : les noms des modèles Créatif se lisent en entier (cartes agrandies)', document.querySelectorAll('.vign .vign-nom').length >= 3 && nomsCoupes().length === 0, nomsCoupes().join(' | '));
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3500);
+    cas('grands boutons : les noms des modèles Sobre se lisent en entier (cartes agrandies)', document.querySelectorAll('.vign .vign-nom').length >= 3 && nomsCoupes().length === 0, nomsCoupes().join(' | '));
+    document.querySelector('[data-mep-allure="defaut"]').click(); await attente(3000);
+    // Décision de Denis 2026-10-08 : toutes les options de couleur sont DANS la carte « Choisir une ambiance », derrière « Autre couleur ».
     var visible = function (e) { return !!e && e.checkVisibility() && e.getBoundingClientRect().width > 2 && e.getBoundingClientRect().height > 2; };
-    cas('grands boutons : les couleurs sont rangées derrière un seul bouton, replié au départ', !!zc && !zc.open && visible(zc.querySelector('summary')) && !visible(zc.querySelector('[data-mep-base]')), '');
-    zc.querySelector('summary').click(); await attente(400);
-    cas('grands boutons : le bouton montre pastilles, couleurs de l’entreprise, personnalisée et dégradé', visible(zc.querySelector('[data-mep-base]')) && visible(zc.querySelector('.swatches-ligne2 .sw-entreprise-indispo, [data-mep-accent-entreprise]')) && visible(zc.querySelector('.sw-perso')) && visible(zc.querySelector('[data-mep-degrade-simple]')), '');
-    var autre = zc.querySelectorAll('[data-mep-base]')[3]; autre.click(); await attente(3500);
-    zc = document.getElementById('zoneCouleurs');
-    cas('grands boutons : choisir une couleur la pose sur le CV et la zone reste ouverte', zc.open && zc.querySelectorAll('[data-mep-base]')[3].classList.contains('on'), '');
-    cas('grands boutons : la pastille du bouton montre la couleur choisie', zc.querySelector('.cb-pastille').style.background !== '', zc.querySelector('.cb-pastille').getAttribute('style'));
-    zc.querySelectorAll('[data-mep-base]')[1].click(); await attente(3000);
-    zc = document.getElementById('zoneCouleurs');
+    _mepCartesOuvertes.zoneAmbiances = false; _mepCartesOuvertes.autreCouleur = false; _mepRerendre(); await attente(1500);
+    cas('grands boutons : la carte d’ambiance est fermée au départ, ses couleurs sont dedans', !!document.getElementById('zoneAmbiances') && !visible(document.querySelector('[data-mep-base]')), '');
+    document.getElementById('zoneAmbiances').click(); await attente(900);
+    cas('grands boutons : ouverte, la carte montre d’office pastilles, nuances, couleurs de l’entreprise et personnalisée ; le dégradé est à côté', visible(document.querySelector('[data-mep-base]')) && visible(document.querySelector('#nuancierAmb .sw-entreprise-indispo, #nuancierAmb [data-mep-accent-entreprise]')) && visible(document.querySelector('#nuancierAmb .sw-perso')) && visible(document.querySelector('[data-mep-degrade-simple]')), '');
+    var autre = document.querySelectorAll('[data-mep-base]')[3]; autre.click(); await attente(3500);
+    cas('grands boutons : choisir une couleur la pose sur le CV et le panneau reste ouvert', !document.getElementById('panneauAmbiances').hidden && document.querySelectorAll('[data-mep-base]')[3].classList.contains('on'), '');
+    document.querySelectorAll('[data-mep-base]')[1].click(); await attente(3000);
     // Retour Denis 2026-10-03 : la rangée des couleurs sortait de sa zone et passait sous le texte voisin. On cherche tout bloc dont le contenu dépasse sa propre boîte.
     var debordants = function () {
       var out = [];
@@ -1056,7 +1644,7 @@
         var t = [].filter.call(e.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); }).map(function (n) { return n.textContent.trim(); }).join(' ');
         if (!t || e.getBoundingClientRect().width < 2) { return; }
         var f = parseFloat(getComputedStyle(e).fontSize);
-        if (f < 13.9) { out.push(e.tagName + '.' + String(e.className).split(' ')[0] + '@' + f.toFixed(1) + ' « ' + t.slice(0, 20) + ' »'); }
+        if (f > 0 && f < 13.9) { out.push(e.tagName + '.' + String(e.className).split(' ')[0] + '@' + f.toFixed(1) + ' « ' + t.slice(0, 20) + ' »'); }
       });
       return out;
     };
@@ -1069,8 +1657,7 @@
     cas('grands boutons : le texte des réglages fait au moins 14 px', parseFloat(getComputedStyle(document.querySelector('.mep-mq .ligne-choix, .mep-mq label.ck')).fontSize) >= 14, '');
     document.querySelector('[data-mep-grands-boutons]').click(); await attente(800);
     cas('grands boutons : désactivés, retour à l’affichage d’avant', !document.documentElement.getAttribute('data-grands-boutons'), '');
-    var zc2 = document.getElementById('zoneCouleurs');
-    cas('grands boutons : désactivés, les couleurs redeviennent toutes visibles, sans bouton à cliquer', !!zc2 && zc2.open && !visible(zc2.querySelector('summary')) && visible(zc2.querySelector('[data-mep-base]')), '');
+    cas('grands boutons : désactivés, la carte d’ambiance et ses couleurs restent utilisables', !!document.getElementById('zoneAmbiances') && !!document.querySelector('[data-mep-base]'), '');
   }
 
 
@@ -1102,10 +1689,8 @@
     var W = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
     cas('accroche : choisir la 2e proposition la met sur le CV', dossier.ia.cv.profil === longues[1] && W().document.querySelector('#conteneurPage').innerText.indexOf('préparation des supports') >= 0, dossier.ia.cv.profil.slice(0, 30));
     cas('accroche : la zone reste ouverte après le choix et la 2e est cochée', zone().open && radios()[1].checked, '');
-    // version courte
-    document.querySelector('[data-mep-accroche-courte]').click(); await attente(3500);
-    cas('accroche : en version courte, la liste montre les phrases courtes en entier', [].slice.call(zone().querySelectorAll('.rad-accroche-texte')).every(function (e, i) { return e.textContent.indexOf(courtes[i]) >= 0; }), '');
-    document.querySelector('[data-mep-accroche-courte]').click(); await attente(3500);
+    // plus de case « Version courte » (decision de Denis, 2026-10-10) : les accroches sont de longueur moyenne par definition
+    cas('accroche : plus de case « Version courte »', !document.querySelector('[data-mep-accroche-courte]'), '');
     // sans accroche : tout est grise
     document.querySelector('[data-mep-sans-accroche-case]').click(); await attente(3500);
     cas('accroche : « Sans accroche » grise la liste (boutons ronds inactifs, zone repliée)', radios().every(function (r) { return r.disabled; }) && zone().classList.contains('desactivee') && !zone().open, '');
@@ -1169,15 +1754,14 @@
     // Essai indépendant : les réponses de l'assistant laissées par un parcours précédent (rubriques et compétences proposées) changeraient l'état de départ.
     dossier.ia = {}; _mepRerendre(); await attente(4000);
     var sauve = JSON.stringify([dossier.experiencesPerso, dossier.engagements]);
-    // sans aucune expérience personnelle ni accroche : la carte et la case « Version courte » restent visibles
+    // sans aucune expérience personnelle ni accroche : la carte reste visible
     dossier.experiencesPerso = []; dossier.engagements = []; if (dossier.ia && dossier.ia.cv) { dossier.ia.cv.accrochesProposees = []; dossier.ia.cv.accrochesCourtesProposees = []; dossier.ia.cv.profil = ''; }
     _mepRerendre(); await attente(3500);
     for (var essai = 0; essai < 8 && !(document.getElementById('cExpPerso') && /Rien n’a été capté/.test(document.getElementById('cExpPerso').textContent)); essai++) { await attente(1500); }
     var vide = document.getElementById('cExpPerso');
     cas('expérience personnelle : la carte est là même sans aucune entrée, et le dit', !!vide && /Rien n’a été capté/.test(vide.textContent) && !/Vos informations/.test(vide.textContent), '');
     document.getElementById('cEntete').open = true; await attente(300);
-    var cc = document.querySelector('[data-mep-accroche-courte]');
-    cas('accroche : « Version courte » est visible mais grisée quand il n’y a pas de phrase d’accroche', !!cc && cc.disabled && cc.checkVisibility(), cc ? String(cc.disabled) : 'absente');
+    cas('accroche : plus de case « Version courte », même sans phrase d’accroche', !document.querySelector('[data-mep-accroche-courte]'), '');
     dossier.experiencesPerso = [{ intitule: 'Bricolage', missions: 'Réparer des meubles\nPeindre des murs' }];
     window._mepExperiencePersoMoteur = [];   // l'aperçu peut envoyer une liste vide : la carte ne doit pas disparaître
     _mepRerendre(); await attente(3500);
@@ -1859,13 +2443,17 @@
     var cles = ['org', 'entete', 'comp', 'exp', 'texte', 'couleurs', 'autres'];
     var boutons = [].slice.call(document.querySelectorAll('[data-mep-options-supp]'));
     cas('options supplémentaires : un bouton en bas des 7 cartes (organisation, en-tête, compétences, expériences, mise en page et texte, couleurs, autres rubriques)', cles.every(function (k) { return boutons.some(function (b) { return b.getAttribute('data-mep-options-supp') === k; }); }), boutons.map(function (b) { return b.getAttribute('data-mep-options-supp'); }).join(','));
-    var modele = document.querySelector('.mep-mq .btn-miss:not([data-mep-options-supp]):not([data-mep-options-retour])');
-    var st = function (el) { var c = getComputedStyle(el); return [c.fontSize, c.borderRadius, c.paddingTop, c.paddingLeft, c.color, c.fontFamily].join('|'); };
-    cas('options supplémentaires : ce sont de vrais boutons, du même style que les autres boutons des panneaux', boutons.every(function (b) { return b.tagName === 'BUTTON' && b.classList.contains('btn-miss') && (!modele || st(b) === st(modele)); }), boutons.length ? st(boutons[0]) + ' / ' + (modele ? st(modele) : '') : '');
+    // Chaque bouton est comparé à un bouton de SA rangée : celui du bas des cartes à un autre petit bouton du bas d'une carte ; celui de la carte d'ambiance (sur la ligne d'« Annuler », decision de Denis du 2026-10-10 :
+    // il garde sa forme d'origine) à « Dégradé », son voisin de la carte d'ambiance (même taille, même arrondi ; la couleur du texte change quand « Dégradé » est actif).
+    var modeleBas = document.querySelector('.mep-mq .pied-options-supp .btn-miss:not([data-mep-options-supp]):not([data-mep-options-retour])') || document.querySelector('.mep-mq .inline .btn-miss:not([data-mep-options-supp]):not([data-mep-options-retour])');
+    var modeleAmbiance = document.querySelector('.mep-mq .ligne-effet-options .btn-miss:not([data-mep-options-supp])');
+    var st = function (el, avecCouleur) { var c = getComputedStyle(el); return [c.fontSize, c.borderRadius, c.paddingTop, c.paddingLeft, avecCouleur ? c.color : '', c.fontFamily].join('|'); };
+    var modeleDe = function (b) { return b.closest('.pied-options-supp') ? modeleBas : modeleAmbiance; };
+    cas('options supplémentaires : ce sont de vrais boutons, du même style que les autres boutons de leur rangée', boutons.every(function (b) { var m = modeleDe(b); var bas = !!b.closest('.pied-options-supp'); return b.tagName === 'BUTTON' && b.classList.contains('btn-miss') && (!m || st(b, bas) === st(m, bas)); }), boutons.length ? st(boutons[0], true) + ' / ' + (modeleBas ? st(modeleBas, true) : '') + ' / ' + (modeleAmbiance ? st(modeleAmbiance, false) : '') : '');
     cas('options supplémentaires : « Réglages supplémentaires » est refermée au départ', !!supp() && !supp().open, '');
     var pose = [
       ['org', ['colonnesinv', 'largeurgauche', 'formecolonnes']], ['entete', ['bandeau', 'degradebandeau', 'coordapart', 'anneauphoto', 'lectureguidee']], ['comp', ['coulcomp', 'coulpuces', 'bandeaucompcles']],
-      ['exp', ['evid', 'regroupement', 'formatexp']], ['texte', ['police', 'styletitres', 'bordures', 'coinsarrondis', 'veuves', 'espparas']], ['couleurs', ['textefond', 'fondeffet', 'fondpleine']], ['autres', ['rubrique']]];
+      ['exp', ['evid', 'regroupement', 'formatexp']], ['texte', ['police', 'styletitres', 'bordures', 'coinsarrondis', 'veuves', 'espparas']], ['couleurs', ['fondeffet', 'fondpleine']], ['autres', ['rubrique']]];
     cas('options supplémentaires : chaque réglage est rangé dans la partie de sa carte, aucun n’est perdu', pose.every(function (g) { var sec = document.getElementById('mepSupp-' + g[0]); return !!sec && g[1].every(function (n) { return !!sec.querySelector('[data-mep-' + n + ']'); }); }), pose.map(function (g) { return g[0] + ':' + (document.getElementById('mepSupp-' + g[0]) ? 'ok' : 'absente'); }).join(' '));
     cas('options supplémentaires : plus d’« autre ordre des expériences » ni de bouton « Ouvrir l’Aperçu » dans cette carte', !supp().querySelector('[data-mep-ordre-autre]') && !supp().querySelector('[data-mep-versgrand]') && !document.getElementById('mepSupp-reste'), '');
     cas('options supplémentaires : la mise en forme des expériences s’appelle « Simple / Mise en valeur », avec son « ? »', /Simple/.test(document.querySelector('[data-mep-formatexp="standard"]').textContent) && /Mise en valeur/.test(document.querySelector('[data-mep-formatexp="ameliore"]').textContent) && !!document.querySelector('#mepSupp-exp [data-mep-formatexp]').closest('.champ-mep').querySelector('.aide-option'), '');
@@ -1889,10 +2477,10 @@
     document.querySelector('[data-mep-formatexp="ameliore"]').click(); await attente(2200);
     cas('options supplémentaires : « Mise en valeur » enregistre toujours la valeur « ameliore »', reg().formatExperiences === 'ameliore', String(reg().formatExperiences));
     document.querySelector('[data-mep-bordures="epaisse"]').click(); await attente(2200);
-    // « Style rapide » ne touche jamais ces reglages
-    var avant = JSON.stringify([reg().coinsArrondis, reg().formatExperiences, reg().styleBordures]);
+    // « Style rapide » (Standard) ne change PAS le format des experiences (le contenu reste a la personne) ; coins et traits font partie de l'enrichissement visuel voulu par Denis (2026-10-08).
+    var avantFormat = reg().formatExperiences;
     document.getElementById('btnMepDe').click(); await attente(4500);
-    cas('options supplémentaires : « Style rapide » ne change aucun réglage de cette carte', JSON.stringify([reg().coinsArrondis, reg().formatExperiences, reg().styleBordures]) === avant, avant + ' -> ' + JSON.stringify([reg().coinsArrondis, reg().formatExperiences, reg().styleBordures]));
+    cas('options supplémentaires : « Style rapide » ne change pas la mise en valeur des expériences', reg().formatExperiences === avantFormat, avantFormat + ' -> ' + reg().formatExperiences);
     document.querySelector('[data-mep-coinsarrondis="0"]').click(); await attente(1800);
     document.querySelector('[data-mep-formatexp="standard"]').click(); await attente(1800);
     document.querySelector('[data-mep-bordures="fine"]').click(); await attente(1800);
@@ -2170,7 +2758,1381 @@
     bloc.remove(); _expInlineReset();
   }
 
-  var PARCOURS = { bilan: parcoursBilan, comparer: parcoursComparer, decouverte: parcoursDecouverte, prompts: parcoursPrompts, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille };
+  // ---------------- Retours de Denis du 2026-10-05 : missions de formation, compteurs sans effet, Formations à droite, option « à côté » ----------------
+  async function parcoursCorrectionsPanneau() {
+    await preparerCvResultats();
+    var W = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var texteCV = function () { return W().document.querySelector('#conteneurPage').textContent; };
+    var sauve = JSON.stringify(dossier.experiences);
+    // Remise à zéro de l'état de l'aperçu laissé par les parcours précédents (missions de formation, formations à gauche / en bas, ordre personnalisé).
+    W()._cvPdfAfficherMissionsFormation = null; W()._cvPdfOrdrePersoRubriques = false; W()._cvPdfOrganisationPerso = false; dossier.pdfReglages = null;
+    ['formationsAGauche', 'formationsPleineLargeur', 'ordreColonnes', 'rubriquePleineLargeur'].forEach(function (k) { W()._pdfMqChoix(k, null); });
+    await attente(1500);
+    dossier.experiences = [1, 2, 3, 4, 5, 6].map(function (i) {
+      return { poste: 'Poste ' + i, entreprise: 'Entreprise ' + i, lieu: 'Limoges', dateDebut: (2010 + i) + '-01', dateFin: (2011 + i) + '-06', missions: 'Mission une du poste ' + i + '\nMission deux du poste ' + i + '\nMission trois du poste ' + i + '\nMission quatre du poste ' + i };
+    });
+    _mepRerendre(); await attente(4500);
+    // missions des formations : jamais affichées d'office, même en Mixte
+    W()._pdfDefinirModePresentation('B'); await attente(3000);
+    var ck = document.querySelector('[data-mep-form-missions]');
+    cas('formations : en Mixte, les missions ne s’affichent pas d’office', !/Secourisme/.test(texteCV()) && ck && !ck.checked, ck ? String(ck.checked) : 'case absente');
+    W()._pdfBasculerAfficherMissionsFormation(); await attente(2000);
+    cas('formations : cocher « Afficher les missions » les fait apparaître', /Secourisme/.test(texteCV()), '');
+    W()._pdfBasculerAfficherMissionsFormation(); W()._pdfDefinirModePresentation('A'); await attente(2500);
+    // compteurs des compétences professionnelles : grisés seulement quand ils n'ont aucun effet (Par compétences)
+    document.getElementById('cComp').open = true;
+    var plus = function () { return document.querySelector('[data-mep-comp-pro-plus]'); };
+    W()._pdfDefinirModePresentation('C'); await attente(3200);
+    cas('compétences : en « Par compétences », « + » des professionnelles est grisé quand la liste n’agit pas', !!plus() && plus().disabled === !!window._mepProSansEffetC && window._mepProSansEffetC === true, String(window._mepProSansEffetC));
+    W()._pdfDefinirModePresentation('A'); await attente(3000);
+    cas('compétences : en Chronologique, « + » n’est pas grisé par ce mécanisme', !window._mepProSansEffetC, String(window._mepProSansEffetC));
+    // Formations : toujours à droite en deux colonnes, jamais déplacées d'office
+    var deux = document.querySelector('[data-mep-org-colonnes="2"]');
+    if (deux && !deux.checked) { deux.click(); await attente(3500); }
+    var enPleineLargeur = function () { return !!W().document.querySelector('#conteneurPage .corps-pleine-largeur [data-rub="Formations"]'); };
+    var colonneDe = function () { var c = W().document.querySelector('#conteneurPage .corps.deux'); var f = c && c.querySelector('[data-rub="Formations"]'); return !c || !f ? -1 : (c.children[0].contains(f) ? 0 : 1); };
+    cas('formations : sur deux colonnes, elles restent dans la colonne de droite (jamais en pleine largeur d’office)', colonneDe() === 1 && !enPleineLargeur(), 'colonne ' + colonneDe() + ' pleine largeur ' + enPleineLargeur());
+    var pl = document.querySelector('[data-mep-org-formpleine]');
+    cas('formations : la case « Formations en bas » existe et est décochée', !!pl && !pl.checked, pl ? String(pl.checked) : 'absente');
+    if (pl) {
+      pl.click(); await attente(3500);
+      cas('formations : cochée, la case « Formations en bas » les place en pleine largeur', enPleineLargeur(), '');
+      document.querySelector('[data-mep-org-formpleine]').click(); await attente(3500);
+      cas('formations : décochée, elles reviennent à droite', colonneDe() === 1 && !enPleineLargeur(), 'colonne ' + colonneDe());
+    }
+    // option « À côté des comportementales » : grisée sur deux colonnes (en Par compétences)
+    W()._pdfDefinirModePresentation('C'); await attente(3200);
+    document.getElementById('cExp').open = true; await attente(300);
+    _mepRerendre(); await attente(1500);
+    var boutonsDispo = [].slice.call(document.querySelectorAll('[data-mep-action-dispo]'));
+    cas('disposition : sur deux colonnes, « Pleine largeur / À côté des comportementales » est grisée', boutonsDispo.length === 2 && boutonsDispo.every(function (b) { return b.disabled; }), boutonsDispo.length + ' boutons');
+    W()._pdfDefinirModePresentation('A'); await attente(2500);
+    dossier.experiences = JSON.parse(sauve);
+  }
+
+  // ---------------- Panneaux « Modifier ... » de la carte Expériences rangés par paires (retour de Denis, 2026-10-05) ----------------
+  async function parcoursPairesPanneaux() {
+    await preparerCvResultats();
+    var W = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var paire = function (cle) { return document.querySelector('.paire-choix[data-paire="' + cle + '"]'); };
+    var ouvert = function (id) { var d = document.getElementById(id); return !!d && d.open; };
+    document.getElementById('cExp').open = true; await attente(300);
+    // Chronologique : une seule paire, avec un seul panneau actif (pas de cadre commun)
+    _mepRerendre(); await attente(1500); document.getElementById('cExp').open = true; await attente(300);
+    var zc = document.getElementById('zoneChoixExp'); if (zc) { zc.open = true; await attente(500); }
+    cas('paires : en Chronologique, le panneau des expériences est seul, sans cadre de paire', !!zc && !document.querySelector('.paire-choix'), '');
+    if (zc) { zc.open = false; }
+    W()._pdfDefinirModePresentation('B'); await attente(3500);
+    _mepRerendre(); await attente(1500); document.getElementById('cExp').open = true; await attente(300);
+    cas('paires : en Mixte, deux paires de deux boutons', !!paire('comp') && !!paire('exp') && paire('comp').querySelectorAll(':scope > details').length === 2 && paire('exp').querySelectorAll(':scope > details').length === 2, '');
+    var x = function (id) { return Math.round(document.getElementById(id).querySelector('summary').getBoundingClientRect().x); };
+    ['zoneCompMissions', 'zoneProMixte', 'zoneChoixExp', 'zoneLiens'].forEach(function (id) { var e = document.getElementById(id); if (e) { e.open = false; } }); await attente(800);
+    cas('paires : fermée, les deux boutons de la paire sont côte à côte', x('zoneCompMissions') < x('zoneProMixte') && !paire('comp').classList.contains('ouverte'), x('zoneCompMissions') + ' / ' + x('zoneProMixte'));
+    document.getElementById('zoneCompMissions').open = true; await attente(700);
+    cas('paires : ouvrir « Compétences en action » ouvre aussi « Compétences professionnelles », cadre commun', ouvert('zoneProMixte') && paire('comp').classList.contains('ouverte'), '');
+    cas('paires : l’autre paire reste fermée', !ouvert('zoneChoixExp') && !paire('exp').classList.contains('ouverte'), '');
+    var fer = paire('comp').querySelector('[data-paire-fermer]');
+    cas('paires : « Refermer » est un vrai bouton bordé', !!fer && /solid/.test(getComputedStyle(fer).borderTopStyle) && getComputedStyle(fer).borderTopWidth !== '1.6px', fer ? getComputedStyle(fer).border : 'absent');
+    if (fer) { fer.click(); await attente(700); }
+    cas('paires : « Refermer » ferme les deux panneaux', !ouvert('zoneCompMissions') && !ouvert('zoneProMixte') && !paire('comp').classList.contains('ouverte'), '');
+    document.getElementById('zoneProMixte').open = true; await attente(700);
+    cas('paires : ouvrir « Compétences professionnelles » ouvre aussi « Compétences en action »', ouvert('zoneCompMissions'), '');
+    document.getElementById('zoneCompMissions').open = false; await attente(700);
+    cas('paires : fermer l’un ferme l’autre', !ouvert('zoneProMixte'), '');
+    W()._pdfDefinirModePresentation('A'); await attente(2500);
+  }
+
+  // ---------------- Remplissage d'office : le CV remplit la page des son premier affichage (2026-10-07) ----------------
+  async function parcoursRemplissageOffice() {
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var h = function () { return Math.round(w()._pdfMesurerHauteurPage()); };
+    var ouvrir = async function (remiseAZero) {
+      naviguerVers('cv'); await attente(1800);
+      if (remiseAZero) { dossier.pdfReglages = null; delete dossier.miseEnPageAutoFaite; }
+      naviguerVers('resultats'); await attente(7000);
+    };
+    // 1. Point de comparaison : le même CV court, sans remplissage d'office. On quitte d'abord l'écran (un essai précédent peut laisser la page déjà
+    // affichée : naviguer vers elle-même ne reconstruit pas l'aperçu) et on efface un drapeau laissé par un autre essai.
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    // Patience : après un essai lourd, l'aperçu peut mettre plus de quatre secondes à enregistrer ses premiers réglages.
+    for (var attenteEssai = 0; attenteEssai < 20 && !(dossier.pdfReglages && dossier.pdfReglages.echelle !== undefined); attenteEssai++) { await attente(500); }
+    var h0 = h(), e0 = dossier.pdfReglages && dossier.pdfReglages.echelle;
+    cas('remplissage : sans le remplissage d’office, le CV court garde sa taille d’origine', e0 === 1 && dossier.miseEnPageAutoFaite !== true, 'echelle=' + e0 + ' drapeau=' + dossier.miseEnPageAutoFaite);
+    // 2. Un CV déjà réglé n'est jamais recalculé.
+    window.__cvPdfSansRemplissageInitial = false; delete dossier.miseEnPageAutoFaite;
+    await ouvrir(false);
+    cas('remplissage : un CV déjà réglé ne bouge pas (même taille, aucun drapeau posé)', dossier.pdfReglages.echelle === 1 && dossier.miseEnPageAutoFaite === undefined && h() === h0, 'echelle=' + dossier.pdfReglages.echelle + ' drapeau=' + dossier.miseEnPageAutoFaite + ' h=' + h() + '/' + h0);
+    // 3. Un CV neuf (jamais réglé) arrive rempli.
+    await ouvrir(true);
+    var e1 = dossier.pdfReglages && dossier.pdfReglages.echelle;
+    cas('remplissage : un CV neuf arrive plus grand qu’un CV non calculé', dossier.miseEnPageAutoFaite === true && e1 > 1 && h() > h0, 'drapeau=' + dossier.miseEnPageAutoFaite + ' echelle=' + e1 + ' h=' + h() + '/' + h0);
+    cas('remplissage : le CV reste sur une page et la page est prête pour l’export Word', w().document.querySelectorAll('#conteneurPage .page-a4').length === 1 && w().__cvPdfRemplissagePret === true);
+    // 4. « Revenir au modèle de départ » (drapeau remis à false) : le calcul est refait.
+    dossier.pdfReglages.echelle = 1; dossier.miseEnPageAutoFaite = false;
+    await ouvrir(false);
+    cas('remplissage : après « Revenir au modèle de départ », le CV est de nouveau rempli', dossier.miseEnPageAutoFaite === true && dossier.pdfReglages.echelle > 1, 'echelle=' + dossier.pdfReglages.echelle);
+    // 5. Un CV trop long ne rétrécit que légèrement (jamais sous 10 px) ; la personne décide ensuite avec le bouton.
+    for (var i = 0; i < 6; i++) { dossier.experiences.push(Object.assign({}, dossier.experiences[0], { poste: 'Poste ' + i, entreprise: 'Entreprise ' + i, dateDebut: (2000 + i) + '-01', dateFin: (2001 + i) + '-12' })); }
+    await ouvrir(true);
+    cas('remplissage : un CV trop long ne descend pas sous 10 px', dossier.pdfReglages.echelle >= 10 / 11 - 0.001, 'echelle=' + dossier.pdfReglages.echelle);
+    window.__cvPdfSansRemplissageInitial = true;
+  }
+  // ---------------- En-tête agrandi d'office (2026-10-07) : sur tous les modèles, un CV court garde un en-tête lisible, sans débordement ----------------
+  async function parcoursEnteteAgrandi() {
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    dossier.experiences = dossier.experiences.slice(0, 1); dossier.formations = dossier.formations.slice(0, 1); dossier.certifications = [];
+    dossier.ia = dossier.ia || {}; dossier.ia.cv = dossier.ia.cv || {}; dossier.ia.cv.profil = 'Agent de sécurité attentif, habitué à accueillir le public.';
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000);
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var modeles = w()._pdfIdsModelesCreatif().map(function (id) { return ['creatif', id]; })
+      .concat(['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].map(function (id) { return ['sobre', id]; }));
+    var nbBoost = 0;
+    for (var i = 0; i < modeles.length; i++) {
+      var m = modeles[i], etiquette = m[0] + ':' + m[1];
+      try {
+        if (m[0] === 'creatif') { w()._pdfChoisirModeleCreatif(m[1]); } else { w()._pdfChoisirVarianteSobre(m[1]); }
+        await attente(900);
+        // même chemin que le premier affichage : calcul de « Mise en page » avec le plancher de départ
+        w()._pdfPlancherEchelleAuto = w()._PDF_ECHELLE_PLANCHER_INITIAL; w()._cvPdfMiseEnPageEnCours = false;
+        try { w()._pdfAjusterMiseEnPageCalcul(); } finally { w()._pdfPlancherEchelleAuto = null; }
+        var boost = w()._cvPdfEnteteBoost, hauteur = Math.round(w()._pdfMesurerHauteurPage()), pages = w().document.querySelectorAll('#conteneurPage .page-a4').length;
+        var lignesAvec = w()._pdfLignesEntete();
+        w()._cvPdfEnteteBoost = 1; w()._pdfRafraichir(); var lignesSans = w()._pdfLignesEntete();
+        w()._cvPdfEnteteBoost = boost; w()._pdfRafraichir();
+        if (boost > 1) { nbBoost++; }
+        cas('en-tête agrandi : ' + etiquette + ' : levier entre 1 et 1,6', boost >= 1 && boost <= 1.6, String(boost));
+        cas('en-tête agrandi : ' + etiquette + ' : le nom et le métier ne gagnent aucune ligne', lignesAvec.nom <= lignesSans.nom && lignesAvec.metier <= lignesSans.metier, JSON.stringify(lignesAvec) + ' / ' + JSON.stringify(lignesSans));
+        cas('en-tête agrandi : ' + etiquette + ' : aucun texte d’en-tête ne déborde et le CV reste sur une page', !w()._pdfEnteteProblematiqueApresCroissance() && pages === 1 && hauteur <= 1126, 'h=' + hauteur + ' pages=' + pages);
+      } catch (e) { cas('en-tête agrandi : ' + etiquette + ' : essai sans erreur', false, e.message); }
+    }
+    // 18 modèles sur 37 le jour du 2026-10-07 : les autres sont bloqués par la règle « un titre ne gagne jamais une ligne » (colonnes étroites), à débloquer par la disposition empilée.
+    cas('en-tête agrandi : au moins dix modèles ont un en-tête agrandi sur un CV court', nbBoost >= 10, nbBoost + ' / ' + modeles.length);
+  }
+  // ---------------- Accroche : la phrase choisie s'affiche, d'anciennes versions courtes sont ignorées (2026-10-10) ----------------
+  async function parcoursAccrocheCourteDefaut() {
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    var longue = 'Agent de sécurité attentif, habitué à accueillir le public et à prévenir les situations tendues, avec le sens du service et de la rigueur.';
+    var courte = 'Agent de sécurité attentif et rigoureux.';
+    dossier.ia = dossier.ia || {}; dossier.ia.cv = dossier.ia.cv || {};
+    dossier.ia.cv.profil = longue; dossier.ia.cv.accrochesProposees = [longue]; dossier.ia.cv.accrochesCourtesProposees = [courte];
+    var accroche = function () { var e = document.querySelector('#zonePdfInlineCV iframe').contentWindow.document.querySelector('.accroche'); return e ? e.textContent : null; };
+    // CV neuf : ni réglages PDF ni réglages de mise en page enregistrés
+    naviguerVers('cv'); await attente(1500);
+    dossier.pdfReglages = null; dossier.reglagesMiseEnPageCV = null;
+    naviguerVers('resultats'); await attente(6500);
+    cas('accroche : un CV neuf affiche la phrase choisie, même si une ancienne version courte existe', accroche() === longue && !(dossier.reglagesMiseEnPageCV && dossier.reglagesMiseEnPageCV.accrocheCourte), String(accroche()));
+    // ancien réglage « version courte » enregistré : ignoré
+    dossier.reglagesMiseEnPageCV = dossier.reglagesMiseEnPageCV || {}; dossier.reglagesMiseEnPageCV.accrocheCourte = true;
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(6000);
+    cas('accroche : un ancien réglage « version courte » est ignoré', accroche() === longue, String(accroche()));
+  }
+  // ---------------- Lecture d'un JSON de l'assistant avec un crochet en trop ou une accolade oubliée (2026-10-10) ----------------
+  async function parcoursJsonFermetures() {
+    var lire = function (texte) { return extraireBlocJSONDepuisTexte(texte); };
+    var valide = lire('```json\n{"a":[1,2],"b":{"c":"x"}}\n```');
+    cas('json : un JSON valide est lu comme avant', !!valide && valide.a.length === 2 && valide.b.c === 'x');
+    var enTrop = lire('{"a":["x","y"]\n],"b":"z"}');
+    cas('json : un crochet en trop est ignoré', !!enTrop && enTrop.b === 'z' && enTrop.a.length === 2);
+    var manque = lire('```json\n{"r":{"a":[1],"b":"z"}\n```');
+    cas('json : une accolade fermante oubliée à la fin est ajoutée', !!manque && !!manque.r && manque.r.b === 'z');
+    var dansTexte = lire('{"a":"un } et un ] dans le texte","b":[1]');
+    cas('json : les } et ] à l’intérieur d’un texte ne comptent pas', !!dansTexte && dansTexte.a.indexOf('}') >= 0 && dansTexte.b.length === 1);
+    var question = 'Voulez-vous le complément de CV ? (missions de vos formations, de vos certifications et de vos loisirs)';
+    var avecQuestion = lire('```json\n{"a":[1,2],"b":{"c":"x"}}\n```\n\n' + question);
+    cas('json : la question du complément de CV collée après le bloc ne gêne pas la lecture', !!avecQuestion && avecQuestion.a.length === 2 && avecQuestion.b.c === 'x');
+    var sansBarrieres = lire('json\n{"a":[1,2],"b":{"c":"x"}}\n\n' + question);
+    cas('json : même sans les marques de bloc, la question collée après est ignorée', !!sansBarrieres && sansBarrieres.a.length === 2);
+    var finIncomplete = lire('```json\n{"r":{"a":[1]}\n```\n\n' + question);
+    cas('json : une accolade oubliée à la fin est réparée même avec la question après', !!finIncomplete && !!finIncomplete.r);
+    var rien = lire('Aucun bloc ici, seulement du texte.');
+    cas('json : un texte sans JSON reste refusé', rien === null);
+  }
+  // ---------------- Disposition d'en-tête « décalée » d'office (2026-10-07, maquette de Denis) : sur tous les modèles, avec et sans photo ----------------
+  async function parcoursEnteteDecale() {
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var exclus = ['photoFrise', 'mq-photo'];   // en-tête propre (famille Photo) : jamais activée
+    var cumul = { actives: 0, total: 0 };
+    for (var avecPhoto = 1; avecPhoto >= 0; avecPhoto--) {
+      window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+      naviguerVers('cv'); await attente(1800);
+      await preparerCvResultats();
+      dossier.experiences = dossier.experiences.slice(0, 2); dossier.certifications = [];
+      if (!avecPhoto) { dossier.photo = null; } else if (!dossier.photo) { dossier.photo = { url: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', inclure: true, souhaitee: 'oui' }; }
+      dossier.ia = dossier.ia || {}; dossier.ia.cv = dossier.ia.cv || {};
+      dossier.ia.cv.profil = 'Agent de sécurité attentif, habitué à accueillir le public et à prévenir les situations tendues.';
+      naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000);
+      var modeles = w()._pdfIdsModelesCreatif().map(function (id) { return ['creatif', id]; })
+        .concat(['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].map(function (id) { return ['sobre', id]; }));
+      for (var i = 0; i < modeles.length; i++) {
+        var m = modeles[i], etiquette = (avecPhoto ? 'photo' : 'sans photo') + ' : ' + m[1];
+        try {
+          if (m[0] === 'creatif') { w()._pdfChoisirModeleCreatif(m[1]); } else { w()._pdfChoisirVarianteSobre(m[1]); }
+          await attente(800);
+          w()._cvPdfEnteteLibreMq = { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} }; w()._cvPdfEnteteBoost = 1;
+          w()._pdfPlancherEchelleAuto = w()._PDF_ECHELLE_PLANCHER_INITIAL; w()._cvPdfMiseEnPageEnCours = false;
+          var active = w()._pdfActiverEnteteDecale();
+          try { w()._pdfAjusterMiseEnPageCalcul(); } finally { w()._pdfPlancherEchelleAuto = null; }
+          var d = w().document, tete = d.querySelector('#conteneurPage .tete.libre[data-disp="4"]'), page = d.querySelector('#conteneurPage .page-a4').getBoundingClientRect();
+          cumul.total++;
+          if (exclus.indexOf(m[1]) !== -1) { cas('en-tête décalé : ' + etiquette + ' : modèle à en-tête propre, laissé tel quel', !active && !tete); continue; }
+          if (!active) { continue; }   // modèle dont l'en-tête n'occupe pas toute la largeur (frise, rectangles...) : volontairement laissé tel quel
+          cumul.actives++;
+          var rect = function (k) { var e = tete.querySelector('.blc[data-bl="' + k + '"]'); return e ? e.getBoundingClientRect() : null; };
+          var nom = rect('nom'), coord = rect('coord'), met = rect('metier'), acc = rect('accroche');
+          var inter = function (a, b) { return a && b && a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1; };
+          var blocs = [nom, coord, met, acc].filter(Boolean);
+          var chevauche = false; for (var a = 0; a < blocs.length; a++) { for (var b = a + 1; b < blocs.length; b++) { if (inter(blocs[a], blocs[b])) { chevauche = true; } } }
+          cas('en-tête décalé : ' + etiquette + ' : aucun bloc ne chevauche un autre', !chevauche);
+          cas('en-tête décalé : ' + etiquette + ' : l’accroche est sous le titre, au même bord gauche', !acc || (acc.top >= met.bottom - 2 && Math.abs(acc.left - met.left) <= 2), JSON.stringify({ metierBas: Math.round(met.bottom), accrocheHaut: acc && Math.round(acc.top), metierG: Math.round(met.left), accrocheG: acc && Math.round(acc.left) }));
+          var hautPct = tete.getBoundingClientRect().height / page.height * 100;
+          // Les modèles à diagonale ou à vague avec photo montent à 33 % (le décor oblige l'en-tête à être plus haut que son contenu), 35,5 % depuis l'agrandissement voulu des en-têtes (2026-10-07) : plafond 36 %.
+          cas('en-tête décalé : ' + etiquette + ' : l’en-tête reste sous 36 % de la page', hautPct <= 36, hautPct.toFixed(1) + ' %');
+          var deborde = blocs.some(function (r) { return r.right > page.right + 1 || r.left < page.left - 1; });
+          cas('en-tête décalé : ' + etiquette + ' : rien ne sort de la page, une seule page', !deborde && d.querySelectorAll('#conteneurPage .page-a4').length === 1 && w()._pdfMesurerHauteurPage() <= 1126, 'h=' + Math.round(w()._pdfMesurerHauteurPage()));
+        } catch (e) { cas('en-tête décalé : ' + etiquette + ' : essai sans erreur', false, e.message); }
+      }
+    }
+    cas('en-tête décalé : activé sur au moins 40 des 74 combinaisons modèle x photo', cumul.actives >= 40, cumul.actives + ' / ' + cumul.total);
+  }
+  // ---------------- Coordonnées en ligne sous l'en-tête (2026-10-07, décisions de Denis) ----------------
+  async function parcoursCoordEnLigne() {
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    dossier.ia = dossier.ia || {}; dossier.ia.cv = dossier.ia.cv || {};
+    dossier.ia.cv.profil = 'Agent de sécurité attentif, habitué à accueillir le public.';
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000);
+    // « medaillon » n'est volontairement pas dans la liste : sa ligne n'est en pente que lorsque la photo est posée en médaillon.
+    var impossibles = ['mqDiagonale', 'rubanDiagonal', 'vagueMarine', 'diagonalesContrastees', 'bandeauVertical', 'frise', 'friseFoncee', 'rectangles', 'photoFrise', 'mq-photo', 'mq-rectangles'];
+    var modeles = w()._pdfIdsModelesCreatif().map(function (id) { return ['creatif', id]; })
+      .concat(['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].map(function (id) { return ['sobre', id]; }));
+    for (var i = 0; i < modeles.length; i++) {
+      var m = modeles[i], et = 'coordonnées en ligne : ' + m[1];
+      try {
+        if (m[0] === 'creatif') { w()._pdfChoisirModeleCreatif(m[1]); } else { w()._pdfChoisirVarianteSobre(m[1]); }
+        await attente(800);
+        w()._cvPdfEnteteLibreMq = { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };
+        if (w()._pdfModeleAccepteDecale(w()._pdfCleModeleEntete())) { w()._cvPdfEnteteLibreMq = w()._pdfEnteteDecaleeDefaut(); }
+        var cb = w().document.getElementById('regBandeauDisponibilite'); cb.checked = false; w()._pdfRafraichir();
+        var possible = w()._pdfCoordEnLignePossible();
+        cas(et + ' : possible exactement pour les modèles à ligne de séparation droite', m[1] === 'medaillon' || possible === (impossibles.indexOf(m[1]) === -1), 'possible=' + possible);   // « medaillon » : pente seulement avec une photo en médaillon
+        cb.checked = true; w()._pdfRafraichir();
+        var d = w().document, bande = !!d.querySelector('#conteneurPage .bande-coord'), blocCoord = !!d.querySelector('#conteneurPage .tete.libre .blc[data-bl="coord"]');
+        cas(et + ' : les langues restent dans le CV quand les coordonnées sont en ligne', /Anglais/.test(d.querySelector('#conteneurPage').textContent) && !!d.querySelector('#conteneurPage [data-rub="Langues"]'));
+        if (possible) { cas(et + ' : la bande des coordonnées est affichée et le bloc en colonne disparaît de l’en-tête libre', bande && !blocCoord, 'bande=' + bande + ' bloc=' + blocCoord); }
+        else { cas(et + ' : modèle à ligne non droite : le réglage est ignoré (aucune bande dans un en-tête libre)', !(d.querySelector('#conteneurPage .tete.libre') && bande), 'bande=' + bande); }
+        cb.checked = false; w()._pdfRafraichir();
+      } catch (e) { cas(et + ' : essai sans erreur', false, e.message); }
+    }
+    // La case de la carte « En-tête de CV » : « ? » d'aide, active sur un modèle droit, grisée avec sa raison sur un modèle en diagonale
+    w()._pdfChoisirModeleCreatif('mqBandeau'); await attente(900); _mepRerendre(); await attente(2500);
+    var case1 = document.querySelector('[data-mep-coord-ligne]');
+    cas('coordonnées en ligne : la case existe, active, avec son « ? »', !!case1 && !case1.disabled && !!case1.closest('label') && !!case1.closest('label').querySelector('.aide-option'));
+    w()._pdfChoisirModeleCreatif('mqDiagonale'); await attente(900); _mepRerendre(); await attente(2500);
+    var case2 = document.querySelector('[data-mep-coord-ligne]');
+    cas('coordonnées en ligne : la case est grisée sur un modèle en diagonale', !!case2 && case2.disabled);
+    // Cocher la case pilote bien le rendu (modèle droit)
+    w()._pdfChoisirModeleCreatif('mqBandeau'); await attente(900); _mepRerendre(); await attente(2500);
+    var case3 = document.querySelector('[data-mep-coord-ligne]'); case3.click(); await attente(3000);
+    cas('coordonnées en ligne : cocher la case affiche la bande sur le CV', !!w().document.querySelector('#conteneurPage .bande-coord'));
+    // Page qui DÉBORDE : le calcul essaie les coordonnées en ligne ; elles sont gardées si elles font gagner de la place (au moins 14 px), sinon rien ne change
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    for (var k = 0; k < 6; k++) { dossier.experiences.push(Object.assign({}, dossier.experiences[0], { poste: 'Poste ' + k, entreprise: 'Entreprise ' + k, dateDebut: (2000 + k) + '-01', dateFin: (2001 + k) + '-12' })); }
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000);
+    w()._cvPdfEnteteLibreMq = w()._pdfEnteteDecaleeDefaut(); w()._cvPdfEnteteBoost = 1; w().document.getElementById('regBandeauDisponibilite').checked = false; w()._pdfRafraichir();
+    var hDebordeAvant = w()._pdfMesurerHauteurPage(), cbD = w().document.getElementById('regBandeauDisponibilite');
+    cbD.checked = true; w()._pdfRafraichir(); var hAvecBande = w()._pdfMesurerHauteurPage(); cbD.checked = false; w()._pdfRafraichir();
+    w()._cvPdfMiseEnPageEnCours = false; w()._pdfAjusterMiseEnPageCalcul();
+    var bandeDebord = !!w().document.querySelector('#conteneurPage .bande-coord');
+    cas('coordonnées en ligne : sur une page qui déborde, « Mise en page » les met en ligne si cela fait gagner au moins 14 px', hDebordeAvant > 1125 ? (bandeDebord === (hAvecBande <= hDebordeAvant - 14)) : true, 'avant=' + Math.round(hDebordeAvant) + ' avecBande=' + Math.round(hAvecBande) + ' bande=' + bandeDebord);
+    // Le calcul « Mise en page » les met en ligne quand l'en-tête pèse lourd et que la page est pleine ; jamais sur un CV court
+    for (var cas2 = 0; cas2 < 2; cas2++) {
+      window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+      naviguerVers('cv'); await attente(1800);
+      await preparerCvResultats();
+      if (cas2 === 1) { dossier.experiences = dossier.experiences.slice(0, 1); dossier.formations = []; dossier.certifications = []; dossier.competencesCV = ['Rigueur']; dossier.loisirs = []; dossier.langues = []; }
+      dossier.photo = { url: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', inclure: true, souhaitee: 'oui' };
+      naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000);
+      w()._cvPdfEnteteLibreMq = w()._pdfEnteteDecaleeDefaut(); w()._cvPdfEnteteBoost = 1; w().document.getElementById('regBandeauDisponibilite').checked = false; w()._pdfRafraichir();
+      var teteAvant = w().document.querySelector('#conteneurPage .tete').getBoundingClientRect().height / 1123, hAvant = w()._pdfMesurerHauteurPage();
+      w()._cvPdfMiseEnPageEnCours = false; w()._pdfAjusterMiseEnPageCalcul();
+      var bandeMEP = !!w().document.querySelector('#conteneurPage .bande-coord');
+      if (cas2 === 0) { cas('coordonnées en ligne : « Mise en page » les met en ligne quand l’en-tête pèse lourd et que la page est pleine', bandeMEP || teteAvant < 0.2 || hAvant < 1010, 'tete=' + Math.round(teteAvant * 100) + ' % page=' + Math.round(hAvant)); }
+      else { cas('coordonnées en ligne : « Mise en page » ne les met pas en ligne sur un CV court', !bandeMEP, 'page=' + Math.round(hAvant)); }
+    }
+  }
+  // ---------------- « Ambiance » (ex-« look ») pliable, grisée en Sobre ; bouton « Mise en page » qui pulse (2026-10-07, décisions de Denis) ----------------
+  async function parcoursAmbianceEtPulsation() {
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    w()._pdfChoisirModeleCreatif('mqBandeau'); await attente(900); _mepRerendre(); await attente(2500);
+    _mepCartesOuvertes.zoneAmbiances = false; _mepCartesOuvertes.autreCouleur = false; _mepRerendre(); await attente(1500);   // l'etat des panneaux ne depend pas de l'essai precedent
+    var carteAmb = function () { return document.getElementById('zoneAmbiances'); };
+    var panAmb = function () { return document.getElementById('panneauAmbiances'); };
+    var ouvertAmb = function () { var pa = panAmb(); return !!pa && !pa.hidden; };
+    cas('ambiance : la carte est un bouton, fermée à l’arrivée', !!carteAmb() && carteAmb().tagName === 'BUTTON' && !ouvertAmb() && carteAmb().getAttribute('aria-expanded') === 'false');
+    var zoneAmb = carteAmb() ? carteAmb().closest('.carte-looks') : null;
+    cas('ambiance : le mot « look » n’apparaît plus nulle part (carte et panneau)', !!zoneAmb && !!panAmb() && !/\blooks?\b/i.test(zoneAmb.textContent + panAmb().textContent), zoneAmb ? zoneAmb.textContent.slice(0, 120) : '');
+    cas('ambiance : carte fermée, on voit le titre, la phrase, la palette de six couleurs et le mot « Ouvrir »', !!carteAmb() && /Choisir une ambiance/.test(carteAmb().textContent) && /Un clic r/.test(carteAmb().textContent) && /Ouvrir/.test(carteAmb().textContent) && carteAmb().querySelectorAll('.amb-pal i').length === 6);
+    if (carteAmb()) { carteAmb().click(); await attente(900); }
+    cas('ambiance : un clic sur la carte ouvre le panneau ; la carte devient pleine et dit « Fermer »', ouvertAmb() && !!carteAmb() && carteAmb().classList.contains('ouvert') && /Fermer/.test(carteAmb().textContent) && carteAmb().getAttribute('aria-expanded') === 'true');
+    cas('ambiance : le panneau est sur toute la largeur, hors des deux colonnes, avant « Allure générale »', !!panAmb() && !document.querySelector('.style-grille').contains(panAmb()) && !!(panAmb().compareDocumentPosition(document.querySelector('.ligne-allure')) & 4));
+    cas('ambiance : le bouton d’annulation s’appelle « Annuler l’ambiance »', !!panAmb() && /Annuler l’ambiance/.test(panAmb().textContent));
+    cas('ambiance : six ambiances proposées dans le panneau ouvert', document.querySelectorAll('[data-mep-look]').length === 6);
+    var traitsAllure = ['sobre', 'defaut', 'creatif'].map(function (a) { var b = document.querySelector('[data-mep-allure="' + a + '"]'); return b ? getComputedStyle(b, '::before').height : ''; });
+    cas('allure : un trait de couleur de 4 px en haut de chacun des trois boutons', traitsAllure.every(function (h) { return h === '4px'; }), traitsAllure.join(' | '));
+    // Rond « Ouvrir / Fermer » commun à tous les panneaux qui s'ouvrent ; trois boutons d'allure sur une ligne en mode « Boutons plus grands » (retours de Denis, 2026-10-08)
+    var chevCarte = document.querySelector('details.mep-carte > summary .chev');
+    cas('panneaux : chaque carte qui s’ouvre porte le rond avec « Ouvrir » ou « Fermer »', !!chevCarte && /Ouvrir|Fermer/.test(getComputedStyle(chevCarte, '::after').content) && getComputedStyle(chevCarte, '::before').borderRadius.indexOf('50%') !== -1, chevCarte ? getComputedStyle(chevCarte, '::after').content : 'absent');
+    var sansRond = [].filter.call(document.querySelectorAll('.mep-mq details'), function (d) { var s = d.querySelector(':scope > summary'); return d.offsetParent !== null && s && !s.querySelector('.chev'); }).map(function (d) { return (d.id || d.className); });
+    cas('panneaux : aucun panneau visible qui s’ouvre n’est resté sans le rond « Ouvrir / Fermer »', sansRond.length === 0, sansRond.join(' | '));
+    var attrAvant = document.documentElement.getAttribute('data-grands-boutons'); document.documentElement.setAttribute('data-grands-boutons', '1'); await attente(300);
+    var hautsAllure = [].map.call(document.querySelectorAll('.seg-allure button'), function (b) { return Math.round(b.getBoundingClientRect().top); });
+    cas('allure : en mode « Boutons plus grands », les trois boutons sont sur la même ligne', hautsAllure.length === 3 && hautsAllure[0] === hautsAllure[1] && hautsAllure[1] === hautsAllure[2], hautsAllure.join(','));
+    if (attrAvant === null) { document.documentElement.removeAttribute('data-grands-boutons'); } else { document.documentElement.setAttribute('data-grands-boutons', attrAvant); }
+    if (carteAmb()) { carteAmb().click(); await attente(900); }
+    cas('ambiance : un second clic referme le panneau', !ouvertAmb() && !!carteAmb() && !carteAmb().classList.contains('ouvert'));
+    // Panneau de suggestions avant « Allure générale », relié à son bouton (décision de Denis, 2026-10-08)
+    var lAllure = document.querySelector('.ligne-allure'), grilleStyle = document.querySelector('.style-grille');
+    cas('allure : « Allure générale » est sur toute la largeur, hors des deux colonnes', !!lAllure && !!grilleStyle && !grilleStyle.contains(lAllure) && !!lAllure.querySelector('[data-mep-allure="sobre"]'));
+    var panSuggs = function () { return document.querySelector('.depli.sugg-relie:not(.panneau-looks)'); };
+    if (typeof _mepSuggestionsRecues === 'function') {
+      var listeEssai = [1, 2, 3, 4].map(function (i) { return { id: 'essai' + i, titre: 'Suggestion ' + i, gain: i, sens: 'remplir', detail: 'Détail ' + i, picto: 'un', changes: [] }; });
+      _mepSuggestionsRecues(listeEssai, false); await attente(700);
+      var bSugg = document.querySelector('[data-mep-sugg-ouvrir]');
+      cas('suggestions : le bouton est visible et fermé au départ, sans pulsation (aucun clic sur « Mise en page »)', !!bSugg && !bSugg.classList.contains('ouvert') && !panSuggs() && !bSugg.classList.contains('pulse-mep'));
+      if (bSugg) { bSugg.click(); await attente(700); }
+      bSugg = document.querySelector('[data-mep-sugg-ouvrir]');
+      var lAllure2 = document.querySelector('.ligne-allure');
+      cas('suggestions : le bouton ouvert est marqué et dit « Ouvert, cliquez pour refermer »', !!bSugg && bSugg.classList.contains('ouvert') && /Ouvert, cliquez pour refermer/.test(bSugg.textContent));
+      cas('suggestions : le panneau s’affiche avant « Allure générale », sur toute la largeur', !!panSuggs() && !!lAllure2 && !!(panSuggs().compareDocumentPosition(lAllure2) & 4) && !document.querySelector('.style-grille').contains(panSuggs()));
+      // Un seul panneau à la fois : ouvrir les ambiances referme les suggestions, et inversement
+      carteAmb().click(); await attente(900);
+      cas('panneaux : ouvrir les ambiances referme les suggestions', ouvertAmb() && !panSuggs());
+      document.querySelector('[data-mep-sugg-ouvrir]').click(); await attente(900);
+      cas('panneaux : ouvrir les suggestions referme les ambiances', !ouvertAmb() && !!panSuggs());
+      document.querySelector('[data-mep-sugg-ouvrir]').click(); await attente(500);
+      cas('suggestions : un second clic referme le panneau', !panSuggs());
+      // Pulsation du bouton des suggestions : seulement après un clic sur « Mise en page » et s'il y a des suggestions ; ouvrir ou fermer l'arrête
+      _mepSuggPulseAttendu = true; _mepSuggestionsRecues(listeEssai, false); await attente(700);
+      cas('suggestions : après « Mise en page », le bouton des suggestions pulse', !!document.querySelector('[data-mep-sugg-ouvrir].pulse-mep') && _mepSuggPulseActif());
+      cas('suggestions : la pulsation dure dix secondes', _mepSuggPulseJusqua - Date.now() > 8500 && _mepSuggPulseJusqua - Date.now() <= 10000, String(_mepSuggPulseJusqua - Date.now()));
+      var bMep = document.getElementById('btnMepMiseEnPage'), jusquaAvant = _mepPulseJusqua;
+      cas('suggestions : quand elles pulsent, « Mise en page » ne pulse pas', !!bMep && !bMep.classList.contains('pulse-mep') && !_mepPulseActif());
+      _mepPulseJusqua = Date.now() + 10000;   // même si un changement de modèle voulait la faire pulser
+      cas('suggestions : « Mise en page » ne peut pas pulser en même temps que les suggestions', !_mepPulseActif());
+      _mepPulseJusqua = jusquaAvant;
+      document.querySelector('[data-mep-sugg-ouvrir]').click(); await attente(700);
+      cas('suggestions : ouvrir le panneau arrête la pulsation', !_mepSuggPulseActif() && !document.querySelector('[data-mep-sugg-ouvrir].pulse-mep'));
+      document.querySelector('[data-mep-sugg-ouvrir]').click(); await attente(700);
+      cas('suggestions : refermer ne la relance pas', !_mepSuggPulseActif() && !document.querySelector('[data-mep-sugg-ouvrir].pulse-mep'));
+      _mepSuggestionsRecues(listeEssai, true); await attente(700);
+      cas('suggestions : un recalcul des suggestions (sans clic sur « Mise en page ») ne fait pas pulser', !_mepSuggPulseActif() && !document.querySelector('[data-mep-sugg-ouvrir].pulse-mep'));
+      _mepSuggPulseAttendu = true; _mepSuggestionsRecues([], false); await attente(700);
+      cas('suggestions : sans aucune suggestion, rien ne pulse', !_mepSuggPulseActif() && _mepSuggPulseAttendu === false);
+      _mepSuggPulseArreter(); _mepSuggestionsRecues([], false); await attente(400);
+    }
+    // Allure Sobre : carte grisée, impossible à ouvrir, raison visible
+    var boutonSobre = document.querySelector('[data-mep-allure="sobre"]'); if (boutonSobre) { boutonSobre.click(); } await attente(3500);
+    cas('ambiance : en allure Sobre, la carte reste utilisable (plus de restriction)', !!carteAmb() && !carteAmb().classList.contains('desactivee') && carteAmb().getAttribute('tabindex') !== '-1' && getComputedStyle(carteAmb()).pointerEvents !== 'none');
+    if (carteAmb() && !ouvertAmb()) { carteAmb().click(); await attente(900); }
+    cas('ambiance : en allure Sobre, la carte s’ouvre', ouvertAmb());
+    // Niveau 1 : tant qu'aucune couleur n'est choisie le CV Sobre reste tel quel ; dès qu'une couleur est choisie, elle se voit aussi sur les titres
+    var wSobre = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var classesCv = function () { var c = wSobre().document.querySelector('#conteneurPage .cv'); return c ? c.className : ''; };
+    dossier.reglagesMiseEnPageCV._couleurChoisie = false; wSobre()._pdfRafraichir(); await attente(2500);
+    cas('sobre : tant qu’aucune couleur n’est choisie, le CV Sobre reste tel quel (titres sombres)', !/sobre-couleur/.test(classesCv()), classesCv());
+    document.querySelectorAll('[data-mep-base]')[3].click(); await attente(3500);
+    var couleurTitre = getComputedStyle(wSobre().document.querySelector('#conteneurPage h2')).color;
+    cas('sobre : dès qu’une couleur est choisie, elle se voit aussi sur les titres (niveau 1, sans bouton à activer)', /sobre-couleur/.test(classesCv()) && couleurTitre !== 'rgb(32, 38, 46)' && !document.querySelector('[data-mep-sobre-couleurs]'), classesCv() + ' / ' + couleurTitre);
+    cas('ambiance : plus de bouton « Prélever une couleur à l’écran » en double dans la carte', !document.querySelector('#panneauAmbiances [data-mep-pipette]'));
+    // Pulsation : CV court, changement de modèle -> le bouton pulse, puis s'arrête tout seul
+    window.__cvPdfSansRemplissageInitial = true;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    dossier.experiences = dossier.experiences.slice(0, 1); dossier.formations = []; dossier.certifications = []; dossier.competencesCV = ['Rigueur']; dossier.loisirs = []; dossier.langues = [];
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000);
+    _mepPulseArreter();
+    cas('pulsation : sur un CV court, la mise en page est jugée améliorable', w()._pdfMiseEnPageAmeliorable() === true);
+    w()._pdfChoisirModeleCreatif('mqCadre'); await attente(2500);
+    var b = document.getElementById('btnMepMiseEnPage');
+    cas('pulsation : après un changement de modèle, le bouton « Mise en page » pulse', !!b && b.classList.contains('pulse-mep') && _mepPulseActif(), b ? b.className : 'pas de bouton');
+    await attente(6000);
+    b = document.getElementById('btnMepMiseEnPage');
+    cas('pulsation : il pulse toujours à mi-parcours', !!b && b.classList.contains('pulse-mep'));
+    await attente(6500);
+    b = document.getElementById('btnMepMiseEnPage');
+    cas('pulsation : elle s’arrête toute seule après dix secondes', !!b && !b.classList.contains('pulse-mep') && !_mepPulseActif());
+    // Nouveau changement de modèle : elle repart ; un clic l'arrête
+    w()._pdfChoisirModeleCreatif('mqPicto'); await attente(2500);
+    b = document.getElementById('btnMepMiseEnPage');
+    cas('pulsation : un nouveau changement de modèle la relance', !!b && b.classList.contains('pulse-mep'));
+    if (b) { b.click(); await attente(800); }
+    b = document.getElementById('btnMepMiseEnPage');
+    cas('pulsation : cliquer sur le bouton l’arrête', !_mepPulseActif() && (!b || !b.classList.contains('pulse-mep')));
+    // Page pleine : pas de pulsation
+    w()._pdfAjusterMiseEnPageCalcul();
+    var ameliorable = w()._pdfMiseEnPageAmeliorable(), hh = Math.round(w()._pdfMesurerHauteurPage());
+    cas('pulsation : le critère est cohérent avec la page (améliorable seulement si elle déborde ou est remplie à moins de 90 %)', ameliorable === (hh > 1125 || hh < 1010), 'h=' + hh + ' ameliorable=' + ameliorable);
+  }
+  // ---------------- Style rapide en allure Standard : tirage riche (2026-10-07, décision de Denis) ----------------
+  async function parcoursTirageStandardRiche() {
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    dossier.photo = { url: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', inclure: true, souhaitee: 'oui' };
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000);
+    var boutonStandard = document.querySelector('[data-mep-allure="defaut"]'); if (boutonStandard) { boutonStandard.click(); await attente(2500); }
+    cas('tirage standard : l’allure Standard est active', _mepAllureActuelle() === 'defaut', String(_mepAllureActuelle()));
+    var de = function () { return document.getElementById('btnMepDe'); };
+    // Tous les mots du CV, sans tenir compte de leur ordre ni de la ponctuation : un tirage ne doit jamais ajouter, retirer ou modifier un mot (deux rubriques courtes peuvent changer de place).
+    var texteCv = function () {
+      var d = w().document, arbre = d.createTreeWalker(d.querySelector('#conteneurPage'), 4), morceaux = [], n;   // 4 = NodeFilter.SHOW_TEXT : chaque morceau de texte séparément
+      while ((n = arbre.nextNode())) { morceaux.push(n.nodeValue); }
+      // Aucun mot ne doit disparaître, y compris « Langues » : la rubrique reste en place même quand les coordonnées passent en ligne.
+      return (morceaux.join(' ').toLowerCase().match(/[a-zà-ÿ0-9]+/g) || []).sort().join(' ');
+    };
+    var signature = function () {
+      var c = dossier.reglagesMiseEnPageCV || {}, d = w().document;
+      return [c.baseCouleur, c.styleTitres, c.styleCompetences, c.coinsArrondis ? 1 : 0, c.icones ? 1 : 0, c.degradeColonnes, c.degradeBandeau, !!c.bandeauDisponibilite ? 1 : 0, c.anneauPhoto ? 1 : 0, w()._cvPdfCoinCouleur ? 1 : 0,
+        d.getElementById('regFondColonnes').value, d.getElementById('regFormeEnTete').value, d.getElementById('regBandeauEnTete').checked ? 1 : 0].join('/');
+    };
+    var texteAvant = texteCv(), signatures = {}, ambiances = {}, etapes = 0, debordements = 0, N = 14, colonnesVues = {};
+    var tirer = async function (n, colonnesVoulues) {
+      for (var i = 0; i < n; i++) {
+        var pile = _mepHistoCompteur;   // la pile d'annulation est plafonnee a 8 : on compte les etapes poussees
+        de().click(); await attente(2800);
+        etapes += (_mepHistoCompteur - pile);
+        signatures[signature()] = 1; ambiances[_mepDerniereAmbianceTiree] = 1;
+        var d = w().document, page = d.querySelector('#conteneurPage .page-a4').getBoundingClientRect(), col = d.getElementById('regColonnes').value;
+        colonnesVues[col] = 1;
+        var sort = Array.prototype.some.call(d.querySelectorAll('#conteneurPage .cv *'), function (e) { var r = e.getBoundingClientRect(); return r.width > 0 && (r.right > page.right + 2 || r.left < page.left - 2); });
+        if (sort) { debordements++; }
+        if (colonnesVoulues) { cas('tirage standard (' + colonnesVoulues + ' colonne(s) choisie(s)) ' + (i + 1) + ' : le nombre de colonnes choisi est gardé', col === colonnesVoulues, col + ' / ' + colonnesVoulues); }
+        cas('tirage standard : le texte du CV ne change pas (tirage ' + (i + 1) + ')', texteCv() === texteAvant);
+      }
+    };
+    // 1. Aucun choix de colonnes : les deux boutons sont décochés et le tirage peut proposer une ou deux colonnes
+    cas('colonnes : aucune des deux cases n’est cochée au départ', document.querySelectorAll('[data-mep-org-colonnes]:checked').length === 0 && document.querySelectorAll('[data-mep-org-colonnes]').length === 2);
+    await tirer(N, null);
+    cas('tirage standard : sans choix de la personne, une ET deux colonnes sont proposées', !!colonnesVues['1'] && !!colonnesVues['2'], Object.keys(colonnesVues).join(','));
+    cas('tirage standard : chaque clic ajoute une seule étape d’annulation', etapes === N, etapes + ' / ' + N);
+    cas('tirage standard : au moins 9 combinaisons différentes sur ' + N + ' tirages', Object.keys(signatures).length >= 9, String(Object.keys(signatures).length));
+    cas('tirage standard : au moins 4 ambiances différentes sur ' + N + ' tirages', Object.keys(ambiances).length >= 4, String(Object.keys(ambiances).length));
+    cas('tirage standard : rien ne sort de la page', debordements === 0, String(debordements));
+    // 2. La personne choisit « Une colonne », puis « Deux colonnes » : le tirage respecte chaque choix
+    _mepRerendre(); await attente(2500);
+    document.querySelector('[data-mep-org-colonnes="1"]').click(); await attente(3500);
+    cas('colonnes : « Une colonne » est cochée, l’autre case reste libre', !!document.querySelector('[data-mep-org-colonnes="1"]:checked') && !document.querySelector('[data-mep-org-colonnes="2"]:checked'));
+    await tirer(5, '1');
+    document.querySelector('[data-mep-org-colonnes="2"]').click(); await attente(3500);
+    await tirer(5, '2');
+    // 3. Un second clic sur le choix fait le retire : plus aucun bouton choisi
+    document.querySelector('[data-mep-org-colonnes="2"]').click(); await attente(3000);
+    cas('colonnes : décocher la case retire le choix (aucune case cochée)', document.querySelectorAll('[data-mep-org-colonnes]:checked').length === 0);
+    // annuler le dernier tirage : l'état d'avant revient
+    de().click(); await attente(2800);   // un dernier tirage, puis on l'annule (l'étape précédente était le retrait du choix de colonnes)
+    var avantAnnuler = signature(); var btnAnn = document.getElementById('btnMepAnnulerDe'); if (btnAnn && !btnAnn.disabled) { btnAnn.click(); await attente(2800); }
+    cas('tirage standard : « Annuler » revient au tirage précédent', signature() !== avantAnnuler);
+  }
+  // ---------------- Modèles à photo : cachés sans photo (2026-10-08, décision de Denis) ----------------
+  async function parcoursModelesPhoto() {
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    var laPhoto = { url: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', inclure: true, souhaitee: 'oui' };
+    var ouvrir = async function (avecPhoto) { dossier.photo = avecPhoto ? laPhoto : null; naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(5000); };
+    await ouvrir(false);
+    cas('modèles à photo : sans photo, « Photo et frise » (Créatif) n’est pas proposé par « Un autre modèle »', w()._pdfIdsModelesCreatif().indexOf('photoFrise') === -1);
+    cas('modèles à photo : sans photo, « Photo et frise » (Sobre) n’est pas proposé', w()._pdfIdsVariantesSobre().indexOf('mq-photo') === -1);
+    var bCreatif = document.querySelector('[data-mep-allure="creatif"]'); if (bCreatif) { bCreatif.click(); await attente(3000); }
+    var tous = document.querySelector('[data-mep-galerie-tous="1"]'); if (tous) { tous.click(); await attente(2500); }
+    cas('modèles à photo : sans photo, la galerie ne montre pas « Photo et frise »', !document.querySelector('[data-mep-galerie-creatif="photoFrise"]') && document.querySelectorAll('[data-mep-galerie-creatif]').length >= 20, String(document.querySelectorAll('[data-mep-galerie-creatif]').length));
+    await ouvrir(true);
+    cas('modèles à photo : avec une photo, les deux modèles sont proposés', w()._pdfIdsModelesCreatif().indexOf('photoFrise') !== -1 && w()._pdfIdsVariantesSobre().length >= 1);
+    var bCreatif2 = document.querySelector('[data-mep-allure="creatif"]'); if (bCreatif2) { bCreatif2.click(); await attente(3000); }
+    var tous2 = document.querySelector('[data-mep-galerie-tous="1"]'); if (tous2) { tous2.click(); await attente(2500); }
+    cas('modèles à photo : avec une photo, la galerie montre « Photo et frise »', !!document.querySelector('[data-mep-galerie-creatif="photoFrise"]'));
+    var bStandard = document.querySelector('[data-mep-allure="defaut"]'); if (bStandard) { bStandard.click(); await attente(2500); }
+  }
+  // ---------------- Bouton « Dégradé » en rectangle (2026-10-08, demande de Denis) ----------------
+  async function parcoursBoutonDegrade() {
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    var bStandard = document.querySelector('[data-mep-allure="defaut"]'); if (bStandard) { bStandard.click(); await attente(2500); }
+    var carteDeg = document.getElementById('zoneAmbiances'); if (carteDeg && carteDeg.getAttribute('aria-expanded') !== 'true') { carteDeg.click(); await attente(900); }
+    var bouton = function () { return document.querySelector('.btn-degrade[data-mep-degrade-simple]'); };
+    cas('dégradé : c’est un rectangle (bouton) qui porte le mot « Dégradé »', !!bouton() && bouton().tagName === 'BUTTON' && /Dégradé/.test(bouton().textContent), bouton() ? bouton().textContent : 'absent');
+    var etat0 = bouton().getAttribute('aria-pressed');
+    bouton().click(); await attente(3000);
+    var etat1 = bouton().getAttribute('aria-pressed');
+    cas('dégradé : un clic change l’état affiché (activé / non activé)', etat1 !== etat0, etat0 + ' -> ' + etat1);
+    cas('dégradé : l’état activé se voit (cadre et fond de la couleur du thème, gras, coche)', (function () { var b = bouton(); b.setAttribute('aria-pressed', 'true'); var s = getComputedStyle(b), coche = getComputedStyle(b, '::before').content, gras = parseInt(s.fontWeight, 10) >= 700, cadre = s.borderTopColor; b.setAttribute('aria-pressed', 'false'); var cadre0 = getComputedStyle(b).borderTopColor; b.setAttribute('aria-pressed', etat1); return /✓/.test(coche) && gras && cadre !== cadre0; })());
+    // Décisions de Denis (2026-10-10) : « Dégradé » au niveau de « Personnalisée » (dans les couleurs de la carte), « Options supplémentaires » sur la ligne d'« Annuler l'ambiance ».
+    var annuler = document.querySelector('#panneauAmbiances [data-mep-look-annuler]'), bOpt = document.querySelector('#panneauAmbiances .pied-droite [data-mep-options-supp]');
+    cas('dégradé : à l’intérieur de la carte « Choisir une ambiance », avec les couleurs', !!bouton() && !!bouton().closest('#panneauAmbiances') && !!bouton().closest('.swatches, .nuancier-amb'));
+    cas('options supplémentaires : à l’intérieur de la carte « Choisir une ambiance », sur la même ligne que « Annuler »', !!annuler && !!bOpt && Math.abs(annuler.getBoundingClientRect().top - bOpt.getBoundingClientRect().top) < 14);
+    cas('dégradé : un « ? » d’aide accompagne le bouton, avec une infobulle', !!document.querySelector('#panneauAmbiances .degrade-bloc [data-mep-aide-option][title]'));
+    bouton().click(); await attente(3000);
+    cas('dégradé : un second clic revient à l’état de départ', bouton().getAttribute('aria-pressed') === etat0);
+    var bSobre = document.querySelector('[data-mep-allure="sobre"]'); if (bSobre) { bSobre.click(); await attente(3000); }
+    cas('dégradé : en allure Sobre, le rectangle est grisé', !!bouton() && bouton().disabled);
+    if (bStandard) { bStandard.click(); await attente(2500); }
+    _mepCartesOuvertes.zoneAmbiances = false; _mepCartesOuvertes.autreCouleur = false; _mepRerendre(); await attente(1500);
+  }
+  // ---------------- Guidage de découverte à la première arrivée sur le CV (2026-10-08, décisions de Denis) ----------------
+  async function parcoursPulseAllure() {
+    var remiseAZero = function () { _mepGuideArreter(); _mepGuide.etape = 'attente'; _mepGuide.ecoule = 0; try { localStorage.removeItem('app.guidagePulseFait'); } catch (e) { /* sans effet */ } delete dossier.guidagePulseFait; _mepPulseJusqua = 0; _mepSuggPulseJusqua = 0; };
+    var pulsants = function () { return [].slice.call(document.querySelectorAll('.pulse-allure')).map(function (b) { return b.id === 'btnMepDe' ? 'rapide' : b.getAttribute('data-mep-allure'); }); };
+    var tic = function (ecoule, etape) { if (etape) { _mepGuide.etape = etape; } _mepGuide.ecoule = ecoule; _mepGuideDernier = Date.now(); _mepGuideTic(); return pulsants(); };
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    var bStd = document.querySelector('[data-mep-allure="defaut"]'); if (bStd && _mepAllureActuelle() !== 'defaut') { bStd.click(); await attente(2500); }
+    cas('guidage : les durées sont celles décidées (10 s, puis 4 s par allure, deux tours, ordre Créatif, Sobre, Standard)', _MEP_GUIDE_RAPIDE_MS === 10000 && _MEP_GUIDE_PHASE_MS === 4000 && _MEP_GUIDE_NB_CYCLES === 2 && _MEP_GUIDE_ORDRE.join() === 'creatif,sobre,defaut');
+    // Mentions sous les allures
+    var mentions = [].map.call(document.querySelectorAll('[data-mep-allure] small'), function (e) { return e.textContent; });
+    cas('guidage : sous chaque allure, une mention (nombre de modèles, « Mon style » pour Standard)', mentions.length === 3 && /^\d+ modèles?$/.test(mentions[0]) && mentions[1] === 'Mon style' && /^\d+ modèles?$/.test(mentions[2]), mentions.join(' | '));
+    // Première arrivée : tout est effacé, puis retour sur le panneau
+    remiseAZero();
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(2500);
+    cas('guidage : à la première arrivée, « Style rapide » est le premier à pulser, seul', _mepGuide.etape === 'rapide' && pulsants().join() === 'rapide', _mepGuide.etape + ' / ' + pulsants().join());
+    // Étapes jouées sans attendre (temps simulé)
+    cas('guidage : après 10 secondes sans clic, les allures prennent le relais, Créatif d’abord', tic(_MEP_GUIDE_RAPIDE_MS - 100, 'rapide').join() === 'rapide' && tic(_MEP_GUIDE_RAPIDE_MS + 300, 'rapide').join() === 'creatif' && _mepGuide.etape === 'allures');
+    var phase = function (ms) { return tic(ms, 'allures').join(); };
+    cas('guidage : Créatif 0 à 4 s, Sobre 4 à 8 s, Standard 8 à 12 s, puis un deuxième tour', phase(500) === 'creatif' && phase(4500) === 'sobre' && phase(8500) === 'defaut' && phase(12500) === 'creatif' && phase(16500) === 'sobre' && phase(20500) === 'defaut');
+    // Une seule pulsation à la fois : « Mise en page » passe avant, le guidage se met en pause
+    _mepPulseJusqua = Date.now() + 10000; var avantPause = _mepGuide.ecoule;
+    var pendantPause = tic(avantPause, 'allures'); _mepGuide.ecoule = avantPause; _mepGuideDernier = Date.now() - 200; _mepGuideTic();
+    cas('guidage : quand « Mise en page » doit pulser, le guidage se met en pause (une seule pulsation à la fois, son temps ne s’écoule pas)', pendantPause.length === 0 && _mepGuide.ecoule === avantPause, pendantPause.join() + ' / ' + _mepGuide.ecoule + ' vs ' + avantPause);
+    _mepPulseJusqua = 0;
+    // Fin : après deux tours, plus rien ne pulse
+    cas('guidage : après deux tours (24 s), plus rien ne pulse et c’est terminé', tic(_MEP_GUIDE_PHASE_MS * 3 * _MEP_GUIDE_NB_CYCLES + 100, 'allures').length === 0 && _mepGuide.etape === 'fini');
+    // Le premier clic sur « Style rapide » fait passer aux allures
+    remiseAZero(); naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(2500);
+    cas('guidage : relancé pour l’essai du clic sur « Style rapide »', _mepGuide.etape === 'rapide' && pulsants().join() === 'rapide', _mepGuide.etape);
+    document.getElementById('btnMepDe').click(); await attente(3500);
+    _mepPulseJusqua = 0; _mepSuggPulseJusqua = 0; _mepGuideTic();
+    cas('guidage : dès le premier clic sur « Style rapide », les allures prennent le relais', _mepGuide.etape === 'allures', _mepGuide.etape);
+    // Clic sur Standard : ne l'arrête pas ; clic sur Sobre : l'arrête pour toujours
+    document.querySelector('[data-mep-allure="defaut"]').click(); await attente(600);
+    cas('guidage : un clic sur Standard (déjà actif) ne l’arrête pas', _mepGuide.etape === 'allures', _mepGuide.etape);
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    cas('guidage : un clic sur Sobre l’arrête, plus rien ne pulse', _mepGuide.etape === 'fini' && pulsants().length === 0, _mepGuide.etape + ' / ' + pulsants().join());
+    cas('guidage : c’est mémorisé (dossier et navigateur)', dossier.guidagePulseFait === true && (function () { try { return localStorage.getItem('app.guidagePulseFait') === '1'; } catch (e) { return true; } })());
+    naviguerVers('cv'); await attente(1500); naviguerVers('resultats'); await attente(2500);
+    cas('guidage : il ne repart plus jamais', pulsants().length === 0 && _mepGuide.etape === 'fini');
+    // « Mise en page » : une fois le principe compris (3 clics), il ne pulse plus tout seul
+    try { localStorage.setItem('app.miseEnPageClics', '3'); } catch (e) { /* sans effet */ }
+    _mepPulseJusqua = 0; _mepModeleOuStyleChange(); await attente(1500);
+    cas('mise en page : après trois clics sur le bouton, il ne pulse plus tout seul', !_mepPulseActif());
+    try { localStorage.removeItem('app.miseEnPageClics'); } catch (e) { /* sans effet */ }
+    var bStd2 = document.querySelector('[data-mep-allure="defaut"]'); if (bStd2) { bStd2.click(); await attente(2500); }
+  }
+  // ---------------- Boutons qui ouvrent une liste : rond « Ouvrir / Fermer », bouton plein quand c'est ouvert, « − 4 + » à la même hauteur (2026-10-08, retours de Denis) ----------------
+  async function parcoursRondBoutons() {
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    var carteComp = function () { return [].filter.call(document.querySelectorAll('details.mep-carte'), function (d) { return /Compétences/.test((d.querySelector('summary h3') || {}).textContent || ''); })[0]; };
+    if (carteComp() && !carteComp().open) { carteComp().querySelector('summary').click(); await attente(900); }
+    var pick = function () { return carteComp() ? carteComp().querySelector('[data-mep-pick="pro"]') : null; };
+    cas('rond : « Les montrer et les choisir » porte le rond', !!pick() && !!pick().querySelector('.rond-btn') && !pick().querySelector('.rond-btn.ouvert') && /Ouvrir/.test(getComputedStyle(pick().querySelector('.rond-btn'), '::after').content));
+    // Présence affirmée (décision de Denis, 2026-10-08) : rubrique fermée et bouton intérieur fermé ont le cadre arrondi de la couleur du thème, comme « Choisir une ambiance »
+    var rubFermee = [].filter.call(document.querySelectorAll('details.mep-carte:not([open])'), function (d) { return d.offsetParent !== null; })[0];
+    var csRub = rubFermee ? getComputedStyle(rubFermee) : null, csAmb = getComputedStyle(document.getElementById('zoneAmbiances'));
+    cas('rond : une rubrique fermée a le même cadre arrondi et la même ombre que « Choisir une ambiance »', !!csRub && csRub.borderRadius === csAmb.borderRadius && csRub.borderTopColor === csAmb.borderTopColor && csRub.boxShadow !== 'none' && csRub.backgroundColor === csAmb.backgroundColor, csRub ? (csRub.borderRadius + ' ' + csRub.borderTopColor + ' ' + csRub.boxShadow.slice(0, 30)) : 'aucune rubrique fermée');
+    cas('rond : un bouton intérieur fermé (« Les montrer et les choisir ») a le même cadre arrondi', getComputedStyle(pick()).borderRadius === csAmb.borderRadius && getComputedStyle(pick()).borderTopColor === csAmb.borderTopColor && getComputedStyle(pick()).boxShadow !== 'none', getComputedStyle(pick()).borderRadius + ' ' + getComputedStyle(pick()).borderTopColor);
+    var fondFerme = getComputedStyle(pick()).backgroundColor, texteFerme = getComputedStyle(pick()).color;
+    pick().click(); await attente(900);
+    cas('rond : ouvert, le bouton dit « Fermer »', !!pick() && !!pick().querySelector('.rond-btn.ouvert') && /Fermer/.test(getComputedStyle(pick().querySelector('.rond-btn'), '::after').content));
+    var fondOuvert = getComputedStyle(pick()).backgroundColor, texteOuvert = getComputedStyle(pick()).color;
+    cas('rond : ouvert, le bouton est plein (fond de la couleur du thème, texte blanc), fermé il ne l’est pas', fondOuvert !== fondFerme && texteOuvert === 'rgb(255, 255, 255)' && texteFerme !== 'rgb(255, 255, 255)', fondFerme + ' / ' + fondOuvert);
+    var pas = pick().parentElement.querySelector('.pas'), hautPick = Math.round(pick().getBoundingClientRect().height), hautPas = Math.round(pas.getBoundingClientRect().height);
+    cas('rond : le « − 4 + » a la même hauteur que « Les montrer et les choisir »', Math.abs(hautPick - hautPas) <= 1, hautPick + ' / ' + hautPas);
+    pick().click(); await attente(900);
+    cas('rond : refermé, le bouton redevient comme au départ', !pick().querySelector('.rond-btn.ouvert') && getComputedStyle(pick()).backgroundColor === fondFerme);
+    var anciennes = [].filter.call(carteComp().querySelectorAll('button'), function (b) { return /[▾▴]/.test(b.textContent); }).length;
+    cas('rond : plus aucune petite flèche écrite dans le texte des boutons de la rubrique', anciennes === 0, String(anciennes));
+    // « Changer l'intitulé » des compétences : toujours affiché, grisé quand il n'y a aucune compétence (pas de décalage visuel, retour de Denis 2026-10-08)
+    var caseComp = function () { return carteComp().querySelector('[data-mep-afficher-comp="pro"]'); };
+    if (caseComp() && caseComp().checked) { caseComp().click(); await attente(3500); }
+    var zoneIntitPro = caseComp() ? caseComp().closest('.champ').querySelector('.ligne-intitule') : null;
+    var boutonIntitPro = zoneIntitPro ? zoneIntitPro.querySelector('[data-mep-intitule-ouvrir]') : null;
+    cas('intitulé : sans compétence professionnelle sur le CV, « Changer l’intitulé » reste affiché mais grisé', !!zoneIntitPro && !zoneIntitPro.hidden && !!boutonIntitPro && boutonIntitPro.disabled && !!caseComp() && !caseComp().checked, zoneIntitPro ? (zoneIntitPro.hidden + ' ' + (boutonIntitPro && boutonIntitPro.disabled)) : 'zone absente');
+    if (caseComp() && !caseComp().checked) { caseComp().click(); await attente(3500); }
+    var boutonIntitPro2 = caseComp() ? caseComp().closest('.champ').querySelector('[data-mep-intitule-ouvrir]') : null;
+    cas('intitulé : les compétences de nouveau affichées, le bouton « Changer l’intitulé » redevient utilisable', !!boutonIntitPro2 && !boutonIntitPro2.disabled);
+    // Remise en état : carte refermée, allure Standard, pour ne pas gêner l'essai suivant
+    if (carteComp() && carteComp().open) { carteComp().querySelector('summary').click(); await attente(600); }
+    var bStdRond = document.querySelector('[data-mep-allure="defaut"]'); if (bStdRond && _mepAllureActuelle() !== 'defaut') { bStdRond.click(); await attente(2500); }
+  }
+  // ---------------- « Annuler la couleur » / « Annuler l'ambiance » : un seul bouton qui change de nom, l'écran ne bouge pas (2026-10-08, retours de Denis) ----------------
+  async function parcoursAnnulerCouleur() {
+    window.__cvPdfSansRemplissageInitial = true; delete dossier.miseEnPageAutoFaite;
+    naviguerVers('cv'); await attente(1800);
+    await preparerCvResultats();
+    var bStdAc = document.querySelector('[data-mep-allure="defaut"]'); if (bStdAc && _mepAllureActuelle() !== 'defaut') { bStdAc.click(); await attente(2500); }
+    var carteAc = document.getElementById('zoneAmbiances'); if (carteAc.getAttribute('aria-expanded') !== 'true') { carteAc.click(); await attente(900); }
+    var annuler = function () { return document.querySelector('[data-mep-look-annuler]'); };
+    var champAc = function (id) { var e = document.querySelector('#zonePdfInlineCV iframe').contentDocument.getElementById(id); return e ? e.value : ''; };
+    cas('annuler : au départ, rien à annuler dans la carte d’ambiance', !!annuler() && annuler().disabled);
+    var couleur0 = champAc('regCouleurDebut');
+    document.querySelectorAll('[data-mep-base]')[3].click(); await attente(3500);
+    var couleur1 = champAc('regCouleurDebut');
+    cas('annuler : après le choix d’une couleur, le bouton devient « Annuler la couleur »', couleur1 !== couleur0 && !annuler().disabled && /Annuler la couleur/.test(annuler().textContent), couleur0 + ' > ' + couleur1 + ' / ' + annuler().textContent);
+    document.querySelector('[data-mep-look="moderne"]').click(); await attente(3500);
+    cas('annuler : après une ambiance, le bouton redevient « Annuler l’ambiance »', !annuler().disabled && /Annuler l’ambiance/.test(annuler().textContent), annuler().textContent);
+    // l'écran ne remonte pas
+    window.scrollTo(0, 700); await attente(400);
+    var yAvant = Math.round(window.pageYOffset);
+    annuler().click(); await attente(3500);
+    cas('annuler : l’écran reste là où il est, il ne remonte pas', yAvant > 100 && Math.abs(Math.round(window.pageYOffset) - yAvant) <= 3, yAvant + ' > ' + Math.round(window.pageYOffset));
+    cas('annuler : « Annuler l’ambiance » ramène à la couleur choisie avant, et le bouton propose alors « Annuler la couleur »', champAc('regCouleurDebut') === couleur1 && /Annuler la couleur/.test(annuler().textContent), champAc('regCouleurDebut') + ' / ' + annuler().textContent);
+    var y2 = Math.round(window.pageYOffset);
+    annuler().click(); await attente(3500);
+    cas('annuler : « Annuler la couleur » ramène au modèle de départ, plus rien à annuler', champAc('regCouleurDebut') === couleur0 && annuler().disabled, champAc('regCouleurDebut') + ' / ' + annuler().disabled);
+    cas('annuler : l’écran ne bouge toujours pas', Math.abs(Math.round(window.pageYOffset) - y2) <= 3, y2 + ' > ' + Math.round(window.pageYOffset));
+    window.scrollTo(0, 0);
+    _mepCartesOuvertes.zoneAmbiances = false; _mepCartesOuvertes.autreCouleur = false; _mepRerendre(); await attente(1500);
+  }
+  // ---------------- Module « Un CV, plusieurs métiers » : squelette (2026-10-10) ----------------
+  async function parcoursUnCvPlusieursMetiers() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;   // le module est fermé au public tant que son parcours n'est pas complet : on l'ouvre le temps de l'essai
+    try {
+      ucpmReinitialiser();
+      naviguerVers('cv'); await attente(1200);
+      ouvrirCarteAccueil('orientation'); await attente(600);
+      var tuile = $('#btnCarteAccueilUnCvPlusieursMetiers');
+      cas('ucpm : la tuile est dans « Vous hésitez encore ? » à côté de « Comparer mes pistes »', !!tuile && !!$('#btnCarteAccueilComparerPistes'));
+      if (tuile) { tuile.click(); await attente(900); }
+      cas('ucpm : la présentation s’affiche', pageActuelle === 'un-cv-plusieurs-metiers-intro' && /Un CV, plusieurs métiers/.test(texte($('h1'))));
+      cas('ucpm : la présentation ne cite pas le module des employeurs du territoire', !/employeurs du territoire|répertoire des employeurs/i.test(texte($('.intro-module-parcours'))));
+      $('#btnUcpmCommencer').click(); await attente(900);
+      cas('ucpm : la page de travail s’affiche avec la barre de sept étapes', pageActuelle === 'un-cv-plusieurs-metiers' && document.querySelectorAll('.barre-etapes-bilan .pastille-etape-action').length === 7);
+      cas('ucpm : la barre d’étapes est seulement visuelle (aucune étape cliquable)', document.querySelectorAll('.barre-etapes-bilan a').length === 0);
+      cas('ucpm : « Revoir la présentation » est là', !!$('#btnUcpmRevoirPresentation'));
+      $('#btnUcpmRevoirPresentation').click(); await attente(700);
+      cas('ucpm : « Revoir la présentation » ramène à la présentation en détour, avec « Revenir au module »', pageActuelle === 'un-cv-plusieurs-metiers-intro' && !!$('#btnUcpmRevenirModuleHaut') && !!$('#btnUcpmRevenirModuleBas'));
+      $('#btnUcpmRevenirModuleBas').click(); await attente(700);
+      cas('ucpm : « Revenir au module » rend la page de travail', pageActuelle === 'un-cv-plusieurs-metiers');
+      _ucpmEtat.texteCV = 'CV de test'; naviguerVers('un-cv-plusieurs-metiers-intro'); await attente(500);
+      $('#btnUcpmCommencer').click(); await attente(700);
+      cas('ucpm : un travail en cours ressort avec « Continuer / Recommencer » et le gel', !!$('#btnUcpmRepriseContinuer') && !!$('#btnUcpmRepriseRecommencer') && !!$('.module-gel-actif'));
+      $('#btnUcpmRepriseContinuer').click(); await attente(600);
+      cas('ucpm : « Continuer » lève le gel et garde le travail', !$('.module-gel-actif') && _ucpmEtat && _ucpmEtat.texteCV === 'CV de test');
+      cas('ucpm : l’état part dans la disquette', !!collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers);
+      ucpmReinitialiser();
+      cas('ucpm : « Tout effacer » vide le module', collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers === null);
+    } finally { window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser(); naviguerVers('cv'); await attente(500); }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : pages 1 et 2 (2026-10-10) ----------------
+  async function parcoursUnCvMetiersPage2() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
+      cas('ucpm p1 : « Choisir mon assistant » est bloqué tant que le CV n’est pas relu', !!$('#btnUcpmVersAssistant') && $('#btnUcpmVersAssistant').disabled);
+      cas('ucpm p1 : « Continuer » est bloqué tant que les métiers ne sont pas reçus', $('#btnSuivantNavigation').disabled);
+      etat.texteCV = 'Agent d’entretien des bâtiments, dix ans d’expérience.'; etat.cvRelu = true; ucpmRendrePage(); await attente(400);
+      cas('ucpm p1 : le texte relu et masqué est visible avant l’envoi', !!$('details textarea[readonly]'));
+      $('#btnUcpmVersAssistant').click(); await attente(500);
+      cas('ucpm p1 : le choix de l’assistant propose les six assistants de l’application', document.querySelectorAll('[data-assistant-ucpm]').length === 6);
+      etat.passages = { metiers: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(400);
+      $('#texteCollageUcpmMetiers').value = 'Voici mes conseils, sans aucun JSON.';
+      $('#btnImporterUcpmMetiers').click(); await attente(300);
+      cas('ucpm p1 : une réponse illisible donne un message clair et ne passe pas à la page 2', etat.page === 1 && /ne ressemble pas/.test(texte($('#messageImportUcpmMetiers'))));
+      var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
+      $('#texteCollageUcpmMetiers').value = rep;
+      $('#btnImporterUcpmMetiers').click(); await attente(800);
+      cas('ucpm p1 : une vraie réponse de l’assistant (version 5 du prompt) est lue et mène à la page 2', etat.page === 2 && !!etat.reponseMetiers);
+      cas('ucpm p2 : deux colonnes et la synthèse en lecture seule', document.querySelectorAll('[data-ucpm-colonne]').length === 2 && !!$('#ucpmSynthese') && !$('#ucpmSynthese textarea'));
+      cas('ucpm p2 : tant que l’identité est inconnue, les deux formes sont affichées', /Électricien \/ Électricienne/.test(texte($('[data-ucpm-colonne="droite"]'))));
+      cas('ucpm p2 : « Créer mes CV » est bloqué sans 2 métiers cochés', $('#btnSuivantNavigation').disabled);
+      $('[data-ucpm-coche="g1"]').click(); await attente(250);
+      $('[data-ucpm-coche="d1"]').click(); await attente(250);
+      cas('ucpm p2 : 2 cochés mais sans objectif, le bouton reste bloqué avec sa raison', $('#btnSuivantNavigation').disabled && /objectif/.test($('#btnSuivantNavigation').title));
+      $('#btnUcpmChoisirObjectif').click(); await attente(400);
+      $('[data-ucpm-demarche="alternance"]').click(); await attente(250);
+      cas('ucpm p2 : le panneau d’objectif propose durée, dates, heures et « Autre chose à dire » pour une alternance', ['dureeQuantite', 'dateDebut', 'heures', 'formationVisee', 'autreChose'].every(function (c) { return !!$('#ucpmPanneauObjectif [data-ucpm-champ="' + c + '"]'); }) && document.querySelectorAll('#ucpmPanneauObjectif [data-ucpm-dispo]').length === 4);
+      cas('ucpm p2 : « Je vise » propose un métier précis ou un secteur ; le secteur ouvre les 21 secteurs de l’application', document.querySelectorAll('#ucpmPanneauObjectif [data-ucpm-cible]').length === 2 && (function () { $('[data-ucpm-cible="secteur"]').click(); return true; })());
+      await attente(400);
+      cas('ucpm p2 : les 21 secteurs sont des pastilles à cliquer, sans menu ni bouton « voir tous »', !$('#ucpmF_secteur') && document.querySelectorAll('[data-ucpm-secteur]').length === 21);
+      cas('ucpm p2 : l’encadré « Chaque CV peut avoir son propre objectif » est en haut de la page', !!$('.ucpm-encadre') && /propre objectif/.test($('.ucpm-encadre').textContent));
+      cas('ucpm p2 : la portée se choisit avec trois gros boutons qui portent le nom de la colonne', document.querySelectorAll('.ucpm-portee').length === 3 && /Mon métier, appelé autrement/.test($('[data-ucpm-portee="gauche"]').textContent));
+      $('[data-ucpm-demarche="pmsmp"]').click(); await attente(400);
+      cas('ucpm p2 : l’immersion propose sept objectifs à cliquer', document.querySelectorAll('[data-ucpm-pmsmp]').length === 7);
+      $('[data-ucpm-demarche="reconversion"]').click(); await attente(400);
+      cas('ucpm p2 : le changement de métier demande l’ancien métier ou secteur', !!$('#ucpmF_ancienValeur') && document.querySelectorAll('[data-ucpm-ancien]').length === 2);
+      $('[data-ucpm-demarche="alternance"]').click(); await attente(400);
+      cas('ucpm p2 : l’alternance demande l’organisme ou centre de formation', !!$('#ucpmF_organisme'));
+      $('[data-ucpm-dispo="Sous 15 jours"]').click(); await attente(300);
+      cas('ucpm p2 : la disponibilité se choisit d’un clic, sans écrire', _ucpmUi2.objectif.brouillon.disponibleA === 'Sous 15 jours' && $('[data-ucpm-dispo="Sous 15 jours"]').classList.contains('is-actif'));
+      $('[data-ucpm-cible="metier"]').click(); await attente(300);
+      cas('ucpm p2 : pour plusieurs métiers, le métier de chaque CV est repris sans rien écrire', /repris tel quel/.test(texte($('#ucpmPanneauObjectif'))));
+      $('#btnUcpmAppliquerObjectif').click(); await attente(400);
+      cas('ucpm p2 : l’objectif appliqué à tous débloque « Créer mes CV »', !$('#btnSuivantNavigation').disabled);
+      $('#btnUcpmEcrire').click(); await attente(250);
+      $('#ucpmNouvelIntitule').value = 'Agent de maintenance'; $('#btnUcpmAjouterIntitule').click(); await attente(300);
+      cas('ucpm p2 : un intitulé écrit par la personne apparaît, coché, « Écrit par vous »', /Écrit par vous/.test(texte($('[data-ucpm-colonne="gauche"]'))));
+      cas('ucpm p2 : ce nouvel intitulé attend son objectif, le bouton se rebloque', $('#btnSuivantNavigation').disabled);
+      $('[data-ucpm-offres="droite"]').click(); await attente(400);
+      cas('ucpm p2 : le panneau d’offres n’a aucun champ de collage de réponse', !!$('#ucpmPanneauOffres') && !$('#ucpmPanneauOffres textarea') && !document.querySelector('[id*="texteCollage"][id*="Offres"]'));
+      cas('ucpm p2 : avec ChatGPT, l’alerte « activer la recherche web » est visible', /activez d’abord l’option de recherche/.test(texte($('#ucpmPanneauOffres'))));
+    } finally { window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser(); naviguerVers('cv'); await attente(500); }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : page 3, CV de référence, tout dans la page (2026-10-10) ----------------
+  async function parcoursUnCvMetiersPage3() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    var experiencesAvant = dossier.experiences; var importsAvant = dossier.imports;
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
+      etat.reponseMetiers = ucpmLireReponseMetiers(rep).valeurs; etat.texteCV = 'Agent d’entretien des bâtiments. Dix ans. Peinture, plomberie, électricité de base.'; etat.cvRelu = true;
+      var l = ucpmCreerListes(etat.reponseMetiers); etat.intitules = l.intitules; etat.autres = l.autres;
+      ucpmBasculerCoche(etat, 'g1', true); ucpmBasculerCoche(etat, 'd1', true);
+      var o = ucpmObjectifVide('alternance'); o.secteur = 'bâtiment'; o.dureeQuantite = '2'; o.dureeUnite = 'ans';
+      ucpmAppliquerObjectif(etat, 'tous', null, o);
+      etat.page = 3; etat.pageMax = 3; etat.p3Vue = 'choix'; etat.p3Extrait = false;
+      dossier.experiences = []; dossier.imports = { courant: null };
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
+      cas('ucpm p3 : le métier du CV est proposé par défaut comme référence', !!$('input[name="ucpmRef"]:checked'));
+      $('#btnUcpmPreparerRef').click(); await attente(500);
+      cas('ucpm p3 : le rangement du CV commence par le choix de l’assistant, DANS la page (aucune fenêtre)', etat.p3Vue === 'structurer' && !!$('[data-ucpm-vue="choix"]') && !$('#fenetreERIP') && !$('#assistantDepotCV'));
+      cas('ucpm p3 : l’objectif du métier de référence est posé dans le dossier', dossier.objectif === 'alternance' && /Agent/.test(dossier.metierCible || ''));
+      etat.passages = { extraction: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(400);
+      var json = { identite: { civilite: '', nom: '', prenom: '', telephone: '', email: '', adresse: '', codePostal: '', ville: 'Limoges', lien: '' }, presentation: { titre: 'Agent d’entretien des bâtiments', accroche: '' },
+        experiences: [{ poste: 'Agent d’entretien en résidence', entreprise: 'Habitat social', lieu: 'Limoges', dateDebut: '2019-01', dateFin: '2024-06', stage: null, missions: ['Entretien courant de 120 logements', 'Petits dépannages'], confiance: 'elevee', alertes: [] }],
+        experiencesPerso: [], formations: [{ niveau: 'CAP', intitule: 'Peintre applicateur', annee: '2014', etablissement: '', lieu: '', missions: [], confiance: 'elevee', alertes: [] }],
+        competences: { savoirFaire: ['Peinture'], savoirEtre: ['Autonomie'], savoirs: [] }, langues: [], certifications: [], certificationsAvecMissions: [], logiciels: [], permis: { possede: null, categories: [], vehicule: null },
+        loisirs: [], engagements: [], informationsNonClassees: [], pointsAVerifier: [] };
+      $('#texteCollageUcpmExtraction').value = '```json\n' + JSON.stringify(json) + '\n```';
+      $('#btnImporterUcpmExtraction').click(); await attente(800);
+      cas('ucpm p3 : après le rangement, l’écran « Vos informations » de l’application s’ouvre avec ce qui a été repéré, barre d’étapes du module', pageActuelle === 'projet' && etat.p3Vue === 'infos' && /Vos informations/.test(texte($('h1'))) && /Référence/.test(texte($('.barre-etapes-bilan'))) && /Agent d.entretien en résidence/.test(document.body.innerHTML));
+      cas('ucpm p3 : la barre du bas propose de continuer vers le style d’écriture et l’assistant', /style d.écriture et assistant/.test(texte($('.barre-navigation-fixe'))));
+      document.querySelector('[onclick="ucpmContinuerDepuisInfos()"]').click(); await attente(1200);
+      cas('ucpm p3 : une fois les informations vérifiées, le CV est rangé en rubriques dans le dossier', etat.p3Extrait === true && dossier.experiences.length === 1 && etat.p3Vue === 'assistant');
+      var texteCv = promptCache('cv', texteProfilEffectif('cv'));
+      cas('ucpm p3 : la demande du CV complet (prompt cv.md) porte le métier de référence et son objectif', /Agent/.test(texteCv) && /lternance/.test(texteCv));
+      document.querySelector('[data-assistant-rect-toggle="import-ia"]').click(); await attente(500);
+      var reponseCv = { titresProposes: ['Agent d’entretien des bâtiments'], accrochesProposees: ['Dix ans d’entretien de bâtiments collectifs.', 'Agent d’entretien autonome.'], accrochesCourtesProposees: ['Dix ans d’entretien.', 'Entretien et dépannages.'], pointsForts: ['Autonomie'], motsCles: ['entretien'],
+        recommandations: { typeCV: { valeur: 'chronologique', justification: 'parcours continu' }, postesRecommandes: [], experiencesAMettreEnAvant: [], competencesAValoriser: [], competencesPersonnelles: [], competencesAttenduesMetier: [], rubriquesMasquables: [] } };
+      $('#texteCollageActionIA').value = '```json\n' + JSON.stringify(reponseCv) + '\n```\n\nCopiez ce message dans l’application. Voulez-vous aussi le complément de CV (missions de vos formations) ? Si oui, répondez : oui';
+      $('#btnImporterActionIA').click(); await attente(1500);
+      cas('ucpm p3 : la réponse est importée et validée dans la page, « Régler mon CV » se débloque', reponseIAImportee('cv') && !$('#btnSuivantNavigation').disabled && !$('#fenetreERIP'));
+      // Complément de CV (facultatif) : la zone existe après l'import, accepte le second bloc suivi de la question, et FUSIONNE sans rien écraser.
+      cas('ucpm p3 : la question de l’assistant est détectée et une consigne claire s’affiche', !!$('.complement-cv-banniere') && /répondez-lui/i.test($('.complement-cv-banniere').textContent) && /dernière fenêtre/.test($('.complement-cv-banniere').textContent));
+      cas('ucpm p3 : « Compléter mon CV (facultatif) » apparaît après l’import', !!$('[data-assistant-rect-toggle="complement-cv"]'));
+      $('[data-assistant-rect-toggle="complement-cv"]').click(); await attente(500);
+      var blocComplement = '```json\n{"recommandations":{"formationsAvecMissions":[{"intitule":"BTS - Maintenance des systèmes (niveau)","missions":["Étudier le fonctionnement des systèmes techniques.","Repérer les causes d’un dysfonctionnement."],"justification":"j"}],"certificationsAvecMissions":[{"certification":"SST (2016)","missions":["Prévenir les risques."],"justification":"j"}],"loisirRetenu":{"intitule":"","missions":[],"justification":""}}}\n```\n\nVoulez-vous le complément de CV ? (missions de vos formations)';
+      $('#texteCollageComplement').value = blocComplement; $('#texteCollageComplement').dispatchEvent(new Event('input', { bubbles: true })); await attente(300); $('#btnImporterComplement').click(); await attente(800);
+      cas('ucpm p3 : le complément est ajouté, la phrase de question collée ne gêne pas', dossier.complementCVAjoute === true && dossier.ia.cv.recommandations.formationsAvecMissions.length === 1 && dossier.ia.cv.recommandations.certificationsAvecMissions.length === 1);
+      cas('ucpm p3 : une fois le complément ajouté, la consigne disparaît et le rectangle se referme (plus de deuxième collage possible)', !$('.complement-cv-banniere') && !$('#texteCollageComplement') && !complementCVEnAttente());
+      var rDouble = fusionnerComplementCV(blocComplement);
+      cas('ucpm p3 : le même complément collé deux fois ne crée pas de doublon', dossier.ia.cv.recommandations.formationsAvecMissions.length === 1, String(rDouble.succes));
+      var rVide = fusionnerComplementCV('Voici du texte sans données.');
+      cas('ucpm p3 : un texte sans données est refusé avec un message clair', !rVide.succes && /explain|écrit|bloc|donn|mission|trouvé/i.test(rVide.erreur || '') && dossier.ia.cv.recommandations.formationsAvecMissions.length === 1, rVide.erreur);
+      $('[data-assistant-rect-toggle="import-ia"]').click(); await attente(500);
+      cas('ucpm p3 : un petit bouton « Importer le complément de CV » est à côté de l’import', !!$('#btnOuvrirComplementCV'));
+      $('#texteCollageActionIA').value = '{"formationsAvecMissions":[{"intitule":"CAP Menuiserie","missions":["Tracer des pièces."],"justification":"j"}],"couleursEntrepriseSuggerees":["#0A7F5A"]}'; $('#btnImporterActionIA').click(); await attente(1500);
+      cas('ucpm p3 : un complément collé dans la zone principale est reconnu et ajouté, sans erreur', dossier.ia.cv.recommandations.formationsAvecMissions.length === 2 && dossier.ia.cv.couleurEntrepriseSuggeree === '#0A7F5A');
+      ucpmBarreContinuer(); await attente(600);
+      cas('ucpm p3 : un seul bouton « Régler mon CV », celui de la barre du bas (plus de doublon dans la carte)', !$('#btnUcpmOuvrirEditeur')); ucpmBarreContinuer(); await attente(5000);
+      cas('ucpm p3 : l’éditeur de CV s’ouvre avec la barre du module et « Ce CV me convient »', pageActuelle === 'resultats' && !!window._modeModuleUcpm && /Ce CV me convient/.test(texte($('.barre-navigation-fixe'))) && /Référence/.test(texte($('.barre-etapes-bilan'))));
+      cas('ucpm p3 : plus de case « Version courte » dans l’éditeur du module', !$('[data-mep-accroche-courte]'));
+      cas('ucpm p3 : pas de « Et maintenant ? » proposé depuis le module', !$('.et-apres'));
+      document.querySelector('[onclick="ucpmContinuerDepuisEditeur()"]').click(); await attente(1000);
+      cas('ucpm p3 : « Ce CV me convient » passe à la page 4 et libère le mode module', etat.page === 4 && etat.refPret === true && !window._modeModuleUcpm);
+      naviguerVers('cv'); await attente(800); naviguerVers('resultats'); await attente(3500);
+      cas('ucpm p3 : hors du module non plus, plus de case « Version courte »', !$('[data-mep-accroche-courte]'));
+    } finally { window.UCPM_OUVERT = ouvertAvant; dossier.experiences = experiencesAvant; dossier.imports = importsAvant; ucpmReinitialiser(); naviguerVers('cv'); await attente(500); }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : page 5 « Mes CV », aspect par CV et échange du dossier (2026-10-10) ----------------
+  async function parcoursUnCvMetiersPage5() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    var sauvegarde = JSON.stringify(dossier);
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
+      etat.reponseMetiers = ucpmLireReponseMetiers(rep).valeurs; etat.texteCV = 'cv'; etat.cvRelu = true;
+      var l = ucpmCreerListes(etat.reponseMetiers); etat.intitules = l.intitules; etat.autres = l.autres;
+      ['g1', 'd1', 'd2'].forEach(function (id) { ucpmBasculerCoche(etat, id, true); });
+      var o = ucpmObjectifVide('spontanee'); o.secteur = 'bâtiment'; ucpmAppliquerObjectif(etat, 'tous', null, o);
+      etat.sexe = 'f'; etat.refPret = true; etat.refId = 'g1'; etat.page = 5; etat.pageMax = 5;
+      dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', ville: 'Limoges' }; dossier.titreCV = 'Agent d’entretien des bâtiments';
+      dossier.experiences = [{ poste: 'Agent d’entretien', entreprise: 'Habitat social', lieu: 'Limoges', dateDebut: '2019-01', dateFin: '2024-06', missions: 'Entretien de 120 logements\nPetits dépannages' }];
+      dossier.formations = [{ niveau: 'CAP', intitule: 'Peintre applicateur', etablissement: 'AFPA', annee: '2014', missions: '' }]; dossier.competencesCV = ['Rigueur', 'Autonomie'];
+      dossier.formatCV = 'pdf'; dossier.pdfReglages = null; dossier.reglagesMiseEnPageCV = null; dossier.dernierDocumentPrepare = 'cv';
+      dossier.ia = dossier.ia || {}; dossier.ia.cv = Object.assign({}, dossier.ia.cv, { profil: 'Dix ans d’entretien de bâtiments collectifs.', accrochesProposees: ['Dix ans d’entretien de bâtiments collectifs.'], accrochesCourtesProposees: ['Dix ans d’entretien.'], accrocheIdx: 0 });
+      etat.accroches = { d1: ['Pratique de la peinture en bâtiment.', 'Préparation des supports et finitions.'], d2: ['Habilitation électrique BS.', 'Dépannages en électricité de base.'] };
+      var avant = JSON.stringify(dossier);
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(1200);
+      cas('ucpm p5 : trois cartes, une par CV, la première est la référence', document.querySelectorAll('[data-ucpm-carte]').length === 3 && /CV de référence/.test(texte($('[data-ucpm-carte="g1"]'))));
+      cas('ucpm p5 : « Passer aux lettres » est bloqué tant que 2 CV n’ont pas leur phrase', $('#btnSuivantNavigation').disabled && /2 CV/.test($('#btnSuivantNavigation').title));
+      var pretes = false;
+      for (var i = 0; i < 60 && !pretes; i++) {
+        pretes = [].slice.call(document.querySelectorAll('[data-ucpm-miniature]')).every(function (m) { return m.shadowRoot && m.shadowRoot.querySelector('.page-a4'); });
+        if (!pretes) { await attente(1000); }
+      }
+      cas('ucpm p5 : chaque carte montre l’aperçu de son CV (compartiment étanche)', pretes);
+      cas('ucpm p5 : les aperçus ne remplacent pas la page et le vrai dossier est intact', pageActuelle === 'un-cv-plusieurs-metiers' && $('h1').textContent.trim() === 'Mes CV' && JSON.stringify(dossier) === avant && !_ucpmDossierReference);
+      cas('ucpm p5 : le titre de chaque aperçu est celui de son CV', /PEINTRE EN B/i.test($('[data-ucpm-miniature="d1"]').shadowRoot.textContent) && /AGENT D/i.test($('[data-ucpm-miniature="g1"]').shadowRoot.textContent));
+      $('[data-ucpm-acc-ouvrir="d1"]').click(); await attente(400);
+      $('[data-ucpm-acc-radio="d1|0"]').click(); await attente(500);
+      $('[data-ucpm-acc-ouvrir="d2"]').click(); await attente(400);
+      var perso = $('[data-ucpm-acc-texte="d2|perso"]'); perso.value = 'Habilitation électrique BS et dépannages.'; perso.dispatchEvent(new Event('change', { bubbles: true })); await attente(200);
+      $('[data-ucpm-acc-radio="d2|perso"]').click(); await attente(500);
+      cas('ucpm p5 : une proposition choisie et une phrase écrite par la personne débloquent « Passer aux lettres »', !$('#btnSuivantNavigation').disabled && etat.cvs.d2.accroche === 'Habilitation électrique BS et dépannages.');
+      var ti = $('#ucpmTitre_d1'); ti.value = 'Peintre applicatrice'; ti.dispatchEvent(new Event('change', { bubbles: true })); await attente(300);
+      cas('ucpm p5 : le titre est modifiable', etat.cvs.d1.titre === 'Peintre applicatrice');
+      $('[data-ucpm-aspect="d1"]').click(); await attente(6000);
+      cas('ucpm p5 : « Changer l’aspect » ouvre l’éditeur commun sur la COPIE du CV (vrai dossier mis de côté)', pageActuelle === 'resultats' && !!_ucpmDossierReference && dossier !== _ucpmDossierReference && dossier.titreCV === 'Peintre applicatrice');
+      cas('ucpm p5 : seuls les panneaux d’aspect restent (le corps du CV est celui de la référence)', getComputedStyle($('#cOrg')).display === 'none' && !!$('#cEntete'));
+      cas('ucpm p5 : la barre propose « Annuler » et « Valider cet aspect », la barre d’étapes est celle du module', /Valider cet aspect/.test(texte($('.barre-navigation-fixe'))) && /Mes CV/.test(texte($('.barre-etapes-bilan .pastille-etape-action-courante'))));
+      cas('ucpm p5 : pas de case « Version courte » dans l’éditeur d’aspect', !$('[data-mep-accroche-courte]'));
+      var w = $('#zonePdfInlineCV iframe').contentWindow; w._pdfChoisirModeleCreatif('colonneFoncee'); await attente(2500);
+      cas('ucpm p5 : pendant le réglage, le vrai dossier n’est pas touché', JSON.stringify(_ucpmDossierReference) === avant);
+      ucpmFinAspect(true); await attente(1200);
+      cas('ucpm p5 : « Valider cet aspect » garde l’aspect de ce CV et remet le vrai dossier, identique', pageActuelle === 'un-cv-plusieurs-metiers' && etat.page === 5 && !_ucpmDossierReference && JSON.stringify(dossier) === avant && !!(etat.cvs.d1.aspect && etat.cvs.d1.aspect.pdfReglages) && !etat.cvs.d2.aspect);
+      cas('ucpm p5 : la carte dit « propre à ce CV » et propose de revenir à la référence', /propre à ce CV/.test(texte($('[data-ucpm-carte="d1"]'))) && !!$('[data-ucpm-aspect-ref="d1"]') && !!$('#btnUcpmToutRemettre'));
+      $('[data-ucpm-aspect="d2"]').click(); await attente(5500);
+      ucpmFinAspect(false); await attente(1000);
+      cas('ucpm p5 : « Annuler » jette le réglage et remet le vrai dossier', !etat.cvs.d2.aspect && !_ucpmDossierReference && JSON.stringify(dossier) === avant);
+      $('[data-ucpm-aspect="d2"]').click(); await attente(5500);
+      naviguerVers('cv'); await attente(800);
+      cas('ucpm p5 : partir par « Accueil » pendant un réglage remet aussi le vrai dossier', !_ucpmDossierReference && JSON.stringify(dossier) === avant && !etat.aspectEnCours && !window._modeAspectUcpm);
+      cas('ucpm p5 : la disquette enregistre le vrai dossier, jamais une copie', JSON.stringify(sauvegarderSession().dossier) === avant);
+    } finally {
+      ucpmRestaurerDossier(); window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser();
+      try { var vieux = JSON.parse(sauvegarde); Object.keys(dossier).forEach(function (k) { if (!(k in vieux)) { delete dossier[k]; } }); Object.assign(dossier, vieux); } catch (e) { /* tant pis */ }
+      naviguerVers('cv'); await attente(500);
+    }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : page 6 « Lettres » (2026-10-10) ----------------
+  async function parcoursUnCvMetiersPage6() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    var sauvegarde = JSON.stringify(dossier);
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
+      etat.reponseMetiers = ucpmLireReponseMetiers(rep).valeurs; etat.texteCV = 'cv'; etat.cvRelu = true;
+      var l = ucpmCreerListes(etat.reponseMetiers); etat.intitules = l.intitules; etat.autres = l.autres;
+      ['g1', 'd1', 'd2'].forEach(function (id) { ucpmBasculerCoche(etat, id, true); });
+      var o = ucpmObjectifVide('spontanee'); o.secteur = 'bâtiment'; ucpmAppliquerObjectif(etat, 'tous', null, o);
+      etat.sexe = 'f'; etat.refPret = true; etat.refId = 'g1'; etat.page = 6; etat.pageMax = 6;
+      etat.cvs = {
+        g1: { titre: 'Agent d’entretien des bâtiments', accroche: 'Dix ans d’entretien de bâtiments collectifs.', accrocheChoisie: true },
+        d1: { titre: 'Peintre applicatrice', accroche: 'Pratique de la peinture en bâtiment.', accrocheChoisie: true },
+        d2: { titre: 'Électricienne d’entretien', accroche: 'Habilitation électrique BS.', accrocheChoisie: true }
+      };
+      dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', ville: 'Limoges' };
+      var avant = JSON.stringify(dossier);
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(1000);
+      avant = JSON.stringify(dossier);   // la page des lettres pose les réglages de style par défaut (préférences de la lettre) : on part de là
+      cas('ucpm p6 : « Réglez le style d’écriture » est avant « Choisissez votre assistant », sur la même page', !!$('#ucpmStyleEcriture') && !!($('#ucpmStyleEcriture').compareDocumentPosition($('.ucpm-choix-ia h4:last-of-type')) & 4));
+      ucpmAllerPage(5); await attente(600); window.scrollTo(0, 800); await attente(200); var yAvant = window.scrollY; ucpmAllerPage(6); await attente(600);
+      cas('ucpm p6 : on arrive toujours en haut de la page, sur le style d’écriture, même venant d’une page défilée', yAvant > 0 && window.scrollY === 0, 'avant ' + yAvant + ', après ' + window.scrollY);
+      var cases = document.querySelectorAll('[data-ucpm-lettre-cv]');
+      cas('ucpm p6 : les trois CV sont proposés par leur nom, tous cochés', cases.length === 3 && [].every.call(cases, function (c) { return c.checked; }) && /Peintre applicatrice/.test(texte($('.ucpm-choix-ia'))));
+      cas('ucpm p6 : « Terminer » est bloqué tant que les lettres ne sont pas reçues', $('#btnSuivantNavigation').disabled);
+      cases[1].click(); await attente(200);
+      cas('ucpm p6 : décocher un CV le sort de la demande', JSON.stringify(etat.lettresIds) === JSON.stringify(['g1', 'd2']));
+      cases[0].click(); cases[2].click(); await attente(200);
+      cas('ucpm p6 : le dernier CV coché ne peut pas être décoché', cases[2].checked && !!etat.lettresIds && etat.lettresIds.length === 1 && !$('#ucpmP6AvisChoix').hidden);
+      cases[0].click(); cases[1].click(); await attente(200);
+      cas('ucpm p6 : tous recochés = tous les CV', etat.lettresIds === null);
+      var texteDemande = await _ucpmConfigPassageLettres(etat).construireTexte();
+      cas('ucpm p6 : la demande est complète (genre, profil, trois CV, objectif), sans marqueur ni coordonnées', texteDemande.indexOf('Titre du CV : Peintre applicatrice') > 0 && /Titre du CV : Électricienne d/.test(texteDemande) && !/\{(GENRE|PROFIL|CVS)\}/.test(texteDemande) && !/Limoges|Camille/.test(texteDemande));
+      etat.passages = { lettres: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(500);
+      var brut = await (await fetch('/docs/essais_prompts_ucpm/reponses/03_lettres_V6_10_feminin_chatgpt_1.txt')).text();
+      var ta = document.getElementById('texteCollageUcpmLettres'); ta.value = brut; ta.dispatchEvent(new Event('input', { bubbles: true }));
+      document.getElementById('btnImporterUcpmLettres').click(); await attente(800);
+      var lettres = etat.lettres || {};
+      cas('ucpm p6 : la vraie réponse est lue, une lettre par CV, la page passe à la lecture', Object.keys(lettres).length === 3 && etat.p6Vue === 'lecture' && !!$('[data-ucpm-lettre-texte]'));
+      cas('ucpm p6 : formule d’appel imposée en tête et signature en bas', /^Madame, Monsieur,/.test(lettres.g1) && /Camille Martin$/.test(lettres.g1.trim()) && /Camille Martin$/.test($('[data-ucpm-lettre-texte]').value.trim()));
+      cas('ucpm p6 : « Terminer » se débloque et le sélecteur montre les trois CV', !$('#btnSuivantNavigation').disabled && document.querySelectorAll('[data-ucpm-lettre-sel]').length === 3);
+      $('[data-ucpm-lettre-sel="d1"]').click(); await attente(400);
+      cas('ucpm p6 : le sélecteur change de lettre', $('[data-ucpm-lettre-texte]').getAttribute('data-ucpm-lettre-texte') === 'd1' && $('[data-ucpm-lettre-texte]').value === lettres.d1);
+      var champ = $('[data-ucpm-lettre-texte]');
+      cas('ucpm p6 : « Remettre la lettre reçue » est inactif tant que rien n’est modifié', $('[data-ucpm-lettre-origine]').disabled);
+      champ.value = champ.value + ' Merci de votre attention.'; champ.dispatchEvent(new Event('input', { bubbles: true })); await attente(200);
+      cas('ucpm p6 : la modification est gardée et « Remettre la lettre reçue » s’active', /Merci de votre attention\.$/.test(etat.lettres.d1) && !$('[data-ucpm-lettre-origine]').disabled);
+      champ.value = Array(400).fill('mot').join(' '); champ.dispatchEvent(new Event('input', { bubbles: true })); await attente(200);
+      cas('ucpm p6 : une lettre trop longue est signalée sans bloquer', !$('#ucpmP6Longue').hidden && !$('#btnSuivantNavigation').disabled && Number($('#ucpmP6Mots').textContent) === 400);
+      champ.value = ''; champ.dispatchEvent(new Event('input', { bubbles: true })); await attente(200);
+      cas('ucpm p6 : une lettre vidée est annoncée « à écrire »', /à écrire/.test($('[data-ucpm-lettre-sel="d1"]').textContent) && !$('#btnSuivantNavigation').disabled);
+      champ.value = lettres.d1; champ.dispatchEvent(new Event('input', { bubbles: true }));
+      cas('ucpm p6 : les lettres partent dans la disquette', !!collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers.lettres.g1);
+      ucpmBarreRetour(); await attente(800);
+      cas('ucpm p6 : « Retour » ramène aux CV sans rien supprimer', pageActuelle === 'un-cv-plusieurs-metiers' && etat.page === 5 && Object.keys(etat.lettres).length === 3);
+      ucpmAllerPage(6); await attente(800);
+      cas('ucpm p6 : en revenant, les lettres sont là', !!$('[data-ucpm-lettre-texte]') && etat.p6Vue === 'lecture');
+      cas('ucpm p6 : le vrai dossier n’a pas bougé', JSON.stringify(dossier) === avant);
+    } finally {
+      ucpmRestaurerDossier(); window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser();
+      try { var vieux = JSON.parse(sauvegarde); Object.keys(dossier).forEach(function (k) { if (!(k in vieux)) { delete dossier[k]; } }); Object.assign(dossier, vieux); } catch (e) { /* tant pis */ }
+      naviguerVers('cv'); await attente(500);
+    }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : page 7 « Fin », PDF des CV, des lettres, d'un CV avec sa lettre (2026-10-10) ----------------
+  async function parcoursUnCvMetiersPage7() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    var sauvegarde = JSON.stringify(dossier);
+    var departementAvant = (typeof departementRessourcesMemorise === 'function') ? departementRessourcesMemorise() : null;
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
+      etat.reponseMetiers = ucpmLireReponseMetiers(rep).valeurs; etat.texteCV = 'cv'; etat.cvRelu = true;
+      var l = ucpmCreerListes(etat.reponseMetiers); etat.intitules = l.intitules; etat.autres = l.autres;
+      ['g1', 'd1', 'd2'].forEach(function (id) { ucpmBasculerCoche(etat, id, true); });
+      var o = ucpmObjectifVide('spontanee'); o.secteur = 'bâtiment'; ucpmAppliquerObjectif(etat, 'tous', null, o);
+      etat.sexe = 'f'; etat.refPret = true; etat.refId = 'g1'; etat.page = 7; etat.pageMax = 7;
+      dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', adresse: '12 rue des Lilas', codePostal: '87000', ville: 'Limoges', telephone: '06 12 34 56 78', email: 'camille.martin@example.org' };
+      dossier.titreCV = 'Agent d’entretien des bâtiments';
+      dossier.experiences = [{ poste: 'Agent d’entretien', entreprise: 'Habitat social', lieu: 'Limoges', dateDebut: '2019-01', dateFin: '2024-06', missions: 'Entretien de 120 logements\nPetits dépannages' }];
+      dossier.formations = [{ niveau: 'CAP', intitule: 'Peintre applicateur', etablissement: 'AFPA', annee: '2014', missions: '' }]; dossier.competencesCV = ['Rigueur', 'Autonomie'];
+      dossier.formatCV = 'pdf'; dossier.pdfReglages = null; dossier.reglagesMiseEnPageCV = null; dossier.dernierDocumentPrepare = 'cv';
+      dossier.ia = dossier.ia || {}; dossier.ia.cv = Object.assign({}, dossier.ia.cv, { profil: 'Dix ans d’entretien de bâtiments collectifs.', accrochesProposees: ['Dix ans d’entretien de bâtiments collectifs.'], accrochesCourtesProposees: ['Dix ans d’entretien.'], accrocheIdx: 0 });
+      etat.cvs = {
+        g1: { titre: 'Agent d’entretien des bâtiments', accroche: 'Dix ans d’entretien de bâtiments collectifs.', accrocheChoisie: true },
+        d1: { titre: 'Peintre applicatrice', accroche: 'Pratique de la peinture en bâtiment.', accrocheChoisie: true },
+        d2: { titre: 'Électricienne d’entretien', accroche: 'Habilitation électrique BS.', accrocheChoisie: true }
+      };
+      var brut = await (await fetch('/docs/essais_prompts_ucpm/reponses/03_lettres_V6_10_feminin_chatgpt_1.txt')).text();
+      var lues = ucpmLireReponseLettres(brut, ['g1', 'd1', 'd2']);
+      etat.lettres = ucpmPreparerLettresRecues(lues.lettres, ucpmEntreesCochees(etat), 'Camille Martin');
+      var avant = JSON.stringify(dossier);
+      var imprime = null;
+      window.__ucpmImpressionSimulee = function (titre, html) { imprime = { titre: titre, html: html }; };
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(1000);
+      var prets = false;
+      for (var i = 0; i < 90 && !prets; i++) {
+        prets = [].slice.call(document.querySelectorAll('[data-ucpm-tel]')).length > 0 && [].every.call(document.querySelectorAll('[data-ucpm-tel]'), function (b) { return !b.disabled; });
+        if (!prets) { await attente(1000); }
+      }
+      cas('ucpm p7 : les boutons de téléchargement se débloquent quand les CV sont prêts', prets);
+      cas('ucpm p7 : le bilan annonce 3 CV et 3 lettres', /3 CV/.test(texte($('.cv-section'))) && /3 lettres/.test(texte($('.cv-section'))));
+      cas('ucpm p7 : trois cartes, chacune avec « Télécharger ce CV » et « avec sa lettre »', document.querySelectorAll('[data-ucpm-carte]').length === 3 && document.querySelectorAll('[data-ucpm-tel="cv"]').length === 3 && document.querySelectorAll('[data-ucpm-tel="cv-lettre"]').length === 3);
+      cas('ucpm p7 : le nombre de pages est annoncé', /Un seul document PDF de \d+ pages?/.test(texte($('#contenuPageUcpm'))));
+      cas('ucpm p7 : avant tout téléchargement, la recherche d’offres est annoncée mais absente', !$('#btnUcpmP7Offres') && /Après le téléchargement/.test(texte($('#contenuPageUcpm'))));
+      cas('ucpm p7 : plus rien à modifier, pas de bouton « Continuer » en bas', !$('#btnSuivantNavigation'));
+      cas('ucpm p7 : le CV rendu garde ses couleurs et ses tailles (variables posées sur :host, plus sur :root)', /:host\s*\{/.test(_ucpmCacheRendu.g1.resultat.css) && !/:root/.test(_ucpmCacheRendu.g1.resultat.css));
+      cas('ucpm p7 : un CV qui laisse beaucoup de place ne reçoit aucun avertissement', !/très rempli/.test(texte($('#contenuPageUcpm'))) && typeof _ucpmCacheRendu.d1.resultat.libre === 'number');
+      _ucpmCacheRendu.d1.resultat.libre = 20; ucpmRendrePage(); await attente(600);
+      cas('ucpm p7 : un CV presque plein est signalé « très rempli » sur sa carte (information, rien ne se bloque)', /très rempli/.test(texte($('[data-ucpm-carte="d1"]'))) && !/très rempli/.test(texte($('[data-ucpm-carte="d2"]'))) && !$('[data-ucpm-tel="cvs"]').disabled);
+      _ucpmCacheRendu.d1.resultat.libre = 200; ucpmRendrePage(); await attente(400);
+      $('[data-ucpm-tel="cvs"]').click(); await attente(2500);
+      cas('ucpm p7 : « Mes CV » envoie un document de 3 CV dans 3 compartiments étanches, nommé comme les autres CV', !!imprime && imprime.titre === 'MARTIN_mes-cv' && (imprime.html.match(/<template shadowrootmode="open">/g) || []).length === 3);
+      cas('ucpm p7 : les trois CV sont bien ceux de l’état (titres)', /PEINTRE APPLICATRICE/i.test(imprime.html) && /ÉLECTRICIENNE D/i.test(imprime.html) && /AGENT D/i.test(imprime.html));
+      cas('ucpm p7 : après un téléchargement, la recherche d’offres en direct apparaît', etat.p7Telecharge === true && !!$('#btnUcpmP7Offres'));
+      cas('ucpm p7 : le vrai dossier n’a pas bougé pendant l’impression', JSON.stringify(dossier) === avant && !_ucpmDossierReference);
+      var cadre = document.createElement('iframe'); cadre.style.cssText = 'position:fixed;left:-10000px;width:794px;height:1123px;'; document.body.appendChild(cadre);
+      cadre.contentDocument.open(); cadre.contentDocument.write(imprime.html); cadre.contentDocument.close(); await attente(400);
+      var feuilles = cadre.contentDocument.querySelectorAll('.ucpm-feuille');
+      cas('ucpm p7 : le navigateur construit un compartiment étanche par CV', feuilles.length === 3 && [].every.call(feuilles, function (f) { return !!f.shadowRoot && !!f.shadowRoot.querySelector('.page-a4'); }));
+      cadre.remove();
+      imprime = null;
+      $('[data-ucpm-tel="lettres"]').click(); await attente(2500);
+      cas('ucpm p7 : « Mes lettres » envoie trois lettres signées, une par page', !!imprime && imprime.titre === 'MARTIN_mes-lettres' && (imprime.html.match(/class="ucpm-lettre"/g) || []).length === 3 && /<p class="signature">Camille Martin<\/p>/.test(imprime.html));
+      cas('ucpm p7 : la lettre porte les coordonnées, le lieu et la date', /12 rue des Lilas/.test(imprime.html) && /87000 Limoges/.test(imprime.html) && /Limoges, le \d/.test(imprime.html));
+      imprime = null;
+      $('[data-ucpm-tel="cv-lettre"][data-ucpm-tel-id="d1"]').click(); await attente(2500);
+      var ordre = imprime ? imprime.html.search(/PEINTRE APPLICATRICE/i) : -1;
+      cas('ucpm p7 : « Ce CV avec sa lettre » envoie le CV puis sa lettre, dans un seul fichier de deux pièces', !!imprime && (imprime.html.match(/<template shadowrootmode="open">/g) || []).length === 2 && ordre > 0 && ordre < imprime.html.indexOf('class="ucpm-lettre"') && /PEINTRE|peintre/i.test(imprime.titre));
+      $('#btnUcpmP7Offres').click(); await attente(600);
+      cas('ucpm p7 : le panneau d’offres s’ouvre avec les métiers cochés et le choix du département', !!$('#ucpmPanneauOffres') && /Département/.test(texte($('#ucpmPanneauOffres'))));
+      var dep87 = $('#ucpmPanneauOffres [data-ucpm-dep="87"]');
+      if (dep87) { dep87.click(); await attente(500); }
+      cas('ucpm p7 : une fois le département choisi, « Copier ma demande » s’active', !!$('#btnUcpmCopierOffres') && !$('#btnUcpmCopierOffres').disabled);
+      cas('ucpm p7 : rien n’est à coller pour les offres (aucun champ de collage)', !$('#ucpmPanneauOffres textarea') && !$('#ucpmPanneauOffres [id^="texteCollage"]'));
+      var decoche = $('[data-ucpm-p7-offre="d2"]'); decoche.click(); await attente(400);
+      cas('ucpm p7 : décocher un métier le sort de la recherche', /pour 2 métiers/.test(texte($('#btnUcpmP7Offres'))));
+      ucpmBarreRetour(); await attente(800);
+      cas('ucpm p7 : « Retour » ramène aux lettres', pageActuelle === 'un-cv-plusieurs-metiers' && etat.page === 6);
+    } finally {
+      window.__ucpmImpressionSimulee = undefined;
+      try { if (departementAvant) { memoriserDepartementRessources(departementAvant); } else if (typeof oublierDepartementRessources === 'function') { oublierDepartementRessources(); } } catch (e) { /* tant pis */ }
+      ucpmRestaurerDossier(); window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser();
+      try { var vieux = JSON.parse(sauvegarde); Object.keys(dossier).forEach(function (k) { if (!(k in vieux)) { delete dossier[k]; } }); Object.assign(dossier, vieux); } catch (e) { /* tant pis */ }
+      naviguerVers('cv'); await attente(500);
+    }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : règle de Retour, pages périmées signalées sans rien effacer (2026-10-10) ----------------
+  async function parcoursUnCvMetiersRetour() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    var sauvegarde = JSON.stringify(dossier);
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
+      etat.reponseMetiers = ucpmLireReponseMetiers(rep).valeurs; etat.texteCV = 'cv'; etat.cvRelu = true;
+      var l = ucpmCreerListes(etat.reponseMetiers); etat.intitules = l.intitules; etat.autres = l.autres;
+      ['g1', 'd1', 'd2'].forEach(function (id) { ucpmBasculerCoche(etat, id, true); });
+      var o = ucpmObjectifVide('spontanee'); o.secteur = 'bâtiment'; ucpmAppliquerObjectif(etat, 'tous', null, o);
+      etat.sexe = 'f'; etat.refPret = true; etat.refId = 'g1'; etat.page = 4; etat.pageMax = 6; etat.p4Vue = 'recu';
+      dossier.identite = { civilite: 'Madame', nom: 'Martin', prenom: 'Camille', ville: 'Limoges' };
+      dossier.titreCV = 'Agent d’entretien des bâtiments'; dossier.ia = dossier.ia || {}; dossier.ia.cv = Object.assign({}, dossier.ia.cv, { profil: 'Dix ans d’entretien.' });
+      etat.cvs = {
+        g1: { titre: 'Agent d’entretien', accroche: 'Dix ans d’entretien.', accrocheChoisie: true },
+        d1: { titre: 'Peintre applicatrice', accroche: 'Pratique de la peinture.', accrocheChoisie: true },
+        d2: { titre: 'Électricienne d’entretien', accroche: 'Habilitation BS.', accrocheChoisie: true }
+      };
+      var profil = function () { return ucpmConstruireProfilValide(ucpmDossierVrai()); };
+      etat.accroches = { d1: ['Pratique de la peinture.', 'Autre phrase.'], d2: ['Habilitation BS.', 'Autre.'] }; etat.accrochesManquantes = [];
+      etat.accrochesSig = ucpmSignaturesAccroches(etat, profil());
+      etat.lettres = { g1: 'Madame, Monsieur,\n\nLettre 1.\n\nCamille Martin', d1: 'Madame, Monsieur,\n\nLettre 2.\n\nCamille Martin', d2: 'Madame, Monsieur,\n\nLettre 3.\n\nCamille Martin' };
+      etat.lettresOrigine = JSON.parse(JSON.stringify(etat.lettres)); etat.p6Vue = 'lecture';
+      etat.lettresSig = ucpmSignaturesLettres(etat, ucpmEntreesCochees(etat), profil(), 'Camille Martin');
+      var accrochesAvant = JSON.stringify(etat.accroches), lettresAvant = JSON.stringify(etat.lettres);
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
+      cas('ucpm retour : page 4, rien n’a changé, aucun avertissement', !texte($('#contenuPageUcpm')).match(/ne correspondent peut-être plus/));
+      var o2 = ucpmObjectifVide('stage'); o2.secteur = 'bâtiment'; ucpmAppliquerObjectif(etat, 'un', 'd1', o2);
+      ucpmRendrePage(); await attente(500);
+      cas('ucpm retour : un objectif changé en amont est signalé sur la page 4, avec le nom du métier', /ne correspondent peut-être plus/.test(texte($('#contenuPageUcpm'))) && /Peintre/.test(texte($('#contenuPageUcpm'))));
+      cas('ucpm retour : la page 4 garde ses phrases et propose toujours « Refaire la demande » et « Continuer »', JSON.stringify(etat.accroches) === accrochesAvant && !!$('#btnUcpmRefaireAccroches') && !$('#btnSuivantNavigation').disabled);
+      ucpmAllerPage(6); await attente(600);
+      cas('ucpm retour : la page 6 signale la lettre qui ne correspond plus (CV 2), avec « Refaire cette lettre »', /Une lettre ne correspond peut-être plus/.test(texte($('#contenuPageUcpm'))) && /CV 2/.test(texte($('#contenuPageUcpm'))) && !!$('#btnUcpmRefairePerimees'));
+      cas('ucpm retour : les lettres sont intactes', JSON.stringify(etat.lettres) === lettresAvant);
+      $('#btnUcpmRefairePerimees').click(); await attente(500);
+      var oui = document.querySelector('[data-role="confirmer"]');
+      cas('ucpm retour : « Refaire cette lettre » demande confirmation et n’efface rien avant', !!oui && JSON.stringify(etat.lettres) === lettresAvant && etat.p6Vue === 'lecture');
+      if (oui) { oui.click(); await attente(600); }
+      cas('ucpm retour : après confirmation, la demande ne porte que sur la lettre périmée, les lettres restent en place', etat.p6Vue === 'passage' && JSON.stringify(etat.lettresIds) === JSON.stringify(['d1']) && JSON.stringify(etat.lettres) === lettresAvant && !!document.querySelector('[data-ucpm-lettre-cv="d1"]') && document.querySelectorAll('[data-ucpm-lettre-cv]:checked').length === 1);
+      etat.p6Vue = 'lecture'; ucpmAllerPage(7); await attente(1000);
+      cas('ucpm retour : la page 7 prévient aussi, sans bloquer', /ne correspond peut-être plus/.test(texte($('#contenuPageUcpm'))) && !!$('[data-ucpm-tel="cvs"]'));
+      cas('ucpm retour : les empreintes partent dans la disquette', !!collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers.lettresSig.g1 && !!collecterEtatsModulesPourSauvegarde().unCvPlusieursMetiers.accrochesSig.d1);
+    } finally {
+      ucpmRestaurerDossier(); window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser();
+      try { var vieux = JSON.parse(sauvegarde); Object.keys(dossier).forEach(function (k) { if (!(k in vieux)) { delete dossier[k]; } }); Object.assign(dossier, vieux); } catch (e) { /* tant pis */ }
+      naviguerVers('cv'); await attente(500);
+    }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : page 1, dépôt par la fenêtre commune qui vérifie d'elle-même (retours de Denis, 2026-10-10) ----------------
+  async function parcoursUnCvMetiersPage1() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
+      var boutons = function () { return [].slice.call(document.querySelectorAll('button')); };
+      cas('ucpm p1 : un simple bouton « Déposer mon CV », pas de zone de dépôt qui occupe la page', !!$('#btnUcpmDeposer') && !$('#contenuPageUcpm input[type="file"]') && $('#btnUcpmVersAssistant').disabled);
+      $('#btnUcpmDeposer').click(); await attente(800);
+      cas('ucpm p1 : la fenêtre commune « Déposer votre document » s’ouvre', /Déposer votre document/.test(document.body.innerText));
+      boutons().filter(function (b) { return /Coller le texte/.test(b.innerText); })[0].click(); await attente(400);
+      var ta = [].slice.call(document.querySelectorAll('textarea')).filter(function (t) { return t.offsetParent; })[0];
+      ta.value = 'Josiane BOKENOMAE\n06 12 34 56 78\njosiane.bokenomae@gmail.com\n12 rue des Lilas 87000 Limoges\nAssistante de vie aux familles\nCIAS de Beaumont : aide à la toilette, préparation des repas.\nFormation : Assistante de vie aux familles 2026. Certification SST.';
+      ta.dispatchEvent(new Event('input', { bubbles: true })); await attente(400);
+      boutons().filter(function (b) { return /^Continuer/.test(b.innerText.trim()) && b.offsetParent && !b.disabled; })[0].click(); await attente(1200);
+      cas('ucpm p1 : la vérification s’ouvre toute seule, avec le courriel complet (arobase comprise) et le nom repéré', /Vérifier le texte/.test(document.body.innerText) && /josiane\.bokenomae@gmail\.com/.test(document.body.innerText) && /Josiane BOKENOMAE/.test(document.body.innerText));
+      cas('ucpm p1 : tant que rien n’est validé, le CV de la page reste vide', !etat.cvRelu && !etat.texteCV);
+      boutons().filter(function (b) { return /Enregistrer/.test(b.innerText) && b.offsetParent; })[0].click(); await attente(600);
+      boutons().filter(function (b) { return /^Continuer/.test(b.innerText.trim()) && b.offsetParent && !b.disabled; })[0].click(); await attente(1200);
+      cas('ucpm p1 : une fois validé, le CV est prêt et on peut choisir l’assistant', etat.cvRelu && /Josiane BOKENOMAE/.test(etat.texteCV) && !$('#btnUcpmVersAssistant').disabled && /Votre CV est prêt/.test(texte($('#contenuPageUcpm'))));
+      // remplacer le CV puis fermer la fenêtre sans valider : le dernier CV validé reste en place
+      var ancien = etat.texteCV;
+      $('#btnUcpmDeposerAutre').click(); await attente(600);
+      var fenetre = /Déposer votre document/.test(document.body.innerText);
+      var fermer = document.querySelector('[aria-label="Fermer"], .modal-fermer, .btn-fermer-fenetre') || boutons().filter(function (b) { return /^[✕×]$/.test(b.innerText.trim()); })[0];
+      cas('ucpm p1 : « Déposer un autre CV » rouvre la fenêtre de dépôt', fenetre);
+      if (fermer) { fermer.click(); await attente(500); } else { fermerFenetreERIP(); await attente(500); }
+      cas('ucpm p1 : fermer la fenêtre sans valider laisse le dernier CV en place', etat.cvRelu && etat.texteCV === ancien && /Votre CV est prêt/.test(texte($('#contenuPageUcpm'))));
+    } finally { window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser(); try { fermerFenetreERIP(); } catch (e) { /* rien */ } naviguerVers('cv'); await attente(500); }
+  }
+
+  // ---------------- Module « Un CV, plusieurs métiers » : questions sur les points peu clairs, comme « Reformuler mon CV » (retours 20 et 23 de Denis) ----------------
+  async function parcoursUnCvMetiersClarification() {
+    var ouvertAvant = window.UCPM_OUVERT;
+    window.UCPM_OUVERT = true;
+    var importsAvant = JSON.stringify(dossier.imports || null);
+    var dossierAvantClar = JSON.stringify(dossier);
+    try {
+      ucpmReinitialiser();
+      var etat = ouvrirUnCvPlusieursMetiers();
+      var rep = await (await fetch('/docs/essais_prompts_ucpm/reponses/01_metiers_V5_chatgpt_1.txt')).text();
+      etat.reponseMetiers = ucpmLireReponseMetiers(rep).valeurs; etat.texteCV = 'cv'; etat.cvRelu = true;
+      var l = ucpmCreerListes(etat.reponseMetiers); etat.intitules = l.intitules; etat.autres = l.autres;
+      ['g1', 'd1'].forEach(function (id) { ucpmBasculerCoche(etat, id, true); });
+      ucpmAppliquerObjectif(etat, 'tous', null, ucpmObjectifVide('spontanee'));
+      etat.refId = 'g1'; etat.page = 3; etat.pageMax = 3; etat.p3Vue = 'structurer';
+      dossier.imports = { courant: { donnees: { identite: {}, experiences: [], formations: [], certifications: ['s.s.T'], pointsAVerifier: [{ titre: 'SST', extrait: 's.s.T', question: 'Que signifie « s.s.T » ?', suggestion: 'SST (Sauveteur secouriste du travail)' }] } } };
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
+      _ucpmConfigPassageExtraction(etat).apresSucces(); await attente(700);
+      cas('ucpm clarification : le panneau « Quelques passages à préciser » pose la question sur la certification mal écrite', /Quelques passages à préciser/.test(document.body.innerText) && /Que signifie/.test(document.body.innerText) && etat.p3Vue === 'structurer');
+      document.querySelector('[data-utiliser-suggestion-point]').click(); await attente(300);
+      document.getElementById('btnClarificationContinuer').click(); await attente(700);
+      cas('ucpm clarification : la réponse corrige la certification, puis on passe à « Vos informations »', etat.p3Vue === 'infos' && pageActuelle === 'projet' && /Sauveteur secouriste du travail/.test(JSON.stringify(dossier.certifications || [])));
+      naviguerVers('un-cv-plusieurs-metiers'); await attente(600);
+      dossier.imports = { courant: { donnees: { identite: {}, experiences: [], formations: [], certifications: [], pointsAVerifier: [] } } }; etat.p3Vue = 'structurer';
+      _ucpmConfigPassageExtraction(etat).apresSucces(); await attente(700);
+      cas('ucpm clarification : sans point à préciser, le panneau saute tout seul', etat.p3Vue === 'infos' && !/Quelques passages/.test(document.body.innerText));
+    } finally {
+      try { var vieuxClar = JSON.parse(dossierAvantClar); Object.keys(dossier).forEach(function (k) { if (!(k in vieuxClar)) { delete dossier[k]; } }); Object.assign(dossier, vieuxClar); } catch (e0) { /* tant pis */ }
+      try { dossier.imports = JSON.parse(importsAvant); } catch (e) { dossier.imports = null; }
+      window.UCPM_OUVERT = ouvertAvant; ucpmReinitialiser(); try { fermerFenetreERIP(); } catch (e2) { /* rien */ } naviguerVers('cv'); await attente(500);
+    }
+  }
+
+  // ---------------- Rappel « Décrivez ce que vous avez fait » sous une expérience sans mission (2026-10-10, accepté par Denis) ----------------
+  async function parcoursRappelMissions() {
+    await preparerCvResultats();
+    dossier.experiences.push({ poste: 'Serveur', entreprise: 'Brasserie', lieu: 'Limoges', dateDebut: '2019-01', dateFin: '2021-12', missions: '' });
+    _mepEditionExp = false; _mepExpEditee = null; _mepRerendre(); await attente(2500);
+    var rappels = function () { return document.querySelectorAll('.rappel-sans-missions'); };
+    cas('rappel missions : une expérience sans mission porte le rappel, pas celle qui en a', rappels().length === 1 && /Décrivez ce que vous avez fait pour un CV plus précis/.test(rappels()[0].textContent), String(rappels().length));
+    var bouton = document.querySelector('[data-mep-exp-decrire]');
+    cas('rappel missions : le rappel propose un bouton', !!bouton);
+    if (bouton) {
+      bouton.click(); await attente(1500);
+      cas('rappel missions : le bouton ouvre le formulaire de l’expérience', !!document.querySelector('[data-exp-edit]') && _mepExpEditee === parseInt(bouton.getAttribute('data-mep-exp-decrire'), 10), String(_mepExpEditee));
+    }
+    _mepEditionExp = false; _mepExpEditee = null; _mepRerendre(); await attente(800);
+  }
+  // ---------------- Les titres de rubriques ne sont jamais des « informations non classées » (point 41 de Denis, 2026-10-10) ----------------
+  async function parcoursTitresRubriques() {
+    var r = analyserReponseImport('{"informationsNonClassees":["COMPÉTENCES PROFESSIONNELLES","Centres d’intérêt :","EXPÉRIENCE PROFESSIONNELLE","Disponible immédiatement","RQTH"]}', SPECIFICATION_IMPORT);
+    cas('titres de rubriques : les en-têtes sont écartés, les vraies informations gardées', r.succes && r.valeurs.informationsNonClassees.length === 2 && r.valeurs.informationsNonClassees[0] === 'Disponible immédiatement', JSON.stringify(r.valeurs && r.valeurs.informationsNonClassees));
+  }
+  // ---------------- Miniatures REELLES des modeles dans la galerie (plan du banc de rendu, 2026-10-11) ----------------
+  async function parcoursMiniaturesReelles() {
+    await preparerCvResultats();
+    var reelles = function () { var v = [].slice.call(document.querySelectorAll('.vign .mini[data-mini-reel]')); return { total: v.length, reelles: v.filter(function (x) { return !!x.shadowRoot && x.shadowRoot.querySelector('.cv'); }).length }; };
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3000);
+    var b = document.querySelector('[data-mep-galerie-tous]'); if (b && b.getAttribute('data-mep-galerie-tous') === '1') { b.click(); } await attente(5000);
+    var c = reelles();
+    cas('miniatures : en Créatif, « Voir tous les modèles » montre les 24 vignettes avec leur vraie miniature', c.total === 24 && c.reelles === 24, c.reelles + ' sur ' + c.total);
+    cas('miniatures : chaque miniature est un vrai CV (une page de la taille du CV, pas une silhouette)', [].every.call(document.querySelectorAll('.vign .mini[data-mini-reel]'), function (x) { return x.clientWidth >= 60 && x.clientHeight >= 80; }));
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3500);
+    c = reelles();
+    cas('miniatures : en Sobre, toutes les vignettes affichées ont leur vraie miniature', c.total >= 11 && c.reelles === c.total, c.reelles + ' sur ' + c.total);
+    var noms = [].slice.call(document.querySelectorAll('.vign .mini[data-mini-reel]')).map(function (x) { return x.getAttribute('data-mini-reel'); });
+    cas('miniatures : la vignette sait de quel modèle elle est la miniature', noms.length >= 11 && noms.every(function (n) { return /^sobre:/.test(n); }), noms.join(','));
+    // l'état de la galerie vit hors du dossier : on le remet comme on l'a trouvé pour les essais suivants
+    try { _mepGalerieTous = false; _mepGalerieChoix = null; } catch (e) { /* galerie pas chargée */ }
+    document.querySelector('[data-mep-allure="defaut"]').click(); await attente(1500);
+  }
+  // ---------------- Bord de la colonne : interrupteur « Vallonné » sur la vignette (Denis, 2026-10-11) ----------------
+  async function parcoursBordColonne() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    var cle = function () { return w().getComputedStyle(cv(), '::before').clipPath; };
+    var inter = function (id) { return document.querySelector('[data-mep-bord-vign="' + id + '"]'); };
+    var vignette = function (id) { return document.querySelector('[data-mep-galerie-creatif="' + id + '"]'); };
+    var droit = function () { return doc().getElementById('regColonneBordDroit').checked; };
+    var coche = function (id) { return !!inter(id) && inter(id).getAttribute('aria-checked') === 'true'; };
+    var cliquer = async function (el) { el.click(); await attente(2500); };
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3000);
+    var tous = document.querySelector('[data-mep-galerie-tous]'); if (tous && tous.getAttribute('data-mep-galerie-tous') === '1') { tous.click(); await attente(5000); }
+    await cliquer(vignette('colonneFoncee')); await attente(2500);
+    cas('bord de colonne : Colonne foncée est droite au départ, son interrupteur « Vallonné » est éteint', cv().classList.contains('bord-choix') && droit() && !!inter('colonneFoncee') && !coche('colonneFoncee'), cv().className);
+    cas('bord de colonne : Colonne à vague est vallonnée au départ, son interrupteur est allumé', !!inter('sidebarVague') && coche('sidebarVague'));
+    cas('bord de colonne : l’interrupteur est sous la vignette, pas dans la vignette', inter('sidebarVague').parentElement.classList.contains('vign-cadre') && !vignette('sidebarVague').contains(inter('sidebarVague')));
+    ['colonneClaire', 'mqBandeau', 'rubanDiagonal'].forEach(function (id) { cas('bord de colonne : ' + id + ' n’a pas d’interrupteur', !inter(id) && !!vignette(id)); });
+    var avant = cle();
+    await cliquer(inter('colonneFoncee')); await attente(1500);
+    cas('bord de colonne : l’interrupteur du modèle actuel décoche la case du moteur et change le bord du CV', !droit() && cle() !== avant, String(cle()).slice(0, 50));
+    cas('bord de colonne : après le changement, l’interrupteur reste allumé', coche('colonneFoncee'));
+    var miniAvant = vignette('sidebarVague').querySelector('.mini').shadowRoot.innerHTML;
+    await cliquer(inter('sidebarVague')); await attente(1500);
+    cas('bord de colonne : un autre modèle change sa miniature sans toucher au CV en cours', !coche('sidebarVague') && vignette('sidebarVague').querySelector('.mini').shadowRoot.innerHTML !== miniAvant && !droit());
+    await cliquer(vignette('sidebarVague')); await attente(2500);
+    cas('bord de colonne : choisir ensuite ce modèle lui donne le bord montré par l’interrupteur (droit)', droit() && !!cv() && cv().classList.contains('col-vague-g') && !coche('sidebarVague'), cv().className);
+    await cliquer(vignette('colonneFoncee')); await attente(2500);
+    cas('bord de colonne : le souhait gardé (vallonné) suit Colonne foncée quand on la rechoisit', !droit() && coche('colonneFoncee'));
+    // l'etat de la galerie vit hors du dossier : on le remet comme on l'a trouve pour les essais suivants
+    try { _mepGalerieTous = false; _mepGalerieChoix = null; } catch (e) { /* galerie pas chargee */ }
+  }
+  // ---------------- Bord du bandeau : trois petits boutons sous la vignette (Denis, 2026-10-11) ----------------
+  async function parcoursBordBandeau() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    var groupe = function (id) { return document.querySelector('[data-mep-bandeau-vign="' + id + '"]'); };
+    var vignette = function (id) { return document.querySelector('[data-mep-galerie-creatif="' + id + '"]'); };
+    var bouton = function (id, b) { return groupe(id) && groupe(id).querySelector('[data-bord="' + b + '"]'); };
+    var actif = function (id) { var g = groupe(id); var a = g && g.querySelector('[aria-checked="true"]'); return a ? a.getAttribute('data-bord') : ''; };
+    var choix = function () { return doc().getElementById('regBordBandeau').value; };
+    var cliquer = async function (el) { el.click(); await attente(2500); };
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3000);
+    var tous = document.querySelector('[data-mep-galerie-tous]'); if (tous && tous.getAttribute('data-mep-galerie-tous') === '1') { tous.click(); await attente(5000); }
+    await cliquer(vignette('duoOvale')); await attente(2500);
+    cas('bord du bandeau : Duo ovale est arrondi au départ et propose le choix', cv().classList.contains('bord-bandeau-choix') && choix() === 'arrondi' && actif('duoOvale') === 'arrondi', choix() + ' ' + actif('duoOvale'));
+    cas('bord du bandeau : Bandeau entier est droit et Vague marine vallonné au départ', actif('mqBandeau') === 'droit' && actif('vagueMarine') === 'vallonne', actif('mqBandeau') + ' ' + actif('vagueMarine'));
+    cas('bord du bandeau : trois boutons, sous la vignette', !!groupe('duoOvale') && groupe('duoOvale').querySelectorAll('button').length === 3 && !vignette('duoOvale').contains(groupe('duoOvale')));
+    ['colonneFoncee', 'rubanDiagonal', 'mqDiagonale', 'medaillon'].forEach(function (id) { cas('bord du bandeau : ' + id + ' n’a pas ces boutons', !groupe(id) && !!vignette(id)); });
+    var avant = cv().querySelector('.tete').outerHTML.length + '|' + w().getComputedStyle(cv().querySelector('.tete')).borderRadius;
+    await cliquer(bouton('duoOvale', 'vallonne')); await attente(1500);
+    cas('bord du bandeau : le bouton du modèle actuel change le bord du CV (vallonné)', choix() === 'vallonne' && !!doc().querySelector('.tete-vague') && actif('duoOvale') === 'vallonne', choix());
+    await cliquer(bouton('duoOvale', 'droit')); await attente(1500);
+    cas('bord du bandeau : « Droit » retire l’arrondi et la vague', choix() === 'droit' && !doc().querySelector('.tete-vague') && w().getComputedStyle(doc().querySelector('.tete-fond')).borderRadius === '0px', w().getComputedStyle(doc().querySelector('.tete-fond')).borderRadius);
+    var miniAvant = vignette('mqBandeau').querySelector('.mini').shadowRoot.innerHTML;
+    await cliquer(bouton('mqBandeau', 'arrondi')); await attente(1500);
+    cas('bord du bandeau : un autre modèle change sa miniature sans toucher au CV en cours', actif('mqBandeau') === 'arrondi' && vignette('mqBandeau').querySelector('.mini').shadowRoot.innerHTML !== miniAvant && choix() === 'droit');
+    await cliquer(vignette('mqBandeau')); await attente(2500);
+    cas('bord du bandeau : choisir ensuite ce modèle lui donne le bord montré (arrondi)', choix() === 'arrondi' && w().getComputedStyle(doc().querySelector('.tete-fond')).borderRadius !== '0px', choix());
+    await cliquer(vignette('vagueMarine')); await attente(2500);
+    cas('bord du bandeau : un modèle sans souhait garde son bord de départ (Vague marine vallonnée)', choix() === 'vallonne' && !!doc().querySelector('.tete-vague'), choix());
+    await cliquer(vignette('duoOvale')); await attente(2500);
+    cas('bord du bandeau : le souhait gardé (droit) suit Duo ovale quand on la rechoisit', choix() === 'droit' && actif('duoOvale') === 'droit', choix());
+    // l'etat de la galerie vit hors du dossier : on le remet comme on l'a trouve pour les essais suivants
+    try { _mepGalerieTous = false; _mepGalerieChoix = null; } catch (e) { /* galerie pas chargee */ }
+  }
+  // ---------------- Autres couleurs du CV depuis la carte d'ambiance (Denis, 2026-10-11) ----------------
+  async function parcoursAutresCouleurs() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var cv = function () { return doc().querySelector('#conteneurPage .cv'); };
+    var bloc = function () { return document.querySelector('#panneauAmbiances .autres-coul'); };
+    var cible = function (attr, v) { return document.querySelector('#panneauAmbiances [' + attr + '="' + v + '"]'); };
+    var choix = function () { return w()._cvPdfChoixMq || {}; };
+    var texte = function () { return doc().getElementById('regTexteFondColonnes').value; };
+    var cliquer = async function (el) { el.click(); await attente(2500); };
+    var choisir = async function (id) { var v = document.querySelector('[data-mep-galerie-creatif="' + id + '"]'); v.click(); await attente(3500); };
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3000);
+    var tous = document.querySelector('[data-mep-galerie-tous]'); if (tous && tous.getAttribute('data-mep-galerie-tous') === '1') { tous.click(); await attente(5000); }
+    await choisir('colonneFoncee');
+    var ouv = document.querySelector('[data-mep-ambiances-ouvrir]'); if (document.getElementById('panneauAmbiances').hidden) { ouv.click(); await attente(1500); }
+    cas('autres couleurs : Colonne foncée propose la couleur de la colonne et le texte, pas « sur quoi »', !!bloc() && !!cible('data-mep-colcol', '#e6e1d6') && !!cible('data-mep-textefond', 'auto') && !cible('data-mep-degsurquoi', 'deux'), bloc() ? bloc().textContent.slice(0, 80) : 'absent');
+    cas('autres couleurs : « Texte sur le fond coloré » n’est plus dans les options supplémentaires', [].every.call(document.querySelectorAll('[data-mep-textefond]'), function (b) { return !!b.closest('#panneauAmbiances'); }) && !!document.querySelector('#panneauAmbiances [data-mep-textefond]'));
+    await cliquer(cible('data-mep-textefond', 'auto')); await attente(1000);
+    await cliquer(cible('data-mep-colcol', '#e6e1d6')); await attente(1500);
+    cas('autres couleurs : choisir « Beige » colore la colonne (choix gardé par l’aperçu)', choix().couleurColonne === '#e6e1d6' && /e6e1d6/i.test(w().getComputedStyle(doc().documentElement).getPropertyValue('--col')), JSON.stringify(choix()));
+    cas('autres couleurs : en « Automatique », le texte devient noir sur la colonne claire', texte() === 'noir', texte());
+    await cliquer(cible('data-mep-colcol', '')); await attente(1500);
+    cas('autres couleurs : « Couleur principale » rend sa couleur à la colonne et le texte redevient blanc', !choix().couleurColonne && texte() === 'blanc', texte());
+    await cliquer(document.querySelector('#panneauAmbiances [data-mep-base="#d4974f|#f9efe5"]')); await attente(2000);
+    cas('autres couleurs : une couleur principale claire (doré) passe le texte en noir tout seul', texte() === 'noir', texte());
+    await cliquer(cible('data-mep-textefond', 'blanc')); await attente(1500);
+    await cliquer(document.querySelector('#panneauAmbiances [data-mep-base="#1e3a5f|#dde1e7"]')); await attente(2000);
+    cas('autres couleurs : « Blanc » fixé à la main n’est plus changé par la couleur', texte() === 'blanc' && !(dossier.reglagesMiseEnPageCV || {})._texteAuto, texte());
+    await choisir('colonneBandeau');
+    var bouton = document.querySelector('[data-mep-degrade-simple]'); if (bouton.getAttribute('aria-pressed') !== 'true') { await cliquer(bouton); await attente(1500); }
+    cas('autres couleurs : Colonne et bandeau, avec dégradé, propose la deuxième couleur et « sur quoi »', !!cible('data-mep-secondaire', '#d4974f') && !!cible('data-mep-degsurquoi', 'bandeau'), '');
+    await cliquer(cible('data-mep-degsurquoi', 'bandeau')); await attente(1500);
+    cas('autres couleurs : « Le bandeau » colore le bandeau seulement', doc().getElementById('regDegradeColonnes').value === 'aucun' && doc().getElementById('regDegradeBandeau').value !== 'aucun', doc().getElementById('regDegradeColonnes').value + ' / ' + doc().getElementById('regDegradeBandeau').value);
+    await cliquer(cible('data-mep-secondaire', '#d4974f')); await attente(1500);
+    cas('autres couleurs : la deuxième couleur du dégradé est gardée', choix().couleurSecondaire === '#d4974f', JSON.stringify(choix()));
+    await cliquer(cible('data-mep-degsurquoi', 'deux')); await attente(1500);
+    await cliquer(cible('data-mep-textefond', 'auto')); await attente(1500);
+    cas('autres couleurs : avec un dégradé du marine au doré sur la colonne, « Automatique » juge sur la moyenne des deux couleurs (blanc)', texte() === 'blanc', texte());
+    await choisir('mqCadre');
+    cas('autres couleurs : un modèle sans colonne colorée ni bandeau (Cadre de page) n’a pas ce bloc', !bloc());
+    document.querySelector('[data-mep-allure="sobre"]').click(); await attente(3000);
+    cas('autres couleurs : en allure Sobre, le bloc n’existe pas', !bloc());
+    document.querySelector('[data-mep-allure="defaut"]').click(); await attente(1500);
+    // l'etat de la galerie vit hors du dossier : on le remet comme on l'a trouve pour les essais suivants
+    try { _mepGalerieTous = false; _mepGalerieChoix = null; } catch (e) { /* galerie pas chargee */ }
+  }
+  // ---------------- Reprendre mes dernieres couleurs et Garder mes couleurs (Denis, 2026-10-11) ----------------
+  async function parcoursRepriseCouleurs() {
+    await preparerCvResultats();
+    var w = function () { return document.querySelector('#zonePdfInlineCV iframe').contentWindow; };
+    var doc = function () { return w().document; };
+    var variable = function (n) { return w().getComputedStyle(doc().documentElement).getPropertyValue(n).trim().toLowerCase(); };
+    var bouton = function () { return document.querySelector('#panneauAmbiances [data-mep-reprendre-couleurs]'); };
+    var garder = function () { return document.querySelector('#panneauAmbiances [data-mep-garder-couleurs]'); };
+    var cliquer = async function (el) { el.click(); await attente(2500); };
+    var choisir = async function (id) { document.querySelector('[data-mep-galerie-creatif="' + id + '"]').click(); await attente(3500); };
+    document.querySelector('[data-mep-allure="creatif"]').click(); await attente(3000);
+    var tous = document.querySelector('[data-mep-galerie-tous]'); if (tous && tous.getAttribute('data-mep-galerie-tous') === '1') { tous.click(); await attente(5000); }
+    await choisir('colonneFoncee');
+    if (document.getElementById('panneauAmbiances').hidden) { document.querySelector('[data-mep-ambiances-ouvrir]').click(); await attente(1500); }
+    cas('reprise : rien à reprendre au départ (pas de bouton), la case « Garder mes couleurs » est là, décochée', !bouton() && !!garder() && !garder().checked);
+    cas('reprise : le bouton et la case sont avant les couleurs, dans l’en-tête de la zone', !!garder() && garder().closest('.coul-entete') && !garder().closest('.nuancier-amb'));
+    await cliquer(document.querySelector('#panneauAmbiances [data-mep-base="#2e7d5b|#e0ece6"]'));
+    await cliquer(document.querySelector('#panneauAmbiances [data-mep-colcol="#e6e1d6"]'));
+    cas('reprise : la couleur choisie (vert) et la colonne beige s’appliquent au CV affiché', variable('--cv') === '#2e7d5b' && variable('--col') === '#e6e1d6', variable('--cv') + ' ' + variable('--col'));
+    await choisir('sidebarVague');
+    cas('reprise : un autre modèle arrive avec ses couleurs d’origine (violet), sans la colonne beige', variable('--cv') === '#3b2e5c' && variable('--col') !== '#e6e1d6', variable('--cv') + ' ' + variable('--col'));
+    cas('reprise : le bouton « Reprendre mes dernières couleurs » apparaît avec les pastilles', !!bouton() && bouton().querySelectorAll('.reprise-pastilles i').length >= 2, bouton() ? bouton().textContent : 'absent');
+    await cliquer(bouton());
+    cas('reprise : le bouton pose le vert et la colonne beige sur le CV affiché', variable('--cv') === '#2e7d5b' && variable('--col') === '#e6e1d6', variable('--cv') + ' ' + variable('--col'));
+    cas('reprise : une fois reprises, le bouton disparaît', !bouton());
+    await choisir('duoOvale');
+    cas('reprise : sans la case, chaque modèle garde ses couleurs d’origine (Duo ovale en bleu)', variable('--cv') === '#2f6690', variable('--cv'));
+    await cliquer(garder());
+    cas('reprise : cocher « Garder mes couleurs » applique tout de suite les couleurs au CV affiché', variable('--cv') === '#2e7d5b' && garder().checked, variable('--cv'));
+    await choisir('colonneFoncee'); await attente(1500);
+    cas('reprise : case cochée, le nouveau modèle reçoit tout seul les couleurs choisies', variable('--cv') === '#2e7d5b' && variable('--col') === '#e6e1d6', variable('--cv') + ' ' + variable('--col'));
+    cas('reprise : le réglage est gardé avec le CV', (dossier.reglagesMiseEnPageCV || {}).garderCouleurs === true && !!(dossier.reglagesMiseEnPageCV || {}).dernieresCouleurs);
+    await cliquer(garder());
+    await choisir('mqBandeau');
+    cas('reprise : case décochée, les couleurs d’origine reviennent (Bandeau entier en bleu)', variable('--cv') === '#2f6690', variable('--cv'));
+    // l'etat de la galerie vit hors du dossier : on le remet comme on l'a trouve pour les essais suivants
+    try { _mepGalerieTous = false; _mepGalerieChoix = null; } catch (e) { /* galerie pas chargee */ }
+  }
+  // ---------------- Reformuler mon CV : complément fermé après l'ajout ou le refus, nom du PDF, parcours terminé (retours de Denis, 2026-10-11) ----------------
+  async function parcoursReformulerRetours() {
+    // 1. complément de CV : la zone de collage ne sert plus une fois le complément ajouté ; « Je ne suis pas intéressé(e) » ferme le rectangle
+    dossier.complementCVPropose = true; dossier.complementCVAjoute = false; dossier.complementCVRefuse = false;
+    var conteneur = document.createElement('div'); document.body.appendChild(conteneur);
+    conteneur.innerHTML = contenuRectangleComplementCV();
+    cas('complément : en attente, la zone de collage et le bouton « Je ne suis pas intéressé(e) » sont là', !!conteneur.querySelector('[data-complement-refus]') && !!conteneur.querySelector('#btnImporterComplement') && complementCVEnAttente());
+    var rendus = 0; etatAccordeon['complement-cv'] = true;
+    wireComplementCV(function () { rendus++; });
+    conteneur.querySelector('[data-complement-refus]').click();
+    cas('complément : « Je ne suis pas intéressé(e) » ferme le rectangle, retient le refus et ne demande plus rien', dossier.complementCVRefuse === true && etatAccordeon['complement-cv'] === false && rendus === 1 && !complementCVEnAttente());
+    conteneur.innerHTML = contenuRectangleComplementCV();
+    cas('complément : refusé, plus de zone de collage, un lien « Finalement, je le veux »', !conteneur.querySelector('#btnImporterComplement') && !!conteneur.querySelector('[data-complement-reprendre]'));
+    wireComplementCV(function () { rendus++; });
+    conteneur.querySelector('[data-complement-reprendre]').click();
+    cas('complément : « Finalement, je le veux » rouvre la zone et remet l’attente', dossier.complementCVRefuse === false && etatAccordeon['complement-cv'] === true && complementCVEnAttente());
+    dossier.complementCVAjoute = true;
+    conteneur.innerHTML = contenuRectangleComplementCV();
+    cas('complément : une fois ajouté, plus de zone de collage (pas de deuxième collage possible)', !conteneur.querySelector('#btnImporterComplement') && /déjà ajouté/.test(conteneur.textContent) && !complementCVEnAttente());
+    conteneur.remove(); dossier.complementCVPropose = false; dossier.complementCVAjoute = false; etatAccordeon['complement-cv'] = false;
+    // 2. nom du PDF : le titre de la page hôte, au moment de l'impression, est « NOM_poste » comme pour le Word
+    await preparerCvResultats();
+    var titreImpression = null, avant = document.title;
+    var faux = document.createElement('button'); faux.addEventListener('click', function () { titreImpression = document.title; });
+    declencherImpressionAvecNomCV(faux);
+    cas('PDF : le nom proposé à l’enregistrement est « NOM_poste », comme pour le Word', titreImpression === nomFichierCV(dossier) && !!titreImpression, String(titreImpression) + ' / ' + nomFichierCV(dossier));
+    cas('PDF : le titre de la page est rendu après l’impression', document.title === avant, document.title);
+    // 3. parcours terminé : la mémoire des parcours est vidée, plus de « Continuer / Recommencer » sur un parcours fini
+    _prepLEEtat = { cvTexte: 'Mon CV', dejaRelu: true, relectureFaite: true }; _reformulerEcranReprise = 'echange'; _prepLEEcran = 'echange';
+    recommencer();
+    cas('parcours terminé : la mémoire du CV déposé et de l’étape reprise est effacée', _prepLEEtat === null && _reformulerEcranReprise === null && _prepLEEcran === 'intro', String(_prepLEEcran));
+    naviguerVers('reformuler-cv'); await attente(1500);
+    cas('parcours terminé : l’introduction ne propose plus « Continuer / Recommencer »', !document.getElementById('btnReformulerCvReprendre') && !document.getElementById('btnReformulerCvContinuerEtape') && !!document.getElementById('btnReformulerCvCommencer'));
+  }
+  var PARCOURS = { reformulerRetours: parcoursReformulerRetours, repriseCouleurs: parcoursRepriseCouleurs, autresCouleurs: parcoursAutresCouleurs, bordColonne: parcoursBordColonne, bordBandeau: parcoursBordBandeau, miniaturesReelles: parcoursMiniaturesReelles, titresRubriques: parcoursTitresRubriques, rappelMissions: parcoursRappelMissions, banc: parcoursBancNonRegression, unCvPlusieursMetiers: parcoursUnCvPlusieursMetiers, unCvMetiersPage2: parcoursUnCvMetiersPage2, unCvMetiersPage3: parcoursUnCvMetiersPage3, unCvMetiersPage5: parcoursUnCvMetiersPage5, unCvMetiersPage6: parcoursUnCvMetiersPage6, unCvMetiersPage1: parcoursUnCvMetiersPage1, unCvMetiersClarification: parcoursUnCvMetiersClarification, unCvMetiersPage7: parcoursUnCvMetiersPage7, unCvMetiersRetour: parcoursUnCvMetiersRetour, bilan: parcoursBilan, comparer: parcoursComparer, decouverte: parcoursDecouverte, prompts: parcoursPrompts, ats: parcoursAts, certifs: parcoursCertifs, cartes: parcoursCartesObjectif, cvCertifs: parcoursCvCertifsApresFormations, expLieu: parcoursExperienceLieu, rubriques: parcoursDeplacerRubriques, espaces: parcoursEspacerRubriques, retraits: parcoursRetraitsEtMiseEnPage, identite: parcoursIdentiteEtRectangles, reglerSurLeCv: parcoursReglerSurLeCv, genre: parcoursGenre, missionsPdf: parcoursMissionsNomPdfEffacement, standardPerso: parcoursStandardPersonnaliser, boutonEditer: parcoursBoutonEditerExperiences, cartesOrdre: parcoursCartesDansLOrdreDuCv, mixtePro: parcoursMixteCompetencesPro, clesStables: parcoursClesStablesCompetences, compMissions: parcoursCompetencesEtMissions, niveauComp: parcoursNiveauDetailParCompetences, puces: parcoursPucesEtStyleCompetences, dispoComp: parcoursDispositionCompetences, carteComp: parcoursCarteCompetencesComplete, carteForm: parcoursCarteFormations, cartePerso: parcoursCartePerso, styleCommun: parcoursStyleCommun, grandsBoutons: parcoursGrandsBoutons, accrocheLisible: parcoursAccrocheLisible, aideOptions: parcoursAideOptions, aidesEtPerso: parcoursAidesEtPerso, signesCompetences: parcoursSignesCompetences, intitules: parcoursIntitules, datesCertifs: parcoursDatesCertifs, datesSuggestion: parcoursDatesSuggestion, stageExperience: parcoursStageExperience, stageImport: parcoursStageImport, nomsMessages: parcoursNomsDansLesMessages, orgPuces: parcoursOrganisationEtPuces, modesNoms: parcoursModesEtNoms, troisLigne: parcoursTroisRubriquesLigne, optionsAction: parcoursOptionsCompetencesEnAction, contenuAction: parcoursContenuCompetencesEnAction, reserve: parcoursMissionsEnReserve, propositions: parcoursPropositionsEnAction, editionComplete: parcoursEditionComplete, optionsSupp: parcoursOptionsSupplementaires, datesRub: parcoursDatesParRubrique, editionComp: parcoursEditionCompetences, conseilMissions: parcoursNombreMissionsConseille, correctionsPanneau: parcoursCorrectionsPanneau, paires: parcoursPairesPanneaux, modelesColonne: parcoursModelesColonne, looksFamilles: parcoursLooksEtFamilles, chronologique: parcoursChronologique, editorial: parcoursEditorial, editorialLarge: parcoursEditorialLarge, extrasA: parcoursExtrasFamilleA, cartesGrille: parcoursCartesGrille, friseFoncee: parcoursFriseFoncee, technique: parcoursTechnique, cartesCouleurs: parcoursCartesCouleurs, teintePage: parcoursTeintePage, colonneRuban: parcoursColonneRuban, limitesWord: parcoursLimitesWord, infosBandeaux: parcoursInfosBandeaux, infosPresentation: parcoursInfosPresentation, infosEntete: parcoursInfosEntete, titresEtCoin: parcoursTitresEtCoin, remplissage: parcoursRemplissageOffice, enteteAgrandi: parcoursEnteteAgrandi, accrocheCourte: parcoursAccrocheCourteDefaut, jsonFermetures: parcoursJsonFermetures, enteteDecale: parcoursEnteteDecale, coordEnLigne: parcoursCoordEnLigne, ambiance: parcoursAmbianceEtPulsation, tirageStandard: parcoursTirageStandardRiche, modelesPhoto: parcoursModelesPhoto, boutonDegrade: parcoursBoutonDegrade, rondBoutons: parcoursRondBoutons, annulerCouleur: parcoursAnnulerCouleur, pulseAllure: parcoursPulseAllure };
 
   // Attend que l'application soit chargee (un eval lance juste apres un rechargement tombe sinon sur une page a moitie prete).
   async function attendreApplication() {
@@ -2185,12 +4147,19 @@
 
   window.__parcours = async function (quels) {
     resultats = [];
+    // Remplissage d'office (2026-10-07) : les essais existants partent des reglages par defaut ; seul l'essai « remplissage » le retire.
+    window.__cvPdfSansRemplissageInitial = true;
     if (!(await attendreApplication())) { cas('l’application ne s’est pas chargée à temps', false, 'recharger la page puis relancer'); return { ok: false, nbOk: 0, nbEchecs: 1, echecs: resultats, tout: [] }; }
-    var ids = (quels && quels.length) ? quels : Object.keys(PARCOURS);
+    // Le banc de non-régression (33 modèles, exports Word en mémoire) ralentit tellement la page que les parcours suivants dépassent plusieurs minutes (constaté le 2026-10-06 : « espaces » en
+    // dépassement de délai). Il se lance donc SEUL, sur une page rechargée : await window.__parcours(['banc']) ; la suite par défaut ne l'inclut pas.
+    var ids = (quels && quels.length) ? quels : Object.keys(PARCOURS).filter(function (k) { return k !== 'banc'; });
+    // Certains essais (glisser-déposer des rubriques...) dépendent de la taille de la fenêtre : trop petite, ils échouent sans que le code soit en cause (constaté le 2026-10-06).
+    if (window.innerHeight < 600) { cas('la fenêtre de test est trop petite (' + window.innerWidth + ' x ' + window.innerHeight + ') : redimensionner à 738 x 698 avant de lancer, sinon des essais échouent à tort', false, 'resize_window 738 x 698'); }
     var erreurs = [];
     window.__erreursParcours = []; var ecoute = function (ev) { window.__erreursParcours.push(ev.message); };
     window.addEventListener('error', ecoute);
     for (var i = 0; i < ids.length; i++) {
+      window.__parcoursCourant = ids[i] + ' (' + (i + 1) + '/' + ids.length + ', depuis ' + new Date().toLocaleTimeString('fr-FR') + ')';   // pour savoir sur quel essai on est (suite par lots)
       try { await PARCOURS[ids[i]](); }
       catch (e) { cas(ids[i] + ' : le parcours s’est arrêté sur une erreur', false, e && e.message); }
     }
