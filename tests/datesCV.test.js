@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { normaliserDateImport, separerDatesDuTitre, formaterDateCourte } = require('../modules/cv-core/dates.js');
+const { normaliserDateImport, separerDatesDuTitre, formaterDateCourte, dureeEntreDates } = require('../modules/cv-core/dates.js');
 
 test('normaliserDateImport : le mois est conserve quand il est ecrit', () => {
   assert.strictEqual(normaliserDateImport('Septembre 2023'), '2023-09');
@@ -66,4 +66,23 @@ test('ordre chronologique : formations par date de fin ou année, les plus réce
     { intitule: 'Sans année' }
   ];
   assert.deepStrictEqual(trierDuPlusRecent(liste, cleChronologiqueFormation).map((f) => f.intitule), ['SST', 'CAP', 'Bac', 'Sans année']);
+});
+
+test('dureeEntreDates : seulement avec deux mois connus, les deux mois comptent', () => {
+  assert.strictEqual(dureeEntreDates('2022-01', '2024-06'), '2 ans et 6 mois');
+  assert.strictEqual(dureeEntreDates('2017-05', '2018-12'), '1 an et 8 mois');
+  assert.strictEqual(dureeEntreDates('2023-03', '2023-03'), '1 mois');
+  assert.strictEqual(dureeEntreDates('2021-01', '2021-12'), '1 an');
+  assert.strictEqual(dureeEntreDates('2020-09', '2022-08'), '2 ans');
+  assert.strictEqual(dureeEntreDates('2020-09', '2020-10'), '2 mois');
+});
+
+test('dureeEntreDates : jamais de deduction (annee seule, poste en cours, date illisible, ordre inverse)', () => {
+  assert.strictEqual(dureeEntreDates('2019', '2021'), '');
+  assert.strictEqual(dureeEntreDates('2019-03', '2021'), '');
+  assert.strictEqual(dureeEntreDates('2019-03', ''), '');
+  assert.strictEqual(dureeEntreDates('', '2021-05'), '');
+  assert.strictEqual(dureeEntreDates('2019-13', '2021-05'), '');
+  assert.strictEqual(dureeEntreDates('2022-06', '2021-01'), '');
+  assert.strictEqual(dureeEntreDates(undefined, null), '');
 });
