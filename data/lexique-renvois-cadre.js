@@ -158,6 +158,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Quand on élève seul son ou ses enfants : priorités d'accès et aides"
     }
   ],
+  "arret-de-travail-indemnites-journalieres": [
+    {
+      "ficheId": "emploi-arret-maladie",
+      "rayon": "emploi",
+      "titre": "L'arrêt maladie : combien de temps, quelles indemnités, et comment préparer la reprise"
+    }
+  ],
   "atelier-sociolinguistique": [
     {
       "ficheId": "francais-apprendre-pres-de-chez-soi",
@@ -1613,6 +1620,11 @@ var LEXIQUE_RENVOIS_CADRE = {
     }
   ],
   "visite-de-reprise": [
+    {
+      "ficheId": "emploi-arret-maladie",
+      "rayon": "emploi",
+      "titre": "L'arrêt maladie : combien de temps, quelles indemnités, et comment préparer la reprise"
+    },
     {
       "ficheId": "employeurs-suivi-medical",
       "rayon": "employeurs",

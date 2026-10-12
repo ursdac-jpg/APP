@@ -76,7 +76,11 @@ var MODULES_RECHERCHABLES = [
     motsCles: ['se tenir informe', 'comprendre le cadre', 'actualites', 'actualite', 'informe', 's informer', 'nouveautes', 'veille',
       'mes droits', 'droits', 'aides', 'aide', 'demarches', 'demarche', 'dispositifs', 'dispositif', 'reglementation', 'reglement', 'la loi'], cible: 'route:se-tenir-informe-intro' },
   { titre: 'Comparer mes pistes', desc: 'Mettre 2 ou 3 pistes côte à côte, ou dans le temps, pour mieux comprendre ce que chacune implique.',
-    motsCles: ['comparer mes pistes', 'comparer deux metiers', 'comparer des formations', 'orientation', 'aide a la decision', 'hesiter', 'hesitation', 'hesite entre deux metiers', 'choisir un metier', 'quel metier', 's orienter', 'reconversion'], cible: 'route:aide-decision-intro' }
+    motsCles: ['comparer mes pistes', 'comparer deux metiers', 'comparer des formations', 'orientation', 'aide a la decision', 'hesiter', 'hesitation', 'hesite entre deux metiers', 'choisir un metier', 'quel metier', 's orienter', 'reconversion'], cible: 'route:aide-decision-intro' },
+  // Module « Un CV, plusieurs métiers » : `ouvertSi` = nom d'une variable globale qui doit etre vraie pour que ce resultat apparaisse
+  // (le module n'est ouvert au public que lorsque son parcours est complet, voir UCPM_OUVERT, modules/un-cv-plusieurs-metiers/logique.js).
+  { titre: 'Un CV, plusieurs métiers', desc: 'Un seul CV de départ, plusieurs métiers visés : un CV, une phrase d’accroche et une lettre de motivation pour chaque métier.',
+    motsCles: ['un cv plusieurs metiers', 'plusieurs cv', 'plusieurs metiers', 'plusieurs lettres', 'cv par metier', 'un cv par metier', 'adapter mon cv', 'adapter mon cv a un metier', 'plusieurs metiers vises', 'lettres de motivation', 'accroche'], cible: 'route:un-cv-plusieurs-metiers-intro', ouvertSi: 'UCPM_OUVERT' }
 ];
 
 // TACHE 33A : recherche simple (debut de mot / correspondance partielle),
@@ -97,6 +101,7 @@ function rechercherBaseConnaissances(texte) {
   // actionnable). Match : un mot-cle contient la requete, ou la requete
   // contient un mot-cle d'au moins 3 lettres (ex. "je veux un cv" -> "cv").
   var modulesTrouves = MODULES_RECHERCHABLES.filter(function (m) {
+    if (m.ouvertSi && !(typeof window !== 'undefined' && window[m.ouvertSi])) { return false; }
     if (correspond(m.titre)) { return true; }
     return (m.motsCles || []).some(function (mc) {
       var s = normaliserTexte(mc);

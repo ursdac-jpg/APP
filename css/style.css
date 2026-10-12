@@ -4816,3 +4816,31 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 
 /* Zones de texte plus grandes (retour Denis 2026-10-01) : champs des cartes Stage, Alternance et Formation, « Vos disponibilites », nom du recruteur. */
 .form-control.champ-grand { min-height: 2.9rem; font-size: 1.05rem; padding: 0.55rem 0.85rem; }
+
+/* ---------------- Module « Un CV, plusieurs métiers » : encadré, portées, champs marqués (retours de Denis, 2026-10-10) ---------------- */
+.ucpm-encadre { display: flex; gap: .75rem; align-items: flex-start; background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .75rem 1rem; margin-bottom: 1rem; color: var(--text-strong); }
+.ucpm-encadre i { font-size: 1.4rem; color: var(--accent); margin-top: .1rem; }
+.ucpm-portees { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+/* Point 39 de Denis : « Tous les métiers cochés » seul au milieu, au-dessus ; « Mon métier » à gauche, « D'autres métiers » à droite. */
+.ucpm-portee[data-ucpm-portee="tous"] { grid-column: 1 / -1; justify-self: center; width: min(100%, 26rem); text-align: center; align-items: center; }
+/* Point 40 : le choix du CV de référence, deux blocs côte à côte comme à la page 2. */
+.ucpm-deux-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
+.ucpm-deux-colonnes > div:empty { display: none; }
+@media (max-width: 560px) { .ucpm-portees, .ucpm-deux-colonnes { grid-template-columns: 1fr; } }
+.ucpm-portee { text-align: left; background: var(--bg-card); color: var(--text-strong); border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--bg-card)); border-radius: 10px; padding: .6rem .8rem; display: flex; flex-direction: column; gap: .2rem; cursor: pointer; }
+.ucpm-portee:hover { border-color: var(--accent); }
+.ucpm-portee.is-actif { border-color: var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 0 0 2px var(--accent) inset; }
+.ucpm-portee-titre { font-weight: 600; }
+.ucpm-portee-resume { font-size: .85rem; color: var(--text-muted); }
+.ucpm-facultatif { font-size: .85rem; color: var(--text-muted); font-weight: 400; }
+/* Ce que la personne peut remplir ou choisir : bordure marquee, fond de carte, fleche des menus visible. Ce qui est seulement affiche reste discret. */
+#ucpmPanneauObjectif .form-control, #ucpmPanneauObjectif .form-select, #ucpmPanneauObjectif textarea { border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--bg-card)); background-color: var(--bg-card); color: var(--text-strong); }
+#ucpmPanneauObjectif .form-control:focus, #ucpmPanneauObjectif .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+#ucpmPanneauObjectif .jeton { border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--bg-card)); }
+#ucpmPanneauObjectif .jeton.is-actif { border-color: var(--accent); }
+
+/* Complément de CV : bouton sur fond bleu clair et consigne (retour de Denis, 2026-10-10) */
+.btn-complement-cv { background: var(--accent-bg-subtle); color: var(--accent); border: 2px solid var(--accent); font-weight: 600; }
+.btn-complement-cv:hover, .btn-complement-cv:focus { background: var(--bg-hover); color: var(--accent-hover); border-color: var(--accent-hover); }
+.complement-cv-banniere { background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; color: var(--text-strong); }
+

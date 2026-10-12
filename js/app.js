@@ -4028,6 +4028,10 @@ var routes = {
   // de la refonte de l'accueil (fonction transversale, pas une carte).
   'aide-decision-intro': pageIntroAideDecision,
   'comparer-pistes': pageComparerPistes,
+  // Module « Un CV, plusieurs métiers » (modules/un-cv-plusieurs-metiers/index.js), meme patron que 'comparer-pistes' : 'xxx-intro' =
+  // presentation, 'xxx' = le module lui-meme. Gardes `typeof` : si le fichier du module ne se chargeait pas, l'application resterait entiere.
+  'un-cv-plusieurs-metiers-intro': typeof pageIntroUnCvPlusieursMetiers === 'function' ? pageIntroUnCvPlusieursMetiers : function () { naviguerVers('cv'); },
+  'un-cv-plusieurs-metiers': typeof pageUnCvPlusieursMetiers === 'function' ? pageUnCvPlusieursMetiers : function () { naviguerVers('cv'); },
   // TACHE (retour Denis, 2026-08-31) : le parcours "Decouvrir mes
   // competences" est desormais une PAGE (plus une fenetre modale).
   // pageDecouverte() (modules/decouverte-competences/decouverteParcours.js)
@@ -4050,6 +4054,8 @@ var routes = {
 };
 
 function naviguerVers(route, sansHistorique) {
+  // Module « Un CV, plusieurs metiers » : si le dossier d'un autre CV a ete mis a la place du vrai pour regler son aspect, le vrai dossier revient des qu'on quitte l'editeur.
+  if (typeof ucpmGardeDossier === 'function') { ucpmGardeDossier(route); }
   if (!routes[route]) { route = 'cv'; }
   // TACHE (2026-09-12, generalise le 2026-09-12 pour Comprendre les
   // chiffres) : une provenance externe (voir definirRetourModuleExterne())
@@ -4078,7 +4084,7 @@ function naviguerVers(route, sansHistorique) {
   // de route) -- ce reset ne vise donc que les autres sorties de
   // 'resultats' (ex. un clic direct sur un onglet du fil d'Ariane) : dans
   // ce cas, la fenetre Decouverte masquee devient hors-sujet.
-  if (pageActuelle === 'resultats' && route !== 'resultats') { window._decouverteVersResultats = false; window._importVersResultats = false; }
+  if (pageActuelle === 'resultats' && route !== 'resultats') { window._decouverteVersResultats = false; window._importVersResultats = false; window._modeModuleUcpm = false; }
   // TACHE (Vague 2, "navigation reelle") : capture AVANT d'ecraser
   // pageActuelle -- garde defensive identique a _carnetPageOrigine, ne
   // capture jamais 'resultats' comme origine de lui-meme (cette page se
@@ -4922,7 +4928,7 @@ function pageChoixCV() {
         ['Comprendre le cadre', 'Comprendre les chiffres']) +
       htmlCarteAccueil('orientation', 'bi-signpost-split', 'Vous hésitez encore ?',
         'Vous n’êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.',
-        ['Comparer mes pistes']) +
+        ['Comparer mes pistes'].concat((typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) ? ['Un CV, plusieurs métiers'] : [])) +
     '</div>' +
     // TACHE (chantier accueil, Bloc 2 + Bloc 5) : les 3 boutons du pied de
     // page en une rangee centree (maquette validee). "Liens utiles" (nouveau,
@@ -8340,7 +8346,8 @@ function pageProjet() {
       : [CONFIG_BLOC_VOUS, CONFIG_BLOC_PARCOURS, CONFIG_BLOC_EXPERIENCES_PRO, CONFIG_BLOC_EXPERIENCES_PERSO, CONFIG_BLOC_COMPLEMENTS],
     modeAllege
   );
-  var html = afficherProgression('projet') +
+  var depuisUcpm = (_pageOrigineAvantProjet === 'un-cv-plusieurs-metiers' && typeof ucpmBarreDepuisInfos === 'function');   // module « Un CV, plusieurs métiers » : sa barre d'étapes et sa barre du bas
+  var html = (depuisUcpm ? ucpmBarreEtapesInfos() : afficherProgression('projet')) +
     (typeof _prepLEBandeRevoirSurEcran === 'function' ? _prepLEBandeRevoirSurEcran('projet') : '') +
     '<div class="text-center"><h1>&#128203; Vos informations</h1>' +
     '<p class="sousTitre">Les informations qui personnaliseront votre candidature.</p></div>' +
@@ -8401,6 +8408,7 @@ function pageProjet() {
         (estNouveauPourNav ? 'objectif' : 'votre-parcours');
       var routeSuivanteProjet = (estNouveauPourNav && !dossier.cvAnalyse) ? 'votre-parcours' : 'revelation';
       var labelSuivantProjet = (estNouveauPourNav && !dossier.cvAnalyse) ? '&#129517; Votre parcours' : '&#129517; Votre profil';
+      if (depuisUcpm) { return '<div class="barre-navigation-fixe">' + ucpmBarreDepuisInfos() + '</div>'; }
       return '<div class="barre-navigation-fixe">' + barreNavigation(routePrecedenteProjet, routeSuivanteProjet, labelSuivantProjet,
         { onclickPrecedent: _depuisBilanVersProjet ? "naviguerVers('bilan')" : null }) + '</div>';
     })();
@@ -9272,12 +9280,12 @@ function contenuRechercheDomaineCorps() {
     // les 21 domaines sans avoir a deviner un mot a taper -- avant ce jour,
     // seuls les 8 raccourcis les plus frequents etaient visibles sans
     // saisie, la liste complete n'apparaissant qu'en filtrant par la frappe.
-    var enRecherche = texteNormalise.length > 0 || !!etatRechercheDomaine.voirTout;
-    var listeAffichee = enRecherche
-      ? (texteNormalise.length > 0
-          ? listeComplete.filter(function (s) { return normaliserTexte(s.nom).indexOf(texteNormalise) !== -1; })
-          : listeComplete)
-      : null;
+    // Retour de Denis (2026-10-10) : la liste COMPLÈTE des secteurs est toujours ouverte, dans tous les parcours, sans bouton « Voir tous les domaines » ;
+    // la recherche ne fait que filtrer cette liste.
+    var enRecherche = true;
+    var listeAffichee = texteNormalise.length > 0
+      ? listeComplete.filter(function (s) { return normaliserTexte(s.nom).indexOf(texteNormalise) !== -1; })
+      : listeComplete;
 
     zoneChoix = '<div class="banniere-metier-cible-recherche">' +
       '<p class="mb-1 small fw-semibold">&#128269; Recherchez un domaine : s’il est dans notre liste, cliquez dessus. ' +
@@ -9334,13 +9342,14 @@ function banniereDomaineCible() {
       .sort(function (a, b) { return b.count - a.count || a.nom.localeCompare(b.nom, 'fr'); })
       .slice(0, LIMITE_RACCOURCIS_DOMAINES);
     var listeComplete = tousLesSecteurs.slice().sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); });
-    var enRecherche = texteNormalise.length > 0;
-    var listeAffichee = enRecherche
+    // Retour de Denis (2026-10-10) : la liste complète des secteurs est toujours visible (plus de « parmi les plus courants »).
+    var enRecherche = true;
+    var listeAffichee = texteNormalise.length > 0
       ? listeComplete.filter(function (s) { return normaliserTexte(s.nom).indexOf(texteNormalise) !== -1; })
-      : null;
+      : listeComplete;
 
     zoneChoix = '<div class="banniere-metier-cible-recherche">' +
-      '<p class="mb-1 small fw-semibold">&#128269; Recherchez un domaine, ou choisissez parmi les plus courants :</p>' +
+      '<p class="mb-1 small fw-semibold">&#128269; Choisissez votre domaine dans la liste, ou recherchez-le :</p>' +
       '<input type="text" class="form-control" id="rechercheDomaineInput" placeholder="Un domaine..." ' +
       'value="' + echapperAttribut(etatRechercheDomaine.texte) + '"></div>' +
       (!enRecherche
@@ -11247,7 +11256,7 @@ function pageRevelation(conserverTirage) {
    partage (comme pageResultats), pointe via accordeonPourType().
    Sous-etape 5.1 = squelette ; 5.2 = rectangle 1 "Reglez le style".
    ------------------------------------------------------------ */
-var RECTANGLES_ASSISTANT = ['adaptation-metier', 'choix-ia', 'import-ia', 'relecture-ia'];
+var RECTANGLES_ASSISTANT = ['adaptation-metier', 'choix-ia', 'import-ia', 'relecture-ia', 'complement-cv'];
 
 // Rectangle depliable de la page Assistant (chrome fidele a la maquette).
 // L'etat ouvert/ferme vit dans etatAccordeon[id] (moteur partage).
@@ -11625,6 +11634,7 @@ function pageAssistant() {
       '<p class="assistant-groupe-titre"><span aria-hidden="true">&#128193;</span>Vos informations sont déjà enregistrées</p>' +
       '<p class="assistant-groupe-aide">Les informations que vous avez saisies jusqu\'ici (parcours, projet, expériences...) sont conservées : elles serviront directement à préparer votre entretien. Réglez ci-dessous le style d\'écriture, ou reprenez directement celui utilisé précédemment.</p>' +
       '</div>' : '') +
+    htmlBanniereComplementCV() +
     rectangleAssistant('adaptation-metier',
       '&#127898;&#65039;', 'Réglez le style d\'écriture',
       resumeRectangleStyleCV(docActif),
@@ -11643,6 +11653,7 @@ function pageAssistant() {
       '&#128209;', 'Ce que l’assistant a préparé',
       (_relectureIAValideeParType[docActif] ? 'choix validés' : ''),
       contenuRectangleRelectureIA()) : '') +
+    ((docActif === 'cv' && reponseIAImportee(docActif)) ? rectangleComplementCV() : '') +
     '</div>' +
     // Sous-etape 5.5 : "Continuer vers Vos documents" reste desactive tant
     // que les choix n'ont pas ete valides (maquette v5).
@@ -11664,7 +11675,7 @@ function pageAssistant() {
     // restaure d'abord dernierDocumentPrepare au document d'ou la personne
     // venait REELLEMENT (_docAvantAssistant, capture a chaque entree vers
     // "assistant", voir plus haut dans ce fichier) avant de naviguer.
-    barreNavigation(docActif === 'cv' ? 'revelation' : 'resultats', 'resultats', 'Continuer vers « Vos documents » &#8594;', {
+    barreNavigation(docActif === 'cv' ? 'revelation' : 'resultats', 'resultats', (docActif === 'cv' ? libelleContinuerComplementCV('Continuer vers « Vos documents » &#8594;') : 'Continuer vers « Vos documents » &#8594;'), {
       onclickPrecedent: docActif === 'cv' ? undefined : '_assistantRetourDocPrecedent()',
       suivantDesactive: !_relectureIAValideeParType[docActif],
       suivantDesactiveMessage: 'Importez d\'abord la réponse de l\'assistant : ses propositions s\'appliquent alors toutes seules.'
@@ -11679,6 +11690,7 @@ function pageAssistant() {
   // Apres un import reussi, on ouvre le rectangle 4 "Choisir ce qui ira sur
   // le CV" (relecture-ia), pas directement "Vos documents".
   wireImportIA(docActif, pageAssistant, 'relecture-ia');
+  if (docActif === 'cv') { wireComplementCV(pageAssistant); }
   // Sous-etape 5.5 : les 9 onglets de relecture, dans la page.
   wireRectangleRelectureIA(pageAssistant);
   _barreAdopterBoutonEtape();
@@ -11928,7 +11940,8 @@ function contenuIdentiteChampsInterne() {
       // ordre Prenom puis Nom (maquette v10) ; etiquettes visibles et fleche d'inversion (retour Denis 2026-10-01).
       champsPrenomNomHTML('identitePrenom', 'identiteNom', id.prenom, id.nom) +
       '<div class="col-6 col-md-3"><input type="tel" inputmode="tel" maxlength="18" class="form-control form-control-sm" id="identiteTelephone" placeholder="Téléphone : 06.12.34.56.78" value="' + echapperAttribut(formaterTelephone(id.telephone)) + '"></div>' +
-      '<div class="col-6 col-md-3"><input type="email" class="form-control form-control-sm" id="identiteEmail" placeholder="E-mail" value="' + echapperAttribut(id.email) + '"></div>' +
+      // Retour de Denis (2026-10-10) : le courriel ne doit pas être coupé (une adresse longue s'affichait « josiane.bekono@g »), il a donc sa propre place, plus large.
+      '<div class="col-12 col-md-6"><input type="email" class="form-control form-control-sm" id="identiteEmail" placeholder="E-mail" value="' + echapperAttribut(id.email) + '"></div>' +
       '</div>' + notePrenomNomHTML() +
       // adresse postale marquee facultative + phrase. Code postal / Ville sans mention.
       '<div class="row g-2 mt-1">' +
@@ -13148,6 +13161,19 @@ function wireRectsDoc(rerender) {
 // (cable dans brancherEvenementsResultats) : aucune 2e implementation.
 // Lettre / entretien : pas de dossier.formatCV, pas de Canva -> on garde la
 // presentation actuelle (construireContenuExportDocument tel quel).
+// Message « Word ne reproduit pas tout » (decision de Denis, 2026-10-07) : lu dans le registre unique modules/cv-word/limitesWord.js,
+// a partir des reglages PDF enregistres (meme source que le Word, qui est extrait du meme rendu). '' = rien a signaler.
+function _phraseLimitesWordCv() {
+  var pr = dossier.pdfReglages;
+  if (!(pr && typeof pr === 'object' && Object.keys(pr).length)) {
+    try {
+      var w = document.querySelector('#zonePdfInlineCV iframe').contentWindow;
+      var cr = w.document.getElementById('regCreatifActif');
+      pr = { regCreatifActif: !!(cr && cr.checked), creatifVariante: w._cvPdfCreatifVariante };
+    } catch (e) { return ''; }
+  }
+  return (typeof phraseLimitesWord === 'function') ? phraseLimitesWord(pr) : '';
+}
 function contenuRectangleExporter(docActif) {
   if (docActif !== 'cv') {
     return construireContenuExportDocument(docActif);
@@ -13186,13 +13212,18 @@ function contenuRectangleExporter(docActif) {
   // le fichier Word", aucune boite d'impression a expliquer de ce cote).
   var libelleWord = dejaFait ? '&#8635; Télécharger à nouveau le fichier Word' : 'Télécharger le fichier Word';
   var libelleBoutonExportPdf = dejaFait ? '&#8635; Enregistrer &agrave; nouveau mon CV en PDF' : 'Enregistrer mon CV en PDF';
+  var texteLimitesWord = _phraseLimitesWordCv();
+  var htmlLimitesWord = texteLimitesWord
+    ? '<p id="avertissementLimitesWord" class="expo-aide-copie" role="note" style="border-left:3px solid var(--warning);padding:.55rem .75rem;background:var(--bg-subtle);border-radius:6px;color:var(--text-strong);">' +
+      '&#9888;&#65039; ' + echapperAttribut(texteLimitesWord) + '</p>'
+    : '';
   return style +
     '<p class="assistant-aide">Votre CV est prêt. Imprimable en A4 ou en Mini CV (A5) selon ce que vous avez choisi dans « La mise en page ». Choisissez maintenant le format du fichier.</p>' +
     '<div class="expo-grille">' +
     '<button type="button" class="expo-btn expo-btn-principal' + (dejaFait ? ' expo-btn-fait' : '') + '" data-format-export="docx">&#128209; ' + libelleWord + '</button>' +
-    '<button type="button" class="expo-btn expo-btn-principal' + (dejaFait ? ' expo-btn-fait' : '') + '" data-format-export="pdf-imprimer">&#128196; ' + libelleBoutonExportPdf + '</button>' +
+    '<button type="button" class="expo-btn expo-btn-principal' + (dejaFait ? ' expo-btn-fait' : '') + '" data-format-export="pdf-imprimer">&#128196; ' + libelleBoutonExportPdf + (texteLimitesWord ? ' <small>(conseillé)</small>' : '') + '</button>' +
     '<button type="button" class="expo-btn" data-expo="copier">&#128203; Copier le texte</button>' +
-    '</div>' +
+    '</div>' + htmlLimitesWord +
     '<p class="expo-aide-copie" style="border-left:3px solid var(--accent);padding:.5rem .7rem;background:var(--accent-bg-subtle);border-radius:6px;">' +
     'Pour le PDF : dans la fen&ecirc;tre qui s\'ouvre, choisissez <b>&laquo;&nbsp;Enregistrer au format PDF&nbsp;&raquo;</b>, puis <b>&laquo;&nbsp;Enregistrer&nbsp;&raquo;</b>.</p>' +
     '<p class="expo-aide-copie">Pour Word : des <b>lignes pointillées</b> peuvent apparaître à l\'écran autour des blocs. Ce sont des repères d\'affichage de Word : elles ne s\'impriment pas et ne sont pas dans le PDF. Pour les masquer, cliquez dans un bloc, puis onglet <b>&laquo;&nbsp;Disposition&nbsp;&raquo;</b>, bouton <b>&laquo;&nbsp;Afficher le quadrillage&nbsp;&raquo;</b>.</p>' +
@@ -13365,6 +13396,203 @@ function wireRectangleRelectureIA(rerender) {
 // TACHE (refonte parcours guide, sous-etape 5.4) : contenu HTML de l'etape
 // "Importer la reponse" -- extrait tel quel de pageResultats(). Pur (pas de
 // cablage). Reutilise par pageResultats ET pageAssistant.
+// ---------------- Complément de CV (facultatif) : second passage dans la même conversation (décision de Denis, 2026-10-10) ----------------
+// Le prompt cv.md ne demande plus, dans la première réponse, les missions des formations, des certifications ni des loisirs. Il fait écrire à l'assistant, après le bloc,
+// la question « Voulez-vous le complément de CV ? » ; si la personne répond oui, il renvoie un second bloc limité à ces trois clés. Cette zone le reçoit et le FUSIONNE
+// avec ce qui est déjà reçu (jamais rien d'écrasé : une entrée de même intitulé est remplacée, les autres sont ajoutées).
+function _complementFusionnerListe(actuelle, nouvelle, cle) {
+  var liste = Array.isArray(actuelle) ? actuelle.slice() : [];
+  var norm = function (t) { return (typeof normaliserTexte === 'function') ? normaliserTexte(t || '') : String(t || '').toLowerCase().trim(); };
+  (nouvelle || []).forEach(function (n) {
+    var i = -1;
+    liste.forEach(function (e, k) { if (i === -1 && e && n && norm(e[cle]) === norm(n[cle])) { i = k; } });
+    if (i === -1) { liste.push(n); } else { liste[i] = n; }
+  });
+  return liste;
+}
+// Clés du complément de CV (second message) : listes d'objets rangées par une clé d'identité, objets entiers, couleurs.
+var COMPLEMENT_CV_LISTES = [
+  { cle: 'formationsAvecMissions', id: 'intitule', libelle: ['formation', 'formations'], norm: function (v) { return normaliserFormationsAvecMissionsIA(v); } },
+  { cle: 'certificationsAvecMissions', id: 'certification', libelle: ['certification', 'certifications'], norm: function (v) { return normaliserCertificationsAvecMissionsIA(v); } },
+  { cle: 'engagementsAvecMissions', id: 'texte', libelle: ['engagement', 'engagements'], norm: function (v) { return normaliserEngagementsAvecMissionsIA(v); } },
+  { cle: 'competencesAttenduesMetier', id: 'competence', libelle: ['qualité attendue pour le poste', 'qualités attendues pour le poste'], norm: function (v) { return normaliserListeRecommandationsIA(v, ['competence', 'justification']); } },
+  { cle: 'competencesGroupeesParTheme', id: 'theme', libelle: ['thème de compétences', 'thèmes de compétences'], norm: function (v) { return normaliserCompetencesGroupeesParThemeIA(v); } },
+  { cle: 'missionsEnActionProposees', id: 'texte', libelle: ['compétence en action', 'compétences en action'], norm: function (v) { return normaliserMissionsEnActionProposeesIA(v); } }
+];
+var COMPLEMENT_CV_OBJETS = [
+  { cle: 'formationRetenue', libelle: 'les missions de votre formation', pret: function (o) { return !!(o && o.intitule && (o.missions || []).length); }, norm: function (v) { return normaliserFormationRetenueIA(v); } },
+  { cle: 'loisirRetenu', libelle: 'un loisir', pret: function (o) { return !!(o && o.intitule && (o.missions || []).length); }, norm: function (v) { return normaliserLoisirRetenuIA(v); } },
+  { cle: 'experiencePersonnelleAMettreEnAvant', libelle: 'une expérience personnelle', pret: function (o) { return !!(o && o.intitule && (o.missions || []).length); }, norm: function (v) { return normaliserExperiencePersonnelleAMettreEnAvantIA(v); } },
+  { cle: 'regroupementExperiences', libelle: 'le regroupement des expériences', pret: function (o) { return !!(o && ((o.experiencesRetenues || []).length || (o.groupes || []).length)); }, norm: function (v) { return normaliserRegroupementExperiencesIA(v); } }
+];
+function _complementFusionnerListe(actuelle, nouvelle, cle) {
+  var liste = Array.isArray(actuelle) ? actuelle.slice() : [];
+  var norm = function (t) { return (typeof normaliserTexte === 'function') ? normaliserTexte(t || '') : String(t || '').toLowerCase().trim(); };
+  (nouvelle || []).forEach(function (n) {
+    var i = -1;
+    liste.forEach(function (e, k) { if (i === -1 && e && n && norm(e[cle]) === norm(n[cle])) { i = k; } });
+    if (i === -1) { liste.push(n); } else { liste[i] = n; }
+  });
+  return liste;
+}
+// Un texte qui est le complément (et non la réponse principale) : ses clés sont celles du complément, aucune de la réponse principale.
+function ressembleAUnComplementCV(texteColle) {
+  var brut = extraireBlocJSONDepuisTexte(texteColle || '');
+  if (!brut) { return false; }
+  var rb = (brut.recommandations && typeof brut.recommandations === 'object') ? brut.recommandations : brut;
+  var cles = COMPLEMENT_CV_LISTES.map(function (l) { return l.cle; }).concat(COMPLEMENT_CV_OBJETS.map(function (o) { return o.cle; })).concat(['couleursEntrepriseSuggerees']);
+  // formationRetenue et experiencePersonnelle figurent aussi dans la réponse principale : seules les clés propres au complément comptent pour reconnaître un texte.
+  var propres = cles.filter(function (c) { return c !== 'formationRetenue' && c !== 'experiencePersonnelleAMettreEnAvant'; });
+  var principales = ['titresProposes', 'accrochesProposees', 'pointsForts', 'motsCles'];
+  var aUneClePropre = propres.some(function (c) { return rb[c] !== undefined || brut[c] !== undefined; }) || (rb.formationRetenue !== undefined && Object.keys(rb).length === 1);
+  return aUneClePropre && !principales.some(function (c) { return brut[c] !== undefined; });
+}
+function fusionnerComplementCV(texteColle) {
+  if (!(texteColle || '').trim()) { return { succes: false, erreur: 'Collez d’abord la réponse de l’assistant.' }; }
+  var brut = extraireBlocJSONDepuisTexte(texteColle);
+  if (!brut) { return { succes: false, erreur: erreurReponseSansJson(texteColle) }; }
+  var rb = (brut.recommandations && typeof brut.recommandations === 'object') ? brut.recommandations : brut;
+  var listes = {}; var objets = {}; var nb = 0;
+  COMPLEMENT_CV_LISTES.forEach(function (l) {
+    var v = l.norm(rb[l.cle]);
+    if (v && v.length) { listes[l.cle] = v; nb += v.length; }
+  });
+  COMPLEMENT_CV_OBJETS.forEach(function (o) {
+    var v = o.norm(rb[o.cle]);
+    if (o.pret(v)) { objets[o.cle] = v; nb++; }
+  });
+  var couleurs = normaliserCouleursEntrepriseIA(rb.couleursEntrepriseSuggerees !== undefined ? rb.couleursEntrepriseSuggerees : brut.couleursEntrepriseSuggerees, undefined);
+  nb += couleurs.length;
+  if (!nb) {
+    return { succes: false, erreur: 'Je n’ai trouvé aucun élément du complément de CV dans ce texte. Vérifiez que vous avez collé la réponse à « complément de CV ».' };
+  }
+  if (!dossier.ia) { dossier.ia = {}; }
+  if (!dossier.ia.cv) { dossier.ia.cv = {}; }
+  var reco = dossier.ia.cv.recommandations = dossier.ia.cv.recommandations || {};
+  var r = { succes: true, listes: {}, objets: [], couleurs: couleurs.length };
+  COMPLEMENT_CV_LISTES.forEach(function (l) {
+    if (!listes[l.cle]) { return; }
+    reco[l.cle] = _complementFusionnerListe(reco[l.cle], listes[l.cle], l.id);
+    var pool = reco[l.cle + 'Proposees'];
+    if (pool && pool.length) { reco[l.cle + 'Proposees'] = _complementFusionnerListe(pool, listes[l.cle], l.id); }
+    r.listes[l.cle] = listes[l.cle].length;
+  });
+  COMPLEMENT_CV_OBJETS.forEach(function (o) {
+    if (!objets[o.cle]) { return; }
+    reco[o.cle] = objets[o.cle];
+    var proposee = reco[o.cle + 'Proposee'];
+    if (proposee && (proposee.intitule || proposee.experiencesRetenues)) { reco[o.cle + 'Proposee'] = objets[o.cle]; }
+    r.objets.push(o.libelle);
+  });
+  if (couleurs.length) { dossier.ia.cv.couleursEntrepriseSuggerees = couleurs; dossier.ia.cv.couleurEntrepriseSuggeree = couleurs[0]; }
+  dossier.complementCVAjoute = true;
+  return r;
+}
+function _complementTexteResultat(r) {
+  var morceaux = [];
+  COMPLEMENT_CV_LISTES.forEach(function (l) {
+    var n = r.listes && r.listes[l.cle];
+    if (n) { morceaux.push(n + ' ' + l.libelle[n > 1 ? 1 : 0]); }
+  });
+  (r.objets || []).forEach(function (o) { morceaux.push(o); });
+  if (r.couleurs) { morceaux.push('les couleurs de l’entreprise'); }
+  return 'Ajouté à votre CV : ' + morceaux.join(', ') + '. Vous les retrouvez dans « Ce que l’assistant a préparé » et dans l’éditeur de CV.';
+}
+// Bannière : l'assistant a proposé le complément de CV (sa question était dans le texte collé) et la personne ne l'a pas encore ajouté.
+function complementCVEnAttente() {
+  return !!(typeof dossier !== 'undefined' && dossier && dossier.complementCVPropose && !dossier.complementCVAjoute && !dossier.complementCVRefuse);
+}
+// Libellé du bouton « Continuer » : tant que le complément proposé n'est pas ajouté, il le dit clairement (décision de Denis, 2026-10-10).
+function libelleContinuerComplementCV(libelleHabituel) {
+  return complementCVEnAttente() ? 'Continuer sans le complément &#8594;' : libelleHabituel;
+}
+function htmlBanniereComplementCV() {
+  if (!complementCVEnAttente()) { return ''; }
+  return '<div class="complement-cv-banniere" role="note"><p class="mb-1"><strong>&#10133; Votre assistant vous propose un complément de CV (facultatif)</strong></p>' +
+    '<p class="mb-1">Ce sont des informations en plus pour votre CV : le regroupement des expériences, les thèmes et les compétences en action, les qualités attendues, les missions de vos formations et de vos certifications. Pour les avoir :</p>' +
+    '<ol class="mb-1" style="padding-left:1.25rem;"><li>Retournez dans la <strong>dernière fenêtre de l’assistant en ligne</strong>, celle où vous avez eu la réponse.</li>' +
+    '<li>Répondez-lui : <strong>oui</strong>.</li>' +
+    '<li>Copiez sa nouvelle réponse, puis revenez ici.</li>' +
+    '<li>Cliquez sur le <strong>rond bleu</strong> ci-dessous : la réponse se colle et s’ajoute toute seule à votre CV.</li></ol>' +
+    htmlCollageInstantane('ComplementBandeau', { libelleImporter: 'Ajouter à mon CV', texteExplication: 'Ce bouton ajoute le complément copié à votre CV.' }) +
+    '<p class="mb-0 small">Vous n’en voulez pas ? <button type="button" class="btn btn-sm btn-outline-secondary" data-complement-refus="1">Je ne suis pas intéressé(e)</button> Votre CV est déjà prêt.</p></div>';
+}
+// Affiche la bannière en haut d'une page déjà dessinée (page Vos documents, où la personne atterrit après l'import).
+function injecterBanniereComplementCV(rerender) {
+  if (!complementCVEnAttente()) { return; }
+  var app = document.getElementById('app');
+  if (!app || app.querySelector('.complement-cv-banniere')) { return; }
+  var div = document.createElement('div');
+  div.innerHTML = htmlBanniereComplementCV();
+  if (div.firstChild) {
+    var banniere = div.firstChild;
+    app.insertBefore(banniere, app.firstChild);
+    wireComplementCV(rerender || pageResultats);
+    // La personne atterrit parfois plus bas dans la page : on l'amène sur la consigne, jamais à côté sans la voir.
+    setTimeout(function () { try { banniere.scrollIntoView({ block: 'start' }); } catch (e) { /* rien */ } }, 150);
+  }
+}
+function contenuRectangleComplementCV() {
+  // Une fois le complément ajouté (ou refusé), plus de zone de collage : la personne ne risque pas de le coller une deuxième fois (retour de Denis, 2026-10-11).
+  if (dossier && dossier.complementCVAjoute) {
+    return '<p class="mb-0">&#10003; Le complément est déjà ajouté à votre CV. Vous le retrouvez dans « Ce que l’assistant a préparé » et dans l’éditeur de CV.</p>';
+  }
+  if (dossier && dossier.complementCVRefuse) {
+    return '<p class="mb-2">Vous avez choisi de ne pas ajouter le complément. Votre CV est prêt tel quel.</p>' +
+      '<button type="button" class="btn btn-sm btn-outline-secondary" data-complement-reprendre="1">Finalement, je le veux</button>';
+  }
+  // Même composant que « Importer la réponse » (rond bleu qui lit le presse-papiers en un clic, puis un bouton) : jamais de zone de texte à remplir à la main (décision de Denis, 2026-10-10).
+  return '<p class="mb-2">Ce complément est facultatif. L’assistant vous a demandé : « Voulez-vous aussi le complément de CV ? ». Si vous le voulez, répondez-lui <strong>oui</strong> dans la même conversation, copiez sa nouvelle réponse, puis cliquez sur le rond bleu ci-dessous : elle se colle toute seule. Vous aurez alors le regroupement des expériences, les thèmes de compétences, les compétences en action, les qualités attendues et les missions de vos formations et de vos certifications.</p>' +
+    htmlCollageInstantane('Complement', {
+      libelleImporter: 'Ajouter à mon CV',
+      texteExplication: 'Ce bouton ajoute le complément copié à votre CV.'
+    }) +
+    '<p class="mb-0 mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" data-complement-refus="1">Je ne suis pas intéressé(e)</button></p>';
+}
+function rectangleComplementCV() {
+  return rectangleAssistant('complement-cv', '&#10133;', 'Compléter mon CV (facultatif)', 'missions des formations, des certifications', contenuRectangleComplementCV());
+}
+function wireComplementCV(rerender) {
+  // « Je ne suis pas intéressé(e) » : le rectangle se referme, la consigne disparaît, rien n'est ajouté. « Finalement, je le veux » rouvre la zone de collage.
+  document.querySelectorAll('[data-complement-refus], [data-complement-reprendre]').forEach(function (b) {
+    if (b.getAttribute('data-complement-cable')) { return; }
+    b.setAttribute('data-complement-cable', '1');
+    b.addEventListener('click', function () {
+      var reprise = this.hasAttribute('data-complement-reprendre');
+      dossier.complementCVRefuse = !reprise;
+      etatAccordeon['complement-cv'] = reprise;
+      if (typeof rerender === 'function') { rerender(); }
+    });
+  });
+  ['Complement', 'ComplementBandeau'].forEach(function (suffixe) {
+    var bouton = document.getElementById('btnImporter' + suffixe);
+    if (!bouton || bouton.getAttribute('data-complement-cable')) { return; }
+    bouton.setAttribute('data-complement-cable', '1');
+    activerCollageInstantane({
+      idZoneAuto: 'zoneCollageAuto' + suffixe,
+      idZoneApercu: 'zoneApercuCollage' + suffixe,
+      idTextarea: 'texteCollage' + suffixe,
+      idBoutonColler: 'btnCollerAuto' + suffixe,
+      idBoutonImporter: 'btnImporter' + suffixe
+    });
+    bouton.addEventListener('click', function () {
+      var zone = document.getElementById('texteCollage' + suffixe);
+      var msg = document.getElementById('messageImport' + suffixe);
+      var r = fusionnerComplementCV(zone ? zone.value : '');
+      if (!msg) { return; }
+      if (!r.succes) { msg.style.color = 'var(--danger)'; msg.textContent = r.erreur; return; }
+      var texte = _complementTexteResultat(r);
+      if (typeof trackEvenement === 'function') { trackEvenement('complement_cv_ajoute', { elements: Object.keys(r.listes || {}).length + (r.objets || []).length }); }
+      if (typeof rerender === 'function') {
+        // Le rectangle se referme (la zone de collage ne sert plus) ; le résultat est annoncé en bandeau.
+        etatAccordeon['complement-cv'] = false;
+        rerender();
+        if (typeof afficherToast === 'function') { afficherToast(texte, 6000); }
+      } else { msg.style.color = 'var(--success-strong)'; msg.textContent = texte; }
+    });
+  });
+}
+
 function contenuAccordeonImportIA(docActif) {
   var libellesImportIA = { cv: 'le CV', lettre: 'la lettre', entretien: 'la préparation' };
   return (
@@ -13409,7 +13637,9 @@ function contenuAccordeonImportIA(docActif) {
     htmlCollageInstantane('ActionIA', {
       libelleImporter: 'Importer dans ' + libellesImportIA[docActif],
       texteExplication: 'Ce bouton intègre la réponse collée dans ' + libellesImportIA[docActif] + '.'
-    })
+    }) +
+    // Complément de CV (facultatif) : un petit bouton à côté de l'import, une fois la réponse principale importée (décision de Denis, 2026-10-10).
+    ((docActif === 'cv' && reponseIAImportee('cv') && !complementCVEnAttente()) ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-complement-cv" id="btnOuvrirComplementCV">Importer le complément de CV</button> <span class="small" style="color:var(--text-muted);">facultatif</span></div>' : '')
   );
 }
 
@@ -13442,6 +13672,14 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
       _etatTransitionIA = null;
       etatAccordeon['import-ia'] = false;
       etatAccordeon['choix-ia'] = true;
+      rerender();
+    });
+  }
+  var btnOuvrirComplementCV = document.getElementById('btnOuvrirComplementCV');
+  if (btnOuvrirComplementCV) {
+    btnOuvrirComplementCV.addEventListener('click', function () {
+      RECTANGLES_ASSISTANT.forEach(function (autre) { etatAccordeon[autre] = false; });
+      etatAccordeon['complement-cv'] = true;
       rerender();
     });
   }
@@ -13590,7 +13828,19 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
     btnImporterReponseIA.addEventListener('click', function () {
       var texte = document.getElementById('texteCollageActionIA').value;
       var type = docActifActuel();
+      if (type === 'cv' && reponseIAImportee('cv') && ressembleAUnComplementCV(texte)) {
+        // La personne a collé le complément ici : on l'ajoute au lieu d'afficher une erreur.
+        var rc = fusionnerComplementCV(texte);
+        messageImportIA.style.color = rc.succes ? 'var(--success-strong)' : 'var(--danger)';
+        messageImportIA.textContent = rc.succes ? _complementTexteResultat(rc) : rc.erreur;
+        if (rc.succes) { etatAccordeon['complement-cv'] = false; setTimeout(function () { rerender(); }, 900); }
+        return;
+      }
       if (type === 'cv') {
+        // L'assistant propose-t-il le complément ? (sa question est dans le texte collé, après le bloc) : on le retient pour afficher la consigne.
+        dossier.complementCVPropose = /compl[ée]ment de CV/i.test(texte);
+        dossier.complementCVAjoute = false;
+        dossier.complementCVRefuse = false;
         var resultat = analyserReponseIACV(texte);
         // TACHE (retour Denis, 2026-08-31, Chantier 4) : l'assistant a repondu
         // que le profil ne contient rien d'exploitable -> ecran dedie qui
@@ -17161,11 +17411,16 @@ var _mepPileUndo = [];
 var _mepPileRedo = [];
 var _mepHistoCle = null;
 var _mepHistoHeure = 0;
+// Look (2026-10-06) : pendant l'application d'un look, les reglages qu'il pose n'empilent PAS chacun une etape ; le look en empile une seule.
+// Le compteur augmente a chaque etape reellement empilee : il sert a savoir si le look est toujours la DERNIERE action (voir _htmlCarteLooks).
+var _mepHistoGele = false;
+var _mepHistoCompteur = 0;
 var _MEP_HISTO_MAX = 40;
 
-function _mepInstantaneMiseEnPage() {
+function _mepInstantaneMiseEnPage(cle) {
   var e = (etatApercuInline && etatApercuInline.cv) || {};
   return {
+    cle: cle || null,   // le geste (« look », « base », « accent »...) qui s'applique APRES cet instantane : sert a nommer ce que « Annuler » annule
     canon: dossier.reglagesMiseEnPageCV ? JSON.parse(JSON.stringify(dossier.reglagesMiseEnPageCV)) : null,
     couleur: e.couleur,
     reglagesProjetXXL: e.reglagesProjetXXL ? JSON.parse(JSON.stringify(e.reglagesProjetXXL)) : null,
@@ -17179,6 +17434,7 @@ function _mepInstantaneMiseEnPage() {
 // modifications rapprochees sur la meme cle (< 700 ms) ne comptent que pour
 // une seule etape d'annulation.
 function _mepPousserHistorique(cle) {
+  if (_mepHistoGele) { return; }
   var maintenant = Date.now();
   if (cle && cle === _mepHistoCle && (maintenant - _mepHistoHeure) < 700) {
     _mepHistoHeure = maintenant;
@@ -17186,13 +17442,15 @@ function _mepPousserHistorique(cle) {
   }
   _mepHistoCle = cle || null;
   _mepHistoHeure = maintenant;
-  _mepPileUndo.push(_mepInstantaneMiseEnPage());
+  _mepPileUndo.push(_mepInstantaneMiseEnPage(cle));
+  _mepHistoCompteur++;
   if (_mepPileUndo.length > _MEP_HISTO_MAX) { _mepPileUndo.shift(); }
   _mepPileRedo.length = 0;
 }
 
 function _mepAppliquerInstantaneMiseEnPage(snap) {
   if (!snap) { return; }
+  _mepHistoCompteur++; // annuler ou refaire change l'etat : un look appliqué avant n'est plus « le dernier geste »
   var e = (etatApercuInline && etatApercuInline.cv) || null;
   if (snap.canon) {
     var fmtCanonActuel = (dossier.reglagesMiseEnPageCV && dossier.reglagesMiseEnPageCV.format) || null;
@@ -17215,7 +17473,12 @@ function _mepAppliquerInstantaneMiseEnPage(snap) {
     if (fmtPdfActuel !== undefined) { dossier.pdfReglages.regFormatCV = fmtPdfActuel; }
   }
   dossier.cvOptimiseActif = !!snap.cvOptimiseActif;
-  setTimeout(function () { naviguerVers('resultats'); }, 30);
+  // L'ecran reste ou il est (retour de Denis, 2026-10-08) : on retient la position et on la remet apres le redessin de la page.
+  var yAvant = window.pageYOffset || document.documentElement.scrollTop || 0;
+  setTimeout(function () {
+    naviguerVers('resultats');
+    [80, 250, 600, 1200].forEach(function (d) { setTimeout(function () { if (Math.abs((window.pageYOffset || 0) - yAvant) > 2) { window.scrollTo(0, yAvant); } }, d); });
+  }, 30);
 }
 
 function _mepAnnulerMiseEnPage() {
@@ -17317,7 +17580,7 @@ function _mepLibelleDe() {
     } catch (e) {
       _assurerReglagesMiseEnPageCV();
       var deuxColonnes = String((dossier.reglagesMiseEnPageCV || {}).colonnes) !== '1';
-      ids = ['mq-bandeau', 'mq-fond', 'mq-epure'].concat(deuxColonnes ? ['mq-photo'] : ['mq-rectangles']);
+      ids = ['mq-bandeau', 'mq-fond', 'mq-epure'].concat(deuxColonnes ? ['mq-photo'] : ['mq-rectangles']).concat(['mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs']);
     }
     actuel = _mepVarianteSobreActuelle();
   }
@@ -17325,48 +17588,202 @@ function _mepLibelleDe() {
   return { titre: 'Un autre modèle (' + (i + 1) + ' sur ' + ids.length + ')', sous: 'Passe au modèle suivant dans le même style.' };
 }
 
-// TACHE (phase 5.2, galerie de modeles) : silhouette miniature (boites
-// CSS positionnees en absolu, jamais une vraie image) -- meme technique
-// et memes coordonnees EXACTES que mini(id) de la maquette
-// (docs/MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html), reprise a l'identique
-// pour que la galerie reelle ressemble a celle deja validee par Denis.
-// Illustrative (silhouette du style), jamais un rendu reel du CV -- le
-// CLIC, lui, applique la vraie recette (_pdfChoisirModeleCreatif/
-// _pdfChoisirVarianteSobre, cvPdfPanneauReglages.js), voir C47/regle 6.
-function _mepVignetteMini(id, couleur) {
-  var c = couleur || '#8a97a6';
-  var formes = {
-    'sobre-bandeau': '<i style="left:0;top:0;right:0;height:20px;background:#dbe6f0;border-bottom:1px solid ' + c + '"></i><i style="left:6px;top:6px;width:34px;height:4px;background:#444"></i><i style="left:6px;top:30px;width:40px;height:1px;background:#444"></i><i style="left:6px;top:36px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:44px;right:6px;height:3px;background:#ddd"></i>',
-    'sobre-fond': '<i style="left:6px;top:6px;width:34px;height:4px;background:#444"></i><i style="left:6px;top:14px;right:6px;height:1px;background:#444"></i><i style="left:6px;top:20px;width:20px;height:3px;background:#ddd"></i><i style="left:34px;top:19px;right:5px;bottom:5px;background:#dbe6f0"></i>',
-    'sobre-epure': '<i style="left:8px;top:8px;width:34px;height:4px;background:#444"></i><i style="left:8px;top:16px;right:8px;height:1px;background:#444"></i><i style="left:8px;top:26px;width:26px;height:1px;background:#777"></i><i style="left:8px;top:32px;right:8px;height:3px;background:#e2e2e2"></i><i style="left:8px;top:44px;width:26px;height:1px;background:#777"></i>',
-    duoOvale: '<i style="left:0;top:0;right:0;height:22px;background:' + c + '"></i><i style="left:6px;top:32px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:40px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:50px;width:30px;height:3px;background:' + c + '"></i>',
-    sidebarVague: '<i style="left:6px;top:6px;width:30px;height:5px;background:' + c + '"></i><i style="left:6px;top:20px;width:24px;height:3px;background:#ddd"></i><i style="left:36px;top:18px;right:5px;bottom:5px;background:' + c + ';border-radius:3px"></i>',
-    cadreBarre: '<i style="left:0;top:0;right:0;bottom:0;box-shadow:inset 0 0 0 4px ' + c + '"></i><i style="left:14px;top:10px;right:14px;height:12px;background:' + c + '"></i><i style="left:10px;top:30px;width:22px;height:4px;background:#ddd"></i><i style="left:37px;top:14px;bottom:10px;width:2px;background:' + c + '"></i><i style="left:41px;top:30px;right:9px;height:4px;background:#ddd"></i><i style="left:10px;top:40px;width:22px;height:4px;background:#ddd"></i><i style="left:41px;top:40px;right:9px;height:4px;background:#ddd"></i>',
-    pastille: '<i style="left:0;top:0;right:0;height:11px;background:' + c + '"></i><i style="left:10px;top:23px;width:18px;height:18px;border-radius:50%;background:' + c + '"></i><i style="left:32px;top:28px;right:8px;height:7px;background:#444"></i><i style="left:10px;top:47px;right:8px;height:4px;background:#ddd"></i>',
-    rubanDiagonal: '<i style="left:0;top:0;right:0;height:30px;background:' + c + ';clip-path:polygon(0 0,100% 0,100% 55%,0 100%)"></i><i style="left:6px;top:40px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:48px;width:34px;height:3px;background:#ddd"></i>',
-    // TACHE (Denis, 2026-09-25, tranche 2) : silhouettes des 6 modeles de l'application qui n'etaient
-    // pas dans la galerie (meme technique et meme cadre 56 px que celles de la maquette).
-    bandeauVertical: '<i style="left:0;top:0;bottom:0;width:14px;background:' + c + '"></i><i style="left:20px;top:8px;width:34px;height:5px;background:#444"></i><i style="left:20px;top:22px;right:6px;height:3px;background:#ddd"></i><i style="left:20px;top:30px;right:6px;height:3px;background:#ddd"></i><i style="left:20px;top:42px;width:30px;height:3px;background:' + c + '"></i>',
-    triangleSavoir: '<i style="left:0;top:0;width:44px;height:44px;background:' + c + ';clip-path:polygon(0 0,100% 0,0 100%)"></i><i style="left:6px;top:32px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:40px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:50px;width:30px;height:3px;background:' + c + '"></i>',
-    vagueMarine: '<i style="left:0;top:0;right:0;height:26px;background:' + c + ';border-radius:0 0 60% 60% / 0 0 100% 100%"></i><i style="left:6px;top:36px;right:6px;height:3px;background:#ddd"></i><i style="left:6px;top:44px;right:6px;height:3px;background:#ddd"></i>',
-    diagonalesContrastees: '<i style="left:0;top:0;right:0;height:28px;background:' + c + ';clip-path:polygon(0 0,100% 0,100% 40%,0 100%)"></i><i style="left:0;top:22px;right:0;height:14px;background:#b7bcc2;clip-path:polygon(0 60%,100% 0,100% 40%,0 100%)"></i><i style="left:6px;top:42px;right:6px;height:3px;background:#ddd"></i>',
-    losangeVert: '<i style="left:8px;top:8px;width:16px;height:16px;background:' + c + ';transform:rotate(45deg)"></i><i style="left:34px;top:10px;right:6px;height:5px;background:#444"></i><i style="left:34px;top:19px;right:6px;height:3px;background:#ddd"></i><i style="left:8px;top:34px;right:8px;height:3px;background:#ddd"></i><i style="left:8px;top:42px;right:8px;height:3px;background:#ddd"></i>',
-    medaillon: '<i style="left:0;top:0;right:0;height:22px;background:' + c + '"></i><i style="left:8px;top:12px;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid ' + c + '"></i><i style="left:34px;top:8px;right:6px;height:4px;background:#fff"></i><i style="left:6px;top:40px;right:6px;height:3px;background:#ddd"></i>',
-    // TACHE (phase 5.2, 6e modele de la galerie) : silhouette reprise a
-    // l'identique de mini('frise') de la maquette (colonne laterale grise
-    // fixe + coin colore en diagonale) -- seule vignette dont la couleur
-    // de fond de la bande n'est PAS l'accent (#93aac6 fixe, comme la
-    // maquette et _pdfConstruireFrise().fr-lat, cvPdfTemplateA4.js).
-    rectangles: '<i style="left:4px;top:4px;width:22px;height:8px;border-radius:3px;background:' + c + '"></i><i style="left:32px;top:4px;right:4px;height:8px;border-radius:3px;background:' + c + '"></i><i style="left:4px;top:18px;right:4px;height:7px;border-radius:3px;background:' + c + '"></i><i style="left:4px;top:29px;width:34px;height:14px;border:1px solid ' + c + ';border-radius:5px"></i><i style="left:24px;top:33px;right:4px;height:14px;border:1px solid ' + c + ';border-radius:5px;background:#fff"></i><i style="left:4px;top:50px;right:4px;height:4px;border-radius:2px;background:' + c + '"></i>',
-    'sobre-rectangles': '<i style="left:4px;top:4px;width:22px;height:8px;border-radius:3px;border:1px solid #444"></i><i style="left:32px;top:4px;right:4px;height:8px;border-radius:3px;border:1px solid #444"></i><i style="left:4px;top:18px;right:4px;height:1px;background:#444"></i><i style="left:4px;top:26px;width:34px;height:14px;border:1px solid #777;border-radius:5px"></i><i style="left:24px;top:30px;right:4px;height:14px;border:1px solid #777;border-radius:5px;background:#fff"></i><i style="left:4px;top:50px;right:4px;height:1px;background:#444"></i>',
-    photoFrise: '<i style="left:0;top:0;bottom:0;width:22px;border-right:2px solid ' + c + '"></i><i style="left:6px;top:4px;width:12px;height:12px;background:#888"></i><i style="left:4px;top:19px;width:16px;height:3px;background:' + c + '"></i><i style="left:30px;top:6px;width:20px;height:3px;background:#444"></i><i style="left:30px;top:16px;bottom:8px;width:2px;background:' + c + '"></i><i style="left:36px;top:18px;right:6px;height:3px;background:#ddd"></i><i style="left:36px;top:26px;right:6px;height:3px;background:#ddd"></i><i style="left:36px;top:34px;right:6px;height:3px;background:#ddd"></i>',
-    frise: '<i style="left:0;top:0;bottom:0;width:22px;background:#93aac6"></i><i style="right:0;top:0;width:46px;height:18px;background:' + c + ';clip-path:polygon(0 0,100% 0,100% 100%)"></i><i style="left:30px;top:24px;width:26px;height:3px;background:' + c + '"></i><i style="left:32px;top:34px;bottom:8px;width:1px;background:#333"></i><i style="left:37px;top:35px;right:6px;height:3px;background:#ddd"></i><i style="left:37px;top:45px;right:6px;height:3px;background:#ddd"></i>'
-  };
-  return formes[id] || ('<i style="left:0;top:0;right:0;bottom:0;background:' + c + '"></i>');
+// MINIATURES REELLES des modeles (plan docs/PLAN_BANC_ET_MINIATURES_2026-10-11.md, demande de Denis : « la miniature doit etre fidele au CV obtenu »).
+// Chaque modele a un fichier data/miniatures/<famille>_<id>.json ({ html, css, hash }) fabrique par le banc de rendu (scripts/rendu/banc.js) a partir du VRAI moteur de CV,
+// avec un CV d'exemple fixe. Il est montre reduit dans un compartiment etanche (shadow root), comme les miniatures du module « Un CV, plusieurs metiers ».
+// La silhouette dessinee reste visible tant que le fichier n'est pas arrive (ou s'il manque). Le test tests/miniaturesModeles.test.js verifie que les fichiers suivent le registre du banc.
+var _mepMiniCache = {};
+var _mepMiniEnCours = {};
+function _mepMiniCharger(cle) {
+  if (_mepMiniCache[cle] !== undefined) { return Promise.resolve(_mepMiniCache[cle]); }
+  if (!_mepMiniEnCours[cle]) {
+    _mepMiniEnCours[cle] = fetch('data/miniatures/' + cle.replace(':', '_') + '.json').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (d) {
+      _mepMiniCache[cle] = d; delete _mepMiniEnCours[cle]; return d;
+    });
+  }
+  return _mepMiniEnCours[cle];
+}
+function _mepMiniMontrer(el, d) {
+  var largeur = el.clientWidth;
+  if (!d || !largeur) { return false; }
+  var racine = el.shadowRoot || el.attachShadow({ mode: 'open' });
+  // « all: initial » : la miniature n'herite rien de la vignette qui la porte (le texte centre de la vignette se retrouvait dans le CV).
+  racine.innerHTML = '<style>:host{all:initial;display:block;position:relative;overflow:hidden;}.mini-ech{position:absolute;top:0;left:0;width:794px;transform-origin:0 0;transform:scale(' + (largeur / 794) + ');}.mini-ech *{pointer-events:none;}' + d.css + '</style>' +
+    '<div class="mini-ech">' + d.html + '</div>';
+  return true;
+}
+function _mepMiniaturesReelles() {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mini-reel]'), function (el) {
+    var cle = el.getAttribute('data-mini-reel');
+    if (_mepMiniCache[cle]) { _mepMiniMontrerVignette(el, _mepMiniCache[cle]); return; }
+    _mepMiniCharger(cle).then(function (d) { if (document.body.contains(el)) { _mepMiniMontrerVignette(el, d); } });
+  });
+}
+// BORD DE LA COLONNE au choix (Denis, 2026-10-11) : les modeles Creatif a colonne coloree pleine hauteur portent, sur leur vignette, un interrupteur « Vallonné ».
+// La miniature montre aussitot le bord qu'il donnera (fichier data/miniatures/<famille>_<id>.bord.json, fabrique par le banc de rendu a cote de la miniature du modele).
+// Un modele n'a l'interrupteur que si sa miniature dit son bord (champ `bord`) : la source est le rendu reel (classe `bord-choix` du gabarit), jamais une liste ecrite ici.
+// Modele actuel : l'interrupteur agit tout de suite sur le CV. Autre modele : il garde le souhait (_mepBordVignette) et l'applique quand la personne choisit ce modele.
+var _mepBordVignette = {};
+// DERNIERES COULEURS (Denis, 2026-10-11) : chaque modele arrive avec ses couleurs d'origine ; ce que la personne a choisi est garde dans le CV (reglages `dernieresCouleurs`) et se reprend
+// d'un clic (« Reprendre mes dernieres couleurs ») ou tout seul a chaque changement de modele (case « Garder mes couleurs », reglage `garderCouleurs`).
+// `dernieresCouleurs` = { accent, baseCouleur, accentClair, nuance, colonne, secondaire, texte, texteAuto } : seules les cles choisies par la personne y sont.
+var _mepReprendreCouleursFn = null;   // branche par le gestionnaire du panneau (poserCouleurDeBase, _mepPousserAccent... y sont accessibles)
+function _mepNoterCouleurs(patch) {
+  if (_mepRepriseEnCours) { return; }
+  _assurerReglagesMiseEnPageCV();
+  var c = dossier.reglagesMiseEnPageCV;
+  var d = c.dernieresCouleurs ? JSON.parse(JSON.stringify(c.dernieresCouleurs)) : {};
+  Object.keys(patch).forEach(function (k) { if (patch[k] === null || patch[k] === undefined || patch[k] === '') { delete d[k]; } else { d[k] = patch[k]; } });
+  c.dernieresCouleurs = d;
+}
+var _mepRepriseEnCours = false;
+function _mepApresChoixModele() {
+  var c = dossier && dossier.reglagesMiseEnPageCV;
+  if (!c || c.garderCouleurs !== true || !c.dernieresCouleurs || !_mepReprendreCouleursFn) { return; }
+  setTimeout(function () { _mepReprendreCouleursFn(false); }, 0);
+}
+// Les couleurs reprenables different-elles de celles du CV affiche ? (le bouton n'apparait que dans ce cas)
+function _mepCouleursReprenables() {
+  var c = dossier.reglagesMiseEnPageCV || {};
+  var d = c.dernieresCouleurs;
+  if (!d || !d.accent) { return null; }
+  var s = _mepStructureCouleurs();
+  if (!s) { return d; }
+  var pareil = String(s.accent).toLowerCase() === String(d.accent).toLowerCase() && (s.colonneChoisie || '') === (d.colonne || '') && (s.secondaire || '') === (d.secondaire || '');
+  return pareil ? null : d;
+}
+function _htmlReprendreCouleurs(allure) {
+  if (allure === 'sobre') { return ''; }
+  var c = dossier.reglagesMiseEnPageCV || {};
+  var d = _mepCouleursReprenables();
+  var pastilles = '';
+  if (d) { [d.accent, d.secondaire, d.colonne].filter(Boolean).forEach(function (h) { pastilles += '<i style="background:' + h + '"></i>'; }); }
+  return '<div class="coul-reprise">' +
+    (d ? '<button type="button" class="btn-miss btn-reprise" data-mep-reprendre-couleurs><span class="reprise-pastilles" aria-hidden="true">' + pastilles + '</span>Reprendre mes derni&egrave;res couleurs</button>' : '') +
+    '<label class="ck-garder"><input type="checkbox" data-mep-garder-couleurs' + (c.garderCouleurs === true ? ' checked' : '') + '> Garder mes couleurs quand je change de mod&egrave;le</label>' +
+    '</div>';
+}
+// Ajuste le texte sur le fond colore quand la personne a choisi « Automatique » (branche par le gestionnaire du panneau, ou _mepReglageMoteur est accessible).
+var _mepTexteAutoAjuster = null;
+// Pose du bord sur le CV en cours : branchee par le gestionnaire du panneau (la, _mepReglageMoteur est accessible), jamais appelee avant.
+var _mepBordAppliquer = null;
+function _mepBordColonne() {
+  try {
+    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+    var cv = d && d.querySelector('#conteneurPage .cv');
+    var cas = d && d.getElementById('regColonneBordDroit');
+    if (!cv || !cas || !cv.classList.contains('bord-choix')) { return null; }
+    return cas.checked ? 'droit' : 'vallonne';
+  } catch (e) { return null; }
+}
+// Le bord que la vignette de ce modele doit montrer : le reglage reel si c'est le modele actuel, sinon le souhait garde, sinon le bord du modele.
+function _mepBordAffiche(id, bordModele) {
+  if (_mepModeleCreatifActuel() === id) { return _mepBordColonne() || bordModele; }
+  return _mepBordVignette[id] || bordModele;
+}
+function _mepMiniMontrerVignette(el, d) {
+  _mepMiniMontrer(el, d);
+  if (!d || !(d.bord || d.bandeau) || !el.closest) { return; }
+  var vign = el.closest('.vign');
+  if (!vign) { return; }   // les petits apercus des onglets de familles n'ont pas d'interrupteur
+  var cle = el.getAttribute('data-mini-reel'), id = cle.split(':')[1];
+  var cadre = vign.parentElement;
+  if (!cadre.classList.contains('vign-cadre')) {
+    cadre = document.createElement('div'); cadre.className = 'vign-cadre';
+    vign.parentElement.insertBefore(cadre, vign); cadre.appendChild(vign);
+  }
+  if (d.bord) { _mepPoserInterrupteurBord(el, d, vign, cadre, cle, id); }
+  if (d.bandeau) { _mepPoserChoixBandeau(el, d, vign, cadre, cle, id); }
+}
+function _mepPoserInterrupteurBord(el, d, vign, cadre, cle, id) {
+  var affiche = _mepBordAffiche(id, d.bord);
+  if (affiche !== d.bord) { _mepMiniCharger(cle + '.bord').then(function (alt) { if (alt && document.body.contains(el) && _mepBordAffiche(id, d.bord) === alt.bord) { _mepMiniMontrer(el, alt); } }); }
+  if (cadre.querySelector('.vign-bord')) { return; }
+  var inter = document.createElement('button');
+  inter.type = 'button'; inter.className = 'vign-bord'; inter.setAttribute('role', 'switch');
+  inter.setAttribute('aria-checked', affiche === 'vallonne' ? 'true' : 'false');
+  inter.setAttribute('aria-label', 'Bord vallonné de la colonne, ' + (vign.querySelector('.vign-nom') ? vign.querySelector('.vign-nom').textContent : ''));
+  inter.setAttribute('data-mep-bord-vign', id);
+  inter.innerHTML = '<span class="vign-bord-piste" aria-hidden="true"><span class="vign-bord-bouton"></span></span><span class="vign-bord-nom">Vallonné</span>';
+  inter.addEventListener('click', function () {
+    var vers = inter.getAttribute('aria-checked') === 'true' ? 'droit' : 'vallonne';
+    _mepBordVignette[id] = vers;
+    if (_mepModeleCreatifActuel() === id) {
+      if (_mepBordAppliquer) { _mepBordAppliquer(vers); }   // agit sur le CV, puis tout est redessine
+      return;
+    }
+    inter.setAttribute('aria-checked', vers === 'vallonne' ? 'true' : 'false');
+    if (vers === d.bord) { _mepMiniMontrer(el, d); } else { _mepMiniCharger(cle + '.bord').then(function (alt) { if (alt) { _mepMiniMontrer(el, alt); } }); }
+  });
+  cadre.appendChild(inter);
+}
+// BORD DU BANDEAU au choix (Denis, 2026-10-11) : Bandeau entier, Duo ovale, Vague marine portent, sous leur vignette, trois petits boutons dessines (droit, arrondi, vallonne).
+// Meme mecanisme que le bord de la colonne : la miniature dit son bord de depart (champ `bandeau`), les deux autres sont dans data/miniatures/<famille>_<id>.bandeau-<bord>.json (fabriques par le banc).
+var _mepBandeauVignette = {};
+var _mepBandeauAppliquer = null;   // branche par le gestionnaire du panneau, comme _mepBordAppliquer
+var _MEP_BORDS_BANDEAU = [
+  ['droit', 'Droit', '<svg viewBox="0 0 24 14" width="24" height="14" aria-hidden="true"><path d="M1 1h22v8H1z" fill="currentColor"/></svg>'],
+  ['arrondi', 'Arrondi', '<svg viewBox="0 0 24 14" width="24" height="14" aria-hidden="true"><path d="M1 1h22v4a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4z" fill="currentColor"/></svg>'],
+  ['vallonne', 'Vallonné', '<svg viewBox="0 0 24 14" width="24" height="14" aria-hidden="true"><path d="M1 1h22v5c-3 3-5 3-8 0s-5-3-7 0-5 3-7 0z" fill="currentColor"/></svg>']
+];
+function _mepBandeauActuel() {
+  try {
+    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+    var cv = d && d.querySelector('#conteneurPage .cv');
+    var sel = d && d.getElementById('regBordBandeau');
+    if (!cv || !sel || !cv.classList.contains('bord-bandeau-choix')) { return null; }
+    return sel.value;
+  } catch (e) { return null; }
+}
+function _mepBandeauAffiche(id, bordModele) {
+  if (_mepModeleCreatifActuel() === id) { return _mepBandeauActuel() || bordModele; }
+  return _mepBandeauVignette[id] || bordModele;
+}
+function _mepMontrerBandeau(el, d, cle, bord) {
+  if (bord === d.bandeau) { _mepMiniMontrer(el, d); return; }
+  _mepMiniCharger(cle + '.bandeau-' + bord).then(function (alt) { if (alt && document.body.contains(el)) { _mepMiniMontrer(el, alt); } });
+}
+function _mepPoserChoixBandeau(el, d, vign, cadre, cle, id) {
+  var affiche = _mepBandeauAffiche(id, d.bandeau);
+  if (affiche !== d.bandeau) { _mepMontrerBandeau(el, d, cle, affiche); }
+  if (cadre.querySelector('.vign-bords')) { return; }
+  var groupe = document.createElement('div');
+  groupe.className = 'vign-bords'; groupe.setAttribute('role', 'radiogroup');
+  groupe.setAttribute('aria-label', 'Bord du bandeau, ' + (vign.querySelector('.vign-nom') ? vign.querySelector('.vign-nom').textContent : ''));
+  groupe.setAttribute('data-mep-bandeau-vign', id);
+  _MEP_BORDS_BANDEAU.forEach(function (b) {
+    var bouton = document.createElement('button');
+    bouton.type = 'button'; bouton.className = 'vign-bord3'; bouton.setAttribute('role', 'radio');
+    bouton.setAttribute('aria-checked', affiche === b[0] ? 'true' : 'false');
+    bouton.setAttribute('aria-label', 'Bord ' + b[1].toLowerCase()); bouton.title = 'Bord ' + b[1].toLowerCase();
+    bouton.setAttribute('data-bord', b[0]);
+    bouton.innerHTML = b[2];
+    bouton.addEventListener('click', function () {
+      _mepBandeauVignette[id] = b[0];
+      if (_mepModeleCreatifActuel() === id) {
+        if (_mepBandeauAppliquer) { _mepBandeauAppliquer(b[0]); }   // agit sur le CV, puis tout est redessine
+        return;
+      }
+      Array.prototype.forEach.call(groupe.querySelectorAll('.vign-bord3'), function (x) { x.setAttribute('aria-checked', x === bouton ? 'true' : 'false'); });
+      _mepMontrerBandeau(el, d, cle, b[0]);
+    });
+    groupe.appendChild(bouton);
+  });
+  cadre.appendChild(groupe);
+}
+// Au choix d'un modele sur la galerie : si la personne avait deja bascule son interrupteur, le bord voulu est applique au modele qui vient d'arriver.
+function _mepAppliquerBordSouhaite(id) {
+  try {
+    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+    var voulu = _mepBordVignette[id], cas = d.getElementById('regColonneBordDroit');
+    if (voulu && cas && cas.checked !== (voulu === 'droit') && _mepBordAppliquer) { _mepBordAppliquer(voulu); }
+    var voulu2 = _mepBandeauVignette[id], sel = d.getElementById('regBordBandeau');
+    if (voulu2 && sel && sel.value !== voulu2 && _mepBandeauAppliquer) { _mepBandeauAppliquer(voulu2); }
+  } catch (e) { /* iframe pas prete */ }
 }
 // TACHE (Denis, 2026-09-25, tranche 2) : TOUS les modeles, dans l'ordre de la maquette d'abord (Bandeau
 // entier, Bandeau diagonal, Colonne colorée, Cadre de page, Titres a pictogrammes, Colonne et frise), puis ceux
-// de l'application. [identifiant, nom, couleur de depart, silhouette, n'existe qu'en 2 colonnes]. La liste
+// de l'application. [identifiant, nom, couleur de depart, ancienne silhouette (plus utilisee : la miniature est le vrai rendu, data/miniatures/), n'existe qu'en 2 colonnes]. La liste
 // est LA MEME que celle du de (iframe : _pdfIdsModelesCreatif, cvPdfPanneauReglages.js). Les noms des modeles
 // de l'application sont des PROPOSITIONS, a valider par Denis apres avoir vu chaque rendu.
 var _MEP_GALERIE_CREATIF = [
@@ -17376,9 +17793,15 @@ var _MEP_GALERIE_CREATIF = [
   ['mqCadre', 'Cadre de page', '#1c3d52', 'cadreBarre', false],
   ['mqPicto', 'Titres à pictogrammes', '#7d2e43', 'pastille', false],
   ['frise', 'Colonne et frise', '#d4974f', 'frise', true],
+  ['friseFoncee', 'Colonne foncée et frise', '#1f2a44', 'friseFoncee', true],
   ['photoFrise', 'Photo et frise', '#1f4e9c', 'photoFrise', true],
   ['rectangles', 'Rectangles arrondis', '#2f5597', 'rectangles', false, true],
   ['sidebarVague', 'Colonne à vague', '#3B2E5C', 'sidebarVague', true],
+  ['colonneFoncee', 'Colonne foncée', '#1f2a44', 'colonneDroite', true],
+  ['colonneClaire', 'Colonne claire', '#e6e1d6', 'colonneDroite', true],
+  ['colonneBandeau', 'Colonne et bandeau', '#1f2a44', 'colonneBandeau', true],
+  ['colonneRuban', 'Colonne foncée et rubans', '#1f2a44', 'colonneRuban', true],
+  ['chronoFonce', 'Colonne foncée chronologique', '#1f2a44', 'chronoFonce', true],
   ['rubanDiagonal', 'Ruban diagonal', '#0F6E56', 'rubanDiagonal', true],
   ['duoOvale', 'Duo ovale', '#2f6690', 'duoOvale', true],
   ['cadreBarre', 'Cadre et barre', '#1c3d52', 'cadreBarre', true],
@@ -17390,6 +17813,32 @@ var _MEP_GALERIE_CREATIF = [
   ['losangeVert', 'Losange vert', '#3d6b2c', 'losangeVert', true],
   ['medaillon', 'Médaillon', '#33475b', 'medaillon', true]
 ];
+// FAMILLES de la galerie Creatif (decision Denis 2026-10-06, maquette docs/MAQUETTE_LOOKS_ET_GALERIE_2026-10-06.html, variante A : une famille
+// a la fois + bouton « Voir tous les modeles »). Un modele ABSENT de cette liste n'est jamais perdu : il tombe dans une famille « Autres modeles »
+// (voir _mepFamillesCreatif). A chaque nouveau modele : ajouter son id ici ET dans _MEP_GALERIE_CREATIF.
+// Modeles construits AUTOUR d'une photo (decision de Denis, 2026-10-08) : sans photo, ils ne sont proposes ni dans la galerie, ni par « Style rapide », ni par « Un autre modele ».
+// Source unique : le panneau du CV (iframe) lit cette liste via window.parent.
+var _MEP_MODELES_A_PHOTO = ['photoFrise', 'mq-photo'];
+function _mepPhotoPresente() { return !!(dossier && dossier.photo && dossier.photo.url && dossier.photo.inclure !== false); }
+function _mepModeleVisible(id) { return _mepPhotoPresente() || _MEP_MODELES_A_PHOTO.indexOf(id) === -1; }
+var _MEP_FAMILLES_CREATIF = [
+  ['colonnes', 'Colonnes', ['mqColonne', 'frise', 'friseFoncee', 'photoFrise', 'sidebarVague', 'colonneFoncee', 'colonneClaire', 'colonneBandeau', 'colonneRuban', 'chronoFonce', 'bandeauVertical']],
+  ['bandeaux', 'Bandeaux et en-têtes', ['mqBandeau', 'mqDiagonale', 'duoOvale', 'rubanDiagonal', 'vagueMarine', 'medaillon']],
+  ['cadres', 'Cadres et blocs', ['mqCadre', 'cadreBarre', 'rectangles']],
+  ['formes', 'Formes et pictogrammes', ['mqPicto', 'pastille', 'triangleSavoir', 'diagonalesContrastees', 'losangeVert']]
+];
+// Famille choisie a la main : { fam, pour } ou « pour » est le modele actuel au moment du choix (elle ne vaut que pour ce modele : des qu'il change,
+// la famille affichee redevient celle du modele actuel). _mepGalerieTous : « Voir tous les modeles ».
+var _mepGalerieChoix = null;
+var _mepGalerieTous = false;
+function _mepFamillesCreatif() {
+  var listees = [];
+  _MEP_FAMILLES_CREATIF.forEach(function (f) { listees = listees.concat(f[2]); });
+  var autres = _MEP_GALERIE_CREATIF.map(function (m) { return m[0]; }).filter(function (id) { return listees.indexOf(id) === -1; });
+  var toutes = autres.length ? _MEP_FAMILLES_CREATIF.concat([['autres', 'Autres modèles', autres]]) : _MEP_FAMILLES_CREATIF;
+  // sans photo, les modeles a photo disparaissent de leur famille (et une famille vide disparait)
+  return toutes.map(function (f) { return [f[0], f[1], f[2].filter(_mepModeleVisible)]; }).filter(function (f) { return f[2].length; });
+}
 // [identifiant iframe, silhouette, nom, modele de la maquette ?]. Les 3 variantes de l'application ne sont
 // proposees que si elles vont avec le nombre de colonnes (meme regle que le de).
 var _MEP_GALERIE_SOBRE = [
@@ -17398,6 +17847,13 @@ var _MEP_GALERIE_SOBRE = [
   ['mq-epure', 'sobre-epure', 'Épuré', true],
   ['mq-photo', 'photoFrise', 'Photo et frise', true, true],
   ['mq-rectangles', 'sobre-rectangles', 'Rectangles arrondis', true, false, true],
+  ['mq-chrono', 'sobre-chrono', 'Chronologique', true],
+  ['mq-editorial', 'sobre-editorial', 'Éditorial', true],
+  ['mq-editorial-large', 'sobre-editorial-large', 'Éditorial large', true],
+  ['mq-cartes', 'sobre-cartes', 'Cartes', true],
+  ['mq-grille', 'sobre-grille', 'Grille', true],
+  ['mq-technique', 'sobre-technique', 'Technique', true],
+  ['mq-cartes-couleurs', 'sobre-cartes-couleurs', 'Cartes colorées', true],
 ];
 // TACHE (phase 5.2) : galerie de vignettes cliquables sous "Allure
 // generale" -- vide en Standard (rien a choisir, le style vient du
@@ -17418,7 +17874,7 @@ function _htmlGalerieModelesMiseEnPage(allure, partie) {
   // partie « rangee » : les modeles, sur TOUTE la largeur, toujours tous (rien n'est cache selon 1 ou 2 colonnes).
   if (allure === 'defaut') {
     return partie === 'legende'
-      ? '<div class="desc-allure"><b>Standard</b> &middot; la base neutre. Le bouton &laquo;&nbsp;Style rapide&nbsp;&raquo; tire au hasard une combinaison d&rsquo;options existantes (couleurs, titres, colonnes&hellip;), sans jamais changer votre contenu.</div>'
+      ? '<div class="desc-allure"><b>Standard</b> &middot; la base libre. Le bouton &laquo;&nbsp;Style rapide&nbsp;&raquo; compose pour vous une ambiance au hasard (couleurs, titres, comp&eacute;tences, coins, ic&ocirc;nes&hellip;) et respecte le nombre de colonnes que vous avez choisi. Votre contenu ne change jamais.</div>'
       : '';
   }
   _assurerReglagesMiseEnPageCV();
@@ -17427,20 +17883,53 @@ function _htmlGalerieModelesMiseEnPage(allure, partie) {
     actuel = _mepModeleCreatifActuel();
     legende = '<b>Cr&eacute;atif</b> &middot; plus de couleurs, des ic&ocirc;nes. Choisissez un mod&egrave;le ci-dessous : certains passent automatiquement en 1 ou en 2 colonnes.';
     vignettes = _MEP_GALERIE_CREATIF.map(function (m) {
-      return { attr: 'data-mep-galerie-creatif="' + m[0] + '"', mini: _mepVignetteMini(m[3], m[2]), nom: m[1], actif: actuel === m[0] };
+      return { attr: 'data-mep-galerie-creatif="' + m[0] + '"', cle: 'creatif:' + m[0], mini: '', nom: m[1], actif: actuel === m[0] };
     });
   } else {
     actuel = _mepVarianteSobreActuelle();
     legende = '<b>Sobre</b> &middot; sans couleurs vives, sans ic&ocirc;nes : un CV classique et discret. Choisissez un mod&egrave;le ci-dessous.';
-    vignettes = _MEP_GALERIE_SOBRE.map(function (m) {
-      return { attr: 'data-mep-galerie-sobre="' + m[0] + '"', mini: _mepVignetteMini(m[1], null), nom: m[2], actif: actuel === m[0] };
+    vignettes = _MEP_GALERIE_SOBRE.filter(function (m) { return _mepModeleVisible(m[0]); }).map(function (m) {
+      return { attr: 'data-mep-galerie-sobre="' + m[0] + '"', cle: 'sobre:' + m[0], mini: '', nom: m[2], actif: actuel === m[0] };
     });
   }
   if (partie === 'legende') { return '<div class="desc-allure">' + legende + '</div>'; }
+  if (allure === 'creatif') { return _htmlGalerieFamilles(vignettes, actuel); }
   return '<div class="gab-ligne"><div class="vignettes">' + vignettes.map(function (v) {
     return '<button type="button" class="vign' + (v.actif ? ' on' : '') + '" ' + v.attr + '>' +
-      '<div class="mini">' + v.mini + '</div><span class="vign-nom">' + v.nom + '</span></button>';
+      '<div class="mini" data-mini-reel="' + v.cle + '" aria-hidden="true">' + v.mini + '</div><span class="vign-nom">' + v.nom + '</span></button>';
   }).join('') + '</div></div>';
+}
+
+// Galerie Creatif par familles (variante A de la maquette) : pastilles de familles, les modeles de la famille choisie, et « Voir tous les modeles ».
+// `vignettes` est aligne sur _MEP_GALERIE_CREATIF (meme ordre) ; `actuel` = id du modele en cours.
+function _htmlGalerieFamilles(vignettes, actuel) {
+  var familles = _mepFamillesCreatif();
+  var parId = {};
+  _MEP_GALERIE_CREATIF.forEach(function (m, i) { parId[m[0]] = vignettes[i]; });
+  var bouton = function (id) {
+    var v = parId[id];
+    return '<button type="button" class="vign' + (v.actif ? ' on' : '') + '" ' + v.attr + '><div class="mini" data-mini-reel="' + v.cle + '" aria-hidden="true">' + v.mini + '</div><span class="vign-nom">' + v.nom + '</span></button>';
+  };
+  var total = _MEP_GALERIE_CREATIF.filter(function (m) { return _mepModeleVisible(m[0]); }).length;
+  if (_mepGalerieTous) {
+    return '<div class="gab-familles"><div class="gab-actions"><button type="button" class="gab-bouton" data-mep-galerie-tous="0">&larr; Revenir aux familles</button></div>' +
+      familles.map(function (f) {
+        return '<div class="famille-titre">' + f[1] + ' <small>' + f[2].length + ' mod&egrave;le' + (f[2].length > 1 ? 's' : '') + '</small></div>' +
+          '<div class="gab-ligne"><div class="vignettes">' + f[2].map(bouton).join('') + '</div></div>';
+      }).join('') + '</div>';
+  }
+  var deActuel = familles.filter(function (f) { return f[2].indexOf(actuel) !== -1; })[0] || familles[0];
+  var choisie = (_mepGalerieChoix && _mepGalerieChoix.pour === actuel) ? familles.filter(function (f) { return f[0] === _mepGalerieChoix.fam; })[0] : null;
+  choisie = choisie || deActuel;
+  // Familles = GRANDS ONGLETS (choix de Denis, 2026-10-08, option B) : nom, nombre de modeles, trois petits apercus ; l'onglet choisi est plein, de la couleur du theme.
+  var chips = familles.map(function (f) {
+    var apercus = f[2].slice(0, 3).map(function (id) { var v = parId[id]; return v ? '<span class="m3"><span class="mini" data-mini-reel="' + v.cle + '">' + v.mini + '</span></span>' : ''; }).join('');
+    return '<button type="button" class="chip-famille' + (f[0] === choisie[0] ? ' on' : '') + (f[0] === deActuel[0] ? ' actuelle' : '') + '" data-mep-galerie-fam="' + f[0] + '" aria-pressed="' + (f[0] === choisie[0] ? 'true' : 'false') + '"' +
+      (f[0] === deActuel[0] ? ' title="Contient le mod&egrave;le actuel"' : '') + '><b>' + f[1] + '</b><span class="n">' + f[2].length + ' mod&egrave;le' + (f[2].length > 1 ? 's' : '') + '</span><span class="mini3" aria-hidden="true">' + apercus + '</span></button>';
+  }).join('');
+  return '<div class="gab-familles"><div class="titre-mini">Choisissez une famille de mod&egrave;les <span class="sous">(' + total + ' mod&egrave;les en tout)</span></div><div class="chips-familles" role="group" aria-label="Familles de mod&egrave;les">' + chips + '</div>' +
+    '<div class="gab-ligne"><div class="vignettes">' + choisie[2].map(bouton).join('') + '</div></div>' +
+    '<div class="gab-actions"><button type="button" class="gab-bouton" data-mep-galerie-tous="1">Voir tous les mod&egrave;les (' + total + ')' + _mepRondBtn(false) + '</button></div></div>';
 }
 
 // Clique un bouton moteur, qu'il soit dans le panneau Projet XXL (parent)
@@ -17674,7 +18163,7 @@ var _MEP_FORMATS_INFO = {
 // (jamais une 2e lecture divergente) -- si l'accordeon "Je veux tout
 // regler" affiche une valeur, cette infobulle affiche la meme.
 var _MEP_RESUME_POLICES = { segoe: 'Segoe', georgia: 'Georgia', verdana: 'Verdana', garamond: 'Garamond', arial: 'Arial', calibri: 'Calibri', tahoma: 'Tahoma', trebuchet: 'Trebuchet', times: 'Times', palatino: 'Palatino' };
-var _MEP_RESUME_STYLETITRES = { 'sans-decor': 'Sans décor', souligne: 'Souligné', bandeau: 'Bandeau', pastille: 'Pastille' };
+var _MEP_RESUME_STYLETITRES = { 'sans-decor': 'Sans décor', souligne: 'Souligné', bandeau: 'Bandeau', pastille: 'Pastille', filet: 'Filet prolongé', court: 'Souligné court' };
 var _MEP_RESUME_DENSITE = { aere: 'Aéré', normal: 'Normal', compact: 'Compact' };
 var _MEP_RESUME_ALLURE = { sobre: 'Sobre', defaut: 'Standard', creatif: 'Créatif' };
 function _resumeMiseEnPageActuelle() {
@@ -17768,19 +18257,30 @@ function _htmlBarreHautMiseEnPage() {
     '<button type="button" class="mini-action" id="btnMepRevenirDefaut" title="Revenir au mod&egrave;le de d&eacute;part">&#9198;</button>' +
     '</div>' +
     '<div class="ligne-action">' +
-    '<button type="button" class="carte-action retreci" id="btnMepMiseEnPage" title="' + echapperAttribut(_resumeMiseEnPageActuelle()) + '"><span class="emo">&#129668;</span>' +
+    '<button type="button" class="carte-action retreci' + (_mepPulseActif() ? ' pulse-mep' : '') + '" id="btnMepMiseEnPage" title="' + echapperAttribut(_resumeMiseEnPageActuelle()) + '"><span class="emo">&#129668;</span>' +
     '<span><b>Mise en page</b><small>Fait tenir sur une page, ou remplit l\'espace.</small></span></button>' +
     '<button type="button" class="mini-action" id="btnMepAnnulerOptim" title="Revenir &agrave; avant la derni&egrave;re mise en page"' + (peutAnnuler ? '' : ' disabled') + '>&#8634;</button>' +
     '</div>' +
     '</div>';
 }
 
+// Mention sous chaque allure (decision de Denis, 2026-10-08) : elle dit ce qu'il y a derriere, sans texte a lire. Les nombres suivent les modeles reellement proposes (sans photo, les modeles a photo ne comptent pas).
+function _mepMentionAllure(allure) {
+  var n;
+  if (allure === 'sobre') { n = _MEP_GALERIE_SOBRE.filter(function (m) { return _mepModeleVisible(m[0]); }).length; }
+  else if (allure === 'creatif') { n = _MEP_GALERIE_CREATIF.filter(function (m) { return _mepModeleVisible(m[0]); }).length; }
+  else { return 'Mon style'; }
+  return n + ' mod&egrave;le' + (n > 1 ? 's' : '');
+}
 function _htmlSecAllureMiseEnPage() {
   _assurerReglagesMiseEnPageCV();
   var c = dossier.reglagesMiseEnPageCV || {};
   var allure = (c.allure === 'sobre' || c.allure === 'creatif') ? c.allure : 'defaut';
-  var accent = String(c.accent || '#2f6690').toLowerCase();
-  var degradeActif = (c.degradeColonnes !== 'uni');
+  var accent = _mepAccentAffiche(c);
+  // Le bouton « Degrade » dit ce que le CV MONTRE (colonne ou bandeau en degrade dans l'apercu) ; a defaut d'apercu, le reglage enregistre. Avant, il se fiait au seul reglage enregistre : sur un modele sans degrade
+  // (Colonne foncee, Bandeau...), il paraissait enfonce alors que rien n'etait en degrade, et le premier clic semblait ne rien faire (defaut trouve pendant le chantier « autres couleurs », 2026-10-11).
+  var _stDeg = _mepStructureCouleurs();
+  var degradeActif = _stDeg ? (_stDeg.degradeColonnes || _stDeg.degradeBandeau) : (c.degradeColonnes !== 'uni');
   // TACHE (Denis, 2026-09-25, cadre commun, « meme aspect que la maquette ») :
   // markup IDENTIQUE a la carte plate « Allure generale + Couleurs » de la
   // maquette (classes .style-grille / .titre-mini / .seg / .swatches / .sw /
@@ -17810,20 +18310,22 @@ function _htmlSecAllureMiseEnPage() {
     '<label class="sw-perso' + ((_MEP_COULEURS_SIMPLES.indexOf(accent) === -1 && accent !== ce) ? ' on' : '') + '" style="--choisie:' + accent + '" title="Choisir n&rsquo;importe quelle couleur"><span class="roue"></span>' +
     '<input type="color" data-mep-accent-auto value="' + accent + '" aria-label="Couleur personnalis&eacute;e"> Personnalis&eacute;e</label>' +
     '</div>';
-  var segAllure = '<div class="seg">' + [['sobre', 'Sobre'], ['defaut', 'Standard'], ['creatif', 'Cr&eacute;atif']].map(function (o) {
-    return '<button type="button" data-mep-allure="' + o[0] + '"' + (allure === o[0] ? ' class="on"' : '') + '>' + o[1] + '</button>';
+  // « Degrade » et « Options supplementaires » : a l'interieur de la carte d'ambiance (decision de Denis, 2026-10-08), pour regrouper les options et limiter le nombre de boutons.
+  var htmlDegrade = '<span class="degrade-bloc"><button type="button" class="btn-miss btn-degrade" data-mep-degrade-simple aria-pressed="' + (degradeActif ? 'true' : 'false') + '"' + (allure === 'sobre' ? ' disabled title="Sans objet en mode Sobre (pas de couleurs vives)"' : '') + '><span class="degrade-pastille" aria-hidden="true"></span>D&eacute;grad&eacute;</button>' +
+    _mepAideBtn(allure === 'sobre' ? 'Le d&eacute;grad&eacute; est sans objet en mode Sobre (pas de couleurs vives).' : 'Donne aux bandeaux et aux colonnes de couleur un fond qui passe en douceur d&rsquo;une teinte &agrave; une autre. Cliquez de nouveau pour l&rsquo;enlever.') + '</span>';
+  // « Degrade » au meme niveau que « Personnalisee » ; « Options supplementaires » sur la ligne de « Annuler » (decisions de Denis, 2026-10-10).
+  htmlSwatches = htmlSwatches.slice(0, -6) + '<span class="ligne-effet-options sans-marge">' + htmlDegrade + '</span></div>';
+  var htmlEffetOptions = _htmlBoutonOptionsSupp('couleurs', true);
+  // Trait de couleur propre a chaque allure (choix de Denis, 2026-10-08, variante B de la maquette) : gris, couleur du theme, multicolore. Voir css/mise-en-page-maquette.css (.seg-allure).
+  var segAllure = '<div class="seg seg-allure">' + [['sobre', 'Sobre'], ['defaut', 'Standard'], ['creatif', 'Cr&eacute;atif']].map(function (o) {
+    return '<button type="button" data-mep-allure="' + o[0] + '" class="allure-' + o[0] + (allure === o[0] ? ' on' : '') + '">' + o[1] + '<small>' + _mepMentionAllure(o[0]) + '</small></button>';
   }).join('') + '</div>';
   return _htmlStyleSectionsMiseEnPage() +
     '<div class="mep-carte"><div class="carte-corps style-corps">' +
     '<div class="style-grille">' +
     // Colonne de gauche (sous « Style rapide ») : les couleurs, puis l'allure generale. Colonne de droite (sous « Mise en page ») : ce que ce bouton a fait.
     // Retour Denis 2026-10-03 : en mode « Grands boutons », TOUTES les options de couleur (pastilles, couleurs de l'entreprise, personnalisée, dégradé) sont rangées derrière UN SEUL bouton « Choisir mes couleurs » (zone dépliante, pastille de la couleur actuelle). Sans ce mode, rien ne change : la zone reste ouverte et son bouton est masqué (CSS). Mêmes attributs data-mep-*, mêmes gestionnaires.
-    '<div><div class="titre-mini">Couleurs</div>' +
-    '<details class="choix-exp zone-couleurs" id="zoneCouleurs"' + ((document.documentElement.getAttribute('data-grands-boutons') !== '1' || _mepCarteOuverte('zoneCouleurs', false)) ? ' open' : '') + '><summary class="choix-titre choix-bouton" title="Couleur, couleurs de l&rsquo;entreprise, couleur libre, d&eacute;grad&eacute;"><span class="cb-pastille" style="background:' + accent + '"></span><span class="cb-texte"><b><span class="cb-ouvrir">Choisir mes couleurs</span><span class="cb-fermer">Refermer les couleurs</span></b></span><span class="chev" aria-hidden="true">&#8964;</span></summary><div class="choix-corps">' + htmlSwatches +
-    '<div class="coul-titre">Effet</div>' +
-    '<label class="case' + (allure === 'sobre' ? ' sans-objet' : '') + '" style="margin-top:0.4rem;display:flex;"><input type="checkbox" data-mep-degrade-simple' + (degradeActif ? ' checked' : '') + (allure === 'sobre' ? ' disabled' : '') + '> D&eacute;grad&eacute;' + (allure === 'sobre' ? ' <span class="sous" style="margin-left:0.3rem">Sans objet en mode Sobre (pas de couleurs vives).</span>' : '') + '</label>' + _htmlBoutonOptionsSupp('couleurs') + '</div></details>' +
-    '<div class="titre-mini" style="margin-top:0.7rem"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 22a3 3 0 0 1-1-5.8c.6-.3 1-.9 1-1.6 0-1 .8-1.6 1.7-1.6H17"/></svg>Allure g&eacute;n&eacute;rale <span class="sous">Choisissez le style visuel de votre CV.</span></div>' +
-    segAllure + _htmlGalerieModelesMiseEnPage(allure, 'legende') + '</div>' +
+    '<div>' + _htmlCarteLooks(allure) + '</div>' +
     '<div class="zone-mep" id="mepZoneMEP"><div class="titre-mini">&#129668; Ce que &laquo;&nbsp;Mise en page&nbsp;&raquo; a fait</div>' +
     (_mepDernierMessageMEP ? '<div class="resultat-mep">' + echapperAttribut(_mepDernierMessageMEP) + '</div>'
       : '<p class="sous" style="margin:0">Cliquez sur &laquo;&nbsp;Mise en page&nbsp;&raquo; : ce qui a &eacute;t&eacute; ajust&eacute; s&rsquo;affichera ici. Le bouton n&rsquo;ajoute et ne retire jamais d&rsquo;information.</p>') +
@@ -17834,9 +18336,14 @@ function _htmlSecAllureMiseEnPage() {
         '. Vous pouvez les r&eacute;afficher dans &laquo;&nbsp;Autres rubriques&nbsp;&raquo;.</div>' : '') +
     '</div>' +
     '</div>' +
-    // Les modeles occupent toute la largeur (ils passent a la ligne, jamais de barre de defilement) ; le panneau de suggestions vient APRES eux.
-    _htmlGalerieModelesMiseEnPage(allure, 'rangee') +
+    // Decision de Denis (2026-10-08, maquette MAQUETTE_PANNEAU_SUGGESTIONS_ET_ALLURE) : le panneau de suggestions (trois cartes cote a cote, pleine largeur) vient
+    // juste sous les deux colonnes et AVANT « Allure generale », relie a son bouton ; « Allure generale » est sur toute la largeur (titre et trois boutons sur une ligne, phrase dessous).
+    _htmlPanneauLooks(allure, htmlSwatches, htmlEffetOptions) +
     _htmlPanneauSuggestionsMep() +
+    '<div class="ligne-allure"><div class="titre-mini"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 22a3 3 0 0 1-1-5.8c.6-.3 1-.9 1-1.6 0-1 .8-1.6 1.7-1.6H17"/></svg>Allure g&eacute;n&eacute;rale <span class="sous">Choisissez le style visuel de votre CV.</span></div>' +
+    segAllure + _htmlGalerieModelesMiseEnPage(allure, 'legende') + '</div>' +
+    // Les modeles occupent toute la largeur (ils passent a la ligne, jamais de barre de defilement).
+    _htmlGalerieModelesMiseEnPage(allure, 'rangee') +
     '</div></div>';
 }
 
@@ -17846,6 +18353,119 @@ function _htmlSecAllureMiseEnPage() {
 // pattern que _mepEtatExperiences juste en dessous.
 // Dernier message du bouton « Mise en page » (affiche sous ce bouton, dans la carte Allure) ; efface par « Annuler » et « Revenir au modele de depart ».
 var _mepDernierMessageMEP = '';
+// Pulsation du bouton « Mise en page » (decision de Denis, 2026-10-07) : apres un changement de modele ou un tirage au sort, si la mise en page peut encore etre amelioree
+// (page qui deborde ou trop vide), le bouton pulse 10 secondes dans la couleur du theme, pour montrer qu'il faut l'actionner. S'arrete tout seul, ou au clic.
+var _mepPulseJusqua = 0, _mepPulseMinuteur = null;
+// Jamais en meme temps que la pulsation des suggestions (decision de Denis, 2026-10-08) : quand les suggestions pulsent, « Mise en page » ne pulse pas.
+function _mepPulseActif() { return Date.now() < _mepPulseJusqua && !_mepSuggPulseActif(); }
+function _mepPulseArreter() {
+  _mepPulseJusqua = 0; clearTimeout(_mepPulseMinuteur);
+  var b = document.getElementById('btnMepMiseEnPage'); if (b) { b.classList.remove('pulse-mep'); }
+}
+function _mepPulseAppliquer() {
+  clearTimeout(_mepPulseMinuteur);
+  var b = document.getElementById('btnMepMiseEnPage');
+  if (!_mepPulseActif()) { if (b) { b.classList.remove('pulse-mep'); } return; }
+  if (b) { b.classList.add('pulse-mep'); }
+  _mepPulseMinuteur = setTimeout(_mepPulseArreter, Math.max(0, _mepPulseJusqua - Date.now()));
+}
+// GUIDAGE DE DECOUVERTE a la premiere arrivee sur le CV (decisions de Denis, 2026-10-08) : le CV arrive deja mis en page, la personne pourrait croire que c'est fini.
+//  1. « Style rapide » pulse doucement 10 secondes (une fois la mise en page automatique terminee, en allure Standard) pour inviter a un premier clic ;
+//  2. des le premier clic dessus, ou a la fin des 10 secondes, les allures pulsent a tour de role, 4 secondes chacune : Creatif, Sobre, Standard, deux tours ;
+//  3. un clic sur Sobre ou Creatif montre que le principe est compris : tout s'arrete, pour toujours (sur cet appareil).
+// UNE SEULE pulsation a la fois : « Mise en page » et « Suggestions » (un vrai besoin) passent avant ; le guidage se met alors en pause (son temps ne s'ecoule pas).
+// Memoire : drapeau dans le dossier ET dans le navigateur (localStorage, en try/catch) ; le guidage ne repart jamais une fois lance.
+var _MEP_GUIDE_RAPIDE_MS = 10000, _MEP_GUIDE_PHASE_MS = 4000, _MEP_GUIDE_NB_CYCLES = 2, _MEP_GUIDE_ORDRE = ['creatif', 'sobre', 'defaut'];
+var _mepGuide = { etape: 'attente', ecoule: 0 };   // etape : 'attente' (pas commence) | 'rapide' | 'allures' | 'fini'
+var _mepGuideMinuteur = null, _mepGuideDernier = 0;
+function _mepGuideDejaFait() {
+  if (typeof dossier !== 'undefined' && dossier && dossier.guidagePulseFait) { return true; }
+  try { return window.localStorage.getItem('app.guidagePulseFait') === '1'; } catch (e) { return false; }
+}
+function _mepGuideMarquerFait() {
+  if (typeof dossier !== 'undefined' && dossier) { dossier.guidagePulseFait = true; }
+  try { window.localStorage.setItem('app.guidagePulseFait', '1'); } catch (e) { /* sans effet : le drapeau du dossier reste */ }
+}
+function _mepGuideRetirerClasses() {
+  document.querySelectorAll('.pulse-allure').forEach(function (b) { b.classList.remove('pulse-allure'); });
+}
+function _mepGuideArreter() {
+  _mepGuide.etape = 'fini'; _mepGuide.ecoule = 0;
+  clearInterval(_mepGuideMinuteur); _mepGuideMinuteur = null;
+  _mepGuideMarquerFait(); _mepGuideRetirerClasses();
+}
+// Qui doit pulser maintenant : 'rapide' (le bouton « Style rapide »), 'creatif' | 'sobre' | 'defaut' (une allure), ou null.
+function _mepGuideCible() {
+  if (_mepGuide.etape === 'rapide') { return 'rapide'; }
+  if (_mepGuide.etape === 'allures') { return _MEP_GUIDE_ORDRE[Math.floor(_mepGuide.ecoule / _MEP_GUIDE_PHASE_MS) % _MEP_GUIDE_ORDRE.length]; }
+  return null;
+}
+function _mepGuideBloque() { return _mepPulseActif() || _mepSuggPulseActif() || (Date.now() < _mepPulseJusqua); }
+function _mepGuideRemplissagePret() {
+  try { return document.querySelector('#zonePdfInlineCV iframe').contentWindow.__cvPdfRemplissagePret !== false; } catch (e) { return false; }
+}
+// Un « tic » toutes les 250 ms : fait avancer le guidage et pose la pulsation sur le bon bouton (les boutons sont redessines souvent, la classe est donc reposee a chaque tic).
+function _mepGuideTic() {
+  var maintenant = Date.now(), dt = _mepGuideDernier ? Math.min(500, maintenant - _mepGuideDernier) : 0;
+  _mepGuideDernier = maintenant;
+  var boutons = document.querySelectorAll('[data-mep-allure]'), de = document.getElementById('btnMepDe');
+  if (!boutons.length || !de || !boutons[0].offsetParent) { _mepGuideRetirerClasses(); return; }   // le panneau n'est pas la : on ne gaspille pas la premiere fois
+  if (_mepGuide.etape === 'fini') { _mepGuideArreter(); return; }
+  if (_mepGuide.etape === 'attente') {
+    if (_mepGuideDejaFait()) { _mepGuideArreter(); return; }
+    if (!_mepGuideRemplissagePret()) { return; }
+    _mepGuideMarquerFait();
+    _mepGuide.etape = (_mepAllureActuelle() === 'defaut') ? 'rapide' : 'allures'; _mepGuide.ecoule = 0;
+  }
+  if (_mepGuideBloque()) { _mepGuideRetirerClasses(); return; }   // en pause : le temps ne s'ecoule pas
+  _mepGuide.ecoule += dt;
+  if (_mepGuide.etape === 'rapide' && _mepGuide.ecoule >= _MEP_GUIDE_RAPIDE_MS) { _mepGuide.etape = 'allures'; _mepGuide.ecoule = 0; }
+  if (_mepGuide.etape === 'allures' && _mepGuide.ecoule >= _MEP_GUIDE_PHASE_MS * _MEP_GUIDE_ORDRE.length * _MEP_GUIDE_NB_CYCLES) { _mepGuideArreter(); return; }
+  var cible = _mepGuideCible();
+  de.classList.toggle('pulse-allure', cible === 'rapide');
+  boutons.forEach(function (b) { b.classList.toggle('pulse-allure', b.getAttribute('data-mep-allure') === cible); });
+}
+// Appelee apres chaque (re)dessin du panneau : lance le minuteur du guidage une seule fois et repose tout de suite la pulsation.
+function _mepAllurePulseAppliquer() {
+  if (_mepGuide.etape === 'fini' && !_mepGuideMinuteur) { return; }
+  if (_mepGuide.etape === 'attente' && _mepGuideDejaFait()) { _mepGuide.etape = 'fini'; return; }
+  if (!_mepGuideMinuteur) { _mepGuideMinuteur = setInterval(_mepGuideTic, 250); }
+  _mepGuideTic();
+}
+// Le premier clic sur « Style rapide » fait passer le guidage aux allures.
+function _mepGuideApresStyleRapide() {
+  if (_mepGuide.etape === 'rapide') { _mepGuide.etape = 'allures'; _mepGuide.ecoule = 0; _mepGuideRetirerClasses(); }
+}
+// « Mise en page » : une fois le principe compris (3 clics sur le bouton), il ne pulse plus tout seul ; « Suggestions » continue de pulser quand il y en a.
+function _mepMiseEnPageComprise() {
+  try { return parseInt(window.localStorage.getItem('app.miseEnPageClics') || '0', 10) >= 3; } catch (e) { return false; }
+}
+function _mepMiseEnPageNoterClic() {
+  try { window.localStorage.setItem('app.miseEnPageClics', String(parseInt(window.localStorage.getItem('app.miseEnPageClics') || '0', 10) + 1)); } catch (e) { /* sans effet */ }
+}
+// Pulsation du bouton « Suggestions de mise en page » (decision de Denis, 2026-10-08) : seulement APRES un clic sur « Mise en page » et seulement s'il y a des suggestions ;
+// 10 secondes, puis elle s'arrete d'elle-meme ; ouvrir ou fermer le panneau l'arrete aussi.
+var _mepSuggPulseJusqua = 0, _mepSuggPulseMinuteur = null, _mepSuggPulseAttendu = false;
+function _mepSuggPulseActif() { return Date.now() < _mepSuggPulseJusqua; }
+function _mepSuggPulseArreter() {
+  _mepSuggPulseJusqua = 0; _mepSuggPulseAttendu = false; clearTimeout(_mepSuggPulseMinuteur);
+  var b = document.querySelector('[data-mep-sugg-ouvrir]'); if (b) { b.classList.remove('pulse-mep'); }
+}
+function _mepSuggPulseAppliquer() {
+  clearTimeout(_mepSuggPulseMinuteur);
+  var b = document.querySelector('[data-mep-sugg-ouvrir]');
+  if (!_mepSuggPulseActif()) { if (b) { b.classList.remove('pulse-mep'); } return; }
+  if (b) { b.classList.add('pulse-mep'); }
+  _mepSuggPulseMinuteur = setTimeout(_mepSuggPulseArreter, Math.max(0, _mepSuggPulseJusqua - Date.now()));
+}
+// Appelee par le panneau (iframe) apres un changement de modele ou un tirage au sort.
+function _mepModeleOuStyleChange() {
+  if (_mepMiseEnPageComprise()) { return; }
+  setTimeout(function () {
+    try { if (!document.querySelector('#zonePdfInlineCV iframe').contentWindow._pdfMiseEnPageAmeliorable()) { return; } } catch (e) { return; }
+    _mepPulseJusqua = Date.now() + 10000; _mepPulseAppliquer();
+  }, 700);
+}
 
 // C3 (2026-09-26) : rubriques que l'assistant a MASQUEES pour cette candidature (rubriquesMasquables). Elles disparaissaient du CV sans
 // que la personne le sache ; elles sont maintenant signalees et peuvent etre reaffichees (dossier.rubriquesReaffichees).
@@ -17876,6 +18496,7 @@ var _mepSuggAppliquees = [];
 var _mepSuggSens = null;
 function _mepSuggestionsRecues(liste, garder) {
   _mepSuggestions = liste || [];
+  if (_mepSuggPulseAttendu) { _mepSuggPulseAttendu = false; if (_mepSuggestions.length && !_mepSuggestionsOuvert) { _mepSuggPulseJusqua = Date.now() + 10000; _mepPulseArreter(); } }
   _mepSuggestionAppliquee = -1;
   _mepSuggSelection = 0;
   _mepSuggPage = 0;
@@ -17935,8 +18556,8 @@ function _mepAppliquerChangementsSuggestion(s) {
       // Style des competences : le bouton de la carte « Mise en page et texte » fait le travail (et son historique). Nombre de colonnes :
       // le bouton de la carte « Organisation du CV » (meme geste que la personne).
       if (c.id === 'regColonnes') {
-        var caseDeux = document.querySelector('[data-mep-org-deux]');
-        if (caseDeux) { caseDeux.checked = (c.valeur === '2'); caseDeux.dispatchEvent(new Event('change', { bubbles: true })); }
+        var boutonCol = document.querySelector('[data-mep-org-colonnes="' + (c.valeur === '2' ? '2' : '1') + '"]');
+        if (boutonCol) { boutonCol.click(); }
       } else {
         var b = document.querySelector('[data-mep-stylecomp="' + c.canon + '"]');
         if (b) { b.click(); }
@@ -18011,8 +18632,8 @@ function _mepPictoSuggestion(p) {
 function _htmlZoneSuggestionsMep() {
   if (!_mepSuggestions.length && !_mepSuggAppliquees.length) { return ''; }
   var nbAppl = _mepSuggAppliquees.length;
-  return '<button type="button" class="rect-prop rect-petit' + (_mepSuggestionsOuvert ? ' ouvert' : '') + '" data-mep-sugg-ouvrir><span><b>Suggestions de mise en page <span class="badge">' + _mepSuggestions.length + '</span></b>' +
-    '<small>' + (nbAppl ? nbAppl + (nbAppl > 1 ? ' appliqu&eacute;es' : ' appliqu&eacute;e') + ' : d&rsquo;autres restent possibles' : 'Cliquez pour voir') + '</small></span><span class="chev">&#8964;</span></button>';
+  return '<button type="button" class="rect-prop rect-petit' + (_mepSuggestionsOuvert ? ' ouvert' : '') + (_mepSuggPulseActif() ? ' pulse-mep' : '') + '" data-mep-sugg-ouvrir><span><b>Suggestions de mise en page <span class="badge">' + _mepSuggestions.length + '</span></b>' +
+    '<small>' + (_mepSuggestionsOuvert ? 'Ouvert, cliquez pour refermer' : (nbAppl ? nbAppl + (nbAppl > 1 ? ' appliqu&eacute;es' : ' appliqu&eacute;e') + ' : d&rsquo;autres restent possibles' : 'Cliquez pour voir')) + '</small></span><span class="chev">&#8964;</span></button>';
 }
 function _htmlPanneauSuggestionsMep() {
   if ((!_mepSuggestions.length && !_mepSuggAppliquees.length) || !_mepSuggestionsOuvert) { return ''; }
@@ -18023,7 +18644,7 @@ function _htmlPanneauSuggestionsMep() {
       (nbAppl > 1 ? '<button type="button" class="mep-btn" data-mep-sugg-tout>Tout d&eacute;faire</button>' : '') + '</div></div>'
     : '';
   if (!_mepSuggestions.length) {
-    return '<div class="depli"><p class="sous">Pas d&rsquo;autre suggestion pour l&rsquo;instant : votre CV est d&eacute;j&agrave; bien agenc&eacute;.</p>' + recap + '</div>';
+    return '<div class="depli sugg-relie"><p class="sous">Pas d&rsquo;autre suggestion pour l&rsquo;instant : votre CV est d&eacute;j&agrave; bien agenc&eacute;.</p>' + recap + '</div>';
   }
   var debut = _mepSuggPage * 3;
   var visibles = _mepSuggestions.slice(debut, debut + 3);
@@ -18038,7 +18659,7 @@ function _htmlPanneauSuggestionsMep() {
   var pager = nbPages > 1
     ? '<div class="sugg-pager"><button type="button" class="mep-btn" data-mep-sugg-page="-1"' + (_mepSuggPage === 0 ? ' disabled' : '') + '>&#8249; Pr&eacute;c&eacute;dentes</button><span>' + (_mepSuggPage + 1) + ' / ' + nbPages + '</span>' +
       '<button type="button" class="mep-btn" data-mep-sugg-page="1"' + (_mepSuggPage >= nbPages - 1 ? ' disabled' : '') + '>Suivantes &#8250;</button></div>' : '';
-  return '<div class="depli"><p class="sous">Autres fa&ccedil;ons d&rsquo;agencer votre CV. Cliquez sur une suggestion pour lire ce qu&rsquo;elle fait ; vous pouvez en appliquer <b>plusieurs, l&rsquo;une apr&egrave;s l&rsquo;autre</b>. Aucune ne change votre dossier.</p>' +
+  return '<div class="depli sugg-relie"><p class="sous">Autres fa&ccedil;ons d&rsquo;agencer votre CV. Cliquez sur une suggestion pour lire ce qu&rsquo;elle fait ; vous pouvez en appliquer <b>plusieurs, l&rsquo;une apr&egrave;s l&rsquo;autre</b>. Aucune ne change votre dossier.</p>' +
     '<div class="props">' + cartes + '</div>' + pager +
     '<div class="sugg-detail"><b>Ce que fera &laquo;&nbsp;' + (choisie.changes.some(function (c) { return c.cle === '__ouvrirChoix'; }) ? 'Ouvrir la liste' : 'Appliquer') + '&nbsp;&raquo; :</b> <span>' + choisie.detail + '</span>' +
     '<div class="sugg-actions"><button type="button" class="mep-btn principal" data-mep-sugg-appliquer="' + _mepSuggSelection + '">' +
@@ -18122,6 +18743,23 @@ function _mepEtatOrganisation() {
 // source lue en priorite, jamais sujette a cette course -- l'iframe reste
 // un simple repli si pdfReglages n'existe pas encore (tout premier
 // rendu).
+// Teinte de page : etat sauvegarde d'abord, sinon l'iframe (meme patron que _mepEtatEditorial).
+function _mepEtatCoinCouleur() {
+  var pr = dossier.pdfReglages;
+  if (pr && typeof pr === 'object' && Object.keys(pr).length) { return !!pr.coinCouleur; }
+  try { return !!document.querySelector('#zonePdfInlineCV iframe').contentWindow._cvPdfCoinCouleur; } catch (e) { return false; }
+}
+function _mepEtatEditorial() {
+  var pr = dossier.pdfReglages;
+  if (pr && typeof pr === 'object' && Object.keys(pr).length) {
+    return { edito: !!(pr.regSobreActif && (pr.sobreVariante === 'mq-editorial' || pr.sobreVariante === 'mq-editorial-large')), large: pr.sobreVariante === 'mq-editorial-large', nomEmpattement: pr.nomEmpattement !== false, traitVertical: pr.traitVertical !== false };
+  }
+  try {
+    var w = document.querySelector('#zonePdfInlineCV iframe').contentWindow;
+    return { edito: !!(w.document.getElementById('regSobreActif') && w.document.getElementById('regSobreActif').checked && (w._cvPdfSobreVariante === 'mq-editorial' || w._cvPdfSobreVariante === 'mq-editorial-large')), large: w._cvPdfSobreVariante === 'mq-editorial-large',
+      nomEmpattement: w._cvPdfNomEmpattement !== false, traitVertical: w._cvPdfTraitVertical !== false };
+  } catch (e) { return { edito: false, large: false, nomEmpattement: true, traitVertical: true }; }
+}
 function _mepEtatExperiences() {
   var defaut = { mode: 'A', tout: 'toutes', choisies: null, missionsParExp: {}, missionsChoisies: {}, missionsGlobal: null, afficherLieu: true, styleLieu: 'normal', positionDates: 'droite' };
   var pr = dossier.pdfReglages;
@@ -18134,6 +18772,9 @@ function _mepEtatExperiences() {
       missionsChoisies: pr.missionsChoisies || {},
       missionsGlobal: (typeof pr.missionsGlobal === 'number') ? pr.missionsGlobal : null,
       afficherLieu: pr.afficherLieuExp !== false,
+      chrono: !!((pr.regSobreActif && pr.sobreVariante === 'mq-chrono') || (pr.regCreatifActif && pr.creatifVariante === 'chronoFonce')),
+      afficherDuree: pr.afficherDuree !== false,
+      lieuDansMarge: !!pr.lieuDansMarge,
       styleLieu: pr.styleLieuExp || 'normal',
       positionDates: pr.positionDatesExp || 'droite'
     };
@@ -18148,6 +18789,9 @@ function _mepEtatExperiences() {
       missionsChoisies: w._cvPdfMissionsChoisies || {},
       missionsGlobal: w._cvPdfMissionsGlobal,
       afficherLieu: w._cvPdfAfficherLieu !== false,
+      chrono: !!((w.document.getElementById('regSobreActif') && w.document.getElementById('regSobreActif').checked && w._cvPdfSobreVariante === 'mq-chrono') || (w.document.getElementById('regCreatifActif') && w.document.getElementById('regCreatifActif').checked && w._cvPdfCreatifVariante === 'chronoFonce')),
+      afficherDuree: w._cvPdfAfficherDuree !== false,
+      lieuDansMarge: !!w._cvPdfLieuDansMarge,
       styleLieu: w._cvPdfStyleLieu || 'normal',
       positionDates: (typeof w._pdfPositionDatesEffective === 'function') ? w._pdfPositionDatesEffective() : (w._cvPdfPositionDates || 'droite')
     };
@@ -18166,7 +18810,7 @@ function _mepEtatFormations() {
   // fidele a ce qui sera reellement rendu sur le CV.
   if (pr && typeof pr === 'object' && Object.keys(pr).length) {
     return {
-      afficherMissions: (pr.afficherMissionsFormation === null || pr.afficherMissionsFormation === undefined) ? (pr.modePresentation === 'B') : !!pr.afficherMissionsFormation,
+      afficherMissions: !!pr.afficherMissionsFormation,
       espacement: (typeof pr.espacementFormations === 'number') ? pr.espacementFormations : 4,
       // TACHE (chantier "Formations", 2026-09-28) : meme convention que
       // _mepEtatExperiencePerso() -- tout/choisies/missionsParItem.
@@ -18183,7 +18827,7 @@ function _mepEtatFormations() {
   try {
     var w = document.querySelector('#zonePdfInlineCV iframe').contentWindow;
     return {
-      afficherMissions: (w._cvPdfAfficherMissionsFormation === null || w._cvPdfAfficherMissionsFormation === undefined) ? (w._cvPdfModePresentation === 'B') : !!w._cvPdfAfficherMissionsFormation,
+      afficherMissions: !!w._cvPdfAfficherMissionsFormation,
       espacement: (typeof w._cvPdfEspacementFormations === 'number') ? w._cvPdfEspacementFormations : 4,
       tout: w._cvPdfFormationsTout || 'toutes',
       choisies: w._cvPdfFormationsChoisies,
@@ -18388,6 +19032,185 @@ var _MEP_PALETTE_BASES = [
   ['#1e3a5f', '#dde5ee'], ['#8f3a5c', '#f5dfe6'], ['#4f5b23', '#e8edd9'], ['#5c2a5e', '#ecdcee'],
   ['#7a3b1e', '#f3e0d2'], ['#1f4d3a', '#dbeee2'], ['#b9c0c7', '#eef0f2']
 ];
+// LOOKS (decision Denis 2026-10-06, maquette docs/MAQUETTE_LOOKS_ET_GALERIE_2026-10-06.html) : un look est un jeu de reglages qui EXISTENT deja
+// (couleur de base, titres, competences, coins, traits, icones), applique sur clic par _mepAppliquerLook et annulable d'un seul geste.
+// Il ne touche jamais au texte, a l'ordre des rubriques ni au modele choisi. Le degrade est toujours coupe (couleur unie) : un degrade
+// pale en bas de colonne rend le texte blanc peu lisible. Les couleurs viennent de _MEP_PALETTE_BASES (paire foncee + accent clair).
+// Un look = [id, nom, description courte, indice dans _MEP_PALETTE_BASES, titres, competences, coins, traits, icones, resume en clair].
+var _MEP_LOOKS = [
+  { id: 'serieux', nom: 'Sérieux', desc: 'Marine, titres soulignés, angles droits.', base: 8, titres: 'souligne', competences: 'rectangle', coins: false, bordures: 'fine', icones: false,
+    resume: 'couleur marine, titres soulignés, compétences en rectangles, coins droits, traits fins, sans icônes' },
+  { id: 'chaleureux', nom: 'Chaleureux', desc: 'Terre cuite, coins arrondis, pastilles.', base: 5, titres: 'souligne', competences: 'pastille', coins: true, bordures: 'fine', icones: false,
+    resume: 'couleur terre cuite, titres soulignés, compétences en pastilles, coins arrondis, traits fins, sans icônes' },
+  { id: 'moderne', nom: 'Moderne', desc: 'Turquoise, titres en bandeau, icônes.', base: 7, titres: 'bandeau', competences: 'pastille', coins: true, bordures: 'fine', icones: true,
+    resume: 'couleur turquoise, titres en bandeau coloré, compétences en pastilles, coins arrondis, traits fins, icônes' },
+  { id: 'discret', nom: 'Discret', desc: 'Gris ardoise, très sobre, texte seul.', base: 4, titres: 'souligne', competences: 'texte-seul', coins: false, bordures: 'fine', icones: false,
+    resume: 'couleur gris ardoise, titres soulignés, compétences en texte seul, coins droits, traits fins, sans icônes' },
+  { id: 'nature', nom: 'Nature', desc: 'Verts, titres en pastille, icônes.', base: 1, titres: 'pastille', competences: 'pastille', coins: true, bordures: 'fine', icones: true,
+    resume: 'couleur verte, titres en pastille avec icône, compétences en pastilles, coins arrondis, traits fins, icônes' },
+  { id: 'affirme', nom: 'Affirmé', desc: 'Bordeaux, titres en bandeau, traits épais.', base: 2, titres: 'bandeau', competences: 'rectangle', coins: false, bordures: 'epaisse', icones: false,
+    resume: 'couleur bordeaux, titres en bandeau coloré, compétences en rectangles, coins droits, traits épais, sans icônes' }
+];
+// Look applique en dernier : { id, n } ou n = valeur de _mepHistoCompteur juste apres l'application. Il reste « actif » (et annulable)
+// tant que rien d'autre n'a empile une etape d'annulation.
+var _mepLookActif = null;
+var _mepDerniereAmbianceTiree = null;
+// Dernier geste que « Annuler » annulerait dans la carte d'ambiance : 'ambiance' (un look vient d'etre pose), 'couleur' (une couleur vient d'etre choisie) ou null.
+// Annuler l'ambiance ramene a la couleur choisie avant ; annuler la couleur ramene au modele de depart (decision de Denis, 2026-10-08).
+function _mepGesteAnnulable() {
+  if (_mepAmbianceActive()) { return 'ambiance'; }
+  var haut = _mepPileUndo.length ? _mepPileUndo[_mepPileUndo.length - 1] : null;
+  if (haut && (haut.cle === 'base' || haut.cle === 'accent' || haut.cle === 'nuance')) { return 'couleur'; }
+  return null;
+}
+function _mepAmbianceActive() {
+  var actifId = (_mepLookActif && _mepLookActif.n === _mepHistoCompteur) ? _mepLookActif.id : null;
+  return actifId ? (_MEP_LOOKS.filter(function (l) { return l.id === actifId; })[0] || null) : null;
+}
+// « Look » devient « ambiance » (decision de Denis, 2026-10-07 : aucun mot anglais visible). Les identifiants internes gardent « look ».
+// Refonte du 2026-10-08 (maquette MAQUETTE_CARTE_AMBIANCE, choix de Denis) : la carte est un VRAI BOUTON (palette, ombre, rond « Ouvrir ») ; ouverte, elle devient pleine, de la couleur du theme,
+// et les six ambiances s'affichent dessous sur toute la largeur (_htmlPanneauLooks), reliees a la carte par une pointe. Ouvrir ce panneau referme celui des suggestions, et inversement.
+// Grisee et impossible a ouvrir avec l'allure Sobre.
+function _htmlCarteLooks(allure) {
+  var sobre = (allure === 'sobre');
+  var ouvert = _mepCarteOuverte('zoneAmbiances', false);
+  var phrase = ouvert
+    ? 'Ouverte : choisissez une ambiance ou une couleur.'
+    : (sobre ? 'Un clic r&egrave;gle la couleur du CV, en restant sobre. Votre texte ne change jamais.'
+      : 'Un clic r&egrave;gle la couleur, les titres, les comp&eacute;tences, les coins, les traits et les ic&ocirc;nes. Votre texte ne change jamais.');
+  var palette = _MEP_LOOKS.map(function (l) { return '<i style="background:' + _MEP_PALETTE_BASES[l.base][0] + '"></i>'; }).join('');
+  return '<div class="carte-looks"><button type="button" class="amb-carte' + (ouvert ? ' ouvert' : '') + '" id="zoneAmbiances" data-mep-ambiances-ouvrir aria-expanded="' + (ouvert ? 'true' : 'false') + '">' +
+    '<span class="amb-pal" aria-hidden="true">' + palette + '</span>' +
+    '<span class="amb-txt"><b>Choisir une ambiance</b><small>' + phrase + '</small></span>' +
+    '<span class="amb-bout" aria-hidden="true"><span class="amb-rond">&#8964;</span>' + (ouvert ? 'Fermer' : 'Ouvrir') + '</span></button></div>';
+}
+// Panneau de la carte « Choisir une ambiance » (decisions de Denis, 2026-10-08) : les six ambiances, puis « Autre couleur » (couleurs proposees, couleurs de l'entreprise, couleur libre),
+// « Degrade » et « Options supplementaires » ; au pied, « Annuler l'ambiance ».
+// Toujours present dans la page (les essais et les gestionnaires s'y accrochent), masque tant que la carte est fermee. `htmlCouleurs` : le bloc des pastilles et couleurs (construit dans _htmlSecAllureMiseEnPage).
+// Mini-CV d'une ambiance : montre l'effet reel (couleur, titres, competences, coins, traits, icones), purement en CSS (decision de Denis, 2026-10-10).
+function _htmlMiniCvLook(l, p) {
+  return '<span class="mini-cv mc-t-' + l.titres + ' mc-c-' + l.competences + (l.coins ? ' mc-coins' : '') + (l.sobre ? ' mc-sobre' : '') + ' mc-b-' + l.bordures + (l.icones ? ' mc-ico' : '') + '" style="--mc:' + p[0] + ';--mc2:' + p[1] + '" aria-hidden="true">' +
+    '<i class="mc-tete"></i><i class="mc-titre"></i><i class="mc-ligne"></i><i class="mc-ligne"></i><span class="mc-comp"><i></i><i></i><i></i></span><i class="mc-titre"></i><i class="mc-ligne"></i><i class="mc-ligne"></i></span>';
+}
+// Nuances de la couleur choisie (seconde ligne de la carte d'ambiance), memes boutons que la section « Les couleurs » (data-mep-nuance).
+function _htmlNuancesAmbiance() {
+  var c = dossier.reglagesMiseEnPageCV || {};
+  var accent = _mepAccentAffiche(c);
+  var canonAccent = String(c.accent || '#2f6690').toLowerCase();
+  var base = (accent === canonAccent) ? (c.baseCouleur || accent) : accent;   // le CV montre une autre couleur que celle retenue : ses nuances
+  return _mepNuancesDe(base).map(function (n) {
+    return '<button type="button" class="nu' + (accent === n.c ? ' on' : '') + '" title="Nuance ' + n.n + '" aria-label="Nuance ' + n.n + '" data-mep-nuance="' + n.c + '|' + n.n + '" style="background:' + n.c + '"></button>';
+  }).join('');
+}
+// Ordre decide par Denis (2026-10-10) : les couleurs proposees, puis leurs nuances (d'office), puis la couleur de l'entreprise, la couleur libre et le degrade.
+function _htmlCouleursAvecNuances(htmlCouleurs) {
+  var nuances = '<div class="coul-titre coul-titre-nuances">Nuances de cette couleur</div><div class="nuances-amb">' + _htmlNuancesAmbiance() + '</div>';
+  var i = htmlCouleurs.indexOf('<div class="swatches swatches-ligne2"');
+  return i === -1 ? htmlCouleurs + nuances : htmlCouleurs.slice(0, i) + nuances + htmlCouleurs.slice(i);
+}
+// Nom de la couleur d'une ambiance (« marine », « terre cuite »...), tire de son resume : en Sobre, c'est tout ce que l'ambiance regle.
+function _nomCouleurAmbiance(l) {
+  var m = /^couleur ([^,]+),/.exec(l.resume || '');
+  var nom = m ? m[1] : l.nom;
+  return nom.charAt(0).toUpperCase() + nom.slice(1);
+}
+// AUTRES COULEURS DU CV, depuis la carte d'ambiance (Denis, 2026-10-11, maquette docs/MAQUETTE_AUTRES_COULEURS_AMBIANCE_2026-10-11.html) : la couleur de la colonne, la deuxieme couleur du degrade,
+// ce que le degrade colore (colonne, bandeau ou les deux) et la couleur du texte sur le fond colore (avec un choix « Automatique » qui suit le contraste). Les rangees s'adaptent au modele affiche :
+// elles sont lues sur le CV de l'apercu (colonne coloree, bandeau), jamais d'apres une liste de modeles. Absent en allure Sobre (l'ambiance n'y regle que la couleur).
+var _MEP_TEINTES_COLONNE = [['#e6e1d6', 'Beige'], ['#dde4f0', 'Bleu pâle'], ['#e3ece6', 'Vert pâle'], ['#efe3e3', 'Rose pâle'], ['#e9e9ec', 'Gris clair'], ['#1f2a44', 'Marine'], ['#33383d', 'Ardoise']];
+var _MEP_SECONDES_DEGRADE = [['#e0e8ee', 'Bleu très clair'], ['#6fa3c7', 'Bleu moyen'], ['#d4974f', 'Doré'], ['#7d8790', 'Gris'], ['#f3e1e1', 'Rose pâle']];
+// Ce que l'apercu du CV montre : colonne coloree ? bandeau ? couleur propre de la colonne, choix deja faits, degrade, couleur du texte. null si l'apercu n'est pas pret.
+// La couleur principale que le CV affiche (celle de l'apercu), a defaut celle retenue dans les reglages.
+function _mepAccentAffiche(c) {
+  var st = _mepStructureCouleurs();
+  return (st && /^#[0-9a-f]{6}$/.test(st.accent || '')) ? st.accent : String((c && c.accent) || '#2f6690').toLowerCase();
+}
+function _mepStructureCouleurs() {
+  try {
+    var iframe = document.querySelector('#zonePdfInlineCV iframe');
+    var w = iframe && iframe.contentWindow, d = iframe && iframe.contentDocument;
+    var cv = d && d.querySelector('#conteneurPage .cv');
+    if (!cv) { return null; }
+    var racine = w.getComputedStyle(d.documentElement);
+    var cvCouleur = racine.getPropertyValue('--cv').trim().toLowerCase(), colCouleur = racine.getPropertyValue('--col').trim().toLowerCase();
+    var choix = w._cvPdfChoixMq || {};
+    var val = function (id, defaut) { var e = d.getElementById(id); return e ? e.value : defaut; };
+    return {
+      colonne: /\bcol-vague-[gd]\b/.test(cv.className),
+      bandeau: !!d.querySelector('#conteneurPage .tete-fond'),
+      accent: cvCouleur,
+      colonneModele: (colCouleur && colCouleur !== cvCouleur && !choix.couleurColonne) ? colCouleur : '',
+      colonneChoisie: choix.couleurColonne || '',
+      secondaire: choix.couleurSecondaire || '',
+      degradeColonnes: val('regDegradeColonnes', 'aucun') !== 'aucun',
+      degradeBandeau: val('regDegradeBandeau', 'aucun') !== 'aucun',
+      texte: val('regTexteFondColonnes', 'blanc') === 'noir' ? 'noir' : 'blanc'
+    };
+  } catch (e) { return null; }
+}
+function _htmlAutresCouleursAmbiance(allure) {
+  if (allure === 'sobre') { return ''; }
+  var s = _mepStructureCouleurs();
+  if (!s || (!s.colonne && !s.bandeau)) { return ''; }
+  var c = dossier.reglagesMiseEnPageCV || {};
+  var degrade = s.degradeColonnes || s.degradeBandeau;
+  var rangees = '';
+  if (s.colonne) {
+    rangees += '<div class="autres-coul-rang"><div class="coul-titre">Couleur de la colonne</div><div class="swatches">' +
+      '<button type="button" class="puce-texte' + (s.colonneChoisie ? '' : ' on') + '" data-mep-colcol="">' + (s.colonneModele ? 'Couleur du mod&egrave;le' : 'Couleur principale') + '</button>' +
+      _MEP_TEINTES_COLONNE.map(function (t) { return '<button type="button" class="sw' + (s.colonneChoisie === t[0] ? ' on' : '') + '" title="' + t[1] + '" aria-label="' + t[1] + '" data-mep-colcol="' + t[0] + '" style="background:' + t[0] + '"></button>'; }).join('') + '</div></div>';
+  }
+  if (degrade) {
+    rangees += '<div class="autres-coul-rang"><div class="coul-titre">Deuxi&egrave;me couleur du d&eacute;grad&eacute;</div><div class="swatches">' +
+      '<button type="button" class="puce-texte' + (s.secondaire ? '' : ' on') + '" data-mep-secondaire="">Automatique</button>' +
+      _MEP_SECONDES_DEGRADE.map(function (t) { return '<button type="button" class="sw' + (s.secondaire === t[0] ? ' on' : '') + '" title="' + t[1] + '" aria-label="' + t[1] + '" data-mep-secondaire="' + t[0] + '" style="background:' + t[0] + '"></button>'; }).join('') + '</div></div>';
+  }
+  if (degrade && s.colonne && s.bandeau) {
+    var surQuoi = (s.degradeColonnes && s.degradeBandeau) ? 'deux' : (s.degradeColonnes ? 'colonne' : 'bandeau');
+    rangees += '<div class="autres-coul-rang"><div class="coul-titre">Le d&eacute;grad&eacute; s&rsquo;applique &agrave;</div>' +
+      _htmlDuoMiseEnPage('mep-degsurquoi', [['colonne', 'La colonne'], ['bandeau', 'Le bandeau'], ['deux', 'Les deux']], surQuoi) + '</div>';
+  }
+  rangees += '<div class="autres-coul-rang"><div class="coul-titre">Texte sur le fond color&eacute;</div>' +
+    '<p class="sous-aide">&laquo;&nbsp;Automatique&nbsp;&raquo; met du blanc sur un fond fonc&eacute; et du noir sur un fond clair : jamais de texte illisible.</p>' +
+    _htmlDuoMiseEnPage('mep-textefond', [['auto', 'Automatique'], ['blanc', 'Blanc'], ['noir', 'Noir']], c._texteAuto === true ? 'auto' : s.texte) + '</div>';
+  return '<div class="autres-coul"><p class="titre-coul-amb">Autres couleurs de votre CV</p>' + rangees + '</div>';
+}
+// Couleur du texte selon le fond (luminance, comme la maquette) : 'blanc' sur fond fonce, 'noir' sur fond clair. Un degrade est juge sur la MOYENNE de ses deux couleurs.
+function _mepLuminance(hex) {
+  var m = /^#([0-9a-f]{6})$/i.exec(String(hex || ''));
+  if (!m) { return 0; }
+  var n = parseInt(m[1], 16);
+  return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+}
+function _mepTexteSelonFond(hex, hexFin) {
+  var l = hexFin ? (_mepLuminance(hex) + _mepLuminance(hexFin)) / 2 : _mepLuminance(hex);
+  return l < 0.6 ? 'blanc' : 'noir';
+}
+function _htmlPanneauLooks(allure, htmlCouleurs, htmlEffetOptions) {
+  var sobre = (allure === 'sobre');
+  var ouvert = _mepCarteOuverte('zoneAmbiances', false);
+  var actif = _mepAmbianceActive(), actifId = actif ? actif.id : null;
+  var autre = _mepCarteOuverte('autreCouleur', false);
+  var geste = _mepGesteAnnulable();
+  var boutons = _MEP_LOOKS.map(function (l) {
+    var p = _MEP_PALETTE_BASES[l.base];
+    return '<button type="button" class="look-bouton' + (actifId === l.id ? ' on' : '') + '" data-mep-look="' + l.id + '" aria-pressed="' + (actifId === l.id ? 'true' : 'false') + '">' +
+      // En allure Sobre, l'ambiance ne regle que la couleur : la vignette ne montre donc que la couleur (decision de Denis, 2026-10-10).
+      _htmlMiniCvLook(sobre ? { titres: 'souligne', competences: 'texte-seul', coins: false, bordures: 'fine', icones: false, sobre: true } : l, p) + '<b>' + l.nom + '</b><span class="look-desc">' + (sobre ? 'Couleur ' + _nomCouleurAmbiance(l).toLowerCase() + '.' : l.desc) + '</span></button>';
+  }).join('');
+  var intro = sobre
+    ? 'En allure Sobre, une ambiance r&egrave;gle seulement la <b>couleur</b>, en teintes douces (filets fins et teintes p&acirc;les). Pour changer aussi les titres, les pastilles ou les ic&ocirc;nes, choisissez l&rsquo;allure Standard ou Cr&eacute;atif. Votre texte ne change jamais.'
+    : 'Choisissez une ambiance : elle r&egrave;gle d&rsquo;un coup la couleur, les titres, les comp&eacute;tences, les coins et les ic&ocirc;nes. Votre texte ne change jamais.';
+  return '<div class="depli sugg-relie pointe-gauche panneau-looks" id="panneauAmbiances"' + (ouvert ? '' : ' hidden') + '>' +
+    '<p class="sous">' + intro + '</p>' +
+    '<div class="looks">' + boutons + '</div>' +
+    '<div class="coul-entete"><p class="titre-coul-amb">Ou choisissez votre couleur</p>' + _htmlReprendreCouleurs(allure) + '</div>' +
+    '<div class="nuancier-amb" id="nuancierAmb">' + _htmlCouleursAvecNuances(htmlCouleurs) + '</div>' +
+    _htmlAutresCouleursAmbiance(allure) +
+    '<div class="looks-pied"><span class="pied-gauche"><button type="button" class="look-annuler" data-mep-look-annuler' + (geste ? '' : ' disabled') + '>&#8634; ' + (geste === 'couleur' ? 'Annuler la couleur' : 'Annuler l&rsquo;ambiance') + '</button>' +
+    '<span class="sous looks-etat">' + (geste === 'ambiance' ? 'Ambiance &laquo;&nbsp;' + actif.nom + '&nbsp;&raquo; appliqu&eacute;e : ' + (sobre ? 'couleur ' + _nomCouleurAmbiance(actif).toLowerCase() : actif.resume) + '.' : (geste === 'couleur' ? 'Couleur appliqu&eacute;e : &laquo;&nbsp;Annuler&nbsp;&raquo; revient &agrave; la couleur d&rsquo;avant.' : '')) + '</span></span>' + '<span class="pied-droite ligne-effet-options sans-marge">' + htmlEffetOptions + '</span></div></div>';
+}
+
 // TACHE (phase 5.3, carte plate "Allure generale" de la maquette --
 // docs/MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html lignes 512-529) : la
 // maquette pilote TOUT le degrade (bandeau, colonnes...) avec une SEULE
@@ -18461,8 +19284,7 @@ function _htmlSecCouleursMiseEnPage(masquerChampsSimplifies) {
       ? '<div class="champ-mep"><label>D&eacute;grad&eacute;</label>' +
         _htmlDuoMiseEnPage('mep-degrade', [['fonce-clair', 'Fonc&eacute; vers clair'], ['clair-fonce', 'Clair vers fonc&eacute;'], ['uni', 'Uni']], ['fonce-clair', 'clair-fonce', 'uni'].indexOf(c.degradeColonnes) !== -1 ? c.degradeColonnes : 'fonce-clair') + '</div>'
       : '<p class="mep-note-format">D&eacute;grad&eacute; des colonnes : g&eacute;r&eacute; via la coloration en Word.</p>')) +
-    '<div class="champ-mep"><label>Texte sur le fond color&eacute;</label>' +
-    _htmlDuoMiseEnPage('mep-textefond', [['blanc', 'Blanc'], ['noir', 'Noir']], c.texteFondColonnes === 'noir' ? 'noir' : 'blanc') + '</div>' +
+    // « Texte sur le fond colore » : deplace dans la carte « Choisir une ambiance » (bloc « Autres couleurs de votre CV », _htmlAutresCouleursAmbiance) : un reglage, un seul endroit.
     '<details class="mep-details3 details-direct" open><summary>D&eacute;tails</summary>' +
     '<div class="champ-mep"><label>Effet du fond des colonnes</label>' +
     _htmlDuoMiseEnPage('mep-fondeffet', [['fondSeul', 'Fond plein'], ['titres', 'Titres seulement']], c.fondColonnesEffet === 'titres' ? 'titres' : 'fondSeul') + '</div>' +
@@ -18493,8 +19315,8 @@ function _htmlSecHautMiseEnPage() {
       ? '<div class="champ-mep"><label>D&eacute;grad&eacute; du bandeau</label>' +
         _htmlDuoMiseEnPage('mep-degradebandeau', [['fonce-clair', 'Fonc&eacute; vers clair'], ['clair-fonce', 'Clair vers fonc&eacute;'], ['uni', 'Uni']], ['fonce-clair', 'clair-fonce', 'uni'].indexOf(c.degradeBandeau) !== -1 ? c.degradeBandeau : 'fonce-clair') + '</div>'
       : '<p class="mep-note-format">Forme en diagonale et d&eacute;grad&eacute; du bandeau : disponibles en PDF.</p>') +
-    '<div class="champ-mep"><label>Coordonn&eacute;es &agrave; part</label>' +
-    _htmlDuoMiseEnPage('mep-coordapart', [['1', 'Bandeau s&eacute;par&eacute;'], ['0', 'Dans le bandeau']], c.bandeauDisponibilite ? '1' : '0') + '</div>' +
+    '<div class="champ-mep"><label>Coordonn&eacute;es</label>' +
+    _htmlDuoMiseEnPage('mep-coordapart', [['1', 'En ligne sous l&rsquo;en-t&ecirc;te'], ['0', 'En colonne']], c.bandeauDisponibilite ? '1' : '0') + '</div>' +
     (estPdf
       // TACHE (Denis, 2026-09-25, tranche 4, « un seul endroit ») : la disposition (3 / 2 colonnes) de l'en-tete se regle dans le
       // plein ecran (« Regler l'en-tete » > « Disposition de depart »), comme la maquette : plus ici.
@@ -18521,7 +19343,7 @@ function _htmlSecTexteMiseEnPage(masquerChampsSimplifies) {
   var htmlPolice = '<select data-mep-police class="mep-select">' + polices.map(function (p) {
     return '<option value="' + p[0] + '"' + (policeActuelle === p[0] ? ' selected' : '') + '>' + p[1] + '</option>';
   }).join('') + '</select>';
-  var titres = ['sans-decor', 'souligne', 'bandeau', 'pastille'].indexOf(c.styleTitres) !== -1 ? c.styleTitres : 'souligne';
+  var titres = ['sans-decor', 'souligne', 'bandeau', 'pastille', 'filet', 'court'].indexOf(c.styleTitres) !== -1 ? c.styleTitres : 'souligne';
   // TACHE (phase 5.4) : Dates/Entreprise (S/I) vivent desormais dans la
   // carte "Experiences professionnelles" (maquette, cExp) -- retirees
   // d'ici en mode simplifie pour eviter le doublon. Poste (S/I) n'a pas
@@ -18705,8 +19527,10 @@ function _htmlSecSeparateurSupplementairesMiseEnPage() {
 
 // Bouton « Options supplementaires » en bas d'une carte (lot N2, decision Denis 2026-10-04) : ouvre « Reglages supplementaires » sur la partie qui porte le nom de la carte.
 // Meme classe que les autres boutons secondaires des panneaux (btn-miss), aucun style nouveau.
-function _htmlBoutonOptionsSupp(cle) {
-  return '<div class="pied-options-supp"><button type="button" class="btn-miss" data-mep-options-supp="' + cle + '">Options suppl&eacute;mentaires &#8594;</button></div>';
+// `enLigne` (optionnel) : renvoie seulement le bouton, sans son pied encadre, pour le ranger sur une ligne avec un autre bouton (carte « Couleurs »).
+function _htmlBoutonOptionsSupp(cle, enLigne) {
+  var bouton = '<button type="button" class="btn-miss" data-mep-options-supp="' + cle + '">Options suppl&eacute;mentaires &#8594;</button>';
+  return enLigne ? bouton : '<div class="pied-options-supp">' + bouton + '</div>';
 }
 // « Reglages supplementaires », rangee PAR CARTE D'ORIGINE (lot N2). Les reglages gardent leurs boutons, leurs cles et leurs gestionnaires : seule
 // leur place change. Le contenu vient des 5 fonctions d'origine ; chaque reglage est range selon son controle (attribut data-mep-*).
@@ -18720,7 +19544,7 @@ var _MEP_PLAN_SUPPLEMENTAIRES = [
     note: 'L&rsquo;ordre des exp&eacute;riences se choisit dans la carte &laquo;&nbsp;Exp&eacute;riences professionnelles&nbsp;&raquo;.' },
   { cle: 'texte', titre: 'Mise en page et texte', icone: 'texte', ids: ['[data-mep-police]', '[data-mep-styletitres]', '[data-mep-bordures]', '[data-mep-coinsarrondis]', '[data-mep-veuves]', '[data-mep-espparas]'], carte: 'cTexte',
     note: '<strong>R&eacute;glages par rubrique</strong> (agrandir une rubrique, lui donner une police ou une puce &agrave; part) et <strong>&eacute;crire dans le CV</strong> : dans l&rsquo;Aper&ccedil;u &agrave; taille r&eacute;elle.' },
-  { cle: 'couleurs', titre: 'Couleurs', icone: 'couleurs', ids: ['[data-mep-textefond]', '[data-mep-fondeffet]', '[data-mep-fondpleine]'], carte: 'zoneCouleurs' },
+  { cle: 'couleurs', titre: 'Couleurs', icone: 'couleurs', ids: ['[data-mep-fondeffet]', '[data-mep-fondpleine]'], carte: 'zoneCouleurs' },
   { cle: 'autres', titre: 'Autres rubriques', icone: 'affiche', ids: ['[data-mep-rubrique]'], carte: 'cSupp',
     note: 'Ces rubriques n&rsquo;apparaissent que si elles contiennent quelque chose. Vous pouvez aussi en masquer une m&ecirc;me quand elle est remplie.' }
 ];
@@ -18769,7 +19593,7 @@ function _htmlSecReprendreMiseEnPage() {
     '<div class="mep-simple-macros">' +
     '<button type="button" class="mep-simple-macro" id="btnMepDe"><span class="m-ico">&#127922;</span>' +
     '<span><b>' + libelleDe.titre + '</b><span>' + libelleDe.sous + '</span></span></button>' +
-    '<button type="button" class="mep-simple-macro" id="btnMepMiseEnPage" title="' + echapperAttribut(_resumeMiseEnPageActuelle()) + '"><span class="m-ico">&#129668;</span>' +
+    '<button type="button" class="mep-simple-macro' + (_mepPulseActif() ? ' pulse-mep' : '') + '" id="btnMepMiseEnPage" title="' + echapperAttribut(_resumeMiseEnPageActuelle()) + '"><span class="m-ico">&#129668;</span>' +
     '<span><b>Mise en page</b><span>R&eacute;organise le CV pour tenir sur une page.</span></span></button>' +
     '</div>' +
     _htmlAnnulerRefaireMiseEnPage() +
@@ -18861,6 +19685,8 @@ function construireMiseEnPageCV(docActif) {
   var htmlBoutonPleinEcranHautPdf = estPdfMep
     ? '<div class="rangee-modes"><button type="button" class="btn-plein" id="btnMepOuvrirGrandApercu">' +
       '<svg class="ic" viewBox="0 0 24 24" style="width:1.05rem;height:1.05rem"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Aper&ccedil;u en plein &eacute;cran</button>' +
+      // Retour de Denis (2026-10-10) : « Boutons plus grands » au milieu de cette rangée, dans le vide entre les deux autres boutons.
+      '<button type="button" class="btn-plein aide-grands' + (document.documentElement.getAttribute('data-grands-boutons') === '1' ? ' on' : '') + '" data-mep-grands-boutons aria-pressed="' + (document.documentElement.getAttribute('data-grands-boutons') === '1' ? 'true' : 'false') + '" title="Agrandir les boutons et le texte de cet écran"><svg class="ic" viewBox="0 0 24 24" style="width:1.05rem;height:1.05rem"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Boutons plus grands</button>' +
       '<button type="button" class="mep-btn mep-btn-depart" id="btnMepDepart"><svg class="ic" viewBox="0 0 24 24" style="width:1.05rem;height:1.05rem"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg> Revenir au mod&egrave;le de d&eacute;part</button></div>'
     : '';
   // TACHE (Denis, 2026-09-25, cadre commun) : en-tete de la maquette. Le rond a
@@ -18871,7 +19697,7 @@ function construireMiseEnPageCV(docActif) {
   var htmlEnteteMepPdf = estPdfMep
     ? '<div class="entete"><div></div>' +
       // Boutons plus grands (retour Denis 2026-10-03) : un VRAI bouton a cote de « Aide » (et non une case a cocher), meme reglage que « Grands boutons » du panneau des preferences d'affichage (un seul etat, memorise sur l'appareil).
-      '<div class="entete-boutons"><button type="button" class="aide aide-grands' + (document.documentElement.getAttribute('data-grands-boutons') === '1' ? ' on' : '') + '" data-mep-grands-boutons aria-pressed="' + (document.documentElement.getAttribute('data-grands-boutons') === '1' ? 'true' : 'false') + '" title="Agrandir les boutons et le texte de cet écran"><svg class="ic" viewBox="0 0 24 24" style="width:1.05rem;height:1.05rem"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Boutons plus grands</button>' +
+      '<div class="entete-boutons">' +
       '<button type="button" class="aide" id="btnMepAide"><svg class="ic" viewBox="0 0 24 24" style="width:1.05rem;height:1.05rem"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg> Aide</button></div></div>' +
       // Fenetre d'aide : markup et texte de la maquette (#voileAide), ferme par la croix.
       '<div class="voile" id="mepVoileAide"><div class="fenetre" role="dialog" aria-modal="true" aria-labelledby="mepAideTitre">' +
@@ -19044,7 +19870,7 @@ function _htmlBoutonAccentEntreprise() {
 // sans icones de rubrique, ce serait un rond vide -> on ne propose la
 // pastille que quand les icones sont actives.
 function _mepOptionsStyleTitres(c) {
-  var o = [['sans-decor', 'Sans d&eacute;cor'], ['souligne', 'Soulign&eacute;s'], ['bandeau', 'Bandeau']];
+  var o = [['sans-decor', 'Sans d&eacute;cor'], ['souligne', 'Soulign&eacute;s'], ['bandeau', 'Bandeau'], ['filet', 'Filet prolong&eacute;'], ['court', 'Soulign&eacute; court']];
   if (c && c.icones) { o.push(['pastille', 'Pastille']); }
   return o;
 }
@@ -19130,6 +19956,7 @@ function _wireCarteSimpleMiseEnPage() {
       }
       _assurerReglagesMiseEnPageCV();
       dossier.reglagesMiseEnPageCV.colonnes = val;
+      dossier.reglagesMiseEnPageCV._colonnesChoisies = true;   // choix explicite de la personne : le tirage « Style rapide » ne change plus ce nombre (2026-10-08)
       setTimeout(rerendre, 30);
     });
   });
@@ -19267,6 +20094,7 @@ function _wireCarteSimpleMiseEnPage() {
         dossier.reglagesMiseEnPageCV.accentClair = secondaireEntreprise;
         _mepPousserAccentClairPdf(secondaireEntreprise);
         _mepAppelerIframePdf('_pdfMqChoix', 'couleurSecondaire', secondaireEntreprise);
+        _mepNoterCouleurs({ accentClair: secondaireEntreprise, secondaire: secondaireEntreprise });
       }
       if (/^#[0-9a-f]{6}$/.test(detailsEntreprise)) {
         dossier.reglagesMiseEnPageCV._pastillesEntreprise = true;
@@ -19342,6 +20170,8 @@ function _wireCarteSimpleMiseEnPage() {
     if (!opts.sansRerendre) { setTimeout(rerendre, 30); }
   }
   function _numOuNull(v) { var n = parseFloat(v); return isFinite(n) ? n : null; }
+  _mepBandeauAppliquer = function (bord) { _mepReglageMoteur('bordBandeau', bord, null, 'regBordBandeau', {}); };
+  _mepBordAppliquer = function (vers) { _mepReglageMoteur('bordColonneDroit', vers === 'droit' ? '1' : '0', null, 'regColonneBordDroit', { bool: true }); };
 
   // --- 6b : section "La page"
   // Un SEUL gestionnaire pour les deux attributs (carte « Format » : data-mep-format-simple ; Word : data-mep-format).
@@ -19494,6 +20324,9 @@ function _wireCarteSimpleMiseEnPage() {
     } else if (etatApercuInline && etatApercuInline.cv && typeof traduireVersEtatWord === 'function') {
       etatApercuInline.cv.couleur = traduireVersEtatWord(dossier.reglagesMiseEnPageCV).couleur;
     }
+    if (_mepTexteAutoAjuster) { _mepTexteAutoAjuster(hex); }   // « Texte sur le fond colore : Automatique »
+    var cc = dossier.reglagesMiseEnPageCV;
+    _mepNoterCouleurs({ accent: String(hex).toLowerCase(), baseCouleur: cc.baseCouleur, accentClair: cc.accentClair, nuance: cc.nuance });
   }
   // Passe de verification 2026-09-03 : le choix d'une COULEUR DE BASE fixe
   // aussi l'accent clair (2e couleur du degrade). L'ancienne palette poussait
@@ -19548,20 +20381,25 @@ function _wireCarteSimpleMiseEnPage() {
       dossier.pdfReglages.regDegradeColonnes = pdfV;
     } catch (e) { /* */ }
   };
+  // UN SEUL circuit pour poser une couleur de base (et son accent clair), partage par les pastilles de couleurs et par les « looks » (_mepAppliquerLook).
+  function poserCouleurDeBase(hexBase, hexClair, sansRerendre) {
+    _assurerReglagesMiseEnPageCV();
+    dossier.reglagesMiseEnPageCV._couleurChoisie = true;   // les modeles ne l'ecrasent plus jamais
+    _mepPousserHistorique('base');
+    _assurerReglagesMiseEnPageCV();
+    dossier.reglagesMiseEnPageCV.baseCouleur = hexBase;
+    dossier.reglagesMiseEnPageCV.accentClair = String(hexClair).toLowerCase();
+    if (dossier.reglagesMiseEnPageCV._pastillesEntreprise) { dossier.reglagesMiseEnPageCV._pastillesEntreprise = false; _mepPousserPastillesPdf('#e9e9e9'); }
+    _mepAppelerIframePdf('_pdfMqChoix', 'couleurSecondaire', null);
+    _mepNoterCouleurs({ secondaire: null });
+    _mepPousserAccent(hexBase);
+    _mepPousserAccentClairPdf(hexClair);
+    if (!sansRerendre) { setTimeout(rerendre, 30); }
+  }
   document.querySelectorAll('[data-mep-base]').forEach(function (b) {
     b.addEventListener('click', function () {
-      _assurerReglagesMiseEnPageCV();
-      dossier.reglagesMiseEnPageCV._couleurChoisie = true;   // les modeles ne l'ecrasent plus jamais
       var p = this.getAttribute('data-mep-base').split('|');
-      _mepPousserHistorique('base');
-      _assurerReglagesMiseEnPageCV();
-      dossier.reglagesMiseEnPageCV.baseCouleur = p[0];
-      dossier.reglagesMiseEnPageCV.accentClair = String(p[1]).toLowerCase();
-      if (dossier.reglagesMiseEnPageCV._pastillesEntreprise) { dossier.reglagesMiseEnPageCV._pastillesEntreprise = false; _mepPousserPastillesPdf('#e9e9e9'); }
-      _mepAppelerIframePdf('_pdfMqChoix', 'couleurSecondaire', null);
-      _mepPousserAccent(p[0]);
-      _mepPousserAccentClairPdf(p[1]);
-      setTimeout(rerendre, 30);
+      poserCouleurDeBase(p[0], p[1]);
     });
   });
   document.querySelectorAll('[data-mep-nuance]').forEach(function (b) {
@@ -19606,13 +20444,200 @@ function _wireCarteSimpleMiseEnPage() {
   // maquette (oDegrade). Meme synchronisation iframe que data-mep-degrade
   // juste au-dessus, jamais une 2e ecriture divergente.
   document.querySelectorAll('[data-mep-degrade-simple]').forEach(function (cb) {
-    cb.addEventListener('change', function () {
-      window._mepPoserDegradeGlobal(this.checked);
+    cb.addEventListener('click', function () {
+      var actif = this.getAttribute('aria-pressed') !== 'true';
+      window._mepPoserDegradeGlobal(actif);
+      poserDegradeBandeau(actif ? 'fonce-clair' : 'uni', true);   // le degrade du bandeau suit celui des colonnes : un seul bouton pour tout le CV
+      if (_mepTexteAutoAjuster) { _mepTexteAutoAjuster(); }
       setTimeout(rerendre, 30);
     });
   });
+  // LOOKS : applique un look (voir _MEP_LOOKS). Chaque reglage passe par les memes fonctions que les boutons de la carte correspondante
+  // (jamais un 2e circuit) ; l'historique est gele pour que le look ne compte que pour UNE etape d'annulation ; un seul rendu a la fin.
+  // Les reglages d'une ambiance, sans toucher a l'historique (reutilise par le tirage du style Standard : tout le tirage = UNE etape d'annulation).
+  function _mepPoserReglagesAmbiance(L) {
+    var paire = _MEP_PALETTE_BASES[L.base];
+    poserCouleurDeBase(paire[0], paire[1], true);
+    _mepReglageMoteur('texteFondColonnes', 'blanc', 'data-projetxxl-textefondcolonnes', 'regTexteFondColonnes', { sansRerendre: true });
+    window._mepPoserDegradeGlobal(false);
+    poserDegradeBandeau('uni', true);
+    _mepReglageMoteur('icones', L.icones ? '1' : '0', 'data-projetxxl-iconesrubriques', 'regIcones', { bool: true, wordRegl: 'iconesRubriques', sansRerendre: true });
+    poserStyleTitres(L.titres, true);
+    definirStyleCompetences(L.competences, true);
+    _mepReglageMoteur('coinsArrondis', L.coins ? '1' : '0', null, 'regCoinsArrondis', { bool: true, sansRerendre: true });
+    _mepReglageMoteur('styleBordures', L.bordures, null, 'regStyleBordures', { sansRerendre: true });
+  }
+  window._mepAppliquerLook = function (id) {
+    var L = _MEP_LOOKS.filter(function (x) { return x.id === id; })[0];
+    if (!L) { return false; }
+    // Plusieurs ambiances d'affilee = UNE seule etape d'annulation : « Annuler l'ambiance » revient a l'etat d'AVANT LA PREMIERE (retour de Denis, 2026-10-11).
+    if (!_mepAmbianceActive()) { _mepPousserHistorique('look'); }
+    _mepHistoGele = true;
+    // En allure Sobre (decision de Denis, 2026-10-08) : une ambiance ne regle que la COULEUR (filets et teintes pales), jamais les titres colores, pastilles ni icones.
+    try { if (_mepAllureActuelle() === 'sobre') { poserCouleurDeBase(_MEP_PALETTE_BASES[L.base][0], _MEP_PALETTE_BASES[L.base][1], true); } else { _mepPoserReglagesAmbiance(L); } } finally { _mepHistoGele = false; }
+    _mepLookActif = { id: id, n: _mepHistoCompteur };
+    _mepDernierMessageMEP = '';
+    setTimeout(rerendre, 30);
+    return true;
+  };
+  // « Style rapide » en allure STANDARD (decision de Denis, 2026-10-07 : ce tirage etait tres pauvre, 13 de ses 19 reglages etaient remis a leur valeur d'avant) : une ambiance
+  // tiree au hasard (jamais la meme deux fois de suite), puis des variantes visuelles prises dans ce que les modeles savent deja faire. Jamais le contenu, jamais le nombre de colonnes
+  // de la personne. Sobre et Creatif gardent leur propre fonctionnement (un modele de la galerie apres l'autre). Tout le tirage = une seule etape d'annulation.
+  window._mepTirageStandardRiche = function () {
+    if (_mepAllureActuelle() !== 'defaut') { return false; }
+    var tire = function (t) { return t[Math.floor(Math.random() * t.length)]; };
+    var chance = function (p) { return Math.random() < p; };
+    var w = null; try { w = document.querySelector('#zonePdfInlineCV iframe').contentWindow; } catch (e) { return false; }
+    if (!w) { return false; }
+    _mepHistoGele = true;
+    try {
+      var autres = _MEP_LOOKS.filter(function (l) { return l.id !== _mepDerniereAmbianceTiree; });
+      var L = tire(autres); _mepDerniereAmbianceTiree = L.id;
+      _mepPoserReglagesAmbiance(L);
+      // variantes : chacune avec sa propre chance, pour que deux tirages ne se ressemblent pas
+      if (chance(0.4)) { var p = tire(_MEP_PALETTE_BASES.slice(0, 14)); poserCouleurDeBase(p[0], p[1], true); }
+      if (chance(0.35)) { poserStyleTitres(tire(['souligne', 'bandeau', 'pastille', 'filet', 'court']), true); }
+      if (chance(0.35)) { definirStyleCompetences(tire(['pastille', 'rectangle', 'texte-seul']), true); }
+      if (chance(0.5)) { window._mepPoserDegradeGlobal(chance(0.6)); poserDegradeBandeau(tire(['uni', 'fonce-clair', 'clair-fonce']), true); }
+      if (chance(0.4)) { _mepReglageMoteur('coinsArrondis', chance(0.5) ? '1' : '0', null, 'regCoinsArrondis', { bool: true, sansRerendre: true }); }
+      if (chance(0.4)) { _mepReglageMoteur('icones', chance(0.5) ? '1' : '0', 'data-projetxxl-iconesrubriques', 'regIcones', { bool: true, wordRegl: 'iconesRubriques', sansRerendre: true }); }
+      if (dossier.photo && dossier.photo.url && dossier.photo.inclure !== false && chance(0.4)) { _mepReglageMoteur('anneauPhoto', chance(0.5) ? '1' : '0', null, 'regAnneauPhoto', { bool: true, sansRerendre: true }); }
+      var possibleLigne = (typeof _mepCoordEnLignePossible === 'function') ? _mepCoordEnLignePossible() : false;
+      _mepReglageMoteur('bandeauDisponibilite', (possibleLigne && chance(0.3)) ? '1' : '0', 'data-projetxxl-bandeaudispo', 'regBandeauDisponibilite', { bool: true, sansRerendre: true });
+      // coin colore (25 %) : bascule du panneau, remise a l'etat voulu (la teinte de page creme n'existe plus, decision de Denis 2026-10-11)
+      var voulu = function (nomVar, fonction, v) { try { if (!!w[nomVar] !== v) { w[fonction](); } } catch (e) { /* option absente */ } };
+      var coin = chance(0.25);
+      try { if (coin && !w._pdfCoinCouleurPossible()) { coin = false; } } catch (e) { coin = false; }
+      voulu('_cvPdfCoinCouleur', '_pdfBasculerCoinCouleur', coin);
+    } finally { _mepHistoGele = false; }
+    _mepLookActif = null;
+    return true;
+  };
+  // « Autre couleur » : deplie / replie les couleurs proposees, de l'entreprise, libre et la pipette.
+  document.querySelectorAll('[data-mep-autre-couleur]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepCartesOuvertes.autreCouleur = !_mepCarteOuverte('autreCouleur', false);
+      rerendre();
+    });
+  });
+  // Carte « Choisir une ambiance » : ouvre / referme le panneau des six ambiances (referme celui des suggestions en l'ouvrant).
+  document.querySelectorAll('[data-mep-ambiances-ouvrir]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var ouvrir = !_mepCarteOuverte('zoneAmbiances', false);
+      _mepCartesOuvertes.zoneAmbiances = ouvrir;
+      if (ouvrir && _mepSuggestionsOuvert) { _mepSuggestionsOuvert = false; _mepAnnulerPreviewSuggestion(); }
+      rerendre();
+    });
+  });
+  document.querySelectorAll('[data-mep-look]').forEach(function (b) {
+    b.addEventListener('click', function () { window._mepAppliquerLook(this.getAttribute('data-mep-look')); });
+  });
+  document.querySelectorAll('[data-mep-look-annuler]').forEach(function (b) {
+    b.addEventListener('click', _mepAnnulerMiseEnPage);
+  });
+  // « Texte sur le fond colore » (carte d'ambiance) : « Automatique » suit le contraste du fond a chaque changement de couleur ; Blanc / Noir le fixent.
+  // Le fond jugé : la couleur choisie pour la colonne, sinon celle du modele, sinon la couleur principale (colonne) ; la couleur principale (bandeau seul).
+  function _mepAjusterTexteAuto(accentNouveau) {
+    _assurerReglagesMiseEnPageCV();
+    if (dossier.reglagesMiseEnPageCV._texteAuto !== true) { return; }
+    var s = _mepStructureCouleurs();
+    var accent = String(accentNouveau || (s && s.accent) || '#2f6690').toLowerCase();
+    // Sans degrade : le fond de la colonne (choisi, du modele, sinon la couleur principale). Avec degrade : de la couleur principale a la deuxieme couleur (choisie, sinon l'accent clair de la couleur de base).
+    var fond = s && s.colonne ? (s.colonneChoisie || s.colonneModele || accent) : accent;
+    var fin = '';
+    if (s && ((s.colonne && s.degradeColonnes) || (!s.colonne && s.degradeBandeau))) {
+      fond = accent;
+      fin = (s.secondaire || String((dossier.reglagesMiseEnPageCV || {}).accentClair || '#d9e8f2')).toLowerCase();
+    }
+    var v = _mepTexteSelonFond(fond, fin);
+    dossier.reglagesMiseEnPageCV.texteFondColonnes = v;
+    try {
+      var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+      var sel = d && d.getElementById('regTexteFondColonnes');
+      if (sel && sel.value !== v) { sel.value = v; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+      if (!dossier.pdfReglages) { dossier.pdfReglages = {}; }
+      dossier.pdfReglages.regTexteFondColonnes = v;
+    } catch (e) { /* iframe pas prete */ }
+  }
+  _mepTexteAutoAjuster = _mepAjusterTexteAuto;
+  // Reprend les dernieres couleurs choisies par la personne sur le CV affiche. `avecHistorique` : une etape d'annulation (bouton) ; pas pour la reprise automatique (elle fait partie du changement de modele).
+  function _mepReprendreCouleurs(avecHistorique) {
+    _assurerReglagesMiseEnPageCV();
+    var c = dossier.reglagesMiseEnPageCV;
+    if (!c.dernieresCouleurs || !c.dernieresCouleurs.accent) { return false; }
+    var d = JSON.parse(JSON.stringify(c.dernieresCouleurs));
+    if (avecHistorique) { _mepPousserHistorique('reprise'); }
+    var geleAvant = _mepHistoGele; _mepHistoGele = true; _mepRepriseEnCours = true;
+    try {
+      if (d.baseCouleur && d.accentClair) { poserCouleurDeBase(d.baseCouleur, d.accentClair, true); }
+      if (d.accent && d.accent !== d.baseCouleur) { if (d.nuance) { c.nuance = d.nuance; } _mepPousserAccent(d.accent); }
+      _mepAppelerIframePdf('_pdfMqChoix', 'couleurColonne', d.colonne || null);
+      _mepAppelerIframePdf('_pdfMqChoix', 'couleurSecondaire', d.secondaire || null);
+      if (d.texteAuto) { c._texteAuto = true; _mepAjusterTexteAuto(); }
+      else if (d.texte) {
+        c._texteAuto = false; c.texteFondColonnes = d.texte;
+        try {
+          var dd = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+          var sel = dd && dd.getElementById('regTexteFondColonnes');
+          if (sel && sel.value !== d.texte) { sel.value = d.texte; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+          if (!dossier.pdfReglages) { dossier.pdfReglages = {}; }
+          dossier.pdfReglages.regTexteFondColonnes = d.texte;
+        } catch (e) { /* iframe pas prete */ }
+      }
+    } finally { _mepRepriseEnCours = false; _mepHistoGele = geleAvant; }
+    c.dernieresCouleurs = d;   // la reprise ne change pas ce qui est retenu
+    setTimeout(rerendre, 30);
+    return true;
+  }
+  _mepReprendreCouleursFn = _mepReprendreCouleurs;
+  document.querySelectorAll('[data-mep-reprendre-couleurs]').forEach(function (b) {
+    b.addEventListener('click', function () { _mepReprendreCouleurs(true); });
+  });
+  document.querySelectorAll('[data-mep-garder-couleurs]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      _assurerReglagesMiseEnPageCV();
+      dossier.reglagesMiseEnPageCV.garderCouleurs = this.checked;
+      if (this.checked && _mepCouleursReprenables()) { _mepReprendreCouleurs(true); } else { setTimeout(rerendre, 30); }
+    });
+  });
   document.querySelectorAll('[data-mep-textefond]').forEach(function (b) {
-    b.addEventListener('click', function () { _mepReglageMoteur('texteFondColonnes', this.getAttribute('data-mep-textefond'), 'data-projetxxl-textefondcolonnes', 'regTexteFondColonnes', {}); });
+    b.addEventListener('click', function () {
+      var v = this.getAttribute('data-mep-textefond');
+      _assurerReglagesMiseEnPageCV();
+      dossier.reglagesMiseEnPageCV._texteAuto = (v === 'auto');
+      _mepNoterCouleurs({ texteAuto: v === 'auto' ? true : null, texte: v === 'auto' ? null : v });
+      if (v === 'auto') { _mepPousserHistorique('textefond'); _mepAjusterTexteAuto(); setTimeout(rerendre, 30); return; }
+      _mepReglageMoteur('texteFondColonnes', v, 'data-projetxxl-textefondcolonnes', 'regTexteFondColonnes', {});
+    });
+  });
+  // Couleur propre de la colonne, deuxieme couleur du degrade, ce que le degrade colore : choix gardes par l'apercu du CV (_pdfMqChoix, enregistres avec le CV, effaces par « Revenir au modele de depart »).
+  document.querySelectorAll('[data-mep-colcol]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepPousserHistorique('colcol');
+      _mepAppelerIframePdf('_pdfMqChoix', 'couleurColonne', this.getAttribute('data-mep-colcol') || null);
+      _mepNoterCouleurs({ colonne: this.getAttribute('data-mep-colcol') || null });
+      _mepAjusterTexteAuto();
+      setTimeout(rerendre, 30);
+    });
+  });
+  document.querySelectorAll('[data-mep-secondaire]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepPousserHistorique('secondaire');
+      _mepAppelerIframePdf('_pdfMqChoix', 'couleurSecondaire', this.getAttribute('data-mep-secondaire') || null);
+      _mepNoterCouleurs({ secondaire: this.getAttribute('data-mep-secondaire') || null });
+      _mepAjusterTexteAuto();
+      setTimeout(rerendre, 30);
+    });
+  });
+  document.querySelectorAll('[data-mep-degsurquoi]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var v = this.getAttribute('data-mep-degsurquoi');
+      _mepPousserHistorique('degsurquoi');
+      window._mepPoserDegradeGlobal(v !== 'bandeau');
+      poserDegradeBandeau(v === 'colonne' ? 'uni' : 'fonce-clair', true);
+      _mepAjusterTexteAuto();
+      setTimeout(rerendre, 30);
+    });
   });
   document.querySelectorAll('[data-mep-fondeffet]').forEach(function (b) {
     b.addEventListener('click', function () { _mepReglageMoteur('fondColonnesEffet', this.getAttribute('data-mep-fondeffet'), 'data-projetxxl-fondcolonneseffet', 'regFondColonnesEffet', {}); });
@@ -19625,21 +20650,26 @@ function _wireCarteSimpleMiseEnPage() {
   document.querySelectorAll('[data-mep-bandeau]').forEach(function (b) {
     b.addEventListener('click', function () { _mepReglageMoteur('bandeauEnTete', this.getAttribute('data-mep-bandeau'), 'data-projetxxl-fondtete', 'regBandeauEnTete', { bool: true, wordRegl: 'fondTete' }); });
   });
+  // Degrade du bandeau d'en-tete : une fonction, deux appelants (boutons de la carte « En-tete » et « looks »).
+  function poserDegradeBandeau(v, sansRerendre) {
+    _assurerReglagesMiseEnPageCV();
+    dossier.reglagesMiseEnPageCV.degradeBandeau = v;
+    try {
+      var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+      var sel = d && d.getElementById('regDegradeBandeau');
+      var pdfV = (v === 'uni') ? 'aucun' : v;
+      if (sel && sel.value !== pdfV) { sel.value = pdfV; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+      if (!dossier.pdfReglages) { dossier.pdfReglages = {}; }
+      dossier.pdfReglages.regDegradeBandeau = pdfV;
+    } catch (e) { /* */ }
+    if (!sansRerendre) { setTimeout(rerendre, 30); }
+  }
   document.querySelectorAll('[data-mep-degradebandeau]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var v = this.getAttribute('data-mep-degradebandeau');
-      _assurerReglagesMiseEnPageCV();
-      dossier.reglagesMiseEnPageCV.degradeBandeau = v;
-      try {
-        var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
-        var sel = d && d.getElementById('regDegradeBandeau');
-        var pdfV = (v === 'uni') ? 'aucun' : v;
-        if (sel && sel.value !== pdfV) { sel.value = pdfV; sel.dispatchEvent(new Event('change', { bubbles: true })); }
-        if (!dossier.pdfReglages) { dossier.pdfReglages = {}; }
-        dossier.pdfReglages.regDegradeBandeau = pdfV;
-      } catch (e) { /* */ }
-      setTimeout(rerendre, 30);
-    });
+    b.addEventListener('click', function () { poserDegradeBandeau(this.getAttribute('data-mep-degradebandeau')); });
+  });
+  // Case « Coordonnees en ligne sous l'en-tete » de la carte « En-tete de CV » (2026-10-07) : meme reglage que les deux boutons ci-dessous (une seule source : bandeauDisponibilite).
+  document.querySelectorAll('[data-mep-coord-ligne]').forEach(function (cb) {
+    cb.addEventListener('change', function () { _mepReglageMoteur('bandeauDisponibilite', this.checked ? '1' : '0', 'data-projetxxl-bandeaudispo', 'regBandeauDisponibilite', { bool: true }); });
   });
   document.querySelectorAll('[data-mep-coordapart]').forEach(function (b) {
     b.addEventListener('click', function () { _mepReglageMoteur('bandeauDisponibilite', this.getAttribute('data-mep-coordapart'), 'data-projetxxl-bandeaudispo', 'regBandeauDisponibilite', { bool: true }); });
@@ -19698,24 +20728,25 @@ function _wireCarteSimpleMiseEnPage() {
     else if (c.lectureGuidee) { r.coloration = 'lectureGuidee'; r.lectureGuideeVariante = 'titre'; }
     else { r.coloration = 'aucune'; r.lectureGuideeVariante = null; }
   }
+  // Style des titres de rubrique : une fonction, deux appelants (carte « Mise en page et texte » et « looks »).
+  function poserStyleTitres(v, sansRerendre) {
+    _mepPousserHistorique('styleTitres');
+    _assurerReglagesMiseEnPageCV();
+    dossier.reglagesMiseEnPageCV.styleTitres = v;
+    if (_cvEcranUniqueMiseEnPage()) {
+      try {
+        var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+        var sel = d && d.getElementById('regStyleTitres');
+        var pdfV = (v === 'sans-decor') ? 'aucun' : v;
+        if (sel && sel.value !== pdfV) { sel.value = pdfV; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+        if (!dossier.pdfReglages) { dossier.pdfReglages = {}; }
+        dossier.pdfReglages.regStyleTitres = pdfV;
+      } catch (e) { /* */ }
+    } else { _mepPousserTitresWord(); }
+    if (!sansRerendre) { setTimeout(rerendre, 30); }
+  }
   document.querySelectorAll('[data-mep-styletitres]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var v = this.getAttribute('data-mep-styletitres');
-      _mepPousserHistorique('styleTitres');
-      _assurerReglagesMiseEnPageCV();
-      dossier.reglagesMiseEnPageCV.styleTitres = v;
-      if (_cvEcranUniqueMiseEnPage()) {
-        try {
-          var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
-          var sel = d && d.getElementById('regStyleTitres');
-          var pdfV = (v === 'sans-decor') ? 'aucun' : v;
-          if (sel && sel.value !== pdfV) { sel.value = pdfV; sel.dispatchEvent(new Event('change', { bubbles: true })); }
-          if (!dossier.pdfReglages) { dossier.pdfReglages = {}; }
-          dossier.pdfReglages.regStyleTitres = pdfV;
-        } catch (e) { /* */ }
-      } else { _mepPousserTitresWord(); }
-      setTimeout(rerendre, 30);
-    });
+    b.addEventListener('click', function () { poserStyleTitres(this.getAttribute('data-mep-styletitres')); });
   });
   document.querySelectorAll('[data-mep-lectureguidee]').forEach(function (b) {
     b.addEventListener('click', function () {
@@ -19732,7 +20763,7 @@ function _wireCarteSimpleMiseEnPage() {
   // UN SEUL circuit pour le style des competences, partage par la carte « Mise en page et texte »
   // (Pastilles / Rectangles / Texte) et la case « Competences en pastilles » d'« Organisation du CV ».
   // Avant, la case ne changeait que le modele canonique, jamais le rendu (bouton mort).
-  function definirStyleCompetences(v) {
+  function definirStyleCompetences(v, sansRerendre) {
     _mepPousserHistorique('styleCompetences');
     _assurerReglagesMiseEnPageCV();
     if (v !== 'texte-seul') { dossier.reglagesMiseEnPageCV._pillAvant = v; }
@@ -19745,7 +20776,7 @@ function _wireCarteSimpleMiseEnPage() {
       if (!dossier.pdfReglages) { dossier.pdfReglages = {}; }
       dossier.pdfReglages.regStyleCompetences = pdfV;
     } catch (e) { /* */ }
-    setTimeout(rerendre, 30);
+    if (!sansRerendre) { setTimeout(rerendre, 30); }
   }
   // Meme principe pour « Afficher / masquer une rubrique » (carte « Elements supplementaires » ET case
   // « Afficher les centres d'interet » d'« Organisation du CV ») : la case ne poussait que le canonique.
@@ -19995,6 +21026,8 @@ function _wireCarteSimpleMiseEnPage() {
     b.addEventListener('click', function () {
       var cible = this.getAttribute('data-mep-allure');
       var actuelle = _mepAllureActuelle();
+      // Un clic sur Sobre ou Creatif : la personne a compris qu'il y a plusieurs allures, la pulsation s'arrete pour toujours (pas sur Standard, deja actif).
+      if (cible !== 'defaut') { _mepGuideArreter(); }
       if (cible === actuelle) { return; }
       _mepPousserHistorique('allure');
       _mepDernierMessageMEP = ''; // TACHE (retour Denis 2026-09-27, P6) : voir lancerTirageAuHasard plus bas.
@@ -20014,6 +21047,7 @@ function _wireCarteSimpleMiseEnPage() {
   // ne rend rien en Word), memes fonctions dediees de l'iframe
   // (_pdfChoisirModeleCreatif/_pdfChoisirVarianteSobre) declenchees via
   // les boutons caches poses a cote de regSobreActif/regCreatifActif.
+  _mepMiniaturesReelles();
   document.querySelectorAll('[data-mep-galerie-creatif]').forEach(function (b) {
     b.addEventListener('click', function () {
       var id = this.getAttribute('data-mep-galerie-creatif');
@@ -20021,7 +21055,21 @@ function _wireCarteSimpleMiseEnPage() {
       _mepDernierMessageMEP = ''; // TACHE (retour Denis 2026-09-27, P6) : voir lancerTirageAuHasard plus haut.
       _mepClicMoteur(null, 'pdfChoisirCreatif_' + id);
       _mepSyncColonnesDepuisMoteur();
+      _mepAppliquerBordSouhaite(id);
       setTimeout(rerendre, 30);
+    });
+  });
+  document.querySelectorAll('[data-mep-galerie-fam]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepGalerieChoix = { fam: this.getAttribute('data-mep-galerie-fam'), pour: _mepModeleCreatifActuel() };
+      _mepGalerieTous = false;
+      rerendre();
+    });
+  });
+  document.querySelectorAll('[data-mep-galerie-tous]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepGalerieTous = (this.getAttribute('data-mep-galerie-tous') === '1');
+      rerendre();
     });
   });
   document.querySelectorAll('[data-mep-galerie-sobre]').forEach(function (b) {
@@ -20541,6 +21589,44 @@ function _wireCarteSimpleMiseEnPage() {
       setTimeout(rerendre, 30);
     });
   });
+  // Coin colore (plan 2026-10-07) : case des Reglages avances, eteinte par defaut.
+  document.querySelectorAll('[data-mep-coin-couleur]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepPousserHistorique('coinCouleur');
+      _mepAppelerIframePdf('_pdfBasculerCoinCouleur');
+      setTimeout(rerendre, 30);
+    });
+  });
+  // Modele « Editorial » : nom a empattement et trait entre les colonnes (cases visibles seulement avec ce modele).
+  document.querySelectorAll('[data-mep-nom-empattement]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepPousserHistorique('nomEmpattement');
+      _mepAppelerIframePdf('_pdfBasculerNomEmpattement');
+      setTimeout(rerendre, 30);
+    });
+  });
+  document.querySelectorAll('[data-mep-trait-vertical]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepPousserHistorique('traitVertical');
+      _mepAppelerIframePdf('_pdfBasculerTraitVertical');
+      setTimeout(rerendre, 30);
+    });
+  });
+  // Modele « Chronologique » : duree en italique et lieu dans la marge (cases visibles seulement avec ce modele).
+  document.querySelectorAll('[data-mep-afficher-duree]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepPousserHistorique('afficherDuree');
+      _mepAppelerIframePdf('_pdfBasculerAfficherDuree');
+      setTimeout(rerendre, 30);
+    });
+  });
+  document.querySelectorAll('[data-mep-lieu-marge]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _mepPousserHistorique('lieuDansMarge');
+      _mepAppelerIframePdf('_pdfBasculerLieuDansMarge');
+      setTimeout(rerendre, 30);
+    });
+  });
   document.querySelectorAll('[data-mep-afficher-lieu]').forEach(function (b) {
     b.addEventListener('click', function () {
       _mepPousserHistorique('afficherLieu');
@@ -20624,6 +21710,8 @@ function _wireCarteSimpleMiseEnPage() {
   if (btnSuggOuvrir) {
     btnSuggOuvrir.addEventListener('click', function () {
       _mepSuggestionsOuvert = !_mepSuggestionsOuvert;
+      _mepSuggPulseArreter();   // ouvrir ou fermer le panneau : la personne a compris, plus de pulsation
+      if (_mepSuggestionsOuvert) { _mepCartesOuvertes.zoneAmbiances = false; }   // un seul panneau a la fois (decision de Denis, 2026-10-08)
       if (_mepSuggestionsOuvert) {
         // TACHE (retour Denis 2026-09-27, P4) : le panneau s'ouvre direct-
         // ement sur l'aperçu de la suggestion deja selectionnee (la
@@ -20712,11 +21800,14 @@ function _wireCarteSimpleMiseEnPage() {
       definirRubriqueVisible(this.getAttribute('data-mep-rubrique-simple'), this.checked);
     });
   });
-  var cbOrgDeux = document.querySelector('[data-mep-org-deux]');
-  if (cbOrgDeux) {
-    cbOrgDeux.addEventListener('change', function () {
+  // « Une colonne » / « Deux colonnes » (decision de Denis, 2026-10-08) : deux boutons l'un sous l'autre, AUCUN choisi au depart. Un clic choisit ; un second clic sur le choix deja fait
+  // le retire (la personne « ne choisit plus » : le Style rapide Standard redevient libre de proposer une ou deux colonnes), sans toucher au CV.
+  document.querySelectorAll('[data-mep-org-colonnes]').forEach(function (btnCol) {
+    btnCol.addEventListener('click', function () {
+      var val = this.getAttribute('data-mep-org-colonnes');
+      var cm = dossier.reglagesMiseEnPageCV || {};
+      if (cm._colonnesChoisies && String(cm.colonnes) === val) { _mepPousserHistorique('colonnes'); cm._colonnesChoisies = false; setTimeout(rerendre, 30); return; }
       _mepPousserHistorique('colonnes');
-      var val = this.checked ? '2' : '1';
       try {
         var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
         var sel = d && d.getElementById('regColonnes');
@@ -20724,6 +21815,7 @@ function _wireCarteSimpleMiseEnPage() {
       } catch (e) { /* iframe pas prete */ }
       _assurerReglagesMiseEnPageCV();
       dossier.reglagesMiseEnPageCV.colonnes = val;
+      dossier.reglagesMiseEnPageCV._colonnesChoisies = true;   // choix explicite de la personne : le tirage « Style rapide » ne change plus ce nombre (2026-10-08)
       // TACHE (Denis, 2026-09-25, tranche 2) : la personne change le nombre de colonnes a la main.
       // Modele « 2 colonnes seulement » actif et retour a 1 colonne : on passe au premier modele qui
       // fonctionne en 1 colonne, et un message le dit (comportement de la maquette).
@@ -20754,7 +21846,7 @@ function _wireCarteSimpleMiseEnPage() {
       } catch (e) { /* iframe pas prete */ }
       setTimeout(rerendre, 30);
     });
-  }
+  });
   var cbOrgReduire = document.querySelector('[data-mep-org-reduire]');
   if (cbOrgReduire) {
     cbOrgReduire.addEventListener('change', function () {
@@ -20879,6 +21971,7 @@ function _wireCarteSimpleMiseEnPage() {
       _mepClicMoteur('btnProposerModeleXXL', 'btnStyleAleatoire');
       _mepSyncMiroirAllure();
       _mepSyncColonnesDepuisMoteur();
+      if (window._mepTirageStandardRiche) { window._mepTirageStandardRiche(); }
       setTimeout(rerendre, 30);
     };
     // TACHE (retour utilisateur 2026-09-14, "le clic est volontaire, la
@@ -20888,13 +21981,20 @@ function _wireCarteSimpleMiseEnPage() {
     // explicite de voir autre chose, et "Annuler le dernier tirage" (pile
     // sous-etape 8, juste au-dessus) reste le vrai filet de securite,
     // toujours visible, jamais un clic de plus pour rien.
+    de.addEventListener('click', _mepGuideApresStyleRapide);
     de.addEventListener('click', lancerTirageAuHasard);
   }
 
   // --- Mise en page (optimiseur moteur, aucun miroir a mettre a jour)
   var mep = document.getElementById('btnMepMiseEnPage');
+  _mepPulseAppliquer();
+  _mepAllurePulseAppliquer();
+  _mepSuggPulseAppliquer();
   if (mep) {
     mep.addEventListener('click', function () {
+      _mepMiseEnPageNoterClic();
+      _mepPulseArreter();
+      _mepSuggPulseArreter(); _mepSuggPulseAttendu = true;   // les suggestions qui suivront ce clic feront pulser leur bouton
       _mepPousserHistorique('miseEnPage');
       _mepDernierMessageMEP = '';
       _mepSuggestions = []; _mepSuggestionsOuvert = false; _mepSuggestionAppliquee = -1; _mepSuggAppliquees = [];
@@ -20925,6 +22025,8 @@ function _wireCarteSimpleMiseEnPage() {
     rev.addEventListener('click', function () {
       _mepPousserHistorique('revenirDefaut');
       _mepDernierMessageMEP = '';
+      // Remplissage d'office (2026-10-07) : le modele de depart est un CV qui remplit la page ; le calcul sera relance au prochain affichage de la page.
+      dossier.miseEnPageAutoFaite = false;
       var fmtActuel = (dossier.reglagesMiseEnPageCV && dossier.reglagesMiseEnPageCV.format) || null;
       var c = _mepReglagesParDefaut();
       if (fmtActuel) { c.format = fmtActuel; }
@@ -20995,6 +22097,9 @@ function resultatsCibleRetour(depuisDecouverte) {
 }
 
 function pageResultats() {
+  // Module « Un CV, plusieurs metiers » (modules/un-cv-plusieurs-metiers) : l'editeur de CV est celui de cette page. Le drapeau grise « accroche longue »
+  // (seules les accroches courtes sont proposees dans ce module) ; il retombe des qu'on quitte cette page (voir naviguerVers).
+  window._modeModuleUcpm = (_pageOrigineAvantResultats === 'un-cv-plusieurs-metiers');
   // TACHE (retour utilisateur : "je suis en train de faire mon CV, la carte
   // est bleue 'Sélectionné', mais rien ne s'affiche en dessous") : carteChoisie
   // se basait sur dossier.dernierDocumentPrepare, qui ne se remplit qu'a des
@@ -21541,7 +22646,7 @@ function pageResultats() {
   // dans ce fichier) vaut 'bilan' chaque fois que cette page est atteinte
   // depuis le module Bilan -- signal fiable, deja utilise ailleurs pour le
   // meme besoin (repli de "Retour").
-  if (_pageOrigineAvantResultats === 'bilan') {
+  if (_pageOrigineAvantResultats === 'bilan' || _pageOrigineAvantResultats === 'un-cv-plusieurs-metiers') {
     // TACHE (retour Denis 2026-09-20) : ce bouton vit desormais dans la
     // barre fixe du bas (voir plus bas dans cette fonction), plus ici,
     // colle dans le corps de la page -- meme correctif que celui deja fait
@@ -21772,7 +22877,9 @@ function pageResultats() {
   // qui devient donc l'index 6.
   var barreHaut = depuisDecouverte
     ? barreEtapesModule(DECOUVERTE_NAV_ETAPES, dossier.cvTermine ? 7 : 6)
-    : (afficherProgression('resultats') +
+    : ((window._modeModuleUcpm && typeof UCPM_NAV_ETAPES !== 'undefined'
+      ? barreEtapesModule(UCPM_NAV_ETAPES, window._modeAspectUcpm ? 4 : 2)   // « Un CV, plusieurs metiers » : meme barre visuelle que le module, page 3 « Reference » (page 5 pour un aspect)
+      : afficherProgression('resultats')) +
        (typeof _prepLEBandeRevoirSurEcran === 'function' ? _prepLEBandeRevoirSurEcran('resultats') : ''));
 
   // TACHE (refonte parcours guide, sous-etape 5.6) : "Vos informations" est
@@ -21920,7 +23027,8 @@ function pageResultats() {
               // de rouvrir. Cablage dedie plus bas (brancherEvenementsResultats).
               // Decision Denis 2026-09-29 : seulement une fois la reponse de l'assistant importee.
               ((estDocCv && reponseIAImportee(docActif)) ? rectangleAssistant('relecture-ia', '&#128209;', 'Ce que l’assistant a préparé',
-                (_relectureIAValideeParType[docActif] ? 'choix validés' : ''), contenuRectangleRelectureIA()) : '')
+                (_relectureIAValideeParType[docActif] ? 'choix validés' : ''), contenuRectangleRelectureIA()) : '') +
+              ((estDocCv && reponseIAImportee(docActif)) ? rectangleComplementCV() : '')
             : '') +
           // TACHE (sous-etape 5.8, MAQUETTE_VOS_DOCUMENTS v3) : trois rectangles
           // depliants (rectDoc / _rectDocOuvert), un seul ouvert a la fois,
@@ -21966,15 +23074,19 @@ function pageResultats() {
     // voir bilanNaviguerVersResultats()) : ni l'un ni l'autre ne convient
     // ici. La priorite "venu du Bilan" passe donc AVANT le calcul habituel
     // (document enregistre ou non), quel que soit l'etat d'enregistrement.
-    '<div class="barre-navigation-fixe">' + (_pageOrigineAvantResultats === 'bilan'
+    '<div class="barre-navigation-fixe">' + (window._modeModuleUcpm && typeof ucpmBarreDepuisEditeur === 'function'
+      ? ucpmBarreDepuisEditeur()   // « Un CV, plusieurs metiers » : Retour au module et « Ce CV me convient », voir modules/un-cv-plusieurs-metiers/page3Reference.js
+      : (_pageOrigineAvantResultats === 'bilan'
       ? barreNavigation(cibleRetourResultats, 'bilan', 'Revenir au rapport', {
           onclickPrecedent: _retourResultats.onclickPrecedent
         })
       : barreNavigation(cibleRetourResultats, null, null, {
           terminerParcours: !!(dossier.documentsEnregistres && dossier.documentsEnregistres[docActif]),
           onclickPrecedent: _retourResultats.onclickPrecedent
-        })) + '</div>';
+        }))) + '</div>';
   app.innerHTML = html;
+  // « Un CV, plusieurs metiers » : pour l'aspect d'un CV, seuls les panneaux d'aspect restent (le corps du CV est celui de la reference).
+  if (window._modeAspectUcpm && typeof UCPM_CSS_ASPECT !== 'undefined') { app.insertAdjacentHTML('afterbegin', UCPM_CSS_ASPECT); }
 
   brancherEvenementsResultats();
   _wireCarteSimpleMiseEnPage();
@@ -29131,6 +30243,7 @@ function ouvrirRevoirPropositionsIA() {
 }
 
 function brancherEvenementsResultats() {
+  if (docActifActuel() === 'cv' && !window._modeModuleUcpm) { injecterBanniereComplementCV(pageResultats); }
   // TACHE (chantier "ecran tampon avant l’assistant") : coupe systematiquement
   // tout decompte herite d'un rendu precedent AVANT de reconstruire quoi
   // que ce soit -- sans cela, naviguer ailleurs pendant le decompte (ex.
@@ -29308,6 +30421,15 @@ function brancherEvenementsResultats() {
         etatAccordeon['relecture-ia'] = !etatAccordeon['relecture-ia'];
         pageResultats();
       });
+    }
+    // Complément de CV (facultatif) : même bascule simple, puis la zone de collage.
+    var btnToggleComplementCV = document.querySelector('[data-assistant-rect-toggle="complement-cv"]');
+    if (btnToggleComplementCV) {
+      btnToggleComplementCV.addEventListener('click', function () {
+        etatAccordeon['complement-cv'] = !etatAccordeon['complement-cv'];
+        pageResultats();
+      });
+      wireComplementCV(function () { pageResultats(); });
     }
   }
   // TACHE (etape 7, nettoyage) : boutons btnContinuerInfosIA / btnVerifierInfosIA /
@@ -29655,7 +30777,7 @@ function brancherEvenementsResultats() {
           var iframePdf = panneauPdf && panneauPdf.querySelector('iframe');
           var btnImprimerPdf = iframePdf && iframePdf.contentDocument && iframePdf.contentDocument.querySelector('.bouton-imprimer');
           if (btnImprimerPdf) {
-            btnImprimerPdf.click();
+            declencherImpressionAvecNomCV(btnImprimerPdf);
             var btnFermerPdf = document.getElementById('btnFermerGrandApercuPdf');
             if (btnFermerPdf) { btnFermerPdf.click(); }
           }
@@ -30191,6 +31313,7 @@ function texteProfil(type, sectionsSeulement) {
       if (posteCible || entrepriseCible) { candidature += '- Poste souhaité : ' + (posteCible || '?') + (entrepriseCible ? ' chez ' + entrepriseCible : '') + '\n'; }
     } else { // reconversion
       candidature += '- Démarche : changer de métier (reconversion).\n';
+      if (of.ancien) { candidature += '- Activité précédente de la personne (ancien ' + of.ancien + ').\n'; }
       if (posteCible) { candidature += '- Métier visé : ' + posteCible + '\n'; }
       if (entrepriseCible) { candidature += '- Entreprise cible : ' + entrepriseCible + '\n'; }
     }
@@ -30205,6 +31328,9 @@ function texteProfil(type, sectionsSeulement) {
     if (im.duree) { infos.push('durée : ' + im.duree); }
     if (im.dates) { infos.push('dates : ' + im.dates); }
     if (im.heures) { infos.push('heures/semaine : ' + im.heures); }
+    // Champs facultatifs poses par « Un CV, plusieurs métiers » seulement (organisme de formation d'un stage ou d'une alternance, objectif d'une immersion) : absents ailleurs.
+    if (im.organisme && dossier.objectif !== 'formation') { infos.push('organisme de formation : ' + im.organisme); }
+    if (im.precisions) { infos.push(im.precisions); }
     var nomParcours = dossier.objectif === 'pmsmp' ? 'Stage d’immersion (PMSMP)' : (dossier.objectif === 'stage' ? 'Stage de formation' : (dossier.objectif === 'formation' ? 'Formation' : 'Alternance'));
     // TACHE (retour utilisateur : "si j'ai un nom pour la structure, il
     // faut le mettre, sinon = général") : même si aucun champ n'est
@@ -30284,8 +31410,12 @@ function texteProfil(type, sectionsSeulement) {
   // sélecteur de couleur manuel ("Informations sur votre candidature")
   // reste de toute façon le filet de sécurité qui fonctionne déjà pour
   // n'importe quelle entreprise, IA ou non.
+  // Retour de Denis (2026-10-10) : la recherche des couleurs de marque par l'assistant est retirée de la demande (elle obligeait un assistant gratuit à chercher en ligne
+  // et alourdissait la réponse). Le sélecteur de couleur manuel ("Informations sur votre candidature") reste le moyen de choisir les couleurs de l'entreprise.
+
+  // Couleurs de l'entreprise : demandees dans le COMPLEMENT de CV (second passage, plus leger), jamais dans la reponse principale (decision de Denis, 2026-10-10).
   if (dossier.rechercheCandidature && dossier.rechercheCandidature.mettreEnAvantCouleurEntreprise) {
-    candidature += '- La personne souhaite mettre en avant les couleurs de l’entreprise sur son CV. Si vous reconnaissez cette entreprise avec certitude, indiquez ses couleurs de marque au format hexadécimal dans le champ JSON "couleursEntrepriseSuggerees" : une liste de 0 à 3 couleurs, de la plus importante à la moins importante (ex. ["#00A19A"] pour la RATP, une seule couleur ; deux ou trois seulement si la marque en a réellement deux ou trois et que vous les connaissez avec certitude, jamais plus de trois). Si vous n’êtes pas certain, laissez la liste vide -- ne devinez jamais une couleur.\n';
+    candidature += '- La personne souhaite mettre en avant les couleurs de l’entreprise sur son CV : si vous la reconnaissez avec certitude, indiquez ses couleurs de marque dans le complément de CV (champ couleursEntrepriseSuggerees), jamais dans la première réponse." + NLJ + "';
   }
 
   // ---- SECTION : STRATÉGIE DÉJÀ ENGAGÉE ----
@@ -30724,7 +31854,12 @@ var FICHIERS_PROMPTS_EXTERNES = {
   // TACHE (module « Regard recruteur », 2026-09) : lecture d'un CV comme
   // un recruteur. Meme registre « chargement externe + repli par defaut ».
   // Repli integral aussi embarque dans modules/regard-recruteur/promptBuilder.js.
-  'regard-recruteur': 'prompts/regard-recruteur.md'
+  'regard-recruteur': 'prompts/regard-recruteur.md',
+  // Module « Un CV, plusieurs métiers » (2026-10-10) : quatre prompts propres au module, testés sur de vrais assistants (voir docs/essais_prompts_ucpm/).
+  'ucpm-metiers': 'prompts/ucpm-metiers.md',
+  'ucpm-accroches': 'prompts/ucpm-accroches.md',
+  'ucpm-lettres': 'prompts/ucpm-lettres.md',
+  'ucpm-offres': 'prompts/ucpm-offres.md'
 };
 var promptsExternesCharges = {
   cv: null, decouverteRedaction: null, lettre: null, entretien: null, 'entretien-accueil': null, 'extraction-cv': null,
@@ -30732,7 +31867,8 @@ var promptsExternesCharges = {
   'lettre-co': null, decouverte: null, 'regard-exterieur': null, 'regard-exterieur-approfondissement': null,
   'comparer-detection': null, 'comparer-collecte': null, 'comparer-meme-categorie': null,
   'comparer-situations': null, 'comparer-aller-plus-loin': null,
-  'regard-recruteur': null
+  'regard-recruteur': null,
+  'ucpm-metiers': null, 'ucpm-accroches': null, 'ucpm-lettres': null, 'ucpm-offres': null
 };
 
 // Fragment commun « voix humaine » (prompts/_voix-humaine.md, retour Denis 2026-09-30 : des textes moins robotiques, que les recruteurs ne
@@ -32262,10 +33398,45 @@ function extraireBlocJSONDepuisTexte(texteColle, accepterTableau) {
     resultat += dansChaine ? tampon : reparerSegmentHorsChaine(tampon);
     return resultat;
   }
+  // TACHE (retour Denis 2026-10-10, JSON compact de cv.md) : en ecrivant le JSON sur peu de lignes, l'assistant glisse parfois un crochet en trop
+  // (« ]] » apres une liste) ou oublie une accolade fermante a la toute fin. Un seul caractere de ce genre faisait echouer toute la lecture.
+  // Reparation par la structure : hors des chaines, un fermant qui ne correspond a aucun ouvrant est ignore, un fermant qui correspond a un
+  // ouvrant plus haut referme d'abord ce qui est reste ouvert, et ce qui est encore ouvert a la fin est referme. Jamais appliquee a un JSON deja valide
+  // (les tentatives d'origine passent en premier).
+  function reequilibrerFermeturesJSON(t) {
+    var s = String(t || '').trim();
+    if (s.charAt(0) !== '{' && s.charAt(0) !== '[') { return t; }
+    var pile = [];
+    var res = '';
+    var dansChaine = false;
+    for (var k = 0; k < s.length; k++) {
+      var c = s.charAt(k);
+      if (dansChaine) {
+        res += c;
+        if (c === '\\') { k++; if (k < s.length) { res += s.charAt(k); } } else if (c === '"') { dansChaine = false; }
+        continue;
+      }
+      if (c === '"') { dansChaine = true; res += c; continue; }
+      if (c === '{') { pile.push('}'); res += c; continue; }
+      if (c === '[') { pile.push(']'); res += c; continue; }
+      if (c === '}' || c === ']') {
+        if (pile.indexOf(c) === -1) { continue; }   // fermant sans ouvrant : ignore
+        while (pile.length && pile[pile.length - 1] !== c) { res += pile.pop(); }
+        pile.pop(); res += c;
+        continue;
+      }
+      res += c;
+    }
+    if (dansChaine) { res += '"'; }
+    while (pile.length) { res += pile.pop(); }
+    return res;
+  }
   var candidatsSupplementaires = candidatsJSON.map(function (c) {
     return reparerValeursTexteSansGuillemets(retirerVirgulesSuperflues(normaliserGuillemets(retirerAntislashsInvalidesJSON(echapperRetoursLigneDansChaines(c)))));
   });
   candidatsJSON = candidatsJSON.concat(candidatsSupplementaires);
+  var candidatsEquilibres = candidatsJSON.map(reequilibrerFermeturesJSON).filter(function (c, i) { return c !== candidatsJSON[i]; });
+  candidatsJSON = candidatsJSON.concat(candidatsEquilibres);
 
   for (var i = 0; i < candidatsJSON.length; i++) {
     try {
@@ -32360,6 +33531,19 @@ function joindreAvecOu(liste) {
 //
 // specification : tableau de { cle: 'profil', type: 'texte' } ou
 // { cle: 'pointsForts', type: 'liste' }.
+// Message affiché quand la réponse collée ne contient pas de données lisibles (retour 13 de Denis, 2026-10-10 : l'assistant n'avait rendu que du texte de stratégie, sans le bloc de données
+// que la demande exige). Une réponse SANS AUCUN bloc de données reçoit un message qui dit quoi faire ; sinon, le message habituel (texte incomplet ou abîmé).
+function erreurReponseSansJson(texteColle) {
+  var t = String(texteColle || '');
+  if (t.indexOf('{') === -1 && t.indexOf('[') === -1) {
+    return 'L’assistant a répondu sans le bloc de données que l’application attend : il n’a écrit que du texte. ' +
+      'Retournez le voir et écrivez-lui : « Termine ta réponse par le bloc JSON demandé, sans rien ajouter après. » ' +
+      'Copiez ensuite toute sa nouvelle réponse et collez-la ici.';
+  }
+  return 'Le texte collé ne semble pas être un JSON valide. Vérifiez que vous avez bien copié ' +
+    'l\'intégralité de la réponse de l’assistant, sans texte ajouté avant ou après.';
+}
+
 function analyserReponseIA(texteColle, specification) {
   if (!(texteColle || '').trim()) {
     return { succes: false, erreur: 'Aucun texte a analyser. Collez la reponse de l\'assistant avant de continuer.' };
@@ -32369,8 +33553,7 @@ function analyserReponseIA(texteColle, specification) {
   if (!objet) {
     return {
       succes: false,
-      erreur: 'Le texte collé ne semble pas être un JSON valide. Vérifiez que vous avez bien copié ' +
-        'l\'intégralité de la réponse de l’assistant, sans texte ajouté avant ou après.'
+      erreur: erreurReponseSansJson(texteColle)
     };
   }
 
@@ -32807,8 +33990,7 @@ function analyserReponseIACV(texteColle) {
   if (!objetBrut) {
     return {
       succes: false,
-      erreur: 'Le texte collé ne semble pas être un JSON valide. Vérifiez que vous avez bien copié ' +
-        'l\'intégralité de la réponse de l’assistant, sans texte ajouté avant ou après.'
+      erreur: erreurReponseSansJson(texteColle)
     };
   }
 
@@ -32930,8 +34112,7 @@ function analyserReponseIALettre(texteColle) {
   if (!objet) {
     return {
       succes: false,
-      erreur: 'Le texte collé ne semble pas être un JSON valide. Vérifiez que vous avez bien copié ' +
-        'l\'intégralité de la réponse de l’assistant, sans texte ajouté avant ou après.'
+      erreur: erreurReponseSansJson(texteColle)
     };
   }
 
@@ -33203,6 +34384,11 @@ function champEstRempli(valeur, typeChamp) {
 // la Lettre/l'Entretien -- aucune logique de recherche ou de normalisation
 // dupliquee. Toujours tolerant : un champ absent ou mal forme retombe sur
 // une valeur neutre, jamais une exception.
+// Vrai si le texte n'est qu'un en-tete de rubrique de CV (ex. « COMPETENCES PROFESSIONNELLES »).
+function _estTitreDeRubriqueCV(texte) {
+  var t = String(texte || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’']/g, ' ').replace(/[:\s]+$/g, '').replace(/\s+/g, ' ').trim();
+  return /^(competences?( professionnelles?| comportementales?| en action| techniques?| cles?)?|savoir[- ]faire|savoir[- ]etre|experiences?( professionnelles?| personnelles?)?|formations?( et diplomes?)?|diplomes?|parcours( professionnel)?|langues?|centres? d interets?|loisirs?|certifications?|profil|resume|informations?( complementaires?| personnelles?)?|contact|qualites?|atouts?|engagements?|benevolat|projets?)$/.test(t);
+}
 function analyserReponseImport(texteColle, specification) {
   if (!(texteColle || '').trim()) {
     return { succes: false, erreur: 'Aucun texte a analyser. Collez la reponse de l\'assistant avant de continuer.' };
@@ -33212,8 +34398,7 @@ function analyserReponseImport(texteColle, specification) {
   if (!objetBrut) {
     return {
       succes: false,
-      erreur: 'Le texte collé ne semble pas être un JSON valide. Vérifiez que vous avez bien copié ' +
-        'l\'intégralité de la réponse de l’assistant, sans texte ajouté avant ou après.'
+      erreur: erreurReponseSansJson(texteColle)
     };
   }
 
@@ -33229,6 +34414,8 @@ function analyserReponseImport(texteColle, specification) {
 
     } else if (spec.type === 'liste-textes') {
       resultat[spec.cle] = normaliserListeTextesIA(brut);
+      // Un titre de rubrique du CV n'est pas une information non classee (retour de Denis, 2026-10-10) : l'assistant en met parfois dans cette liste.
+      if (spec.cle === 'informationsNonClassees') { resultat[spec.cle] = resultat[spec.cle].filter(function (t) { return !_estTitreDeRubriqueCV(t); }); }
       if (resultat[spec.cle].length > 0) { auMoinsUnChampRempli = true; }
 
     } else if (spec.type === 'objet') {
@@ -37823,6 +39010,12 @@ function viderContenuCVDossier() {
   };
 }
 
+// Le navigateur propose comme nom de PDF le titre de la PAGE HOTE (l'impression se fait dans une iframe) : on y met « NOM_poste », comme pour le Word (retour de Denis, 2026-10-11), puis on le rend.
+function declencherImpressionAvecNomCV(boutonImprimer) {
+  var titreAvant = document.title;
+  try { if (typeof nomFichierCV === 'function') { document.title = nomFichierCV(dossier); } } catch (errTitre) { /* titre inchange */ }
+  try { boutonImprimer.click(); } finally { document.title = titreAvant; }
+}
 function recommencer() {
   // TACHE (retour utilisateur : "le panneau 'Vous hésitez encore ?' garde
   // toujours le dernier département choisi, même après Réinitialiser") :
@@ -37854,6 +39047,15 @@ function recommencer() {
   // faites" des le debut d'un tout nouveau parcours.
   if (typeof _barreEtapesMaxAtteint !== 'undefined') { _barreEtapesMaxAtteint = new WeakMap(); }
   viderContenuCVDossier();
+  // Un parcours « Reformuler / Mettre a jour / Creer » termine (« Merci, tout est en ordre ») ou recommence repart de zero : sans cela, le CV depose restait en memoire du module et la page
+  // d'introduction proposait « Continuer / Recommencer » sur un parcours fini ; « Continuer » ramenait sur la 1re page (retour de Denis, 2026-10-11).
+  try {
+    if (typeof _prepLEEtat !== 'undefined') { _prepLEEtat = null; }
+    if (typeof _prepLEEcran !== 'undefined') { _prepLEEcran = 'intro'; }
+    if (typeof _prepLEDetour !== 'undefined') { _prepLEDetour = false; }
+    if (typeof _reformulerEcranReprise !== 'undefined') { _reformulerEcranReprise = null; }
+    if (typeof _oublierRouteRepriseParcours === 'function') { _oublierRouteRepriseParcours(); }
+  } catch (errParcours) { /* memoire des parcours absente */ }
   blocsAMettreEnEvidence = { candidature: false, mobilite: false, formation: false, metier: false };
   // TACHE (retour utilisateur : "je viens d'arriver, Candidature est déjà
   // ouvert et complet alors que tout le reste est vide") : "Réinitialiser"
@@ -37901,6 +39103,7 @@ function recommencer() {
   // survivre en memoire malgre le localStorage.clear() qui precede
   // recommencer() (voir btnToutEffacer, js/app.js).
   if (typeof comparerReinitialiser === 'function') { comparerReinitialiser(); }
+  if (typeof ucpmReinitialiser === 'function') { ucpmReinitialiser(); }
   if (typeof atsReinitialiser === 'function') { atsReinitialiser(); }
   if (typeof regardRecruteurReinitialiser === 'function') { regardRecruteurReinitialiser(); }
   bilanReinitialiserEtatBilan();
@@ -37951,7 +39154,7 @@ function _htmlEtMaintenantCV() {
 // (recreer la page detruirait l'apercu en cours d'impression).
 function _afficherEtMaintenantApresExportPdf() {
   // TACHE (2026-09-27) : agnostique au format -- s'affiche apres un export Word OU PDF.
-  if (pageActuelle !== 'resultats' || dossier._origineReformuler || _pageOrigineAvantResultats === 'bilan') { return; }
+  if (pageActuelle !== 'resultats' || dossier._origineReformuler || _pageOrigineAvantResultats === 'bilan' || _pageOrigineAvantResultats === 'un-cv-plusieurs-metiers') { return; }
   if (document.querySelector('.et-apres')) { return; }
   var rect = document.querySelector('[data-rect-doc="exporter"]');
   if (!rect) { return; }
@@ -38076,6 +39279,7 @@ function collecterEtatsModulesPourSauvegarde() {
     bilanCandidature: typeof bilanExporterEtatPourSauvegarde === 'function' ? bilanExporterEtatPourSauvegarde() : null,
     regardExterieur: typeof regardExterieurExporterEtatPourSauvegarde === 'function' ? regardExterieurExporterEtatPourSauvegarde() : null,
     comparerPistes: typeof comparerPistesExporterEtatPourSauvegarde === 'function' ? comparerPistesExporterEtatPourSauvegarde() : null,
+    unCvPlusieursMetiers: typeof ucpmExporterEtatPourSauvegarde === 'function' ? ucpmExporterEtatPourSauvegarde() : null,
     ats: typeof atsExporterEtatPourSauvegarde === 'function' ? atsExporterEtatPourSauvegarde() : null,
     regardRecruteur: typeof regardRecruteurExporterEtatPourSauvegarde === 'function' ? regardRecruteurExporterEtatPourSauvegarde() : null
   };
@@ -38087,6 +39291,7 @@ function restaurerEtatsModules(modulesEtat) {
   if (typeof bilanRestaurerEtatDepuisSauvegarde === 'function') { bilanRestaurerEtatDepuisSauvegarde(modulesEtat.bilanCandidature || null); }
   if (typeof regardExterieurRestaurerEtatDepuisSauvegarde === 'function') { regardExterieurRestaurerEtatDepuisSauvegarde(modulesEtat.regardExterieur || null); }
   if (typeof comparerPistesRestaurerEtatDepuisSauvegarde === 'function') { comparerPistesRestaurerEtatDepuisSauvegarde(modulesEtat.comparerPistes || null); }
+  if (typeof ucpmRestaurerEtatDepuisSauvegarde === 'function') { ucpmRestaurerEtatDepuisSauvegarde(modulesEtat.unCvPlusieursMetiers || null); }
   if (typeof atsRestaurerEtatDepuisSauvegarde === 'function') { atsRestaurerEtatDepuisSauvegarde(modulesEtat.ats || null); }
   if (typeof regardRecruteurRestaurerEtatDepuisSauvegarde === 'function') { regardRecruteurRestaurerEtatDepuisSauvegarde(modulesEtat.regardRecruteur || null); }
 }
@@ -38095,7 +39300,7 @@ function restaurerEtatsModules(modulesEtat) {
 // cours et les etapes deja visitees, pour retrouver exactement l'etat precedent.
 function sauvegarderSession() {
   return {
-    dossier: JSON.parse(JSON.stringify(dossier)),
+    dossier: JSON.parse(JSON.stringify((typeof ucpmDossierVrai === 'function' && ucpmDossierVrai()) || dossier)),   // jamais la copie d'un autre CV du module « Un CV, plusieurs metiers »
     historique: historiquePages.slice(),
     page: pageActuelle,
     modulesEtat: JSON.parse(JSON.stringify(collecterEtatsModulesPourSauvegarde())),
@@ -39254,6 +40459,15 @@ var AIDE_PAGES = {
 AIDE_PAGES['ats-intro'] = AIDE_PAGES.ats;
 AIDE_PAGES['regard-recruteur-intro'] = AIDE_PAGES['regard-recruteur'];
 AIDE_PAGES['aide-decision-intro'] = AIDE_PAGES['comparer-pistes'];
+AIDE_PAGES['un-cv-plusieurs-metiers'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-files"></i>', titre: 'Un CV, plusieurs métiers',
+    texte: 'Quand plusieurs métiers vous intéressent, ce module vous aide à préparer un CV et une lettre pour chacun, à partir de votre seul vrai parcours. Rien n’est inventé et rien n’est décidé à votre place.' },
+  { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
+    texte: 'La barre en haut montre les sept pages : votre CV, les métiers, le CV de référence, les phrases d’accroche, vos CV, vos lettres, puis vos documents. Elle sert de repère, on avance avec « Continuer ».' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la page d’avant sans rien effacer, « Accueil » ramène à l’écran de départ. Votre travail est gardé tant que vous ne cliquez pas sur « Recommencer ».' }
+];
+AIDE_PAGES['un-cv-plusieurs-metiers-intro'] = AIDE_PAGES['un-cv-plusieurs-metiers'];
 
 // TACHE (retour utilisateur : "l'ampoule doit s'adapter aussi aux fenêtres
 // qui viennent d'apparaître... quelles sont les attentes et les démarches à

@@ -65,6 +65,15 @@
 .mep-mq .seg button { flex: 1; min-width: 80px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-strong);
     border-radius: 9px; padding: 0.28rem 0.4375rem; font-size: 0.7525rem; }
 .mep-mq .seg button.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+/* Trait de couleur propre a chaque allure (Denis, 2026-10-08) : gris pour Sobre, couleur du theme pour Standard, multicolore pour Creatif. Meme taille de bouton qu'avant. */
+.mep-mq .seg-allure button { position: relative; overflow: hidden; min-height: 2.8rem; padding: 0.7rem 1rem 0.5rem; border-width: 1.5px; font-size: 0.95rem; font-weight: 700; cursor: pointer; }
+.mep-mq .seg-allure button:hover { border-color: var(--accent); }
+.mep-mq .seg-allure button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mep-mq .seg-allure button::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; }
+.mep-mq .seg-allure .allure-sobre::before { background: #8a97a6; }
+.mep-mq .seg-allure .allure-defaut::before { background: var(--accent); }
+.mep-mq .seg-allure .allure-creatif::before { background: linear-gradient(90deg, #e53935, #fdd835, #43a047, #1e88e5, #8e24aa); }
+[data-theme="sombre"] .mep-mq .seg-allure .allure-sobre::before { background: #a2acb9; }
 .mep-mq .swatches { display: flex; align-items: center; gap: 0.6125rem; flex-wrap: wrap; }
 /* Denis, 2026-09-29 : toutes les couleurs sur UNE SEULE ligne (une 2e ligne recree du vide). Les pastilles gardent leur taille si la place suffit, sinon elles retrecissent (rondes). */
 .mep-mq .swatches-une-ligne { flex-wrap: nowrap; gap: clamp(3px, 0.6125rem, 0.6125rem); }
@@ -87,7 +96,6 @@
 .mep-mq .vign .vign-nom { flex: 1; display: flex; align-items: center; justify-content: center; line-height: 1.15; overflow: hidden; }
 .mep-mq .vign.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); color: var(--accent); }
 .mep-mq .mini { height: 56px; background: #fff; border: 1px solid #d9dee6; border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 0.2188rem; }
-.mep-mq .mini i { position: absolute; display: block; }
 .mep-mq .legende-vign { font-size: 0.6475rem; color: var(--text-muted); margin: 0.35rem 0 0; line-height: 1.3; }
 .mep-mq .org { display: grid; grid-template-columns: 1fr 1.15fr; gap: 0.7rem; }
 .mep-mq .org h4 { margin: 0 0 0.2188rem; font-size: 0.735rem; color: var(--text-strong); }
@@ -124,7 +132,7 @@
 .mep-mq .curseur input[type=range] { flex: 1; accent-color: var(--accent); }
 .mep-mq .style-corps { padding-top: 0.4813rem; }
 .mep-mq .style-grille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.4375rem 1.225rem; align-items: start; }
-.mep-mq .zone-mep { min-height: 16rem; border: 1px dashed var(--border-strong); border-radius: 10px; padding: 0.5rem 0.65rem; background: var(--bg-subtle); }
+.mep-mq .zone-mep { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 0.5rem 0.65rem; background: var(--bg-subtle); }
 .mep-mq .resultat-mep { white-space: pre-line; border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.78rem; color: var(--text-strong); }
 .mep-mq .titre-mini { display: flex; align-items: center; flex-wrap: wrap; gap: 0.0875rem 0.4375rem; margin-bottom: 0.3062rem; font-weight: 700; color: var(--text-strong); font-size: 0.8312rem; }
 .mep-mq .titre-mini .ic { width: 1.0938rem; height: 1.0938rem; color: var(--accent); }
@@ -173,6 +181,27 @@
 .mep-mq .choix-bouton .chev { font-size: 1.4rem; line-height: 1; }
 .mep-mq .choix-exp[open] .cb-ouvrir, .mep-mq .choix-exp:not([open]) .cb-fermer { display: none; }
 .mep-mq .choix-exp[open] > summary { margin-bottom: 0.2625rem; }
+/* Panneaux « Modifier ... » rangés par paires (retour Denis 2026-10-05, maquette docs/MAQUETTE_PANNEAUX_PAR_PAIRES_2026-10-05.html) :
+   fermée, une paire = deux boutons côte à côte ; ouverte (les deux panneaux s'ouvrent ensemble), cadre commun avec son titre, boutons bleus, listes l'une sous l'autre. */
+.mep-mq .paire-choix { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-top: 0.4375rem; align-items: start; }
+.mep-mq .paire-choix > .choix-exp { margin-top: 0; min-width: 0; }
+.mep-mq .paire-choix > .paire-titre { display: none; }
+.mep-mq .paire-choix > .choix-exp > summary.choix-bouton { min-height: 3.4rem; padding: 0.45rem 0.55rem; gap: 0.3rem; }
+.mep-mq .paire-choix > .choix-exp > summary.choix-bouton b { font-size: 0.8rem; }
+.mep-mq .paire-choix > .choix-exp > summary.choix-bouton small { font-size: 0.66rem; }
+.mep-mq .paire-choix.ouverte { grid-template-columns: 1fr; border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 0.5rem 0.65rem 0.6rem; background: var(--bg-card); gap: 0.2rem; }
+.mep-mq .paire-choix.ouverte > .paire-titre { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.72rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.03em; }
+.mep-mq .paire-choix.ouverte > .choix-exp > summary.choix-bouton { background: var(--accent); border-color: var(--accent); }
+.mep-mq .paire-choix.ouverte > .choix-exp > summary.choix-bouton b, .mep-mq .paire-choix.ouverte > .choix-exp > summary.choix-bouton b span, .mep-mq .paire-choix.ouverte > .choix-exp > summary.choix-bouton small, .mep-mq .paire-choix.ouverte > .choix-exp > summary.choix-bouton .chev, .mep-mq .paire-choix.ouverte > .choix-exp > summary.choix-bouton em { color: #fff; }
+.mep-mq .paire-choix.ouverte > .choix-exp > summary.choix-bouton:hover { background: var(--accent); filter: brightness(1.08); }
+.mep-mq .paire-choix.ouverte > .choix-exp.desactivee > summary.choix-bouton { background: var(--bg-card); border-color: var(--accent); }
+.mep-mq .paire-choix.ouverte > .choix-exp.desactivee > summary.choix-bouton b, .mep-mq .paire-choix.ouverte > .choix-exp.desactivee > summary.choix-bouton b span, .mep-mq .paire-choix.ouverte > .choix-exp.desactivee > summary.choix-bouton .chev { color: var(--accent); }
+.mep-mq .paire-choix.ouverte > .choix-exp.desactivee > summary.choix-bouton small { color: var(--text-muted); }
+.mep-mq .paire-choix > .paire-titre .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.6825rem; white-space: nowrap; cursor: pointer; text-transform: none; font-weight: 400; letter-spacing: 0; }
+.mep-mq .paire-choix > .paire-titre .btn-miss:hover { border-color: var(--accent); background: var(--accent-bg-subtle); }
+@media (max-width: 420px) { .mep-mq .paire-choix:not(.ouverte) { grid-template-columns: 1fr; } }
+/* Mode sombre : l'accent est un bleu clair, le texte des boutons de paire ouverte passe en foncé pour rester lisible. */
+[data-theme="sombre"] .mep-mq .paire-choix.ouverte > .choix-exp:not(.desactivee) > summary.choix-bouton b, [data-theme="sombre"] .mep-mq .paire-choix.ouverte > .choix-exp:not(.desactivee) > summary.choix-bouton b span, [data-theme="sombre"] .mep-mq .paire-choix.ouverte > .choix-exp:not(.desactivee) > summary.choix-bouton small, [data-theme="sombre"] .mep-mq .paire-choix.ouverte > .choix-exp:not(.desactivee) > summary.choix-bouton .chev, [data-theme="sombre"] .mep-mq .paire-choix.ouverte > .choix-exp:not(.desactivee) > summary.choix-bouton em { color: #0b1220; }
 .mep-mq .choix-aide { margin: 0 0 0.3062rem; font-size: 0.665rem; color: var(--text-muted); }
 /* Une experience / formation / entree par ligne (retour Denis 2026-10-02) : deux par ligne etaient trop serrees. Un filet fin separe les lignes. */
 .mep-mq .mep-liste-choix-exp { display: grid; grid-template-columns: 1fr; gap: 0.0438rem 0; }
@@ -408,10 +437,29 @@
 .mep-mq .gab-ligne .vignettes { flex-wrap: wrap; overflow: visible; height: auto; min-height: 6.4rem; }
 .mep-mq .desc-allure { margin-top: 0.6rem; padding: 0.5rem 0.7rem; border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-subtle); font-size: 0.74rem; color: var(--text); line-height: 1.35; }
 .mep-mq .desc-allure b { color: var(--text-strong); }
+/* « Allure generale » sur toute la largeur (decision de Denis, 2026-10-08) : titre et trois boutons sur une ligne, phrase explicative dessous. */
+.mep-mq .ligne-allure { margin-top: 0.8rem; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.3rem 0.8rem; align-items: center; }
+.mep-mq .ligne-allure .titre-mini { margin-bottom: 0; }
+.mep-mq .ligne-allure .desc-allure { grid-column: 1 / -1; margin-top: 0; }
+/* Panneau de suggestions pleine largeur, place avant « Allure generale », relie au bouton ouvert par une pointe. */
+.mep-mq .depli.sugg-relie { position: relative; margin-top: 0.9rem; border: 1.5px solid var(--accent); border-radius: 10px; }
+.mep-mq .depli.sugg-relie::before { content: ""; position: absolute; top: -9px; right: calc(25% - 7px); width: 14px; height: 14px; background: var(--accent); transform: rotate(45deg); border-radius: 2px; }
+/* Bouton « Suggestions de mise en page » ouvert : plein, de la couleur du theme. */
+.mep-mq .rect-prop.ouvert { background: var(--accent); border-color: var(--accent); }
+.mep-mq .rect-prop.ouvert b, .mep-mq .rect-prop.ouvert small, .mep-mq .rect-prop.ouvert .chev { color: #fff; }
+.mep-mq .rect-prop.ouvert .badge { background: #fff; color: var(--accent); }
+[data-theme="sombre"] .mep-mq .rect-prop.ouvert { background: #2b6cd9; border-color: #2b6cd9; }
+[data-theme="sombre"] .mep-mq .rect-prop.ouvert .badge { color: #2b6cd9; }
+[data-theme="sombre"] .mep-mq .depli.sugg-relie { border-color: #2b6cd9; }
+[data-theme="sombre"] .mep-mq .depli.sugg-relie::before { background: #2b6cd9; }
+/* Petit ecran : une seule colonne ; les suggestions s'empilent (regle .props plus haut), la pointe se centre. */
+@media (max-width: 560px) { .mep-mq .style-grille { grid-template-columns: minmax(0, 1fr); } .mep-mq .ligne-allure { grid-template-columns: minmax(0, 1fr); } .mep-mq .depli.sugg-relie::before { right: calc(50% - 7px); } }
 .mep-mq .gab-ligne .vignettes { min-height: 0; }
 /* Liste « Corrections faites sur le CV » (au-dessus de « Valider le CV ») */
 .mep-mq .corrections-cv { margin-top: 0.75rem; border: 1px solid var(--border-strong); border-radius: 10px; padding: 0.4rem 0.7rem; background: var(--bg-subtle); font-size: 0.78rem; }
-.mep-mq .corrections-cv > summary { cursor: pointer; font-weight: 600; color: var(--text-strong); }
+.mep-mq .corrections-cv > summary { cursor: pointer; font-weight: 600; color: var(--text-strong); display: flex; align-items: center; gap: 0.6rem; list-style: none; }
+.mep-mq .corrections-cv > summary::-webkit-details-marker { display: none; }
+.mep-mq .corrections-cv > summary .chev { color: var(--accent); }
 .mep-mq .corrections-cv .sous-aide { margin: 0.35rem 0; color: var(--text-muted); }
 .mep-mq .corrections-cv .corr-ligne { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; padding: 0.25rem 0; border-top: 1px solid var(--border); }
 .mep-mq .corrections-cv .corr-ligne span { min-width: 0; overflow-wrap: anywhere; }
@@ -653,7 +701,7 @@
 /* Edition des competences : memes champs que « Changer l'intitule » (coins arrondis, bordure du panneau), un par ligne, avec « Ajouter » dans le style des boutons du panneau. */
 .mep-mq #mepEditComp input[type=text] { flex: 1; min-width: 0; border: 1px solid var(--border-strong); border-radius: 8px; padding: 0.3rem 0.5rem; font-size: 0.75rem; font-family: inherit; background: var(--bg-card); color: var(--text-strong); }
 .mep-mq #mepEditComp .ligne-comp { display: flex; align-items: center; gap: 0.4rem; }
-.mep-mq #mepEditComp .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.6825rem; white-space: nowrap; cursor: pointer; }
+.mep-mq #mepEditComp .btn-miss, .mep-mq .choix-exp .miss-liste .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 7px; padding: 0.175rem 0.4813rem; font-size: 0.6825rem; white-space: nowrap; cursor: pointer; }
 /* Bouton secondaire ACTIF (options ouvertes) : bleu, pour voir d'un coup d'oeil que les choix en dessous viennent de lui (retour Denis 2026-10-04). */
 .mep-mq .btn-miss.actif { background: var(--accent); border-color: var(--accent); color: #fff; }
 .mep-mq .btn-miss.actif:hover { background: var(--accent); color: #fff; }
@@ -752,3 +800,327 @@
 .mep-mq .champ-pleine > .seg { width: 100%; flex-wrap: nowrap; }
 .mep-mq .champ-pleine > .seg button { flex: 1 1 0; min-width: 0; white-space: normal; }
 .mep-mq .champ-pleine > label { display: block; margin-bottom: 0.2rem; }
+
+/* Looks (2026-10-06) : choix d'un jeu de reglages en un clic, au-dessus des couleurs (maquette docs/MAQUETTE_LOOKS_ET_GALERIE_2026-10-06.html) */
+.mep-mq .carte-looks { margin-bottom: 0.9rem; }
+.mep-mq .looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.2rem, 1fr)); gap: 0.4rem; }
+.mep-mq .look-bouton { text-align: left; border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); border-radius: 12px; padding: 0.4rem 0.55rem; cursor: pointer; font: inherit; font-size: 0.78rem; line-height: 1.25; }
+.mep-mq .look-bouton b { display: block; color: var(--text-strong); font-size: 0.85rem; }
+.mep-mq .look-bouton:hover:not(:disabled) { border-color: var(--accent); }
+.mep-mq .look-bouton.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); }
+.mep-mq .look-bouton:disabled { opacity: .45; cursor: default; }
+.mep-mq .look-pas { display: flex; gap: 3px; margin: 3px 0; }
+.mep-mq .look-pas i { display: block; width: 16px; height: 16px; border-radius: 5px; border: 1px solid rgba(0, 0, 0, .2); }
+.mep-mq .look-desc { display: block; color: var(--text-muted, var(--text)); font-size: 0.72rem; }
+.mep-mq .looks-pied { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+.mep-mq .look-annuler { border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 10px; padding: 0.3rem 0.7rem; font: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.mep-mq .look-annuler:disabled { opacity: .4; cursor: default; }
+.mep-mq .looks-etat { flex: 1 1 12rem; }
+/* Carte « Choisir une ambiance » = un vrai bouton (Denis, 2026-10-08, maquette MAQUETTE_CARTE_AMBIANCE) : palette, ombre, rond « Ouvrir » ; ouverte, pleine de la couleur du theme. */
+.mep-mq .amb-carte { width: 100%; display: flex; align-items: center; gap: 0.6rem; text-align: left; border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--text); border-radius: 12px; padding: 0.55rem 0.65rem; font: inherit; cursor: pointer; box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 30%, transparent); }
+.mep-mq .amb-carte:hover:not(.desactivee) { background: var(--accent-bg-subtle); }
+.mep-mq .amb-carte:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mep-mq .amb-pal { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, 0.75rem); gap: 3px; }
+.mep-mq .amb-pal i { width: 0.75rem; height: 0.75rem; border-radius: 50%; display: block; }
+.mep-mq .amb-txt { flex: 1; min-width: 0; }
+.mep-mq .amb-txt b { display: block; color: var(--accent); font-size: 0.88rem; }
+.mep-mq .amb-txt small { display: block; color: var(--text-muted); font-size: 0.68rem; line-height: 1.25; margin-top: 1px; }
+.mep-mq .amb-bout { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--accent); font-size: 0.7rem; font-weight: 700; }
+.mep-mq .amb-rond { width: 1.65rem; height: 1.65rem; border-radius: 50%; border: 1.5px solid var(--accent); display: grid; place-items: center; font-size: 1rem; line-height: 1; transition: transform .15s; }
+.mep-mq .amb-carte.ouvert { background: var(--accent); border-color: var(--accent); box-shadow: none; }
+.mep-mq .amb-carte.ouvert .amb-txt b, .mep-mq .amb-carte.ouvert .amb-txt small, .mep-mq .amb-carte.ouvert .amb-bout { color: #fff; }
+.mep-mq .amb-carte.ouvert .amb-rond { border-color: #fff; transform: rotate(180deg); }
+.mep-mq .amb-carte.ouvert .amb-pal i { outline: 1.5px solid #fff; }
+.mep-mq .amb-carte.desactivee { opacity: .55; cursor: not-allowed; box-shadow: none; border-color: var(--border-strong); pointer-events: none; }
+[data-theme="sombre"] .mep-mq .amb-carte.ouvert { background: #2b6cd9; border-color: #2b6cd9; }
+/* Panneau des six ambiances : pleine largeur, pointe vers la carte a gauche, trois par ligne (deux sur petit ecran). */
+.mep-mq .depli.sugg-relie.pointe-gauche::before { right: auto; left: calc(25% - 7px); }
+.mep-mq .panneau-looks .looks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mep-mq .panneau-looks[hidden] { display: none; }
+@media (max-width: 560px) { .mep-mq .depli.sugg-relie.pointe-gauche::before { left: calc(50% - 7px); } .mep-mq .panneau-looks .looks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Galerie Creatif par familles (2026-10-06) : pastilles de familles, « Voir tous les modeles » */
+.mep-mq .gab-familles { width: 100%; }
+.mep-mq .chips-familles { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0 0.5rem; }
+.mep-mq .chip-famille { border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text); border-radius: 999px; padding: 0.3rem 0.8rem; font: inherit; font-size: 0.82rem; cursor: pointer; }
+.mep-mq .chip-famille:hover { border-color: var(--accent); }
+.mep-mq .chip-famille.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.mep-mq .chip-famille.actuelle:not(.on)::after { content: " \25CF"; color: var(--accent); font-size: 0.6rem; }
+.mep-mq .chip-famille small { opacity: .8; }
+.mep-mq .gab-actions { margin-top: 0.5rem; }
+.mep-mq .gab-bouton { border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 12px; padding: 0.4rem 0.9rem; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.mep-mq .gab-bouton:hover { background: var(--accent-bg-subtle); }
+.mep-mq .famille-titre { margin: 0.7rem 0 0.2rem; font-weight: 700; color: var(--text-strong); font-size: 0.85rem; }
+.mep-mq .famille-titre small { font-weight: 400; color: var(--text-muted, var(--text)); }
+/* Grands boutons : texte d'au moins 14 px aussi pour les looks et la galerie par familles */
+[data-grands-boutons="1"] .mep-mq .look-desc,
+[data-grands-boutons="1"] .mep-mq .looks-etat,
+[data-grands-boutons="1"] .mep-mq .amb-bout,
+[data-grands-boutons="1"] .mep-mq .amb-txt small,
+[data-grands-boutons="1"] .mep-mq .famille-titre,
+[data-grands-boutons="1"] .mep-mq .famille-titre small,
+[data-grands-boutons="1"] .mep-mq .chip-famille small { font-size: 0.9rem !important; }
+
+/* Bouton « Mise en page » qui pulse 10 secondes dans la couleur du theme quand la mise en page peut encore etre amelioree (Denis, 2026-10-07). */
+.mep-mq .pulse-mep { animation: pulseMep 1.9s ease-in-out infinite; border-color: var(--accent); }
+.mep-mq .pulse-allure { animation: pulseGuide 1.3s ease-in-out infinite; border-color: var(--accent); }
+@keyframes pulseMep {   /* douce : un anneau discret qui s'elargit et s'efface (decision de Denis, 2026-10-08 : jamais agressive) */
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 38%, transparent); }
+  70% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .mep-mq .pulse-mep, .mep-mq .pulse-allure { animation: none; box-shadow: 0 0 0 3px var(--accent); } }
+
+
+/* Bouton « Degrade » (Denis, 2026-10-08) : un bouton comme les autres, sur la meme ligne que « Options supplementaires », avec son « ? ». Actif = cadre et fond de la couleur du theme, gras et coche. */
+.mep-mq .ligne-effet-options { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin-top: 0.6rem; }
+.mep-mq .degrade-bloc { display: inline-flex; align-items: center; gap: 0.3rem; }
+.mep-mq .ligne-effet-options .btn-miss { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 8px; padding: 0.3rem 0.7rem; font-size: 0.74rem; white-space: nowrap; cursor: pointer; }
+.mep-mq .ligne-effet-options .btn-miss:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-bg-subtle); }
+.mep-mq .ligne-effet-options .btn-miss:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mep-mq .btn-degrade[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); font-weight: 700; box-shadow: 0 0 0 2px var(--accent-bg-subtle); }
+.mep-mq .btn-degrade[aria-pressed="true"]::before { content: "\2713"; margin-right: 0.3rem; }
+
+/* ===== Correctifs du 2026-10-08 (retours de Denis) ===== */
+/* 1. Carte « Choisir une ambiance » OUVERTE : au survol elle prenait le fond pale (texte blanc illisible). Meme logique que « Style rapide » et « Mise en page » : un bleu legerement plus fonce. */
+.mep-mq .amb-carte.ouvert:hover:not(.desactivee) { background: var(--accent-hover); border-color: var(--accent-hover); }
+[data-theme="sombre"] .mep-mq .amb-carte.ouvert:hover:not(.desactivee) { background: #2358b3; border-color: #2358b3; }
+/* 2. Les trois boutons d'allure restent sur UNE ligne en mode « Boutons plus grands » (le titre passe au-dessus). */
+[data-grands-boutons="1"] .mep-mq .ligne-allure { grid-template-columns: minmax(0, 1fr); }
+[data-grands-boutons="1"] .mep-mq .seg-allure { flex-wrap: nowrap; }
+[data-grands-boutons="1"] .mep-mq .seg-allure button { flex: 1 1 0; min-width: 0; padding-left: 0.3rem; padding-right: 0.3rem; }
+/* 3. Rond « Ouvrir / Fermer » commun a tous les panneaux qui s'ouvrent (meme composant que la carte « Choisir une ambiance »). La fleche d'origine (texte de .chev) est masquee ; le rond et le mot viennent du CSS. */
+.mep-mq summary .chev { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; margin-left: auto; flex: 0 0 auto; font-size: 0 !important; line-height: 1; transform: none !important; }
+.mep-mq summary .chev::before { content: "\2304"; width: 1.65rem; height: 1.65rem; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-size: 1rem; line-height: 1; transition: transform .15s; }
+.mep-mq summary .chev::after { content: "Ouvrir"; font-size: 0.7rem; font-weight: 700; line-height: 1.1; }
+.mep-mq details[open] > summary .chev::before { transform: rotate(180deg); }
+.mep-mq details[open] > summary .chev::after { content: "Fermer"; }
+[data-grands-boutons="1"] .mep-mq summary .chev::before { width: 2rem; height: 2rem; font-size: 1.2rem; }
+[data-grands-boutons="1"] .mep-mq summary .chev::after { font-size: 0.9rem; }
+/* Rond « Ouvrir / Fermer » sur les boutons qui ouvrent une liste en dessous (« Les montrer et les choisir », « Changer l'intitule », « Plus d'options », « Missions », « Suggestions »). */
+.mep-mq .rond-btn { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; vertical-align: middle; margin-left: 0.5rem; font-size: 0; line-height: 1; }
+.mep-mq .rond-btn::before { content: "\2304"; width: 1.35rem; height: 1.35rem; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; font-size: 0.9rem; line-height: 1; transition: transform .15s; }
+.mep-mq .rond-btn::after { content: "Ouvrir"; font-size: 0.62rem; font-weight: 700; line-height: 1.1; }
+.mep-mq .rond-btn.ouvert::before { transform: rotate(180deg); }
+.mep-mq .rond-btn.ouvert::after { content: "Fermer"; }
+[data-grands-boutons="1"] .mep-mq .rond-btn::before { width: 1.8rem; height: 1.8rem; font-size: 1.1rem; }
+[data-grands-boutons="1"] .mep-mq .rond-btn::after { font-size: 0.9rem; }
+/* Bouton ouvert = plein, de la couleur foncee du theme (meme comportement que la carte « Choisir une ambiance » ouverte) : retour de Denis, 2026-10-08. */
+.mep-mq .btn-miss:has(.rond-btn.ouvert), .mep-mq .mep-btn:has(.rond-btn.ouvert) { background: var(--accent); border-color: var(--accent); color: #fff; }
+.mep-mq .btn-miss:has(.rond-btn.ouvert):hover:not(:disabled), .mep-mq .mep-btn:has(.rond-btn.ouvert):hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
+[data-theme="sombre"] .mep-mq .btn-miss:has(.rond-btn.ouvert), [data-theme="sombre"] .mep-mq .mep-btn:has(.rond-btn.ouvert) { background: #2b6cd9; border-color: #2b6cd9; color: #fff; }
+[data-theme="sombre"] .mep-mq .btn-miss:has(.rond-btn.ouvert):hover:not(:disabled), [data-theme="sombre"] .mep-mq .mep-btn:has(.rond-btn.ouvert):hover:not(:disabled) { background: #2358b3; border-color: #2358b3; }
+/* Le « − 4 + » des competences a la MEME hauteur que le bouton a cote (« Les montrer et les choisir ») : retour de Denis, 2026-10-08. */
+.mep-mq .ligne-comp > .pas { align-self: stretch; align-items: stretch; }
+.mep-mq .ligne-comp > .pas button { height: auto; align-self: stretch; width: 2.1rem; }
+.mep-mq .ligne-comp > .pas span { display: flex; align-items: center; justify-content: center; }
+[data-grands-boutons="1"] .mep-mq .ligne-comp > .pas button { height: auto !important; }
+/* ===== Couleurs regroupees dans la carte « Choisir une ambiance » (decisions de Denis, 2026-10-08) ===== */
+.mep-mq .panneau-looks .ligne-autre-couleur { margin-top: 0.7rem; }
+.mep-mq .nuancier-amb { margin-top: 0.5rem; padding: 0.6rem 0.7rem; border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-card); }
+.mep-mq .nuancier-amb[hidden] { display: none; }
+.mep-mq .nuancier-amb .coul-titre { display: block; margin: 0 0 0.35rem; font-size: 0.74rem; font-weight: 700; color: var(--text-strong); }
+.mep-mq .nuancier-amb .swatches-ligne2 { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+.mep-mq .btn-miss[data-mep-autre-couleur] { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--accent); border-radius: 8px; padding: 0.3rem 0.7rem; font-size: 0.74rem; white-space: nowrap; cursor: pointer; }
+.mep-mq .looks-pied { justify-content: space-between; }
+.mep-mq .looks-pied .pied-gauche, .mep-mq .looks-pied .pied-droite { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.mep-mq .looks-pied .pied-droite { margin-left: auto; }
+[data-grands-boutons="1"] .mep-mq .nuancier-amb .coul-titre { font-size: 0.9rem; }
+/* Petite roue de couleurs dans « Autre couleur » : on voit tout de suite que des couleurs se cachent derriere (retour de Denis, 2026-10-08). */
+.mep-mq .roue-mini { display: inline-block; width: 1.05rem; height: 1.05rem; border-radius: 50%; vertical-align: middle; margin-right: 0.45rem; background: conic-gradient(#e53935, #fdd835, #43a047, #00acc1, #1e88e5, #8e24aa, #e53935); border: 1.5px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25); }
+[data-grands-boutons="1"] .mep-mq .roue-mini { width: 1.4rem; height: 1.4rem; }
+/* « Degrade » : meme hauteur que « Autre couleur », et un fond qui est LUI-MEME un degrade (on voit ce que c'est) : retour de Denis, 2026-10-08. */
+.mep-mq .ligne-autre-couleur { align-items: stretch; }
+.mep-mq .ligne-autre-couleur > .btn-miss, .mep-mq .ligne-autre-couleur > .degrade-bloc > .btn-degrade { display: inline-flex; align-items: center; }
+.mep-mq .ligne-autre-couleur > .degrade-bloc { align-items: stretch; }
+.mep-mq .ligne-autre-couleur > .degrade-bloc > .aide-option { align-self: center; }
+.mep-mq .btn-degrade { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 10%, var(--bg-card)), color-mix(in srgb, var(--accent) 42%, var(--bg-card))); }
+.mep-mq .btn-degrade:hover:not(:disabled) { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, var(--bg-card)), color-mix(in srgb, var(--accent) 52%, var(--bg-card))); }
+.mep-mq .btn-degrade[aria-pressed="true"] { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #ffffff)); color: #fff; }
+[data-theme="sombre"] .mep-mq .btn-degrade[aria-pressed="true"] { background: linear-gradient(90deg, #2b6cd9, #6f9be6); }
+/* « Degrade » au survol : il gardait le fond pale d'une autre regle (presque transparent, texte blanc illisible). On garde un VRAI degrade, un peu plus soutenu. */
+.mep-mq .ligne-effet-options .btn-degrade:hover:not(:disabled) { border-color: var(--accent); background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 18%, var(--bg-card)), color-mix(in srgb, var(--accent) 55%, var(--bg-card))); }
+.mep-mq .ligne-effet-options .btn-degrade[aria-pressed="true"]:hover:not(:disabled) { border-color: var(--accent-hover); background: linear-gradient(90deg, var(--accent-hover), color-mix(in srgb, var(--accent-hover) 62%, #ffffff)); color: #fff; }
+[data-theme="sombre"] .mep-mq .ligne-effet-options .btn-degrade[aria-pressed="true"]:hover:not(:disabled) { border-color: #2358b3; background: linear-gradient(90deg, #2358b3, #5b88de); color: #fff; }
+/* « Options supplementaires » : tout a droite de la ligne, a part des deux premiers boutons. */
+.mep-mq .ligne-autre-couleur > [data-mep-options-supp] { margin-left: auto; }
+/* « Degrade » inactif : le fond en degrade doit l'emporter sur le fond uni des boutons de la ligne. */
+.mep-mq .ligne-effet-options .btn-degrade:not([aria-pressed="true"]):not(:hover) { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 10%, var(--bg-card)), color-mix(in srgb, var(--accent) 42%, var(--bg-card))); }
+/* ===== Familles de modeles Creatif : grands onglets (choix de Denis, 2026-10-08, option B) ===== */
+.mep-mq .chips-familles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; margin-top: 0.4rem; }
+.mep-mq .chips-familles .chip-famille { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0.1rem; border-radius: 10px; padding: 0.45rem 0.3rem 0.4rem; text-align: center; line-height: 1.15; min-width: 0; }
+.mep-mq .chip-famille b { font-size: 0.8rem; color: var(--accent); overflow-wrap: anywhere; }
+.mep-mq .chip-famille .n { font-size: 0.66rem; color: var(--text-muted); }
+.mep-mq .chip-famille:hover:not(.on) { background: var(--accent-bg-subtle); }
+.mep-mq .chip-famille.on b, .mep-mq .chip-famille.on .n { color: #fff; }
+[data-theme="sombre"] .mep-mq .chip-famille.on { background: #2b6cd9; border-color: #2b6cd9; }
+.mep-mq .chip-famille .mini3 { display: flex; gap: 3px; justify-content: center; margin-top: 0.3rem; }
+.mep-mq .chip-famille .m3 { display: block; width: 26px; height: 22px; overflow: hidden; position: relative; border-radius: 3px; flex: 0 0 auto; }
+.mep-mq .chip-famille .m3 .mini { position: absolute; top: 0; left: 0; width: 68px; height: 56px; margin: 0; transform: scale(0.38); transform-origin: 0 0; }
+.mep-mq .chip-famille.on::after { content: ""; position: absolute; left: 50%; bottom: -8px; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--accent); border-bottom: 0; }
+[data-theme="sombre"] .mep-mq .chip-famille.on::after { border-top-color: #2b6cd9; }
+.mep-mq .chip-famille.actuelle:not(.on)::after { position: absolute; top: 5px; right: 7px; }
+.mep-mq .gab-familles .chips-familles + .gab-ligne { margin-top: 0.7rem; padding: 0.5rem; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); }
+@media (max-width: 560px) { .mep-mq .chips-familles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+[data-grands-boutons="1"] .mep-mq .chip-famille b { font-size: 0.95rem; }
+[data-grands-boutons="1"] .mep-mq .chip-famille .n { font-size: 0.9rem; }
+/* Pastille de degrade devant le mot « Degrade » : on voit tout de suite ce que c'est, meme quand le bouton n'est pas active (retour de Denis, 2026-10-08). */
+.mep-mq .degrade-pastille { display: inline-block; width: 1.7rem; height: 0.85rem; border-radius: 4px; margin-right: 0.5rem; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 12%, #ffffff)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); flex: 0 0 auto; }
+.mep-mq .btn-degrade[aria-pressed="true"] .degrade-pastille { box-shadow: 0 0 0 1.5px #ffffff; }
+[data-grands-boutons="1"] .mep-mq .degrade-pastille { width: 2.1rem; height: 1.1rem; }
+/* « Degrade » grise (allure Sobre) : reste LISIBLE (texte gris soutenu, bordure en pointilles, pastille grise) ; la raison est dans l'infobulle et le « ? » (retour de Denis, 2026-10-08). */
+.mep-mq .ligne-effet-options .btn-degrade:disabled { opacity: 1; background: var(--bg-subtle); color: var(--text-muted); border: 1px dashed var(--border-strong); cursor: not-allowed; }
+.mep-mq .btn-degrade:disabled .degrade-pastille { background: linear-gradient(90deg, #8a97a6, #e3e7ec); box-shadow: 0 0 0 1px var(--border-strong); }
+/* Mention sous chaque allure (nombre de modeles) : decision de Denis, 2026-10-08. */
+.mep-mq .seg-allure button small { display: block; margin-top: 0.1rem; font-size: 0.68rem; font-weight: 400; color: var(--text-muted); line-height: 1.15; }
+.mep-mq .seg-allure button.on small { color: var(--accent); }
+.mep-mq .seg-allure button { flex-direction: column; justify-content: center; }
+/* Deux pulsations (decision de Denis, 2026-10-08) : DOUCE pour « Mise en page » et « Suggestions » (elles reviennent a chaque fois qu'il y a quelque chose a ameliorer) ;
+   plus VIVE pour les invitations de premiere arrivee (« Style rapide » et les allures), qu'on ne voit qu'une fois. */
+@keyframes pulseGuide {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 65%, transparent); }
+  70% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+/* ===== Toute carte qui s'ouvre et se ferme est AFFIRMEE comme « Choisir une ambiance » (decision de Denis, 2026-10-08 : « pas plus, pas moins ») =====
+   fond blanc, cadre de la couleur du theme, petite ombre dessous, titre de la couleur du theme ; au survol, fond teinte. Ouverte, elle garde son bandeau plein. */
+.mep-mq details.mep-carte:not([open]) { background: var(--bg-card); border: 1.5px solid var(--accent); border-radius: 12px; box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 30%, transparent); }
+.mep-mq details.mep-carte:not([open]) > summary { padding: 0.55rem 0.65rem; border-radius: 10px; }
+.mep-mq details.mep-carte:not([open]) > summary:hover { background: var(--accent-bg-subtle); border-radius: 10px; }
+.mep-mq details.mep-carte:not([open]) > summary h3 { color: var(--accent); font-size: 0.9rem; }
+.mep-mq details.choix-exp > summary.choix-bouton { border-radius: 12px; box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 30%, transparent); }
+.mep-mq details.choix-exp[open] > summary.choix-bouton { box-shadow: none; }
+/* Les boutons INTERIEURS qui portent le rond « Ouvrir / Fermer » sont affirmes comme les rubriques et la carte « Choisir une ambiance » (decision de Denis, 2026-10-08) :
+   fond blanc, cadre de la couleur du theme, petite ombre, texte de la couleur du theme ; ouverts, ils sont pleins (regle plus haut). */
+.mep-mq .btn-miss.btn-miss:has(.rond-btn:not(.ouvert)):not(:disabled), .mep-mq .mep-btn.mep-btn:has(.rond-btn:not(.ouvert)):not(:disabled), .mep-mq .gab-bouton.gab-bouton:has(.rond-btn:not(.ouvert)) { border: 1.5px solid var(--accent); border-radius: 12px; box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 30%, transparent); background: var(--bg-card); color: var(--accent); font-weight: 600; padding: 0.4rem 0.7rem; }
+.mep-mq .btn-miss.btn-miss:has(.rond-btn:not(.ouvert)):not(:disabled):hover, .mep-mq .mep-btn.mep-btn:has(.rond-btn:not(.ouvert)):not(:disabled):hover, .mep-mq .gab-bouton.gab-bouton:has(.rond-btn:not(.ouvert)):hover { background: var(--accent-bg-subtle); border-color: var(--accent); }
+.mep-mq .btn-miss:has(.rond-btn.ouvert), .mep-mq .mep-btn:has(.rond-btn.ouvert) { box-shadow: none; border-radius: 12px; }
+/* Mode « Boutons plus grands » : les cartes de modeles (Sobre et Creatif) s'AGRANDISSENT pour que le nom se lise en entier, au lieu d'etre coupe dans une carte de taille fixe (retour de Denis, 2026-10-08). */
+[data-grands-boutons="1"] .mep-mq .vign { flex: 0 0 7.2rem !important; width: 7.2rem; height: auto; min-height: 7.6rem; }
+[data-grands-boutons="1"] .mep-mq .vign .vign-nom { overflow: visible; font-size: 0.9rem !important; line-height: 1.2; overflow-wrap: anywhere; padding: 0.15rem 0 0.1rem; }
+[data-grands-boutons="1"] .mep-mq .vign .mini { height: 60px; }
+
+/* ===== Retours de Denis (2026-10-10), éditeur de CV ===== */
+/* « Boutons plus grands » : au milieu de la rangée du haut, entre « Aperçu en plein écran » et « Revenir au modèle de départ » (il était à côté de « Aide »). */
+.mep-mq .rangee-modes .aide-grands { margin-left: auto; white-space: nowrap; }
+.mep-mq .rangee-modes .aide-grands.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+[data-theme="sombre"] .mep-mq .rangee-modes .aide-grands.on { background: #2b6cd9; border-color: #2b6cd9; color: #fff; }
+/* Carte « Choisir une ambiance » : elle prend toute la hauteur de la rangée, à côté de « Ce que Mise en page a fait », au lieu de laisser un grand vide dessous. */
+.mep-mq .style-grille > div:first-child { display: flex; flex-direction: column; align-self: stretch; }
+.mep-mq .style-grille .carte-looks { flex: 1; display: flex; margin-bottom: 0.9rem; }
+.mep-mq .style-grille .carte-looks .amb-carte { flex: 1; padding: 0.9rem 0.9rem; gap: 0.9rem; }
+.mep-mq .style-grille .carte-looks .amb-pal { grid-template-columns: repeat(3, 2.6rem); gap: 10px; }
+.mep-mq .style-grille .carte-looks .amb-pal i { width: 2.6rem; height: 2.6rem; border-radius: 9px; }
+.mep-mq .style-grille .carte-looks .amb-txt b { font-size: 1.05rem; }
+.mep-mq .style-grille .carte-looks .amb-txt small { font-size: 0.78rem; line-height: 1.35; margin-top: 4px; }
+.mep-mq .style-grille .carte-looks .amb-rond { width: 2.1rem; height: 2.1rem; font-size: 1.25rem; }
+@media (max-width: 560px) { .mep-mq .style-grille .carte-looks .amb-carte { padding: 0.6rem 0.65rem; } }
+
+/* ---- Carte « Choisir une ambiance » (retours de Denis, 2026-10-10) : vignettes avec mini-CV, couleurs toujours visibles, nuances, bouton fermé plus grand ---- */
+.mep-mq .amb-carte { padding: 1.4rem 1.5rem; gap: 1.2rem; min-height: 9rem; }
+.mep-mq .amb-pal { grid-template-columns: repeat(3, 1.7rem); gap: 7px; }
+.mep-mq .amb-pal i { width: 1.7rem; height: 1.7rem; }
+.mep-mq .amb-txt b { font-size: 1.45rem; }
+.mep-mq .amb-txt small { font-size: 1rem; line-height: 1.4; margin-top: 4px; }
+.mep-mq .looks { grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.7rem; }
+.mep-mq .look-bouton { padding: 0.6rem; }
+.mep-mq .look-bouton b { font-size: 1rem; margin-top: 0.4rem; }
+.mep-mq .look-desc { font-size: 0.82rem; }
+.mep-mq .mini-cv { display: block; height: 6rem; border: 1px solid var(--border-strong); border-radius: 8px; background: #fff; overflow: hidden; position: relative; --mc: #2f6690; --mc2: #d9e8f2; }
+.mep-mq .mini-cv i { display: block; }
+.mep-mq .mini-cv .mc-tete { height: 1.1rem; background: var(--mc); }
+.mep-mq .mini-cv .mc-titre { position: relative; height: .5rem; margin: .4rem .4rem .2rem; border-bottom: 1px solid #b9c4d2; }
+.mep-mq .mini-cv .mc-titre::before { content: ''; position: absolute; left: 0; top: .08rem; width: 45%; height: 3px; background: var(--mc); }
+.mep-mq .mini-cv.mc-b-epaisse .mc-titre { border-bottom-width: 3px; }
+.mep-mq .mini-cv.mc-t-bandeau .mc-titre { background: var(--mc); border-bottom: 0; }
+.mep-mq .mini-cv.mc-t-bandeau .mc-titre::before { background: #fff; }
+.mep-mq .mini-cv.mc-t-pastille .mc-titre { border-bottom: 0; }
+.mep-mq .mini-cv.mc-t-pastille .mc-titre::before { width: .5rem; height: .5rem; border-radius: 50%; top: 0; }
+.mep-mq .mini-cv .mc-ligne { height: 3px; background: var(--border-strong); margin: 3px .4rem; width: 80%; }
+.mep-mq .mini-cv .mc-comp { display: flex; gap: 3px; margin: 3px .4rem; }
+.mep-mq .mini-cv .mc-comp i { height: .45rem; flex: 1; background: #e9ecf0; border: 0; border-radius: 2px; }
+.mep-mq .mini-cv.mc-c-pastille .mc-comp i { border-radius: 999px; }
+.mep-mq .mini-cv.mc-c-rectangle .mc-comp i { border-radius: 1px; }
+.mep-mq .mini-cv.mc-c-texte-seul .mc-comp i { background: transparent; height: 3px; margin-top: .1rem; background: var(--border-strong); border-radius: 0; }
+.mep-mq .mini-cv.mc-coins { border-radius: 14px; }
+.mep-mq .mini-cv.mc-ico .mc-titre::before { content: ''; display: inline-block; width: .4rem; height: .4rem; border-radius: 50%; background: var(--mc); margin-right: .2rem; vertical-align: middle; }
+.mep-mq .titre-coul-amb { margin: .9rem 0 .2rem; font-weight: 600; color: var(--text-strong); }
+.mep-mq #panneauAmbiances .coul-titre { display: block; font-weight: 600; margin: .5rem 0 .25rem; }
+.mep-mq #panneauAmbiances .swatches, .mep-mq #panneauAmbiances .swatches-une-ligne, .mep-mq #panneauAmbiances .swatches-ligne2 { flex-wrap: wrap; gap: .6rem; align-items: center; }
+.mep-mq #panneauAmbiances .swatches .sw, .mep-mq #panneauAmbiances .swatches-une-ligne .sw { flex: 0 0 2.75rem; width: 2.75rem; height: 2.75rem; min-width: 2.75rem; padding: 0 !important; }
+.mep-mq #panneauAmbiances .nuances-amb { display: flex; flex-wrap: wrap; gap: .5rem; }
+.mep-mq #panneauAmbiances .nuances-amb .nu { width: 2.2rem; height: 2.2rem; border-radius: 8px; border: 1px solid var(--border-strong); padding: 0; cursor: pointer; }
+.mep-mq #panneauAmbiances .nuances-amb .nu.on { box-shadow: 0 0 0 3px var(--accent); }
+.mep-mq .looks-pied { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .6rem; }
+.mep-mq #panneauAmbiances .swatches .sw, .mep-mq #panneauAmbiances .swatches-une-ligne .sw, .mep-mq #panneauAmbiances .swatches-ligne2 .sw { border-radius: 8px; }
+.mep-mq #panneauAmbiances .sw-perso .roue { border-radius: 8px; }
+.mep-mq .ligne-effet-options.sans-marge { margin-top: 0; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+/* Carte fermee : la palette en carres arrondis (comme les couleurs et les nuances du panneau), plus grands pour remplir l'espace (retour de Denis, 2026-10-10). */
+.mep-mq .amb-pal { grid-template-columns: repeat(3, 2.6rem); gap: 10px; }
+.mep-mq .amb-pal i { width: 2.6rem; height: 2.6rem; border-radius: 9px; }
+/* En allure Sobre, l'ambiance ne donne que des filets de couleur et des teintes pales : la vignette le montre (retour de Denis, 2026-10-10). */
+.mep-mq .mini-cv.mc-sobre .mc-tete { background: var(--mc2); border-bottom: 2px solid var(--mc); }
+.mep-mq .mini-cv.mc-sobre .mc-comp i { background: #e9ecf0; }
+
+/* Carte d'ambiance fermee sur un ecran etroit : la palette en carres arrondis rentre (1,8 rem) pour laisser sa place au texte (retour de l'audit, 2026-10-11). */
+@media (max-width: 900px) {
+  .mep-mq .amb-pal, .mep-mq .style-grille .carte-looks .amb-pal { grid-template-columns: repeat(3, 1.8rem); gap: 6px; }
+  .mep-mq .amb-pal i, .mep-mq .style-grille .carte-looks .amb-pal i { width: 1.8rem; height: 1.8rem; border-radius: 7px; }
+  .mep-mq .amb-carte { padding: 0.9rem 0.9rem; gap: 0.8rem; min-height: 0; }
+  .mep-mq .amb-txt b { font-size: 1.2rem; }
+  .mep-mq .amb-txt small { font-size: 0.85rem; }
+}
+
+/* Miniatures REELLES des modeles (plan du banc de rendu, demande de Denis 2026-10-11) : le vrai CV reduit, a la proportion d'une page A4, assez grand pour qu'on voie ce qui distingue chaque modele. */
+.mep-mq .vign { width: 96px; height: auto; min-height: 96px; }
+.mep-mq .gab-ligne .vign { flex: 0 0 96px; }
+.mep-mq .mini[data-mini-reel] { width: 100%; height: auto; aspect-ratio: 794 / 1123; box-sizing: border-box; }
+
+/* Interrupteur « Vallonné » sous la vignette des modeles a colonne coloree (Denis, 2026-10-11) : la miniature montre tout de suite le bord obtenu. */
+.mep-mq .vign-cadre { display: flex; flex-direction: column; gap: 4px; flex: 0 0 96px; width: 96px; }
+.mep-mq .gab-ligne .vign-cadre .vign { flex: 0 0 auto; width: 100%; }
+.mep-mq .vign-bord { display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent; padding: 2px; color: var(--text); font-size: 0.68rem; line-height: 1.1; cursor: pointer; border-radius: 8px; }
+.mep-mq .vign-bord:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mep-mq .vign-bord-piste { position: relative; flex: none; width: 28px; height: 16px; border-radius: 8px; background: var(--border-strong); transition: background .15s; }
+.mep-mq .vign-bord-bouton { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.35); transition: left .15s; }
+.mep-mq .vign-bord[aria-checked="true"] .vign-bord-piste { background: var(--accent); }
+.mep-mq .vign-bord[aria-checked="true"] .vign-bord-bouton { left: 14px; }
+.mep-mq .vign-bord[aria-checked="true"] .vign-bord-nom { color: var(--accent); font-weight: 700; }
+[data-grands-boutons="1"] .mep-mq .vign-cadre { flex: 0 0 7.2rem !important; width: 7.2rem; }
+[data-grands-boutons="1"] .mep-mq .vign-cadre .vign { flex: 0 0 auto !important; width: 100%; }
+[data-grands-boutons="1"] .mep-mq .vign-bord { font-size: 0.9rem; padding: 6px 2px; }
+[data-grands-boutons="1"] .mep-mq .vign-bord-piste { width: 38px; height: 22px; border-radius: 11px; }
+[data-grands-boutons="1"] .mep-mq .vign-bord-bouton { width: 18px; height: 18px; }
+[data-grands-boutons="1"] .mep-mq .vign-bord[aria-checked="true"] .vign-bord-bouton { left: 18px; }
+/* Trois petits boutons dessines « Bord du bandeau » (droit, arrondi, vallonne) sous la vignette des modeles a bandeau au choix. */
+.mep-mq .vign-bords { display: flex; gap: 3px; justify-content: center; }
+.mep-mq .vign-bord3 { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; height: 24px; padding: 0; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-muted, var(--text)); border-radius: 7px; cursor: pointer; }
+.mep-mq .vign-bord3:hover { border-color: var(--accent); }
+.mep-mq .vign-bord3:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mep-mq .vign-bord3[aria-checked="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+.mep-mq .vign-bord3 svg { width: 20px; height: 12px; }
+[data-grands-boutons="1"] .mep-mq .vign-bord3 { height: 36px; }
+[data-grands-boutons="1"] .mep-mq .vign-bord3 svg { width: 26px; height: 16px; }
+
+/* Bloc « Autres couleurs de votre CV » de la carte d'ambiance (Denis, 2026-10-11) : memes pastilles que les couleurs proposees. */
+.mep-mq #panneauAmbiances .autres-coul { margin-top: 0.6rem; padding: 0.6rem 0.7rem; border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-card); }
+.mep-mq #panneauAmbiances .autres-coul .titre-coul-amb { margin: 0 0 0.3rem; }
+.mep-mq #panneauAmbiances .autres-coul-rang { margin-top: 0.55rem; }
+.mep-mq #panneauAmbiances .autres-coul-rang .coul-titre { display: block; margin: 0 0 0.3rem; font-size: 0.74rem; font-weight: 700; color: var(--text-strong); }
+.mep-mq #panneauAmbiances .autres-coul .swatches { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.mep-mq #panneauAmbiances .autres-coul .puce-texte { border: 1px solid var(--border-strong); border-radius: 9px; background: var(--bg-card); color: var(--text); padding: 0.28rem 0.6rem; font-size: 0.74rem; cursor: pointer; }
+.mep-mq #panneauAmbiances .autres-coul .puce-texte.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+.mep-mq #panneauAmbiances .autres-coul .sw { width: 2rem; height: 2rem; }
+.mep-mq #panneauAmbiances .autres-coul .sous-aide { font-size: 0.74rem; margin: 0 0 0.3rem; opacity: 0.85; }
+
+/* « Reprendre mes dernieres couleurs » et « Garder mes couleurs » : avant les couleurs, a droite, bien visibles (Denis, 2026-10-11). */
+.mep-mq #panneauAmbiances .coul-entete { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+.mep-mq #panneauAmbiances .coul-entete .titre-coul-amb { margin: 0.2rem 0 0; }
+.mep-mq #panneauAmbiances .coul-reprise { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; margin-left: auto; }
+.mep-mq #panneauAmbiances .btn-reprise { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 10px; padding: 0.4rem 0.8rem; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.mep-mq #panneauAmbiances .btn-reprise:hover { filter: brightness(1.08); }
+.mep-mq #panneauAmbiances .btn-reprise:focus-visible { outline: 3px solid var(--accent-bg-subtle); outline-offset: 2px; }
+.mep-mq #panneauAmbiances .reprise-pastilles { display: inline-flex; gap: 3px; }
+.mep-mq #panneauAmbiances .reprise-pastilles i { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+.mep-mq #panneauAmbiances .ck-garder { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text); cursor: pointer; margin: 0; }
+.mep-mq #panneauAmbiances .ck-garder input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }

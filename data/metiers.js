@@ -2440,6 +2440,19 @@ function fermerAssistantDepotCV() {
 // initialement confirme a ete retire entre-temps. Effacer le nom lui-meme
 // du texte le fait bien disparaitre (il n'y est simplement plus). Parametre
 // retro-compatible : absent ou vide, aucun changement de comportement.
+// Courriel écrit SANS arobase : la personne a tapé un « a » (ou « (at) », « at ») à sa place, ou l'arobase a été perdu à la lecture du fichier (retour de Denis, 2026-10-10 :
+// « josiane.bokenomae a gmail.com » n'était ni masqué ni reconnu, donc ni le courriel ni le nom et le prénom n'étaient repérés). Seuls les fournisseurs courants sont reconnus,
+// pour ne jamais prendre un autre texte pour un courriel. La valeur détectée reste le texte tel qu'il est écrit (c'est ce que la croix efface) ; emailDepuisTexteSansArobase()
+// en rend l'adresse complète, que la personne vérifie à l'écran.
+var REGEX_EMAIL_SANS_AROBASE_SOURCE = '([a-zA-Z0-9][a-zA-Z0-9._%+-]*)[ ' + String.fromCharCode(9) + ']*(?:\\(a\\)|\\[a\\]|\\(at\\)|\\bat\\b|a)[ ' + String.fromCharCode(9) + ']*(gmail|hotmail|outlook|yahoo|orange|free|sfr|laposte|wanadoo|live|icloud|msn|neuf|bbox)\\.(com|fr|net)(?![a-z0-9])';
+function emailDepuisTexteSansArobase(texte) {
+  var m = new RegExp(REGEX_EMAIL_SANS_AROBASE_SOURCE, 'i').exec(String(texte || ''));
+  return m ? (m[1] + '@' + m[2] + '.' + m[3]).toLowerCase() : '';
+}
+function _emailNormalise(valeur) {
+  var v = String(valeur || '');
+  return v.indexOf('@') !== -1 ? v : (emailDepuisTexteSansArobase(v) || v);
+}
 function detecterCoordonneesSensibles(texte, nomsConfirmes) {
   var regexTelephone = /(?<!\d)0[1-9](?:[\s.\-]?\d{2}){4}(?!\d)|(?:\+33|00[\s.\-]?33)[\s.\-]?(?:\(0\)[\s.\-]?)?[1-9](?:[\s.\-]?\d{2}){4}/g;
   // TACHE (retour utilisateur 2026-09-17, bug reel confirme : "sophie.martin@email.frPermis"
@@ -2497,6 +2510,11 @@ function detecterCoordonneesSensibles(texte, nomsConfirmes) {
 
   var telephones = dedupe(texte.match(regexTelephone) || []);
   var emails = dedupe(texte.match(regexEmail) || []);
+  // Courriels écrits sans arobase (voir emailDepuisTexteSansArobase) : on ne garde que ceux qui ne sont pas déjà dans un vrai courriel.
+  var emailsSansArobase = dedupe(texte.match(new RegExp(REGEX_EMAIL_SANS_AROBASE_SOURCE, 'gi')) || []).filter(function (s) {
+    return emails.every(function (e) { return e.indexOf(s) === -1 && s.indexOf(e) === -1; });
+  });
+  emails = emails.concat(emailsSansArobase);
   var codesPostauxVilles = dedupe(texte.match(regexCodePostalVille) || []);
   var reseaux = dedupe(texte.match(regexReseau) || []);
   var texteSansReseaux = reseaux.reduce(function (t, r) { return t.split(r).join(' '); }, texte);
@@ -2513,7 +2531,7 @@ function detecterCoordonneesSensibles(texte, nomsConfirmes) {
   // etiquetees), jamais un remplacement.
   var nomsDepuisEmail = [];
   emails.forEach(function (email) {
-    var local = (email.split('@')[0] || '');
+    var local = (_emailNormalise(email).split('@')[0] || '');
     var jetons = local.split(/[._+-]/).filter(function (j) { return /^[a-zà-ÿ]{2,}$/i.test(j); });
     for (var i = 0; i < jetons.length - 1; i++) {
       var a = jetons[i], b = jetons[i + 1];
@@ -2561,7 +2579,7 @@ function extraireIdentiteCapteeDepuisTexte(texte) {
     if (telephones.length > 1) { plusieurs.telephone = true; }
   }
   var emails = trouves.filter(function (x) { return x.icone === '\uD83D\uDCE7'; });
-  if (emails.length) { valeurs.email = emails[0].valeur; if (emails.length > 1) { plusieurs.email = true; } }
+  if (emails.length) { valeurs.email = _emailNormalise(emails[0].valeur); if (emails.length > 1) { plusieurs.email = true; } }
   var lieux = trouves.filter(function (x) { return x.icone === '\uD83D\uDCCD'; });
   if (lieux.length) {
     var m = /^(\d{5})[ \t]+(.+)$/.exec(lieux[0].valeur);
@@ -8732,7 +8750,11 @@ function ouvrirCarteAccueil(id) {
     orientation: { titre: '<i class="bi bi-signpost-split titre-icone-accent"></i> Vous hésitez encore ?', tuiles: [
       tuile('btnCarteAccueilComparerPistes', 'bi-signpost-split', 'Comparer mes pistes',
         'Mettez deux ou trois pistes, ou deux situations, côte à côte pour choisir en connaissance de cause.')
-    ] }
+    ].concat((typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) ? [
+      // Module « Un CV, plusieurs métiers » : la tuile n'apparait que lorsque le module est ouvert au public (UCPM_OUVERT, modules/un-cv-plusieurs-metiers/logique.js).
+      tuile('btnCarteAccueilUnCvPlusieursMetiers', 'bi-files', 'Un CV, plusieurs métiers',
+        'Un seul CV de départ, plusieurs métiers visés : vos CV, vos phrases d’accroche et vos lettres, préparés pour chacun.')
+    ] : []) }
   };
   var conf = CONFIGS[id];
   if (!conf) { return; }
@@ -8766,6 +8788,9 @@ function ouvrirCarteAccueil(id) {
   if (id === 'orientation') {
     brancher('btnCarteAccueilComparerPistes', function () {
       track('aide_decision_orientation'); fermerFenetreERIP(); naviguerVers('aide-decision-intro');
+    });
+    brancher('btnCarteAccueilUnCvPlusieursMetiers', function () {
+      track('un_cv_plusieurs_metiers'); fermerFenetreERIP(); naviguerVers('un-cv-plusieurs-metiers-intro');
     });
     return;
   }
@@ -11290,6 +11315,7 @@ if (typeof module !== "undefined" && module.exports) {
     detecterCoordonneesSensibles: detecterCoordonneesSensibles,
     fusionnerLecturesOCR: fusionnerLecturesOCR,
     extraireIdentiteCapteeDepuisTexte: extraireIdentiteCapteeDepuisTexte,
+    emailDepuisTexteSansArobase: emailDepuisTexteSansArobase, detecterCoordonneesSensibles: detecterCoordonneesSensibles,
     remplacerPrecisionDansListes: remplacerPrecisionDansListes,
     pointsCertificationsDouteuses: pointsCertificationsDouteuses,
     pointsIncoherencesImport: pointsIncoherencesImport,

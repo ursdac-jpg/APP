@@ -364,6 +364,7 @@
   <script src="modules/cv-word/wordXml.js" charset="UTF-8"></script>
   <script src="modules/cv-word/wordPaquet.js" charset="UTF-8"></script>
   <script src="modules/cv-word/wordExtracteur.js" charset="UTF-8"></script>
+  <script src="modules/cv-word/limitesWord.js" charset="UTF-8"></script>
   <script src="modules/cv-word/wordExport.js" charset="UTF-8"></script>
   <!-- TACHE (chantier "La mise en page du CV", sous-etape 1) : modele de
        reglages canonique + traducteurs. Isole, aucune dependance ; branche a
@@ -510,6 +511,23 @@
   <!-- Module « Comprendre le cadre » (sous-carte de « Se tenir informé »),
        page routée, pure consultation, voir ARCHITECTURE_TECHNIQUE.md du
        module. Chargé avant js/app.js (référencé dans l'objet `routes`). -->
+  <!-- Module « Un CV, plusieurs métiers » (rangé dans « Vous hésitez encore ? »), pages routées, famille 2. Logique pure (logique.js)
+       chargée avant index.js, tout avant js/app.js (routes 'un-cv-plusieurs-metiers' et 'un-cv-plusieurs-metiers-intro'). Plan :
+       docs/PLAN_IMPLEMENTATION_UN_CV_PLUSIEURS_METIERS_2026-10-08.md. -->
+  <script src="modules/un-cv-plusieurs-metiers/logique.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/logiqueMetiers.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/logiqueCv.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/logiqueDocuments.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/index.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/passageAssistant.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page1Cv.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page2Metiers.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/dossierEchange.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page3Reference.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page4Accroches.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page5MesCv.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page6Lettres.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page7Fin.js" charset="UTF-8"></script>
   <script src="modules/comprendre-le-cadre/index.js" charset="UTF-8"></script>
   <!-- Module « Comprendre les chiffres » (2e sous-carte de « Se tenir informé »),
        page routée, pure consultation. Chargé avant js/app.js (référencé dans
