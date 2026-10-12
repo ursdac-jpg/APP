@@ -289,3 +289,23 @@ test('certifications : « sSsT » proche de SST => suggestion ; intitulés exact
   assert.match(pts[0].question, /Vouliez-vous dire « SST »/);
   assert.equal(metiers.pointsCertificationsDouteuses([['a1Bc', 'sSsT', 'Hacpp', 'HccP', 'ssST']], []).length, 3, 'au plus 3 questions par import');
 });
+
+test('courriel écrit sans arobase (un « a » à la place) : reconnu, masquable, et le nom et le prénom en sont tirés (retour de Denis, 2026-10-10)', () => {
+  const NL = String.fromCharCode(10);
+  assert.equal(metiers.emailDepuisTexteSansArobase('josiane.bokenomae a gmail.com'), 'josiane.bokenomae@gmail.com');
+  assert.equal(metiers.emailDepuisTexteSansArobase('josiane.bokenomaeagmail.com'), 'josiane.bokenomae@gmail.com', 'collé : le « a » tient lieu d’arobase');
+  assert.equal(metiers.emailDepuisTexteSansArobase('josiane.bokenomae (at) orange.fr'), 'josiane.bokenomae@orange.fr');
+  assert.equal(metiers.emailDepuisTexteSansArobase('Elle a trouvé un emploi, voir la page gmail.com'), '', 'un texte ordinaire n’est pas pris pour un courriel');
+  const texte = 'BOKENOMAE Josiane' + NL + '07 49 90 77 34' + NL + 'josiane.bokenomae a gmail.com' + NL + 'Assistante de vie';
+  const trouves = metiers.detecterCoordonneesSensibles(texte);
+  assert.ok(trouves.some((t) => t.valeur === 'josiane.bokenomae a gmail.com'), 'la valeur détectée est le texte tel qu’écrit (la croix l’efface)');
+  const r = metiers.extraireIdentiteCapteeDepuisTexte(texte);
+  assert.equal(r.valeurs.email, 'josiane.bokenomae@gmail.com');
+  assert.equal(r.valeurs.nom, 'BOKENOMAE');
+  assert.equal(r.valeurs.prenom, 'Josiane');
+});
+
+test('un vrai courriel n’est pas détecté deux fois', () => {
+  const trouves = metiers.detecterCoordonneesSensibles('Contact : marie.exemple@gmail.com');
+  assert.equal(trouves.filter((t) => t.icone === String.fromCodePoint(0x1F4E7)).length, 1);
+});

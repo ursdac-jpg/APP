@@ -10,13 +10,13 @@ const app = fs.readFileSync(path.join(racine, 'js/app.js'), 'utf8');
 
 test('le prompt du CV demande missionsEnActionProposees (point 20) dans le format JSON', () => {
   assert.ok(prompt.indexOf('20. Propose, dans `missionsEnActionProposees`') !== -1);
-  assert.ok(/"missionsEnActionProposees": \[\s*\{ "texte": "\.\.\.", "illustrePar": \["\.\.\.", "\.\.\."\], "competence": "\.\.\." \}\s*\]/.test(prompt));
-  assert.ok(prompt.indexOf('Pour `missionsEnActionProposees` (voir point 20)') !== -1);
+  // Depuis le 2026-10-10 ce bloc est demandé dans le COMPLÉMENT de CV (second message), en JSON compact.
+  assert.ok(prompt.indexOf('"missionsEnActionProposees":[{"texte":"...","illustrePar":["...","..."],"competence":"..."}]') !== -1);
 });
 
 test('le point 20 garde les règles de prudence décidées par Denis', () => {
   const debut = prompt.indexOf('20. Propose, dans `missionsEnActionProposees`');
-  const fin = prompt.indexOf('## Consignes de fiabilité');
+  const fin = prompt.indexOf('- **Formations**', debut);
   const point = prompt.slice(debut, fin);
   assert.ok(point.indexOf('6 à 10 phrases') !== -1);
   assert.ok(point.indexOf('une liste vide est un résultat normal') !== -1);

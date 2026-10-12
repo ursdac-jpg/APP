@@ -27,3 +27,18 @@ test('regroupement : une expérience que l\'assistant n\'a pas classée n\'est p
   assert.strictEqual(postes.filter((p) => /Auxiliaire de vie/i.test(p)).length, 1);
   assert.strictEqual(postes.length, 4);
 });
+
+test('regroupement : une expérience retenue sans missions dans la réponse reprend les missions déjà décidées pour cette expérience (cv.md ne les redemande plus)', () => {
+  const reg2 = {
+    experiencesRetenues: [{ type: 'professionnelle', poste: 'Auxiliaire de vie sociale', entreprise: 'ADMR', nombreMissionsSuggere: 5, missions: [] }],
+    groupes: []
+  };
+  const r = ctx.composeurAppliquerRegroupementExperiences(objetCV, reg2);
+  const retenue = Array.from(r.experiences).filter((e) => e.poste === 'Auxiliaire de vie sociale')[0];
+  assert.ok(retenue, 'expérience retenue absente');
+  assert.strictEqual(retenue.missions, 'Mission Auxiliaire de vie sociale', 'les missions réelles doivent être reprises');
+  // et quand l'assistant en donne, ce sont les siennes qui servent
+  const reg3 = { experiencesRetenues: [{ type: 'professionnelle', poste: 'Auxiliaire de vie sociale', entreprise: 'ADMR', missions: ['m1', 'm2'] }], groupes: [] };
+  const r3 = ctx.composeurAppliquerRegroupementExperiences(objetCV, reg3);
+  assert.strictEqual(Array.from(r3.experiences).filter((e) => e.poste === 'Auxiliaire de vie sociale')[0].missions, 'm1' + String.fromCharCode(10) + 'm2');
+});
