@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : lettres retravaillées et préparation d'entretien</title>
+<style>
+  :root { --fond: #f0f4fa; --bg-card: #ffffff; --bg-subtle: #f8fafc; --text: #0b1a33; --text-muted: #4a5b6e; --border: #e2e8f0; --border-strong: #d5dbe4; --accent: #0d6efd; --accent-bg-subtle: #eef2fd; --success: #198754; --success-bg: #e6f4ec; --warning: #b45309; --warning-bg: #fdf3e3; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="clair"]) { --fond: #0f1623; --bg-card: #19212f; --bg-subtle: #151d2a; --text: #e8ecf3; --text-muted: #a5b0c0; --border: #2c3748; --border-strong: #3d4a5e; --accent: #6ea8fe; --accent-bg-subtle: #1f2e49; --success: #5fd09a; --success-bg: #17352a; --warning: #f0b25a; --warning-bg: #3a2c14; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9edf3; color: #1c2430; font-family: "Segoe UI", Roboto, system-ui, sans-serif; line-height: 1.5; }
+  @media (prefers-color-scheme: dark) { body { background: #0a0f18; color: #e8ecf3; } }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .chapeau { max-width: 1000px; margin: 0 auto; padding: 14px 16px 6px; }
+  .chapeau h1 { font-size: 1.2rem; margin: 0 0 4px; }
+  .chapeau p { margin: 4px 0; font-size: .92rem; opacity: .85; }
+  .vues { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .bascule { border: 1.5px solid #0d6efd; background: transparent; color: #0d6efd; border-radius: 10px; padding: 6px 12px; font-weight: 600; font-size: .9rem; }
+  .bascule.on { background: #0d6efd; color: #fff; }
+  .scene { max-width: 1000px; margin: 0 auto 30px; padding: 0 16px; }
+  .cadre { background: var(--fond); color: var(--text); border: 1px solid var(--border-strong); border-radius: 14px; padding: 16px 20px 20px; }
+  .vue[hidden] { display: none; }
+  .fil { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin: 2px 0 14px; }
+  .pastille { border: 1.6px solid var(--text); border-radius: 999px; padding: 3px 9px; font-size: 12px; font-weight: 700; }
+  .pastille.courante { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pastille.validee { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+  .pastille.avenir { opacity: .45; }
+  .pastille.facultative { border-style: dashed; }
+  .titre { text-align: center; margin: 6px 0 12px; }
+  .titre h2 { font-size: 1.6rem; font-weight: 900; margin: 0; }
+  .titre p { color: var(--text-muted); margin: 4px 0 0; }
+  .cv-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; margin: 0 0 1rem; }
+  .cv-section h3, .cv-section h4 { margin: 0 0 6px; font-size: 1.1rem; }
+  .discret { color: var(--text-muted); font-size: .9rem; }
+  .encart { border-left: 3px solid var(--accent); background: var(--accent-bg-subtle); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: .92rem; }
+  .encart.alerte { border-left-color: var(--warning); background: var(--warning-bg); }
+  .encart.ok { border-left-color: var(--success); background: var(--success-bg); }
+  .btn-p { background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 6px; padding: 7px 14px; }
+  .btn-s { background: var(--bg-card); color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 7px 14px; }
+  .btn-s:hover { background: var(--accent-bg-subtle); }
+  .btn-g { background: var(--bg-card); color: var(--text); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 14px; }
+  .rangee { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill { border: 1.5px solid var(--accent); color: var(--accent); background: transparent; border-radius: 999px; padding: 4px 12px; font-size: .88rem; font-weight: 600; }
+  .pill.on { background: var(--accent); color: #fff; }
+  textarea, select, input[type=text] { width: 100%; font: inherit; color: var(--text); background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 8px 10px; }
+  textarea { resize: vertical; }
+  label.case { display: flex; gap: .5rem; align-items: flex-start; margin: 0 0 .4rem; cursor: pointer; }
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 1rem; }
+  .mode-carte { border: 2px solid var(--border-strong); border-radius: 12px; padding: 1rem; background: var(--bg-card); cursor: pointer; }
+  .mode-carte.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+  .mode-carte h4 { margin: 0 0 4px; }
+  .mini { width: 78px; height: 110px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-subtle); flex: none; display: grid; place-items: center; font-size: .7rem; color: var(--text-muted); text-align: center; }
+  .carte-cv { display: flex; gap: .8rem; align-items: flex-start; }
+  .barre-bas { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
+  .note-maq { background: var(--warning-bg); border: 1px dashed var(--warning); color: var(--text); border-radius: 8px; padding: 6px 10px; font-size: .85rem; margin: 0 0 12px; }
+  /* Feuille A4 imprimable */
+  .feuille { background: #fff; color: #111; width: 100%; max-width: 794px; aspect-ratio: 794 / 1123; margin: 0 auto; border: 1px solid #bbb; box-shadow: 0 2px 10px rgba(0,0,0,.15); padding: 34px 40px; font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; line-height: 1.4; overflow: hidden; }
+  .feuille h2 { font-size: 18px; margin: 0 0 2px; }
+  .feuille .sous { color: #444; margin: 0 0 10px; border-bottom: 2px solid #333; padding-bottom: 6px; }
+  .feuille .q { margin: 0 0 8px; page-break-inside: avoid; }
+  .feuille .q b.num { display: inline-block; min-width: 18px; }
+  .feuille .q .enonce { font-weight: 700; }
+  .feuille .q .delicate { display: inline-block; border: 1px solid #333; border-radius: 3px; font-size: 9px; font-weight: 700; padding: 0 4px; margin-left: 6px; letter-spacing: .02em; }
+  .feuille .q p { margin: 1px 0 0 18px; }
+  .feuille .q .lib { font-weight: 700; color: #333; }
+  .feuille h3 { font-size: 12.5px; margin: 10px 0 4px; border-left: 4px solid #333; padding-left: 6px; }
+  .feuille ul { margin: 2px 0 0; padding-left: 18px; }
+  .feuille .pied { margin-top: 8px; font-size: 10px; color: #555; border-top: 1px solid #ccc; padding-top: 4px; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .deux { grid-template-columns: 1fr; } .feuille { padding: 18px; } }
+</style>
+</head>
+<body>
+<div class="chapeau">
+  <h1>Maquette : lettres retravaillées et préparation d'entretien (module « Un CV, plusieurs métiers »)</h1>
+  <p>Maquette de concept pour validation de Denis (2026-10-15). Les écrans reprennent le style des pages du module ; à l'implémentation, tous les composants sont ceux de l'application (passage avec l'assistant, panneau de style d'écriture, collage en un clic). Cliquez sur les vues ci-dessous.</p>
+  <div class="vues" id="vues"></div>
+</div>
+<div class="scene"><div class="cadre" id="cadre">
+
+<!-- ====== VUE 1 : page 6, lecture de la lettre ====== -->
+<section class="vue" data-vue="1" data-titre="1. Page 6 : lettre">
+  <div class="fil"><span class="pastille validee">1 Mon CV</span><span class="pastille validee">4 Accroches</span><span class="pastille validee">5 Mes CV</span><span class="pastille courante">6 Lettres</span><span class="pastille avenir">7 Fin</span><span class="pastille avenir facultative">8 Entretiens</span></div>
+  <div class="titre"><h2>Vos lettres de motivation</h2></div>
+  <div class="cv-section"><p style="margin:0">Voici une lettre par CV. Relisez-les et modifiez-les comme vous voulez : ce que vous voyez ici est ce qui sera imprimé.</p></div>
+  <div class="rangee" style="margin-bottom:.8rem"><button class="pill on">CV 1 : Aide-soignante</button><button class="pill">CV 2 : Agent de service hospitalier</button><button class="pill">CV 3 : Auxiliaire de vie</button></div>
+  <div class="cv-section">
+    <p style="margin:0 0 4px"><strong>Lettre du CV 1 : Aide-soignante</strong></p>
+    <p class="discret" style="margin:0 0 8px">Candidature spontanée · adressée à : Madame, Monsieur</p>
+    <textarea rows="7">Madame, Monsieur,
+
+Votre établissement accueille des personnes âgées qui ont besoin d'une présence attentive chaque jour. C'est ce qui motive cette candidature spontanée...
+(texte de la lettre, modifiable à la main comme aujourd'hui)</textarea>
+    <p class="discret" style="margin:6px 0 8px">182 mots</p>
+    <div class="rangee">
+      <button class="btn-g" disabled>Remettre la lettre reçue</button>
+      <button class="btn-p" data-va="2">Retravailler cette lettre avec l'assistant</button>
+    </div>
+    <p class="discret" style="margin:8px 0 0">NOUVEAU : ce bouton existe sur chaque lettre. Vos modifications faites ici partent avec la demande.</p>
+  </div>
+  <div class="barre-bas"><button class="btn-g">&#8592; Retour</button><button class="btn-p" data-va="4">Terminer &#8594;</button></div>
+</section>
+
+<!-- ====== VUE 2 : retravailler une lettre ====== -->
+<section class="vue" data-vue="2" hidden data-titre="2. Retravailler la lettre">
+  <div class="fil"><span class="pastille validee">5 Mes CV</span><span class="pastille courante">6 Lettres</span><span class="pastille avenir">7 Fin</span></div>
+  <div class="titre"><h2>Retravailler une lettre</h2><p>Dites à l'assistant ce que vous voulez changer ou ajouter.</p></div>
+  <div class="note-maq">Même mécanique que « Refaire la demande » : style d'écriture, choix de l'assistant, copie, retour, collage. Aucune nouvelle fenêtre.</div>
+  <div class="cv-section">
+    <h4>Quelle lettre ?</h4>
+    <label class="case"><input type="radio" name="l" checked><span><strong>Lettre du CV 1 : Aide-soignante</strong> <span class="discret">(votre texte actuel, avec vos modifications)</span></span></label>
+    <label class="case"><input type="radio" name="l"><span>Lettre du CV 2 : Agent de service hospitalier</span></label>
+    <label class="case"><input type="radio" name="l"><span>Lettre du CV 3 : Auxiliaire de vie</span></label>
+    <label class="case"><input type="checkbox"><span>Retravailler aussi les autres lettres avec les mêmes remarques</span></label>
+  </div>
+  <div class="cv-section">
+    <h4>Ce que vous voulez changer ou ajouter</h4>
+    <textarea rows="4" placeholder="Exemples : parler de mon stage à l'EHPAD de Bergerac ; faire plus court ; insister sur ma disponibilité en septembre ; un ton plus chaleureux."></textarea>
+    <p class="discret" style="margin:6px 0 0">Ne mettez ici ni votre nom, ni votre téléphone, ni votre adresse : ils ne partent pas.</p>
+  </div>
+  <div class="cv-section">
+    <h4>Réglez le style d'écriture</h4>
+    <p class="discret" style="margin:0 0 6px">Les mêmes réglages qu'à la première demande : niveau de langage, ton, longueur, vocabulaire du métier. Vos choix précédents sont déjà là.</p>
+    <div class="rangee"><button class="pill on">Niveau de langage : courant</button><button class="pill on">Ton : chaleureux</button><button class="pill on">Longueur : moyenne</button></div>
+  </div>
+  <div class="cv-section">
+    <h4>Choisissez votre assistant</h4>
+    <div class="rangee"><button class="btn-s">ChatGPT</button><button class="btn-s">Claude</button><button class="btn-s">Gemini</button><button class="btn-s">Mistral</button></div>
+    <p class="discret" style="margin:8px 0 0">Seuls la lettre, vos remarques, l'objectif et le profil de votre CV de référence sont envoyés.</p>
+  </div>
+  <div class="encart ok">Au retour : la lettre reçue remplace l'ancienne après confirmation, et « Remettre la lettre reçue » garde la version d'avant.</div>
+  <div class="barre-bas"><button class="btn-g" data-va="1">&#8592; Retour</button><span></span></div>
+</section>
+
+<!-- ====== VUE 4 : page 7 ====== -->
+<section class="vue" data-vue="4" hidden data-titre="3. Page 7 : documents">
+  <div class="fil"><span class="pastille validee">6 Lettres</span><span class="pastille courante">7 Fin</span><span class="pastille avenir facultative">8 Entretiens (facultatif)</span></div>
+  <div class="titre"><h2>Vos documents sont prêts</h2></div>
+  <div class="encart ok">Vos documents sont prêts : <strong>3 CV</strong> et <strong>3 lettres</strong>.</div>
+  <div class="cv-section"><h4>Document 1 : mes CV</h4><p class="discret">Un seul PDF de 3 pages.</p><button class="btn-p">Télécharger mes CV (un seul PDF)</button></div>
+  <div class="cv-section"><h4>Document 2 : mes lettres de motivation</h4><p class="discret">Un seul PDF de 3 pages.</p>
+    <div class="rangee"><button class="btn-p">Télécharger mes lettres (un seul PDF)</button><button class="btn-s" data-va="2">Retravailler une lettre avec l'assistant</button></div></div>
+  <div class="cv-section"><h4>Mes CV, un par un</h4>
+    <div class="grille">
+      <div class="cv-section" style="margin:0"><div class="carte-cv"><div class="mini">Aperçu CV 1</div><div><strong>CV 1 : Aide-soignante</strong> <span class="discret">(CV de référence)</span><br><span class="discret">Objectif : Candidature spontanée</span></div></div>
+        <div class="rangee" style="margin-top:8px"><button class="btn-s">Télécharger ce CV</button><button class="btn-s">Télécharger ce CV avec sa lettre</button><button class="btn-s" data-va="7" title="Visible seulement quand la préparation existe">Télécharger la préparation d'entretien</button></div></div>
+      <div class="cv-section" style="margin:0"><div class="carte-cv"><div class="mini">Aperçu CV 2</div><div><strong>CV 2 : Agent de service hospitalier</strong><br><span class="discret">Objectif : Offre d'emploi</span></div></div>
+        <div class="rangee" style="margin-top:8px"><button class="btn-s">Télécharger ce CV</button><button class="btn-s">Télécharger ce CV avec sa lettre</button></div>
+        <p class="discret" style="margin:6px 0 0">Pas encore de préparation pour ce métier.</p></div>
+    </div>
+    <p class="discret" style="margin:8px 0 0">« Ce CV avec sa lettre » ne contient jamais la préparation : <strong>vous envoyez le CV et la lettre ; la préparation est pour vous.</strong></p></div>
+  <div class="cv-section" style="border-left:4px solid var(--accent)"><h4>Document 3 : mes préparations d'entretien <span class="discret">(facultatif)</span></h4>
+    <p class="discret" style="margin:0 0 8px">Une feuille par métier : les questions probables, ce que le recruteur cherche, des pistes pour répondre et des conseils. À garder pour vous.</p>
+    <div class="rangee"><button class="btn-p" data-va="5">Préparer mes entretiens &#8594;</button><button class="btn-s" data-va="7">Télécharger toutes mes préparations (un seul PDF)</button></div>
+    <p class="discret" style="margin:6px 0 0">Le deuxième bouton apparaît quand au moins une préparation existe.</p></div>
+  <div class="cv-section"><h4>Chercher des offres en direct</h4><p class="discret" style="margin:0">(inchangé)</p></div>
+</section>
+
+<!-- ====== VUE 5 : page 8, choix du mode ====== -->
+<section class="vue" data-vue="5" hidden data-titre="4. Page 8 : choix du mode">
+  <div class="fil"><span class="pastille validee">7 Fin</span><span class="pastille courante facultative">8 Entretiens</span></div>
+  <div class="titre"><h2>Préparer mes entretiens</h2><p>Une feuille par métier, à garder pour vous. Ce n'est pas un document à envoyer.</p></div>
+  <div class="grille" style="margin-bottom:1rem">
+    <div class="mode-carte on" id="carteGen"><h4>Une préparation générale</h4><p class="discret" style="margin:0 0 6px">Pour tous vos métiers, ou ceux que vous cochez, en une seule demande. Version courte : 5 à 6 questions, des conseils, ce que vous pouvez mettre en avant.</p><button class="btn-p" data-va="6">Choisir &#8594;</button></div>
+    <div class="mode-carte" id="carteApp"><h4>Une préparation approfondie</h4><p class="discret" style="margin:0 0 6px">Pour un seul métier, plus poussée : 8 à 12 questions, vous choisissez le niveau d'exigence et les sujets abordés.</p><button class="btn-s" data-va="8">Choisir &#8594;</button></div>
+  </div>
+  <div class="encart">Ce n'est pas le même outil que « Préparer un entretien » de l'accueil : celui-ci est une conversation avec l'assistant, ici vous recevez une feuille écrite à imprimer.</div>
+  <div class="barre-bas"><button class="btn-g" data-va="4">&#8592; Retour</button><span></span></div>
+</section>
+
+<!-- ====== VUE 6 : général ====== -->
+<section class="vue" data-vue="6" hidden data-titre="5. Préparation générale">
+  <div class="fil"><span class="pastille courante facultative">8 Entretiens</span></div>
+  <div class="titre"><h2>Préparation générale</h2></div>
+  <div class="cv-section"><h4>Pour quels métiers ?</h4>
+    <div class="rangee" style="margin-bottom:6px"><button class="btn-g">Tout cocher</button><button class="btn-g">Tout décocher</button></div>
+    <label class="case"><input type="checkbox" checked><span><strong>Aide-soignante</strong> <span class="discret">· Candidature spontanée</span></span></label>
+    <label class="case"><input type="checkbox" checked><span><strong>Agent de service hospitalier</strong> <span class="discret">· Offre d'emploi</span></span></label>
+    <label class="case"><input type="checkbox"><span><strong>Auxiliaire de vie</strong> <span class="discret">· Stage</span></span></label>
+    <div class="encart alerte" style="margin-top:8px">Au-delà de 6 métiers cochés, la réponse de l'assistant risque d'être coupée : l'application vous propose alors de faire deux demandes.</div>
+  </div>
+  <div class="cv-section"><h4>Ce qui est prévu pour chaque métier</h4>
+    <ul class="discret" style="margin:0"><li>Niveau : réaliste (questions fréquentes, ton encourageant)</li><li>5 à 6 questions : votre parcours, vos points délicats (périodes sans activité, changement de métier), pourquoi ce métier</li><li>Ce que vous pouvez mettre en avant, et des conseils de savoir-être, d'attitude et de comportement</li></ul>
+    <p class="discret" style="margin:6px 0 0">Pour choisir le niveau d'exigence ou les sujets : « Préparation approfondie », pour un métier à la fois.</p></div>
+  <div class="cv-section"><h4>Choisissez votre assistant</h4>
+    <div class="rangee"><button class="btn-s">ChatGPT</button><button class="btn-s">Claude</button><button class="btn-s">Gemini</button><button class="btn-s">Mistral</button></div>
+    <p class="discret" style="margin:8px 0 0">Seuls le profil de votre CV, le CV de chaque métier et sa lettre (sans signature) sont envoyés : votre nom, votre téléphone et votre adresse ne partent pas. Pas de réglages de rédaction ici : le document n'est pas un texte à écrire.</p></div>
+  <div class="barre-bas"><button class="btn-g" data-va="5">&#8592; Retour</button><button class="btn-g" data-va="9">Voir la feuille obtenue &#8594;</button></div>
+</section>
+
+<!-- ====== VUE 8 : approfondie ====== -->
+<section class="vue" data-vue="8" hidden data-titre="6. Préparation approfondie">
+  <div class="fil"><span class="pastille courante facultative">8 Entretiens</span></div>
+  <div class="titre"><h2>Préparation approfondie</h2><p>Un métier, plus de questions, un niveau d'exigence que vous choisissez.</p></div>
+  <div class="cv-section"><h4>Pour quel métier ?</h4>
+    <label class="case"><input type="radio" name="m" checked><span><strong>Aide-soignante</strong> <span class="discret">· Candidature spontanée</span></span></label>
+    <label class="case"><input type="radio" name="m"><span><strong>Agent de service hospitalier</strong> <span class="discret">· Offre d'emploi</span></span></label>
+    <label class="case"><input type="radio" name="m"><span><strong>Auxiliaire de vie</strong> <span class="discret">· Stage</span></span></label>
+    <div class="encart alerte">Ce métier a déjà une préparation générale. L'approfondie la remplacera après confirmation.</div></div>
+  <div class="cv-section"><h4>Niveau d'exigence</h4>
+    <div class="rangee" id="niveaux">
+      <button class="pill" data-n="r">Rassurant</button><button class="pill on" data-n="re">Réaliste</button><button class="pill" data-n="e">Exigeant</button><button class="pill" data-n="t">Très exigeant</button>
+    </div>
+    <p class="discret" id="txtNiveau" style="margin:8px 0 0">Réaliste : les questions que posent le plus souvent les recruteurs, avec un ton encourageant.</p></div>
+  <div class="cv-section"><h4>Nombre de questions</h4>
+    <div class="rangee"><button class="pill">8</button><button class="pill">10</button><button class="pill on">12</button></div>
+    <p class="discret" style="margin:6px 0 0">Plus de 12 ne tient plus sur une feuille.</p></div>
+  <div class="cv-section"><h4>Sujets à aborder</h4>
+    <div class="deux">
+      <div>
+        <label class="case"><input type="checkbox" checked><span>Mon parcours</span></label>
+        <label class="case"><input type="checkbox" checked><span>Mes points délicats (périodes sans activité, ruptures)</span></label>
+        <label class="case"><input type="checkbox" checked><span>Pourquoi cette entreprise ou cette structure</span></label>
+        <label class="case"><input type="checkbox" checked><span>Pourquoi ce changement de métier ou de secteur</span></label>
+      </div>
+      <div>
+        <label class="case"><input type="checkbox" checked><span>Mes compétences, avec des exemples</span></label>
+        <label class="case"><input type="checkbox"><span>Mises en situation</span></label>
+        <label class="case"><input type="checkbox"><span>Mes qualités et mes défauts</span></label>
+        <label class="case"><input type="checkbox"><span>Disponibilités, contrat, rémunération</span></label>
+      </div>
+    </div>
+    <label class="case" style="margin-top:8px"><input type="checkbox" checked><span>Ajouter pour chaque question une piste pour répondre</span></label></div>
+  <div class="cv-section"><h4>Choisissez votre assistant</h4>
+    <div class="rangee"><button class="btn-s">ChatGPT</button><button class="btn-s">Claude</button><button class="btn-s">Gemini</button><button class="btn-s">Mistral</button></div>
+    <p class="discret" style="margin:8px 0 0">Aucun réglage de style d'écriture ici. Votre nom, votre téléphone et votre adresse ne partent pas.</p></div>
+  <div class="barre-bas"><button class="btn-g" data-va="5">&#8592; Retour</button><button class="btn-g" data-va="10">Voir la feuille obtenue &#8594;</button></div>
+</section>
+
+<!-- ====== VUE 9 : feuille générale ====== -->
+<section class="vue" data-vue="9" hidden data-titre="7. Feuille : générale">
+  <div class="note-maq">Feuille A4 du mode général (texte d'exemple). Le bloc de conseils d'attitude est un texte fixe de l'application, identique sur toutes les feuilles, relu par Denis.</div>
+  <div class="feuille">
+    <h2>Préparer mon entretien : Aide-soignante</h2>
+    <p class="sous">Objectif : candidature spontanée · Document personnel, à ne pas envoyer</p>
+    <div class="q"><span class="enonce"><b class="num">1.</b>Parlez-moi de votre parcours.</span><p><span class="lib">Ce que le recruteur cherche :</span> un fil logique, pas une liste.</p><p><span class="lib">Une piste :</span> partir de votre expérience d'aide à domicile, puis dire ce qui vous mène vers ce poste.</p></div>
+    <div class="q"><span class="enonce"><b class="num">2.</b>Pourquoi ce métier ?</span><p><span class="lib">Ce que le recruteur cherche :</span> une motivation concrète.</p><p><span class="lib">Une piste :</span> citer une situation vécue qui vous a confortée.</p></div>
+    <div class="q"><span class="enonce"><b class="num">3.</b>Que faisiez-vous entre 2022 et 2023 ?<span class="delicate">QUESTION DÉLICATE</span></span><p><span class="lib">Ce que le recruteur cherche :</span> comprendre, pas juger.</p><p><span class="lib">Une piste :</span> dire simplement ce que c'était, puis ce que vous en avez retenu.</p></div>
+    <div class="q"><span class="enonce"><b class="num">4.</b>Pourquoi passer de l'aide à domicile à l'établissement ?<span class="delicate">QUESTION DÉLICATE</span></span><p><span class="lib">Ce que le recruteur cherche :</span> la cohérence du changement.</p><p><span class="lib">Une piste :</span> relier vos acquis (toilette, accompagnement, écoute) au nouveau cadre.</p></div>
+    <div class="q"><span class="enonce"><b class="num">5.</b>Comment réagissez-vous face à une personne agitée ?</span><p><span class="lib">Ce que le recruteur cherche :</span> calme et méthode.</p><p><span class="lib">Une piste :</span> raconter une vraie situation en trois temps.</p></div>
+    <h3>Ce que vous pouvez mettre en avant</h3>
+    <ul><li>Votre expérience auprès de personnes âgées (4 ans à domicile).</li><li>Votre diplôme et votre formation aux gestes de soin.</li><li>Votre disponibilité et votre permis B.</li></ul>
+    <h3>Savoir-être, attitude et comportement</h3>
+    <div class="deux"><ul><li><b>Avant :</b> arriver 10 minutes en avance ; relire votre CV.</li><li><b>Tenue :</b> propre, sobre, confortable.</li></ul><ul><li><b>Pendant :</b> regarder la personne, écouter jusqu'au bout, répondre avec des exemples.</li><li><b>Après :</b> remercier ; envoyer un court message dans les 48 h.</li></ul></div>
+    <div class="pied">Il est normal d'hésiter. Une réponse simple et vraie vaut mieux qu'une réponse parfaite.</div>
+  </div>
+  <div class="barre-bas"><button class="btn-g" data-va="6">&#8592; Retour</button><button class="btn-p" data-va="4">Terminer &#8594;</button></div>
+</section>
+
+<!-- ====== VUE 10 : feuille approfondie ====== -->
+<section class="vue" data-vue="10" hidden data-titre="8. Feuille : approfondie">
+  <div class="note-maq">Feuille A4 du mode approfondi (niveau « Exigeant », 12 questions : 6 affichées ici, le reste suit le même modèle ; aux niveaux Exigeant et Très exigeant, une relance du recruteur s'ajoute sous la piste ; une préparation approfondie peut occuper deux pages A4, voir D7).</div>
+  <div class="feuille" style="font-size:10.5px">
+    <h2>Préparer mon entretien : Aide-soignante · niveau exigeant</h2>
+    <p class="sous">Objectif : offre d'emploi · Document personnel, à ne pas envoyer</p>
+    <div class="q"><span class="enonce"><b class="num">1.</b>Pourquoi devrions-nous vous choisir plutôt qu'un autre candidat ?</span><p><span class="lib">Attente :</span> trois atouts précis. <span class="lib">Piste :</span> expérience, fiabilité, disponibilité, chacun avec un fait.<br><span class="lib">Il peut relancer :</span> Et qu'est-ce qui le prouve ?</p></div>
+    <div class="q"><span class="enonce"><b class="num">2.</b>Votre CV montre une interruption de deux ans. Expliquez-la.<span class="delicate">DÉLICATE</span></span><p><span class="lib">Attente :</span> franchise et recul. <span class="lib">Piste :</span> dire les faits en deux phrases, puis ce que cette période vous a appris.<br><span class="lib">Il peut relancer :</span> Qu'avez-vous fait concrètement pendant ce temps ?</p></div>
+    <div class="q"><span class="enonce"><b class="num">3.</b>Vous n'avez jamais travaillé en établissement. Pourquoi cela marcherait ?<span class="delicate">DÉLICATE</span></span><p><span class="lib">Attente :</span> capacité d'adaptation. <span class="lib">Piste :</span> citer ce qui se transpose et ce que vous êtes prête à apprendre.<br><span class="lib">Il peut relancer :</span> Citez un exemple précis de ce qui se transpose.</p></div>
+    <div class="q"><span class="enonce"><b class="num">4.</b>Que savez-vous de notre structure ?</span><p><span class="lib">Attente :</span> un vrai intérêt. <span class="lib">Piste :</span> trois repères trouvés sur leur site, jamais inventés.</p></div>
+    <div class="q"><span class="enonce"><b class="num">5.</b>Un résident refuse sa toilette. Que faites-vous ?</span><p><span class="lib">Attente :</span> respect et méthode. <span class="lib">Piste :</span> écouter, proposer, demander conseil à l'équipe.</p></div>
+    <div class="q"><span class="enonce"><b class="num">6.</b>Votre principal défaut ?</span><p><span class="lib">Attente :</span> lucidité. <span class="lib">Piste :</span> un vrai défaut, plus ce que vous faites pour le gérer.</p></div>
+    <p style="margin:2px 0 6px;color:#555">... questions 7 à 12 sur le même modèle.</p>
+    <h3>À mettre en avant</h3><ul><li>4 ans auprès de personnes âgées ; diplôme ; permis B ; disponibilité.</li></ul>
+    <h3>Attitude et comportement</h3><ul><li>10 minutes en avance, tenue sobre ; écoute jusqu'au bout ; réponses avec des exemples ; remerciement dans les 48 h.</li></ul>
+    <div class="pied">Il est normal d'hésiter. Une réponse simple et vraie vaut mieux qu'une réponse parfaite.</div>
+  </div>
+  <div class="barre-bas"><button class="btn-g" data-va="8">&#8592; Retour</button><button class="btn-p" data-va="4">Terminer &#8594;</button></div>
+</section>
+
+<!-- ====== VUE 7 : PDF groupé ====== -->
+<section class="vue" data-vue="7" hidden data-titre="9. Impression">
+  <div class="titre"><h2>Ce qui est téléchargé</h2></div>
+  <div class="cv-section"><h4>Toutes mes préparations (un seul PDF)</h4><p class="discret" style="margin:0">Une page A4 par métier, dans l'ordre des CV : préparation du CV 1, préparation du CV 2... Jamais de CV ni de lettre dans ce fichier.</p></div>
+  <div class="cv-section"><h4>Une préparation (bouton sur la carte du CV)</h4><p class="discret" style="margin:0">Une seule page A4, nommée comme « préparation_NOM_métier.pdf ».</p></div>
+  <div class="cv-section"><h4>« Ce CV avec sa lettre » (inchangé)</h4><p class="discret" style="margin:0">Deux pages : le CV, puis la lettre. La préparation n'y est jamais ajoutée, pour qu'on n'envoie pas trois documents à l'employeur.</p></div>
+  <div class="barre-bas"><button class="btn-g" data-va="4">&#8592; Retour à la page 7</button><span></span></div>
+</section>
+
+</div></div>
+<script>
+(function () {
+  var vues = Array.prototype.slice.call(document.querySelectorAll('.vue'));
+  var barre = document.getElementById('vues');
+  vues.sort(function (a, b) { return parseInt(a.getAttribute('data-titre'), 10) - parseInt(b.getAttribute('data-titre'), 10); });
+  function montrer(n) {
+    vues.forEach(function (v) { v.hidden = v.getAttribute('data-vue') !== String(n); });
+    Array.prototype.forEach.call(barre.children, function (b) { b.classList.toggle('on', b.getAttribute('data-v') === String(n)); });
+    window.scrollTo(0, 0);
+  }
+  vues.forEach(function (v) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'bascule';
+    b.setAttribute('data-v', v.getAttribute('data-vue')); b.textContent = v.getAttribute('data-titre');
+    b.addEventListener('click', function () { montrer(v.getAttribute('data-vue')); });
+    barre.appendChild(b);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-va]'), function (el) {
+    el.addEventListener('click', function () { montrer(el.getAttribute('data-va')); });
+  });
+  var textes = { r: 'Rassurant : les questions les plus classiques, avec un ton encourageant et beaucoup d’aide pour répondre.', re: 'Réaliste : les questions que posent le plus souvent les recruteurs, avec un ton encourageant.', e: 'Exigeant : un recruteur direct, des questions plus précises et des relances sur vos exemples.', t: 'Très exigeant : questions de déstabilisation, cas pratiques et relances serrées. Pour s’entraîner quand on se sent déjà prêt(e).' };
+  Array.prototype.forEach.call(document.querySelectorAll('#niveaux .pill'), function (p) {
+    p.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('#niveaux .pill'), function (q) { q.classList.remove('on'); });
+      p.classList.add('on'); document.getElementById('txtNiveau').textContent = textes[p.getAttribute('data-n')];
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.rangee .pill'), function (p) {
+    if (p.closest('#niveaux')) { return; }
+    p.addEventListener('click', function () {
+      var parent = p.parentNode; if (parent.querySelector('.pill.on') && parent.children.length <= 4 && /^\d+$/.test(p.textContent)) {
+        Array.prototype.forEach.call(parent.children, function (q) { q.classList.remove('on'); }); p.classList.add('on');
+      }
+    });
+  });
+  montrer(1);
+})();
+</script>
+</body>
+</html>

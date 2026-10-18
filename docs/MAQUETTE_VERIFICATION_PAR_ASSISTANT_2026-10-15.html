@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : faire vérifier un changement par un assistant</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--ko:#b3261e}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--ko:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 60px}
+.page{max-width:1000px;margin:0 auto}
+h1{font-size:1.5rem;margin:1.2rem 0 .3rem}h2{font-size:1.2rem;margin:2.2rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.3rem}h3{font-size:1rem;margin:1rem 0 .3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:999px;padding:.35rem .9rem;font-weight:600}
+.btn.plein{background:var(--acc);color:var(--card)}.btn.ok{border-color:var(--ok);color:var(--ok)}.btn.ko{border-color:var(--ko);color:var(--ko)}.btn[disabled]{opacity:.5;cursor:not-allowed}
+.theme{position:fixed;top:10px;right:10px;z-index:5}
+.rouge{color:#c0261b;font-weight:800}[data-theme="sombre"] .rouge{color:#ff8a80}
+.carte{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.8rem 1rem;margin:.8rem 0}
+.etape{display:flex;gap:.7rem;margin:.6rem 0}.etape .n{flex:0 0 1.8rem;height:1.8rem;border-radius:50%;background:var(--acc);color:var(--card);font-weight:800;display:flex;align-items:center;justify-content:center}
+.zone{width:100%;min-height:5rem;border:1px dashed var(--bord);border-radius:8px;background:var(--sub);color:var(--muted);padding:.5rem .7rem;font:.85rem ui-monospace,Consolas,monospace}
+pre{white-space:pre-wrap;background:var(--sub);border:1px solid var(--bord);border-radius:8px;padding:.7rem .9rem;font:.82rem/1.45 ui-monospace,Consolas,monospace;margin:.5rem 0}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:.5rem 0}th,td{border:1px solid var(--bord);padding:.4rem .5rem;vertical-align:top;text-align:left}th{background:var(--sub)}
+.prop{background:var(--okbg)}.manque{background:var(--warnbg)}
+.pastille{display:inline-block;border-radius:999px;padding:.05rem .6rem;font-size:.75rem;font-weight:700;background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+</style>
+</head>
+<body data-theme="clair">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<div class="page">
+<h1>Maquette : faire vérifier un changement par un assistant</h1>
+<p class="muted">Idée de Denis du 2026-10-15, pour l'outil de veille (sas des changements). <b>Rien n'est codé.</b> <span class="rouge">EFFORT : HAUT</span> pour cette conception (Mode A : texte du prompt, règle de confiance), puis <span class="rouge">EFFORT : MOYEN</span> pour la réalisation (Mode B).</p>
+
+<h2>1. Le parcours en 5 temps</h2>
+<div class="etape"><span class="n">1</span><span>Sur la carte d'un changement : <button class="btn" type="button">Faire vérifier par un assistant</button> copie un prompt prêt à coller (le changement tel qu'il est écrit, et ce qu'on veut savoir).</span></div>
+<div class="etape"><span class="n">2</span><span>Vous collez le prompt chez l'assistant de votre choix, il répond. Vous copiez sa réponse.</span></div>
+<div class="etape"><span class="n">3</span><span>Vous revenez sur la carte et vous collez la réponse dans la zone « Réponse de l'assistant ». L'outil la lit tout seul.</span></div>
+<div class="etape"><span class="n">4</span><span>L'outil montre, case par case, la valeur <b>actuelle</b> et la valeur <b>proposée</b>, avec la page où l'assistant dit l'avoir lue. Vous cochez ce que vous gardez, puis « Remplir les cases ».</span></div>
+<div class="etape"><span class="n">5</span><span>Vous ouvrez la source, vous cochez « J'ai ouvert la source et je confirme », puis « C'est bon, publier ». <b>Rien ne se publie sans ce dernier geste.</b></span></div>
+
+<h2>2. L'écran sur une carte (exemple : « Référentiel unique… »)</h2>
+<div class="carte">
+<b>Référentiel unique des niveaux de prise en charge des contrats d'apprentissage</b> <span class="pastille">date à compléter</span>
+<p class="small muted">Aperçu, cases du changement… (comme aujourd'hui)</p>
+<p><button class="btn plein" type="button">Faire vérifier par un assistant</button> <span class="small muted">Le prompt est copié. Collez-le chez l'assistant, puis collez sa réponse ci-dessous.</span></p>
+<p class="small"><b>Réponse de l'assistant</b></p>
+<div class="zone">[VERIFICATION]  … la réponse collée ici …</div>
+<p><button class="btn" type="button">Lire la réponse</button></p>
+
+<p class="small"><b>Ce que l'assistant propose</b> (statut annoncé : <b>corrigé</b>)</p>
+<table>
+<tr><th>Garder</th><th>Case</th><th>Actuel</th><th>Proposé</th><th>Page où il l'a lu</th></tr>
+<tr class="prop"><td>☑</td><td>En vigueur le</td><td class="manque">(vide)</td><td><b>2026-09-01</b></td><td>normandie.dreets.gouv.fr/… <button class="btn" type="button">Ouvrir</button><br><span class="small muted">« Ils s'appliquent donc à tous les contrats d'apprentissage conclus à compter du 1er septembre 2026. »</span></td></tr>
+<tr class="prop"><td>☑</td><td>Nature et date du texte</td><td>publication France competences, publié le 2026-08-31</td><td><b>publication de France compétences du 31 août 2026, à la suite du décret n° 2026-832 du 29 août 2026</b></td><td>francecompetences.fr/fiche/… <button class="btn" type="button">Ouvrir</button></td></tr>
+<tr class="prop"><td>☑</td><td>Titre de la source</td><td>Actualités</td><td><b>Le référentiel complet des niveaux de prise en charge des contrats d'apprentissage</b></td><td>(même page)</td></tr>
+<tr class="prop"><td>☑</td><td>Adresse de la source</td><td>https://www.francecompetences.fr/</td><td><b>https://www.francecompetences.fr/fiche/…-npec/</b></td><td>(même page)</td></tr>
+<tr><td>☐</td><td>Ce qui change</td><td>publication d'un référentiel unique…</td><td><span class="muted">inchangé : pas de proposition</span></td><td></td></tr>
+<tr><td>☐</td><td>Public concerné</td><td>CFA, OPCO, employeurs d'apprentis</td><td><span class="muted">inchangé</span></td><td></td></tr>
+</table>
+<p><button class="btn plein" type="button">Remplir les cases cochées</button> <span class="small muted">Les cases remplies portent la mention « proposé par l'assistant ».</span></p>
+<p class="small"><label>☐ J'ai ouvert la source et je confirme ces informations</label></p>
+<p><button class="btn ok" type="button" disabled>C'est bon, publier (date du jour)</button> <span class="small muted">Grisé tant que la case « J'ai ouvert la source » n'est pas cochée (uniquement quand des cases viennent d'un assistant).</span></p>
+</div>
+
+<h2>3. Le prompt (ce que « Faire vérifier » copie)</h2>
+<p class="muted small">Il réutilise le « socle de recherche commun » de l'outil (une seule source de vérité, <code>socleRecherche()</code>), puis ajoute le changement et le format de réponse. Le texte entre crochets est rempli par l'outil.</p>
+<pre>Nous sommes le [date du jour]. [SOCLE DE RECHERCHE COMMUN : recherche web obligatoire, uniquement des pages réellement ouvertes, jamais de date ni d'adresse inventée, « à vérifier » à la place, relais si un site officiel est bloqué]
+
+Je tiens un résumé trimestriel des changements officiels (emploi, formation, droits sociaux, séjour) destiné à des personnes en insertion professionnelle. Je dois contrôler UN changement avant de le publier. Voici ce qui est écrit aujourd'hui :
+
+Domaine : [domaine]
+Intitulé : [intitulé]
+Nature et date du texte : [nature]
+En vigueur le : [en_vigueur ou « (vide) »]
+Public concerné : [concerne]
+Ce qui change : [ce_qui_change]
+Source indiquée : [titre de la source], [adresse]
+
+Ta mission :
+1. Ouvre la source indiquée. Si elle est illisible, trouve la page officielle précise (ou un relais fiable) et dis-le.
+2. Pour chacune des cases ci-dessous, dis si ce qui est écrit est confirmé, à corriger, ou introuvable.
+3. N'écris une valeur que si tu l'as lue sur une page que tu as ouverte, et donne la page (adresse complète) ainsi qu'une courte citation de ce que tu as lu (15 mots au plus). Ne reformule pas de mémoire.
+4. La date « en vigueur le » est la date à partir de laquelle le texte s'applique. Si le texte s'applique à partir d'un événement (par exemple « aux contrats conclus à compter du ... »), écris cette date. Distingue-la de la date de publication.
+5. Si une case est introuvable, écris « non trouvé ». Si une case est déjà exacte, écris « inchangé ». Ne propose jamais de tiret long.
+
+Réponds UNIQUEMENT par ce bloc, rien avant ni après :
+
+[VERIFICATION]
+statut: confirmé | corrigé | partiel | introuvable
+en_vigueur: AAAA-MM-JJ  (ou « prévu AAAA-MM-JJ » si pas encore en vigueur, ou « sans objet » pour une simple information, ou « non trouvé »)
+en_vigueur_page: adresse complète de la page où tu l'as lu
+en_vigueur_citation: courte citation
+nature: texte proposé, ou « inchangé »
+nature_page: adresse complète
+concerne: texte proposé, ou « inchangé »
+ce_qui_change: texte proposé (une ou deux phrases), ou « inchangé »
+ce_qui_change_page: adresse complète
+source_titre: titre exact de la page précise, ou « inchangé »
+source_url: adresse complète de la page précise, ou « inchangé »
+remarque: une phrase maximum sur ce que tu n'as pas pu confirmer
+[/VERIFICATION]</pre>
+
+<h3>Ce que l'outil fait de la réponse</h3>
+<table>
+<tr><th>Ce que dit la réponse</th><th>Ce que fait l'outil</th></tr>
+<tr><td>« non trouvé », « inchangé », « à vérifier », ou case absente</td><td>Aucune proposition : la case garde sa valeur.</td></tr>
+<tr><td>Date qui n'est pas au format AAAA-MM-JJ (ou « prévu… », ou « sans objet »)</td><td>Refusée avec la raison (« date mal écrite »), la case n'est pas remplie.</td></tr>
+<tr><td>Adresse qui ne commence pas par https://</td><td>Refusée.</td></tr>
+<tr><td>Texte qui contient « à vérifier », un tiret long</td><td>Refusé (mêmes contrôles que « C'est bon »).</td></tr>
+<tr><td>Valeur identique à l'actuelle</td><td>Signalée « déjà exact », rien à remplir.</td></tr>
+<tr><td>Pas de page indiquée pour une valeur proposée</td><td>La proposition est affichée avec « aucune page indiquée : à confirmer » et n'est pas cochée d'office.</td></tr>
+<tr><td>Réponse illisible (le bloc [VERIFICATION] manque)</td><td>Message clair : « Je ne trouve pas le bloc [VERIFICATION]. Redemandez à l'assistant de répondre uniquement par ce bloc. »</td></tr>
+</table>
+
+<h2>4. Les garde-fous (rien ne se publie par erreur)</h2>
+<ul>
+<li><b>L'assistant propose, vous décidez.</b> L'outil remplit des cases ; « C'est bon, publier » reste votre clic, avec les mêmes contrôles qu'aujourd'hui (date au bon format, source en https, jamais « à vérifier »).</li>
+<li><b>Confirmation à la source obligatoire</b> dès qu'une case vient d'un assistant : la case « J'ai ouvert la source et je confirme » doit être cochée avant de pouvoir publier. Raison réelle : le texte collé hier mêlait du vérifié (titre, date, décret) et de l'invérifié (description complète).</li>
+<li><b>Traçabilité</b> : les cases remplies portent « proposé par l'assistant » jusqu'à la publication ; la page citée reste visible avec un bouton « Ouvrir ».</li>
+<li><b>Le prompt, comme les autres</b>, est écrit dans <code>docs/VEILLE_PROMPTS.md</code> et construit par l'outil (une seule source de vérité) ; jamais le mot « IA » dans ce qui s'affiche : on dit « l'assistant ».</li>
+</ul>
+
+<h2>5. Ce qui est simple et ce qui est risqué</h2>
+<div class="verdict"><b>Verdict de faisabilité : GO.</b> <b>Simple</b> : le bouton, la copie du prompt et la zone de collage reprennent le modèle des autres écrans de l'outil (collage d'une réponse, lecture d'un bloc entre crochets comme <code>[BALAYAGE]</code>). <b>Risqué</b> : (1) les assistants ne respectent pas toujours le format, d'où le message clair et le bouton « Copier une demande de correction » comme pour le sas des structures ; (2) un assistant peut citer une page qui ne dit pas ce qu'il prétend : c'est pour cela que la confirmation à la source est obligatoire. <b>Aucun point bloquant.</b></div>
+
+<h2>6. Décisions à prendre</h2>
+<table>
+<tr><th>Question</th><th>Options (bénéfice / risque)</th><th>Ma recommandation</th></tr>
+<tr><td><b>D1. Cases cochées d'office dans « Ce que l'assistant propose »</b></td>
+<td><b>A. Cochées quand une page est indiquée</b> (sauf « Ce qui change »). Bénéfice : un clic de moins. Risque : vous pourriez ne pas relire.<br><b>B. Toutes décochées.</b> Bénéfice : vous choisissez en connaissance de cause. Risque : un clic de plus par case.</td>
+<td><b>A</b>, avec « Ce qui change » décoché d'office (c'est le texte lu par le public et celui où l'assistant se trompe le plus).</td></tr>
+<tr><td><b>D2. Case « J'ai ouvert la source et je confirme »</b></td>
+<td><b>A. Obligatoire</b> dès qu'une case vient d'un assistant. Bénéfice : impossible de publier sans avoir regardé la source. Risque : un geste de plus.<br><b>B. Facultative.</b> Bénéfice : plus rapide. Risque : on publie une information jamais ouverte.</td>
+<td><b>A</b>.</td></tr>
+<tr><td><b>D3. Où placer le bouton</b></td>
+<td><b>A. Sur chaque carte du sas</b>, à côté de « Ouvrir la source ». <b>B. Seulement sur les cartes « à compléter ».</b></td>
+<td><b>A</b> (utile aussi pour reconfirmer un changement déjà publié).</td></tr>
+<tr><td><b>D4. Plusieurs changements dans un seul prompt</b></td>
+<td>Plus tard (Option 3 de mon message précédent), après avoir essayé le prompt d'un seul changement sur de vraies réponses.</td><td>Pas maintenant.</td></tr>
+</table>
+
+<div class="q"><b>Questions pour vous.</b> Relisez surtout le <b>texte du prompt</b> (section 3) : c'est lui qui décide de la qualité des réponses. D1 : A ? D2 : A ? D3 : A ? Si oui, je code (Mode B), j'essaie sur le changement « Référentiel unique » avec la réponse que vous m'avez collée, puis je vous demande un vrai essai avec votre assistant habituel.</div>
+</div>
+<script>
+document.getElementById('bascule').addEventListener('click',function(){var s=document.body.getAttribute('data-theme')==='sombre';document.body.setAttribute('data-theme',s?'clair':'sombre');this.textContent=s?'Mode sombre':'Mode clair';});
+</script>
+</body>
+</html>

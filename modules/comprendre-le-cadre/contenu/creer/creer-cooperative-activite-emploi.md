@@ -7,7 +7,7 @@ tags: [coopérative d'activité et d'emploi, CAE, CAPE, entrepreneur salarié, C
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "coopérative d'activité et d'emploi"
     definition: "Structure qui héberge des entrepreneurs : ils développent leur activité sous le numéro de la coopérative, avec un contrat de travail et un accompagnement."

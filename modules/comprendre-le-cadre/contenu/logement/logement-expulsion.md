@@ -7,7 +7,7 @@ tags: [expulsion, loyers impayés, commandement de payer, trêve hivernale, juge
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "commandement de payer"
     definition: "Document remis par un commissaire de justice qui réclame les loyers en retard. Il ouvre un délai de six semaines pour régler ou trouver un accord."

@@ -24,9 +24,11 @@
 .mep-mq .cartes-haut { display: grid; grid-template-columns: 1fr 1fr; gap: 0.525rem; margin-bottom: 0.4813rem; }
 .mep-mq .ligne-action { display: flex; gap: 0.35rem; align-items: stretch; min-width: 0; }
 .mep-mq .ligne-action .carte-action.retreci { flex: 1; min-width: 0; }
-.mep-mq .ligne-action .carte-action.retreci b,
-.mep-mq .ligne-action .carte-action.retreci small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mep-mq .mini-action { flex: 0 0 auto; width: 1.8812rem; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; font-size: 0.9188rem; cursor: pointer; }
+.mep-mq .ligne-action .carte-action.retreci b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Boutons « Style rapide » et « Mise en page » agrandis d'environ un quart (retour de Denis, 2026-10-15) : l'explication passe à la ligne au lieu d'être coupée. */
+.mep-mq .ligne-action .carte-action.retreci small { overflow: visible; white-space: normal; }
+/* Contour prononcé des petits boutons « Revenir au tirage précédent », « Revenir au modèle de départ » et « Revenir à avant la dernière mise en page » (retour de Denis, 2026-10-15). */
+.mep-mq .mini-action { flex: 0 0 auto; width: 2.1rem; border: 2px solid var(--accent); background: var(--bg-card); color: var(--text-strong); border-radius: 10px; font-size: 1.05rem; cursor: pointer; }
 .mep-mq .mini-action:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-hover); }
 .mep-mq .mini-action:disabled { opacity: .32; cursor: default; }
 /* TACHE (retour Denis 2026-09-27, P5) : "Style au hasard" / "Mise en page"
@@ -34,12 +36,12 @@
    meme fin liseré) - rien ne signalait que ce sont des boutons. Fond plein
    dans la couleur d'accent (meme langage que les boutons primaires du
    reste de l'application), jamais juste un contour. */
-.mep-mq .carte-action { display: flex; gap: 0.7rem; align-items: center; border: none; background: var(--accent);
-    border-radius: var(--radius); padding: 0.3937rem 0.6125rem; text-align: left; color: #fff; width: 100%; box-shadow: var(--shadow); }
+.mep-mq .carte-action { display: flex; gap: 0.7rem; align-items: center; border: 2px solid var(--accent-hover); background: var(--accent);
+    border-radius: var(--radius); padding: 0.5rem 0.75rem; text-align: left; color: #fff; width: 100%; box-shadow: 0 2px 8px rgba(13, 80, 200, 0.35); }
 .mep-mq .carte-action:hover { background: var(--accent-hover); }
-.mep-mq .carte-action .emo { width: 1.75rem; height: 1.75rem; border-radius: 8px; background: rgba(255, 255, 255, 0.22); display: grid; place-items: center; font-size: 1.0938rem; flex: 0 0 auto; color: #fff; }
-.mep-mq .carte-action b { display: block; font-size: 0.7875rem; color: #fff; }
-.mep-mq .carte-action small { color: rgba(255, 255, 255, 0.85); font-size: 0.665rem; display: block; line-height: 1.2; }
+.mep-mq .carte-action .emo { width: 2.2rem; height: 2.2rem; border-radius: 9px; background: rgba(255, 255, 255, 0.26); display: grid; place-items: center; font-size: 1.37rem; flex: 0 0 auto; color: #fff; }
+.mep-mq .carte-action b { display: block; font-size: 0.98rem; font-weight: 800; color: #fff; }
+.mep-mq .carte-action small { color: rgba(255, 255, 255, 0.92); font-size: 0.8325rem; display: block; line-height: 1.25; }
 .mep-mq .carte-action .chev { margin-left: auto; color: #fff; font-size: 1.05rem; }
 .mep-mq .duo { display: grid; grid-template-columns: 1fr 1.25fr; gap: 0.525rem; margin-bottom: 0.4813rem; }
 .mep-mq details.mep-carte,
@@ -481,7 +483,7 @@
 
 /* Mode sombre : le bleu clair de l'accent ne donnait que 3 sur 1 de contraste avec le texte blanc des deux grandes cartes (« Style rapide », « Mise en page »).
    Bleu plus profond et texte plein : environ 4,9 sur 1 (controle du 2026-09-30). */
-[data-theme="sombre"] .mep-mq .carte-action { background: #2b6cd9; }
+[data-theme="sombre"] .mep-mq .carte-action { background: #2b6cd9; border-color: #8fb4ff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55); }
 [data-theme="sombre"] .mep-mq .carte-action:hover { background: #2358b3; }
 [data-theme="sombre"] .mep-mq .carte-action small { color: #fff; }
 

@@ -7,7 +7,7 @@ tags: [rupture conventionnelle, CDI, indemnité, homologation, administration du
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "rupture conventionnelle"
     definition: "Fin d'un CDI décidée d'un commun accord entre l'employeur et le salarié. Ce n'est ni un licenciement, ni une démission."

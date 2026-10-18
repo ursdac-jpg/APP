@@ -23,24 +23,9 @@ sources:
 structures:
   - "point-conseil-budget-annuaire | Points conseil budget : accompagnement budgétaire gratuit et confidentiel, aide au dossier de surendettement. Annuaire par territoire. | https://lannuaire.service-public.gouv.fr/navigation/pcb | 2026-09-04"
   - "mesquestionsdargent-pcb | Mes questions d'argent (Banque de France) : trouver un point conseil budget, information sur le budget et l'endettement | https://www.mesquestionsdargent.fr/ | 2026-09-04"
-  - "banque-france-succursales | Succursales de la Banque de France : dépôt d'un dossier de surendettement, droit au compte, droit d'accès aux fichiers. Une par département (Périgueux pour la Dordogne). | https://www.banque-france.fr/fr/la-banque-de-france/organisation/le-reseau-de-la-banque-de-france | 2026-09-04"
-  - "ccas-mairie | Centre communal d'action sociale (CCAS) de la commune : aide sociale, domiciliation, instruction du RSA, orientation vers le microcrédit et le point conseil budget | https://lannuaire.service-public.gouv.fr/navigation/ccas | 2026-09-04"
   - "conseil-departemental-dordogne-insertion | Conseil départemental de la Dordogne, services d'insertion : accompagnement des allocataires du RSA, fonds d'aide aux jeunes, fonds de solidarité pour le logement | https://www.dordogne.fr/ | 2026-09-04"
-  - "caf-dordogne | CAF de la Dordogne : RSA, prime d'activité, aides ponctuelles, travailleurs sociaux de la CAF | https://www.caf.fr/allocataires/caf-de-la-dordogne | 2026-09-04"
-  - "msa-dordogne-lot-et-garonne | MSA Dordogne, Lot-et-Garonne, Landes : RSA, prime d'activité et action sociale pour les personnes relevant du régime agricole | https://www.msa-dordogne.fr/ | 2026-09-04"
-  - "udaf-dordogne | UDAF de la Dordogne : point conseil budget, microcrédit personnel accompagné, information et soutien au budget familial | https://www.udaf24.fr/ | 2026-09-04"
-  - "cresus-nouvelle-aquitaine | Fédération CRÉSUS : prévention du surendettement, accompagnement budgétaire, plateforme d'alerte | https://www.cresus.org/ | 2026-09-04"
-  - "croix-rouge-secours-catholique-microcredit | Croix-Rouge française, Secours catholique, Restos du Cœur, Familles rurales : réseaux accompagnants habilités pour le microcrédit personnel | https://www.france-microcredit.org/ | 2026-09-04"
-  - "restos-du-coeur-dordogne | Les Restos du Cœur, association départementale de la Dordogne : paniers-repas (sur inscription), repas chauds et Camions du Cœur (sans condition), aide aux démarches | https://ad24.restosducoeur.org/ | 2026-09-04"
-  - "banque-alimentaire-dordogne | Banque alimentaire de la Dordogne : approvisionne les associations locales qui distribuent des colis | https://www.banquealimentaire.org/ | 2026-09-04"
-  - "secours-populaire-dordogne | Secours populaire français, fédération de la Dordogne : aide alimentaire, aide d'urgence, accès aux droits | https://www.secourspopulaire.fr/ | 2026-09-04"
-  - "epiceries-sociales-solidaires | Épiceries sociales et solidaires : achat de produits à 10 à 30 % du prix, sur orientation d'un travailleur social | https://www.andes-france.com/ | 2026-09-04"
-  - "asso-udaf-87 | UDAF de la Haute-Vienne : point conseil budget et plateforme de microcrédit personnel garanti pour la Haute-Vienne, à Limoges (87) | https://www.udaf87.fr/ | 2026-09-06"
-  - "asso-restos-du-coeur-87 | Les Restos du Cœur, association départementale de la Haute-Vienne : aide alimentaire (paniers-repas, repas chauds), et aussi aide au logement, à l'emploi, aux démarches, cours de français, à Feytiat (87) | https://ad87.restosducoeur.org/ | 2026-09-07"
-  - "asso-banque-alimentaire-87 | Banque alimentaire de la Haute-Vienne : collecte et redistribue des denrées à une soixantaine d'associations et de CCAS du département qui distribuent des colis, à Limoges (87) | https://ba87.banquealimentaire.org/ | 2026-09-07"
   - "asso-mission-locale-du-bergeracois-24 | Mission locale du Bergeracois : fonds d'aide aux jeunes pour un besoin urgent (transport, hébergement, alimentation) et orientation budget pour les 16-25 ans du Sud Dordogne (24) | https://www.missionlocaledubergeracois.com/ | 2026-09-07"
   - "asso-mission-locale-du-grand-perigueux-24 | Mission locale du Grand Périgueux : fonds d'aide aux jeunes pour un besoin urgent (transport, hébergement, alimentation) et orientation budget pour les 16-25 ans du Grand Périgueux (24) | https://www.ml-grandperigueux.fr/ | 2026-09-07"
-  - "asso-la-maison-24 | La Maison 24 : à Périgueux depuis 2013, distribution de colis alimentaires et repas chauds (maraude), cours de français, friperie solidaire, café associatif et ateliers ; distributions à Périgueux et Saint-Léon-sur-Vézère (24) | https://www.lamaison24.net/ | 2026-09-07"
 ---
 
 MATÉRIAU BRUT, rayon « Budget, dettes, droits sociaux ».

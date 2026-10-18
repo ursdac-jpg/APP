@@ -7,7 +7,7 @@ tags: [Cap emploi, emploi accompagné, travailleur handicapé, référent, maint
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "Cap emploi"
     definition: "Réseau départemental qui accompagne les personnes ayant une reconnaissance de travailleur handicapé, vers l'emploi et pour se maintenir en poste. Il travaille en lien avec France Travail."

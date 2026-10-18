@@ -7,7 +7,7 @@ tags: [diplôme étranger, équivalence, attestation de comparabilité, ENIC-NAR
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "attestation de comparabilité"
     definition: "Document officiel du centre ENIC-NARIC France qui situe un diplôme étranger par rapport aux niveaux français. Elle éclaire un employeur ou une école, sans les obliger."

@@ -7,7 +7,7 @@ tags: [médecine du travail, visite d'information et de prévention, visite de r
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "visite d'information et de prévention (VIP)"
     definition: "Visite médicale que l'employeur doit organiser pour chaque salarié dans les 3 mois suivant la prise de poste, puis renouvelée périodiquement (tous les 4 ans en général, avec une visite intermédiaire à 2 ans)."

@@ -7,7 +7,7 @@ tags: [pension d'invalidité, CPAM, MSA, catégories 1 2 3, arrêt de travail]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "pension d'invalidité"
     definition: "Revenu de remplacement versé par la CPAM ou la MSA à une personne dont la capacité de travail est fortement réduite par une maladie ou un accident non professionnel."
@@ -27,7 +27,7 @@ La pension d'invalidité est un revenu de remplacement versé par la CPAM, ou la
 
 Ce n'est pas la MDPH qui l'attribue : c'est le médecin-conseil de la caisse qui détermine la catégorie, selon que la personne reste capable d'exercer une activité (catégorie 1), en est incapable (catégorie 2), ou en est incapable et a en plus besoin d'une tierce personne au quotidien (catégorie 3). Elle reste compatible avec une reprise ou une poursuite d'activité, en particulier en catégorie 1.
 
-Il faut être affilié à la Sécurité sociale depuis un certain temps et avoir suffisamment cotisé ou travaillé sur la période récente : ce n'est pas ouvert à n'importe quel moment d'un parcours.
+Il faut avoir moins de soixante-deux ans, être affilié à l'Assurance maladie depuis au moins douze mois et avoir suffisamment cotisé ou travaillé sur la période récente : ce n'est pas ouvert à n'importe quel moment d'un parcours.
 
 **Deux façons d'y arriver.** Si vous n'êtes pas en arrêt de travail, vous faites vous-même la demande (formulaire ou compte ameli/MSA). Si vous êtes en arrêt de travail, c'est souvent le service médical de la caisse qui prend l'initiative de vous contacter en fin d'arrêt, quand il constate que la capacité de travail restera durablement réduite. La réponse arrive sous deux mois à compter d'un dossier complet.
 

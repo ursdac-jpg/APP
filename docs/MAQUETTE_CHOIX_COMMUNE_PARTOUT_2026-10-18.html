@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : choix de la commune partout</title>
+<style>
+  :root { --fond:#f6f8fb; --carte:#fff; --texte:#1c2733; --doux:#5b6b7b; --bord:#d5dde6; --bleu:#1f5fbf; --bleu-texte:#fff; --pastille:#e8f0fd; }
+  [data-theme="sombre"] { --fond:#12181f; --carte:#1b242d; --texte:#e8eef4; --doux:#a3b1bf; --bord:#33414f; --bleu:#6ea8ff; --bleu-texte:#0c1624; --pastille:#1d2f4a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fond); color:var(--texte); font:16px/1.5 system-ui, sans-serif; }
+  main { max-width:62rem; margin:0 auto; padding:1rem 16px 3rem; }
+  .haut { display:flex; justify-content:space-between; align-items:center; gap:.5rem; flex-wrap:wrap; font-size:.85rem; color:var(--doux); margin-bottom:1rem; }
+  button { font:inherit; cursor:pointer; }
+  .btn { border:1px solid var(--bleu); background:transparent; color:var(--bleu); border-radius:.4rem; padding:.4rem .8rem; }
+  .btn.plein { background:var(--bleu); color:var(--bleu-texte); }
+  .btn:focus-visible { outline:3px solid var(--bleu); outline-offset:2px; }
+  .onglets { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--bord); }
+  h1 { font-size:1.5rem; text-align:center; margin:.5rem 0 .25rem; }
+  .intro { text-align:center; color:var(--doux); max-width:44rem; margin:0 auto 1rem; }
+  .bandeau { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; margin:1rem 0; }
+  .vide { text-align:center; color:var(--doux); border:1px dashed var(--bord); border-radius:.6rem; padding:1.2rem; margin:1rem 0; }
+  h2 { font-size:1rem; text-transform:uppercase; letter-spacing:.03em; color:var(--doux); margin:1.5rem 0 .25rem; }
+  .sous { color:var(--doux); font-size:.9rem; margin:0 0 .5rem; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(16rem, 1fr)); gap:.75rem; }
+  .fiche { background:var(--carte); border:1px solid var(--bord); border-radius:.6rem; padding:.75rem; }
+  .fiche b { display:block; }
+  .fiche small { display:block; color:var(--doux); }
+  .fiche .pastille { display:inline-block; background:var(--pastille); color:var(--bleu); border-radius:1rem; padding:.05rem .6rem; font-size:.8rem; margin-top:.3rem; }
+  .fiche .btn { margin-top:.5rem; }
+  .note { color:var(--doux); font-size:.85rem; margin-top:2rem; }
+  .regle { background:var(--carte); border:1px solid var(--bord); border-radius:.6rem; padding:.6rem .9rem; font-size:.9rem; color:var(--doux); margin-bottom:1rem; }
+</style>
+</head>
+<body>
+<main>
+  <div class="haut"><span>Maquette : le même choix de commune sur trois écrans. Les données sont des exemples.</span><button class="btn" type="button" id="theme">Mode sombre</button></div>
+  <div class="onglets" role="group" aria-label="Écran à regarder" id="onglets"></div>
+  <div class="regle" id="regle"></div>
+  <div id="ecran"></div>
+  <p class="note">Rien n’est choisi à l’ouverture. Un second clic sur la commune choisie la désélectionne.</p>
+</main>
+<script>
+  // Trois écrans de l'application, avec des exemples réalistes. Dans le vrai code : les communes du bandeau viennent des fiches elles-mêmes.
+  var ECRANS = {
+    secteur: {
+      nom: 'Employeurs : un secteur',
+      titre: 'Commerce et vente, en Dordogne',
+      intro: 'Les employeurs de ce secteur. Les enseignes ont plusieurs magasins : on montre ceux de la commune choisie.',
+      regle: 'Règle : les communes proposées sont celles où au moins un magasin ou un établissement est saisi. Une enseigne apparaît dans chaque commune où elle a un magasin, avec l’adresse de CE magasin.',
+      communes: ['Bergerac', 'Boulazac Isle Manoire', 'Périgueux', 'Sarlat-la-Canéda', 'Trélissac'],
+      partout: null,
+      fiches: {
+        'Bergerac': [['Carrefour Market', 'Enseigne · magasin à Bergerac'], ['Intermarché', 'Enseigne · magasin à Bergerac'], ['Leclerc', 'Enseigne · magasin à Bergerac']],
+        'Boulazac Isle Manoire': [['Leclerc', 'Enseigne · magasin à Boulazac Isle Manoire'], ['Auchan', 'Enseigne · magasin à Boulazac Isle Manoire']],
+        'Périgueux': [['Monoprix', 'Enseigne · magasin à Périgueux'], ['Carrefour City', 'Enseigne · magasin à Périgueux']],
+        'Sarlat-la-Canéda': [['Super U', 'Enseigne · magasin à Sarlat-la-Canéda']],
+        'Trélissac': [['Intermarché', 'Enseigne · magasin à Trélissac'], ['Lidl', 'Enseigne · magasin à Trélissac']]
+      },
+      bouton: 'Voir la fiche'
+    },
+    quifaitquoi: {
+      nom: 'Qui fait quoi : un domaine',
+      titre: 'Accompagnement, en Dordogne',
+      intro: 'Les structures à qui vous adresser, avec ce qu’elles font. Certaines couvrent tout le département, d’autres seulement un secteur.',
+      regle: 'Règle : une structure locale apparaît pour la commune qu’elle couvre (sa zone), pas seulement celle où elle est installée. Les structures qui couvrent tout le département sont toujours visibles, au-dessus ou en dessous, pour ne jamais cacher un droit.',
+      communes: ['Bergerac', 'Périgueux', 'Sarlat-la-Canéda', 'Nontron'],
+      partout: [['France Travail (site national)', 'Partout en France'], ['Caisse d’allocations familiales de la Dordogne', 'Tout le département']],
+      fiches: {
+        'Bergerac': [['Mission locale du Bergeracois', 'Couvre Bergerac et les communes proches'], ['Maison de services Bergerac', 'Installée à Bergerac']],
+        'Périgueux': [['Mission locale du Grand Périgueux', 'Couvre Périgueux et les communes proches'], ['PLIE du Grand Périgueux', 'Couvre Périgueux et les communes proches']],
+        'Sarlat-la-Canéda': [['Mission locale du Périgord noir', 'Couvre Sarlat et les communes proches']],
+        'Nontron': [['Antenne de la Mission locale à Nontron', 'Installée à Nontron']]
+      },
+      bouton: 'Voir la structure'
+    },
+    insertion: {
+      nom: 'Insertion par l’activité économique',
+      titre: 'Structures d’insertion en Dordogne',
+      intro: 'Des entreprises et des associations qui embauchent pour vous aider à retrouver un emploi, avec un accompagnement.',
+      regle: 'Règle : les communes proposées sont celles des structures saisies. Les structures dont la commune n’est pas indiquée restent dans « Voir toute la liste », sans être cachées.',
+      communes: ['Bergerac', 'Brantôme en Périgord', 'Coulounieix-Chamiers', 'Périgueux', 'Terrasson-Lavilledieu'],
+      partout: null,
+      fiches: {
+        'Bergerac': [['Chantier d’insertion Exemple 1', 'Chantier d’insertion · Bergerac'], ['Entreprise d’insertion Exemple 2', 'Entreprise d’insertion · Bergerac']],
+        'Brantôme en Périgord': [['Association Exemple 3', 'Chantier d’insertion · Brantôme en Périgord'], ['Association Exemple 4', 'Chantier d’insertion · Brantôme en Périgord']],
+        'Coulounieix-Chamiers': [['Association Exemple 5', 'Association intermédiaire · Coulounieix-Chamiers']],
+        'Périgueux': [['Entreprise Exemple 6', 'Entreprise de travail temporaire d’insertion · Périgueux']],
+        'Terrasson-Lavilledieu': [['Association Exemple 7', 'Chantier d’insertion · Terrasson-Lavilledieu']]
+      },
+      bouton: 'Voir la structure'
+    }
+  };
+  var cle = 'secteur', choix = null;
+  var onglets = document.getElementById('onglets'), regle = document.getElementById('regle'), ecran = document.getElementById('ecran');
+  function fiche(f, bouton) { return '<div class="fiche"><b>' + f[0] + '</b><small>' + f[1] + '</small><button class="btn plein" type="button">' + bouton + '</button></div>'; }
+  function dessiner() {
+    var e = ECRANS[cle];
+    onglets.innerHTML = Object.keys(ECRANS).map(function (k) { return '<button type="button" class="btn' + (k === cle ? ' plein' : '') + '" data-k="' + k + '" aria-pressed="' + (k === cle) + '">' + ECRANS[k].nom + '</button>'; }).join('');
+    regle.textContent = e.regle;
+    var h = '<h1>' + e.titre + '</h1><p class="intro">' + e.intro + '</p><p class="intro" style="margin-bottom:.25rem"><strong>Choisissez une commune</strong> pour voir ce qui la concerne, ou affichez toute la liste.</p>';
+    h += '<div class="bandeau" role="group" aria-label="Communes">' + e.communes.map(function (c) { return '<button type="button" class="btn' + (choix === c ? ' plein' : '') + '" data-c="' + c + '" aria-pressed="' + (choix === c) + '">' + c + '</button>'; }).join('') +
+      '<button type="button" class="btn' + (choix === '*' ? ' plein' : '') + '" data-c="*" aria-pressed="' + (choix === '*') + '">Voir toute la liste</button></div>';
+    if (!choix) { h += '<div class="vide">Aucune commune choisie pour l’instant. Cliquez sur une commune ci-dessus.</div>'; }
+    else {
+      var cs = choix === '*' ? e.communes : [choix];
+      if (e.partout) { h += '<h2>Pour tout le monde</h2><p class="sous">Ces structures sont utiles quelle que soit votre commune.</p><div class="grille">' + e.partout.map(function (f) { return fiche(f, e.bouton); }).join('') + '</div>'; }
+      h += cs.map(function (c) { return '<h2>' + (cle === 'quifaitquoi' ? 'Pour ' + c : c) + '</h2><div class="grille">' + e.fiches[c].map(function (f) { return fiche(f, e.bouton); }).join('') + '</div>'; }).join('');
+    }
+    ecran.innerHTML = h;
+  }
+  onglets.addEventListener('click', function (ev) { var k = ev.target.getAttribute && ev.target.getAttribute('data-k'); if (!k) { return; } cle = k; choix = null; dessiner(); });
+  ecran.addEventListener('click', function (ev) { var c = ev.target.getAttribute && ev.target.getAttribute('data-c'); if (!c) { return; } choix = (choix === c && c !== '*') ? null : c; dessiner(); });
+  document.getElementById('theme').addEventListener('click', function () { var s = document.documentElement.getAttribute('data-theme') === 'sombre'; document.documentElement.setAttribute('data-theme', s ? 'clair' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair'; });
+  dessiner();
+</script>
+</body>
+</html>

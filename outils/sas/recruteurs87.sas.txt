@@ -1,0 +1,63 @@
+# Sas des pages de recrutement de la HAUTE-VIENNE (87) : pages PROPOSEES par ChatGPT le 2026-10-17 et pas encore verifiees. L'application NE LIT PAS ce fichier.
+# Meme format que outils/sas/recruteurs.sas.txt (Dordogne) : id | famille | nom | secteur | territoire | page de recrutement | offres vues | date de la plus recente | compte demande | source | date
+# Rangement du 2026-10-17 depuis les reponses brutes : doublons retires (une ligne par employeur et par portail ; les employeurs nationaux deja presents dans le sas de la Dordogne ne sont pas repetes :
+# Securitas, Banque de France, E.Leclerc, ASP, Enedis, Region Nouvelle-Aquitaine, Gendarmerie nationale, armees). Quand deux adresses candidates existent pour un meme employeur, les deux sont gardees
+# avec le suffixe -bis : le controle automatique tranche (docs/VERIFICATION_RECRUTEURS_HAUTE_VIENNE_2026-10-17.md). Les dates et nombres d'offres sont ceux annonces par l'assistant : NON verifies.
+# Mise a jour 2026-10-17 apres la reponse de Perplexity (qui n'a pu ouvrir presque aucune page) et les adresses trouvees par Denis : Korian est devenu Clariane (emeis est un autre groupe, ex-Orpea) ; adresses de Carrefour, Limoges Metropole, Sogelink, Groupama Gan, emeis, CDEF 87 ajoutees ;
+# retires : Sopra Steria et Groupe Atlantic (aucune offre en Haute-Vienne prouvee), fiche de contact de la gendarmerie, Arquus et Covea (aucune page trouvee). Dates anciennes non confirmees videes.
+# VERIFIEES A LA MAIN PAR DENIS le 2026-10-17 (derniere colonne = 2026-10-17) : Carrefour, Ministere de l'Interieur zone Sud-Ouest, CROUS de Limoges, Gendarmerie (CIR de Limoges), CCI Limoges, Sopra Steria, Cerfrance Centre Limousin, GEIQ SAGe, Chambre d'agriculture 87, Clariane (ex-Korian), CDEF 87.
+# Les autres lignes restent NON verifiees (adresse qui repond, mais offres, nombre et date non confirmes).
+# Controle : node scripts/verifierRecruteursSas.js outils/sas/recruteurs87.sas.txt docs/VERIFICATION_RECRUTEURS_HAUTE_VIENNE_2026-10-17.md
+# RETIRES LE 2026-10-17 apres controle : domaines inexistants (a chercher avec Perplexity) : emeis (ex-Korian) ; Centre départemental de l'enfance et de la famille de la Haute-Vienne ; Groupama Centre-Atlantique ; Sogelink ; Arquus ; Covéa ; Ville de Limoges ; Limoges Métropole (autre adresse proposée).
+# RETIRES comme doublons ou pages introuvables d'un employeur deja au sas de la Dordogne (GSF, Eurovia) ou doublon d'une autre adresse (Saint-Junien) : GSF ; Eurovia (groupe Vinci) ; Établissements hospitaliers de Saint-Junien et de Rochechouart (autre adresse proposée).
+#
+# --- Employeurs (R1)
+chu-limoges-87 | employeur | CHU de Limoges | sante | Haute-Vienne | https://chu-limoges.nous-recrutons.fr/nos-offres-demploi-1/ | plusieurs | | non | https://www.chu-limoges.fr/ |
+departement-haute-vienne-87 | employeur | Département de la Haute-Vienne | administration | Haute-Vienne | https://recrutement.haute-vienne.fr/candidat | 36 | 2026-10-14 | non | https://www.haute-vienne.fr/ |
+legrand-87 | employeur | Legrand | industrie | national | https://www.legrand.com/fr/carrieres/rejoignez-nous/nos-offres-demploi | plusieurs | | non | https://www.legrand.com/fr/carrieres/rejoignez-nous |
+clariane-87 | employeur | Clariane (ex-Korian) | sante | national | https://nousrejoindre.clariane.com/fr/annonces?brands=2209 | plusieurs | | non | https://nousrejoindre.clariane.com/ | 2026-10-17
+vyv3-87 | employeur | VYV3 Cœur d'Aquitaine | social-personne | Haute-Vienne | https://recrutement.vyv3.fr/ | 73 | | non | https://www.vyv3.fr/ |
+elsan-polyclinique-limoges-87 | employeur | Polyclinique de Limoges (ELSAN) | sante | Haute-Vienne | https://talents.groupe-elsan.com/fr/annonces?localisation=25914 | 26 | | non | https://www.elsan.care/fr/candidats |
+catalent-limoges-87 | employeur | Catalent France Limoges | industrie | Haute-Vienne | https://careers.catalent.com/ | plusieurs | | non | https://www.catalent.com/locations/limoges-france |
+cerfrance-centre-limousin-87 | employeur | Cerfrance Centre Limousin | banque-assurance-immobilier | Haute-Vienne | https://centre-limousin.cerfrance.fr/recrutement/ | 9 | | non | https://centre-limousin.cerfrance.fr/recrutement/ | 2026-10-17
+ville-saint-junien-87 | employeur | Ville de Saint-Junien | administration | Haute-Vienne | https://saint-junien.gestmax.fr/search | plusieurs | 2026-10-08 | non | https://www.saint-junien.fr/ma-ville/recrutement/ |
+cgi-limoges-87 | employeur | CGI (Limoges) | numerique | national | https://www.cgi.com/france/fr-fr/recrute/limoges | plusieurs | | non | https://www.cgi.com/france/fr-fr/recrute/limoges |
+carrefour-87 | employeur | Carrefour | commerce-vente | national | https://recrute.carrefour.fr/offres/ | plusieurs | | non | https://recrute.carrefour.fr/ | 2026-10-17
+armatis-87 | employeur | Armatis | numerique | national | https://emploi.armatis.com/ | 26 | | non | https://www.armatis.com/fr/recrutement/ |
+cooperl-87 | employeur | Cooperl (Madrange, Limoges) | agriculture-nature | Haute-Vienne | https://recrutement.cooperl.com/fr | plusieurs | 2026-10-05 | non | https://carrieres.cooperl.com/ |
+hunyvers-87 | employeur | Hunyvers | commerce-vente | Haute-Vienne | https://www.hunyvers.com/offres-emplois-hunyvers | plusieurs | | non | https://www.hunyvers.com/ |
+ville-panazol-87 | employeur | Ville de Panazol | administration | Haute-Vienne | https://www.panazol.fr/ma-ville/la-mairie-recrute/ | plusieurs | 2026-10-10 | non | https://www.panazol.fr/ma-ville/la-mairie-recrute/ |
+ville-bellac-87 | employeur | Ville de Bellac | administration | Haute-Vienne | https://www.bellac.fr/offres-demplois/ | plusieurs | 2026-09-30 | non | https://www.bellac.fr/ |
+#
+emeis-87 | employeur | emeis (ex-Orpea) | sante | national | https://www.emeis.com/fr/carrieres/rejoindre-emeis | plusieurs | | non | https://www.emeis.com/ |
+sogelink-87 | employeur | Sogelink | numerique | national | https://www.sogelink.com/carriere/ | plusieurs | | non | https://www.sogelink.com/ |
+groupama-gan-87 | employeur | Groupama Gan recrute | banque-assurance-immobilier | national | https://www.groupama-gan-recrute.com/ | plusieurs | | non | https://www.groupama.fr/ |
+cdef87-87 | employeur | Centre départemental de l'enfance et de la famille de la Haute-Vienne | social-personne | Haute-Vienne | https://cdef87.globule.net/welcome.html | plusieurs | | non | https://www.cdef87.com/ | 2026-10-17
+sopra-steria-87 | employeur | Sopra Steria | numerique | national | https://careers.soprasteria.fr/Jobs | plusieurs | | non | https://careers.soprasteria.fr/ | 2026-10-17
+gendarmerie-cir-limoges-87 | portail-officiel | Gendarmerie nationale, centre d'information et de recrutement de Limoges | securite | Haute-Vienne | https://www.gendarmerie.interieur.gouv.fr/recrutement/contact/centre-d-information-et-de-recrutement-de-limoges-haute-vienne-87 | plusieurs | | non | https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/haute-vienne/db152a22-869f-4d7b-bee3-303c7311a390 | 2026-10-17
+#
+# --- Portails officiels (R2)
+cdg87-emploi-territorial | portail-officiel | Centre de gestion de la Haute-Vienne, bourse de l'emploi territorial | administration | Haute-Vienne | https://www.cdg87.fr/emploi_les_emplois_offres.php | plusieurs | 2026-10-08 | non | https://www.cdg87.fr/ |
+ville-limoges-87-bis | portail-officiel | Ville de Limoges (autre adresse proposée) | administration | Haute-Vienne | https://mairie-limoges.gestmax.fr/employee/search | 2 | 2026-10-06 | non | https://www.limoges.fr/pratique/offres-demplois-municipaux |
+ville-limoges-87-ter | portail-officiel | Ville de Limoges (page d'entrée) | administration | Haute-Vienne | https://www.limoges.fr/pratique/offres-demplois-municipaux | plusieurs | | non | https://www.limoges.fr/emploi-et-formation |
+limoges-metropole-87 | portail-officiel | Limoges Métropole | administration | Haute-Vienne | https://www.limoges-metropole.fr/limoges-metropole/limoges-metropole-recrute/nos-offres-demploi | plusieurs | | non | https://www.limoges-metropole.fr/limoges-metropole/limoges-metropole-recrute |
+ch-esquirol-87 | portail-officiel | Centre hospitalier Esquirol de Limoges | sante | Haute-Vienne | https://www.ch-esquirol-limoges.fr/professionnels-etudiants/nous-rejoindre-offre-emploi/ | plusieurs | | non | https://www.ch-esquirol-limoges.fr/ |
+hopital-haut-limousin-87 | portail-officiel | Hôpital intercommunal du Haut-Limousin (Bellac) | sante | Haute-Vienne | https://hopital-hautlimousin.nous-recrutons.fr/ | plusieurs | | non | https://hopital-hautlimousin.nous-recrutons.fr/postes/ |
+ch-saint-yrieix-87 | portail-officiel | Centre hospitalier Jacques Boutard de Saint-Yrieix-la-Perche | sante | Haute-Vienne | https://ch-saintyrieix.nous-recrutons.fr/ | plusieurs | | non | https://ch-saintyrieix.nous-recrutons.fr/postes/ |
+ch-saint-junien-87 | portail-officiel | Centre hospitalier de Saint-Junien | sante | Haute-Vienne | https://ch-saintjunien.nous-recrutons.fr/ | plusieurs | | non | https://ch-saintjunien.nous-recrutons.fr/postes/ |
+ministere-interieur-zone-sud-ouest-87 | portail-officiel | Ministère de l'Intérieur, recrutements de la zone de défense Sud-Ouest | administration | Nouvelle-Aquitaine | https://www.interieur.gouv.fr/ministere/metiers-du-ministere/je-veux-devenir-agent-public/recrutements-ouverts-de-zone-de-defense-et-de-securite-sud-ouest | plusieurs | 2026-08-24 | non | https://www.interieur.gouv.fr/ | 2026-10-17
+sdis87-87 | portail-officiel | Service départemental d'incendie et de secours de la Haute-Vienne | securite | Haute-Vienne | https://sdis-87.fr/recrutement/ | plusieurs | | non | https://sdis-87.fr/ |
+universite-limoges-87 | portail-officiel | Université de Limoges | education-formation | Haute-Vienne | https://www.unilim.fr/category/recrutement/ | plusieurs | 2026-10-15 | non | https://www.unilim.fr/presentation/recrutement/ |
+academie-limoges-87 | portail-officiel | Académie de Limoges, espace recrutement | education-formation | Nouvelle-Aquitaine | https://www.ac-limoges.fr/espace-recrutement-123263 | plusieurs | | non | https://www.ac-limoges.fr/autres-recrutements-121869 |
+prefecture-haute-vienne-87 | portail-officiel | Services de l'État en Haute-Vienne (préfecture) | administration | Haute-Vienne | https://www.haute-vienne.gouv.fr/Publications/Concours-recrutement-stages/Recrutement-et-concours-dans-la-fonction-publique | plusieurs | | non | https://www.haute-vienne.gouv.fr/ |
+crous-limoges-87 | portail-officiel | CROUS de Limoges | education-formation | Haute-Vienne | https://recrutement.lescrous.fr/ | plusieurs | | non | https://www.crous-limoges.fr/offres-emploi/ | 2026-10-17
+fhf-emploi-87 | portail-officiel | Fédération hospitalière de France, emploi hospitalier | sante | national | https://emploi.fhf.fr/ | plusieurs | 2026-10-15 | non | https://emploi.fhf.fr/ |
+securite-sociale-lasecurecrute-87 | portail-officiel | La Sécu recrute (CPAM, CAF, Carsat, Urssaf) | administration | national | https://www.lasecurecrute.fr/accueil | plusieurs | 2026-09-22 | non | https://www.ucanss.fr/recrutement |
+msa-limousin-87 | portail-officiel | MSA du Limousin | administration | Haute-Vienne | https://limousin.msa.fr/lfp/les-offres-d-emploi-a-la-msa-du-limousin | plusieurs | 2026-10-12 | non | https://recrutement.msa.fr/nos-offres-demploi/ |
+carsat-centre-ouest-87 | portail-officiel | Carsat Centre Ouest | administration | Nouvelle-Aquitaine | https://recrutement.carsat-centreouest.fr/ | plusieurs | | non | https://www.carsat-centreouest.fr/ |
+#
+# --- Groupements et chambres (R3)
+cci-limoges-87 | federation | CCI Limoges et Haute-Vienne | commerce-vente | Haute-Vienne | https://www.limoges.cci.fr/les-offres-demploi-en-haute-vienne | plusieurs | 2026-10-14 | non | https://www.limoges.cci.fr/les-offres-demploi-en-haute-vienne | 2026-10-17
+fdcuma-haute-vienne-87 | federation | Fédération départementale des CUMA de la Haute-Vienne | agriculture-nature | Haute-Vienne | https://haute-vienne.cuma.fr/nos-offres-demploi/ | plusieurs | 2026-10-13 | non | https://haute-vienne.cuma.fr/travailler-dans-une-cuma/ |
+chambre-agriculture-haute-vienne-87 | federation | Chambre d'agriculture de la Haute-Vienne | agriculture-nature | Haute-Vienne | https://haute-vienne.chambres-agriculture.fr/votre-chambre/nos-offres-demploi | plusieurs | 2026-06-05 | non | https://haute-vienne.chambres-agriculture.fr/votre-chambre/nos-offres-demploi | 2026-10-17
+geiq-sage-87 | groupement | GEIQ SAGe | social-personne | Haute-Vienne | https://www.geiqsage.org/nos-offres-demploi/ | plusieurs | | non | https://www.geiqsage.org/ | 2026-10-17

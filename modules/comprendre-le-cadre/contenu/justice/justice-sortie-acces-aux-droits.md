@@ -7,7 +7,7 @@ tags: [sortie de détention, levée d'écrou, papiers d'identité, santé, RSA, 
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "levée d'écrou"
     definition: "Le moment officiel de la sortie de détention. Plusieurs droits, mis en pause ou attachés à la détention, sont alors à réactiver ou à ouvrir."
@@ -36,7 +36,7 @@ La santé : pendant la détention, vous êtes couvert automatiquement. À la sor
 
 La domiciliation : celle de l'établissement pénitentiaire s'arrête à la levée d'écrou. Demandez-en une nouvelle au centre communal d'action sociale ou à une association agréée, sinon vous ne pourrez pas recevoir votre courrier ni faire valoir vos droits.
 
-Le RSA, la prime d'activité, l'aide au logement : vous pouvez les demander à la sortie, avec l'aide de la caisse d'allocations familiales et du SPIP. Si vous perceviez le RSA avant la détention, il peut reprendre dans le mois qui suit votre libération.
+Le RSA, la prime d'activité, l'aide au logement : vous pouvez les demander à la sortie, avec l'aide de la caisse d'allocations familiales et du SPIP. Si vous perceviez le RSA avant la détention, il peut reprendre dès votre libération : faites la démarche tout de suite.
 
 L'hébergement : si vous n'avez pas de solution, la demande passe par le service d'accueil et d'orientation du département, en lien avec le SPIP. Voir aussi la fiche « Sans hébergement » du rayon logement.
 

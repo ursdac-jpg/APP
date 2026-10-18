@@ -19,17 +19,7 @@ sources:
   - "onisep-bprea | BP responsable d'entreprise agricole (Onisep) | https://www.onisep.fr/ressources/univers-formation/formations/lycees/bp-responsable-d-entreprise-agricole | 2026-09-08"
   - "region-na-dnja | Installation : dotation Nouveaux et Jeunes agriculteurs (DNJA), guide des aides de la Région Nouvelle-Aquitaine | https://les-aides.nouvelle-aquitaine.fr/economie-et-emploi/installation-dotation-nouveaux-et-jeunes-agriculteurs-dnja | 2026-09-08"
 structures:
-  - "chambre-metiers-artisanat-dordogne | Chambre de métiers et de l'artisanat de la Dordogne (rattachée à la CMA Nouvelle-Aquitaine) : information, accompagnement et formation pour les créateurs d'une activité artisanale | https://www.artisanat.fr/ | 2026-09-05"
-  - "cci-dordogne | Chambre de commerce et d'industrie de la Dordogne : conseil à la création, au développement et à la reprise d'une activité commerciale ou de services | https://www.dordogne.cci.fr/ | 2026-09-04"
-  - "bge-perigord | BGE Périgord : accompagnement gratuit des porteurs de projet, de l'idée au démarrage et après | https://www.bge.asso.fr/ | 2026-09-04"
-  - "adie-nouvelle-aquitaine | ADIE Nouvelle-Aquitaine : microcrédit professionnel (jusqu'à 12 000 euros) et accompagnement pour les personnes sans accès au crédit bancaire | https://www.adie.org/ | 2026-09-04"
-  - "initiative-perigord | Initiative Périgord : prêt d'honneur à taux zéro et sans garantie, parrainage | https://initiative-france.fr/ | 2026-09-04"
-  - "france-active-nouvelle-aquitaine | France Active Nouvelle-Aquitaine : garantie de prêt bancaire, financement solidaire, conseil | https://www.franceactive.org/ | 2026-09-04"
-  - "cooperative-activite-emploi-dordogne | Coopératives d'activité et d'emploi présentes en Dordogne (par exemple Coop'Alpha) : tester son activité en gardant un statut de salarié | https://www.les-cae.coop/trouver-une-cae | 2026-09-04"
   - "france-travail-createur-dordogne | France Travail de la Dordogne : information sur l'ACRE, l'ARE, l'ARCE, orientation vers l'accompagnement à la création | https://www.francetravail.fr/ | 2026-09-04"
-  - "asso-coopalpha-24 | Coop'alpha : coopérative d'activité et d'emploi (CAE), permet de tester et développer son activité en gardant un statut d'entrepreneur salarié, bureaux à Périgueux et Coulounieix-Chamiers (24) | https://www.coopalpha.coop/ | 2026-09-07"
-  - "asso-iriscop-24 | IRISCOP : coopérative d'activité et d'emploi (CAE) implantée en Périgord, services mutualisés pour entreprendre sans être seul, siège à Montignac-Lascaux (24) | https://iriscop.com/ | 2026-09-07"
-  - "asso-la-traverse-bergerac-24 | La Traverse : tiers-lieu social, entrepreneurial et culturel à Bergerac (ancienne Manufacture des Tabacs), atelier partagé, espace de coworking à petit prix, rendez-vous des entrepreneurs, réseau d'entraide ; vise l'inclusion des personnes éloignées de l'emploi (24) | https://latraverse-bergerac.fr/ | 2026-09-08"
 ---
 
 MATÉRIAU BRUT, rayon « Créer son activité ».

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : organisation des cartes de l'accueil</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2442}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 60px}
+.page{max-width:1000px;margin:0 auto}
+h1{font-size:1.5rem;margin:1.2rem 0 .3rem}h2{font-size:1.2rem;margin:2rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:999px;padding:.4rem 1rem;font-weight:600}
+.btn.actif{background:var(--acc);color:var(--card)}
+.theme{position:fixed;top:10px;right:10px;z-index:5}
+.rouge{color:#c0261b;font-weight:800}[data-theme="sombre"] .rouge{color:#ff8a80}
+.onglets{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:.8rem 0}
+.carte{background:var(--card);border:2px solid var(--bord);border-radius:16px;padding:1rem;text-align:center;position:relative;cursor:pointer}
+.carte:hover{border-color:var(--acc)}
+.carte.change{border-color:var(--new)}
+.carte .ico{font-size:1.8rem;color:var(--acc)}
+.carte h3{margin:.2rem 0;font-size:1.05rem}
+.carte p{font-size:.86rem;color:var(--muted)}
+.puces{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;margin-top:.5rem}
+.puce{font-size:.74rem;background:var(--sub);border:1px solid var(--bord);border-radius:999px;padding:.05rem .6rem;color:var(--txt)}
+.puce.nouveau{background:var(--newbg);border-color:var(--new);color:var(--new);font-weight:700}
+.puce.deplace{background:var(--newbg);border-color:var(--new);color:var(--new);font-weight:700}
+.puce.renomme{background:var(--warnbg);border-color:var(--warn);color:var(--warn);font-weight:700}
+.puce.retire{text-decoration:line-through;color:var(--muted)}
+.etiq{position:absolute;top:-10px;right:10px;background:var(--new);color:var(--card);border-radius:999px;font-size:.7rem;font-weight:800;padding:.05rem .6rem}
+.panneau{background:var(--card);border:2px solid var(--acc);border-radius:16px;padding:1rem;margin:1rem 0}
+.panneau h3{margin:0 0 .5rem}
+.tuiles{display:flex;flex-wrap:wrap;gap:12px}
+.tuile{flex:1 1 210px;max-width:260px;background:var(--sub);border:2px solid transparent;border-radius:14px;padding:.8rem;text-align:center}
+.tuile.nouveau,.tuile.deplace{border-color:var(--new)}.tuile.renomme{border-color:var(--warn)}
+.tuile b{display:block;font-size:.95rem;margin:.2rem 0}.tuile span.d{display:block;font-size:.82rem;color:var(--muted)}
+.tuile .t{display:inline-block;font-size:.7rem;font-weight:800;border-radius:999px;padding:.02rem .5rem;margin-bottom:.2rem}
+.t.n{background:var(--newbg);color:var(--new)}.t.r{background:var(--warnbg);color:var(--warn)}
+.legende{display:flex;flex-wrap:wrap;gap:.6rem;font-size:.84rem;margin:.5rem 0}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:.6rem 0}th,td{border:1px solid var(--bord);padding:.4rem .5rem;vertical-align:top;text-align:left}th{background:var(--sub)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+</style>
+</head>
+<body data-theme="clair">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<div class="page">
+<h1>Maquette : organisation des cartes de l'accueil</h1>
+<p class="muted">Demande de Denis du 2026-10-16. <b>Rien n'est codé.</b> <span class="rouge">EFFORT : HAUT</span> pour cette réflexion (Mode A : organisation de l'accueil). Cliquez sur les trois boutons pour comparer, puis sur une carte pour voir ce qu'elle contient.</p>
+
+<div class="onglets" role="group" aria-label="Choisir la version">
+<button class="btn actif" type="button" data-v="aujourdhui">1. Aujourd'hui</button>
+<button class="btn" type="button" data-v="proposition">2. Proposition (niveaux 1 et 2)</button>
+<button class="btn" type="button" data-v="plustard">3. Plus tard (niveau 3, aperçu)</button>
+</div>
+<div class="legende">
+<span class="puce deplace">déplacé</span><span class="puce nouveau">nouveau raccourci</span><span class="puce renomme">renommé</span><span class="puce retire">retiré de cette carte</span>
+</div>
+<p class="small muted" id="resume"></p>
+
+<div class="grille" id="grille"></div>
+<div id="detail"></div>
+
+<h2>Ce qui change concrètement (version 2, la proposition)</h2>
+<table>
+<tr><th>Changement</th><th>Pourquoi</th></tr>
+<tr><td><b>Niveau 1.</b> « Un regard sur mon CV » passe de « Me préparer à candidater » à « Outils d'analyse ».</td><td>C'est de l'analyse du CV, comme les trois autres outils de cette carte.</td></tr>
+<tr><td><b>Niveau 1.</b> Nouveau raccourci « Employeurs près de chez moi » dans « Me préparer à candidater » (ouvre le module « Qui fait quoi » directement sur les employeurs).</td><td>Aider à déposer des candidatures spontanées : la lettre, l'entretien, puis où envoyer. « Qui fait quoi » reste aussi dans « Se tenir informé ».</td></tr>
+<tr><td><b>Niveau 2.</b> « Co-construire ma lettre » devient « Écrire ma lettre avec l'assistant » ; « Préparer un entretien » devient « M'entraîner à un entretien ».</td><td>Les distinguer des documents rapides de « Mes documents » : ici, on travaille avec l'assistant.</td></tr>
+<tr><td><b>Niveau 2.</b> Chaque outil d'analyse commence par sa question (« Mon CV est-il solide ? », « Que verra un recruteur ? »…).</td><td>Quatre outils qui vérifient le même CV : la personne choisit selon sa question.</td></tr>
+<tr><td><b>Niveau 2.</b> Texte de « Se tenir informé » : ajout de « et à qui vous adresser ».</td><td>« Qui fait quoi » sert à contacter quelqu'un, pas seulement à lire.</td></tr>
+</table>
+
+<h2>À savoir avant de décider</h2>
+<ul>
+<li><b>Le module « Qui fait quoi » est toujours fermé au public</b> : la tuile et le raccourci « Employeurs » n'apparaissent qu'à son ouverture. Il reste aujourd'hui 5 employeurs publiés sur 955 en attente : le raccourci ne devrait s'ouvrir que lorsque les secteurs principaux ont des fiches validées.</li>
+<li><b>Déplacer une tuile</b> touche l'aide guidée, la recherche de l'accueil, le bouton « Retour » du module concerné et les essais. Compter une séance de travail moyenne, avec test navigateur (clair, sombre, téléphone).</li>
+<li><b>Le niveau 3</b> n'est montré qu'en aperçu : à ne faire que si des retours le demandent.</li>
+</ul>
+
+<div class="verdict"><b>Faisabilité (audit des descriptions et des cartes dans le code).</b> GO pour les niveaux 1 et 2. <b>Simple</b> : renommer, déplacer une tuile d'une carte à l'autre. <b>À soigner</b> : le retour du « Regard sur mon CV », l'aide guidée de ces deux cartes et la recherche de l'accueil. <b>Rien de bloquant.</b></div>
+
+<div class="q"><b>Questions pour vous.</b> (1) La version 2 vous convient-elle (niveaux 1 et 2) ? (2) Les nouveaux noms « Écrire ma lettre avec l'assistant » et « M'entraîner à un entretien » vous parlent-ils, ou en préférez-vous d'autres ? (3) Le raccourci s'appelle « Employeurs près de chez moi » : bon libellé, ou « Candidatures spontanées » ?</div>
+</div>
+<script>
+var CARTES = {
+  docs: { ico:'📁', titre:'Mes documents', desc:'Le point de départ pour votre CV, votre lettre de motivation et votre préparation d\'entretien d\'embauche.' },
+  prep: { ico:'👤', titre:'Me préparer à candidater' },
+  boite:{ ico:'💼', titre:'Boîte à outils', desc:'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d\'étapes.' },
+  anal: { ico:'📈', titre:'Outils d\'analyse', desc:'Vérifier la solidité de votre candidature avant de postuler.' },
+  info: { ico:'📰', titre:'Se tenir informé' },
+  hesite:{ ico:'🧭', titre:'Vous hésitez encore ?', desc:'Vous n\'êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.' }
+};
+function T(nom, d, etat){ return { nom:nom, d:d||'', etat:etat||'' }; }
+var V = {
+  aujourdhui: {
+    resume: 'Version actuelle : 6 cartes. « Un regard sur mon CV » est avec la lettre et l\'entretien alors que c\'est un outil d\'analyse ; les noms de la lettre et de l\'entretien ressemblent à ceux de « Mes documents ».',
+    cartes: {
+      docs: { tuiles:[T('Créer un nouveau CV','Construisez votre CV : il vous permettra ensuite de produire vos autres documents.'),T('Reformuler et présenter mon CV','Votre CV est complet mais mal présenté : on le reformule proprement, sans toucher au fond.'),T('Mettre à jour mon CV','Déposez votre CV : mettez à jour son contenu, puis préparez vos autres documents.'),T('Préparer ma lettre et mon entretien','Vous avez déjà un CV : on produit votre lettre et une préparation d\'entretien, sans rien ressaisir.')] },
+      prep: { desc:'Rédiger une lettre de motivation et vous entraîner à un entretien d\'embauche.', tuiles:[T('Co-construire ma lettre','Vous écrivez la lettre avec un assistant, phrase par phrase, en prenant le temps.'),T('Préparer un entretien','Une séance d\'entraînement : vous répondez à des questions d\'entretien et l\'assistant réagit.'),T('Un regard sur mon CV','Anticipez le regard d\'un recruteur sur votre dossier : ce qui ressort, ce qui peut faire hésiter.')] },
+      boite:{ tuiles:[T('Découvrir mes compétences','Partez de ce que vous avez vécu pour en tirer un CV, même sans expérience.'),T('Mes Repères','Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller.'),T('Mon Carnet','Notez librement ce qui vous passe par la tête, sans rien décider tout de suite.'),T('Lexique','Cherchez un mot du monde du travail dès qu\'il vous bloque, expliqué simplement.')] },
+      anal: { tuiles:[T('Analyser ma candidature','Un assistant repère ce qui mérite d\'être renforcé dans votre CV.'),T('Cohérence de mon dossier','Vérifiez que votre CV, votre lettre et votre entretien racontent la même histoire.'),T('Les mots de votre CV (ATS)','Comparez le vocabulaire de votre CV à celui d\'un métier ou d\'une offre.')] },
+      info: { desc:'Les règles, les aides et les chiffres de l\'emploi et de la formation près de chez vous, expliqués simplement et à consulter quand vous en avez besoin.', tuiles:[T('Comprendre le cadre','Des fiches courtes et des liens officiels sur l\'emploi, la formation et les dispositifs.'),T('Comprendre les chiffres','Le chômage, l\'emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, datés.'),T('Qui fait quoi','À qui vous adresser dans votre département, et où : des structures et des employeurs.')] },
+      hesite:{ tuiles:[T('Comparer mes pistes','Mettez deux ou trois pistes côte à côte pour choisir en connaissance de cause.'),T('Un CV, plusieurs métiers','Un seul CV de départ, plusieurs métiers visés : CV, accroches et lettres pour chacun.')] }
+    }, changes: []
+  },
+  proposition: {
+    resume: 'Version proposée : toujours 6 cartes. Chaque carte répond à une intention : produire, préparer, comprendre, vérifier, s\'informer, hésiter.',
+    changes: ['prep','anal','info'],
+    cartes: {
+      docs: { tuiles:[T('Créer un nouveau CV','Construisez votre CV : il vous permettra ensuite de produire vos autres documents.'),T('Reformuler et présenter mon CV','Votre CV est complet mais mal présenté : on le reformule proprement, sans toucher au fond.'),T('Mettre à jour mon CV','Déposez votre CV : mettez à jour son contenu, puis préparez vos autres documents.'),T('Préparer ma lettre et mon entretien','Vous avez déjà un CV : on produit votre lettre et une préparation d\'entretien, sans rien ressaisir.')] },
+      prep: { desc:'Écrire votre lettre avec un assistant, vous entraîner à l\'entretien, et trouver où envoyer votre candidature.', tuiles:[T('Écrire ma lettre avec l\'assistant','Vous écrivez la lettre avec un assistant, phrase par phrase, en prenant le temps.','renomme'),T('M\'entraîner à un entretien','Une séance d\'entraînement : vous répondez à des questions d\'entretien et l\'assistant réagit.','renomme'),T('Employeurs près de chez moi','Des employeurs de votre département, classés par secteur, pour envoyer une candidature spontanée. Coordonnées vérifiées et datées.','nouveau'),T('Un regard sur mon CV','','retire')] },
+      boite:{ tuiles:[T('Découvrir mes compétences','Partez de ce que vous avez vécu pour en tirer un CV, même sans expérience.'),T('Mes Repères','Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller.'),T('Mon Carnet','Notez librement ce qui vous passe par la tête, sans rien décider tout de suite.'),T('Lexique','Cherchez un mot du monde du travail dès qu\'il vous bloque, expliqué simplement.')] },
+      anal: { tuiles:[T('Analyser ma candidature','Mon CV est-il solide ? Un assistant repère ce qui mérite d\'être renforcé.','renomme'),T('Un regard sur mon CV','Que verra un recruteur ? Ce qui ressort, ce qui peut faire hésiter.','deplace'),T('Les mots de votre CV (ATS)','Mon CV parle-t-il comme l\'offre ? Comparez son vocabulaire à celui d\'un métier ou d\'une offre.','renomme'),T('Cohérence de mon dossier','Mes documents se tiennent-ils ? CV, lettre et entretien racontent la même histoire.','renomme')] },
+      info: { desc:'Les règles, les aides et les chiffres de l\'emploi et de la formation près de chez vous, et à qui vous adresser.', tuiles:[T('Comprendre le cadre','Des fiches courtes et des liens officiels sur l\'emploi, la formation et les dispositifs.'),T('Comprendre les chiffres','Le chômage, l\'emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, datés.'),T('Qui fait quoi','À qui vous adresser dans votre département, et où : des structures et des employeurs.')] },
+      hesite:{ tuiles:[T('Comparer mes pistes','Mettez deux ou trois pistes côte à côte pour choisir en connaissance de cause.'),T('Un CV, plusieurs métiers','Un seul CV de départ, plusieurs métiers visés : CV, accroches et lettres pour chacun.')] }
+    }
+  },
+  plustard: {
+    resume: 'Aperçu du niveau 3 (plus tard, seulement si des retours le demandent) : en plus de la version 2, quatre tuiles changent de carte pour regrouper ce qui se ressemble.',
+    changes: ['docs','prep','boite','anal','info','hesite'],
+    cartes: {
+      docs: { tuiles:[T('Créer un nouveau CV','Construisez votre CV : il vous permettra ensuite de produire vos autres documents.'),T('Reformuler et présenter mon CV','Votre CV est complet mais mal présenté : on le reformule proprement.'),T('Mettre à jour mon CV','Déposez votre CV : mettez à jour son contenu, puis préparez vos autres documents.'),T('Préparer ma lettre et mon entretien','Vous avez déjà un CV : on produit votre lettre et une préparation d\'entretien.'),T('Un CV, plusieurs métiers','Un seul CV de départ, plusieurs métiers visés : CV, accroches et lettres pour chacun.','deplace')] },
+      prep: { desc:'Écrire votre lettre avec un assistant, vous entraîner à l\'entretien, et trouver où envoyer votre candidature.', tuiles:[T('Écrire ma lettre avec l\'assistant','Vous écrivez la lettre avec un assistant, phrase par phrase.','renomme'),T('M\'entraîner à un entretien','Une séance d\'entraînement : l\'assistant réagit à vos réponses.','renomme'),T('Employeurs près de chez moi','Des employeurs de votre département, classés par secteur, pour une candidature spontanée.','nouveau')] },
+      boite:{ desc:'Vos notes et vos réflexions, à ouvrir quand vous voulez.', tuiles:[T('Mes Repères','Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller.'),T('Mon Carnet','Notez librement ce qui vous passe par la tête, sans rien décider tout de suite.'),T('Lexique','','retire')] },
+      anal: { tuiles:[T('Analyser ma candidature','Mon CV est-il solide ?','renomme'),T('Un regard sur mon CV','Que verra un recruteur ?','deplace'),T('Les mots de votre CV (ATS)','Mon CV parle-t-il comme l\'offre ?','renomme'),T('Cohérence de mon dossier','Mes documents se tiennent-ils ?','renomme')] },
+      info: { desc:'Les règles, les aides et les chiffres de l\'emploi et de la formation près de chez vous, les mots à connaître, et à qui vous adresser.', tuiles:[T('Comprendre le cadre','Des fiches courtes et des liens officiels.'),T('Comprendre les chiffres','Des chiffres officiels, expliqués simplement, datés.'),T('Qui fait quoi','À qui vous adresser dans votre département, et où.'),T('Lexique','Cherchez un mot du monde du travail dès qu\'il vous bloque, expliqué simplement.','deplace')] },
+      hesite:{ desc:'Vous n\'êtes pas sûr de la direction à prendre ? Découvrez ce que vous savez faire et comparez vos pistes de métier.', tuiles:[T('Découvrir mes compétences','Partez de ce que vous avez vécu pour en tirer un CV, même sans expérience.','deplace'),T('Comparer mes pistes','Mettez deux ou trois pistes côte à côte pour choisir en connaissance de cause.')] }
+    }
+  }
+};
+var courant = 'aujourdhui';
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function rendre(sel){
+  var v = V[courant], g = document.getElementById('grille'), det = document.getElementById('detail');
+  document.getElementById('resume').textContent = v.resume;
+  g.innerHTML = ''; det.innerHTML = '';
+  Object.keys(CARTES).forEach(function(k){
+    var c = v.cartes[k], base = CARTES[k], aChange = (v.changes || []).indexOf(k) !== -1;
+    var puces = c.tuiles.map(function(t){ return '<span class="puce ' + t.etat + '">' + esc(t.nom) + '</span>'; }).join('');
+    var d = document.createElement('div'); d.className = 'carte' + (aChange ? ' change' : ''); d.setAttribute('role','button'); d.setAttribute('tabindex','0'); d.dataset.k = k;
+    d.innerHTML = (aChange ? '<span class="etiq">modifiée</span>' : '') + '<div class="ico">' + base.ico + '</div><h3>' + esc(base.titre) + '</h3><p>' + esc(c.desc || base.desc || '') + '</p><div class="puces">' + puces + '</div>';
+    d.addEventListener('click', function(){ ouvrir(k); });
+    d.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrir(k); } });
+    g.appendChild(d);
+  });
+  if (sel) { ouvrir(sel); }
+}
+function ouvrir(k){
+  var v = V[courant], c = v.cartes[k], det = document.getElementById('detail');
+  var tuiles = c.tuiles.filter(function(t){ return t.etat !== 'retire'; }).map(function(t){
+    var tag = t.etat === 'nouveau' ? '<span class="t n">nouveau raccourci</span>' : (t.etat === 'deplace' ? '<span class="t n">déplacé ici</span>' : (t.etat === 'renomme' ? '<span class="t r">texte modifié</span>' : ''));
+    return '<div class="tuile ' + t.etat + '">' + tag + '<b>' + esc(t.nom) + '</b><span class="d">' + esc(t.d) + '</span></div>';
+  }).join('');
+  det.innerHTML = '<div class="panneau"><h3>' + CARTES[k].ico + ' ' + esc(CARTES[k].titre) + ' : ce que la personne voit en l\'ouvrant</h3><div class="tuiles">' + tuiles + '</div></div>';
+  det.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-v]'), function(b){
+  b.addEventListener('click', function(){
+    courant = b.dataset.v;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-v]'), function(x){ x.classList.toggle('actif', x === b); });
+    rendre();
+  });
+});
+document.getElementById('bascule').addEventListener('click', function(){ var s = document.body.getAttribute('data-theme') === 'sombre'; document.body.setAttribute('data-theme', s ? 'clair' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair'; });
+rendre();
+</script>
+</body>
+</html>

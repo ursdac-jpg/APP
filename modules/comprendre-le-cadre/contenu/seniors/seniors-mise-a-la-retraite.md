@@ -7,7 +7,7 @@ tags: [mise à la retraite, employeur, 67 ans, 70 ans, indemnité, rupture du co
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "mise à la retraite"
     definition: "Rupture du contrat de travail décidée par l'employeur parce que le salarié a atteint un certain âge. Elle suit des règles précises et n'est possible qu'à partir de 67 ans, avec l'accord du salarié jusqu'à 70 ans."

@@ -17,6 +17,7 @@
      importer         function (texteColle) -> { succes, erreur } : lit la réponse ; si succes, le module enregistre lui-même le résultat
      apresSucces      function () : suite quand la réponse est lue (en général aller à la page suivante)
      nomAssistant     (facultatif) function (assistant) -> texte d'alerte propre à ce passage
+     avantEnvoi       (facultatif) function () -> texte : si non vide, la demande n'est pas préparée et ce texte est montré à la place (ex. trop de métiers pour une seule réponse)
    ============================================================ */
 
 var _ucpmIntervalleDecompte = null;
@@ -121,6 +122,10 @@ function _ucpmPassageCablerChoix(etat, cle, config) {
       var id = el.getAttribute('data-assistant-ucpm');
       var assistant = (typeof ASSISTANTS_IA !== 'undefined') ? ASSISTANTS_IA.filter(function (a) { return a.id === id; })[0] : null;
       if (!assistant) { return; }
+      if (typeof config.avantEnvoi === 'function') {
+        var avis = config.avantEnvoi();
+        if (avis) { var za = document.getElementById('ucpmErreurChoixIA'); if (za) { za.style.display = 'block'; za.textContent = '⚠️ ' + avis; } return; }
+      }
       var p = _ucpmEtatPassage(etat, cle);
       p.assistant = assistant.id;
       var depart = Promise.resolve(typeof config.construireTexte === 'function' ? config.construireTexte() : '');

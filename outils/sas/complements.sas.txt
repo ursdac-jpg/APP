@@ -1,0 +1,2 @@
+# Sas des telephones : numeros PROPOSES pour des fiches deja publiees. L'application NE LIT PAS ce fichier.
+# Format : cible (identifiant de la fiche) | registre (lieux ou employeurs) | telephone | source (page ou le numero figure).

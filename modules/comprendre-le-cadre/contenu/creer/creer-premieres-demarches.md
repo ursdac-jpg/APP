@@ -7,7 +7,7 @@ tags: [guichet unique, INPI, immatriculation, SIREN, SIRET, registre national de
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "guichet unique des formalités des entreprises"
     definition: "Site en ligne, géré par l'Institut national de la propriété industrielle, par lequel passent obligatoirement toutes les formalités de création, de modification et de cessation d'entreprise."

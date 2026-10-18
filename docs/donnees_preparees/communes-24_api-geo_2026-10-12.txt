@@ -1,0 +1,507 @@
+# Communes de la Dordogne (24) et leur intercommunalité - DONNÉES PRÉPARÉES, pas encore utilisées par l'application
+# Source : API Géo (geo.api.gouv.fr), interrogée le 2026-10-12, d'après le Code Officiel Géographique (data.gouv.fr, Licence Ouverte 2.0 : à citer avec la date de mise à jour).
+# Conditions propres à l'API Géo : non vérifiées. Une commune peut avoir plusieurs codes postaux.
+# Format : code INSEE | commune | codes postaux | code intercommunalité | intercommunalité
+24001 | Abjat-sur-Bandiat | 24300 | 200071819 | CC du Périgord Nontronnais
+24002 | Agonac | 24460 | 200040392 | CA Le Grand Périgueux
+24004 | Ajat | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24006 | Allas-les-Mines | 24220 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24007 | Allemans | 24600 | 200040400 | CC du Périgord Ribéracois
+24005 | Alles-sur-Dordogne | 24480 | 200034833 | CC des Bastides Dordogne-Périgord
+24008 | Angoisse | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24009 | Anlhiac | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24010 | Annesse-et-Beaulieu | 24430 | 200040392 | CA Le Grand Périgueux
+24011 | Antonne-et-Trigonant | 24420 | 200040392 | CA Le Grand Périgueux
+24012 | Archignac | 24590 | 200040830 | CC du Pays de Fénelon
+24014 | Aubas | 24290 | 200041168 | CC de la Vallée de l'Homme
+24015 | Audrix | 24260 | 200041168 | CC de la Vallée de l'Homme
+24016 | Augignac | 24300 | 200071819 | CC du Périgord Nontronnais
+24018 | Auriac-du-Périgord | 24290 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24019 | Azerat | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24021 | Badefols-d'Ans | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24022 | Badefols-sur-Dordogne | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24023 | Baneuil | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24024 | Bardou | 24560 | 200040889 | CC de Portes Sud Périgord
+24025 | Bars | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24026 | Bassillac et Auberoche | 24330 24640 | 200040392 | CA Le Grand Périgueux
+24027 | Bayac | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24028 | Beaumontois en Périgord | 24440 | 200034833 | CC des Bastides Dordogne-Périgord
+24029 | Beaupouyet | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24030 | Beauregard-de-Terrasson | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24031 | Beauregard-et-Bassac | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24032 | Beauronne | 24400 | 200040095 | CC Isle Vern Salembre en Périgord
+24034 | Beleymas | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24036 | Berbiguières | 24220 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24037 | Bergerac | 24100 | 200070647 | CA Bergeracoise
+24038 | Bertric-Burée | 24320 | 200040400 | CC du Périgord Ribéracois
+24039 | Besse | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24040 | Beynac-et-Cazenac | 24220 | 200027217 | CC Sarlat-Périgord Noir
+24042 | Biras | 24310 | 200041572 | CC Dronne et Belle
+24043 | Biron | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24045 | Boisse | 24560 | 200040889 | CC de Portes Sud Périgord
+24046 | Boisseuilh | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24048 | Bonneville-et-Saint-Avit-de-Fumadières | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24050 | Borrèze | 24590 | 200040830 | CC du Pays de Fénelon
+24051 | Bosset | 24130 | 200070647 | CA Bergeracoise
+24052 | Bouillac | 24480 | 200034833 | CC des Bastides Dordogne-Périgord
+24053 | Boulazac Isle Manoire | 24330 24750 | 200040392 | CA Le Grand Périgueux
+24054 | Bouniagues | 24560 | 200070647 | CA Bergeracoise
+24055 | Bourdeilles | 24310 | 200041572 | CC Dronne et Belle
+24057 | Bourg-des-Maisons | 24320 | 200040400 | CC du Périgord Ribéracois
+24058 | Bourg-du-Bost | 24600 | 200040400 | CC du Périgord Ribéracois
+24059 | Bourgnac | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24060 | Bourniquel | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24061 | Bourrou | 24110 | 200040392 | CA Le Grand Périgueux
+24062 | Bouteilles-Saint-Sébastien | 24320 | 200040400 | CC du Périgord Ribéracois
+24063 | Bouzic | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24064 | Brantôme en Périgord | 24310 24460 24530 | 200041572 | CC Dronne et Belle
+24066 | Brouchaud | 24210 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24069 | Bussac | 24350 | 200041572 | CC Dronne et Belle
+24070 | Busserolles | 24360 | 200071819 | CC du Périgord Nontronnais
+24071 | Bussière-Badil | 24360 | 200071819 | CC du Périgord Nontronnais
+24073 | Calès | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24074 | Calviac-en-Périgord | 24370 | 200040830 | CC du Pays de Fénelon
+24075 | Campagnac-lès-Quercy | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24076 | Campagne | 24260 | 200041168 | CC de la Vallée de l'Homme
+24077 | Campsegret | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24080 | Capdrot | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24081 | Carlux | 24370 | 200040830 | CC du Pays de Fénelon
+24082 | Carsac-Aillac | 24200 | 200040830 | CC du Pays de Fénelon
+24083 | Carsac-de-Gurson | 24610 | 200034197 | CC de Montaigne Montravel et Gurson
+24084 | Carves | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24086 | Castelnaud-la-Chapelle | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24087 | Castels et Bézenac | 24220 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24088 | Cause-de-Clérans | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24090 | Celles | 24600 | 200040400 | CC du Périgord Ribéracois
+24091 | Cénac-et-Saint-Julien | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24094 | Chalagnac | 24380 | 200040392 | CA Le Grand Périgueux
+24095 | Chalais | 24800 | 242400752 | CC Périgord-Limousin
+24096 | Champagnac-de-Belair | 24530 | 200041572 | CC Dronne et Belle
+24097 | Champagne-et-Fontaine | 24320 | 200040400 | CC du Périgord Ribéracois
+24098 | Champcevinel | 24750 | 200040392 | CA Le Grand Périgueux
+24100 | Champniers-et-Reilhac | 24360 | 200071819 | CC du Périgord Nontronnais
+24101 | Champs-Romain | 24470 | 200071819 | CC du Périgord Nontronnais
+24102 | Chancelade | 24650 | 200040392 | CA Le Grand Périgueux
+24104 | Chantérac | 24190 | 200040095 | CC Isle Vern Salembre en Périgord
+24105 | Chapdeuil | 24320 | 200040400 | CC du Périgord Ribéracois
+24114 | Chassaignes | 24600 | 200040400 | CC du Périgord Ribéracois
+24115 | Château-l'Évêque | 24460 | 200040392 | CA Le Grand Périgueux
+24116 | Châtres | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24119 | Cherval | 24320 | 200040400 | CC du Périgord Ribéracois
+24120 | Cherveix-Cubas | 24390 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24121 | Chourgnac | 24640 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24122 | Cladech | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24124 | Clermont-d'Excideuil | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24123 | Clermont-de-Beauregard | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24126 | Colombier | 24560 | 200070647 | CA Bergeracoise
+24364 | Coly-Saint-Amand | 24120 24290 | 200041168 | CC de la Vallée de l'Homme
+24128 | Comberanche-et-Épeluche | 24600 | 200040400 | CC du Périgord Ribéracois
+24129 | Condat-sur-Trincou | 24530 | 200041572 | CC Dronne et Belle
+24130 | Condat-sur-Vézère | 24570 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24132 | Conne-de-Labarde | 24560 | 200040889 | CC de Portes Sud Périgord
+24131 | Connezac | 24300 | 200071819 | CC du Périgord Nontronnais
+24134 | Corgnac-sur-l'Isle | 24800 | 242400752 | CC Périgord-Limousin
+24135 | Cornille | 24750 | 200040392 | CA Le Grand Périgueux
+24136 | Coubjours | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24137 | Coulaures | 24420 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24138 | Coulounieix-Chamiers | 24660 | 200040392 | CA Le Grand Périgueux
+24140 | Cours-de-Pile | 24520 | 200070647 | CA Bergeracoise
+24139 | Coursac | 24430 | 200040392 | CA Le Grand Périgueux
+24141 | Coutures | 24320 | 200040400 | CC du Périgord Ribéracois
+24142 | Coux et Bigaroque-Mouzens | 24220 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24143 | Couze-et-Saint-Front | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24144 | Creyssac | 24350 | 200040400 | CC du Périgord Ribéracois
+24145 | Creysse | 24100 | 200070647 | CA Bergeracoise
+24146 | Creyssensac-et-Pissot | 24380 | 200040392 | CA Le Grand Périgueux
+24147 | Cubjac-Auvézère-Val d'Ans | 24640 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24148 | Cunèges | 24240 | 200070647 | CA Bergeracoise
+24150 | Daglan | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24151 | Doissat | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24152 | Domme | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24154 | Douchapt | 24350 | 200040400 | CC du Périgord Ribéracois
+24155 | Douville | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24157 | Douzillac | 24190 | 200040095 | CC Isle Vern Salembre en Périgord
+24158 | Dussac | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24159 | Échourgnac | 24410 | 200040384 | CC Isle Double Landais
+24161 | Église-Neuve-d'Issac | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24160 | Église-Neuve-de-Vergt | 24380 | 200040392 | CA Le Grand Périgueux
+24162 | Escoire | 24420 | 200040392 | CA Le Grand Périgueux
+24163 | Étouars | 24360 | 200071819 | CC du Périgord Nontronnais
+24164 | Excideuil | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24165 | Eygurande-et-Gardedeuil | 24700 | 200040384 | CC Isle Double Landais
+24167 | Eymet | 24500 | 200040889 | CC de Portes Sud Périgord
+24259 | Eyraud-Crempse-Maurens | 24130 24140 | 200069094 | CC Isle et Crempse en Périgord
+24171 | Eyzerac | 24800 | 242400752 | CC Périgord-Limousin
+24174 | Fanlac | 24290 | 200041168 | CC de la Vallée de l'Homme
+24176 | Faurilles | 24560 | 200040889 | CC de Portes Sud Périgord
+24177 | Faux-en-Périgord | 24560 | 200040889 | CC de Portes Sud Périgord
+24180 | Firbeix | 24450 | 242400752 | CC Périgord-Limousin
+24183 | Fleurac | 24580 | 200041168 | CC de la Vallée de l'Homme
+24184 | Florimont-Gaumier | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24186 | Fonroque | 24500 | 200040889 | CC de Portes Sud Périgord
+24188 | Fossemagne | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24189 | Fougueyrolles | 33220 | 200034197 | CC de Montaigne Montravel et Gurson
+24190 | Fouleix | 24380 | 200040392 | CA Le Grand Périgueux
+24191 | Fraisse | 24130 | 200070647 | CA Bergeracoise
+24192 | Gabillou | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24193 | Gageac-et-Rouillac | 24240 | 200070647 | CA Bergeracoise
+24194 | Gardonne | 24680 | 200070647 | CA Bergeracoise
+24195 | Gaugeac | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24196 | Génis | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24197 | Ginestet | 24130 | 200070647 | CA Bergeracoise
+24199 | Gout-Rossignol | 24320 | 200040400 | CC du Périgord Ribéracois
+24200 | Grand-Brassac | 24350 | 200040400 | CC du Périgord Ribéracois
+24202 | Granges-d'Ans | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24205 | Grignols | 24110 | 200040095 | CC Isle Vern Salembre en Périgord
+24206 | Grives | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24207 | Groléjac | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24208 | Grun-Bordas | 24380 | 200040392 | CA Le Grand Périgueux
+24209 | Hautefaye | 24300 | 200071819 | CC du Périgord Nontronnais
+24210 | Hautefort | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24211 | Issac | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24212 | Issigeac | 24560 | 200040889 | CC de Portes Sud Périgord
+24213 | Jaure | 24140 | 200040095 | CC Isle Vern Salembre en Périgord
+24214 | Javerlhac-et-la-Chapelle-Saint-Robert | 24300 | 200071819 | CC du Périgord Nontronnais
+24215 | Jayac | 24590 | 200040830 | CC du Pays de Fénelon
+24217 | Journiac | 24260 | 200041168 | CC de la Vallée de l'Homme
+24218 | Jumilhac-le-Grand | 24630 | 242400752 | CC Périgord-Limousin
+24020 | La Bachellerie | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24085 | La Cassagne | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24106 | La Chapelle-Aubareil | 24290 | 200041168 | CC de la Vallée de l'Homme
+24107 | La Chapelle-Faucher | 24530 | 200041572 | CC Dronne et Belle
+24108 | La Chapelle-Gonaguet | 24350 | 200040392 | CA Le Grand Périgueux
+24109 | La Chapelle-Grésignac | 24320 | 200040400 | CC du Périgord Ribéracois
+24110 | La Chapelle-Montabourlet | 24320 | 200040400 | CC du Périgord Ribéracois
+24111 | La Chapelle-Montmoreau | 24300 | 200041572 | CC Dronne et Belle
+24113 | La Chapelle-Saint-Jean | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24133 | La Coquille | 24450 | 242400752 | CC Périgord-Limousin
+24153 | La Dornac | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24156 | La Douze | 24330 | 200040392 | CA Le Grand Périgueux
+24179 | La Feuillade | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24222 | La Force | 24130 | 200070647 | CA Bergeracoise
+24216 | La Jemaye-Ponteyraud | 24410 | 200040400 | CC du Périgord Ribéracois
+24354 | La Roche-Chalais | 24490 | 242400935 | CC du Pays de Saint Aulaye
+24353 | La Rochebeaucourt-et-Argentine | 24340 | 200041572 | CC Dronne et Belle
+24355 | La Roque-Gageac | 24250 | 200027217 | CC Sarlat-Périgord Noir
+24554 | La Tour-Blanche-Cercles | 24320 | 200040400 | CC du Périgord Ribéracois
+24220 | Lacropte | 24380 | 200040392 | CA Le Grand Périgueux
+24223 | Lalinde | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24224 | Lamonzie-Montastruc | 24520 | 200070647 | CA Bergeracoise
+24225 | Lamonzie-Saint-Martin | 24680 | 200070647 | CA Bergeracoise
+24226 | Lamothe-Montravel | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24227 | Lanouaille | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24228 | Lanquais | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24230 | Larzac | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24231 | Lavalade | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24232 | Lavaur | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24056 | Le Bourdeix | 24300 | 200071819 | CC du Périgord Nontronnais
+24067 | Le Bugue | 24260 | 200041168 | CC de la Vallée de l'Homme
+24068 | Le Buisson-de-Cadouin | 24480 | 200034833 | CC des Bastides Dordogne-Périgord
+24182 | Le Fleix | 24130 | 200070647 | CA Bergeracoise
+24229 | Le Lardin-Saint-Lazare | 24570 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24329 | Le Pizou | 24700 | 200040384 | CC Isle Double Landais
+24236 | Léguillac-de-l'Auche | 24110 | 200040095 | CC Isle Vern Salembre en Périgord
+24237 | Lembras | 24100 | 200070647 | CA Bergeracoise
+24238 | Lempzours | 24800 | 242400752 | CC Périgord-Limousin
+24117 | Les Coteaux Périgourdins | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24172 | Les Eyzies | 24260 24620 | 200041168 | CC de la Vallée de l'Homme
+24175 | Les Farges | 24290 | 200041168 | CC de la Vallée de l'Homme
+24234 | Les Lèches | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24240 | Limeuil | 24510 | 200041168 | CC de la Vallée de l'Homme
+24241 | Limeyrat | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24242 | Liorac-sur-Louyre | 24520 | 200034833 | CC des Bastides Dordogne-Périgord
+24243 | Lisle | 24350 | 200040400 | CC du Périgord Ribéracois
+24244 | Lolme | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24245 | Loubejac | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24246 | Lunas | 24130 | 200070647 | CA Bergeracoise
+24247 | Lusignac | 24320 | 200040400 | CC du Périgord Ribéracois
+24248 | Lussas-et-Nontronneau | 24300 | 200071819 | CC du Périgord Nontronnais
+24251 | Manzac-sur-Vern | 24110 | 200040392 | CA Le Grand Périgueux
+24252 | Marcillac-Saint-Quentin | 24200 | 200027217 | CC Sarlat-Périgord Noir
+24253 | Mareuil en Périgord | 24340 | 200041572 | CC Dronne et Belle
+24254 | Marnac | 24220 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24255 | Marquay | 24620 | 200027217 | CC Sarlat-Périgord Noir
+24256 | Marsac-sur-l'Isle | 24430 | 200040392 | CA Le Grand Périgueux
+24257 | Marsalès | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24260 | Mauzac-et-Grand-Castang | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24261 | Mauzens-et-Miremont | 24260 | 200041168 | CC de la Vallée de l'Homme
+24262 | Mayac | 24420 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24263 | Mazeyrolles | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24264 | Ménesplet | 24700 | 200040384 | CC Isle Double Landais
+24266 | Mensignac | 24350 | 200040392 | CA Le Grand Périgueux
+24267 | Mescoules | 24240 | 200070647 | CA Bergeracoise
+24268 | Meyrals | 24220 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24269 | Mialet | 24450 | 242400752 | CC Périgord-Limousin
+24271 | Milhac-de-Nontron | 24470 | 200071819 | CC du Périgord Nontronnais
+24272 | Minzac | 24610 | 200034197 | CC de Montaigne Montravel et Gurson
+24273 | Molières | 24480 | 200034833 | CC des Bastides Dordogne-Périgord
+24274 | Monbazillac | 24240 | 200070647 | CA Bergeracoise
+24276 | Monestier | 24240 | 200070647 | CA Bergeracoise
+24277 | Monfaucon | 24130 | 200070647 | CA Bergeracoise
+24278 | Monmadalès | 24560 | 200040889 | CC de Portes Sud Périgord
+24279 | Monmarvès | 24560 | 200040889 | CC de Portes Sud Périgord
+24280 | Monpazier | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24293 | Monplaisant | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24281 | Monsac | 24440 | 200034833 | CC des Bastides Dordogne-Périgord
+24282 | Monsaguel | 24560 | 200040889 | CC de Portes Sud Périgord
+24284 | Montagnac-d'Auberoche | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24285 | Montagnac-la-Crempse | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24286 | Montagrier | 24350 | 200040400 | CC du Périgord Ribéracois
+24287 | Montaut | 24560 | 200040889 | CC de Portes Sud Périgord
+24288 | Montazeau | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24289 | Montcaret | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24290 | Montferrand-du-Périgord | 24440 | 200034833 | CC des Bastides Dordogne-Périgord
+24291 | Montignac-Lascaux | 24290 | 200041168 | CC de la Vallée de l'Homme
+24292 | Montpeyroux | 24610 | 200034197 | CC de Montaigne Montravel et Gurson
+24294 | Montpon-Ménestérol | 24700 | 200040384 | CC Isle Double Landais
+24295 | Montrem | 24110 | 200040095 | CC Isle Vern Salembre en Périgord
+24296 | Mouleydier | 24520 | 200070647 | CA Bergeracoise
+24297 | Moulin-Neuf | 24700 | 200040384 | CC Isle Double Landais
+24299 | Mussidan | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24300 | Nabirat | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24301 | Nadaillac | 24590 | 200040830 | CC du Pays de Fénelon
+24302 | Nailhac | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24303 | Nanteuil-Auriac-de-Bourzac | 24320 | 200040400 | CC du Périgord Ribéracois
+24304 | Nantheuil | 24800 | 242400752 | CC Périgord-Limousin
+24305 | Nanthiat | 24800 | 242400752 | CC Périgord-Limousin
+24306 | Nastringues | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24307 | Naussannes | 24440 | 200034833 | CC des Bastides Dordogne-Périgord
+24308 | Négrondes | 24460 | 242400752 | CC Périgord-Limousin
+24309 | Neuvic | 24190 | 200040095 | CC Isle Vern Salembre en Périgord
+24311 | Nontron | 24300 | 200071819 | CC du Périgord Nontronnais
+24313 | Orliac | 24170 | 200041440 | CC de Domme- Villefranche du Périgord
+24316 | Parcoul-Chenaud | 24410 | 242400935 | CC du Pays de Saint Aulaye
+24317 | Paulin | 24590 | 200040830 | CC du Pays de Fénelon
+24318 | Paunat | 24510 | 200040392 | CA Le Grand Périgueux
+24319 | Paussac-et-Saint-Vivien | 24310 | 200040400 | CC du Périgord Ribéracois
+24035 | Pays de Belvès | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24320 | Payzac | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24321 | Pazayac | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24325 | Pechs-de-l'Espérance | 24370 | 200040830 | CC du Pays de Fénelon
+24322 | Périgueux | 24000 | 200040392 | CA Le Grand Périgueux
+24323 | Petit-Bersac | 24600 | 200040400 | CC du Périgord Ribéracois
+24324 | Peyrignac | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24326 | Peyzac-le-Moustier | 24620 | 200041168 | CC de la Vallée de l'Homme
+24327 | Pezuls | 24510 | 200034833 | CC des Bastides Dordogne-Périgord
+24328 | Piégut-Pluviers | 24360 | 200071819 | CC du Périgord Nontronnais
+24168 | Plaisance | 24560 | 200040889 | CC de Portes Sud Périgord
+24330 | Plazac | 24580 | 200041168 | CC de la Vallée de l'Homme
+24331 | Pomport | 24240 | 200070647 | CA Bergeracoise
+24334 | Pontours | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24335 | Port-Sainte-Foy-et-Ponchapt | 33220 | 243301371 | CC du Pays Foyen
+24336 | Prats-de-Carlux | 24370 | 200040830 | CC du Pays de Fénelon
+24337 | Prats-du-Périgord | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24338 | Pressignac-Vicq | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24339 | Preyssac-d'Excideuil | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24340 | Prigonrieux | 24130 | 200070647 | CA Bergeracoise
+24341 | Proissans | 24200 | 200027217 | CC Sarlat-Périgord Noir
+24345 | Queyssac | 24140 | 200070647 | CA Bergeracoise
+24346 | Quinsac | 24530 | 200041572 | CC Dronne et Belle
+24347 | Rampieux | 24440 | 200034833 | CC des Bastides Dordogne-Périgord
+24348 | Razac-d'Eymet | 24500 | 200040889 | CC de Portes Sud Périgord
+24349 | Razac-de-Saussignac | 24240 | 200070647 | CA Bergeracoise
+24350 | Razac-sur-l'Isle | 24430 | 200040392 | CA Le Grand Périgueux
+24351 | Ribagnac | 24240 | 200070647 | CA Bergeracoise
+24352 | Ribérac | 24600 | 200040400 | CC du Périgord Ribéracois
+24357 | Rouffignac-de-Sigoulès | 24240 | 200070647 | CA Bergeracoise
+24356 | Rouffignac-Saint-Cernin-de-Reilhac | 24580 | 200041168 | CC de la Vallée de l'Homme
+24221 | Rudeau-Ladosse | 24340 | 200041572 | CC Dronne et Belle
+24359 | Sadillac | 24500 | 200040889 | CC de Portes Sud Périgord
+24360 | Sagelat | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24376 | Saint Aulaye-Puymangou | 24410 | 242400935 | CC du Pays de Saint Aulaye
+24490 | Saint Privat en Périgord | 24410 | 242400935 | CC du Pays de Saint Aulaye
+24361 | Saint-Agne | 24520 | 200034833 | CC des Bastides Dordogne-Périgord
+24365 | Saint-Amand-de-Vergt | 24380 | 200040392 | CA Le Grand Périgueux
+24366 | Saint-André-d'Allas | 24200 | 200027217 | CC Sarlat-Périgord Noir
+24367 | Saint-André-de-Double | 24190 | 200040400 | CC du Périgord Ribéracois
+24370 | Saint-Antoine-de-Breuilh | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24371 | Saint-Aquilin | 24110 | 200040095 | CC Isle Vern Salembre en Périgord
+24372 | Saint-Astier | 24110 | 200040095 | CC Isle Vern Salembre en Périgord
+24373 | Saint-Aubin-de-Cadelech | 24500 | 200040889 | CC de Portes Sud Périgord
+24374 | Saint-Aubin-de-Lanquais | 24560 | 200040889 | CC de Portes Sud Périgord
+24375 | Saint-Aubin-de-Nabirat | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24377 | Saint-Avit-de-Vialard | 24260 | 200041168 | CC de la Vallée de l'Homme
+24378 | Saint-Avit-Rivière | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24379 | Saint-Avit-Sénieur | 24440 | 200034833 | CC des Bastides Dordogne-Périgord
+24380 | Saint-Barthélemy-de-Bellegarde | 24700 | 200040384 | CC Isle Double Landais
+24381 | Saint-Barthélemy-de-Bussière | 24360 | 200071819 | CC du Périgord Nontronnais
+24383 | Saint-Capraise-d'Eymet | 24500 | 200040889 | CC de Portes Sud Périgord
+24382 | Saint-Capraise-de-Lalinde | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24384 | Saint-Cassien | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24386 | Saint-Cernin-de-l'Herm | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24385 | Saint-Cernin-de-Labarde | 24560 | 200040889 | CC de Portes Sud Périgord
+24388 | Saint-Chamassy | 24260 | 200041168 | CC de la Vallée de l'Homme
+24390 | Saint-Crépin-d'Auberoche | 24330 | 200040392 | CA Le Grand Périgueux
+24392 | Saint-Crépin-et-Carlucet | 24590 | 200040830 | CC du Pays de Fénelon
+24395 | Saint-Cybranet | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24396 | Saint-Cyprien | 24220 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24397 | Saint-Cyr-les-Champagnes | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24398 | Saint-Estèphe | 24360 | 200071819 | CC du Périgord Nontronnais
+24399 | Saint-Étienne-de-Puycorbier | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24403 | Saint-Félix-de-Bourdeilles | 24340 | 200041572 | CC Dronne et Belle
+24404 | Saint-Félix-de-Reillac-et-Mortemart | 24260 | 200041168 | CC de la Vallée de l'Homme
+24405 | Saint-Félix-de-Villadeix | 24510 | 200034833 | CC des Bastides Dordogne-Périgord
+24408 | Saint-Front-d'Alemps | 24460 | 242400752 | CC Périgord-Limousin
+24409 | Saint-Front-de-Pradoux | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24410 | Saint-Front-la-Rivière | 24300 | 200071819 | CC du Périgord Nontronnais
+24411 | Saint-Front-sur-Nizonne | 24300 | 200071819 | CC du Périgord Nontronnais
+24412 | Saint-Geniès | 24590 | 200040830 | CC du Pays de Fénelon
+24413 | Saint-Georges-Blancaneix | 24130 | 200070647 | CA Bergeracoise
+24414 | Saint-Georges-de-Montclard | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24415 | Saint-Géraud-de-Corps | 24700 | 200034197 | CC de Montaigne Montravel et Gurson
+24416 | Saint-Germain-de-Belvès | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24417 | Saint-Germain-des-Prés | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24418 | Saint-Germain-du-Salembre | 24190 | 200040095 | CC Isle Vern Salembre en Périgord
+24419 | Saint-Germain-et-Mons | 24520 | 200070647 | CA Bergeracoise
+24420 | Saint-Géry | 24400 | 200070647 | CA Bergeracoise
+24421 | Saint-Geyrac | 24330 | 200040392 | CA Le Grand Périgueux
+24422 | Saint-Hilaire-d'Estissac | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24424 | Saint-Jean-d'Ataux | 24190 | 200040095 | CC Isle Vern Salembre en Périgord
+24426 | Saint-Jean-d'Estissac | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24425 | Saint-Jean-de-Côle | 24800 | 242400752 | CC Périgord-Limousin
+24428 | Saint-Jory-de-Chalais | 24800 | 242400752 | CC Périgord-Limousin
+24429 | Saint-Jory-las-Bloux | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24432 | Saint-Julien-de-Lampon | 24370 | 200040830 | CC du Pays de Fénelon
+24423 | Saint-Julien-Innocence-Eulalie | 24500 | 200040889 | CC de Portes Sud Périgord
+24434 | Saint-Just | 24320 | 200040400 | CC du Périgord Ribéracois
+24436 | Saint-Laurent-des-Hommes | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24437 | Saint-Laurent-des-Vignes | 24100 | 200070647 | CA Bergeracoise
+24438 | Saint-Laurent-la-Vallée | 24170 | 200041440 | CC de Domme- Villefranche du Périgord
+24441 | Saint-Léon-d'Issigeac | 24560 | 200040889 | CC de Portes Sud Périgord
+24442 | Saint-Léon-sur-l'Isle | 24110 | 200040095 | CC Isle Vern Salembre en Périgord
+24443 | Saint-Léon-sur-Vézère | 24290 | 200041168 | CC de la Vallée de l'Homme
+24444 | Saint-Louis-en-l'Isle | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24445 | Saint-Marcel-du-Périgord | 24510 | 200034833 | CC des Bastides Dordogne-Périgord
+24446 | Saint-Marcory | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24448 | Saint-Martial-d'Albarède | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24449 | Saint-Martial-d'Artenset | 24700 | 200040384 | CC Isle Double Landais
+24450 | Saint-Martial-de-Nabirat | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24451 | Saint-Martial-de-Valette | 24300 | 200071819 | CC du Périgord Nontronnais
+24452 | Saint-Martial-Viveyrol | 24320 | 200040400 | CC du Périgord Ribéracois
+24453 | Saint-Martin-de-Fressengeas | 24800 | 242400752 | CC Périgord-Limousin
+24454 | Saint-Martin-de-Gurson | 24610 | 200034197 | CC de Montaigne Montravel et Gurson
+24455 | Saint-Martin-de-Ribérac | 24600 | 200040400 | CC du Périgord Ribéracois
+24456 | Saint-Martin-des-Combes | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24457 | Saint-Martin-l'Astier | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24458 | Saint-Martin-le-Pin | 24300 | 200071819 | CC du Périgord Nontronnais
+24459 | Saint-Mayme-de-Péreyrol | 24380 | 200040392 | CA Le Grand Périgueux
+24460 | Saint-Méard-de-Drône | 24600 | 200040400 | CC du Périgord Ribéracois
+24461 | Saint-Méard-de-Gurçon | 24610 | 200034197 | CC de Montaigne Montravel et Gurson
+24463 | Saint-Médard-d'Excideuil | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24462 | Saint-Médard-de-Mussidan | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24464 | Saint-Mesmin | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24465 | Saint-Michel-de-Double | 24400 | 200069094 | CC Isle et Crempse en Périgord
+24466 | Saint-Michel-de-Montaigne | 24230 | 243301454 | CC Castillon/Pujols
+24468 | Saint-Michel-de-Villadeix | 24380 | 200040392 | CA Le Grand Périgueux
+24472 | Saint-Nexans | 24520 | 200070647 | CA Bergeracoise
+24474 | Saint-Pancrace | 24530 | 200041572 | CC Dronne et Belle
+24476 | Saint-Pantaly-d'Excideuil | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24477 | Saint-Pardoux-de-Drône | 24600 | 200040400 | CC du Périgord Ribéracois
+24478 | Saint-Pardoux-et-Vielvic | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24479 | Saint-Pardoux-la-Rivière | 24470 | 200071819 | CC du Périgord Nontronnais
+24480 | Saint-Paul-de-Serre | 24380 | 200040392 | CA Le Grand Périgueux
+24481 | Saint-Paul-la-Roche | 24800 | 242400752 | CC Périgord-Limousin
+24482 | Saint-Paul-Lizonne | 24320 | 200040400 | CC du Périgord Ribéracois
+24483 | Saint-Perdoux | 24560 | 200040889 | CC de Portes Sud Périgord
+24487 | Saint-Pierre-d'Eyraud | 24130 | 200070647 | CA Bergeracoise
+24484 | Saint-Pierre-de-Chignac | 24330 | 200040392 | CA Le Grand Périgueux
+24485 | Saint-Pierre-de-Côle | 24800 | 242400752 | CC Périgord-Limousin
+24486 | Saint-Pierre-de-Frugie | 24450 | 242400752 | CC Périgord-Limousin
+24488 | Saint-Pompon | 24170 | 200041440 | CC de Domme- Villefranche du Périgord
+24489 | Saint-Priest-les-Fougères | 24450 | 242400752 | CC Périgord-Limousin
+24491 | Saint-Rabier | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24493 | Saint-Raphaël | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24494 | Saint-Rémy | 24700 | 200034197 | CC de Montaigne Montravel et Gurson
+24495 | Saint-Romain-de-Monpazier | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24496 | Saint-Romain-et-Saint-Clément | 24800 | 242400752 | CC Périgord-Limousin
+24498 | Saint-Saud-Lacoussière | 24470 | 200071819 | CC du Périgord Nontronnais
+24499 | Saint-Sauveur | 24520 | 200070647 | CA Bergeracoise
+24500 | Saint-Sauveur-Lalande | 24700 | 200040384 | CC Isle Double Landais
+24501 | Saint-Seurin-de-Prats | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24502 | Saint-Séverin-d'Estissac | 24190 | 200040095 | CC Isle Vern Salembre en Périgord
+24505 | Saint-Sulpice-d'Excideuil | 24800 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24504 | Saint-Sulpice-de-Roumagnac | 24600 | 200040400 | CC du Périgord Ribéracois
+24508 | Saint-Victor | 24350 | 200040400 | CC du Périgord Ribéracois
+24509 | Saint-Vincent-de-Connezac | 24190 | 200040400 | CC du Périgord Ribéracois
+24510 | Saint-Vincent-de-Cosse | 24220 | 200027217 | CC Sarlat-Périgord Noir
+24511 | Saint-Vincent-Jalmoutiers | 24410 | 242400935 | CC du Pays de Saint Aulaye
+24512 | Saint-Vincent-le-Paluel | 24200 | 200027217 | CC Sarlat-Périgord Noir
+24513 | Saint-Vincent-sur-l'Isle | 24420 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24514 | Saint-Vivien | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24393 | Sainte-Croix | 24440 | 200034833 | CC des Bastides Dordogne-Périgord
+24394 | Sainte-Croix-de-Mareuil | 24340 | 200041572 | CC Dronne et Belle
+24401 | Sainte-Eulalie-d'Ans | 24640 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24406 | Sainte-Foy-de-Belvès | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24407 | Sainte-Foy-de-Longas | 24510 | 200034833 | CC des Bastides Dordogne-Périgord
+24470 | Sainte-Mondane | 24370 | 200040830 | CC du Pays de Fénelon
+24471 | Sainte-Nathalène | 24200 | 200027217 | CC Sarlat-Périgord Noir
+24473 | Sainte-Orse | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24492 | Sainte-Radegonde | 24560 | 200040889 | CC de Portes Sud Périgord
+24507 | Sainte-Trie | 24160 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24515 | Salagnac | 24160 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24516 | Salignac-Eyvigues | 24590 | 200040830 | CC du Pays de Fénelon
+24517 | Salles-de-Belvès | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24518 | Salon | 24380 | 200040392 | CA Le Grand Périgueux
+24312 | Sanilhac | 24380 24660 24750 | 200040392 | CA Le Grand Périgueux
+24519 | Sarlande | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24520 | Sarlat-la-Canéda | 24200 | 200027217 | CC Sarlat-Périgord Noir
+24521 | Sarliac-sur-l'Isle | 24420 | 200040392 | CA Le Grand Périgueux
+24522 | Sarrazac | 24800 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24523 | Saussignac | 24240 | 200070647 | CA Bergeracoise
+24524 | Savignac-de-Miremont | 24260 | 200041168 | CC de la Vallée de l'Homme
+24525 | Savignac-de-Nontron | 24300 | 200071819 | CC du Périgord Nontronnais
+24526 | Savignac-Lédrier | 24270 | 242401024 | CC Isle-Loue-Auvézère en Périgord
+24527 | Savignac-les-Églises | 24420 | 200040392 | CA Le Grand Périgueux
+24528 | Sceau-Saint-Angel | 24300 | 200071819 | CC du Périgord Nontronnais
+24529 | Segonzac | 24600 | 200040400 | CC du Périgord Ribéracois
+24531 | Sergeac | 24290 | 200041168 | CC de la Vallée de l'Homme
+24532 | Serres-et-Montguyard | 24500 | 200040889 | CC de Portes Sud Périgord
+24533 | Servanches | 24410 | 242400935 | CC du Pays de Saint Aulaye
+24534 | Sigoulès-et-Flaugeac | 24240 | 200070647 | CA Bergeracoise
+24535 | Simeyrols | 24370 | 200040830 | CC du Pays de Fénelon
+24536 | Singleyrac | 24500 | 200040889 | CC de Portes Sud Périgord
+24537 | Siorac-de-Ribérac | 24600 | 200040400 | CC du Périgord Ribéracois
+24538 | Siorac-en-Périgord | 24170 | 200041051 | CC Vallée de la Dordogne et Forêt Bessède
+24540 | Sorges et Ligueux en Périgord | 24420 24460 | 200040392 | CA Le Grand Périgueux
+24541 | Soudat | 24360 | 200071819 | CC du Périgord Nontronnais
+24542 | Soulaures | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24543 | Sourzac | 24400 | 200040095 | CC Isle Vern Salembre en Périgord
+24544 | Tamniès | 24620 | 200027217 | CC Sarlat-Périgord Noir
+24545 | Teillots | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24546 | Temple-Laguyon | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24547 | Terrasson-Lavilledieu | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24548 | Teyjat | 24300 | 200071819 | CC du Périgord Nontronnais
+24549 | Thénac | 24240 | 200070647 | CA Bergeracoise
+24550 | Thenon | 24210 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24551 | Thiviers | 24800 | 242400752 | CC Périgord-Limousin
+24552 | Thonac | 24290 | 200041168 | CC de la Vallée de l'Homme
+24553 | Tocane-Saint-Apre | 24350 | 200040400 | CC du Périgord Ribéracois
+24555 | Tourtoirac | 24390 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24557 | Trélissac | 24750 | 200040392 | CA Le Grand Périgueux
+24558 | Trémolat | 24510 | 200034833 | CC des Bastides Dordogne-Périgord
+24559 | Tursac | 24620 | 200041168 | CC de la Vallée de l'Homme
+24560 | Urval | 24480 | 200034833 | CC des Bastides Dordogne-Périgord
+24362 | Val de Louyre et Caudeau | 24380 24510 | 200040392 | CA Le Grand Périgueux
+24562 | Vallereuil | 24190 | 200040095 | CC Isle Vern Salembre en Périgord
+24563 | Valojoulx | 24290 | 200041168 | CC de la Vallée de l'Homme
+24564 | Vanxains | 24600 | 200040400 | CC du Périgord Ribéracois
+24565 | Varaignes | 24360 | 200071819 | CC du Périgord Nontronnais
+24566 | Varennes | 24150 | 200034833 | CC des Bastides Dordogne-Périgord
+24567 | Vaunac | 24800 | 242400752 | CC Périgord-Limousin
+24568 | Vélines | 24230 | 200034197 | CC de Montaigne Montravel et Gurson
+24569 | Vendoire | 24320 | 200040400 | CC du Périgord Ribéracois
+24570 | Verdon | 24520 | 200034833 | CC des Bastides Dordogne-Périgord
+24571 | Vergt | 24380 | 200040392 | CA Le Grand Périgueux
+24572 | Vergt-de-Biron | 24540 | 200034833 | CC des Bastides Dordogne-Périgord
+24573 | Verteillac | 24320 | 200040400 | CC du Périgord Ribéracois
+24574 | Veyrignac | 24370 | 200040830 | CC du Pays de Fénelon
+24575 | Veyrines-de-Domme | 24250 | 200041440 | CC de Domme- Villefranche du Périgord
+24576 | Veyrines-de-Vergt | 24380 | 200040392 | CA Le Grand Périgueux
+24577 | Vézac | 24220 | 200027217 | CC Sarlat-Périgord Noir
+24580 | Villac | 24120 | 200041150 | CC Terrassonnais Haut Périgord Noir
+24581 | Villamblard | 24140 | 200069094 | CC Isle et Crempse en Périgord
+24582 | Villars | 24530 | 200041572 | CC Dronne et Belle
+24584 | Villefranche-de-Lonchat | 24610 | 200034197 | CC de Montaigne Montravel et Gurson
+24585 | Villefranche-du-Périgord | 24550 | 200041440 | CC de Domme- Villefranche du Périgord
+24586 | Villetoureix | 24600 | 200040400 | CC du Périgord Ribéracois
+24587 | Vitrac | 24200 | 200027217 | CC Sarlat-Périgord Noir

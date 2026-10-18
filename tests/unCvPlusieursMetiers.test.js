@@ -4,9 +4,9 @@ const assert = require('node:assert/strict');
 // Logique pure du module « Un CV, plusieurs métiers » (aucun DOM). L'interface (pages routées) n'est testée qu'en navigateur.
 const ucpm = require('../modules/un-cv-plusieurs-metiers/logique.js');
 
-test('ucpm : sept pages, une icône et un libellé chacune, jamais d\'icône de visage', () => {
-  assert.equal(ucpm.UCPM_ETAPES.length, 7);
-  assert.equal(ucpm.UCPM_NB_PAGES, 7);
+test('ucpm : huit pages, une icône et un libellé chacune, jamais d\'icône de visage', () => {
+  assert.equal(ucpm.UCPM_ETAPES.length, 8);
+  assert.equal(ucpm.UCPM_NB_PAGES, 8);
   ucpm.UCPM_ETAPES.forEach(function (e) {
     assert.ok(e.label && e.icone, 'étape ' + JSON.stringify(e));
     assert.ok(!/128578|128512|128513|129504/.test(e.icone), 'pas de visage ni de cerveau : ' + e.icone);
@@ -18,12 +18,12 @@ test('ucpm : bornes du module (10 métiers au plus, 2 pour créer)', () => {
   assert.equal(ucpm.UCPM_MIN_METIERS_POUR_CREER, 2);
 });
 
-test('ucpmBornerPage : toujours entre 1 et 7, jamais d\'exception', () => {
+test('ucpmBornerPage : toujours entre 1 et 8, jamais d\'exception', () => {
   assert.equal(ucpm.ucpmBornerPage(0), 1);
   assert.equal(ucpm.ucpmBornerPage(-5), 1);
   assert.equal(ucpm.ucpmBornerPage(3), 3);
   assert.equal(ucpm.ucpmBornerPage('4'), 4);
-  assert.equal(ucpm.ucpmBornerPage(99), 7);
+  assert.equal(ucpm.ucpmBornerPage(99), 8);
   assert.equal(ucpm.ucpmBornerPage(undefined), 1);
   assert.equal(ucpm.ucpmBornerPage('abc'), 1);
 });
@@ -50,8 +50,8 @@ test('ucpmNormaliserEtat : complète les champs, borne la page, refuse ce qui n\
   assert.equal(ucpm.ucpmNormaliserEtat('x'), null);
   assert.equal(ucpm.ucpmNormaliserEtat([1, 2]), null);
   const e = ucpm.ucpmNormaliserEtat({ page: 42, texteCV: 'abc' });
-  assert.equal(e.page, 7);
-  assert.equal(e.pageMax, 7);
+  assert.equal(e.page, 8);
+  assert.equal(e.pageMax, 8);
   assert.equal(e.texteCV, 'abc');
   assert.equal(e.reponseMetiers, null);
   assert.equal(e.version, 1);

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site-v2-python-server",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["serveur_dev.py"],
+      "port": 8123,
+      "autoPort": true
+    }
+  ]
+}

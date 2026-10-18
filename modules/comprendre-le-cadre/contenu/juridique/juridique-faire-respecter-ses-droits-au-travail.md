@@ -7,7 +7,7 @@ tags: [inspection du travail, DREETS, salaire impayé, harcèlement, représenta
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "inspection du travail"
     definition: "Service de l'État (au sein de la DREETS) qui contrôle l'application du droit du travail dans les entreprises et renseigne salariés et employeurs."

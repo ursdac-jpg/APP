@@ -7,7 +7,7 @@ tags: [sortie de détention, France Travail justice, insertion par l'activité �
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "France Travail justice"
     definition: "Conseillers France Travail spécialisés qui reçoivent les personnes détenues sur leur lieu de détention pour les inscrire et préparer leur projet professionnel."

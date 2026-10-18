@@ -7,7 +7,7 @@ tags: [français à visée professionnelle, CPF, aide individuelle à la formati
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "français à visée professionnelle"
     definition: "Formation de français centrée sur le vocabulaire, les documents et les situations d'un métier ou d'un secteur précis."

@@ -583,13 +583,17 @@ function _lexiqueRenduEcran() {
 // outils ; jamais quand on arrive par un lien profond (barre de recherche
 // de l'accueil -> lexiqueOuvrirFiche / lexiqueOuvrirRecherche).
 function _lexiqueRenduIntro() {
-  return '<div class="page-catalogue-contenu lexique-intro">' +
-    (_lexiqueIntroDetour && typeof htmlBoutonRevoirModule === 'function'
-      ? htmlBoutonRevoirModule('btnLexiqueRevenirModule', 'bi-book', 'Revenir au module', true)
-      : '') +
-    '<div class="text-center"><h1><i class="bi bi-book"></i> Lexique</h1>' +
-    '<p class="sousTitre">Comprendre un mot du monde du travail au moment où il vous bloque, puis repartir.</p></div>' +
-
+  // Page d'introduction : même gabarit que les autres modules (htmlPageIntroModuleParcours, data/metiers.js) ; seul le contenu des blocs est propre au Lexique.
+  return htmlPageIntroModuleParcours({
+    classeExtra: 'lexique-intro',
+    titre: '<i class="bi bi-book"></i> Lexique',
+    sousTitre: 'Comprendre un mot du monde du travail au moment où il vous bloque, puis repartir.',
+    multilingueCourte: true,
+    detour: _lexiqueIntroDetour, detourBoutonId: 'btnLexiqueRevenirModule', detourLogo: 'bi-book', detourCtaId: 'btnLexiqueIntroRevenir',
+    onRevenirExpr: 'lexiqueRevenirDeLaPresentation()',
+    ctaId: 'btnLexiqueIntroOuvrir', ctaLabel: 'Ouvrir le Lexique &#8594;',
+    carteRetour: 'boiteaoutils',
+    blocsHTML:
     '<div class="cv-section" style="margin-bottom:1rem;background:var(--accent-bg-subtle);text-align:center;">' +
     '<p class="mb-0"><strong>Vous n’avez pas besoin de connaître ces mots d’avance.</strong> Personne ne vous les a jamais expliqués. C’est justement le rôle de cette page.</p>' +
     '</div>' +
@@ -649,26 +653,8 @@ function _lexiqueRenduIntro() {
     '<div class="cv-section" style="margin-bottom:1rem;">' +
     '<h4>&#128221; Comment ces fiches sont faites</h4>' +
     '<p class="mb-0">Chaque fiche est écrite à l’avance par une personne, en langage simple, puis relue. Le Lexique ne fait appel à aucun assistant en ligne et ne compose aucune réponse sur le moment : ce que vous lisez reste stable jusqu’à ce qu’une personne le mette à jour. La recherche comprend les sigles, les formulations courantes et les questions posées avec vos mots.</p>' +
-    '</div>' +
-
-    '<div class="cv-section" style="margin-bottom:1rem;">' +
-    '<h4>&#9989; Bon à savoir</h4>' +
-    '<div class="cv-section" style="margin-bottom:0.5rem;background:var(--success-bg-subtle);border-left:3px solid var(--success);"><p class="mb-0 small">&#128274; Le Lexique ne contient aucune information sur vous. Vos recherches ne sont pas enregistrées.</p></div>' +
-    '<div class="cv-section" style="margin-bottom:0;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128190; Les fiches que vous mettez en favori sont gardées avec le reste de votre dossier : pensez à cliquer sur l’icône disquette avant de fermer la page, sinon elles seront perdues.</p></div>' +
-    '</div>' +
-
-    (typeof htmlEncartMultilingue === 'function' ? htmlEncartMultilingue(true) : '') +
-
-    '<div class="text-center" style="margin-top:1.25rem;">' +
-    (_lexiqueIntroDetour
-      ? '<button type="button" id="btnLexiqueIntroRevenir" class="btn btn-primary btn-lg">Revenir au module &#8594;</button>'
-      : '<button type="button" id="btnLexiqueIntroOuvrir" class="btn btn-primary btn-lg">Ouvrir le Lexique &#8594;</button>') +
-    '</div>' +
-    '</div>' +
-    // TACHE (retour Denis, 2026-08-31) : "Retour" de la presentation a froid
-    // ramene au menu de la Boite a outils. En detour, "Retour" revient a l'ecran.
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null,
-      { onclickPrecedent: (_lexiqueIntroDetour ? 'lexiqueRevenirDeLaPresentation()' : 'retourVersBoiteAOutils()') }) + '</div>';
+    '</div>'
+  });
 }
 function _lexiqueBrancherIntro() {
   var btn = document.getElementById('btnLexiqueIntroOuvrir');
@@ -910,6 +896,7 @@ function _lexiqueRenduFiche(id) {
     (blocFrein ? '<div class="lexique-fiche-frein">' + blocFrein + '</div>' : '') +
     blocUrgence +
     encartAnnuaire +
+    (_LEXIQUE_FICHES_TYPE_STRUCTURE[fiche.id] ? '<div data-mt-structures-type></div>' : '') +
     encartLocal +
     encartVoirAussiChiffres +
     encartVoirAussiCadre +
@@ -1180,6 +1167,7 @@ function _lexiqueRenduDomaines() {
 }
 function _lexiqueAfficherDomaines() {
   app.innerHTML = _lexiqueRenduDomaines();
+  _lexiqueNoter('domaines', function () { _lexiqueAfficherDomaines(); });
   _lexiqueBrancherDomaines();
   window.scrollTo(0, 0);
 }
@@ -1399,7 +1387,7 @@ function _lexiqueBrancherFiche() {
     var btnStruct = e.target.closest('[data-frein-structures-locales]');
     if (btnStruct) {
       if (typeof ouvrirRenvoiAnnuaire === 'function') {
-        ouvrirRenvoiAnnuaire('Pour « ' + btnStruct.getAttribute('data-frein-structures-locales') + ' », des structures près de chez vous :');
+        ouvrirRenvoiAnnuaire('Pour « ' + btnStruct.getAttribute('data-frein-structures-locales') + ' », des structures près de chez vous :', { freinTitre: btnStruct.getAttribute('data-frein-structures-locales') });
       }
       return;
     }
@@ -1493,6 +1481,7 @@ function _lexiqueRenvoiLocalParFiche(ficheId) {
     }
     // type 'structure'
     var lien = conf[dep];
+    var afficherRenvoi = function () {
     if (!lien || lien === 'annuaire') {
       if (typeof ouvrirRenvoiAnnuaire === 'function') {
         ouvrirRenvoiAnnuaire('Pour « ' + titre + ' » près de chez vous :');
@@ -1513,6 +1502,19 @@ function _lexiqueRenvoiLocalParFiche(ficheId) {
           : '') +
         '<p class="small text-muted mt-3 mb-0">&#8599; Ouvre un autre site dans un nouvel onglet. Vous pouvez revenir ici à tout moment.</p>');
     }
+    };
+    // Décision D15 (2026-10-12) : pour la Dordogne, les structures du répertoire de « Mon territoire » (plusieurs Missions locales, selon la commune ; le PLIE du Bergeracois)
+    // remplacent l'adresse unique du Bergeracois, qui renvoyait tout le département vers la même Mission locale. L'ancien renvoi reste le repli si le répertoire est illisible.
+    var typeRepertoire = (typeof mtTypeDeFicheLexique === 'function') ? mtTypeDeFicheLexique(ficheId) : '';
+    if (dep === '24' && typeRepertoire && typeof monTerritoireStructuresDuType === 'function') {
+      monTerritoireStructuresDuType(typeRepertoire, function (html) {
+        if (html && typeof ouvrirFenetreERIP === 'function') {
+          ouvrirAvecChangerDep('&#128205; ' + echapperAttribut(titre), html + '<p class="small text-muted mt-3 mb-0">&#8599; Ces liens ouvrent un autre site dans un nouvel onglet. Vous pouvez revenir ici à tout moment.</p>');
+        } else { afficherRenvoi(); }
+      });
+      return;
+    }
+    afficherRenvoi();
   });
 }
 
@@ -1590,6 +1592,30 @@ function _lexiqueBrancherFavoris() {
 }
 
 // ============================================================
+// FLECHE « PRECEDENT » DU NAVIGATEUR (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md)
+// Les ecrans du Lexique (recherche, domaines, fiche, mode livre, collections, favoris, bibliotheque, presentation) sont dessines par des fonctions
+// _lexiqueAfficher*() qui gardent leur « Retour » dans une fermeture : chaque ecran note donc, a chaque dessin, de quoi se REJOUER
+// (_lexiqueNoter), et chaque changement d'ecran devient une entree de l'historique. « Precedent » / « Suivant » rejoue l'ecran note.
+// ============================================================
+
+var _lexiqueRejeu = null;   // ecran a rejouer a la place de la recherche, pose par _lexiqueRestaurerHistorique
+
+function _lexiqueNoter(cle, rejouer, extra) {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('lexique', _lexiqueRestaurerHistorique); }
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  var instantane = { cle: cle, rejouer: rejouer || null };
+  if (extra) { Object.keys(extra).forEach(function (k) { instantane[k] = extra[k]; }); }
+  historiqueInterneSynchroniser('lexique', instantane);
+}
+
+function _lexiqueRestaurerHistorique(instantane) {
+  if (instantane.intro) { _lexiqueEcranIntro = true; _lexiqueIntroDetour = !!instantane.detour; _lexiqueRejeu = null; return; }
+  _lexiqueEcranIntro = false;
+  _lexiqueIntroDetour = false;
+  _lexiqueRejeu = instantane.rejouer || null;
+}
+
+// ============================================================
 // NAVIGATION INTERNE (reste sur la route 'lexique', jamais naviguerVers())
 // ============================================================
 
@@ -1598,6 +1624,7 @@ function _lexiqueAfficherRecherche() {
   // la ligne d'exemples a CHAQUE arrivee sur l'ecran (Retour compris).
   _lexiqueTirerAccueil();
   app.innerHTML = _lexiqueRenduEcran();
+  _lexiqueNoter('recherche', function () { _lexiqueAfficherRecherche(); });
   _lexiqueBrancherRecherche();
   window.scrollTo(0, 0);
 }
@@ -1608,12 +1635,16 @@ function _lexiqueAfficherRecherche() {
 function _lexiqueAfficherFiche(id, retour) {
   _lexiqueRetourFiche = retour || null;
   app.innerHTML = _lexiqueRenduFiche(id);
+  _lexiqueNoter('fiche:' + id, function () { _lexiqueAfficherFiche(id, retour); });
   _lexiqueBrancherFiche();
+  // Module « Mon territoire » (phase 3bis) : les structures du repertoire du meme type que la fiche (Dordogne, module ouvert).
+  if (typeof monTerritoireCompleterFicheLexique === 'function') { monTerritoireCompleterFicheLexique(document.getElementById('lexiqueFicheEcran'), id); }
   window.scrollTo(0, 0);
 }
 
 function _lexiqueAfficherModeLivre() {
   app.innerHTML = _lexiqueRenduModeLivre();
+  _lexiqueNoter('livre', function () { _lexiqueAfficherModeLivre(); });
   _lexiqueBrancherModeLivre();
   // "instant" (pas le defilement fluide global du site) : on restaure
   // une position exacte, on ne joue pas une animation -- et un
@@ -1624,6 +1655,7 @@ function _lexiqueAfficherModeLivre() {
 
 function _lexiqueAfficherListeCollections() {
   app.innerHTML = _lexiqueRenduListeCollections();
+  _lexiqueNoter('collections', function () { _lexiqueAfficherListeCollections(); });
   _lexiqueBrancherListeCollections();
   window.scrollTo(0, 0);
 }
@@ -1631,12 +1663,14 @@ function _lexiqueAfficherListeCollections() {
 function _lexiqueAfficherCollection(id, retourPerso) {
   _lexiqueCollectionRetour = (typeof retourPerso === 'function') ? retourPerso : null;
   app.innerHTML = _lexiqueRenduCollection(id);
+  _lexiqueNoter('collection:' + id, function () { _lexiqueAfficherCollection(id, retourPerso); });
   _lexiqueBrancherCollection();
   window.scrollTo(0, 0);
 }
 
 function _lexiqueAfficherFavoris() {
   app.innerHTML = _lexiqueRenduFavoris();
+  _lexiqueNoter('favoris', function () { _lexiqueAfficherFavoris(); });
   _lexiqueBrancherFavoris();
   window.scrollTo(0, 0);
 }
@@ -1649,6 +1683,7 @@ function _lexiqueAfficherBibliotheque(type, valeur, ficheOrigineId, retourPerso)
   _lexiqueBibliothequeFicheOrigine = ficheOrigineId;
   _lexiqueBibliothequeRetour = (typeof retourPerso === 'function') ? retourPerso : null;
   app.innerHTML = _lexiqueRenduBibliotheque(type, valeur);
+  _lexiqueNoter('biblio:' + type + ':' + valeur, function () { _lexiqueAfficherBibliotheque(type, valeur, ficheOrigineId, retourPerso); });
   _lexiqueBrancherBibliotheque();
   window.scrollTo(0, 0);
 }
@@ -1666,10 +1701,13 @@ var _lexiqueEcranIntro = false;
 function pageLexique() {
   if (_lexiqueEcranIntro) {
     app.innerHTML = _lexiqueRenduIntro();
+    _lexiqueNoter('intro' + (_lexiqueIntroDetour ? '-detour' : ''), null, { intro: true, detour: _lexiqueIntroDetour });
     _lexiqueBrancherIntro();
     if (typeof trackEvenement === 'function') { trackEvenement('lexique_intro_affichee'); }
     return;
   }
+  // Retour par la fleche « Precedent » du navigateur : on rejoue l'ecran note (fiche, collection...) au lieu de la recherche.
+  if (typeof _lexiqueRejeu === 'function') { var rejeu = _lexiqueRejeu; _lexiqueRejeu = null; rejeu(); return; }
   _lexiqueAfficherRecherche();
 }
 
@@ -1750,6 +1788,7 @@ function lexiqueOuvrirFiche(id, retour, provenanceLabel, provenanceRoute, proven
   _lexiqueEcranIntro = false;
   _lexiqueIntroDetour = false;
   naviguerVers('lexique');
+  if (typeof historiqueInterneRemplacerProchain === 'function') { historiqueInterneRemplacerProchain(); }
   _lexiqueAfficherFiche(id, retour || _lexiqueAfficherRecherche);
   if (provenanceLabel && typeof definirRetourModuleExterne === 'function') {
     definirRetourModuleExterne(provenanceLabel, provenanceRetour || retour, provenanceRoute);

@@ -7,7 +7,7 @@ tags: [clause sociale, marchés publics, heures d'insertion, facilitateur, PLIE,
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "clause sociale d'insertion"
     definition: "Disposition d'un marché public qui oblige l'entreprise retenue à réserver un volume d'heures de travail à des personnes éloignées de l'emploi."

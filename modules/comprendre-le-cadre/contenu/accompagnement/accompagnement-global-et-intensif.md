@@ -7,7 +7,7 @@ tags: [accompagnement global, accompagnement intensif, travailleur social, sous-
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "accompagnement global"
     definition: "Suivi à deux voix, par un conseiller France Travail et un travailleur social du département, pour les personnes qui ont à la fois des difficultés sociales et un projet d'emploi."

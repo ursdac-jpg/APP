@@ -7,7 +7,7 @@ tags: [aide individuelle à la formation, action de formation conventionnée, pr
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "action de formation conventionnée"
     definition: "Formation achetée par France Travail sur un métier qui recrute. Le demandeur d'emploi qui y entre n'a rien à payer."

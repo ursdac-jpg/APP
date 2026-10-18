@@ -14,16 +14,6 @@ sources:
   - "caf-faire-une-reclamation | Réclamations, recours hiérarchiques et recours administratifs préalables obligatoires (RAPO) | https://www.service-public.gouv.fr/particuliers/vosdroits/F2474 | 2026-09-05"
   - "justice-fr-annuaires | Justice.fr : trouver un point-justice, un tribunal, une aide | https://www.justice.fr/ | 2026-09-04"
 structures:
-  - "point-justice-dordogne | Points-justice de la Dordogne (ex-points d'accès au droit, maisons de justice et du droit) : information juridique gratuite et confidentielle, orientation, consultations d'avocats | https://www.justice.fr/ | 2026-09-04"
-  - "cdad-dordogne | Conseil départemental de l'accès au droit (CDAD) de la Dordogne : coordination des permanences juridiques gratuites du département | https://www.justice.fr/ | 2026-09-04"
-  - "bureau-aide-juridictionnelle-perigueux | Bureau d'aide juridictionnelle, tribunal judiciaire de Périgueux et de Bergerac : dépôt des demandes d'aide juridictionnelle | https://www.justice.fr/ | 2026-09-04"
-  - "conseil-prudhommes-perigueux-bergerac | Conseils de prud'hommes de Périgueux et de Bergerac : litiges entre salariés et employeurs | https://www.justice.fr/ | 2026-09-04"
-  - "dreets-inspection-travail-dordogne | Inspection du travail (DREETS Nouvelle-Aquitaine, unité départementale de la Dordogne) : signalement d'un manquement de l'employeur, information sur le droit du travail | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-04"
-  - "defenseur-des-droits-delegues-dordogne | Délégués territoriaux du Défenseur des droits en Dordogne : accueil gratuit pour les litiges avec un service public et les discriminations | https://www.defenseurdesdroits.fr/saisir/delegues | 2026-09-04"
-  - "france-victimes-dordogne | Association d'aide aux victimes (réseau France Victimes) de la Dordogne : accompagnement juridique et psychologique gratuit | https://www.france-victimes.fr/ | 2026-09-04"
-  - "ordre-avocats-perigueux | Barreau de Périgueux : consultations gratuites d'avocats, information sur l'aide juridictionnelle | https://www.justice.fr/ | 2026-09-04"
-  - "asso-cidff-24 | CIDFF de la Dordogne : information juridique gratuite (droit de la famille, civil, pénal), lutte contre les violences, accès à l'emploi et à la création d'activité, parentalité, à Périgueux et sur plusieurs points du département (24) | https://dordogne.cidff.info/ | 2026-09-06"
-  - "asso-cidff-limousin | CIDFF Limousin : information juridique gratuite pour la Haute-Vienne (et la Corrèze, la Creuse), lutte contre les violences, accompagnement vers l'emploi, permanences à Limoges (87) | https://limousin.cidff.info/ | 2026-09-06"
 ---
 
 MATÉRIAU BRUT, rayon « Questions juridiques ».

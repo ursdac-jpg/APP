@@ -7,7 +7,7 @@ tags: [FICP, fichage, interdit bancaire, Banque de France, incident de paiement,
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "FICP"
     definition: "Fichier des incidents de remboursement des crédits aux particuliers, tenu par la Banque de France. Les banques le consultent avant d'accorder un prêt."

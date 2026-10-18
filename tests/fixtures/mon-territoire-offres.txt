@@ -1,0 +1,4 @@
+# Copie figee pour les essais de l'outil de veille (ne dépend jamais du contenu vivant de offres.txt).
+a-local | employeur | Alpha local | sante | 24 | https://alpha.example/offres | | Site de l'employeur | 2026-10-12 | |
+lidl | employeur | Lidl | commerce-vente | national | https://emplois.lidl.fr/ | lidl | Registre | 2026-04-01 | |
+mairie | portail-officiel | Mairie d'exemple | administration | 87 | https://mairie.example/emplois | | Site | 2025-01-05 | |

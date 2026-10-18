@@ -671,6 +671,31 @@ var COMPARER_TRANCHES_AGE = [
 var _comparerRenduEcran = null;
 var _comparerEcranCourant = 0;
 
+// ------------------------------------------------------------
+// Flèche « Précédent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Les écrans du module sont numérotés de 0 à 8 (_comparerEtat.ecran) et tous dessinés par afficherEcran() : chaque dessin appelle
+// _comparerSynchroniserHistorique(), chaque changement d'écran devient une entrée de l'historique. Les données saisies restent dans _comparerEtat (elles ne
+// reculent jamais) ; seul le numéro d'écran est remis. Les étapes d'un envoi à l'assistant (choix, chez l'assistant, collage) restent DANS un écran.
+// ------------------------------------------------------------
+// Numéro de la comparaison en cours : il change quand la comparaison est effacée (« Recommencer ») ou remplacée (restauration de la disquette).
+var _comparerSessionHistorique = 1;
+
+function _comparerSynchroniserHistorique() {
+  if (typeof historiqueInterneSynchroniser !== 'function' || !_comparerEtat) { return; }
+  historiqueInterneSynchroniser('comparer-pistes', { cle: _comparerSessionHistorique + ':' + _comparerEtat.ecran, ecran: _comparerEtat.ecran, session: _comparerSessionHistorique });
+}
+
+function _comparerRestaurerHistorique(instantane) {
+  // La comparaison a été effacée ou remplacée depuis : ces écrans n'ont plus de sens, « Précédent » les dépasse.
+  if (!_comparerEtat || instantane.session !== _comparerSessionHistorique) { return 'sauter'; }
+  _comparerEtat.ecran = instantane.ecran;
+}
+
+// js/app.js est chargé APRÈS ce fichier : le module s'inscrit au premier dessin de la page, pas au chargement.
+function _comparerInscrireHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('comparer-pistes', _comparerRestaurerHistorique); }
+}
+
 // Cible de la route 'comparer-pistes' (js/app.js). Le sac persiste, donc
 // on rouvre des qu'il existe une comparaison (meme sans rendu en cours,
 // par ex. apres une restauration disquette).
@@ -740,6 +765,7 @@ function comparerRepriseContinuer() {
 // Detruit la comparaison (appele par "Recommencer" et "Tout effacer").
 // C'est le SEUL endroit qui remet _comparerEtat a null.
 function comparerReinitialiser() {
+  _comparerSessionHistorique++;
   _comparerEtat = null;
   _comparerRenduEcran = null;
   _comparerEcranCourant = 0;
@@ -761,6 +787,7 @@ function comparerPistesExporterEtatPourSauvegarde() {
 }
 function comparerPistesRestaurerEtatDepuisSauvegarde(snap) {
   if (snap && typeof snap === 'object' && (Array.isArray(snap.pistes) || Array.isArray(snap.pistesReserve))) {
+    _comparerSessionHistorique++;
     _comparerEtat = snap;
     _comparerEtat.pistes = _comparerEtat.pistes || [];
     _comparerEtat.pistesReserve = _comparerEtat.pistesReserve || [];
@@ -776,6 +803,7 @@ function comparerPistesRestaurerEtatDepuisSauvegarde(snap) {
 // entrees : on ne le reconstruit plus ici, on l'ouvre. Les pistes venues
 // des fiches metier / de la recherche y sont deja (comparerPanierAjouter).
 function ouvrirComparerPistes() {
+  _comparerInscrireHistorique();
   var premiereFois = !_comparerEtat;
   if (premiereFois) { _comparerTrack('comparer_session_demarree'); }
   var etat = _comparerEtat || (_comparerEtat = comparerEtatNeuf());
@@ -1472,7 +1500,7 @@ function ouvrirComparerPistes() {
     racine.querySelectorAll('.cp-frein-fiche [data-frein-structures-locales]').forEach(function (el) {
       el.addEventListener('click', function () {
         if (typeof ouvrirRenvoiAnnuaire === 'function') {
-          ouvrirRenvoiAnnuaire('Pour « ' + this.getAttribute('data-frein-structures-locales') + ' », des structures près de chez vous :');
+          ouvrirRenvoiAnnuaire('Pour « ' + this.getAttribute('data-frein-structures-locales') + ' », des structures près de chez vous :', { freinTitre: this.getAttribute('data-frein-structures-locales') });
         }
       });
     });
@@ -2744,6 +2772,9 @@ function ouvrirComparerPistes() {
           })
         : '') +
       '</div>';
+
+    // La fleche « Precedent » du navigateur retrouve cet ecran (brique B.24).
+    _comparerSynchroniserHistorique();
 
     // Arrivee depuis la page de presentation : toujours en haut (sinon la
     // position du bouton, en bas de la presentation, etait conservee).

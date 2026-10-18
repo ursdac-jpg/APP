@@ -209,6 +209,41 @@ function ucpmAppliquerObjectif(etat, portee, id, objectif) {
   return { ok: true, nb: cibles.length, nbCoches: cibles.filter(function (e) { return e.coche; }).length };
 }
 
+// État des objectifs d'une colonne (retour de Denis, 2026-10-13) : combien d'entrées ont un objectif valide, lesquels, et un libellé court.
+// colonne : 'gauche' (mon métier appelé autrement) ou 'droite' (d'autres métiers). Renvoie { nb, total, demarches: [ids], libelle }.
+function ucpmResumeColonne(etat, colonne) {
+  var liste = ((colonne === 'droite' ? (etat && etat.autres) : (etat && etat.intitules)) || []);
+  var avec = liste.filter(function (e) { return ucpmObjectifValide(e.objectif); });
+  var demarches = [];
+  avec.forEach(function (e) { if (demarches.indexOf(e.objectif.demarche) === -1) { demarches.push(e.objectif.demarche); } });
+  return { nb: avec.length, total: liste.length, demarches: demarches, libelle: demarches.map(ucpmTitreDemarche).join(' ; ') };
+}
+
+// Quand UNE SEULE colonne a des objectifs et pas l'autre, c'est la colonne « source » dont l'objectif peut être repris pour les deux (question posée à la
+// personne quand elle choisit « Tous les métiers cochés »). Renvoie 'gauche', 'droite' ou null (les deux ont des objectifs, ou aucune).
+function ucpmColonneSourceUnique(etat) {
+  var g = ucpmResumeColonne(etat, 'gauche').nb > 0, d = ucpmResumeColonne(etat, 'droite').nb > 0;
+  if (g && !d) { return 'gauche'; }
+  if (d && !g) { return 'droite'; }
+  return null;
+}
+
+// L'objectif « principal » d'une colonne, à reprendre pour l'autre : si toutes ses entrées ont la même démarche, cet objectif (le dernier choix de la colonne
+// s'il existe, sinon celui de la première entrée) ; si elles ont plusieurs démarches différentes, « Candidature spontanée » par défaut (décision de Denis,
+// 2026-10-13). Les champs propres à un seul métier (employeur, recruteur, poste, offre, métier visé) ne sont jamais repris. Null si la colonne n'a aucun objectif.
+function ucpmObjectifPrincipal(etat, colonne) {
+  var r = ucpmResumeColonne(etat, colonne);
+  if (!r.nb) { return null; }
+  if (r.demarches.length > 1) { return ucpmObjectifVide('spontanee'); }
+  var memo = etat && etat.objectifsPortee && etat.objectifsPortee[colonne];
+  var liste = (colonne === 'droite' ? etat.autres : etat.intitules) || [];
+  var source = (memo && ucpmObjectifValide(memo) && memo.demarche === r.demarches[0]) ? memo : liste.filter(function (e) { return ucpmObjectifValide(e.objectif); })[0].objectif;
+  var copie = ucpmNormaliserObjectif(source);
+  copie.employeur = ''; copie.civiliteRecruteur = ''; copie.nomRecruteur = ''; copie.posteOffre = ''; copie.texteOffre = ''; copie.metierVise = '';
+  if (copie.cible === 'metier') { copie.cible = ''; }
+  return copie;
+}
+
 // ---------------- Règles de la page ----------------
 
 // Entrées cochées sans objectif (il en faut un par case cochée).
@@ -312,7 +347,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ucpmCreerListes: ucpmCreerListes, ucpmNomMetier: ucpmNomMetier, ucpmToutesEntrees: ucpmToutesEntrees, ucpmEntreesCochees: ucpmEntreesCochees,
     ucpmTrouverEntree: ucpmTrouverEntree, ucpmCompterCoches: ucpmCompterCoches, ucpmBasculerCoche: ucpmBasculerCoche,
     ucpmAjouterIntitule: ucpmAjouterIntitule, ucpmCorrigerIntitule: ucpmCorrigerIntitule, ucpmRetirerIntitule: ucpmRetirerIntitule,
-    ucpmAppliquerObjectif: ucpmAppliquerObjectif, ucpmCochesSansObjectif: ucpmCochesSansObjectif, ucpmPeutCreerCV: ucpmPeutCreerCV,
+    ucpmAppliquerObjectif: ucpmAppliquerObjectif, ucpmResumeColonne: ucpmResumeColonne, ucpmColonneSourceUnique: ucpmColonneSourceUnique, ucpmObjectifPrincipal: ucpmObjectifPrincipal, ucpmCochesSansObjectif: ucpmCochesSansObjectif, ucpmPeutCreerCV: ucpmPeutCreerCV,
     ucpmLigneOffres: ucpmLigneOffres, ucpmConstruireDemandeOffres: ucpmConstruireDemandeOffres, ucpmNomDepartement: ucpmNomDepartement,
     ucpmDateEnTexte: ucpmDateEnTexte, UCPM_AVERTISSEMENT_OFFRES: UCPM_AVERTISSEMENT_OFFRES,
     ucpmRefParDefaut: ucpmRefParDefaut, ucpmRefCourante: ucpmRefCourante

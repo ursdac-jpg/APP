@@ -7,7 +7,7 @@ tags: [permis, points, suspension, annulation, invalidation, stage de récupéra
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "stage de récupération de points"
     definition: "Stage de deux jours agréé par la préfecture qui permet de récupérer jusqu'à 4 points, une fois par an au maximum."

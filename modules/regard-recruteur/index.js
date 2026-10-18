@@ -189,6 +189,33 @@ var _rrPulseMasquerJusquA = null;
 
 // ---- Route + presentation ------------------------------------------------
 
+// ------------------------------------------------------------
+// Fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Les vues du module (preparer, ..., regard, fiche) se deduisent de _regardRecruteurEtat.vue et sont toutes dessinees par afficherVue() : chaque dessin appelle
+// _regardRecruteurSynchroniserHistorique(), chaque changement de vue devient une entree de l'historique. Le travail (images, texte, lecture recue) ne recule
+// jamais : seul le nom de la vue est remis.
+// ------------------------------------------------------------
+// Numero de la session en cours : il change quand elle est effacee (« Recommencer ») ou remplacee (restauration de la disquette).
+var _regardRecruteurSessionHistorique = 1;
+
+function _regardRecruteurSynchroniserHistorique() {
+  if (typeof historiqueInterneSynchroniser !== 'function' || !_regardRecruteurEtat) { return; }
+  historiqueInterneSynchroniser('regard-recruteur', { cle: _regardRecruteurSessionHistorique + ':' + _regardRecruteurEtat.vue, vue: _regardRecruteurEtat.vue, session: _regardRecruteurSessionHistorique });
+}
+
+function _regardRecruteurRestaurerHistorique(instantane) {
+  // La session a ete effacee ou remplacee depuis : ces vues n'ont plus de sens, « Precedent » les depasse.
+  if (!_regardRecruteurEtat || instantane.session !== _regardRecruteurSessionHistorique) { return 'sauter'; }
+  _regardRecruteurEtat.vue = instantane.vue;
+  _regardRecruteurDetourPresentation = false;
+}
+
+// js/app.js est charge APRES ce fichier : le module s'inscrit au premier dessin de la page, pas au chargement.
+function _regardRecruteurInscrireHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('regard-recruteur', _regardRecruteurRestaurerHistorique); }
+}
+
+
 function pageRegardRecruteur() {
   if (_regardRecruteurEtat || typeof _regardRecruteurRenduVue === 'function') {
     ouvrirRegardRecruteur();
@@ -234,6 +261,7 @@ function regardRecruteurRepriseContinuer() {
 
 // Detruit la session (seul endroit qui remet l'etat a null).
 function regardRecruteurReinitialiser() {
+  _regardRecruteurSessionHistorique++;
   _regardRecruteurEtat = null;
   _regardRecruteurRenduVue = null;
   _regardRecruteurDetourPresentation = false;
@@ -258,6 +286,7 @@ function regardRecruteurExporterEtatPourSauvegarde() {
 }
 function regardRecruteurRestaurerEtatDepuisSauvegarde(snap) {
   if (snap && typeof snap === 'object' && typeof snap.vue === 'string' && RR_VUES.indexOf(snap.vue) !== -1) {
+    _regardRecruteurSessionHistorique++;
     _regardRecruteurEtat = snap;
     _regardRecruteurEtat.images = _regardRecruteurEtat.images || [];
     _regardRecruteurEtat.ciblage = _regardRecruteurEtat.ciblage || {};
@@ -1151,7 +1180,7 @@ function ouvrirRegardRecruteur() {
       '<div class="rr-encart"><span>&#128173;</span><span>Au-delà de la réponse, un recruteur observe si vous vous êtes <strong>approprié votre CV</strong> : pouvez-vous parler de votre parcours en le regardant, plutôt qu’en lisant une feuille&nbsp;? Préparer vos réponses à l’avance, c’est ce qui vous permet d’en parler librement le jour J.</span></div>' +
       '<div class="rr-carte-plat"><p><strong>1. Questions générales</strong> <span class="rr-detail">· toujours présentes</span></p>' + qGen + '</div>' +
       qCv +
-      '<div class="rr-encart"><span>&#128172;</span><span>La bibliothèque complète des questions d’entretien vivra dans le module <strong>Préparer un entretien</strong>. Ici : de quoi anticiper à partir de votre CV.</span></div>' +
+      '<div class="rr-encart"><span>&#128172;</span><span>La bibliothèque complète des questions d’entretien vivra dans le module <strong>M’entraîner à un entretien</strong>. Ici : de quoi anticiper à partir de votre CV.</span></div>' +
       '</div></details>';
 
     var imageAnalysee = etat.modeTexte ? '' :
@@ -1386,6 +1415,7 @@ function ouvrirRegardRecruteur() {
   var _vueRendue = null;
 
   function afficherVue(vue) {
+    _regardRecruteurInscrireHistorique();
     if (RR_VUES.indexOf(vue) === -1) { vue = etat.vue || 'preparer'; }
     var memeVue = (vue === _vueRendue);
     _vueRendue = vue;
@@ -1424,6 +1454,9 @@ function ouvrirRegardRecruteur() {
       '<div class="barre-navigation-fixe">' +
       (typeof barreNavigation === 'function' ? barreNavigation('cv', null, null, { onclickPrecedent: 'regardRecruteurRetour()' }) : '') +
       '</div>';
+
+    // La fleche « Precedent » du navigateur retrouve cette vue (brique B.24).
+    _regardRecruteurSynchroniserHistorique();
 
     window.scrollTo(0, scrollCible);
 

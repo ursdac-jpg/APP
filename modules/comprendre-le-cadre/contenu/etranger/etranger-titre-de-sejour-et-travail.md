@@ -7,7 +7,7 @@ tags: [titre de séjour, autorisation de travail, droit au travail, étranger, r
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "autorisation de travail"
     definition: "Accord donné par l'administration pour qu'une personne étrangère occupe un emploi précis, chez un employeur précis. C'est l'employeur qui la demande."

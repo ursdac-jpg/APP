@@ -7,7 +7,7 @@ tags: [CPF, compte personnel de formation, Mon compte formation, formation certi
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "compte personnel de formation"
     definition: "Compte, exprimé en euros, que chaque personne active alimente en travaillant, pour financer une formation, un bilan de compétences ou une VAE."

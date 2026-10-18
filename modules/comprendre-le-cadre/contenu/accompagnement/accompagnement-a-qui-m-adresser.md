@@ -7,7 +7,7 @@ tags: [accompagnement, France Travail, Mission locale, Cap emploi, RSA, orientat
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "organisme référent"
     definition: "Structure chargée de vous accompagner après votre inscription à France Travail : France Travail, la Mission locale, Cap emploi ou le département, selon votre situation."

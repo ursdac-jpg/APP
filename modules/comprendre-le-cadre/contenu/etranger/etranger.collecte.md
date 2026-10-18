@@ -21,15 +21,9 @@ sources:
   - "interieur-metiers-en-tension | Liste des métiers en tension pour les travailleurs étrangers (direction générale des étrangers en France) | https://www.immigration.interieur.gouv.fr/limmigration-en-france/sejour-des-etrangers/liste-des-metiers-en-tension-pour-travailleurs-etrangers | 2026-09-04"
   - "prefecture-ardennes-tarifs-titres-sejour | À partir du 1er mai 2026 : nouvelle tarification des titres de séjour, des visas de régularisation et des naturalisations (article 128 de la loi de finances pour 2026) | https://www.ardennes.gouv.fr/Actions-de-l-Etat/Citoyennete-Elections/Demarches-pour-les-etrangers-dans-les-Ardennes-asile-sejour-naturalisation/Informations-pratiques-toutes-les-informations-utiles-pour-les-documents-de-sejour/A-partir-du-1er-mai-2026-nouvelle-tarification-des-titres-de-sejour | 2026-09-14"
 structures:
-  - "prefecture-dordogne-etrangers | Préfecture de la Dordogne, service des étrangers : titres de séjour, autorisation de travail, naturalisation. Démarches en ligne sur l'Administration numérique pour les étrangers en France (ANEF). | https://www.dordogne.gouv.fr/ | 2026-09-04"
   - "anef-etrangers | Administration numérique pour les étrangers en France (ANEF) : dépôt et suivi en ligne des demandes de titre de séjour et de naturalisation | https://administration-etrangers-en-france.interieur.gouv.fr/ | 2026-09-04"
-  - "ofii-direction-territoriale-bordeaux | OFII, direction territoriale de Bordeaux (compétente pour la Dordogne) : contrat d'intégration républicaine, formations civique et linguistique, allocation pour demandeur d'asile | https://www.ofii.fr/ | 2026-09-04"
-  - "enic-naric-france | Centre ENIC-NARIC France (France Éducation international) : attestation de comparabilité d'un diplôme étranger, information sur les professions réglementées | https://www.france-education-international.fr/expertises/enic-naric | 2026-09-04"
   - "ants-permis | Agence nationale des titres sécurisés (ANTS) : demande d'échange d'un permis de conduire étranger | https://ants.gouv.fr/ | 2026-09-04"
   - "cdad-dordogne-points-justice | Conseil départemental de l'accès au droit de la Dordogne, points-justice et maisons de justice et du droit : permanences juridiques gratuites, dont le droit des étrangers (annuaire sur justice.fr) | https://www.justice.fr/ | 2026-09-05"
-  - "cimade-nouvelle-aquitaine | La Cimade, région Nouvelle-Aquitaine : permanences d'aide juridique aux personnes étrangères et demandeurs d'asile | https://www.lacimade.org/ | 2026-09-04"
-  - "spada-dordogne | Structure de premier accueil des demandeurs d'asile (SPADA) de la Dordogne : information et accompagnement dans la procédure d'asile | https://www.demarches.interieur.gouv.fr/particuliers/demande-asile | 2026-09-04"
-  - "asso-france-terre-d-asile-24 | France Terre d'Asile, CADA de Périgueux : hébergement et accompagnement administratif, juridique et social des demandeurs d'asile (24) | https://www.france-terre-asile.org/etablissement/cada-de-perigueux | 2026-09-06"
 ---
 
 MATÉRIAU BRUT, rayon « Venir de l'étranger : séjour, travail, équivalences ».

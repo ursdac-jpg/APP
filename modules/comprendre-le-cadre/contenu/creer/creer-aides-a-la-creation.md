@@ -7,7 +7,7 @@ tags: [ACRE, ARE, ARCE, RSA, prime d'activité, création d'entreprise, demandeu
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "ACRE"
     definition: "Aide aux créateurs ou repreneurs d'entreprise : une exonération d'une partie des cotisations sociales la première année."
@@ -34,7 +34,7 @@ collecte: creer.collecte.md
 
 Créer une activité quand on a peu de revenus fait peur, à juste titre. Plusieurs dispositifs limitent le risque.
 
-L'ACRE réduit vos cotisations sociales la première année. Pour les micro-entreprises créées à partir du 1er juillet 2026, elle les abaisse d'un quart, au lieu de la moitié auparavant. Elle n'est pas automatique : il faut la demander à l'URSSAF dans les soixante jours qui suivent le début de l'activité. Les demandeurs d'emploi indemnisés, les personnes au RSA et les moins de trente ans y ont droit.
+L'ACRE réduit vos cotisations sociales la première année. Pour les micro-entreprises créées à partir du 1er juillet 2026, elle les abaisse d'un quart, au lieu de la moitié auparavant. Elle n'est pas automatique : il faut la demander à l'URSSAF dans les soixante jours qui suivent le début de l'activité. Elle est réservée à certaines situations : par exemple les personnes au RSA, les demandeurs d'emploi inscrits depuis plus de six mois, les jeunes de moins de trente ans qui ne touchent pas le chômage, ou les créateurs installés en quartier prioritaire. La liste complète est sur le site de l'URSSAF.
 
 Ensuite, deux options s'excluent l'une l'autre, si vous avez des droits au chômage.
 

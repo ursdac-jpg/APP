@@ -31,10 +31,10 @@ sources:
   - "service-public-plafonnement-arrets-travail | La durée des arrêts de travail plafonnée depuis le 1er septembre | https://www.service-public.gouv.fr/particuliers/actualites/A18962 | 2026-10-05"
   - "legifrance-decret-2026-866-ald | Décret n° 2026-866 du 16 septembre 2026 relatif à la durée maximale dérogatoire d'indemnisation pour arrêt de travail | https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054855169 | 2026-10-05"
   - "service-public-dispense-visite-reprise | Visites de préreprise et de reprise : nouvelles modalités | https://entreprendre.service-public.gouv.fr/actualites/A18964 | 2026-10-05"
+  - "fonction-publique-voies-acces | Je découvre les voies d'accès à la fonction publique | https://www.fonction-publique.gouv.fr/devenir-agent-public/je-decouvre-les-voies-dacces-la-fonction-publique | 2026-10-13"
+  - "sengager-faq | FAQ du recrutement de l'armée de Terre | https://www.sengager.fr/editos/faq | 2026-10-13"
 structures:
   - "france-travail | France Travail : inscription, accompagnement, information sur les droits liés à un contrat et à sa fin | https://www.francetravail.fr/ | 2026-09-04"
-  - "inspection-du-travail-ddets-dordogne | Inspection du travail (DDETS de la Dordogne) : renseignements sur le droit du travail, signalement d'un recours abusif aux contrats précaires | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-04"
-  - "conseil-de-prud-hommes-perigueux-bergerac | Conseils de prud'hommes de Périgueux et de Bergerac : litige entre un salarié et son employeur (voir aussi le rayon Questions juridiques) | https://www.justice.fr/ | 2026-09-04"
   - "cdad-dordogne-points-justice | Points-justice et maisons de justice et du droit de la Dordogne : information juridique gratuite, dont le droit du travail | https://www.cdad-dordogne.justice.fr/ | 2026-09-04"
   - "structures-iae-dordogne | Structures de l'insertion par l'activité économique de la Dordogne (entreprises d'insertion, associations intermédiaires, ateliers et chantiers d'insertion, ETTI) : recrutent en CDD d'insertion, sur orientation | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-04"
   - "cap-emploi-dordogne | Cap emploi de la Dordogne : accompagnement vers l'emploi et le CDD Tremplin pour les personnes ayant une reconnaissance de travailleur handicapé | https://www.capemploi.fr/ | 2026-09-04"

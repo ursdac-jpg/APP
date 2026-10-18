@@ -7,7 +7,7 @@ tags: [micro-entreprise, auto-entrepreneur, société, EURL, SASU, entreprise in
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "micro-entreprise"
     definition: "Régime simplifié de l'entreprise individuelle : cotisations et impôt calculés sur le chiffre d'affaires, peu de formalités, plafond de chiffre d'affaires à respecter."

@@ -7,7 +7,7 @@ tags: [fonds de solidarité pour le logement, FSL, dépôt de garantie, impayés
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "fonds de solidarité pour le logement"
     definition: "Aide du conseil départemental, sous conditions de ressources, pour entrer dans un logement ou s'y maintenir. Elle peut prendre la forme d'un prêt ou d'une subvention."

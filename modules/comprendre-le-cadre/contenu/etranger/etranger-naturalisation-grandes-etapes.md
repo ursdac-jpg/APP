@@ -7,7 +7,7 @@ tags: [naturalisation, nationalité française, décret, examen civique, niveau 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "naturalisation par décret"
     definition: "Voie principale pour devenir français quand on ne l'est pas par la naissance ou le mariage. La décision est prise par l'État, elle n'est jamais automatique."

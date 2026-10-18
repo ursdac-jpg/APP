@@ -15,18 +15,10 @@ sources:
   - "un-jeune-une-solution | 1 jeune 1 solution : les dispositifs pour les jeunes | https://www.1jeune1solution.gouv.fr/ | 2026-09-04"
   - "service-public-apprentissage | Contrat d'apprentissage | https://www.service-public.gouv.fr/particuliers/vosdroits/F2918 | 2026-09-05"
 structures:
-  - "mission-locale-perigord | Missions locales du Périgord : accompagnement global des 16-25 ans, contrat d'engagement jeune, contrôle de l'obligation de formation | https://www.unml.info/ | 2026-09-04"
-  - "france-travail-jeunes-dordogne | France Travail de la Dordogne : accompagnement intensif jeunes, contrat d'engagement jeune | https://www.francetravail.fr/candidat/jeunes.html | 2026-09-04"
-  - "e2c-perigueux | École de la deuxième chance de la Dordogne (Périgueux) : parcours pour les 16-25 ans sans diplôme | https://reseau-e2c.fr/ | 2026-09-04"
-  - "epide-nouvelle-aquitaine | EPIDE, centres de Nouvelle-Aquitaine : internat et accompagnement pour les 17-25 ans | https://www.epide.fr/ | 2026-09-04"
   - "agence-service-civique | Agence du service civique : moteur de recherche des missions | https://www.service-civique.gouv.fr/trouver-ma-mission | 2026-09-04"
-  - "psad-plateforme-suivi-appui-decrocheurs-dordogne | Plateforme de suivi et d'appui aux décrocheurs de la Dordogne : repérage et accompagnement des jeunes sans solution | https://www.education.gouv.fr/ | 2026-09-04"
-  - "cfa-et-ecoles-de-production-nouvelle-aquitaine | Centres de formation d'apprentis et écoles de production de Nouvelle-Aquitaine | https://www.1jeune1solution.gouv.fr/formations-initiales | 2026-09-05"
-  - "asso-crij-nouvelle-aquitaine | Info Jeunes Nouvelle-Aquitaine (CRIJ) : accueil gratuit, anonyme et sans rendez-vous sur l'emploi, le logement, la formation, les droits et la mobilité ; antenne à Limoges et points labellisés dans les deux départements | https://crijna.fr/ | 2026-09-06"
   - "asso-mission-locale-perigord-noir-24 | Mission locale et Maison de l'emploi du Périgord Noir : accompagnement des 16-25 ans vers l'emploi, la formation et l'autonomie (contrat d'engagement jeune, logement des saisonniers, mobilité), à Sarlat et Terrasson (24) | https://www.missionlocaleperigordnoir.com/ | 2026-09-07"
   - "asso-mission-locale-du-bergeracois-24 | Mission locale du Bergeracois : accompagnement des 16-25 ans vers l'emploi, la formation et l'autonomie (contrat d'engagement jeune, logement, santé, mobilité, budget), sur le Sud Dordogne, 145 communes (24) | https://www.missionlocaledubergeracois.com/ | 2026-09-07"
   - "asso-mission-locale-du-grand-perigueux-24 | Mission locale du Grand Périgueux : accompagnement des 16-25 ans vers l'emploi, la formation et l'autonomie (contrat d'engagement jeune, logement, santé, mobilité, citoyenneté), 43 communes de la communauté d'agglomération, permanences à Périgueux et Vergt (24) | https://www.ml-grandperigueux.fr/ | 2026-09-07"
-  - "asso-mission-locale-rurale-87 | Mission locale rurale de la Haute-Vienne : accueil des 16-25 ans sur tout le territoire rural du département (emploi, formation, apprentissage, logement, santé, mobilité), 4 antennes (Bellac, Saint-Junien, Aixe-sur-Vienne, Saint-Yrieix) et 32 points d'accueil (87) | https://www.missionlocaleruralehautevienne.com/ | 2026-09-07"
 ---
 
 MATÉRIAU BRUT, rayon « Moins de 26 ans ».

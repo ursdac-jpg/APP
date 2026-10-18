@@ -167,6 +167,31 @@ var _decouverteInfosBlocsInitialisees = false;
 // Remis a false par fermerDecouverteCompetences().
 var _decouverteCascadeParcoursFaite = false;
 
+// ------------------------------------------------------------
+// Flèche « Précédent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Les étapes du parcours (1 à 8) sont toutes dessinées par afficherEtape() : chaque dessin appelle _decouverteSynchroniserHistorique(), chaque changement
+// d'étape devient une entrée de l'historique. Le travail (récit, compétences retenues) vit dans la closure et ne recule jamais : seul le numéro d'étape est remis.
+// ------------------------------------------------------------
+// Numéro du parcours en cours : il change quand le parcours est effacé (« Recommencer »).
+var _decouverteSessionHistorique = 1;
+
+function _decouverteSynchroniserHistorique(numero) {
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  historiqueInterneSynchroniser('decouverte', { cle: _decouverteSessionHistorique + ':' + numero, etape: numero, session: _decouverteSessionHistorique });
+}
+
+function _decouverteRestaurerHistorique(instantane) {
+  // Le parcours a été effacé depuis : ces étapes n'ont plus de sens, « Précédent » les dépasse.
+  if (typeof _decouverteRenduEtape !== 'function' || instantane.session !== _decouverteSessionHistorique) { return 'sauter'; }
+  _decouverteNumeroCourant = instantane.etape;
+  _decouverteDetourPresentation = false;
+}
+
+// js/app.js est chargé APRÈS ce fichier : le module s'inscrit au premier dessin de la page, pas au chargement.
+function _decouverteInscrireHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('decouverte', _decouverteRestaurerHistorique); }
+}
+
 // Route 'decouverte' : redessine l'etape courante si une session existe,
 // sinon renvoie vers la presentation du module.
 function pageDecouverte() {
@@ -222,6 +247,7 @@ function decouverteRepriseContinuer() {
 }
 
 function fermerDecouverteCompetences() {
+  _decouverteSessionHistorique++;
   // Vrai depart a zero (recommencer(), js/app.js) : on oublie la session.
   _decouverteRenduEtape = null;
   _decouverteAgirRetour = null;
@@ -518,6 +544,7 @@ function ouvrirDecouverteCompetences() {
   // ecrit directement dans #app (page routee 'decouverte').
 
   function afficherEtape(numero) {
+    _decouverteInscrireHistorique();
     // TACHE (retour Denis, 2026-08-31, Chantier 4) : la croix "effacer le
     // recit" ne vit que sur la page "Preparer" (etapes 1/2/3). Des qu'on la
     // quitte, on l'oublie.
@@ -633,11 +660,17 @@ function ouvrirDecouverteCompetences() {
       // correctif boucle 2026-09-09). TACHE (retour Denis, 2026-09-18,
       // point 2) : seul bouton Retour du module desormais -- l'ancien,
       // dans la page, est retire (voir plus haut).
+      // Étape qui continue depuis la barre du bas (continuerDansBarre) : le bouton « Continuer » est à côté de Retour et Accueil, jamais dans la page.
       '<div class="barre-navigation-fixe">' +
       (typeof barreNavigation === 'function'
-        ? barreNavigation('cv', null, null, { onclickPrecedent: '_decouverteAgirRetour()' })
+        ? (etape.continuerDansBarre
+          ? barreNavigation('cv', 'cv', etape.libelleContinuer || 'Continuer &#8594;', { onclickPrecedent: '_decouverteAgirRetour()', onclickSuivant: '_decouverteContinuerBarre()' })
+          : barreNavigation('cv', null, null, { onclickPrecedent: '_decouverteAgirRetour()' }))
         : '') +
       '</div>';
+    window._decouverteContinuerBarre = function () { if (typeof etape.onContinuer === 'function') { etape.onContinuer(); } };
+    // La fleche « Precedent » du navigateur retrouve cette etape (brique B.24).
+    _decouverteSynchroniserHistorique(numero);
 
     window.scrollTo(0, scrollPrecedent);
     _decouverteEtapeRendueDom = numero;
@@ -2158,8 +2191,13 @@ function ouvrirDecouverteCompetences() {
     etatAccordeonValide = accordeonValidePourType('cv');
     return {
       titre: '📥 Collez la réponse de l’assistant',
-      contenuHTML: contenuAccordeonImportIA('cv'),
+      // Complément de CV (facultatif, décision de Denis 2026-10-10) : une fois la réponse importée, le parcours ne se termine plus tout seul. La personne peut
+      // importer le complément (zone ci-dessous), puis elle clique sur « Continuer vers mon CV ».
+      contenuHTML: htmlBanniereComplementCV() + contenuAccordeonImportIA('cv') + (reponseIAImportee('cv') ? rectangleComplementCV() : ''),
       masquerContinuer: true,
+      continuerDansBarre: reponseIAImportee('cv'),
+      libelleContinuer: libelleContinuerComplementCV('Continuer vers mon CV &#8594;'),
+      onContinuer: function () { terminerParcoursDecouverte(); },
       onAfficher: function () {
         etatAccordeon = accordeonPourType('cv');
         etatAccordeonValide = accordeonValidePourType('cv');
@@ -2179,14 +2217,24 @@ function ouvrirDecouverteCompetences() {
         var compteVu = _compteRelecturesAutoAppliquees, terminaisonPlanifiee = false;
         wireImportIA('cv', function () {
           if (_compteRelecturesAutoAppliquees !== compteVu) {
+            // Réponse importée et appliquée : on reste sur cette étape, qui propose maintenant le complément de CV et « Continuer vers mon CV ».
             if (!terminaisonPlanifiee) {
               terminaisonPlanifiee = true;
-              setTimeout(function () { terminerParcoursDecouverte(); }, 0);
+              setTimeout(function () { afficherEtape(12); }, 0);
             }
             return;
           }
           afficherEtape(etatAccordeon['relecture-ia'] ? 13 : 12);
         }, 'relecture-ia');
+        // Zone « Compléter mon CV » : bascule du rectangle puis collage du second bloc.
+        var btnToggleComplementDec = document.querySelector('[data-assistant-rect-toggle="complement-cv"]');
+        if (btnToggleComplementDec) {
+          btnToggleComplementDec.addEventListener('click', function () {
+            etatAccordeon['complement-cv'] = !etatAccordeon['complement-cv'];
+            afficherEtape(12);
+          });
+          wireComplementCV(function () { afficherEtape(12); });
+        }
       }
     };
   }

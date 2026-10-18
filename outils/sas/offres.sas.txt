@@ -1,0 +1,3 @@
+# Sas des pages d'offres : pages de recrutement PROPOSEES (par exemple par un assistant) et pas encore verifiees a la main. L'application NE LIT PAS ce fichier.
+# Format : celui de modules/mon-territoire/contenu/offres.txt, colonne date vide. Une page sort d'ici quand vous l'avez ouverte et verifiee (outil de veille, bouton « C'est bon »).
+# ---- 80 anciennes pages de recrutement du sas de depart (Dordogne et Haute-Vienne), non verifiees a la main ; les 12 doublons avec les pages deja presentes et les 26 pages deja verifiees sont ecartes. La colonne source indique le controle automatique. ----

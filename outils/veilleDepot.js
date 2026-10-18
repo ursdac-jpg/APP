@@ -8,10 +8,49 @@
    ============================================================ */
 'use strict';
 const fs = require('fs');
+const os = require('os');
+const crypto = require('crypto');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const lexique = require('./veilleLexique.js');
 const liens = require('./veilleLiens.js');
+const territoire = require('./veilleTerritoire.js');
+const controle = require('./veilleControle.js');
+const sas = require('./veilleSas.js');
+const chg = require('./veilleChangements.js');
+const ficheChamps = require('./veilleFiche.js');
+const choix = require('./veilleChoix.js');
+const chiffres = require('./veilleChiffres.js');
+const sansNumero = require('./veilleSansNumero.js');
+const logiqueTerritoire = require('../modules/mon-territoire/logique.js');
+const RE_TERRITOIRE_CHIFFRES = /^(departements-region|regions-france|zones-emploi|(medecins|dentistes|pharmaciens|specialistes)-(departements-region|regions-france))\.md$/;
+
+// Les fichiers de chiffres que l'outil sait modifier : digest trimestriel, fiches de territoire, documents annuels (portrait, Europe) et fiches methode
+// (celles de « Comprendre les chiffres » : « methode/<id>.md » ; celles de « Comprendre le cadre » : « cadre-methode/<id>.md »). Rend { forme, chemin: [...] } ou null.
+function cibleChiffres(nom) {
+  const n = String(nom || '');
+  if (RE_MOIS.test(n)) { return { forme: 'digest', chemin: DOSSIER_CHIFFRES.concat([n]) }; }
+  if (RE_TERRITOIRE_CHIFFRES.test(n)) { return { forme: 'territoire', chemin: DOSSIER_CHIFFRES.concat([n]) }; }
+  if (/^(portrait|ue)-\d{4}\.md$/.test(n)) { return { forme: 'annuel', chemin: DOSSIER_CHIFFRES.concat([n]) }; }
+  let m = /^methode\/([a-z0-9-]+\.md)$/.exec(n);
+  if (m) { return { forme: 'methode', chemin: DOSSIER_CHIFFRES.concat(['methode', m[1]]) }; }
+  m = /^cadre-methode\/([a-z0-9-]+\.md)$/.exec(n);
+  if (m) { return { forme: 'methode', chemin: DOSSIER_CADRE.concat(['methode', m[1]]) }; }
+  return null;
+}
+// La modification d'une forme : rend { ok, texte, resume } (ou { ok: false, erreur }).
+function appliquerChiffres(forme, texte, demande, contexte) {
+  if (forme === 'digest') { return chiffres.modifierDigest(texte, demande, contexte); }
+  if (forme === 'territoire') { return chiffres.modifierTerritoire(texte, demande, contexte); }
+  if (forme === 'annuel') { return chiffres.modifierAnnuel(texte, demande, contexte); }
+  return chiffres.modifierMethode(texte, demande);
+}
+// Ce qui designe la ligne modifiee dans le journal.
+function cibleDeDemande(forme, demande) {
+  if (forme === 'digest' || forme === 'annuel') { return String(demande.ref || ''); }
+  if (forme === 'territoire') { return String(demande.lieu || ''); }
+  return '';
+}
 
 const TAILLE_MAX = 200000;
 const TIRET_COURT = String.fromCharCode(0x2013);
@@ -155,6 +194,50 @@ function integrerCandidatsLexique(contenu, candidats, mois, options) {
 function validerFichier(racine, f, rayons) {
   if (!f || typeof f !== 'object') { return { ok: false, erreur: 'Fichier mal forme.' }; }
   const type = String(f.type || ''), nom = String(f.nom || ''), texte = f.texte;
+  if (type === 'territoire') {
+    // Registres du module « Qui fait quoi » (structures, employeurs) : pas de texte envoye, des ACTIONS que veilleTerritoire.js applique ligne par ligne.
+    const fichier = String(f.fichier || '');
+    if (!territoire.FICHIERS[fichier]) { return { ok: false, erreur: 'Registre du module Qui fait quoi inconnu (« ' + fichier.slice(0, 30) + ' »).' }; }
+    if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucune modification a enregistrer.' }; }
+    const cheminT = territoire.FICHIERS[fichier].chemin;
+    return { ok: true, chemin: cheminT, type: 'territoire', fichier: fichier, rayon: '', nom: path.basename(cheminT), texte: '', actions: f.actions };
+  }
+  if (type === 'sas') {
+    // Sas du module « Qui fait quoi » (fiches proposees, pas encore verifiees, jamais lues par l'application) : des ACTIONS que veilleSas.js applique.
+    const fichierS = String(f.fichier || '');
+    if (!sas.CHEMINS[fichierS]) { return { ok: false, erreur: 'Sas inconnu (« ' + fichierS.slice(0, 30) + ' »).' }; }
+    if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucune modification du sas a enregistrer.' }; }
+    return { ok: true, chemin: sas.CHEMINS[fichierS], type: 'sas', fichier: fichierS, rayon: '', nom: path.basename(sas.CHEMINS[fichierS]), texte: '', actions: f.actions };
+  }
+  if (type === 'sans-numero') {
+    // « Cette fiche n'a pas de numéro » : la confirmation de Denis (date du jour) est gardée dans un petit fichier suivi par Git, que l'application ne lit pas.
+    if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucune fiche à marquer « sans numéro ».' }; }
+    const cheminN = sansNumero.CHEMIN.join('/');
+    return { ok: true, chemin: cheminN, type: 'sans-numero', fichier: '', rayon: '', nom: path.basename(cheminN), texte: '', actions: f.actions };
+  }
+  if (type === 'changements') {
+    // Sas des changements du balayage (jamais lu par l'application) : des ACTIONS (importer, retirer, valider) que veilleChangements.js applique ;
+    // « valider » ecrit le changement dans contenu/balayage/<mois>.md avec « Verifie le ».
+    if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucune modification du sas des changements a enregistrer.' }; }
+    return { ok: true, chemin: chg.CHEMIN_SAS, type: 'changements', fichier: '', rayon: '', nom: path.basename(chg.CHEMIN_SAS), texte: '', actions: f.actions };
+  }
+  if (type === 'fiche-champs') {
+    // Une fiche EXISTANTE du cadre modifiee champ par champ : pas de texte envoye, des changements que veilleFiche.js applique (jamais une creation).
+    const rayonF = String(f.rayon || '');
+    if (rayons.indexOf(rayonF) === -1) { return { ok: false, erreur: nom + ' : rayon inconnu (« ' + rayonF + ' »).' }; }
+    if (!RE_FICHE.test(nom) || /\.collecte\.md$/.test(nom) || nom === 'readme.md') { return { ok: false, erreur: 'Nom de fiche refuse : ' + nom + '.' }; }
+    if (!f.changements || typeof f.changements !== 'object' || Array.isArray(f.changements)) { return { ok: false, erreur: nom + ' : aucune modification a enregistrer.' }; }
+    const cheminF = DOSSIER_CADRE.concat([rayonF, nom]).join('/');
+    if (path.resolve(racine, cheminF).indexOf(path.resolve(racine) + path.sep) !== 0) { return { ok: false, erreur: nom + ' : destination refusee.' }; }
+    return { ok: true, chemin: cheminF, type: 'fiche-champs', rayon: rayonF, nom: nom, texte: '', changements: f.changements, revision: String(f.revision || ''), formeSeule: !!f.formeSeule, datation: f.datation === 'redater' ? 'redater' : 'garder' };
+  }
+  if (type === 'chiffres-champs') {
+    // Un fichier existant de « Comprendre les chiffres » (ou une fiche methode) modifie par ses champs : pas de texte envoye.
+    const cib = cibleChiffres(nom);
+    if (!cib) { return { ok: false, erreur: 'Fichier de chiffres non pris en charge : ' + nom.slice(0, 50) + '.' }; }
+    if (!f.demande || typeof f.demande !== 'object' || Array.isArray(f.demande)) { return { ok: false, erreur: nom + ' : aucune modification a enregistrer.' }; }
+    return { ok: true, chemin: cib.chemin.join('/'), type: 'chiffres-champs', rayon: '', nom: nom, texte: '', demande: f.demande, phrase: String(f.phrase || ''), forme: cib.forme };
+  }
   if (type === 'liens') {
     // Registre des adresses : pas de texte envoye, des ACTIONS (valider, modifier, supprimer, ajouter) que veilleLiens.js applique ligne par ligne.
     if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucune modification d\'adresse a enregistrer.' }; }
@@ -247,6 +330,32 @@ function creerDepot(racine, options) {
   const git = function (args) { return lancer('git', args); };
   let derniere = null;   // { hash, chemins } : la derniere publication de cette seance (la seule annulable)
 
+  // Les lignes d'etat « XY chemin » d'un `git status --porcelain` (git peut y mele des avertissements, par exemple pour un dossier qui n'existe pas encore : ce ne sont pas des modifications).
+  // REPÈRE D'ENREGISTREMENT : posé juste avant d'écrire les fichiers, retiré quand tout est fini. S'il reste, l'enregistrement a été interrompu (page ou fenêtre fermée, programme arrêté).
+  // Il vit dans le dossier temporaire du poste, jamais dans le dépôt (il ne doit pas apparaître comme une modification).
+  const cheminRepere = path.join(os.tmpdir(), 'veille_enregistrement_en_cours_' + crypto.createHash('sha1').update(path.resolve(racine)).digest('hex').slice(0, 12) + '.json');
+  function poserRepere(chemins) { try { fs.writeFileSync(cheminRepere, JSON.stringify({ debut: new Date().toISOString(), chemins: chemins })); } catch (e) { /* tant pis : le contrôle des fichiers modifiés prendra le relais */ } }
+  function retirerRepere() { try { fs.rmSync(cheminRepere, { force: true }); } catch (e) { /* rien */ } }
+  function lireRepere() { try { return JSON.parse(fs.readFileSync(cheminRepere, 'utf8')); } catch (e) { return null; } }
+  // Registres que l'outil modifie (suivis par Git) : un de ces fichiers modifié sans enregistrement = travail à reprendre ou à annuler.
+  function cheminsSuivis() {
+    const l = [territoire.FICHIERS.lieux.chemin, territoire.FICHIERS.employeurs.chemin, territoire.FICHIERS.offres.chemin, 'modules/comprendre-le-cadre/liens-verifies.txt'];
+    return l.concat(FICHIERS_GENERES.map(function (c) { return c.join('/'); }));
+  }
+  // Ce qui est resté en suspens : { chemins, resume, debut } ou null.
+  function interrompue() {
+    const repere = lireRepere();
+    const st = git(['status', '--porcelain', '--'].concat(cheminsSuivis()));
+    const modifies = st.code === 0 ? lignesModifiees(st).map(function (l) { return l.slice(3).trim(); }) : [];
+    if (!repere && !modifies.length) { return null; }
+    const chemins = modifies.length ? modifies : (repere.chemins || []);
+    if (!chemins.length) { retirerRepere(); return null; }
+    const d = git(['diff', '--unified=0', '--no-color', '--ignore-space-at-eol', '--'].concat(chemins));
+    const lignes = d.code === 0 ? d.sortie.split('\n').filter(function (l) { return /^[-+]/.test(l) && !/^(---|\+\+\+)/.test(l); }).slice(0, 40).map(function (l) { return l.slice(0, 220); }) : [];
+    return { chemins: chemins, resume: lignes, debut: repere ? repere.debut : null, repere: !!repere };
+  }
+  function lignesModifiees(st) { return st.sortie.split('\n').filter(function (l) { return /^[ MADRCTU?!]{2} \S/.test(l); }); }
+
   function branche() { const r = git(['rev-parse', '--abbrev-ref', 'HEAD']); return r.code === 0 ? r.sortie.trim() : ''; }
 
   function etat() {
@@ -254,7 +363,8 @@ function creerDepot(racine, options) {
     return {
       branche: branche(),
       modifications: st.code === 0 ? st.sortie.split('\n').filter(Boolean).length : -1,
-      annulable: !!derniere
+      annulable: !!derniere,
+      interrompue: interrompue()
     };
   }
 
@@ -264,7 +374,46 @@ function creerDepot(racine, options) {
     return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
   }
 
+  // Journal des modifications des registres Qui fait quoi : date ET heure de chaque fiche ajoutée ou modifiée (les registres, eux, ne portent que la date). L'application NE LIT PAS ce fichier.
+  const JOURNAL = 'outils/journal_modifications.txt';
+  function maintenant() {
+    if (opt.maintenant) { return opt.maintenant(); }
+    const d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function fichesTouchees(fichier, avant, apres) {
+    const cols = territoire.FICHIERS[fichier].colonnes, vus = {};
+    territoire.analyser(avant, cols).lignes.forEach(function (l) { if (l.id) { vus[l.id] = JSON.stringify(l.valeurs); } });
+    const sortie = [];
+    territoire.analyser(apres, cols).lignes.forEach(function (l) { if (l.id && vus[l.id] !== JSON.stringify(l.valeurs)) { sortie.push({ id: l.id, nouvelle: vus[l.id] === undefined }); } });
+    return sortie;
+  }
+  function liensTouches(avant, apres) {
+    const vus = {};
+    liens.analyser(avant).lignes.forEach(function (l) { if (l.nom) { vus[l.nom] = l.adresse + '|' + l.date + '|' + l.portee; } });
+    const sortie = [];
+    liens.analyser(apres).lignes.forEach(function (l) { if (l.nom && vus[l.nom] !== l.adresse + '|' + l.date + '|' + l.portee) { sortie.push({ id: l.nom, nouvelle: vus[l.nom] === undefined }); } });
+    return sortie;
+  }
+  function dernieresModifications(fichier) {
+    const t = lireOuNull(path.resolve(racine, JOURNAL)), m = {};
+    if (!t) { return m; }
+    t.toString('utf8').split('\n').forEach(function (ligne) {
+      const c = ligne.split('|').map(function (x) { return x.trim(); });
+      if (c.length >= 3 && c[1] === fichier && /^\d{4}-\d\d-\d\d \d\d:\d\d$/.test(c[0])) { m[c[2]] = c[0]; }
+    });
+    return m;
+  }
+
+  // Le repère est retiré à la sortie de chaque enregistrement, sauf si les fichiers restent écrits sans être rangés (échec de Git) : il reste alors pour proposer la reprise.
+  let garderRepere = false;
   function publier(fichiers, options) {
+    garderRepere = false;
+    try { return publierInterne(fichiers, options); }
+    finally { if (!garderRepere) { retirerRepere(); } }
+  }
+
+  function publierInterne(fichiers, options) {
     if (!Array.isArray(fichiers) || !fichiers.length) { return { ok: false, code: 'vide', erreur: 'Aucun fichier a publier.' }; }
     if (fichiers.length > 60) { return { ok: false, code: 'trop', erreur: 'Trop de fichiers d\'un coup (60 au plus).' }; }
     if (branche() !== 'master') { return { ok: false, code: 'branche', erreur: 'Le depot n\'est pas sur la branche principale (master) : changez de branche avant de publier.' }; }
@@ -281,7 +430,9 @@ function creerDepot(racine, options) {
     // README : une fiche NOUVELLE (fichier absent du depot) doit etre ajoutee au tableau de son rayon.
     const prevus = {};   // chemin -> nouveau contenu (Buffer)
     const nouvelles = [];
-    let motsAjoutes = [], motsRemplaces = [], resumeLiens = null;
+    const journalAjouts = [];
+    let motsAjoutes = [], motsRemplaces = [], resumeLiens = null, resumeTerritoire = null, resumeSas = null, resumeSansNumero = null, resumeChangements = null;
+    const resumeFiches = [], resumeChiffres = [];
     for (const v of valides) {
       if (v.type === 'lexique') {
         const courant = (lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE)) || Buffer.from('')).toString('utf8');
@@ -291,16 +442,87 @@ function creerDepot(racine, options) {
         motsAjoutes = motsAjoutes.concat(r.ajoutes); motsRemplaces = motsRemplaces.concat(r.remplaces);
         continue;
       }
+      if (v.type === 'chiffres-champs') {
+        const courantCh = lireOuNull(path.resolve(racine, v.chemin));
+        if (courantCh === null) { return { ok: false, code: 'chiffres-absent', erreur: v.nom + ' : ce fichier n\'existe pas.' }; }
+        const rc = appliquerChiffres(v.forme, courantCh.toString('utf8'), v.demande, { aujourdhui: aujourdhui() });
+        if (!rc.ok) { return { ok: false, code: 'chiffres-champs', erreur: v.nom + ' : ' + rc.erreur, bloquants: rc.bloquants }; }
+        prevus[v.chemin] = Buffer.from(rc.texte, 'utf8');
+        const cibleCh = cibleDeDemande(v.forme, v.demande);
+        resumeChiffres.push({ fichier: v.nom, cible: cibleCh, action: rc.resume.action, champs: rc.resume.champs, alertes: rc.resume.alertes || [] });
+        journalAjouts.push(maintenant() + ' | chiffres | ' + v.nom + (cibleCh ? ' : ' + cibleCh.replace(/\|/g, '/') : '') + ' | ' + rc.resume.action + ' | ' + String(v.phrase || '').replace(/\|/g, '/'));
+        continue;
+      }
+      if (v.type === 'fiche-champs') {
+        const courantF = lireOuNull(path.resolve(racine, v.chemin));
+        if (courantF === null) { return { ok: false, code: 'fiche-absente', erreur: v.nom + ' : cette fiche n\'existe pas (la creation d\'une fiche ne passe pas par cet ecran).' }; }
+        const tRegistre = lireOuNull(path.resolve(racine, liens.CHEMIN_LIENS)), tLexique = lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE));
+        const ids = tLexique ? lexique.identifiantsExistants(tLexique.toString('utf8')) : null;
+        const r = ficheChamps.appliquerModification(courantF.toString('utf8'), { changements: v.changements, revision: v.revision, formeSeule: v.formeSeule, datation: v.datation }, {
+          aujourdhui: aujourdhui(),
+          sourcesConnues: tRegistre ? liens.analyser(tRegistre.toString('utf8')).lignes.map(function (l) { return l.nom; }).filter(Boolean) : null,
+          lexiqueIds: ids
+        });
+        if (!r.ok) { return { ok: false, code: 'fiche-champs', erreur: v.nom + ' : ' + r.erreur }; }
+        prevus[v.chemin] = Buffer.from(r.texte, 'utf8'); resumeFiches.push({ fiche: v.nom.replace(/\.md$/, ''), rayon: v.rayon, action: r.resume.action, champs: r.resume.champs, phrase: r.resume.phrase });
+        journalAjouts.push(maintenant() + ' | cadre | ' + v.nom.replace(/\.md$/, '') + ' | ' + r.resume.action + ' | ' + String(r.resume.phrase || '').replace(/\|/g, '/'));
+        continue;
+      }
       if (v.type === 'liens') {
         const courantL = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
         const r = liens.appliquer(courantL, v.actions, aujourdhui(), liens.usagesDesLiens(racine));
         if (!r.ok) { return { ok: false, code: 'liens', erreur: r.erreur }; }
         if (r.texte === courantL) { return { ok: false, code: 'liens-rien', erreur: 'Ces modifications ne changent rien au registre des adresses.' }; }
         prevus[v.chemin] = Buffer.from(r.texte, 'utf8'); resumeLiens = r.resume;
+        liensTouches(courantL, r.texte).forEach(function (x) { journalAjouts.push(maintenant() + ' | liens | ' + x.id + ' | ' + (x.nouvelle ? 'ajoutée' : 'modifiée')); });
+        continue;
+      }
+      if (v.type === 'sas') {
+        const courantS = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
+        const r = sas.appliquer(v.fichier, courantS, v.actions, registresDuDepot(), territoire.contexteDepuis(racine, aujourdhui()), aujourdhui());
+        if (!r.ok) { return { ok: false, code: 'sas', erreur: r.erreur }; }
+        if (r.texte === courantS) { return { ok: false, code: 'sas-rien', erreur: 'Ces modifications ne changent rien au sas.' }; }
+        prevus[v.chemin] = Buffer.from(r.texte, 'utf8'); resumeSas = r.resume;
+        continue;
+      }
+      if (v.type === 'sans-numero') {
+        const courantN = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
+        const regs = registresDuDepot(), ids = {};
+        ['lieux', 'employeurs'].forEach(function (k) { ids[k] = territoire.analyser(regs[k], territoire.FICHIERS[k].colonnes).lignes.map(function (x) { return x.id; }); });
+        const r = sansNumero.appliquer(courantN, v.actions, aujourdhui(), ids);
+        if (!r.ok) { return { ok: false, code: 'sans-numero', erreur: r.erreur }; }
+        prevus[v.chemin] = Buffer.from(r.texte, 'utf8'); resumeSansNumero = r.resume;
+        v.actions.forEach(function (a) { journalAjouts.push(maintenant() + ' | sans-numero | ' + a.registre + ' : ' + a.id + ' | confirmée'); });
+        continue;
+      }
+      if (v.type === 'changements') {
+        const courantC = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
+        const r = chg.appliquer(courantC, v.actions, {
+          aujourdhui: aujourdhui(),
+          digest: function (mois) { return (lireOuNull(path.resolve(racine, chg.DOSSIER_DIGESTS, mois + '.md')) || Buffer.from('')).toString('utf8'); }
+        });
+        if (!r.ok) { return { ok: false, code: 'changements', erreur: r.erreur }; }
+        if (r.texteSas === courantC && !Object.keys(r.digests).length) { return { ok: false, code: 'changements-rien', erreur: 'Ces modifications ne changent rien au sas des changements.' }; }
+        prevus[v.chemin] = Buffer.from(r.texteSas, 'utf8');
+        Object.keys(r.digests).forEach(function (mois) { prevus[chg.DOSSIER_DIGESTS + '/' + mois + '.md'] = Buffer.from(r.digests[mois], 'utf8'); });
+        resumeChangements = r.resume;
+        continue;
+      }
+      if (v.type === 'territoire') {
+        const courantT = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
+        const r = territoire.appliquer(v.fichier, courantT, v.actions, aujourdhui(), territoire.contexteDepuis(racine, aujourdhui()));
+        if (!r.ok) { return { ok: false, code: 'territoire', erreur: r.erreur }; }
+        if (r.texte === courantT) { return { ok: false, code: 'territoire-rien', erreur: 'Rien à enregistrer : ces fiches sont déjà à jour (déjà vérifiées aujourd\'hui, ou aucun changement fait). Ce n\'est pas une erreur.' }; }
+        prevus[v.chemin] = Buffer.from(r.texte, 'utf8'); resumeTerritoire = r.resume;
+        fichesTouchees(v.fichier, courantT, r.texte).forEach(function (x) { journalAjouts.push(maintenant() + ' | ' + v.fichier + ' | ' + x.id + ' | ' + (x.nouvelle ? 'ajoutée' : 'modifiée')); });
         continue;
       }
       prevus[v.chemin] = Buffer.from(v.texte, 'utf8');
       if (v.type === 'fiche' && !fs.existsSync(path.resolve(racine, v.chemin))) { nouvelles.push(v); }
+    }
+    if (journalAjouts.length) {
+      const ancien = (lireOuNull(path.resolve(racine, JOURNAL)) || Buffer.from('# Journal des modifications des registres Qui fait quoi : date, heure | registre | fiche | action. L’application NE LIT PAS ce fichier.\n')).toString('utf8');
+      prevus[JOURNAL] = Buffer.from(ancien.replace(/\s*$/, '\n') + journalAjouts.join('\n') + '\n', 'utf8');
     }
     for (const v of nouvelles) {
       const cheminReadme = DOSSIER_CADRE.concat([v.rayon, 'README.md']).join('/');
@@ -313,10 +535,10 @@ function creerDepot(racine, options) {
     // Ne jamais ecraser un travail en cours : un fichier cible deja modifie et non enregistre arrete tout.
     const cibles = Object.keys(prevus);
     // Fichiers EXISTANTS qui vont etre remplaces (une fiche mise a jour, un digest refait) : signales dans le bilan.
-    const remplaces = valides.filter(function (v) { return v.type !== 'lexique' && v.type !== 'liens' && fs.existsSync(path.resolve(racine, v.chemin)); }).map(function (v) { return v.chemin; });
+    const remplaces = valides.filter(function (v) { return v.type !== 'lexique' && v.type !== 'liens' && v.type !== 'territoire' && v.type !== 'sas' && v.type !== 'changements' && fs.existsSync(path.resolve(racine, v.chemin)); }).map(function (v) { return v.chemin; });
     const st = git(['status', '--porcelain', '--'].concat(cibles));
-    if (st.code === 0 && st.sortie.trim()) {
-      return { ok: false, code: 'travail-en-cours', erreur: 'Un de ces fichiers a deja des modifications non enregistrees (travail en cours) : ' + st.sortie.trim().split('\n')[0].trim() + '. Rien n\'a ete ecrit.' };
+    if (st.code === 0 && lignesModifiees(st).length) {
+      return { ok: false, code: 'travail-en-cours', erreur: 'Un enregistrement précédent a été interrompu : le fichier ' + lignesModifiees(st)[0].slice(3).trim() + ' contient des changements qui ne sont pas rangés dans l\'historique. Par prudence, rien n\'a été écrit. Un bandeau en haut de la page vous propose de terminer cet enregistrement ou de le défaire.' };
     }
 
     // Sauvegarde, ecriture.
@@ -329,16 +551,18 @@ function creerDepot(racine, options) {
         try { if (sauvegarde[c] === null) { fs.rmSync(p, { force: true }); } else { fs.writeFileSync(p, sauvegarde[c]); } } catch (e) { /* on continue la restauration */ }
       });
     };
+    poserRepere(cibles.concat(FICHIERS_GENERES.map(function (p) { return p.join('/'); })));
     try {
       cibles.forEach(function (c) { const p = path.resolve(racine, c); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, prevus[c]); });
     } catch (e) { restaurer(); return { ok: false, code: 'ecriture', erreur: 'Ecriture impossible : ' + (e && e.message) }; }
 
     // Regeneration des copies derivees, puis tests.
+    const seulementSas = valides.every(function (v) { return v.type === 'sas' || v.type === 'sans-numero' || (v.type === 'changements' && !v.actions.some(function (a) { return a && a.op === 'valider'; })); });   // le sas n'est pas lu par l'application : rien a regenerer, rien a tester
     const etapes = [];
     const base = path.join(racine, 'scripts', 'genererBaseVeille.js');
-    if (fs.existsSync(base)) { etapes.push(lancer(process.execPath, ['scripts/genererBaseVeille.js'])); }
+    if (!seulementSas && fs.existsSync(base)) { etapes.push(lancer(process.execPath, ['scripts/genererBaseVeille.js'])); }
     const renvois = path.join(racine, 'scripts', 'genererRenvoisCadre.js');
-    if (fs.existsSync(renvois)) { etapes.push(lancer(process.execPath, ['scripts/genererRenvoisCadre.js'])); }
+    if (!seulementSas && fs.existsSync(renvois)) { etapes.push(lancer(process.execPath, ['scripts/genererRenvoisCadre.js'])); }
     const echecGen = etapes.find(function (r) { return r.code !== 0; });
     if (echecGen) { restaurer(); return { ok: false, code: 'generation', erreur: 'La mise a jour des copies de l\'outil a echoue : rien n\'est publie.', details: echecGen.sortie.split('\n').slice(-15).join('\n') }; }
     let avertissementsLexique = [];
@@ -348,7 +572,7 @@ function creerDepot(racine, options) {
       // Avertissements : non bloquants mais montres (par exemple un mot jamais cite par un autre).
       avertissementsLexique = verif.sortie.split('\n').filter(function (l) { return /^\s*-?\s*(Fiche|Parcours|Collection|")/.test(l) || /avertissement/i.test(l); }).slice(0, 20);
     }
-    const tests = lancer(process.execPath, ['--test', 'tests/*.test.js']);
+    const tests = seulementSas ? { code: 0, sortie: '' } : lancer(process.execPath, ['--test', 'tests/*.test.js']);
     if (tests.code !== 0) {
       restaurer();
       const echecs = tests.sortie.split('\n').filter(function (l) { return /^\s*(not ok|✖)/.test(l); }).slice(0, 8).map(function (l) { return l.trim(); });
@@ -358,12 +582,13 @@ function creerDepot(racine, options) {
     // Enregistrement Git local, uniquement sur les chemins de cette publication.
     const chemins = cibles.concat(FICHIERS_GENERES.map(function (p) { return p.join('/'); }).filter(function (c) { return fs.existsSync(path.resolve(racine, c)); }));
     const ajout = git(['add', '--'].concat(chemins));
-    if (ajout.code !== 0) { return { ok: false, code: 'git', erreur: 'Git n\'a pas pu preparer l\'enregistrement (les fichiers restent ecrits, rien n\'est enregistre).', details: ajout.sortie }; }
+    if (ajout.code !== 0) { garderRepere = true; return { ok: false, code: 'git', erreur: 'Git n\'a pas pu preparer l\'enregistrement (les fichiers restent ecrits, rien n\'est enregistre).', details: ajout.sortie }; }
     const nb = valides.length;
     const message = 'Veille : mise a jour du contenu (' + nb + ' fichier' + (nb > 1 ? 's' : '') + ')\n\n' + valides.map(function (v) { return '- ' + v.chemin; }).join('\n');
     const commit = git(['commit', '-m', message, '--'].concat(chemins));
     if (commit.code !== 0) {
       git(['reset', '-q', '--'].concat(chemins));
+      garderRepere = true;
       return { ok: false, code: 'git', erreur: 'Git n\'a pas pu enregistrer (les fichiers restent ecrits, rien n\'est enregistre). Prevenez Claude.', details: commit.sortie };
     }
     const hash = git(['rev-parse', 'HEAD']).sortie.trim();
@@ -371,10 +596,38 @@ function creerDepot(racine, options) {
     return {
       ok: true, commit: hash.slice(0, 8), fichiers: valides.map(function (v) { return v.chemin; }),
       nouvelles: nouvelles.map(function (v) { return v.nom.replace(/\.md$/, ''); }),
-      nouveauxMots: motsAjoutes, motsRemplaces: motsRemplaces, resumeLiens: resumeLiens,
+      nouveauxMots: motsAjoutes, motsRemplaces: motsRemplaces, resumeLiens: resumeLiens, resumeTerritoire: resumeTerritoire, resumeSas: resumeSas, resumeSansNumero: resumeSansNumero, resumeChangements: resumeChangements, resumeFiches: resumeFiches, resumeChiffres: resumeChiffres,
       avertissementsLexique: avertissementsLexique, remplaces: remplaces,
       resteAFaire: valides.some(function (v) { return v.type === 'fiche'; }) ? ['Dater les nouvelles adresses : ouvrez « Les adresses » dans le panneau Dépôt, cliquez chaque lien, puis « Valider » (il faut ouvrir et juger chaque page).'] : []
     };
+  }
+
+  // Reprise d'un enregistrement interrompu : 'terminer' (contrôles, puis rangement dans l'historique) ou 'annuler' (les fichiers redeviennent comme au dernier enregistrement).
+  function reprendre(action) {
+    const i = interrompue();
+    if (!i) { return { ok: false, code: 'rien', erreur: 'Aucun enregistrement interrompu : rien à reprendre.' }; }
+    if (action === 'annuler') {
+      const r = git(['checkout', '-q', '--'].concat(i.chemins));
+      if (r.code !== 0) { return { ok: false, code: 'git', erreur: 'Git n\'a pas pu remettre les fichiers comme avant. Prévenez Claude.', details: r.sortie }; }
+      retirerRepere();
+      return { ok: true, action: 'annule', chemins: i.chemins };
+    }
+    if (action === 'terminer') {
+      const tests = lancer(process.execPath, ['--test', 'tests/*.test.js']);
+      if (tests.code !== 0) {
+        const echecs = tests.sortie.split('\n').filter(function (l) { return /^\s*(not ok|✖)/.test(l); }).slice(0, 8).map(function (l) { return l.trim(); });
+        return { ok: false, code: 'tests', erreur: 'Les vérifications automatiques ont échoué : rien n\'est rangé. Vous pouvez défaire cet enregistrement, ou prévenir Claude.', echecs: echecs };
+      }
+      const ajout = git(['add', '--'].concat(i.chemins));
+      if (ajout.code !== 0) { return { ok: false, code: 'git', erreur: 'Git n\'a pas pu préparer le rangement. Prévenez Claude.', details: ajout.sortie }; }
+      const commit = git(['commit', '-m', 'Veille : enregistrement interrompu repris et rangé\n\n' + i.chemins.map(function (c) { return '- ' + c; }).join('\n'), '--'].concat(i.chemins));
+      if (commit.code !== 0) { git(['reset', '-q', '--'].concat(i.chemins)); return { ok: false, code: 'git', erreur: 'Git n\'a pas pu ranger. Prévenez Claude.', details: commit.sortie }; }
+      retirerRepere();
+      const hash = git(['rev-parse', 'HEAD']).sortie.trim();
+      derniere = { hash: hash, chemins: i.chemins };
+      return { ok: true, action: 'termine', commit: hash.slice(0, 8), chemins: i.chemins };
+    }
+    return { ok: false, code: 'action', erreur: 'Action inconnue.' };
   }
 
   // Annule la derniere publication de la seance, par un nouvel enregistrement qui la defait (jamais de reecriture de l'historique).
@@ -383,7 +636,7 @@ function creerDepot(racine, options) {
     const tete = git(['rev-parse', 'HEAD']).sortie.trim();
     if (tete !== derniere.hash) { return { ok: false, code: 'plus-recente', erreur: 'Un autre enregistrement a ete fait depuis : annulation refusee pour ne rien casser. Demandez a Claude.' }; }
     const st = git(['status', '--porcelain', '--'].concat(derniere.chemins));
-    if (st.code === 0 && st.sortie.trim()) { return { ok: false, code: 'travail-en-cours', erreur: 'Ces fichiers ont des modifications non enregistrees : annulation refusee.' }; }
+    if (st.code === 0 && lignesModifiees(st).length) { return { ok: false, code: 'travail-en-cours', erreur: 'Ces fichiers ont des modifications non enregistrees : annulation refusee.' }; }
     const r = git(['revert', '--no-edit', derniere.hash]);
     if (r.code !== 0) { git(['revert', '--abort']); return { ok: false, code: 'git', erreur: 'Git n\'a pas pu annuler. Prevenez Claude.', details: r.sortie }; }
     derniere = null;
@@ -394,10 +647,306 @@ function creerDepot(racine, options) {
   function listerLiens() {
     const t = lireOuNull(path.resolve(racine, liens.CHEMIN_LIENS));
     if (!t) { return { ok: false, erreur: 'Registre des adresses introuvable (' + liens.CHEMIN_LIENS + ').' }; }
-    return { ok: true, liens: liens.lister(t.toString('utf8'), liens.usagesDesLiens(racine)), aujourdhui: aujourdhui() };
+    const m = dernieresModifications('liens');
+    return { ok: true, liens: liens.lister(t.toString('utf8'), liens.usagesDesLiens(racine)).map(function (l) { if (m[l.nom]) { l.modifieLe = m[l.nom]; } return l; }), aujourdhui: aujourdhui() };
   }
 
-  return { etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens };
+  // Le texte des deux registres publics (structures, employeurs), pour controler ce qu'on propose d'y ajouter.
+  function registresDuDepot() {
+    const lire = function (chemin) { return (lireOuNull(path.resolve(racine, chemin)) || Buffer.from('')).toString('utf8'); };
+    return { lieux: lire(territoire.FICHIERS.lieux.chemin), employeurs: lire(territoire.FICHIERS.employeurs.chemin), offres: lire(territoire.FICHIERS.offres.chemin) };
+  }
+
+  // Analyse un lot colle (aucune ecriture) : ligne par ligne, prete / deja connue / a corriger.
+  function analyserLot(fichier, texte) {
+    const f = String(fichier || '');
+    if (!sas.CHEMINS[f]) { return { ok: false, erreur: 'Registre inconnu.' }; }
+    if (typeof texte !== 'string' || !texte.trim()) { return { ok: false, erreur: 'Aucun texte colle.' }; }
+    if (texte.length > 200000) { return { ok: false, erreur: 'Texte trop long.' }; }
+    const t = lireOuNull(path.resolve(racine, sas.CHEMINS[f]));
+    return sas.analyserLot(f, texte, registresDuDepot(), t ? t.toString('utf8') : '', territoire.contexteDepuis(racine, aujourdhui()), aujourdhui());
+  }
+
+  // Le contenu du sas (fiches proposees en attente de verification).
+  function listerSas(fichier) {
+    const f = String(fichier || '');
+    if (!sas.CHEMINS[f]) { return { ok: false, erreur: 'Sas inconnu.' }; }
+    const t = lireOuNull(path.resolve(racine, sas.CHEMINS[f]));
+    const regs = registresDuDepot(), r = sas.lister(f, t ? t.toString('utf8') : '', regs);
+    if (r.ok && f === 'complements') {
+      // Toutes les fiches publiées sans numéro rejoignent le sas (sauf celles déjà proposées ou confirmées « sans numéro » depuis moins de six mois).
+      const tn = lireOuNull(path.resolve(racine, sansNumero.CHEMIN.join('/')));
+      sansNumero.cartesSansNumero(regs, tn ? tn.toString('utf8') : '', aujourdhui(), r.lignes.map(function (x) { return x.valeurs.cible; })).forEach(function (c) { r.lignes.push(c); });
+    }
+    if (r.ok) { r.aujourdhui = aujourdhui(); annoterEtablissements(r.lignes); if (f === 'employeurs') { annoterPresenceEnseignes(r.lignes); } }
+    return r;
+  }
+
+  // Les fiches du cadre (une ligne par fiche, sans leur texte) pour la liste de l'ecran « Modifier une fiche » ; lecture seule.
+  // Les deux fiches « methode » (forme a part) ne sont pas proposees : elles ne se modifient pas depuis l'outil.
+  function listerFiches() {
+    const dernieres = dernieresModifications('cadre'), fiches = [], rayons = {};
+    rayonsExistants(racine).sort().forEach(function (rayon) {
+      if (rayon === 'methode') { return; }
+      const dossier = path.resolve(racine, ...DOSSIER_CADRE, rayon);
+      fs.readdirSync(dossier).filter(function (n) { return RE_FICHE.test(n) && !/\.collecte\.md$/.test(n) && n !== 'readme.md'; }).sort().forEach(function (n) {
+        const brut = lireOuNull(path.join(dossier, n)), id = n.replace(/\.md$/, '');
+        const fi = brut ? ficheChamps.lire(brut.toString('utf8')) : { ok: false };
+        if (!fi.ok) { fiches.push({ rayon: rayon, id: id, titre: id, verifieLe: '', statut: '', illisible: true, modifieLe: dernieres[id] || '' }); }
+        else {
+          const c = ficheChamps.champs(fi);
+          fiches.push({ rayon: rayon, id: id, titre: typeof c.titre === 'string' ? c.titre : id, verifieLe: typeof c.verifie_le === 'string' ? c.verifie_le : '', statut: typeof c.statut === 'string' ? c.statut : 'actif', modifieLe: dernieres[id] || '' });
+        }
+        rayons[rayon] = (rayons[rayon] || 0) + 1;
+      });
+    });
+    return { ok: true, fiches: fiches, rayons: rayons, aujourdhui: aujourdhui() };
+  }
+
+  // Le journal des modifications (date, heure, registre, fiche, action, phrase), du plus recent au plus ancien ; lecture seule. Pour les fiches du cadre, le rayon est ajoute.
+  function listerHistorique() {
+    const brut = lireOuNull(path.resolve(racine, JOURNAL));
+    if (!brut) { return { ok: true, entrees: [], rayons: [], aujourdhui: aujourdhui() }; }
+    const rayonDe = {};
+    rayonsExistants(racine).forEach(function (rayon) {
+      try { fs.readdirSync(path.resolve(racine, ...DOSSIER_CADRE, rayon)).forEach(function (n) { if (/\.md$/.test(n)) { rayonDe[n.replace(/\.md$/, '')] = rayon; } }); } catch (e) { /* rayon illisible : sans rayon */ }
+    });
+    const entrees = [];
+    brut.toString('utf8').split('\n').forEach(function (ligne, i) {
+      const c = ligne.split('|').map(function (x) { return x.trim(); });
+      if (c.length < 4 || !/^\d{4}-\d\d-\d\d( \d\d:\d\d)?$/.test(c[0])) { return; }
+      entrees.push({ n: i, quand: c[0], registre: c[1], fiche: c[2], action: c[3], phrase: c.slice(4).join(' | '), rayon: c[1] === 'cadre' ? (rayonDe[c[2]] || '') : '' });
+    });
+    entrees.sort(function (a, b) { return a.quand < b.quand ? 1 : (a.quand > b.quand ? -1 : b.n - a.n); });
+    return { ok: true, entrees: entrees.slice(0, 3000).map(function (e) { delete e.n; return e; }), total: entrees.length, aujourdhui: aujourdhui() };
+  }
+
+  // Les fichiers de « Comprendre les chiffres » que l'outil sait modifier (digests, fiches de territoire, portrait, Europe, fiches methode) ; lecture seule.
+  function listerChiffres() {
+    const dernieres = dernieresModifications('chiffres'), fichiers = [];
+    const dossierChiffres = path.resolve(racine, ...DOSSIER_CHIFFRES), dossierMethodeCadre = path.resolve(racine, ...DOSSIER_CADRE, 'methode');
+    let noms = [];
+    try { noms = fs.readdirSync(dossierChiffres).sort(); } catch (e) { return { ok: false, erreur: 'Dossier des chiffres introuvable.' }; }
+    try { fs.readdirSync(path.join(dossierChiffres, 'methode')).sort().forEach(function (n) { if (/\.md$/.test(n)) { noms.push('methode/' + n); } }); } catch (e) { /* pas de dossier */ }
+    try { fs.readdirSync(dossierMethodeCadre).sort().forEach(function (n) { if (/\.md$/.test(n) && !/^README/i.test(n)) { noms.push('cadre-methode/' + n); } }); } catch (e) { /* pas de dossier */ }
+    noms.forEach(function (nom) {
+      const cib = cibleChiffres(nom);
+      if (!cib) { return; }
+      const brut = lireOuNull(path.resolve(racine, ...cib.chemin));
+      if (!brut) { return; }
+      const texte = brut.toString('utf8');
+      const lu = cib.forme === 'digest' ? chiffres.lireDigest(texte) : (cib.forme === 'territoire' ? chiffres.lireTerritoire(texte) : (cib.forme === 'annuel' ? chiffres.lireAnnuel(texte) : chiffres.lireMethode(texte)));
+      if (!lu.ok) { fichiers.push({ fichier: nom, forme: cib.forme, illisible: true, modifieLe: '' }); return; }
+      const modif = Object.keys(dernieres).filter(function (k) { return k.indexOf(nom + ' : ') === 0 || k === nom; }).map(function (k) { return dernieres[k]; }).sort().pop() || '';
+      const entete = lu.entete || '';
+      const periode = /^(?:periode|annee):\s*"?([^"\n]+?)"?\s*$/m.exec(entete);
+      fichiers.push({
+        fichier: nom, forme: cib.forme, periode: periode ? periode[1] : '', titre: cib.forme === 'methode' ? lu.champs.titre : '', verifieLe: entete ? chiffres.verifieDe(entete) : '', modifieLe: modif,
+        nb: cib.forme === 'digest' ? lu.entrees.filter(function (e) { return e.entree; }).length : (cib.forme === 'territoire' ? lu.blocs.length : (cib.forme === 'annuel' ? lu.puces.length : 1)),
+        aCompleter: (texte.match(/\[[^\]]*(?:à vérifier|a verifier)[^\]]*\]/gi) || []).length
+      });
+    });
+    return { ok: true, fichiers: fichiers, aujourdhui: aujourdhui() };
+  }
+  // Un fichier de chiffres lu champ par champ.
+  function lireChiffres(fichier) {
+    const nom = String(fichier || ''), cib = cibleChiffres(nom);
+    if (!cib) { return { ok: false, erreur: 'Fichier de chiffres non pris en charge.' }; }
+    const brut = lireOuNull(path.resolve(racine, ...cib.chemin));
+    if (!brut) { return { ok: false, erreur: 'Fichier introuvable.' }; }
+    const texte = brut.toString('utf8'), forme = cib.forme;
+    const lu = forme === 'digest' ? chiffres.lireDigest(texte) : (forme === 'territoire' ? chiffres.lireTerritoire(texte) : (forme === 'annuel' ? chiffres.lireAnnuel(texte) : chiffres.lireMethode(texte)));
+    if (!lu.ok) { return { ok: false, erreur: 'Fichier illisible : ' + lu.erreur }; }
+    const base = { ok: true, fichier: nom, forme: forme, aujourdhui: aujourdhui() };
+    if (forme === 'methode') {
+      base.champs = { titre: lu.champs.titre, pour_qui: lu.champs.pour_qui, tags: lu.champs.tags }; base.verrouilles = { id: lu.champs.id, type: lu.champs.type }; base.corps = lu.corps; base.verifieLe = '';
+      return base;
+    }
+    base.verifieLe = chiffres.verifieDe(lu.entete);
+    base.sources = lu.sources.map(function (s) { return { id: s.id, titre: s.titre, url: s.url, date: s.date }; });
+    if (forme === 'digest') {
+      base.entrees = lu.entrees.map(function (e) {
+        const x = e.entree;
+        return x ? { ref: e.ref, section: e.section, label: e.label, modifiable: true, valeur: x.valeur, periode: x.periode, precedent: x.precedent, anPrecedent: x.anPrecedent, sourceNom: x.sourceNom, sourceUrl: x.sourceUrl, serie: x.serie, annuelle: x.annuelle, histoH: x.histoH, histoB: x.histoB, repere: x.repere,
+          aPrecedent: /;\s*précédent\s*:/.test(x.apres), aAn: /;\s*il y a un an\s*:/.test(x.apres), aPeriode: /^\s*\(/.test(x.apres), aSerie: x.ordre.indexOf('serie') !== -1, aAnnuelle: x.ordre.indexOf('annuelle') !== -1, aHisto: x.ordre.indexOf('histo') !== -1, aRepere: x.ordre.indexOf('repere') !== -1 }
+          : (function () { const ml = /^(- .+? : )(.*)$/.exec(e.brutes[0]); return { ref: e.ref, section: e.section, label: e.label, modifiable: false, libre: !!ml && e.brutes.length === 1, texte: ml ? ml[2] : e.brutes[0].slice(0, 200) }; })();
+      });
+    } else if (forme === 'territoire') {
+      base.lieux = lu.blocs.map(function (b) {
+        return { lieu: b.nom, groupe: b.groupe, champs: b.champs.filter(function (c) { return c.cle !== 'sources'; }).map(function (c) { return { cle: c.cle, valeur: c.valeur, forme: chiffres.FORMES_CHAMP[c.cle] || 'txt' }; }), sources: b.sources, prose: b.prose };
+      });
+      base.formes = chiffres.AIDE_FORME; base.champsPossibles = Object.keys(chiffres.FORMES_CHAMP);
+    } else {
+      // Les lignes chiffrées ET les paragraphes de texte (introductions, notes), dans l'ordre du fichier ; un paragraphe n'a jamais de source propre.
+      const lignesPuces = lu.puces.map(function (p) { return { pos: p.ligne, ref: p.ref, section: p.section, rang: p.rang, genre: 'ligne', texte: p.avant, source: p.source, aVerifier: p.aVerifier, modifiable: p.modifiable }; });
+      const lignesParagraphes = lu.paragraphes.map(function (p) { return { pos: p.debut, ref: p.ref, section: p.section, rang: p.rang, genre: p.genre, texte: p.avant, source: { type: 'aucune', nom: '', url: '', brut: '' }, aVerifier: false, modifiable: true }; });
+      base.puces = lignesPuces.concat(lignesParagraphes).sort(function (a, b) { return a.pos - b.pos; });
+    }
+    return base;
+  }
+
+  // Verifie une modification de chiffres SANS rien ecrire : les controles entre chiffres, les erreurs et les lignes qui seraient ecrites (le meme code que l'enregistrement).
+  function verifierChiffres(fichier, demande) {
+    const nom = String(fichier || ''), cib = cibleChiffres(nom);
+    if (!cib) { return { ok: false, erreur: 'Fichier de chiffres non pris en charge.' }; }
+    const brut = lireOuNull(path.resolve(racine, ...cib.chemin));
+    if (!brut) { return { ok: false, erreur: 'Fichier introuvable.' }; }
+    if (!demande || typeof demande !== 'object' || Array.isArray(demande)) { return { ok: false, erreur: 'Demande illisible.' }; }
+    const texte = brut.toString('utf8'), dem = Object.assign({}, demande, { confirmeSource: true });
+    const r = appliquerChiffres(cib.forme, texte, dem, { aujourdhui: aujourdhui() });
+    if (!r.ok) { return { ok: true, valide: false, erreur: r.erreur, bloquants: r.bloquants || [], alertes: r.alertes || [] }; }
+    let lignes = '';
+    if (cib.forme === 'digest') { const e = chiffres.lireDigest(r.texte).entrees.filter(function (x) { return x.ref === demande.ref; })[0]; lignes = e ? e.brutes.join('\n') : ''; }
+    else if (cib.forme === 'territoire') { const b = chiffres.lireTerritoire(r.texte).blocs.filter(function (x) { return x.nom === demande.lieu && (!demande.groupe || x.groupe === demande.groupe); })[0]; lignes = b ? b.lignesBrutes.join('\n') : ''; }
+    else if (cib.forme === 'annuel' && chiffres.lireAnnuel(texte).paragraphes.some(function (y) { return y.ref === demande.ref; })) {
+      const ancien = chiffres.lireAnnuel(texte).paragraphes.filter(function (y) { return y.ref === demande.ref; })[0], nouveau = chiffres.lireAnnuel(r.texte);
+      const q = nouveau.paragraphes.filter(function (x) { return x.section === ancien.section && x.rang === ancien.rang; })[0];
+      lignes = q ? nouveau.lignes.slice(q.debut, q.fin + 1).join('\n') : '';
+    }
+    else if (cib.forme === 'annuel') { const p = chiffres.lireAnnuel(r.texte).puces.filter(function (x) { return x.rang === (chiffres.lireAnnuel(texte).puces.filter(function (y) { return y.ref === demande.ref; })[0] || {}).rang && x.section === (chiffres.lireAnnuel(texte).puces.filter(function (y) { return y.ref === demande.ref; })[0] || {}).section; })[0]; lignes = p ? p.brute : ''; }
+    else { lignes = r.texte.split('\n').slice(0, 8).join('\n') + '\n...'; }
+    return { ok: true, valide: true, alertes: r.resume.alertes || [], champs: r.resume.champs, action: r.resume.action, lignes: lignes };
+  }
+
+  // Une fiche du cadre, champ par champ, avec de quoi remplir l'ecran (adresses du registre, derniere modification). Lecture seule.
+  function lireFiche(rayon, id) {
+    const r = String(rayon || ''), n = String(id || '') + '.md';
+    if (rayonsExistants(racine).indexOf(r) === -1 || r === 'methode') { return { ok: false, erreur: 'Rayon inconnu.' }; }
+    if (!RE_FICHE.test(n) || /\.collecte\.md$/.test(n) || n === 'readme.md') { return { ok: false, erreur: 'Nom de fiche refuse.' }; }
+    const brut = lireOuNull(path.resolve(racine, ...DOSSIER_CADRE, r, n));
+    if (!brut) { return { ok: false, erreur: 'Fiche introuvable.' }; }
+    const fi = ficheChamps.lire(brut.toString('utf8'));
+    if (!fi.ok) { return { ok: false, erreur: 'Fiche illisible : ' + fi.erreur }; }
+    const c = ficheChamps.champs(fi);
+    // Un champ dont la forme n'est pas reconnue (valeur nulle) n'est jamais propose a la modification : il reste tel quel dans le fichier.
+    const nonModifiables = Object.keys(c).filter(function (k) { return c[k] === null; });
+    const champsSortie = {};
+    Object.keys(c).forEach(function (k) { if (c[k] !== null) { champsSortie[k] = c[k]; } });
+    const tRegistre = lireOuNull(path.resolve(racine, liens.CHEMIN_LIENS));
+    const registre = tRegistre ? liens.analyser(tRegistre.toString('utf8')).lignes.filter(function (l) { return l.nom; }).map(function (l) { return { nom: l.nom, date: l.date || '' }; }) : [];
+    // Les CHOIX proposés à l'ecran (sources du rayon, mots du Lexique lies, mots de recherche du rayon) : calcules ici, jamais devines par l'ecran.
+    const autres = [];
+    try {
+      fs.readdirSync(path.resolve(racine, ...DOSSIER_CADRE, r)).forEach(function (nom) {
+        if (nom === n || !RE_FICHE.test(nom) || /.collecte.md$/.test(nom) || nom === 'readme.md') { return; }
+        const b = lireOuNull(path.resolve(racine, ...DOSSIER_CADRE, r, nom)), x = b ? ficheChamps.lire(b.toString('utf8')) : null;
+        if (x && x.ok) { const cx = ficheChamps.champs(x); autres.push({ voir_aussi: Array.isArray(cx.voir_aussi_lexique) ? cx.voir_aussi_lexique : [], tags: Array.isArray(cx.tags) ? cx.tags : [] }); }
+      });
+    } catch (e) { /* rayon illisible : pas de suggestions */ }
+    // Les phrases du bouton « vers Comprendre les chiffres » deja utilisees par des fiches de TOUS les rayons (proposees en un clic, jamais ecrites toutes seules).
+    const phrasesChiffres = {};
+    try {
+      rayonsExistants(racine).filter(function (rr) { return rr !== 'methode'; }).forEach(function (rr) {
+        fs.readdirSync(path.resolve(racine, ...DOSSIER_CADRE, rr)).forEach(function (nom) {
+          if (!RE_FICHE.test(nom) || /\.collecte\.md$/.test(nom) || nom === 'readme.md') { return; }
+          const b = lireOuNull(path.resolve(racine, ...DOSSIER_CADRE, rr, nom)), x = b ? ficheChamps.lire(b.toString('utf8')) : null;
+          const ph = x && x.ok ? ficheChamps.champs(x).voir_aussi_chiffres : '';
+          if (typeof ph === 'string' && ph.trim()) { phrasesChiffres[ph] = (phrasesChiffres[ph] || 0) + 1; }
+        });
+      });
+    } catch (e) { /* illisible : pas de propositions */ }
+    const tCollecte = lireOuNull(path.resolve(racine, ...DOSSIER_CADRE, r, r + '.collecte.md')), tLex = lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE));
+    const entrees = (tLex && lexique.lireEntrees(tLex.toString('utf8'))) || [];
+    const sourcesRayon = choix.sourcesDuRayon(tCollecte ? tCollecte.toString('utf8') : '', registre);
+    const choixSortie = {
+      sourcesRayon: sourcesRayon, lexique: choix.motsDuLexique(entrees), nbFichesRayon: autres.length + 1,
+      propositions: choix.propositionsVoirAussi({ id: String(id), titre: champsSortie.titre || '', pour_qui: champsSortie.pour_qui || '', corps: ficheChamps.corpsDe(fi), voir_aussi: champsSortie.voir_aussi_lexique || [] }, autres, entrees),
+      motsRecherche: choix.motsDeRechercheDuRayon(autres),
+      phrasesChiffres: Object.keys(phrasesChiffres).sort(function (a, b) { return (phrasesChiffres[b] - phrasesChiffres[a]) || a.localeCompare(b, 'fr'); }).map(function (p) { return { phrase: p, nb: phrasesChiffres[p] }; }),
+      longueurMaxPhraseChiffres: ficheChamps.LONGUEUR_MAX_PHRASE_CHIFFRES
+    };
+    return {
+      ok: true, rayon: r, id: String(id), champs: champsSortie, choix: choixSortie, corps: ficheChamps.corpsDe(fi), nonModifiables: nonModifiables,
+      verrouilles: ficheChamps.CLES_VERROUILLEES.filter(function (k) { return c[k] !== undefined; }).map(function (k) { return { cle: k, valeur: c[k] }; }),
+      // Champs montres mais jamais modifiables (decision de Denis, 2026-10-18) : sans effet sur le site aujourd'hui.
+      lectureSeule: { frein: c.frein === 'true' ? 'oui' : (c.frein === 'false' ? 'non' : ''), structures: Array.isArray(c.structures) ? c.structures : [] },
+      registre: registre, territoires: ficheChamps.TERRITOIRES, modifieLe: dernieresModifications('cadre')[String(id)] || '', aujourdhui: aujourdhui()
+    };
+  }
+
+  // Le sas des changements du balayage (proposes, pas encore verifies), avec ce qui est deja publie.
+  function listerChangements() {
+    const t = lireOuNull(path.resolve(racine, chg.CHEMIN_SAS));
+    const r = chg.lister(t ? t.toString('utf8') : '', function (mois) { return (lireOuNull(path.resolve(racine, chg.DOSSIER_DIGESTS, mois + '.md')) || Buffer.from('')).toString('utf8'); });
+    r.aujourdhui = aujourdhui();
+    // trois cartes deja publiees (digest le plus recent) : modeles de style du prompt « Faire verifier »
+    try {
+      const dossier = path.resolve(racine, chg.DOSSIER_DIGESTS);
+      const noms = fs.readdirSync(dossier).filter(function (f) { return /^\d{4}-\d{2}\.md$/.test(f); }).sort();
+      const dernier = noms[noms.length - 1];
+      r.exemples = dernier ? chg.exemplesDeStyle(fs.readFileSync(path.join(dossier, dernier), 'utf8'), dernier.replace(/\.md$/, '')) : [];
+    } catch (e) { r.exemples = []; }
+    return r;
+  }
+
+  // Le prompt « Faire verifier par un assistant » d'une carte (le socle de recherche vient de l'ecran : une seule source de verite).
+  function promptChangement(d) {
+    const v = (d && d.valeurs) || {};
+    const l = listerChangements();
+    return { ok: true, prompt: chg.construirePrompt(v, l.exemples || [], d && d.socle) };
+  }
+  function lireReponseChangement(d) {
+    return chg.lireReponse(d && d.texte, d && d.actuel);
+  }
+
+  // Les fiches d'un registre du module « Qui fait quoi » avec leur fraicheur (pour l'ecran de mise a jour).
+  // Pour chaque ligne qui a des etablissements (« Commune:adresse ; Commune:adresse »), ajoute l.etabs = [{ commune, adresse, dep }] : le departement vient du code de la commune.
+  // Pour chaque ENSEIGNE, les départements où une fiche du même nom existe (registre publié ET sas confondus) : l.depsEnseigne = ['24', '87'] ou ['24']. Calculé à chaque lecture
+  // d'après le nom et la commune des magasins : aucune mention à saisir à la main, une fiche ajoutée à la main ou arrivée par un balayage compte pareil.
+  function annoterPresenceEnseignes(lignes) {
+    const parNom = {};
+    function ramasser(liste) {
+      (liste || []).forEach(function (l) {
+        const v = l.valeurs || {};
+        if (v.nature !== 'enseigne' || !v.nom || !l.etabs) { return; }
+        const k = logiqueTerritoire.mtNormaliser(v.nom);
+        parNom[k] = parNom[k] || {};
+        l.etabs.forEach(function (e) { if (e.dep) { parNom[k][e.dep] = true; } });
+      });
+    }
+    try {
+      const f = territoire.FICHIERS.employeurs, t = lireOuNull(path.resolve(racine, f.chemin));
+      if (t) { const r = territoire.lister('employeurs', t.toString('utf8'), aujourdhui(), territoire.contexteDepuis(racine, aujourdhui())); if (r.ok) { annoterEtablissements(r.lignes); ramasser(r.lignes); } }
+    } catch (e) { /* registre illisible : on continue avec le sas seul */ }
+    try {
+      const ts = lireOuNull(path.resolve(racine, sas.CHEMINS.employeurs));
+      if (ts) { const r = sas.lister('employeurs', ts.toString('utf8'), registresDuDepot()); if (r.ok) { annoterEtablissements(r.lignes); ramasser(r.lignes); } }
+    } catch (e) { /* sas illisible : on continue avec le registre seul */ }
+    (lignes || []).forEach(function (l) {
+      const v = l.valeurs || {};
+      if (v.nature === 'enseigne' && v.nom) { l.depsEnseigne = Object.keys(parNom[logiqueTerritoire.mtNormaliser(v.nom)] || {}).sort(); }
+    });
+  }
+  function annoterEtablissements(lignes) {
+    let codes = {};
+    try { codes = territoire.contexteDepuis(racine, aujourdhui()).communesCodes || {}; } catch (e) { codes = {}; }
+    (lignes || []).forEach(function (l) {
+      const brut = l && l.valeurs && l.valeurs.etablissements;
+      if (!brut) { return; }
+      l.etabs = logiqueTerritoire.mtParserEtablissements(brut).map(function (e) { const c = codes[logiqueTerritoire.mtNormaliser(e.commune)]; return { commune: e.commune, adresse: e.adresse, dep: c ? String(c).slice(0, 2) : '' }; });
+    });
+  }
+
+  function listerTerritoire(fichier) {
+    const f = territoire.FICHIERS[String(fichier || '')];
+    if (!f) { return { ok: false, erreur: 'Registre du module Qui fait quoi inconnu.' }; }
+    const t = lireOuNull(path.resolve(racine, f.chemin));
+    if (!t) { return { ok: false, erreur: 'Registre introuvable (' + f.chemin + ').' }; }
+    const r = territoire.lister(String(fichier), t.toString('utf8'), aujourdhui(), territoire.contexteDepuis(racine, aujourdhui()));
+    if (r.ok) { const m = dernieresModifications(String(fichier)); r.lignes.forEach(function (l) { if (m[l.id]) { l.modifieLe = m[l.id]; } }); annoterEtablissements(r.lignes); if (String(fichier) === 'employeurs') { annoterPresenceEnseignes(r.lignes); } }
+    return r;
+  }
+
+  // Contrôle automatique des adresses d'un registre (pages d'offres seulement) : n'écrit RIEN, rend un état par adresse. Les adresses viennent du registre, jamais de la fenêtre.
+  function controlerTerritoire(fichier) {
+    if (String(fichier || '') !== 'offres') { return { ok: false, erreur: 'Le contrôle automatique ne concerne que les pages d\'offres.' }; }
+    const l = listerTerritoire('offres');
+    if (!l.ok) { return l; }
+    const adresses = l.lignes.map(function (x) { return { id: x.id, url: x.valeurs.page }; });
+    return controle.controler(adresses).then(function (resultats) { return { ok: true, resultats: resultats, date: aujourdhui() }; });
+  }
+
+  return { etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerChiffres: listerChiffres, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
 }
 
 module.exports = { analyserCandidatsLexique: analyserCandidatsLexique, integrerCandidatsLexique: integrerCandidatsLexique, creerDepot: creerDepot, validerFichier: validerFichier, ajouterLigneReadme: ajouterLigneReadme, rayonsExistants: rayonsExistants, lancerCommande: lancerCommande, TAILLE_MAX: TAILLE_MAX };

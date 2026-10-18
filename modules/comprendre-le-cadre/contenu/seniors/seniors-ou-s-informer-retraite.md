@@ -7,7 +7,7 @@ tags: [information retraite, relevé de carrière, compte retraite, Assurance re
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "relevé de carrière"
     definition: "Document qui récapitule tous vos trimestres et vos revenus déclarés, régime par régime, depuis le début de votre vie active. Il sert de base au calcul de la pension : il faut le vérifier et signaler les oublis."

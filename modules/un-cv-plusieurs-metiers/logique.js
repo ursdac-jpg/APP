@@ -14,7 +14,7 @@
 // fonctionnent de bout en bout (essais de parcours). Pour le refermer avant une mise en ligne, le remettre à false.
 var UCPM_OUVERT = true;
 
-// Les sept pages du module, dans l'ordre (barre d'étapes seulement visuelle). Icônes : des objets, jamais de visage.
+// Les huit pages du module, dans l'ordre (barre d'étapes seulement visuelle) ; la huitième, « Entretiens », est facultative. Icônes : des objets, jamais de visage.
 var UCPM_ETAPES = [
   { label: 'Mon CV', icone: '&#128196;' },
   { label: 'Métiers', icone: '&#129517;' },
@@ -22,9 +22,10 @@ var UCPM_ETAPES = [
   { label: 'Accroches', icone: '&#128172;' },
   { label: 'Mes CV', icone: '&#128450;&#65039;' },
   { label: 'Lettres', icone: '&#9993;&#65039;' },
-  { label: 'Fin', icone: '&#9989;' }
+  { label: 'Fin', icone: '&#9989;' },
+  { label: 'Entretiens', icone: '&#128221;' }
 ];
-var UCPM_NB_PAGES = 7;
+var UCPM_NB_PAGES = 8;
 var UCPM_MAX_METIERS = 10;
 var UCPM_MIN_METIERS_POUR_CREER = 2;
 
@@ -33,7 +34,7 @@ var UCPM_MIN_METIERS_POUR_CREER = 2;
 function ucpmEtatInitial() {
   return {
     version: 1,
-    page: 1,             // page affichée (1 à 7)
+    page: 1,             // page affichée (1 à 8)
     pageMax: 1,          // page la plus avancée atteinte (mémoire de la barre d'étapes)
     texteCV: '',         // texte du CV relu et masqué (page 1)
     cvNom: '',           // nom du fichier déposé (page 1)
@@ -62,8 +63,17 @@ function ucpmEtatInitial() {
     lettres: null,       // page 6 : { identifiant d'entrée : texte de la lettre } (formule d'appel et signature comprises), modifiable par la personne
     lettresOrigine: {},  // page 6 : la lettre telle que reçue, pour « Remettre la lettre reçue »
     lettresManquantes: [], // page 6 : CV pour lesquels l'assistant n'a rendu aucune lettre
+    lettresAvant: {},    // page 6 : la lettre d'avant le dernier « Retravailler » (pour « Revenir à la lettre d'avant »), par identifiant d'entrée
+    retravail: null,     // page 6 : { id : CV dont la lettre est retravaillée, toutes : vrai pour toutes les lettres, remarque : ce que la personne veut changer ou ajouter }
     lettreSel: '',       // page 6 : lettre affichée
-    p6Vue: 'passage',    // page 6 : 'passage' (choisir les CV, l'assistant, coller) ou 'lecture'
+    p6Vue: 'passage',    // page 6 : 'passage' (choisir les CV, l'assistant, coller), 'lecture' ou 'retravail' (retravailler une lettre avec l'assistant)
+    preparations: {},    // page 8 : par identifiant d'entrée { questions, aMettreEnAvant, mode : 'general' ou 'approfondi', niveau } reçus de l'assistant
+    preparationsSig: {}, // page 8 : empreinte de ce qui a été envoyé pour chaque préparation reçue (périmée si elle change)
+    p8Vue: 'choix',      // page 8 : 'choix', 'general', 'approfondi' ou 'lecture'
+    p8Ids: null,         // page 8 : métiers cochés pour la préparation générale (null = tous)
+    p8Metier: '',        // page 8 : métier de la préparation approfondie
+    p8Reglages: null,    // page 8 : réglages de la préparation approfondie (niveau, nombre, sujets, pistes)
+    p8Sel: '',           // page 8 : préparation affichée
     p7Telecharge: false, // page 7 : un document a été envoyé à l'impression (la recherche d'offres en direct apparaît alors)
     departementLibre: '' // département ou ville écrits à la main quand « ailleurs » est choisi (recherche d'offres)
   };
@@ -78,7 +88,7 @@ function ucpmAUnTravailEnCours(etat) {
   return false;
 }
 
-// Borne un numéro de page dans 1..7 (jamais une exception, quoi qu'on passe).
+// Borne un numéro de page dans 1..UCPM_NB_PAGES (jamais une exception, quoi qu'on passe).
 function ucpmBornerPage(n) {
   var v = parseInt(n, 10);
   if (isNaN(v) || v < 1) { return 1; }

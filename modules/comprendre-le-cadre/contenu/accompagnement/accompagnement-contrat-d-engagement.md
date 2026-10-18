@@ -7,7 +7,7 @@ tags: [contrat d'engagement, France Travail, obligations, sanctions, offre raiso
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "contrat d'engagement"
     definition: "Document signé avec l'organisme qui vous accompagne, qui fixe votre projet, un plan d'action et les actions à réaliser. Il remplace les anciens contrats depuis 2025."

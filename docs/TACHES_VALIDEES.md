@@ -16,6 +16,12 @@ Ce fichier est **commun à tous les comptes/sessions Claude** (ou toute autre IA
 
 ---
 
+## [EN COURS - 2026-10-15] Bouton Aide (ampoule) : remise à jour
+Plan, résultats et suivi : `docs/CHANTIER_AIDE_A_JOUR.md`. Faits : 4 pages et 5 fenêtres sans aide désormais couvertes ; 5 entrées de fenêtres mortes retirées (validé Denis) ; parcours `aide` anti-péremption ajouté à `parcours_smoke.js`.
+- [ ] `[effort : bas]` Tâche 3 : contrôler à la main les sélecteurs de la visite guidée, page par page (`mon-territoire`, `reperes`, `coherence-transversale`, `resultats` d'abord), à traiter avec la tâche 4.
+- [ ] `[effort : haut]` Tâche 4 : relire chaque texte d'aide contre l'écran réel (éditeur de CV, « Un CV, plusieurs métiers », nouveaux modèles). Décision de Denis si un texte promet une fonction modifiée.
+- [ ] `[effort : moyen]` Tâche 7 : `npm test` + navigateur (clair, sombre, mobile).
+
 ## Grands chantiers stratégiques (ordre validé le 2026-08-23/24)
 
 Détail complet, coût/risque/valeur : `docs/ETAT_DES_CHANTIERS.md` (parties 1 et 2) et `docs/AUDIT_STRATEGIQUE_ERIP_2026-08.md`. **Revérifier contre `git log` avant d'agir sur un point ancien** - discipline déjà en place dans ce document source. Séquencement décidé le 2026-08-24 : finir tous les modules restants, PUIS accessibilité, PUIS découpage de `js/app.js` en dernier. **Annulé le 2026-09-13 (décision Denis) : il n'y aura pas de découpage de `js/app.js`** - risque déjà évalué, ne vaut pas le coût ; le projet continue de grossir (mises à jour continues, pas de pause pour un tel chantier). Toute dette jusqu'ici "rattachée au découpage" (ex. B.7 de `BRIQUES_COMMUNES.md`, l'ancien panneau Word « Projet XXL ») doit être traitée directement le jour où on retouche cet écran, jamais reportée sur ce chantier.
@@ -1246,3 +1252,17 @@ Demande de Denis, en cours de chantier « CV rempli d'office ». Public cible : 
 - **[À FAIRE] [effort : bas] Denis : relire les textes écrits la nuit (présentation du module, messages de page périmée, avertissements « passe sur N pages » et « lettre longue »), valider l'icône `bi-files` et le libellé de la tuile, tester les CV dans un vrai Word (un fichier par CV, jamais de Word fusionné).**
 - **[FAIT 2026-10-10] [effort : moyen] Avertissement « CV très rempli »** (demande de Denis) : le dessin caché de chaque CV mesure l'espace libre sous le dernier contenu (`ucpmEspaceLibreDocument`, `dossierEchange.js`) ; moins de 40 px sur un CV d'une page (`UCPM_MARGE_SECURITE_PX`, `ucpmCvTresRempli`, `logiqueDocuments.js`) = message d'information (jamais bloquant) sur les cartes des pages 5 et 7 et confirmation en quittant l'éditeur de la page 3. Réglage : 11 CV de 67 à 317 px libres imprimés avec Chrome, tous sur une page ; le seul cas connu qui débordait avait 33 px (`ERREURS_ET_BUGS.md`, 2026-10-07). **Limite** : c'est un risque estimé, pas une garantie ; le seuil de 40 px repose sur ces mesures, à réajuster si un CV de plus de 40 px libres déborde un jour.
 - **[À FAIRE] [effort : moyen] Banc `__parcours(['banc'])` : écart avec `banc_b7_reference.json` à examiner** (37 modèles sur 37, identique avec et sans le module, donc d'environnement : date ou densité d'écran de la fenêtre de test).
+
+## Session du 2026-10-15 : lettres retravaillées et préparation d'entretien (module « Un CV, plusieurs métiers »)
+Plan et décisions D1 à D7 : `docs/PLAN_LETTRES_RETRAVAILLEES_ET_PREPARATION_ENTRETIEN_UCPM_2026-10-15.md`.
+- **[FAIT 2026-10-15] [effort : moyen]** Retravailler une lettre avec l'assistant (page 6 et rappel page 7), ancienne lettre gardée.
+- **[FAIT 2026-10-15] [effort : haut]** Page 8 facultative « Préparer mes entretiens » : générale et approfondie, niveau d'exigence, relance, feuille A4 mesurée, Document 3, impression séparée.
+- **[FAIT 2026-10-15] [effort : bas]** Aide contextuelle, recherche de l'accueil, `BRIQUES_COMMUNES.md` B.23, passation.
+- **[À FAIRE] [effort : bas]** Denis : relire les conseils de savoir-être (`UCPM_CONSEILS_ENTRETIEN`).
+- **[À FAIRE] [effort : bas]** Denis : ré-essayer sur un vrai assistant les prompts `ucpm-lettres-retravail.md` et `ucpm-preparation.md` (fichiers dans `docs/essais_prompts_ucpm/`).
+- **[FAIT 2026-10-15] [effort : moyen]** Vérificateur de réponse pour ces deux prompts : `node scripts/essai_prompts_ucpm.js verifier <retravail|preparation-general|preparation-approfondi> <fichier> <nombre de métiers> <f|m|n> [niveau] [nombre de questions]`.
+- **[À FAIRE] [effort : bas]** Denis : essayer le parcours complet et juger l'aperçu de la feuille en grand.
+
+## Session du 2026-10-15 (suite) : boutons de l'éditeur de CV
+- **[FAIT 2026-10-15] [effort : moyen]** Boutons « Style rapide (aléatoire) » et « Mise en page » agrandis d'environ un quart (texte 12,6 à 15,7 px, icône, marges) et mieux contrastés (bordure de 2 px plus foncée, ombre, texte en gras ; mode sombre : bordure claire) ; l'explication passe à la ligne au lieu d'être coupée. `css/mise-en-page-maquette.css` seulement. Essais `grandsBoutons`, `ambiance`, `pulseAllure` verts. Constat : `.mep-simple-macro` (carte « Reprendre la main », `js/app.js`) n'a aucun style dans le dépôt, probable code mort à confirmer avant tout nettoyage.
+- **[FAIT 2026-10-15] [effort : bas]** Contour prononcé (2 px, couleur d'accent, un peu plus larges) des petits boutons « Revenir au tirage précédent », « Revenir au modèle de départ » et « Revenir à avant la dernière mise en page » (`.mini-action`, `css/mise-en-page-maquette.css`) ; désactivés, ils restent atténués. Essais `grandsBoutons` et `pulseAllure` verts.

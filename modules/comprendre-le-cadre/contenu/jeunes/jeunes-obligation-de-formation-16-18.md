@@ -7,7 +7,7 @@ tags: [obligation de formation, 16-18 ans, décrochage scolaire, Mission locale,
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "obligation de formation"
     definition: "Depuis 2020, tout jeune de 16 à 18 ans doit être dans un parcours : école, apprentissage, emploi, service civique ou un dispositif d'accompagnement."

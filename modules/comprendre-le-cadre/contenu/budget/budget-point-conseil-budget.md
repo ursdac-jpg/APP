@@ -7,7 +7,7 @@ tags: [point conseil budget, PCB, budget, accompagnement, gratuit, impayés, sur
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "point conseil budget"
     definition: "Lieu d'accompagnement sur le budget, gratuit et confidentiel, labellisé par l'État. Il conseille, il n'accorde pas d'argent."

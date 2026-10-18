@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : modifier une fiche depuis l'outil de veille</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--sub:#f1f4f9;--txt:#1b2430;--strong:#0b1a33;--muted:#5a6a7e;--bord:#d5dbe4;--acc:#0369a1;--accbg:#e2f0f8;--ok:#198754;--okbg:#d9f4e4;--warn:#b45309;--warnbg:#fdf1d9;--ko:#a3372b;--kobg:#fbe6e3}
+[data-theme="sombre"]{--bg:#12161f;--card:#1b212c;--sub:#222834;--txt:#dbe2ee;--strong:#e8edf5;--muted:#a8b3c4;--bord:#3d4759;--acc:#38bdf8;--accbg:#16283a;--ok:#35c79a;--okbg:#17301f;--warn:#f5a742;--warnbg:#3a2c14;--ko:#eda69c;--kobg:#3a1f1b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 system-ui,"Segoe UI",Arial,sans-serif;padding:0 16px 80px}
+.page{max-width:960px;margin:0 auto}
+h1{font-size:1.4rem;color:var(--strong);margin:1.2rem 0 .3rem}
+h2{font-size:1.1rem;color:var(--strong);margin:1.6rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.25rem}
+h3{font-size:.95rem;color:var(--strong);margin:1rem 0 .3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.mini{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:6px;padding:.35rem .9rem;font-weight:600}
+.btn.plein{background:var(--acc);color:var(--card)}
+.btn.ko{border-color:var(--ko);color:var(--ko)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.theme{position:absolute;top:10px;right:10px;z-index:5;background:var(--card)}
+.rouge{color:#c0261b;font-weight:800}[data-theme="sombre"] .rouge{color:#ff8a80}
+nav.onglets{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0;position:sticky;top:0;background:var(--bg);padding:.5rem 0;z-index:4}
+nav.onglets button{border:1px solid var(--bord);background:var(--card);color:var(--txt);border-radius:6px;padding:.4rem .8rem;font-weight:600}
+nav.onglets button.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.ecran{display:none}.ecran.actif{display:block}
+.carte{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}
+.barre{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.6rem 0}
+input[type=text],textarea,select{font:inherit;background:var(--card);color:var(--txt);border:1px solid var(--bord);border-radius:6px;padding:.3rem .5rem}
+textarea{width:100%;min-height:5rem}
+.ligne{display:flex;flex-wrap:wrap;gap:.3rem .8rem;border-top:1px solid var(--bord);padding:.5rem 0;align-items:flex-start}
+.ligne>label,.ligne>.eti{flex:0 0 11rem;color:var(--muted);padding-top:.3rem;font-size:.9rem}
+.ligne>.val{flex:1 1 18rem;min-width:0}
+.ligne input[type=text]{width:100%}
+.ligne.change{border-left:4px solid var(--warn);padding-left:.6rem;background:var(--warnbg)}
+.cadenas{display:inline-block;border:1px solid var(--bord);background:var(--sub);color:var(--muted);border-radius:6px;padding:.1rem .5rem;font-size:.85rem}
+.pastille{display:inline-block;border-radius:6px;padding:0 .5rem;font-size:.78rem;font-weight:700;border:1px solid var(--bord);background:var(--sub);color:var(--muted);margin:.1rem .2rem .1rem 0}
+.pastille.v{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.pastille.a{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+.pastille.r{background:var(--kobg);border-color:var(--ko);color:var(--ko)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border:1px solid var(--bord);padding:.4rem .5rem;text-align:left;vertical-align:top}th{background:var(--sub)}
+.sousligne{display:flex;gap:.4rem;margin:.2rem 0;align-items:flex-start}
+.sousligne input[type=text]{flex:1}
+.sousligne .t{flex:0 0 28%}
+.verif{margin:.2rem 0;font-size:.92rem}
+.verif.ok::before{content:"\2713  ";color:var(--ok);font-weight:800}
+.verif.warn::before{content:"!  ";color:var(--warn);font-weight:800}
+.verif.ko::before{content:"\2715  ";color:var(--ko);font-weight:800}
+.diff{border-left:6px solid var(--bord);border-radius:0 8px 8px 0;padding:.5rem .8rem;margin:.5rem 0;background:var(--card)}
+.diff.ajoute{border-left-color:var(--ok);background:var(--okbg)}
+.diff.modifie{border-left-color:var(--warn);background:var(--warnbg)}
+.diff.retire{border-left-color:var(--ko);background:var(--kobg)}
+.diff .nom{font-weight:800;font-size:.85rem;text-transform:none}
+.diff .avant{text-decoration:line-through;color:var(--ko)}
+.diff .apres{color:var(--ok);font-weight:600}
+.legende span{margin-right:1rem;font-size:.88rem}
+.legende i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:.3rem}
+.appli{border:1px solid var(--bord);border-radius:10px;background:var(--card);padding:.7rem 1rem;max-width:600px}
+.appli h4{margin:.1rem 0 .3rem;font-size:1.05rem}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.q b.n{color:var(--warn)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.message{border-radius:8px;padding:.5rem .8rem;margin:.6rem 0;border:1px solid var(--ok);background:var(--okbg)}
+.pied{position:sticky;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 0;margin-top:1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+@media(max-width:640px){.ligne>label,.ligne>.eti{flex:1 0 100%}.sousligne .t{flex:1 0 100%}.sousligne{flex-wrap:wrap}}
+</style>
+</head>
+<body data-theme="clair">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<div class="page">
+<h1>Maquette : modifier une fiche de « Comprendre le cadre » depuis l'outil de veille</h1>
+<p class="muted">Demande de Denis du 2026-10-18 (étape 3, option A : les fiches du cadre, champ par champ). <b>Rien n'est codé.</b> <span class="rouge">EFFORT : HAUT</span> (Mode A). Cette page fonctionne vraiment (filtres, champs, contrôles, couleurs, « Enregistrer » simulé) pour que vous puissiez essayer. Seule la fiche « Travailler chez un particulier avec le CESU » est ouvrable : c'est une vraie fiche du dépôt. Rien n'est écrit sur le disque.</p>
+
+<nav class="onglets" id="onglets">
+<button type="button" data-e="liste" class="actif">1. La liste des fiches</button>
+<button type="button" data-e="edition">2. Modifier une fiche</button>
+<button type="button" data-e="avant">3. Avant d'enregistrer</button>
+<button type="button" data-e="histo">4. L'historique</button>
+<button type="button" data-e="questions">5. Mes questions</button>
+</nav>
+
+<!-- ============ 1. LISTE ============ -->
+<section class="ecran actif" id="e-liste">
+<h2>1. Retrouver une fiche</h2>
+<p class="mini muted">Même présentation que « Qui fait quoi » et « Les adresses des fiches » : recherche, filtres, tri. Les filtres sont ceux que vous avez demandés : par date et par heure, par catégorie (le rayon). Exemples ci-dessous : 10 des 129 vraies fiches.</p>
+<div class="barre">
+<input type="text" id="lRecherche" placeholder="Chercher (titre, identifiant)" style="min-width:15rem">
+<select id="lFiltre" aria-label="Filtre">
+<option value="tout">Toutes les fiches</option>
+<option value="averifier">À revérifier (plus de 12 mois ou sans date)</option>
+<option value="aujourdhui">Vérifiées aujourd'hui</option>
+<option value="recentes">Vérifiées ces 30 derniers jours</option>
+<option value="derniers">Les dernières fiches modifiées (avec l'heure)</option>
+<option value="attente">Mes modifications en attente</option>
+</select>
+<select id="lRayon" aria-label="Rayon"></select>
+</div>
+<p class="mini" id="lStats"></p>
+<table><thead><tr><th>Rayon</th><th>Fiche</th><th>Vérifiée le</th><th>Dernière modification</th><th>Action</th></tr></thead><tbody id="lCorps"></tbody></table>
+<div id="lMessage" class="mini muted" aria-live="polite"></div>
+</section>
+
+<!-- ============ 2. EDITION ============ -->
+<section class="ecran" id="e-edition">
+<h2>2. Modifier la fiche, champ par champ</h2>
+<p class="mini muted">Chaque champ de l'en-tête a sa case : <b>on ne peut pas casser la structure</b> (les tirets, les guillemets, les « --- » sont gérés par l'outil, pas par vous). Un champ que vous changez passe en <b>orange</b> tout de suite. Les trois champs verrouillés ne se modifient jamais ici.</p>
+<div class="carte">
+<div class="barre"><b id="eTitreFiche"></b><span class="pastille" id="ePastilleChg">Aucune modification</span></div>
+
+<div class="ligne"><span class="eti">Identifiant</span><div class="val"><span class="cadenas">&#128274; emploi-cesu</span> <span class="mini muted">le nom du fichier : changer ça casserait les liens du Lexique et des renvois</span></div></div>
+<div class="ligne"><span class="eti">Rayon</span><div class="val"><span class="cadenas">&#128274; emploi</span> <span class="mini muted">déplacer une fiche dans un autre rayon : hors de cette étape (voir question 4)</span></div></div>
+<div class="ligne"><span class="eti">Fichier de collecte</span><div class="val"><span class="cadenas">&#128274; emploi.collecte.md</span></div></div>
+
+<div class="ligne" data-c="titre"><label for="fTitre">Titre</label><div class="val"><input type="text" id="fTitre"></div></div>
+<div class="ligne" data-c="pour_qui"><label for="fPourQui">« Utile si... » (pour qui)</label><div class="val"><textarea id="fPourQui" style="min-height:3.5rem"></textarea></div></div>
+<div class="ligne" data-c="tags"><label for="fTags">Mots de recherche</label><div class="val"><input type="text" id="fTags"><div class="mini muted">séparés par des virgules ; ils servent à la recherche de l'accueil</div></div></div>
+<div class="ligne" data-c="territoire"><label for="fTerr">Territoire</label><div class="val"><select id="fTerr"><option value="national">National</option><option value="region">Région</option><option value="24">Dordogne</option><option value="87">Haute-Vienne</option></select></div></div>
+<div class="ligne" data-c="statut"><label for="fStatut">État de la fiche</label><div class="val"><select id="fStatut"><option value="actif">Active (affichée)</option><option value="retire">Retirée (n'est plus affichée)</option></select> <span class="mini muted" id="fStatutNote"></span></div></div>
+
+<div class="ligne" data-c="lexique"><span class="eti">Mots expliqués (Lexique)</span><div class="val" id="fLexique"></div></div>
+<div class="ligne" data-c="voir_aussi"><label for="fVoirAussi">Voir aussi (Lexique)</label><div class="val"><input type="text" id="fVoirAussi"><div class="mini muted">identifiants de fiches du Lexique, séparés par des virgules : l'outil vérifie qu'ils existent</div></div></div>
+
+<div class="ligne" data-c="sources"><span class="eti">Sources</span><div class="val"><div id="fSources"></div>
+<div class="barre"><select id="fSourceAjout" aria-label="Ajouter une source"></select><button class="btn" type="button" id="fSourceBtn">Ajouter cette source</button></div>
+<div class="mini muted">Les sources viennent du registre des adresses (« Les adresses des fiches »). Une adresse inconnue du registre est refusée ; pour en ajouter une, passez d'abord par ce registre.</div></div></div>
+
+<div class="ligne" data-c="change"><span class="eti">Ce qui change souvent</span><div class="val" id="fChange"></div></div>
+
+<div class="ligne" data-c="corps"><label for="fCorps">Texte de la fiche</label><div class="val"><textarea id="fCorps" style="min-height:17rem"></textarea><div class="mini muted" id="fCorpsInfo"></div><div class="mini muted">Un paragraphe = une ligne vide entre deux blocs. Pas de mise en forme à écrire (pas de #, pas de **).</div></div></div>
+
+<div class="ligne" data-c="verifie"><span class="eti">Date de vérification</span><div class="val">
+<label style="display:block"><input type="radio" name="fDate" value="garder" checked> Je garde la date actuelle : <b id="fDateActuelle"></b></label>
+<label style="display:block"><input type="radio" name="fDate" value="redater"> J'ai relu la fiche ET ouvert ses sources : la dater d'aujourd'hui (<b>2026-10-18</b>)</label>
+<div class="mini muted">Changer un texte ne redate pas la fiche toute seule : la date dit « un humain a relu à la source », pas « quelqu'un a tapé ».</div></div></div>
+
+<div class="ligne" data-c="revision"><label for="fRevision">Ce que j'ai changé</label><div class="val"><input type="text" id="fRevision" placeholder="Une phrase simple, par exemple : montant du plafond mis à jour"><div class="mini muted">Obligatoire dès que le titre, le texte ou les sources changent : elle s'ajoute aux « révisions » de la fiche, avec la date.</div></div></div>
+</div>
+
+<div class="carte">
+<h3>Contrôles automatiques (en direct)</h3>
+<div id="eVerifs"></div>
+</div>
+<div class="pied">
+<span id="ePied"><b>0</b> modification en attente</span>
+<button class="btn plein" type="button" id="eVoir" disabled>Voir ce qui va changer &#8594;</button>
+<button class="btn ko" type="button" id="eAnnuler" disabled>Tout annuler</button>
+<button class="btn" type="button" data-aller="liste">Retour à la liste</button>
+</div>
+</section>
+
+<!-- ============ 3. AVANT ENREGISTRER ============ -->
+<section class="ecran" id="e-avant">
+<h2>3. Avant d'enregistrer : ce qui va changer, en couleurs</h2>
+<p class="mini muted">C'est la « couleur de l'action » : vous voyez, <b>avant</b> d'enregistrer, exactement ce qui est ajouté, modifié ou retiré. Rien n'est écrit tant que vous n'avez pas cliqué « Enregistrer ».</p>
+<div class="legende"><span><i style="background:var(--ok)"></i>Ajouté</span><span><i style="background:var(--warn)"></i>Modifié</span><span><i style="background:var(--ko)"></i>Retiré</span></div>
+<div id="aResume" class="mini" style="margin:.5rem 0"></div>
+<div id="aDiffs"></div>
+<h3>Aperçu de ce que verra la personne (simplifié)</h3>
+<p class="mini muted">Version simplifiée : titre, « utile si », texte, sources. L'affichage réel de l'application (mode sombre, téléphone) n'est pas rejoué ici ; il serait contrôlé dans le navigateur après le premier enregistrement.</p>
+<div class="appli" id="aApercu"></div>
+<h3>Ce qui se passera au clic sur « Enregistrer »</h3>
+<ol class="mini">
+<li>L'outil reconstruit le fichier de la fiche (en-tête + texte), sans toucher aux autres fiches.</li>
+<li>Il régénère les copies de recherche, puis lance <b>tous les tests automatiques</b> (comme aujourd'hui).</li>
+<li>Si un test échoue : <b>rien n'est publié, tout est remis comme avant</b>, et l'écran dit lequel (leçon 9.43).</li>
+<li>Sinon : un enregistrement local est fait, la ligne est ajoutée au journal avec l'heure, et le bouton « Annuler la dernière publication » reste disponible.</li>
+</ol>
+<div class="pied">
+<label><input type="checkbox" id="aRelu"> J'ai relu les changements ci-dessus</label>
+<button class="btn plein" type="button" id="aEnregistrer" disabled>Enregistrer la fiche</button>
+<button class="btn" type="button" data-aller="edition">&#8592; Continuer à modifier</button>
+</div>
+<div id="aResultat" aria-live="polite"></div>
+<button class="btn ko" type="button" id="aAnnulerPub" style="display:none">Annuler la dernière publication</button>
+</section>
+
+<!-- ============ 4. HISTORIQUE ============ -->
+<section class="ecran" id="e-histo">
+<h2>4. Retrouver ce qui a été modifié ou validé : date, heure, catégorie</h2>
+<p class="mini muted">Le journal existe déjà pour « Qui fait quoi » et les adresses (<code>outils/journal_modifications.txt</code>). Il s'étend aux fiches du cadre : une ligne par enregistrement, avec la <b>date et l'heure</b>, le <b>rayon</b> (la catégorie), la fiche et la phrase « ce que j'ai changé ». L'application ne le lit pas.</p>
+<div class="barre">
+<select id="hRayon" aria-label="Catégorie"></select>
+<select id="hAction" aria-label="Action"><option value="">Toutes les actions</option><option value="modifiée">Modifiées</option><option value="redatée">Redatées sans changement</option><option value="retirée">Retirées</option></select>
+<select id="hDate" aria-label="Période"><option value="">Toute la période</option><option value="2026-10-18">Aujourd'hui</option><option value="2026-10-11">7 derniers jours</option></select>
+</div>
+<table><thead><tr><th>Date et heure</th><th>Rayon</th><th>Fiche</th><th>Action</th><th>Ce qui a été changé</th></tr></thead><tbody id="hCorps"></tbody></table>
+<p class="mini muted">Les lignes d'exemple ci-dessus sont inventées pour la maquette ; la nouvelle ligne apparaît en tête quand vous « enregistrez » en simulation. Les enregistrements passés n'ont pas d'heure : seule la date sera connue.</p>
+</section>
+
+<!-- ============ 5. QUESTIONS ============ -->
+<section class="ecran" id="e-questions">
+<h2>5. Ce qui est simple, ce qui est risqué, mes questions</h2>
+<div class="verdict"><b>Simple (reprise de l'existant) :</b> l'outil sait déjà écrire une fiche (<code>outils/veilleDepot.js</code>, type « fiche »), refuser les tirets longs, vérifier que l'identifiant égale le nom du fichier, lancer tous les tests, annuler le dernier enregistrement. L'écran de la liste et les filtres sont ceux de « Qui fait quoi ». Le journal avec l'heure existe.</div>
+<div class="q"><b>Risqué, à dire clairement :</b>
+<ul>
+<li><b>Le texte libre.</b> Le formulaire protège l'en-tête, pas le sens. Un chiffre mal retapé (un plafond, un délai) passera tous les tests. Les garde-fous ici : la couleur avant/après, la phrase « ce que j'ai changé » obligatoire, et la case « j'ai relu ». Aucun test ne peut juger qu'un montant est juste.</li>
+<li><b>Les en-têtes des fiches ne sont pas tous identiques</b> : par exemple 5 fiches n'ont pas le champ « voir aussi » ou « ce qui change souvent », et 4 fichiers ont une forme à part (digests, méthode). À contrôler sur toutes les fiches avant ouverture : un essai automatique relira chaque fiche et la réécrira à l'identique pour prouver que l'outil ne déforme rien.</li>
+<li><b>Les fiches « méthode » et les 2 digests de balayage</b> n'ont pas la même forme : hors de cette première version.</li>
+</ul></div>
+
+<div class="q"><b class="n">Question 1 : la date de vérification.</b> Je propose qu'elle ne change <b>jamais toute seule</b> (case « garder » par défaut, voir écran 2). Bénéfice : une date verte veut toujours dire « relu à la source ». Risque : si vous oubliez de la changer, la fiche paraît vieille alors que vous l'avez corrigée. <b>Ma recommandation : garder par défaut.</b> Autre option : redater automatiquement à chaque enregistrement (pratique, mais une faute de frappe corrigée redaterait une fiche non relue).</div>
+
+<div class="q"><b class="n">Question 2 : « ce que j'ai changé » obligatoire.</b> Une phrase exigée si le titre, le texte ou les sources changent. Bénéfice : l'historique dit toujours pourquoi. Risque : une contrainte de plus pour une simple faute d'orthographe. <b>Ma recommandation : obligatoire, sauf case « simple correction de forme (faute, ponctuation) »</b> qui remplit la phrase toute seule.</div>
+
+<div class="q"><b class="n">Question 3 : le texte de la fiche.</b> Option A (recommandée) : une grande case de texte, paragraphes séparés par une ligne vide, comme sur cette maquette. Option B : une case par paragraphe, avec flèches pour déplacer. Bénéfice B : plus guidé. Risque B : plus de boutons, écran plus lourd, et plus de code à tester. <b>Ma recommandation : A</b>, la couleur avant/après compense.</div>
+
+<div class="q"><b class="n">Question 4 : ce qu'on ne fait PAS dans cette première version.</b> Créer une nouvelle fiche (le circuit existant le fait déjà), changer l'identifiant ou le rayon, supprimer une fiche (on la « retire » : elle n'est plus affichée mais reste dans l'historique). <b>Ma recommandation : confirmer ce périmètre.</b> Si vous voulez aussi créer ou déplacer, c'est un second lot.</div>
+
+<div class="q"><b class="n">Question 5 : qui peut enregistrer ?</b> Vous seul, depuis votre poste (comme aujourd'hui). Pour l'ouverture au public, le dossier est mis en ligne par vos soins : aucun changement. À confirmer.</div>
+
+<div class="verdict"><b>Verdict mode nuit (à la fin d'un plan Mode A) :</b> <b>NON APTE pour l'instant</b>. Il reste les questions 1 à 5, la maquette à valider, et le résultat de l'essai de réécriture à l'identique des 129 fiches.</div>
+<h3>Plan en cases, une fois la maquette validée</h3>
+<ul class="mini" style="list-style:none;padding-left:0">
+<li>&#9744; <b>[effort : moyen]</b> Essai automatique : relire les 129 fiches et les réécrire à l'identique (preuve que rien ne se déforme).</li>
+<li>&#9744; <b>[effort : haut]</b> Brique « fiche modifiable » dans <code>outils/veilleDepot.js</code> : lire une fiche en champs, reconstruire le fichier, journal avec heure.</li>
+<li>&#9744; <b>[effort : moyen]</b> Écran 1 (liste, filtres) dans <code>outils/veille.html</code>, avec la brique commune des listes de la veille.</li>
+<li>&#9744; <b>[effort : haut]</b> Écrans 2 et 3 (formulaire, contrôles en direct, couleurs avant/après, aperçu).</li>
+<li>&#9744; <b>[effort : moyen]</b> Écran 4 (historique) et essais navigateur clair / sombre / téléphone.</li>
+</ul>
+</section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var AUJOURDHUI = '2026-10-18';
+  function $(id) { return document.getElementById(id); }
+  function echap(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  // ---------- Donnees : vraies fiches du depot (en-tetes) + registre d'adresses reel pour la fiche CESU ----------
+  var FICHES = [
+    { r: 'accompagnement', id: 'accompagnement-a-qui-m-adresser', t: "Qui accompagne vers l'emploi : le bon interlocuteur selon ma situation", v: '2026-10-13', m: '' },
+    { r: 'budget', id: 'budget-saisie-sur-salaire', t: 'Un créancier saisit une partie de mon salaire : ce qui peut être prélevé, ce qui est protégé', v: '2026-10-05', m: '' },
+    { r: 'emploi', id: 'emploi-arret-maladie', t: "L'arrêt maladie : combien de temps, quelles indemnités, et comment préparer la reprise", v: '2026-10-05', m: '' },
+    { r: 'emploi', id: 'emploi-cesu', t: 'Travailler chez un particulier avec le CESU', v: '2026-10-05', m: '' },
+    { r: 'emploi', id: 'emploi-csp', t: 'Le contrat de sécurisation professionnelle (CSP), comment ça marche ?', v: '2026-10-05', m: '' },
+    { r: 'emploi', id: 'emploi-demission', t: "Démissionner d'un CDI : le préavis, et ce qui se passe pour le chômage", v: '2026-10-05', m: '' },
+    { r: 'former', id: 'former-financer-sa-formation-demandeur-emploi', t: 'Financer une formation quand on cherche un emploi', v: '2026-10-13', m: '' },
+    { r: 'handicap', id: 'handicap-aah-et-travail', t: "L'allocation aux adultes handicapés (AAH) et le travail", v: '2026-10-13', m: '' },
+    { r: 'jeunes', id: 'jeunes-contrat-apprentissage', t: "Le contrat d'apprentissage : apprendre un métier en étant payé", v: '2026-10-13', m: '' },
+    { r: 'logement', id: 'logement-expulsion', t: "Menacé d'expulsion : les étapes de la procédure, ce qu'on peut faire", v: '2026-10-13', m: '' }
+  ];
+  var RAYONS = { accompagnement: 8, budget: 9, creer: 7, emploi: 15, employeurs: 12, etranger: 7, former: 9, francais: 6, garde: 6, handicap: 9, jeunes: 7, juridique: 6, justice: 6, logement: 8, mobilite: 6, sante: 1, seniors: 5 };
+  var REGISTRE = {
+    'francetravail-cesu': '2026-09-11', 'code-travail-numerique-cesu': '2026-10-05',
+    'service-public-emploi-franc': '2026-10-05', 'service-public-emploi-accompagne': '2026-09-05', 'urssaf-particulier-employeur': ''
+  };
+  var ORIGINE = {
+    titre: 'Travailler chez un particulier avec le CESU',
+    pour_qui: "Utile si vous cherchez ou occupez un emploi chez un particulier : ménage, garde d'enfant, aide à une personne âgée.",
+    tags: 'CESU, particulier employeur, services à la personne, aide à domicile',
+    territoire: 'national', statut: 'actif',
+    lexique: [{ t: 'CESU', d: 'Chèque emploi service universel : moyen simplifié pour un particulier de déclarer et payer un salarié à son domicile.' }],
+    voir_aussi: 'cesu',
+    sources: ['francetravail-cesu', 'code-travail-numerique-cesu'],
+    change: [],
+    corps: "Le CESU permet à un particulier de vous employer directement à son domicile : ménage, garde d'enfant, soutien scolaire, aide à une personne âgée ou dépendante, entre autres. C'est une façon simplifiée de déclarer un emploi, pas un type de contrat à part : vous avez les mêmes droits qu'un salarié classique (congés payés, protection sociale, cotisations retraite).\n\nConcrètement, l'employeur particulier déclare vos heures et votre salaire sur une plateforme dédiée (Urssaf), qui calcule et prélève les cotisations automatiquement. Vous n'avez pas de bulletin de paie à réclamer séparément : l'attestation d'emploi vaut bulletin de salaire.\n\nC'est un mode d'embauche très répandu dans les services à la personne, un secteur qui recrute beaucoup localement, notamment dans l'aide à domicile. Plusieurs employeurs particuliers peuvent vous employer en même temps, chacun déclarant ses propres heures.\n\nSi un désaccord survient (heures non payées, rupture du contrat), les mêmes règles générales du droit du travail s'appliquent : voir les fiches de ce rayon sur la fin d'un contrat, et le rayon Questions juridiques en cas de litige.",
+    verifie: '2026-10-05', revision: '', datation: 'garder'
+  };
+  var actuel = clone(ORIGINE);
+  var historique = [
+    { q: '2026-10-17 18:42', r: 'emploi', f: 'emploi-demission', a: 'modifiée', c: "préavis précisé pour l'exemple (ligne d'exemple)" },
+    { q: '2026-10-16 09:15', r: 'logement', f: 'logement-expulsion', a: 'redatée', c: 'relue à la source, rien à changer (ligne d\'exemple)' },
+    { q: '2026-10-13 21:03', r: 'budget', f: 'budget-saisie-sur-salaire', a: 'modifiée', c: 'barème mis à jour (ligne d\'exemple)' }
+  ];
+  var pubFaite = false;
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function egal(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+
+  // ---------- Navigation ----------
+  function aller(e) {
+    Array.prototype.forEach.call(document.querySelectorAll('.ecran'), function (s) { s.classList.toggle('actif', s.id === 'e-' + e); });
+    Array.prototype.forEach.call(document.querySelectorAll('#onglets button'), function (b) { b.classList.toggle('actif', b.getAttribute('data-e') === e); });
+    if (e === 'avant') { rendreAvant(); }
+    if (e === 'histo') { rendreHisto(); }
+    window.scrollTo(0, 0);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#onglets button'), function (b) { b.addEventListener('click', function () { aller(b.getAttribute('data-e')); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-aller]'), function (b) { b.addEventListener('click', function () { aller(b.getAttribute('data-aller')); }); });
+  $('bascule').addEventListener('click', function () {
+    var s = document.body.getAttribute('data-theme') === 'sombre';
+    document.body.setAttribute('data-theme', s ? 'clair' : 'sombre'); $('bascule').textContent = s ? 'Mode sombre' : 'Mode clair';
+  });
+
+  // ---------- 1. Liste ----------
+  var selRayon = $('lRayon');
+  selRayon.innerHTML = '<option value="">Tous les rayons (129 fiches)</option>' + Object.keys(RAYONS).map(function (r) { return '<option value="' + r + '">' + r + ' (' + RAYONS[r] + ')</option>'; }).join('');
+  function jours(d) { return Math.round((new Date(AUJOURDHUI) - new Date(d)) / 86400000); }
+  function modifEnAttente(f) { return f.id === 'emploi-cesu' && !egal(actuel, ORIGINE); }
+  function rendreListe() {
+    var q = $('lRecherche').value.toLowerCase(), fl = $('lFiltre').value, ra = selRayon.value;
+    var l = FICHES.filter(function (f) {
+      if (ra && f.r !== ra) { return false; }
+      if (q && (f.t + ' ' + f.id).toLowerCase().indexOf(q) === -1) { return false; }
+      if (fl === 'averifier') { return !f.v || jours(f.v) > 365; }
+      if (fl === 'aujourdhui') { return f.v === AUJOURDHUI; }
+      if (fl === 'recentes') { return f.v && jours(f.v) <= 30; }
+      if (fl === 'derniers') { return !!f.m; }
+      if (fl === 'attente') { return modifEnAttente(f); }
+      return true;
+    });
+    $('lStats').textContent = l.length + ' fiche(s) affichée(s) sur les 10 exemples de cette maquette (129 dans la vraie liste).';
+    $('lCorps').innerHTML = l.map(function (f) {
+      return '<tr><td>' + echap(f.r) + '</td><td><b>' + echap(f.t) + '</b><br><span class="mini muted">' + echap(f.id) + '</span>' + (modifEnAttente(f) ? ' <span class="pastille a">modification en attente</span>' : '') + '</td><td><span class="pastille v">' + f.v + '</span></td><td class="mini">' + (f.m ? echap(f.m) : '<span class="muted">date seule (avant le journal)</span>') + '</td><td><button class="btn" type="button" data-ouvrir="' + f.id + '">Modifier</button></td></tr>';
+    }).join('') || '<tr><td colspan="5" class="muted">Aucune fiche ne correspond.</td></tr>';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ouvrir]'), function (b) {
+      b.addEventListener('click', function () {
+        if (b.getAttribute('data-ouvrir') === 'emploi-cesu') { aller('edition'); }
+        else { $('lMessage').innerHTML = '<b>Dans cette maquette, seule la fiche « CESU » s\'ouvre</b> (les autres fiches se comporteront de la même façon).'; }
+      });
+    });
+  }
+  ['lRecherche', 'lFiltre', 'lRayon'].forEach(function (i) { $(i).addEventListener('input', rendreListe); $(i).addEventListener('change', rendreListe); });
+
+  // ---------- 2. Edition ----------
+  function listeLignes(conteneur, cle, modeles) {
+    var c = $(conteneur);
+    c.innerHTML = actuel[cle].map(function (x, i) {
+      if (modeles === 'lexique') {
+        return '<div class="sousligne"><input type="text" class="t" data-k="' + cle + '" data-i="' + i + '" data-p="t" value="' + echap(x.t) + '" aria-label="Mot"><input type="text" data-k="' + cle + '" data-i="' + i + '" data-p="d" value="' + echap(x.d) + '" aria-label="Définition"><button class="btn ko" type="button" data-sup="' + cle + '" data-i="' + i + '">Retirer</button></div>';
+      }
+      return '<div class="sousligne"><input type="text" data-k="' + cle + '" data-i="' + i + '" value="' + echap(x) + '"><button class="btn ko" type="button" data-sup="' + cle + '" data-i="' + i + '">Retirer</button></div>';
+    }).join('') + '<button class="btn" type="button" data-aj="' + cle + '">' + (modeles === 'lexique' ? 'Ajouter un mot' : 'Ajouter une ligne') + '</button>';
+  }
+  function brancherListes() {
+    Array.prototype.forEach.call(document.querySelectorAll('#e-edition [data-k]'), function (inp) {
+      inp.addEventListener('input', function () {
+        var k = inp.getAttribute('data-k'), i = +inp.getAttribute('data-i'), p = inp.getAttribute('data-p');
+        if (p) { actuel[k][i][p] = inp.value; } else { actuel[k][i] = inp.value; }
+        majEtat();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#e-edition [data-sup]'), function (b) {
+      b.addEventListener('click', function () { actuel[b.getAttribute('data-sup')].splice(+b.getAttribute('data-i'), 1); rendreListes(); majEtat(); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#e-edition [data-aj]'), function (b) {
+      b.addEventListener('click', function () {
+        var k = b.getAttribute('data-aj');
+        actuel[k].push(k === 'lexique' ? { t: '', d: '' } : ''); rendreListes(); majEtat();
+      });
+    });
+  }
+  function rendreSources() {
+    $('fSources').innerHTML = actuel.sources.map(function (s, i) {
+      var d = REGISTRE[s];
+      var p = d === undefined ? '<span class="pastille r">inconnue du registre : refusée</span>' : (d ? '<span class="pastille v">adresse vérifiée le ' + d + '</span>' : '<span class="pastille a">adresse jamais vérifiée</span>');
+      return '<div class="sousligne"><span style="flex:1"><b>' + echap(s) + '</b> ' + p + '</span><button class="btn ko" type="button" data-supsrc="' + i + '">Retirer</button></div>';
+    }).join('') || '<span class="muted mini">Aucune source.</span>';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-supsrc]'), function (b) { b.addEventListener('click', function () { actuel.sources.splice(+b.getAttribute('data-supsrc'), 1); rendreSources(); majEtat(); }); });
+    $('fSourceAjout').innerHTML = '<option value="">Choisir dans le registre...</option>' + Object.keys(REGISTRE).filter(function (k) { return actuel.sources.indexOf(k) === -1; }).map(function (k) { return '<option>' + k + '</option>'; }).join('') + '<option value="__inconnue__">(une adresse qui n\'est pas au registre)</option>';
+  }
+  $('fSourceBtn').addEventListener('click', function () {
+    var v = $('fSourceAjout').value; if (!v) { return; }
+    actuel.sources.push(v === '__inconnue__' ? 'adresse-pas-au-registre' : v); rendreSources(); majEtat();
+  });
+  function rendreListes() { listeLignes('fLexique', 'lexique', 'lexique'); listeLignes('fChange', 'change', ''); brancherListes(); rendreSources(); }
+
+  function lier(id, cle, evt) { $(id).addEventListener(evt || 'input', function () { actuel[cle] = $(id).value; majEtat(); }); }
+  lier('fTitre', 'titre'); lier('fPourQui', 'pour_qui'); lier('fTags', 'tags'); lier('fTerr', 'territoire', 'change'); lier('fStatut', 'statut', 'change'); lier('fVoirAussi', 'voir_aussi'); lier('fCorps', 'corps'); lier('fRevision', 'revision');
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=fDate]'), function (r) { r.addEventListener('change', function () { actuel.datation = r.value; majEtat(); }); });
+
+  function remplirChamps() {
+    $('eTitreFiche').textContent = 'emploi-cesu';
+    $('fTitre').value = actuel.titre; $('fPourQui').value = actuel.pour_qui; $('fTags').value = actuel.tags; $('fTerr').value = actuel.territoire; $('fStatut').value = actuel.statut; $('fVoirAussi').value = actuel.voir_aussi; $('fCorps').value = actuel.corps; $('fRevision').value = actuel.revision;
+    $('fDateActuelle').textContent = ORIGINE.verifie;
+    document.querySelector('input[name=fDate][value=' + actuel.datation + ']').checked = true;
+    rendreListes();
+  }
+
+  var TIRETS = new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']');
+  function contenuChange() { return actuel.titre !== ORIGINE.titre || actuel.corps !== ORIGINE.corps || !egal(actuel.sources, ORIGINE.sources); }
+  function tousTextes() { return [actuel.titre, actuel.pour_qui, actuel.tags, actuel.corps, actuel.voir_aussi, actuel.revision].concat(actuel.lexique.map(function (x) { return x.t + ' ' + x.d; })).concat(actuel.change).join('\n'); }
+
+  function verifications() {
+    var v = [];
+    v.push(!actuel.titre.trim() ? ['ko', 'Le titre est vide.'] : ['ok', 'Le titre est rempli.']);
+    v.push(!actuel.pour_qui.trim() ? ['ko', 'Le « Utile si... » est vide.'] : ['ok', 'Le « Utile si... » est rempli.']);
+    v.push(TIRETS.test(tousTextes()) ? ['ko', "Un tiret long ou demi-long s'est glissé dans un texte (interdit dans l'application). Utilisez une virgule, deux-points ou un trait d'union."] : ['ok', 'Aucun tiret long ou demi-long.']);
+    var inconnues = actuel.sources.filter(function (s) { return REGISTRE[s] === undefined; });
+    v.push(inconnues.length ? ['ko', 'Source absente du registre des adresses : ' + inconnues.join(', ') + '.'] : ['ok', 'Toutes les sources sont dans le registre.']);
+    v.push(!actuel.sources.length ? ['warn', "La fiche n'a plus aucune source : à éviter pour un contenu qui cite des règles."] : ['ok', actuel.sources.length + ' source(s).']);
+    var sansDate = actuel.sources.filter(function (s) { return REGISTRE[s] === ''; });
+    if (sansDate.length) { v.push(['warn', 'Adresse jamais vérifiée : ' + sansDate.join(', ') + ' (ouvrez-la dans « Les adresses des fiches »).']); }
+    var lexVide = actuel.lexique.some(function (x) { return !x.t.trim() || !x.d.trim(); });
+    v.push(lexVide ? ['ko', 'Un mot du Lexique a son mot ou sa définition vide.'] : ['ok', 'Mots expliqués complets.']);
+    if (/à vérifier/i.test(tousTextes())) { v.push(['ko', "Le texte contient « à vérifier » : une information incertaine ne se publie pas."]); }
+    if (contenuChange() && !actuel.revision.trim()) { v.push(['warn', 'Dites en une phrase ce que vous avez changé (champ « Ce que j\'ai changé »).']); }
+    if (contenuChange() && actuel.datation === 'garder') { v.push(['warn', 'Le texte a changé mais la date de vérification reste ' + ORIGINE.verifie + ' : normal si vous n\'avez pas relu la source.']); }
+    if (actuel.statut === 'retire') { v.push(['warn', "La fiche sera retirée : elle n'apparaîtra plus dans l'application (le fichier est gardé)."]); }
+    return v;
+  }
+  function majEtat() {
+    var n = nbChangements(), v = verifications();
+    var bloque = v.some(function (x) { return x[0] === 'ko'; }) || (contenuChange() && !actuel.revision.trim());
+    $('eVerifs').innerHTML = v.map(function (x) { return '<div class="verif ' + x[0] + '">' + echap(x[1]) + '</div>'; }).join('');
+    $('ePied').innerHTML = '<b>' + n + '</b> modification' + (n > 1 ? 's' : '') + ' en attente';
+    $('ePastilleChg').textContent = n ? n + ' champ(s) modifié(s)' : 'Aucune modification';
+    $('ePastilleChg').className = 'pastille' + (n ? ' a' : '');
+    $('eVoir').disabled = !n || bloque; $('eAnnuler').disabled = !n;
+    $('fStatutNote').textContent = actuel.statut === 'retire' ? '(attention : retrait)' : '';
+    $('fCorpsInfo').textContent = actuel.corps.split(/\n\s*\n/).filter(Boolean).length + ' paragraphes, ' + actuel.corps.length + ' caractères.';
+    var map = { titre: 'titre', pour_qui: 'pour_qui', tags: 'tags', territoire: 'territoire', statut: 'statut', lexique: 'lexique', voir_aussi: 'voir_aussi', sources: 'sources', change: 'change', corps: 'corps' };
+    Array.prototype.forEach.call(document.querySelectorAll('#e-edition .ligne[data-c]'), function (l) {
+      var c = l.getAttribute('data-c'), ch = false;
+      if (map[c]) { ch = !egal(actuel[map[c]], ORIGINE[map[c]]); }
+      if (c === 'verifie') { ch = actuel.datation === 'redater'; }
+      if (c === 'revision') { ch = !!actuel.revision.trim(); }
+      l.classList.toggle('change', ch);
+    });
+    rendreListe();
+  }
+  function nbChangements() {
+    var n = 0; ['titre', 'pour_qui', 'tags', 'territoire', 'statut', 'lexique', 'voir_aussi', 'sources', 'change', 'corps'].forEach(function (k) { if (!egal(actuel[k], ORIGINE[k])) { n++; } });
+    if (actuel.datation === 'redater') { n++; }
+    return n;
+  }
+  $('eAnnuler').addEventListener('click', function () { actuel = clone(ORIGINE); remplirChamps(); majEtat(); });
+  $('eVoir').addEventListener('click', function () { aller('avant'); });
+
+  // ---------- 3. Avant d'enregistrer ----------
+  function paragraphes(t) { return t.split(/\n\s*\n/).map(function (x) { return x.trim(); }).filter(Boolean); }
+  function lcs(a, b) {
+    var m = a.length, n = b.length, t = [], i, j;
+    for (i = 0; i <= m; i++) { t.push(new Array(n + 1).fill(0)); }
+    for (i = m - 1; i >= 0; i--) { for (j = n - 1; j >= 0; j--) { t[i][j] = a[i] === b[j] ? t[i + 1][j + 1] + 1 : Math.max(t[i + 1][j], t[i][j + 1]); } }
+    var res = []; i = 0; j = 0;
+    while (i < m && j < n) {
+      if (a[i] === b[j]) { res.push(['=', a[i]]); i++; j++; }
+      else if (t[i + 1][j] >= t[i][j + 1]) { res.push(['-', a[i]]); i++; }
+      else { res.push(['+', b[j]]); j++; }
+    }
+    while (i < m) { res.push(['-', a[i++]]); } while (j < n) { res.push(['+', b[j++]]); }
+    return res;
+  }
+  function carte(classe, nom, html) { return '<div class="diff ' + classe + '"><div class="nom">' + nom + '</div>' + html + '</div>'; }
+  function simple(nom, a, b) { return carte('modifie', nom + ' : modifié', '<div class="avant">' + echap(a || '(vide)') + '</div><div class="apres">' + echap(b || '(vide)') + '</div>'); }
+  function rendreAvant() {
+    var d = [], nA = 0, nM = 0, nR = 0;
+    [['titre', 'Titre'], ['pour_qui', '« Utile si... »'], ['tags', 'Mots de recherche'], ['territoire', 'Territoire'], ['voir_aussi', 'Voir aussi (Lexique)']].forEach(function (c) {
+      if (actuel[c[0]] !== ORIGINE[c[0]]) { d.push(simple(c[1], ORIGINE[c[0]], actuel[c[0]])); nM++; }
+    });
+    if (actuel.statut !== ORIGINE.statut) { d.push(carte(actuel.statut === 'retire' ? 'retire' : 'ajoute', 'État de la fiche : ' + (actuel.statut === 'retire' ? 'retirée' : 'réactivée'), actuel.statut === 'retire' ? "La fiche n'apparaîtra plus dans l'application." : 'La fiche réapparaît dans l\'application.')); actuel.statut === 'retire' ? nR++ : nA++; }
+    function listeDiff(nom, avant, apres, fmt) {
+      var a = avant.map(fmt), b = apres.map(fmt);
+      b.filter(function (x) { return a.indexOf(x) === -1; }).forEach(function (x) { d.push(carte('ajoute', nom + ' : ajouté', echap(x))); nA++; });
+      a.filter(function (x) { return b.indexOf(x) === -1; }).forEach(function (x) { d.push(carte('retire', nom + ' : retiré', '<span class="avant">' + echap(x) + '</span>')); nR++; });
+    }
+    listeDiff('Source', ORIGINE.sources, actuel.sources, function (x) { return x; });
+    listeDiff('Mot du Lexique', ORIGINE.lexique, actuel.lexique, function (x) { return x.t + ' : ' + x.d; });
+    listeDiff('Ce qui change souvent', ORIGINE.change, actuel.change, function (x) { return x; });
+    if (actuel.corps !== ORIGINE.corps) {
+      var s = lcs(paragraphes(ORIGINE.corps), paragraphes(actuel.corps)), h = '', ig = 0;
+      s.forEach(function (x) {
+        if (x[0] === '=') { ig++; return; }
+        if (x[0] === '-') { h += '<div class="diff retire"><div class="nom">Paragraphe retiré ou remplacé</div><span class="avant">' + echap(x[1]) + '</span></div>'; nR++; }
+        else { h += '<div class="diff ajoute"><div class="nom">Paragraphe ajouté ou nouveau</div>' + echap(x[1]) + '</div>'; nA++; }
+      });
+      d.push('<h3>Texte de la fiche</h3><p class="mini muted">' + ig + ' paragraphe(s) inchangé(s), non affichés. Un paragraphe retouché apparaît en deux blocs : l\'ancien en rouge, le nouveau en vert.</p>' + h);
+    }
+    if (actuel.datation === 'redater') { d.push(carte('modifie', 'Date de vérification : redatée', '<span class="avant">' + ORIGINE.verifie + '</span> &#8594; <span class="apres">' + AUJOURDHUI + '</span>')); nM++; }
+    if (actuel.revision.trim()) { d.push(carte('ajoute', 'Ligne ajoutée aux révisions de la fiche', echap(AUJOURDHUI.slice(0, 7) + ' : ' + actuel.revision))); nA++; }
+    $('aResume').innerHTML = d.length ? '<b>' + nA + ' ajouté(s) (vert), ' + nM + ' modifié(s) (orange), ' + nR + ' retiré(s) (rouge).</b>' : 'Aucune modification : rien à enregistrer.';
+    $('aDiffs').innerHTML = d.join('');
+    $('aApercu').innerHTML = '<h4>' + echap(actuel.titre) + '</h4><p class="mini muted">' + echap(actuel.pour_qui) + '</p>' + paragraphes(actuel.corps).map(function (p) { return '<p class="mini">' + echap(p) + '</p>'; }).join('') + '<p class="mini muted"><b>Sources :</b> ' + actuel.sources.map(echap).join(', ') + '</p>' + (actuel.statut === 'retire' ? '<p class="pastille r">Fiche retirée : non affichée</p>' : '');
+    var v = verifications().some(function (x) { return x[0] === 'ko'; }) || (contenuChange() && !actuel.revision.trim());
+    $('aEnregistrer').disabled = !$('aRelu').checked || v || !d.length;
+    $('aResultat').innerHTML = v ? '<div class="q">Un contrôle est rouge ou la phrase « ce que j\'ai changé » manque : revenez à l\'écran 2.</div>' : '';
+  }
+  $('aRelu').addEventListener('change', rendreAvant);
+  $('aEnregistrer').addEventListener('click', function () {
+    var h = '2026-10-18 14:35';
+    historique.unshift({ q: h, r: 'emploi', f: 'emploi-cesu', a: actuel.statut === 'retire' ? 'retirée' : (contenuChange() ? 'modifiée' : 'redatée'), c: actuel.revision || '(sans phrase)' });
+    FICHES.forEach(function (f) { if (f.id === 'emploi-cesu') { f.m = h; if (actuel.datation === 'redater') { f.v = AUJOURDHUI; } } });
+    $('aResultat').innerHTML = '<div class="message"><b>Enregistré (simulation).</b> Tests automatiques : tous verts. Journal : ' + h + '. Rien n\'a été écrit sur le disque dans cette maquette.</div>';
+    $('aAnnulerPub').style.display = ''; $('aEnregistrer').disabled = true; pubFaite = true;
+    ORIGINE.verifie = actuel.datation === 'redater' ? AUJOURDHUI : ORIGINE.verifie;
+    var base = clone(actuel); Object.keys(base).forEach(function (k) { ORIGINE[k] = base[k]; });
+    ORIGINE.revision = ''; actuel.revision = ''; ORIGINE.datation = 'garder'; actuel.datation = 'garder'; actuel = clone(ORIGINE);
+    remplirChamps(); majEtat(); $('aRelu').checked = false;
+  });
+  $('aAnnulerPub').addEventListener('click', function () {
+    if (!pubFaite) { return; }
+    historique.shift(); $('aAnnulerPub').style.display = 'none'; pubFaite = false;
+    $('aResultat').innerHTML = '<div class="message">La dernière publication est annulée (simulation) : la fiche revient à son état d\'avant. Rechargez cette page pour repartir de la fiche d\'origine.</div>';
+  });
+
+  // ---------- 4. Historique ----------
+  var hr = $('hRayon');
+  hr.innerHTML = '<option value="">Toutes les catégories (rayons)</option>' + Object.keys(RAYONS).map(function (r) { return '<option>' + r + '</option>'; }).join('');
+  function rendreHisto() {
+    var r = hr.value, a = $('hAction').value, d = $('hDate').value;
+    $('hCorps').innerHTML = historique.filter(function (x) { return (!r || x.r === r) && (!a || x.a === a) && (!d || x.q.slice(0, 10) >= d); }).map(function (x) {
+      return '<tr><td>' + x.q + '</td><td>' + x.r + '</td><td>' + x.f + '</td><td><span class="pastille ' + (x.a === 'retirée' ? 'r' : x.a === 'redatée' ? 'v' : 'a') + '">' + x.a + '</span></td><td class="mini">' + echap(x.c) + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" class="muted">Rien ne correspond.</td></tr>';
+  }
+  ['hRayon', 'hAction', 'hDate'].forEach(function (i) { $(i).addEventListener('change', rendreHisto); });
+
+  remplirChamps(); majEtat(); rendreListe();
+})();
+</script>
+</body>
+</html>

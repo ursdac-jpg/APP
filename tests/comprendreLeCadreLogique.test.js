@@ -21,14 +21,16 @@ const {
 
 // ---------- _comprendreLeCadreDateFr ----------
 
-test('_comprendreLeCadreDateFr : "annee-mois" devient "mois annee" en toutes lettres', () => {
-  assert.equal(_comprendreLeCadreDateFr('2026-09'), 'septembre 2026');
-  assert.equal(_comprendreLeCadreDateFr('2026-01'), 'janvier 2026');
+test('_comprendreLeCadreDateFr : "annee-mois" devient "mois annee" abrégé', () => {
+  assert.equal(_comprendreLeCadreDateFr('2026-09'), 'sept. 2026');
+  assert.equal(_comprendreLeCadreDateFr('2026-01'), 'janv. 2026');
+  assert.equal(_comprendreLeCadreDateFr('2026-03'), 'mars 2026');
 });
 
 test('_comprendreLeCadreDateFr : "annee-mois-jour" devient "jour mois annee"', () => {
-  assert.equal(_comprendreLeCadreDateFr('2026-09-05'), '5 septembre 2026');
-  assert.equal(_comprendreLeCadreDateFr('2026-12-25'), '25 décembre 2026');
+  assert.equal(_comprendreLeCadreDateFr('2026-09-05'), '5 sept. 2026');
+  assert.equal(_comprendreLeCadreDateFr('2026-10-13'), '13 oct. 2026');
+  assert.equal(_comprendreLeCadreDateFr('2026-12-25'), '25 déc. 2026');
 });
 
 test('_comprendreLeCadreDateFr : toute autre forme rendue telle quelle', () => {

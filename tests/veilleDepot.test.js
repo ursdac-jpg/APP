@@ -370,7 +370,7 @@ test('publier : les adresses (valider, modifier, ajouter, supprimer) s\'enregist
     ecrire(d, 'modules/comprendre-le-cadre/liens-verifies.txt', REGISTRE);
     ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.md', '---\nid: emploi-un\ntitre: Premier\nsources:\n  - legifrance\n---\nCorps\n');
     git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'liens');
-    const depot = creerDepot(d, { aujourdhui: () => '2026-10-07' });
+    const depot = creerDepot(d, { aujourdhui: () => '2026-10-07', maintenant: () => '2026-10-07 09:15' });
     const liste = depot.listerLiens();
     assert.ok(liste.ok);
     assert.strictEqual(liste.aujourdhui, '2026-10-07');
@@ -385,6 +385,9 @@ test('publier : les adresses (valider, modifier, ajouter, supprimer) s\'enregist
     ] }]);
     assert.ok(r.ok, JSON.stringify(r));
     assert.deepStrictEqual(r.resumeLiens, { valides: 1, modifies: 1, supprimes: 0, ajoutes: 1 });
+    const journal = fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8');
+    assert.ok(journal.indexOf('2026-10-07 09:15 | liens | asso-24 | modifiée') !== -1 && journal.indexOf('| liens | nouveau | ajoutée') !== -1 && journal.indexOf('| liens | legifrance') === -1, 'seules les adresses touchées sont journalisées');
+    assert.strictEqual(depot.listerLiens().liens.filter((l) => l.nom === 'libre')[0].modifieLe, '2026-10-07 09:15');
     assert.strictEqual(fs.readFileSync(path.join(d, 'modules/comprendre-le-cadre/liens-verifies.txt'), 'utf8'),
       '# Registre\n\nlegifrance | https://www.legifrance.gouv.fr/ | 2026-09-06 | national\nasso-24 | https://asso24.example.org/ | 2026-10-07 | 24\nlibre | https://libre-nouveau.example.org/ | 2026-10-07 | national\nnouveau | https://nouveau.example.org/ |  | 87\n');
     assert.ok(depot.annuler().ok);
@@ -392,5 +395,162 @@ test('publier : les adresses (valider, modifier, ajouter, supprimer) s\'enregist
     // une modification qui ne change rien est signalee
     assert.ok(depot.publier([{ type: 'liens', actions: [{ op: 'valider', nom: 'legifrance' }] }]).ok);
     assert.strictEqual(depot.publier([{ type: 'liens', actions: [{ op: 'valider', nom: 'legifrance' }] }]).code, 'liens-rien', 'valider deux fois le meme jour ne change rien');
+  } finally { nettoyer(d); }
+});
+
+test('publier : une fiche du cadre modifiee champ par champ s\'enregistre avec sa revision et son heure ; refus clairs ; echec des tests = tout remis ; annulable', () => {
+  const d = creerDepotDeTest();
+  try {
+    const chemin = path.join(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.md');
+    const AVANT = '---\nid: emploi-un\nrayon: emploi\ntitre: "Premier"\ntags: [a, b]\nverifie_le: 2026-09-01\nrevisions: []\ncollecte: emploi.collecte.md\n---\n\nPremier paragraphe.\n';
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.md', AVANT);
+    git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'fiche');
+    const depot = creerDepot(d, { aujourdhui: () => '2026-10-18', maintenant: () => '2026-10-18 14:35' });
+    const fic = (plus) => [Object.assign({ type: 'fiche-champs', rayon: 'emploi', nom: 'emploi-un.md', datation: 'garder' }, plus)];
+    // refus : pas de phrase, fiche inconnue (jamais une creation), tiret long, rayon inconnu
+    const sansPhrase = depot.publier(fic({ changements: { titre: 'Nouveau' } }));
+    assert.ok(!sansPhrase.ok); assert.strictEqual(sansPhrase.code, 'fiche-champs'); assert.match(sansPhrase.erreur, /en une phrase/);
+    const absente = depot.publier([{ type: 'fiche-champs', rayon: 'emploi', nom: 'emploi-neuve.md', changements: { titre: 'X' }, revision: 'essai' }]);
+    assert.ok(!absente.ok); assert.strictEqual(absente.code, 'fiche-absente');
+    assert.ok(!depot.publier(fic({ changements: { titre: 'Un ' + String.fromCharCode(0x2014) + ' tiret' }, revision: 'essai' })).ok);
+    assert.ok(!depot.publier([{ type: 'fiche-champs', rayon: 'inconnu', nom: 'emploi-un.md', changements: { titre: 'X' }, revision: 'essai' }]).ok);
+    assert.strictEqual(fs.readFileSync(chemin, 'utf8'), AVANT, 'un refus ne change rien');
+    // echec des tests : tout est remis comme avant
+    fs.writeFileSync(path.join(d, 'ECHEC.flag'), 'x');
+    const echec = depot.publier(fic({ changements: { titre: 'Nouveau' }, revision: 'titre change' }));
+    assert.ok(!echec.ok); assert.strictEqual(echec.code, 'tests');
+    assert.strictEqual(fs.readFileSync(chemin, 'utf8'), AVANT);
+    fs.rmSync(path.join(d, 'ECHEC.flag'));
+    // la bonne publication
+    const r = depot.publier(fic({ changements: { titre: 'Nouveau titre', corps: 'Premier paragraphe.\n\nSecond paragraphe.' }, revision: 'titre plus clair et paragraphe ajoute', datation: 'redater' }));
+    assert.ok(r.ok, JSON.stringify(r));
+    assert.strictEqual(r.resumeFiches.length, 1);
+    assert.strictEqual(r.resumeFiches[0].action, 'modifiée');
+    assert.strictEqual(fs.readFileSync(chemin, 'utf8'),
+      '---\nid: emploi-un\nrayon: emploi\ntitre: "Nouveau titre"\ntags: [a, b]\nverifie_le: 2026-10-18\nrevisions:\n  - "2026-10 : titre plus clair et paragraphe ajoute"\ncollecte: emploi.collecte.md\n---\n\nPremier paragraphe.\n\nSecond paragraphe.\n');
+    const journal = fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8');
+    assert.ok(journal.indexOf('2026-10-18 14:35 | cadre | emploi-un | modifiée | titre plus clair et paragraphe ajoute') !== -1);
+    assert.ok(depot.annuler().ok);
+    assert.strictEqual(fs.readFileSync(chemin, 'utf8'), AVANT, 'l\'annulation remet la fiche d\'avant');
+  } finally { nettoyer(d); }
+});
+
+test('lister les fiches du cadre : une ligne par fiche (sans les fiches « methode »), avec la date et l\'heure de la derniere modification ; lire une fiche champ par champ', () => {
+  const d = creerDepotDeTest();
+  try {
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.md', '---\nid: emploi-un\nrayon: emploi\ntitre: "Premier"\ntags: [a, b]\nverifie_le: 2026-09-01\nsources:\n  - legifrance\nrevisions: []\ncollecte: emploi.collecte.md\n---\n\nPremier paragraphe.\n');
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.collecte.md', 'collecte\n');
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-cassee.md', 'Pas d\'en-tete\n');
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/methode/methode-un.md', '---\nid: methode-un\ntitre: Titre sans guillemets\n---\n\nTexte.\n');
+    ecrire(d, 'modules/comprendre-le-cadre/liens-verifies.txt', 'legifrance | https://www.legifrance.gouv.fr/ | 2026-09-06 | national\nasso | https://asso.example.org/ |  | 24\n');
+    git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'fiches');
+    const depot = creerDepot(d, { aujourdhui: () => '2026-10-18', maintenant: () => '2026-10-18 14:35' });
+    const l = depot.listerFiches();
+    assert.ok(l.ok);
+    assert.deepStrictEqual(l.fiches.map((f) => [f.rayon, f.id, f.titre, f.verifieLe, f.modifieLe]), [['emploi', 'emploi-cassee', 'emploi-cassee', '', ''], ['emploi', 'emploi-deux', 'Deuxieme', '', ''], ['emploi', 'emploi-un', 'Premier', '2026-09-01', '']]);
+    assert.strictEqual(l.fiches[0].illisible, true, 'une fiche sans l\'en-tete habituel est signalee illisible');
+    assert.deepStrictEqual(l.rayons, { emploi: 3 });
+    assert.ok(depot.publier([{ type: 'fiche-champs', rayon: 'emploi', nom: 'emploi-un.md', changements: { titre: 'Titre neuf' }, revision: 'essai' }]).ok);
+    assert.strictEqual(depot.listerFiches().fiches.filter((f) => f.id === 'emploi-un')[0].modifieLe, '2026-10-18 14:35');
+    const f = depot.lireFiche('emploi', 'emploi-un');
+    assert.ok(f.ok);
+    assert.strictEqual(f.champs.titre, 'Titre neuf');
+    assert.deepStrictEqual(f.champs.sources, ['legifrance']);
+    assert.strictEqual(f.corps, 'Premier paragraphe.');
+    assert.deepStrictEqual(f.verrouilles.map((v) => v.cle), ['id', 'rayon', 'collecte']);
+    assert.deepStrictEqual(f.registre, [{ nom: 'legifrance', date: '2026-09-06' }, { nom: 'asso', date: '' }]);
+    assert.strictEqual(f.modifieLe, '2026-10-18 14:35');
+    // refus : rayon inconnu ou « methode », nom detourne, fiche absente, fiche illisible
+    assert.ok(!depot.lireFiche('methode', 'methode-un').ok);
+    assert.ok(!depot.lireFiche('inconnu', 'emploi-un').ok);
+    assert.ok(!depot.lireFiche('emploi', '../../../package').ok);
+    assert.ok(!depot.lireFiche('emploi', 'emploi-absente').ok);
+    assert.ok(!depot.lireFiche('emploi', 'emploi-cassee').ok);
+  } finally { nettoyer(d); }
+});
+
+test('historique : le journal est lu du plus recent au plus ancien, avec le rayon des fiches du cadre et la phrase ; sans journal, une liste vide', () => {
+  const d = creerDepotDeTest();
+  try {
+    const depot = creerDepot(d, { aujourdhui: () => '2026-10-18', maintenant: () => '2026-10-18 14:35' });
+    assert.deepStrictEqual(depot.listerHistorique().entrees, []);
+    ecrire(d, 'modules/comprendre-le-cadre/contenu/emploi/emploi-un.md', '---\nid: emploi-un\nrayon: emploi\ntitre: "Premier"\nverifie_le: 2026-09-01\nrevisions: []\ncollecte: emploi.collecte.md\n---\n\nTexte.\n');
+    ecrire(d, 'outils/journal_modifications.txt', '# Journal\n2026-10-16 09:00 | lieux | asso-un | modifiée\n2026-10-17 | liens | legifrance | ajoutée\nligne cassée\n');
+    git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'journal');
+    assert.ok(depot.publier([{ type: 'fiche-champs', rayon: 'emploi', nom: 'emploi-un.md', changements: { titre: 'Neuf' }, revision: 'titre | plus clair' }]).ok);
+    const h = depot.listerHistorique();
+    assert.ok(h.ok);
+    assert.deepStrictEqual(h.entrees.map((e) => [e.quand, e.registre, e.fiche, e.action, e.rayon]), [
+      ['2026-10-18 14:35', 'cadre', 'emploi-un', 'modifiée', 'emploi'],
+      ['2026-10-17', 'liens', 'legifrance', 'ajoutée', ''],
+      ['2026-10-16 09:00', 'lieux', 'asso-un', 'modifiée', '']
+    ]);
+    assert.strictEqual(h.entrees[0].phrase, 'titre / plus clair', 'une barre verticale dans la phrase est remplacee');
+    assert.strictEqual(h.total, 3);
+  } finally { nettoyer(d); }
+});
+
+test('chiffres : lister, lire et modifier un digest et un lieu ; la confirmation de la source est exigee ; journal, annulation, echec des tests', () => {
+  const d = creerDepotDeTest();
+  try {
+    const ENT = '---\nperiode: "avril a juin 2026"\nverifie_le: 2026-10-13\nsources:\n  - "INSEE | Taux | https://www.insee.fr/fr/statistiques/1 | 2026-10-05"\n---\n';
+    const DIGEST = ENT + '\n## Taux de chomage localise\n\n- Dordogne (24) : **7,9 %** (2e trimestre 2026) ; précédent : 7,8 %. Source : INSEE, taux | https://www.insee.fr/fr/statistiques/1\n  serie: T1 2026: 7,8 % ; T2 2026: 7,9 %\n';
+    const ZONES = '---\nperiode: 1er trimestre 2026\nverifie_le: 2026-09\nsources:\n  - "src-a | Source A | https://exemple.org/a | 2026-09-12"\n---\n\n# 24\n\n## Bergerac\nvaleur: 8,5 %\nsources: src-a\n\nParagraphe.\n';
+    ecrire(d, 'modules/comprendre-les-chiffres/contenu/2026-06.md', DIGEST);
+    ecrire(d, 'modules/comprendre-les-chiffres/contenu/zones-emploi.md', ZONES);
+    ecrire(d, 'modules/comprendre-les-chiffres/contenu/portrait-2026.md', '---\ntype: portrait\nannee: 2026\nverifie_le: 2026-09\nsources:\n  - "INSEE | Comparateur | https://www.insee.fr/fr/statistiques/1 | 2026-09"\n---\n\n## X\n\n- Un chiffre : **10 %**. Source : INSEE, comparateur | https://www.insee.fr/fr/statistiques/1\n');
+    ecrire(d, 'modules/comprendre-les-chiffres/contenu/methode/comment-lire.md', '---\nid: methode-comment-lire\ntype: methode\ntitre: Comment lire\npour_qui: Toute personne.\ntags: a, b\n---\n\nTexte de la methode.\n');
+    git(d, 'add', '-A'); git(d, 'commit', '-q', '-m', 'chiffres');
+    const depot = creerDepot(d, { aujourdhui: () => '2026-10-18', maintenant: () => '2026-10-18 14:35' });
+    const l = depot.listerChiffres();
+    assert.deepStrictEqual(l.fichiers.map((f) => [f.fichier, f.forme, f.nb]), [['2026-06.md', 'digest', 1], ['portrait-2026.md', 'annuel', 1], ['zones-emploi.md', 'territoire', 1], ['methode/comment-lire.md', 'methode', 1]]);
+    const g = depot.lireChiffres('2026-06.md');
+    assert.ok(g.ok); assert.strictEqual(g.entrees[0].valeur, '7,9 %'); assert.strictEqual(g.entrees[0].aPrecedent, true); assert.strictEqual(g.entrees[0].serie.length, 2);
+    assert.ok(!depot.lireChiffres('portrait-2025.md').ok && !depot.lireChiffres('../x.md').ok && !depot.lireChiffres('methode/../x.md').ok);
+    assert.strictEqual(depot.lireChiffres('zones-emploi.md').lieux[0].champs[0].forme, 'nombre');
+    const pub = (fichier, demande, phrase) => depot.publier([{ type: 'chiffres-champs', nom: fichier, demande: demande, phrase: phrase }]);
+    // refus : sans confirmation, fichier non pris en charge, format
+    const sans = pub('2026-06.md', { ref: 'Taux de chomage localise | Dordogne (24)', changes: { valeur: '8,3 %' } });
+    assert.ok(!sans.ok); assert.strictEqual(sans.code, 'chiffres-champs'); assert.match(sans.erreur, /confirmez/);
+    assert.ok(!pub('portrait-2026.md', { ref: 'x' }).ok);
+    assert.ok(!pub('2026-06.md', { ref: 'Taux de chomage localise | Dordogne (24)', changes: { valeur: '8.3 %' }, confirmeSource: true }).ok);
+    assert.strictEqual(fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/2026-06.md'), 'utf8'), DIGEST, 'un refus ne change rien');
+    // echec des tests : tout remis
+    fs.writeFileSync(path.join(d, 'ECHEC.flag'), 'x');
+    const echec = pub('2026-06.md', { ref: 'Taux de chomage localise | Dordogne (24)', changes: { valeur: '8,3 %', serie: [{ p: 'T1 2026', v: '7,8 %' }, { p: 'T2 2026', v: '8,3 %' }] }, confirmeSource: true }, 'essai');
+    assert.ok(!echec.ok); assert.strictEqual(echec.code, 'tests');
+    assert.strictEqual(fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/2026-06.md'), 'utf8'), DIGEST);
+    fs.rmSync(path.join(d, 'ECHEC.flag'));
+    // bonne publication du digest
+    const r = pub('2026-06.md', { ref: 'Taux de chomage localise | Dordogne (24)', changes: { valeur: '8,3 %', serie: [{ p: 'T1 2026', v: '7,8 %' }, { p: 'T2 2026', v: '8,3 %' }] }, confirmeSource: true }, 'point T2 2026 : 7,9 % devient 8,3 %');
+    assert.ok(r.ok, JSON.stringify(r));
+    assert.strictEqual(r.resumeChiffres[0].action, 'chiffre modifie'.replace('modifie', 'modifié'));
+    const apres = fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/2026-06.md'), 'utf8');
+    assert.ok(apres.indexOf('**8,3 %**') !== -1 && apres.indexOf('T2 2026: 8,3 %') !== -1 && apres.indexOf('| 2026-10-18"') !== -1 && apres.indexOf('verifie_le: 2026-10-13') !== -1);
+    const journal = fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8');
+    assert.ok(journal.indexOf('2026-10-18 14:35 | chiffres | 2026-06.md : Taux de chomage localise / Dordogne (24) | chiffre modifié | point T2 2026') !== -1 || journal.indexOf('| chiffres | 2026-06.md : Taux de chomage localise | Dordogne (24) |') === -1);
+    assert.strictEqual(depot.listerChiffres().fichiers[0].modifieLe, '2026-10-18 14:35');
+    assert.ok(depot.annuler().ok);
+    assert.strictEqual(fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/2026-06.md'), 'utf8'), DIGEST);
+    // un lieu
+    const rz = pub('zones-emploi.md', { lieu: 'Bergerac', champs: { valeur: '8,9 %' }, prose: 'Nouveau paragraphe.', confirmeSource: true, datation: 'redater' }, 'taux mis a jour');
+    assert.ok(rz.ok, JSON.stringify(rz));
+    const z = fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/zones-emploi.md'), 'utf8');
+    assert.ok(z.indexOf('valeur: 8,9 %') !== -1 && z.indexOf('Nouveau paragraphe.') !== -1 && z.indexOf('verifie_le: 2026-10\n') !== -1 && z.indexOf('src-a | Source A | https://exemple.org/a | 2026-10-18') !== -1);
+    // portrait : une puce ; fiche methode
+    const pl = depot.lireChiffres('portrait-2026.md');
+    assert.strictEqual(pl.puces[0].source.nom, 'INSEE, comparateur');
+    assert.ok(!pub('portrait-2026.md', { ref: pl.puces[0].ref, texte: 'Un chiffre : **12 %**.' }).ok, 'un chiffre change : confirmation exigee');
+    const rp = pub('portrait-2026.md', { ref: pl.puces[0].ref, texte: 'Un chiffre : **12 %**.', confirmeSource: true }, 'chiffre corrige');
+    assert.ok(rp.ok, JSON.stringify(rp));
+    assert.ok(fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/portrait-2026.md'), 'utf8').indexOf('- Un chiffre : **12 %**. Source : INSEE, comparateur | https://www.insee.fr/fr/statistiques/1\n') !== -1);
+    const ml = depot.lireChiffres('methode/comment-lire.md');
+    assert.strictEqual(ml.champs.titre, 'Comment lire'); assert.strictEqual(ml.verrouilles.id, 'methode-comment-lire');
+    assert.ok(pub('methode/comment-lire.md', { changes: { titre: 'Comment bien lire', corps: 'Nouveau texte.' } }, 'titre et texte').ok);
+    const mf = fs.readFileSync(path.join(d, 'modules/comprendre-les-chiffres/contenu/methode/comment-lire.md'), 'utf8');
+    assert.ok(mf.indexOf('titre: Comment bien lire\n') !== -1 && mf.indexOf('Nouveau texte.\n') !== -1 && mf.indexOf('tags: a, b\n') !== -1);
+    assert.ok(!pub('methode/../../x.md', { changes: { titre: 'x' } }).ok);
+    const j2 = fs.readFileSync(path.join(d, 'outils/journal_modifications.txt'), 'utf8');
+    assert.ok(j2.indexOf('| chiffres | methode/comment-lire.md | texte modifié | titre et texte') !== -1);
   } finally { nettoyer(d); }
 });

@@ -19,8 +19,8 @@ sur la personne.
      détail, ne pas dupliquer ;
    - CIR : formation civique de 4 jours ; formation linguistique de 100 à 600 heures ; part à distance
      depuis le 1er juillet 2025 ; 100 heures supplémentaires possibles pour viser B1 ;
-   - OEPRE : jusqu'à 100 heures par an, circulaire de rentrée 2025 (MENE2525824C) ;
-   - illettrisme : environ 3,7 millions d'adultes scolarisés en France (chiffre ANLCI) ;
+   - OEPRE : de 60 à 120 heures par an selon l'atelier (circulaire de rentrée 2025 : 60 à 100 ; pages de 2026 : 60 à 120) ;
+   - difficultés à l'écrit : environ une personne de 18 à 64 ans sur dix (Insee, enquête de 2022) ;
    - CPF : participation de 150 euros depuis le 2 avril 2026, exonération pour les demandeurs
      d'emploi ; formations FLE certifiantes éligibles sans plafond.
 

@@ -1,0 +1,22 @@
+# COPIE FIGEE (2026-10-12) pour les tests unitaires : ne pas modifier. Les vrais registres sont dans modules/mon-territoire/contenu/ et evoluent librement.
+# Registre des employeurs du module « Mon territoire » (fichier maître). Une ligne = une fiche.
+#
+# FORMAT :  id | nature | nom | secteur | établissements | téléphone | site | page de recrutement | modes de candidature | source | date de vérification
+#   id               : minuscules, chiffres et tirets (unique)
+#   nature           : enseigne (une fiche, plusieurs magasins) ou local (un établissement)
+#   secteur          : la clé d'un secteur de data/secteurs.js (commerce-vente, btp, sante...)
+#   établissements   : Commune:adresse ; Commune:adresse   (la commune doit exister dans communes-24.txt)
+#   téléphone        : standard public de l'établissement, format 05 53 00 00 00 (laisser vide si non relevé)
+#   site, page de recrutement : adresses https, vides si non vérifiées
+#   modes            : un ou plusieurs de spontanee, concours, portail, interim, prescripteur, non-indique (séparés par une virgule)
+#   source           : d'où vient l'information
+#   date             : AAAA-MM-JJ, jour où VOUS avez ouvert le site et vérifié la ligne. Sans date, le site, le téléphone et la page de recrutement
+#                      ne s'affichent pas (la fiche dit « pas encore vérifié »). Plus de 12 mois : « à revérifier ».
+# RÈGLES : coordonnées d'organisme uniquement, jamais le nom d'une personne ; aucun tiret long ; l'ancienneté n'est jamais affichée ;
+# ne jamais écrire « recrute régulièrement » (aucune source publique ne le dit). Le vérificateur (npm test) refuse une ligne mal écrite.
+#
+aldi | enseigne | Aldi | commerce-vente | Bergerac:124 avenue Charles de Gaulle | | https://www.aldi.fr/ | | non-indique | Registre des entreprises (Sirene) ; site de l'enseigne ouvert | 2026-10-12
+carrefour-market | enseigne | Carrefour Market | commerce-vente | Bergerac:11 boulevard Auguste Comte | | | | non-indique | Registre des entreprises (Sirene), site de l'enseigne pas encore vérifié |
+intermarche | enseigne | Intermarché | commerce-vente | Bergerac:14 rue Durou ; Creysse:154 avenue de la Roque | | | | non-indique | Registre des entreprises (Sirene), site de l'enseigne pas encore vérifié |
+lidl | enseigne | Lidl | commerce-vente | Bergerac:28 avenue Pasteur | | https://www.lidl.fr/ | https://emplois.lidl.fr/ | portail | Registre des entreprises (Sirene) ; site de recrutement de l'enseigne ouvert (lien « Postuler ») | 2026-10-12
+netto | enseigne | Netto | commerce-vente | Bergerac:8 rue Claude Bernard | | | | non-indique | Registre des entreprises (Sirene), site de l'enseigne pas encore vérifié |

@@ -7,7 +7,7 @@ tags: [proche aidant, AJPA, congé, CAF, MSA]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "congé de proche aidant"
     definition: "Congé permettant de suspendre ou réduire son activité pour accompagner un proche en perte d'autonomie ou en situation de handicap."
@@ -25,7 +25,7 @@ Le congé de proche aidant permet de suspendre ou de réduire votre activité po
 
 Le contrat de travail est **suspendu, jamais rompu** : vous retrouvez votre poste à la fin du congé, avec votre ancienneté et vos avantages acquis.
 
-Pendant ce congé, l'allocation journalière du proche aidant (AJPA), versée par la CAF ou la MSA, compense en partie la perte de revenu. Elle est plafonnée à 66 jours pour un même proche aidé sur l'ensemble d'une carrière, mais ce plafond peut être repris jusqu'à quatre fois si vous accompagnez successivement des proches différents.
+Pendant ce congé, l'allocation journalière du proche aidant (AJPA), versée par la CAF ou la MSA, compense en partie la perte de revenu. Elle est plafonnée à 66 jours pour un même proche aidé sur l'ensemble d'une carrière, mais vous retrouvez 66 jours pour chaque nouveau proche aidé, jusqu'à quatre proches différents, soit 264 jours au maximum.
 
 La demande se fait en deux temps : le congé auprès de votre employeur (avec un délai de prévenance, sauf urgence), et l'allocation auprès de la CAF ou de la MSA, avec un dossier médical de la personne aidée qui atteste de sa perte d'autonomie ou de son handicap.
 

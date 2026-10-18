@@ -21,15 +21,8 @@ sources:
   - "pour-les-personnes-agees-conge-proche-aidant | Le congé de proche aidant | https://www.pour-les-personnes-agees.gouv.fr/solutions-pour-les-aidants/travailler-et-aider-un-proche/le-conge-de-proche-aidant | 2026-09-11"
   - "pour-les-personnes-agees-ajpa | L'allocation journalière du proche aidant (AJPA) | https://www.pour-les-personnes-agees.gouv.fr/solutions-pour-les-aidants/soutien-financier/l-allocation-journaliere-du-proche-aidant-qu-est-ce-que-c-est | 2026-09-11"
 structures:
-  - "mdph-dordogne | Maison départementale des personnes handicapées (MDPH) de la Dordogne : dépôt de la demande de RQTH et des autres droits, orientation professionnelle | https://www.dordogne.fr/ | 2026-09-04"
   - "cap-emploi-dordogne | Cap emploi de la Dordogne : accompagnement vers l'emploi et maintien dans l'emploi des personnes handicapées | https://www.capemploi.fr/ | 2026-09-04"
-  - "agefiph-delegation-nouvelle-aquitaine | AGEFIPH, délégation régionale Nouvelle-Aquitaine : aides financières, appuis spécifiques, information | https://www.agefiph.fr/ | 2026-09-04"
-  - "medecine-du-travail-service-prevention-sante | Service de prévention et de santé au travail interentreprises de la Dordogne : visites médicales, aménagement de poste, avis d'aptitude ou d'inaptitude | https://www.presanse-aquitaine.org/ | 2026-09-04"
   - "france-travail-dordogne | France Travail de la Dordogne : accompagnement, en lien avec Cap emploi | https://www.francetravail.fr/ | 2026-09-04"
-  - "entreprises-adaptees-esat-dordogne | Entreprises adaptées et ESAT de la Dordogne : emploi en milieu adapté ou protégé, sur orientation de la MDPH pour les ESAT | https://annuaire.action-sociale.org/ | 2026-09-04"
-  - "cdad-dordogne-points-justice | Points-justice de la Dordogne : information juridique gratuite, dont le contentieux de l'inaptitude et de la discrimination | https://www.cdad-dordogne.justice.fr/ | 2026-09-04"
-  - "asso-apf-24 | APF France handicap, délégation de la Dordogne : défense des droits, accompagnement vers l'emploi (« Boostons les talents »), activités et vie sociale pour les personnes en situation de handicap et leurs proches, à Trélissac (24) | https://dordogne.apf-francehandicap.org/ | 2026-09-06"
-  - "asso-apf-87 | APF France handicap, délégation de la Haute-Vienne : accueil, défense des droits (Handi-Droits), accompagnement vers l'emploi (« Boostons les talents »), accompagnement numérique, vie sociale, à Limoges (87) | https://haute-vienne.apf-francehandicap.org/ | 2026-09-06"
 ---
 
 MATÉRIAU BRUT, rayon « Handicap et emploi ».

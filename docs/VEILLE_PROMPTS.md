@@ -94,6 +94,20 @@ même adresse réutilisée pour deux changements, série aberrante, valeur qui n
 
 ---
 
+## 2ter. Prompt « Faire vérifier par un assistant » (sas des changements, 2026-10-15)
+
+Bouton de chaque carte du sas des changements (outil de veille, Dépôt, section 6). **Source de vérité : `construirePrompt()` dans `outils/veilleChangements.js`** (jamais une copie ici). Il reprend le socle de recherche commun (`socleRecherche()`), le changement tel qu'il est écrit, trois cartes publiées comme modèles de style (`exemplesDeStyle()`) et impose un bloc `[VERIFICATION]` (une ligne par case : `en_vigueur`, `nature`, `concerne`, `ce_qui_change`, `source_titre`, `source_url`, avec la page et une courte citation). `lireReponse()` lit le bloc : « non trouvé », « inchangé » et « à vérifier » ne proposent rien ; date hors format, adresse sans https, tiret long, « à vérifier » sont refusés. L'assistant PROPOSE : la personne ouvre la source et coche « J'ai ouvert la source et je confirme » avant « C'est bon ». « Sans objet » : circulaire, discours, programme d'accompagnement, publication statistique. Détail : `docs/CHANTIER_SAS_DES_CHANGEMENTS_2026-10-15.md`, maquette `docs/MAQUETTE_VERIFICATION_PAR_ASSISTANT_2026-10-15.html`. **Pas encore essayé sur une vraie réponse d'assistant** (seulement sur des réponses simulées).
+
+---
+
+## 2quinquies. Modifier directement une fiche du cadre (2026-10-18)
+
+Pour corriger ou mettre à jour **une fiche existante** de « Comprendre le cadre » sans passer par les prompts : outil de veille, Dépôt, section « 7. Les fiches de « Comprendre le cadre » » (liste avec filtres par date, heure et rayon ; formulaire champ par champ ; écran « ce qui va changer » en couleurs ; historique). Les prompts de ce document restent le circuit pour **créer** une fiche ou récolter de la matière nouvelle. Détail : `docs/CHANTIER_EDITION_DEPUIS_LA_VEILLE_2026-10-18.md`.
+
+## 2quater. Complément de prompt pour FAIRE VÉRIFIER une liste sur les sites officiels (2026-10-17)
+
+Quand on fait vérifier des lignes (agences d'intérim, pages de recrutement, structures, employeurs) par un assistant qui a la recherche sur le web, utiliser le complément de `docs/PROMPT_VERIFICATION_COMPLEMENT_QUI_MARCHE_2026-10-17.md` : constaté par Denis comme bien plus fiable (règles de décision par cas, annuaires interdits, suite en PARTIE 2, 3, aucun commentaire).
+
 ## 3. Prompt 1 - COLLECTE
 
 **Rôle :** ramener le maximum d'information officielle sur tout un rayon (ou, en mise à jour, sur une
@@ -1486,3 +1500,16 @@ tombale). On ne garde jamais une information fausse « pour l'historique ».
   mais n'avaient jamais été reportés ici, contrairement à la règle du premier point de cette section.
   Trouvé en auditant le chantier « déserts médicaux » à la demande de Denis. Rien à changer côté
   `veille.html` : uniquement un rattrapage de documentation.
+
+
+## Mon territoire : mettre à jour les structures et les employeurs (ajouté le 2026-10-12)
+
+Les **structures** (logement, puis les autres rayons au fur et à mesure) et les **employeurs** du module « Mon territoire » ne passent pas par les prompts : ils se mettent à jour **à la main, par fiche**, dans l'outil de veille, panneau **Dépôt**, section **5. Mon territoire** (bouton « Ouvrir Mon territoire »).
+
+- **Choisir le registre** : « Les structures » ou « Les employeurs ». Le filtre « À vérifier » montre les fiches sans date ou vérifiées il y a plus de 12 mois : c'est la liste mensuelle à revérifier.
+- **Valider** : cliquer l'adresse (elle s'ouvre), constater que la page est bonne, « Valider » (date du jour). **Modifier** : changer l'adresse ou le texte, cocher « j'ai ouvert l'adresse » pour dater. **Ajouter** : remplir la fiche ; une adresse ou un téléphone sans date est refusé. **Supprimer** : retire la fiche.
+- **Enregistrer** : l'outil contrôle l'ensemble avec les règles de l'application, regénère les copies, lance les tests, et enregistre en local (jamais de push). Si un contrôle échoue, tout revient comme avant. « Annuler la dernière publication » défait l'enregistrement.
+- **Une adresse ou un téléphone ne s'affiche dans l'application que si la fiche est datée de moins de 12 mois.**
+- **Zones** : la colonne « Zone desservie » se remplit avec `epci:` (code de l'intercommunalité, liste dans `modules/mon-territoire/contenu/communes-24.txt`) ou `commune:` (nom), séparés par « ; ». Ne jamais la deviner : laisser vide tant qu'elle n'est pas confirmée par la structure.
+- **Rayons migrés** (aujourd'hui : Logement et Accompagnement) : leurs structures vivent seulement dans `lieux.txt` ; ne plus les ajouter à la collecte du rayon ni au registre `liens-verifies.txt`. Le bloc « Annuaire associatif » de la page reste valable pour les rayons pas encore migrés.
+- Détail technique : `outils/veilleTerritoire.js`, `outils/veilleDepot.js` (type `territoire`), `modules/mon-territoire/ARCHITECTURE_TECHNIQUE.md`.

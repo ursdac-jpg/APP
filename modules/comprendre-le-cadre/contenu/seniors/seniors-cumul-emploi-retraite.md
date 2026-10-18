@@ -7,7 +7,7 @@ tags: [cumul emploi-retraite, retraite, reprise d'activité, taux plein, seconde
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "cumul intégral"
     definition: "Possibilité de percevoir sa pension de retraite en entier en même temps qu'un revenu d'activité, sans limite de montant. Il faut avoir liquidé toutes ses retraites et remplir une condition d'âge ou de durée."

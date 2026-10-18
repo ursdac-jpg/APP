@@ -7,7 +7,7 @@ tags: [mode de garde, assistante maternelle, crèche, relais petite enfance, mon
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "relais petite enfance (RPE)"
     definition: "Service public local, gratuit et neutre, qui informe les familles sur les modes de garde du territoire, les aides et les démarches d'employeur. Il ne garde pas les enfants."

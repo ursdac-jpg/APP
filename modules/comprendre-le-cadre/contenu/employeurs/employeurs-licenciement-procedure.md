@@ -7,7 +7,7 @@ tags: [licenciement, motif réel et sérieux, procédure, prud'hommes, employeur
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "motif réel et sérieux"
     definition: "Fait précis et vérifiable que l'employeur doit invoquer pour licencier - jamais une simple impression."

@@ -7,7 +7,7 @@ tags: [VAE, validation des acquis de l'expérience, diplôme, France VAE, jury, 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "validation des acquis de l'expérience"
     definition: "Procédure qui permet d'obtenir tout ou partie d'un diplôme, d'un titre ou d'un certificat reconnu grâce à son expérience, sans repasser par la formation."

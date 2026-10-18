@@ -66,6 +66,7 @@ function installerStubDom() {
     'pageIntroAts', 'pageIntroRegardRecruteur', 'pageIntroSeTenirInforme',
     'pageIntroAideDecision', 'pageComparerPistes', 'pageComprendreLeCadre',
     'pageIntroComprendreLesChiffres', 'pageComprendreLesChiffres',
+    'pageIntroMonTerritoire', 'pageIntroEmployeursTerritoire', 'pageMonTerritoire',
     'pagePreparerLettreEntretien', 'pageMettreAJourCv', 'pageCreerCv',
     'pageReformulerCv'].forEach(function (nom) {
     if (typeof global[nom] === 'undefined') {

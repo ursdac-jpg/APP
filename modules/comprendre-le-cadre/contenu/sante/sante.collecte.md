@@ -8,9 +8,6 @@ sources:
   - "ameli-choisir-medecin-traitant | Choisir et déclarer votre médecin traitant | https://www.ameli.fr/assure/droits-demarches/principes/choisir-et-declarer-votre-medecin-traitant | 2026-09-13"
   - "geoconfluences-desert-medical | Désert médical (glossaire) | https://geoconfluences.ens-lyon.fr/glossaire/desert-medical | 2026-09-13"
 structures:
-  - "cpam-dordogne | CPAM de la Dordogne (siège de Périgueux) : droits, carte Vitale, choix du médecin traitant | https://www.ameli.fr/dordogne/assure | 2026-09-13"
-  - "cpam-haute-vienne | CPAM de la Haute-Vienne (siège de Limoges) : droits, carte Vitale, choix du médecin traitant | https://www.ameli.fr/haute-vienne/assure | 2026-09-13"
-  - "france-services | Maisons France Services : aide gratuite aux démarches en ligne, sans rendez-vous, dont l'Annuaire santé | https://www.france-services.gouv.fr/ | 2026-09-13"
 ---
 
 MATÉRIAU BRUT, rayon « Santé ».

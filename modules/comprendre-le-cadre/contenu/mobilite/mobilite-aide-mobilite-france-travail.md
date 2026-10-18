@@ -7,7 +7,7 @@ tags: [aide à la mobilité, France Travail, frais de déplacement, entretien d'
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "aide à la mobilité"
     definition: "Aide financière de France Travail pour les frais de déplacement, de repas et d'hébergement liés à une recherche ou à une reprise d'emploi, sous conditions de distance et de ressources."

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon territoire : concept grossier (brouillon)</title>
+<style>
+:root{--fond:#f6f7fb;--carte:#fff;--texte:#1d2433;--doux:#5b6579;--bord:#d5dae6;--accent:#2f5fd0;--accent-texte:#fff;--pastille:#e8eefc;--alerte:#fff4d6}
+[data-theme="sombre"]{--fond:#14181f;--carte:#1d2330;--texte:#eef1f7;--doux:#aab3c5;--bord:#38415a;--accent:#7aa2ff;--accent-texte:#10172a;--pastille:#26324f;--alerte:#3a3320}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif;background:var(--fond);color:var(--texte)}
+.demo{background:var(--alerte);padding:10px 16px;font-size:14px;border-bottom:1px solid var(--bord)}
+.demo button{margin:2px}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:8px 0}h2{font-size:17px;margin:20px 0 8px}
+button{font:inherit;border:1px solid var(--bord);background:var(--carte);color:var(--texte);border-radius:12px;padding:10px 14px;cursor:pointer}
+button.principal{background:var(--accent);color:var(--accent-texte);border-color:var(--accent)}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.tuile{text-align:left;display:flex;flex-direction:column;gap:2px;padding:14px}
+.tuile strong{font-size:16px}.tuile span{font-size:13px;color:var(--doux)}
+.bientot{opacity:.6}
+.carte{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:14px;margin:10px 0}
+.champ{display:flex;gap:8px;margin:8px 0}.champ input{flex:1;font:inherit;padding:10px;border:1px solid var(--bord);border-radius:12px;background:var(--carte);color:var(--texte)}
+.pastille{display:inline-block;background:var(--pastille);border-radius:999px;padding:3px 10px;font-size:13px;margin:2px 4px 2px 0}
+.note{font-size:13px;color:var(--doux)}
+.ecran{display:none}.ecran.actif{display:block}
+.ligne{display:flex;justify-content:space-between;gap:8px;align-items:center}
+</style>
+</head>
+<body data-theme="clair">
+<div class="demo"><strong>Concept grossier, brouillon du 2026-10-12.</strong> Les exemples sont des candidats non vérifiés (docs/CANDIDATS_SIRENE_BERGERAC...). Aucun téléphone n'est affiché : ils ne sont pas encore relevés.
+<br>Voir :
+<button onclick="ecran('accueil')">1. Accueil</button>
+<button onclick="ecran('emploi')">2. Branche Emploi</button>
+<button onclick="ecran('liste')">3. Liste d'un secteur</button>
+<button onclick="ecran('fiche')">4. Fiche employeur</button>
+<button onclick="ecran('structure')">5. Fiche structure</button>
+<button onclick="basculer()">Mode sombre / clair</button></div>
+<main>
+
+<section id="accueil" class="ecran actif">
+<h1>Mon territoire</h1>
+<p>À qui vous adresser près de chez vous, et où ? Choisissez un domaine.</p>
+<div class="ligne"><span>Votre commune : <strong>Bergerac</strong> (Dordogne)</span><button>Changer</button></div>
+<div class="champ"><input aria-label="Rechercher" placeholder="Rechercher : un métier, un besoin, une structure"><button class="principal">Rechercher</button></div>
+<div class="grille">
+<button class="tuile" onclick="ecran('emploi')"><strong>Emploi</strong><span>Les employeurs de votre territoire, par secteur</span></button>
+<button class="tuile bientot"><strong>Formation</strong><span>Centres et organismes de formation. Pas encore de liste.</span></button>
+<button class="tuile bientot"><strong>Social</strong><span>Logement, mobilité, accompagnement. Pas encore de liste.</span></button>
+<button class="tuile bientot"><strong>Vie pratique</strong><span>Santé, garde d'enfant. Pas encore de liste.</span></button>
+<button class="tuile bientot"><strong>Fonction publique</strong><span>Concours et portails. Pas encore de liste.</span></button>
+<button class="tuile bientot"><strong>Armées</strong><span>Centres d'information et de recrutement. Pas encore de liste.</span></button>
+<button class="tuile bientot"><strong>Appui aux employeurs</strong><span>Aides et organismes. Pas encore de liste.</span></button>
+</div>
+<p class="note">Liste non exhaustive. Aucun partenariat, aucune rémunération. Les domaines sans liste le disent clairement.</p>
+</section>
+
+<section id="emploi" class="ecran">
+<button onclick="ecran('accueil')">Retour à Mon territoire</button>
+<h1>Emploi : les employeurs de mon territoire</h1>
+<p>On y montre des portes, pas des annonces : des employeurs installés, où l'on peut se présenter ou candidater.</p>
+<div class="champ"><input aria-label="Secteur ou métier" placeholder="Un secteur ou un métier"><button class="principal">Chercher</button></div>
+<h2>Les secteurs</h2>
+<div class="grille">
+<button class="tuile" onclick="ecran('liste')"><strong>Commerce et grande distribution</strong><span>Exemple de liste de démarrage</span></button>
+<button class="tuile bientot"><strong>Bâtiment et travaux publics</strong><span>Pas encore de liste pour ce secteur</span></button>
+<button class="tuile bientot"><strong>Santé et social</strong><span>Pas encore de liste pour ce secteur</span></button>
+<button class="tuile bientot"><strong>Les 18 autres secteurs</strong><span>Au fur et à mesure des vérifications</span></button>
+</div>
+<h2>Autres portes</h2>
+<div class="grille">
+<button class="tuile bientot"><strong>Insertion par l'activité économique</strong><span>On y entre par un conseiller</span></button>
+<button class="tuile bientot"><strong>Agences d'intérim</strong><span>Inscription possible dans tous les secteurs</span></button>
+</div>
+<p class="note">Vous ne trouvez pas ? <button>Chercher par moi-même (La Bonne Boîte)</button> Vous quittez l'application.</p>
+</section>
+
+<section id="liste" class="ecran">
+<button onclick="ecran('emploi')">Retour à Emploi</button>
+<h1>Commerce et grande distribution, autour de Bergerac</h1>
+<p class="note">Tri alphabétique. Ce n'est pas un classement. Exemples non vérifiés.</p>
+<div class="carte ligne"><div><strong>Aldi</strong><br><span class="note">Bergerac, avenue Charles de Gaulle</span></div><button onclick="ecran('fiche')">Voir la fiche</button></div>
+<div class="carte ligne"><div><strong>Carrefour Market</strong><br><span class="note">Bergerac, boulevard Auguste Comte</span></div><button onclick="ecran('fiche')">Voir la fiche</button></div>
+<div class="carte ligne"><div><strong>Intermarché</strong><br><span class="note">Bergerac et Creysse</span></div><button onclick="ecran('fiche')">Voir la fiche</button></div>
+<div class="carte ligne"><div><strong>Lidl</strong><br><span class="note">Bergerac, avenue Pasteur</span></div><button onclick="ecran('fiche')">Voir la fiche</button></div>
+<button>Voir plus</button>
+<p><button>Autres employeurs du même secteur (recherche externe)</button></p>
+</section>
+
+<section id="fiche" class="ecran">
+<button onclick="ecran('liste')">Retour à la liste</button>
+<h1>Lidl (exemple)</h1>
+<div class="carte">
+<p><strong>Où</strong> : Bergerac, avenue Pasteur<br><strong>Installé depuis</strong> : 1994 (date de création de l'établissement, source Sirene)<br><strong>Téléphone du standard</strong> : à relever<br><strong>Page de recrutement</strong> : à vérifier<br><strong>Vérifié le</strong> : pas encore vérifié</p>
+<h2>Comment candidater ici ?</h2>
+<span class="pastille">Candidature spontanée : non indiqué par l'entreprise</span>
+<span class="pastille">Concours : non</span>
+<span class="pastille">Portail du recruteur : à vérifier</span>
+<p class="note">Ces repères informent seulement, ils ne sont pas à cocher. Pour un concours (fonction publique), les conditions sont expliquées dans « Comprendre le cadre ».</p>
+<p><button class="principal">Appeler (quand le numéro sera vérifié)</button> <button>Voir le site (vous quittez l'application)</button></p>
+<p><button>Écrire une candidature spontanée à cet employeur</button> <button>Me former pour ce secteur</button></p>
+<p class="note">Ni recommandation ni garantie de recrutement. <button>Une information est incorrecte ?</button></p>
+</div>
+</section>
+
+<section id="structure" class="ecran">
+<button onclick="ecran('accueil')">Retour à Mon territoire</button>
+<h1>Mission locale (exemple de fiche structure)</h1>
+<div class="carte">
+<p>Accompagnement des 16-25 ans. En Dordogne il y a <strong>plusieurs Missions locales</strong> : laquelle est la vôtre dépend de votre commune.</p>
+<p><span class="pastille">Pour votre commune (Bergerac) : Mission locale du Bergeracois</span></p>
+<p class="note">Si votre commune n'est pas connue, nous affichons les trois structures du département avec « selon votre commune de résidence ».</p>
+<p><button class="principal">Appeler (numéro à relever)</button> <button>Comprendre ce dispositif</button></p>
+<p class="note">Vérifié le : pas encore vérifié.</p>
+</div>
+<p><button>Retour à la fiche d'origine (Comprendre le cadre : Logement)</button></p>
+</section>
+
+</main>
+<script>
+function ecran(id){document.querySelectorAll('.ecran').forEach(function(e){e.classList.toggle('actif',e.id===id)});window.scrollTo(0,0)}
+function basculer(){var b=document.body;b.setAttribute('data-theme',b.getAttribute('data-theme')==='sombre'?'clair':'sombre')}
+</script>
+</body>
+</html>

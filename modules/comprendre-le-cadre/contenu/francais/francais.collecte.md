@@ -15,16 +15,7 @@ sources:
   - "fei-diplomes-tests | France Éducation international : nos diplômes et tests (DILF, DELF, DALF, TCF) | https://www.france-education-international.fr/hub/diplomes-tests | 2026-09-04"
   - "fei-centres-examen | France Éducation international : trouver un centre d'examen | https://www.france-education-international.fr/centres-d-examen/carte | 2026-09-04"
 structures:
-  - "ofii-nouvelle-aquitaine | Office français de l'immigration et de l'intégration (OFII), direction territoriale : signature du contrat d'intégration républicaine, prescription et suivi de la formation linguistique | https://www.ofii.fr/ | 2026-09-04"
-  - "centres-sociaux-dordogne | Centres sociaux et centres socioculturels de la Dordogne : ateliers sociolinguistiques, cours de français, accompagnement de proximité | https://www.centres-sociaux.fr/ | 2026-09-04"
-  - "cd24-service-social | Conseil départemental de la Dordogne, service social départemental : orientation vers les actions linguistiques et les formations compétences de base | https://www.dordogne.fr/ | 2026-09-04"
-  - "france-travail-formation-francais | France Travail : prescription et financement d'une formation de français à visée professionnelle pour les demandeurs d'emploi | https://www.francetravail.fr/ | 2026-09-04"
-  - "region-nouvelle-aquitaine-savoirs-de-base | Région Nouvelle-Aquitaine, programme régional de formation : actions savoirs de base, compétences clés, illettrisme | https://www.nouvelle-aquitaine.fr/ | 2026-09-04"
-  - "etablissements-scolaires-oepre | Écoles, collèges et lycées proposant le dispositif OEPRE, via l'inspection académique de la Dordogne | https://www.ac-bordeaux.fr/ | 2026-09-04"
-  - "cimade-perigueux | La Cimade, permanence de Périgueux : cours de français pour adultes étrangers, accompagnement des démarches | https://www.lacimade.org/ | 2026-09-04"
   - "centres-examen-delf-dordogne | Centres d'examen DELF, DILF et TCF de la Dordogne, via l'annuaire de France Éducation international | https://www.france-education-international.fr/centres-d-examen/carte | 2026-09-04"
-  - "asso-ligue-de-l-enseignement-24 | Ligue de l'enseignement de la Dordogne : ateliers sociolinguistiques, alphabétisation, français langue étrangère et d'intégration, insertion sociale, à Périgueux et Bergerac (24) | https://laligue24.org/ | 2026-09-06"
-  - "asso-lire-87 | Association L.I.R.E. : lutte contre l'illettrisme, accompagnement individualisé aux savoirs de base (lire, écrire, compter), à Limoges (87) | https://www.associationlire.com/ | 2026-09-06"
 ---
 
 MATÉRIAU BRUT, rayon « Apprendre le français ».
@@ -84,8 +75,8 @@ travailleur social.
 
 ## 4. Lecture, écriture, calcul : les formations aux compétences de base
 
-En France, environ 3,7 millions d'adultes qui ont pourtant été scolarisés rencontrent des difficultés
-avec la lecture, l'écriture ou le calcul. Ce n'est pas rare, et cela se travaille.
+En France, environ une personne de 18 à 64 ans sur dix rencontre des difficultés à l'écrit (Insee,
+enquête de 2022). Ce n'est pas rare, et cela se travaille.
 
 - **Agence nationale de lutte contre l'illettrisme (ANLCI)** : coordonne l'action, oriente vers les
   ressources régionales.

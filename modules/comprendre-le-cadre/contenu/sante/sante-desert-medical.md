@@ -7,7 +7,7 @@ tags: [désert médical, médecin traitant, accès aux soins, CPAM, zone sous-do
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "désert médical"
     definition: "Territoire où le nombre de médecins (ou d'un autre professionnel de santé) est nettement plus faible que la moyenne, avec des délais de rendez-vous qui s'allongent."

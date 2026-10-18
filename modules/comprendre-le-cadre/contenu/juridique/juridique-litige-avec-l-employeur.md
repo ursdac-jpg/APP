@@ -7,7 +7,7 @@ tags: [conseil de prud'hommes, licenciement, salaire impayé, délais de prescri
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "conseil de prud'hommes"
     definition: "Tribunal qui règle les litiges individuels entre un salarié et son employeur nés du contrat de travail."

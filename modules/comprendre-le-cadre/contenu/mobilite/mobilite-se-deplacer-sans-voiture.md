@@ -7,7 +7,7 @@ tags: [transports en commun, carte de réduction régionale, transport à la dem
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "carte de réduction régionale des transports"
     definition: "Tarif réduit sur les trains et les cars d'une région, proposé par certaines régions aux personnes à faibles ressources. Le nom, le tarif et les conditions varient d'une région à l'autre."

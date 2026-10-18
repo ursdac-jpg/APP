@@ -65,7 +65,51 @@ function _ucpmP2HtmlBandeau(etat) {
     '<div class="d-flex flex-wrap gap-2 align-items-center">' +
     '<button type="button" class="btn btn-primary btn-lg" id="btnUcpmChoisirObjectif">Choisir mon objectif</button>' +
     '<span class="small" style="color:var(--text-muted);" id="ucpmCompteurCoches">' + _ucpmEsc(etatTexte) + '</span></div>' +
+    _ucpmP2HtmlStatuts(etat) +
     (_ucpmUi2.messageCoche ? '<p class="small mb-0 mt-2" style="color:var(--danger);" role="alert">' + _ucpmEsc(_ucpmUi2.messageCoche) + '</p>' : '') +
+    '</div>';
+}
+
+// Où en sont les objectifs de chaque colonne (retour de Denis, 2026-10-13) : visible tout de suite, sans ouvrir le panneau, et dans le panneau.
+var _UCPM_NOM_COLONNE = { gauche: 'Colonne de gauche (mon métier, appelé autrement)', droite: 'Colonne de droite (d’autres métiers qui utilisent mes compétences)' };
+var _UCPM_NOM_COLONNE_COURT = { gauche: 'la colonne de gauche (mon métier, appelé autrement)', droite: 'la colonne de droite (d’autres métiers qui utilisent mes compétences)' };
+
+function _ucpmP2TexteColonne(etat, colonne) {
+  var r = ucpmResumeColonne(etat, colonne);
+  if (!r.nb) { return { ok: false, texte: 'aucun objectif choisi pour le moment' }; }
+  return { ok: true, texte: r.libelle + (r.nb < r.total ? ' (pour ' + r.nb + ' métier' + (r.nb > 1 ? 's' : '') + ' sur ' + r.total + ')' : '') };
+}
+
+function _ucpmP2HtmlStatuts(etat) {
+  if (!etat.intitules || !etat.autres) { return ''; }
+  return '<ul class="ucpm-statuts" aria-label="Objectif de chaque colonne">' + ['gauche', 'droite'].map(function (c) {
+    var t = _ucpmP2TexteColonne(etat, c);
+    return '<li class="' + (t.ok ? 'is-ok' : 'is-vide') + '"><span class="ucpm-statut-signe" aria-hidden="true">' + (t.ok ? '&#10003;' : '&#9888;') + '</span> <strong>' + _UCPM_NOM_COLONNE[c] + '</strong> : ' + _ucpmEsc(t.texte) + '</li>';
+  }).join('') + '</ul>';
+}
+
+// Ce que dit chaque gros bouton de portée sous son titre.
+function _ucpmP2ResumePortee(etat, portee) {
+  if (portee === 'tous') {
+    var g = ucpmResumeColonne(etat, 'gauche').nb > 0, d = ucpmResumeColonne(etat, 'droite').nb > 0;
+    if (g && d) { return { ok: true, texte: 'Les deux colonnes ont un objectif' }; }
+    if (g || d) { return { ok: false, texte: 'Une seule colonne a un objectif' }; }
+    return { ok: false, texte: 'Pas encore de choix' };
+  }
+  var t = _ucpmP2TexteColonne(etat, portee);
+  return { ok: t.ok, texte: t.ok ? t.texte : 'Aucun objectif choisi' };
+}
+
+// La question posée quand on choisit « Tous les métiers cochés » alors qu'UNE SEULE colonne a des objectifs.
+function _ucpmP2HtmlQuestion(etat, u) {
+  var src = u.question, autre = src === 'gauche' ? 'droite' : 'gauche';
+  var r = ucpmResumeColonne(etat, src);
+  return '<div class="ucpm-question" role="group" aria-label="Reprendre l’objectif d’une colonne pour l’autre">' +
+    '<p class="mb-1"><strong>Vous avez déjà choisi un objectif pour ' + _UCPM_NOM_COLONNE_COURT[src] + ' : ' + _ucpmEsc(r.libelle) + '. Pas encore pour ' + _UCPM_NOM_COLONNE_COURT[autre] + '.</strong></p>' +
+    '<p class="mb-2">Voulez-vous le reprendre pour les deux colonnes ?</p>' +
+    '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary" data-ucpm-question="oui">Oui, reprendre cet objectif</button>' +
+    '<button type="button" class="btn btn-outline-secondary" data-ucpm-question="non">Non, je choisis un autre objectif</button></div>' +
+    (r.demarches.length > 1 ? '<p class="small mb-0 mt-2" style="color:var(--text-muted);">Cette colonne a plusieurs objectifs différents : « Candidature spontanée » sera proposée, et vous pourrez la modifier avant de valider.</p>' : '') +
     '</div>';
 }
 
@@ -103,12 +147,13 @@ function _ucpmP2HtmlPanneauObjectif(etat) {
     // Trois gros boutons (le nom de la colonne dedans) : un clic montre le formulaire rempli avec le dernier choix de cette portee ; le dernier choix applique fait foi.
     var portees = [['tous', 'Tous les métiers cochés'], ['gauche', 'Mon métier, appelé autrement'], ['droite', 'D’autres métiers qui utilisent mes compétences']];
     html += '<p class="mb-1"><strong>1. Pour quels métiers ?</strong></p><div class="ucpm-portees mb-3">' + portees.map(function (p) {
-      var memo = etat.objectifsPortee && etat.objectifsPortee[p[0]];
-      var resume = memo && ucpmObjectifValide(memo) ? ucpmEtiquetteObjectif(memo) : 'Pas encore de choix';
+      var res = _ucpmP2ResumePortee(etat, p[0]);
       var actif = u.portee === p[0];
-      return '<button type="button" class="ucpm-portee' + (actif ? ' is-actif' : '') + '" data-ucpm-portee="' + p[0] + '" aria-pressed="' + (actif ? 'true' : 'false') + '"><span class="ucpm-portee-titre">' + p[1] + '</span><span class="ucpm-portee-resume">' + _ucpmEsc(resume) + '</span></button>';
+      return '<button type="button" class="ucpm-portee' + (actif ? ' is-actif' : '') + '" data-ucpm-portee="' + p[0] + '" aria-pressed="' + (actif ? 'true' : 'false') + '"><span class="ucpm-portee-titre">' + p[1] + '</span><span class="ucpm-portee-resume ' + (res.ok ? 'is-ok' : 'is-vide') + '"><span aria-hidden="true">' + (res.ok ? '&#10003;' : '&#9888;') + '</span> ' + _ucpmEsc(res.texte) + '</span></button>';
     }).join('') + '</div>';
   }
+  if (u.question) { return html + _ucpmP2HtmlQuestion(etat, u) + '</div>'; }   // le formulaire n'apparaît qu'après la réponse
+  if (u.note) { html += '<p class="ucpm-note-reprise" role="status">' + _ucpmEsc(u.note) + '</p>'; }
   // B. Pour quel objectif ?
   html += '<p class="mb-1"><strong>' + (un ? '1' : '2') + '. Pour quel objectif ?</strong></p><div class="d-flex flex-wrap gap-2 mb-3">' + UCPM_DEMARCHES.map(function (d) {
     var actif = b.demarche === d.id;
@@ -231,7 +276,8 @@ function _ucpmP2OuvrirObjectif(etat, portee, id) {
     brouillon = ucpmNormaliserObjectif(etat.objectifsPortee[portee || 'tous']);   // le panneau s'ouvre avec le dernier choix de cette portee
   }
   _ucpmUi2.dispoLibre = false;
-  _ucpmUi2.objectif = { portee: portee || 'tous', id: id || null, brouillon: brouillon };
+  _ucpmUi2.objectif = { portee: portee || 'tous', id: id || null, brouillon: brouillon, question: null, note: '' };
+  if (_ucpmUi2.objectif.portee === 'tous') { _ucpmUi2.objectif.question = ucpmColonneSourceUnique(etat); }   // une seule colonne a des objectifs : on demande si on les reprend pour l'autre
   _ucpmUi2.messageCoche = '';
   ucpmRendrePage();
   var p = document.getElementById('ucpmPanneauObjectif');
@@ -528,7 +574,26 @@ function _ucpmP2Cabler(etat) {
         var u3 = _ucpmUi2.objectif; var choix = el.getAttribute('data-ucpm-portee');
         var memo = etat.objectifsPortee && etat.objectifsPortee[choix];
         u3.portee = choix;
-        if (memo && ucpmObjectifValide(memo)) { u3.brouillon = ucpmNormaliserObjectif(memo); }   // le formulaire se remplit avec le dernier choix de cette portee
+        u3.note = '';
+        u3.question = (choix === 'tous') ? ucpmColonneSourceUnique(etat) : null;   // « Tous » alors qu'une seule colonne a des objectifs : question avant le formulaire
+        if (!u3.question && memo && ucpmObjectifValide(memo)) { u3.brouillon = ucpmNormaliserObjectif(memo); }   // le formulaire se remplit avec le dernier choix de cette portee
+        ucpmRendrePage();
+      });
+    });
+    $$('[data-ucpm-question]', function (el) {
+      el.addEventListener('click', function () {
+        var u4 = _ucpmUi2.objectif; var src = u4.question; if (!src) { return; }
+        if (el.getAttribute('data-ucpm-question') === 'oui') {
+          var principal = ucpmObjectifPrincipal(etat, src);
+          if (principal) { u4.brouillon = principal; }
+          var plusieurs = ucpmResumeColonne(etat, src).demarches.length > 1;
+          u4.note = plusieurs ? 'Cette colonne avait plusieurs objectifs : « Candidature spontanée » est proposée pour les deux colonnes. Modifiez-la si besoin, puis appuyez sur « Appliquer ».' : 'Objectif repris de ' + _UCPM_NOM_COLONNE_COURT[src] + '. Modifiez-le si besoin, puis appuyez sur « Appliquer » pour les deux colonnes.';
+        } else {
+          var memoTous = etat.objectifsPortee && etat.objectifsPortee.tous;
+          if (memoTous && ucpmObjectifValide(memoTous)) { u4.brouillon = ucpmNormaliserObjectif(memoTous); }
+          u4.note = '';
+        }
+        u4.question = null;
         ucpmRendrePage();
       });
     });

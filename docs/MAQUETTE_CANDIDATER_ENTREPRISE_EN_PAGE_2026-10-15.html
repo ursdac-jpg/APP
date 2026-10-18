@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : l'entreprise dans la page « candidater »</title>
+<style>
+:root{--fond:#f4f6fa;--carte:#fff;--texte:#1b2430;--doux:#5b6675;--bord:#d5dbe5;--accent:#0d6efd;--ok:#157347;--okbg:#e3f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--rouge:#b42318}
+@media (prefers-color-scheme:dark){:root{--fond:#12161d;--carte:#1b212b;--texte:#e8ecf2;--doux:#a5afbd;--bord:#344052;--accent:#6ea8fe;--ok:#6fd49a;--okbg:#14301f;--warn:#f0c15a;--warnbg:#3a2f12;--rouge:#ff8a80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--texte);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:16px}
+main{max-width:760px;margin:0 auto}
+h1{font-size:1.4rem;margin:.2rem 0 .4rem}
+h2{font-size:1.15rem;margin:2rem 0 .5rem}
+.note{color:var(--doux);font-size:.95rem}
+.ecran{background:var(--carte);border:1px solid var(--bord);border-radius:14px;padding:14px;margin:12px 0}
+.etiq{display:inline-block;font-weight:700;font-size:.8rem;padding:2px 10px;border-radius:99px;background:var(--accent);color:#fff;margin-bottom:8px}
+.etiq.avant{background:var(--doux)}
+.prog{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.et{border:1px solid var(--bord);border-radius:99px;padding:3px 10px;font-size:.85rem}
+.et.ok{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.bloc{border:1px solid var(--bord);border-radius:12px;margin:10px 0;overflow:hidden}
+.tete{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;font-weight:700;background:rgba(127,127,127,.08)}
+.badge{font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--warnbg);color:var(--warn);white-space:nowrap}
+.badge.ok{background:var(--okbg);color:var(--ok)}
+.corps{padding:12px}
+.jetons{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.jeton{border:1px solid var(--bord);border-radius:99px;padding:7px 14px;background:var(--carte);color:var(--texte);font:inherit;cursor:default}
+.jeton.on{background:var(--accent);border-color:var(--accent);color:#fff}
+label{display:block;font-weight:600;font-size:.9rem;margin:10px 0 3px}
+.champ{width:100%;padding:8px 10px;border:1px solid var(--bord);border-radius:8px;background:var(--carte);color:var(--texte);font:inherit}
+.facultatif{color:var(--doux);font-weight:400}
+.btn{border:1px solid var(--accent);background:var(--carte);color:var(--accent);border-radius:10px;padding:8px 16px;font:inherit;font-weight:600}
+.btn.plein{background:var(--accent);color:#fff}
+.btn[disabled]{opacity:.45}
+.barre{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
+.fen{border:2px solid var(--doux);border-radius:12px;padding:12px;background:var(--carte);margin-top:10px}
+.fen h4{margin:0 0 6px}
+.rec{border:2px solid var(--ok);border-radius:12px;padding:10px 12px;background:var(--okbg);margin:8px 0}
+.opt{border:1px solid var(--bord);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--carte)}
+.opt b{display:block}
+.pour{color:var(--ok)} .contre{color:var(--rouge)}
+.encart{border-left:4px solid var(--warn);background:var(--warnbg);padding:10px 12px;border-radius:8px;margin:10px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>L'entreprise dans la page « candidater »</h1>
+<p class="note">Maquette de travail, rien n'est codé. Elle montre ce que la personne voit aujourd'hui, ce qu'elle verrait après, et les trois options pour le deuxième endroit (« Passer à l'action »).</p>
+
+<h2>1. Page « candidater » : aujourd'hui</h2>
+<div class="ecran">
+<span class="etiq avant">AUJOURD'HUI</span>
+<div class="prog"><span class="et ok">Ce que vous préparez</span><span class="et">Votre cible</span><span class="et">Votre CV</span><span class="et">Assistant</span></div>
+<div class="bloc"><div class="tete"><span>🎯 Votre cible</span><span class="badge">à compléter</span></div>
+<div class="corps"><p><b>Comment cherchez-vous ?</b></p>
+<div class="jetons"><span class="jeton on">Je vise une structure précise</span><span class="jeton">Recherche plus générale</span></div>
+<button class="btn plein">Renseigner l'entreprise</button>
+<div class="fen"><h4>🏢 Coordonnées de l'entreprise ✕</h4><p class="note" style="margin:0">Une fenêtre s'ouvre par-dessus la page : nom, site, offre, civilité, couleur, puis « Valider ». La page en dessous disparaît de la vue.</p></div>
+</div></div>
+<div class="barre"><button class="btn">← Retour à la recherche</button><button class="btn plein" disabled>Continuer</button></div>
+</div>
+
+<h2>2. Page « candidater » : proposition, bloc dans la page</h2>
+<div class="ecran">
+<span class="etiq">PROPOSITION, état 1 : tout juste choisi</span>
+<div class="prog"><span class="et ok">Ce que vous préparez</span><span class="et">Votre cible</span><span class="et">Votre CV</span><span class="et">Assistant</span></div>
+<div class="bloc"><div class="tete"><span>🎯 Votre cible</span><span class="badge">à compléter</span></div>
+<div class="corps"><p><b>Comment cherchez-vous ?</b></p>
+<div class="jetons"><span class="jeton on">Je vise une structure précise</span><span class="jeton">Recherche plus générale</span></div>
+<p class="note" style="margin:6px 0">L'offre et l'entreprise <span class="facultatif">(seul le nom est nécessaire pour continuer)</span></p>
+<label>Entreprise ciblée</label><input class="champ" placeholder="Ex. Boulangerie Dupont">
+<label>Site internet de l'entreprise <span class="facultatif">(facultatif)</span></label><input class="champ" placeholder="https://...">
+<label>Offre d'emploi <span class="facultatif">(facultatif, mais très utile)</span></label><textarea class="champ" rows="2" placeholder="Collez ici le texte de l'offre, ou son lien"></textarea>
+<label>Type de structure <span class="facultatif">(facultatif)</span></label><select class="champ"><option>Non précisé</option></select>
+<label>Connaissez-vous la personne en charge du recrutement ? <span class="facultatif">(facultatif)</span></label>
+<div class="jetons"><span class="jeton">Je ne sais pas</span><span class="jeton">Oui, Monsieur</span><span class="jeton">Oui, Madame</span></div>
+<label>Mettre en avant les couleurs de l'entreprise sur votre CV ?</label>
+<div class="jetons"><span class="jeton">Non</span><span class="jeton">Oui</span></div>
+</div></div>
+<div class="barre"><button class="btn">← Retour à la recherche</button><button class="btn plein" disabled>Continuer</button></div>
+<p class="note">« Continuer » reste grisé tant que le nom de l'entreprise est vide (règle actuelle conservée).</p>
+</div>
+
+<div class="ecran">
+<span class="etiq">PROPOSITION, état 2 : nom rempli</span>
+<div class="bloc"><div class="tete"><span>🎯 Votre cible</span><span class="badge ok">complété</span></div>
+<div class="corps"><div class="jetons"><span class="jeton on">Je vise une structure précise</span><span class="jeton">Recherche plus générale</span></div>
+<label>Entreprise ciblée</label><input class="champ" value="Boulangerie Dupont">
+<p class="note">Les autres champs restent ouverts et facultatifs. Tout s'enregistre à la frappe, comme sur « Votre objectif ».</p></div></div>
+<div class="barre"><button class="btn">← Retour à la recherche</button><button class="btn plein">Continuer</button></div>
+</div>
+
+<h2>3. « Passer à l'action » (étape « Votre profil ») : trois options</h2>
+<p class="note">Cas concerné : la personne a dit « je réponds à une offre » mais n'a pas indiqué l'entreprise sur « Votre objectif ». Aujourd'hui : une petite fenêtre « Connaissez-vous l'entreprise ? », puis la grande fenêtre.</p>
+
+<div class="rec"><b>Option A (recommandée) : un encart dans la page, deux boutons</b>
+<div class="encart">🏢 Vous avez choisi de répondre à une offre, mais le nom de l'entreprise n'est pas indiqué. <div class="barre" style="justify-content:flex-start;margin-top:8px"><button class="btn plein">Indiquer l'entreprise</button><button class="btn">Continuer sans</button></div></div>
+<span class="pour">Pour :</span> rien ne s'ouvre par-dessus, le choix reste visible ; « Indiquer l'entreprise » renvoie sur « Votre objectif » où le bloc est déjà en page ; « Continuer sans » garde la règle actuelle (la recherche redevient « simple »).<br>
+<span class="contre">Contre :</span> un encart de plus à tester sur cette étape.</div>
+
+<div class="opt"><b>Option B : garder la petite question, supprimer seulement la grande fenêtre</b>
+<span class="pour">Pour :</span> changement minimal, la question Oui / Non reste familière.<br>
+<span class="contre">Contre :</span> il reste une fenêtre, ce que tu veux éviter.</div>
+
+<div class="opt"><b>Option C : ne plus rien demander</b>
+<span class="pour">Pour :</span> parcours plus fluide.<br>
+<span class="contre">Contre :</span> une personne « sur une offre » sans entreprise ne serait plus reclassée en recherche simple : le CV et la lettre perdent en précision sans qu'elle le sache.</div>
+
+<h2>Ce que j'ai besoin que tu valides</h2>
+<ol>
+<li>L'état 1 et l'état 2 de la page « candidater » (ordre des champs, mots, « seul le nom est nécessaire »).</li>
+<li>L'option A, B ou C pour « Passer à l'action ».</li>
+</ol>
+<p class="note">Après ton accord : réalisation (effort haut), test navigateur clair / sombre / mobile, aide mise à jour (étape « Votre cible », retrait de l'entrée de fenêtre), un commit par sous-étape.</p>
+</main>
+</body>
+</html>

@@ -7,7 +7,7 @@ tags: [départ volontaire retraite, retraite, préavis, indemnité de départ, C
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "indemnité de départ volontaire à la retraite"
     definition: "Somme versée par l'employeur au salarié qui part de lui-même pour prendre sa retraite, à partir d'une certaine ancienneté. Elle est plus élevée si la convention collective le prévoit."

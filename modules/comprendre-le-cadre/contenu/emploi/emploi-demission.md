@@ -7,7 +7,7 @@ tags: [démission, CDI, préavis, chômage, démission légitime, réexamen IPR,
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "démission légitime"
     definition: "Démission que l'assurance chômage reconnaît comme non volontaire dans certains cas précis (suivre son conjoint qui déménage pour le travail, salaires non payés, violences au travail...). Elle ouvre alors le droit à l'allocation."

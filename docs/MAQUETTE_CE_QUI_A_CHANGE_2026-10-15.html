@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Ce qui a changé récemment</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 60px}
+.page{max-width:1100px;margin:0 auto}
+h1{font-size:1.5rem;margin:1.2rem 0 .3rem}h2{font-size:1.2rem;margin:2.2rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.3rem}h3{font-size:1rem;margin:.2rem 0}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:999px;padding:.4rem .9rem;font-weight:600}
+.btn.plein{background:var(--acc);color:var(--card)}
+.theme{position:fixed;top:10px;right:10px;z-index:5}
+.rouge{color:#c0261b;font-weight:800}
+[data-theme="sombre"] .rouge{color:#ff8a80}
+.grille{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;margin:.8rem 0}
+.opt{flex:1 1 230px;min-width:230px;max-width:260px}
+.opt .tete{font-weight:800;margin-bottom:.3rem}
+.reco{background:var(--okbg);color:var(--ok);border-radius:999px;padding:.05rem .6rem;font-size:.75rem;font-weight:800;margin-left:.3rem}
+.tel{width:100%;border:2px solid var(--bord);border-radius:22px;background:var(--bg);padding:10px;font-size:.8rem}
+.tel .titre{text-align:center;font-weight:800;font-size:.98rem}
+.bloc{background:var(--sub);border:1px solid var(--bord);border-radius:8px;padding:.45rem .55rem;margin:.4rem 0;font-size:.76rem}
+.sc{display:flex;gap:.5rem;align-items:flex-start;background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.45rem .55rem;margin:.3rem 0;font-size:.76rem}
+.sc i{font-style:normal;color:var(--acc);font-size:1.1rem}
+.sc strong{display:block}
+.une{background:var(--accbg);border:2px solid var(--acc);border-radius:12px;padding:.6rem .7rem;margin:.4rem 0}
+.une .gros{font-size:.95rem;font-weight:800;color:var(--acc)}
+.pastille{display:inline-block;background:var(--acc);color:var(--card);border-radius:999px;padding:0 .5rem;font-weight:800;font-size:.72rem}
+.faux-btn{display:inline-block;border:1px solid var(--acc);color:var(--acc);border-radius:999px;padding:.12rem .6rem;font-weight:700;font-size:.74rem}
+.faux-btn.plein{background:var(--acc);color:var(--card)}
+.tab{display:flex;gap:.3rem;overflow:hidden;font-size:.66rem;margin:.3rem 0}.tab span{border:1px solid var(--bord);border-radius:999px;padding:.05rem .45rem;background:var(--card);white-space:nowrap}
+.pour,.contre{font-size:.82rem;margin:.25rem 0}.pour b{color:var(--ok)}.contre b{color:var(--warn)}
+.dom{display:flex;justify-content:space-between;align-items:center;gap:.4rem;border-bottom:1px solid var(--bord);padding:.3rem 0;font-weight:800;font-size:.72rem;text-transform:uppercase;color:var(--muted)}
+.dom .n{background:var(--accbg);color:var(--acc);border-radius:.4rem;padding:.05rem .5rem;font-size:.72rem;text-transform:none}
+.dom .n.btnn{border:1px solid var(--acc);font-weight:800;padding:.18rem .6rem}
+.chg{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.5rem .6rem;margin:.4rem 0;font-size:.78rem}
+.chg .t{font-weight:800;font-size:.84rem;margin-bottom:.25rem}
+.chip{display:inline-block;border-radius:999px;padding:.02rem .5rem;font-size:.68rem;font-weight:700;margin:.1rem .15rem .1rem 0}
+.chip.v{background:var(--okbg);color:var(--ok)}.chip.t{background:var(--sub);color:var(--muted);border:1px solid var(--bord)}.chip.a{background:var(--warnbg);color:var(--warn)}
+.quoi{border-left:4px solid var(--acc);padding:.2rem .5rem;margin:.3rem 0;background:var(--accbg);border-radius:0 6px 6px 0}
+.bulle{background:var(--card);border:1px solid var(--bord);border-radius:6px;padding:.4rem .55rem;box-shadow:0 4px 12px rgba(0,0,0,.25);font-size:.72rem;margin:.2rem 0 .4rem}
+.avantapres{display:flex;flex-wrap:wrap;gap:22px;margin:.8rem 0}
+.avantapres>div{flex:1 1 300px;max-width:340px}
+.tableau{width:100%;border-collapse:collapse;font-size:.86rem;margin:.6rem 0}.tableau th,.tableau td{border:1px solid var(--bord);padding:.4rem .5rem;vertical-align:top;text-align:left}.tableau th{background:var(--sub)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+</style>
+</head>
+<body data-theme="clair">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<div class="page">
+<h1>Maquette : « Ce qui a changé récemment »</h1>
+<p class="muted">Module « Comprendre le cadre », demande de Denis du 2026-10-15. <b>Rien n'est codé.</b> Cette page sert à choisir. <span class="rouge">EFFORT : HAUT</span> (Mode A : emplacement et refonte de lecture, décisions de conception).</p>
+
+<h2>0. Ce que j'ai constaté dans le code réel</h2>
+<ul>
+<li><b>Où se trouve l'onglet aujourd'hui</b> : tout en bas de l'accueil du module, dans une famille « Outils » qui ne contient que cette carte, après les 14 rayons et la recherche (<code>_comprendreLeCadreRenduAccueil</code>). Le visiteur doit faire défiler 14 cartes avant de la voir.</li>
+<li><b>Le nombre de changements</b> (« 2 changements ») n'a pour seule explication qu'une infobulle <code>title</code> du navigateur : elle ne s'affiche qu'au survol de la souris. <b>Sur téléphone, il ne se passe rien</b>, comme pour les chiffres bleus du module « Comprendre les chiffres » (déjà corrigé).</li>
+<li><b>Les sources</b> : chaque changement a une ligne « Source : lien », mais en petit gris. Le début du fichier du trimestre contient aussi la liste complète des sources consultées, <b>avec leur date de vérification, jamais affichée</b> aujourd'hui.</li>
+<li><b>Le digest actuel</b> (septembre 2026) : 16 changements dans 8 des 11 domaines ; 3 domaines disent « Rien de nouveau retenu ce trimestre ». C'est un long défilement de cartes identiques, avec les dates et le public concerné en petites lignes grises.</li>
+</ul>
+
+<h2>A. Où placer l'accès au digest ?</h2>
+<p class="muted">Quatre emplacements possibles. Même contenu derrière, seul l'endroit change.</p>
+<div class="grille">
+
+<div class="opt"><div class="tete">Option 1 <span class="reco">Recommandé</span></div>
+<div class="tel">
+<div class="titre">Comprendre le cadre</div>
+<div class="bloc">Bandeau du territoire : Dordogne (24)</div>
+<div class="une"><div class="gras">Nouveau ce trimestre <span class="pastille">16</span></div>
+<div>Les changements officiels de juin à septembre 2026. Daté, sourcé.</div>
+<p><span class="faux-btn plein">Voir ce qui a changé</span></p></div>
+<div class="bloc">Recherche : une aide, un contrat...</div>
+<div class="bloc">Affiner ma recherche</div>
+<div class="sc"><i>▤</i><span><strong>Emploi</strong>...</span></div>
+<div class="sc"><i>▤</i><span><strong>Formation</strong>...</span></div>
+</div>
+<p class="pour"><b>Bénéfice :</b> visible sans défiler, signalé comme « nouveau », avec le nombre de changements. La carte du bas disparaît (un seul endroit).</p>
+<p class="contre"><b>Risque :</b> l'accueil lit le fichier du dernier trimestre au chargement pour afficher le nombre (une lecture, comme le font déjà les dépliants du bas). Si la lecture échoue : la carte s'affiche sans le nombre. Modifie l'accueil, la recherche du module et l'aide.</p></div>
+
+<div class="opt"><div class="tete">Option 2</div>
+<div class="tel">
+<div class="titre">Comprendre le cadre</div>
+<div class="bloc">Bandeau du territoire</div>
+<div class="bloc">Recherche</div>
+<div class="bloc">Affiner ma recherche</div>
+<div class="sc" style="border:2px solid var(--acc)"><i>📣</i><span><strong>Ce qui a changé récemment</strong>Le digest trimestriel...</span></div>
+<div class="sc"><i>▤</i><span><strong>Emploi</strong>...</span></div>
+<div class="sc"><i>▤</i><span><strong>Formation</strong>...</span></div>
+</div>
+<p class="pour"><b>Bénéfice :</b> le plus simple : on déplace la carte existante tout en haut des cartes, aucun nouveau composant.</p>
+<p class="contre"><b>Risque :</b> elle ressemble aux 14 rayons : rien ne dit « nouveau » ni le nombre de changements. Moins repérable.</p></div>
+
+<div class="opt"><div class="tete">Option 3</div>
+<div class="tel">
+<div class="titre">Comprendre le cadre</div>
+<div class="tab"><span>Accueil</span><span>Un rayon</span><span>Affiner</span><span>Outils</span></div>
+<p style="text-align:right;margin:.2rem 0"><span class="faux-btn plein">📣 Nouveautés</span> <span class="faux-btn">Revoir la présentation</span></p>
+<div class="bloc">Bandeau du territoire</div>
+<div class="bloc">Recherche</div>
+<div class="sc"><i>▤</i><span><strong>Emploi</strong>...</span></div>
+</div>
+<p class="pour"><b>Bénéfice :</b> un bouton toujours visible dans l'en-tête de tous les écrans du module.</p>
+<p class="contre"><b>Risque :</b> petit bouton à côté de « Revoir la présentation », facile à confondre ou à ne pas voir ; touche l'en-tête partagé de tous les écrans du module (plus de tests).</p></div>
+
+<div class="opt"><div class="tete">Option 4</div>
+<div class="tel">
+<div class="titre">Se tenir informé</div>
+<div class="sc"><i>📰</i><span><strong>Comprendre le cadre</strong>Des fiches courtes...</span></div>
+<div class="sc" style="border:2px solid var(--acc)"><i>📣</i><span><strong>Ce qui a changé récemment</strong>Le digest trimestriel...</span></div>
+<div class="sc"><i>📊</i><span><strong>Comprendre les chiffres</strong>...</span></div>
+</div>
+<p class="pour"><b>Bénéfice :</b> accès en un seul toucher depuis la page « Se tenir informé », à égalité avec les deux autres modules.</p>
+<p class="contre"><b>Risque :</b> le plus lourd : le digest devient un module à part entière (route, retour, aide, recherche, présentation), ce qui sort de « Comprendre le cadre » alors que son contenu en dépend. Gros chantier, non recommandé maintenant.</p></div>
+</div>
+
+<div class="q"><b>Question A.</b> Quelle option retenez-vous ? <b>Ma recommandation : l'option 1</b>, parce qu'elle répond à « le plus consulté doit se voir » (visible dès l'ouverture, avec le nombre) pour un coût modeste, sans créer de nouveau module. Un point à trancher aussi : <b>faut-il garder la carte du bas</b> ? Je propose de la retirer (un seul endroit, règle « une seule source de vérité »).</div>
+
+<h2>B. Rendre les rapports bien plus lisibles, avec leurs sources</h2>
+<p class="muted">À gauche, ce qu'on voit aujourd'hui sur téléphone ; à droite, la proposition. Les mêmes textes, rangés autrement. Aucun contenu du digest n'est réécrit.</p>
+<div class="avantapres">
+<div><h3>Aujourd'hui</h3>
+<div class="tel">
+<div class="titre">Ce qui a changé récemment</div>
+<div class="bloc">Digest du trimestre Juin à septembre 2026. Publié en septembre 2026.</div>
+<div class="dom"><span>Emploi et contrats de travail</span><span class="n">4 changements</span></div>
+<div class="chg"><div class="t">Plafonnement de la durée des arrêts de travail</div>
+<p class="muted small" style="margin:0">Type : décret, publié le 2026-06-12, en vigueur le 2026-09-01.</p>
+<p class="muted small" style="margin:0">Concerne : salariés, agents publics, employeurs...</p>
+<p><b>Ce qui change :</b> arrêt initial limité à 31 jours...</p>
+<p class="muted small" style="margin:0;border-top:1px dashed var(--bord);padding-top:.3rem">Source : La durée des arrêts de travail plafonnée... (lien)</p></div>
+<p class="small muted">... et ainsi de suite, 16 cartes, 11 domaines, sans vue d'ensemble.</p>
+</div></div>
+
+<div><h3>Proposition</h3>
+<div class="tel">
+<div class="titre">Ce qui a changé récemment</div>
+<div class="une" style="margin-top:.4rem"><div class="gras">Juin à septembre 2026</div>
+<div><b>16 changements</b> dans 8 domaines. Publié en septembre 2026.</div>
+<p class="small" style="margin:.2rem 0">Touchez un domaine pour voir ses changements.</p></div>
+<div class="dom"><span>Emploi et contrats de travail</span><span class="n btnn">4 ▾</span></div>
+<div class="dom"><span>Assurance chômage et France Travail</span><span class="n btnn">3 ▾</span></div>
+<div class="dom"><span>Formation, CPF...</span><span class="n btnn">2 ▾</span></div>
+<div class="dom" style="color:var(--muted);font-weight:600"><span>Mobilité : rien de nouveau</span><span></span></div>
+<div class="bloc" style="margin-top:.6rem"><b>Un domaine ouvert :</b></div>
+<div class="chg"><div class="t">Plafonnement de la durée des arrêts de travail</div>
+<div class="quoi"><b>Ce qui change.</b> Arrêt initial limité à 31 jours, prolongation à 62 jours, sauf dérogation motivée.</div>
+<span class="chip v">En vigueur le 1er septembre 2026</span><span class="chip t">Décret</span><span class="chip a">Concerne : salariés, employeurs</span>
+<p style="margin:.35rem 0 0"><span class="faux-btn plein">Ouvrir la source officielle</span></p></div>
+<div class="bloc"><b>Toutes les sources de ce trimestre</b> ▾ <span class="muted">13 sources, vérifiées le 18 septembre 2026</span></div>
+</div></div>
+</div>
+
+<table class="tableau">
+<tr><th>Ce qui change</th><th>Bénéfice</th><th>Risque</th></tr>
+<tr><td><b>1. Vue d'ensemble en tête</b> : période, total, nombre de domaines.</td><td>On sait en 3 secondes s'il y a du neuf. Le total est calculé depuis le fichier, rien à tenir à jour.</td><td>Faible. Si un trimestre n'a pas le même format, le total est simplement omis.</td></tr>
+<tr><td><b>2. Domaines repliables</b> : le nombre de changements devient un vrai bouton (zone de toucher agrandie) qui déplie la liste du domaine. Les domaines « rien de nouveau » restent visibles en une ligne, non dépliables.</td><td>Répond exactement à « un toucher sur le nombre affiche de quoi il s'agit » et réduit le défilement.</td><td>Moyen. Un contenu replié peut passer inaperçu : je propose le <b>premier domaine ouvert par défaut</b> et un bouton « Tout déplier ».</td></tr>
+<tr><td><b>3. « Ce qui change » mis en avant</b> (bandeau coloré, texte plus grand) ; date d'entrée en vigueur et public concerné en pastilles lisibles ; « Type » en pastille discrète.</td><td>Lecture bien plus rapide, texte en 1re ligne, contraste suffisant clair et sombre.</td><td>Faible à moyen : le texte vient du fichier (« Type : décret, publié le 2026-06-12, en vigueur le 2026-09-01 ») ; je le mets en pastilles sans réécrire. Les dates restent au format actuel ; passer à « 1er septembre 2026 » demande de reconnaître la date : possible seulement quand elle est écrite au format année-mois-jour, sinon laissée telle quelle.</td></tr>
+<tr><td><b>4. Source en vrai bouton</b> « Ouvrir la source officielle » (règle du projet : jamais un lien-texte), avec la mention « vous quittez l'application ».</td><td>Source visible et touchable au doigt.</td><td>Faible.</td></tr>
+<tr><td><b>5. « Toutes les sources de ce trimestre »</b> : dépliant en bas, tiré de la liste du début du fichier, avec la date de vérification de chacune.</td><td>Les sources et leur date de contrôle deviennent visibles (aujourd'hui elles sont cachées dans le fichier).</td><td>Moyen : il faut lire une partie du fichier aujourd'hui ignorée ; un trimestre sans liste n'affiche simplement pas le dépliant.</td></tr>
+</table>
+
+<div class="q"><b>Questions B</b> (à trancher une par une, ou « tout comme recommandé ») :<br>
+<b>B1.</b> Domaines repliés (le nombre est un bouton qui déplie) : oui / non, ou laisser tout ouvert avec seulement une bulle au toucher sur le nombre ? <b>Recommandé : repliés, premier ouvert, « Tout déplier ».</b><br>
+<b>B2.</b> Faut-il aussi un résumé « Ce qui change » en tête du rapport, avec les 3 changements les plus proches d'une date d'entrée en vigueur ? <b>Non recommandé pour l'instant</b> : cela demande de lire les dates dans le texte libre, avec un risque d'erreur sur un contenu qui engage les gens ; à garder pour plus tard si besoin.<br>
+<b>B3.</b> Mettre le dépliant « Toutes les sources » : oui / non ? <b>Recommandé : oui.</b></div>
+
+<div class="verdict"><b>Verdict de faisabilité (audit du code lu, pas encore codé).</b> GO AVEC RÉSERVES. <b>Simple</b> : déplacer la carte, pastilles et boutons, nombre et domaines repliables (tout est déjà découpé en domaines et changements par <code>_comprendreLeCadreRenduDigestCorps</code>). <b>Risqué</b> : lire la liste des sources du début de fichier (nouveau champ), et l'affichage du nombre sur l'accueil (une lecture de plus au chargement). <b>Rien de bloquant</b>. Les contenus rédigés par Denis ne sont pas modifiés. Effort de réalisation : <span class="rouge">EFFORT : MOYEN</span> (Mode B, une fois les choix faits).</div>
+
+<h2>C. Ce qui sera vérifié avant de dire « terminé »</h2>
+<ul>
+<li>Test sur téléphone (375 px) en clair et en sombre, au toucher, au clavier.</li>
+<li>Un essai ajouté à <code>scripts/parcours/parcours_smoke.js</code> pour chaque changement ; <code>npm test</code> vert.</li>
+<li>Recherche de l'accueil et aide guidée du module mises à jour si la carte change de place.</li>
+</ul>
+</div>
+<script>
+document.getElementById('bascule').addEventListener('click',function(){
+  var s=document.body.getAttribute('data-theme')==='sombre';
+  document.body.setAttribute('data-theme',s?'clair':'sombre');
+  this.textContent=s?'Mode sombre':'Mode clair';
+});
+</script>
+</body>
+</html>

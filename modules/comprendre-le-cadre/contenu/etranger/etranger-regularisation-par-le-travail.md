@@ -7,7 +7,7 @@ tags: [régularisation, admission exceptionnelle au séjour, métiers en tension
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "admission exceptionnelle au séjour"
     definition: "Possibilité, laissée à l'appréciation du préfet, de délivrer un titre de séjour à une personne qui ne remplit pas les conditions habituelles, au vu de sa situation. Ce n'est jamais un droit."

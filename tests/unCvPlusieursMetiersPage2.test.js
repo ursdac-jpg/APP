@@ -269,3 +269,40 @@ test('objectif appliqué : le compte des métiers cochés concernés est rendu',
   assert.equal(r.nbCoches, 2);
   assert.equal(r.nb, m.ucpmToutesEntrees(e).length);
 });
+
+test('objectifs par colonne : état de chaque colonne, colonne source unique, objectif principal repris (retour de Denis, 2026-10-13)', () => {
+  const e = etatTest();
+  assert.deepEqual(m.ucpmResumeColonne(e, 'gauche').demarches, [], 'au départ : aucun objectif');
+  assert.equal(m.ucpmColonneSourceUnique(e), null, 'aucune colonne : pas de question');
+  assert.equal(m.ucpmObjectifPrincipal(e, 'gauche'), null);
+
+  const stage = m.ucpmObjectifVide('stage'); stage.dureeQuantite = '3'; stage.dureeUnite = 'mois';
+  m.ucpmAppliquerObjectif(e, 'gauche', null, stage);
+  const g = m.ucpmResumeColonne(e, 'gauche'), d = m.ucpmResumeColonne(e, 'droite');
+  assert.equal(g.nb, e.intitules.length); assert.deepEqual(g.demarches, ['stage']); assert.equal(g.libelle, 'Stage de formation');
+  assert.equal(d.nb, 0);
+  assert.equal(m.ucpmColonneSourceUnique(e), 'gauche', 'une seule colonne a des objectifs : on pose la question');
+
+  const principal = m.ucpmObjectifPrincipal(e, 'gauche');
+  assert.equal(principal.demarche, 'stage'); assert.equal(principal.dureeQuantite, '3', 'le détail de la colonne est repris');
+  assert.equal(principal.employeur, ''); assert.equal(principal.metierVise, '');
+
+  // plusieurs objectifs différents dans la colonne : candidature spontanée par défaut
+  m.ucpmAppliquerObjectif(e, 'un', e.intitules[0].id, m.ucpmObjectifVide('alternance'));
+  assert.deepEqual(m.ucpmResumeColonne(e, 'gauche').demarches.sort(), ['alternance', 'stage']);
+  const defaut = m.ucpmObjectifPrincipal(e, 'gauche');
+  assert.equal(defaut.demarche, 'spontanee'); assert.equal(defaut.dureeQuantite, '');
+
+  // la colonne de droite seule : la source est la droite ; les deux colonnes : plus de question
+  const e2 = etatTest();
+  m.ucpmAppliquerObjectif(e2, 'droite', null, m.ucpmObjectifVide('formation'));
+  assert.equal(m.ucpmColonneSourceUnique(e2), 'droite');
+  m.ucpmAppliquerObjectif(e2, 'gauche', null, m.ucpmObjectifVide('spontanee'));
+  assert.equal(m.ucpmColonneSourceUnique(e2), null);
+
+  // un objectif posé sur un seul métier (portée « un ») compte aussi pour sa colonne
+  const e3 = etatTest();
+  m.ucpmAppliquerObjectif(e3, 'un', e3.autres[0].id, m.ucpmObjectifVide('offre'));
+  assert.equal(m.ucpmColonneSourceUnique(e3), 'droite');
+  const r3 = m.ucpmResumeColonne(e3, 'droite'); assert.equal(r3.nb, 1); assert.ok(r3.total > 1);
+});

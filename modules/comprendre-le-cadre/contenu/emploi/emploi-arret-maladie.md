@@ -7,7 +7,7 @@ tags: [arrêt maladie, arrêt de travail, indemnités journalières, délai de c
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "arrêt de travail"
     definition: "Prescription d'un médecin, d'une sage-femme ou d'un chirurgien-dentiste qui vous dispense de travailler pour des raisons de santé pendant une durée donnée."

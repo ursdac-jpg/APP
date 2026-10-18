@@ -15,14 +15,9 @@ sources:
   - "francetravail-entre-sors-de-prison | J'entre / je sors de prison (France Travail) | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/a-chaque-situation-son-allocatio/quelle-est-ma-situation-personne/jentre--je-sors-de-prison.html | 2026-09-04"
   - "justice-guide-droits-sociaux-ppsmj | Guide des droits sociaux accessibles aux personnes placées sous main de justice | https://www.justice.gouv.fr/sites/default/files/2023-05/guide_droits_sociaux_ppsmj.pdf | 2026-09-04"
 structures:
-  - "spip-dordogne | Service pénitentiaire d'insertion et de probation de la Dordogne : suivi en détention et en milieu ouvert, préparation à la sortie | https://www.justice.gouv.fr/annuaire | 2026-09-04"
-  - "france-travail-justice-dordogne | France Travail, conseillers justice : inscription et accompagnement des personnes détenues et sortant de détention, sur demande au SPIP | https://www.francetravail.fr/ | 2026-09-04"
   - "casier-judiciaire-national | Casier judiciaire national (Nantes) : demande du bulletin n° 3 par la personne elle-même, en ligne ou par courrier | https://casier-judiciaire.justice.gouv.fr/ | 2026-09-04"
-  - "point-justice-perigueux-bergerac | Points-justice, maisons de justice et du droit et conseil départemental de l'accès au droit de la Dordogne : information juridique gratuite, aide à la demande d'effacement | https://www.cdad-dordogne.justice.fr/ | 2026-09-04"
   - "siao-dordogne | SIAO de la Dordogne : hébergement à la sortie de détention, en lien avec le SPIP | https://annuaire.action-sociale.org/ | 2026-09-04"
   - "associations-post-sentencielles-dordogne | Associations d'accueil et d'accompagnement des sortants de détention de la Dordogne (par exemple les associations socio-judiciaires conventionnées) | https://www.justice.gouv.fr/annuaire | 2026-09-04"
-  - "structures-iae-milieu-penitentiaire | ATIGIP et structures d'insertion par l'activité économique implantées en milieu pénitentiaire : emploi accompagné en détention | https://atigip.justice.gouv.fr/ | 2026-09-04"
-  - "asso-arsl-87 | ARSL (Association régionale des solidarités) : lutte contre l'exclusion, hébergement (CHRS), accompagnement social et vers le logement, avec des dispositifs pour les personnes sortant de détention, à Panazol près de Limoges (87) | http://www.arsl.eu/ | 2026-09-06"
 ---
 
 MATÉRIAU BRUT, rayon « Justice : sortie de détention et insertion ».

@@ -1,0 +1,9 @@
+# Fichiers auto-heberges (Bootstrap, polices d'icones) : garder tels quels,
+# jamais de conversion de fin de ligne -- ce sont des copies exactes de
+# fichiers publies (bootstrap 5.3.2, bootstrap-icons 1.11.3).
+vendor/** -text
+*.woff binary
+*.woff2 binary
+
+# Outils du banc d'essai Word : scripts shell toujours en fins de ligne Unix (sinon Git Bash les refuse)
+scripts/word/*.sh text eol=lf

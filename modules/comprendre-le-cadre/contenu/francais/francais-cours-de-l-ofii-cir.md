@@ -7,7 +7,7 @@ tags: [OFII, contrat d'intégration républicaine, CIR, formation linguistique, 
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "OFII"
     definition: "Office français de l'immigration et de l'intégration : l'établissement public qui organise l'accueil des personnes étrangères, dont le contrat d'intégration républicaine et ses formations."

@@ -7,7 +7,7 @@ tags: [casier judiciaire, bulletin n° 3, bulletin n° 2, effacement, réhabilit
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "bulletin n° 3"
     definition: "Le relevé le plus limité du casier judiciaire : seulement les condamnations lourdes. C'est le seul que la personne peut demander elle-même, et celui qu'un employeur peut réclamer pour certains postes."

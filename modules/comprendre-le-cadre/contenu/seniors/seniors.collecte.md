@@ -12,9 +12,7 @@ sources:
   - "info-retraite | Info Retraite : le compte retraite tous régimes | https://www.info-retraite.fr/ | 2026-09-06"
   - "lassuranceretraite | L'Assurance retraite (régime général, CARSAT) | https://www.lassuranceretraite.fr/portail-info/home.html | 2026-09-06"
 structures:
-  - "assurance-retraite-carsat-nouvelle-aquitaine | Assurance retraite / CARSAT Nouvelle-Aquitaine : relevé de carrière, entretien retraite, demande de retraite du régime général | https://www.lassuranceretraite.fr/ | "
   - "info-retraite-mon-compte-retraite | Compte retraite sur info-retraite.fr : relevé de carrière tous régimes, estimation du montant, âge de départ, demande en ligne | https://www.info-retraite.fr/ | "
-  - "france-services-point-retraite | Points France services : aide aux démarches retraite en ligne, orientation vers la bonne caisse | https://www.france-services.gouv.fr/ | "
 ---
 
 MATÉRIAU BRUT, rayon « Travailler après 50 ans et retraite ».

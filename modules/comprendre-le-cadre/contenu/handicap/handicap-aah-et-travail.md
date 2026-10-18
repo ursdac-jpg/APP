@@ -7,7 +7,7 @@ tags: [AAH, allocation aux adultes handicapés, MDPH, CDAPH, CAF, cumul emploi, 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-13
 lexique:
   - terme: "AAH"
     definition: "Allocation aux adultes handicapés : un revenu minimum versé par la CAF aux personnes en situation de handicap ayant de faibles ressources, sur décision de la MDPH."

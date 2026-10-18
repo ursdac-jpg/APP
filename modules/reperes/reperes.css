@@ -943,8 +943,6 @@
   font-size: 0.92rem;
   color: var(--text-muted);
 }
-.reperes-accueil-zone-cta { text-align: center; margin-top: 1.5rem; }
-.reperes-accueil-zone-cta .btn { min-height: 52px; font-size: 1.1rem; padding: 0.9rem 2.2rem; border-radius: 999px; }
 
 /* Bouton "Revoir la presentation" de l'ecran principal : depuis le
    chantier "bouton presentation" (2026-09-01) il porte aussi la classe

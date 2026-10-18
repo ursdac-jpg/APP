@@ -7,7 +7,7 @@ tags: [RSA, accompagnement, orientation, référent unique, contrat d'engagement
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "orientation"
     definition: "Décision, prise après le diagnostic, du type d'accompagnement dont vous relevez : plutôt emploi, plutôt social, ou entre les deux."

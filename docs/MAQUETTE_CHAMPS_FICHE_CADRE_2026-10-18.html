@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : voir aussi chiffres, frein et structures</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--sub:#f1f4f9;--txt:#1b2430;--strong:#0b1a33;--muted:#5a6a7e;--bord:#d5dbe4;--acc:#0369a1;--accbg:#e2f0f8;--ok:#198754;--okbg:#d9f4e4;--warn:#b45309;--warnbg:#fdf1d9;--ko:#a3372b;--kobg:#fbe6e3}
+[data-theme="sombre"]{--bg:#12161f;--card:#1b212c;--sub:#222834;--txt:#dbe2ee;--strong:#e8edf5;--muted:#a8b3c4;--bord:#3d4759;--acc:#38bdf8;--accbg:#16283a;--ok:#35c79a;--okbg:#17301f;--warn:#f5a742;--warnbg:#3a2c14;--ko:#eda69c;--kobg:#3a1f1b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 system-ui,"Segoe UI",Arial,sans-serif;padding:0 16px 80px}
+.page{max-width:960px;margin:0 auto}
+h1{font-size:1.4rem;color:var(--strong);margin:1.2rem 0 .3rem}
+h2{font-size:1.1rem;color:var(--strong);margin:1.6rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.25rem}
+h3{font-size:.95rem;color:var(--strong);margin:1rem 0 .3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.mini{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:6px;padding:.35rem .9rem;font-weight:600}
+.btn.plein{background:var(--acc);color:var(--card)}
+.btn.ko{border-color:var(--ko);color:var(--ko)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.theme{position:absolute;top:10px;right:10px;z-index:5;background:var(--card)}
+.rouge{color:#c0261b;font-weight:800}[data-theme="sombre"] .rouge{color:#ff8a80}
+nav.onglets{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0;position:sticky;top:0;background:var(--bg);padding:.5rem 0;z-index:4}
+nav.onglets button{border:1px solid var(--bord);background:var(--card);color:var(--txt);border-radius:6px;padding:.4rem .8rem;font-weight:600}
+nav.onglets button.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.ecran{display:none}.ecran.actif{display:block}
+.carte{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}
+.barre{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.6rem 0}
+input[type=text],textarea,select{font:inherit;background:var(--card);color:var(--txt);border:1px solid var(--bord);border-radius:6px;padding:.3rem .5rem}
+textarea{width:100%;min-height:5rem}
+.ligne{display:flex;flex-wrap:wrap;gap:.3rem .8rem;border-top:1px solid var(--bord);padding:.5rem 0;align-items:flex-start}
+.ligne>label,.ligne>.eti{flex:0 0 11rem;color:var(--muted);padding-top:.3rem;font-size:.9rem}
+.ligne>.val{flex:1 1 18rem;min-width:0}
+.ligne input[type=text]{width:100%}
+.ligne.change{border-left:4px solid var(--warn);padding-left:.6rem;background:var(--warnbg)}
+.cadenas{display:inline-block;border:1px solid var(--bord);background:var(--sub);color:var(--muted);border-radius:6px;padding:.1rem .5rem;font-size:.85rem}
+.pastille{display:inline-block;border-radius:6px;padding:0 .5rem;font-size:.78rem;font-weight:700;border:1px solid var(--bord);background:var(--sub);color:var(--muted);margin:.1rem .2rem .1rem 0}
+.pastille.v{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.pastille.a{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+.pastille.r{background:var(--kobg);border-color:var(--ko);color:var(--ko)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border:1px solid var(--bord);padding:.4rem .5rem;text-align:left;vertical-align:top}th{background:var(--sub)}
+.sousligne{display:flex;gap:.4rem;margin:.2rem 0;align-items:flex-start}
+.sousligne input[type=text]{flex:1}
+.sousligne .t{flex:0 0 28%}
+.verif{margin:.2rem 0;font-size:.92rem}
+.verif.ok::before{content:"\2713  ";color:var(--ok);font-weight:800}
+.verif.warn::before{content:"!  ";color:var(--warn);font-weight:800}
+.verif.ko::before{content:"\2715  ";color:var(--ko);font-weight:800}
+.diff{border-left:6px solid var(--bord);border-radius:0 8px 8px 0;padding:.5rem .8rem;margin:.5rem 0;background:var(--card)}
+.diff.ajoute{border-left-color:var(--ok);background:var(--okbg)}
+.diff.modifie{border-left-color:var(--warn);background:var(--warnbg)}
+.diff.retire{border-left-color:var(--ko);background:var(--kobg)}
+.diff .nom{font-weight:800;font-size:.85rem;text-transform:none}
+.diff .avant{text-decoration:line-through;color:var(--ko)}
+.diff .apres{color:var(--ok);font-weight:600}
+.legende span{margin-right:1rem;font-size:.88rem}
+.legende i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:.3rem}
+.appli{border:1px solid var(--bord);border-radius:10px;background:var(--card);padding:.7rem 1rem;max-width:600px}
+.appli h4{margin:.1rem 0 .3rem;font-size:1.05rem}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.q b.n{color:var(--warn)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.message{border-radius:8px;padding:.5rem .8rem;margin:.6rem 0;border:1px solid var(--ok);background:var(--okbg)}
+.pied{position:sticky;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 0;margin-top:1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+@media(max-width:640px){.ligne>label,.ligne>.eti{flex:1 0 100%}.sousligne .t{flex:1 0 100%}.sousligne{flex-wrap:wrap}}
+</style>
+</head>
+<body data-theme="clair">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<div class="page">
+<h1>Maquette : les trois champs restants d'une fiche de « Comprendre le cadre »</h1>
+<p class="muted">Point 3 du plan de Denis (2026-10-18) : <code>voir_aussi_chiffres</code>, <code>frein</code>, <code>structures</code>. <b>Rien n'est codé.</b> <span class="rouge">EFFORT : HAUT</span> (Mode A). Cette page fonctionne : tapez, cliquez, essayez. Elle montre des lignes de l'écran « Modifier une fiche » déjà en place, avec la même présentation.</p>
+
+<div class="verdict"><b>Ce que l'audit du code réel a montré (à lire en premier).</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>voir_aussi_chiffres</b> : <b>agit vraiment</b>. Une phrase courte devient un bouton « Pour aller plus loin » sur la fiche publique, qui ouvre « Comprendre les chiffres ». 7 fiches sur 131 l'utilisent. Le bouton mène toujours à l'accueil de « Comprendre les chiffres » (jamais à un chiffre précis).</li>
+<li><b>frein</b> : <b>n'agit sur rien aujourd'hui</b>. L'application lit la valeur mais aucun écran ne s'en sert (documenté dans <code>ARCHITECTURE_TECHNIQUE.md</code>). 50 fiches « oui », 77 « non », et le contrôle de contenu de 2026-09-05 dit que ces valeurs sont <b>hétérogènes, à ne pas croire</b> avant branchement.</li>
+<li><b>structures</b> (dans la fiche) : <b>n'agit sur rien d'affiché</b>. L'application lit les structures d'un rayon dans son fichier de collecte, pas dans la fiche. Une seule fiche sur 131 en porte une liste (<code>accompagnement-geiq</code> : <code>asso-geiq-24</code>). Seule utilité : l'outil « Les adresses des fiches » s'en sert pour dire où une adresse est citée.</li>
+</ul></div>
+
+<nav class="onglets" id="onglets">
+<button type="button" data-e="chiffres" class="actif">1. Voir aussi : Comprendre les chiffres</button>
+<button type="button" data-e="autres">2. Frein et structures</button>
+<button type="button" data-e="questions">3. Questions et verdict</button>
+</nav>
+
+<!-- ÉCRAN 1 -->
+<section class="ecran actif" id="e-chiffres">
+<h2>1. Voir aussi : Comprendre les chiffres (la phrase du bouton)</h2>
+<p class="mini muted">Fiche d'essai : « Se déplacer sans voiture » (rayon Mobilité). La ligne ci-dessous s'ajoute dans l'écran « Modifier une fiche », juste après « Voir aussi (Lexique) ».</p>
+<div class="carte">
+<div class="ligne" id="l-vac"><span class="eti">Voir aussi (Comprendre les chiffres)</span><div class="val">
+<label class="mini" for="vac" style="display:block;color:var(--muted)">La phrase écrite sur le bouton</label>
+<input type="text" id="vac" value="Combien de personnes n'ont pas de voiture ici" autocomplete="off" aria-label="Phrase du bouton vers Comprendre les chiffres">
+<div class="mini muted"><span id="vacNb">0</span> caractères sur 100 au plus. Laisser vide : la fiche n'a pas de bouton.</div>
+<div class="mini" style="margin-top:.5rem"><b>Phrases déjà utilisées par d'autres fiches</b> (un clic la reprend, rien ne s'écrit tout seul) :</div>
+<div id="sugg"></div>
+<div class="barre"><button class="btn" type="button" id="vide">Ne pas mettre de bouton</button><button class="btn" type="button" id="orig">Remettre la phrase d'origine</button></div>
+<div class="mini muted">Le bouton mène à l'accueil de « Comprendre les chiffres » : il ne peut pas ouvrir un chiffre précis. La phrase doit donc inviter à aller voir les chiffres du territoire, pas promettre un chiffre.</div>
+</div></div>
+<h3>Contrôles automatiques (en direct)</h3>
+<div id="verifs"></div>
+</div>
+
+<h3>Ce que verra la personne sur la fiche publique</h3>
+<div class="appli" id="appli">
+<h4>Se déplacer sans voiture</h4>
+<p class="mini muted" style="margin:.2rem 0 .6rem">(texte de la fiche...)</p>
+<div style="background:var(--accbg);border-radius:8px;padding:.6rem .8rem">
+<p style="margin:0 0 .3rem;font-weight:700">Pour aller plus loin :</p>
+<p class="mini muted" style="margin:0 0 .4rem" id="phraseAide">Comprendre les chiffres montre, pour votre territoire, les chiffres réels derrière cette question.</p>
+<button type="button" class="btn" id="boutonPublic" style="color:var(--muted);border-color:var(--bord)">&#128202; <span id="textePublic"></span> (Comprendre les chiffres)</button>
+<p class="mini muted" id="sansBouton" style="display:none;margin:0">Aucun bouton : la fiche n'a pas de phrase.</p>
+</div></div>
+<div class="message mini" style="margin-top:.8rem"><b>Même gestion que les autres champs :</b> le champ passe en orange quand il change, il figure dans « Avant d'enregistrer » (ancienne phrase barrée, nouvelle en vert), et dans « ce que j'ai changé » (« phrase du bouton vers les chiffres modifiée ») et l'historique. Aucune confirmation de source : ce n'est pas un chiffre.</div>
+</section>
+
+<!-- ÉCRAN 2 -->
+<section class="ecran" id="e-autres">
+<h2>2. Frein et structures (recommandation : les montrer, verrouillés, avec leur raison)</h2>
+<p class="mini muted">Même présentation que « Identifiant » et « Rayon », qui sont déjà verrouillés dans l'outil. Aucun interrupteur qui ne ferait rien.</p>
+<div class="carte">
+<div class="ligne"><span class="eti">Verrouillés (sans effet)</span><div class="val">
+<span class="cadenas">&#128274; frein : oui</span> <span class="cadenas">&#128274; structures : asso-geiq-24</span>
+<div class="mini muted" style="margin-top:.3rem"><b>frein</b> n'est lu par aucun écran de l'application aujourd'hui, et ses valeurs actuelles ne sont pas fiables : le changer ne montrerait rien à personne. <b>structures</b> (dans la fiche) n'est pas affiché non plus : les structures d'un rayon viennent de son fichier de collecte et du répertoire de « Qui fait quoi ». Ces deux champs seront réglés d'un coup le jour où un écran les utilisera.</div>
+</div></div>
+</div>
+<details class="carte"><summary><b>Si vous préférez quand même pouvoir les changer</b> (option B, non recommandée : cliquez pour voir)</summary>
+<div class="ligne"><span class="eti">Alimente le bloc freins ?</span><div class="val"><select aria-label="frein"><option>non</option><option selected>oui</option></select><div class="mini muted">Un interrupteur qui n'a aucun effet visible aujourd'hui : risque de croire qu'il agit, et de corriger 77 + 50 fiches pour rien.</div></div></div>
+<div class="ligne"><span class="eti">Structures de la fiche</span><div class="val"><input type="text" value="asso-geiq-24" aria-label="structures"><div class="mini muted">Une seule fiche concernée. Chaque identifiant devrait exister dans le répertoire de « Qui fait quoi » (contrôle à ajouter). Gain : presque nul.</div></div></div>
+</details>
+</section>
+
+<!-- ÉCRAN 3 -->
+<section class="ecran" id="e-questions">
+<h2>3. Questions pour Denis et verdict de faisabilité</h2>
+<div class="q"><b class="n">Q1. frein et structures : verrouillés avec une raison (A, recommandé), ou modifiables quand même (B) ?</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>A, verrouillés et expliqués (recommandé)</b> : bénéfice, aucun faux interrupteur, aucun risque de mauvaise valeur, ~15 minutes de travail ; risque, le jour où un écran lira <code>frein</code>, il faudra rouvrir ce point (le plan d'application est déjà écrit).</li>
+<li><b>B, modifiables</b> : bénéfice, tu peux corriger une valeur sans demander ; risque, tu modifies des champs que personne ne lit, sans pouvoir le constater, et la règle de contenu des freins n'est pas encore appliquée.</li>
+</ul></div>
+<div class="q"><b class="n">Q2. voir_aussi_chiffres : une phrase libre avec propositions reprises des autres fiches (recommandé), ou une liste fermée de phrases ?</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>Phrase libre + propositions (recommandé)</b> : bénéfice, tu écris la phrase juste pour une nouvelle fiche et tu reprends en un clic celles qui existent ; risque, une phrase maladroite (les contrôles refusent un tiret long, <code>&lt; &gt; &amp;</code>, plus de 100 caractères (la plus longue phrase actuelle en fait 85), une phrase vide qui n'est pas voulue).</li>
+<li><b>Liste fermée</b> : bénéfice, zéro faute ; risque, 7 phrases seulement aujourd'hui, donc chaque nouvelle fiche demanderait du code.</li>
+</ul></div>
+<div class="q"><b class="n">Q3. Faut-il aussi ajouter le mot « voir aussi chiffres » dans la recherche de l'outil et le tableau des fiches ?</b> Recommandé : non, 7 fiches seulement.</div>
+
+<div class="verdict"><b>Verdict de faisabilité (audit du code réel).</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>Simple (reprise de l'existant)</b> : le champ <code>voir_aussi_chiffres</code> est <b>déjà</b> reconnu, relu et réécrit par <code>outils/veilleFiche.js</code> (forme canonique, essais, guillemets, tirets). Il ne manque que sa ligne dans l'écran, ses contrôles et la phrase de journal.</li>
+<li><b>À protéger (point bloquant évité)</b> : l'application insère cette phrase <b>telle quelle</b> dans la page (<code>modules/comprendre-le-cadre/index.js:1872</code>, sans échappement). Les contrôles de l'outil refuseront donc <code>&lt;</code>, <code>&gt;</code> et <code>&amp;</code> : sinon une phrase mal tapée casserait la fiche.</li>
+<li><b>Risqué</b> : rien. Aucun algorithme modifié, aucune fonction partagée changée ; le champ existe dans 7 fiches, les 124 autres ne bougent pas (réécriture d'un bloc seulement si on le touche).</li>
+<li><b>Hors périmètre</b> : lier le bouton à un chiffre précis : l'application ne sait ouvrir que l'accueil de « Comprendre les chiffres ». Un chantier à part, si un jour demandé.</li>
+</ul>
+<p><b>Verdict : GO.</b> Travail estimé : une ligne d'écran, 4 contrôles, 2 phrases de journal, 3 essais, essai navigateur sur copie. <span class="rouge">NON APTE AU MODE NUIT</span> tant que Q1 et Q2 ne sont pas tranchées ; <b>APTE</b> dès que tu as répondu.</p></div>
+</section>
+</div>
+
+<script>
+(function(){
+  var ORIG = "Combien de personnes n'ont pas de voiture ici";
+  var PHRASES = ["Comment on est embauché ici","Voir l'écart de salaire femmes-hommes ici","Combien de places d'accueil pour les enfants ici","Combien de personnes n'ont pas de voiture ici","Voir où en est l'accès aux soins ici","Combien de personnes ont des difficultés avec la lecture, l'écriture, le calcul ici"];
+  var vac=document.getElementById('vac');
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function majSugg(){ document.getElementById('sugg').innerHTML = PHRASES.map(function(p,i){return '<button class="btn" type="button" data-i="'+i+'" style="margin:.15rem .3rem .15rem 0;font-weight:500">'+esc(p)+'</button>';}).join(''); }
+  function maj(){
+    var v=vac.value, t=v.trim(), n=v.length;
+    document.getElementById('vacNb').textContent=n;
+    var v1=[], ko=false;
+    if(!t){ v1.push(['ok','Pas de bouton : la fiche s\'affichera sans lien vers Comprendre les chiffres.']); }
+    else {
+      if(n>100){ v1.push(['ko','Trop long : '+n+' caractères (100 au plus).']); ko=true; } else { v1.push(['ok','Longueur correcte ('+n+' caractères).']); }
+      if(/[\u2013\u2014]/.test(v)){ v1.push(['ko','Un tiret long ou demi-long s\'est glissé dans la phrase (interdit).']); ko=true; }
+      if(/[<>&]/.test(v)){ v1.push(['ko','Les signes « < », « > » et « & » ne sont pas permis : l\'application écrit la phrase telle quelle dans la page.']); ko=true; }
+      if(/[\r\n]/.test(v)){ v1.push(['ko','Une seule ligne, sans retour.']); ko=true; }
+      if(!/\bici\b|votre territoire/i.test(t)){ v1.push(['warn','Conseil : les autres phrases finissent par « ici » ou parlent du territoire, pour dire qu\'on va voir les chiffres de chez soi.']); }
+      if(PHRASES.indexOf(t)===-1 && !ko){ v1.push(['warn','Phrase nouvelle : relisez-la, elle n\'est utilisée par aucune autre fiche.']); }
+    }
+    document.getElementById('verifs').innerHTML=v1.map(function(x){return '<div class="verif '+x[0]+'">'+esc(x[1])+'</div>';}).join('');
+    var change = t!==ORIG;
+    document.getElementById('l-vac').classList.toggle('change',change);
+    var ok=!!t&&!ko;
+    document.getElementById('boutonPublic').style.display= ok?'':'none';
+    document.getElementById('phraseAide').style.display= ok?'':'none';
+    document.getElementById('sansBouton').style.display= (!t)?'':'none';
+    document.getElementById('textePublic').textContent=t;
+    if(!t&&!ko){document.getElementById('phraseAide').style.display='none';}
+  }
+  document.getElementById('sugg').addEventListener('click',function(e){var b=e.target.closest('button[data-i]'); if(!b)return; vac.value=PHRASES[+b.getAttribute('data-i')]; maj();});
+  document.getElementById('vide').addEventListener('click',function(){vac.value='';maj();});
+  document.getElementById('orig').addEventListener('click',function(){vac.value=ORIG;maj();});
+  vac.addEventListener('input',maj);
+  majSugg(); maj();
+  document.getElementById('onglets').addEventListener('click',function(e){var b=e.target.closest('button[data-e]'); if(!b)return; [].forEach.call(document.querySelectorAll('#onglets button'),function(x){x.classList.toggle('actif',x===b);}); [].forEach.call(document.querySelectorAll('.ecran'),function(s){s.classList.toggle('actif',s.id==='e-'+b.getAttribute('data-e'));}); window.scrollTo(0,0);});
+  document.getElementById('bascule').addEventListener('click',function(){var s=document.body.getAttribute('data-theme')==='sombre'; document.body.setAttribute('data-theme',s?'clair':'sombre'); this.textContent=s?'Mode sombre':'Mode clair';});
+})();
+</script>
+</body>
+</html>

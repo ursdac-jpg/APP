@@ -7,7 +7,7 @@ tags: [entreprise adaptée, ESAT, milieu protégé, milieu adapté, contrat de t
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "entreprise adaptée"
     definition: "Entreprise du secteur ordinaire dont l'effectif est majoritairement composé de personnes handicapées, avec un contrat de travail classique et un salaire au moins égal au SMIC."

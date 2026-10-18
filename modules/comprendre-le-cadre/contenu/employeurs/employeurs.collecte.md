@@ -18,14 +18,8 @@ sources:
   - "urssaf-complementaire-sante | Mettre en place une complémentaire frais de santé obligatoire | https://www.urssaf.fr/accueil/employeur/embaucher-gerer-salaries/embaucher/complementaire-frais-sante.html | 2026-09-12"
   - "travail-emploi-cse-11-49 | Le CSE dans les entreprises de 11 à 49 salariés | https://travail-emploi.gouv.fr/le-cse-dans-les-entreprises-de-11-49-salaries | 2026-09-12"
   - "travail-emploi-index-egalite-professionnelle | Index de l'égalité professionnelle : calcul et questions/réponses | https://travail-emploi.gouv.fr/index-de-legalite-professionnelle-calcul-et-questionsreponses | 2026-09-12"
+  - "msa-tesa-en-bref | Tesa : en bref | https://tesa.msa.fr/en-bref/ | 2026-10-13"
 structures:
-  - "urssaf-nouvelle-aquitaine | URSSAF Nouvelle-Aquitaine : interlocuteur unique pour la déclaration préalable à l'embauche, les cotisations, le Tese | https://www.urssaf.fr/ | 2026-09-12"
-  - "dreets-nouvelle-aquitaine-inspection-travail | DREETS Nouvelle-Aquitaine (inspection du travail) : contrôle et conseil sur le droit du travail, y compris pour les employeurs | https://nouvelle-aquitaine.dreets.gouv.fr/ | 2026-09-12"
-  - "cci-dordogne | Chambre de commerce et d'industrie de la Dordogne : conseil aux employeurs du commerce et des services | https://www.dordogne.cci.fr/ | 2026-09-04"
-  - "chambre-metiers-artisanat-dordogne | Chambre de métiers et de l'artisanat de la Dordogne : conseil aux employeurs artisans | https://www.artisanat.fr/ | 2026-09-05"
-  - "spst-19-24-perigueux | SPST 19-24 (service de prévention et de santé au travail Corrèze-Dordogne) : médecine du travail et prévention des risques pour les employeurs de Dordogne | https://www.spst19-24.org/ | 2026-09-12"
-  - "spsti-23-87-limoges | SPSTI 23/87 (service de prévention et de santé au travail Creuse-Haute-Vienne) : médecine du travail et prévention des risques pour les employeurs de Haute-Vienne | https://www.net1901.org/association/SERVICE-DE-PREVENTION-ET-DE-SANTE-AU-TRAVAIL-INTERENTREPRISES-POUR-LA-CREUSE-ET-LA-HAUTE-VIENNE-SPSTI-2387,2516114.html | 2026-09-12"
-  - "france-travail-espace-employeur | France Travail, espace employeur : dépôt d'offres, aides à l'embauche, mise en relation | https://www.francetravail.fr/employeur/ | 2026-09-12"
 ---
 
 MATÉRIAU BRUT, rayon « Employeurs et entrepreneurs ».

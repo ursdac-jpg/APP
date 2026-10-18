@@ -7,7 +7,7 @@ tags: [O2R, repérage, remobilisation, invisibles, loi plein emploi, accompagnem
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "offre de repérage et de remobilisation"
     definition: "Accompagnement renforcé, créé par la loi pour le plein emploi, qui va chercher les personnes très éloignées de l'emploi, y compris celles qui ne sont inscrites nulle part, pour les remettre en mouvement."
@@ -32,6 +32,6 @@ Créée par la loi pour le plein emploi, elle a deux missions. D'abord aller che
 
 Concrètement, l'O2R commence par un point complet sur la situation et sur ce qui bloque : santé, logement, mobilité, confiance en soi, papiers. Puis un accompagnement personnalisé par un conseiller expérimenté, des ateliers en petit groupe pour reprendre confiance et remettre en avant ses compétences, et des rencontres avec des entreprises et des acteurs locaux.
 
-L'accompagnement dure en moyenne six mois. Il est gratuit et sans engagement de résultat immédiat : l'objectif est d'abord de repartir.
+La durée de l'accompagnement dépend de l'offre de votre territoire. Il est gratuit et sans engagement de résultat immédiat : l'objectif est d'abord de repartir.
 
 L'O2R est portée par des associations et des structures locales, sur orientation d'un travailleur social, d'un centre communal d'action sociale, d'une mission locale, de France Travail, ou par une prise de contact directe. Pour savoir si un dispositif existe près de chez vous, voyez « Près de chez moi » ou demandez à un travailleur social.

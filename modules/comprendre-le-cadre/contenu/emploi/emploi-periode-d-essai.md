@@ -7,7 +7,7 @@ tags: [période d'essai, contrat de travail, CDI, CDD, rupture, délai de préve
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "période d'essai"
     definition: "Temps, au début d'un contrat, pendant lequel l'employeur et le salarié peuvent chacun mettre fin au contrat librement, sans motif. Elle doit être écrite dans le contrat."

@@ -7,7 +7,7 @@ tags: [installation agricole, exploitation, PAIT, point accueil installation, ch
 territoire: region
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "PAIT"
     definition: "Point Accueil Installation Transmission : le premier interlocuteur, gratuit et neutre, pour tout projet agricole. Il y en a un par département, à la chambre d'agriculture."
@@ -46,6 +46,6 @@ Pour s'installer avec les aides publiques, il faut la capacité professionnelle 
 
 Vient ensuite un parcours personnalisé, le plan de professionnalisation, mis au point avec un conseiller. Il peut prévoir des stages, des compléments de formation, une immersion chez un exploitant.
 
-Côté argent, la Dotation Nouveaux et Jeunes Agriculteurs est une aide versée en capital au moment de l'installation, financée par la Région Nouvelle-Aquitaine et l'Europe. Son montant dépend de la zone, de la taille du projet, et de plusieurs situations qui l'augmentent, comme une installation hors du cadre familial ou en agriculture biologique. La demande se fait après le passage par le Point Accueil et le plan de professionnalisation.
+Côté argent, la Dotation Nouveaux et Jeunes Agriculteurs est une aide versée en capital au moment de l'installation, pour les personnes de 18 à 54 ans, financée par la Région Nouvelle-Aquitaine et l'Europe. Son montant dépend de la zone, de la taille du projet, et de plusieurs situations qui l'augmentent, comme une installation hors du cadre familial ou en agriculture biologique. La demande se fait après le passage par le Point Accueil et le plan de professionnalisation.
 
 Enfin, l'agriculture a ses formes juridiques : exploitation individuelle, GAEC, EARL. Et son régime social propre, la MSA, à la place de l'URSSAF. Pour le choix du statut, voyez aussi la fiche « Micro-entreprise ou société : comment choisir ? », les principes sont proches.

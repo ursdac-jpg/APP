@@ -7,7 +7,7 @@ tags: [CSP, licenciement économique, ASP, France Travail, reclassement]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "contrat de sécurisation professionnelle (CSP)"
     definition: "Dispositif proposé par l'employeur en cas de licenciement économique, dans les entreprises de moins de 1 000 salariés : sortie anticipée de l'entreprise contre un accompagnement renforcé et une allocation spécifique."

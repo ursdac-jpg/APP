@@ -127,7 +127,7 @@ test('liens : usages = adresses citees dans les listes « sources » et « struc
 test('liens : sur le VRAI registre, valider une adresse ne change que sa ligne ; tout le fichier se relit', () => {
   const reel = fs.readFileSync(path.join(__dirname, '..', 'modules', 'comprendre-le-cadre', 'liens-verifies.txt'), 'utf8');
   const l = lister(reel, {});
-  assert.ok(l.length > 400);
+  assert.ok(l.length > 100, 'le vrai registre doit se lire (le nombre de lignes evolue : des adresses migrent vers le repertoire de Qui fait quoi)');
   const nom = l[10].nom;
   const r = appliquer(reel, [{ op: 'valider', nom }], AUJ, {});
   assert.ok(r.ok);

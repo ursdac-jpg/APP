@@ -7,7 +7,7 @@ tags: [résidence sociale, foyer de jeunes travailleurs, Habitat Jeunes, pension
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "foyer de jeunes travailleurs"
     definition: "Résidence pour jeunes actifs de 16 à 30 ans, avec un logement meublé à petit loyer et un accompagnement vers l'autonomie. Aussi appelé Habitat Jeunes. Ouvre droit à l'aide au logement."
@@ -31,7 +31,7 @@ collecte: logement.collecte.md
 
 Entre l'hébergement d'urgence et un logement classique, il existe des solutions à loyer modéré, souvent meublées, et parfois avec un accompagnement.
 
-Le foyer de jeunes travailleurs, aussi appelé Habitat Jeunes, accueille les jeunes actifs de seize à trente ans : un logement meublé à petit prix, plus une équipe qui aide à devenir autonome. Il ouvre droit à l'aide au logement de la CAF.
+Le foyer de jeunes travailleurs, aussi appelé Habitat Jeunes, accueille les jeunes actifs de seize à vingt-cinq ans, parfois jusqu'à trente ans : un logement meublé à petit prix, plus une équipe qui aide à devenir autonome. Il ouvre droit à l'aide au logement de la CAF.
 
 La résidence sociale, la pension de famille ou la maison relais offrent un logement durable à petit loyer, avec une présence sociale sur place, pour des personnes isolées en difficulté.
 

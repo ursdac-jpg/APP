@@ -7,7 +7,7 @@ tags: [logement social, HLM, numéro unique d'enregistrement, plafond de ressour
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "numéro unique d'enregistrement"
     definition: "Numéro attribué dès qu'une demande de logement social est déposée. Il sert à suivre la demande, à la renouveler, et il garde l'ancienneté."
@@ -27,7 +27,7 @@ collecte: logement.collecte.md
 
 Le logement social, ou HLM, est un logement à loyer modéré, attribué sous conditions de ressources. Y prétendre demande une démarche à ne pas remettre à plus tard.
 
-Vous déposez une seule demande, en ligne sur le site officiel ou à un guichet : mairie, bailleur social, ou Action Logement. Un numéro unique d'enregistrement vous est attribué. Notez-le : il sert à suivre votre demande et à la renouveler.
+Vous déposez une seule demande (une par département, sauf en Île-de-France où un seul dossier couvre toute la région), en ligne sur le site officiel ou à un guichet : mairie, bailleur social, ou Action Logement. Un numéro unique d'enregistrement vous est attribué. Notez-le : il sert à suivre votre demande et à la renouveler.
 
 Il faut joindre une pièce d'identité et votre avis d'imposition des revenus d'il y a deux ans. Vos ressources ne doivent pas dépasser un plafond, qui dépend de la taille de votre foyer et de la région.
 

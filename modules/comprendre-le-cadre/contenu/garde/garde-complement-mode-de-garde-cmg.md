@@ -7,7 +7,7 @@ tags: [CMG, CAF, Paje, assistante maternelle, garde à domicile, Pajemploi]
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "CMG"
     definition: "Complément de libre choix du mode de garde : aide de la CAF, versée dans le cadre de la Paje, qui prend en charge une partie du coût de la garde d'un jeune enfant."
@@ -36,7 +36,7 @@ Pour y avoir droit, il faut en général exercer une activité professionnelle. 
 
 Depuis septembre 2025, le calcul a changé pour l'emploi direct d'une assistante maternelle ou d'une garde à domicile : l'aide suit les heures réellement déclarées, et vous n'êtes plus obligé de garder au moins 15 pour cent du coût à votre charge.
 
-Deux points utiles si vous élevez seul votre enfant : le CMG est majoré, et il est versé jusqu'aux 12 ans de l'enfant, au lieu de 6 ans.
+Deux points utiles si vous élevez seul votre enfant : le CMG est majoré, et il est versé jusqu'aux 12 ans de l'enfant, au lieu de 6 ans, à condition d'employer directement une assistante maternelle ou une garde à domicile (en micro-crèche, il s'arrête à 6 ans).
 
 Si l'enfant est en résidence alternée, chaque parent peut demander le CMG pour la garde qu'il organise, depuis le 1er décembre 2025.
 

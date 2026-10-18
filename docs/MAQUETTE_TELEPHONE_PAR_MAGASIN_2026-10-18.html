@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : un numéro par magasin</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--sub:#f1f4f9;--txt:#1b2430;--strong:#0b1a33;--muted:#5a6a7e;--bord:#d5dbe4;--acc:#0369a1;--accbg:#e2f0f8;--ok:#198754;--okbg:#d9f4e4;--warn:#b45309;--warnbg:#fdf1d9;--ko:#a3372b}
+[data-theme="sombre"]{--bg:#12161f;--card:#1b212c;--sub:#222834;--txt:#dbe2ee;--strong:#e8edf5;--muted:#a8b3c4;--bord:#3d4759;--acc:#38bdf8;--accbg:#16283a;--ok:#35c79a;--okbg:#17301f;--warn:#f5a742;--warnbg:#3a2c14;--ko:#eda69c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 system-ui,"Segoe UI",Arial,sans-serif;padding:0 16px 80px}
+.page{max-width:900px;margin:0 auto;position:relative}
+h1{font-size:1.35rem;color:var(--strong);margin:1.2rem 0 .3rem}h2{font-size:1.08rem;color:var(--strong);margin:1.5rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.25rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.mini{font-size:.86rem}
+button{font:inherit;cursor:pointer}.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:6px;padding:.15rem .6rem;font-weight:600;font-size:.84rem}
+.theme{position:absolute;top:10px;right:0;background:var(--card);font-size:1rem;padding:.3rem .8rem}
+.rouge{color:#c0261b;font-weight:800}
+.carte{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}
+input[type=text]{font:inherit;background:var(--card);color:var(--txt);border:1px solid var(--bord);border-radius:6px;padding:.25rem .5rem}
+.multi{background:var(--warnbg);border:1px solid var(--warn);border-left:5px solid var(--warn);border-radius:8px;padding:.35rem .6rem;margin:.3rem 0;font-size:.9rem}
+.magasin{display:flex;flex-wrap:wrap;gap:.4rem .7rem;align-items:center;border-top:1px solid var(--bord);padding:.5rem 0}
+.magasin .qui{flex:1 1 16rem}.dep{display:inline-block;border:1px solid var(--bord);background:var(--sub);border-radius:6px;padding:0 .4rem;font-size:.78rem;font-weight:700;color:var(--muted)}
+.magasin.change{background:var(--warnbg);border-left:5px solid var(--warn);padding-left:.5rem}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--sub);border:1px solid var(--bord);border-radius:8px;padding:.6rem .8rem;font-size:.82rem}
+.appli{border:1px solid var(--bord);border-radius:10px;background:var(--card);padding:.7rem 1rem;max-width:520px}
+.appli .d{display:block;margin:.15rem 0}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}.q b.n{color:var(--warn)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid var(--bord);padding:.4rem .5rem;text-align:left;vertical-align:top}th{background:var(--sub)}
+</style>
+</head>
+<body data-theme="clair">
+<div class="page">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<h1>Maquette : un numéro de téléphone par magasin</h1>
+<p class="muted">Demande de Denis (2026-10-18), option « un numéro par magasin » retenue. <b>Rien n'est codé.</b> <span class="rouge">EFFORT : HAUT</span> (Mode A : touche l'application publique, son contrôle, son affichage, les tests et l'outil). Cette page fonctionne : tapez un numéro dans une ligne de magasin et regardez les deux autres blocs.</p>
+
+<h2>1. Dans l'outil de veille : une ligne par magasin, son numéro sur la même ligne</h2>
+<div class="carte" id="outil"></div>
+<p class="mini muted">Chaque ligne a <b>son champ de numéro</b> : pas de menu à changer, tout se voit d'un coup. Les boutons de recherche web de la ligne cherchent <b>ce magasin</b> (nom + adresse + commune + le numéro tel qu'il est tapé). Le site et la page de recrutement restent au niveau de la fiche (les mêmes pour tous les magasins).</p>
+
+<h2>2. Ce qui sera écrit dans le fichier des employeurs</h2>
+<pre id="fichier"></pre>
+<p class="mini muted">Le numéro s'ajoute à la fin de chaque magasin, après un deuxième « : ». Les fiches actuelles (sans numéro par magasin) restent valables sans aucun changement. Un magasin sans numéro propre utilise le numéro général de la fiche s'il existe.</p>
+
+<h2>3. Dans l'application publique : la fiche de l'employeur</h2>
+<div class="appli" id="appli"></div>
+<p class="mini muted">Aujourd'hui l'application affiche un seul « Téléphone du standard ». Demain : le numéro de chaque magasin sur sa ligne, avec le lien pour appeler sur téléphone. Les règles de fraîcheur restent celles de la fiche (un numéro n'est montré que si la fiche est datée).</p>
+
+<h2>4. Mes questions</h2>
+<div class="q"><b class="n">Question 1 : une ligne par magasin, ou un menu « quel magasin ? »</b> J'ai mis une ligne par magasin avec son champ de numéro (tout est visible, aucun état caché, on voit tout de suite quel magasin n'a pas de numéro). Le menu que vous décriviez fonctionne aussi mais cache les autres numéros. <b>Ma recommandation : une ligne par magasin.</b> Risque : sur une enseigne à 5 magasins, la carte est plus longue.</div>
+<div class="q"><b class="n">Question 2 : le numéro général de la fiche.</b> La colonne « téléphone » actuelle reste, comme <b>numéro général de l'enseigne</b> (utilisé pour un magasin sans numéro propre). <b>Ma recommandation : la garder.</b> Bénéfice : aucune fiche existante ne casse. Risque : deux endroits pour un numéro ; l'écran dit toujours lequel s'applique.</div>
+<div class="q"><b class="n">Question 3 : une seule date de vérification pour tous les numéros de la fiche.</b> Quand vous cliquez « C'est bon », tous les numéros de la fiche sont datés du jour, comme aujourd'hui. <b>Ma recommandation : oui</b> (le format ne change pas). Risque : si vous n'avez vérifié que 2 magasins sur 3, le troisième paraît vérifié : laissez-le vide plutôt que non vérifié.</div>
+<div class="q"><b class="n">Question 4 : l'import par prompts.</b> Les prompts qui demandent les employeurs à un assistant ne demandent pas encore de numéro par magasin. <b>Ma recommandation : ne pas les changer maintenant</b> (les numéros se saisissent et se vérifient à la main dans le sas, magasin par magasin) ; à reprendre plus tard si vous le souhaitez.</div>
+<div class="verdict"><b>Verdict mode nuit :</b> <b>NON APTE</b> tant que la maquette n'est pas validée et les questions 1 à 4 tranchées.<br><span class="mini"><b>Plan prévu</b> : [effort : moyen] lecture et écriture du numéro d'un magasin dans <code>modules/mon-territoire/logique.js</code> (<code>mtParserEtablissements</code>, contrôle, essais avec les fiches existantes inchangées) ; [effort : moyen] affichage public (ligne par magasin, lien d'appel) ; [effort : haut] outil : une ligne par magasin dans le sas et la liste, enregistrement, journal ; [effort : moyen] essais navigateur de l'application (clair, sombre, 375 px) et de l'outil.</span></div>
+</div>
+<script>
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+  function echap(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  $('bascule').addEventListener('click', function () { var s = document.body.getAttribute('data-theme') === 'sombre'; document.body.setAttribute('data-theme', s ? 'clair' : 'sombre'); $('bascule').textContent = s ? 'Mode sombre' : 'Mode clair'; });
+  var NOM = 'Mr.Bricolage', GENERAL = '';
+  var mag = [{ commune: 'Boulazac Isle Manoire', adresse: '12 Avenue Marcel Paul', dep: 'Dordogne', tel: '' }, { commune: 'Montignac-Lascaux', adresse: '64 ZA des Séchoirs', dep: 'Dordogne', tel: '' }];
+  var orig = JSON.stringify(mag.map(function (m) { return m.tel; }));
+  var RE_TEL = /^0\d( ?\d\d){4}$/;
+  function rendreOutil() {
+    var h = '<strong>' + echap(NOM) + '</strong> <span class="mini muted">Enseigne · Commerce et vente</span><div class="multi"><strong>' + mag.length + ' magasins sur cette fiche</strong> (tous en Dordogne)<br><span class="mini">Le site et la page de recrutement sont les mêmes pour tous ; le numéro de téléphone, lui, dépend du magasin.</span></div>';
+    h += mag.map(function (m, i) {
+      var ko = m.tel && !RE_TEL.test(m.tel);
+      return '<div class="magasin' + (m.tel !== JSON.parse(orig)[i] ? ' change' : '') + '"><div class="qui"><strong>' + (i + 1) + '. ' + echap(m.commune) + '</strong> : ' + echap(m.adresse) + ' <span class="dep">' + echap(m.dep) + '</span></div>'
+        + '<label class="mini">Numéro de ce magasin <input type="text" data-i="' + i + '" value="' + echap(m.tel) + '" placeholder="05 53 00 00 00" style="width:11rem' + (ko ? ';border-color:var(--ko)' : '') + '"></label>'
+        + '<button class="btn" type="button">Vérifier ce numéro sur le web</button><button class="btn" type="button">Voir sur la carte</button>' + '<span class="mini err" style="color:var(--ko);flex:1 0 100%;' + (ko ? '' : 'display:none') + '">Numéro mal écrit : 05 53 00 00 00 (dix chiffres, par groupes de deux).</span></div>';
+    }).join('');
+    $('outil').innerHTML = h;
+  }
+  function rendreFichier() {
+    var etab = mag.map(function (m) { return m.commune + ':' + m.adresse + (m.tel ? ':' + m.tel : ''); }).join(' ; ');
+    $('fichier').textContent = 'mr-bricolage-dordogne | enseigne | ' + NOM + ' | commerce-vente | ' + etab + ' | ' + GENERAL + ' | https://www.mr-bricolage.fr | https://recrutement.mr-bricolage.fr | portail | ... | 2026-10-18';
+  }
+  function rendreAppli() {
+    var h = '<strong>' + echap(NOM) + '</strong><span class="d mini muted">Enseigne · Commerce et vente</span>';
+    h += mag.map(function (m) { return '<span class="d">&#128205; <strong>' + echap(m.commune) + '</strong> : ' + echap(m.adresse) + (m.tel && RE_TEL.test(m.tel) ? ' &middot; &#9742; <a href="tel:' + m.tel.replace(/ /g, '') + '">' + echap(m.tel) + '</a>' : ' &middot; <span class="muted">numéro en cours de vérification</span>') + '</span>'; }).join('');
+    h += '<span class="d mini muted">Vérifié le 18 octobre 2026</span>';
+    $('appli').innerHTML = h;
+  }
+  function tout() { rendreFichier(); rendreAppli(); }
+  $('outil').addEventListener('input', function (e) { var i = e.target.getAttribute('data-i'); if (i === null) { return; } mag[+i].tel = e.target.value; var ligne = e.target.closest('.magasin'); ligne.classList.toggle('change', e.target.value !== JSON.parse(orig)[+i]); var ko = e.target.value && !RE_TEL.test(e.target.value); e.target.style.borderColor = ko ? 'var(--ko)' : ''; ligne.querySelector('.err').style.display = ko ? '' : 'none'; tout(); });
+  rendreOutil(); tout();
+})();
+</script>
+</body>
+</html>

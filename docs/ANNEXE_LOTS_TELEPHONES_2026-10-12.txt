@@ -1,0 +1,129 @@
+# Lots pour le prompt 5 (téléphones), structures de la Dordogne et nationales/régionales du répertoire
+# 110 structures en lots de 15 : collez un lot entier dans le prompt 5. Format : nom | site officiel enregistré
+
+## Lot 1 (structures 1 à 15)
+Accueils de jour de la Dordogne | https://annuaire.action-sociale.org/
+Action Logement, agence de Nouvelle-Aquitaine | https://www.actionlogement.fr/
+ADIE Nouvelle-Aquitaine | https://www.adie.org/
+ADIL de la Dordogne (agence départementale d'information sur le logement) | https://www.anil.org/qui-sommes-nous/reseau-des-adil/
+AFAC 24 (Association Formation Avenir Conseil) | https://afac24.com/
+AFPA, réseau des GRETA, CNAM | https://www.afpa.fr/
+AGEFIPH, délégation régionale Nouvelle-Aquitaine | https://www.agefiph.fr/
+APEC | https://www.apec.fr/
+APF France handicap, délégation de la Dordogne | https://dordogne.apf-francehandicap.org/
+Association d'aide à la santé mentale Croix Marine Dordogne | https://www.croixmarine24.fr/
+Association d'aide aux victimes (réseau France Victimes) de la Dordogne | https://www.france-victimes.fr/
+Assurance retraite / CARSAT Nouvelle-Aquitaine | https://www.lassuranceretraite.fr/
+Atchoum | https://www.atchoum.eu/
+ATIGIP et structures d'insertion par l'activité économique implantées en milieu pénitentiaire | https://atigip.justice.gouv.fr/travail-et-formation/travail-en-detention/
+Auto-écoles associatives et sociales | https://mes-aides.francetravail.fr/mobilite
+
+## Lot 2 (structures 16 à 30)
+Auto-Mobilité Solidaire Dordogne | https://automobilitesolida.wixsite.com/website
+Banque alimentaire de la Dordogne | https://www.banquealimentaire.org/
+Barreau de Périgueux | https://www.avocats-perigueux.com/
+BASE (Bergerac Actions Solidarité Emploi) | https://associationbase.fr/
+BGE Périgord | https://www.bge.asso.fr/
+Bureau d'aide juridictionnelle, tribunal judiciaire de Périgueux et de Bergerac | https://www.justice.fr/
+CAF de la Dordogne | https://www.caf.fr/allocataires/caf-de-la-dordogne
+CAF de la Dordogne | https://www.caf.fr/allocataires/caf-de-la-dordogne
+Cap emploi de la Dordogne | https://www.capemploi-24.com/
+Centre communal d'action sociale (CCAS) | https://lannuaire.service-public.gouv.fr/navigation/ccas
+Centre communal d'action sociale (CCAS) de la commune | https://lannuaire.service-public.gouv.fr/navigation/ccas
+Centre communal d'action sociale (CCAS) de la commune | https://lannuaire.service-public.gouv.fr/
+Centre ENIC-NARIC France (France Éducation international) | https://www.france-education-international.fr/expertises/enic-naric
+Centres de formation d'apprentis et écoles de production de Nouvelle-Aquitaine | https://www.1jeune1solution.gouv.fr/formations-initiales
+Centres sociaux et centres socioculturels de la Dordogne | https://www.centres-sociaux.fr/
+
+## Lot 3 (structures 31 à 45)
+Chambre de commerce et d'industrie de la Dordogne | https://www.dordogne.cci.fr/
+Chambre de métiers et de l'artisanat de la Dordogne (rattachée à la CMA Nouvelle-Aquitaine) | https://www.artisanat.fr/
+CIDFF de la Dordogne | https://dordogne.cidff.info/
+Conseil départemental de l'accès au droit (CDAD) de la Dordogne | https://www.cdad-dordogne.fr/
+Conseil départemental de la Dordogne | https://www.dordogne.fr/
+Conseil départemental de la Dordogne | https://www.dordogne.fr/
+Conseil départemental de la Dordogne, service social départemental | https://www.dordogne.fr/
+Conseil départemental de la Dordogne, services d'insertion | https://www.dordogne.fr/
+Conseils de prud'hommes de Périgueux et de Bergerac | https://lannuaire.service-public.gouv.fr/nouvelle-aquitaine/dordogne/4e40b4a0-0ebb-4332-8451-587a57b781dc
+Coop'alpha | https://www.coopalpha.coop/
+CPAM de la Dordogne (siège de Périgueux) | https://www.ameli.fr/dordogne/assure
+Croix-Rouge française, Secours catholique, Restos du Cœur, Familles rurales | https://www.service-public.gouv.fr/particuliers/vosdroits/F21375
+Délégués territoriaux du Défenseur des droits en Dordogne | https://www.defenseurdesdroits.fr/carte-des-delegues
+DREETS Nouvelle-Aquitaine (inspection du travail) | https://nouvelle-aquitaine.dreets.gouv.fr/
+École de la deuxième chance de la Dordogne (Périgueux) | https://reseau-e2c.fr/
+
+## Lot 4 (structures 46 à 60)
+Écoles, collèges et lycées proposant le dispositif OEPRE, via l'inspection académique de la Dordogne | https://www.ac-bordeaux.fr/
+Entreprises adaptées et ESAT de la Dordogne | https://annuaire.action-sociale.org/
+Épiceries sociales et solidaires | https://www.andes-france.com/
+EPIDE, centres de Nouvelle-Aquitaine | https://www.epide.fr/
+Fédération CRÉSUS | https://www.cresus.org/
+Foyers de jeunes travailleurs et résidences Habitat Jeunes du Périgord | https://habitat.dordogne.fr/mon-logement/hebergement-pour-les-jeunes-et-etudiants-en-dordogne
+France Active Nouvelle-Aquitaine | https://www.franceactive.org/
+France Alzheimer Dordogne | https://www.francealzheimer.org/dordogne/
+France Terre d'Asile, CADA de Périgueux | https://www.france-terre-asile.org/etablissement/cada-de-perigueux
+France Travail | https://www.francetravail.fr/
+France Travail | https://www.francetravail.fr/
+France Travail | https://www.francetravail.fr/
+France Travail | https://www.francetravail.fr/
+France Travail de la Dordogne | https://www.francetravail.fr/candidat/jeunes.html
+France Travail, conseillers justice | https://www.francetravail.fr/candidat/mes-droits-aux-aides-et-allocati/a-chaque-situation-son-allocatio/quelle-est-ma-situation-personne/jentre--je-sors-de-prison.html
+
+## Lot 5 (structures 61 à 75)
+France Travail, espace employeur | https://www.francetravail.fr/employeur/
+GEIQ 24 (groupement d'employeurs pour l'insertion et la qualification) | https://geiq24.com/
+INAÉ, réseau régional de l'insertion par l'activité économique en Nouvelle-Aquitaine | https://inae-nouvelleaquitaine.org/
+Info Jeunes Nouvelle-Aquitaine (CRIJ) | https://crijna.fr/
+Initiative Périgord | https://initiative-france.fr/
+Inspection du travail (DDETS de la Dordogne) | https://nouvelle-aquitaine.dreets.gouv.fr/
+IRISCOP | https://iriscop.com/
+La Cimade, permanence de Périgueux | https://www.lacimade.org/
+La Cimade, région Nouvelle-Aquitaine | https://www.lacimade.org/
+La Main Forte | https://lamainforte.org/
+La Maison 24 | https://www.lamaison24.net/
+La Traverse | https://latraverse-bergerac.fr/
+Le 115 | https://www.info.gouv.fr/organisation/delegation-interministerielle-a-l-hebergement-et-a-l-acces-au-logement
+Les Restos du Cœur, association départementale de la Dordogne | https://ad24.restosducoeur.org/
+Les Saveurs du Bois du Roc | https://www.saveursduboisduroc.fr/
+
+## Lot 6 (structures 76 à 90)
+Ligue de l'enseignement de la Dordogne | https://laligue24.org/
+Maison départementale des personnes handicapées (MDPH) de la Dordogne | https://www.dordogne.fr/a-votre-service/handicap/maison-departementale-des-personnes-handicapees
+Maisons France Services | https://www.france-services.gouv.fr/
+Mission locale du Bergeracois | https://www.missionlocaledubergeracois.com/
+Mission locale du Grand Périgueux | https://www.ml-grandperigueux.fr/
+Mission locale et Maison de l'emploi du Périgord Noir | https://www.missionlocaleperigordnoir.com/
+MSA Dordogne, Lot-et-Garonne, Landes | https://dlg.msa.fr/lfp
+Office français de l'immigration et de l'intégration (OFII), direction territoriale | https://www.ofii.fr/
+Opérateur régional du conseil en évolution professionnelle pour la Nouvelle-Aquitaine (salariés et indépendants du privé), sélectionné par France compétences | https://mon-cep.org/
+Plans locaux pour l'insertion et l'emploi et maisons de l'emploi de la Dordogne | https://www.ville-emploi.asso.fr/annuaire-du-reseau
+Plateforme de suivi et d'appui aux décrocheurs de la Dordogne | https://www.ac-bordeaux.fr/ia24
+Plateforme mobilité de la Dordogne | https://mes-aides.francetravail.fr/regions/nouvelle-aquitaine
+Plateforme MUST | https://www.plateforme-must.fr/
+PLIE du Bergeracois (porté par la Mission locale du Bergeracois) | https://www.missionlocaledubergeracois.com/le-plie
+Points relais conseil VAE de la Dordogne | https://vae.gouv.fr/
+
+## Lot 7 (structures 91 à 105)
+Points-justice de la Dordogne | https://cdad-dordogne.fr/lieux-d-acces-au-droit.html
+Préfecture de la Dordogne | https://www.dordogne.gouv.fr/
+Préfecture de la Dordogne, service des étrangers | https://www.dordogne.gouv.fr/
+Protection maternelle et infantile (PMI) du conseil départemental de la Dordogne | https://www.dordogne.fr/
+Région Nouvelle-Aquitaine | https://www.nouvelle-aquitaine.fr/
+Région Nouvelle-Aquitaine, programme régional de formation | https://www.nouvelle-aquitaine.fr/
+Région Nouvelle-Aquitaine, service des transports | https://transports.nouvelle-aquitaine.fr/
+Relais petite enfance (RPE) | https://monenfant.fr/les-relais-petite-enfance
+Secours populaire français, fédération de la Dordogne | https://www.secourspopulaire.fr/
+Service de prévention et de santé au travail interentreprises de la Dordogne | https://www.spst19-24.org/
+Service pénitentiaire d'insertion et de probation de la Dordogne | https://www.justice.gouv.fr/annuaire/structures-reinsertion-demploi/services-penitentiaires-dinsertion-probation-spip
+SIAO de la Dordogne | https://annuaire.action-sociale.org/
+SOLIHA Dordogne-Périgord | https://www.dordogne.soliha.fr/
+Structure de premier accueil des demandeurs d'asile (SPADA) de la Dordogne | https://www.asd24.org/
+Structures de l'insertion par l'activité économique de la Dordogne (entreprises d'insertion, associations intermédiaires, ateliers et chantiers d'insertion, ETTI) | https://emplois.inclusion.beta.gouv.fr/
+
+## Lot 8 (structures 106 à 110)
+Succursales de la Banque de France | https://www.banque-france.fr/fr/nous-trouver
+Transitions Pro Nouvelle-Aquitaine | https://www.transitionspro-na.fr/
+UDAF de la Dordogne | https://www.udaf24.fr/acces-au-microcredit-personnel-accompagne-udaf/
+UNAFAM Dordogne | https://www.unafam.org/dordogne
+URSSAF Nouvelle-Aquitaine | https://www.urssaf.fr/
+

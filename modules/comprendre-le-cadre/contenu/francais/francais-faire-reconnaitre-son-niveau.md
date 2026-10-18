@@ -7,7 +7,7 @@ tags: [DILF, DELF, DALF, TCF, DCL, France Éducation international, certificatio
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "DELF"
     definition: "Diplôme d'études en langue française : diplôme officiel passé par niveau, de A1 à B2, valable à vie."

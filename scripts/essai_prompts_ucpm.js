@@ -136,6 +136,57 @@ function demandeOffres(liste, dept) {
   const texte = lire('prompts/ucpm-offres.md').replace(/<!--[\s\S]*?-->\s*/, '');
   return texte.replace('{DATE}', '8 octobre 2026').replace('{DEPARTEMENT}', dept).replace('{METIERS}', lignes).trim() + '\n';
 }
+/* ---------- Passages 7 et 8 (2026-10-15) : lettres retravaillées et préparation d'entretien ---------- */
+// Lettres d'essai (comme l'application les montrerait : sans signature, la personne en a modifié une à la main).
+const P = (...paragraphes) => paragraphes.join('\n\n');
+const LETTRES_ESSAI = {
+  'Agent d’entretien des bâtiments': P(
+    'Madame, Monsieur,',
+    'Depuis dix ans, j’entretiens des bâtiments collectifs : une résidence de 120 logements, puis les services techniques d’une commune. Je vous écris sans attendre une offre, parce que votre structure gère des bâtiments où ce travail se fait au quotidien, et que je connais ce que cela demande.',
+    'Dans ma dernière résidence, je réglais les petits dépannages en plomberie et en électricité de base, je peignais les cages d’escalier et je remettais en état les logements libérés. Je tenais aussi le stock de produits et je parlais chaque jour avec les locataires, pour comprendre ce qui devait être réparé en priorité.',
+    'Avant cela, dans les services techniques d’une commune, j’ai entretenu les bâtiments communaux et les espaces verts, fait de petits travaux de maçonnerie et de menuiserie, monté des barnums et déneigé en hiver.',
+    'Je cherche un CDI à temps plein, en entreprise privée ou en collectivité, où je peux continuer ce travail d’entretien et de maintenance. Je serais heureux d’en parler avec vous.',
+    'Cordialement.'),
+  'Peintre en bâtiment': P(
+    'Madame, Monsieur,',
+    'Le CAP Peintre applicateur de revêtements que j’ai passé en 2014 m’a appris la préparation des supports, la peinture intérieure, les revêtements muraux et les finitions. J’ai ensuite travaillé deux ans comme aide-peintre, puis peint des cages d’escalier et remis en état des logements dans une résidence de 120 logements.',
+    'Aujourd’hui, je veux apprendre ce métier plus loin, en alternance sur deux ans, dans une entreprise du bâtiment. Chez Lacroix Peinture, je pourrais appliquer ce que je sais déjà et apprendre les techniques que je n’ai pas encore pratiquées, directement sur les chantiers.',
+    'Dans la résidence, je préparais les murs des logements libérés : rebouchage, ponçage, sous-couche, puis deux couches de peinture. Je choisissais les quantités de produit à commander et je rangeais le matériel en fin de journée. C’est ce travail de finition que je veux faire en entreprise, avec un maître d’apprentissage qui me montre les gestes que je ne connais pas encore.',
+    'Je suis disponible à partir de septembre prochain, à temps plein en entreprise, sur des horaires de journée.',
+    'Je vous remercie de l’attention que vous porterez à ma candidature.',
+    'Cordialement.'),
+  'Gardien d’immeuble': P(
+    'Madame Martin,',
+    'Votre résidence de 90 logements cherche un gardien. Pendant cinq ans, de 2019 à 2024, j’ai tenu une résidence de 120 logements : parties communes, petits dépannages, remise en état des logements libérés et relation avec les locataires.',
+    'Je sais faire un petit dépannage en plomberie ou en électricité de base, et noter ce qui doit être suivi. J’ai aussi l’habitude de suivre le travail des entreprises extérieures et de rendre compte de ce qui a été fait, ce que demande votre annonce.',
+    'Chaque matin, je faisais le tour des parties communes : escaliers, caves, locaux poubelles, éclairage. Je notais ce qui devait être réparé et je prévenais le bureau de la résidence. Quand un locataire me signalait une fuite ou une panne, je me rendais sur place, je regardais ce que je pouvais régler moi-même et je transmettais le reste à l’entreprise concernée.',
+    'Je cherche un CDI dans une résidence comme la vôtre, où je peux continuer ce travail de proximité. Je suis disponible dans un mois.',
+    'Cordialement.')
+};
+const REMARQUES_ESSAI = {
+  'Agent d’entretien des bâtiments': 'Parler de mon bénévolat à la banque alimentaire. Faire un peu plus chaleureux. Raccourcir le premier paragraphe.',
+  'Gardien d’immeuble': ''
+};
+function blocLettresRetravail(liste) {
+  return liste.map((m, i) => (i + 1) + '. Titre du CV : ' + nomMetier(m, 'f') + '\n   Accroche retenue : ' + (ACCROCHES_F[m.metier] || '') + '\n   Objectif : ' + NOM_OBJECTIF[m.k] + '\n   Ligne directrice de cet objectif : ' + LIGNES[m.k] + '\n   Détails : ' + m.details + (m.employeur ? '\n   Employeur : ' + m.employeur : '') + (m.recruteur ? '\n   Recruteur : ' + m.recruteur : '') + (m.poste ? '\n   Poste visé : ' + m.poste : '') + (m.offre ? '\n   Extrait de l’offre : ' + m.offre : '') +
+    '\n   Lettre actuelle (texte de la personne, à retravailler) :\n"""\n' + (LETTRES_ESSAI[m.metier] || '') + '\n"""\n   Ce que la personne veut changer ou ajouter : ' + (REMARQUES_ESSAI[m.metier] || 'aucune remarque')).join('\n\n');
+}
+function blocMetiersPreparation(liste, periodes) {
+  return liste.map((m, i) => (i + 1) + '. Métier : ' + nomMetier(m, 'f') + '\n   Titre du CV : ' + nomMetier(m, 'f') + '\n   Accroche retenue : ' + (ACCROCHES_F[m.metier] || '') + '\n   Objectif : ' + NOM_OBJECTIF[m.k] + '\n   Détails : ' + m.details + (m.employeur ? '\n   Employeur : ' + m.employeur : '') + (m.poste ? '\n   Poste visé : ' + m.poste : '') + (m.offre ? '\n   Extrait de l’offre : ' + m.offre : '') +
+    '\n   Changement de métier par rapport au CV de référence : ' + (m.metier === METIERS[0].metier ? 'non (même métier que le CV de référence)' : 'oui (un autre métier que celui du CV de référence)') +
+    '\n   Périodes sans activité repérées par l’application : ' + (periodes || 'aucune') +
+    '\n   Lettre actuelle (sans signature) :\n"""\n' + (LETTRES_ESSAI[m.metier] || 'non écrite') + '\n"""').join('\n\n');
+}
+const REGLAGES_GENERAL = 'Mode : général (plusieurs métiers, version courte)\nNiveau d’exigence : Réaliste\nNombre de questions par métier : 5 à 6\nSujets : le parcours ; les points délicats ; pourquoi ce métier ou ce changement\nPistes de réponse : oui, courtes';
+const REGLAGES_APPROFONDI = 'Mode : approfondi (un seul métier)\nNiveau d’exigence : Exigeant\nNombre de questions par métier : 10\nSujets : le parcours ; les points délicats (périodes sans activité, ruptures) ; pourquoi cette entreprise ou cette structure ; pourquoi ce changement de métier ou de secteur ; les compétences, avec des exemples ; les mises en situation\nPistes de réponse : oui';
+function genererRetravailEtPreparation(ecrire, voix) {
+  const pr = lire('prompts/ucpm-lettres-retravail.md').replace('{{VOIX_HUMAINE}}', voix());
+  const pp = lire('prompts/ucpm-preparation.md').replace('{{VOIX_HUMAINE}}', voix());
+  const trois = [METIERS[0], METIERS[1], METIERS[9]];
+  ecrire('05_retravail_V1_3.txt', pr.replace('{GENRE}', genreTexte('f')).replace('{PROFIL}', PROFIL_VALIDE).replace('{LETTRES}', blocLettresRetravail(trois)));
+  ecrire('06_preparation_V1_general_3.txt', pp.replace('{GENRE}', genreTexte('f')).replace('{REGLAGES}', REGLAGES_GENERAL).replace('{PROFIL}', PROFIL_VALIDE).replace('{METIERS}', blocMetiersPreparation(trois, 'depuis 2024 (environ un an et demi) : aucune expérience indiquée sur le CV')));
+  ecrire('06_preparation_V1_approfondi_1.txt', pp.replace('{GENRE}', genreTexte('f')).replace('{REGLAGES}', REGLAGES_APPROFONDI).replace('{PROFIL}', PROFIL_VALIDE).replace('{METIERS}', blocMetiersPreparation([METIERS[9]], 'depuis 2024 (environ un an et demi) : aucune expérience indiquée sur le CV')));
+}
 function generer() {
   const dossier = path.join(RACINE, 'docs', 'essais_prompts_ucpm');
   fs.mkdirSync(dossier, { recursive: true });
@@ -151,6 +202,7 @@ function generer() {
     ecrire(nom, pl.replace('{GENRE}', genreTexte('f')).replace('{PROFIL}', PROFIL_VALIDE).replace('{CVS}', blocCvLettres(METIERS.slice(0, n))));
   });
   ecrire('03_lettres_V6_10_masculin.txt', pl.replace('{GENRE}', genreTexte('m')).replace('{PROFIL}', PROFIL_VALIDE).replace('{CVS}', blocCvLettres(METIERS.slice(0, 10), 'm')));
+  genererRetravailEtPreparation(ecrire, voix);
   ecrire('04_offres_V4_2.txt', demandeOffres(METIERS.slice(2, 4), 'Haute-Vienne (87)'));
   ecrire('04_offres_V4_6.txt', demandeOffres(METIERS.slice(0, 6), 'Haute-Vienne (87)'));
 }
@@ -216,7 +268,7 @@ function verifier(type, fichier, attendu, genre) {
       });
       for (let i = 0; i < liste.length; i++) { for (let k = i + 1; k < liste.length; k++) { const s1 = jaccard(mots((liste[i].accroches || [])[0]), mots((liste[k].accroches || [])[0])); if (s1 > 0.6) { att('« ' + liste[i].metier + ' » et « ' + liste[k].metier + ' » ont des accroches presque identiques'); } } }
     }
-    if (type === 'accroches' || type === 'lettres') {
+    if (type === 'accroches' || type === 'lettres' || type === 'retravail') {
       // Expressions qui reviennent trop souvent d'un texte à l'autre (suites de 4 mots répétées dans au moins 4 textes).
       const textes = liste.map(x => type === 'accroches' ? (x.accroches || []) : [String(x.lettre || '')]).reduce((a, b) => a.concat(b), []);
       const compte = {};
@@ -224,7 +276,7 @@ function verifier(type, fichier, attendu, genre) {
       const seuil = type === 'accroches' ? 4 : 3;
       const repetees = Object.keys(compte).filter(k => compte[k] >= seuil).sort((a, b) => compte[b] - compte[a]).slice(0, 4);
       if (repetees.length) { att('expressions répétées dans plusieurs textes : ' + repetees.map(k => '« ' + k + ' » (' + compte[k] + ' fois)').join(' ; ')); } else { ok('pas d’expression répétée d’un texte à l’autre'); }
-      const debuts = {}; textes.forEach(t => { const d = mots(type === 'lettres' ? t.replace(/^\s*(Madame|Monsieur)[^\n]*\n+/i, '') : t).slice(0, 1).join(' '); debuts[d] = (debuts[d] || 0) + 1; });
+      const debuts = {}; textes.forEach(t => { const d = mots(type === 'lettres' || type === 'retravail' ? t.replace(/^\s*(Madame|Monsieur)[^\n]*\n+/i, '') : t).slice(0, 1).join(' '); debuts[d] = (debuts[d] || 0) + 1; });
       const frequent = Object.keys(debuts).filter(d => debuts[d] >= Math.max(3, Math.ceil(textes.length / 4))).map(d => '« ' + d + ' » (' + debuts[d] + ' fois sur ' + textes.length + ')');
       if (frequent.length) { att('débuts de phrase qui se répètent : ' + frequent.join(' ; ')); }
       const g = genre || 'n', avant = alertes;
@@ -266,6 +318,62 @@ function verifier(type, fichier, attendu, genre) {
       if (liste.length > 1) { max > 0.55 ? att('lettres ' + paire + ' très proches (ressemblance ' + Math.round(max * 100) + ' %)') : ok('lettres bien distinctes (ressemblance maximale ' + Math.round(max * 100) + ' %)'); }
       const longueurs = liste.map(x => mots(x.lettre).length); if (longueurs.length > 2) { sortie.push('INFO      : longueur des lettres, dans l’ordre : ' + longueurs.join(', ') + ' mots (si elles raccourcissent vers la fin, l’assistant s’essouffle)'); }
     }
+    if (type === 'retravail') {
+      // Passage 7 : les lettres retravaillées (essai 05_retravail_V1_3.txt : lettres 1 et 2 de l'essai + la 10e, la première avec des remarques).
+      const cibles = [METIERS[0], METIERS[1], METIERS[9]];
+      const interdits = ['je me permets', 'prête à m’engager', 'prêt à m’engager', 'heureuse de pouvoir', 'heureux de pouvoir', 'contente de pouvoir', 'content de pouvoir', 'ravie que', 'ravi que', 'ravie de', 'ravi de', 'contente de', 'content de', 'utile au quotidien', 'sur la durée'];
+      const fins = [];
+      liste.forEach((x, i) => {
+        const t = String(x.lettre || ''), n = mots(t).length, bas2 = t.toLowerCase();
+        if (n > 300) { att('lettre ' + (i + 1) + ' (' + x.metier + ') : ' + n + ' mots (300 au plus, une page A4)'); }
+        if (!/^\s*(Madame|Monsieur)/i.test(t)) { att('lettre ' + (i + 1) + ' : ne commence pas par une formule d’appel'); }
+        if (/camille/i.test(t)) { att('lettre ' + (i + 1) + ' : contient le nom de la personne (la signature est ajoutée par l’application)'); }
+        const trouves = interdits.filter(f => bas2.includes(f)); if (trouves.length) { att('lettre ' + (i + 1) + ' : formules ou engagements ajoutés : ' + trouves.join(', ')); }
+        if ((t.match(/\n\n/g) || []).length < 2) { att('lettre ' + (i + 1) + ' : moins de 3 paragraphes'); }
+        const original = mots(LETTRES_ESSAI[(cibles[i] || {}).metier] || '').length;
+        if (original && !(REMARQUES_ESSAI[(cibles[i] || {}).metier]) && Math.abs(n - original) / original > 0.3) { att('lettre ' + (i + 1) + ' (' + x.metier + ') : sans remarque, elle passe de ' + original + ' à ' + n + ' mots (20 % attendus, 30 % tolérés)'); }
+        const paras = t.trim().split(/\n\n/); let fin = paras.pop().trim(); if (mots(fin).length <= 4 && paras.length) { fin = paras.pop().trim(); } fins.push(fin.toLowerCase());
+      });
+      if (liste[0] && !/bénévol|banque alimentaire/i.test(String(liste[0].lettre))) { att('lettre 1 : la remarque « parler de mon bénévolat » n’est pas suivie'); } else if (liste[0]) { ok('lettre 1 : le bénévolat de la remarque est repris'); }
+      if (new Set(fins).size < fins.length) { att('deux lettres se terminent par la même formule : ' + fins.join(' | ')); } else if (fins.length) { ok('formules de fin toutes différentes'); }
+      const l1 = liste[0] ? mots(liste[0].lettre).length : 0, o1 = mots(LETTRES_ESSAI[METIERS[0].metier]).length;
+      sortie.push('INFO      : lettre 1 (remarque « raccourcir le premier paragraphe », « plus chaleureux ») : ' + o1 + ' mots avant, ' + l1 + ' après ; à RELIRE : le ton est-il plus chaleureux sans formule d’assistant ?');
+    }
+    if (type === 'preparation-general' || type === 'preparation-approfondi') {
+      // Passage 8 : préparations d'entretien. Arguments : <type> <fichier> <nombre de métiers> <f|m|n> [niveau] [nombre de questions].
+      const general = type === 'preparation-general';
+      const niveau = process.argv[7] || (general ? 'realiste' : 'exigeant'), nbQ = parseInt(process.argv[8], 10) || (general ? 5 : 10);
+      const sujetsOk = ['parcours', 'motivation', 'delicat', 'entreprise', 'changement', 'competences', 'situation', 'qualites', 'pratique'], delicats = ['delicat', 'entreprise', 'changement', 'qualites'];
+      const relanceAttendue = /exigeant/.test(niveau);
+      const lim = { question: 18, attente: 12, piste: 25, relance: 10, atout: 15 }, tol = 3;
+      const sensibles = /\b(santé|handicap|enfants?|famille|âge|enceinte|grossesse|religion|origines?|marié|célibataire)\b/i;
+      liste.forEach((x, i) => {
+        const nom = '« ' + (x.metier || ('métier ' + (i + 1))) + ' »', qs = Array.isArray(x.questions) ? x.questions : [];
+        (general ? qs.length === 5 : qs.length === nbQ) ? ok(nom + ' : ' + qs.length + ' questions') : att(nom + ' : ' + qs.length + ' questions au lieu de ' + (general ? 5 : nbQ));
+        let nbDelicat = 0, mots_ = 0;
+        qs.forEach((q, k) => {
+          const rep_ = nom + ' question ' + (k + 1);
+          if (sujetsOk.indexOf(q.sujet) < 0) { att(rep_ + ' : sujet « ' + q.sujet + ' » inconnu'); }
+          const attendu_ = delicats.indexOf(q.sujet) >= 0; if (attendu_ !== !!q.delicate) { att(rep_ + ' : delicate=' + q.delicate + ' alors que le sujet « ' + q.sujet + ' » demande ' + attendu_); }
+          if (q.delicate) { nbDelicat++; }
+          [['question', lim.question], ['attente', lim.attente], ['piste', lim.piste], ['relance', lim.relance]].forEach(([champ, max]) => { const n = mots(q[champ] || '').length; mots_ += n; if (n > max + tol) { att(rep_ + ' : ' + champ + ' de ' + n + ' mots (' + max + ' au plus, ' + tol + ' tolérés)'); } });
+          if (!q.attente) { att(rep_ + ' : pas de « ce que le recruteur cherche »'); }
+          if (!q.piste && !(!general && process.argv[9] === 'sans-pistes')) { att(rep_ + ' : pas de piste de réponse'); }
+          if (relanceAttendue && !q.relance) { att(rep_ + ' : pas de relance alors que le niveau est « ' + niveau + ' »'); }
+          if (!relanceAttendue && q.relance) { att(rep_ + ' : une relance alors que le niveau est « ' + niveau + ' »'); }
+          if (sensibles.test(q.question)) { att(rep_ + ' : question sur un sujet que le recruteur n’a pas le droit d’aborder : ' + q.question); }
+        });
+        const am = Array.isArray(x.aMettreEnAvant) ? x.aMettreEnAvant : [];
+        am.length === 3 ? ok(nom + ' : 3 atouts à mettre en avant') : att(nom + ' : ' + am.length + ' atouts au lieu de 3');
+        am.forEach((a, k) => { const n = mots(a).length; mots_ += n; if (n > lim.atout + tol) { att(nom + ' atout ' + (k + 1) + ' : ' + n + ' mots (' + lim.atout + ' au plus)'); } });
+        if (!qs.some(q => q.sujet === 'delicat')) { att(nom + ' : aucune question sur la période sans activité (« depuis 2024 » est signalée dans la demande)'); } else { ok(nom + ' : la période sans activité est abordée'); }
+        if (new Set(qs.map(q => String(q.question).toLowerCase())).size < qs.length) { att(nom + ' : deux questions identiques'); }
+        sortie.push('INFO      : ' + nom + ' : ' + mots_ + ' mots au total (une page A4 à 11 points en tient environ 480 avec les conseils ; mesure exacte à l’écran)');
+      });
+      const g = genre || 'n'; const joint = JSON.stringify(liste);
+      if (/camille|0612|@/i.test(joint)) { att('la réponse contient un nom, un numéro ou un courriel de la personne'); } else { ok('aucune donnée personnelle dans la réponse'); }
+      if (g === 'f' && /\b(prêt|rigoureux|motivé)\b/i.test(joint)) { att('forme masculine alors que la personne est une femme'); }
+    }
   }
   console.log(sortie.join('\n'));
   console.log('\nRésultat : ' + (alertes ? alertes + ' point(s) à voir (voir ATTENTION ci-dessus), puis RELIRE à la main.' : 'aucune alerte automatique, mais RELIRE à la main (le script ne juge pas la qualité).'));
@@ -274,4 +382,4 @@ function verifier(type, fichier, attendu, genre) {
 const [, , commande, a1, a2, a3, a4] = process.argv;
 if (commande === 'generer') { generer(); }
 else if (commande === 'verifier' && a1 && a2) { verifier(a1, a2, a3 ? parseInt(a3, 10) : null, a4 || 'n'); }
-else { console.log('Usage :\n  node scripts/essai_prompts_ucpm.js generer\n  node scripts/essai_prompts_ucpm.js verifier <metiers|accroches|lettres> <fichier_reponse.txt> [nombre_attendu]'); }
+else { console.log('Usage :\n  node scripts/essai_prompts_ucpm.js generer\n  node scripts/essai_prompts_ucpm.js verifier <metiers|accroches|lettres|retravail|preparation-general|preparation-approfondi> <fichier_reponse.txt> [nombre_attendu] [f|m|n] [niveau] [nombre_de_questions]'); }

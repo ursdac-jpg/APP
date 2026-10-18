@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette détaillée : Mon territoire</title>
+<!-- Les feuilles de style sont CELLES DU SITE (mêmes couleurs d'accent, même mode sombre, mêmes composants). Rien n'est redessiné ici. -->
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  /* Uniquement le chapeau de démonstration (hors module) */
+  body { background: var(--bg-subtle, #eef1f6); }
+  .chapeau { max-width: 1000px; margin: 0 auto; padding: 12px 16px; font-size: .9rem; }
+  .chapeau .vues { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+  .chapeau button, .chapeau select { font-size: .82rem; }
+  .scene { max-width: 1000px; margin: 0 auto 90px; }
+  .cadre { background: var(--bg-body, var(--bg-card)); border: 1px solid var(--border); border-radius: 14px; padding: 8px 4px 20px; }
+  .cadre.tel { width: 390px; max-width: 100%; margin: 0 auto; border-width: 4px; border-radius: 28px; }
+  .ecran { display: none; }
+  .ecran.actif { display: block; }
+  .demo-fenetre { border: 2px dashed var(--accent); border-radius: 14px; padding: 12px; background: var(--bg-card); }
+  .grille-secteurs { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: center; }
+  .barre-navigation-fixe { position: sticky; bottom: 0; }
+</style>
+</head>
+<body>
+
+<div class="chapeau">
+  <strong>Maquette détaillée du module « Mon territoire » (P0.5), brouillon du 2026-10-12, à valider par Denis.</strong>
+  Elle utilise les feuilles de style réelles du site : mêmes couleurs d'accent (le sélecteur ci-dessous les fait varier comme dans les préférences), même mode sombre, mêmes boutons, mêmes encarts, même barre d'étapes, même barre « Retour / Accueil ». Les exemples sont des candidats non vérifiés : aucun téléphone n'est affiché.
+  <div class="vues">
+    Écran :
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('intro')">0 Présentation</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('vide')">11 Pas encore de liste</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('accueil')">1 Accueil</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('recherche')">2 Recherche</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('emploi')">3 Emploi</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('liste')">4 Liste</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('fiche')">5 Fiche employeur</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('concours')">6 Fiche concours</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('structure')">7 Fiche structure</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('cadre')">8 Depuis Comprendre le cadre</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('criteres')">9 Comment on choisit</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="ecran('commune')">10 Choisir sa commune</button>
+  </div>
+  <div class="vues">
+    Affichage :
+    <button class="btn btn-sm btn-outline-secondary" onclick="theme()">Mode sombre / clair</button>
+    <select id="accent" onchange="document.documentElement.setAttribute('data-accent',this.value)">
+      <option value="">Accent bleu (défaut)</option><option value="orange">orange</option><option value="vert">vert</option>
+      <option value="violet">violet</option><option value="turquoise">turquoise</option><option value="framboise">framboise</option>
+    </select>
+    <button class="btn btn-sm btn-outline-secondary" onclick="largeur()">Ordinateur / téléphone</button>
+  </div>
+</div>
+
+<div class="scene"><div class="cadre" id="cadre"><div class="page-catalogue-contenu" id="page">
+
+<!-- ====== 1. ACCUEIL ====== -->
+<section class="ecran actif" id="accueil">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center">
+    <span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte"><span class="pastille-etape-action-icone">&#127968;</span><span class="pastille-etape-action-label">Accueil</span></span>
+    <span class="chevron-etape-action" style="opacity:.4"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action"><span class="pastille-etape-action-icone">&#128203;</span><span class="pastille-etape-action-label">Un domaine</span></span>
+    <span class="chevron-etape-action" style="opacity:.4"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action"><span class="pastille-etape-action-icone">&#128205;</span><span class="pastille-etape-action-label">Une fiche</span></span>
+  </div>
+  <div class="text-center my-2"><button class="btn-revoir-module"><i class="bi bi-geo-alt"></i> Revoir la présentation</button></div>
+  <h1 class="h3 text-center mt-3"><i class="bi bi-geo-alt titre-icone-accent"></i> Mon territoire</h1>
+  <p class="text-center">À qui vous adresser près de chez vous, et où ? Choisissez un domaine, ou tapez ce que vous cherchez.</p>
+
+  <div class="comprendre-le-cadre-encart d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span><i class="bi bi-geo-alt"></i> Votre territoire : <strong>Bergerac, Dordogne (24)</strong></span>
+    <button class="btn btn-sm btn-outline-primary" onclick="ecran('commune')">Changer</button>
+  </div>
+
+  <div class="d-flex gap-2 my-3">
+    <input class="form-control" aria-label="Rechercher" placeholder="Un besoin, un métier, une structure (exemple : pas de voiture)">
+    <button class="btn btn-primary" onclick="ecran('recherche')">Rechercher</button>
+  </div>
+
+  <div class="grille-sous-cartes-accueil" id="domaines"></div>
+
+  <p class="small text-muted mt-3"><i class="bi bi-info-circle"></i> Liste non exhaustive, aucun partenariat, aucune rémunération. Un domaine sans liste le dit clairement : ce n'est pas un oubli de votre part ni un écran cassé.
+    <button class="btn btn-sm btn-outline-secondary ms-1" onclick="ecran('criteres')">Comment on choisit</button></p>
+</section>
+
+<!-- ====== 2. RECHERCHE ====== -->
+<section class="ecran" id="recherche">
+  <div class="d-flex gap-2 my-3">
+    <input class="form-control" aria-label="Rechercher" value="pas de voiture">
+    <button class="btn btn-primary">Rechercher</button>
+  </div>
+  <p class="small text-muted">Résultats pour « pas de voiture » à Bergerac. La même recherche existe sur l'accueil de l'application : mêmes groupes, mêmes mots.</p>
+  <h2 class="h5 fw-bold text-uppercase text-muted mt-3">Où vous adresser près de chez vous</h2>
+  <div class="comprendre-le-cadre-encart mb-2"><span class="d-block fw-semibold">Plateforme mobilité de la Dordogne</span><span class="d-block small">Diagnostic mobilité, accompagnement, location solidaire, sur prescription d'un conseiller.</span><span class="d-block small text-muted mt-1"><i class="bi bi-clock-history"></i> Type : mobilité solidaire</span></div>
+  <div class="comprendre-le-cadre-encart mb-2"><span class="d-block fw-semibold">Garage solidaire, auto-école sociale (structures de Dordogne)</span><span class="d-block small text-muted mt-1"><i class="bi bi-clock-history"></i> Type : mobilité solidaire</span></div>
+  <h2 class="h5 fw-bold text-uppercase text-muted mt-4">Pour comprendre (Comprendre le cadre)</h2>
+  <div class="comprendre-le-cadre-encart mb-2"><span class="d-block fw-semibold">Mobilité : permis, garage solidaire, aide à la mobilité</span><button class="btn btn-sm btn-outline-primary mt-1" onclick="ecran('cadre')">Ouvrir ce rayon</button></div>
+  <h2 class="h5 fw-bold text-uppercase text-muted mt-4">Employeurs</h2>
+  <p class="small text-muted">Aucun employeur ne correspond à « pas de voiture ». Essayez un métier ou un secteur.</p>
+</section>
+
+<!-- ====== 3. EMPLOI ====== -->
+<section class="ecran" id="emploi">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center">
+    <span class="pastille-etape-action pastille-etape-action-validee"><span class="pastille-etape-action-icone">&#127968;</span><span class="pastille-etape-action-label">Accueil</span></span>
+    <span class="chevron-etape-action"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte"><span class="pastille-etape-action-icone">&#128203;</span><span class="pastille-etape-action-label">Un domaine</span></span>
+    <span class="chevron-etape-action" style="opacity:.4"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action"><span class="pastille-etape-action-icone">&#128205;</span><span class="pastille-etape-action-label">Une fiche</span></span>
+  </div>
+  <h1 class="h3 text-center mt-3"><i class="bi bi-briefcase titre-icone-accent"></i> Emploi : les employeurs de mon territoire</h1>
+  <p class="text-center">On montre des portes, pas des annonces : des employeurs installés, où l'on peut se présenter, candidater ou passer un concours.</p>
+  <div class="d-flex gap-2 my-3"><input class="form-control" aria-label="Secteur ou métier" placeholder="Un secteur ou un métier (exemple : caissier)"><button class="btn btn-primary">Chercher</button></div>
+  <h2 class="h5 fw-bold text-uppercase text-muted mt-3">Les 21 secteurs</h2>
+  <p class="small text-muted">Les secteurs qui ont une liste passent en premier, les autres suivent dans l'ordre de l'application. Chaque secteur a son objet-icône, dans la couleur d'accent du site, et trois exemples de métiers (dans le vrai module, ces exemples viennent des fiches de métiers existantes).</p>
+  <div class="grille-sous-cartes-accueil" id="secteurs"></div>
+  <h2 class="h5 fw-bold text-uppercase text-muted mt-4">Autres portes d'entrée</h2>
+  <div class="grille-sous-cartes-accueil">
+    <button class="sous-carte-accueil"><i class="bi bi-arrow-repeat"></i><strong>Agences d'intérim</strong><span>Inscription possible dans tous les secteurs</span><span class="badge text-bg-light mt-1">Pas encore de liste</span></button>
+    <button class="sous-carte-accueil"><i class="bi bi-signpost-split"></i><strong>Insertion par l'activité économique</strong><span>On y entre par un conseiller</span><span class="badge text-bg-light mt-1">Pas encore de liste</span></button>
+    <button class="sous-carte-accueil" onclick="ecran('concours')"><i class="bi bi-bank"></i><strong>Fonction publique</strong><span>Concours et portails officiels</span><span class="badge text-bg-light mt-1">Exemple</span></button>
+  </div>
+  <div class="comprendre-le-cadre-encart mt-4"><i class="bi bi-search"></i> Vous ne trouvez pas ? Chercher par vous-même sur un site officiel.
+    <button class="btn btn-sm btn-outline-secondary ms-1"><i class="bi bi-box-arrow-up-right"></i> La Bonne Boîte (vous quittez l'application)</button></div>
+</section>
+
+<!-- ====== 4. LISTE ====== -->
+<section class="ecran" id="liste">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center">
+    <span class="pastille-etape-action pastille-etape-action-validee"><span class="pastille-etape-action-icone">&#127968;</span><span class="pastille-etape-action-label">Accueil</span></span>
+    <span class="chevron-etape-action"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte"><span class="pastille-etape-action-icone">&#128203;</span><span class="pastille-etape-action-label">Un domaine</span></span>
+    <span class="chevron-etape-action" style="opacity:.4"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action"><span class="pastille-etape-action-icone">&#128205;</span><span class="pastille-etape-action-label">Une fiche</span></span>
+  </div>
+  <h1 class="h3 text-center mt-3"><i class="bi bi-basket titre-icone-accent"></i> Commerce et vente, autour de Bergerac</h1>
+  <div class="d-flex flex-wrap gap-2 justify-content-center my-2">
+    <button class="btn btn-sm btn-primary">Tous</button><button class="btn btn-sm btn-outline-primary">Enseignes</button><button class="btn btn-sm btn-outline-primary">Employeurs locaux</button>
+  </div>
+  <p class="small text-muted text-center">Par ordre alphabétique : ce n'est pas un classement. 4 enseignes repérées, vérifiées le [date]. Exemples non vérifiés dans cette maquette.</p>
+  <div class="comprendre-le-cadre-encart mb-2 d-flex justify-content-between align-items-center gap-2"><div><span class="d-block fw-semibold">Aldi</span><span class="d-block small">Enseigne · Bergerac</span></div><button class="btn btn-sm btn-primary" onclick="ecran('fiche')">Voir la fiche</button></div>
+  <div class="comprendre-le-cadre-encart mb-2 d-flex justify-content-between align-items-center gap-2"><div><span class="d-block fw-semibold">Carrefour Market</span><span class="d-block small">Enseigne · Bergerac</span></div><button class="btn btn-sm btn-primary" onclick="ecran('fiche')">Voir la fiche</button></div>
+  <div class="comprendre-le-cadre-encart mb-2 d-flex justify-content-between align-items-center gap-2"><div><span class="d-block fw-semibold">Intermarché</span><span class="d-block small">Enseigne · Bergerac, Creysse</span></div><button class="btn btn-sm btn-primary" onclick="ecran('fiche')">Voir la fiche</button></div>
+  <div class="comprendre-le-cadre-encart mb-2 d-flex justify-content-between align-items-center gap-2"><div><span class="d-block fw-semibold">Lidl</span><span class="d-block small">Enseigne · Bergerac</span></div><button class="btn btn-sm btn-primary" onclick="ecran('fiche')">Voir la fiche</button></div>
+  <div class="text-center"><p class="small text-muted mb-1">4 employeurs affichés sur 4. (Quand une liste dépasse 10 lignes, un bouton « Afficher les 10 suivants » apparaît ici.)</p>
+  <button class="btn btn-outline-secondary"><i class="bi bi-box-arrow-up-right"></i> Autres employeurs du même secteur (La Bonne Boîte)</button></div>
+</section>
+
+<!-- ====== 5. FICHE EMPLOYEUR ====== -->
+<section class="ecran" id="fiche">
+  <div class="barre-etapes-bilan d-flex justify-content-center align-items-center">
+    <span class="pastille-etape-action pastille-etape-action-validee"><span class="pastille-etape-action-icone">&#127968;</span><span class="pastille-etape-action-label">Accueil</span></span>
+    <span class="chevron-etape-action"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action pastille-etape-action-validee"><span class="pastille-etape-action-icone">&#128203;</span><span class="pastille-etape-action-label">Un domaine</span></span>
+    <span class="chevron-etape-action"><i class="bi bi-chevron-double-right"></i></span>
+    <span class="pastille-etape-action pastille-etape-action-courante pastille-etape-action-ouverte"><span class="pastille-etape-action-icone">&#128205;</span><span class="pastille-etape-action-label">Une fiche</span></span>
+  </div>
+  <h1 class="h3 mt-3">Lidl <small class="text-muted fs-6">(exemple)</small></h1>
+  <div class="comprendre-le-cadre-encart mb-3">
+    <span class="d-block"><i class="bi bi-geo-alt"></i> <strong>Où</strong> : Bergerac, avenue Pasteur <button class="btn btn-sm btn-outline-secondary ms-1">Copier l'adresse</button></span>
+    <span class="d-block"><i class="bi bi-calendar3"></i> <strong>Inscrit au registre des entreprises</strong> : 1994 <em class="small text-muted">(information de départ à reprendre ou retirer : cette date n'est pas toujours celle d'ouverture du magasin, voir la seconde passe critique)</em></span>
+    <span class="d-block"><i class="bi bi-telephone"></i> <strong>Téléphone du standard</strong> : à relever</span>
+    <span class="d-block"><i class="bi bi-clock-history"></i> <strong>Vérifié le</strong> : pas encore vérifié</span>
+  </div>
+  <details class="bloc-depli bd-ok" open><summary>Comment candidater ici ?</summary><div class="bloc-depli-corps">
+    <span class="badge rounded-pill text-bg-light">Candidature spontanée : non indiqué par l'entreprise</span>
+    <span class="badge rounded-pill text-bg-light">Concours : non</span>
+    <span class="badge rounded-pill text-bg-light">Page de recrutement : à vérifier</span>
+    <p class="small text-muted mt-2 mb-0">Ces repères informent, ils ne sont pas à cocher. Rien n'est dit sur la fréquence des recrutements : nous ne la connaissons pas.</p>
+  </div></details>
+  <details class="bloc-depli bd-warn" open><summary>Avant d'y aller</summary><div class="bloc-depli-corps">
+    <ul class="mb-0"><li>Téléphonez d'abord pour demander à qui remettre votre candidature.</li><li>Ayez votre CV à jour sur vous, ou envoyez-le avant.</li><li>Préparez une phrase simple : qui vous êtes, le poste qui vous intéresse.</li></ul>
+  </div></details>
+  <details class="bloc-depli bd-ok"><summary>Pour ce secteur (Commerce et vente)</summary><div class="bloc-depli-corps d-flex flex-wrap gap-2">
+    <button class="btn btn-outline-primary btn-sm">Me former pour ce secteur</button>
+    <button class="btn btn-outline-primary btn-sm">Voir les métiers de ce secteur</button>
+    <button class="btn btn-outline-primary btn-sm">Écrire une candidature spontanée à cet employeur</button>
+  </div></details>
+  <div class="d-flex flex-wrap gap-2 mt-3">
+    <button class="btn btn-primary"><i class="bi bi-telephone"></i> Appeler (quand le numéro sera vérifié)</button>
+    <button class="btn btn-outline-primary"><i class="bi bi-box-arrow-up-right"></i> Voir le site (vous quittez l'application)</button>
+  </div>
+  <p class="small text-muted mt-3">Ni recommandation ni garantie de recrutement.</p>
+</section>
+
+<!-- ====== 6. FICHE CONCOURS ====== -->
+<section class="ecran" id="concours">
+  <h1 class="h3 mt-3"><i class="bi bi-bank titre-icone-accent"></i> Fonction publique : entrer par concours <small class="text-muted fs-6">(exemple de structure de fiche)</small></h1>
+  <div class="comprendre-le-cadre-encart mb-3"><i class="bi bi-info-circle"></i> Ici, on ne se présente pas spontanément : on passe par un <strong>concours</strong> ou un <strong>portail officiel</strong>. Cette fiche vous dit où et comment, sans recopier les conditions qui changent.</div>
+  <details class="bloc-depli bd-ok" open><summary>Comment candidater ici ?</summary><div class="bloc-depli-corps">
+    <span class="badge rounded-pill text-bg-light">Concours : oui</span><span class="badge rounded-pill text-bg-light">Portail officiel : oui</span><span class="badge rounded-pill text-bg-light">Candidature spontanée : non</span>
+  </div></details>
+  <details class="bloc-depli bd-warn" open><summary>Ce qu'il faut savoir avant de s'inscrire</summary><div class="bloc-depli-corps">
+    <p class="mb-1">Les conditions (âge, nationalité, diplôme, dates des sessions) changent d'une année à l'autre : elles sont sur le site officiel, daté ici.</p>
+    <p class="mb-0"><button class="btn btn-sm btn-outline-primary">Comprendre les concours (Comprendre le cadre)</button> <button class="btn btn-sm btn-outline-primary"><i class="bi bi-box-arrow-up-right"></i> Portail officiel, vérifié le [date]</button></p>
+  </div></details>
+  <details class="bloc-depli bd-ok"><summary>Employeurs publics près de chez vous</summary><div class="bloc-depli-corps">Mairies, communautés de communes, département, hôpital : une ligne par employeur, avec le service des ressources humaines et la façon de candidater. <span class="badge text-bg-light">Pas encore de liste</span></div></details>
+</section>
+
+<!-- ====== 7. FICHE STRUCTURE ====== -->
+<section class="ecran" id="structure">
+  <h1 class="h3 mt-3">Mission locale <small class="text-muted fs-6">(exemple de fiche structure)</small></h1>
+  <p>Accompagnement des 16-25 ans : emploi, formation, logement, santé, mobilité.</p>
+  <div class="comprendre-le-cadre-encart mb-3"><i class="bi bi-geo-alt"></i> En Dordogne il existe <strong>plusieurs Missions locales</strong> : laquelle est la vôtre dépend de votre commune de résidence.</div>
+  <h2 class="h5 fw-bold text-uppercase text-muted">Pour votre commune (Bergerac)</h2>
+  <div class="comprendre-le-cadre-encart mb-2"><span class="d-block fw-semibold">Mission locale du Bergeracois</span><span class="d-block small">Elle couvre votre commune. Téléphone : à relever.</span><span class="comprendre-le-cadre-source-date">vérifiée le [date]</span>
+    <div class="mt-2"><button class="btn btn-sm btn-primary">Appeler</button> <button class="btn btn-sm btn-outline-primary">Comprendre ce dispositif</button></div></div>
+  <details class="bloc-depli bd-warn"><summary>Votre commune n'est pas connue ?</summary><div class="bloc-depli-corps">Nous affichons alors les trois Missions locales du département, avec « selon votre commune de résidence » : Bergeracois, Grand Périgueux, Périgord Noir. <button class="btn btn-sm btn-outline-secondary" onclick="ecran('commune')">Indiquer ma commune</button></div></details>
+</section>
+
+<!-- ====== 8. DEPUIS COMPRENDRE LE CADRE ====== -->
+<section class="ecran" id="cadre">
+  <h1 class="h3 mt-3"><i class="bi bi-house titre-icone-accent"></i> Entrer dans un logement : la garantie Visale <small class="text-muted fs-6">(fiche de Comprendre le cadre)</small></h1>
+  <p class="text-muted">L'explication de la fiche reste ici, comme aujourd'hui. Ce qui change : le bloc ci-dessous, alimenté par le répertoire.</p>
+  <div class="comprendre-le-cadre-encart"><i class="bi bi-geo-alt"></i> <strong>Où m'adresser près de chez moi</strong>
+    <span class="d-block small mt-1">Pour ce sujet : un CCAS, un foyer de jeunes travailleurs, l'ADIL.</span>
+    <button class="btn btn-primary btn-sm mt-2">Voir près de chez moi (Mon territoire)</button>
+    <span class="d-block small text-muted mt-1">Au clic : vous ouvrez Mon territoire. Le bouton « Revenir à Comprendre le cadre » vous ramènera à cette fiche exacte.</span></div>
+  <p class="small text-muted mt-3"><i class="bi bi-arrow-return-left"></i> Au retour : « Revenir à Comprendre le cadre » (même bouton commun que pour le Lexique).</p>
+</section>
+
+<!-- ====== 9. COMMENT ON CHOISIT ====== -->
+<section class="ecran" id="criteres">
+  <h1 class="h3 mt-3"><i class="bi bi-clipboard-check titre-icone-accent"></i> Comment les fiches sont choisies</h1>
+  <details class="bloc-depli bd-ok" open><summary>Ce que nous vérifions</summary><div class="bloc-depli-corps"><ul class="mb-0"><li>L'établissement existe légalement (registre officiel des entreprises).</li><li>Il est situé sur le territoire indiqué.</li><li>Les coordonnées publiques viennent de son site, avec la date de vérification.</li></ul></div></details>
+  <details class="bloc-depli bd-warn" open><summary>Ce que nous ne faisons pas</summary><div class="bloc-depli-corps"><ul class="mb-0"><li>Pas de classement, pas de recommandation, pas de garantie de recrutement.</li><li>Pas d'offres d'emploi : pour les offres du moment, un assistant en ligne peut aider, hors de cette application.</li><li>Aucun partenariat, aucune rémunération.</li><li>Jamais le nom d'une personne : seulement des coordonnées d'organisme.</li></ul></div></details>
+  <details class="bloc-depli bd-ok"><summary>Vérification et mise à jour</summary><div class="bloc-depli-corps">Chaque fiche porte la date de sa dernière vérification. Une fiche vérifiée depuis plus d'un an est marquée « à revérifier ». <em>(Le moyen de signaler une erreur sera ajouté quand une adresse de réception existera : décision D6, bouton retiré en attendant.)</em></div></details>
+</section>
+
+<!-- ====== 11. PAS ENCORE DE LISTE (un domaine, un secteur ou un territoire sans liste) ====== -->
+<section class="ecran" id="vide">
+  <h1 class="h3 mt-3"><i class="bi bi-hourglass-split titre-icone-accent"></i> Pas encore de liste ici</h1>
+  <div class="comprendre-le-cadre-encart mb-3"><i class="bi bi-info-circle"></i> Nous n'avons pas encore de liste vérifiée pour ce domaine ou ce secteur. Ce n'est ni une erreur ni un oubli de votre part : les listes se construisent petit à petit.</div>
+  <p>En attendant, vous pouvez :</p>
+  <div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-primary"><i class="bi bi-box-arrow-up-right"></i> Chercher par vous-même (site officiel, vous quittez l'application)</button><button class="btn btn-outline-primary" onclick="ecran('accueil')">Voir un domaine qui a une liste</button></div>
+</section>
+
+<!-- ====== 0. PRESENTATION (arrivée depuis l'accueil de l'application, règle « Retour ne saute jamais l'intro ») ====== -->
+<section class="ecran" id="intro">
+  <h1 class="h3 mt-3 text-center"><i class="bi bi-geo-alt titre-icone-accent"></i> Mon territoire</h1>
+  <p class="text-center">Vous cherchez à qui vous adresser près de chez vous ? Ici, on vous montre où aller et à qui téléphoner.</p>
+  <details class="bloc-depli bd-ok" open><summary>À quoi ça sert</summary><div class="bloc-depli-corps">Retrouver, sur votre territoire, des employeurs, des organismes de formation et des structures pour vous aider. Chaque fiche dit où c'est, comment les joindre et quand l'information a été vérifiée.</div></details>
+  <details class="bloc-depli bd-warn" open><summary>Ce que ce module ne fait pas</summary><div class="bloc-depli-corps">Il ne publie pas d'offres d'emploi, ne classe personne et ne garantit pas qu'un employeur recrute.</div></details>
+  <p class="small text-muted">Texte complet proposé dans <code>docs/TEXTES_MON_TERRITOIRE_A_VALIDER_2026-10-12.md</code>. Le bouton ci-dessous est le seul moyen d'entrer : « Retour » depuis l'accueil du module ramène ici.</p>
+  <div class="text-center"><button class="btn btn-primary btn-lg" onclick="ecran('accueil')">Ouvrir Mon territoire &#8594;</button></div>
+</section>
+
+<!-- ====== 10. COMMUNE (seule fenêtre prévue) ====== -->
+<section class="ecran" id="commune">
+  <p class="small text-muted"><strong>Point à trancher (D9) :</strong> recommandation de Claude = un champ de commune sur la page d'accueil du module (bouton « Changer »), sans fenêtre, pour ne pas modifier la fonction partagée du département. Cet écran montre l'autre option. Seule fenêtre prévue à ce stade : l'action précise « choisir ma commune ». C'est la <strong>fenêtre commune existante</strong> « Votre département » (même cadre, mêmes tuiles), à laquelle on ajoute la commune. Elle n'est pas recréée.</p>
+  <div class="demo-fenetre">
+    <h2 class="h5"><i class="bi bi-geo-alt titre-icone-accent"></i> Votre territoire</h2>
+    <p>Dans quel département êtes-vous, puis dans quelle commune ? Cette information reste sur votre appareil.</p>
+    <div class="grille-sous-cartes-accueil">
+      <button class="sous-carte-accueil"><i class="bi bi-geo-alt"></i><strong>Dordogne (24)</strong><span>Région Nouvelle-Aquitaine</span></button>
+      <button class="sous-carte-accueil"><i class="bi bi-geo-alt"></i><strong>Haute-Vienne (87)</strong><span>Pas encore de liste locale</span></button>
+      <button class="sous-carte-accueil"><i class="bi bi-question-circle"></i><strong>Un autre département</strong><span>Informations nationales seulement</span></button>
+    </div>
+    <div class="d-flex gap-2 mt-3"><input class="form-control" aria-label="Ma commune" placeholder="Ma commune (exemple : Bergerac)"><button class="btn btn-primary">Valider</button></div>
+    <p class="small text-muted mt-2 mb-0">Vous ne la connaissez pas ou ne voulez pas la donner : vous pouvez continuer sans. Nous affichons alors toutes les structures du département.</p>
+  </div>
+</section>
+
+</div>
+<div class="barre-navigation-fixe"><div class="d-flex justify-content-between align-items-center mt-4 barre-navigation">
+  <button class="btn btn-nav-erip btn-lg" onclick="retour()">&#8592; Retour</button>
+  <button class="btn btn-nav-erip btn-accueil" onclick="ecran('accueil')"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>
+</div></div>
+</div></div>
+
+<details class="chapeau"><summary><strong>Composants réels réutilisés (pour l'audit P0.6)</strong></summary>
+<ul>
+<li>Barre d'étapes du module : <code>barreEtapesModule()</code>, trois étapes : Accueil, Un domaine, Une fiche.</li>
+<li>Bouton « Revoir la présentation » : <code>htmlBoutonRevoirModule()</code> ; page de présentation du module au patron de <code>LANGAGE_VISUEL_COMMUN.md</code> section 5 (famille 1 : consultation).</li>
+<li>Tuiles : <code>.grille-sous-cartes-accueil</code> / <code>.sous-carte-accueil</code> ; encarts : <code>.comprendre-le-cadre-encart</code> ; dépliants : <code>.bloc-depli</code> ; pastilles : <code>badge rounded-pill</code>.</li>
+<li>Barre fixe « Retour / Accueil » : <code>barreNavigation()</code> ; retour entre modules : <code>definirRetourModuleExterne()</code> (retour exact à la fiche d'origine).</li>
+<li>Fenêtre : la fenêtre commune <code>demanderDepartementSiInconnu()</code> (<code>ouvrirFenetreERIP</code>), seule fenêtre prévue ; tout le reste est sur la page du module.</li>
+<li>Couleur d'accent : variable <code>--accent</code> des préférences du site, jamais une couleur propre au module. Mode sombre : celui du site.</li>
+<li>Recherche : groupe « Mon territoire » dans <code>rechercherBaseConnaissances()</code> (accueil) et recherche propre au module.</li>
+</ul></details>
+
+<script>
+var DOMAINES=[['Emploi','bi-briefcase','Les employeurs, par secteur','emploi'],['Formation','bi-mortarboard','Centres et organismes','x'],['Social','bi-people','Logement, mobilité, accompagnement','x'],['Vie pratique','bi-basket','Santé, garde d\'enfant','x'],['Fonction publique','bi-bank','Concours et portails','concours'],['Armées','bi-shield','Information et recrutement','x'],['Appui aux employeurs','bi-building','Aides et organismes','x'],['Créer son activité','bi-rocket-takeoff','Aide à la création','x'],['Accueil et langue','bi-globe2','Français, venir de l\'étranger','x'],['Droits et justice','bi-journal-text','Accès au droit','x']];
+var SECTEURS=[
+['Commerce et vente','bi-cart3','caissier, vendeur, employé libre-service',1],
+['Bâtiment et travaux publics','bi-bricks','maçon, électricien, plombier',0],
+['Industrie, production et énergie','bi-gear-wide-connected','opérateur, soudeur, cariste',0],
+['Hôtellerie, restauration et tourisme','bi-cup-hot','serveur, cuisinier, employé d’étage',0],
+['Agriculture, nature et espaces verts','bi-flower2','ouvrier agricole, jardinier, paysagiste',0],
+['Transport et logistique','bi-truck','chauffeur, préparateur de commandes',0],
+['Santé et soins','bi-heart-pulse','aide-soignant, infirmier, ambulancier',0],
+['Social et services à la personne','bi-house-heart','aide à domicile, auxiliaire de vie',0],
+['Administration, gestion et bureau','bi-folder2','secrétaire, agent d’accueil, comptable',0],
+['Communication, culture et événementiel','bi-megaphone','chargé de communication, technicien son',0],
+['Métiers animaliers','bi-feather','soigneur, toiletteur, éleveur',0],
+['Propreté et gestion des déchets','bi-recycle','agent d’entretien, agent de collecte',0],
+['Sport, animation et loisirs','bi-trophy','animateur, éducateur sportif',0],
+['Informatique et numérique','bi-laptop','développeur, technicien de maintenance',0],
+['Banque, assurance et immobilier','bi-piggy-bank','conseiller clientèle, agent immobilier',0],
+['Artisanat et création','bi-tools','menuisier, couturier, céramiste',0],
+['Métiers de bouche (artisanat)','bi-egg-fried','boulanger, boucher, pâtissier',0],
+['Éducation et formation','bi-book','formateur, assistant d’éducation',0],
+['Mécanique et automobile','bi-wrench','mécanicien, carrossier',0],
+['Sécurité','bi-shield-check','agent de sécurité, télésurveillance',0],
+['Coiffure et esthétique','bi-scissors','coiffeur, esthéticien',0]];
+document.getElementById('domaines').innerHTML=DOMAINES.map(function(d){var ok=d[3]!=='x';return '<button class="sous-carte-accueil" onclick="ecran(\''+(ok?d[3]:'vide')+'\')"><i class="bi '+d[1]+'"></i><strong>'+d[0]+'</strong><span>'+d[2]+'</span>'+(ok?'':'<span class="badge text-bg-light mt-1">Pas encore de liste</span>')+'</button>';}).join('');
+document.getElementById('secteurs').innerHTML=SECTEURS.map(function(x){var ok=x[3]===1;return '<button class="sous-carte-accueil" '+(ok?'onclick="ecran(\'liste\')"':'onclick="ecran(\'vide\')" style="opacity:.8"')+'><i class="bi '+x[1]+'"></i><strong>'+x[0]+'</strong><span>'+x[2]+'</span>'+(ok?'<span class="badge text-bg-primary mt-1">4 enseignes (exemple)</span>':'<span class="badge text-bg-light mt-1">Pas encore de liste</span>')+'</button>';}).join('');
+var pile=['accueil'];
+function ecran(id){document.querySelectorAll('.ecran').forEach(function(e){e.classList.toggle('actif',e.id===id)});if(pile[pile.length-1]!==id)pile.push(id);window.scrollTo(0,0)}
+function retour(){if(pile.length>1){pile.pop();var id=pile[pile.length-1];document.querySelectorAll('.ecran').forEach(function(e){e.classList.toggle('actif',e.id===id)});}}
+function theme(){var h=document.documentElement;h.setAttribute('data-theme',h.getAttribute('data-theme')==='sombre'?'clair':'sombre')}
+function largeur(){document.getElementById('cadre').classList.toggle('tel')}
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+
+# Exemples de CV de tiers (captures Reddit, donnees personnelles masquees) : references de travail, jamais publiees
+docs/modeles_exemples/
+A_envoyer_sur_GitHub/
+
+# Sorties temporaires du banc de rendu des CV (scripts/rendu/) : seuls les fichiers copies ailleurs sont suivis
+scripts/rendu/sortie/
+
+# Dernier resultat du controle automatique du sas des employeurs (outil de veille, poste de Denis) : jamais envoye sur GitHub
+outils/controles/

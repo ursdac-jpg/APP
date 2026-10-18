@@ -17,19 +17,9 @@ sources:
 structures:
   - "mes-aides-france-travail | Mes aides France Travail : annuaire des aides à la mobilité, des garages solidaires et des plateformes mobilité, filtrable par territoire | https://mes-aides.francetravail.fr/ | 2026-09-04"
   - "france-mobilites-solutions | France Mobilités : recensement des solutions de mobilité solidaire par territoire | https://www.francemobilites.fr/ | 2026-09-04"
-  - "plateforme-mobilite-dordogne | Plateforme mobilité de la Dordogne : diagnostic mobilité, accompagnement, location solidaire, sur prescription d'un conseiller ou d'un travailleur social | https://mes-aides.francetravail.fr/regions/nouvelle-aquitaine | 2026-09-04"
-  - "conseil-regional-nouvelle-aquitaine-transports | Région Nouvelle-Aquitaine, service des transports : Carte Solidaire (réduction de 80 % sur trains et cars régionaux), transport à la demande | https://transports.nouvelle-aquitaine.fr/ | 2026-09-04"
   - "covoit-modalis | Covoit' Modalis : application publique et gratuite de covoiturage de la région Nouvelle-Aquitaine, y compris pour les trajets domicile-travail | https://covoit.modalis.fr/ | 2026-09-04"
-  - "conseil-departemental-dordogne-mobilite | Conseil départemental de la Dordogne : aides individuelles à la mobilité pour les allocataires du RSA, fonds d'aide aux jeunes pour le permis | https://www.dordogne.fr/ | 2026-09-04"
-  - "mission-locale-perigord | Missions locales du Périgord : fonds d'aide aux jeunes, aides au permis et à la mobilité pour les moins de 26 ans | https://www.mission-locale.fr/ | 2026-09-04"
-  - "auto-ecoles-associatives-sociales | Auto-écoles associatives et sociales : préparation au permis à tarif adapté, sur orientation d'un travailleur social ou d'un conseiller emploi | https://mes-aides.francetravail.fr/mobilite | 2026-09-04"
-  - "asso-afac-24 | AFAC 24 (Association Formation Avenir Conseil) : garage solidaire à Coulounieix-Chamiers et Bergerac, location de véhicules à tarif social, ateliers chantiers d'insertion (24) | https://afac24.com/ | 2026-09-06"
-  - "asso-auto-mobilite-solidaire-dordogne | Auto-Mobilité Solidaire Dordogne : auto-école sociale à Périgueux, préparation au permis B, formule « 1 euro par jour » pour les personnes en difficulté (24) | https://automobilitesolida.wixsite.com/website | 2026-09-06"
-  - "asso-plateforme-must | Plateforme MUST : plateforme mobilité du Grand Périgueux, information, conseil et solutions matérielles pour se déplacer vers l'emploi (24) | https://www.plateforme-must.fr/ | 2026-09-06"
-  - "asso-mobilim-87 | Mobilim 87 (association Varlin Pont-Neuf) : garage solidaire à Limoges, réparation, vente et location de véhicules à prix solidaires, école de vélo (87) | https://mobilim87.fr/ | 2026-09-06"
   - "asso-mission-locale-du-bergeracois-24 | Mission locale du Bergeracois : fonds d'aide aux jeunes et aides à la mobilité pour les 16-25 ans du Sud Dordogne (24) | https://www.missionlocaledubergeracois.com/ | 2026-09-07"
   - "asso-mission-locale-du-grand-perigueux-24 | Mission locale du Grand Périgueux : fonds d'aide aux jeunes et aides à la mobilité pour les 16-25 ans de la communauté d'agglomération du Grand Périgueux (24) | https://www.ml-grandperigueux.fr/ | 2026-09-07"
-  - "asso-atchoum-24 | Atchoum : plateforme de transport solidaire (conducteurs bénévoles pour les personnes non motorisées ou isolées : rendez-vous, courses, visites), déployée par des communautés de communes de Dordogne dont le Périgord Noir (24) | https://www.atchoum.eu/ | 2026-09-07"
 ---
 
 MATÉRIAU BRUT, rayon « Mobilité ».

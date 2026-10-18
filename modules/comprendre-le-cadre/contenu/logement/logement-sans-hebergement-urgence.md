@@ -7,7 +7,7 @@ tags: [sans abri, hébergement d'urgence, 115, SIAO, maraude, accueil de jour, d
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "115"
     definition: "Numéro gratuit, joignable jour et nuit, pour une personne sans hébergement. Il oriente vers une place d'hébergement d'urgence quand il y en a une."

@@ -7,7 +7,7 @@ tags: [AGEFIPH, aides financières, travailleur handicapé, aménagement, format
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "AGEFIPH"
     definition: "Association pour la gestion du fonds pour l'insertion professionnelle des personnes handicapées. Elle finance des aides et des services pour l'emploi des personnes handicapées du secteur privé."
@@ -28,10 +28,10 @@ collecte: handicap.collecte.md
 
 L'AGEFIPH aide les personnes handicapées du secteur privé à chaque étape de leur parcours professionnel : se former, être recrutée, s'intégrer dans l'entreprise, créer son activité, ou garder son emploi.
 
-Ses aides financières couvrent, par exemple, l'aménagement du poste et des situations de travail, l'aide à la mobilité, l'aide au parcours vers l'emploi, l'aide à la formation, l'aide à la création d'entreprise. Elle propose aussi des appuis spécifiques, assurés par des experts d'un type de handicap.
+Ses aides financières couvrent, par exemple, l'aménagement du poste et des situations de travail, l'aide aux déplacements, l'aide au parcours vers l'emploi, l'adaptation des situations de formation, l'aide à la création d'entreprise. Elle propose aussi des appuis spécifiques, assurés par des experts d'un type de handicap.
 
 Ces aides ne remplacent pas les dispositifs ouverts à tous : elles viennent en complément, pour compenser les conséquences du handicap sur le travail.
 
-Important : l'offre de l'AGEFIPH a été revue le 1er octobre 2025. Les montants et les conditions ont changé. Vérifiez toujours l'aide en cours sur le site de l'AGEFIPH, ou demandez à Cap emploi, qui connaît les aides mobilisables dans votre cas.
+Important : l'offre de l'AGEFIPH a été revue le 1er octobre 2025, puis son guide des aides a été mis à jour en janvier 2026. Les montants et les conditions ont changé. Vérifiez toujours l'aide en cours sur le site de l'AGEFIPH, ou demandez à Cap emploi, qui connaît les aides mobilisables dans votre cas.
 
 Ce n'est pas vous qui gérez ces aides seul : elles se montent avec votre conseiller Cap emploi, votre employeur, ou l'organisme de formation, selon la situation.

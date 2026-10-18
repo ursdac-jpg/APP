@@ -7,7 +7,7 @@ tags: [APL, ALS, ALF, aide au logement, CAF, MSA, loyer, ressources]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "APL"
     definition: "Aide personnalisée au logement. Elle concerne les logements conventionnés, c'est-à-dire ayant fait l'objet d'un accord entre le propriétaire et l'État."
@@ -32,5 +32,7 @@ Pour y avoir droit, le logement doit être votre résidence principale, décent,
 Vos ressources sont recalculées tous les trois mois, sur la base des douze derniers mois : si vos revenus baissent, l'aide augmente sans que vous ayez de démarche à faire, à condition de bien déclarer vos changements.
 
 La demande se fait en ligne, sur le site de la CAF ou de la MSA. L'aide est le plus souvent versée directement au propriétaire, qui la déduit de votre loyer. Elle commence le mois qui suit votre demande : pensez à faire la démarche dès l'entrée dans le logement.
+
+Depuis le 1er juillet 2026, un étudiant étranger hors Europe n'y a droit que s'il touche une bourse sur critères sociaux, s'il travaille ou s'il est en alternance.
 
 Elle n'est pas versée si votre propriétaire est un de vos parents ou grands-parents. Pour une simulation, utilisez l'outil sur le site de la CAF.

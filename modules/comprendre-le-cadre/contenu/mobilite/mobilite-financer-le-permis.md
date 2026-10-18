@@ -7,7 +7,7 @@ tags: [permis de conduire, financer le permis, permis à 1 euro, CPF, fonds d'ai
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "permis à 1 euro par jour"
     definition: "Prêt à taux zéro pour financer le permis, réservé aux 15-25 ans à la première inscription. L'État paie les intérêts ; on rembourse 30 euros par mois maximum."

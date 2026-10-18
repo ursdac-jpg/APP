@@ -7,7 +7,7 @@ tags: [CDD d'insertion, CDDI, parcours emploi compétences, PEC, CDD Tremplin, c
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "CDD d'insertion"
     definition: "Contrat à durée déterminée réservé aux personnes en difficulté, signé avec une structure de l'insertion par l'activité économique. Durée de 4 à 24 mois, avec un accompagnement."

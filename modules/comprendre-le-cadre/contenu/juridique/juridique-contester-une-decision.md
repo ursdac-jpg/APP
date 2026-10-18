@@ -7,7 +7,7 @@ tags: [recours amiable, RAPO, médiateur, commission de recours amiable, délais
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "recours amiable"
     definition: "Demande de réexamen adressée à l'organisme qui a pris la décision, avant toute action devant un tribunal. Souvent obligatoire."

@@ -7,7 +7,7 @@ tags: [DUERP, document unique d'évaluation des risques, sécurité au travail, 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "document unique d'évaluation des risques professionnels (DUERP)"
     definition: "Document obligatoire dès l'embauche du premier salarié, qui recense les risques identifiés dans l'entreprise pour la santé et la sécurité. Mis à jour régulièrement, transmis au service de prévention et de santé au travail."

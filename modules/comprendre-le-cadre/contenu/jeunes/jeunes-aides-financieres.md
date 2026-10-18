@@ -7,7 +7,7 @@ tags: [aides financières, jeune, fonds d'aide aux jeunes, allocation CEJ, mobil
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "fonds d'aide aux jeunes"
     definition: "Aide ponctuelle du conseil départemental, versée via la Mission locale, pour un besoin urgent d'un jeune de 18 à 25 ans en difficulté d'insertion."
@@ -26,7 +26,7 @@ collecte: jeunes.collecte.md
 
 Il n'y a pas de RSA avant vingt-cinq ans, sauf cas particulier. Mais plusieurs aides existent pour les jeunes.
 
-L'allocation du contrat d'engagement jeune, versée pendant ce parcours par la Mission locale ou France Travail, peut atteindre un peu plus de cinq cents euros par mois, selon vos ressources.
+L'allocation du contrat d'engagement jeune, versée pendant ce parcours par la Mission locale ou France Travail, peut atteindre 566 euros par mois depuis avril 2026, selon vos ressources.
 
 Le fonds d'aide aux jeunes est une aide ponctuelle du conseil départemental, demandée par la Mission locale, pour un besoin urgent : transport, hébergement, alimentation, permis, frais de formation. Son montant et ses conditions dépendent du département.
 

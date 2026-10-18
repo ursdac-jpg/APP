@@ -518,6 +518,7 @@
   <script src="modules/un-cv-plusieurs-metiers/logiqueMetiers.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiqueCv.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiqueDocuments.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/logiquePreparation.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/index.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/passageAssistant.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/page1Cv.js" charset="UTF-8"></script>
@@ -528,11 +529,16 @@
   <script src="modules/un-cv-plusieurs-metiers/page5MesCv.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/page6Lettres.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/page7Fin.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/page8Entretiens.js" charset="UTF-8"></script>
   <script src="modules/comprendre-le-cadre/index.js" charset="UTF-8"></script>
   <!-- Module « Comprendre les chiffres » (2e sous-carte de « Se tenir informé »),
        page routée, pure consultation. Chargé avant js/app.js (référencé dans
        l'objet `routes`). Voir modules/comprendre-les-chiffres/ARCHITECTURE_TECHNIQUE.md. -->
   <script src="modules/comprendre-les-chiffres/index.js" charset="UTF-8"></script>
+  <!-- Module « Qui fait quoi » (annuaire local : employeurs, puis structures), page routée, pure consultation. Fermé au public tant que MT_OUVERT est faux
+       (modules/mon-territoire/logique.js). Chargé avant js/app.js (référencé dans l'objet `routes`). Plan : docs/PLAN_MON_TERRITOIRE_PREMICES_2026-10-12.md. -->
+  <script src="modules/mon-territoire/logique.js" charset="UTF-8"></script>
+  <script src="modules/mon-territoire/index.js" charset="UTF-8"></script>
   <!-- Module « Les mots de votre CV » (ex-ATS), page routée, famille 2.
        Charge modules/ats/detectionTexteCache.js + modules/ats/resultatParser.js
        (logique pure) avant index.js. Tout avant js/app.js (route 'ats'). -->

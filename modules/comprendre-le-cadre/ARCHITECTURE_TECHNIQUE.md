@@ -169,7 +169,7 @@ que le sous-module, notamment si d'autres sous-cartes rejoignent un jour « Se t
   les rayons (`#comprendreLeCadreRayons` - id ajouté sur le conteneur uniquement pour cet ancrage,
   même principe que `#reperesListeConteneur`/`#carnetListeConteneur`), « Près de chez moi »
   (`[data-comprendre-le-cadre-ouvrir-structures]`, visible seulement depuis l'écran d'un rayon) et les
-  outils (`#comprendreLeCadreOutils`, id ajouté pour la même raison). `demarrerVisiteGuideePage()` ne
+  outils (`#comprendreLeCadreOutils`, id ajouté pour la même raison ; depuis le 2026-10-15 ce conteneur porte la grande carte « Ce qui a changé récemment », en tête de l'accueil, et plus une famille « Outils » en bas). `demarrerVisiteGuideePage()` ne
   garde que les selecteurs présents dans le DOM courant : une seule liste couvre tous les écrans du
   module, rien à dupliquer par écran.
 

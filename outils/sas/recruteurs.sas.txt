@@ -1,0 +1,100 @@
+# Sas des pages de recrutement : pages PROPOSEES (par ChatGPT et Perplexity, 2026-10-16) et pas encore verifiees. L'application NE LIT PAS ce fichier.
+# Format : id | famille | nom | secteur | territoire | page de recrutement | offres vues | date de la plus recente | compte demande | source | date
+#   famille : employeur (page carrieres de l'employeur lui-meme) | portail-officiel (portail public ou d'un organisme national) | groupement (groupement d'employeurs, GEIQ)
+#   date (derniere colonne) : vide tant que Denis n'a pas ouvert la page et verifie ; elle devient celle du jour de la verification.
+# RAPPEL DES REGLES DE DENIS (2026-10-16) : uniquement l'espace de recrutement de l'employeur lui-meme ; jamais d'intermediaire, d'agregateur ni d'agence d'interim ; rien n'est publie sur le site, on donne seulement l'adresse de la page.
+# Corrections du 2026-10-16 (reponse partielle de ChatGPT au prompt des 17 pages) : Polyrey, ADHAP, Fiducial, FedEx, Seris, Conseil departemental retrouves et testes (la page repond) ; Terres du Sud retire (meme l'adresse annoncee « validee » donne une 404) ;
+# les nombres d'offres annonces (179, 406, 6) sont des totaux nationaux ou non verifies : remplaces par « plusieurs ». Restent sans adresse : O2, Constructions Savignacoises, Apei Perigueux, Grand Perigueux, CH de Sarlat, SDIS 24, la Secu recrute, Chambre d'agriculture, CIRFA, Terra'Job.
+# VERIFIEES A LA MAIN PAR DENIS le 2026-10-17 (derniere colonne = 2026-10-17) : CH de Belves, Academie de Bordeaux, Agence de l'eau Adour-Garonne (profileau.fr), ADEME, FedEx, Seris, Conseil departemental, Fiducial Securite (nouvelle adresse), Securitas, Terra'Job, Grand Perigueux, Apei Perigueux, O2, Constructions Savignacoises, La Secu recrute.
+# RETIRES LE 2026-10-17 (pas de vraie page de recrutement, apres verification de Denis et reponse de Perplexity) : Centre hospitalier Vauclaire ; Fondation de Selves ; Petits-fils ; CCI Dordogne (réseau CCI) ; Police nationale ; Gendarmerie nationale.
+# RETIRE LE 2026-10-17 : Centre hospitalier de Nontron (le site ch-nontron.fr ne repond pas du tout, verifie par Denis).
+# SANS ADRESSE DE RECRUTEMENT (apres la reponse de ChatGPT du 2026-10-17 et la recherche de Claude sur les sites officiels) : Centre hospitalier de Sarlat ; SDIS 24 (le site ne propose que le formulaire de sapeur-pompier volontaire) ; Chambre d'agriculture de la Dordogne ; Terres du Sud (la page annoncee « validee » donne une 404). Ces quatre sont a chercher a la main.
+# DOMAINES INEXISTANTS, ECARTES (2026-10-17) : Crédit Agricole Charente Périgord ; Caisse d'Épargne Aquitaine Poitou-Charentes ; Azaé ; Domaliance ; Colas ; Eiffage Énergie Systèmes ; NGE ; Derichebourg Propreté ; Les Papillons Blancs de Bergerac ; Fondation de l'Isle ; Del Arte ; Groupe Eram ; Inter Emploi.
+# Reste a ouvrir a la main : FedEx, Seris, Conseil departemental (la page repond, mais ce n'est peut-etre pas la liste des offres).
+# Rangement du 2026-10-16 depuis les reponses brutes : lignes dedoublonnees ; France Travail et Samsic ecartes (exclus par les regles) ; les 25 pages communales de Shiva sont reduites a UNE ligne (page nationale) ;
+# une date d'avenir (limite de candidature, pas une publication) est laissee vide. Les controles automatiques d'adresse sont dans docs/VERIFICATION_RECRUTEURS_DORDOGNE_2026-10-16.md.
+#
+# --- Employeurs (R1)
+centre-hospitalier-perigueux-24 | employeur | Centre hospitalier de Périgueux | sante | Dordogne | https://www.ch-perigueux.fr/offres-d-emploi-79.html | plusieurs | 2026-10-14 | non | https://www.ch-perigueux.fr/ |
+centre-hospitalier-riberac-dronne-double-24 | employeur | Centre hospitalier intercommunal Ribérac Dronne Double | sante | Dordogne | https://www.chicrdd.fr/on-recrute/ | plusieurs | | non | https://www.chicrdd.fr/ |
+centre-hospitalier-domme-24 | employeur | Centre hospitalier de Domme | sante | Dordogne | https://ch-domme.fr/offres-demplois/ | 2 | 2026-07-02 | non | https://ch-domme.fr/ |
+ministere-interieur-dordogne-24 | employeur | Ministère de l'Intérieur (offres en Dordogne) | administration | Dordogne | https://ministereinterieur-career.talent-soft.com/offre-de-emploi/liste-toutes-offres.aspx?changefacet=1&facet_JobDepartment=238&facet_JobRegion=-197 | 20 | 2026-10-16 | non | https://www.prefectures-regions.gouv.fr/nouvelle-aquitaine/dordogne |
+e-leclerc-24 | employeur | E.Leclerc | commerce-vente | national | https://www.recrutement.leclerc/ | plusieurs | 2026-10-16 | non | https://www.recrutement.leclerc/ |
+brico-depot-24 | employeur | Brico Dépôt (Creysse, Trélissac) | commerce-vente | national | https://recrute.bricodepot.fr/jobs | 204 | 2026-10-14 | non | https://recrute.bricodepot.fr/fr-FR/accueil |
+lidl-france-24 | employeur | Lidl France | commerce-vente | national | https://emplois.lidl.fr/ | plusieurs | | non | https://emplois.lidl.fr/ |
+fedex-express-marsac-sur-lisle-24 | employeur | FedEx Express (Marsac-sur-l'Isle) | transport-logistique | Dordogne | https://careers.fedex.com/fr/ | plusieurs | | non | https://www.fedex.com/fr-fr/about/careers.html | 2026-10-17
+groupe-jardel-24 | employeur | Groupe Jardel | transport-logistique | Dordogne | https://www.jardel.eu/rejoignez-nous/nos-offres | 64 | 2026-10-15 | non | https://www.jardel.eu/ |
+sonepar-france-24 | employeur | Sonepar France (Marsac-sur-l'Isle) | commerce-vente | Dordogne | https://www.soneparfrance.fr/fr-fr/talents/nous-rejoindre | plusieurs | 2026-10-16 | non | https://www.soneparfrance.fr/ |
+securitas-france-24 | employeur | Securitas France | securite | national | https://carrieres.securitas.fr/fr/annonces | plusieurs | 2026-10-16 | non | https://www.securitas.fr/emploi-chez-securitas/rejoignez-nous/ | 2026-10-17
+shiva-24 | employeur | Shiva (agences de la Dordogne) | social-personne | Dordogne | https://www.shiva.fr/shiva-recrutement | plusieurs | | non | https://www.shiva.fr/ |
+fondation-john-bost-24 | employeur | Fondation John Bost | social-personne | Dordogne | https://www.johnbost.org/emploi/ | plusieurs | | non | https://www.johnbost.org/ |
+fondation-partage-et-vie-24 | employeur | Fondation Partage et Vie | social-personne | Dordogne | https://recrutement.fondationpartageetvie.org/fr/annonces | plusieurs | 2026-10-14 | non | https://www.fondationpartageetvie.org/ |
+clinique-pasteur-bergerac-elsan-24 | employeur | Clinique Pasteur Bergerac (ELSAN) | sante | Dordogne | https://talents.groupe-elsan.com/ | 595 | | non | https://www.elsan.care/fr/clinique-pasteur |
+hopital-prive-francheville-24 | employeur | Hôpital privé Francheville (Vivalto Santé) | sante | Dordogne | https://www.vivalto-sante.com/recrutement | plusieurs | | non | https://www.vivalto-sante.com/etablissements/hopital-prive-francheville |
+polyrey-24 | employeur | Polyrey | industrie | Dordogne | https://www.polyrey.com/carriere | plusieurs | | non | https://www.polyrey.com/fr |
+onet-proprete-24 | employeur | Onet Propreté et Services | proprete | national | https://www.groupeonet.com/nous-rejoindre | plusieurs | | non | https://www.groupeonet.com |
+vitalliance-24 | employeur | Vitalliance | social-personne | Dordogne | https://emploi.vitalliance.fr/offres | plusieurs | | non | https://www.vitalliance.fr/agences/nouvelle-aquitaine/dordogne |
+adhap-24 | employeur | ADHAP | social-personne | Dordogne | https://www.adhap.fr/carriere/offres-emplois/ | plusieurs | | non | https://www.adhap.fr/trouver-une-agence/adhap-laide-a-domicile-dans-le-departement-de-la-dordogne/ |
+admr-dordogne-24 | employeur | ADMR de Dordogne | social-personne | Dordogne | https://www.fede24.admr.org/offre-emploi | 2 | 2026-09-01 | non | https://www.fede24.admr.org/ |
+eurovia-24 | employeur | Eurovia (groupe Vinci) | btp | Dordogne | https://jobs.vinci.com | plusieurs | | non | https://www.eurovia.fr |
+doumen-24 | employeur | Groupe Doumen | transport-logistique | Dordogne | https://www.doumen.fr/recrutement | plusieurs | | non | https://www.doumen.fr |
+defitrans-24 | employeur | Defitrans | transport-logistique | Dordogne | https://www.transports-defitrans.fr/nous-rejoindre/ | 5 | | non | https://www.transports-defitrans.fr/ |
+fiducial-securite-24 | employeur | Fiducial Sécurité | securite | national | https://www.fiducial-securite.fr/carriere/nos-offres-d-emploi | plusieurs | | non | https://www.fiducial.fr | 2026-10-17
+seris-security-24 | employeur | Seris Security | securite | national | https://www.serisrecrute.fr | plusieurs | | non | https://www.seris.fr | 2026-10-17
+gsf-24 | employeur | GSF | proprete | Dordogne | https://gsf-recrute.talent-soft.com/accueil.aspx | plusieurs | | non | https://www.gsf.fr/recrutement-gsf/ |
+hm-france-24 | employeur | H&M | commerce-vente | national | https://career.hm.com/ | plusieurs | | non | https://career.hm.com/fr-fr |
+#
+# --- Portails officiels (R2)
+cdg24-emploi-territorial | portail-officiel | Centre de gestion de la Dordogne, bourse de l'emploi | administration | Dordogne | https://www.cdg24.fr/emploi_les_emplois_offres.php | plusieurs | 2026-10-15 | non | https://www.emploi-territorial.fr |
+conseil-departemental-dordogne-24 | portail-officiel | Conseil départemental de la Dordogne | administration | Dordogne | https://www.dordogne.fr/votre-departement/emplois-et-stages | plusieurs | | non | https://www.dordogne.fr/votre-departement/emplois-et-stages | 2026-10-17
+ville-perigueux-recrutement | portail-officiel | Ville de Périgueux | administration | Dordogne | https://www.perigueux.fr/ma-mairie-pratique/offres-demploi/offres-demploi.html | 3 | | non | https://www.perigueux.fr/ |
+ville-bergerac-recrutement | portail-officiel | Ville de Bergerac | administration | Dordogne | https://www.bergerac.fr/document-category/offres-demploi/ | 2 | 2026-10-02 | non | https://www.bergerac.fr/ |
+ville-sarlat-la-caneda-recrutement | portail-officiel | Ville de Sarlat-la-Canéda | administration | Dordogne | https://sarlat.fr/ma-mairie/offres-demploi/ | 15 | 2026-08-21 | non | https://sarlat.fr/ |
+communaute-agglomeration-bergeracoise-recrutement | portail-officiel | Communauté d'agglomération bergeracoise (CAB) | administration | Dordogne | https://la-cab.fr/emplois-cab/ | 0 | | non | https://la-cab.fr/ |
+cc-sarlat-perigord-noir-recrutement | portail-officiel | Communauté de communes Sarlat-Périgord Noir | administration | Dordogne | https://www.cc-sarlatperigordnoir.fr/offres-demploi/ | 1 | 2026-10-14 | non | https://www.cc-sarlatperigordnoir.fr/ |
+centre-hospitalier-samuel-pozzi-bergerac-24 | portail-officiel | Centre hospitalier Samuel Pozzi de Bergerac | sante | Dordogne | https://www.ch-bergerac.fr/offres_demplois/ | plusieurs | 2026-10-13 | non | https://www.ch-bergerac.fr/nous-rejoindre/ |
+centre-hospitalier-saint-astier-24 | portail-officiel | Centre hospitalier de Saint-Astier | sante | Dordogne | https://etablissements.fhf.fr/annuaire/establishment/structure523-establishment4335 | plusieurs | 2026-08-05 | non | https://emploi.fhf.fr/emploi/search?department=24 |
+centre-hospitalier-belves-24 | portail-officiel | Centre hospitalier de Belvès | sante | Dordogne | https://hl-belves.fr/poste/ | 2 | 2026-08-05 | non | https://hl-belves.fr/ | 2026-10-17
+centre-hospitalier-excideuil-24 | portail-officiel | Centre hospitalier d'Excideuil | sante | Dordogne | https://etablissements.fhf.fr/annuaire/establishment/structure527-establishment4339 | plusieurs | 2026-10-12 | non | https://emploi.fhf.fr/emploi/271635 |
+centre-hospitalier-lanmary-24 | portail-officiel | Centre hospitalier de Lanmary | sante | Dordogne | https://chlanmary.jimdoweb.com/rejoignez-nous/ | plusieurs | 2026-09-18 | non | https://emploi.fhf.fr/emploi/491441 |
+office-national-forets-recrutement | portail-officiel | Office national des forêts | administration | national | https://choisirleservicepublic.gouv.fr/employeurs/onf/ | 52 | 2026-10-02 | non | https://www.onf.fr/ |
+voies-navigables-france-recrutement | portail-officiel | Voies navigables de France | administration | national | https://recrutement.vnf.fr/nos-offres/ | 77 | | non | https://recrutement.vnf.fr/ |
+direction-generale-finances-publiques-recrutement | portail-officiel | Direction générale des Finances publiques | administration | national | https://choisirleservicepublic.gouv.fr/employeurs/dgfip/ | 296 | 2026-10-09 | non | https://recrutements.dgfip.finances.gouv.fr/candidat/ |
+msa-dordogne-lot-et-garonne-recrutement | portail-officiel | MSA Dordogne Lot-et-Garonne | administration | Dordogne | https://dlg.msa.fr/lfp/les-offres-de-postes-a-la-msa-dordogne-lot-et-garonne | 0 | | non | https://dlg.msa.fr/lfp/nous-rejoindre |
+enedis-recrutement | portail-officiel | Enedis | administration | national | https://www.enedis.fr/emploi | 16 | 2026-10-08 | non | https://www.enedis.fr/nous-recherchons-en-ce-moment |
+rte-recrutement | portail-officiel | RTE | administration | national | https://www.rte-france.com/carrieres/recrutement | 0 | | non | https://www.rte-france.com/carrieres |
+sncf-recrutement | portail-officiel | Groupe SNCF | transport-logistique | national | https://emploi.sncf.com/nos-offres | 641 | | non | https://emploi.sncf.com/ |
+la-poste-groupe-recrutement | portail-officiel | La Poste Groupe | administration | national | https://recrutement.lapostegroupe.com/offres/ | 149 | | non | https://recrutement.lapostegroupe.com/ |
+cma-nouvelle-aquitaine-recrutement | portail-officiel | Chambre de métiers et de l'artisanat (réseau) | administration | Nouvelle-Aquitaine | https://www.artisanat.fr/nous-connaitre/carrieres-emplois | 18 | 2026-10-14 | non | https://cma-nouvelleaquitaine.fr/ |
+dreal-nouvelle-aquitaine-recrutement | portail-officiel | DREAL Nouvelle-Aquitaine (ministères de la Transition écologique) | administration | Nouvelle-Aquitaine | https://recrutement.ecologie.gouv.fr/offres-demploi | plusieurs | 2026-10-07 | non | https://www.nouvelle-aquitaine.developpement-durable.gouv.fr/decouvrez-et-rejoignez-les-ministeres-transition-a14781.html |
+services-etat-dordogne-choisir-service-public | portail-officiel | Préfecture, DDT et DDETSPP de la Dordogne (Choisir le service public) | administration | Dordogne | https://choisirleservicepublic.gouv.fr | plusieurs | 2026-10-09 | non | https://www.dordogne.gouv.fr/Services-de-l-Etat/Prefecture-et-sous-prefectures/La-prefecture-recrute |
+academie-bordeaux-recrutement | portail-officiel | Académie de Bordeaux | education-formation | Nouvelle-Aquitaine | https://www.ac-bordeaux.fr/recrutement | plusieurs | 2026-10-15 | non | https://www.education.gouv.fr/rejoindre-l-education-nationale-163 | 2026-10-17
+ministere-justice-recrutement | portail-officiel | Ministère de la Justice, La Justice recrute | administration | national | https://lajusticerecrute.fr | plusieurs | 2026-10-15 | non | https://www.justice.gouv.fr/recrutement |
+armee-de-terre-recrutement | portail-officiel | Armée de Terre (S'engager) | administration | national | https://www.sengager.fr | plusieurs | 2026-10-15 | non | https://www.sengager.fr/nous-rencontrer |
+marine-nationale-recrutement | portail-officiel | Marine nationale | administration | national | https://www.lamarinerecrute.fr | plusieurs | 2026-10-15 | non | https://www.lamarinerecrute.fr/nous-rencontrer |
+armee-air-espace-recrutement | portail-officiel | Armée de l'Air et de l'Espace | administration | national | https://devenir-aviateur.fr | plusieurs | 2026-10-15 | non | https://devenir-aviateur.fr/nous-rencontrer |
+cirfa-perigueux-recrutement | portail-officiel | Armée de Terre, tous les postes (CIRFA de Périgueux pour rencontrer un conseiller) | administration | Dordogne | https://www.sengager.fr/tous-nos-postes | plusieurs | | non | https://www.defense.gouv.fr/sga/nous-rejoindre/cirfa |
+banque-france-recrutement | portail-officiel | Banque de France | administration | national | https://www.recrutement.banque-france.fr/fr | plusieurs | 2026-10-15 | non | https://www.recrutement.banque-france.fr/fr/rejoignez-la-banque-de-france |
+cnfpt-recrutement | portail-officiel | CNFPT | administration | national | https://recrutement-cnfpt.fr/ | plusieurs | 2026-10-15 | non | https://www.cnfpt.fr/nous-connaitre/postulez-au-cnfpt/national |
+ars-nouvelle-aquitaine-recrutement | portail-officiel | ARS Nouvelle-Aquitaine | administration | Nouvelle-Aquitaine | https://ars-nouvelle-aquitaine-recrute.talent-soft.com/offre-de-emploi/liste-offres.aspx | 9 | 2026-10-15 | non | https://www.nouvelle-aquitaine.ars.sante.fr/travailler-lars-nouvelle-aquitaine |
+agence-eau-adour-garonne-recrutement | portail-officiel | Agence de l'eau Adour-Garonne | administration | national | https://www.profileau.fr/fr | 7 | 2026-10-14 | non | https://eau-grandsudouest.fr/nous-rejoindre | 2026-10-17
+office-francais-biodiversite-recrutement | portail-officiel | Office français de la biodiversité | administration | national | https://ofb.gestmax.fr/employee/search | 35 | | non | https://ofb.gouv.fr/offres-emploi |
+region-nouvelle-aquitaine-recrutement | portail-officiel | Région Nouvelle-Aquitaine | administration | Nouvelle-Aquitaine | https://www.nouvelle-aquitaine.fr/aides-et-ressources/les-offres-demploi | plusieurs | 2026-10-15 | non | https://www.nouvelle-aquitaine.fr/la-region-recrute |
+ademe-recrutement | portail-officiel | ADEME | administration | national | https://recrutement.ademe.fr/accueil.aspx | 36 | 2026-10-12 | non | https://www.ademe.fr/candidat/ | 2026-10-17
+agence-services-paiement-recrutement | portail-officiel | Agence de services et de paiement | administration | national | https://agencedeservicesetdepaiement.recruitee.com/ | 34 | 2026-10-15 | non | https://www.asp.gouv.fr/nous-rejoindre |
+ign-recrutement | portail-officiel | IGN | administration | national | https://www.ign.fr/nous-rejoindre/offres-emploi | 6 | 2026-10-15 | non | https://www.ign.fr/nous-rejoindre |
+inpi-recrutement | portail-officiel | INPI | administration | national | https://www.inpi.fr/decouvrir-inpi/notre-organisation/nous-rejoindre | plusieurs | 2026-10-06 | non | https://choisirleservicepublic.gouv.fr/employeurs/inpi/ |
+ugap-recrutement | portail-officiel | UGAP | administration | national | https://ugap-recrute.talent-soft.com/ | plusieurs | 2026-10-16 | non | https://www.ugap.fr/nous-rejoindre-c4527098 |
+#
+# --- Adresses retrouvees le 2026-10-17 par Claude en parcourant les pages d'accueil des sites officiels (elles repondent ; offres, nombre et date NON verifies)
+grand-perigueux-recrutement | portail-officiel | Grand Périgueux | administration | Dordogne | https://www.grandperigueux.fr/votre-agglo/recrutement/ | plusieurs | | non | https://www.grandperigueux.fr/ | 2026-10-17
+apei-perigueux-24 | employeur | Apei Périgueux | social-personne | Dordogne | https://www.apei-perigueux.org/offres-demploi | plusieurs | | non | https://www.apei-perigueux.org/ | 2026-10-17
+o2-care-services-24 | employeur | O2 Care Services | social-personne | Dordogne | https://www.o2recrute.fr/ | plusieurs | | non | https://www.o2.fr/ | 2026-10-17
+constructions-savignacoises-ferron-24 | employeur | Constructions Savignacoises Ferron | btp | Dordogne | https://www.constructions-savignacoises.com/recrutement.php | plusieurs | | non | https://www.constructions-savignacoises.com/ | 2026-10-17
+la-secu-recrute-24 | portail-officiel | La Sécu recrute (CAF, CPAM, Carsat, Urssaf) | administration | national | https://www.lasecurecrute.fr/accueil | plusieurs | | non | https://www.caf.fr/allocataires/caf-de-la-dordogne/nous-connaitre/recrutement | 2026-10-17
+#
+# --- Groupements (R3)
+geiq24-btp-24 | groupement | GEIQ 24 | btp | Dordogne | https://geiq24.com/offres-demploi/ | plusieurs | | non | https://geiq24.com/ |
+gem24-24 | groupement | Groupement Employeurs Métiers 24 | artisanat | Dordogne | https://gem24.fr/les-offres-demplois | plusieurs | | non | https://gem24.fr/ |
+ge-dms-24 | groupement | Groupement d'employeurs DMS | social-personne | Dordogne | https://www.ge-dms.fr/offres-demploi/ | plusieurs | | non | https://www.ge-dms.fr/ |
+terrajob-24 | groupement | Terra'Job | sport-animation | Dordogne | https://terra-job.fr/ | 12 | | non | https://terra-job.fr/ | 2026-10-17

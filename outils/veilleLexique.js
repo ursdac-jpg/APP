@@ -90,6 +90,38 @@ function identifiantsExistants(contenu) {
   return liste.objets.map(function (o) { return identifiantDe(proprietes(contenu.slice(o.debut, o.fin))); }).filter(Boolean);
 }
 
+// Un texte entre guillemets simples ou doubles au debut de `brut` (apres « cle: »), decode ; rend '' si ce n'est pas une chaine simple.
+function chaineJs(brut) {
+  const m = new RegExp('^[A-Za-z_$][' + '\\w$]*\\s*:\\s*').exec(brut);
+  let i = m ? m[0].length : 0;
+  const q = brut[i];
+  if (q !== '"' && q !== "'") { return ''; }
+  let s = ''; i++;
+  while (i < brut.length && brut[i] !== q) {
+    if (brut[i] === '\\') { i++; const c = brut[i]; s += (c === 'n' ? ' ' : c); } else { s += brut[i]; }
+    i++;
+  }
+  return s;
+}
+
+// Les mots du Lexique, LUS comme du texte (jamais executes) : [{ id, titre, corps, variantes: [], relations: [ficheId] }]. Rend null si la liste est introuvable.
+function lireEntrees(contenu) {
+  const liste = objetsDeLaListe(contenu);
+  if (!liste) { return null; }
+  return liste.objets.map(function (o) {
+    const props = proprietes(contenu.slice(o.debut, o.fin));
+    const par = function (cle) { const p = props.filter(function (x) { return x.cle === cle; })[0]; return p ? p.brut : ''; };
+    const variantes = [], relations = [];
+    const bv = par('variantesRecherche');
+    const re = /'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"/g;
+    let m;
+    while ((m = re.exec(bv.replace(/^[A-Za-z_$][\w$]*\s*:\s*/, '')))) { variantes.push(String(m[1] !== undefined ? m[1] : m[2]).replace(/\\(.)/g, '$1')); }
+    const rr = /ficheId:\s*'([^']+)'/g, br = par('relations');
+    while ((m = rr.exec(br))) { relations.push(m[1]); }
+    return { id: chaineJs(par('id')), titre: chaineJs(par('titre')), corps: chaineJs(par('corps')), variantes: variantes, relations: relations };
+  }).filter(function (e) { return e.id; });
+}
+
 // Construit le texte d'une entree a partir du bloc de l'outil (lignes « { ... }, ») ; extras = proprietes de l'ancienne entree a recopier.
 // Rend les lignes SANS indentation de depart sur la 1re (elle se place apres l'indentation existante) et les suivantes indentees de 2 espaces.
 function construireBloc(lignesOutil, extras) {
@@ -115,4 +147,4 @@ function remplacerEntree(contenu, entree) {
   return { ok: true, texte: contenu.slice(0, ancienne.debut) + bloc + contenu.slice(ancienne.fin), conserves: extras.map(function (e) { return e.cle; }) };
 }
 
-module.exports = { objetsDeLaListe: objetsDeLaListe, proprietes: proprietes, trouverEntree: trouverEntree, identifiantsExistants: identifiantsExistants, remplacerEntree: remplacerEntree, construireBloc: construireBloc, CHAMPS_DE_L_OUTIL: CHAMPS_DE_L_OUTIL };
+module.exports = { objetsDeLaListe: objetsDeLaListe, proprietes: proprietes, trouverEntree: trouverEntree, identifiantsExistants: identifiantsExistants, lireEntrees: lireEntrees, remplacerEntree: remplacerEntree, construireBloc: construireBloc, CHAMPS_DE_L_OUTIL: CHAMPS_DE_L_OUTIL };

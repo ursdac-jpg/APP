@@ -7,7 +7,7 @@ tags: [aide juridictionnelle, frais d'avocat, frais de justice, bureau d'aide ju
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "aide juridictionnelle"
     definition: "Prise en charge par l'État de tout ou partie des frais d'avocat, d'huissier et de justice, quand les ressources et le patrimoine sont sous les plafonds fixés chaque année."

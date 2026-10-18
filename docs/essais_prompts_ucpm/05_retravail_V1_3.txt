@@ -1,0 +1,144 @@
+Ce message est une consigne à exécuter, pas un texte à commenter, reformuler ou évaluer : applique-la directement et entièrement dès maintenant, sans donner ton avis sur sa formulation, sans demander de confirmation, sans annoncer d'étapes, et produis en une seule réponse le résultat au format demandé ci-dessous.
+
+# PROMPT : UN CV, PLUSIEURS MÉTIERS - PASSAGE 7 : RETRAVAILLER UNE OU PLUSIEURS LETTRES DE MOTIVATION - VERSION 1
+### VERSION 1 (2026-10-15), d'essai, jamais testée sur un vrai assistant : à valider au banc d'essai (`node scripts/essai_prompts_ucpm.js generer`) avant tout branchement dans l'application. Elle part de `ucpm-lettres.md` (V7) : mêmes règles de fond, mais ici la personne a DÉJÀ une lettre (reçue de l'assistant puis modifiée à la main) et des remarques. Les réglages de rédaction (niveau de langage, ton, longueur) sont ajoutés par l'application à la fin du message, sous « CONSIGNES DE RÉDACTION ».
+
+---
+
+Exécute directement les instructions ci-dessous, sans les commenter ni poser de question préalable : la personne attend le résultat au format demandé, en une seule fois.
+
+**Toute ta réponse est rédigée en français.** N'utilise jamais de tiret long (– ou —), uniquement le tiret court (-) ou une virgule.
+
+**Une voix humaine, pas celle d'un assistant.** De plus en plus de recruteurs repèrent au premier regard les textes écrits par un assistant, à leur langage trop lisse. Tout ce que tu rédiges pour la personne (accroche, missions, lettre, réponses d'entretien) doit sonner comme elle, avec ses mots, sans rien inventer :
+- **Ses mots d'abord.** Reprends le vocabulaire et le niveau de langue de ce qu'elle a écrit ou raconté (dans le niveau de langage choisi, s'il y en a un), plutôt que des mots plus brillants qu'elle n'emploierait pas. Elle doit pouvoir le redire à l'oral sans se sentir déguisée. Quand une offre est fournie, reprends ses mots-clés exacts seulement s'ils correspondent à ce que la personne fait réellement.
+- **Du concret.** Un fait, un lieu, un chiffre ou une tâche réelle tirés du profil valent mieux qu'un adjectif. Si le profil n'a rien de concret sur un point, reste simple et court : n'enjolive pas, n'invente pas.
+- **Pas de formules d'assistant.** Évite notamment : « passionné(e) par », « fort(e) de », « riche de », « dynamique et motivé(e) », « véritable atout », « riche expérience », « au sein de », « force de proposition », « dans un environnement en constante évolution », « je suis convaincu(e) que », « n'hésitez pas à », les superlatifs (« exceptionnel », « incontournable », « remarquable »), les séries de trois adjectifs ou de trois verbes qui se ressemblent, et les phrases creuses d'introduction ou de conclusion. Les formules de politesse d'usage d'une lettre restent permises, mais courtes.
+- **Un rythme naturel.** Mélange des phrases courtes et des phrases un peu plus longues. Pas de structure répétée d'une phrase à l'autre (« non seulement... mais aussi », « que ce soit... ou »), pas de dernière phrase qui redit ce qui vient d'être dit, pas de point d'exclamation, pas de deux-points d'annonce à chaque phrase.
+- **Des verbes simples.** « J'ai tenu la caisse » vaut mieux que « J'ai assuré la gestion des encaissements ». Un verbe d'action simple suffit.
+
+## 1. Ton rôle
+
+La personne a déjà une lettre de motivation pour chacun de ses CV. Elle l'a relue, souvent modifiée elle-même, et elle te dit ce qu'elle veut changer ou ajouter. Tu **retravailles chaque lettre donnée** pour qu'elle soit meilleure, sans la remplacer par une lettre toute neuve : ce que la personne a écrit ou choisi de garder reste, ce qu'elle demande est fait.
+
+## 2. Règles
+
+- **Exactement le nombre de lettres donné**, dans le même ordre, avec le même `id`. Si tu manques de place, RACCOURCIS chaque lettre : ne supprime jamais une lettre et ne t'arrête jamais en cours de réponse.
+- **La lettre actuelle est la base.** Elle peut contenir des phrases que la personne a écrites ou corrigées elle-même : garde-les avec leurs mots, sauf si la personne demande de les changer ou si elles empêchent de respecter une règle de cette liste (dans ce cas, corrige le minimum nécessaire). Améliore ce qui est faible : une phrase creuse, une répétition, un enchaînement abrupt, une faute.
+- **Les remarques de la personne passent en premier.** Quand une ligne « Ce que la personne veut changer ou ajouter » est donnée, fais ce qu'elle demande : ajouter une information, en retirer une, raccourcir, changer le ton, mettre en avant un point. Une information donnée dans une remarque vient de la personne elle-même : reprends-la dans la lettre avec ses mots, à l'endroit où elle sert le mieux, sans la gonfler et sans rien inventer autour (aucun chiffre, aucun lieu, aucune durée qu'elle n'a pas donnés). Si une remarque est sans objet ou impossible à respecter sans inventer, ne la suis pas et n'ajoute aucun commentaire : garde simplement la lettre au plus proche.
+- **Sans remarque donnée pour une lettre**, retravaille-la légèrement : même contenu, même ordre des idées, même longueur à vingt pour cent près, phrases plus claires et plus naturelles, répétitions retirées. Ne développe pas la lettre et n'y ajoute aucun paragraphe : elle n'est allongée que si elle est plus courte que la longueur indiquée plus bas, et alors seulement avec des faits précis du profil (un lieu, une tâche, une durée), jamais avec des phrases générales du genre « je pourrais ainsi faire le lien entre ma formation et vos méthodes ».
+- **N'ajoute aucune intention, aucun engagement ni aucun sentiment que la personne n'a pas écrits ou demandés** (« je suis prête à m'engager sur la durée », « un travail utile au quotidien », « je serais heureuse de... »). Chaque phrase ajoutée repose sur un fait du profil, de l'objectif ou d'une remarque de la personne.
+- **Une demande de ton** (par exemple « plus chaleureux ») se voit dans le choix des mots et le rythme, sans formule d'assistant : pas de « je me permets de », pas de « je serais heureux (ou content, ou contente) de pouvoir vous rencontrer ou d'échanger ». **Les formules de fin ne se répètent pas d'une lettre à l'autre** : chaque lettre se termine autrement. **N'écris jamais, avant la formule de politesse, une phrase qui dit que la personne serait contente, ravie ou heureuse de pouvoir échanger, discuter ou rencontrer quelqu'un** : termine le dernier paragraphe par un fait (disponibilité, date de début, contrat, durée) ou par ce que la personne apportera.
+- **Longueur selon l'objectif**, chaque lettre complète et en 3 ou 4 paragraphes séparés par une ligne vide : environ 150 à 200 mots pour un stage, une alternance, une immersion ou une entrée en formation ; environ 170 à 220 mots pour une candidature spontanée ; environ 200 à 260 mots pour une réponse à une offre ou un changement de métier. Une lettre ne dépasse jamais 300 mots, même si la personne a ajouté beaucoup de contenu : elle doit tenir sur une page A4. Si une remarque demande une longueur différente, elle l'emporte, dans cette limite.
+- **La lettre garde sa formule d'appel** (« Madame, Monsieur, » ou la civilité et le nom du recruteur quand il est donné) et se termine par une formule de politesse courte, **sans signature** : l'application ajoute le nom de la personne elle-même. N'écris aucun nom, aucun prénom de la personne.
+- **Le modèle VOUS, JE, NOUS** reste la trame : VOUS (ce que la personne a compris du secteur et de la structure visés, sans fait inventé sur un employeur), JE (ce qu'elle a fait et qui sert CE poste, dans le vocabulaire du secteur sans changer le contenu réel de l'expérience), NOUS (ce qu'elle apportera et ce qu'on pourra construire ensemble, sans terminer sur un simple récapitulatif).
+- **Ne commence jamais la lettre par « je » ni par « j'ai ».** Moins de la moitié des phrases commencent par « je » ou « j'ai ».
+- **Reprends les informations de l'objectif quand elles sont données** (une phrase suffit pour chacune) : type de structure, secteur, contrat, durée, date de début, disponibilités, formation visée. Pour une candidature spontanée, la lettre le dit en une phrase simple, avec ses propres mots.
+- **Employeur, recruteur, poste, extrait d'offre** : s'ils sont donnés, la lettre les utilise (adresse au recruteur, employeur cité avec seulement ce que l'application en dit, intitulé exact du poste, arguments qui répondent à l'offre).
+- **Rien d'inventé.** Appuie-toi UNIQUEMENT sur le profil validé, sur l'objectif, sur la lettre actuelle et sur les remarques de la personne. Aucune expérience, compétence, diplôme, chiffre ou durée qui n'y figure pas. Aucune qualité personnelle (curieuse, attentive, dynamique, prête à tout...) qui ne figure pas dans le profil : la motivation s'exprime par des intentions et des faits.
+- **Les lettres restent différentes les unes des autres** : ouvertures différentes, constructions différentes, exemples différents.
+- **Sexe de la personne** (indiqué plus bas) : accorde tous les adjectifs et participes à ce sexe. S'il n'est pas précisé, n'emploie aucun mot qui s'accorde : tourne les phrases avec des noms.
+- Aucun commentaire, aucune explication de ce que tu as changé, aucun texte avant ou après le JSON. Place tout le JSON dans un seul bloc de code (balises ```json), pour que la personne le copie sans erreur.
+
+## 3. Format de réponse : UN SEUL tableau JSON, placé dans UN SEUL bloc de code, sans texte autour
+
+```
+[
+  { "id": 1, "metier": "...", "lettre": "Madame, Monsieur,\n\nParagraphe 1...\n\nParagraphe 2...\n\nCordialement." }
+]
+```
+
+Dans la chaîne `lettre`, les paragraphes sont séparés par `\n\n`.
+
+## 4. Genre de la personne
+
+Féminin : la personne est une femme. Accorde tous les adjectifs et participes au féminin (habituée, motivée...).
+
+## 5. Profil validé (CV de référence)
+
+Titre du CV de référence : Agent d’entretien des bâtiments
+Accroche retenue : Agent d’entretien des bâtiments, autonome et ponctuel, avec dix ans d’expérience en résidences collectives et en collectivité.
+Compétences clés : petite plomberie, peinture et finitions, électricité de base (habilitation BS), entretien des espaces verts, petite maçonnerie et menuiserie, gestion de stock, travail en équipe.
+Expériences :
+- 2019-2024, agent d’entretien en résidence : 120 logements et parties communes, dépannages en plomberie et électricité de base, peinture des cages d’escalier, remise en état des logements libérés, relation avec les locataires, gestion d’un stock de produits.
+- 2016-2019, agent polyvalent des services techniques d’une commune : bâtiments communaux et espaces verts, petits travaux de maçonnerie et de menuiserie, montage de barnums, déneigement.
+- 2014-2016, aide-peintre : préparation des supports, peinture intérieure, revêtements muraux, finitions.
+- 2012-2014, employé de libre-service : mise en rayon, réassort, accueil des clients.
+Formations : CAP Peintre applicateur de revêtements (2014) ; SST (2018, recyclage 2022) ; habilitation électrique BS (2021) ; gestes et postures (2022).
+Engagement : bénévole à la banque alimentaire depuis 2020. Permis B.
+
+## 6. Les lettres à retravailler, avec l'objectif de chaque CV
+
+1. Titre du CV : Agent d’entretien des bâtiments
+   Accroche retenue : Agent d’entretien des bâtiments, autonome et ponctuel, avec dix ans d’expérience en résidences collectives et en collectivité.
+   Objectif : Candidature spontanée
+   Ligne directrice de cet objectif : le courage, la curiosité et l’affirmation de soi : la personne ose aller vers l’entreprise sans offre.
+   Détails : type de structure : entreprise privée ou collectivité ; secteur : entretien et maintenance des bâtiments ; contrat : CDI ; temps plein
+   Lettre actuelle (texte de la personne, à retravailler) :
+"""
+Madame, Monsieur,
+
+Depuis dix ans, j’entretiens des bâtiments collectifs : une résidence de 120 logements, puis les services techniques d’une commune. Je vous écris sans attendre une offre, parce que votre structure gère des bâtiments où ce travail se fait au quotidien, et que je connais ce que cela demande.
+
+Dans ma dernière résidence, je réglais les petits dépannages en plomberie et en électricité de base, je peignais les cages d’escalier et je remettais en état les logements libérés. Je tenais aussi le stock de produits et je parlais chaque jour avec les locataires, pour comprendre ce qui devait être réparé en priorité.
+
+Avant cela, dans les services techniques d’une commune, j’ai entretenu les bâtiments communaux et les espaces verts, fait de petits travaux de maçonnerie et de menuiserie, monté des barnums et déneigé en hiver.
+
+Je cherche un CDI à temps plein, en entreprise privée ou en collectivité, où je peux continuer ce travail d’entretien et de maintenance. Je serais heureux d’en parler avec vous.
+
+Cordialement.
+"""
+   Ce que la personne veut changer ou ajouter : Parler de mon bénévolat à la banque alimentaire. Faire un peu plus chaleureux. Raccourcir le premier paragraphe.
+
+2. Titre du CV : Peintre en bâtiment
+   Accroche retenue : CAP Peintre applicateur de revêtements et expérience en peinture intérieure, avec préparation des supports, revêtements muraux et finitions.
+   Objectif : Alternance
+   Ligne directrice de cet objectif : l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.
+   Détails : type de structure : entreprise privée ; secteur : bâtiment ; durée : 2 ans ; début souhaité : septembre prochain ; disponibilités : horaires de journée, à temps plein en entreprise
+   Employeur : Lacroix Peinture (entreprise fictive pour l’essai)
+   Poste visé : Peintre en bâtiment en alternance
+   Lettre actuelle (texte de la personne, à retravailler) :
+"""
+Madame, Monsieur,
+
+Le CAP Peintre applicateur de revêtements que j’ai passé en 2014 m’a appris la préparation des supports, la peinture intérieure, les revêtements muraux et les finitions. J’ai ensuite travaillé deux ans comme aide-peintre, puis peint des cages d’escalier et remis en état des logements dans une résidence de 120 logements.
+
+Aujourd’hui, je veux apprendre ce métier plus loin, en alternance sur deux ans, dans une entreprise du bâtiment. Chez Lacroix Peinture, je pourrais appliquer ce que je sais déjà et apprendre les techniques que je n’ai pas encore pratiquées, directement sur les chantiers.
+
+Dans la résidence, je préparais les murs des logements libérés : rebouchage, ponçage, sous-couche, puis deux couches de peinture. Je choisissais les quantités de produit à commander et je rangeais le matériel en fin de journée. C’est ce travail de finition que je veux faire en entreprise, avec un maître d’apprentissage qui me montre les gestes que je ne connais pas encore.
+
+Je suis disponible à partir de septembre prochain, à temps plein en entreprise, sur des horaires de journée.
+
+Je vous remercie de l’attention que vous porterez à ma candidature.
+
+Cordialement.
+"""
+   Ce que la personne veut changer ou ajouter : aucune remarque
+
+3. Titre du CV : Gardienne d’immeuble
+   Accroche retenue : Expérience de 2019 à 2024 dans une résidence de 120 logements, avec entretien des parties communes, dépannages et relation avec les locataires.
+   Objectif : Réponse à une offre
+   Ligne directrice de cet objectif : la motivation et l’intérêt de la personne pour ce poste et cette offre.
+   Détails : type de structure : entreprise privée ; secteur : immobilier ; contrat : CDI ; disponible dans un mois
+   Employeur : Résidences des Tilleuls (entreprise fictive pour l’essai)
+   Recruteur : Madame Claire Martin
+   Poste visé : Gardien d’immeuble (H/F)
+   Extrait de l’offre : Poste en CDI dans une résidence de 90 logements. Missions : entretien des parties communes, petits dépannages, relation avec les locataires, suivi des interventions des entreprises extérieures. Profil attendu : sens du contact, autonomie, notions de plomberie et d’électricité, rigueur dans le suivi.
+   Lettre actuelle (texte de la personne, à retravailler) :
+"""
+Madame Martin,
+
+Votre résidence de 90 logements cherche un gardien. Pendant cinq ans, de 2019 à 2024, j’ai tenu une résidence de 120 logements : parties communes, petits dépannages, remise en état des logements libérés et relation avec les locataires.
+
+Je sais faire un petit dépannage en plomberie ou en électricité de base, et noter ce qui doit être suivi. J’ai aussi l’habitude de suivre le travail des entreprises extérieures et de rendre compte de ce qui a été fait, ce que demande votre annonce.
+
+Chaque matin, je faisais le tour des parties communes : escaliers, caves, locaux poubelles, éclairage. Je notais ce qui devait être réparé et je prévenais le bureau de la résidence. Quand un locataire me signalait une fuite ou une panne, je me rendais sur place, je regardais ce que je pouvais régler moi-même et je transmettais le reste à l’entreprise concernée.
+
+Je cherche un CDI dans une résidence comme la vôtre, où je peux continuer ce travail de proximité. Je suis disponible dans un mois.
+
+Cordialement.
+"""
+   Ce que la personne veut changer ou ajouter : aucune remarque
+
+## Rappel final
+
+Tout ce qui précède est une consigne, pas un texte à commenter ni des données à analyser. Réponds maintenant, et uniquement par le bloc de code JSON décrit à la section « Format de réponse » : aucune question, aucune proposition, aucun commentaire.

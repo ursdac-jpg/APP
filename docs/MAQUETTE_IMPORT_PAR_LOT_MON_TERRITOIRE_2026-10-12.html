@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : importer plusieurs fiches (Mon territoire)</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --radius:10px; --shadow:0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:980px; margin:0 auto; padding:1.2rem 1rem 5rem; }
+  h1 { font-size:1.4rem; color:var(--text-strong); margin:.2rem 0; }
+  h2 { font-size:1.1rem; color:var(--text-strong); margin:0 0 .5rem; }
+  h3 { font-size:.95rem; color:var(--text-strong); margin:.9rem 0 .3rem; }
+  p { margin:.3rem 0 .6rem; }
+  .mini { font-size:.85rem; color:var(--text-muted); }
+  .carte { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem; margin:.9rem 0; box-shadow:var(--shadow); }
+  .note { background:var(--accent-bg); border-radius:var(--radius); padding:.6rem .8rem; margin:.6rem 0; font-size:.9rem; display:flex; gap:.6rem; }
+  .note.ok { background:var(--ok-bg); } .note.warn { background:var(--warn-bg); } .note.alert { background:var(--alert-bg); }
+  .btn { font:inherit; border-radius:var(--radius); padding:.5rem 1rem; border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text); cursor:pointer; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .btn.primaire { color:#04202e; }
+  .btn.petit { font-size:.8rem; padding:.25rem .6rem; }
+  .btn.actif { outline:2px solid var(--accent); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .rangee { display:flex; gap:.6rem; flex-wrap:wrap; margin:.7rem 0; align-items:center; }
+  .barre-etapes { display:flex; gap:.4rem; flex-wrap:wrap; margin:.6rem 0 1rem; position:sticky; top:0; background:var(--bg-page); padding:.5rem 0; z-index:5; }
+  .ecran { display:none; } .ecran.visible { display:block; }
+  textarea { width:100%; min-height:12rem; font:.85rem ui-monospace,Consolas,monospace; background:var(--bg-subtle); color:var(--text); border:1px solid var(--border-strong); border-radius:var(--radius); padding:.6rem; }
+  select, input[type=text] { font:inherit; background:var(--bg-card); color:var(--text); border:1px solid var(--border-strong); border-radius:8px; padding:.4rem .6rem; }
+  table { width:100%; border-collapse:collapse; font-size:.86rem; }
+  th { text-align:left; color:var(--text-muted); font-weight:600; padding:.3rem .4rem; border-bottom:1px solid var(--border-strong); }
+  td { padding:.4rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .pastille { display:inline-block; border-radius:999px; padding:.1rem .6rem; font-size:.78rem; font-weight:600; white-space:nowrap; }
+  .p-ok { background:var(--ok-bg); color:var(--ok); } .p-warn { background:var(--warn-bg); color:var(--warn); } .p-alert { background:var(--alert-bg); color:var(--alert); } .p-neutre { background:var(--bg-subtle); color:var(--text-muted); }
+  .fenetre { border:2px solid var(--border-strong); border-radius:14px; padding:1rem; background:var(--bg-card); }
+  .chiffres { display:flex; gap:.7rem; flex-wrap:wrap; margin:.6rem 0; }
+  .chiffre { flex:1 1 9rem; border-radius:var(--radius); padding:.6rem .8rem; text-align:center; }
+  .chiffre strong { display:block; font-size:1.6rem; line-height:1.1; }
+  .reco { border-left:4px solid var(--ok); padding-left:.8rem; }
+  .annot { font-size:.82rem; color:var(--text-muted); border:1px dashed var(--border-strong); border-radius:8px; padding:.4rem .6rem; margin:.5rem 0; }
+  code { background:var(--bg-subtle); padding:.05rem .3rem; border-radius:5px; font-size:.85em; }
+  .barre-progres { height:.7rem; background:var(--bg-subtle); border-radius:999px; overflow:hidden; } .barre-progres > span { display:block; height:100%; background:var(--ok); width:30%; }
+</style>
+</head>
+<body>
+<main>
+  <div class="rangee" style="justify-content:space-between">
+    <h1>Maquette : importer plusieurs fiches d'un coup</h1>
+    <button class="btn petit" type="button" id="bascule">Mode sombre</button>
+  </div>
+  <p class="mini">Outil de veille, section « 5. Mon territoire ». Maquette du 2026-10-12, à valider avant tout code. Les noms, adresses et numéros des exemples sont <strong>fictifs ou à titre d'illustration</strong> : aucune donnée réelle n'est affirmée ici.</p>
+
+  <div class="carte">
+    <h2>Le parcours réel, avant et après</h2>
+    <p><strong>Aujourd'hui (écran d'avant).</strong> Vous ouvrez « Mon territoire » dans l'outil de veille. Une fenêtre montre la liste des fiches. Pour <em>ajouter</em>, vous cliquez « Ajouter une fiche » et vous remplissez un formulaire, <strong>une fiche à la fois</strong>. Vous cliquez « Enregistrer les modifications » : l'outil vérifie tout avec les règles de l'application, puis publie.</p>
+    <p><strong>Ce que ChatGPT vous donne.</strong> Des dizaines de lignes d'un coup, sous la forme <code>id | type | nom | description | commune | zone | téléphone | site | portée | rayons | source | date</code>.</p>
+    <p><strong>Demain (écran d'après).</strong> Un seul bouton « Importer plusieurs fiches » : vous <strong>collez</strong> tout, l'outil <strong>trie</strong> (prête, déjà connue, à corriger, avec la raison en français), vous gardez ce qui est bon. Les fiches prêtes vont dans un <strong>sas</strong> : elles ne sont <strong>pas publiques</strong> tant que vous n'avez pas ouvert leur site et cliqué « C'est bon ».</p>
+    <p class="mini">Fonctions reprises de l'existant : la vérification avec les règles de l'application, « Annuler la dernière publication », la date du jour au moment de valider. Fonction nouvelle : l'analyse ligne par ligne et le sas.</p>
+  </div>
+
+  <div class="barre-etapes" id="etapes">
+    <button class="btn actif" type="button" data-e="1">1. Le bouton</button>
+    <button class="btn" type="button" data-e="2">2. Coller</button>
+    <button class="btn" type="button" data-e="3">3. Le tri</button>
+    <button class="btn" type="button" data-e="4">4. C'est dans le sas</button>
+    <button class="btn" type="button" data-e="5">5. Vérifier une à une</button>
+    <button class="btn" type="button" data-e="6">6. Les téléphones</button>
+    <button class="btn" type="button" data-e="7">7. Vos décisions</button>
+  </div>
+
+  <!-- ÉCRAN 1 -->
+  <section class="ecran visible" data-e="1">
+    <h2>Écran 1 : un bouton de plus dans la fenêtre « Mon territoire »</h2>
+    <div class="fenetre">
+      <div class="rangee" style="justify-content:space-between"><strong>Mon territoire : structures et employeurs</strong><button class="btn" type="button">Fermer</button></div>
+      <p class="mini">127 structures, dont 3 jamais vérifiées.</p>
+      <div class="rangee">
+        <select><option>Les structures (logement, mobilité...)</option><option>Les employeurs (par secteur)</option></select>
+        <input type="text" placeholder="Chercher (nom, adresse...)">
+        <select><option>Toutes les fiches</option><option>À vérifier</option></select>
+        <button class="btn" type="button">Ajouter une fiche</button>
+        <button class="btn primaire" type="button" data-va="2">Importer plusieurs fiches</button>
+        <button class="btn" type="button" data-va="5">Le sas (0)</button>
+      </div>
+      <table><thead><tr><th>Nom</th><th>Détail</th><th>Adresse</th><th>Dernière vérification</th><th>Actions</th></tr></thead>
+      <tbody><tr><td>CAF de la Dordogne</td><td>aides, prestations</td><td>https://www.caf.fr/...</td><td>6 septembre 2026</td><td><button class="btn petit" type="button">Valider</button> <button class="btn petit" type="button">Modifier</button></td></tr></tbody></table>
+    </div>
+    <div class="annot">Le bouton « Importer plusieurs fiches » est <strong>le principal</strong> de la rangée (bleu), « Ajouter une fiche » reste pour une fiche isolée. « Le sas » affiche entre parenthèses le nombre de fiches en attente de vérification.</div>
+  </section>
+
+  <!-- ÉCRAN 2 -->
+  <section class="ecran" data-e="2">
+    <h2>Écran 2 : coller ce que ChatGPT a donné</h2>
+    <div class="fenetre">
+      <h3>Importer plusieurs fiches</h3>
+      <div class="rangee">
+        <label>Ces lignes décrivent :
+          <select><option>des structures (logement, mobilité, accompagnement...)</option><option>des employeurs (par secteur)</option><option>des téléphones à ajouter aux fiches déjà connues</option></select>
+        </label>
+        <button class="btn petit" type="button">Voir une ligne d'exemple</button>
+      </div>
+      <p class="mini">Collez la réponse de ChatGPT telle quelle, <strong>sans rien retirer</strong>. L'outil enlève tout seul les ``` , les numéros devant les lignes, les puces, les lignes de titre et les barres de tableau en trop.</p>
+      <textarea aria-label="Lignes à importer">```
+1. mission-locale-limoges-87 | mission-locale | Mission locale de Limoges | accueil et accompagnement des 16-25 ans | Limoges | | 05 55 00 00 00 | https://exemple-mission-locale.fr/ | 87 | jeunes, accompagnement | https://exemple.fr/contact |
+2. caf-haute-vienne | caf | CAF de la Haute-Vienne | aides, prestations | Limoges | | | http://exemple-caf.fr | 87 | budget | https://exemple.fr |
+3. ccas-saint-junien-87 | ccas | CCAS de Saint Junien | aide sociale, domiciliation | Saint Junien | | | https://exemple-ccas.fr/ | 87 | logement | https://exemple.fr |
+4. asso-xyz-87 | mission_locale | Association XYZ | une phrase | Limoges | | | https://exemple.fr/ | 87 | jeunes | https://exemple.fr |
+5. udaf-87-bis | budget-endettement | UDAF de la Haute-Vienne | point conseil budget | Limoges | | | https://exemple-udaf.fr/ | 87 | budget | https://exemple.fr |
+```</textarea>
+      <div class="rangee">
+        <button class="btn primaire" type="button" data-va="3">Vérifier mes lignes</button>
+        <span class="mini">100 lignes au plus par import. Au-delà, faites-en plusieurs.</span>
+      </div>
+    </div>
+    <div class="annot">Rien n'est enregistré à ce stade : « Vérifier » ne fait que lire et trier.</div>
+  </section>
+
+  <!-- ÉCRAN 3 -->
+  <section class="ecran" data-e="3">
+    <h2>Écran 3 : le tri, ligne par ligne</h2>
+    <div class="fenetre">
+      <h3>5 lignes lues</h3>
+      <div class="chiffres">
+        <div class="chiffre" style="background:var(--ok-bg)"><strong>2</strong>prêtes</div>
+        <div class="chiffre" style="background:var(--warn-bg)"><strong>1</strong>déjà dans le répertoire</div>
+        <div class="chiffre" style="background:var(--alert-bg)"><strong>2</strong>à corriger</div>
+      </div>
+      <table>
+        <thead><tr><th>Ligne</th><th>Fiche</th><th>Résultat</th><th>Ce que vous pouvez faire</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Mission locale de Limoges</strong><br><span class="mini">structure, Limoges, 87</span></td><td><span class="pastille p-ok">Prête</span><br><span class="mini">téléphone et site sans date : ils ne s'afficheront qu'après vérification</span></td><td><input type="checkbox" checked aria-label="Garder"> Mettre dans le sas</td></tr>
+          <tr><td>2</td><td><strong>CAF de la Haute-Vienne</strong></td><td><span class="pastille p-ok">Prête, corrigée</span><br><span class="mini">« http:// » remplacé par « https:// » (le site doit commencer par https)</span></td><td><input type="checkbox" checked aria-label="Garder"> Mettre dans le sas</td></tr>
+          <tr><td>3</td><td><strong>CCAS de Saint Junien</strong></td><td><span class="pastille p-alert">À corriger</span><br><span class="mini">La commune « Saint Junien » n'est pas dans la liste de la Haute-Vienne. Vouliez-vous dire <strong>Saint-Junien</strong> ?</span></td><td><button class="btn petit" type="button">Prendre « Saint-Junien »</button></td></tr>
+          <tr><td>4</td><td><strong>Association XYZ</strong></td><td><span class="pastille p-alert">À corriger</span><br><span class="mini">Le type « mission_locale » n'existe pas. Types proches : <strong>mission-locale</strong>, siae, plie.</span></td><td><select><option>Choisir le type...</option><option>mission-locale</option></select></td></tr>
+          <tr><td>5</td><td><strong>UDAF de la Haute-Vienne</strong></td><td><span class="pastille p-warn">Déjà connue</span><br><span class="mini">Même nom que la fiche « UDAF de la Haute-Vienne » (asso-udaf-87), déjà publiée le 6 septembre 2026.</span></td><td><label><input type="radio" name="d5" checked> Garder la fiche actuelle</label><br><label><input type="radio" name="d5"> La mettre dans le sas pour comparer</label></td></tr>
+        </tbody>
+      </table>
+      <div class="rangee">
+        <button class="btn primaire" type="button" data-va="4">Mettre les 3 fiches cochées dans le sas</button>
+        <button class="btn" type="button">Copier les 2 lignes à corriger pour ChatGPT</button>
+        <button class="btn" type="button" data-va="2">Recommencer</button>
+      </div>
+      <p class="mini">« Copier les lignes à corriger » prépare un message prêt à coller dans ChatGPT : <em>« Ces lignes ont été refusées pour les raisons suivantes : ... Corrige-les sans rien inventer et renvoie-les au même format. »</em></p>
+    </div>
+    <div class="annot">Une ligne à corriger <strong>ne bloque jamais</strong> les autres. L'outil ne modifie jamais le sens d'une ligne : il ne fait que des corrections de forme (https, majuscules, accents, tiret long), et vous les montre.</div>
+  </section>
+
+  <!-- ÉCRAN 4 -->
+  <section class="ecran" data-e="4">
+    <h2>Écran 4 : c'est dans le sas</h2>
+    <div class="fenetre">
+      <div class="note ok"><span>&#10003;</span><span><strong>3 fiches ajoutées au sas.</strong> Elles ne sont <strong>pas publiques</strong> : l'application ne les lit pas. Elles le deviendront une par une, quand vous aurez ouvert leur site et cliqué « C'est bon ».</span></div>
+      <div class="rangee">
+        <button class="btn primaire" type="button" data-va="5">Commencer à vérifier (3)</button>
+        <button class="btn" type="button">Annuler cet import</button>
+        <button class="btn" type="button" data-va="2">Importer d'autres lignes</button>
+      </div>
+      <p class="mini">« Annuler cet import » retire exactement ces 3 fiches du sas (même principe que « Annuler la dernière publication »).</p>
+    </div>
+  </section>
+
+  <!-- ÉCRAN 5 -->
+  <section class="ecran" data-e="5">
+    <h2>Écran 5 : vérifier une fiche à la fois, puis publier</h2>
+    <p class="mini">Cet écran est le lot suivant (L4). Il est montré ici pour que vous voyiez où mène l'import.</p>
+    <div class="fenetre">
+      <div class="rangee" style="justify-content:space-between"><strong>Le sas : 12 fiches à vérifier</strong><span class="mini">3 sur 15 vérifiées aujourd'hui</span></div>
+      <div class="barre-progres" aria-hidden="true"><span style="width:20%"></span></div>
+      <div class="carte" style="box-shadow:none">
+        <h3>Mission locale de Limoges <span class="pastille p-neutre">structure, Limoges</span></h3>
+        <p class="mini">accueil et accompagnement des 16-25 ans</p>
+        <table>
+          <tr><td style="width:9rem">Site à ouvrir</td><td>https://exemple-mission-locale.fr/ <button class="btn petit" type="button">Ouvrir le site</button></td></tr>
+          <tr><td>Téléphone proposé</td><td>05 55 00 00 00 <span class="mini">vu sur : https://exemple.fr/contact</span> <button class="btn petit" type="button">Ouvrir la page où il figure</button></td></tr>
+          <tr><td>Source donnée par ChatGPT</td><td class="mini">https://exemple.fr/contact</td></tr>
+        </table>
+        <div class="note warn"><span>&#128161;</span><span>Ouvrez le site, vérifiez que le nom, la ville et le numéro correspondent. Si c'est bon, « C'est bon, publier » : la date du jour est inscrite et la fiche devient publique.</span></div>
+        <div class="rangee">
+          <button class="btn primaire" type="button">C'est bon, publier (date du jour)</button>
+          <button class="btn" type="button">Corriger</button>
+          <button class="btn" type="button">Retirer le numéro et publier sans lui</button>
+          <button class="btn" type="button">Écarter cette fiche</button>
+        </div>
+      </div>
+    </div>
+    <div class="annot">« Retirer le numéro et publier sans lui » : une fiche peut être publiée avec son site vérifié mais sans téléphone si celui-ci n'est pas confirmé. Rien n'est publié sans clic de votre part.</div>
+  </section>
+
+  <!-- ÉCRAN 6 -->
+  <section class="ecran" data-e="6">
+    <h2>Écran 6 : ajouter des numéros de téléphone aux fiches déjà connues</h2>
+    <p class="mini">Réponse du prompt 5 de ChatGPT : <code>nom | téléphone | page où il figure | à vérifier</code>. Ce ne sont pas des fiches nouvelles, ce sont des compléments.</p>
+    <div class="fenetre">
+      <h3>6 lignes lues, 5 fiches reconnues</h3>
+      <table>
+        <thead><tr><th>Fiche reconnue</th><th>Numéro proposé</th><th>Résultat</th></tr></thead>
+        <tbody>
+          <tr><td>CAF de la Dordogne</td><td>05 53 00 00 00</td><td><span class="pastille p-ok">Va dans le sas</span> <span class="mini">en attente de votre vérification</span></td></tr>
+          <tr><td>CCAS de Bergerac</td><td>non trouvé</td><td><span class="pastille p-neutre">Rien à ajouter</span></td></tr>
+          <tr><td>« Mission locale du bergeracois »</td><td>05 53 00 00 01</td><td><span class="pastille p-warn">Nom proche</span> <span class="mini">Voulez-vous dire « Mission locale du Bergeracois » ?</span> <button class="btn petit" type="button">Oui</button></td></tr>
+          <tr><td>Centre inconnu</td><td>05 53 00 00 02</td><td><span class="pastille p-alert">Fiche introuvable</span> <span class="mini">aucune fiche de ce nom au répertoire</span></td></tr>
+        </tbody>
+      </table>
+      <div class="rangee"><button class="btn primaire" type="button">Mettre les compléments dans le sas</button></div>
+    </div>
+    <div class="annot">Au moment de la vérification (écran 5), le numéro est présenté avec la page où ChatGPT dit l'avoir vu. Quand vous cliquez « C'est bon », il s'ajoute à la fiche existante avec la date du jour ; la fiche n'est pas recréée.</div>
+  </section>
+
+  <!-- ÉCRAN 7 -->
+  <section class="ecran" data-e="7">
+    <h2>Vos décisions</h2>
+    <p class="mini">Pour chaque question : ma recommandation en premier, avec ce que chaque choix apporte et risque.</p>
+
+    <div class="carte reco">
+      <h3>Question 1 : où vont les fiches importées ?</h3>
+      <p><strong>A. Dans un « sas » séparé, jamais lu par l'application, publiées une à une après votre vérification (Recommandé).</strong></p>
+      <p class="mini"><strong>Apporte</strong> : aucune fiche non vérifiée n'atteint le public ; la liste « à vérifier » existe d'elle-même ; vous pouvez importer 100 lignes un soir et vérifier sur plusieurs semaines. <strong>Risque</strong> : un fichier de plus à connaître. Les candidats du sas sont des noms et des adresses publiques, sans donnée personnelle.</p>
+      <p><strong>B. Directement dans le répertoire, sans date.</strong></p>
+      <p class="mini"><strong>Apporte</strong> : plus simple, pas de sas. <strong>Risque</strong> : le nom et la description d'une structure inventée par ChatGPT s'afficheraient au public avant toute vérification (seuls le site et le téléphone sont cachés).</p>
+      <p><strong>C. Directement dans le répertoire, mais cachées au public tant qu'elles n'ont pas de date.</strong></p>
+      <p class="mini"><strong>Apporte</strong> : un seul fichier. <strong>Risque</strong> : cela change le comportement de l'application (les 3 enseignes sans date seraient cachées aussi), donc demande de re-tester tout le module.</p>
+    </div>
+
+    <div class="carte reco">
+      <h3>Question 2 : une ligne ressemble à une fiche déjà publiée. Que fait l'outil ?</h3>
+      <p><strong>A. Il la signale « déjà connue » et garde la fiche actuelle par défaut ; jamais de remplacement automatique (Recommandé).</strong></p>
+      <p class="mini"><strong>Apporte</strong> : une fiche vérifiée ne peut pas être écrasée par une réponse de ChatGPT. <strong>Risque</strong> : un doublon si le nom diffère trop (vous le verrez à la vérification).</p>
+      <p><strong>B. Il remplace la fiche existante.</strong> <span class="mini">Apporte : rapide. Risque : perte d'une vérification faite à la main.</span></p>
+    </div>
+
+    <div class="carte reco">
+      <h3>Question 3 : l'outil corrige-t-il automatiquement les erreurs de forme ?</h3>
+      <p><strong>A. Oui pour la forme seulement, en vous le montrant ; jamais pour le sens (Recommandé).</strong> Exemples : « http » devient « https », « Saint Junien » proposé comme « Saint-Junien » (avec un bouton, pas sans vous), les tirets longs remplacés, les espaces en trop.</p>
+      <p class="mini"><strong>Apporte</strong> : moins de lignes refusées pour des détails. <strong>Risque</strong> : très faible, car chaque correction est visible et le sens n'est jamais modifié.</p>
+      <p><strong>B. Non, tout refuser.</strong> <span class="mini">Apporte : rigueur maximale. Risque : beaucoup de lignes refusées pour un tiret, donc beaucoup de va-et-vient.</span></p>
+    </div>
+
+    <div class="carte reco">
+      <h3>Question 4 : le mode « téléphones » (écran 6), maintenant ou plus tard ?</h3>
+      <p><strong>A. Dans la même livraison que l'import (Recommandé).</strong> <span class="mini">Apporte : vous pouvez remplir les 110 structures de la Dordogne tout de suite (aucun numéro n'est saisi). Risque : une demi-journée de travail de plus, mais la même base.</span></p>
+      <p><strong>B. Plus tard.</strong> <span class="mini">Apporte : une première livraison plus courte. Risque : les téléphones, qui sont ce que les personnes cherchent le plus, attendent.</span></p>
+    </div>
+
+    <div class="carte reco">
+      <h3>Question 5 : « Copier les lignes à corriger pour ChatGPT »</h3>
+      <p><strong>A. Oui, avec un message tout prêt qui rappelle les règles (Recommandé).</strong> <span class="mini">Apporte : une boucle de correction en un clic. Risque : aucun.</span></p>
+      <p><strong>B. Non.</strong> <span class="mini">Apporte : un écran plus simple. Risque : vous recopiez les raisons à la main.</span></p>
+    </div>
+
+    <div class="note"><span>&#128161;</span><span><strong>Ce que je ne peux pas promettre.</strong> L'outil trie la <em>forme</em> et les doublons ; il ne sait pas si une structure existe vraiment. Seule votre vérification (ouvrir le site) le dit. C'est volontaire : c'est ce qui rend le module fiable.</span></div>
+    <div class="note warn"><span>&#9888;</span><span><strong>Points techniques à connaître.</strong> (1) Un import contient 100 lignes au plus (limite de l'outil actuel). (2) Le sas est un fichier du dépôt : si le site est publié tel quel, il pourrait être téléchargé par quelqu'un qui connaît son adresse. Il ne contient que des noms et adresses d'organismes à vérifier, aucune donnée personnelle ; je peux le placer hors du dossier publié si vous le préférez. (3) L'import n'écrit rien dans les fichiers du module avant votre clic.</span></div>
+  </section>
+</main>
+<script>
+(function () {
+  var etapes = document.querySelectorAll('#etapes [data-e]');
+  function aller(n) {
+    document.querySelectorAll('.ecran').forEach(function (e) { e.classList.toggle('visible', e.getAttribute('data-e') === String(n)); });
+    etapes.forEach(function (b) { b.classList.toggle('actif', b.getAttribute('data-e') === String(n)); });
+    window.scrollTo(0, 0);
+  }
+  etapes.forEach(function (b) { b.addEventListener('click', function () { aller(b.getAttribute('data-e')); }); });
+  document.querySelectorAll('[data-va]').forEach(function (b) { b.addEventListener('click', function () { aller(b.getAttribute('data-va')); }); });
+  document.getElementById('bascule').addEventListener('click', function () { document.body.classList.toggle('dark'); });
+})();
+</script>
+</body>
+</html>

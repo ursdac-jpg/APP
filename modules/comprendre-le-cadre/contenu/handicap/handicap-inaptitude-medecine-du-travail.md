@@ -7,7 +7,7 @@ tags: [médecine du travail, visite de reprise, aménagement de poste, inaptitud
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "visite de reprise"
     definition: "Visite auprès du médecin du travail après un arrêt d'au moins 60 jours pour maladie ou accident non professionnels, d'au moins 30 jours après un accident du travail, ou après une maladie professionnelle ou un congé maternité. Elle vérifie l'aptitude au poste."

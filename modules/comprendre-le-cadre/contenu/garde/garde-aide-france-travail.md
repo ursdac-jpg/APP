@@ -7,7 +7,7 @@ tags: [AGE, AGEPI, France Travail, reprise d'emploi, formation, garde d'enfant]
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "AGE"
     definition: "Aide à la garde d'enfants de France Travail : aide forfaitaire versée en une fois pour les frais de garde, au moment d'une reprise d'emploi ou d'une entrée en formation. Elle a remplacé l'AGEPI en 2024."
@@ -32,6 +32,6 @@ Pour y avoir droit, il faut être inscrit à France Travail, avoir la charge d'u
 
 Le montant est forfaitaire et versé en une seule fois. Il varie selon le nombre d'enfants et selon le nombre d'heures que vous allez travailler ou passer en formation. Il peut dépasser 500 euros.
 
-La demande se fait dans le mois qui suit la reprise d'emploi ou l'entrée en formation, et il faut l'accord de votre conseiller. Parlez-en dès que votre projet se précise.
+La demande se fait au plus tard dans les trois mois qui suivent la reprise d'emploi ou l'entrée en formation, et il faut l'accord de votre conseiller. Parlez-en dès que votre projet se précise.
 
 Cette aide se cumule avec le CMG de la CAF.

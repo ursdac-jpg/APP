@@ -7,7 +7,7 @@ tags: [CDD, CDI, contrat saisonnier, durée, renouvellement, prime de précarit�
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "prime de précarité"
     definition: "Indemnité de fin de contrat versée à la fin d'un CDD, d'au moins 10 % de la rémunération brute totale. Elle n'est pas due dans plusieurs cas, dont le contrat saisonnier."

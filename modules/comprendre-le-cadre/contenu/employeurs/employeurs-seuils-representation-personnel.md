@@ -7,7 +7,7 @@ tags: [CSE, comité social et économique, délégué syndical, seuil d'effectif
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "comité social et économique (CSE)"
     definition: "Instance qui représente les salariés auprès de l'employeur. Obligatoire dès que l'entreprise atteint 11 salariés pendant 12 mois consécutifs."

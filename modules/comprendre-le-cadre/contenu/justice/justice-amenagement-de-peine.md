@@ -7,7 +7,7 @@ tags: [aménagement de peine, détention à domicile, surveillance électronique
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "détention à domicile sous surveillance électronique"
     definition: "Aménagement de peine avec un bracelet électronique : on reste à son domicile en dehors des heures autorisées par le juge."
@@ -33,6 +33,6 @@ Une peine de prison ferme peut être exécutée autrement qu'en cellule à temps
 
 Plusieurs mesures existent. La détention à domicile sous surveillance électronique : vous portez un bracelet et vous restez chez vous en dehors des heures autorisées. La semi-liberté : vous dormez dans un établissement dédié et vous sortez la journée pour travailler ou vous former. Le placement à l'extérieur : vous êtes hébergé et encadré par une structure partenaire, hors de la prison. La libération conditionnelle : une sortie anticipée avec des obligations, souvent possible à la moitié de la peine.
 
-Il existe aussi la libération sous contrainte. Pour une peine de moins de deux ans, quand il vous reste trois mois de prison à faire, vous en bénéficiez en principe automatiquement, sous la forme d'un des aménagements ci-dessus, sauf décision contraire motivée du juge. Pour une peine de deux à cinq ans, elle est possible aux deux tiers de la peine, mais elle est alors examinée par le juge, pas automatique. C'est le SPIP qui prépare le dossier avec vous.
+Il existe aussi la libération sous contrainte. Pour une peine de deux ans ou moins, quand il vous reste trois mois de prison ou moins à faire, vous en bénéficiez en principe automatiquement, sous la forme d'un des aménagements ci-dessus, sauf cas particuliers : impossibilité matérielle (par exemple l'absence d'hébergement) ou sanction disciplinaire grave en détention. Pour une peine de deux à cinq ans, elle est possible aux deux tiers de la peine, mais elle est alors examinée par le juge, pas automatique. C'est le SPIP qui prépare le dossier avec vous.
 
 Le point commun de toutes ces mesures : elles se préparent, avec un projet concret. Plus vous en parlez tôt à votre conseiller pénitentiaire d'insertion et de probation, plus le dossier a de chances d'aboutir.

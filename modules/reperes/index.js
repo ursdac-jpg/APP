@@ -1394,18 +1394,22 @@ function _reperesRenduAccueil() {
   // partage qui revient exactement la ou on etait, meme place / forme /
   // libelle que tous les modules (chantier "bouton presentation").
   var enDetour = !!_reperesForcerAccueil;
-  return '<div class="page-catalogue-contenu">' +
-    (enDetour && typeof htmlBoutonRevoirModule === 'function'
-      ? htmlBoutonRevoirModule('btnReperesRevenirModule', 'bi-bookmark-star', 'Revenir au module', true)
-      : '') +
+  // Page d'introduction : même gabarit que les autres modules (htmlPageIntroModuleParcours, data/metiers.js) ; propres aux Repères : leur en-tête et le contenu des blocs.
+  return htmlPageIntroModuleParcours({
+    enTeteHTML:
     '<div class="reperes-accueil-entete">' +
       // TACHE (retour Denis, 2026-08-31) : une seule icone d'identite du
       // module, celle du titre (en couleur d'accent) -- l'icone "heros"
       // separee juste au-dessus faisait doublon et restait noire.
       '<h1 style="margin:0 0 0.5rem;"><i class="bi bi-bookmark-star"></i> Mes Repères</h1>' +
       '<p class="reperes-accueil-accroche">Un espace pour garder vos réflexions au fil du temps, sans avoir à savoir tout de suite ce que vous allez en faire.</p>' +
-    '</div>' +
-
+    '</div>',
+    multilingueCourte: true,
+    detour: enDetour, detourBoutonId: 'btnReperesRevenirModule', detourLogo: 'bi-bookmark-star', detourAttribut: 'data-repere-revenir-module',
+    onRevenirExpr: 'reperesRevenirDeLaPresentation()',
+    ctaId: 'btnReperesIntroCommencer', ctaAttribut: 'data-repere-accueil-continuer', ctaLabel: (estRetour ? 'Je reprends' : 'Je commence'),
+    carteRetour: 'boiteaoutils',
+    blocsHTML:
     // TACHE (intro remise au gabarit commun, Denis 2026-09-09) : meme
     // habillage que _carnetRenduIntro() -- blocs .cv-section, titres <h4>
     // + emoji en casse normale, encarts a fond --accent-bg-subtle, rappels
@@ -1501,33 +1505,8 @@ function _reperesRenduAccueil() {
       '<p class="mb-0">Vous croiserez parfois, dans d\'autres parties de l\'application, un bouton pour garder quelque chose comme Repère. C\'est exactement la même chose qu\'ici : ça met de côté une réflexion pour y revenir plus tard, pour y penser seul(e), en parler avec un assistant, ou avec la personne qui vous accompagne.</p>' +
     '</div>' +
 
-    '<div class="cv-section" style="margin-bottom:1rem;">' +
-      '<h4>&#9989; Bon à savoir</h4>' +
-      '<div class="cv-section" style="margin-bottom:0.5rem;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128190; <strong>Cette application ne demande jamais de compte ni de mot de passe</strong>, donc rien n\'est conservé automatiquement. Pensez à cliquer sur l\'icône disquette, surtout après avoir noté plusieurs Repères : si vous fermez la page sans avoir sauvegardé, ces informations seront perdues.</p></div>' +
-      '<div class="cv-section" style="margin-bottom:0;background:var(--success-bg-subtle);border-left:3px solid var(--success);"><p class="mb-0 small">&#128274; Vos Repères ne quittent jamais votre ordinateur. Rien n\'est envoyé sur Internet, rien n\'est stocké en ligne.</p></div>' +
-    '</div>' +
-
-    (typeof htmlEncartMultilingue === 'function' ? htmlEncartMultilingue(true) : '') +
-
-    '<div class="reperes-accueil-zone-cta">' +
-      (enDetour
-        ? '<button type="button" class="btn btn-primary" data-repere-revenir-module>Revenir au module &#8594;</button>'
-        : '<button type="button" class="btn btn-primary" data-repere-accueil-continuer>' + (estRetour ? 'Je reprends' : 'Je commence') + '</button>') +
-    '</div>' +
-  '</div>' +
-    // TACHE (retour utilisateur, 2026-08-26, BUG REEL : "Retour" agissait
-    // comme "Accueil") : cet écran est désormais la VRAIE page précédente
-    // vue depuis l'écran principal (voir _reperesRenduEcran(), qui affiche
-    // cet écran plutôt que de naviguer directement) -- lui donner sa
-    // propre barre "Retour"/"Accueil" standard, jamais vue jusqu'ici,
-    // pour continuer vers la page réellement précédente (avant même
-    // d'être entré dans Repères). Comportement par défaut de
-    // barreNavigation() : "Retour" ramene au menu de la Boite a outils
-    // (la ou on choisit un module), jamais a l'accueil principal -- retour
-    // Denis 2026-08-31, cohérent avec tous les autres modules. Le bouton
-    // "Accueil" de la barre reste pour aller a l'accueil.
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null,
-      { onclickPrecedent: (enDetour ? 'reperesRevenirDeLaPresentation()' : 'retourVersBoiteAOutils()') }) + '</div>';
+    '<div class="cv-section" style="margin-bottom:1rem;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128190; <strong>Cette application ne demande jamais de compte ni de mot de passe</strong>, donc rien n\'est conservé automatiquement. Pensez à cliquer sur l\'icône disquette, surtout après avoir noté plusieurs Repères : si vous fermez la page sans avoir sauvegardé, ces informations seront perdues.</p></div>'
+  });
 }
 
 function _reperesRenduEcran() {
@@ -2246,16 +2225,33 @@ function reperesRetour() {
 // module (_reperesRenduAccueil()) plutôt que la liste, soit à la toute
 // première visite, soit sur demande explicite (_reperesForcerAccueil,
 // bouton "Revoir l'explication").
+// ------------------------------------------------------------
+// Fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Deux ecrans (l'accueil explicatif, normal ou force, et l'ecran de travail) dessines par pageReperes() : chaque dessin note l'ecran, chaque changement d'ecran devient une entree de l'historique.
+// ------------------------------------------------------------
+function _reperesSynchroniserHistorique(accueil, forcer) {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('reperes', _reperesRestaurerHistorique); }
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  historiqueInterneSynchroniser('reperes', { cle: accueil ? (forcer ? 'accueil-detour' : 'accueil') : 'travail', accueil: accueil, forcer: forcer });
+}
+
+function _reperesRestaurerHistorique(instantane) {
+  _reperesForcerAccueil = !!(instantane.accueil && instantane.forcer);
+  _reperesRetourAccueil = !!(instantane.accueil && !instantane.forcer);
+}
+
 function pageReperes() {
   _reperesModeAffichage = 'reperes';
   var versAccueilNormal = _reperesRetourAccueil;
   _reperesRetourAccueil = false;
   if (_reperesForcerAccueil || versAccueilNormal || !dossier.reperesIntroVue) {
     app.innerHTML = _reperesRenduAccueil();
+    _reperesSynchroniserHistorique(true, !!_reperesForcerAccueil);
     _reperesBrancherEvenementsAccueil();
     return;
   }
   app.innerHTML = _reperesRenduEcran();
+  _reperesSynchroniserHistorique(false, false);
   _reperesBrancherEvenementsPickers();
   _reperesBrancherEvenementsListe();
   // TACHE (retour utilisateur, 2026-08-26, en profitant de la

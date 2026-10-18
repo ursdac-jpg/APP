@@ -7,7 +7,7 @@ tags: [saisie sur salaire, saisie des rémunérations, fraction insaisissable, c
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "saisie sur salaire"
     definition: "Prélèvement d'une partie du salaire par l'employeur, chaque mois, pour rembourser un créancier. Une part du salaire reste toujours protégée."

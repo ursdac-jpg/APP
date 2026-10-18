@@ -68,3 +68,17 @@ Une liste **courte** : ce qui a été modifié (fiche, une ligne), ce qui demand
 ## L'outil de veille (`outils/veille.html`)
 
 Denis l'ouvre par un raccourci sur son bureau (fichier local, sans serveur). Depuis le 2026-10-05, il charge sa base tout seul (`outils/base_fiches.js`), affiche l'état réel des rayons d'après les `verifie_le` des fiches, et propose trois gestes. Il reste utile pour regarder l'état des fiches. La **recherche** elle-même, le **triage**, la **rédaction** et le **dépôt** se font ici, avec Claude, pas dans l'outil.
+
+## Pages d'offres des employeurs : la liste « à revérifier » (une fois par mois)
+
+Rubrique « Employeurs qui publient leurs offres » (fichier `modules/mon-territoire/contenu/offres.txt`). Une page porte la pastille verte « Vérifié le [date] » pendant 6 mois ; de 6 à 12 mois elle reste visible « à revérifier » ; au-delà, elle disparaît de l'application.
+1. Outil de veille, fenêtre « Qui fait quoi », registre **« Les pages d'offres des employeurs »**, filtre **« À revérifier »**.
+2. Facultatif : bouton **« Contrôler les adresses (automatique) »** (une à deux minutes). Il dit pour chaque page si elle répond, mène ailleurs, refuse les robots ou n'existe plus. Il ne modifie rien et ne prouve pas qu'une liste d'offres y figure : une page « refuse les robots » (beaucoup d'employeurs) est simplement à ouvrir à la main.
+3. Ouvrir chaque page, vérifier qu'une liste d'offres y figure, puis **« Valider »** (date du jour). Si l'adresse a changé : **« Modifier »**, coller la nouvelle adresse et cocher « J'ai ouvert la page ». Une page qui n'existe plus : **« Supprimer »**.
+4. **« Enregistrer les modifications »** (l'outil contrôle tout avec les règles de l'application avant d'écrire).
+
+## Où trouver quoi dans l'outil de veille (module « Qui fait quoi »), mis à jour le 2026-10-17
+- Fenêtre « Qui fait quoi » (registres publiés, avec « à revérifier ») : structures, employeurs (dont les agences d'intérim), **pages d'offres des employeurs**.
+- Bouton **« Le sas »** (fiches proposées à vérifier une par une, « C'est bon, publier » pose la date du jour) : structures, employeurs, téléphones, **pages d'offres**. Dans le sas des employeurs, le filtre « Tous les types » propose « Agence d'intérim », « Enseigne », « Employeur local ». Dans le sas des **pages d'offres**, le même filtre propose **« Fonction publique »**, « Employeur privé ou association », « Groupement d'employeurs », « Chambre ou fédération » ; les autres filtres : territoire et secteur.
+- Fenêtre « Les adresses » (registre des adresses) : tous les liens du module écrits à un seul endroit (liens de l'écran Insertion, La Bonne Boîte...), à rouvrir tous les 12 mois.
+- Importer des pages proposées par un assistant : « Importer plusieurs fiches », choisir « des pages d'offres des employeurs », coller les lignes au format `id | famille | nom | secteur | territoire | page | employeur | source | date | contrôle | stages`.

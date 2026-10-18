@@ -7,7 +7,7 @@ tags: [Fondation de la 2ème Chance, aide financière, formation qualifiante, cr
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "aide de dernier recours"
     definition: "Une aide qui n'intervient qu'après avoir demandé toutes les autres (France Travail, Région, aides de droit commun). Elle complète, elle ne remplace pas."

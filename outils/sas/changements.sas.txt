@@ -1,0 +1,4 @@
+# Sas des changements : changements du balayage PROPOSES, pas encore verifies. L'application NE LIT PAS ce fichier.
+# Format : id | mois | domaine | intitule | nature | en_vigueur | concerne | ce_qui_change | source_titre | source_url | origine | periode
+# Un changement sort d'ici quand il est valide (outil de veille, bouton « C'est bon ») : il entre alors dans contenu/balayage/<mois>.md avec « Verifie le ».
+

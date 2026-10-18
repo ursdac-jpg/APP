@@ -4542,7 +4542,7 @@ function construireCanvasDocumentSecurise(img, rotationDegres, rectangles, echel
 // une fenetre de saisie de document.
 function _prepaEntretienRendreChoixAssistant() {
   var html = barreEtapesModule(PREPA_ENTRETIEN_NAV_ETAPES, 1) + _prepaEntretienBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-mic"></i> Préparer un entretien d’embauche</h1>' +
+    '<div class="text-center"><h1><i class="bi bi-mic"></i> M’entraîner à un entretien d’embauche</h1>' +
     '<p class="sousTitre">Le clic prépare et copie automatiquement votre demande, puis ouvre l’assistant choisi.</p></div>' +
     '<div class="cv-section prepa-entretien-etape-choix-ia">' +
     '<h4>&#128172; Choisissez votre assistant</h4>' +
@@ -4630,7 +4630,9 @@ function htmlEncartMultilingue(courte) {
 }
 
 function htmlPageIntroModuleParcours(config) {
-  return '<div class="page-catalogue-contenu intro-module-parcours">' +
+  // Options facultatives pour les pages d'introduction qui gardent leur identité (Lexique, Carnet, Repères) : classeExtra, enTeteHTML (remplace le titre + sous-titre,
+  // ex. la couverture du Carnet), multilingueCourte (modules sans assistant), ctaAttribut / detourAttribut (attribut data-... que le module lit pour câbler son bouton).
+  return '<div class="page-catalogue-contenu intro-module-parcours' + (config.classeExtra ? ' ' + config.classeExtra : '') + '">' +
     (config.detour && typeof htmlBoutonRevoirModule === 'function'
       ? htmlBoutonRevoirModule(config.detourBoutonId || 'btnIntroParcoursRevenir',
           config.detourLogo || 'bi-signpost-2', 'Revenir au module', true)
@@ -4641,37 +4643,38 @@ function htmlPageIntroModuleParcours(config) {
     // d'introduction n'est pas un ecran de travail, elle est deja assez
     // chargee. config.etapes reste utilise ailleurs (afficherProgression,
     // js/app.js) pour la barre des VRAIS ecrans de travail, inchange.
-    '<div class="text-center"><h1>' + config.titre + '</h1>' +
-    (config.sousTitre ? '<p class="sousTitre">' + config.sousTitre + '</p>' : '') +
-    '</div>' +
+    (config.enTeteHTML || ('<div class="text-center"><h1>' + config.titre + '</h1>' +
+      (config.sousTitre ? '<p class="sousTitre">' + config.sousTitre + '</p>' : '') +
+      '</div>')) +
     (config.syntheseHTML || '') +
     config.blocsHTML +
-    htmlEncartMultilingue() +
+    htmlEncartMultilingue(!!config.multilingueCourte) +
     // config.ctaMasque : la page porte deja son choix ailleurs (bloc
     // "Continuer / Recommencer" de _introBlocReprise) -> pas de gros bouton
     // en bas, sauf en detour (toujours "Revenir au module").
-    ((config.ctaMasque && !config.detour)
-      ? ''
-      : '<div class="text-center" style="margin-top:1.25rem;">' +
-        (config.detour
-          ? '<button type="button" id="' + (config.detourCtaId || 'btnIntroParcoursRevenirBas') + '" class="btn btn-primary btn-lg">Revenir au module &#8594;</button>'
-          : '<button type="button" id="' + config.ctaId + '" class="btn btn-primary btn-lg"' +
-            (config.ctaDesactive ? ' disabled' : '') + '>' + config.ctaLabel + '</button>' +
-            // TACHE (retour Denis, 2026-08-31) : module pas encore construit -> CTA
-            // desactive + une note sous le bouton. `--text-muted` est un jeton
-            // adapte au mode sombre (jamais la classe Bootstrap .text-muted seule).
-            (config.ctaNote ? '<p style="margin:.55rem 0 0;color:var(--text-muted);font-size:.9rem;">' + config.ctaNote + '</p>' : '')) +
-        '</div>') +
+    // Le bouton de départ (« Commencer », ou « Revenir au module » en détour) est dans la barre du bas, plus en bas de la page (demande de Denis, 2026-10-18) ;
+    // ne reste ici que la note d'un module pas encore construit.
+    ((config.ctaNote && !config.detour && !config.ctaMasque)
+      ? '<div class="text-center" style="margin-top:1.25rem;"><p style="margin:.55rem 0 0;color:var(--text-muted);font-size:.9rem;">' + config.ctaNote + '</p></div>'
+      : '') +
     '</div>' +
     // "Retour" -> panneau de la carte de l'accueil d'ou le module a ete
     // choisi (jamais l'accueil nu : bouton "Accueil" de la barre pour ca).
     // config.carteRetour : 'preparer' | 'boiteaoutils' | 'analyse' | 'accueil'
     // (defaut 'boiteaoutils'). Chantier accueil Bloc 2. En detour, "Retour"
     // revient au module (chantier "bouton presentation").
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null,
-      { onclickPrecedent: (config.detour && config.onRevenirExpr
+    '<div class="barre-navigation-fixe">' + (function () {
+      // Le bouton de départ est aussi dans la barre du bas (Retour, Accueil, départ) : même clic que le bouton de la page (voir optionsBarreIntro, js/app.js).
+      var base = { onclickPrecedent: (config.detour && config.onRevenirExpr
         ? config.onRevenirExpr
-        : "retourVersCarteAccueil('" + (config.carteRetour || 'boiteaoutils') + "')") }) + '</div>';
+        : "retourVersCarteAccueil('" + (config.carteRetour || 'boiteaoutils') + "')") };
+      var bouton = (config.ctaMasque && !config.detour) ? ''
+        : (config.detour
+          ? '<button type="button" id="' + (config.detourCtaId || 'btnIntroParcoursRevenirBas') + '"' + (config.detourAttribut ? ' ' + config.detourAttribut : '') + '>Revenir au module &#8594;</button>'
+          : '<button type="button" id="' + config.ctaId + '"' + (config.ctaAttribut ? ' ' + config.ctaAttribut : '') + '>' + config.ctaLabel + '</button>');
+      var opt = optionsBarreIntro(base, bouton, !config.detour && !!config.ctaDesactive, config.ctaNote ? String(config.ctaNote).replace(/<[^>]+>/g, '') : '');
+      return barreNavigation('cv', opt.onclickSuivant ? 'cv' : null, opt.labelSuivant || null, opt);
+    })() + '</div>';
 }
 // Drapeau pose par le bouton de depart d'une page de presentation de module ;
 // le module qui se rend juste apres le consomme pour repartir EN HAUT, meme
@@ -4831,7 +4834,29 @@ var CO_LETTRE_NAV_ETAPES = [
 // et pagePreparerLettreEntretien) : tant que _coLettreEcran n'a pas ete
 // remis a 'intro' (Terminé, ou jamais commence), on atterrit directement
 // sur l'ecran de travail en cours -- jamais de retour force a l'intro.
+// ------------------------------------------------------------
+// Fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Les ecrans de la lettre (intro, depot, choix de l'assistant, reponse) se deduisent de _coLettreEcran et du drapeau de detour, dessines par le dispatcher pageCoLettre() : chaque passage note l'ecran, chaque changement d'ecran devient une entree de l'historique. Le travail (CV depose...) ne recule jamais : seuls l'ecran et le detour sont remis.
+// ------------------------------------------------------------
+// Numero du travail en cours : il change quand le travail est efface (« Recommencer »).
+var _coLettreSessionHistorique = 1;
+
+function _coLettreSynchroniserHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('co-lettre', _coLettreRestaurerHistorique); }
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  var ecran = _coLettreDetour ? 'intro-detour' : _coLettreEcran;
+  historiqueInterneSynchroniser('co-lettre', { cle: _coLettreSessionHistorique + ':' + ecran, ecran: _coLettreEcran, detour: _coLettreDetour, session: _coLettreSessionHistorique });
+}
+
+function _coLettreRestaurerHistorique(instantane) {
+  // Le travail a ete efface depuis : ces ecrans n'ont plus de sens, « Precedent » les depasse.
+  if (instantane.session !== _coLettreSessionHistorique) { return 'sauter'; }
+  _coLettreEcran = instantane.ecran;
+  _coLettreDetour = !!instantane.detour;
+}
+
 function pageCoLettre() {
+  _coLettreSynchroniserHistorique();
   if (_coLettreDetour) { _coLettreRendreIntro(); return; }
   if (_coLettreEcran === 'depot') { _coLettreRendreDepot(); return; }
   if (_coLettreEcran === 'choix-assistant') { _coLettreRendreChoixAssistant(); return; }
@@ -4888,6 +4913,7 @@ function _coLettreRetourChoixAssistant() {
 // n'est PAS effacee ici -- meme regle que partout ailleurs, rien n'est
 // perdu tant qu'une nouvelle lettre n'est pas enregistree par-dessus.
 function _coLettreRecommencer() {
+  _coLettreSessionHistorique++;
   _coLettreDocument = null;
   _coLettreCvRelu = false;
   _coLettreEtatDepot = { blocsOuverts: {} };
@@ -4958,7 +4984,7 @@ function _coLettreRendreIntro() {
     detourCtaId: 'btnCoLettreRevenirModuleBas',
     onRevenir: _coLettreRevenirModule,
     onRevenirExpr: '_coLettreRevenirModule()',
-    titre: '<i class="bi bi-pen"></i> Co-construire ma lettre de motivation',
+    titre: '<i class="bi bi-pen"></i> Écrire ma lettre de motivation avec l’assistant',
     sousTitre: 'Vous n’écrivez pas seul : un assistant en ligne propose, vous gardez la main sur chaque phrase.',
     etapes: CO_LETTRE_NAV_ETAPES,
     ctaId: 'btnCoLettreCommencer',
@@ -4997,9 +5023,7 @@ function _coLettreRendreIntro() {
           '<p class="mb-0">À tout moment, vous pouvez mettre de côté une réflexion utile sur votre parcours (un doute, une idée, une chose à en dire) dans Mes Repères, pour vous ou votre conseiller.</p>') +
         _introBlocSection('&#128172; Comment ça se passe concrètement',
           '<p class="mb-0">L’application prépare et copie le texte de départ pour vous. Vous le collez sur le site de l’assistant, vous échangez avec lui, puis vous revenez coller la lettre ici. Vous êtes guidé à chaque étape ; vous n’avez rien à taper pour démarrer.</p>') +
-        _introBlocSection('&#9989; Bon à savoir',
-          _introBlocEncart('&#128274;', 'Avant de transmettre votre CV, vous passez par un écran de vérification où vous pouvez masquer votre nom, votre adresse ou votre téléphone.') +
-          _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir enregistré votre lettre, sinon elle sera perdue à la fermeture de la page.'))
+        _introBlocEncart('&#128274;', 'Avant de transmettre votre CV, vous passez par un écran de vérification où vous pouvez masquer votre nom, votre adresse ou votre téléphone.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -5115,7 +5139,7 @@ function _coLettreRendreDepot() {
     (prefsLettreCourantes.ton && prefsLettreCourantes.ton !== STYLE_CV_DEFAUTS.ton) ||
     (prefsLettreCourantes.longueur && prefsLettreCourantes.longueur !== STYLE_CV_DEFAUTS.longueur));
   var html = barreEtapesModule(CO_LETTRE_NAV_ETAPES, 0) + _coLettreBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-pen"></i> Co-construire ma lettre de motivation</h1>' +
+    '<div class="text-center"><h1><i class="bi bi-pen"></i> Écrire ma lettre de motivation avec l’assistant</h1>' +
     '<p class="sousTitre">Tout se prépare ici, sur une seule page qui se déplie. On part de votre CV, puis on précise à qui la lettre s’adresse.</p></div>' +
     '<details class="bloc-depli' + (cvPresent ? ' bd-ok' : '') + '" id="coLettreBlocCv"' + (ouvertBlocDepliManuel(_coLettreEtatDepot, 'blocCv', !cvPresent) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">1</span><span class="preparer-titre">Votre CV</span>' +
@@ -5852,9 +5876,7 @@ function _prepLERendreIntro() {
       _introBlocSection('<i class="bi bi-bookmark-star"></i> Mes Repères',
         '<p class="mb-0">À tout moment, vous pouvez mettre de côté une réflexion utile sur votre parcours (un doute, une idée, une chose à en dire) dans Mes Repères, pour vous ou votre conseiller.</p>') +
       _introBlocSection('&#128172; Comment ça se passe concrètement',
-        '<p class="mb-0">Vous restez sur une seule page pour tout préparer. Une fois prêt, vous copiez un texte, vous le collez chez un assistant en ligne (dans un nouvel onglet), puis vous revenez coller sa réponse ici. La barre en haut vous permet de revenir à une étape déjà faite quand vous voulez.</p>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+        '<p class="mb-0">Vous restez sur une seule page pour tout préparer. Une fois prêt, vous copiez un texte, vous le collez chez un assistant en ligne (dans un nouvel onglet), puis vous revenez coller sa réponse ici. La barre en haut vous permet de revenir à une étape déjà faite quand vous voulez.</p>')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -6044,9 +6066,7 @@ function _majCvRendreIntro() {
       _introBlocSection('<i class="bi bi-bookmark-star"></i> Mes Repères',
         '<p class="mb-0">À tout moment, une réflexion utile sur votre parcours peut être mise de côté dans Mes Repères, pour vous ou votre conseiller.</p>') +
       _introBlocSection('&#128172; Comment ça se passe concrètement',
-        '<p class="mb-0">Vous restez sur une seule page pour tout préparer. Une fois prêt, vous copiez un texte, vous le collez chez un assistant en ligne (dans un nouvel onglet), puis vous revenez coller sa réponse ici. La barre en haut vous permet de revenir à une étape déjà faite quand vous voulez.</p>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+        '<p class="mb-0">Vous restez sur une seule page pour tout préparer. Une fois prêt, vous copiez un texte, vous le collez chez un assistant en ligne (dans un nouvel onglet), puis vous revenez coller sa réponse ici. La barre en haut vous permet de revenir à une étape déjà faite quand vous voulez.</p>')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -7489,9 +7509,7 @@ function _reformulerCvRendreIntro() {
       _introBlocSection('<i class="bi bi-bookmark-star"></i> Mes Repères',
         '<p class="mb-0">À tout moment, une réflexion utile sur votre parcours peut être mise de côté dans Mes Repères, pour vous ou votre conseiller.</p>') +
       _introBlocSection('&#128172; Comment ça se passe concrètement',
-        '<p class="mb-0">Vous restez sur une seule page pour tout préparer. Une fois prêt, vous copiez un texte, vous le collez chez un assistant en ligne (dans un nouvel onglet), puis vous revenez coller sa réponse ici. La barre en haut vous permet de revenir à une étape déjà faite quand vous voulez.</p>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+        '<p class="mb-0">Vous restez sur une seule page pour tout préparer. Une fois prêt, vous copiez un texte, vous le collez chez un assistant en ligne (dans un nouvel onglet), puis vous revenez coller sa réponse ici. La barre en haut vous permet de revenir à une étape déjà faite quand vous voulez.</p>')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -7659,9 +7677,7 @@ function pageCreerCv() {
       _introBlocSection('<i class="bi bi-bookmark-star"></i> Mes Repères',
         '<p class="mb-0">À tout moment, vous pouvez mettre de côté une réflexion utile sur votre parcours (un doute, une idée, une chose à en dire) dans Mes Repères, pour vous ou votre conseiller.</p>') +
       _introBlocSection('&#128172; Comment ça se passe concrètement',
-        '<p class="mb-0">Vous avancez page par page. Une barre en haut montre où vous en êtes, et vous pouvez revenir à une étape déjà faite quand vous voulez. Pour la partie assistant, vous copiez un texte, vous le collez chez un assistant en ligne dans un nouvel onglet, puis vous revenez coller sa réponse ici. L’application ne remplit rien toute seule : vous validez chaque étape.</p>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+        '<p class="mb-0">Vous avancez page par page. Une barre en haut montre où vous en êtes, et vous pouvez revenir à une étape déjà faite quand vous voulez. Pour la partie assistant, vous copiez un texte, vous le collez chez un assistant en ligne dans un nouvel onglet, puis vous revenez coller sa réponse ici. L’application ne remplit rien toute seule : vous validez chaque étape.</p>')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -8520,9 +8536,8 @@ var INFOS_CARTE_ACCUEIL = {
       // qu'a la fin du CV") : precise desormais "en profondeur, plusieurs echanges" pour contraster
       // clairement avec "Preparer ma lettre et mon entretien" (MES_DOCUMENTS_PARCOURS plus haut, deja
       // clair sur sa rapidite) -- les 2 parlent de "lettre", rien avant ne distinguait leur profondeur.
-      ['Co-construire ma lettre', 'bi-pen', 'En profondeur, avec plusieurs échanges : vous n’êtes jamais seul devant la page, l’assistant propose, vous décidez.'],
-      ['Préparer un entretien', 'bi-mic', 'Vous vous exercez à voix haute ou au clavier, autant de fois que vous voulez.'],
-      ['Un regard sur mon CV', 'bi-image', 'Vous verrez ce qui ressort en premier, et ce qui peut faire hésiter.']
+      ['Écrire ma lettre avec l’assistant', 'bi-pen', 'En profondeur, avec plusieurs échanges : vous n’êtes jamais seul devant la page, l’assistant propose, vous décidez.'],
+      ['M’entraîner à un entretien', 'bi-mic', 'Vous vous exercez à voix haute ou au clavier, autant de fois que vous voulez.']
     ]
   },
   boiteaoutils: {
@@ -8537,9 +8552,10 @@ var INFOS_CARTE_ACCUEIL = {
   analyse: {
     intro: 'Un avis extérieur sur votre candidature avant de l’envoyer. Ces outils demandent un CV déjà prêt.',
     items: [
-      ['Analyser ma candidature', 'bi-graph-up', 'L’assistant que vous choisissez ; le copier-coller reste manuel, rien ne part tout seul.'],
-      ['Cohérence de mon dossier', 'bi-check2-circle', 'Repère les endroits où vos documents ne disent pas tout à fait la même chose.'],
-      ['Les mots de votre CV (ATS)', 'bi-card-checklist', 'Comparez le vocabulaire de votre CV à celui d’un métier ou d’une offre. Ni un logiciel de tri, ni une note : la même vérification, en clair.']
+      ['Analyser ma candidature', 'bi-graph-up', 'Mon CV est-il solide ? L’assistant que vous choisissez ; le copier-coller reste manuel, rien ne part tout seul.'],
+      ['Un regard sur mon CV', 'bi-image', 'Que verra un recruteur ? Vous verrez ce qui ressort en premier, et ce qui peut faire hésiter.'],
+      ['Les mots de votre CV (ATS)', 'bi-card-checklist', 'Mon CV parle-t-il comme l’offre ? Comparez le vocabulaire de votre CV à celui d’un métier ou d’une offre. Ni un logiciel de tri, ni une note : la même vérification, en clair.'],
+      ['Cohérence de mon dossier', 'bi-check2-circle', 'Mes documents se tiennent-ils ? Repère les endroits où vos documents ne disent pas tout à fait la même chose.']
     ]
   },
   informe: {
@@ -8568,7 +8584,12 @@ function htmlDeclencheurInfoCarte(id) {
 function htmlBulleInfoCarte(id) {
   var info = INFOS_CARTE_ACCUEIL[id];
   if (!info) { return ''; }
-  var items = info.items.map(function (it) {
+  // Raccourci « Employeurs » et module « Qui fait quoi » : seulement quand le module est ouvert (ou en aperçu), jamais une ligne vers une tuile absente.
+  var source = info.items.slice();
+  var qfqOuvert = typeof mtOuvert === 'function' && mtOuvert();
+  if (qfqOuvert && id === 'preparer') { source.push(['Employeurs près de chez moi', 'bi-geo-alt', 'Des employeurs de votre département, par secteur, pour envoyer une candidature spontanée.']); }
+  if (qfqOuvert && id === 'informe') { source.push(['Qui fait quoi', 'bi-geo-alt', 'À qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification.']); }
+  var items = source.map(function (it) {
     return '<div class="carte-accueil-info-item">' +
       '<i class="bi ' + it[1] + '"></i>' +
       '<span><strong>' + it[0] + '</strong><span>' + it[2] + '</span></span>' +
@@ -8716,13 +8737,15 @@ function ouvrirCarteAccueil(id) {
     mesdocuments: { titre: '<i class="bi bi-folder2-open titre-icone-accent"></i> Mes documents',
       tuiles: MES_DOCUMENTS_PARCOURS.map(function (p) { return tuile(p.btnId, p.icone, p.titre, p.description); }) },
     preparer: { titre: '<i class="bi bi-person titre-icone-accent"></i> Me préparer à candidater', tuiles: [
-      tuile('btnCarteAccueilLettre', 'bi-pen', 'Co-construire ma lettre',
+      tuile('btnCarteAccueilLettre', 'bi-pen', 'Écrire ma lettre avec l’assistant',
         'Vous écrivez la lettre avec un assistant, phrase par phrase, en prenant le temps.'),
-      tuile('btnCarteAccueilEntretien', 'bi-mic', 'Préparer un entretien',
-        'Une séance d’entraînement : vous répondez à des questions d’entretien, à l’écrit ou à voix haute, et l’assistant réagit à vos réponses.'),
-      tuile('btnCarteAccueilRegardRecruteur', 'bi-image', 'Un regard sur mon CV',
-        'Anticipez le regard d’un recruteur sur votre dossier : ce qui ressort, ce qui peut faire hésiter.')
-    ] },
+      tuile('btnCarteAccueilEntretien', 'bi-mic', 'M’entraîner à un entretien',
+        'Une séance d’entraînement : vous répondez à des questions d’entretien, à l’écrit ou à voix haute, et l’assistant réagit à vos réponses.')
+    ].concat((typeof mtOuvert === 'function' && mtOuvert()) ? [
+      // Raccourci vers le module « Qui fait quoi », directement sur les employeurs par secteur (candidatures spontanées) : seulement quand le module est ouvert (MT_OUVERT) ou en aperçu.
+      tuile('btnCarteAccueilEmployeurs', 'bi-geo-alt', 'Employeurs près de chez moi',
+        'Des employeurs de votre département, classés par secteur, pour envoyer une candidature spontanée. Coordonnées vérifiées et datées.')
+    ] : []) },
     boiteaoutils: { titre: '<i class="bi bi-briefcase titre-icone-accent"></i> Boîte à outils', tuiles: [
       tuile('btnCarteAccueilDecouverte', 'bi-stars', 'Découvrir mes compétences',
         'Partez de ce que vous avez vécu pour en tirer un CV, même sans expérience.'),
@@ -8735,18 +8758,24 @@ function ouvrirCarteAccueil(id) {
     ] },
     analyse: { titre: '<i class="bi bi-graph-up-arrow titre-icone-accent"></i> Outils d’analyse', tuiles: [
       tuile('btnCarteAccueilBilan', 'bi-graph-up', 'Analyser ma candidature',
-        'Un assistant repère ce qui mérite d’être renforcé dans votre CV.'),
-      tuile('btnCarteAccueilCoherence', 'bi-check2-circle', 'Cohérence de mon dossier',
-        'Vérifiez que votre CV, votre lettre et votre entretien racontent la même histoire.'),
+        'Mon CV est-il solide ? Un assistant repère ce qui mérite d’être renforcé.'),
+      tuile('btnCarteAccueilRegardRecruteur', 'bi-image', 'Un regard sur mon CV',
+        'Que verra un recruteur ? Ce qui ressort, ce qui peut faire hésiter.'),
       tuile('btnCarteAccueilAts', 'bi-card-checklist', 'Les mots de votre CV (ATS)',
-        'Comparez le vocabulaire de votre CV à celui d’un métier ou d’une offre. Ni un logiciel de tri, ni une note : la même vérification, en clair.')
+        'Mon CV parle-t-il comme l’offre ? Comparez le vocabulaire de votre CV à celui d’un métier ou d’une offre. Ni un logiciel de tri, ni une note : la même vérification, en clair.'),
+      tuile('btnCarteAccueilCoherence', 'bi-check2-circle', 'Cohérence de mon dossier',
+        'Mes documents se tiennent-ils ? Votre CV, votre lettre et votre entretien racontent la même histoire.')
     ] },
     informe: { titre: '<i class="bi bi-newspaper titre-icone-accent"></i> Se tenir informé', tuiles: [
       tuile('btnCarteAccueilActualites', 'bi-newspaper', 'Comprendre le cadre',
         'Des fiches courtes et des liens officiels sur l’emploi, la formation et les dispositifs, à consulter quand vous en avez besoin.'),
       tuile('btnCarteAccueilChiffres', 'bi-bar-chart', 'Comprendre les chiffres',
         'Le chômage, l’emploi, les métiers qui recrutent près de chez vous : des chiffres officiels, expliqués simplement, datés.')
-    ] },
+    ].concat((typeof mtOuvert === 'function' && mtOuvert()) ? [
+      // Module « Qui fait quoi » : la tuile n'apparait que lorsque le module est ouvert au public (MT_OUVERT, modules/mon-territoire/logique.js ; decision D11).
+      tuile('btnCarteAccueilMonTerritoire', 'bi-geo-alt', 'Qui fait quoi',
+        'À qui vous adresser dans votre département, et où : des structures pour vous aider et des employeurs, avec leurs coordonnées et la date de vérification.')
+    ] : []) },
     orientation: { titre: '<i class="bi bi-signpost-split titre-icone-accent"></i> Vous hésitez encore ?', tuiles: [
       tuile('btnCarteAccueilComparerPistes', 'bi-signpost-split', 'Comparer mes pistes',
         'Mettez deux ou trois pistes, ou deux situations, côte à côte pour choisir en connaissance de cause.')
@@ -8777,11 +8806,15 @@ function ouvrirCarteAccueil(id) {
   if (overlay) { brancherInfoCarteAccueil(overlay); }
 
   if (id === 'informe') {
+    pulseDecouverteUneFois('aps_mon_territoire_decouverte_vue', 'btnCarteAccueilMonTerritoire');
     brancher('btnCarteAccueilActualites', function () {
       track('se_tenir_informe'); fermerFenetreERIP(); naviguerVers('se-tenir-informe-intro');
     });
     brancher('btnCarteAccueilChiffres', function () {
       track('comprendre_les_chiffres'); fermerFenetreERIP(); naviguerVers('comprendre-les-chiffres-intro');
+    });
+    brancher('btnCarteAccueilMonTerritoire', function () {
+      track('mon_territoire'); fermerFenetreERIP(); naviguerVers('mon-territoire-intro');
     });
     return;
   }
@@ -8899,6 +8932,7 @@ function ouvrirCarteAccueil(id) {
   }
 
   if (id === 'preparer') {
+    pulseDecouverteUneFois('aps_employeurs_decouverte_vue', 'btnCarteAccueilEmployeurs');
     brancher('btnCarteAccueilLettre', function () {
       track('co_construire_lettre'); fermerFenetreERIP();
       // TACHE (retour utilisateur 2026-09-17, point 6 : "Continuer/Recommencer
@@ -8926,8 +8960,10 @@ function ouvrirCarteAccueil(id) {
       _prepaEntretienDetour = false;
       naviguerVers('prepa-entretien');
     });
-    brancher('btnCarteAccueilRegardRecruteur', function () {
-      track('regard_recruteur'); fermerFenetreERIP(); naviguerVers('regard-recruteur-intro');
+    brancher('btnCarteAccueilEmployeurs', function () {
+      track('employeurs_pres_de_chez_moi'); fermerFenetreERIP();
+      // Présentation propre à cette porte d'entrée (même module que « Qui fait quoi »), puis les employeurs.
+      naviguerVers('employeurs-intro');
     });
     return;
   }
@@ -8955,6 +8991,7 @@ function ouvrirCarteAccueil(id) {
   }
 
   if (id === 'analyse') {
+    pulseDecouverteUneFois('aps_regard_recruteur_dans_analyse_vue', 'btnCarteAccueilRegardRecruteur');
     pulseDecouverteUneFois('aps_coherence_transversale_decouverte_vue', 'btnCarteAccueilCoherence');
     brancher('btnCarteAccueilBilan', function () {
       track('bilan_candidature'); fermerFenetreERIP();
@@ -8963,6 +9000,9 @@ function ouvrirCarteAccueil(id) {
     brancher('btnCarteAccueilCoherence', function () {
       track('coherence_transversale'); fermerFenetreERIP();
       if (typeof ctDemarrer === 'function') { ctDemarrer(); }
+    });
+    brancher('btnCarteAccueilRegardRecruteur', function () {
+      track('regard_recruteur'); fermerFenetreERIP(); naviguerVers('regard-recruteur-intro');
     });
     brancher('btnCarteAccueilAts', function () {
       track('ats'); fermerFenetreERIP(); naviguerVers('ats-intro');
@@ -9261,7 +9301,7 @@ var _CO_LETTRE_ETAPES_DETAIL = [
 
 function _coLettreRendreChoixAssistant() {
   var html = barreEtapesModule(CO_LETTRE_NAV_ETAPES, 1) + _coLettreBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-pen"></i> Co-construire ma lettre de motivation</h1>' +
+    '<div class="text-center"><h1><i class="bi bi-pen"></i> Écrire ma lettre de motivation avec l’assistant</h1>' +
     '<p class="sousTitre">Une lettre de motivation écrite avec l’assistant de votre choix.</p></div>' +
     '<div class="cv-section co-lettre-etape-choix-ia">' +
     '<h4>&#128172; Choisissez votre assistant</h4>' +
@@ -10176,7 +10216,7 @@ function _prepaEntretienRendrePreparer() {
     (prefsEntretienCourantes.longueur && prefsEntretienCourantes.longueur !== STYLE_CV_DEFAUTS.longueur));
 
   var html = barreEtapesModule(PREPA_ENTRETIEN_NAV_ETAPES, 0) + _prepaEntretienBandePresentation() +
-    '<div class="text-center"><h1><i class="bi bi-mic"></i> Préparer un entretien d’embauche ' +
+    '<div class="text-center"><h1><i class="bi bi-mic"></i> M’entraîner à un entretien d’embauche ' +
     // TACHE (retour utilisateur 2026-09-17, "il faudra dire aussi que pour
     // ceux qui ont un compte payant avec la fonction vocale, ils peuvent
     // l'activer") : bulle d'info reprise a l'identique de l'ancien ecran
@@ -10586,6 +10626,7 @@ function ouvrirParcoursEntretien() {
 // enregistree (dossier.ia.entretien), elle, n'est PAS effacee ici -- rien
 // n'est perdu tant qu'une nouvelle preparation n'est pas importee par-dessus.
 function _prepaEntretienRecommencerTravail() {
+  _prepaEntretienSessionHistorique++;
   _prepaEntretienDocumentCv = null;
   _prepaEntretienCvRelu = false;
   _prepaEntretienDocumentLettre = null;
@@ -10598,7 +10639,28 @@ function _prepaEntretienRecommencerTravail() {
 
 // Dispatcher (route 'prepa-entretien') -- meme principe que pageCoLettre()
 // et pageCoherenceTransversale().
+// ------------------------------------------------------------
+// Fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Les ecrans de l'entretien (intro, preparer, choix de l'assistant, reponse) se deduisent de _prepaEntretienEcran et du drapeau de detour, dessines par le dispatcher pagePrepaEntretien() : chaque passage note l'ecran, chaque changement d'ecran devient une entree de l'historique. Le travail (CV et lettre deposes...) ne recule jamais.
+// ------------------------------------------------------------
+// Numero du travail en cours : il change quand le travail est efface (« Recommencer »).
+var _prepaEntretienSessionHistorique = 1;
+
+function _prepaEntretienSynchroniserHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('prepa-entretien', _prepaEntretienRestaurerHistorique); }
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  var ecran = _prepaEntretienDetour ? 'intro-detour' : _prepaEntretienEcran;
+  historiqueInterneSynchroniser('prepa-entretien', { cle: _prepaEntretienSessionHistorique + ':' + ecran, ecran: _prepaEntretienEcran, detour: _prepaEntretienDetour, session: _prepaEntretienSessionHistorique });
+}
+
+function _prepaEntretienRestaurerHistorique(instantane) {
+  if (instantane.session !== _prepaEntretienSessionHistorique) { return 'sauter'; }
+  _prepaEntretienEcran = instantane.ecran;
+  _prepaEntretienDetour = !!instantane.detour;
+}
+
 function pagePrepaEntretien() {
+  _prepaEntretienSynchroniserHistorique();
   if (_prepaEntretienDetour) { _prepaEntretienRendreIntro(); return; }
   if (_prepaEntretienEcran === 'preparer') { _prepaEntretienRendrePreparer(); return; }
   if (_prepaEntretienEcran === 'choix-assistant') { _prepaEntretienRendreChoixAssistant(); return; }
@@ -10728,7 +10790,7 @@ function _prepaEntretienRendreIntro() {
     detourCtaId: 'btnPrepaEntretienRevenirModuleBas',
     onRevenir: _prepaEntretienRevenirModule,
     onRevenirExpr: '_prepaEntretienRevenirModule()',
-    titre: '<i class="bi bi-mic"></i> Préparer un entretien d’embauche',
+    titre: '<i class="bi bi-mic"></i> M’entraîner à un entretien d’embauche',
     sousTitre: 'Réfléchir à l’avance à ce que vous direz, pour arriver plus tranquille.',
     etapes: PREPA_ENTRETIEN_NAV_ETAPES,
     ctaId: 'btnPrepaEntretienCommencer',
@@ -10767,9 +10829,7 @@ function _prepaEntretienRendreIntro() {
         _introBlocSection('&#128172; Comment ça se passe concrètement',
           '<p class="mb-2">Vous copiez le texte préparé par l’application, vous le collez sur le site d’un assistant en ligne de votre choix, et vous vous entraînez en échangeant avec lui. L’application vous guide à chaque étape.</p>' +
           _introBlocEncart('&#127908;', 'Avec un assistant qui accepte la voix, comme ChatGPT, vous pouvez répondre à l’oral au lieu de taper, au plus près des conditions d’un vrai entretien.')) +
-        _introBlocSection('&#9989; Bon à savoir',
-          _introBlocEncart('&#128274;', 'Avant l’envoi, vous pouvez relire vos documents et masquer une information que vous ne voulez pas transmettre. Votre nom et vos coordonnées ne partent jamais vers l’assistant en ligne.') +
-          _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon votre préparation sera perdue à la fermeture de la page.'))
+        _introBlocEncart('&#128274;', 'Avant l’envoi, vous pouvez relire vos documents et masquer une information que vous ne voulez pas transmettre. Votre nom et vos coordonnées ne partent jamais vers l’assistant en ligne.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -10869,9 +10929,7 @@ function pageDecouverteIntro() {
       _introBlocSection('&#128172; Comment ça se passe concrètement',
         '<p class="mb-2">Tout se passe dans une suite d’écrans qui se suivent, avec un bouton « Retour » et un bouton « Continuer » à chaque étape. Vous pouvez fermer et reprendre plus tard là où vous en étiez. Le seul échange avec un assistant en ligne se fait par copier-coller.</p>' +
         _introBlocEncart('&#128161;', 'Le récit est le cœur du parcours : plus vous en dites, plus les propositions seront justes. Mais vous pouvez toujours revenir en ajouter.')) +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128274;', 'Vos coordonnées (nom, téléphone, adresse) ne sont jamais envoyées à l’assistant en ligne. Seule la civilité l’est, et uniquement pour accorder le texte au féminin ou au masculin.') +
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette pendant le parcours, sinon votre travail sera perdu à la fermeture de la page.'))
+      _introBlocEncart('&#128274;', 'Vos coordonnées (nom, téléphone, adresse) ne sont jamais envoyées à l’assistant en ligne. Seule la civilité l’est, et uniquement pour accorder le texte au féminin ou au masculin.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -10968,9 +11026,7 @@ function pageIntroAts() {
         '<p class="mb-0">Si un mot à travailler ou une reformulation vous semble important pour la suite, vous pourrez le garder dans Mes Repères, votre espace personnel de notes.</p>') +
       _introBlocSection('&#128172; Comment ça se passe concrètement',
         '<p class="mb-0">L’application prépare et copie le texte de départ pour vous. Vous le collez sur le site de l’assistant que vous avez choisi, vous récupérez sa réponse, puis vous revenez la coller ici. Vous êtes guidé à chaque étape ; vous n’avez rien à taper pour démarrer.</p>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128274;', 'Avant de transmettre votre CV, vous passez par un écran de vérification où vous masquez votre nom, votre adresse ou votre téléphone. L’analyse se fait sur ce CV anonymisé : l’absence de nom ou de coordonnées n’est jamais comptée comme un manque. L’assistant ne sait pas qui vous êtes, et rien de ce que vous faites ici n’est conservé ni transmis à un employeur.') +
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+      _introBlocEncart('&#128274;', 'Avant de transmettre votre CV, vous passez par un écran de vérification où vous masquez votre nom, votre adresse ou votre téléphone. L’analyse se fait sur ce CV anonymisé : l’absence de nom ou de coordonnées n’est jamais comptée comme un manque. L’assistant ne sait pas qui vous êtes, et rien de ce que vous faites ici n’est conservé ni transmis à un employeur.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -11034,9 +11090,7 @@ function pageIntroRegardRecruteur() {
         '</ul>') +
       _introBlocSection('&#128172; Comment ça se passe concrètement',
         '<p class="mb-0">L’application prépare le texte de départ et vous guide pour joindre l’image de votre CV. Vous donnez le tout à l’assistant en ligne que vous avez choisi, vous récupérez sa réponse, puis vous revenez la coller ici. Vous êtes guidé à chaque étape ; vous n’avez rien à taper pour démarrer.</p>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128274;', 'Avant d’envoyer l’image de votre CV, vous masquez vous-même, avec des rectangles, votre nom, votre photo et vos coordonnées. Votre nom et vos coordonnées ne partent jamais vers l’assistant.') +
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+      _introBlocEncart('&#128274;', 'Avant d’envoyer l’image de votre CV, vous masquez vous-même, avec des rectangles, votre nom, votre photo et vos coordonnées. Votre nom et vos coordonnées ne partent jamais vers l’assistant.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -11107,10 +11161,7 @@ function pageIntroSeTenirInforme() {
       _introBlocSection('&#128172; Comment ça se passe concrètement',
         '<p class="mb-0">Pour vérifier une information récente, l’application prépare le texte de la recherche. Vous le collez sur le site d’un assistant en ligne qui consulte des sources récentes, puis vous rapportez la synthèse ici. Pour tout le reste (fiches, tableau des sources), vous consultez directement, sans assistant.</p>') +
       _introBlocComplementariteChiffres() +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128197;', 'Les repères sont rédigés à la main, à une date indiquée. Les règles et les chiffres peuvent évoluer : le lien officiel sous chaque repère pointe vers la version à jour.') +
-        _introBlocEncart('&#128274;', 'Vos recherches ne sont pas enregistrées.') +
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+      _introBlocEncart('&#128197;', 'Les repères sont rédigés à la main, à une date indiquée. Les règles et les chiffres peuvent évoluer : le lien officiel sous chaque repère pointe vers la version à jour.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
@@ -11180,14 +11231,111 @@ function pageIntroComprendreLesChiffres() {
         '<li>Poser une question chiffrée précise sur un autre sujet ou un autre territoire.</li>' +
         '</ul>') +
       _introBlocComplementariteChiffres() +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128202;', 'Simplifier une statistique peut la déformer : on écrit toujours « d’après [source], en [date] », jamais une vérité.') +
-        _introBlocEncart('&#128274;', 'Vos recherches ne sont pas enregistrées.') +
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+      _introBlocEncart('&#128202;', 'Simplifier une statistique peut la déformer : on écrit toujours « d’après [source], en [date] », jamais une vérité.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);
   if (typeof trackEvenement === 'function') { trackEvenement('comprendre_les_chiffres_intro_affichee'); }
+}
+
+// Page de PRESENTATION du module « Qui fait quoi » (annuaire local : employeurs, puis structures). Famille 1 (consultation) : bouton « Revoir la
+// presentation », aucun encart « Continuer / Recommencer ». Module : modules/mon-territoire/index.js (route 'mon-territoire'). Textes valides par
+// Denis le 2026-10-12 (docs/TEXTES_MON_TERRITOIRE_A_VALIDER_2026-10-12.md). Plan : docs/PLAN_MON_TERRITOIRE_PREMICES_2026-10-12.md.
+function pageIntroMonTerritoire() {
+  var enDetour = (typeof _monTerritoireDetourPresentation !== 'undefined' && _monTerritoireDetourPresentation);
+  var config = {
+    carteRetour: 'informe',
+    detour: enDetour,
+    detourLogo: 'bi-geo-alt',
+    detourBoutonId: 'btnMonTerritoireRevenirModuleHaut',
+    detourCtaId: 'btnMonTerritoireRevenirModuleBas',
+    onRevenir: (typeof monTerritoireRevenirDeLaPresentation === 'function') ? monTerritoireRevenirDeLaPresentation : null,
+    onRevenirExpr: 'monTerritoireRevenirDeLaPresentation()',
+    titre: '<i class="bi bi-geo-alt"></i> Qui fait quoi',
+    sousTitre: 'Vous cherchez à qui vous adresser dans votre département ? Ici, on vous montre où aller et qui contacter.',
+    ctaId: 'btnMonTerritoireCommencer',
+    ctaLabel: 'Ouvrir Qui fait quoi &#8594;',
+    onCta: function () {
+      if (typeof monTerritoireOuvrirAccueil === 'function') { monTerritoireOuvrirAccueil(); }
+      else if (typeof naviguerVers === 'function') { naviguerVers('mon-territoire'); }
+    },
+    blocsHTML:
+      _introBlocAccroche('<strong>Les adresses utiles existent, mais elles sont dispersées.</strong> Ici, on les rassemble par territoire, avec la date de leur dernière vérification.') +
+      _introBlocSection('&#127919; À quoi ça sert',
+        '<p class="mb-0">Retrouver, sur votre territoire, des employeurs où vous présenter, des organismes de formation et des structures pour vous aider (logement, déplacements, démarches, accompagnement). Chaque fiche dit où c’est, comment les joindre et quand l’information a été vérifiée.</p>') +
+      _introBlocSection('&#128203; Ce qui va se passer',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Vous indiquez votre commune si vous le souhaitez, puis vous choisissez un domaine.</li>' +
+        '<li>Vous voyez une liste, par ordre alphabétique, puis vous ouvrez une fiche.</li>' +
+        '<li>Vous appelez, vous vous déplacez ou vous candidatez. Rien n’est enregistré ailleurs que sur votre appareil.</li>' +
+        '</ul>') +
+      _introBlocSection('&#128683; Ce que ce module ne fait pas',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Il ne publie <strong>pas d’offres d’emploi</strong> : celles du moment se cherchent sur les sites officiels, un assistant en ligne peut vous y aider, en dehors de cette application.</li>' +
+        '<li>Il ne classe pas les employeurs, ne recommande personne et ne garantit pas qu’un employeur recrute.</li>' +
+        '<li>Il ne pose <strong>aucun diagnostic sur vous</strong>.</li>' +
+        '</ul>') +
+      _introBlocSection('&#9999;&#65039; Ce que vous pourrez faire ensuite',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Vous former pour un secteur, écrire une candidature spontanée.</li>' +
+        '<li>Comprendre un dispositif dans « Comprendre le cadre ».</li>' +
+        '</ul>') +
+      _introBlocEncart('&#128197;', 'Les listes ne sont pas complètes : elles grandissent petit à petit, un territoire et un domaine à la fois.')
+  };
+  app.innerHTML = htmlPageIntroModuleParcours(config);
+  brancherPageIntroModuleParcours(config);
+  if (typeof trackEvenement === 'function') { trackEvenement('mon_territoire_intro_affichee'); }
+}
+
+// Page de PRESENTATION de la porte « Employeurs près de chez moi » (carte « Me préparer à candidater »). C'est le MEME module que « Qui fait quoi »
+// (une seule base : modules/mon-territoire/, route 'mon-territoire') avec sa propre présentation, pour que le public comprenne à quoi servent
+// ces adresses : candidater sans attendre une annonce. Famille 1 (consultation) : « Revoir la présentation », aucun encart « Continuer ».
+// Décisions de Denis du 2026-10-16 : « Retour » depuis les employeurs ramène ici ; les offres ne sont pas publiées sur le site (trop lourd à tenir),
+// on indique les pages de recrutement des employeurs eux-mêmes. Suivi : docs/CHANTIER_EMPLOYEURS_PRESENTATION_ET_RECRUTEURS_2026-10-16.md.
+function pageIntroEmployeursTerritoire() {
+  var enDetour = (typeof _monTerritoireDetourPresentation !== 'undefined' && _monTerritoireDetourPresentation);
+  var config = {
+    carteRetour: 'preparer',
+    detour: enDetour,
+    detourLogo: 'bi-briefcase',
+    detourBoutonId: 'btnEmployeursRevenirModuleHaut',
+    detourCtaId: 'btnEmployeursRevenirModuleBas',
+    onRevenir: (typeof monTerritoireRevenirDeLaPresentation === 'function') ? monTerritoireRevenirDeLaPresentation : null,
+    onRevenirExpr: 'monTerritoireRevenirDeLaPresentation()',
+    titre: '<i class="bi bi-briefcase"></i> Employeurs près de chez moi',
+    sousTitre: 'Des employeurs de votre département à qui vous pouvez envoyer votre CV, même quand ils n’ont pas publié d’annonce.',
+    ctaId: 'btnEmployeursCommencer',
+    ctaLabel: 'Voir les employeurs &#8594;',
+    onCta: function () {
+      if (typeof monTerritoireOuvrirEmployeurs === 'function') { monTerritoireOuvrirEmployeurs(); }
+    },
+    blocsHTML:
+      _introBlocAccroche('<strong>Beaucoup d’emplois ne sont jamais annoncés.</strong> Certaines offres sont publiées, d’autres ne le sont pas encore. C’est pour cela que nous vous donnons l’adresse des employeurs : vous pouvez leur écrire sans attendre une annonce.') +
+      _introBlocSection('&#127919; À quoi ça sert',
+        '<p class="mb-0">Trouver des employeurs de votre département, rangés par secteur, et leur proposer votre candidature de vous-même : c’est la <strong>candidature spontanée</strong>. Chaque fiche donne l’adresse, le téléphone et la date de la dernière vérification.</p>') +
+      _introBlocSection('&#128203; Ce qui va se passer',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Vous choisissez un secteur, ou vous tapez un métier.</li>' +
+        '<li>Vous voyez une liste, par ordre alphabétique, puis vous ouvrez une fiche.</li>' +
+        '<li>Si vous préférez voir les offres publiées, ouvrez la rubrique « Employeurs qui publient leurs offres ».</li>' +
+        '<li>Vous téléphonez, vous vous présentez ou vous envoyez votre CV avec une courte lettre. Rien n’est enregistré ailleurs que sur votre appareil.</li>' +
+        '</ul>') +
+      _introBlocSection('&#128683; Ce que cette page ne fait pas',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Elle ne recopie <strong>pas les offres d’emploi</strong> : elles changent trop vite. Elle vous indique les pages où les employeurs les publient eux-mêmes (rubrique « Employeurs qui publient leurs offres »), pour que vous les consultiez vous-même.</li>' +
+        '<li>Elle ne classe pas les employeurs, ne recommande personne et ne garantit pas qu’un employeur recrute.</li>' +
+        '<li>Elle ne pose <strong>aucun diagnostic sur vous</strong>.</li>' +
+        '</ul>') +
+      _introBlocSection('&#9999;&#65039; Ce que vous pourrez faire ensuite',
+        '<ul class="mb-0" style="padding-left:1.25rem;">' +
+        '<li>Préparer votre CV et votre lettre dans « Me préparer à candidater ».</li>' +
+        '<li>Retrouver à qui vous adresser pour d’autres besoins (logement, déplacements, démarches) dans « Qui fait quoi ».</li>' +
+        '</ul>') +
+      _introBlocEncart('&#128197;', 'Les listes ne sont pas complètes : elles grandissent petit à petit, un secteur à la fois.')
+  };
+  app.innerHTML = htmlPageIntroModuleParcours(config);
+  brancherPageIntroModuleParcours(config);
+  if (typeof trackEvenement === 'function') { trackEvenement('employeurs_intro_affichee'); }
 }
 
 // TACHE (retour Denis, 2026-08-31) : page de PRESENTATION de la fonction
@@ -11261,9 +11409,7 @@ function pageIntroAideDecision() {
         '<p class="mb-0">Si une piste ou une question vous semble importante pour la suite, vous pourrez la garder dans Mes Repères, votre espace personnel de notes.</p>') +
       _introBlocSection('&#128172; Comment ça se passe concrètement',
         '<p class="mb-0">Les informations viennent de ce qu’un assistant en ligne rapporte à partir de sources officielles : l’application prépare les textes à copier, vous les passez à l’assistant, vous rapportez ses réponses. Chaque information est affichée avec sa source et sa date. Si une réponse n’a pas l’air fiable, l’application vous le signale. Vous êtes guidé à chaque étape.</p>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128197;', 'Les informations sur la rémunération, le financement ou le marché du travail changent régulièrement : elles sont toujours accompagnées de leur source et de leur date, jamais présentées comme des vérités permanentes.') +
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+      _introBlocEncart('&#128197;', 'Les informations sur la rémunération, le financement ou le marché du travail changent régulièrement : elles sont toujours accompagnées de leur source et de leur date, jamais présentées comme des vérités permanentes.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);

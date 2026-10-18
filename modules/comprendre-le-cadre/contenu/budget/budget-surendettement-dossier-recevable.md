@@ -7,7 +7,7 @@ tags: [surendettement, recevabilité, suspension des saisies, expulsion, droit a
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "plan conventionnel de redressement"
     definition: "Accord négocié entre vous et vos créanciers, sous l'égide de la commission : étalement des dettes, baisse des mensualités ou du taux, report, parfois vente d'un bien."

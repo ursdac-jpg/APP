@@ -58,6 +58,9 @@
 var FREINS_REPERTOIRE = {
 
   alimentaire: {
+    // Structures de « Qui fait quoi » liees a ce frein (identifiants de type : modules/mon-territoire/logique.js MT_TYPES) et rayons de « Comprendre le cadre » dont les structures le concernent.
+    types: ['ccas', 'service-social-secteur', 'aide-alimentaire-materielle'],
+    rayons: ['budget'],
     code: 'alimentaire',
     niveau: 'vital',
     titre: 'Se nourrir',
@@ -82,6 +85,8 @@ var FREINS_REPERTOIRE = {
   },
 
   hebergement: {
+    types: ['logement-hebergement', 'ccas', 'service-social-secteur'],
+    rayons: ['logement'],
     code: 'hebergement',
     niveau: 'vital',
     titre: 'Un logement stable',
@@ -103,6 +108,8 @@ var FREINS_REPERTOIRE = {
   },
 
   mobilite: {
+    types: ['mobilite-solidaire', 'france-travail', 'mission-locale', 'service-social-secteur'],
+    rayons: ['mobilite'],
     code: 'mobilite',
     niveau: 'stabilite',
     titre: 'Se déplacer',
@@ -125,6 +132,8 @@ var FREINS_REPERTOIRE = {
   },
 
   materiel: {
+    types: ['ccas', 'aide-alimentaire-materielle'],
+    rayons: ['budget'],
     code: 'materiel',
     niveau: 'stabilite',
     titre: 'Des vêtements, du matériel de première nécessité',
@@ -147,6 +156,8 @@ var FREINS_REPERTOIRE = {
   },
 
   sante: {
+    types: ['sante-soins-addictions'],
+    rayons: ['sante'],
     code: 'sante',
     niveau: 'vital',
     titre: 'La santé',
@@ -169,6 +180,8 @@ var FREINS_REPERTOIRE = {
   },
 
   handicap: {
+    types: ['handicap', 'cap-emploi'],
+    rayons: ['handicap'],
     code: 'handicap',
     niveau: 'stabilite',
     titre: 'Une situation de handicap',
@@ -192,6 +205,8 @@ var FREINS_REPERTOIRE = {
   },
 
   endettementAdministratif: {
+    types: ['budget-endettement', 'service-social-secteur', 'france-services'],
+    rayons: ['budget'],
     code: 'endettementAdministratif',
     niveau: 'stabilite',
     titre: 'Des dettes, une démarche administrative bloquée',
@@ -215,6 +230,8 @@ var FREINS_REPERTOIRE = {
   },
 
   emploi: {
+    types: ['france-travail', 'mission-locale', 'plie', 'siae'],
+    rayons: ['accompagnement', 'emploi'],
     code: 'emploi',
     niveau: 'emploi',
     titre: 'Trouver ou garder un emploi',
@@ -238,6 +255,8 @@ var FREINS_REPERTOIRE = {
   },
 
   formation: {
+    types: ['formation-orientation', 'france-travail', 'mission-locale'],
+    rayons: ['former'],
     code: 'formation',
     niveau: 'emploi',
     titre: 'Accéder à une formation',
@@ -262,6 +281,8 @@ var FREINS_REPERTOIRE = {
   },
 
   gardeEnfants: {
+    types: ['petite-enfance', 'caf'],
+    rayons: ['garde'],
     code: 'gardeEnfants',
     niveau: 'stabilite',
     titre: 'Faire garder ses enfants',
@@ -284,6 +305,8 @@ var FREINS_REPERTOIRE = {
   },
 
   judiciaire: {
+    types: ['acces-au-droit', 'justice-insertion'],
+    rayons: ['justice', 'juridique'],
     code: 'judiciaire',
     niveau: 'stabilite',
     titre: 'Une situation judiciaire',
@@ -305,6 +328,8 @@ var FREINS_REPERTOIRE = {
   },
 
   langue: {
+    types: ['francais-langue', 'accueil-etrangers'],
+    rayons: ['francais', 'etranger'],
     code: 'langue',
     niveau: 'stabilite',
     titre: 'Le français au quotidien',
@@ -326,6 +351,8 @@ var FREINS_REPERTOIRE = {
   },
 
   illettrisme: {
+    types: ['francais-langue'],
+    rayons: ['francais'],
     code: 'illettrisme',
     niveau: 'stabilite',
     titre: 'Lire et écrire',
@@ -347,6 +374,8 @@ var FREINS_REPERTOIRE = {
   },
 
   illectronisme: {
+    types: ['france-services', 'inclusion-numerique'],
+    rayons: [],
     code: 'illectronisme',
     niveau: 'stabilite',
     titre: 'L\'ordinateur, le smartphone, internet',
@@ -368,6 +397,8 @@ var FREINS_REPERTOIRE = {
   },
 
   discrimination: {
+    types: ['acces-au-droit'],
+    rayons: ['juridique'],
     code: 'discrimination',
     niveau: 'stabilite',
     titre: 'Une discrimination',
@@ -389,6 +420,8 @@ var FREINS_REPERTOIRE = {
   },
 
   violences: {
+    types: ['acces-au-droit', 'soutien-aux-familles'],
+    rayons: ['juridique'],
     code: 'violences',
     niveau: 'vital',
     titre: 'Des violences',
@@ -412,6 +445,8 @@ var FREINS_REPERTOIRE = {
   },
 
   addiction: {
+    types: ['sante-soins-addictions'],
+    rayons: ['sante'],
     code: 'addiction',
     niveau: 'vital',
     titre: 'Une addiction',

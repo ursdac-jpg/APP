@@ -7,7 +7,7 @@ tags: [RQTH, travailleur handicapé, MDPH, reconnaissance, aménagement de poste
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "RQTH"
     definition: "Reconnaissance de la qualité de travailleur handicapé. Décision de la MDPH qui ouvre l'accès à des aides et à un accompagnement pour l'emploi. Elle est confidentielle."

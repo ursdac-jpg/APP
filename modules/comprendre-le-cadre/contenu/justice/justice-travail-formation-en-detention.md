@@ -7,7 +7,7 @@ tags: [travail en détention, contrat d'emploi pénitentiaire, acte d'engagement
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "contrat d'emploi pénitentiaire"
     definition: "Contrat signé depuis mai 2022 par une personne détenue qui travaille. Il fixe la rémunération minimale, la durée de travail et l'emploi du temps, et remplace l'ancien acte d'engagement."

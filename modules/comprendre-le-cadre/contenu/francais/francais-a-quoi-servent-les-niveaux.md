@@ -7,7 +7,7 @@ tags: [niveau de langue, CECRL, A2, B1, titre de séjour, formation]
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "CECRL"
     definition: "Cadre européen commun de référence pour les langues : une échelle en six niveaux (A1, A2, B1, B2, C1, C2) qui sert partout en Europe à situer la maîtrise d'une langue."

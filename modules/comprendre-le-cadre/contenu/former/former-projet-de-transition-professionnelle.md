@@ -7,7 +7,7 @@ tags: [projet de transition professionnelle, PTP, congé individuel de formation
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "projet de transition professionnelle"
     definition: "Congé qui permet à un salarié de suivre une formation certifiante pour changer de métier, en gardant son contrat de travail et une rémunération."

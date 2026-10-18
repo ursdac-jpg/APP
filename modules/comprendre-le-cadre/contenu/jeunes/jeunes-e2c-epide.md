@@ -7,7 +7,7 @@ tags: [école de la deuxième chance, E2C, EPIDE, sans diplôme, remise à nivea
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "école de la deuxième chance"
     definition: "Parcours individualisé de 4 à 18 mois, en alternance avec des stages, pour les 16-25 ans sans diplôme. Gratuit, avec une rémunération de stagiaire de la formation professionnelle."

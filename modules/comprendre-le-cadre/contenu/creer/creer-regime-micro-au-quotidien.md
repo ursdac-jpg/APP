@@ -7,7 +7,7 @@ tags: [micro-entrepreneur, chiffre d'affaires, cotisations sociales, franchise d
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "franchise de TVA"
     definition: "Dispense de facturer la TVA tant que le chiffre d'affaires reste sous certains seuils. Au-delà, la TVA doit être facturée et reversée."

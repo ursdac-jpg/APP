@@ -248,8 +248,19 @@
   font-weight: 700;
   border-bottom: 1px dotted var(--accent);
   cursor: help;
+  /* Zone de toucher agrandie sans bouger le texte (retour Denis 2026-10-15). */
+  padding: .2rem .25rem;
+  margin: -.2rem -.25rem;
+  border-radius: 4px;
+  -webkit-tap-highlight-color: transparent;
 }
+@media (pointer: coarse) {
+  .comprendre-les-chiffres-contenu .chiffre { padding: .45rem .35rem; margin: -.45rem -.35rem; }
+}
+.comprendre-les-chiffres-contenu .chiffre:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.comprendre-les-chiffres-contenu .chiffre[aria-expanded="true"] { background: var(--accent-bg-subtle); }
 .comprendre-les-chiffres-indic-valeur .chiffre { border-bottom: none; }
+.comprendre-les-chiffres-graphe [data-tip] { cursor: pointer; }
 
 /* ---- Ligne de source + pastille cliquable (jamais un lien texte nu) ---- */
 .comprendre-les-chiffres-source {

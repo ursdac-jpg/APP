@@ -9,6 +9,11 @@
      - GET et HEAD pour les pages ; POST seulement pour /api/..., et seulement avec un JETON secret (tire au sort a chaque lancement, ecrit dans la
        page servie, donc connu de la page ouverte par le lanceur et de personne d'autre), une adresse locale, et une origine locale ;
      - il refuse toute requete dont l'adresse demandee n'est pas 127.0.0.1 ou localhost (protection contre un site web qui chercherait a lui parler) ;
+     - sorties vers Internet, en LECTURE : le controle automatique des pages d'offres (/api/territoire/controler) ouvre les adresses https ECRITES
+       dans modules/mon-territoire/contenu/offres.txt (jamais une adresse venue de la page) et n'ecrit rien ; le controle des cartes du sas des employeurs
+       (/api/sas/controle/...) LIT en plus le texte des pages (500 Ko au plus, redirections verifiees une a une, jamais de site prive ou local), a partir des
+       adresses ECRITES dans outils/sas/employeurs.sas.txt (la fenetre n'envoie que des identifiants) ; son seul fichier ecrit est outils/controles/sas_employeurs.json
+       (dernier resultat, chemin fixe, ignore par Git) ;
      - il N'ECRIT RIEN LUI-MEME et ne construit aucune commande a partir d'une requete : l'ecriture, les verifications et Git sont dans
        veilleDepot.js (« Publier ») et veilleEnvoi.js (lots pour GitHub), sur des listes fermees de destinations. JAMAIS DE PUSH.
    ============================================================ */
@@ -21,6 +26,8 @@ const { spawn } = require('child_process');
 const { creerDepot } = require('./veilleDepot.js');
 const { creerEnvoi } = require('./veilleEnvoi.js');
 const { creerGithub } = require('./veilleGithub.js');
+const { creerControleSas } = require('./veilleControleSas.js');
+const veilleOfficiels = require('./veilleOfficiels.js');
 
 const DOSSIER = __dirname;
 const RACINE_DEPOT = path.resolve(__dirname, '..');
@@ -76,6 +83,7 @@ function creerServeur(options) {
   const depot = opt.depot || creerDepot(racine);
   const envoi = opt.envoi || creerEnvoi(racine);
   const github = opt.github || creerGithub(racine);
+  const controleSas = opt.controleSas || creerControleSas(racine, depot, { fetch: opt.fetchControle, resoudre: opt.resoudreControle });
   const ouvrir = opt.ouvrir || ouvrirParDefaut;
   const jeton = opt.jeton || crypto.randomBytes(24).toString('hex');
 
@@ -87,7 +95,29 @@ function creerServeur(options) {
     switch (chemin) {
       case '/api/publier': return repondreResultat(res, depot.publier(donnees && donnees.fichiers, { remplacerExistants: !!(donnees && donnees.remplacerExistants) }));
       case '/api/liens/lister': return repondreResultat(res, depot.listerLiens());
+      case '/api/territoire/lister': return repondreResultat(res, depot.listerTerritoire(donnees && donnees.fichier));
+      case '/api/territoire/controler': return repondreResultat(res, depot.controlerTerritoire(donnees && donnees.fichier));
+      case '/api/sas/analyser': return repondreResultat(res, depot.analyserLot(donnees && donnees.fichier, donnees && donnees.texte));
+      case '/api/sas/lister': return repondreResultat(res, depot.listerSas(donnees && donnees.fichier));
+      // Contrôle automatique des cartes du sas des employeurs : la fenêtre n'envoie que des identifiants de cartes ; les adresses viennent des fichiers du sas.
+      case '/api/sas/controle/demarrer': return repondreResultat(res, controleSas.demarrer(Object.assign({}, donnees, { genre: 'sas' })));
+      case '/api/sas/controle/etat': return repondreResultat(res, controleSas.etat(Object.assign({}, donnees, { genre: 'sas' })));
+      // Revérification des fiches PUBLIÉES (même contrôle, mêmes preuves, comparaison avec le dernier contrôle) : lecture seule, rien n'est modifié ni daté.
+      case '/api/registre/controle/demarrer': return repondreResultat(res, controleSas.demarrer(Object.assign({}, donnees, { genre: 'registre' })));
+      case '/api/registre/controle/etat': return repondreResultat(res, controleSas.etat(Object.assign({}, donnees, { genre: 'registre' })));
+      // Magasins officiels d'une enseigne (fichier local ecrit par Claude apres lecture des pages officielles) : lecture seule, rien n'est ecrit.
+      case '/api/sas/officiels': return repondreResultat(res, opt.officiels ? opt.officiels() : veilleOfficiels.lire(racine));
+      case '/api/fiches/lister': return repondreResultat(res, depot.listerFiches());
+      case '/api/fiches/historique': return repondreResultat(res, depot.listerHistorique());
+      case '/api/chiffres/lister': return repondreResultat(res, depot.listerChiffres());
+      case '/api/chiffres/verifier': return repondreResultat(res, depot.verifierChiffres(donnees && donnees.fichier, donnees && donnees.demande));
+      case '/api/chiffres/lire': return repondreResultat(res, depot.lireChiffres(donnees && donnees.fichier));
+      case '/api/fiches/lire': return repondreResultat(res, depot.lireFiche(donnees && donnees.rayon, donnees && donnees.id));
+      case '/api/changements/lister': return repondreResultat(res, depot.listerChangements());
+      case '/api/changements/prompt': return repondreResultat(res, depot.promptChangement(donnees));
+      case '/api/changements/lire': return repondreResultat(res, depot.lireReponseChangement(donnees));
       case '/api/annuler': return repondreResultat(res, depot.annuler());
+      case '/api/depot/reprendre': return repondreResultat(res, depot.reprendre(donnees && donnees.action));
       case '/api/depot/etat': return repondreResultat(res, Object.assign({ ok: true }, depot.etat()));
       case '/api/envoi/etat': return repondreResultat(res, envoi.etat(donnees && donnees.depuis));
       case '/api/envoi/preparer': return repondreResultat(res, envoi.preparer(donnees && donnees.depuis));
@@ -135,7 +165,7 @@ function creerServeur(options) {
       let corps = contenu;
       if (f.nom === 'veille.html') {
         // Le jeton est ecrit dans la page : seule la page servie par ce serveur le connait (un autre site ne peut pas la lire).
-        corps = Buffer.from(contenu.toString('utf8').replace('<head>', '<head>\n<meta name="veille-jeton" content="' + jeton + '">'), 'utf8');
+        corps = Buffer.from(contenu.toString('utf8').replace('<head>', '<head><meta name="veille-jeton" content="' + jeton + '">'), 'utf8');
       }
       repondre(res, 200, f.type, req.method === 'HEAD' ? '' : corps);
     });

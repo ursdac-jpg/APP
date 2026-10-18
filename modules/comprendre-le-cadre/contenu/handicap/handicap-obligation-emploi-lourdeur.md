@@ -7,7 +7,7 @@ tags: [obligation d'emploi, OETH, 6 pour cent, AGEFIPH, reconnaissance de la lou
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "obligation d'emploi des travailleurs handicapés"
     definition: "Règle qui impose à tout employeur d'au moins 20 salariés d'employer 6 % de personnes handicapées, ou de verser une contribution."
@@ -28,7 +28,7 @@ collecte: handicap.collecte.md
 
 Deux mécanismes agissent en arrière-plan de l'emploi des personnes handicapées.
 
-L'obligation d'emploi des travailleurs handicapés impose à toute entreprise d'au moins vingt salariés d'employer des personnes handicapées à hauteur de six pour cent de ses effectifs. Si elle ne le fait pas, elle verse une contribution à l'AGEFIPH. Pour vous, cela veut dire qu'un employeur a un intérêt concret à vous recruter : votre RQTH compte dans ce calcul.
+L'obligation d'emploi des travailleurs handicapés impose à toute entreprise d'au moins vingt salariés d'employer des personnes handicapées à hauteur de six pour cent de ses effectifs. Si elle ne le fait pas, elle verse une contribution financière, déclarée à l'Urssaf, qui sert à financer les aides de l'AGEFIPH. Pour vous, cela veut dire qu'un employeur a un intérêt concret à vous recruter : votre RQTH compte dans ce calcul.
 
 La reconnaissance de la lourdeur du handicap concerne les situations où le handicap continue de peser fortement sur le travail, même après l'aménagement du poste : rythme plus lent, aide d'un collègue, absences répétées. Une aide financière peut alors être versée, chaque année, pour compenser. En 2026, elle est de l'ordre de six mille sept cents euros par an à temps plein, et environ le double au taux majoré. Elle est versée à l'employeur, ou au travailleur indépendant handicapé.
 

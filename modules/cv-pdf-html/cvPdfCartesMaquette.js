@@ -1501,7 +1501,7 @@ function _mepHtmlEditionCompetences() {
         (estManuelle ? '<button type="button" class="btn-miss" data-mep-comp-retirer="' + famille + ':' + echapperAttribut(o) + '" title="Retirer cette comp&eacute;tence ajout&eacute;e">Retirer</button>' : '') + '</div>';
     }).join('') +
       '<div class="ligne-comp" style="margin-top:.3rem"><input type="text" maxlength="80" data-mep-comp-nouvelle="' + famille + '" placeholder="Ajouter une comp&eacute;tence&hellip;" aria-label="Ajouter une comp&eacute;tence">' +
-      '<button type="button" class="mep-btn principal" style="white-space:nowrap" data-mep-comp-ajouter="' + famille + '">+ Ajouter</button></div></div>';
+      '<button type="button" class="mep-btn principal" style="white-space:nowrap;flex:0 0 auto" data-mep-comp-ajouter="' + famille + '">+ Ajouter</button></div></div>';
   };
   var modifie = _mepCompetencesModifiees();
   var nbCorrections = Object.keys(_mepCorrectionsCompetences()).filter(function (k) { return k.indexOf('k:') === 0; }).length + ((ajoutees.pro || []).length + (ajoutees.comp || []).length);
@@ -1709,9 +1709,9 @@ function _htmlBoiteInfosCompMq() {
       return _mepCkMq('data-mep-info-comp="' + i + '"', echapperAttribut(t), cochees.indexOf(t) !== -1);
     }).join('') + '</div>' : '<p style="font-size:.8rem;color:var(--text-muted);margin:.2rem 0">Aucune information ajout&eacute;e (disponibilit&eacute;, mobilit&eacute;, RQTH&hellip;). Rien ne s&rsquo;affiche sans que vous le cochiez.</p>') +
     '<div class="champ" style="margin-top:.4rem"><label for="mepInfoNouvelle">Ajouter une information</label>' +
-    '<div style="display:flex;gap:.4rem"><input type="text" id="mepInfoNouvelle" maxlength="120" placeholder="Ex. : Disponible imm&eacute;diatement" style="flex:1;min-width:0">' +
-    '<button type="button" class="mep-btn principal" style="white-space:nowrap" data-mep-info-ajouter>+ Ajouter</button>' +
-    '<button type="button" class="mep-btn" style="white-space:nowrap" data-mep-info-sugg-ouvrir aria-expanded="' + (_mepSuggInfosOuvert ? 'true' : 'false') + '">Suggestions' + _mepRondBtn(_mepSuggInfosOuvert) + '</button></div>' +
+    '<div style="display:flex;gap:.4rem;flex-wrap:wrap"><input type="text" id="mepInfoNouvelle" maxlength="120" placeholder="Ex. : Disponible imm&eacute;diatement" style="flex:1 1 9rem;min-width:0">' +
+    '<button type="button" class="mep-btn principal" style="white-space:nowrap;flex:0 0 auto" data-mep-info-ajouter>+ Ajouter</button>' +
+    '<button type="button" class="mep-btn" style="white-space:nowrap;flex:0 0 auto" data-mep-info-sugg-ouvrir aria-expanded="' + (_mepSuggInfosOuvert ? 'true' : 'false') + '">Suggestions' + _mepRondBtn(_mepSuggInfosOuvert) + '</button></div>' +
     (_mepSuggInfosOuvert ? _htmlSuggestionsInfosCompMq(infos) : '') + '</div>';
   // Meme forme que « Modifier mes certifications » (retour Denis 2026-10-04) : un bouton depliant, sur la meme ligne que les certifications, qui ne prend de la place que s'il est ouvert.
   return '<details class="choix-exp" id="zoneInfos"' + (_mepCarteOuverte('zoneInfos', false) ? ' open' : '') + '><summary class="choix-titre choix-bouton"><span class="cb-texte"><b><span class="cb-ouvrir">Informations compl&eacute;mentaires</span></b>' +

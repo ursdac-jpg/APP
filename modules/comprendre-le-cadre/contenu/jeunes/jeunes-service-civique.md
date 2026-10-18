@@ -7,7 +7,7 @@ tags: [service civique, engagement, indemnité, mission d'intérêt général, j
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "service civique"
     definition: "Engagement volontaire de 6 à 12 mois sur une mission d'intérêt général, pour les 16-25 ans (30 ans si handicap), indemnisé par l'État, sans condition de diplôme."

@@ -7,7 +7,7 @@ tags: [microcrédit, prêt, emploi, mobilité, permis, voiture, accompagnement, 
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "microcrédit personnel accompagné"
     definition: "Petit prêt bancaire pour financer un projet d'insertion, réservé aux personnes sans accès au crédit classique. Il passe toujours par un accompagnant."

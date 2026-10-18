@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : modifier les chiffres</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--sub:#f1f4f9;--txt:#1b2430;--strong:#0b1a33;--muted:#5a6a7e;--bord:#d5dbe4;--acc:#0369a1;--accbg:#e2f0f8;--ok:#198754;--okbg:#d9f4e4;--warn:#b45309;--warnbg:#fdf1d9;--ko:#a3372b;--kobg:#fbe6e3}
+[data-theme="sombre"]{--bg:#12161f;--card:#1b212c;--sub:#222834;--txt:#dbe2ee;--strong:#e8edf5;--muted:#a8b3c4;--bord:#3d4759;--acc:#38bdf8;--accbg:#16283a;--ok:#35c79a;--okbg:#17301f;--warn:#f5a742;--warnbg:#3a2c14;--ko:#eda69c;--kobg:#3a1f1b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 system-ui,"Segoe UI",Arial,sans-serif;padding:0 16px 80px}
+.page{max-width:980px;margin:0 auto;position:relative}
+h1{font-size:1.4rem;color:var(--strong);margin:1.2rem 0 .3rem}
+h2{font-size:1.1rem;color:var(--strong);margin:1.4rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.25rem}
+h3{font-size:.95rem;color:var(--strong);margin:.9rem 0 .3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.mini{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:6px;padding:.3rem .8rem;font-weight:600}
+.btn.petit{padding:.1rem .5rem;font-size:.82rem}.btn.plein{background:var(--acc);color:var(--card)}.btn.ko{border-color:var(--ko);color:var(--ko)}.btn[disabled]{opacity:.5;cursor:not-allowed}
+.theme{position:absolute;top:10px;right:0;background:var(--card)}
+.rouge{color:#c0261b;font-weight:800}[data-theme="sombre"] .rouge{color:#ff8a80}
+nav.onglets{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0;position:sticky;top:0;background:var(--bg);padding:.5rem 0;z-index:4}
+nav.onglets button{border:1px solid var(--bord);background:var(--card);color:var(--txt);border-radius:6px;padding:.4rem .8rem;font-weight:600}
+nav.onglets button.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.ecran{display:none}.ecran.actif{display:block}
+.carte{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}
+input[type=text],textarea,select{font:inherit;background:var(--card);color:var(--txt);border:1px solid var(--bord);border-radius:6px;padding:.3rem .5rem;max-width:100%}
+input[type=text]{width:100%}textarea{width:100%;min-height:5rem}
+.ligne{display:flex;flex-wrap:wrap;gap:.3rem .8rem;border-top:1px solid var(--bord);padding:.5rem 0;align-items:flex-start}
+.ligne>.eti{flex:0 0 12rem;color:var(--muted);padding-top:.3rem;font-size:.9rem}.ligne>.val{flex:1 1 18rem;min-width:0}
+.ligne.change{border-left:5px solid var(--warn);padding-left:.6rem;background:var(--warnbg)}
+.cadenas{display:inline-block;border:1px solid var(--bord);background:var(--sub);color:var(--muted);border-radius:6px;padding:.05rem .5rem;font-size:.85rem}
+.pastille{display:inline-block;border-radius:6px;padding:0 .5rem;font-size:.78rem;font-weight:700;border:1px solid var(--bord);background:var(--sub);color:var(--muted);margin:.1rem .2rem .1rem 0}
+.pastille.v{background:var(--okbg);border-color:var(--ok);color:var(--ok)}.pastille.a{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}.pastille.r{background:var(--kobg);border-color:var(--ko);color:var(--ko)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid var(--bord);padding:.4rem .5rem;text-align:left;vertical-align:top}th{background:var(--sub)}
+.serie{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr));gap:.4rem}
+.cellule{border:1px solid var(--bord);border-radius:8px;padding:.3rem .4rem;background:var(--card)}.cellule.change{border-color:var(--warn);background:var(--warnbg)}
+.cellule label{display:block;font-size:.78rem;color:var(--muted)}.cellule input{width:100%}
+.barres{display:flex;gap:.3rem;align-items:flex-end;height:90px;margin:.5rem 0;border-bottom:2px solid var(--bord)}
+.barres div{flex:1;background:var(--acc);border-radius:3px 3px 0 0;position:relative;min-width:12px}.barres div.der{background:var(--warn)}
+.barres span{position:absolute;top:-1.1rem;left:0;right:0;text-align:center;font-size:.68rem;color:var(--muted)}
+.verif{margin:.2rem 0;font-size:.9rem}.verif.ok::before{content:"\2713  ";color:var(--ok);font-weight:800}.verif.warn::before{content:"!  ";color:var(--warn);font-weight:800}.verif.ko::before{content:"\2715  ";color:var(--ko);font-weight:800}
+.diff{border-left:6px solid var(--bord);border-radius:0 8px 8px 0;padding:.45rem .8rem;margin:.45rem 0;background:var(--card)}
+.diff.modifie{border-left-color:var(--warn);background:var(--warnbg)}.diff.ajoute{border-left-color:var(--ok);background:var(--okbg)}.diff.retire{border-left-color:var(--ko);background:var(--kobg)}
+.diff .nom{font-weight:800;font-size:.85rem}.diff .avant{text-decoration:line-through;color:var(--ko)}.diff .apres{color:var(--ok);font-weight:600}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--sub);border:1px solid var(--bord);border-radius:8px;padding:.6rem .8rem;font-size:.8rem}
+.pied{position:sticky;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 0;margin-top:1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}.q b.n{color:var(--warn)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.alerte{background:var(--kobg);border:1px solid var(--ko);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+@media(max-width:640px){.ligne>.eti{flex:1 0 100%}}
+</style>
+</head>
+<body data-theme="clair">
+<div class="page">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<h1>Maquette : modifier « Comprendre les chiffres » depuis l'outil de veille</h1>
+<p class="muted">Suite de l'étape 3, après les fiches du cadre. <b>Rien n'est codé.</b> <span class="rouge">EFFORT : HAUT</span> (Mode A). Les onglets 2 et 3 fonctionnent vraiment avec de <b>vraies lignes</b> du dépôt : l'entrée « Dordogne, taux de chômage » du digest 2026-06 et le lieu « Bergerac » de zones-emploi. Rien n'est écrit sur le disque.</p>
+
+<div class="alerte"><b>Ce qui change par rapport aux fiches de texte, à dire clairement :</b> une faute de frappe dans un texte se voit ; <b>un chiffre faux, lui, passe tous les tests automatiques</b> et s'affiche tel quel à la personne. Aucun contrôle ne peut savoir qu'un taux est vrai. L'outil ne peut donc que (1) vous faire <b>confirmer que vous avez ouvert la source et que le chiffre y est</b>, (2) <b>comparer les chiffres entre eux</b> (la valeur affichée doit être le dernier point de la série, « précédent » l'avant-dernier...), (3) <b>montrer en couleurs</b> ce qui change, (4) rester <b>annulable</b>.</div>
+
+<nav class="onglets" id="onglets">
+<button type="button" data-e="liste" class="actif">1. Ce qu'on peut modifier</button>
+<button type="button" data-e="digest">2. Une entrée du digest</button>
+<button type="button" data-e="zone">3. Un lieu (zones d'emploi)</button>
+<button type="button" data-e="autres">4. Portrait, Europe, méthode</button>
+<button type="button" data-e="questions">5. Mes questions</button>
+</nav>
+
+<!-- ============ 1 ============ -->
+<section class="ecran actif" id="e-liste">
+<h2>1. Les 18 fichiers du module, classés par forme</h2>
+<p class="mini muted">Ce que l'audit du code et des fichiers réels a trouvé : <b>quatre formes différentes</b>, donc quatre écrans d'édition, pas un seul. Le lecteur de l'application est <b>tolérant</b> : une ligne mal écrite ne plante rien, elle s'affiche « à vérifier » ou disparaît sans bruit. D'où l'importance de ne jamais laisser écrire les lignes à la main.</p>
+<table>
+<thead><tr><th>Forme</th><th>Fichiers</th><th>Comment c'est écrit</th><th>Mesure</th><th>Verdict</th><th></th></tr></thead>
+<tbody>
+<tr><td><b>A. Digest trimestriel</b></td><td>2026-06.md (36 entrées)</td><td>Une puce par territoire : une phrase avec la valeur en gras, la période, « précédent », « il y a un an », la source, puis des lignes de série (trimestres), série annuelle, plus haut / plus bas, repère</td><td>19 séries sur 19 se réécrivent à l'identique ; « précédent » et « il y a un an » concordent avec la série dans 5 cas sur 5 ; la valeur affichée est le dernier point dans 13 cas sur 19 (les 6 autres sont des valeurs arrondies : « environ 16 800 »)</td><td><b>Faisable, avec garde-fous.</b> Écran par entrée (onglet 2).</td><td><button class="btn petit" data-aller="digest">Voir</button></td></tr>
+<tr><td><b>B. Fiches de territoire</b></td><td>11 fichiers : départements, régions, zones d'emploi, médecins, dentistes, pharmaciens, spécialistes (départements et régions)</td><td>Un bloc par lieu : champs « clé: valeur » (valeur, parts, niveau de vie...), sources par identifiant, un paragraphe</td><td>Format parfaitement régulier ; 100 % des sources citées existent dans l'en-tête du fichier</td><td><b>Le plus sûr.</b> Un champ par case, avec son unité (onglet 3).</td><td><button class="btn petit" data-aller="zone">Voir</button></td></tr>
+<tr><td><b>C. Portrait et Europe</b></td><td>portrait-2026.md (64 puces), ue-2026.md (30 puces)</td><td>Des puces de prose avec un chiffre dedans et « Source : nom | adresse »</td><td>40 puces sur 64 ont une source ; seules 19 ont une adresse qui est dans l'en-tête du fichier</td><td><b>Faisable, moins guidé.</b> Une phrase à taper, source à choisir quand elle est dans l'en-tête (onglet 4).</td><td><button class="btn petit" data-aller="autres">Voir</button></td></tr>
+<tr><td><b>D. Fiches méthode</b></td><td>3 fichiers (« Comment lire un taux de chômage »...)</td><td>Un en-tête simple et du texte</td><td>Même principe que les fiches du cadre</td><td><b>Réutilise l'écran des fiches du cadre.</b></td><td><button class="btn petit" data-aller="autres">Voir</button></td></tr>
+</tbody></table>
+<p class="mini"><b>Lignes « à vérifier »</b> (chiffres pas encore récupérés) : 1 dans le digest, 3 dans le portrait. L'écran les listerait en premier : ce sont les plus utiles à compléter.</p>
+</section>
+
+<!-- ============ 2 DIGEST ============ -->
+<section class="ecran" id="e-digest">
+<h2>2. Modifier une entrée du digest : « Dordogne (24), taux de chômage localisé »</h2>
+<p class="mini muted">Un chiffre par case, jamais une phrase entière à retaper. Essayez : changez le dernier point de la série, ou la valeur, et regardez les contrôles.</p>
+<div class="carte" id="cDigest"></div>
+<div class="carte">
+<h3>Contrôles entre les chiffres (en direct)</h3><div id="dVerifs"></div>
+</div>
+<div class="carte" id="dConfirm">
+<label style="display:block"><input type="checkbox" id="dOuvert"> <b>J'ai ouvert la source et le chiffre y est bien.</b> <span class="mini muted">(obligatoire dès qu'un chiffre change ; la date de la source, dans l'en-tête, passera à aujourd'hui)</span></label>
+<div style="margin-top:.4rem"><label style="display:block"><input type="radio" name="dDate" value="garder" checked> Je garde la date de vérification du fichier : <b id="dVerifieActuelle"></b></label>
+<label style="display:block"><input type="radio" name="dDate" value="redater"> J'ai relu tout le fichier à la source : le dater d'aujourd'hui (<b>2026-10-18</b>)</label></div>
+<label class="mini" style="display:block;margin-top:.5rem">Ce que j'ai changé (écrit pour vous, modifiable)<input type="text" id="dPhrase"></label>
+</div>
+<div class="pied"><span id="dPied"></span><button class="btn plein" type="button" id="dVoir" disabled>Voir ce qui va changer &#8595;</button><button class="btn ko" type="button" id="dTout" disabled>Tout annuler</button></div>
+<div id="dAvant"></div>
+</section>
+
+<!-- ============ 3 ZONE ============ -->
+<section class="ecran" id="e-zone">
+<h2>3. Modifier un lieu : « Bergerac » (zones d'emploi)</h2>
+<p class="mini muted">Chaque donnée a sa case et son unité. Une valeur qui n'a pas la bonne forme (« 8.5 » au lieu de « 8,5 % ») est refusée avant d'être écrite.</p>
+<div class="carte" id="cZone"></div>
+<div class="carte"><h3>Contrôles (en direct)</h3><div id="zVerifs"></div></div>
+<div class="carte">
+<label style="display:block"><input type="checkbox" id="zOuvert"> <b>J'ai ouvert la source et le chiffre y est bien.</b> <span class="mini muted">(obligatoire dès qu'un chiffre change)</span></label>
+</div>
+<div class="pied"><span id="zPied"></span><button class="btn plein" type="button" id="zVoir" disabled>Voir ce qui va changer &#8595;</button><button class="btn ko" type="button" id="zTout" disabled>Tout annuler</button></div>
+<div id="zAvant"></div>
+</section>
+
+<!-- ============ 4 AUTRES ============ -->
+<section class="ecran" id="e-autres">
+<h2>4. Portrait, Europe et fiches méthode</h2>
+<div class="carte"><h3>Portrait du territoire et Europe : une ligne à la fois</h3>
+<p class="mini">L'écran montre la liste des puces de la section (texte + source + pastille « à vérifier »), filtrable par section. Pour une puce : <b>la phrase se tape</b> (aucun choix ne peut remplacer la rédaction), la <b>source se choisit</b> parmi celles de l'en-tête du fichier quand l'adresse y est (19 puces sur 40 aujourd'hui), sinon une adresse à coller. Une case « à vérifier » reste cochable. Même confirmation « j'ai ouvert la source ».</p>
+<p class="mini muted">Exemple réel d'une puce du portrait : « Mobilité (...) : environ 10 % des ménages sans voiture en Dordogne, environ 15 % en Haute-Vienne (2023). Source : INSEE, comparateur de territoire | https://www.insee.fr/fr/statistiques/1405599 ». Les chiffres sont <b>dans la phrase</b> : l'outil ne peut pas les isoler en cases comme dans le digest.</p></div>
+<div class="carte"><h3>Fiches méthode (3)</h3><p class="mini">Même écran que les fiches du cadre (titre, « utile si », mots, texte), avec le même contrôle de structure. Leur en-tête a une forme légèrement différente (type: methode, pas de rayon) : l'outil la reconnaît.</p></div>
+<div class="carte"><h3>Ce que l'outil ne fera pas dans cette version</h3><ul class="mini"><li>Créer un nouveau digest trimestriel : le circuit à prompts existant le fait déjà (et la mise en forme complète).</li><li>Modifier la config des cartes (questions, phrases d'introduction) : c'est du code de l'application, pas du contenu.</li><li>Ajouter ou retirer un territoire ou une rubrique.</li></ul></div>
+</section>
+
+<!-- ============ 5 QUESTIONS ============ -->
+<section class="ecran" id="e-questions">
+<h2>5. Mes questions et mes recommandations</h2>
+<div class="q"><b class="n">Question 1 : l'ordre.</b> <b>Ma recommandation :</b> (1) fiches de territoire (B, le plus sûr : 11 fichiers, champs réguliers) et digest (A) ensemble, parce que ce sont eux qu'on corrige le plus souvent ; (2) puis portrait et Europe (C) ; (3) puis méthode (D, presque gratuit). Bénéfice : le gros du besoin est couvert dès le premier lot, et l'essai de réécriture à l'identique se fait forme par forme. Risque : le premier lot reste le plus long. Alternative : tout d'un coup (plus long avant de pouvoir essayer, plus de risque d'erreur à la fois).</div>
+<div class="q"><b class="n">Question 2 : « j'ai ouvert la source et le chiffre y est bien » obligatoire.</b> Dès qu'un chiffre change, la case est exigée avant d'enregistrer ; elle met aussi à jour la date de la source dans l'en-tête du fichier. <b>Ma recommandation : oui.</b> Bénéfice : un chiffre n'est jamais saisi de mémoire ; la date de source reste honnête. Risque : une contrainte, même pour corriger une coquille évidente (la case « simple correction de forme » existe pour le texte, pas pour un chiffre).</div>
+<div class="q"><b class="n">Question 3 : contrôles entre chiffres, bloquants ou non ?</b> Bloquants : un point de série qui n'est pas un nombre, une période en double, un format de nombre faux (« 7.9 »). <b>Seulement orange</b> (on peut enregistrer) : la valeur affichée qui n'est pas exactement le dernier point (cas fréquent des valeurs arrondies « environ 16 800 »), « précédent » ou « il y a un an » qui ne concordent pas, trimestres non consécutifs. <b>Ma recommandation : cette répartition.</b> Risque : un orange ignoré laisse passer une incohérence ; le résumé en couleurs avant d'enregistrer la remontre.</div>
+<div class="q"><b class="n">Question 4 : où noter « ce que j'ai changé » ?</b> Les fichiers de chiffres n'ont pas de champ « révisions ». <b>Ma recommandation :</b> ne pas changer leur format (le lecteur de l'application en dépend) ; la phrase va seulement dans le journal des modifications, avec la date et l'heure. Bénéfice : aucun risque pour l'application. Risque : l'historique d'une valeur se lit dans le journal et dans Git, pas dans le fichier.</div>
+<div class="q"><b class="n">Question 5 : les textes d'explication (lecture du territoire, synthèse courte, « repère »).</b> Ils restent à taper (pas de choix possible), avec les mêmes contrôles que les fiches (tirets, guillemets, couleurs avant/après). <b>Ma recommandation : oui, dans le même passage que l'entrée.</b></div>
+<div class="verdict"><b>Verdict mode nuit :</b> <b>NON APTE</b> tant que la maquette n'est pas validée et les questions 1 à 5 tranchées.<br><span class="mini"><b>Plan prévu après validation</b> : [effort : haut] lecture et écriture des deux formes (blocs de territoire, entrées de digest avec séries), garde-fou « le lecteur de l'application relit l'entrée modifiée et retrouve les mêmes valeurs » ; [effort : moyen] essai de réécriture à l'identique des 11 fichiers de territoire et des 36 entrées du digest ; [effort : haut] publication (`chiffres-champs`), journal, routes ; [effort : haut] écrans (liste, entrée du digest, lieu, couleurs avant/après) ; [effort : moyen] essais navigateur clair / sombre / 375 px puis lot C et D.</span></div>
+</section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var D = {"digest":{"fichier":"2026-06.md","verifie":"2026-10-13","lignes":["- Dordogne (24) : **7,9 %** (2e trimestre 2026, provisoire) ; précédent : 7,8 % ; il y a un an : 7,1 %. Source : INSEE, taux de chômage localisés | https://www.insee.fr/fr/statistiques/2012804","  serie: T2 2025: 7,1 % ; T3 2025: 7,4 % ; T4 2025: 7,6 % ; T1 2026: 7,8 % ; T2 2026: 7,9 %","  serie_annuelle: 2019: 8,5 % ; 2020: 8,0 % ; 2021: 7,6 % ; 2022: 7,2 % ; 2023: 7,1 % ; 2024: 7,1 % ; 2025: 7,3 %","  histo: haut: 10,9 % (2015) ; bas: 5,7 % (1982)","  repere: Un peu en dessous de la moyenne française, un peu au-dessus de la Nouvelle-Aquitaine. En hausse depuis un an."],"sources":[{"org":"INSEE","titre":"Taux de chômage localisés au 2e trimestre 2026","url":"https://www.insee.fr/fr/statistiques/2012804","date":"2026-10-05"},{"org":"INSEE","titre":"Estimations trimestrielles d'emploi salarié au 2e trimestre 2026","url":"https://www.insee.fr/fr/statistiques/2134435","date":"2026-10-05"},{"org":"DREETS Nouvelle-Aquitaine","titre":"Personnes inscrites à France Travail en Nouvelle-Aquitaine au 2e trimestre 2026","url":"https://nouvelle-aquitaine.dreets.gouv.fr/Personnes-inscrites-a-France-Travail-en-Nouvelle-Aquitaine-au-2eme-2026","date":"2026-07-28"},{"org":"DREETS Nouvelle-Aquitaine","titre":"Les inscrits à France Travail en Nouvelle-Aquitaine au 1er trimestre 2026 (ancienneté d'inscription)","url":"https://nouvelle-aquitaine.dreets.gouv.fr/sites/nouvelle-aquitaine.dreets.gouv.fr/IMG/pdf/les_inscrits_a_ft_nouvelle-aquitaine_t12026.pdf","date":"2026-09-08"},{"org":"France Travail, Data Emploi","titre":"Panorama de l'emploi, département Dordogne (24)","url":"https://dataemploi.francetravail.fr/emploi/panorama/DEP/24","date":"2026-09"},{"org":"France Travail, Data Emploi","titre":"Panorama de l'emploi, département Haute-Vienne (87)","url":"https://dataemploi.francetravail.fr/emploi/panorama/DEP/87","date":"2026-09"},{"org":"France Travail, Data Emploi","titre":"Panorama de l'emploi, région Nouvelle-Aquitaine","url":"https://dataemploi.francetravail.fr/emploi/panorama/REG/75","date":"2026-09-12"},{"org":"France Travail, Data Emploi","titre":"Panorama de l'emploi, France entière","url":"https://dataemploi.francetravail.fr/emploi/panorama/NAT/FR","date":"2026-09-12"},{"org":"DARES, France Travail","titre":"Demandeurs d'emploi inscrits à France Travail, 2e trimestre 2026","url":"https://dares.travail-emploi.gouv.fr/","date":"2026-07-28"},{"org":"Dares, France Travail (STMT)","titre":"Demandeurs d'emploi inscrits à France Travail, stock France et régions, données CVS-CJO par département et région (série trimestrielle depuis 1996)","url":"https://www.data.gouv.fr/datasets/demandeurs-demploi-inscrits-a-france-travail-stock-france-et-regions-trimestrielles-cvs-cjo/","date":"2026-09-12"}]},"zone":{"fichier":"zones-emploi.md","nom":"Bergerac","champs":{"valeur":"8,5 %","sources":"insee-chomage-zone, insee-vulnerabilite-ze, cci-dordogne-a89, insee-dossier-bergerac","chomage_recensement":"12,0 %","niveau_vie_median":"23 700 €","taux_pauvrete":"18,7 %","residences_secondaires":"10,4 %","part_65_et_plus":"31,3 %","part_sans_diplome":"28,1 %","part_diplome_superieur":"25,2 %","secteur_principal":"Agriculture : 14,2 % des établissements (le plus haut des 3 zones de Dordogne)"},"ordre":["valeur","sources","chomage_recensement","niveau_vie_median","taux_pauvrete","residences_secondaires","part_65_et_plus","part_sans_diplome","part_diplome_superieur","secteur_principal"],"prose":"Bergerac fait partie des zones identifiées de longue date par l'INSEE parmi les plus fragiles de l'ex-Aquitaine, avec un chômage durablement parmi les plus élevés de la région. Le territoire porte aussi un vrai passé industriel en déclin : la poudrerie de Bergerac (aujourd'hui Eurenco) employait jusqu'à 12 000 personnes pendant la Seconde Guerre mondiale, contre un effectif bien réduit aujourd'hui. Autre facteur concret : Bergerac n'a pas d'accès direct à l'autoroute A89, seulement un échangeur à Mussidan, à 30 à 40 minutes de route, un frein reconnu par la CCI Dordogne au développement de la logistique et de l'entreposage sur ce secteur. Ces deux facteurs cumulés (un passé industriel plus lourd à porter, un désenclavement routier moins bon) expliquent l'essentiel de l'écart avec les deux autres zones du département, et se retrouvent dans les chiffres ci-dessus : chômage, pauvreté et niveau de vie parmi les moins favorables des cinq zones comparées ici.","sources":[{"id":"insee-chomage-zone","titre":"INSEE, taux de chômage localisés par zone d'emploi","url":"https://www.insee.fr/fr/statistiques/1893230","date":"2026-09-12"},{"id":"insee-vulnerabilite-ze","titre":"INSEE, 15 zones d'emploi aquitaines plus ou moins armées face à la crise","url":"https://www.insee.fr/fr/statistiques/fichier/1292950/edos_1203.pdf","date":"2026-09-12"},{"id":"insee-tourisme-na","titre":"INSEE, note sur l'emploi touristique en Nouvelle-Aquitaine","url":"https://pro.en-nouvelle-aquitaine.fr/wp-content/uploads/sites/2/2025/10/Note_INSEE_2022_emploi_touristique_NA.pdf","date":"2026-09-12"},{"id":"france-strategie-vulnerabilite","titre":"France Stratégie, vulnérabilité économique des zones d'emploi face à la crise","url":"https://www.strategie-plan.gouv.fr/point-de-vue/vulnerabilite-economique-zones-demploi-face-crise","date":"2026-09-12"},{"id":"cci-dordogne-a89","titre":"CCI Dordogne, dynamiser les échanges et renforcer l'attractivité du territoire","url":"https://dordogne.cci.fr/dynamiser-echanges-renforcer-lattractivite-territoire/","date":"2026-09-12"},{"id":"an-marbot-bata","titre":"Question écrite à l'Assemblée nationale sur la fermeture Marbot-Bata","url":"https://questions.assemblee-nationale.fr/q13/13-932QOSD.htm","date":"2026-09-12"},{"id":"insee-analyses-limousin-30ans","titre":"INSEE Analyses Limousin, trente ans de mutations économiques au regard de l'emploi","url":"https://www.insee.fr/fr/statistiques/1288195","date":"2026-09-12"},{"id":"saint-junien-patrimoine","titre":"Ville de Saint-Junien, patrimoine industriel et artisanal","url":"https://www.saint-junien.fr/decouvrir/histoire-et-patrimoine/patrimoine-industriel-artisanal/","date":"2026-09-12"},{"id":"usine-nouvelle-hermes-saint-junien","titre":"Usine Nouvelle, créations d'emplois sur le site Hermès à Saint-Junien","url":"https://www.usinenouvelle.com/article/130-creations-d-emplois-sur-le-site-hermes-a-saint-junien.N859725","date":"2026-09-12"},{"id":"insee-dossier-bergerac","titre":"INSEE, dossier complet, zone d'emploi de Bergerac","url":"https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7504","date":"2026-09-12"},{"id":"insee-dossier-perigueux","titre":"INSEE, dossier complet, zone d'emploi de Périgueux","url":"https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7523","date":"2026-09-12"},{"id":"insee-dossier-sarlat","titre":"INSEE, dossier complet, zone d'emploi de Sarlat-la-Canéda","url":"https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7529","date":"2026-09-12"},{"id":"insee-dossier-limoges","titre":"INSEE, dossier complet, zone d'emploi de Limoges","url":"https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7517","date":"2026-09-12"},{"id":"insee-dossier-saint-junien","titre":"INSEE, dossier complet, zone d'emploi de Saint-Junien","url":"https://www.insee.fr/fr/statistiques/2011101?geo=ZE2020-7527","date":"2026-09-12"}],"verifie":"2026-09"}};
+  function $(id) { return document.getElementById(id); }
+  function echap(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function egal(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+  function nombre(s) { var m = String(s || '').match(/-?\d[\d\s .,]*/); if (!m) { return null; } var v = parseFloat(m[0].replace(/[\s ]/g, '').replace(',', '.').replace(/\.$/, '')); return isNaN(v) ? null : v; }
+  function aller(e) {
+    Array.prototype.forEach.call(document.querySelectorAll('.ecran'), function (s) { s.classList.toggle('actif', s.id === 'e-' + e); });
+    Array.prototype.forEach.call(document.querySelectorAll('#onglets button'), function (b) { b.classList.toggle('actif', b.getAttribute('data-e') === e); });
+    window.scrollTo(0, 0);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#onglets button'), function (b) { b.addEventListener('click', function () { aller(b.getAttribute('data-e')); }); });
+  document.addEventListener('click', function (e) { var a = e.target.getAttribute && e.target.getAttribute('data-aller'); if (a) { aller(a); } });
+  $('bascule').addEventListener('click', function () { var s = document.body.getAttribute('data-theme') === 'sombre'; document.body.setAttribute('data-theme', s ? 'clair' : 'sombre'); $('bascule').textContent = s ? 'Mode sombre' : 'Mode clair'; });
+
+  // =================== DIGEST : lecture d'une entrée ===================
+  function lireSerie(txt) { return String(txt || '').split(/\s*;\s*/).map(function (p) { var i = p.indexOf(':'); return i < 0 ? null : { p: p.slice(0, i).trim(), v: p.slice(i + 1).trim() }; }).filter(Boolean); }
+  function lireEntree(lignes) {
+    var m0 = /^- (.+?) : (.*)$/.exec(lignes[0]), reste = m0[2], e = { label: m0[1], serie: [], annuelle: [], histoH: '', histoB: '', repere: '', autres: [] };
+    var mv = /\*\*(.+?)\*\*/.exec(reste); e.avant = reste.slice(0, mv.index); e.valeur = mv[1];
+    var apresBrut = reste.slice(mv.index + mv[0].length), ms = /\s*Source\s*:\s*(.+?)\s*\|\s*(https?:\/\/\S+)\s*$/.exec(apresBrut);
+    e.sourceNom = ms ? ms[1] : ''; e.sourceUrl = ms ? ms[2] : '';
+    var apres = ms ? apresBrut.slice(0, ms.index) : apresBrut;
+    var mp = /^(\s*\()([^)]*)(\))/.exec(apres); e.periode = mp ? mp[2] : '';
+    var mpr = /(;\s*précédent\s*:\s*)([^;.)]+?)(\s*(?:;|\.|$))/.exec(apres); e.precedent = mpr ? mpr[2] : '';
+    var man = /(;\s*il y a un an\s*:\s*)([^;.)]+?)(\s*(?:;|\.|$))/.exec(apres); e.anPrecedent = man ? man[2] : '';
+    e.apresModele = apres;
+    lignes.slice(1).forEach(function (l) {
+      var m;
+      if ((m = /^\s+serie\s*:\s*(.+)$/.exec(l))) { e.serie = lireSerie(m[1]); }
+      else if ((m = /^\s+serie_annuelle\s*:\s*(.+)$/.exec(l))) { e.annuelle = lireSerie(m[1]); }
+      else if ((m = /^\s+histo\s*:\s*haut\s*:\s*([^;]+?)\s*;\s*bas\s*:\s*(.+)$/.exec(l))) { e.histoH = m[1]; e.histoB = m[2]; }
+      else if ((m = /^\s+repere\s*:\s*(.+)$/.exec(l))) { e.repere = m[1]; }
+      else { e.autres.push(l); }
+    });
+    return e;
+  }
+  function ecrireSerie(s) { return s.map(function (x) { return x.p + ': ' + x.v; }).join(' ; '); }
+  function ecrireEntree(e) {
+    var ap = e.apresModele;
+    if (e.periode !== null) { ap = ap.replace(/^(\s*\()([^)]*)(\))/, function (m, a, b, c) { return a + e.periode + c; }); }
+    ap = ap.replace(/(;\s*précédent\s*:\s*)([^;.)]+?)(\s*(?:;|\.|$))/, function (m, a, b, c) { return a + e.precedent + c; });
+    ap = ap.replace(/(;\s*il y a un an\s*:\s*)([^;.)]+?)(\s*(?:;|\.|$))/, function (m, a, b, c) { return a + e.anPrecedent + c; });
+    var out = ['- ' + e.label + ' : ' + e.avant + '**' + e.valeur + '**' + ap + (e.sourceNom ? ' Source : ' + e.sourceNom + ' | ' + e.sourceUrl : '')];
+    if (e.serie.length) { out.push('  serie: ' + ecrireSerie(e.serie)); }
+    if (e.annuelle.length) { out.push('  serie_annuelle: ' + ecrireSerie(e.annuelle)); }
+    if (e.histoH || e.histoB) { out.push('  histo: haut: ' + e.histoH + ' ; bas: ' + e.histoB); }
+    if (e.repere) { out.push('  repere: ' + e.repere); }
+    return out.concat(e.autres);
+  }
+  var ORIG = lireEntree(D.digest.lignes), cur = clone(ORIG), dTout = { ouvert: false, datation: 'garder' };
+  var phraseEditee = false;
+  // la lecture refaite doit redonner la ligne d'origine exactement (preuve montrée dans l'essai de réécriture)
+  var identique = egal(ecrireEntree(ORIG), D.digest.lignes);
+  $('dVerifieActuelle').textContent = D.digest.verifie;
+
+  function champ(id, etiquette, valeur, aide, cle) { return '<div class="ligne" data-c="' + cle + '"><span class="eti">' + etiquette + '</span><div class="val"><input type="text" id="' + id + '" value="' + echap(valeur) + '">' + (aide ? '<div class="mini muted">' + aide + '</div>' : '') + '</div></div>'; }
+  function cellules(cle, liste, orig) {
+    return '<div class="serie">' + liste.map(function (x, i) { var ch = !orig[i] || orig[i].v !== x.v || orig[i].p !== x.p; return '<div class="cellule' + (ch ? ' change' : '') + '"><label>' + echap(x.p) + '</label><input type="text" data-d-serie="' + cle + '|' + i + '" value="' + echap(x.v) + '"></div>'; }).join('') + '</div>';
+  }
+  function barres(liste) {
+    var vals = liste.map(function (x) { return nombre(x.v); }), max = Math.max.apply(null, vals.filter(function (v) { return v !== null; }).concat([0.0001]));
+    return '<div class="barres">' + liste.map(function (x, i) { var v = vals[i]; return '<div class="' + (i === liste.length - 1 ? 'der' : '') + '" style="height:' + (v === null ? 2 : Math.max(3, Math.round(100 * Math.max(v, 0) / max))) + '%"><span>' + echap(x.v.replace(/\s*%$/, '')) + '</span></div>'; }).join('') + '</div>';
+  }
+  function rendreDigest() {
+    var h = '<div class="ligne"><span class="eti">Territoire et rubrique</span><div class="val"><span class="cadenas">&#128274; ' + echap(cur.label) + '</span> <span class="cadenas">&#128274; Taux de chômage localisé</span><div class="mini muted">Le territoire n\'est jamais modifiable ici : il décide de l\'endroit où le chiffre s\'affiche.</div></div></div>'
+      + champ('dValeur', 'Valeur affichée', cur.valeur, 'celle que la personne lit en grand', 'valeur')
+      + champ('dPeriode', 'Période', cur.periode, 'par exemple « 2e trimestre 2026, provisoire »', 'periode')
+      + champ('dPrec', 'Précédent', cur.precedent, 'le chiffre du trimestre d\'avant', 'precedent')
+      + champ('dAn', 'Il y a un an', cur.anPrecedent, 'le chiffre du même trimestre un an avant', 'an')
+      + '<div class="ligne" data-c="source"><span class="eti">Source</span><div class="val"><select id="dSource"></select><div class="mini muted" id="dSourceNote"></div></div></div>'
+      + '<div class="ligne" data-c="serie"><span class="eti">Série trimestrielle</span><div class="val"><div id="dBarres"></div><div id="dSerie"></div><div class="barre" style="margin-top:.4rem"><button class="btn petit" type="button" id="dAjoutPoint">Ajouter le trimestre suivant</button> <button class="btn petit ko" type="button" id="dRetirePoint">Retirer le dernier point</button></div></div></div>'
+      + '<div class="ligne" data-c="annuelle"><span class="eti">Série annuelle</span><div class="val"><div id="dAnnuelle"></div></div></div>'
+      + champ('dHistoH', 'Le plus haut connu', cur.histoH, 'par exemple « 10,9 % (2015) »', 'histoH')
+      + champ('dHistoB', 'Le plus bas connu', cur.histoB, 'par exemple « 5,7 % (1982) »', 'histoB')
+      + '<div class="ligne" data-c="repere"><span class="eti">Repère (phrase de lecture)</span><div class="val"><textarea id="dRepere" style="min-height:3.5rem">' + echap(cur.repere) + '</textarea></div></div>';
+    $('cDigest').innerHTML = h;
+    $('dSource').innerHTML = D.digest.sources.map(function (s, i) { return '<option value="' + i + '">' + echap(s.org + ' : ' + s.titre) + '</option>'; }).join('') + '<option value="autre">(une autre adresse : à coller)</option>';
+    var idx = D.digest.sources.findIndex(function (s) { return s.url === cur.sourceUrl; });
+    $('dSource').value = idx >= 0 ? String(idx) : 'autre';
+    majDigest(true);
+  }
+  function titreSource(s) { return s.org + ', ' + s.titre.charAt(0).toLowerCase() + s.titre.slice(1); }
+  function majDigest(reconstruire) {
+    $('dBarres').innerHTML = barres(cur.serie);
+    $('dSerie').innerHTML = cellules('serie', cur.serie, ORIG.serie);
+    $('dAnnuelle').innerHTML = cellules('annuelle', cur.annuelle, ORIG.annuelle);
+    var idx = D.digest.sources.findIndex(function (s) { return s.url === cur.sourceUrl; });
+    $('dSourceNote').innerHTML = (idx >= 0 ? 'Adresse : ' + echap(cur.sourceUrl) + ' ' + (D.digest.sources[idx].date ? '<span class="pastille v">vérifiée le ' + echap(D.digest.sources[idx].date) + '</span>' : '<span class="pastille a">jamais datée</span>') : '<span class="pastille a">adresse hors de l\'en-tête</span> ' + echap(cur.sourceUrl));
+    verifsDigest();
+  }
+  function chiffresChanges() { return !egal([cur.valeur, cur.precedent, cur.anPrecedent, cur.serie, cur.annuelle, cur.histoH, cur.histoB], [ORIG.valeur, ORIG.precedent, ORIG.anPrecedent, ORIG.serie, ORIG.annuelle, ORIG.histoH, ORIG.histoB]); }
+  function nbChangesDigest() {
+    var n = 0; ['valeur', 'periode', 'precedent', 'anPrecedent', 'sourceUrl', 'histoH', 'histoB', 'repere'].forEach(function (k) { if (cur[k] !== ORIG[k]) { n++; } });
+    if (!egal(cur.serie, ORIG.serie)) { n++; } if (!egal(cur.annuelle, ORIG.annuelle)) { n++; }
+    if (dTout.datation === 'redater') { n++; }
+    return n;
+  }
+  function trimestreSuivant(p) { var m = /^T([1-4]) (\d{4})$/.exec(p); if (!m) { return 'T?'; } var t = +m[1] + 1, a = +m[2]; if (t > 4) { t = 1; a++; } return 'T' + t + ' ' + a; }
+  function verifsDigest() {
+    var v = [], ko = false;
+    function add(c, t) { v.push([c, t]); if (c === 'ko') { ko = true; } }
+    var formatsKo = cur.serie.concat(cur.annuelle).filter(function (x) { return nombre(x.v) === null || /\d\.\d/.test(x.v); });
+    if (formatsKo.length) { add('ko', 'Un point de série n\'est pas un nombre à la française (virgule) : ' + formatsKo.map(function (x) { return x.p + ' = « ' + x.v + ' »'; }).join(', ') + '.'); } else { add('ok', 'Tous les points de série sont des nombres.'); }
+    var vus = {}; var doublon = cur.serie.some(function (x) { if (vus[x.p]) { return true; } vus[x.p] = 1; return false; });
+    if (doublon) { add('ko', 'Une période apparaît deux fois dans la série.'); }
+    [['La valeur affichée', cur.valeur], ['« Précédent »', cur.precedent], ['« Il y a un an »', cur.anPrecedent], ['Le plus haut connu', cur.histoH], ['Le plus bas connu', cur.histoB]].forEach(function (x) { if (/\d\.\d/.test(x[1])) { add('ko', x[0] + ' utilise un point décimal : écrivez « 7,9 % » avec une virgule.'); } });
+    var consec = cur.serie.every(function (x, i) { return i === 0 || trimestreSuivant(cur.serie[i - 1].p) === x.p; });
+    if (!consec) { add('warn', 'Les périodes de la série ne se suivent pas : trimestre manquant ou dans le désordre.'); }
+    var pts = cur.serie.map(function (x) { return nombre(x.v); }), n = pts.length, vv = nombre(cur.valeur);
+    if (n && vv !== null) { var der = pts[n - 1]; if (der === vv) { add('ok', 'La valeur affichée (' + cur.valeur + ') est bien le dernier point de la série.'); } else if (der !== null && Math.abs(der - vv) / Math.max(Math.abs(der), 1e-9) < 0.01) { add('ok', 'La valeur affichée est le dernier point à l\'arrondi près.'); } else { add('warn', 'La valeur affichée (' + cur.valeur + ') n\'est pas le dernier point de la série (' + cur.serie[n - 1].v + ').'); } }
+    var pr = nombre(cur.precedent); if (n > 1 && pr !== null) { if (pts[n - 2] === pr) { add('ok', '« Précédent » (' + cur.precedent + ') est bien l\'avant-dernier point.'); } else { add('warn', '« Précédent » (' + cur.precedent + ') n\'est pas l\'avant-dernier point (' + cur.serie[n - 2].v + ').'); } }
+    var an = nombre(cur.anPrecedent); if (n > 4 && an !== null) { if (pts[n - 5] === an) { add('ok', '« Il y a un an » (' + cur.anPrecedent + ') est bien le point d\'il y a quatre trimestres.'); } else { add('warn', '« Il y a un an » (' + cur.anPrecedent + ') ne correspond pas au point d\'il y a quatre trimestres (' + cur.serie[n - 5].v + ').'); } }
+    var unites = {}; cur.serie.forEach(function (x) { unites[/%/.test(x.v) ? '%' : 'nombre'] = 1; });
+    if (Object.keys(unites).length > 1) { add('ko', 'La série mélange des pourcentages et des nombres.'); }
+    var tiret = String.fromCharCode(0x2013), tl = String.fromCharCode(0x2014);
+    if ([cur.valeur, cur.periode, cur.repere, cur.histoH, cur.histoB].some(function (t) { return t.indexOf(tiret) !== -1 || t.indexOf(tl) !== -1; })) { add('ko', 'Un tiret long ou demi-long s\'est glissé dans un texte (interdit).'); }
+    var chg = chiffresChanges(), confirme = $('dOuvert').checked;
+    if (chg && !confirme) { add('warn', 'Un chiffre a changé : cochez « J\'ai ouvert la source et le chiffre y est bien ».'); }
+    $('dVerifs').innerHTML = v.map(function (x) { return '<div class="verif ' + x[0] + '">' + echap(x[1]) + '</div>'; }).join('');
+    var nb = nbChangesDigest();
+    $('dPied').innerHTML = '<b>' + nb + '</b> modification' + (nb > 1 ? 's' : '') + ' en attente';
+    $('dVoir').disabled = !nb || ko || (chg && !confirme); $('dTout').disabled = !nb;
+    if (!phraseEditee) { $('dPhrase').value = phraseDigest(); }
+    var cles = { valeur: ['valeur'], periode: ['periode'], precedent: ['precedent'], an: ['anPrecedent'], source: ['sourceUrl'], histoH: ['histoH'], histoB: ['histoB'], repere: ['repere'] };
+    Array.prototype.forEach.call($('cDigest').querySelectorAll('.ligne[data-c]'), function (l) { var c = l.getAttribute('data-c'), ch = false; if (cles[c]) { ch = cles[c].some(function (k) { return cur[k] !== ORIG[k]; }); } if (c === 'serie') { ch = !egal(cur.serie, ORIG.serie); } if (c === 'annuelle') { ch = !egal(cur.annuelle, ORIG.annuelle); } l.classList.toggle('change', ch); });
+  }
+  function phraseDigest() {
+    var p = [];
+    if (cur.valeur !== ORIG.valeur) { p.push('valeur ' + cur.label + ' : ' + ORIG.valeur + ' devient ' + cur.valeur); }
+    cur.serie.forEach(function (x, i) { var o = ORIG.serie[i]; if (o && o.v !== x.v) { p.push('point ' + x.p + ' : ' + o.v + ' devient ' + x.v); } else if (!o) { p.push('point ajouté : ' + x.p + ' = ' + x.v); } });
+    if (cur.serie.length < ORIG.serie.length) { p.push('point retiré en fin de série'); }
+    if (cur.precedent !== ORIG.precedent) { p.push('« précédent » : ' + ORIG.precedent + ' devient ' + cur.precedent); }
+    if (cur.anPrecedent !== ORIG.anPrecedent) { p.push('« il y a un an » : ' + ORIG.anPrecedent + ' devient ' + cur.anPrecedent); }
+    if (cur.periode !== ORIG.periode) { p.push('période modifiée'); }
+    if (cur.sourceUrl !== ORIG.sourceUrl) { p.push('source changée'); }
+    if (cur.repere !== ORIG.repere) { p.push('repère reformulé'); }
+    return p.join(' ; ');
+  }
+  $('cDigest').addEventListener('input', function (e) {
+    var t = e.target, id = t.id;
+    if (id === 'dValeur') { cur.valeur = t.value; } else if (id === 'dPeriode') { cur.periode = t.value; } else if (id === 'dPrec') { cur.precedent = t.value; } else if (id === 'dAn') { cur.anPrecedent = t.value; } else if (id === 'dHistoH') { cur.histoH = t.value; } else if (id === 'dHistoB') { cur.histoB = t.value; } else if (id === 'dRepere') { cur.repere = t.value; }
+    else if (t.hasAttribute('data-d-serie')) { var s = t.getAttribute('data-d-serie').split('|'); cur[s[0]][+s[1]].v = t.value; }
+    else { return; }
+    verifsDigest();
+    if (t.hasAttribute('data-d-serie')) { $('dBarres').innerHTML = barres(cur.serie); var sp = t.getAttribute('data-d-serie').split('|'), o = ORIG[sp[0]][+sp[1]]; t.parentNode.classList.toggle('change', !o || o.v !== t.value); }
+  });
+  $('cDigest').addEventListener('change', function (e) { if (e.target.id === 'dSource') { var v = e.target.value; if (v !== 'autre') { var s = D.digest.sources[+v]; cur.sourceNom = titreSource(s); cur.sourceUrl = s.url; } majDigest(); } });
+  $('cDigest').addEventListener('click', function (e) {
+    if (e.target.id === 'dAjoutPoint') { var der = cur.serie[cur.serie.length - 1]; cur.serie.push({ p: trimestreSuivant(der.p), v: der.v }); majDigest(); }
+    else if (e.target.id === 'dRetirePoint') { if (cur.serie.length > 1) { cur.serie.pop(); majDigest(); } }
+  });
+  $('dOuvert').addEventListener('change', function () { dTout.ouvert = $('dOuvert').checked; verifsDigest(); });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=dDate]'), function (r) { r.addEventListener('change', function () { dTout.datation = r.value; verifsDigest(); }); });
+  $('dPhrase').addEventListener('input', function () { phraseEditee = true; });
+  $('dTout').addEventListener('click', function () { cur = clone(ORIG); dTout = { ouvert: false, datation: 'garder' }; phraseEditee = false; $('dOuvert').checked = false; document.querySelector('input[name=dDate][value=garder]').checked = true; $('dAvant').innerHTML = ''; rendreDigest(); });
+  $('dVoir').addEventListener('click', function () {
+    var d = [], nA = 0, nM = 0;
+    function carte(c, nom, h) { d.push('<div class="diff ' + c + '"><div class="nom">' + nom + '</div>' + h + '</div>'); }
+    [['valeur', 'Valeur affichée'], ['periode', 'Période'], ['precedent', 'Précédent'], ['anPrecedent', 'Il y a un an'], ['histoH', 'Le plus haut connu'], ['histoB', 'Le plus bas connu'], ['repere', 'Repère']].forEach(function (k) { if (cur[k[0]] !== ORIG[k[0]]) { carte('modifie', echap(k[1]) + ' : modifié', '<div class="avant">' + echap(ORIG[k[0]] || '(vide)') + '</div><div class="apres">' + echap(cur[k[0]] || '(vide)') + '</div>'); nM++; } });
+    if (cur.sourceUrl !== ORIG.sourceUrl) { carte('modifie', 'Source : changée', '<div class="avant">' + echap(ORIG.sourceNom) + '</div><div class="apres">' + echap(cur.sourceNom) + '</div>'); nM++; }
+    ['serie', 'annuelle'].forEach(function (c) { cur[c].forEach(function (x, i) { var o = ORIG[c][i]; if (!o) { carte('ajoute', (c === 'serie' ? 'Série trimestrielle' : 'Série annuelle') + ' : point ajouté', echap(x.p + ' = ' + x.v)); nA++; } else if (o.v !== x.v) { carte('modifie', (c === 'serie' ? 'Série trimestrielle' : 'Série annuelle') + ' : point ' + echap(x.p), '<div class="avant">' + echap(o.v) + '</div><div class="apres">' + echap(x.v) + '</div>'); nM++; } }); ORIG[c].forEach(function (o, i) { if (!cur[c][i]) { carte('retire', 'Série : point retiré', '<span class="avant">' + echap(o.p + ' = ' + o.v) + '</span>'); } }); });
+    if (dTout.datation === 'redater') { carte('modifie', 'Date de vérification du fichier', '<span class="avant">' + echap(D.digest.verifie) + '</span> &#8594; <span class="apres">2026-10-18</span>'); }
+    if (cur.sourceUrl) { var s = D.digest.sources.filter(function (x) { return x.url === cur.sourceUrl; })[0]; if (s && chiffresChanges()) { carte('modifie', 'Date de la source dans l\'en-tête', '<span class="avant">' + echap(s.date || 'aucune') + '</span> &#8594; <span class="apres">2026-10-18</span>'); } }
+    $('dAvant').innerHTML = '<h3>Ce qui va changer, en couleurs</h3>' + d.join('') + '<h3>Les lignes qui seront écrites dans le fichier</h3><pre>' + echap(ecrireEntree(cur).join('\n')) + '</pre><p class="mini muted">Ces lignes sont fabriquées par l\'outil à partir des cases : vous n\'en tapez jamais le texte. Dans le vrai outil, l\'enregistrement relit ces lignes avec le lecteur de l\'application et refuse si les valeurs relues ne sont pas celles des cases.</p><div class="pied"><button class="btn plein" type="button" id="dEnreg">Enregistrer (simulation)</button><span id="dMsg"></span></div>';
+    $('dEnreg').addEventListener('click', function () { $('dMsg').innerHTML = '<span class="pastille v">Enregistré (simulation)</span> tests verts, ligne ajoutée au journal à 14:35 avec la phrase : ' + echap($('dPhrase').value || '(aucune)'); });
+  });
+
+  // =================== ZONE D'EMPLOI ===================
+  var Z = D.zone, ZO = { champs: clone(Z.champs), prose: Z.prose, sources: (Z.champs.sources || '').split(/\s*,\s*/).filter(Boolean) };
+  var ZC = { champs: clone(ZO.champs), prose: ZO.prose, sources: ZO.sources.slice() };
+  var ETIQ = { valeur: ['Taux de chômage (valeur)', 'pct'], chomage_recensement: ['Chômage au recensement', 'pct'], niveau_vie_median: ['Niveau de vie médian', 'eur'], taux_pauvrete: ['Taux de pauvreté', 'pct'], residences_secondaires: ['Résidences secondaires', 'pct'], part_65_et_plus: ['Part des 65 ans et plus', 'pct'], part_sans_diplome: ['Part sans diplôme', 'pct'], part_diplome_superieur: ['Part diplôme du supérieur', 'pct'], secteur_principal: ['Secteur principal', 'txt'], population: ['Population', 'nb'], part_emploi_salarie: ['Part de l\'emploi salarié', 'pct'], gros_etablissements: ['Gros établissements', 'txt'], part_industrie: ['Part de l\'industrie', 'pct'] };
+  var FORMES = { pct: [/^\d+(,\d+)? ?%$/, 'un pourcentage à la française, par exemple « 8,5 % »'], eur: [/^\d[\d  ]* ?€$/, 'un montant en euros, par exemple « 23 700 € »'], nb: [/^\d[\d  ]*$/, 'un nombre entier'], txt: [/\S/, 'un texte non vide'] };
+  var ordreZ = Z.ordre.filter(function (k) { return k !== 'sources'; });
+  function rendreZone() {
+    var h = '<div class="ligne"><span class="eti">Lieu</span><div class="val"><span class="cadenas">&#128274; ' + echap(Z.nom) + '</span> <span class="cadenas">&#128274; groupe « 24 » (Dordogne)</span></div></div>';
+    h += ordreZ.map(function (k) { var e = ETIQ[k] || [k, 'txt']; return '<div class="ligne" data-c="' + k + '"><span class="eti"><label for="z_' + k + '">' + echap(e[0]) + '</label></span><div class="val"><input type="text" id="z_' + k + '" data-z="' + k + '" value="' + echap(ZC.champs[k] || '') + '"><div class="mini muted">' + echap(FORMES[e[1]][1]) + '</div></div></div>'; }).join('');
+    h += '<div class="ligne" data-c="sources"><span class="eti">Sources</span><div class="val"><div id="zSources"></div><div class="barre"><select id="zSrcAjout"></select> <button class="btn petit" type="button" id="zSrcBtn">Ajouter</button></div><div class="mini muted">Les sources sont celles de l\'en-tête du fichier (14).</div></div></div>';
+    h += '<div class="ligne" data-c="prose"><span class="eti">Paragraphe d\'explication</span><div class="val"><textarea id="zProse" data-zprose="1" style="min-height:9rem">' + echap(ZC.prose) + '</textarea></div></div>';
+    $('cZone').innerHTML = h; rendreSourcesZone(); verifsZone();
+  }
+  function rendreSourcesZone() {
+    $('zSources').innerHTML = ZC.sources.map(function (id, i) { var s = Z.sources.filter(function (x) { return x.id === id; })[0]; return '<div style="display:flex;gap:.5rem;align-items:center;margin:.2rem 0"><span style="flex:1"><b>' + echap(s ? s.titre : id) + '</b><br><span class="mini muted">' + echap(id) + '</span> ' + (s && s.date ? '<span class="pastille v">vérifiée le ' + echap(s.date) + '</span>' : '<span class="pastille a">jamais datée</span>') + '</span><button class="btn petit ko" type="button" data-z-sup="' + i + '">Retirer</button></div>'; }).join('');
+    $('zSrcAjout').innerHTML = '<option value="">Ajouter une source de l\'en-tête...</option>' + Z.sources.filter(function (s) { return ZC.sources.indexOf(s.id) === -1; }).map(function (s) { return '<option value="' + echap(s.id) + '">' + echap(s.titre) + '</option>'; }).join('');
+  }
+  function zChange() { return ordreZ.some(function (k) { return ZC.champs[k] !== ZO.champs[k]; }); }
+  function verifsZone() {
+    var v = [], ko = false;
+    ordreZ.forEach(function (k) { var e = ETIQ[k] || [k, 'txt'], val = ZC.champs[k] || ''; if (!FORMES[e[1]][0].test(val)) { v.push(['ko', e[0] + ' : « ' + val + ' » n\'a pas la bonne forme (' + FORMES[e[1]][1] + ').']); ko = true; } });
+    if (!ko) { v.push(['ok', 'Toutes les données ont la bonne forme.']); }
+    if (!ZC.sources.length) { v.push(['warn', 'Le lieu n\'a plus aucune source.']); }
+    var tiret = String.fromCharCode(0x2013), tl = String.fromCharCode(0x2014);
+    if (ordreZ.map(function (k) { return ZC.champs[k] || ''; }).concat([ZC.prose]).some(function (t) { return t.indexOf(tiret) !== -1 || t.indexOf(tl) !== -1; })) { v.push(['ko', 'Un tiret long ou demi-long s\'est glissé dans un texte (interdit).']); ko = true; }
+    var chg = zChange(), conf = $('zOuvert').checked;
+    if (chg && !conf) { v.push(['warn', 'Un chiffre a changé : cochez « J\'ai ouvert la source et le chiffre y est bien ».']); }
+    $('zVerifs').innerHTML = v.map(function (x) { return '<div class="verif ' + x[0] + '">' + echap(x[1]) + '</div>'; }).join('');
+    var nb = ordreZ.filter(function (k) { return ZC.champs[k] !== ZO.champs[k]; }).length + (ZC.prose !== ZO.prose ? 1 : 0) + (egal(ZC.sources, ZO.sources) ? 0 : 1);
+    $('zPied').innerHTML = '<b>' + nb + '</b> modification' + (nb > 1 ? 's' : '') + ' en attente';
+    $('zVoir').disabled = !nb || ko || (chg && !conf); $('zTout').disabled = !nb;
+    Array.prototype.forEach.call($('cZone').querySelectorAll('.ligne[data-c]'), function (l) { var c = l.getAttribute('data-c'), ch = c === 'sources' ? !egal(ZC.sources, ZO.sources) : (c === 'prose' ? ZC.prose !== ZO.prose : ZC.champs[c] !== ZO.champs[c]); l.classList.toggle('change', ch); });
+  }
+  $('cZone').addEventListener('input', function (e) { var t = e.target; if (t.hasAttribute('data-z')) { ZC.champs[t.getAttribute('data-z')] = t.value; } else if (t.hasAttribute('data-zprose')) { ZC.prose = t.value; } else { return; } verifsZone(); });
+  $('cZone').addEventListener('click', function (e) { var t = e.target; if (t.hasAttribute('data-z-sup')) { ZC.sources.splice(+t.getAttribute('data-z-sup'), 1); rendreSourcesZone(); verifsZone(); } else if (t.id === 'zSrcBtn') { var v = $('zSrcAjout').value; if (v) { ZC.sources.push(v); rendreSourcesZone(); verifsZone(); } } });
+  $('zOuvert').addEventListener('change', verifsZone);
+  $('zTout').addEventListener('click', function () { ZC = { champs: clone(ZO.champs), prose: ZO.prose, sources: ZO.sources.slice() }; $('zOuvert').checked = false; $('zAvant').innerHTML = ''; rendreZone(); });
+  $('zVoir').addEventListener('click', function () {
+    var d = [];
+    function carte(c, nom, h) { d.push('<div class="diff ' + c + '"><div class="nom">' + nom + '</div>' + h + '</div>'); }
+    ordreZ.forEach(function (k) { if (ZC.champs[k] !== ZO.champs[k]) { carte('modifie', echap((ETIQ[k] || [k])[0]) + ' : modifié', '<div class="avant">' + echap(ZO.champs[k]) + '</div><div class="apres">' + echap(ZC.champs[k]) + '</div>'); } });
+    ZC.sources.filter(function (s) { return ZO.sources.indexOf(s) === -1; }).forEach(function (s) { carte('ajoute', 'Source ajoutée', echap(s)); });
+    ZO.sources.filter(function (s) { return ZC.sources.indexOf(s) === -1; }).forEach(function (s) { carte('retire', 'Source retirée', '<span class="avant">' + echap(s) + '</span>'); });
+    if (ZC.prose !== ZO.prose) { carte('modifie', 'Paragraphe d\'explication : modifié', '<div class="avant">' + echap(ZO.prose.slice(0, 160)) + '...</div><div class="apres">' + echap(ZC.prose.slice(0, 160)) + '...</div>'); }
+    var lignes = ['## ' + Z.nom].concat(ordreZ.map(function (k) { return k + ': ' + ZC.champs[k]; }));
+    lignes.splice(2, 0, 'sources: ' + ZC.sources.join(', ')); lignes.push('', ZC.prose.slice(0, 120) + '...');
+    $('zAvant').innerHTML = '<h3>Ce qui va changer, en couleurs</h3>' + d.join('') + '<h3>Le bloc qui sera écrit dans le fichier (début)</h3><pre>' + echap(lignes.join('\n')) + '</pre><div class="pied"><button class="btn plein" type="button" id="zEnreg">Enregistrer (simulation)</button><span id="zMsg"></span></div>';
+    $('zEnreg').addEventListener('click', function () { $('zMsg').innerHTML = '<span class="pastille v">Enregistré (simulation)</span> tests verts, journal à 14:36.'; });
+  });
+
+  rendreDigest(); rendreZone();
+  if (!identique) { console.log('ATTENTION : la lecture de l\'entrée ne redonne pas la ligne d\'origine'); }
+})();
+</script>
+</body>
+</html>

@@ -872,34 +872,65 @@ window._comprendreLesChiffresCourbeQuitter = _comprendreLesChiffresCourbeQuitter
 
 // Infobulle de source au survol de CHAQUE .chiffre (comme la maquette) :
 // data-source du chiffre, sinon la ligne .source du bloc.
+// Texte de la source d'un chiffre (data-source, sinon la ligne de source du bloc).
+function _comprendreLesChiffresTexteSource(el) {
+  var src = el.getAttribute('data-source');
+  if (!src) {
+    var bloc = el.closest('.comprendre-les-chiffres-indic, .comprendre-les-chiffres-depli-corps, .comprendre-les-chiffres-encart');
+    var s = bloc && bloc.querySelector('.comprendre-les-chiffres-source');
+    if (s) {
+      var clone = s.cloneNode(true);
+      var a = clone.querySelector('a, button'); if (a) { a.parentNode.removeChild(a); }
+      src = clone.textContent.replace(/\s+/g, ' ').trim().replace(/^D['’]apr[eè]s\s*/i, '');
+    }
+  }
+  return 'Source : ' + (src || 'voir la source en bas de ce bloc');
+}
+
+// Rend chaque chiffre atteignable au clavier (Tab, puis Entree ou Espace).
+function _comprendreLesChiffresRendreChiffresAccessibles(racine) {
+  (racine || document).querySelectorAll('.comprendre-les-chiffres-contenu .chiffre:not([tabindex])').forEach(function (el) {
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-expanded', 'false');
+  });
+}
+
+// Survol (souris), toucher et clavier : meme bulle partagee (js/app.js,
+// bulleInfoFlottanteBasculer). Sur telephone, le toucher d'un chiffre ou
+// d'une barre de graphe ouvre la source ; un 2e toucher ou un toucher
+// ailleurs la referme.
 function _comprendreLesChiffresBrancherInfobulleChiffres() {
   if (_comprendreLesChiffresBrancherInfobulleChiffres._fait) { return; }
   _comprendreLesChiffresBrancherInfobulleChiffres._fait = true;
+  var SEL = '.comprendre-les-chiffres-contenu .chiffre';
+  var SEL_BARRE = '.comprendre-les-chiffres-graphe [data-tip]';
   document.addEventListener('mouseover', function (evt) {
-    var el = evt.target.closest && evt.target.closest('.comprendre-les-chiffres-contenu .chiffre');
-    if (!el) { return; }
-    var src = el.getAttribute('data-source');
-    if (!src) {
-      var bloc = el.closest('.comprendre-les-chiffres-indic, .comprendre-les-chiffres-depli-corps, .comprendre-les-chiffres-encart');
-      var s = bloc && bloc.querySelector('.comprendre-les-chiffres-source');
-      if (s) {
-        var clone = s.cloneNode(true);
-        var a = clone.querySelector('a, button'); if (a) { a.parentNode.removeChild(a); }
-        src = clone.textContent.replace(/\s+/g, ' ').trim().replace(/^D['’]apr[eè]s\s*/i, '');
-      }
-    }
-    var box = _comprendreLesChiffresInfobulleElement();
-    box.textContent = 'Source : ' + (src || 'voir la source en bas de ce bloc');
-    box.style.display = 'block';
-    var x = evt.clientX + 14, y = evt.clientY + 14;
-    if (x + 280 > window.innerWidth) { x = evt.clientX - 280; }
-    box.style.left = x + 'px';
-    box.style.top = y + 'px';
+    var el = evt.target.closest && evt.target.closest(SEL);
+    if (!el || el.contains(evt.relatedTarget)) { return; }
+    if (typeof bulleInfoFlottanteMontrer === 'function') { bulleInfoFlottanteMontrer(el, _comprendreLesChiffresTexteSource(el)); }
   });
   document.addEventListener('mouseout', function (evt) {
-    if (evt.target.closest && evt.target.closest('.comprendre-les-chiffres-contenu .chiffre')) {
+    var el = evt.target.closest && evt.target.closest(SEL);
+    if (!el || el.contains(evt.relatedTarget)) { return; }
+    if (typeof bulleInfoFlottanteFermer === 'function') { bulleInfoFlottanteFermer(); }
+  });
+  document.addEventListener('click', function (evt) {
+    var el = evt.target.closest && evt.target.closest(SEL);
+    var barre = !el && evt.target.closest ? evt.target.closest(SEL_BARRE) : null;
+    if (typeof bulleInfoFlottanteBasculer !== 'function') { return; }
+    if (el) { bulleInfoFlottanteBasculer(el, _comprendreLesChiffresTexteSource(el)); }
+    else if (barre) {
       _comprendreLesChiffresGrapheInfobulleMasquer();
+      bulleInfoFlottanteBasculer(barre, barre.getAttribute('data-tip'));
     }
+  });
+  document.addEventListener('keydown', function (evt) {
+    if (evt.key !== 'Enter' && evt.key !== ' ') { return; }
+    var el = evt.target.closest && evt.target.closest(SEL);
+    if (!el) { return; }
+    evt.preventDefault();
+    if (typeof bulleInfoFlottanteBasculer === 'function') { bulleInfoFlottanteBasculer(el, _comprendreLesChiffresTexteSource(el)); }
   });
 }
 
@@ -2498,7 +2529,8 @@ function _comprendreLesChiffresRenduAccueil() {
     _comprendreLesChiffresRenduBasculeVue() +
     _comprendreLesChiffresRenduBandeauDepartement() +
     _comprendreLesChiffresRenduNiveaux() +
-    '<div class="comprendre-les-chiffres-contenu">';
+    '<div class="comprendre-les-chiffres-contenu">' +
+    '<p class="comprendre-les-chiffres-note" id="comprendreLesChiffresAideToucher"><i class="bi bi-hand-index"></i> Touchez un chiffre en bleu pour voir d’où il vient (sa source). Touchez-le encore, ou touchez ailleurs, pour fermer.</p>';
 
   if (estUE) {
     html += _comprendreLesChiffresRenduVueUE();
@@ -2573,6 +2605,7 @@ function _comprendreLesChiffresBrancherAccueil() {
     });
   });
   _comprendreLesChiffresBrancherInfobulleChiffres();
+  _comprendreLesChiffresRendreChiffresAccessibles();
 }
 
 // ============================================================
@@ -2842,8 +2875,31 @@ function _comprendreLesChiffresBrancherCopie(btnId, sourceId) {
 // ROUTEUR
 // ============================================================
 
+// ------------------------------------------------------------
+// Fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Les ecrans du module (accueil, porte A, porte B) se deduisent de _comprendreLesChiffresEtat.ecran et sont dessines par pageComprendreLesChiffres() :
+// chaque dessin appelle _comprendreLesChiffresSynchroniserHistorique(), chaque changement d'ecran devient une entree de l'historique.
+// Le niveau (departement, region, France, Europe) et la vue (simple, ensemble) restent DANS l'accueil : seul l'ecran est remis.
+// ------------------------------------------------------------
+function _comprendreLesChiffresSynchroniserHistorique() {
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  historiqueInterneSynchroniser('comprendre-les-chiffres', { cle: _comprendreLesChiffresEtat.ecran, ecran: _comprendreLesChiffresEtat.ecran });
+}
+
+function _comprendreLesChiffresRestaurerHistorique(instantane) {
+  _comprendreLesChiffresEtat.ecran = instantane.ecran;
+  _comprendreLesChiffresDetourPresentation = false;
+}
+
+// js/app.js est charge APRES ce fichier : le module s'inscrit au premier dessin de la page, pas au chargement.
+function _comprendreLesChiffresInscrireHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('comprendre-les-chiffres', _comprendreLesChiffresRestaurerHistorique); }
+}
+
+
 function pageComprendreLesChiffres() {
   _comprendreLesChiffresDetourPresentation = false;
+  _comprendreLesChiffresInscrireHistorique();
   if (!_comprendreLesChiffresEtat.niveau) { _comprendreLesChiffresEtat.niveau = 'dep'; }
 
   var corpsHTML, brancherCorps, evenement;
@@ -2875,6 +2931,7 @@ function pageComprendreLesChiffres() {
   }
 
   app.innerHTML = '<div class="page-catalogue-contenu">' + _comprendreLesChiffresRenduEnTete() + corpsHTML + '</div>' + _comprendreLesChiffresRenduPiedFixe();
+  _comprendreLesChiffresSynchroniserHistorique();
   brancherCorps();
   var btnRevoir = document.getElementById('btnComprendreLesChiffresRevoirIntro');
   if (btnRevoir) { btnRevoir.addEventListener('click', _comprendreLesChiffresRevoirPresentation); }
@@ -2911,6 +2968,9 @@ window.pageComprendreLesChiffres = pageComprendreLesChiffres;
 if (typeof module !== 'undefined') {
   module.exports = {
     _comprendreLesChiffresParserZonesEmploi: _comprendreLesChiffresParserZonesEmploi,
+    _comprendreLesChiffresParserDigest: _comprendreLesChiffresParserDigest,
+    _comprendreLesChiffresParserDocAnnuel: _comprendreLesChiffresParserDocAnnuel,
+    _comprendreLesChiffresParserFiche: _comprendreLesChiffresParserFiche,
     _comprendreLesChiffresRenduEcartsGenerique: _comprendreLesChiffresRenduEcartsGenerique,
     _comprendreLesChiffresRenduGraphe: _comprendreLesChiffresRenduGraphe,
     _comprendreLesChiffresTendance: _comprendreLesChiffresTendance,

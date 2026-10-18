@@ -7,7 +7,7 @@ tags: [apprentissage, contrat d'apprentissage, alternance, CFA, diplôme, salair
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "contrat d'apprentissage"
     definition: "Contrat de travail qui alterne des périodes en entreprise et des cours dans un centre de formation d'apprentis, pour préparer un diplôme ou un titre professionnel."

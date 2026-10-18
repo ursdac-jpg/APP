@@ -7,7 +7,7 @@ tags: [demande d'asile, OFPRA, autorisation de travail, réfugié, protection su
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "OFPRA"
     definition: "Office français de protection des réfugiés et apatrides. L'établissement qui examine les demandes d'asile et accorde ou refuse une protection."

@@ -7,7 +7,7 @@ tags: [crèche AVIP, insertion, France Travail, place réservée, monoparental, 
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "crèche AVIP"
     definition: "Crèche ou micro-crèche labellisée « à vocation d'insertion professionnelle » : elle réserve au moins une place sur cinq à des enfants dont les parents sont en recherche d'emploi, et accompagne ces parents vers l'emploi ou la formation."

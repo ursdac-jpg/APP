@@ -28,14 +28,14 @@ function requete(port, chemin, options, corps) {
   });
 }
 const HTML = path.join(__dirname, '..', 'outils', 'veille.html');
-const sansJeton = (buf) => buf.toString('utf8').replace(/<meta name="veille-jeton" content="[0-9a-f]+">\n/, '');
+const sansJeton = (buf) => buf.toString('utf8').replace(/<meta name="veille-jeton" content="[0-9a-f]+">/, '');
 
 // Faux depot et faux envoi : on teste le serveur, pas l'ecriture (couverte par veilleDepot.test.js et veilleEnvoi.test.js).
 function faux() {
   const appels = [];
   return {
     appels,
-    depot: { publier: (f, o) => { appels.push(['publier', f, o]); return { ok: true, vu: f }; }, listerLiens: () => { appels.push(['liens']); return { ok: true, liens: [], aujourdhui: '2026-10-07' }; }, annuler: () => { appels.push(['annuler']); return { ok: true }; }, etat: () => ({ branche: 'master', modifications: 0, annulable: false }) },
+    depot: { publier: (f, o) => { appels.push(['publier', f, o]); return { ok: true, vu: f }; }, listerTerritoire: (fichier) => { appels.push(['territoire', fichier]); return { ok: true, fichier }; }, analyserLot: (fichier, texte) => { appels.push(['analyser', fichier, texte]); return { ok: true, fichier }; }, listerSas: (fichier) => { appels.push(['sas', fichier]); return { ok: true, fichier }; }, listerLiens: () => { appels.push(['liens']); return { ok: true, liens: [], aujourdhui: '2026-10-07' }; }, annuler: () => { appels.push(['annuler']); return { ok: true }; }, etat: () => ({ branche: 'master', modifications: 0, annulable: false }) },
     envoi: { etat: (d) => ({ ok: true, depuis: d }), preparer: (d) => { appels.push(['preparer', d]); return { ok: true }; }, marquerEnvoye: () => { appels.push(['marquer']); return { ok: true }; }, dossier: () => 'C:\\dossier-fixe\\A_envoyer_sur_GitHub' },
     ouvrir: (c) => { appels.push(['ouvrir', c]); }
   };
@@ -262,4 +262,82 @@ test('lanceur : un fichier .bat distinct, sans toucher a « Mettre a jour la bas
   assert.match(bat, /serveur_veille\.js/);
   // jamais de tiret cadratin ni demi-cadratin (codes construits ici pour ne pas ecrire le caractere lui-meme)
   assert.ok(bat.indexOf(String.fromCharCode(0x2013)) === -1 && bat.indexOf(String.fromCharCode(0x2014)) === -1);
+});
+
+test('API : la liste des registres de Qui fait quoi est reservee au bon jeton et transmet le nom du registre', async () => {
+  const f = faux();
+  const s = await lancer({ depot: f.depot, envoi: f.envoi, ouvrir: f.ouvrir });
+  try {
+    assert.strictEqual((await requete(s.port, '/api/territoire/lister', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+    assert.strictEqual((await requete(s.port, '/api/territoire/lister')).code, 404, 'pas de GET');
+    assert.deepStrictEqual(f.appels, []);
+    const l = await requete(s.port, '/api/territoire/lister', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ fichier: 'lieux' }));
+    assert.strictEqual(l.code, 200);
+    assert.deepStrictEqual(JSON.parse(l.corps.toString('utf8')), { ok: true, fichier: 'lieux' });
+    assert.deepStrictEqual(f.appels, [['territoire', 'lieux']]);
+  } finally { await s.fermer(); }
+});
+
+test('API : analyse d un lot et contenu du sas reserves au bon jeton, avec transmission du registre et du texte colle', async () => {
+  const f = faux();
+  const s = await lancer({ depot: f.depot, envoi: f.envoi, ouvrir: f.ouvrir });
+  try {
+    assert.strictEqual((await requete(s.port, '/api/sas/analyser', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+    assert.strictEqual((await requete(s.port, '/api/sas/lister', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+    assert.strictEqual((await requete(s.port, '/api/sas/analyser')).code, 404, 'pas de GET');
+    assert.deepStrictEqual(f.appels, []);
+    const a = await requete(s.port, '/api/sas/analyser', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ fichier: 'lieux', texte: 'a | b' }));
+    assert.strictEqual(a.code, 200);
+    const l = await requete(s.port, '/api/sas/lister', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ fichier: 'employeurs' }));
+    assert.strictEqual(l.code, 200);
+    assert.deepStrictEqual(f.appels, [['analyser', 'lieux', 'a | b'], ['sas', 'employeurs']]);
+  } finally { await s.fermer(); }
+});
+
+test('API : la liste et la lecture des fiches du cadre sont reservees au bon jeton et transmettent le rayon et l\'identifiant', async () => {
+  const appels = [];
+  const depot = { listerFiches: () => { appels.push(['lister']); return { ok: true, fiches: [] }; }, lireFiche: (r, i) => { appels.push(['lire', r, i]); return { ok: true, rayon: r, id: i }; } };
+  const s = await lancer({ depot, envoi: faux().envoi, ouvrir: () => {} });
+  try {
+    for (const chemin of ['/api/fiches/lister', '/api/fiches/lire']) {
+      assert.strictEqual((await requete(s.port, chemin, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+      assert.strictEqual((await requete(s.port, chemin)).code, 404, 'pas de GET');
+    }
+    assert.deepStrictEqual(appels, []);
+    assert.strictEqual((await requete(s.port, '/api/fiches/lister', { method: 'POST', headers: entetesJson(s.jeton) }, '{}')).code, 200);
+    const l = await requete(s.port, '/api/fiches/lire', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ rayon: 'emploi', id: 'emploi-cesu' }));
+    assert.deepStrictEqual(JSON.parse(l.corps.toString('utf8')), { ok: true, rayon: 'emploi', id: 'emploi-cesu' });
+    assert.deepStrictEqual(appels, [['lister'], ['lire', 'emploi', 'emploi-cesu']]);
+  } finally { await s.fermer(); }
+});
+
+test('API : l\'historique des modifications est reserve au bon jeton', async () => {
+  const appels = [];
+  const depot = { listerHistorique: () => { appels.push(['histo']); return { ok: true, entrees: [] }; } };
+  const s = await lancer({ depot, envoi: faux().envoi, ouvrir: () => {} });
+  try {
+    assert.strictEqual((await requete(s.port, '/api/fiches/historique', { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+    assert.strictEqual((await requete(s.port, '/api/fiches/historique')).code, 404);
+    assert.deepStrictEqual(appels, []);
+    const l = await requete(s.port, '/api/fiches/historique', { method: 'POST', headers: entetesJson(s.jeton) }, '{}');
+    assert.strictEqual(l.code, 200);
+    assert.deepStrictEqual(appels, [['histo']]);
+  } finally { await s.fermer(); }
+});
+
+test('API : la liste et la lecture des fichiers de chiffres sont reservees au bon jeton', async () => {
+  const appels = [];
+  const depot = { listerChiffres: () => { appels.push(['lister']); return { ok: true, fichiers: [] }; }, lireChiffres: (f) => { appels.push(['lire', f]); return { ok: true, fichier: f }; } };
+  const s = await lancer({ depot, envoi: faux().envoi, ouvrir: () => {} });
+  try {
+    for (const chemin of ['/api/chiffres/lister', '/api/chiffres/lire']) {
+      assert.strictEqual((await requete(s.port, chemin, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+      assert.strictEqual((await requete(s.port, chemin)).code, 404);
+    }
+    assert.deepStrictEqual(appels, []);
+    assert.strictEqual((await requete(s.port, '/api/chiffres/lister', { method: 'POST', headers: entetesJson(s.jeton) }, '{}')).code, 200);
+    const l = await requete(s.port, '/api/chiffres/lire', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ fichier: '2026-06.md' }));
+    assert.deepStrictEqual(JSON.parse(l.corps.toString('utf8')), { ok: true, fichier: '2026-06.md' });
+    assert.deepStrictEqual(appels, [['lister'], ['lire', '2026-06.md']]);
+  } finally { await s.fermer(); }
 });

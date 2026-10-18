@@ -7,7 +7,7 @@ tags: [insertion par l'activité économique, IAE, entreprise d'insertion, chant
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "insertion par l'activité économique"
     definition: "Dispositif qui permet à des personnes très éloignées de l'emploi de travailler dans une structure dédiée, avec un contrat, un salaire et un accompagnement, pour rebondir vers un emploi durable."

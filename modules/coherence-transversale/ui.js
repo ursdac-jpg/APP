@@ -235,12 +235,8 @@ function ctHtmlExplication(detour) {
         '<h4>&#128172; Comment ça se passe concrètement</h4>' +
         '<p class="mb-0">Vous relisez vos documents, vous les copiez, vous les collez sur le site d’un assistant de votre choix, puis vous rapportez sa réponse ici. Le rapport s’affiche alors, et reste modifiable si vous voulez relancer l’analyse. L’application vous guide à chaque étape.</p>' },
       { corpsHTML:
-        '<h4>&#9989; Bon à savoir</h4>' +
-        '<p>Avant l’envoi, vous relisez chaque document et vous <strong>masquez vous-même</strong> ce qui ne doit pas partir (nom, téléphone, courriel). L’analyse se fait sur des documents anonymisés : vos informations personnelles ne sont pas prises en compte.</p>' +
-        '<div style="display:flex;gap:0.6rem;align-items:flex-start;background:var(--accent-bg-subtle);border-radius:12px;padding:0.75rem 1rem;">' +
-        '<span>&#128190;</span>' +
-        '<span class="small mb-0">Cette application ne demande jamais de compte : rien n’est conservé automatiquement. Pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span>' +
-        '</div>' }
+        '<h4>&#128274; Vos informations personnelles</h4>' +
+        '<p class="mb-0">Avant l’envoi, vous relisez chaque document et vous <strong>masquez vous-même</strong> ce qui ne doit pas partir (nom, téléphone, courriel). L’analyse se fait sur des documents anonymisés : vos informations personnelles ne sont pas prises en compte.</p>' }
     ],
     // TACHE (chantier "bouton presentation", 2026-09-01) : le bouton du bas
     // change de sens -- 1re visite = "Je commence" ; on est en detour sur la

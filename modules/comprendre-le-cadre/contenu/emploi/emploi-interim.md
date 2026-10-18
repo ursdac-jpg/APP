@@ -7,7 +7,7 @@ tags: [intérim, travail temporaire, ETT, contrat de mission, indemnité de fin 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "entreprise de travail temporaire"
     definition: "L'agence d'intérim. C'est elle qui est votre employeur, qui vous paie et vous met à disposition d'une entreprise utilisatrice le temps d'une mission."

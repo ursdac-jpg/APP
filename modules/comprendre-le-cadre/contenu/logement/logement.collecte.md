@@ -18,19 +18,6 @@ sources:
   - "service-public-loyers-impayes-expulsion | Loyers impayés et expulsion du locataire | https://www.service-public.gouv.fr/particuliers/vosdroits/F31272 | 2026-09-05"
   - "service-public-demande-logement-social | Comment obtenir un logement social (HLM) ? | https://www.service-public.gouv.fr/particuliers/vosdroits/F869 | 2026-09-05"
 structures:
-  - "115-samu-social | Le 115 : numéro d'urgence gratuit, 24 h/24 et 7 j/7, pour une personne sans hébergement | https://www.info.gouv.fr/organisation/delegation-interministerielle-a-l-hebergement-et-a-l-acces-au-logement | 2026-09-04"
-  - "siao-dordogne | SIAO de la Dordogne : plateforme départementale qui gère le 115 et coordonne les places d'hébergement | https://annuaire.action-sociale.org/ | 2026-09-04"
-  - "accueils-de-jour-dordogne | Accueils de jour de la Dordogne : lieux ouverts en journée, domiciliation, orientation | https://annuaire.action-sociale.org/ | 2026-09-04"
-  - "ccas-domiciliation | Centre communal d'action sociale (CCAS) : domiciliation, aide sociale, orientation | https://lannuaire.service-public.gouv.fr/navigation/ccas | 2026-09-04"
-  - "conseil-departemental-dordogne-fsl | Conseil départemental de la Dordogne : gère le fonds de solidarité pour le logement (accès et maintien), l'accompagnement social lié au logement | https://www.dordogne.fr/ | 2026-09-04"
-  - "adil-dordogne | ADIL de la Dordogne (agence départementale d'information sur le logement) : conseil juridique gratuit sur le bail, les impayés, les rapports locatifs (réseau des ADIL) | https://www.anil.org/qui-sommes-nous/reseau-des-adil/ | 2026-09-05"
-  - "action-logement-nouvelle-aquitaine | Action Logement, agence de Nouvelle-Aquitaine : garantie Visale, avance Loca-Pass, aide à la mobilité, logements du parc social des entreprises | https://www.actionlogement.fr/ | 2026-09-04"
-  - "caf-dordogne-logement | CAF de la Dordogne : aides personnelles au logement, travailleurs sociaux | https://www.caf.fr/allocataires/caf-de-la-dordogne | 2026-09-04"
-  - "prefecture-dordogne-dalo | Préfecture de la Dordogne : secrétariat de la commission de médiation du droit au logement opposable | https://www.dordogne.gouv.fr/ | 2026-09-04"
-  - "habitat-jeunes-perigord | Foyers de jeunes travailleurs et résidences Habitat Jeunes du Périgord : logement et accompagnement pour les jeunes actifs (annuaire national Habitat Jeunes) | https://www.habitatjeunes.org/ | 2026-09-05"
-  - "asso-soliha-dordogne | SOLIHA Dordogne-Périgord : association de l'habitat à vocation sociale, accompagnement pour rénover et adapter son logement (maintien à domicile, précarité énergétique), lutte contre l'habitat indigne (24) | https://www.dordogne.soliha.fr/ | 2026-09-06"
-  - "asso-soliha-limousin | SOLIHA Limousin : même mission pour la Haute-Vienne (et la Corrèze, la Creuse) : rénovation énergétique, maintien à domicile, lutte contre l'habitat indigne, accompagnement social lié au logement, à Limoges (87) | https://limousin.soliha.fr/ | 2026-09-07"
-  - "asso-adil-87 | ADIL de la Haute-Vienne : conseil gratuit et neutre sur toutes les questions juridiques, financières et fiscales du logement (bail, accession, copropriété, aides), sur rendez-vous à Limoges et en permanences (87) | https://www.anil.org/adil-87/ | 2026-09-07"
 ---
 
 MATÉRIAU BRUT, rayon « Logement ».

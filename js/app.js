@@ -1012,6 +1012,7 @@ function ouvrirCibleRechercheApp(cible) {
     if (val === 'lexique' && typeof lexiqueDemarrer === 'function') { lexiqueDemarrer(); return; }
     if (val === 'bilan' && typeof demarrerBilanCandidature === 'function') { demarrerBilanCandidature(); return; }
     if (val === 'coherence' && typeof ctDemarrer === 'function') { ctDemarrer(); return; }
+    if (val.indexOf('mon-territoire') === 0 && typeof monTerritoireOuvrirDepuisRecherche === 'function') { monTerritoireOuvrirDepuisRecherche(val.slice('mon-territoire'.length + 1)); return; }
   }
   naviguerVers('cv');
 }
@@ -1304,7 +1305,16 @@ function ouvrirPanneauMetiersAssociesDomaine(domaineNom) {
 // page depliante -> pageCandidaterDepuisRecherche() (route 'candidater').
 // Ici on ne fait que preparer l'etat et naviguer. opts.estSecteur : la cible
 // est un SECTEUR (sous-lot 5), pas un metier precis.
-var _candEntrepriseFaite = false; // l'etape "structure" a ete completee (via le formulaire coordonnees)
+// L'etape "structure" est completee quand le nom de l'entreprise est rempli (bloc en page, plus de fenetre : chantier aide a jour, 2026-10-15).
+function _candCalculerEtat() {
+  var rg = rechercheGuidee || {};
+  var rc = dossier.rechercheCandidature || {};
+  var cvDispo = (typeof cvDisponible === 'function') && cvDisponible();
+  var b1ok = !!rg.parcours;
+  var b2ok = (dossier.typeRecherche === 'simple') || (dossier.typeRecherche === 'offre' && String(rc.entreprise || '').trim().length > 0);
+  var b3ok = cvDispo || rg.cvExiste === 'non' || (rg.cvExiste === 'oui' && !!rg.maj);
+  return { b1ok: b1ok, b2ok: b2ok, b3ok: b3ok, tout: b1ok && b2ok && b3ok };
+}
 function ouvrirPanneauChoixParcours(cibleNom, opts) {
   var estSecteur = !!(opts && opts.estSecteur);
   // TACHE (ameliorations parcours recherche, point 1) : une nouvelle cible
@@ -1313,7 +1323,6 @@ function ouvrirPanneauChoixParcours(cibleNom, opts) {
   rechercheGuidee = { metier: cibleNom, cible: cibleNom, estSecteur: estSecteur, parcours: null, cvExiste: null, maj: null };
   dossier.typeRecherche = null;
   dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
-  _candEntrepriseFaite = false;
   if (typeof fermerFenetreERIP === 'function') { fermerFenetreERIP(); }
   naviguerVers('candidater');
 }
@@ -1350,10 +1359,8 @@ function pageCandidaterDepuisRecherche() {
   var cvDispo = (typeof cvDisponible === 'function') && cvDisponible();
   var typeCible = dossier.typeRecherche; // 'simple' | 'offre' | null
 
-  var b1ok = !!rg.parcours;
-  var b2ok = (typeCible === 'simple') || (typeCible === 'offre' && _candEntrepriseFaite);
-  var b3ok = cvDispo || rg.cvExiste === 'non' || (rg.cvExiste === 'oui' && !!rg.maj);
-  var tout = b1ok && b2ok && b3ok;
+  var etat = _candCalculerEtat();
+  var b1ok = etat.b1ok, b2ok = etat.b2ok, b3ok = etat.b3ok, tout = etat.tout;
   var btnLbl = (!cvDispo && rg.cvExiste === 'non') ? 'Créer mon CV'
     : (!cvDispo && rg.cvExiste === 'oui' && rg.maj === 'oui') ? 'Mettre à jour mon CV'
       : 'Continuer';
@@ -1373,12 +1380,7 @@ function pageCandidaterDepuisRecherche() {
   var corps2 = '<p class="cand-q">Comment cherchez-vous ?</p>' +
     '<p class="cand-aide">Une <strong>structure précise</strong> : une entreprise, une agence d\'intérim identifiée, une offre publiée. &nbsp;&middot;&nbsp; Une <strong>recherche plus générale</strong> : vous n\'avez pas encore de cible en tête.</p>' +
     _candJetons('type', [['offre', 'Je vise une structure précise'], ['simple', 'Recherche plus générale']], typeCible) +
-    (typeCible === 'offre'
-      ? (_candEntrepriseFaite
-        ? _candEncart('cand-encart-ok', '&#9989;', (rc.entreprise ? 'Entreprise : <strong>' + echapperAttribut(rc.entreprise) + '</strong>' : 'Coordonnées enregistrées') +
-          ' <button type="button" class="btn btn-sm btn-link p-0 align-baseline" data-cand-entreprise>Modifier</button>')
-        : '<div class="mt-2"><button type="button" class="btn btn-primary btn-sm" data-cand-entreprise>Renseigner l\'entreprise</button></div>')
-      : '') +
+    (typeCible === 'offre' ? '<div id="candZoneEntreprise">' + contenuCoordonneesEntrepriseBilanInline(true, true) + '</div>' : '') +
     (typeCible === 'simple'
       ? _candEncart('cand-encart-ok', '&#9989;', 'Vos documents resteront adaptés à ' + (estSecteur ? 'ce secteur' : 'ce métier') + ' sans viser une entreprise. Vous pourrez préciser une structure plus tard, au moment de postuler.')
       : '') +
@@ -1413,7 +1415,7 @@ function pageCandidaterDepuisRecherche() {
     '</div>' +
     '<div class="text-center"><h1>' + (estSecteur ? 'Candidater dans un secteur' : 'Candidater') + '</h1>' +
     '<p class="cand-cible"><span class="cand-cible-chip">' + (estSecteur ? '&#128451;&#65039; ' : '&#128188; ') + echapperAttribut(cible) + '</span>' +
-    ' <button type="button" class="btn btn-sm btn-link p-0 align-baseline" data-cand-changer>Changer</button></p></div>' +
+    ' <button type="button" class="btn btn-sm btn-outline-secondary" data-cand-changer>Changer</button></p></div>' +
     _candBloc('&#128221;', 'Ce que vous préparez', b1ok, corps1) +
     _candBloc('&#127919;', 'Votre cible', b2ok, corps2) +
     _candBloc('&#128196;', 'Votre CV', b3ok, corps3) +
@@ -1424,6 +1426,45 @@ function pageCandidaterDepuisRecherche() {
     '</div>';
 
   _wireCandidater();
+}
+// Bloc entreprise / offre / structure / destinataire / couleur, EN PAGE : meme brique que « Votre objectif » et le Bilan,
+// ecriture a la frappe dans dossier.rechercheCandidature, sans re-rendu de la page (le curseur ne saute pas).
+function _candActualiserEtat() {
+  var e = _candCalculerEtat();
+  var blocs = document.querySelectorAll('.cand-bloc');
+  if (blocs[1]) {
+    var badge = blocs[1].querySelector('.cand-bloc-badge');
+    if (badge) { badge.classList.toggle('ok', e.b2ok); badge.textContent = e.b2ok ? 'complété' : 'à compléter'; }
+  }
+  var etapes = document.querySelectorAll('.cand-prog .cand-etape');
+  if (etapes[1]) { etapes[1].classList.toggle('ok', e.b2ok); }
+  var btn = document.querySelector('[data-cand-continuer]');
+  if (btn) {
+    btn.disabled = !e.tout;
+    if (e.tout) { btn.removeAttribute('title'); } else { btn.setAttribute('title', 'Complétez les trois blocs pour continuer.'); }
+  }
+}
+function _candCablerZoneEntreprise() {
+  var zone = document.getElementById('candZoneEntreprise');
+  if (!zone || !zone.querySelector('#ciblageOffre')) { return; }
+  activerChampsStandardises(zone);
+  bilanCablerCiblageOffre(zone, function () {
+    var ciblage = bilanLireCiblageOffre(zone);
+    dossier.rechercheCandidature = dossier.rechercheCandidature || { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
+    var rcE = dossier.rechercheCandidature;
+    rcE.entreprise = ciblage.entrepriseCiblee || '';
+    rcE.site = ciblage.siteEntreprise || '';
+    rcE.lienOffre = ciblage.offreEmploi || '';
+    rcE.texteOffre = ciblage.offreEmploi || '';
+    rcE.typeStructure = (ciblage.typeStructure === 'Autre' && ciblage.typeStructureAutre) ? ciblage.typeStructureAutre : ciblage.typeStructure;
+    _candActualiserEtat();
+  });
+  // civilite / nom du recruteur / couleur : seule la zone est redessinee (pas la page), les champs ci-dessus gardent leur saisie
+  wireCiviliteEtCouleurRecruteurCandidature(function () {
+    // les champs se re-remplissent depuis dossier.rechercheCandidature (ecrit a la frappe)
+    document.getElementById('candZoneEntreprise').innerHTML = contenuCoordonneesEntrepriseBilanInline(true, true);
+    _candCablerZoneEntreprise();
+  }, false);
 }
 function _wireCandidater() {
   document.querySelectorAll('[data-cand-groupe]').forEach(function (g) {
@@ -1436,7 +1477,6 @@ function _wireCandidater() {
           if (v === 'simple') {
             dossier.typeRecherche = 'simple';
             dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
-            _candEntrepriseFaite = false;
           } else {
             dossier.typeRecherche = 'offre';
           }
@@ -1447,18 +1487,7 @@ function _wireCandidater() {
       });
     });
   });
-  var btnEnt = document.querySelector('[data-cand-entreprise]');
-  if (btnEnt) {
-    btnEnt.addEventListener('click', function () {
-      // le MEME formulaire que le bloc Candidature (Nom / Site / Lien-offre /
-      // recruteur / couleur). Il ecrit deja dossier.rechercheCandidature +
-      // dossier.typeRecherche = 'offre'. Seule fenetre restante du parcours.
-      ouvrirFormulaireCoordonneesEntreprise(
-        function () { _candEntrepriseFaite = true; pageCandidaterDepuisRecherche(); },
-        function () { pageCandidaterDepuisRecherche(); }
-      );
-    });
-  }
+  _candCablerZoneEntreprise();
   ['[data-cand-changer]', '[data-cand-retour]'].forEach(function (sel) {
     var el = document.querySelector(sel);
     if (el) { el.addEventListener('click', function () { naviguerVers('cv'); }); }
@@ -1480,6 +1509,7 @@ function _candidaterFinaliser() {
     ajouterMetierCandidat(rg.metier);
   }
   dossier.typeCV = typeCVDepuisTypeRecherche();
+  if (dossier.typeRecherche === 'offre') { dossier.civiliteRecruteurDemandee = true; }
 
   // CV deja disponible dans l'app -> pas de question "avez-vous un CV",
   // on lance directement (ex-lancerParcoursGuide).
@@ -1519,9 +1549,8 @@ function _candidaterFinaliser() {
 // ouvrirPanneauAvertissementEntreprise / ouvrirPanneauCvExistant /
 // ouvrirPanneauMajCv / lancerParcoursGuide ont ete RETIREES -- leur contenu
 // (les fenetres empilees) est regroupe dans pageCandidaterDepuisRecherche() /
-// _candidaterFinaliser() plus haut. Le formulaire coordonnees
-// (ouvrirFormulaireCoordonneesEntreprise) est conserve : c est la seule
-// fenetre restante du parcours, ouverte DEPUIS la page (bloc "Votre cible").
+// _candidaterFinaliser() plus haut. Le formulaire coordonnees (ex-fenetre) est desormais un bloc EN PAGE
+// (_candCablerZoneEntreprise, 2026-10-15) : il ne reste plus aucune fenetre dans ce parcours.
 
 /* ------------------------------------------------------------
    ETAPE 3 : CATALOGUES "Oui/Non + pastilles" (Loisirs, Engagements,
@@ -4050,7 +4079,11 @@ var routes = {
   // (modules/comprendre-les-chiffres/index.js), page routee, pure
   // consultation. Chantier : docs/CHANTIER_COMPRENDRE_LES_CHIFFRES.md.
   'comprendre-les-chiffres-intro': pageIntroComprendreLesChiffres,
-  'comprendre-les-chiffres': pageComprendreLesChiffres
+  'comprendre-les-chiffres': pageComprendreLesChiffres,
+  // Module "Qui fait quoi" (annuaire local, 3e entree de "Se tenir informe", decision D10 du 2026-10-12). Ferme au public tant que MT_OUVERT est faux.
+  'mon-territoire-intro': pageIntroMonTerritoire,
+  'employeurs-intro': pageIntroEmployeursTerritoire,
+  'mon-territoire': pageMonTerritoire
 };
 
 function naviguerVers(route, sansHistorique) {
@@ -4367,11 +4400,87 @@ function peutExporterSession() {
   return false;
 }
 
+// ------------------------------------------------------------
+// Historique du navigateur A L'INTERIEUR d'un module (retour Denis 2026-10-16, brique B.24 de BRIQUES_COMMUNES.md).
+// Un module qui change d'ecran sans changer de route (Qui fait quoi : accueil, liste, fiche... ; Analyser ma candidature : preparer, rapport, correction...)
+// ne creait aucune entree dans l'historique : la fleche « Precedent » du navigateur sautait alors par-dessus tout le module, jusqu'a l'accueil.
+// Chaque ecran interne a maintenant sa propre entree ; « Precedent » (ou « Suivant ») remet le module dans l'etat de cet ecran.
+//   historiqueInterneBrancher(route, restaurer) : le module dit comment remettre son etat. restaurer(etat) ne dessine rien ; elle peut repondre
+//                                                 'sauter' quand l'ecran n'a plus de sens (les donnees ont avance depuis : on passe a l'entree suivante).
+//   historiqueInterneEmpiler(route, etat)       : nouvelle entree, meme route (le module change d'ecran).
+//   historiqueInterneMarquer(route, etat)       : l'entree courante porte l'etat a jour (a chaque dessin de la page du module).
+//   historiqueInterneSynchroniser(route, etat)  : pour un module dont l'ecran se DEDUIT de son etat (un seul dessin central) : etat.cle est l'identite de
+//                                                 l'ecran ; la cle change -> nouvelle entree, sinon l'entree courante est mise a jour. Rien a ajouter aux dizaines de transitions.
+// Les etats sont gardes en memoire (jamais dans l'historique du navigateur : ils peuvent contenir des fonctions ou de longs textes) ; apres un rechargement
+// de la page ils n'existent plus et le module repart de son etat de depart. Un module qui ne s'en sert pas n'est pas touche.
+// ------------------------------------------------------------
+var _historiqueInterne = {};
+var _historiqueEtats = {};
+var _historiqueCompteur = 0;
+var _historiquePos = 0;            // position (dans l'ordre de creation) de l'entree ou l'on se trouve : donne le sens d'un « Precedent » / « Suivant »
+var _historiqueSauts = 0;          // entrees depassees d'affilee (garde-fou contre une boucle)
+var _historiqueRestauration = false;
+var _historiqueDernierEmpilage = 0;
+var _historiqueRemplacer = false;   // le prochain ecran prend la place de l'entree courante au lieu d'en creer une
+function historiqueInterneBrancher(route, restaurer) { _historiqueInterne[route] = restaurer; }
+function historiqueInterneEmpiler(route, etat) {
+  var id = ++_historiqueCompteur, pos = ++_historiqueCompteur;
+  _historiqueEtats[id] = etat;
+  _historiquePos = pos;
+  // Le navigateur refuse parfois l'ecriture (trop d'appels d'affilee) : l'historique n'est alors pas a jour, mais le module continue de fonctionner.
+  try { if (typeof history !== 'undefined' && history.pushState) { history.pushState({ route: route, interne: id, pos: pos }, '', '#' + route); } } catch (e) { /* tant pis pour cette entree */ }
+}
+function historiqueInterneMarquer(route, etat) {
+  var s = (typeof history !== 'undefined') ? history.state : null;
+  var memeEntree = !!(s && s.route === route && s.interne);
+  var id = memeEntree ? s.interne : ++_historiqueCompteur;
+  var pos = (memeEntree && typeof s.pos === 'number') ? s.pos : ++_historiqueCompteur;
+  _historiqueEtats[id] = etat;
+  _historiquePos = pos;
+  try { if (typeof history !== 'undefined' && history.replaceState) { history.replaceState({ route: route, interne: id, pos: pos }, '', '#' + route); } } catch (e) { /* tant pis pour cette mise a jour */ }
+}
+// Un module ouvert depuis un autre (lien profond vers une fiche) dessine d'abord son ecran de depart avant de charger l'ecran voulu : ce premier dessin
+// n'est pas un ecran vu par la personne. A appeler juste apres naviguerVers() : l'ecran suivant REMPLACE cette entree (« Precedent » revient alors
+// directement au module d'origine, sans s'arreter sur l'ecran intermediaire).
+function historiqueInterneRemplacerProchain() { _historiqueRemplacer = true; }
+function historiqueInterneSynchroniser(route, etat) {
+  // Un dessin demande depuis une autre page (appel direct) ne touche pas a l'historique de celle-ci.
+  if (typeof pageActuelle !== 'undefined' && pageActuelle !== route) { return; }
+  var s = (typeof history !== 'undefined') ? history.state : null;
+  var courant = (s && s.route === route && s.interne) ? _historiqueEtats[s.interne] : undefined;
+  var maintenant = Date.now();
+  if (_historiqueRemplacer) { _historiqueRemplacer = false; historiqueInterneMarquer(route, etat); return; }
+  // Deux changements d'ecran a moins d'un dixieme de seconde ne sont pas deux ecrans vus par la personne : le second remplace le premier.
+  if (courant !== undefined && courant.cle !== etat.cle && !_historiqueRestauration && maintenant - _historiqueDernierEmpilage > 150) {
+    _historiqueDernierEmpilage = maintenant;
+    historiqueInterneEmpiler(route, etat);
+  } else {
+    historiqueInterneMarquer(route, etat);
+  }
+}
+
 // Quand l'utilisateur clique sur la fleche "Precedent" du navigateur
 if (typeof window !== 'undefined') {
   window.addEventListener('popstate', function (e) {
     var route = (e.state && e.state.route) ? e.state.route : 'cv';
-    naviguerVers(route, true); // true = ne pas re-empiler
+    var id = e.state && e.state.interne;
+    var etat = id ? _historiqueEtats[id] : undefined;
+    if (etat !== undefined && typeof _historiqueInterne[route] === 'function') {
+      var pos = (typeof e.state.pos === 'number') ? e.state.pos : null;
+      var enArriere = pos !== null && pos < _historiquePos;
+      if (_historiqueInterne[route](etat) === 'sauter' && _historiqueSauts < 12) {
+        // Cet ecran n'existe plus tel quel (les donnees ont avance) : on continue dans le meme sens, sans rien dessiner.
+        _historiqueSauts++;
+        if (pos !== null) { _historiquePos = pos; }
+        if (enArriere) { history.back(); } else { history.forward(); }
+        return;
+      }
+      _historiqueSauts = 0;
+      if (pos !== null) { _historiquePos = pos; }
+    }
+    _historiqueSauts = 0;
+    _historiqueRestauration = true;
+    try { naviguerVers(route, true); } finally { _historiqueRestauration = false; } // true = ne pas re-empiler
   });
 }
 
@@ -4501,7 +4610,7 @@ function barreNavigation(precedent, suivant, labelSuivant, options) {
       var cibleClignote = options.blocCibleId
         ? "document.getElementById('" + options.blocCibleId + "')"
         : "this.closest('.barre-navigation')";
-      html += '<button class="btn btn-primary btn-lg" id="btnSuivantNavigation" onclick="' + jsOnclickSuivant + '" disabled title="' +
+      html += '<button class="btn btn-primary btn-lg" id="' + (options.idSuivant || 'btnSuivantNavigation') + '" onclick="' + jsOnclickSuivant + '" disabled title="' +
         (options.suivantDesactiveMessage || 'Selectionnez au moins un element pour continuer.') + '" ' +
         'onmouseenter="var c=' + cibleClignote + '; if(c){c.classList.add(\'bloc-erip-clignote-leger\');}" ' +
         'onmouseleave="var c=' + cibleClignote + '; if(c){c.classList.remove(\'bloc-erip-clignote-leger\');}">' +
@@ -4511,7 +4620,8 @@ function barreNavigation(precedent, suivant, labelSuivant, options) {
       // appelant d'intercepter le clic (ex. verifier qu'un metier cible est
       // renseigne) plutot que de naviguer directement -- sans rien changer
       // pour les appelants qui ne passent pas cette option.
-      html += '<button class="btn btn-primary btn-lg" id="btnSuivantNavigation" onclick="' + jsOnclickSuivant + '">' + (labelSuivant || 'Continuer &#8594;') + '</button>';
+      // options.idSuivant : un appelant (page d'introduction d'un module) donne SON identifiant au bouton, que ses branchements et sa visite guidée retrouvent.
+      html += '<button class="btn btn-primary btn-lg" id="' + (options.idSuivant || 'btnSuivantNavigation') + '"' + (options.attrSuivant ? ' ' + options.attrSuivant : '') + ' onclick="' + jsOnclickSuivant + '">' + (labelSuivant || 'Continuer &#8594;') + '</button>';
     }
   } else {
     html += '<span></span>';
@@ -4915,17 +5025,19 @@ function pageChoixCV() {
         // libelles recopies a la main ici.
         MES_DOCUMENTS_PARCOURS.map(function (p) { return p.titre; })) +
       htmlCarteAccueil('preparer', 'bi-person', 'Me préparer à candidater',
-        'Rédiger une lettre de motivation et vous entraîner à un entretien d’embauche.',
-        ['Co-construire ma lettre', 'Préparer un entretien', 'Un regard sur mon CV']) +
+        'Écrire votre lettre avec un assistant et vous entraîner à l’entretien' + ((typeof mtOuvert === 'function' && mtOuvert()) ? ', puis trouver où envoyer votre candidature.' : '.'),
+        ['Écrire ma lettre avec l’assistant', 'M’entraîner à un entretien'].concat((typeof mtOuvert === 'function' && mtOuvert()) ? ['Employeurs près de chez moi'] : [])) +
       htmlCarteAccueil('boiteaoutils', 'bi-briefcase', 'Boîte à outils',
         'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.',
         ['Découvrir mes compétences', 'Mes Repères', 'Mon Carnet', 'Lexique']) +
       htmlCarteAccueil('analyse', 'bi-graph-up-arrow', 'Outils d’analyse',
         'Vérifier la solidité de votre candidature avant de postuler.',
-        ['Analyser ma candidature', 'Cohérence de mon dossier', 'Les mots de votre CV (ATS)']) +
+        ['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']) +
       htmlCarteAccueil('informe', 'bi-newspaper', 'Se tenir informé',
-        'Les règles, les aides et les chiffres de l’emploi et de la formation près de chez vous, expliqués simplement et à consulter quand vous en avez besoin.',
-        ['Comprendre le cadre', 'Comprendre les chiffres']) +
+        ((typeof mtOuvert === 'function' && mtOuvert())
+          ? 'Les règles, les aides et les chiffres de l’emploi et de la formation près de chez vous, et à qui vous adresser : expliqués simplement, à consulter quand vous en avez besoin.'
+          : 'Les règles, les aides et les chiffres de l’emploi et de la formation près de chez vous, expliqués simplement et à consulter quand vous en avez besoin.'),
+        ['Comprendre le cadre', 'Comprendre les chiffres'].concat((typeof mtOuvert === 'function' && mtOuvert()) ? ['Qui fait quoi'] : [])) +
       htmlCarteAccueil('orientation', 'bi-signpost-split', 'Vous hésitez encore ?',
         'Vous n’êtes pas sûr de la direction à prendre ? Comparez vos pistes de métier pour y voir plus clair, à votre rythme.',
         ['Comparer mes pistes'].concat((typeof UCPM_OUVERT !== 'undefined' && UCPM_OUVERT) ? ['Un CV, plusieurs métiers'] : [])) +
@@ -4958,6 +5070,8 @@ function pageChoixCV() {
   });
 
   document.getElementById('btnConfidentialite').addEventListener('click', ouvrirModaleConfidentialite);
+  // Module « Qui fait quoi » : prechargement discret des donnees pour la recherche de l'accueil (seulement si le module est ouvert).
+  if (typeof monTerritoirePrecharger === 'function') { monTerritoirePrecharger(); }
 
   // TACHE (chantier accueil, Bloc 5) : "Liens utiles" -- explorer des liens
   // externes n'est pas un engagement dans un parcours, jamais
@@ -6981,7 +7095,7 @@ function wireCiviliteEtCouleurRecruteurCandidature(rerender, ouvrirBlocProjetApr
 // de "Preparer" et Coherence). Gain au passage : type de structure (absent
 // avant ici) + detection d'URL dans l'offre. Cablage : bilanCablerCiblageOffre()
 // dans wireModeRecherche() ci-dessous.
-function contenuCoordonneesEntrepriseBilanInline(jetons) {
+function contenuCoordonneesEntrepriseBilanInline(jetons, nomNecessaire) {
   // TACHE (retour utilisateur 2026-09-13) : civilite/couleur d'entreprise
   // s'affichaient en pastilles grises (ancien rendu), incoherentes avec les
   // jetons juste au-dessus (mode/type de recherche) -- choixRadioVosInfos()
@@ -7010,7 +7124,7 @@ function contenuCoordonneesEntrepriseBilanInline(jetons) {
   // deja "jamais repondu" de "a repondu je ne sais pas" via
   // civiliteRecruteurTouchee (wireCiviliteEtCouleurRecruteurCandidature()).
   var html = '<hr class="my-3">' +
-    '<p class="mb-2 fw-bold small">L’offre et l’entreprise <span class="text-muted fw-normal">(facultatif)</span></p>' +
+    '<p class="mb-2 fw-bold small">L’offre et l’entreprise <span class="text-muted fw-normal">(' + (nomNecessaire ? 'le nom de l’entreprise est nécessaire pour continuer, le reste est facultatif' : 'facultatif') + ')</span></p>' +
     bilanCorpsCiblageOffreHTML() +
     (_panneauSansCiviliteCouleur ? '' : contenuCiviliteRecruteurCandidature(true) + contenuCouleurEntrepriseCandidature());
   _renduInfosUnifie = _renduInfosUnifieAvant;
@@ -8351,6 +8465,8 @@ function pageProjet() {
     (typeof _prepLEBandeRevoirSurEcran === 'function' ? _prepLEBandeRevoirSurEcran('projet') : '') +
     '<div class="text-center"><h1>&#128203; Vos informations</h1>' +
     '<p class="sousTitre">Les informations qui personnaliseront votre candidature.</p></div>' +
+    // Module « Un CV, plusieurs métiers » seulement (retour 42 de Denis, validé le 2026-10-15) : dire ce qu'on regarde et ce qu'il reste à faire après le rangement du CV.
+    (depuisUcpm ? '<div class="cv-section" id="ucpmInviteInfos" role="note" style="background:var(--accent-bg-subtle);border-left:3px solid var(--accent);border-radius:8px;"><p class="mb-0">Voici ce que l’application a repéré dans votre CV. Relisez, corrigez ou complétez, puis cliquez sur <strong>« Continuer »</strong> en bas.</p></div>' : '') +
     // TACHE (5bis A4) : "Tout deplier / Tout replier" (MAQUETTE_MES_INFORMATIONS).
     // Uniquement quand il y a plusieurs blocs (pas en mode allege = "Vous" seul).
     (modeAllege ? '' :
@@ -8802,7 +8918,7 @@ function _verifierCoordonneesAvantPasserAction(routeCible) {
   // n'est encore connue, on la demande maintenant -- une seule fois, le
   // metier etant desormais fixe.
   if (dossier.typeRecherche === 'offre' && !(dossier.rechercheCandidature && dossier.rechercheCandidature.entreprise)) {
-    ouvrirDemandeCoordonneesEntreprise(function () { naviguerVers(routeCible); });
+    afficherEncartEntrepriseManquante(routeCible);
     return;
   }
   // Retour Denis 2026-10-01 : plus de fenetre de rappel « Connaissez-vous la structure d'accueil ? » pour le stage, l'alternance, l'immersion et la formation.
@@ -8824,236 +8940,43 @@ function _verifierCoordonneesAvantPasserAction(routeCible) {
   naviguerVers(routeCible);
 }
 
-// TACHE (retour utilisateur : coordonnees entreprise demandees au moment de
-// "Passer a l'action") : premiere etape -- demande si l'entreprise est deja
-// connue. "Continuer sans" reclasse en recherche simple (coherent avec
-// typeCVDepuisTypeRecherche() : sans entreprise, ce n'est plus une reponse a
-// une offre precise). "Indiquer l'entreprise" ouvre le formulaire, qui peut
-// revenir ici via son bouton Retour.
-// TACHE (migration Design System, chantier "Fenetre ERIP", 4e migration) :
-// devient une recette qui appelle la primitive ouvrirFenetreERIP() -- ne
-// construit plus son propre overlay, sa propre croix, ni sa propre logique
-// de clic exterieur. Reste une recette METIER (boutons a semantique propre,
-// mutation directe de dossier) : n'est volontairement pas fusionnee avec
-// confirmerAction(), dont le motif "Annuler/Confirmer" ne correspond pas a
-// ce choix reel a deux issues distinctes.
-function ouvrirDemandeCoordonneesEntreprise(onTermine) {
-  // TACHE (retour utilisateur : ajout de la meme sous-question pour le
-  // mode "domaine" que pour "metier") : ce texte parlait jusqu'ici
-  // TOUJOURS d'une "offre d'emploi" -- correct pour 'metier' (question
-  // d'origine, "Je reponds a une offre d'emploi"), trompeur pour
-  // 'domaine' (question desormais posee : "avez-vous une structure
-  // precise en tete", jamais une offre unique). modeRechercheEffectif()
-  // deja fiable a ce stade (verifierAvantPasserAction(), seul appelant
-  // passant par ce texte adapte -- le guide "recherche d'accueil",
-  // pageCandidaterDepuisRecherche(), garde le texte generique d'origine,
-  // hors de portee de cette distinction).
-  var modeDomaineCoord = modeRechercheEffectif() === 'domaine';
-  // TACHE (6conv-3b-2) : variante immersion -- « structure d'accueil » au lieu
-  // d'« entreprise / offre », et « Continuer sans » ne reclasse rien (pas de
-  // typeRecherche pour l'immersion).
-  var oDem = dossier.objectif;
-  var estImmersionDem = (oDem === 'stage' || oDem === 'alternance' || oDem === 'pmsmp' || oDem === 'formation');
-  // TACHE (retour utilisateur 2026-09-16, "je veux ca pour toutes les six
-  // cartes") : spontanee/reconversion atteignent desormais aussi cette
-  // fenetre (verifierAvantPasserAction()) -- l'ancien texte par defaut
-  // ("vous avez indique repondre a une offre d'emploi") serait faux pour
-  // ces deux-la (ils n'ont jamais fait ce choix). Texte dedie, centre sur
-  // le VRAI besoin signale (savoir a qui adresser une eventuelle lettre de
-  // motivation), pas seulement l'entreprise.
-  var estSpontaneeOuReconversionDem = (oDem === 'spontanee' || oDem === 'reconversion');
-  var titreDem = estImmersionDem ? (oDem === 'formation' ? '&#127970; Connaissez-vous l’organisme de formation ?' : '&#127970; Connaissez-vous la structure d’accueil ?')
-    : (estSpontaneeOuReconversionDem ? '&#127970; Connaissez-vous déjà l’entreprise ?'
-    : (modeDomaineCoord ? '&#127970; Connaissez-vous la structure ?' : '&#127970; Connaissez-vous l’entreprise ?'));
-  var texteDem = estImmersionDem
-    ? '<p>Vous préparez ' + (oDem === 'alternance' ? 'une alternance' : (oDem === 'stage' ? 'un stage' : (oDem === 'formation' ? 'une formation' : 'une immersion'))) + '. ' +
-      'Connaissez-vous déjà la structure qui vous accueillera (utile pour personnaliser votre CV, votre lettre et votre entretien) ?</p>'
-    : (estSpontaneeOuReconversionDem
-      ? '<p>Si vous visez déjà une entreprise précise, et si vous connaissez le nom de la personne à qui adresser votre candidature ' +
-        '(la personne en charge du recrutement, un directeur...), indiquez-le : c’est surtout utile pour personnaliser une future lettre de motivation.</p>'
-      : (modeDomaineCoord
-        ? '<p>Vous avez indiqué avoir une structure précise en tête. Connaissez-vous déjà ses coordonnées ' +
-          '(utile pour personnaliser votre CV, votre lettre et votre entretien) ?</p>'
-        : '<p>Vous avez indiqué répondre à une offre d’emploi. Connaissez-vous déjà les coordonnées de l’entreprise ' +
-          '(utile pour personnaliser votre CV, votre lettre et votre entretien) ?</p>'));
-  var overlay = ouvrirFenetreERIP({
-    titre: titreDem,
-    aideContexte: 'entreprise-connue-candidature',
-    contenuHTML: texteDem +
-      '<div class="modal-actions">' +
-        '<button class="btn btn-outline-secondary" data-role="entreprise-inconnue">Continuer sans</button>' +
-        '<button class="btn btn-primary" data-role="entreprise-connue">' + (estImmersionDem ? 'Indiquer la structure' : 'Indiquer l’entreprise') + '</button>' +
-      '</div>'
+// Option A validee par Denis (2026-10-15) : plus de fenetre « Connaissez-vous l'entreprise ? » ni de formulaire a cet endroit.
+// Un encart dans la page (juste au-dessus de la barre « Passer a l'action ») propose « Indiquer l'entreprise » (renvoie sur
+// « Votre objectif », ou le bloc entreprise/offre est deja en page) ou « Continuer sans » (meme regle qu'avant : la recherche
+// redevient « simple », l'entreprise est videe).
+function afficherEncartEntrepriseManquante(routeCible) {
+  var ancien = document.getElementById('encartEntrepriseManquante');
+  if (ancien) { ancien.parentNode.removeChild(ancien); }
+  var conteneur = document.querySelector('.page-catalogue-contenu') || document.getElementById('app');
+  if (!conteneur) { naviguerVers('objectif'); return; }
+  var encart = document.createElement('div');
+  encart.id = 'encartEntrepriseManquante';
+  encart.className = 'cand-encart cand-encart-warn';
+  encart.setAttribute('role', 'alert');
+  encart.innerHTML = '<span class="cand-encart-ico">&#127970;</span><div>' +
+    '<p class="mb-2">Vous avez choisi de répondre à une offre, mais le nom de l’entreprise n’est pas indiqué. Il personnalise votre CV, votre lettre et votre entretien.</p>' +
+    '<div class="d-flex flex-wrap gap-2">' +
+    '<button type="button" class="btn btn-primary" id="btnEncartEntrepriseIndiquer">Indiquer l’entreprise</button>' +
+    '<button type="button" class="btn btn-outline-secondary" id="btnEncartEntrepriseSans">Continuer sans</button>' +
+    '</div></div>';
+  conteneur.appendChild(encart);
+  document.getElementById('btnEncartEntrepriseIndiquer').addEventListener('click', function () {
+    etatBlocsERIPOuverts.candidature = true;
+    naviguerVers('objectif');
   });
-  overlay.querySelector('[data-role="entreprise-inconnue"]').addEventListener('click', function () {
-    fermerFenetreERIP();
-    // TACHE (retour utilisateur 2026-09-16) : "Continuer sans" repond aussi
-    // a la question du destinataire (on ne le connait pas) -- ne plus
-    // redemander a chaque « Passer a l'action », quel que soit l'objectif.
+  document.getElementById('btnEncartEntrepriseSans').addEventListener('click', function () {
     dossier.civiliteRecruteurDemandee = true;
-    if (!estImmersionDem && dossier.typeRecherche === 'offre') {
-      // TACHE (coherence) : sans entreprise connue, il ne s'agit plus d'une
-      // reponse a une offre precise -- reclasse en recherche simple.
-      dossier.typeRecherche = 'simple';
-      dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
-      dossier.typeCV = typeCVDepuisTypeRecherche();
-    } else if (estImmersionDem) {
-      // TACHE (point (b)) : l'utilisateur a repondu (« Continuer sans ») pour
-      // cet objectif d'immersion -- ne plus re-demander a chaque « Passer a
-      // l'action ». Rearme sur changement d'objectif.
-      _immersionStructurePassee = true;
-    }
-    onTermine();
+    dossier.typeRecherche = 'simple';
+    dossier.rechercheCandidature = { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
+    dossier.typeCV = typeCVDepuisTypeRecherche();
+    naviguerVers(routeCible);
   });
-  overlay.querySelector('[data-role="entreprise-connue"]').addEventListener('click', function () {
-    fermerFenetreERIP();
-    ouvrirFormulaireCoordonneesEntreprise(onTermine, function () { ouvrirDemandeCoordonneesEntreprise(onTermine); });
-  });
-}
-
-// TACHE (retour utilisateur) : formulaire nom (obligatoire) + lien
-// (facultatif). Le bouton Retour ramene a la question precedente.
-// TACHE (retour utilisateur : reutilisation de ce formulaire par le
-// parcours "recherche d'accueil", voir pageCandidaterDepuisRecherche()) : onRetour
-// rend la destination du bouton Retour configurable -- par defaut (appelant
-// historique ci-dessus), elle reste ouvrirDemandeCoordonneesEntreprise().
-function ouvrirFormulaireCoordonneesEntreprise(onTermine, onRetour) {
-  // TACHE (retour utilisateur : "récupérer les couleurs de l'entreprise,
-  // au même titre que dans les autres parcours") : valeurs de départ
-  // reprises de dossier.rechercheCandidature (déjà rempli le cas échéant
-  // par "Informations sur votre candidature" ou une précédente ouverture
-  // de ce même formulaire) -- jamais reparties de zéro si l'information
-  // existe déjà.
-  var rcInitiale = dossier.rechercheCandidature || {};
-  var couleurEntrepriseActiveInitiale = !!rcInitiale.mettreEnAvantCouleurEntreprise;
-  // TACHE (6conv-3b-2, option C) : variante immersion -- « structure d'accueil »
-  // et ECRITURE de la structure/lien dans dossier[stage|alternance|immersion]
-  // (pas dans rechercheCandidature.entreprise, qui reste offre/spontanee).
-  // recruteur + couleur restent dans rechercheCandidature (champ partage).
-  var oCoord = dossier.objectif;
-  var estImmersionCoord = (oCoord === 'stage' || oCoord === 'alternance' || oCoord === 'pmsmp' || oCoord === 'formation');
-  var imCoord = estImmersionCoord ? (dossier[CLE_DETAILS[oCoord]] || {}) : {};
-  var labelNomCoord = estImmersionCoord ? 'Nom de la structure d’accueil' : 'Nom de l’entreprise';
-  var labelSiteCoord = estImmersionCoord ? 'Adresse internet de la structure (facultatif)' : 'Site de l’entreprise (facultatif)';
-  // TACHE (dette B.1, BRIQUES_COMMUNES.md, resorption du collecteur #2,
-  // 2026-09-04) : civilite/nom recruteur + couleur d'entreprise ne sont plus
-  // une copie -- brique canonique contenuCiviliteRecruteurCandidature() /
-  // contenuCouleurEntrepriseCandidature() + wireCiviliteEtCouleurRecruteurCandidature
-  // (meme fonctions que Mon projet/Bilan/Decouverte). DECISION DENIS
-  // 2026-09-04 : ce formulaire passe de "rien n'est ecrit avant Valider" a
-  // "ecriture immediate a chaque interaction" (comme les 3 autres
-  // consommateurs de la brique) -- changement de comportement assume, pour
-  // ne jamais perdre une saisie si la personne quitte sans valider. Entreprise
-  // /site/lienOffre (ou structure/lien en immersion) passent donc aussi en
-  // ecriture immediate (ecrireChampsEntrepriseCoord ci-dessous), au lieu
-  // d'etre lus uniquement au clic sur Valider.
-  function ecrireChampsEntrepriseCoord() {
-    if (estImmersionCoord) {
-      var imm = dossier[CLE_DETAILS[oCoord]] || (dossier[CLE_DETAILS[oCoord]] = {});
-      imm.structure = champNom.value.trim();
-      imm.lien = champSite.value.trim();
-      return;
-    }
-    dossier.rechercheCandidature = dossier.rechercheCandidature || { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' };
-    dossier.rechercheCandidature.entreprise = champNom.value.trim();
-    dossier.rechercheCandidature.site = champSite.value.trim();
-    if (champOffre) { dossier.rechercheCandidature.lienOffre = champOffre.value.trim(); }
-  }
-  // TACHE (6conv-3b-1) : choixRadioVosInfos (utilisee par les 2 fonctions
-  // canoniques ci-dessous) ne rend la brique .jeton que si _renduInfosUnifie
-  // est vrai au moment de l'appel -- sinon repli .pastille (ancien rendu).
-  // A remettre a false juste apres CHAQUE rendu (initial et re-rendus).
-  function rendreZoneCiviliteCouleur() {
-    _renduInfosUnifie = true;
-    var html = contenuCiviliteRecruteurCandidature() + contenuCouleurEntrepriseCandidature();
-    _renduInfosUnifie = false;
-    return html;
-  }
-  var htmlFormulaireCoord =
-    '<div class="mb-2"><label class="form-label small">' + labelNomCoord + '</label>' +
-    '<input type="text" class="form-control form-control-sm" id="coordEntrepriseNom" placeholder="' + labelNomCoord + '" value="' + echapperAttribut(estImmersionCoord ? (imCoord.structure || '') : '') + '"></div>' +
-    '<div class="mb-3"><label class="form-label small">' + labelSiteCoord + '</label>' +
-    '<input type="url" class="form-control form-control-sm" id="coordEntrepriseSite" placeholder="https://..." value="' + echapperAttribut(estImmersionCoord ? (imCoord.lien || '') : '') + '"></div>' +
-    // TACHE (retour utilisateur : "hyper important" meme si facultatif) :
-    // champ distinct du site -- le lien ou le texte de l'OFFRE elle-meme
-    // (pas le site general de l'entreprise) est ce qui permet a l’assistant de
-    // repondre precisement aux criteres demandes (voir cv.md/lettre.md,
-    // instruction "renseigne-toi sur cette entreprise... pour repondre le
-    // plus precisement possible aux criteres, conditions et competences
-    // demandees"). Zone de texte plutot qu'un champ url : accepte aussi
-    // bien un lien qu'un texte d'offre colle directement.
-    // Pas de "lien / texte de l'offre" pour une immersion (aucune offre) --
-    // champ present pour offre/spontanee uniquement.
-    (estImmersionCoord ? '' :
-      '<div class="mb-3"><label class="form-label small">Lien ou texte de l’offre (facultatif, mais très utile pour une lettre/un CV précis)</label>' +
-      '<textarea class="form-control form-control-sm" id="coordEntrepriseOffre" rows="3" placeholder="Collez ici le lien de l’annonce, ou son texte si vous ne l’avez pas sous forme de lien"></textarea></div>') +
-    '<div id="coordZoneCiviliteCouleur">' + rendreZoneCiviliteCouleur() + '</div>' +
-    '<div class="d-flex justify-content-between">' +
-    '<button type="button" class="btn btn-outline-secondary" id="btnRetourCoordEntreprise">&#8592; Retour</button>' +
-    '<button type="button" class="btn btn-primary" id="btnValiderCoordEntreprise" disabled>Valider</button>' +
-    '</div>';
-  var panneau = ouvrirPanneauGuide('&#127970; Coordonnées de l’entreprise', htmlFormulaireCoord, 'coordonnees-entreprise');
-  var champNom = panneau.querySelector('#coordEntrepriseNom');
-  var champSite = panneau.querySelector('#coordEntrepriseSite');
-  var champOffre = panneau.querySelector('#coordEntrepriseOffre');
-  var zoneCiviliteCouleur = panneau.querySelector('#coordZoneCiviliteCouleur');
-  var btnValider = panneau.querySelector('#btnValiderCoordEntreprise');
-  function actualiser() {
-    var ok = champNom.value.trim().length > 0;
-    btnValider.disabled = !ok;
-    btnValider.style.opacity = ok ? '1' : '0.5';
-  }
-  actualiser();
-  champNom.addEventListener('input', function () { actualiser(); ecrireChampsEntrepriseCoord(); });
-  champSite.addEventListener('input', ecrireChampsEntrepriseCoord);
-  if (champOffre) { champOffre.addEventListener('input', ecrireChampsEntrepriseCoord); }
-  function rerenderZoneCiviliteCouleur() {
-    zoneCiviliteCouleur.innerHTML = rendreZoneCiviliteCouleur();
-    wireCiviliteEtCouleurRecruteurCandidature(rerenderZoneCiviliteCouleur);
-  }
-  wireCiviliteEtCouleurRecruteurCandidature(rerenderZoneCiviliteCouleur);
-  panneau.querySelector('#btnRetourCoordEntreprise').addEventListener('click', function () {
-    fermerPanneauGuide();
-    if (onRetour) { onRetour(); } else { ouvrirDemandeCoordonneesEntreprise(onTermine); }
-  });
-  btnValider.addEventListener('click', function () {
-    if (btnValider.disabled) { return; }
-    // TACHE (coherence) : nom de l'entreprise obligatoire pour valider,
-    // tout le reste (site, lien, civilite/nom du recruteur, couleur) deja
-    // ecrit au fil de l'eau (voir ecrireChampsEntrepriseCoord /
-    // wireCiviliteEtCouleurRecruteurCandidature ci-dessus) -- ce flush final
-    // est une securite (perte de focus non declenchee sur un champ).
-    ecrireChampsEntrepriseCoord();
-    // TACHE (retour utilisateur 2026-09-16) : valider ce formulaire repond
-    // aussi a la question du destinataire (civilite/nom deja ecrits au fil
-    // de l'eau par wireCiviliteEtCouleurRecruteurCandidature) -- meme
-    // drapeau que "Continuer sans", quel que soit l'objectif.
-    dossier.civiliteRecruteurDemandee = true;
-    if (estImmersionCoord) {
-      _immersionStructurePassee = true; // (point (b)) : a repondu pour cet objectif
-      fermerPanneauGuide();
-      onTermine();
-      return;
-    }
-    // TACHE (retour utilisateur 2026-09-16, suite) : ce formulaire n'etait
-    // jusqu'ici atteignable QUE depuis typeRecherche === 'offre' -- desormais
-    // aussi depuis spontanee/reconversion (voir verifierAvantPasserAction()),
-    // qui ne repondent pas a une offre precise. Reclasser typeRecherche/
-    // typeCV en 'offre'/'specifique' n'a de sens QUE pour l'objectif
-    // 'offre' lui-meme -- jamais pour spontanee/reconversion, ou ce serait
-    // une reclassification silencieuse et fausse.
-    if (dossier.objectif !== 'spontanee' && dossier.objectif !== 'reconversion') {
-      dossier.typeRecherche = 'offre';
-      dossier.typeCV = typeCVDepuisTypeRecherche();
-    }
-    fermerPanneauGuide();
-    onTermine();
-  });
+  encart.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // TACHE (migration Design System, chantier "Fenetre ERIP", 4e migration) :
 // devient une recette qui appelle la primitive ouvrirFenetreERIP() -- meme
-// principe que ouvrirDemandeCoordonneesEntreprise() ci-dessus, boutons a
+// principe que les autres fenetres de choix, boutons a
 // semantique propre, volontairement distincte de confirmerAction().
 function ouvrirPanneauAvertissementMetierCible(routeCible) {
   routeCible = routeCible || 'resultats';
@@ -19707,6 +19630,7 @@ function construireMiseEnPageCV(docActif) {
       '<div class="encart"><b>Pour changer l\'allure</b> : choisissez Sobre, Standard ou Cr&eacute;atif, puis un mod&egrave;le.</div>' +
       '<div class="encart"><b>Pour choisir ce qui appara&icirc;t</b> : &laquo; Exp&eacute;riences &raquo; (lesquelles, combien de missions, lesquelles des missions), &laquo; Comp&eacute;tences &raquo; (lesquelles montrer), &laquo; Autres rubriques &raquo; (certifications, langues, logiciels&hellip;).</div>' +
       '<div class="encart"><b>Pour corriger un d&eacute;tail</b> : &laquo; Aper&ccedil;u en plein &eacute;cran &raquo; permet de d&eacute;placer une exp&eacute;rience, retirer une comp&eacute;tence, changer la taille d\'une rubrique.</div>' +
+      '<div class="encart"><b>Pour aller vite</b> : &laquo; Style rapide &raquo;, &laquo; Mise en page &raquo; et &laquo; Choisir une ambiance &raquo; r&egrave;glent le CV en un clic, sans jamais changer votre texte. Chacun peut s&rsquo;annuler d&rsquo;un clic.</div>' +
       '<div class="encart"><b>Pour tout annuler</b> : &laquo; Revenir au mod&egrave;le de d&eacute;part &raquo;.</div>' +
       '</div></div>'
     : '';
@@ -22607,7 +22531,7 @@ function pageResultats() {
     // difference de "Co-construire ma lettre" (carte dediee, plus de questions).
     // Precise ici, au tout premier ecran, pour que ce ne soit plus une surprise.
     var texteIntroAdaptation = (docActif === 'lettre')
-      ? 'Ce parcours réutilise directement votre CV, sans autre question que le style d’écriture ci-dessous. Pour une lettre plus approfondie, avec davantage d’échanges, utilisez plutôt « Co-construire ma lettre » depuis l’accueil.'
+      ? 'Ce parcours réutilise directement votre CV, sans autre question que le style d’écriture ci-dessous. Pour une lettre plus approfondie, avec davantage d’échanges, utilisez plutôt « Écrire ma lettre avec l’assistant » depuis l’accueil.'
       : '';
     accordeonAdaptation = panneauEtapeAction('adaptation-metier', titreEtape('&#127891; Adaptation au métier'),
       texteIntroAdaptation,
@@ -23332,6 +23256,24 @@ if (typeof document !== 'undefined') {
 // dense. Pas de slot barreEtapesHTML : regle structurelle, pas un defaut
 // qu'un futur appelant pourrait re-activer par erreur. Meme decision
 // appliquee a htmlPageIntroModuleParcours() (data/metiers.js).
+// Le bouton « commencer » d'une page d'introduction est dans la barre du bas (Retour, Accueil, puis ce bouton), et NULLE PART ailleurs : la personne qui ne veut pas lire
+// la page n'a pas à la parcourir jusqu'en bas (demande de Denis, 2026-10-18). Il garde l'identifiant que la page lui donnait : mêmes branchements, même visite guidée.
+// boutonHTML : le bouton tel que la page le décrit (id + libellé) ; rend les options à passer à barreNavigation(), ou optionsBase si la page n'a pas de bouton de départ.
+function optionsBarreIntro(optionsBase, boutonHTML, desactive, messageDesactive) {
+  // Le bouton se retrouve par son identifiant, ou (Repères) par un attribut « data-... » que le module lit.
+  var id = /\sid="([^"]+)"/.exec(boutonHTML || ''), attr = /\s(data-[a-z0-9-]+)(?=[\s>=])/.exec(boutonHTML || ''), libelle = />([^<]+)</.exec(boutonHTML || '');
+  if ((!id && !attr) || !libelle) { return optionsBase; }
+  var o = Object.assign({}, optionsBase);
+  if (attr) { o.attrSuivant = attr[1]; }
+  // Le bouton de la barre PORTE l'identifiant du bouton de départ : les branchements et la visite guidée du module le retrouvent tels quels ; l'onclick ne fait rien d'autre.
+  if (id) { o.idSuivant = id[1]; }
+  o.onclickSuivant = 'void(0)';
+  // Sur téléphone la barre n'a pas la place d'un libellé long : version courte (voir .lib-intro-long / .lib-intro-court dans css/style.css).
+  var long = libelle[1].trim(), court = /^Revenir/.test(long) ? 'Revenir &#8594;' : (/^Reprendre/.test(long) ? 'Reprendre &#8594;' : 'Commencer &#8594;');
+  o.labelSuivant = '<span class="lib-intro-long">' + long + '</span><span class="lib-intro-court">' + court + '</span>';
+  if (desactive) { o.suivantDesactive = true; o.suivantDesactiveMessage = messageDesactive || ''; }
+  return o;
+}
 function htmlPageIntroModule(config) {
   var sectionsHTML = (config.sections || []).map(function (s) {
     var style = 'margin-bottom:1rem;' + (s.fond ? 'background:var(--accent-bg-subtle);' : '') + (s.centre ? 'text-align:center;' : '');
@@ -23343,9 +23285,11 @@ function htmlPageIntroModule(config) {
     '<p class="sousTitre">' + config.sousTitre + '</p></div>' +
     sectionsHTML +
     (typeof htmlEncartMultilingue === 'function' ? htmlEncartMultilingue() : '') +
-    '<div class="' + config.boutonBasClasse + '">' + config.boutonBasHTML + '</div>' +
     '</div>' +
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null, { onclickPrecedent: config.onclickPrecedent }) + '</div>';
+    '<div class="barre-navigation-fixe">' + (function () {
+      var opt = optionsBarreIntro({ onclickPrecedent: config.onclickPrecedent }, config.boutonBasHTML);
+      return barreNavigation('cv', opt.onclickSuivant ? 'cv' : null, opt.labelSuivant || null, opt);
+    })() + '</div>';
 }
 
 // ============================================================
@@ -23436,6 +23380,89 @@ function bilanBoutonRevoirPresentation(diagnostic) {
   return htmlBandeRepriseModule(bouton, encart);
 }
 
+// ------------------------------------------------------------
+// « Analyser ma candidature » et la fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de BRIQUES_COMMUNES.md).
+// L'ecran affiche se deduit de _etatBilan (reglages d'ecran) ET de donnees qui vivent dans le dossier (candidature deposee, diagnostic recu).
+// pageBilanCandidature() est le seul dessin : il appelle _bilanSynchroniserHistorique() ; chaque changement d'ecran devient une entree de l'historique.
+// Les DONNEES ne reculent jamais : une entree gardee d'avant le diagnostic (ou d'avant le depot du CV) n'a plus de sens, « Precedent » la depasse (verdict 'sauter').
+// ------------------------------------------------------------
+function _bilanIdentiteDonnees(diagnostic) {
+  var cand = (typeof bilanObtenirCandidature === 'function') ? bilanObtenirCandidature() : null;
+  return (diagnostic ? (diagnostic.statut || 'sans-statut') : 'sans-diagnostic') + '|' + (cand ? 'candidature' : 'sans-candidature');
+}
+
+// Ce qui fait changer d'ecran, et rien d'autre (jamais un texte tape, jamais une case cochee).
+function _bilanIdentiteEcran() {
+  var e = _etatBilan, lot = function (o) { return o && o.lot ? o.lot.ecran || true : null; };
+  return JSON.stringify([
+    e.voirIntro || null,
+    e.correction ? [e.correction.mode || null, e.correction.index == null ? null : e.correction.index, e.correction.sousEtape || null, lot(e.correction)] : null,
+    e.assistance ? [e.assistance.ecran || null, lot(e.assistance)] : null,
+    e.organisation ? [e.organisation.ecran || null] : null,
+    e.titreAccroche ? [e.titreAccroche.ecran || null] : null,
+    e.preparer ? 1 : null,
+    e.preparerRetour ? 1 : null
+  ]);
+}
+
+// Copie des reglages d'ecran : superficielle (les fonctions et les gros textes restent les memes objets), avec la sous-etape « lot » copiee a part.
+function _bilanCopierReglagesEcran() {
+  var copie = {};
+  ['correction', 'assistance', 'organisation', 'titreAccroche', 'preparer'].forEach(function (k) {
+    var v = _etatBilan[k];
+    if (!v) { copie[k] = null; return; }
+    var c = {}; Object.keys(v).forEach(function (cle) { c[cle] = v[cle]; });
+    if (v.lot) { c.lot = {}; Object.keys(v.lot).forEach(function (cle) { c.lot[cle] = v.lot[cle]; }); }
+    copie[k] = c;
+  });
+  copie.preparerRetour = _etatBilan.preparerRetour || null;
+  copie.voirIntro = _etatBilan.voirIntro || null;
+  return copie;
+}
+
+function _bilanSansReglage() {
+  var e = _etatBilan;
+  return !e.voirIntro && !e.correction && !e.assistance && !e.organisation && !e.titreAccroche && !e.preparer && !e.preparerRetour;
+}
+
+function _bilanSynchroniserHistorique(diagnostic) {
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  historiqueInterneSynchroniser('bilan', {
+    cle: _bilanIdentiteDonnees(diagnostic) + '#' + _bilanIdentiteEcran(),
+    statut: diagnostic ? (diagnostic.statut || 'sans-statut') : 'sans-diagnostic',
+    candidature: _bilanIdentiteDonnees(diagnostic).split('|')[1] === 'candidature',
+    sansReglage: _bilanSansReglage(),
+    reglages: _bilanCopierReglagesEcran()
+  });
+}
+
+// Un ecran garde d'avant n'a plus de sens quand les donnees ont avance : le diagnostic recu ou perdu change tout ; la candidature deposee ne compte que
+// pour les ecrans SANS reglage (presentation, « Choisir mon assistant », « Coller la reponse ») qui se deduisent d'elle. L'ecran « Preparer » reste valable apres
+// le depot du CV (comme le « Retour » de « Choisir mon assistant »).
+function _bilanRestaurerHistorique(instantane) {
+  var diagnostic = bilanObtenirDiagnostic();
+  var statutActuel = diagnostic ? (diagnostic.statut || 'sans-statut') : 'sans-diagnostic';
+  var candidatureActuelle = _bilanIdentiteDonnees(diagnostic).split('|')[1] === 'candidature';
+  // Un diagnostic en attente de la reponse de l'assistant se laisse abandonner (comme le « Retour » de « Coller la reponse ») ; un diagnostic recu, jamais.
+  var abandonner = instantane.statut === 'sans-diagnostic' && !!diagnostic && diagnostic.statut !== 'complete';
+  if ((!abandonner && instantane.statut !== statutActuel) || (instantane.sansReglage && instantane.candidature !== candidatureActuelle)) { return 'sauter'; }
+  if (abandonner && typeof bilanAbandonnerDiagnostic === 'function') { bilanAbandonnerDiagnostic(); diagnostic = bilanObtenirDiagnostic(); }
+  var r = instantane.reglages;
+  ['correction', 'assistance', 'organisation', 'titreAccroche', 'preparer'].forEach(function (k) {
+    var v = r[k];
+    if (!v) { _etatBilan[k] = null; return; }
+    var c = {}; Object.keys(v).forEach(function (cle) { c[cle] = v[cle]; });
+    if (v.lot) { c.lot = {}; Object.keys(v.lot).forEach(function (cle) { c.lot[cle] = v.lot[cle]; }); }
+    _etatBilan[k] = c;
+  });
+  _etatBilan.preparerRetour = r.preparerRetour;
+  _etatBilan.voirIntro = r.voirIntro;
+  // Revenir a « Preparer » alors que le CV est deja depose : meme reprise que le « Retour » de « Choisir mon assistant » (voir bilanRetour).
+  if (_etatBilan.preparer && !diagnostic && candidatureActuelle) { _etatBilan.preparerRetour = true; }
+  // reprisePendante n'est jamais restauree : le choix « Continuer / Recommencer » se fait une fois, il ne revient pas par la fleche du navigateur.
+}
+if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('bilan', _bilanRestaurerHistorique); }
+
 function pageBilanCandidature() {
   var diagnostic = bilanObtenirDiagnostic();
   var html;
@@ -23515,6 +23542,8 @@ function pageBilanCandidature() {
     return m + (estEcranIntro ? '' : bilanBarreEtapes(diagnostic)) + bilanBoutonRevoirPresentation(diagnostic);
   });
   app.innerHTML = html;
+  // La fleche « Precedent » du navigateur retrouve cet ecran (brique B.24, voir _bilanSynchroniserHistorique).
+  _bilanSynchroniserHistorique(diagnostic);
   // Reprise en attente (retour dans le module avec une analyse engagee) :
   // tout gele sauf l'encart et la barre du bas, jusqu'au choix
   // "Continuer / Recommencer" (brique partagee). Jamais sur la presentation
@@ -23638,12 +23667,8 @@ function htmlBilanIntro() {
         '<h4>&#128172; Comment ça se passe concrètement</h4>' +
         '<p class="mb-0">Vous copiez votre CV, vous le collez sur le site d’un assistant de votre choix, vous rapportez la réponse ici. L’application vous guide à chaque étape.</p>' },
       { corpsHTML:
-        '<h4>&#9989; Bon à savoir</h4>' +
-        '<p>Avant l’envoi, vous relisez votre CV et vous <strong>masquez vous-même</strong> ce qui ne doit pas partir (nom, téléphone, e-mail). L’analyse se fait alors sur un CV anonymisé : vos informations personnelles ne sont pas prises en compte. Pensez à vérifier, sur votre CV d’origine, qu’elles y sont bien.</p>' +
-        '<div style="display:flex;gap:0.6rem;align-items:flex-start;background:var(--accent-bg-subtle);border-radius:12px;padding:0.75rem 1rem;">' +
-        '<span>&#128190;</span>' +
-        '<span class="small mb-0">Cette application ne demande jamais de compte : rien n’est conservé automatiquement. Pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.</span>' +
-        '</div>' }
+        '<h4>&#128274; Vos informations personnelles</h4>' +
+        '<p class="mb-0">Avant l’envoi, vous relisez votre CV et vous <strong>masquez vous-même</strong> ce qui ne doit pas partir (nom, téléphone, e-mail). L’analyse se fait alors sur un CV anonymisé : vos informations personnelles ne sont pas prises en compte. Pensez à vérifier, sur votre CV d’origine, qu’elles y sont bien.</p>' }
     ],
     // Bouton du bas : "Je commence" a froid, "Revenir au module" en detour
     // de consultation (double sortie, comme le bouton du haut et "Retour").
@@ -39833,7 +39858,7 @@ function demanderDepartementSiInconnu(onChoisi) {
 // solidarites, France Services, Point Conseil Budget), jamais par une
 // adresse inventee (LECONS 9.16). `messageIntro` optionnel adapte la
 // premiere ligne selon d'ou vient l'appel.
-function ouvrirRenvoiAnnuaire(messageIntro) {
+function ouvrirRenvoiAnnuaire(messageIntro, options) {
   demanderDepartementSiInconnu(function (dep) {
     var liens = [];
     if (dep === '87' && RESSOURCES_DEPARTEMENTS['87'] && RESSOURCES_DEPARTEMENTS['87'].lien) {
@@ -39893,6 +39918,7 @@ function ouvrirRenvoiAnnuaire(messageIntro) {
       aideContexte: 'renvoi-annuaire',
       contenuHTML:
         '<p class="small mb-3">' + echapperAttribut(intro) + '</p>' +
+        '<div data-mt-structures-frein></div>' +
         cadrageHtml +
         '<div class="d-flex flex-column gap-2">' +
         liens.map(function (l) {
@@ -39906,12 +39932,14 @@ function ouvrirRenvoiAnnuaire(messageIntro) {
         '<p class="small text-muted mt-3 mb-0">&#8599; Ces liens ouvrent un autre site dans un nouvel onglet. Vous pouvez revenir ici à tout moment.</p>' +
         htmlLienChangerDepartement()
     });
+    // Module « Qui fait quoi » (phase 3bis) : depuis un frein, les structures du repertoire liees a ce frein (Dordogne, module ouvert, jamais un frein sensible).
+    if (options && options.freinTitre && typeof monTerritoireCompleterFenetreStructures === 'function') { monTerritoireCompleterFenetreStructures(overlay, options.freinTitre); }
     var lienChanger = overlay && overlay.querySelector('[data-changer-departement]');
     if (lienChanger) {
       lienChanger.addEventListener('click', function () {
         oublierDepartementRessources();
         fermerFenetreERIP();
-        ouvrirRenvoiAnnuaire(messageIntro);
+        ouvrirRenvoiAnnuaire(messageIntro, options);
       });
     }
   });
@@ -40137,13 +40165,13 @@ var AIDE_PAGES = {
     { selecteur: '[data-carte-accueil="mesdocuments"]', icone: '<i class="bi bi-folder2-open"></i>', titre: 'Mes documents',
       texte: 'Le point de départ de votre dossier de candidature. Derrière cette carte, trois chemins : <strong>créer un nouveau CV</strong> (l’assistant le construit avec vous, même si vous n’en avez jamais eu), <strong>déposer un CV déjà complet</strong>, ou <strong>mettre à jour</strong> le contenu ou la présentation d’un CV existant. Une fois le CV prêt, il sert de base à la lettre de motivation et à la préparation d’entretien.' },
     { selecteur: '[data-carte-accueil="preparer"]', icone: '<i class="bi bi-person"></i>', titre: 'Me préparer à candidater',
-      texte: 'Tout ce qui prépare la rencontre avec le recruteur : <strong>co-construire une lettre de motivation</strong> avec un assistant (au clavier ou à la voix, sans CV obligatoire), <strong>vous entraîner aux questions d’un entretien d’embauche</strong>, et <strong>Un regard sur mon CV</strong>, pour anticiper ce qu’un recruteur pourrait y remarquer.' },
+      texte: function () { var qfq = (typeof mtOuvert === 'function' && mtOuvert()); return 'Tout ce qui prépare la rencontre avec le recruteur : <strong>écrire une lettre de motivation avec l’assistant</strong> (au clavier ou à la voix, sans CV obligatoire)' + (qfq ? ',' : ' et') + ' <strong>vous entraîner aux questions d’un entretien d’embauche</strong>' + (qfq ? ', et <strong>Employeurs près de chez moi</strong> pour trouver des employeurs de votre département, par secteur, et leur envoyer une candidature spontanée' : '') + '.'; } },
     { selecteur: '[data-carte-accueil="boiteaoutils"]', icone: '<i class="bi bi-briefcase"></i>', titre: 'Boîte à outils',
       texte: 'Des outils pour mieux vous connaître et comprendre le monde professionnel, utilisables à tout moment : <strong>Découvrir mes compétences</strong> (tirer un CV de ce que vous avez vécu), <strong>Mes Repères</strong> (garder les réflexions utiles de votre parcours), <strong>Mon Carnet</strong> (noter librement, jamais lu ni analysé), <strong>Lexique</strong> (les mots de l’emploi expliqués simplement).' },
     { selecteur: '[data-carte-accueil="analyse"]', icone: '<i class="bi bi-graph-up-arrow"></i>', titre: 'Outils d’analyse',
-      texte: 'Vérifier la solidité de votre candidature avant de postuler : <strong>Analyser ma candidature</strong> (un assistant repère ce qui mérite d’être renforcé dans votre CV face au métier visé), <strong>Cohérence de mon dossier</strong> (vérifier que CV, lettre et entretien racontent la même histoire), et <strong>Les mots de votre CV (ATS)</strong> (le vocabulaire de votre CV face à un premier tri automatisé : pas un logiciel de tri, mais la même vérification, en clair). Ces outils demandent un CV déjà créé.' },
+      texte: 'Vérifier la solidité de votre candidature avant de postuler : <strong>Analyser ma candidature</strong> (un assistant repère ce qui mérite d’être renforcé dans votre CV face au métier visé), <strong>Un regard sur mon CV</strong> (anticiper ce qu’un recruteur pourrait y remarquer), <strong>Cohérence de mon dossier</strong> (vérifier que CV, lettre et entretien racontent la même histoire), et <strong>Les mots de votre CV (ATS)</strong> (le vocabulaire de votre CV face à un premier tri automatisé : pas un logiciel de tri, mais la même vérification, en clair). Ces outils demandent un CV déjà créé.' },
     { selecteur: '[data-carte-accueil="informe"]', icone: '<i class="bi bi-newspaper"></i>', titre: 'Se tenir informé',
-      texte: 'Deux outils dans le même esprit, un point de repère et jamais un fil d’actualités : <strong>Comprendre le cadre</strong> (des fiches organisées par rayon, emploi, logement, mobilité, droits..., avec la source officielle à jour et une recherche à affiner quand on ne sait pas par où commencer) et <strong>Comprendre les chiffres</strong> (le chômage, l’emploi et les métiers qui recrutent près de chez vous, des chiffres officiels expliqués simplement et datés).' },
+      texte: function () { var qfq = (typeof mtOuvert === 'function' && mtOuvert()); return (qfq ? 'Trois outils' : 'Deux outils') + ' dans le même esprit, un point de repère et jamais un fil d’actualités : <strong>Comprendre le cadre</strong> (des fiches organisées par rayon, emploi, logement, mobilité, droits..., avec la source officielle à jour et une recherche à affiner quand on ne sait pas par où commencer) et <strong>Comprendre les chiffres</strong> (le chômage, l’emploi et les métiers qui recrutent près de chez vous, des chiffres officiels expliqués simplement et datés)' + (qfq ? ' et <strong>Qui fait quoi</strong> (à qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification)' : '') + '.'; } },
     { selecteur: '[data-carte-accueil="orientation"]', icone: '<i class="bi bi-signpost-split"></i>', titre: 'Vous hésitez encore ?',
       texte: 'Pour quand le projet n’est pas encore clair : mettre deux ou trois pistes, ou deux situations, côte à côte pour choisir en connaissance de cause. Pour des liens vers d’autres sites (immersions, formations, autres métiers), voyez « Liens utiles » en bas de page.' },
     { selecteur: '#btnLiensUtiles', icone: '<i class="bi bi-link-45deg"></i>', titre: 'Liens utiles',
@@ -40183,13 +40211,13 @@ var AIDE_PAGES = {
   // suivante ».
   objectif: [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'Cette barre en haut de page suit les six étapes du parcours : objectif, parcours, informations, profil, assistant, documents. L’étape en cours est mise en avant. Aux étapes suivantes, vous pourrez cliquer sur une étape déjà faite pour y revenir, sans rien perdre.' },
+      texte: 'Cette barre en haut de page suit les six étapes du parcours : objectif, informations, parcours, profil, assistant, documents. L’étape en cours est mise en avant. Aux étapes suivantes, vous pourrez cliquer sur une étape déjà faite pour y revenir, sans rien perdre.' },
     { selecteur: '.grille-objectif', icone: '&#127919;', titre: 'Votre objectif',
       texte: 'Cliquez sur la carte qui correspond le mieux à votre situation (répondre à une offre, candidature spontanée, changement de métier, stage (de formation ou d’immersion), alternance, formation). Une fois choisie, deux bandeaux apparaissent en dessous pour préciser votre recherche.' },
     { selecteur: '#blocERIP-candidature', icone: '&#128221;', titre: 'Votre candidature',
       texte: 'Indiquez si vous visez un métier précis ou plusieurs métiers d’un même domaine, et si vous répondez à une offre ou cherchez de façon générale. Ces choix se font au clic sur les jetons ; rien n’est obligatoire.' },
     { selecteur: '#blocERIP-projet', icone: '&#128188;', titre: 'Le poste que vous recherchez',
-      texte: 'Type de contrat, temps de travail, ce que vous acceptez en plus, et vos disponibilités : cochez ce qui vous concerne. Tout est facultatif — une réponse vide vaut « peu importe ».' },
+      texte: 'Type de contrat, temps de travail, ce que vous acceptez en plus, et vos disponibilités : cochez ce qui vous concerne. Tout est facultatif : une réponse vide vaut « peu importe ».' },
     { selecteur: '.barre-navigation', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’étape précédente, « Accueil » ramène à l’écran de départ, sans perdre vos réponses.' }
   ],
@@ -40247,7 +40275,19 @@ var AIDE_PAGES = {
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
       texte: 'La barre en haut suit les étapes de votre parcours. Vous êtes à la dernière, « Vos documents ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
     { selecteur: '[data-rect-doc]', icone: '&#128196;', titre: 'Régler et exporter votre document',
-      texte: 'Trois encadrés à ouvrir au clic : « Le format » (longueur du document, rubriques affichées), « La mise en page » (couleur, police, modèle), et « Exporter » (récupérer le fichier en PDF ou en Word). Chaque changement se voit tout de suite dans l’aperçu.' },
+      texte: 'Deux encadrés à ouvrir au clic. « La mise en page » : « Style rapide » compose un style complet en un clic, vous pouvez aussi choisir une ambiance (couleurs, titres, coins), puis un modèle. Votre texte ne change jamais, et chaque réglage se voit tout de suite dans l’aperçu. « Exporter » s’ouvre quand vous cliquez sur « Valider le CV » : vous y récupérez votre fichier.' },
+    // TACHE (chantier aide a jour, 2026-10-15) : boutons de l'editeur de mise en page absents de l'aide (Style rapide,
+    // Mise en page, ambiances, retour au modele, Valider). Textes relus contre l'ecran et les infobulles reelles.
+    { selecteur: '#btnMepDe', icone: '<i class="bi bi-dice-5"></i>', titre: 'Style rapide',
+      texte: 'Un clic compose pour vous un style complet au hasard : couleurs, titres, coins, icônes. Votre texte ne change jamais. Le style ne vous plaît pas ? Cliquez sur la flèche ↺ juste à côté pour revenir au tirage précédent.' },
+    { selecteur: '#btnMepMiseEnPage', icone: '<i class="bi bi-magic"></i>', titre: 'Mise en page',
+      texte: 'Un clic ajuste la taille du texte et les espaces pour que le CV tienne sur une page, ou remplisse la page s’il reste de la place. Aucune information n’est retirée ni ajoutée. La flèche ↺ revient à avant.' },
+    { selecteur: '#zoneAmbiances', icone: '<i class="bi bi-palette"></i>', titre: 'Choisir une ambiance',
+      texte: 'Un clic règle d’un coup la couleur, les titres, les compétences, les coins et les icônes. Votre texte ne change jamais. « Annuler l’ambiance » remet comme avant.' },
+    { selecteur: '#btnMepRevenirDefaut', icone: '<i class="bi bi-skip-backward"></i>', titre: 'Revenir au modèle de départ',
+      texte: 'Si vous vous perdez dans les réglages, ce bouton remet la mise en page du début. Vous pouvez toujours recommencer.' },
+    { selecteur: '#btnMepValider', icone: '<i class="bi bi-check-circle"></i>', titre: 'Valider le CV',
+      texte: 'Quand le CV vous convient, ce bouton ouvre l’encadré « Exporter », juste en dessous, pour récupérer votre fichier.' },
     { selecteur: '.et-apres', icone: '&#128640;', titre: 'Et ensuite ?',
       texte: 'Une fois votre document récupéré, cet encadré rappelle la suite : lettre de motivation et entretien repartent de ce CV, sans rien ressaisir.' }
   ],
@@ -40279,6 +40319,10 @@ var AIDE_PAGES = {
   // TACHE (integration module Coherence transversale, 2026-08-25) : meme
   // principe que 'bilan' ci-dessus.
   'coherence-transversale': [
+    // TACHE (chantier aide a jour, 2026-10-15) : la page de presentation
+    // (avant « Je commence ») n'avait aucune etape. Ajoutee, rien retire.
+    { selecteur: '#ctBoutonJeCommence', icone: '<i class="bi bi-play-circle"></i>', titre: 'Cohérence de mon dossier',
+      texte: 'Ce module compare votre CV, votre lettre et votre préparation d’entretien pour voir s’ils racontent la même histoire. Il ne note rien et ne juge pas : il repère seulement ce qui mérite d’être ajusté. Votre CV et votre lettre sont nécessaires, le reste est facultatif. Cliquez sur « Je commence » quand vous êtes prêt(e).' },
     // TACHE (audit de stabilisation, 2026-09-13, finding 4) : deplacees
     // depuis AIDE_FENETRES['coherence-transversale-collecte'], jamais
     // atteignables la-bas (l'ecran de collecte est une page routee, pas
@@ -40300,12 +40344,21 @@ var AIDE_PAGES = {
   // l'application sans aucune entrée jusqu'ici, pas seulement pour la
   // partie Regard extérieur.
   reperes: [
+    // TACHE (chantier aide a jour, 2026-10-15) : la page de presentation
+    // (avant « Je commence ») n'avait aucune etape : la visite guidee
+    // s'ouvrait vide. Trois etapes ajoutees pour cet ecran, rien retire.
+    { selecteur: '.reperes-accueil-types', icone: '<i class="bi bi-tags"></i>', titre: 'Les quatre types de Repère',
+      texte: 'Question, idée, à approfondir, à discuter : ces quatre types servent seulement à vous y retrouver plus tard. Ils sont facultatifs, et « En savoir plus » donne un exemple pour chacun.' },
+    { selecteur: '.barre-navigation-fixe .btn-primary', icone: '<i class="bi bi-play-circle"></i>', titre: 'Je commence',
+      texte: 'Ouvre votre espace de Repères. Rien n’est obligatoire, et vous pouvez revenir lire cette présentation à tout moment avec « Revoir la présentation ».' },
     { selecteur: '.reperes-entete-ecran', icone: '<i class="bi bi-bookmark-star"></i>', titre: 'Garder une réflexion',
       texte: 'Un Repère, c’est une réflexion que vous choisissez de garder pour la retrouver plus tard : une question, une idée, un sujet à approfondir ou à discuter avec votre conseiller. Vous pouvez en créer un ici, ou directement depuis un bouton « Garder comme Repère » ailleurs dans l’application, à l’endroit où la réflexion vous vient.' },
     { selecteur: '#reperesListeConteneur', icone: '&#128203;', titre: 'Vos Repères',
       texte: 'Chaque Repère reste pour vous, rien n’est jamais transmis automatiquement. Vous pouvez ajouter quelques mots à tout moment, ou le supprimer si vous changez d’avis.' },
-    { selecteur: '#reperesZoneRegardExterieur', icone: '&#128270;', titre: 'Un regard extérieur sur vos Repères',
-      texte: 'Une fois trois Repères gardés, ce bouton apparaît. Il prépare un texte à coller dans un assistant de votre choix, qui relit l’ensemble de vos Repères et vous aide à voir ce qui en ressort : ce qui revient souvent, ce qui a changé, des questions à vous poser, et ce dont il serait utile de parler avec votre conseiller. Il ne juge jamais, ne décide jamais à votre place, et ne connaît que ce que vous avez écrit vous-même.' }
+    // TACHE (chantier aide a jour, 2026-10-15) : la zone #reperesZoneRegardExterieur a une hauteur nulle tant qu'il y a
+    // moins de 3 Reperes (halo invisible). Le bouton quand il existe, sinon la liste ; le texte couvre les deux cas.
+    { selecteur: '#btnRegardExterieur, #reperesListeConteneur', icone: '&#128270;', titre: 'Un regard extérieur sur vos Repères',
+      texte: 'Quand vous aurez gardé trois Repères, un bouton « Demander un Regard Extérieur » apparaîtra juste au-dessus de la liste. Il prépare un texte à coller dans un assistant de votre choix, qui relit l’ensemble de vos Repères et vous aide à voir ce qui en ressort : ce qui revient souvent, ce qui a changé, des questions à vous poser, et ce dont il serait utile de parler avec votre conseiller. Il ne juge jamais, ne décide jamais à votre place, et ne connaît que ce que vous avez écrit vous-même.' }
   ],
   // TACHE (integration aide guidee du module Carnet) : fiche dediee a
   // l'ecran complet -- meme raison d'etre que la fiche 'reperes' juste
@@ -40346,8 +40399,8 @@ var AIDE_PAGES = {
       texte: 'Chaque rayon regroupe des fiches courtes sur un même sujet (l’emploi, la formation, le logement, la mobilité...). Si vous ne savez pas quel rayon vous concerne, « Affiner ma recherche » vous aide : des phrases à cocher, ou un champ où décrire votre situation avec vos mots.' },
     { selecteur: '[data-comprendre-le-cadre-ouvrir-structures]', icone: '<i class="bi bi-geo-alt"></i>', titre: 'Près de chez moi',
       texte: 'Les structures à qui s’adresser pour ce rayon dans votre département. Une adresse n’apparaît en lien cliquable qu’une fois vérifiée à la main : en attendant, le nom et la description restent une information utile.' },
-    { selecteur: '#comprendreLeCadreOutils', icone: '<i class="bi bi-bar-chart"></i>', titre: 'Les outils',
-      texte: '« Ce qui a changé récemment » est le digest trimestriel des changements officiels (emploi, formation, droits sociaux, séjour), daté et sourcé, plutôt pensé pour les professionnels de l’insertion mais lisible par tous.' }
+    { selecteur: '#comprendreLeCadreOutils', icone: '<i class="bi bi-bar-chart"></i>', titre: 'Ce qui a changé récemment',
+      texte: 'La grande carte en haut ouvre le digest trimestriel des changements officiels (emploi, formation, droits sociaux, séjour), daté et sourcé. Le nombre indique combien de changements il contient. À l’intérieur, touchez un domaine pour voir ses changements, et « Ouvrir la source officielle » pour lire le texte d’origine.' }
   ],
   // TACHE (refonte "Mes documents", derniere tache -- aide contextuelle des
   // ecrans neufs, 2026-09-03) : la route 'preparer-lettre-entretien' sert
@@ -40365,8 +40418,6 @@ var AIDE_PAGES = {
       texte: 'Dès que votre CV est déposé, la relecture s’ouvre toute seule : vous vérifiez le texte, le corrigez si besoin, et masquez ce que vous ne voulez pas transmettre (téléphone, e-mail, adresse...). Ce bouton permet de la rouvrir. Le surlignage jaune repère automatiquement les informations sensibles.' },
     { selecteur: '#prepLEBloc3', icone: '&#128221;', titre: 'Pourquoi ce CV ?',
       texte: 'Choisissez la raison de cette candidature (répondre à une offre, candidature spontanée, changer de métier, stage (de formation ou d’immersion), alternance, formation). Ce choix aide l’assistant à ajuster la lettre. Facultatif, mais utile.' },
-    { selecteur: '#prepLEBloc4', icone: '&#127970;', titre: 'L’offre visée',
-      texte: 'Si vous les connaissez : le nom de l’entreprise, son site, l’offre d’emploi (lien ou texte) et le type de structure. Tout est facultatif ; ces informations personnalisent la lettre.' },
     { selecteur: '#btnPrepLEVersAssistant', icone: '&#128640;', titre: 'Choisir mon assistant',
       texte: 'Ce bouton s’active une fois votre CV déposé et relu. Il vous mène au choix de l’assistant en ligne qui lira votre CV et en ressortira vos informations.' }
   ],
@@ -40381,26 +40432,24 @@ var AIDE_PAGES = {
       texte: 'Dès que votre CV est déposé, la relecture s’ouvre toute seule : vous vérifiez le texte, le corrigez si besoin, et masquez ce que vous ne voulez pas transmettre. Ce bouton permet de la rouvrir. Le surlignage jaune repère automatiquement téléphone, e-mail, adresse...' },
     { selecteur: '#prepLEBloc3', icone: '&#128221;', titre: 'Pourquoi ce CV ?',
       texte: 'Indiquez la raison de cette candidature. Facultatif, mais cela aide à orienter la mise à jour.' },
-    { selecteur: '#prepLEBloc4', icone: '&#127970;', titre: 'L’offre visée',
-      texte: 'Si vous les connaissez : entreprise, site, offre d’emploi, type de structure. Tout est facultatif.' },
     { selecteur: '#btnPrepLEVersAssistant', icone: '&#128640;', titre: 'Choisir mon assistant',
       texte: 'Ce bouton s’active une fois votre CV déposé et relu. Il vous mène au choix de l’assistant qui en ressortira vos informations à corriger.' }
   ],
   // TACHE (coherence, 2026-09-10) : aide contextuelle des modules qui
   // n'en avaient pas -- chaque entree ne parle QUE de son module.
   'co-lettre': [
-    { selecteur: 'h1', icone: '<i class="bi bi-pen"></i>', titre: 'Co-construire ma lettre de motivation',
+    { selecteur: 'h1', icone: '<i class="bi bi-pen"></i>', titre: 'Écrire ma lettre de motivation avec l’assistant',
       texte: 'Vous écrivez votre lettre phrase par phrase avec un assistant en ligne : il propose, vous décidez, en prenant le temps. On part de votre CV, que vous relisez et masquez avant de le transmettre.' },
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes : préparer votre CV, choisir l’assistant, coller sa réponse. L’étape en cours est mise en avant.' },
+      texte: 'La barre en haut suit les quatre étapes : Préparer, Assistant, Rédiger, Terminé. L’étape en cours est mise en avant.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos saisies ne sont pas perdues.' }
   ],
   'prepa-entretien': [
-    { selecteur: 'h1', icone: '<i class="bi bi-mic"></i>', titre: 'Préparer un entretien',
+    { selecteur: 'h1', icone: '<i class="bi bi-mic"></i>', titre: 'M’entraîner à un entretien',
       texte: 'Vous vous entraînez aux questions d’un entretien d’embauche en discutant avec un assistant en ligne : il pose des questions à partir de votre CV et du poste visé, et réagit à vos réponses. À l’écrit ou à voix haute selon l’assistant.' },
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes : préparer vos documents, choisir l’assistant, coller sa réponse. L’étape en cours est mise en avant.' },
+      texte: 'La barre en haut suit les quatre étapes : Préparer, Assistant, S’entraîner, Terminé. L’étape en cours est mise en avant.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos saisies ne sont pas perdues.' }
   ],
@@ -40418,7 +40467,7 @@ var AIDE_PAGES = {
     { selecteur: 'h1', icone: '<i class="bi bi-card-text"></i>', titre: 'Les mots de votre CV (ATS)',
       texte: 'Ce module compare le vocabulaire de votre CV avec celui attendu pour le poste ou le métier. Ce n’est pas un logiciel de tri et il ne donne aucune note : il vous montre quels mots vous pourriez faire ressortir.' },
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes : déposer votre CV, choisir la cible (offre ou métier), choisir l’assistant, coller sa réponse. L’étape en cours est mise en avant.' },
+      texte: 'La barre en haut suit les quatre étapes : Préparer, Envoyer, Résultat, Ma fiche. L’étape en cours est mise en avant.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos saisies ne sont pas perdues.' }
   ],
@@ -40426,7 +40475,7 @@ var AIDE_PAGES = {
     { selecteur: 'h1', icone: '<i class="bi bi-image"></i>', titre: 'Un regard sur mon CV',
       texte: 'Ce module lit votre CV comme un recruteur pourrait le voir : ce qui ressort en premier, ce qui peut faire hésiter. Il ne modifie jamais votre CV et ne pose aucun verdict : chaque doute devient une question à vous poser.' },
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes : déposer votre CV, choisir l’assistant, coller sa réponse, lire le regard, puis obtenir votre fiche de préparation. L’étape en cours est mise en avant.' },
+      texte: 'La barre en haut suit les quatre étapes : Préparer, Envoyer, Le regard, Ma fiche. L’étape en cours est mise en avant.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos saisies ne sont pas perdues.' }
   ],
@@ -40434,7 +40483,7 @@ var AIDE_PAGES = {
     { selecteur: 'h1', icone: '<i class="bi bi-signpost-split"></i>', titre: 'Comparer mes pistes',
       texte: 'Quand le projet n’est pas encore clair, ce module met deux ou trois pistes de métier côte à côte pour vous aider à choisir en connaissance de cause, à votre rythme. Rien n’est décidé à votre place.' },
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-      texte: 'La barre en haut suit les étapes : ajouter vos pistes, les comprendre, les comparer, retenir ce qui compte pour vous. L’étape en cours est mise en avant.' },
+      texte: 'La barre en haut suit les six étapes : Mes pistes, Collecter, Fiches, Comparer, Aller plus loin, Ce que je retiens. L’étape en cours est mise en avant.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos saisies ne sont pas perdues.' }
   ],
@@ -40463,11 +40512,94 @@ AIDE_PAGES['un-cv-plusieurs-metiers'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-files"></i>', titre: 'Un CV, plusieurs métiers',
     texte: 'Quand plusieurs métiers vous intéressent, ce module vous aide à préparer un CV et une lettre pour chacun, à partir de votre seul vrai parcours. Rien n’est inventé et rien n’est décidé à votre place.' },
   { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
-    texte: 'La barre en haut montre les sept pages : votre CV, les métiers, le CV de référence, les phrases d’accroche, vos CV, vos lettres, puis vos documents. Elle sert de repère, on avance avec « Continuer ».' },
+    texte: 'La barre en haut montre les huit pages : Mon CV, Métiers, Référence, Accroches, Mes CV, Lettres, Fin, puis, si vous le souhaitez, Entretiens. Elle sert de repère, on avance avec « Continuer ».' },
+  { selecteur: '#contenuPageUcpm', icone: '&#128221;', titre: 'Lettres et entretiens',
+    texte: 'Sur chaque lettre, « Retravailler cette lettre avec l’assistant » reprend votre texte et vos remarques. À la fin, la préparation d’entretien donne une feuille par métier : les questions probables, ce que le recruteur cherche et des pistes pour répondre. Cette feuille est pour vous, vous ne l’envoyez pas.' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient à la page d’avant sans rien effacer, « Accueil » ramène à l’écran de départ. Votre travail est gardé tant que vous ne cliquez pas sur « Recommencer ».' }
 ];
 AIDE_PAGES['un-cv-plusieurs-metiers-intro'] = AIDE_PAGES['un-cv-plusieurs-metiers'];
+// Pages qui n'avaient aucune aide (inventaire du 2026-10-15, docs/CHANTIER_AIDE_A_JOUR.md).
+AIDE_PAGES['candidater'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-send"></i>', titre: 'Candidater',
+    texte: 'Cet écran prépare vos documents pour le métier ou le secteur que vous venez de choisir. Trois petits blocs à remplir, dans l’ordre, puis on passe à la préparation. Rien n’est envoyé à quelqu’un.' },
+  { selecteur: '.cand-prog', icone: '&#129517;', titre: 'Où vous en êtes',
+    texte: 'Cette ligne montre les quatre temps : ce que vous préparez, votre cible, votre CV, puis l’assistant. Chaque étape se colore quand le bloc correspondant est complété.' },
+  { selecteur: '[data-cand-groupe="parcours"]', icone: '&#128221;', titre: 'Ce que vous préparez',
+    texte: 'Choisissez ce dont vous avez besoin maintenant : votre CV, votre lettre de motivation ou votre entretien. Vous pourrez revenir en préparer un autre ensuite.' },
+  { selecteur: '[data-cand-groupe="type"]', icone: '&#127919;', titre: 'Votre cible',
+    texte: '« Une structure précise » si vous visez une entreprise ou une offre déterminée, « Recherche plus générale » si vous n’avez pas encore de cible. Les deux sont possibles, mais une lettre est plus forte avec une structure précise. Avec une structure précise, des champs apparaissent juste en dessous : le nom de l’entreprise est nécessaire pour continuer, le site, l’offre et le reste sont facultatifs.' },
+  { selecteur: '#candZoneEntreprise', icone: '&#127970;', titre: 'L’entreprise visée',
+    texte: 'Indiquez au moins le nom de l’entreprise : le bloc passe alors en « complété ». Le site, le texte ou le lien de l’offre, le type de structure, la personne qui recrute et les couleurs de l’entreprise sont facultatifs, mais aident à personnaliser votre CV et votre lettre. Tout s’enregistre au fur et à mesure.' },
+  { selecteur: '[data-cand-groupe="cv"]', icone: '&#128196;', titre: 'Votre CV',
+    texte: 'Dites si vous avez déjà un CV. Si oui, vous choisissez de le compléter ou de le garder tel quel ; si non, l’application vous aide à le créer à partir de votre parcours.' },
+  { selecteur: '[data-cand-continuer]', icone: '&#9193;', titre: 'Continuer',
+    texte: 'Ce bouton s’active quand les trois blocs sont complétés. Son nom s’adapte à votre situation : « Continuer », « Créer mon CV » ou « Mettre à jour mon CV ».' },
+  { selecteur: '[data-cand-retour]', icone: '&#8617;&#65039;', titre: 'Retour à la recherche',
+    texte: 'Revient à votre recherche sans perdre ce que vous venez de choisir. « Changer », à côté du métier, permet d’en prendre un autre.' }
+];
+AIDE_PAGES['creer-cv'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-stars"></i>', titre: 'Créer un nouveau CV',
+    texte: 'On part d’une page blanche et l’application vous accompagne pas à pas, une question à la fois. À la fin, vous obtenez un CV complet, prêt à mettre en forme.' },
+  { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
+    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Continuer » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
+  { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Les étapes',
+    texte: 'Cette barre montre le chemin complet. Elle sert de repère : on avance avec « Continuer », sans rien envoyer sans votre accord.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
+];
+AIDE_PAGES['comprendre-les-chiffres-intro'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-bar-chart"></i>', titre: 'Comprendre les chiffres',
+    texte: 'Des chiffres officiels sur le chômage, l’emploi et les métiers qui recrutent, expliqués en langage simple et toujours datés. Utile pour vous situer, ou pour préparer un rendez-vous.' },
+  { selecteur: '#btnComprendreLesChiffresCommencer', icone: '&#9193;', titre: 'Ouvrir Comprendre les chiffres',
+    texte: 'Ouvre le module. On vous demande d’abord votre département, parce que les chiffres changent d’un territoire à l’autre.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ.' }
+];
+AIDE_PAGES['comprendre-les-chiffres'] = [
+  { selecteur: '[data-comprendre-les-chiffres-choisir-territoire]', icone: '&#128205;', titre: 'Choisir mon département',
+    texte: 'Tant que votre département n’est pas indiqué, les chiffres restent floutés : ils ne vous concerneraient pas. Un clic suffit pour les débloquer, et vous pourrez en changer ensuite.' },
+  { selecteur: 'h2.comprendre-les-chiffres-section', icone: '&#128202;', titre: 'Les chiffres clés',
+    texte: 'Chaque chiffre est expliqué avec des mots simples : ce qu’il mesure, d’où il vient et à quelle date. Aucun chiffre n’est présenté sans sa source.' },
+  { selecteur: '#btnComprendreLesChiffresRevoirIntro', icone: '&#128214;', titre: 'Revoir la présentation',
+    texte: 'Ramène à la page qui explique ce module. Vous ne perdez rien.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ.' }
+];
+// Qui fait quoi : la presentation ('mon-territoire-intro') et le module ('mon-territoire') partagent une seule liste ;
+// demarrerVisiteGuideePage() ne garde que les selecteurs presents dans l'ecran courant (accueil, liste ou fiche).
+AIDE_PAGES['mon-territoire'] = [
+  { selecteur: '#btnMonTerritoireCommencer', icone: '<i class="bi bi-geo-alt"></i>', titre: 'Qui fait quoi',
+    texte: 'Ce module vous montre à qui vous adresser dans votre département : des structures pour vous aider et des employeurs. Cliquez sur « Ouvrir Qui fait quoi » quand vous êtes prêt(e). Rien n’est enregistré ailleurs que sur votre appareil.' },
+  { selecteur: '#mtSaisieCommune', icone: '<i class="bi bi-pin-map"></i>', titre: 'Votre commune',
+    texte: 'Vous pouvez indiquer votre commune : les structures qui vous concernent passent alors en premier. Ce n’est pas obligatoire, et vous pouvez la changer ou l’effacer quand vous voulez.' },
+  { selecteur: '[data-mt-changer-commune]', icone: '<i class="bi bi-pin-map"></i>', titre: 'Changer de commune',
+    texte: 'Ce bouton permet de corriger votre commune ou de la retirer. La liste se met à jour tout de suite.' },
+  { selecteur: '#mtSaisieRecherche', icone: '<i class="bi bi-search"></i>', titre: 'Chercher',
+    texte: 'Tapez un mot (« logement », « CAF », le nom d’une ville) : les structures et les employeurs qui correspondent s’affichent. Si rien ne s’affiche, essayez un mot plus court.' },
+  { selecteur: '[data-mt-domaine]', icone: '<i class="bi bi-signpost-split"></i>', titre: 'Les domaines',
+    texte: 'Chaque case regroupe un sujet : l’emploi, la formation, la vie pratique, l’aide sociale... Cliquez sur celle qui vous concerne pour voir la liste, par ordre alphabétique.' },
+  { selecteur: '[data-mt-sousbranche]', icone: '<i class="bi bi-signpost-split"></i>', titre: 'Un sujet plus précis',
+    texte: 'Ces cases affinent le domaine (logement, budget, santé...). Choisissez celle qui ressemble le plus à votre besoin.' },
+  { selecteur: '[data-mt-offres]', icone: '<i class="bi bi-box-arrow-up-right"></i>', titre: 'Employeurs qui publient leurs offres',
+    texte: 'Cette case vous mène aux pages d’offres des employeurs, à consulter vous-même. Nous ne recopions aucune offre : chaque ligne ouvre la page de l’employeur.' },
+  { selecteur: '[data-mt-secteur-offres]', icone: '<i class="bi bi-funnel"></i>', titre: 'Les pages d’offres',
+    texte: 'Chaque ligne ouvre la page où l’employeur publie ses offres. Choisissez un secteur avec les puces pour réduire la liste. La date indique quand cette page a été vérifiée à la main pour la dernière fois.' },
+  { selecteur: '[data-mt-secteur]', icone: '<i class="bi bi-briefcase"></i>', titre: 'Les secteurs d’employeurs',
+    texte: 'Pour chaque secteur d’activité, vous retrouvez des employeurs de votre territoire. Si « Pas encore de liste » s’affiche, ce secteur n’est pas encore rempli : revenez plus tard.' },
+  { selecteur: '[data-mt-fiche]', icone: '<i class="bi bi-card-text"></i>', titre: 'Voir la fiche',
+    texte: 'La fiche donne l’adresse, ce que fait la structure et la date de sa dernière vérification. Un lien cliquable n’apparaît qu’une fois la fiche vérifiée à la main.' },
+  { selecteur: '[data-mt-copier]', icone: '<i class="bi bi-clipboard"></i>', titre: 'Copier l’adresse',
+    texte: 'Ce bouton copie l’adresse pour la coller dans votre application de cartes ou de messages.' },
+  { selecteur: '[data-mt-vers-cadre]', icone: '<i class="bi bi-book"></i>', titre: 'Comprendre le sujet',
+    texte: 'Ce bouton ouvre les fiches du module « Comprendre le cadre » sur le même sujet, pour comprendre le dispositif avant d’appeler. Vous pouvez revenir ici ensuite.' }
+];
+AIDE_PAGES['mon-territoire-intro'] = AIDE_PAGES['mon-territoire'];
+// « Employeurs près de chez moi » : même module, sa propre présentation ; l'aide du module sert aux deux, avec le bouton de départ de cette porte en tête.
+AIDE_PAGES['employeurs-intro'] = [
+  { selecteur: '#btnEmployeursCommencer', icone: '<i class="bi bi-briefcase"></i>', titre: 'Employeurs près de chez moi',
+    texte: 'Cette page explique à quoi servent ces adresses : envoyer votre candidature à un employeur même sans annonce. Cliquez sur « Voir les employeurs » quand vous êtes prêt(e). Rien n’est enregistré ailleurs que sur votre appareil.' }
+].concat(AIDE_PAGES['mon-territoire'].slice(1));
 
 // TACHE (retour utilisateur : "l'ampoule doit s'adapter aussi aux fenêtres
 // qui viennent d'apparaître... quelles sont les attentes et les démarches à
@@ -40506,10 +40638,6 @@ var AIDE_FENETRES = {
   'retour-experience': [
     { selecteur: '.iframe-retour-experience', icone: '&#128172;', titre: 'Un petit formulaire',
       texte: 'Répondez à ce qui vous concerne : votre avis, un bug rencontré, ou une idée. Rien n’est obligatoire, et la croix en haut referme la fenêtre à tout moment.' }
-  ],
-  'entreprise-connue-candidature': [
-    { selecteur: '.civilite', icone: '&#127970;', titre: 'Oui ou Non',
-      texte: 'Répondez simplement à la question. Si vous répondez Oui, la fenêtre suivante vous demandera les coordonnées de l’entreprise.' }
   ],
   'avertissement-metier-cible': [
     { selecteur: '.fenetre-erip-corps', icone: '&#9888;&#65039;', titre: 'Un message important',
@@ -40574,30 +40702,6 @@ var AIDE_FENETRES = {
     { selecteur: '.ligne-metier-associe', icone: '&#128218;', titre: 'Des pistes à explorer',
       texte: 'Cliquez sur un métier pour en savoir plus ou le choisir comme métier cible. Le trombone à côté ouvre sa fiche officielle dans un nouvel onglet.' }
   ],
-  'choix-document-metier': [
-    { selecteur: '.pastilles-parcours-guide', icone: '&#128188;', titre: 'Que voulez-vous préparer ?',
-      texte: 'Choisissez CV, lettre de motivation ou entretien : votre choix détermine les étapes suivantes.' }
-  ],
-  'entreprise-connue': [
-    { selecteur: '.civilite', icone: '&#127970;', titre: 'Oui ou Non',
-      texte: 'Répondez simplement à la question. Si vous répondez Oui, la fenêtre suivante vous demandera les coordonnées de l’entreprise.' }
-  ],
-  'avertissement-entreprise': [
-    { selecteur: '.fenetre-erip-corps', icone: '&#9888;&#65039;', titre: 'À vous de choisir',
-      texte: 'Vous pouvez renseigner l’entreprise maintenant, ou continuer sans elle : votre lettre sera simplement un peu moins personnalisée.' }
-  ],
-  'cv-existant': [
-    { selecteur: '.civilite', icone: '&#128196;', titre: 'Oui ou Non',
-      texte: 'Répondez simplement : si vous avez déjà un CV, vous pourrez le déposer. Sinon, l’application vous accompagne pour en créer un nouveau.' }
-  ],
-  'maj-cv': [
-    { selecteur: '.civilite', icone: '&#128196;', titre: 'Oui ou Non',
-      texte: 'Répondez simplement : « Oui » vous mène vers Mon projet pour compléter votre CV, « Non » vous mène directement à l’étape suivante.' }
-  ],
-  'coordonnees-entreprise': [
-    { selecteur: '.fenetre-erip-corps', icone: '&#127970;', titre: 'Tout est facultatif sauf le nom',
-      texte: 'Seul le nom de l’entreprise est utile pour continuer. Le reste (site, offre, recruteur, couleur) aide à personnaliser davantage, mais rien n’est obligatoire.' }
-  ],
   'descriptif-metier': [
     { selecteur: '.fenetre-erip-corps', icone: '&#127919;', titre: 'La fiche du métier',
       texte: 'Ces badges résument ce que demande ce métier (savoir-être, savoir-faire, savoirs). Le bouton en bas permet de le choisir comme métier cible.' }
@@ -40659,6 +40763,39 @@ var AIDE_FENETRES = {
     { selecteur: '.regard-exterieur-question-texte', icone: '&#10068;', titre: 'Répondre à ces questions',
       texte: 'Cliquez sur une réponse si elle convient, ajoutez une précision si vous le souhaitez, ou laissez une question sans réponse si elle ne vous parle pas : rien n’est obligatoire, chaque réponse sert seulement à préciser l’analyse sur ce point précis.' }
   ],
+  // Fenetres qui n'avaient aucune aide (inventaire du 2026-10-15, docs/CHANTIER_AIDE_A_JOUR.md).
+  'regard-exterieur-selection': [
+    { selecteur: '.regard-exterieur-selection-liste', icone: '&#9989;', titre: 'Choisir ce que l’assistant va lire',
+      texte: 'Chaque case cochée est un de vos Repères qui sera transmis à l’assistant. Décochez ceux que vous préférez garder pour vous : rien d’autre n’est lu.' },
+    { selecteur: '.regard-exterieur-selection-modifier', icone: '&#9999;&#65039;', titre: 'Modifier avant d’envoyer',
+      texte: 'Vous pouvez retoucher un Repère ici, avant qu’il soit lu, si un mot ne vous convient plus.' },
+    { selecteur: '#regardExterieurSelectionEnvoiContinuer', icone: '&#9193;', titre: 'Continuer',
+      texte: 'Passe à l’étape suivante avec seulement les Repères cochés. Rien ne part sans que vous ayez fini de choisir.' }
+  ],
+  'regard-exterieur-fiche-frein': [
+    { selecteur: '.fenetre-erip-corps', icone: '&#128679;', titre: 'Une fiche pour ce point',
+      texte: 'Elle explique de quoi il s’agit, des pistes concrètes pour avancer, qui voir et des ressources vérifiées. Ce n’est pas un jugement sur vous : beaucoup de personnes rencontrent ce point.' },
+    { selecteur: '.regard-exterieur-frein-actions', icone: '&#128204;', titre: 'Le garder dans mes Repères',
+      texte: 'Ce bouton range ce point dans vos Repères pour y revenir plus tard, ou pour en parler à un conseiller.' }
+  ],
+  'regard-exterieur-mes-freins': [
+    { selecteur: '.fenetre-erip-corps', icone: '&#128477;&#65039;', titre: 'Vos freins identifiés',
+      texte: 'Cette liste rassemble les points qui ressortent de vos rapports et de vos Repères. Cliquez sur l’un d’eux pour voir sa fiche, les pistes et les ressources.' },
+    { selecteur: '[data-mesfreins-retour]', icone: '&#8617;&#65039;', titre: 'Retour à mes freins',
+      texte: 'Depuis une fiche, ce bouton ramène à la liste complète sans rien perdre.' }
+  ],
+  'reperes-saisie-libre': [
+    { selecteur: '#reperesSaisieTitre', icone: '&#127991;&#65039;', titre: 'Un titre, si vous voulez',
+      texte: 'Facultatif. S’il reste vide, il se remplit tout seul avec le début de votre texte, et vous pouvez le changer quand vous voulez.' },
+    { selecteur: '#reperesSaisieTexte', icone: '&#9999;&#65039;', titre: 'Votre réflexion',
+      texte: 'Quelques mots suffisent, rien n’est obligatoire. Vous pouvez aussi dicter votre texte : le raccourci est rappelé au-dessus du champ.' },
+    { selecteur: '#reperesSaisieTerminer', icone: '&#10003;', titre: 'C’est noté',
+      texte: 'Enregistre ce Repère dans votre liste. « Annuler » ferme la fenêtre sans rien garder.' }
+  ],
+  'ressources-locales': [
+    { selecteur: '.fenetre-erip-corps', icone: '&#128205;', titre: 'Deux portes près de chez vous',
+      texte: 'Le CCAS de votre mairie et la Maison Départementale des Solidarités de votre secteur peuvent débloquer une aide d’urgence et vous orienter vers les bons dispositifs.' }
+  ],
   'regard-exterieur-deuxieme-regard-optin': [
     { selecteur: '.fenetre-erip-corps', icone: '&#128300;', titre: 'C’est facultatif',
       texte: 'Répondre à ces quelques questions aide l’assistant à mieux comprendre ce qui se joue autour de vos Repères. Si vous préférez aller vite, choisissez « Non, relire tel quel » : l’assistant relira vos Repères comme aujourd’hui.' }
@@ -40695,7 +40832,7 @@ function detecterFenetreAideActive() {
 
 function contenuAideItem(item) {
   return '<div class="aide-item"><span class="aide-item-icone">' + item.icone + '</span>' +
-    '<div><strong>' + item.titre + '</strong><p class="small text-muted mb-0">' + item.texte + '</p></div></div>';
+    '<div><strong>' + item.titre + '</strong><p class="small text-muted mb-0">' + aideTexte(item) + '</p></div></div>';
 }
 
 function afficherRecapAidePage() {
@@ -40719,6 +40856,8 @@ function afficherRecapAidePage() {
 // evidence fonctionne, contrairement a ceux de la page de fond qu'elle
 // recouvre.
 var _visiteGuideeEtapes = [];
+// Le texte d'une étape d'aide est soit une chaîne, soit une fonction qui la calcule au moment de l'afficher (ex. : mention du module « Qui fait quoi » seulement quand il est ouvert).
+function aideTexte(e) { return typeof e.texte === 'function' ? e.texte() : e.texte; }
 
 function demarrerVisiteGuideePage() {
   var contexteFenetre = detecterFenetreAideActive();
@@ -40782,7 +40921,23 @@ function afficherEtapeVisiteGuidee(index) {
   // Laisse le temps au defilement fluide de se stabiliser avant de mesurer
   // la position reelle de la cible -- sinon le halo se pose sur l'ancienne
   // position, avant le scroll.
-  setTimeout(function () { positionnerVisiteGuidee(cible, etape, index); }, 350);
+  // TACHE (chantier aide a jour, 2026-10-15) : sur une page longue (ex. « Vos documents »), le defilement fluide depasse
+  // 350 ms : le halo se posait hors ecran (hauteur nulle). On attend que la position de la cible ne bouge plus (3 mesures
+  // identiques, 2 s au maximum).
+  var jeton = (window._visiteGuideeJeton = (window._visiteGuideeJeton || 0) + 1);
+  var derniere = null, stable = 0, ecoule = 0;
+  (function attendre() {
+    if (jeton !== window._visiteGuideeJeton) { return; }
+    var r = cible.getBoundingClientRect();
+    var top = r.top;
+    stable = (derniere !== null && Math.abs(top - derniere) < 1) ? stable + 1 : 0;
+    derniere = top;
+    ecoule += 60;
+    // le defilement peut demarrer avec un temps de retard : on exige aussi que la cible soit a l'ecran
+    var visible = r.bottom > 0 && r.top < window.innerHeight;
+    if ((stable >= 3 && visible && ecoule >= 240) || ecoule >= 3000) { positionnerVisiteGuidee(cible, etape, index); return; }
+    setTimeout(attendre, 60);
+  })();
 }
 
 function positionnerVisiteGuidee(cible, etape, index) {
@@ -40812,7 +40967,7 @@ function positionnerVisiteGuidee(cible, etape, index) {
   tooltip.innerHTML =
     '<div class="visite-guidee-compteur">Étape ' + (index + 1) + ' / ' + _visiteGuideeEtapes.length + '</div>' +
     '<h6>' + etape.icone + ' ' + etape.titre + '</h6>' +
-    '<p class="small mb-3">' + etape.texte + '</p>' +
+    '<p class="small mb-3">' + aideTexte(etape) + '</p>' +
     '<div class="visite-guidee-actions">' +
     (index > 0 ? '<button type="button" class="btn btn-sm btn-outline-secondary" id="visiteGuideePrecedent">&#8592; Précédent</button>' : '<span></span>') +
     '<button type="button" class="btn btn-sm btn-outline-secondary" id="visiteGuideeFermer">Fermer</button>' +
@@ -41227,9 +41382,9 @@ function _bulleInfoHoverAssurerElement() {
   }
   return el;
 }
-function _bulleInfoHoverPositionner(ancre) {
+function _bulleInfoHoverPositionner(ancre, texte) {
   var bulle = _bulleInfoHoverAssurerElement();
-  bulle.textContent = ancre.getAttribute('data-tooltip') || '';
+  bulle.textContent = (typeof texte === 'string') ? texte : (ancre.getAttribute('data-tooltip') || '');
   bulle.classList.add('visible');
   var r = ancre.getBoundingClientRect();
   var largeur = bulle.offsetWidth || 240;
@@ -41247,6 +41402,34 @@ function _bulleInfoHoverPositionner(ancre) {
 function _bulleInfoHoverMasquer() {
   var el = document.getElementById('bulleInfoHoverFlottante');
   if (el) { el.classList.remove('visible'); }
+  if (_bulleInfoToucherAncre) {
+    if (_bulleInfoToucherAncre.setAttribute) { _bulleInfoToucherAncre.setAttribute('aria-expanded', 'false'); }
+    _bulleInfoToucherAncre = null;
+  }
+}
+
+// TACHE (retour Denis 2026-10-15, « Comprendre les chiffres » : sur
+// telephone les sources au survol ne s'affichaient jamais) : la meme bulle
+// flottante s'ouvre aussi au TOUCHER (ou au clic / Entree / Espace). Un
+// deuxieme toucher sur le meme element, un toucher ailleurs, Echap ou un
+// defilement la referment. API partagee pour tout element qui porte un
+// texte a montrer :
+//   bulleInfoFlottanteBasculer(element, texte)  ouvre / referme au toucher
+//   bulleInfoFlottanteFermer()                  referme
+// Brique B.11 de docs/BRIQUES_COMMUNES.md. Ne jamais recreer une 2e bulle.
+var _bulleInfoToucherAncre = null;
+function bulleInfoFlottanteBasculer(ancre, texte) {
+  if (!ancre) { return; }
+  if (_bulleInfoToucherAncre === ancre) { _bulleInfoHoverMasquer(); return; }
+  _bulleInfoHoverMasquer();
+  _bulleInfoHoverPositionner(ancre, texte);
+  _bulleInfoToucherAncre = ancre;
+  if (ancre.setAttribute) { ancre.setAttribute('aria-expanded', 'true'); }
+}
+function bulleInfoFlottanteFermer() { _bulleInfoHoverMasquer(); }
+// Au survol de la souris (sans verrouiller) : meme bulle, meme position.
+function bulleInfoFlottanteMontrer(ancre, texte) {
+  if (ancre && _bulleInfoToucherAncre !== ancre) { _bulleInfoHoverPositionner(ancre, texte); }
 }
 function initBulleInfoHoverFlottante() {
   document.addEventListener('mouseover', function (evt) {
@@ -41271,6 +41454,18 @@ function initBulleInfoHoverFlottante() {
     if (!ancre) { return; }
     _bulleInfoHoverMasquer();
   });
+  // Fermeture d'une bulle ouverte au toucher : toucher ailleurs, Echap, defilement.
+  document.addEventListener('click', function (evt) {
+    if (_bulleInfoToucherAncre && !(_bulleInfoToucherAncre.contains && _bulleInfoToucherAncre.contains(evt.target))) {
+      _bulleInfoHoverMasquer();
+    }
+  });
+  document.addEventListener('keydown', function (evt) {
+    if (evt.key === 'Escape' && _bulleInfoToucherAncre) { _bulleInfoHoverMasquer(); }
+  });
+  window.addEventListener('scroll', function () {
+    if (_bulleInfoToucherAncre) { _bulleInfoHoverMasquer(); }
+  }, true);
 }
 
 document.addEventListener('DOMContentLoaded', function () {

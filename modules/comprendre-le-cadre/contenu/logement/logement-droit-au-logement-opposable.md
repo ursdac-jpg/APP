@@ -7,7 +7,7 @@ tags: [DALO, droit au logement opposable, commission de médiation, logement soc
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "droit au logement opposable"
     definition: "Droit qui permet, quand on remplit certains critères, de faire reconnaître par l'État un besoin prioritaire et urgent de logement, puis d'exiger une proposition."

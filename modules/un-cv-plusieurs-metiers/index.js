@@ -21,7 +21,8 @@ var UCPM_TITRES_PAGES = [
   'Mes phrases d’accroche',
   'Mes CV',
   'Mes lettres de motivation',
-  'Mes documents sont prêts'
+  'Mes documents sont prêts',
+  'Préparer mes entretiens'
 ];
 
 var _ucpmEtat = null;                  // état de session (voir ucpmEtatInitial, logique.js)
@@ -93,6 +94,7 @@ function ucpmRepriseContinuer() {
 
 // Détruit le travail du module (« Recommencer » et « Tout effacer »). Seul endroit qui remet l'état à zéro.
 function ucpmReinitialiser() {
+  _ucpmSessionHistorique++;
   _ucpmEtat = null;
   _ucpmDetourPresentation = false;
   _ucpmReprisePendante = false;
@@ -106,6 +108,7 @@ function ucpmReinitialiser() {
 function ucpmExporterEtatPourSauvegarde() { return ucpmExporterEtat(_ucpmEtat); }
 function ucpmRestaurerEtatDepuisSauvegarde(brut) {
   var e = ucpmNormaliserEtat(brut);
+  _ucpmSessionHistorique++;
   _ucpmEtat = e;
   _ucpmDetourPresentation = false;
   _ucpmReprisePendante = !!e && ucpmAUnTravailEnCours(e);
@@ -113,9 +116,38 @@ function ucpmRestaurerEtatDepuisSauvegarde(brut) {
 
 // ---------------- Page de travail ----------------
 
+// ------------------------------------------------------------
+// Flèche « Précédent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// Les pages du module (1 à 8) se déduisent de _ucpmEtat.page et sont toutes dessinées par ucpmRendrePage() : chaque dessin appelle
+// _ucpmSynchroniserHistorique(), chaque changement de page devient une entrée de l'historique. Le travail (CV, métiers, accroches, lettres) ne recule jamais :
+// seul le numéro de page est remis. Les vues d'un passage avec l'assistant restent DANS une page.
+// ------------------------------------------------------------
+// Numéro du travail en cours : il change quand le travail est effacé (« Recommencer ») ou remplacé (restauration de la disquette).
+var _ucpmSessionHistorique = 1;
+
+function _ucpmSynchroniserHistorique() {
+  if (typeof historiqueInterneSynchroniser !== 'function' || !_ucpmEtat) { return; }
+  var page = ucpmBornerPage(_ucpmEtat.page);
+  historiqueInterneSynchroniser('un-cv-plusieurs-metiers', { cle: _ucpmSessionHistorique + ':' + page, page: page, session: _ucpmSessionHistorique });
+}
+
+function _ucpmRestaurerHistorique(instantane) {
+  // Le travail a été effacé ou remplacé depuis : ces pages n'ont plus de sens, « Précédent » les dépasse.
+  if (!_ucpmEtat || instantane.session !== _ucpmSessionHistorique) { return 'sauter'; }
+  _ucpmEtat.page = ucpmBornerPage(instantane.page);
+  _ucpmDetourPresentation = false;
+}
+
+// js/app.js est chargé APRÈS ce fichier : le module s'inscrit au premier dessin de la page, pas au chargement.
+function _ucpmInscrireHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('un-cv-plusieurs-metiers', _ucpmRestaurerHistorique); }
+}
+
+
 var _ucpmEcranRendu = '';
 
 function ucpmRendrePage() {
+  _ucpmInscrireHistorique();
   var etat = ouvrirUnCvPlusieursMetiers();
   var n = ucpmBornerPage(etat.page);
   var def = _ucpmPages[n] || null;
@@ -158,6 +190,9 @@ function ucpmRendrePage() {
       suivantDesactiveMessage: raison || 'Complétez cette page pour continuer.'
     }) +
     '</div>';
+
+  // La fleche « Precedent » du navigateur retrouve cette page (brique B.24).
+  _ucpmSynchroniserHistorique();
 
   var arrivee = (typeof consommerArriveeDepuisPresentation === 'function') && consommerArriveeDepuisPresentation();
   // Tout NOUVEL écran (autre page, ou autre vue d'un passage avec l'assistant) s'ouvre en haut : sur les pages 4 et 6, on arrive donc toujours sur « Réglez le style d'écriture »
@@ -226,6 +261,7 @@ function pageIntroUnCvPlusieursMetiers() {
         '<li>Vous voyez tous vos CV côte à côte, et vous pouvez changer l’aspect d’un CV en particulier.</li>' +
         '<li>Vous obtenez une lettre de motivation par CV, que vous pouvez relire et modifier.</li>' +
         '<li>À la fin, vous téléchargez tous vos CV dans un seul fichier, toutes vos lettres dans un autre, ou un CV avec sa lettre.</li>' +
+        '<li>Si vous le souhaitez, vous préparez aussi vos entretiens d’embauche : une feuille par métier avec les questions probables, ce que le recruteur cherche et des pistes pour répondre. Cette feuille est pour vous, vous ne l’envoyez pas.</li>' +
         '</ul>') +
       _introBlocSection('&#128683; Ce que ce module ne fait pas',
         '<ul class="mb-0" style="padding-left:1.25rem;">' +
@@ -239,9 +275,7 @@ function pageIntroUnCvPlusieursMetiers() {
         '<li>Envoyer le CV et la lettre qui correspondent au métier visé.</li>' +
         '<li>Si vous le souhaitez, ouvrir l’assistant en ligne de votre choix pour chercher des offres liées à vos métiers (c’est un simple repère, l’application n’en reprend rien).</li>' +
         '</ul>') +
-      _introBlocSection('&#9989; Bon à savoir',
-        _introBlocEncart('&#128196;', 'Chaque CV tient sur une seule page. Si l’un d’eux est très rempli, l’application vous le signale.') +
-        _introBlocEncart('&#128190;', 'Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir travaillé, sinon vos informations seront perdues à la fermeture de la page.'))
+      _introBlocEncart('&#128196;', 'Chaque CV tient sur une seule page. Si l’un d’eux est très rempli, l’application vous le signale.')
   };
   app.innerHTML = htmlPageIntroModuleParcours(config);
   brancherPageIntroModuleParcours(config);

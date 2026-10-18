@@ -1,0 +1,199 @@
+# Communes de la Haute-Vienne (87) et leur intercommunalité
+# Source : API Géo (geo.api.gouv.fr), interrogée le 2026-10-12, d'après le Code Officiel Géographique (data.gouv.fr, Licence Ouverte 2.0 : à citer avec la date de mise à jour).
+# Conditions propres à l'API Géo : non vérifiées. Une commune peut avoir plusieurs codes postaux.
+# Format : code INSEE | commune | codes postaux | code intercommunalité | intercommunalité
+87001 | Aixe-sur-Vienne | 87700 | 248719288 | CC du Val de Vienne
+87002 | Ambazac | 87240 | 200066512 | CC Élan Limousin Avenir Nature
+87003 | Arnac-la-Poste | 87160 | 200071942 | CC Haut Limousin en Marche
+87004 | Augne | 87120 | 248719353 | CC des Portes de Vassivière
+87005 | Aureil | 87220 | 248719312 | CU Limoges Métropole
+87006 | Azat-le-Ris | 87360 | 200071942 | CC Haut Limousin en Marche
+87007 | Balledent | 87290 | 248719262 | CC Gartempe - Saint Pardoux
+87009 | Beaumont-du-Lac | 87120 | 248719353 | CC des Portes de Vassivière
+87011 | Bellac | 87300 | 200071942 | CC Haut Limousin en Marche
+87012 | Berneuil | 87300 | 200071942 | CC Haut Limousin en Marche
+87013 | Bersac-sur-Rivalier | 87370 | 200066512 | CC Élan Limousin Avenir Nature
+87014 | Bessines-sur-Gartempe | 87250 | 200066512 | CC Élan Limousin Avenir Nature
+87015 | Beynac | 87700 | 248719288 | CC du Val de Vienne
+87017 | Blanzac | 87300 | 200071942 | CC Haut Limousin en Marche
+87018 | Blond | 87300 | 200071942 | CC Haut Limousin en Marche
+87019 | Boisseuil | 87220 | 248719312 | CU Limoges Métropole
+87020 | Bonnac-la-Côte | 87270 | 248719312 | CU Limoges Métropole
+87021 | Bosmie-l'Aiguille | 87110 | 248719288 | CC du Val de Vienne
+87022 | Breuilaufa | 87300 | 200066512 | CC Élan Limousin Avenir Nature
+87024 | Bujaleuf | 87460 | 248719353 | CC des Portes de Vassivière
+87025 | Burgnac | 87800 | 248719288 | CC du Val de Vienne
+87027 | Bussière-Galant | 87230 | 200070506 | CC Pays de Nexon Monts de Chalus
+87030 | Chaillac-sur-Vienne | 87200 | 200059400 | CC Porte Océane du Limousin
+87032 | Châlus | 87230 | 200070506 | CC Pays de Nexon Monts de Chalus
+87033 | Chamboret | 87140 | 200066512 | CC Élan Limousin Avenir Nature
+87034 | Champagnac-la-Rivière | 87150 | 200066520 | CC Ouest Limousin
+87035 | Champnétery | 87400 | 248719361 | CC de Noblat
+87036 | Champsac | 87230 | 200066520 | CC Ouest Limousin
+87038 | Chaptelat | 87270 | 248719312 | CU Limoges Métropole
+87039 | Château-Chervix | 87380 | 200040814 | CC Briance Sud Haute Vienne
+87040 | Châteauneuf-la-Forêt | 87130 | 248719338 | CC Briance-Combade
+87041 | Châteauponsac | 87290 | 248719262 | CC Gartempe - Saint Pardoux
+87043 | Cheissoux | 87460 | 248719353 | CC des Portes de Vassivière
+87044 | Chéronnac | 87600 | 200059400 | CC Porte Océane du Limousin
+87045 | Cieux | 87520 | 200071942 | CC Haut Limousin en Marche
+87046 | Cognac-la-Forêt | 87310 | 200066520 | CC Ouest Limousin
+87047 | Compreignac | 87140 | 200066512 | CC Élan Limousin Avenir Nature
+87048 | Condat-sur-Vienne | 87920 | 248719312 | CU Limoges Métropole
+87049 | Coussac-Bonneval | 87500 | 248700189 | CC du Pays de Saint Yrieix
+87050 | Couzeix | 87270 | 248719312 | CU Limoges Métropole
+87053 | Cromac | 87160 | 200071942 | CC Haut Limousin en Marche
+87054 | Cussac | 87150 | 200066520 | CC Ouest Limousin
+87056 | Dinsac | 87210 | 200071942 | CC Haut Limousin en Marche
+87057 | Dompierre-les-Églises | 87190 | 200071942 | CC Haut Limousin en Marche
+87058 | Domps | 87120 | 248719353 | CC des Portes de Vassivière
+87060 | Dournazac | 87230 | 200070506 | CC Pays de Nexon Monts de Chalus
+87061 | Droux | 87190 | 200071942 | CC Haut Limousin en Marche
+87062 | Eybouleuf | 87400 | 248719361 | CC de Noblat
+87063 | Eyjeaux | 87220 | 248719312 | CU Limoges Métropole
+87064 | Eymoutiers | 87120 | 248719353 | CC des Portes de Vassivière
+87065 | Feytiat | 87220 | 248719312 | CU Limoges Métropole
+87066 | Flavignac | 87230 | 200070506 | CC Pays de Nexon Monts de Chalus
+87067 | Folles | 87250 | 200066512 | CC Élan Limousin Avenir Nature
+87068 | Fromental | 87250 | 200066512 | CC Élan Limousin Avenir Nature
+87069 | Gajoubert | 87330 | 200071942 | CC Haut Limousin en Marche
+87071 | Glandon | 87500 | 248700189 | CC du Pays de Saint Yrieix
+87072 | Glanges | 87380 | 200040814 | CC Briance Sud Haute Vienne
+87073 | Gorre | 87310 | 200066520 | CC Ouest Limousin
+87075 | Isle | 87170 | 248719312 | CU Limoges Métropole
+87076 | Jabreilles-les-Bordes | 87370 | 200066512 | CC Élan Limousin Avenir Nature
+87077 | Janailhac | 87800 | 200070506 | CC Pays de Nexon Monts de Chalus
+87078 | Javerdat | 87520 | 200059400 | CC Porte Océane du Limousin
+87080 | Jouac | 87890 | 200071942 | CC Haut Limousin en Marche
+87081 | Jourgnac | 87800 | 248719288 | CC du Val de Vienne
+87008 | La Bazeuge | 87210 | 200071942 | CC Haut Limousin en Marche
+87037 | La Chapelle-Montbrandeix | 87440 | 200066520 | CC Ouest Limousin
+87051 | La Croisille-sur-Briance | 87130 | 248719338 | CC Briance-Combade
+87052 | La Croix-sur-Gartempe | 87210 | 200071942 | CC Haut Limousin en Marche
+87070 | La Geneytouse | 87400 | 248719361 | CC de Noblat
+87079 | La Jonchère-Saint-Maurice | 87340 | 200066512 | CC Élan Limousin Avenir Nature
+87096 | La Meyze | 87800 | 248700189 | CC du Pays de Saint Yrieix
+87120 | La Porcherie | 87380 | 200040814 | CC Briance Sud Haute Vienne
+87127 | La Roche-l'Abeille | 87800 | 248700189 | CC du Pays de Saint Yrieix
+87082 | Ladignac-le-Long | 87500 | 248700189 | CC du Pays de Saint Yrieix
+87083 | Laurière | 87370 | 200066512 | CC Élan Limousin Avenir Nature
+87084 | Lavignac | 87230 | 200070506 | CC Pays de Nexon Monts de Chalus
+87023 | Le Buis | 87140 | 200066512 | CC Élan Limousin Avenir Nature
+87031 | Le Chalard | 87500 | 248700189 | CC du Pays de Saint Yrieix
+87042 | Le Châtenet-en-Dognon | 87400 | 248719361 | CC de Noblat
+87059 | Le Dorat | 87210 | 200071942 | CC Haut Limousin en Marche
+87113 | Le Palais-sur-Vienne | 87410 | 248719312 | CU Limoges Métropole
+87205 | Le Vigen | 87110 | 248719312 | CU Limoges Métropole
+87016 | Les Billanges | 87340 | 200066512 | CC Élan Limousin Avenir Nature
+87029 | Les Cars | 87230 | 200070506 | CC Pays de Nexon Monts de Chalus
+87074 | Les Grands-Chézeaux | 87160 | 200071942 | CC Haut Limousin en Marche
+87189 | Les Salles-Lavauguyon | 87440 | 200059400 | CC Porte Océane du Limousin
+87085 | Limoges | 87000 87100 87280 | 248719312 | CU Limoges Métropole
+87086 | Linards | 87130 | 248719338 | CC Briance-Combade
+87087 | Lussac-les-Églises | 87360 | 200071942 | CC Haut Limousin en Marche
+87088 | Magnac-Bourg | 87380 | 200040814 | CC Briance Sud Haute Vienne
+87089 | Magnac-Laval | 87190 | 200071942 | CC Haut Limousin en Marche
+87090 | Mailhac-sur-Benaize | 87160 | 200071942 | CC Haut Limousin en Marche
+87091 | Maisonnais-sur-Tardoire | 87440 | 200066520 | CC Ouest Limousin
+87092 | Marval | 87440 | 200066520 | CC Ouest Limousin
+87093 | Masléon | 87130 | 248719338 | CC Briance-Combade
+87094 | Meilhac | 87800 | 200070506 | CC Pays de Nexon Monts de Chalus
+87095 | Meuzac | 87380 | 200040814 | CC Briance Sud Haute Vienne
+87099 | Moissannes | 87400 | 248719361 | CC de Noblat
+87100 | Montrol-Sénard | 87330 | 200071942 | CC Haut Limousin en Marche
+87101 | Mortemart | 87330 | 200071942 | CC Haut Limousin en Marche
+87103 | Nantiat | 87140 | 200066512 | CC Élan Limousin Avenir Nature
+87104 | Nedde | 87120 | 248719353 | CC des Portes de Vassivière
+87105 | Neuvic-Entier | 87130 | 248719338 | CC Briance-Combade
+87106 | Nexon | 87800 | 200070506 | CC Pays de Nexon Monts de Chalus
+87107 | Nieul | 87510 | 200066512 | CC Élan Limousin Avenir Nature
+87108 | Nouic | 87330 | 200071942 | CC Haut Limousin en Marche
+87109 | Oradour-Saint-Genest | 87210 | 200071942 | CC Haut Limousin en Marche
+87110 | Oradour-sur-Glane | 87520 | 200059400 | CC Porte Océane du Limousin
+87111 | Oradour-sur-Vayres | 87150 | 200066520 | CC Ouest Limousin
+87112 | Pageas | 87230 | 200070506 | CC Pays de Nexon Monts de Chalus
+87114 | Panazol | 87350 | 248719312 | CU Limoges Métropole
+87115 | Pensol | 87440 | 200066520 | CC Ouest Limousin
+87116 | Peyrat-de-Bellac | 87300 | 200071942 | CC Haut Limousin en Marche
+87117 | Peyrat-le-Château | 87470 | 248719353 | CC des Portes de Vassivière
+87118 | Peyrilhac | 87510 | 248719312 | CU Limoges Métropole
+87119 | Pierre-Buffière | 87260 | 200040814 | CC Briance Sud Haute Vienne
+87121 | Rancon | 87290 | 248719262 | CC Gartempe - Saint Pardoux
+87122 | Razès | 87640 | 200066512 | CC Élan Limousin Avenir Nature
+87123 | Rempnat | 87120 | 248719353 | CC des Portes de Vassivière
+87124 | Rilhac-Lastours | 87800 | 200070506 | CC Pays de Nexon Monts de Chalus
+87125 | Rilhac-Rancon | 87570 | 248719312 | CU Limoges Métropole
+87126 | Rochechouart | 87600 | 200059400 | CC Porte Océane du Limousin
+87129 | Royères | 87400 | 248719361 | CC de Noblat
+87130 | Roziers-Saint-Georges | 87130 | 248719338 | CC Briance-Combade
+87131 | Saillat-sur-Vienne | 87720 | 200059400 | CC Porte Océane du Limousin
+87132 | Saint-Amand-le-Petit | 87120 | 248719353 | CC des Portes de Vassivière
+87133 | Saint-Amand-Magnazeix | 87290 | 248719262 | CC Gartempe - Saint Pardoux
+87135 | Saint-Auvent | 87310 | 200066520 | CC Ouest Limousin
+87137 | Saint-Bazile | 87150 | 200066520 | CC Ouest Limousin
+87138 | Saint-Bonnet-Briance | 87260 | 248719361 | CC de Noblat
+87139 | Saint-Bonnet-de-Bellac | 87300 | 200071942 | CC Haut Limousin en Marche
+87140 | Saint-Brice-sur-Vienne | 87200 | 200059400 | CC Porte Océane du Limousin
+87141 | Saint-Cyr | 87310 | 200066520 | CC Ouest Limousin
+87142 | Saint-Denis-des-Murs | 87400 | 248719361 | CC de Noblat
+87143 | Saint-Gence | 87510 | 248719312 | CU Limoges Métropole
+87144 | Saint-Genest-sur-Roselle | 87260 | 200040814 | CC Briance Sud Haute Vienne
+87145 | Saint-Georges-les-Landes | 87160 | 200071942 | CC Haut Limousin en Marche
+87146 | Saint-Germain-les-Belles | 87380 | 200040814 | CC Briance Sud Haute Vienne
+87147 | Saint-Gilles-les-Forêts | 87130 | 248719338 | CC Briance-Combade
+87148 | Saint-Hilaire-Bonneval | 87260 | 200040814 | CC Briance Sud Haute Vienne
+87149 | Saint-Hilaire-la-Treille | 87190 | 200071942 | CC Haut Limousin en Marche
+87150 | Saint-Hilaire-les-Places | 87800 | 200070506 | CC Pays de Nexon Monts de Chalus
+87151 | Saint-Jean-Ligoure | 87260 | 200070506 | CC Pays de Nexon Monts de Chalus
+87152 | Saint-Jouvent | 87510 | 200066512 | CC Élan Limousin Avenir Nature
+87153 | Saint-Julien-le-Petit | 87460 | 248719353 | CC des Portes de Vassivière
+87154 | Saint-Junien | 87200 | 200059400 | CC Porte Océane du Limousin
+87155 | Saint-Junien-les-Combes | 87300 | 200071942 | CC Haut Limousin en Marche
+87156 | Saint-Just-le-Martel | 87590 | 248719312 | CU Limoges Métropole
+87157 | Saint-Laurent-les-Églises | 87240 | 200066512 | CC Élan Limousin Avenir Nature
+87158 | Saint-Laurent-sur-Gorre | 87310 | 200066520 | CC Ouest Limousin
+87159 | Saint-Léger-la-Montagne | 87340 | 200066512 | CC Élan Limousin Avenir Nature
+87160 | Saint-Léger-Magnazeix | 87190 | 200071942 | CC Haut Limousin en Marche
+87161 | Saint-Léonard-de-Noblat | 87400 | 248719361 | CC de Noblat
+87163 | Saint-Martial-sur-Isop | 87330 | 200071942 | CC Haut Limousin en Marche
+87164 | Saint-Martin-de-Jussac | 87200 | 200059400 | CC Porte Océane du Limousin
+87165 | Saint-Martin-le-Mault | 87360 | 200071942 | CC Haut Limousin en Marche
+87166 | Saint-Martin-le-Vieux | 87700 | 248719288 | CC du Val de Vienne
+87167 | Saint-Martin-Terressus | 87400 | 248719361 | CC de Noblat
+87168 | Saint-Mathieu | 87440 | 200066520 | CC Ouest Limousin
+87169 | Saint-Maurice-les-Brousses | 87800 | 200070506 | CC Pays de Nexon Monts de Chalus
+87170 | Saint-Méard | 87130 | 248719338 | CC Briance-Combade
+87172 | Saint-Ouen-sur-Gartempe | 87300 | 200071942 | CC Haut Limousin en Marche
+87128 | Saint-Pardoux-le-Lac | 87140 87250 | 248719262 | CC Gartempe - Saint Pardoux
+87174 | Saint-Paul | 87260 | 248719361 | CC de Noblat
+87176 | Saint-Priest-Ligoure | 87800 | 200070506 | CC Pays de Nexon Monts de Chalus
+87177 | Saint-Priest-sous-Aixe | 87700 | 248719288 | CC du Val de Vienne
+87178 | Saint-Priest-Taurion | 87480 | 200066512 | CC Élan Limousin Avenir Nature
+87179 | Saint-Sornin-la-Marche | 87210 | 200071942 | CC Haut Limousin en Marche
+87180 | Saint-Sornin-Leulac | 87290 | 248719262 | CC Gartempe - Saint Pardoux
+87181 | Saint-Sulpice-Laurière | 87370 | 200066512 | CC Élan Limousin Avenir Nature
+87182 | Saint-Sulpice-les-Feuilles | 87160 | 200071942 | CC Haut Limousin en Marche
+87183 | Saint-Sylvestre | 87240 | 200066512 | CC Élan Limousin Avenir Nature
+87185 | Saint-Victurnien | 87420 | 200059400 | CC Porte Océane du Limousin
+87186 | Saint-Vitte-sur-Briance | 87380 | 200040814 | CC Briance Sud Haute Vienne
+87187 | Saint-Yrieix-la-Perche | 87500 | 248700189 | CC du Pays de Saint Yrieix
+87188 | Saint-Yrieix-sous-Aixe | 87700 | 248719288 | CC du Val de Vienne
+87134 | Sainte-Anne-Saint-Priest | 87120 | 248719353 | CC des Portes de Vassivière
+87162 | Sainte-Marie-de-Vaux | 87420 | 200066520 | CC Ouest Limousin
+87190 | Sauviat-sur-Vige | 87400 | 248719361 | CC de Noblat
+87191 | Séreilhac | 87620 | 248719288 | CC du Val de Vienne
+87192 | Solignac | 87110 | 248719312 | CU Limoges Métropole
+87193 | Surdoux | 87130 | 248719338 | CC Briance-Combade
+87194 | Sussac | 87130 | 248719338 | CC Briance-Combade
+87195 | Tersannes | 87360 | 200071942 | CC Haut Limousin en Marche
+87197 | Thouron | 87140 | 200066512 | CC Élan Limousin Avenir Nature
+87097 | Val d'Issoire | 87330 | 200071942 | CC Haut Limousin en Marche
+87028 | Val-d'Oire-et-Gartempe | 87320 87330 | 200071942 | CC Haut Limousin en Marche
+87198 | Vaulry | 87140 | 200066512 | CC Élan Limousin Avenir Nature
+87199 | Vayres | 87600 | 200059400 | CC Porte Océane du Limousin
+87200 | Verneuil-Moustiers | 87360 | 200071942 | CC Haut Limousin en Marche
+87201 | Verneuil-sur-Vienne | 87430 | 248719312 | CU Limoges Métropole
+87202 | Veyrac | 87520 | 248719312 | CU Limoges Métropole
+87203 | Vicq-sur-Breuilh | 87260 | 200040814 | CC Briance Sud Haute Vienne
+87204 | Videix | 87600 | 200059400 | CC Porte Océane du Limousin
+87206 | Villefavard | 87190 | 200071942 | CC Haut Limousin en Marche

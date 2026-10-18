@@ -7,7 +7,7 @@ tags: [conseil en évolution professionnelle, CEP, accompagnement gratuit, proje
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "conseil en évolution professionnelle"
     definition: "Accompagnement gratuit et personnalisé pour faire le point sur sa situation, explorer des pistes d'évolution et construire un plan d'action, avec les financements."

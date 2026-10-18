@@ -1089,6 +1089,13 @@ h1 { font-size: 2.8rem; font-weight: 900; color: var(--text-strong); }
 }
 .sous-carte-accueil strong { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; }
 .sous-carte-accueil span { display: block; font-size: 0.82rem; color: var(--text-muted); }
+/* « Qui fait quoi », écran des secteurs : les trois portes d'entrée (offres publiées, intérim, insertion) se distinguent des 21 secteurs sans leur faire concurrence : un peu plus grandes, bordure d'accent. */
+.sous-carte-accueil.mt-porte { flex: 1 1 15rem; max-width: 20rem; padding: 1.4rem 1.1rem; border-color: var(--accent); }
+/* Survol (et clavier) : la carte prend un léger bleu clair, pour voir où se trouve la souris. Valable aussi en mode sombre (mélange de l'accent et du fond de la carte). */
+.sous-carte-accueil.mt-porte:hover, .sous-carte-accueil.mt-porte:focus-visible { background: var(--accent-bg-subtle); background: color-mix(in srgb, var(--accent) 14%, var(--bg-subtle)); }
+.sous-carte-accueil.mt-porte i { font-size: 2.2rem; }
+.sous-carte-accueil.mt-porte strong { font-size: 1.1rem; }
+.sous-carte-accueil.mt-porte span { font-size: 0.9rem; }
 /* Icone d'accent devant le titre d'un panneau de carte (comme la maquette :
    picto accent + titre, jamais un emoji). */
 .titre-icone-accent { color: var(--accent); margin-right: 0.15rem; }
@@ -1897,6 +1904,11 @@ select.form-select.select-type-structure {
    (Expérience/Ce que vous faisiez/Environnement/Attentes) -- meme valeur de
    padding-bottom, pour la meme raison (reserver la place de .barre-navigation-fixe). */
 .page-catalogue-contenu { padding-bottom: 5.5rem; }
+/* « Qui fait quoi » : les employeurs d'un secteur en grille (1 colonne sur téléphone, jusqu'à 4 sur grand écran), lus de gauche à droite puis ligne par ligne. */
+.mt-grille-employeurs { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(14rem, calc((100% - 3rem) / 4)), 1fr)); gap: 1rem; align-items: stretch; margin-bottom: 1rem; }
+.mt-grille-employeurs > .comprendre-le-cadre-encart { margin: 0 !important; }
+.mt-carte-employeur { margin: 0 !important; display: flex; flex-direction: column; align-items: flex-start; }
+.mt-carte-employeur .btn { margin-top: auto; }
 
 /* TACHE (complement) : barre de navigation fixee en bas de l'ecran, toujours
    visible sans defilement -- desormais utilisee sur "Mon projet" ET les
@@ -4816,6 +4828,8 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 
 /* Zones de texte plus grandes (retour Denis 2026-10-01) : champs des cartes Stage, Alternance et Formation, « Vos disponibilites », nom du recruteur. */
 .form-control.champ-grand { min-height: 2.9rem; font-size: 1.05rem; padding: 0.55rem 0.85rem; }
+/* Champ bien visible (retour Denis 2026-10-16) : un champ où la personne tape (recherche, commune) a une bordure d'accent marquée et une taille confortable. Les couleurs viennent de la règle partagée avec « Un CV, plusieurs métiers » (juste en dessous). */
+.form-control.champ-bien-visible { min-height: 2.9rem; font-size: 1.05rem; padding: 0.55rem 0.85rem; }
 
 /* ---------------- Module « Un CV, plusieurs métiers » : encadré, portées, champs marqués (retours de Denis, 2026-10-10) ---------------- */
 .ucpm-encadre { display: flex; gap: .75rem; align-items: flex-start; background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .75rem 1rem; margin-bottom: 1rem; color: var(--text-strong); }
@@ -4832,10 +4846,20 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 .ucpm-portee.is-actif { border-color: var(--accent); background: var(--accent-bg-subtle); box-shadow: 0 0 0 2px var(--accent) inset; }
 .ucpm-portee-titre { font-weight: 600; }
 .ucpm-portee-resume { font-size: .85rem; color: var(--text-muted); }
+/* Où en est l'objectif de chaque colonne (retour de Denis, 2026-10-13) : le oui et le non se voient d'un coup d'œil, sans dépendre de la seule couleur (signe et mots). */
+.ucpm-portee-resume.is-ok, .ucpm-statuts li.is-ok { color: var(--success-strong); }
+.ucpm-portee-resume.is-vide, .ucpm-statuts li.is-vide { color: var(--warning-strong); }
+.ucpm-statuts { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; gap: .3rem; }
+.ucpm-statuts li { padding: .35rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); }
+.ucpm-statuts li.is-ok { border-color: var(--success); background: var(--success-bg-subtle); }
+.ucpm-statuts li.is-vide { border-color: var(--warning-border); background: var(--warning-bg-subtle); }
+.ucpm-statut-signe { font-weight: 700; }
+.ucpm-question { border: 2px solid var(--accent); border-radius: 10px; padding: .75rem 1rem; background: var(--bg-card); margin-bottom: .75rem; }
+.ucpm-note-reprise { font-size: .9rem; padding: .45rem .7rem; border-radius: 8px; background: var(--accent-bg-subtle); border-left: 4px solid var(--accent); }
 .ucpm-facultatif { font-size: .85rem; color: var(--text-muted); font-weight: 400; }
 /* Ce que la personne peut remplir ou choisir : bordure marquee, fond de carte, fleche des menus visible. Ce qui est seulement affiche reste discret. */
-#ucpmPanneauObjectif .form-control, #ucpmPanneauObjectif .form-select, #ucpmPanneauObjectif textarea { border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--bg-card)); background-color: var(--bg-card); color: var(--text-strong); }
-#ucpmPanneauObjectif .form-control:focus, #ucpmPanneauObjectif .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
+.form-control.champ-bien-visible, #ucpmPanneauObjectif .form-control, #ucpmPanneauObjectif .form-select, #ucpmPanneauObjectif textarea { border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--bg-card)); background-color: var(--bg-card); color: var(--text-strong); }
+.form-control.champ-bien-visible:focus, #ucpmPanneauObjectif .form-control:focus, #ucpmPanneauObjectif .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg-subtle); }
 #ucpmPanneauObjectif .jeton { border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--bg-card)); }
 #ucpmPanneauObjectif .jeton.is-actif { border-color: var(--accent); }
 
@@ -4844,3 +4868,10 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 .btn-complement-cv:hover, .btn-complement-cv:focus { background: var(--bg-hover); color: var(--accent-hover); border-color: var(--accent-hover); }
 .complement-cv-banniere { background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; color: var(--text-strong); }
 
+
+/* Le bouton de départ d'une page d'introduction, repris dans la barre du bas : libellé complet sur grand écran, libellé court sur téléphone (la barre n'a pas la place). */
+.lib-intro-court { display: none; }
+@media (max-width: 575px) {
+  .lib-intro-long { display: none; }
+  .lib-intro-court { display: inline; }
+}

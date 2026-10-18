@@ -23,13 +23,7 @@ sources:
   - "institut-engagement | Institut de l'Engagement | https://www.engagement.fr/ | 2026-09-08"
   - "agefiph-aides-financieres | Les aides financières de l'AGEFIPH | https://www.agefiph.fr/aides-financieres | 2026-09-05"
 structures:
-  - "mon-cep-operateur-nouvelle-aquitaine | Opérateur régional du conseil en évolution professionnelle pour la Nouvelle-Aquitaine (salariés et indépendants du privé), sélectionné par France compétences | https://mon-cep.org/ | 2026-09-04"
-  - "transitions-pro-nouvelle-aquitaine | Transitions Pro Nouvelle-Aquitaine : instruit les projets de transition professionnelle, la VAE inversée et le dispositif démission-reconversion | https://www.transitionspro-na.fr/ | 2026-09-04"
   - "apec | APEC : conseil en évolution professionnelle pour les cadres et les jeunes diplômés du supérieur | https://www.apec.fr/ | 2026-09-04"
-  - "france-travail-formation | France Travail : conseil, financement des formations pour les demandeurs d'emploi (aide individuelle à la formation, actions de formation conventionnées), rémunération de formation | https://www.francetravail.fr/ | 2026-09-04"
-  - "conseil-regional-nouvelle-aquitaine-formation | Région Nouvelle-Aquitaine : programme régional de formation, aides à la formation des demandeurs d'emploi | https://www.nouvelle-aquitaine.fr/ | 2026-09-04"
-  - "france-vae-point-relais-conseil | Points relais conseil VAE de la Dordogne : information et premier conseil gratuits sur la validation des acquis | https://france-vae.gouv.fr/ | 2026-09-04"
-  - "afpa-greta-cnam-dordogne | AFPA, réseau des GRETA, CNAM : principaux organismes de formation pour adultes présents en Dordogne | https://www.afpa.fr/ | 2026-09-04"
   - "asso-mission-locale-du-bergeracois-24 | Mission locale du Bergeracois : conseil en évolution professionnelle pour les 16-25 ans, et Espace régional d'information de proximité (ERIP) ouvert à tout public (métiers, formation, reconversion, création d'activité), sur le Sud Dordogne (24) | https://www.missionlocaledubergeracois.com/ | 2026-09-07"
   - "asso-mission-locale-du-grand-perigueux-24 | Mission locale du Grand Périgueux : conseil en évolution professionnelle et accompagnement à la formation pour les 16-25 ans de la communauté d'agglomération du Grand Périgueux (24) | https://www.ml-grandperigueux.fr/ | 2026-09-07"
 ---

@@ -7,7 +7,7 @@ tags: [retraite progressive, fin de carrière, temps partiel, pension, 60 ans, t
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "retraite progressive"
     definition: "Dispositif qui permet, en fin de carrière, de passer à temps partiel tout en touchant une partie de sa pension de retraite, et en continuant à cotiser."

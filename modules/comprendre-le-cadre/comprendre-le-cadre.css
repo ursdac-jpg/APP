@@ -27,8 +27,7 @@
    Seule différence : la grille des rayons n'est pas centrée comme dans
    une fenêtre étroite, elle démarre à gauche (plus naturel pour une
    longue liste au lieu de 3-4 tuiles). */
-#comprendreLeCadreRayons .grille-sous-cartes-accueil,
-#comprendreLeCadreOutils .grille-sous-cartes-accueil {
+#comprendreLeCadreRayons .grille-sous-cartes-accueil {
   justify-content: flex-start;
 }
 
@@ -384,6 +383,9 @@
   overflow: hidden;
 }
 .comprendre-le-cadre-depli:first-of-type { margin-top: 1.5rem; }
+/* Dépliant du haut de l'accueil (« Comment sont faites ces fiches ? ») : pas la grande marge du premier dépliant du bas. */
+.comprendre-le-cadre-depli.comprendre-le-cadre-depli--haut { margin: 0 0 1rem; }
+#comprendreLeCadreRayons + .comprendre-le-cadre-depli { margin-top: 1.5rem; }
 .comprendre-le-cadre-depli > summary {
   list-style: none;
   cursor: pointer;
@@ -421,49 +423,172 @@
   font-size: .9rem;
 }
 
-/* Digest « Ce qui a changé récemment » (retour Denis 2026-09-14 :
-   plusieurs changements d'un même domaine se lisaient comme un seul
-   bloc de texte continu, sans séparation). Un changement = une carte,
-   même habillage que .comprendre-le-cadre-encart. Le nombre de
-   changements à côté du nom du domaine (même pastille que
-   .comprendre-le-cadre-source-date) permet de voir d'un coup d'oeil où
-   il y a du nouveau sans ouvrir chaque domaine. */
+/* Digest « Ce qui a changé récemment ». Retours Denis 2026-09-14 (un
+   changement = une carte) et 2026-10-15 (bien plus lisible, sources
+   visibles, nombre de changements touchable sur téléphone) : domaines
+   repliables, « Ce qui change » en bandeau, dates et nature en pastilles,
+   source en vrai bouton. Que des jetons du thème : clair et sombre. */
+
+/* Grande carte d'accès en tête de l'accueil. */
+.comprendre-le-cadre-une-bloc { margin: 0 0 1rem; }
+.comprendre-le-cadre-une {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text-strong);
+  background: var(--accent-bg-subtle);
+  border: 2px solid var(--accent);
+  border-radius: 1rem;
+  padding: .9rem 1rem;
+  cursor: pointer;
+}
+.comprendre-le-cadre-une:hover { background: var(--bg-hover); }
+.comprendre-le-cadre-une:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.comprendre-le-cadre-une-icone { color: var(--accent); font-size: 1.8rem; flex-shrink: 0; }
+.comprendre-le-cadre-une-texte { flex: 1 1 12rem; min-width: 0; }
+.comprendre-le-cadre-une-texte > strong { display: block; font-size: 1.02rem; }
+.comprendre-le-cadre-une-texte > span { display: block; font-size: .84rem; color: var(--text-muted); margin-top: .15rem; }
+.comprendre-le-cadre-une-nombre {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--bg-card);
+  border-radius: 999px;
+  padding: .02rem .6rem;
+  font-size: .8rem;
+  margin-left: .3rem;
+  white-space: nowrap;
+}
+.comprendre-le-cadre-une-cta {
+  flex-shrink: 0;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: .3rem .8rem;
+  font-weight: 700;
+  font-size: .84rem;
+  white-space: nowrap;
+}
+@media (max-width: 575px) {
+  .comprendre-le-cadre-une { flex-wrap: wrap; }
+  .comprendre-le-cadre-une-cta { margin-left: 2.6rem; }
+}
+
+/* Résumé en tête du digest. */
+.comprendre-le-cadre-digest-resume {
+  background: var(--accent-bg-subtle);
+  border: 1px solid var(--accent);
+  border-radius: .8rem;
+  padding: .8rem 1rem;
+  color: var(--text-strong);
+}
+.comprendre-le-cadre-digest-resume-periode { font-weight: 800; font-size: 1.05rem; }
+
+/* Un domaine = un panneau repliable ; le résumé (ligne cliquable) porte le
+   nom et le nombre de changements, zone de toucher d'au moins 44 px. */
+.comprendre-le-cadre-digest-panneau { margin-top: 1rem; }
 .comprendre-le-cadre-digest-domaine {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: .5rem;
-  padding-bottom: .4rem;
+  min-height: 44px;
+  padding: .35rem .2rem;
   border-bottom: 1px solid var(--border);
   color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  font-weight: 800;
+  font-size: .86rem;
+  text-transform: uppercase;
 }
+.comprendre-le-cadre-digest-domaine::-webkit-details-marker { display: none; }
+.comprendre-le-cadre-digest-domaine:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .comprendre-le-cadre-digest-badge {
-  padding: .08rem .55rem;
-  border-radius: .4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .2rem .7rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
   background: var(--accent-bg-subtle);
   color: var(--accent);
-  font-size: .78rem;
+  font-size: .82rem;
   font-weight: 700;
   text-transform: none;
-  cursor: help;
 }
+.comprendre-le-cadre-digest-panneau[open] .comprendre-le-cadre-digest-badge i { transform: rotate(180deg); }
+.comprendre-le-cadre-digest-vide {
+  padding: .5rem .2rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: .86rem;
+}
+.comprendre-le-cadre-digest-vide-nom { font-weight: 800; text-transform: uppercase; font-size: .8rem; display: block; }
+.comprendre-le-cadre-digest-vide p { margin: 0; }
+
+/* Un changement = une carte. */
 .comprendre-le-cadre-digest-item {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  border-radius: .5rem;
+  border-radius: .6rem;
   padding: .9rem 1rem;
-  margin-bottom: .9rem;
+  margin-top: .8rem;
 }
-.comprendre-le-cadre-digest-item-titre {
-  color: var(--text-strong);
-  font-size: 1.02rem;
-}
+.comprendre-le-cadre-digest-item-titre { color: var(--text-strong); font-size: 1.08rem; }
 .comprendre-le-cadre-digest-cle {
   color: var(--text-strong);
+  font-size: 1.02rem;
+  background: var(--accent-bg-subtle);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 .4rem .4rem 0;
+  padding: .5rem .7rem;
 }
+.comprendre-le-cadre-digest-cle strong { color: var(--accent); }
+.comprendre-le-cadre-digest-concerne { color: var(--text-strong); }
 .comprendre-le-cadre-digest-source {
   border-top: 1px dashed var(--border);
-  padding-top: .5rem;
-  margin-top: .6rem !important;
+  padding-top: .6rem;
+  margin-top: .7rem !important;
 }
 .comprendre-le-cadre-digest-note:first-child { margin-top: 0; }
+
+/* Pastilles : nature du texte, dates. Texte toujours lisible (clair et sombre). */
+.comprendre-le-cadre-digest-pastilles { display: flex; flex-wrap: wrap; gap: .35rem; }
+.comprendre-le-cadre-pastille {
+  display: inline-block;
+  border-radius: .6rem;
+  padding: .12rem .6rem;
+  font-size: .8rem;
+  font-weight: 700;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-muted);
+}
+.comprendre-le-cadre-pastille--v { background: var(--success-bg-subtle); border-color: var(--success); color: var(--success-strong); }
+.comprendre-le-cadre-pastille--a { background: var(--warning-bg-subtle); border-color: var(--warning-border); color: var(--warning-strong); }
+
+/* Source : un vrai bouton, jamais un lien-texte. */
+.comprendre-le-cadre-digest-btn-source {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 40px;
+  padding: .3rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: .88rem;
+  text-decoration: none;
+}
+.comprendre-le-cadre-digest-btn-source:hover { background: var(--accent-bg-subtle); }
+.comprendre-le-cadre-digest-btn-source:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.comprendre-le-cadre-digest-liste-sources { list-style: none; padding: 0; margin: 0 0 .6rem; }
+.comprendre-le-cadre-digest-liste-sources li { padding: .5rem 0; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.comprendre-le-cadre-digest-liste-sources li > span:first-of-type { flex: 1 1 14rem; }
+.comprendre-le-cadre-digest-liste-sources .comprendre-le-cadre-digest-btn-source { min-height: 34px; padding: .15rem .8rem; font-size: .82rem; }

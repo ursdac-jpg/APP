@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le sas des changements</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--ko:#b3261e}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--ko:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 60px}
+.page{max-width:1000px;margin:0 auto}
+h1{font-size:1.5rem;margin:1.2rem 0 .3rem}h2{font-size:1.2rem;margin:2.2rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:999px;padding:.35rem .9rem;font-weight:600}
+.btn.plein{background:var(--acc);color:var(--card)}.btn.ok{border-color:var(--ok);color:var(--ok)}.btn.ko{border-color:var(--ko);color:var(--ko)}
+.theme{position:fixed;top:10px;right:10px;z-index:5}
+.rouge{color:#c0261b;font-weight:800}[data-theme="sombre"] .rouge{color:#ff8a80}
+.fiche{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.7rem .9rem;margin:.7rem 0}
+.fiche h3{margin:0 0 .3rem;font-size:1rem}
+.badge{display:inline-block;border-radius:999px;padding:0 .55rem;font-size:.74rem;font-weight:700;background:var(--sub);color:var(--muted);border:1px solid var(--bord);margin-left:.3rem}
+.badge.a{background:var(--warnbg);color:var(--warn);border-color:var(--warn)}.badge.v{background:var(--okbg);color:var(--ok);border-color:var(--ok)}
+.ligne{display:flex;flex-wrap:wrap;gap:.4rem .8rem;border-top:1px solid var(--bord);padding:.4rem 0;font-size:.92rem;align-items:center}
+.ligne .e{flex:0 0 11rem;color:var(--muted)}
+.champ{border:1px solid var(--bord);background:var(--card);color:var(--txt);border-radius:6px;padding:.2rem .5rem;min-width:11rem}
+.champ.attendu{border:2px solid var(--warn)}
+.barre{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;border-top:1px solid var(--bord);margin-top:1rem;padding-top:.7rem}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+.tableau{width:100%;border-collapse:collapse;font-size:.88rem;margin:.6rem 0}.tableau th,.tableau td{border:1px solid var(--bord);padding:.4rem .5rem;vertical-align:top;text-align:left}.tableau th{background:var(--sub)}
+.appli{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.7rem .9rem;max-width:420px}
+.pastille{display:inline-block;border-radius:.6rem;padding:.12rem .6rem;font-size:.8rem;font-weight:700;border:1px solid var(--bord);background:var(--card);color:var(--muted);margin:.1rem .2rem .1rem 0}
+.pastille.v{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.flux{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.6rem 0}.flux .etape{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.4rem .7rem;font-size:.86rem}.flux .fl{color:var(--muted)}
+</style>
+</head>
+<body data-theme="clair">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<div class="page">
+<h1>Maquette : valider les informations de la veille, comme dans le sas « Qui fait quoi »</h1>
+<p class="muted">Demande de Denis du 2026-10-15. <b>Rien n'est codé.</b> Cette page sert à choisir. <span class="rouge">EFFORT : HAUT</span> (Mode A : nouvel écran de l'outil, règle de publication, décisions de conception).</p>
+
+<h2>0. Ce que vous demandez, ramené à une règle simple</h2>
+<ul>
+<li><b>Rien n'est publié dans l'application sans votre validation</b> (ou la mienne, sur votre demande). Tout ce que le balayage ramène arrive d'abord dans un <b>sas</b>, invisible du public.</li>
+<li>Dans le sas, pour chaque information : <b>ouvrir la source, modifier, valider ou écarter</b>, comme pour les numéros de téléphone.</li>
+<li>Dans l'application, on ne voit que ce qui est <b>validé</b>, avec une marque verte « Vérifié le … ». Jamais la mention « à vérifier » (elle laisse croire qu'une information possiblement fausse est publiée).</li>
+</ul>
+
+<h2>1. Ce que j'ai constaté dans l'outil de veille actuel</h2>
+<ul>
+<li><b>Le balayage aujourd'hui</b> : on colle la réponse de l'assistant, l'outil fabrique <b>tout le fichier du trimestre d'un coup</b> (<code>contenu/balayage/&lt;mois&gt;.md</code>) et vous le déposez en bloc. Il n'y a <b>aucune validation changement par changement</b>. C'est pour ça qu'un « en vigueur à vérifier » a pu arriver jusqu'à l'application.</li>
+<li><b>Le modèle à copier existe</b> : le sas de « Qui fait quoi » (Dépôt, section 5) fait déjà exactement ce que vous décrivez pour les structures, les employeurs et les numéros (cartes, « Ouvrir la page », choix en attente, « Enregistrer », « Tout annuler », vérifications automatiques, annulation).</li>
+<li><b>Les fiches des rayons</b> : elles sont relues par vous à l'étape 5 avant dépôt, mais n'ont pas de statut « en attente ». Aujourd'hui les 127 fiches sont toutes « actif ».</li>
+</ul>
+
+<h2>2. Le circuit proposé</h2>
+<div class="flux">
+<span class="etape">Réponse de l'assistant (balayage)</span><span class="fl">→</span>
+<span class="etape"><b>Sas des changements</b> (invisible)</span><span class="fl">→</span>
+<span class="etape">Vous : ouvrir la source, corriger, <b>valider</b></span><span class="fl">→</span>
+<span class="etape">Vérifications automatiques</span><span class="fl">→</span>
+<span class="etape">Digest du trimestre (public), marque verte</span>
+</div>
+
+<h2>3. L'écran du sas des changements (même formule que le sas des numéros)</h2>
+<p class="muted">Un nouveau bouton « 6. Les changements du trimestre » dans le panneau Dépôt, juste sous « 5. Qui fait quoi ».</p>
+
+<div class="fiche">
+<h3>Rupture conventionnelle dans la fonction publique <span class="badge a">date d'entrée en vigueur à confirmer</span></h3>
+<div class="ligne"><span class="e">Ce qui change</span><span>Décret fixant la procédure de rupture conventionnelle ; décret sur l'indemnité spécifique ; arrêté fixant les modèles de convention.</span></div>
+<div class="ligne"><span class="e">Concerne</span><span>Agents de la fonction publique et employeurs publics</span></div>
+<div class="ligne"><span class="e">Nature et date du texte</span><span><input class="champ" value="décrets et arrêté du 2026-08-06"></span></div>
+<div class="ligne"><span class="e">En vigueur le</span><span><input class="champ attendu" placeholder="AAAA-MM-JJ, obligatoire"> <span class="small muted">(le bouton « C'est bon » reste grisé tant que ce champ est vide)</span></span></div>
+<div class="ligne"><span class="e">Source</span><span>https://www.fonction-publique.gouv.fr/… <button class="btn" type="button">Ouvrir la page</button></span></div>
+<div class="ligne"><span class="e">Domaine</span><span>Emploi et contrats de travail</span></div>
+<div class="barre"><button class="btn ok" type="button">C'est bon, publier</button><button class="btn" type="button">Modifier le texte</button><button class="btn ko" type="button">Écarter</button></div>
+</div>
+
+<div class="barre"><span class="small muted">Page 1 sur 2</span><span><b>3</b> choix en attente</span><button class="btn plein" type="button">Enregistrer</button><button class="btn" type="button">Tout annuler</button></div>
+
+<h2>4. Ce que verra le public après validation</h2>
+<div class="appli">
+<b>Rupture conventionnelle dans la fonction publique : nouveaux textes</b><br>
+<span class="pastille">Décrets et arrêté du 6 août 2026</span><span class="pastille v">En vigueur le 8 août 2026</span><span class="pastille v">✔ Vérifié le 15 oct. 2026</span>
+<p class="small">Concerne : agents de la fonction publique et employeurs publics</p>
+</div>
+<p class="small muted">Un changement non validé n'apparaît pas du tout : ni « à vérifier », ni titre.</p>
+
+<h2>5. Décisions à prendre</h2>
+<table class="tableau">
+<tr><th>Question</th><th>Options (bénéfice / risque)</th><th>Ma recommandation</th></tr>
+<tr><td><b>Q1. Que couvre le sas ?</b></td>
+<td><b>A. Les changements du digest seulement.</b> Bénéfice : répond au besoin réel, modèle déjà éprouvé, chantier maîtrisé. Risque : les fiches des rayons restent relues autrement.<br>
+<b>B. Digest + fiches des rayons.</b> Bénéfice : une seule logique « rien sans validation ». Risque : bien plus gros (statut sur 127 fiches, republication, tests) ; à faire en second temps.</td>
+<td><b>A d'abord</b>, puis B dans un chantier séparé une fois A éprouvé.</td></tr>
+<tr><td><b>Q2. Les 15 changements déjà publiés</b> (sans marque « vérifié »)</td>
+<td><b>A. Les laisser visibles</b>, la marque verte n'apparaît que sur ceux validés par le sas. Bénéfice : rien ne disparaît du jour au lendemain. Risque : certains visibles n'ont pas la marque verte, ce qui peut déstabiliser.<br>
+<b>B. Les repasser tous au sas</b> et ne montrer que ceux validés. Bénéfice : cohérence totale. Risque : le digest actuel disparaît tant que vous n'avez pas tout validé (15 cartes).<br>
+<b>C. Les marquer « vérifié le 15 oct. » sans reprise</b>. Bénéfice : immédiat. Risque : fausse la marque, car je n'ai contrôlé que 2 changements sur 16.</td>
+<td><b>B, par petits lots</b> : je les reverse dans le sas, vous validez à votre rythme, le digest se remplit au fur et à mesure. Pendant la transition, le digest actuel reste visible (A) jusqu'à ce que vous ayez fini, pour ne rien casser.</td></tr>
+<tr><td><b>Q3. Qui peut valider ?</b></td>
+<td>Vous, dans l'outil de veille ; moi, sur votre demande (même circuit, mêmes vérifications automatiques). Rien n'est jamais validé tout seul.</td><td>Comme vous l'avez dit. Aucune décision à prendre.</td></tr>
+<tr><td><b>Q4. Champ obligatoire avant « C'est bon »</b></td>
+<td>La date d'entrée en vigueur (ou la mention « pas encore en vigueur » avec la date prévue), la source ouverte, la nature du texte. Bénéfice : impossible de valider un changement incomplet. Risque : un changement dont la date est introuvable reste dans le sas (c'est le but).</td><td>Oui, ces trois champs obligatoires.</td></tr>
+</table>
+
+<div class="verdict"><b>Verdict de faisabilité (audit du code lu).</b> GO. <b>Simple</b> : reprendre le sas existant (<code>outils/veilleSas.js</code>, écran « Qui fait quoi ») avec un 4e type « changements ». <b>Risqué</b> : (1) l'écran de lecture du balayage fabrique aujourd'hui tout le fichier en bloc, il faut le faire verser dans le sas à la place ; (2) la marque « Vérifié le » est un nouveau champ du fichier du digest, à afficher dans l'application et à contrôler par un test. <b>Aucun point bloquant.</b> Réalisation : <span class="rouge">EFFORT : HAUT</span> pour le sas (nouvelle règle de publication), puis moyen pour l'affichage.</div>
+
+<div class="q"><b>Questions pour vous.</b> Q1 : A (digest seulement) ? Q2 : A, B ou C ? Les autres sont des points que je propose de prendre comme indiqués. <b>Ma recommandation : Q1 = A, Q2 = B par petits lots</b>, avec le digest actuel conservé tant que la reprise n'est pas finie.</div>
+
+<h2>6. L'échec d'enregistrement que vous avez eu deux fois (corrigé)</h2>
+<p>Cause trouvée en rejouant l'enregistrement dans une copie du dépôt : l'outil date chaque numéro validé du jour même (15 octobre), mais un test de contrôle des fichiers « Qui fait quoi » comparait avec une <b>date figée au 12 octobre</b>. Il jugeait donc les dates du 15 comme « dans le futur », et l'outil annulait tout. Le test utilise maintenant la vraie date du jour, et l'écran de l'outil <b>liste désormais les contrôles refusés</b> au lieu de se contenter d'un message général. Vous pouvez recommencer vos validations.</p>
+</div>
+<script>
+document.getElementById('bascule').addEventListener('click',function(){var s=document.body.getAttribute('data-theme')==='sombre';document.body.setAttribute('data-theme',s?'clair':'sombre');this.textContent=s?'Mode sombre':'Mode clair';});
+</script>
+</body>
+</html>

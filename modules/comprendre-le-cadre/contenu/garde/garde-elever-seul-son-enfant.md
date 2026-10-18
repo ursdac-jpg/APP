@@ -7,7 +7,7 @@ tags: [parent isolé, famille monoparentale, allocation de soutien familial, RSA
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "allocation de soutien familial (ASF)"
     definition: "Aide de la CAF versée au parent qui élève seul un enfant, quand l'autre parent ne verse pas de pension alimentaire ou en verse une faible."
@@ -31,7 +31,7 @@ Quand un seul parent élève les enfants, la question de la garde pèse plus lou
 
 Pour les places d'accueil, les familles où un parent élève seul les enfants sont prioritaires : pour une place en crèche, pour une place en crèche à vocation d'insertion professionnelle, et pour l'accompagnement vers l'emploi de France Travail.
 
-Le CMG de la CAF est majoré dans cette situation, et il est versé jusqu'aux 12 ans de l'enfant au lieu de 6 ans.
+Le CMG de la CAF est majoré dans cette situation, et il est versé jusqu'aux 12 ans de l'enfant au lieu de 6 ans, si vous employez directement une assistante maternelle ou une garde à domicile.
 
 L'allocation de soutien familial est versée par la CAF au parent qui élève seul un enfant quand l'autre parent ne verse pas de pension alimentaire ou en verse une faible. Le service public des pensions alimentaires, l'Aripa, peut aider à fixer la pension et à la récupérer.
 

@@ -7,7 +7,7 @@ tags: [mutuelle d'entreprise, complémentaire santé, prévoyance, ANI, obligati
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "complémentaire santé collective"
     definition: "Mutuelle d'entreprise que tout employeur du secteur privé doit proposer à ses salariés depuis 2016, avec un panier de soins minimal fixé par la loi."

@@ -7,7 +7,7 @@ tags: [horaires atypiques, accueil occasionnel, halte-garderie, garde d'urgence,
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "accueil occasionnel"
     definition: "Accueil d'un enfant en crèche ou halte-garderie à l'heure ou à la demi-journée, sans contrat régulier, pour répondre à un besoin ponctuel."
@@ -25,7 +25,7 @@ Certaines situations demandent une garde ponctuelle ou en dehors des horaires ha
 
 Plusieurs solutions existent. La halte-garderie et l'accueil occasionnel en crèche permettent de faire garder l'enfant à l'heure ou à la demi-journée, sans contrat régulier. Des crèches et des assistantes maternelles acceptent des horaires atypiques. Quelques villes ont des crèches à horaires élargis.
 
-Le CMG de la CAF couvre aussi l'accueil occasionnel, avec parfois une majoration quand la garde a lieu la nuit, le dimanche ou en horaires décalés.
+Le CMG de la CAF peut aider à payer une assistante maternelle ou une garde à domicile à ces horaires, et certaines CAF ajoutent une aide locale pour les horaires décalés : demandez à la vôtre.
 
 Le relais petite enfance et la CAF savent quelles structures de votre secteur acceptent l'accueil d'urgence ou en horaires décalés.
 

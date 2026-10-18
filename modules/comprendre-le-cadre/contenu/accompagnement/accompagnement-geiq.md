@@ -7,7 +7,7 @@ tags: [GEIQ, alternance, groupement d'employeurs, qualification]
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "GEIQ"
     definition: "Groupement d'employeurs pour l'insertion et la qualification : un groupement d'entreprises qui embauche directement une personne éloignée de l'emploi en alternance, et la met à disposition de ses adhérents à tour de rôle."

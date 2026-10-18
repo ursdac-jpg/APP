@@ -7,7 +7,7 @@ tags: [prépa-apprentissage, école de production, apprentissage, métier, CAP, 
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "prépa-apprentissage"
     definition: "Accompagnement de quelques jours à quelques mois pour se préparer à entrer en apprentissage : découvrir des métiers, consolider les bases, trouver un employeur. Gratuit."

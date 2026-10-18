@@ -133,13 +133,27 @@ function composeurAppliquerRegroupementExperiences(objetCV, regroupementExperien
 
   if (retenuesValides.length === 0 && groupes.length === 0) { return objetCV; }
 
+  // Missions d'une experience retenue : celles de la reponse de l'assistant si elle en donne ; sinon (cv.md ne les redemande plus, 2026-10-10 : elles etaient ecrites
+  // deux fois dans la reponse, avec celles de savoirFaireParExperience) celles de l'experience elle-meme, deja decidees dans objetCV (texte de la personne ou propositions choisies).
+  var missionsDeLExperience = function (r) {
+    if (r.missions && r.missions.length) { return r.missions.join('\n'); }
+    var source = r.type === 'professionnelle' ? experiencesReelles : experiencesPersoReelles;
+    var reelle = source.filter(function (e) {
+      return r.type === 'professionnelle'
+        ? ((e.poste && correspond(e.poste, r.poste)) || (e.entreprise && r.entreprise && correspond(e.entreprise, r.entreprise)))
+        : (e.intitule && correspond(e.intitule, r.intitule));
+    })[0];
+    var m = reelle ? reelle.missions : '';
+    return Array.isArray(m) ? m.join('\n') : String(m || '');
+  };
+
   // Ordre de la liste = ordre de priorite de l'IA, jamais reordonne ici.
   var itemsRetenus = retenuesValides.map(function (r) {
     return {
       poste: r.type === 'professionnelle' ? r.poste : r.intitule,
       entreprise: r.type === 'professionnelle' ? (r.entreprise || '') : '',
       lieu: '', dateDebut: '', dateFin: '',
-      missions: (r.missions || []).join('\n'),
+      missions: missionsDeLExperience(r),
       contrat: ''
     };
   });

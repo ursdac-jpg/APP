@@ -1167,7 +1167,7 @@ function _regardExterieurBrancherBoutonsGarderRepere(racine) {
       var titreFreinStruct = btn.getAttribute('data-frein-structures-locales');
       if (titreFreinStruct) {
         if (typeof ouvrirRenvoiAnnuaire === 'function') {
-          ouvrirRenvoiAnnuaire('Pour « ' + titreFreinStruct + ' », des structures près de chez vous :');
+          ouvrirRenvoiAnnuaire('Pour « ' + titreFreinStruct + ' », des structures près de chez vous :', { freinTitre: titreFreinStruct });
         }
         return;
       }
@@ -3187,7 +3187,7 @@ function regardExterieurOuvrirMesFreins() {
       var btnStruct = e.target.closest('[data-frein-structures-locales]');
       if (btnStruct) {
         if (typeof ouvrirRenvoiAnnuaire === 'function') {
-          ouvrirRenvoiAnnuaire('Pour « ' + btnStruct.getAttribute('data-frein-structures-locales') + ' », des structures près de chez vous :');
+          ouvrirRenvoiAnnuaire('Pour « ' + btnStruct.getAttribute('data-frein-structures-locales') + ' », des structures près de chez vous :', { freinTitre: btnStruct.getAttribute('data-frein-structures-locales') });
         }
         return;
       }

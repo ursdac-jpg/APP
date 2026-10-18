@@ -7,7 +7,7 @@ tags: [aides employeur, apprentissage, alternance, Agefiph, exonérations zonée
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "aide à l'embauche d'un apprenti"
     definition: "Aide financière versée à l'employeur pour un contrat d'apprentissage, renouvelée chaque année par décret et modulée selon la taille de l'entreprise et le niveau de qualification visé."
@@ -21,7 +21,7 @@ collecte: employeurs.collecte.md
 
 À l'inverse des seules obligations et contraintes, des aides financières existent pour certains employeurs qui embauchent - un pan souvent moins connu que les démarches à accomplir.
 
-L'aide à l'embauche d'un apprenti en est un exemple : une somme versée à l'employeur, modulée selon la taille de l'entreprise et le niveau de qualification visé par le contrat. Elle est renouvelée chaque année par décret : son montant et ses conditions exactes changent, à vérifier au moment de la demande plutôt que de se fier à un chiffre déjà ancien.
+L'aide à l'embauche d'un apprenti en est un exemple : une somme versée à l'employeur, modulée selon la taille de l'entreprise et le niveau de qualification visé par le contrat. Pour un contrat signé depuis le 8 mars 2026, elle va jusqu'à 5 000 € dans une entreprise de moins de 250 salariés (6 000 € pour un apprenti en situation de handicap), et nettement moins dans une grande entreprise. Elle est renouvelée chaque année par décret : son montant et ses conditions exactes changent, à vérifier au moment de la demande plutôt que de se fier à un chiffre déjà ancien.
 
 D'autres aides existent pour l'embauche d'un travailleur reconnu handicapé (détaillées côté Agefiph, dans le rayon Handicap et emploi), ou pour l'embauche dans certaines zones du territoire, comme les quartiers prioritaires de la politique de la ville ou les zones France Ruralités Revitalisation (détaillées côté bénéficiaire dans le Lexique et le rayon Emploi).
 

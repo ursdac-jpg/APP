@@ -324,22 +324,23 @@ function _carnetRenduAstuceDictee() {
 // 5bis) : "Retour" d'un ecran de travail repasse par cette page ; un
 // bouton permanent "Revoir la presentation" y ramene depuis l'ecran.
 function _carnetRenduIntro() {
-  return '<div class="page-catalogue-contenu carnet-intro">' +
-    // En detour depuis un ecran de travail : bouton partage qui revient
-    // exactement la ou on etait (meme place / forme / libelle que partout).
-    (_carnetIntroDetour && typeof htmlBoutonRevoirModule === 'function'
-      ? htmlBoutonRevoirModule('btnCarnetRevenirModule', 'bi-journal-text', 'Revenir au module', true)
-      : '') +
-    // TACHE (refonte visuelle 2026-09-09) : le titre de l'intro est habille
-    // en « couverture » de carnet (motif decoratif autour du vrai <h1>).
-    '<div class="carnet-couverture carnet-couverture-intro" aria-hidden="false">' +
+  // Page d'introduction : même gabarit que les autres modules (htmlPageIntroModuleParcours, data/metiers.js) ; propres au Carnet : sa couverture (titre habillé) et le contenu des blocs.
+  return htmlPageIntroModuleParcours({
+    classeExtra: 'carnet-intro',
+    enTeteHTML:
+        '<div class="carnet-couverture carnet-couverture-intro" aria-hidden="false">' +
       '<span class="carnet-couverture-marge" aria-hidden="true"></span>' +
       '<span class="carnet-couverture-lignes" aria-hidden="true"></span>' +
       '<span class="carnet-couverture-signet" aria-hidden="true"></span>' +
       '<h1 class="carnet-couverture-h1"><i class="bi bi-journal-text"></i> Mon Carnet</h1>' +
     '</div>' +
-    '<p class="sousTitre carnet-soustitre">Un espace entièrement à vous pour poser ce qui vous vient, sans décider tout de suite ce que vous en ferez.</p>' +
-
+    '<p class="sousTitre carnet-soustitre">Un espace entièrement à vous pour poser ce qui vous vient, sans décider tout de suite ce que vous en ferez.</p>',
+    multilingueCourte: true,
+    detour: _carnetIntroDetour, detourBoutonId: 'btnCarnetRevenirModule', detourLogo: 'bi-journal-text', detourCtaId: 'btnCarnetIntroRevenir',
+    onRevenirExpr: 'carnetRevenirDeLaPresentation()',
+    ctaId: 'btnCarnetIntroOuvrir', ctaLabel: 'Ouvrir mon Carnet &#8594;',
+    carteRetour: 'boiteaoutils',
+    blocsHTML:
     '<div class="cv-section" style="margin-bottom:1rem;background:var(--accent-bg-subtle);text-align:center;">' +
     '<p class="mb-0"><strong>Rien à préparer, rien à réussir ici.</strong> Beaucoup de choses utiles nous viennent au mauvais moment, puis s’oublient. Le Carnet est l’endroit où vous les posez tout de suite, comme elles viennent.</p>' +
     '</div>' +
@@ -390,25 +391,8 @@ function _carnetRenduIntro() {
     '<div class="cv-section" style="margin-bottom:0;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128161; Vous pouvez dicter votre note à la voix au lieu de la taper : appuyez en même temps sur <strong><span style="white-space:nowrap;">Windows + H</span></strong>.</p></div>' +
     '</div>' +
 
-    '<div class="cv-section" style="margin-bottom:1rem;">' +
-    '<h4>&#9989; Bon à savoir</h4>' +
-    '<div class="cv-section" style="margin-bottom:0.5rem;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128190; Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir écrit, sinon vos notes seront perdues à la fermeture de la page.</p></div>' +
-    '<div class="cv-section" style="margin-bottom:0;background:var(--success-bg-subtle);border-left:3px solid var(--success);"><p class="mb-0 small">&#128274; Votre Carnet ne quitte jamais votre ordinateur. Rien n’est envoyé sur Internet, rien n’est stocké en ligne.</p></div>' +
-    '</div>' +
-
-    (typeof htmlEncartMultilingue === 'function' ? htmlEncartMultilingue(true) : '') +
-
-    '<div class="text-center" style="margin-top:1.25rem;">' +
-    (_carnetIntroDetour
-      ? '<button type="button" id="btnCarnetIntroRevenir" class="btn btn-primary btn-lg">Revenir au module &#8594;</button>'
-      : '<button type="button" id="btnCarnetIntroOuvrir" class="btn btn-primary btn-lg">Ouvrir mon Carnet &#8594;</button>') +
-    '</div>' +
-    '</div>' +
-    // TACHE (retour Denis, 2026-08-31) : "Retour" de la presentation a froid
-    // ramene au menu de la Boite a outils (la ou on a choisi le module),
-    // jamais a l'accueil principal. En detour, "Retour" revient a l'ecran.
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null,
-      { onclickPrecedent: (_carnetIntroDetour ? 'carnetRevenirDeLaPresentation()' : 'retourVersBoiteAOutils()') }) + '</div>';
+    '<div class="cv-section" style="margin-bottom:1rem;background:var(--accent-bg-subtle);border-left:3px solid var(--accent);"><p class="mb-0 small">&#128190; Cette application ne demande jamais de compte : pensez à cliquer sur l’icône disquette après avoir écrit, sinon vos notes seront perdues à la fermeture de la page.</p></div>'
+  });
 }
 function _carnetBrancherEvenementsIntro() {
   var btn = document.getElementById('btnCarnetIntroOuvrir');
@@ -879,7 +863,23 @@ function _carnetDeclencherPulseIcone() {
 // la personne est deja dans le module).
 var _carnetEcranIntro = false;
 
+// ------------------------------------------------------------
+// Fleche « Precedent » du navigateur (retour Denis 2026-10-16, brique B.24 de docs/BRIQUES_COMMUNES.md).
+// L'ecran affiche se deduit de deux drapeaux (presentation, presentation en detour) ; pageCarnet() est le seul dessin : chaque dessin note l'ecran, chaque changement d'ecran devient une entree de l'historique.
+// ------------------------------------------------------------
+function _carnetSynchroniserHistorique() {
+  if (typeof historiqueInterneBrancher === 'function') { historiqueInterneBrancher('carnet', _carnetRestaurerHistorique); }
+  if (typeof historiqueInterneSynchroniser !== 'function') { return; }
+  historiqueInterneSynchroniser('carnet', { cle: (_carnetEcranIntro ? 'intro' : 'travail') + (_carnetEcranIntro && _carnetIntroDetour ? '-detour' : ''), intro: _carnetEcranIntro, detour: _carnetIntroDetour });
+}
+
+function _carnetRestaurerHistorique(instantane) {
+  _carnetEcranIntro = !!instantane.intro;
+  _carnetIntroDetour = !!instantane.detour;
+}
+
 function pageCarnet() {
+  _carnetSynchroniserHistorique();
   if (_carnetEcranIntro) {
     app.innerHTML = _carnetRenduIntro();
     _carnetBrancherEvenementsIntro();

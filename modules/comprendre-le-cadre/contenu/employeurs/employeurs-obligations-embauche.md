@@ -7,7 +7,7 @@ tags: [DPAE, déclaration préalable à l'embauche, registre unique du personnel
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "déclaration préalable à l'embauche (DPAE)"
     definition: "Formalité obligatoire que l'employeur adresse à l'Urssaf avant le premier jour de travail d'un salarié, quel que soit son contrat. Elle déclenche en une fois plusieurs démarches (immatriculation à la Sécurité sociale, affiliation à un service de santé au travail)."

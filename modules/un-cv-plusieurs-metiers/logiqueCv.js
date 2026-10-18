@@ -285,8 +285,48 @@ function ucpmLettresPerimees(etat, profil, nomComplet) {
 // Nombre de mots d'une lettre (repère de longueur, avertissement « lettre longue » au-delà de 330 mots environ pour une page A4).
 function ucpmNombreMots(t) { var m = String(t == null ? '' : t).trim().match(/\S+/g); return m ? m.length : 0; }
 
+// ---------------- Page 6 : retravailler une lettre (2026-10-15) ----------------
+// La personne relit sa lettre, la modifie, puis la renvoie à l'assistant avec ses remarques (prompt prompts/ucpm-lettres-retravail.md). Même format de réponse que les lettres.
+
+// La lettre sans la signature (le nom de la personne, ajouté par l'application) : le nom ne part jamais chez l'assistant. La formule d'appel et la formule de politesse restent.
+function ucpmRetirerSignature(lettre, nomComplet) {
+  var t = String(lettre == null ? '' : lettre).replace(/\r\n/g, '\n').replace(/\s+$/, '');
+  var nom = String(nomComplet == null ? '' : nomComplet).replace(/\s+/g, ' ').trim();
+  if (!nom) { return t; }
+  var lignes = t.split('\n');
+  var derniere = (lignes[lignes.length - 1] || '').replace(/\s+/g, ' ').trim();
+  if (derniere.toLowerCase() === nom.toLowerCase()) { lignes.pop(); }
+  return lignes.join('\n').replace(/\s+$/, '');
+}
+
+// Bloc {LETTRES} : comme {CVS} des lettres, avec en plus, pour chaque CV, la lettre actuelle (sans signature) et la remarque de la personne.
+// items = [{ titre, accroche, objectif, lettre, remarque }].
+function ucpmBlocLettresRetravail(items, lignes) {
+  return (items || []).map(function (it, i) {
+    var base = ucpmBlocCvLettres([it], lignes).replace(/^1\./, (i + 1) + '.');
+    var remarque = String(it.remarque == null ? '' : it.remarque).replace(/\s+/g, ' ').trim();
+    return base + '\n   Lettre actuelle (texte de la personne, à retravailler) :\n"""\n' + String(it.lettre || '').trim() + '\n"""' +
+      '\n   Ce que la personne veut changer ou ajouter : ' + (remarque || 'aucune remarque');
+  }).join('\n\n');
+}
+
+function ucpmConstruirePromptRetravail(template, valeurs) {
+  var v = valeurs || {};
+  var t = { GENRE: ucpmGenreTexte(v.sexe), PROFIL: String(v.profil || '').trim() || 'Non fourni', LETTRES: String(v.lettres || '').trim() };
+  return String(template == null ? '' : template).replace(/\{(GENRE|PROFIL|LETTRES)\}/g, function (m, nom) { return t[nom]; });
+}
+
+// Les CV dont la lettre est retravaillée : la lettre choisie, ou toutes les lettres qui existent. retravail = { id, toutes, remarque } (état du module), entreesAvecLettre = les entrées cochées qui ont une lettre.
+function ucpmCiblesRetravail(retravail, entreesAvecLettre) {
+  var liste = entreesAvecLettre || [];
+  if (!retravail) { return []; }
+  if (retravail.toutes) { return liste.slice(); }
+  return liste.filter(function (e) { return e.id === retravail.id; });
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    ucpmRetirerSignature: ucpmRetirerSignature, ucpmBlocLettresRetravail: ucpmBlocLettresRetravail, ucpmConstruirePromptRetravail: ucpmConstruirePromptRetravail, ucpmCiblesRetravail: ucpmCiblesRetravail,
     ucpmNormaliserApostrophes: ucpmNormaliserApostrophes, ucpmGenreTexte: ucpmGenreTexte, ucpmLigneDirectrice: ucpmLigneDirectrice,
     ucpmConstruireProfilValide: ucpmConstruireProfilValide, ucpmEntreesPourAccroches: ucpmEntreesPourAccroches,
     ucpmBlocMetiersAccroches: ucpmBlocMetiersAccroches, ucpmConstruirePromptAccroches: ucpmConstruirePromptAccroches, ucpmLireReponseAccroches: ucpmLireReponseAccroches,

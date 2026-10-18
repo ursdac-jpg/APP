@@ -19,13 +19,8 @@ sources:
   - "caf-rpe | Le relais petite enfance (RPE) | https://www.caf.fr/allocataires/aides-et-demarches/thematique-libre/relais-petite-enfance-rpe | 2026-09-04"
   - "mesdroitssociaux-simulateur-cmg | Simuler le complément de libre choix du mode de garde | https://www.mesdroitssociaux.gouv.fr/votre-simulateur/complement-mode-de-garde/ | 2026-09-04"
 structures:
-  - "relais-petite-enfance | Relais petite enfance (RPE) : service public de proximité, gratuit et neutre ; informe sur tous les modes de garde du territoire, les aides et les démarches d'employeur ; annuaire sur monenfant.fr | https://monenfant.fr/les-relais-petite-enfance | 2026-09-04"
   - "caf-dordogne | CAF de la Dordogne : CMG, allocation de soutien familial, RSA majoré, information sur les crèches AVIP | https://www.caf.fr/allocataires/caf-de-la-dordogne | 2026-09-04"
-  - "pmi-dordogne | Protection maternelle et infantile (PMI) du conseil départemental de la Dordogne : agrément des assistantes maternelles, conseils aux parents | https://www.dordogne.fr/ | 2026-09-04"
-  - "france-travail-garde | France Travail : aide à la garde d'enfants (AGE), orientation vers une crèche AVIP, accompagnement | https://www.francetravail.fr/ | 2026-09-04"
   - "monenfant-annuaire | monenfant.fr (CNAF) : annuaire national des assistantes maternelles, des crèches et des relais petite enfance, avec disponibilités et simulateurs de coût | https://monenfant.fr/ | 2026-09-04"
-  - "ccas-commune | Centre communal d'action sociale (CCAS) de la commune : information, aides ponctuelles, parfois gestion de crèches municipales | https://lannuaire.service-public.gouv.fr/ | 2026-09-04"
-  - "mission-locale-perigord | Missions locales du Périgord : fonds d'aide aux jeunes pour la garde d'enfants des moins de 26 ans | https://www.mission-locale.fr/ | 2026-09-04"
   - "pajemploi-urssaf | Pajemploi (Urssaf) : déclaration mensuelle de l'assistante maternelle ou de la garde à domicile, versement du CMG emploi direct | https://www.pajemploi.urssaf.fr/ | 2026-09-04"
   - "asso-mission-locale-du-bergeracois-24 | Mission locale du Bergeracois : fonds d'aide aux jeunes pour la garde d'enfants des moins de 26 ans du Sud Dordogne (24) | https://www.missionlocaledubergeracois.com/ | 2026-09-07"
   - "asso-mission-locale-du-grand-perigueux-24 | Mission locale du Grand Périgueux : fonds d'aide aux jeunes pour la garde d'enfants des moins de 26 ans de la communauté d'agglomération du Grand Périgueux (24) | https://www.ml-grandperigueux.fr/ | 2026-09-07"

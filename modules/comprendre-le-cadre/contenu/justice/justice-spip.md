@@ -7,7 +7,7 @@ tags: [SPIP, conseiller pénitentiaire d'insertion et de probation, probation, m
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "SPIP"
     definition: "Service pénitentiaire d'insertion et de probation. Service de l'administration pénitentiaire, présent dans chaque département, qui suit les personnes condamnées en détention et à l'extérieur."

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : controle automatique du sas et revérification semestrielle</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--sub:#f1f4f9;--txt:#1b2430;--strong:#0b1a33;--muted:#5a6a7e;--bord:#d5dbe4;--acc:#0369a1;--accbg:#e2f0f8;--ok:#198754;--okbg:#d9f4e4;--warn:#b45309;--warnbg:#fdf1d9;--ko:#a3372b;--kobg:#fbe6e3}
+[data-theme="sombre"]{--bg:#12161f;--card:#1b212c;--sub:#222834;--txt:#dbe2ee;--strong:#e8edf5;--muted:#a8b3c4;--bord:#3d4759;--acc:#38bdf8;--accbg:#16283a;--ok:#35c79a;--okbg:#17301f;--warn:#f5a742;--warnbg:#3a2c14;--ko:#eda69c;--kobg:#3a1f1b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 system-ui,"Segoe UI",Arial,sans-serif;padding:0 16px 80px}
+.page{max-width:960px;margin:0 auto}
+h1{font-size:1.4rem;color:var(--strong);margin:1.2rem 0 .3rem}
+h2{font-size:1.1rem;color:var(--strong);margin:1.6rem 0 .4rem;border-bottom:2px solid var(--acc);padding-bottom:.25rem}
+h3{font-size:.95rem;color:var(--strong);margin:1rem 0 .3rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.mini{font-size:.86rem}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:6px;padding:.35rem .9rem;font-weight:600}
+.btn.plein{background:var(--acc);color:var(--card)}
+.btn.ko{border-color:var(--ko);color:var(--ko)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.theme{position:absolute;top:10px;right:10px;z-index:5;background:var(--card)}
+.rouge{color:#c0261b;font-weight:800}[data-theme="sombre"] .rouge{color:#ff8a80}
+nav.onglets{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0;position:sticky;top:0;background:var(--bg);padding:.5rem 0;z-index:4}
+nav.onglets button{border:1px solid var(--bord);background:var(--card);color:var(--txt);border-radius:6px;padding:.4rem .8rem;font-weight:600}
+nav.onglets button.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.ecran{display:none}.ecran.actif{display:block}
+.carte{background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}
+.barre{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.6rem 0}
+input[type=text],textarea,select{font:inherit;background:var(--card);color:var(--txt);border:1px solid var(--bord);border-radius:6px;padding:.3rem .5rem}
+textarea{width:100%;min-height:5rem}
+.ligne{display:flex;flex-wrap:wrap;gap:.3rem .8rem;border-top:1px solid var(--bord);padding:.5rem 0;align-items:flex-start}
+.ligne>label,.ligne>.eti{flex:0 0 11rem;color:var(--muted);padding-top:.3rem;font-size:.9rem}
+.ligne>.val{flex:1 1 18rem;min-width:0}
+.ligne input[type=text]{width:100%}
+.ligne.change{border-left:4px solid var(--warn);padding-left:.6rem;background:var(--warnbg)}
+.cadenas{display:inline-block;border:1px solid var(--bord);background:var(--sub);color:var(--muted);border-radius:6px;padding:.1rem .5rem;font-size:.85rem}
+.pastille{display:inline-block;border-radius:6px;padding:0 .5rem;font-size:.78rem;font-weight:700;border:1px solid var(--bord);background:var(--sub);color:var(--muted);margin:.1rem .2rem .1rem 0}
+.pastille.v{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.pastille.a{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+.pastille.r{background:var(--kobg);border-color:var(--ko);color:var(--ko)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border:1px solid var(--bord);padding:.4rem .5rem;text-align:left;vertical-align:top}th{background:var(--sub)}
+.sousligne{display:flex;gap:.4rem;margin:.2rem 0;align-items:flex-start}
+.sousligne input[type=text]{flex:1}
+.sousligne .t{flex:0 0 28%}
+.verif{margin:.2rem 0;font-size:.92rem}
+.verif.ok::before{content:"\2713  ";color:var(--ok);font-weight:800}
+.verif.warn::before{content:"!  ";color:var(--warn);font-weight:800}
+.verif.ko::before{content:"\2715  ";color:var(--ko);font-weight:800}
+.diff{border-left:6px solid var(--bord);border-radius:0 8px 8px 0;padding:.5rem .8rem;margin:.5rem 0;background:var(--card)}
+.diff.ajoute{border-left-color:var(--ok);background:var(--okbg)}
+.diff.modifie{border-left-color:var(--warn);background:var(--warnbg)}
+.diff.retire{border-left-color:var(--ko);background:var(--kobg)}
+.diff .nom{font-weight:800;font-size:.85rem;text-transform:none}
+.diff .avant{text-decoration:line-through;color:var(--ko)}
+.diff .apres{color:var(--ok);font-weight:600}
+.legende span{margin-right:1rem;font-size:.88rem}
+.legende i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:.3rem}
+.appli{border:1px solid var(--bord);border-radius:10px;background:var(--card);padding:.7rem 1rem;max-width:600px}
+.appli h4{margin:.1rem 0 .3rem;font-size:1.05rem}
+.q{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.q b.n{color:var(--warn)}
+.verdict{background:var(--okbg);border:1px solid var(--ok);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.message{border-radius:8px;padding:.5rem .8rem;margin:.6rem 0;border:1px solid var(--ok);background:var(--okbg)}
+.pied{position:sticky;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 0;margin-top:1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+@media(max-width:640px){.ligne>label,.ligne>.eti{flex:1 0 100%}.sousligne .t{flex:1 0 100%}.sousligne{flex-wrap:wrap}}
+</style>
+</head>
+<body data-theme="clair">
+<button class="btn theme" id="bascule" type="button">Mode sombre</button>
+<div class="page">
+<h1>Maquette : contrôle automatique du sas, sites partagés et revérification tous les six mois</h1>
+<p class="muted">Demande de Denis du 2026-10-18 (options A et B validées, plus la revérification semestrielle des fiches déjà publiées). <b>Rien n'est codé.</b> <span class="rouge">EFFORT : HAUT</span> (Mode A). Cette page fonctionne : cliquez, essayez. Les cartes montrent l'écran réel du sas avec ce qui s'y ajoute.</p>
+
+<div class="verdict"><b>Ce que l'essai sur 30 vrais sites du sas a montré (à lire en premier).</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>15 sites sur 30 répondent</b> sur leur propre adresse. <b>6 n'existent pas</b> (nom de domaine introuvable), <b>6 n'ont pas répondu</b>, <b>3 refusent les robots</b> (Super U et Intersport, par exemple).</li>
+<li><b>Le nom de l'employeur est retrouvé</b> dans le titre de la page pour 12 des 15 sites qui répondent, et dans la page pour 14 sur 15. C'est un bon signe que c'est la bonne page.</li>
+<li><b>Le numéro de téléphone n'est retrouvé que 3 fois sur 10</b> sur la page d'accueil. Beaucoup de sites le mettent sur une page « Contact ». <b>Le téléphone restera donc surtout à vérifier à la main.</b></li>
+<li><b>Ce que ça change pour toi</b> : les sites morts ou inventés (12 sur 30, soit 40 %) sont repérés sans que tu ouvres rien, et les sites qui répondent arrivent avec une preuve à lire. <b>Estimation corrigée</b> : de 16 à 30 heures, on passe à environ <b>6 à 10 heures</b> (et non 3 à 5 comme je l'avais dit), parce que le téléphone reste à la main. C'est une estimation, que le premier vrai essai précisera.</li>
+</ul></div>
+
+<nav class="onglets" id="onglets">
+<button type="button" data-e="sas" class="actif">1. Une carte du sas avec preuves</button>
+<button type="button" data-e="partage" >2. Les sites partagés</button>
+<button type="button" data-e="revision">3. Revérification tous les six mois</button>
+<button type="button" data-e="questions">4. Questions et verdict</button>
+</nav>
+
+<!-- ÉCRAN 1 -->
+<section class="ecran actif" id="e-sas">
+<h2>1. Le sas : le contrôle automatique et les preuves sur chaque carte</h2>
+<p class="mini muted">En haut du sas, deux boutons : « Contrôler cette page (10 cartes) » (environ 20 secondes) et « Contrôler tout le sas » (plusieurs minutes, en tâche de fond, tu continues à travailler). Un filtre « Contrôle » s'ajoute aux filtres existants.</p>
+<div class="carte">
+<div class="barre"><button class="btn plein" type="button" id="ctlPage">Contrôler cette page (10 cartes)</button> <button class="btn" type="button" id="ctlTout">Contrôler tout le sas (en fond)</button>
+<span class="mini">Filtre :</span> <span id="filtreCtl" role="group" aria-label="Filtrer par contrôle"><button class="btn plein" type="button" data-f="">Toutes les cartes</button> <button class="btn" type="button" data-f="ok">Contrôle concluant</button> <button class="btn" type="button" data-f="main">À ouvrir à la main</button> <button class="btn" type="button" data-f="non">Pas encore contrôlées</button></span>
+<span class="mini muted" id="ctlEtat">Aucune carte contrôlée.</span></div>
+</div>
+
+<div id="cartes"></div>
+<p class="mini muted">Les trois cartes ci-dessus sont des exemples réels de l'essai : un site qui répond avec le bon nom (Secaut), un site mort (Isol-Eco) et un site qui refuse les robots (Super U). Cliquez sur « Contrôler cette page ».</p>
+<div class="message mini"><b>Ce qui ne change pas :</b> rien n'est publié sans ton « C'est bon » carte par carte, et ce « C'est bon » reste ton attestation (« un humain a relu »). Le contrôle automatique ne date rien et n'écrit rien : il montre des preuves, jamais une décision. Pas de bouton « tout valider ».</div>
+</section>
+
+<!-- ÉCRAN 2 -->
+<section class="ecran" id="e-partage">
+<h2>2. Les sites partagés (option B) : un site contrôlé une seule fois</h2>
+<p class="mini">Sur les 950 lignes du sas, <b>101 sites sont utilisés par plusieurs fiches</b> (222 fiches au total) : par exemple <b>all.accor.com</b> (6 fiches), <b>magasins-u.com</b> (5), <b>e-leclerc.com</b> (4). L'outil ne les contrôle qu'une fois et affiche le résultat sur toutes les cartes concernées.</p>
+<div class="carte"><b>Super U</b> <span class="pastille">enseigne</span>
+<div class="ligne"><span class="eti">Site</span><div class="val">https://www.magasins-u.com <span class="pastille a">refuse les robots : à ouvrir à la main</span>
+<div class="mini" style="margin-top:.3rem"><b>Même adresse que 4 autres fiches</b> : Hyper U (Dordogne), U Express (Dordogne), Super U (Haute-Vienne), U Express (Haute-Vienne).
+<div class="barre"><button class="btn" type="button" id="voirPartage">Voir ces 4 fiches</button> <button class="btn" type="button" id="ouvertPartage">J'ai ouvert ce site : le noter pour les 5 fiches</button></div>
+<div class="mini muted" id="msgPartage"></div></div></div></div></div>
+<div class="message mini"><b>Comment ça marche :</b> « J'ai ouvert ce site » ne valide rien. Il note, pour la séance en cours, que le site est ouvert, et affiche « site ouvert aujourd'hui par vous » sur les 4 autres cartes : tu ne l'ouvres plus 5 fois. Chaque carte garde son propre « C'est bon », car le site peut convenir à une fiche et pas à une autre (une page de magasin précis, par exemple).</div>
+<div class="q"><b class="n">Limite à connaître :</b> un site partagé n'est pas toujours la bonne page pour chaque fiche. Si une carte a une page de recrutement ou une adresse précise différente, elle apparaît séparément. Gain estimé : une centaine d'ouvertures en moins sur environ 1 900 vérifications.</div>
+</section>
+
+<!-- ÉCRAN 3 -->
+<section class="ecran" id="e-revision">
+<h2>3. Les fiches déjà publiées : revérification tous les six mois</h2>
+<p class="mini">Dans la liste publiée des employeurs, des structures et des pages d'offres, le filtre « À vérifier » passe à <b>six mois</b> (réglage de l'outil seulement). Le même contrôle automatique s'y applique, avec les mêmes preuves.</p>
+<div class="carte">
+<div class="barre"><strong>Qui fait quoi : les employeurs</strong> <span class="pastille a">EXEMPLE : 3 fiches à revérifier (6 mois ou plus)</span> <span class="mini muted">(en vrai, aucune aujourd'hui : les 103 employeurs sont datés d'octobre 2026)</span></div>
+<div class="barre"><button class="btn plein" type="button" id="ctlDues">Contrôler les 3 fiches dues (exemple)</button> <span class="mini">Trier par :</span> <button class="btn plein" type="button">La plus ancienne vérification d'abord</button> <button class="btn" type="button">Contrôle à ouvrir à la main d'abord</button></div>
+<table><thead><tr><th>Fiche</th><th>Dernière vérification</th><th>Contrôle automatique (ce qui a changé depuis la dernière fois)</th><th></th></tr></thead>
+<tbody id="dues"></tbody></table>
+</div>
+<div class="message mini"><b>Ce qui est comparé à chaque contrôle :</b> le site répond-il toujours sur la même adresse, le nom de l'employeur est-il toujours dans la page, le numéro y figure-t-il encore, la commune y figure-t-elle, la page de recrutement répond-elle. L'outil garde le <b>dernier résultat</b> de chaque adresse sur ton poste : au contrôle suivant, il écrit « avant : répondait ; maintenant : ne répond plus ».</div>
+<div class="q"><b class="n">Deux règles différentes, volontairement :</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>Dans l'outil : six mois.</b> C'est ton rappel de travail (filtre « À vérifier », compteur dans le Dépôt).</li>
+<li><b>Sur le site public : douze mois, inchangé.</b> Après douze mois sans vérification, le téléphone et le site ne s'affichent plus. Si on mettait six mois ici aussi, toutes les coordonnées disparaîtraient du site au bout de six mois, dès que tu serais en retard sur une revérification.</li>
+</ul>
+<span class="mini muted">Aujourd'hui, aucune fiche publiée n'a six mois (les 103 employeurs sont tous datés d'octobre 2026) : le premier rappel tombera en avril 2027. Les 194 structures et 127 pages d'offres suivent la même règle.</span></div>
+</section>
+
+<!-- ÉCRAN 4 -->
+<section class="ecran" id="e-questions">
+<h2>4. Questions pour Denis et verdict de faisabilité</h2>
+<div class="q"><b class="n">Q1. Six mois dans l'outil, douze mois sur le site public (recommandé), ou six mois partout ?</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>Six mois dans l'outil seulement (recommandé)</b> : bénéfice, tu es rappelé à temps sans jamais vider une fiche publique ; risque, une fiche entre six et douze mois reste affichée comme valide alors que le rappel est déjà passé (tu es prévenu, le public non).</li>
+<li><b>Six mois aussi sur le site</b> : bénéfice, le public ne voit que des fiches très fraîches ; risque, au moindre retard de ta part, des fiches perdent leurs coordonnées. C'est une décision produit qui touche l'application publique.</li>
+</ul></div>
+<div class="q"><b class="n">Q2. L'outil garde-t-il le dernier résultat de chaque contrôle sur ton poste ?</b> Recommandé : oui, dans un fichier local jamais envoyé sur GitHub. Bénéfice : il peut dire « a changé depuis la dernière fois ». Risque : un fichier de plus à ne pas pousser par erreur (je l'exclus de Git).</div>
+<div class="q"><b class="n">Q3. Contrôle page par page, tout le sas, ou les deux ?</b> Recommandé : les deux. Page par page : 20 secondes, tu vois le résultat avant de valider. Tout le sas : plusieurs minutes en tâche de fond, pour trier les cartes à ouvrir en premier.</div>
+<div class="q"><b class="n">Q4. Dans quel ordre ?</b> Recommandé : (1) le sas (options A et B), (2) la revérification, qui réutilise le même moteur. Le téléphone reste à la main pour l'instant ; on pourra mesurer ensuite si lire aussi la page « Contact » en retrouve davantage.</div>
+
+<div class="verdict"><b>Verdict de faisabilité (audit du code réel et essai sur 30 sites).</b>
+<ul class="mini" style="margin:.3rem 0 0 1.1rem">
+<li><b>Simple (reprise de l'existant)</b> : le contrôle des adresses existe (<code>outils/veilleControle.js</code> : répond, mène ailleurs, refuse les robots, n'existe plus). Le rythme de revérification est <b>déjà un réglage par registre</b> (<code>revoirMois</code>) : passer à six mois, c'est une ligne par registre, sans toucher à l'application publique.</li>
+<li><b>Nouveau (travail réel)</b> : le contrôle actuel <b>ne lit jamais le contenu</b> des pages. Il faut lui apprendre à lire le titre et le texte (taille limitée) pour retrouver le nom, la commune et le numéro. Les sites qui construisent leur page avec du JavaScript ne montreront pas de texte : ils iront dans « à ouvrir à la main ».</li>
+<li><b>Point de sécurité à traiter</b> : lire le contenu impose de refuser toute redirection vers une adresse locale ou privée, de limiter la taille lue et de ne jamais prendre une adresse dans la page (seulement dans les fichiers du sas et des registres, comme aujourd'hui).</li>
+<li><b>Risqué</b> : rien ne touche à l'application publique ni aux fiches existantes ; aucune écriture automatique dans les registres.</li>
+<li><b>Limites assumées</b> : le téléphone (3 sur 10 retrouvés), les sites qui bloquent les robots (3 sur 30), et les pages qui répondent mais ne sont pas la bonne (le nom dans le titre limite l'erreur sans la supprimer).</li>
+</ul>
+<p><b>Verdict : GO AVEC RÉSERVES</b> (les limites ci-dessus). Travail estimé en deux étapes : (1) sas, contrôle, preuves, filtre, sites partagés, essais ; (2) revérification à six mois et dernier résultat. <span class="rouge">NON APTE AU MODE NUIT</span> tant que Q1 à Q4 ne sont pas tranchées ; <b>APTE</b> ensuite.</p></div>
+</section>
+</div>
+
+<script>
+(function(){
+  var DONNEES = [
+    { nom:'Secaut SA', site:'https://www.secaut.fr', res:{ etat:'ok', texte:'Le site répond sur sa propre adresse.', nom:'Titre : « Secaut, sécurité et automatismes... » : nom retrouvé', tel:'Numéro 05 53 00 00 00 retrouvé sur la page', commune:'Commune « Bergerac » non retrouvée sur la page d\'accueil' } },
+    { nom:'Isol-Eco', site:'https://www.isol-eco.com', res:{ etat:'ko', texte:'Le site n\'existe pas (nom de domaine introuvable) : cherchez le vrai site avec « Chercher le site sur le web ».', nom:'', tel:'', commune:'' } },
+    { nom:'Super U', site:'https://www.magasins-u.com', res:{ etat:'main', texte:'Le site refuse les contrôles automatiques (robots) : ouvrez la page à la main.', nom:'', tel:'', commune:'' } }
+  ];
+  var teinte=function(e){return e==='ok'?'v':(e==='ko'?'r':'a');};
+  var libelle=function(e){return e==='ok'?'contrôle concluant':(e==='ko'?'site introuvable':'à ouvrir à la main');};
+  function carte(d,lance){
+    var h='<div class="carte"><b>'+d.nom+'</b> <span class="pastille">enseigne</span><div class="ligne"><span class="eti">Site</span><div class="val">'+d.site;
+    if(!lance){h+=' <span class="pastille">pas encore contrôlé</span>';}
+    else{var r=d.res; h+=' <span class="pastille '+teinte(r.etat)+'">'+libelle(r.etat)+'</span><div class="mini" style="margin-top:.3rem">'+r.texte+'</div>';
+      if(r.nom){h+='<div class="verif ok mini">'+r.nom+'</div>';}
+      if(r.tel){h+='<div class="verif ok mini">'+r.tel+'</div>';}
+      if(r.commune){h+='<div class="verif warn mini">'+r.commune+'</div>';}}
+    h+='</div></div><div class="barre"><button class="btn" type="button">Chercher le site sur le web</button> <button class="btn" type="button">Ouvrir le site</button> <button class="btn plein" type="button"'+(lance&&d.res.etat==='ko'?' disabled':'')+'>C\'est bon</button> <button class="btn" type="button">Écarter</button></div></div>';
+    return h;
+  }
+  var lance=false, filtre="";
+  function rendre(){
+    var f=filtre;
+    var liste=DONNEES.filter(function(d){ if(!f) return true; if(!lance) return f==='non'; if(f==='ok') return d.res.etat==='ok'; if(f==='main') return d.res.etat!=='ok'; return false; });
+    document.getElementById('cartes').innerHTML = liste.map(function(d){return carte(d,lance);}).join('') || '<p class="mini muted">Aucune carte ne correspond à ce filtre.</p>';
+    document.getElementById('ctlEtat').textContent = lance ? '10 cartes contrôlées : 1 concluante, 1 introuvable, 1 à ouvrir à la main (exemples).' : 'Aucune carte contrôlée.';
+  }
+  document.getElementById('ctlPage').addEventListener('click',function(){lance=true;rendre();});
+  document.getElementById('ctlTout').addEventListener('click',function(){lance=true;rendre();document.getElementById('ctlEtat').textContent='Contrôle de tout le sas en cours (tâche de fond) : 3 cartes sur 950 pour la démonstration.';});
+  document.getElementById('filtreCtl').addEventListener('click',function(e){var b=e.target.closest('button[data-f]'); if(!b)return; filtre=b.getAttribute('data-f'); [].forEach.call(document.querySelectorAll('#filtreCtl button'),function(x){x.classList.toggle('plein',x===b);}); rendre();});
+  rendre();
+  document.getElementById('voirPartage').addEventListener('click',function(){document.getElementById('msgPartage').textContent='La liste du sas est filtrée sur ce site : 5 fiches (Super U, Hyper U, U Express, côtés Dordogne et Haute-Vienne).';});
+  document.getElementById('ouvertPartage').addEventListener('click',function(){document.getElementById('msgPartage').textContent='Noté pour cette séance : « site ouvert aujourd\'hui par vous » s\'affiche sur les 4 autres cartes. Aucune carte n\'est validée.';});
+  var DUES=[['Aldi','2026-04-12','ok','Le site répond ; le nom est dans la page ; le numéro est retrouvé.'],['Carrefour Market','2026-04-12','chg','Avant : la page de recrutement répondait. Maintenant : elle mène vers un autre site (recrute.carrefour.fr). À ouvrir à la main.'],['Manpower Sarlat','2026-03-30','main','Le site refuse les robots : à ouvrir à la main.']];
+  var ddEl=document.getElementById('dues'); var ddDone=false;
+  function rendreDues(){
+    ddEl.innerHTML=DUES.map(function(d){var t=d[2]==='ok'?'<span class="pastille v">inchangé</span> ':(d[2]==='chg'?'<span class="pastille r">a changé</span> ':'<span class="pastille a">à la main</span> ');
+      return '<tr><td><b>'+d[0]+'</b></td><td>'+d[1].split('-').reverse().join('/')+'</td><td class="mini">'+(ddDone?t+d[3]:'<span class="muted">pas encore contrôlée</span>')+'</td><td><button class="btn" type="button">Valider</button> <button class="btn" type="button">Modifier</button></td></tr>';}).join('');
+  }
+  rendreDues();
+  document.getElementById('ctlDues').addEventListener('click',function(){ddDone=true;rendreDues();});
+  document.getElementById('onglets').addEventListener('click',function(e){var b=e.target.closest('button[data-e]'); if(!b)return; [].forEach.call(document.querySelectorAll('#onglets button'),function(x){x.classList.toggle('actif',x===b);}); [].forEach.call(document.querySelectorAll('.ecran'),function(s){s.classList.toggle('actif',s.id==='e-'+b.getAttribute('data-e'));}); window.scrollTo(0,0);});
+  document.getElementById('bascule').addEventListener('click',function(){var s=document.body.getAttribute('data-theme')==='sombre'; document.body.setAttribute('data-theme',s?'clair':'sombre'); this.textContent=s?'Mode sombre':'Mode clair';});
+})();
+</script>
+</body>
+</html>

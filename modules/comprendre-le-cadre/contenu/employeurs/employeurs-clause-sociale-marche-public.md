@@ -7,7 +7,7 @@ tags: [clause sociale, marché public, insertion, maître d'ouvrage, titulaire d
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "titulaire du marché"
     definition: "Entreprise qui a remporté l'appel d'offres et exécute le marché public. C'est elle qui doit respecter la clause sociale si le marché en comporte une."

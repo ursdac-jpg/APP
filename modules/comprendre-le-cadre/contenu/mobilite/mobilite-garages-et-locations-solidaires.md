@@ -7,7 +7,7 @@ tags: [garage solidaire, location solidaire, plateforme mobilité, prescription,
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "garage solidaire"
     definition: "Atelier qui entretient et répare les véhicules à prix réduit pour les personnes en difficulté. Souvent un atelier et chantier d'insertion."

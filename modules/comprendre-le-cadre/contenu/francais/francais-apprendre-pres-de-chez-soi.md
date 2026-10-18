@@ -7,7 +7,7 @@ tags: [ateliers sociolinguistiques, OEPRE, centre social, association, cours de 
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "atelier sociolinguistique (ASL)"
     definition: "Cours de français de proximité, organisé par un centre social ou une association, centré sur les situations concrètes de la vie quotidienne : la mairie, l'école, les transports, la banque."
@@ -31,7 +31,7 @@ On peut apprendre ou améliorer son français sans que cela soit lié à un titr
 
 Les ateliers sociolinguistiques ont lieu dans les centres sociaux et les associations. On y apprend le français à partir de situations concrètes : aller à la poste, prendre le bus, parler avec l'école, comprendre un courrier de la mairie. Le rythme est adapté, l'ambiance est bienveillante.
 
-Le dispositif OEPRE, « Ouvrir l'école aux parents pour la réussite des enfants », propose des ateliers gratuits dans les écoles, collèges et lycées, pour les parents venus d'un autre pays. Jusqu'à cent heures par an, pour apprendre le français, comprendre l'école et connaître les valeurs de la République.
+Le dispositif OEPRE, « Ouvrir l'école aux parents pour la réussite des enfants », propose des ateliers gratuits dans les écoles, collèges et lycées, pour les parents venus d'un autre pays. De soixante à cent vingt heures par an, selon l'atelier, pour apprendre le français, comprendre l'école et connaître les valeurs de la République.
 
 Des associations comme La Cimade ou le Secours catholique, et beaucoup d'associations locales, donnent aussi des cours pour adultes.
 

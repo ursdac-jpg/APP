@@ -7,7 +7,7 @@ tags: [compétences de base, illettrisme, savoirs de base, CléA, ANLCI]
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "compétences de base"
     definition: "La lecture, l'écriture, le calcul et l'usage du numérique au niveau nécessaire pour être autonome dans la vie courante et au travail."
@@ -28,7 +28,7 @@ collecte: francais.collecte.md
 voir_aussi_chiffres: "Combien de personnes ont des difficultés avec la lecture, l'écriture, le calcul ici"
 ---
 
-Beaucoup de personnes qui ont été à l'école en France se retrouvent, des années plus tard, en difficulté avec la lecture, l'écriture ou le calcul. D'après une enquête de 2022, cela concerne environ 3,7 millions d'adultes de 18 à 64 ans. Ce n'est ni rare, ni définitif : cela se retravaille.
+Beaucoup de personnes qui ont été à l'école en France se retrouvent, des années plus tard, en difficulté avec la lecture, l'écriture ou le calcul. D'après une enquête de l'Insee de 2022, environ une personne de 18 à 64 ans sur dix rencontre des difficultés à l'écrit. Ce n'est ni rare, ni définitif : cela se retravaille.
 
 L'Agence nationale de lutte contre l'illettrisme coordonne l'action dans ce domaine et oriente vers les ressources de chaque région.
 

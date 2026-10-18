@@ -7,7 +7,7 @@ tags: [permis de conduire, échange de permis, permis étranger, accord de réci
 territoire: national
 statut: actif
 frein: true
-verifie_le: 2026-10
+verifie_le: 2026-10-05
 lexique:
   - terme: "accord de réciprocité"
     definition: "Accord entre la France et un autre pays qui permet d'échanger le permis de conduire de l'un contre celui de l'autre, sans repasser l'examen."

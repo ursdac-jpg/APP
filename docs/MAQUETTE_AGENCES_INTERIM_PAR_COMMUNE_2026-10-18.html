@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : agences d’intérim par commune</title>
+<style>
+  :root { --fond:#f6f8fb; --carte:#fff; --texte:#1c2733; --doux:#5b6b7b; --bord:#d5dde6; --bleu:#1f5fbf; --bleu-fond:#e8f0fd; --bleu-texte:#fff; }
+  [data-theme="sombre"] { --fond:#12181f; --carte:#1b242d; --texte:#e8eef4; --doux:#a3b1bf; --bord:#33414f; --bleu:#6ea8ff; --bleu-fond:#1d2f4a; --bleu-texte:#0c1624; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fond); color:var(--texte); font:16px/1.5 system-ui, sans-serif; }
+  main { max-width:62rem; margin:0 auto; padding:1rem 16px 3rem; }
+  .haut { display:flex; justify-content:space-between; align-items:center; gap:.5rem; font-size:.85rem; color:var(--doux); margin-bottom:1rem; }
+  button { font:inherit; cursor:pointer; }
+  .btn { border:1px solid var(--bleu); background:transparent; color:var(--bleu); border-radius:.4rem; padding:.4rem .8rem; }
+  .btn.plein { background:var(--bleu); color:var(--bleu-texte); }
+  .btn:focus-visible { outline:3px solid var(--bleu); outline-offset:2px; }
+  h1 { font-size:1.5rem; text-align:center; margin:.5rem 0 .25rem; }
+  .intro { text-align:center; color:var(--doux); max-width:44rem; margin:0 auto 1rem; }
+  .bandeau { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; margin:1rem 0; }
+  .vide { text-align:center; color:var(--doux); border:1px dashed var(--bord); border-radius:.6rem; padding:1.2rem; margin:1rem 0; }
+  h2 { font-size:1rem; text-transform:uppercase; letter-spacing:.03em; color:var(--doux); margin:1.5rem 0 .5rem; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(15rem, 1fr)); gap:.75rem; }
+  .fiche { background:var(--carte); border:1px solid var(--bord); border-radius:.6rem; padding:.75rem; }
+  .fiche b { display:block; }
+  .fiche small { display:block; color:var(--doux); }
+  .fiche .btn { margin-top:.5rem; }
+  .note { color:var(--doux); font-size:.85rem; margin-top:2rem; }
+</style>
+</head>
+<body>
+<main>
+  <div class="haut"><span>Maquette : écran « Agences d’intérim » (Dordogne). Les données sont des exemples.</span><button class="btn" type="button" id="theme">Mode sombre</button></div>
+
+  <h1>Agences d’intérim en Dordogne</h1>
+  <p class="intro">Une agence d’intérim vous propose des missions temporaires dans tous les secteurs. Vous vous inscrivez auprès d’elle ; elle vous contacte quand une mission correspond à votre profil.</p>
+
+  <p class="intro" style="margin-bottom:.25rem"><strong>Choisissez une commune</strong> pour voir ses agences, ou affichez toute la liste.</p>
+  <div class="bandeau" id="communes" role="group" aria-label="Communes"></div>
+
+  <div id="zone" aria-live="polite"></div>
+
+  <p class="note">Liste non exhaustive. Aucun partenariat, aucune rémunération.</p>
+</main>
+<script>
+  // Exemples : le vrai écran lira les agences du registre, rangées par commune du premier établissement.
+  var DONNEES = {
+    'Bergerac': ['Adecco Bergerac', 'Manpower Bergerac', 'Randstad Bergerac', 'Crit Bergerac'],
+    'Boulazac Isle Manoire': ['Synergie Boulazac', 'Proman Boulazac'],
+    'Marsac-sur-l’Isle': ['Samsic Emploi Marsac'],
+    'Nontron': ['Actual Nontron', 'Daily Interim Nontron'],
+    'Périgueux': ['Adecco Périgueux', 'Manpower Périgueux', 'Randstad Périgueux', 'Start People Périgueux'],
+    'Sarlat-la-Canéda': ['Crit Sarlat', 'Interaction Sarlat']
+  };
+  var choix = null;   // null : aucune commune choisie ; '*' : tout voir ; sinon le nom d'une commune
+  var bandeau = document.getElementById('communes'), zone = document.getElementById('zone');
+  function fiche(nom, commune) {
+    return '<div class="fiche"><b>' + nom + '</b><small>Agence d’intérim · ' + commune + '</small><button class="btn plein" type="button">Voir la fiche</button></div>';
+  }
+  function dessiner() {
+    var noms = Object.keys(DONNEES);
+    bandeau.innerHTML = noms.map(function (c) { return '<button type="button" class="btn' + (choix === c ? ' plein' : '') + '" data-c="' + c + '" aria-pressed="' + (choix === c) + '">' + c + '</button>'; }).join('') +
+      '<button type="button" class="btn' + (choix === '*' ? ' plein' : '') + '" data-c="*" aria-pressed="' + (choix === '*') + '">Voir toute la liste</button>';
+    if (!choix) { zone.innerHTML = '<div class="vide">Aucune commune choisie pour l’instant. Cliquez sur une commune ci-dessus.</div>'; return; }
+    var liste = choix === '*' ? noms : [choix];
+    zone.innerHTML = liste.map(function (c) { return '<h2>' + c + '</h2><div class="grille">' + DONNEES[c].map(function (n) { return fiche(n, c); }).join('') + '</div>'; }).join('');
+  }
+  bandeau.addEventListener('click', function (e) { var c = e.target.getAttribute && e.target.getAttribute('data-c'); if (!c) { return; } choix = (choix === c && c !== '*') ? null : c; dessiner(); });
+  document.getElementById('theme').addEventListener('click', function () { var s = document.documentElement.getAttribute('data-theme') === 'sombre'; document.documentElement.setAttribute('data-theme', s ? 'clair' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair'; });
+  dessiner();
+</script>
+</body>
+</html>

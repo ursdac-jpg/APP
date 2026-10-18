@@ -1,0 +1,2 @@
+# Fiches publiées dont Denis a VÉRIFIÉ qu'elles n'ont pas de numéro de téléphone. L'application NE LIT PAS ce fichier : seul l'outil de veille s'en sert (sas des numéros).
+# Format : registre (lieux ou employeurs) | identifiant de la fiche | date de la confirmation de Denis. Au bout de six mois, la fiche réapparaît dans le sas des numéros pour être revérifiée.

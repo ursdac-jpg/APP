@@ -7,7 +7,7 @@ tags: [démission, reconversion, chômage, ARE, projet réel et sérieux, Transi
 territoire: national
 statut: actif
 frein: false
-verifie_le: 2026-09
+verifie_le: 2026-10-13
 lexique:
   - terme: "projet réel et sérieux"
     definition: "Projet de reconversion ou de création d'entreprise jugé cohérent et réalisable par une commission. Sa validation ouvre le droit au chômage après démission."
@@ -41,6 +41,6 @@ L'ordre des étapes est important, et il ne faut pas démissionner avant :
 
 L'allocation chômage est ensuite versée comme pour tout demandeur d'emploi, pendant et après la formation ou la création d'entreprise.
 
-Attention : au bout de six mois, France Travail vérifie que le projet a bien avancé. S'il n'a pas été mis en œuvre sans motif valable, l'allocation peut être suspendue.
+Attention : au bout de six mois, France Travail vérifie que le projet a bien avancé. S'il n'a pas été mis en œuvre sans motif valable, vous risquez de perdre quatre mois d'allocation et d'être radié de la liste des demandeurs d'emploi pendant quatre mois.
 
 Commencez par le conseil en évolution professionnelle : c'est lui qui vous dira si le dispositif est adapté à votre situation.

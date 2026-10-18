@@ -52,9 +52,9 @@ var MODULES_RECHERCHABLES = [
   // l'etat a zero proprement).
   { titre: 'Reformuler et présenter mon CV', desc: 'Un CV déjà complet, remis au bon niveau de langage et de vocabulaire pour le poste visé, sans en changer le fond.',
     motsCles: ['reformuler mon cv', 'presenter mon cv', 'mettre en forme mon cv', 'remettre mon cv au propre', 'rendre mon cv presentable', 'cv mal presente', 'cv pas assez professionnel', 'ameliorer la formulation de mon cv', 'meilleure formulation cv', 'vocabulaire de mon cv', 'reformulation cv'], cible: 'carte:mesdocuments' },
-  { titre: 'Co-construire ma lettre de motivation', desc: 'Écrire une lettre de motivation avec un assistant, phrase par phrase.',
+  { titre: 'Écrire ma lettre de motivation avec l’assistant', desc: 'Écrire une lettre de motivation avec un assistant, phrase par phrase.',
     motsCles: ['lettre', 'lettre de motivation', 'motivation', 'co-construire ma lettre'], cible: 'route:co-lettre' },
-  { titre: 'Préparer un entretien d’embauche', desc: 'S’entraîner aux questions d’un entretien, à l’écrit ou à l’oral.',
+  { titre: 'M’entraîner à un entretien d’embauche', desc: 'S’entraîner aux questions d’un entretien, à l’écrit ou à l’oral.',
     motsCles: ['entretien', 'entretien d embauche', 'preparer un entretien', 'preparation entretien', 'oral'], cible: 'route:prepa-entretien' },
   { titre: 'Découvrir mes compétences', desc: 'Partir de ce que vous avez vécu pour en tirer un CV.',
     motsCles: ['decouverte', 'decouvrir mes competences', 'mes competences', 'competences', 'valoriser'], cible: 'route:decouverte-intro' },
@@ -79,8 +79,8 @@ var MODULES_RECHERCHABLES = [
     motsCles: ['comparer mes pistes', 'comparer deux metiers', 'comparer des formations', 'orientation', 'aide a la decision', 'hesiter', 'hesitation', 'hesite entre deux metiers', 'choisir un metier', 'quel metier', 's orienter', 'reconversion'], cible: 'route:aide-decision-intro' },
   // Module « Un CV, plusieurs métiers » : `ouvertSi` = nom d'une variable globale qui doit etre vraie pour que ce resultat apparaisse
   // (le module n'est ouvert au public que lorsque son parcours est complet, voir UCPM_OUVERT, modules/un-cv-plusieurs-metiers/logique.js).
-  { titre: 'Un CV, plusieurs métiers', desc: 'Un seul CV de départ, plusieurs métiers visés : un CV, une phrase d’accroche et une lettre de motivation pour chaque métier.',
-    motsCles: ['un cv plusieurs metiers', 'plusieurs cv', 'plusieurs metiers', 'plusieurs lettres', 'cv par metier', 'un cv par metier', 'adapter mon cv', 'adapter mon cv a un metier', 'plusieurs metiers vises', 'lettres de motivation', 'accroche'], cible: 'route:un-cv-plusieurs-metiers-intro', ouvertSi: 'UCPM_OUVERT' }
+  { titre: 'Un CV, plusieurs métiers', desc: 'Un seul CV de départ, plusieurs métiers visés : un CV, une phrase d’accroche et une lettre de motivation pour chaque métier, puis une préparation à l’entretien d’embauche par métier.',
+    motsCles: ['un cv plusieurs metiers', 'plusieurs cv', 'plusieurs metiers', 'plusieurs lettres', 'cv par metier', 'un cv par metier', 'adapter mon cv', 'adapter mon cv a un metier', 'plusieurs metiers vises', 'lettres de motivation', 'accroche', 'retravailler ma lettre', 'preparation entretien par metier', 'questions entretien d embauche', 'questions delicates entretien', 'trou dans mon cv entretien', 'feuille de preparation entretien'], cible: 'route:un-cv-plusieurs-metiers-intro', ouvertSi: 'UCPM_OUVERT' }
 ];
 
 // TACHE 33A : recherche simple (debut de mot / correspondance partielle),
@@ -289,6 +289,15 @@ function rechercherBaseConnaissances(texte) {
     }).slice(0, 5);
     if (chiffresTrouves.length) {
       resultats.push({ categorie: 'Comprendre les chiffres', icone: '📊', resultats: chiffresTrouves, type: 'module' });
+    }
+  }
+
+  // Module « Qui fait quoi » (annuaire local, decision D10 du 2026-10-12) : les employeurs trouves par leur nom, leur secteur, un metier ou une commune.
+  // Rien tant que le module est ferme au public (MT_OUVERT, modules/mon-territoire/logique.js) ni tant que ses donnees ne sont pas prechargees.
+  if (typeof monTerritoireResultatsRecherche === 'function') {
+    var territoireTrouves = monTerritoireResultatsRecherche(texte);
+    if (territoireTrouves.length) {
+      resultats.push({ categorie: 'Qui fait quoi', icone: '📍', resultats: territoireTrouves, type: 'module' });
     }
   }
 
