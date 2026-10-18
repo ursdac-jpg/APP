@@ -31,7 +31,7 @@ Le filtre d'ancienneté par clic (plus de 5 ans, 5, 3, 2, 1 an) est donc **réal
 2. **L'effectif est celui de l'ENTREPRISE entière** (tous ses sites), pas celui de l'établissement de Bergerac : 351 entreprises « 50 salariés et plus » comprennent des groupes nationaux qui n'ont qu'une agence sur place. Un filtre « nombre de salariés » doit le dire clairement.
 3. **Beaucoup de « bruit »** : 2 939 entrepreneurs individuels (dont des micro-entrepreneurs), plus de 1 000 sociétés civiles (immobilier). Un filtre « forme juridique » (exclure les sociétés civiles et les auto-entrepreneurs, ou les garder) sera utile.
 4. **Le lieu ne filtre que combiné à un secteur** (ou un mot) : la lecture se fait secteur par secteur, 25 résultats par page, 10 000 au plus par requête (largement suffisant pour une commune).
-5. **Bassin d'emploi** : l'API renvoie la commune et l'intercommunalité de chaque établissement ; la zone d'emploi se déduit de la commune avec la table qui existe déjà dans l'application (module « Comprendre les chiffres »).
+5. **Bassin d'emploi** : l'API renvoie la commune et l'intercommunalité de chaque établissement ; la zone d'emploi ne se déduit PAS d'une table de l'application (CORRECTION du 2026-10-18, LECONS 9.52 : cette table n'existe pas, le module « Comprendre les chiffres » ne porte que les statistiques de 5 zones) ; elle est à construire à partir du fichier public de l'INSEE, ou on filtre par commune et intercommunalité (déjà dans `communes-24.txt` et `communes-87.txt`).
 6. **Le secteur de l'API est un code d'activité (NAF)** : il faudra une table de correspondance vers les 21 secteurs de l'application (`data/secteurs.js`).
 
 ## Ce qu'il faut ajouter à la main ou par recherche (absent de la source)
