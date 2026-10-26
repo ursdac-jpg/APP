@@ -2068,6 +2068,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  _pdfPoserFormesDeco();' +
 '  _pdfPoserPoigneesCv();' +
 '  try { if (typeof window.parent._texteHorsPoser === "function") { window.parent._texteHorsPoser(document.querySelector("#conteneurPage .page-a4")); } } catch (e) { /* le texte a deux tons est un plus */ }' +
+'  try { if (typeof window.parent._lisibiliteGarder === "function") { window.parent._lisibiliteGarder(document.querySelector("#conteneurPage .page-a4")); } } catch (e) { /* le garde-fou de lisibilité est un plus */ }' +
 // « Regler l'en-tete » sur l'apercu (cvPdfEnteteApercu.js) : pose les gestes sur les textes de l'en-tete quand le reglage est actif.
 '  try { if (typeof window.parent._enteteApercuPoser === "function") { window.parent._enteteApercuPoser(document.querySelector("#conteneurPage .page-a4")); } } catch (e) { /* un plus */ }' +
 '}' +

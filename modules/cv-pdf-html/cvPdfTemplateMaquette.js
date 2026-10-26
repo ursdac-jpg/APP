@@ -2629,7 +2629,8 @@ function _pdfMqApresRenduRectangles(feuille) {
 function _pdfMqApresRendu(feuille) {
   if (!feuille) { return; }
   _pdfMqApresRenduRectangles(feuille);
-  try { _pdfMqApresRenduEntete(feuille); } finally { try { if (typeof _texteHorsPoser === 'function') { _texteHorsPoser(feuille); } } catch (e) { /* le texte a deux tons est un plus : jamais bloquer le rendu */ } }
+  try { _pdfMqApresRenduEntete(feuille); } finally { try { if (typeof _texteHorsPoser === 'function') { _texteHorsPoser(feuille); } } catch (e) { /* le texte a deux tons est un plus : jamais bloquer le rendu */ }
+    try { if (typeof _lisibiliteGarder === 'function') { _lisibiliteGarder(feuille); } } catch (e2) { /* le garde-fou de lisibilite est un plus */ } }
 }
 function _pdfMqApresRenduEntete(feuille) {
   var t = feuille.querySelector('.tete.libre');

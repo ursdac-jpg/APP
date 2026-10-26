@@ -156,5 +156,5 @@ function _texteHorsSuivre(tete) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { _texteHorsBordBas: _texteHorsBordBas, _texteHorsLongueur: _texteHorsLongueur, _texteHorsForme: _texteHorsForme, _texteHorsCheminComplement: _texteHorsCheminComplement };
+  module.exports = { _texteHorsJetons: _texteHorsJetons, _texteHorsBordBas: _texteHorsBordBas, _texteHorsLongueur: _texteHorsLongueur, _texteHorsForme: _texteHorsForme, _texteHorsCheminComplement: _texteHorsCheminComplement };
 }
