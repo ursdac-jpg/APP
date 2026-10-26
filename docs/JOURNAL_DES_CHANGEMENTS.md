@@ -14,7 +14,7 @@
 4. `npm test` (le test des nouveautés contrôle les routes et les tirets longs), puis envoi sur GitHub à la demande de Denis.
 
 ## Journal
-2026-10-26 | Lexique | 9 nouvelles fiches sur la confiance en soi et la communication (estime de soi, confiance en soi, affirmation de soi, croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication, et une fiche pour ne pas confondre les trois premières) | à condenser
+2026-10-26 | Lexique | 12 nouvelles fiches : confiance en soi et communication (estime de soi, confiance en soi, affirmation de soi, croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication), et trois mots du quotidien (coach, CESF, CACES) | à condenser
 2026-10-26 | Toute l'application | bouton « Signaler un problème » (accueil, page Nouveautés, panneau de la roue) : un formulaire Google, page courante préremplie, courriel à Denis | à condenser
 2026-10-26 | Nouveautés | chaque bouton « Essayer » porte l'icône du module qu'il ouvre | fait le 2026-10-26
 2026-10-26 | Nouveautés | bouton toujours visible (4e icône), pastille, page d'historique par mois, étiquette « Nouveau » | fait le 2026-10-26

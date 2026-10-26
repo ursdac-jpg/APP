@@ -786,7 +786,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['être certifié'],
     corps: "Une certification atteste officiellement qu'une personne maîtrise des compétences précises, à un moment donné. Elle peut prendre différentes formes (diplôme, titre professionnel, CQP, entre autres) selon qui la délivre et dans quel cadre.",
     relations: [
-      { ficheId: 'qualification', type: 'voir-aussi' }
+      { ficheId: 'qualification', type: 'voir-aussi' }, { ficheId: 'caces', type: 'voir-aussi' }
     ]
   },
   {
@@ -802,7 +802,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: [],
     corps: "Ce qui les rapproche : les deux visent à faire progresser une personne dans son parcours professionnel. Ce qui les distingue : une formation qualifiante développe des compétences reconnues sur le marché du travail, sans forcément déboucher sur un diplôme ou un titre officiel. Une formation certifiante se conclut par l'obtention d'une certification reconnue (diplôme, titre professionnel, CQP).",
     relations: [
-      { ficheId: 'certification', type: 'voir-aussi' }
+      { ficheId: 'certification', type: 'voir-aussi' }, { ficheId: 'medecine-travail', type: 'voir-aussi' }
     ]
   },
   {
@@ -932,7 +932,7 @@ var LEXIQUE_FICHES = [
     id: 'methode-desc', titre: 'Méthode DESC', titreDeTri: 'Méthode DESC', type: 'terme',
     univers: 'accompagnement-insertion', registres: ['langage-cip', 'langage-rh'],
     variantesRecherche: ['décrire exprimer suggérer conclure', 'aborder un désaccord'],
-    corps: "La méthode DESC est une méthode de communication en quatre étapes : décrire les faits, exprimer ce qu'on ressent, suggérer une solution, puis dire les conséquences positives attendues si chacun tient ses engagements. Elle est souvent utilisée en entreprise pour aborder un désaccord sans accuser. Son intérêt est de séparer les faits, les ressentis et les propositions, qui se mélangent facilement dans une discussion tendue.",
+    corps: "La méthode DESC est une méthode de communication en quatre étapes : décrire les faits, exprimer ce qu'on ressent, suggérer une solution, puis dire les conséquences positives attendues si chacun tient ses engagements. Elle a été proposée par les psychologues américains Sharon et Gordon Bower, dans un ouvrage sur l'affirmation de soi. Elle est souvent utilisée en entreprise pour aborder un désaccord sans accuser. Son intérêt est de séparer les faits, les ressentis et les propositions, qui se mélangent facilement dans une discussion tendue.",
     relations: [
       { ficheId: 'message-en-je', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' },
       { ficheId: 'critique-ou-reproche', type: 'voir-aussi' }
@@ -956,6 +956,33 @@ var LEXIQUE_FICHES = [
     relations: [
       { ficheId: 'affirmation-de-soi', type: 'voir-aussi' }, { ficheId: 'ecoute-active', type: 'voir-aussi' },
       { ficheId: 'message-en-je', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'coach', titre: 'Coach', titreDeTri: 'Coach', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['coaching', 'accompagnement individuel'],
+    corps: "Le mot « coach » vient du nom de Kocs, un village hongrois où l'on fabriquait un type de voiture à chevaux : il a d'abord désigné cette voiture, puis son conducteur, avant de désigner au XIXe siècle un répétiteur d'étudiants, puis un entraîneur sportif. Aujourd'hui, le coaching désigne un accompagnement individuel qui aide une personne à atteindre un objectif qu'elle a elle-même choisi. En France, la profession de coach n'est pas réglementée : aucun diplôme n'est exigé pour s'en réclamer, et il existe des certifications que les coachs passent ou non.",
+    relations: [
+      { ficheId: 'cip', type: 'voir-aussi' }, { ficheId: 'cep', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'cesf', titre: 'Le rôle du CESF', titreDeTri: 'CESF',
+    type: 'notion', gabarit: 'role', univers: 'structures-organismes', registres: ['langage-administratif'],
+    variantesRecherche: ['conseiller en économie sociale et familiale', 'aide pour mon budget et mon logement'],
+    corps: "Un CESF (conseiller en économie sociale et familiale) est un travailleur social, titulaire d'un diplôme d'État, dont le métier porte sur la vie quotidienne : budget, consommation, logement, alimentation et santé, numérique. Il accompagne les personnes pour faire valoir leurs droits et peut aussi animer des ateliers collectifs. On en rencontre notamment dans les centres communaux d'action sociale, les services sociaux des départements, les caisses d'allocations familiales et les associations.",
+    relations: [
+      { ficheId: 'assistante-sociale', type: 'voir-aussi' }, { ficheId: 'ccas', type: 'voir-aussi' }, { ficheId: 'surendettement', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'caces', titre: 'CACES', titreDeTri: 'CACES', type: 'terme',
+    univers: 'conditions-travail', registres: ['langage-administratif'],
+    variantesRecherche: ['permis cariste', 'conduite de chariot', 'certificat de conduite en sécurité'],
+    corps: "Le CACES (certificat d'aptitude à la conduite en sécurité) atteste qu'une personne a les connaissances et le savoir-faire pour conduire en sécurité certains engins, comme les chariots élévateurs, les grues ou les nacelles. Il est délivré par catégorie d'engin et doit être renouvelé à intervalles réguliers. Il ne suffit pas à lui seul pour conduire : c'est l'employeur qui délivre une autorisation de conduite, après avoir vérifié l'aptitude médicale et informé la personne des risques du site.",
+    relations: [
+      { ficheId: 'certification', type: 'voir-aussi' }
     ]
   },
   {
@@ -1337,7 +1364,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['conseiller en insertion professionnelle', 'mon CIP'],
     corps: "Un CIP (conseiller en insertion professionnelle) accompagne une personne dans la construction et la mise en œuvre de son projet professionnel. Le terme désigne le métier plutôt qu'une structure précise : un CIP peut exercer au sein d'une Mission Locale, d'une SIAE ou d'un autre organisme d'accompagnement.",
     relations: [
-      { ficheId: 'mission-locale', type: 'voir-aussi' }, { ficheId: 'diagnostic-partage', type: 'voir-aussi' }
+      { ficheId: 'mission-locale', type: 'voir-aussi' }, { ficheId: 'diagnostic-partage', type: 'voir-aussi' }, { ficheId: 'coach', type: 'voir-aussi' }
     ]
   },
   {
@@ -1593,7 +1620,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['assistant social', 'travailleur social', 'maison des solidarites', 'a qui demander de l aide'],
     corps: "L'assistante sociale de secteur (on dit aussi assistant de service social) accompagne gratuitement les habitants d'un territoire sur le budget, le logement, l'accès aux droits et les démarches administratives. Elle est rattachée au Département, le plus souvent dans une Maison des solidarités (MDS), ou au CCAS de la mairie. Pour la rencontrer, on contacte la mairie, le CCAS ou la MDS de son lieu d'habitation et on demande un rendez-vous avec le service social. C'est souvent le bon point de départ quand plusieurs difficultés se cumulent et qu'on ne sait pas par où commencer.",
     relations: [
-      { ficheId: 'frein-emploi', type: 'voir-aussi' }
+      { ficheId: 'frein-emploi', type: 'voir-aussi' }, { ficheId: 'cesf', type: 'voir-aussi' }
     ]
   },
   {
