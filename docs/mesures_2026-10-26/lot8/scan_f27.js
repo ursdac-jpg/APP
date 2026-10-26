@@ -14,6 +14,7 @@ const SORTIE = process.env.SORTIE || path.join(os.tmpdir(), 'scan_f27_' + tIdx +
 const FILTRE = process.env.MODELES || '';
 
 function scenarios(cap) {
+  if (process.env.COMBOS) { return combos(cap); }
   const S = [{ nom: 'base', regs: {} }];
   const bandeauOK = cap.bandeau !== 'non', colOK = cap.colonne !== 'non';
   const surBandeau = cap.bandeau === 'ajoutable' ? { regBandeauEnTete: true } : {};
@@ -40,6 +41,23 @@ function scenarios(cap) {
       }));
     });
   }
+  return S;
+}
+
+// COMBOS=1 : seulement le croisement d'un bandeau (cinq formes) et d'une colonne (toutes ses formes), pour chercher les trous et les textes illisibles du croisement.
+function combos(cap) {
+  const S = [];
+  if (cap.bandeau === 'non' || cap.colonne === 'non') { return S; }
+  const surBandeau = cap.bandeau === 'ajoutable' ? { regBandeauEnTete: true } : {};
+  const prep = cap.colonne === 'ajoutable' ? { regColonnes: '2', regFondColonnes: 'gauche' } : {};
+  const colonnes = [['droit', { regColonneBordDroit: true }], ['vallonne', { regColonneBordDroit: false }], ['arche', { regColonneArche: true }]];
+  cap.formesColonne.filter(f => !['droit', 'vallonne', 'arche'].includes(f)).forEach(f => colonnes.push([f, { regColonneBordDroit: false, regColonneForme: f }]));
+  ['droit', 'vallonne', 'pointe', 'diagonale', 'vague2'].filter(f => cap.formesBandeau.includes(f)).forEach(fb => {
+    colonnes.forEach(([fc, rc]) => {
+      if (fc === 'arche') { return; }   // l'arche est exclue avec un bandeau coloré (règle du panneau)
+      S.push({ nom: 'combo:bandeau=' + fb + ':colonne=' + fc, regs: Object.assign({}, prep, surBandeau, rc, { regBordBandeau: fb, regColonneSens: '0', regBordBandeauSens: '0' }) });
+    });
+  });
   return S;
 }
 
@@ -120,7 +138,18 @@ function scenarios(cap) {
         const id = 'e' + (n++); e.setAttribute('data-f27', g);
         liste.push({ id: n - 1, g, c, txt: tn.map(x => x.textContent.trim()).join(' ').slice(0, 40), cls: (e.className && e.className.baseVal === undefined ? e.className : '') + '', tag: e.tagName.toLowerCase(), rects });
       });
-      return { nbPages: d.querySelectorAll('.page-a4').length, elements: liste };
+      // Géométrie : hauteur de l'en-tête, trou entre le bandeau et la colonne colorée
+      const pg = d.querySelector('.page-a4') || cv, pgr = pg.getBoundingClientRect(), tete = cv.querySelector('.tete');
+      let geom = { teteRatio: null, trou: null };
+      if (tete) {
+        const tr = tete.getBoundingClientRect(); geom.teteRatio = Math.round(tr.height / pgr.height * 1000) / 1000;
+        const fondTete = /tete-fond/.test(tete.className) || (analyser(w.getComputedStyle(tete).backgroundColor) || [0, 0, 0, 0])[3] > 0.5;
+        let colTop = null;
+        if (/(^| )col-vague-(g|d)( |$)/.test(cv.className)) { const pv = w.getComputedStyle(cv, '::before'); if (pv.content !== 'none') { const t = parseFloat(pv.top); colTop = isNaN(t) ? 0 : t; } }
+        else { const cf = cv.querySelector('.col-fond'); if (cf) { colTop = cf.getBoundingClientRect().top - pgr.top; } }
+        if (fondTete && colTop !== null) { geom.trou = Math.round((colTop - (tr.bottom - pgr.top)) * 10) / 10; }
+      }
+      return { nbPages: d.querySelectorAll('.page-a4').length, elements: liste, geom };
     });
   }
   async function fixerStyle(css) {
@@ -183,8 +212,8 @@ function scenarios(cap) {
           await fixerStyle('');
           const hits = await analyserPixels({ B, R, V, M }, tag.elements);
           nbS++; if (hits.length) { nbH++; }
-          fs.appendFileSync(SORTIE, JSON.stringify({ modele: m.cle, scenario: sc.nom, pages: tag.nbPages, nbTextes: tag.elements.length, hits }) + '\n');
-          if (hits.length && process.env.PHOTOS) {
+          fs.appendFileSync(SORTIE, JSON.stringify({ modele: m.cle, scenario: sc.nom, pages: tag.nbPages, nbTextes: tag.elements.length, geom: tag.geom, hits }) + '\n');
+          if ((hits.length || (tag.geom && (tag.geom.teteRatio > 0.3 || Math.abs(tag.geom.trou || 0) > 2))) && process.env.PHOTOS) {
             fs.mkdirSync(process.env.PHOTOS, { recursive: true });
             await p.screenshot({ clip, path: path.join(process.env.PHOTOS, (m.cle + '__' + sc.nom).replace(/[^a-zA-Z0-9_+-]/g, '_') + '.png') });
           }
