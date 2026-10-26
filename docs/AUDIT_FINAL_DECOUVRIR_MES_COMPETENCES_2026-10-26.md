@@ -86,6 +86,16 @@ Flèche « Précédent » du navigateur : branchée dès la création (B.24, mod
 | 8 | Lexique (2 fiches), Nouveautés, journal, BRIQUES_COMMUNES, leçons | bas | `node scripts/checkLexique.js` : 0 erreur, 0 avertissement |
 | 9 | Essai `mesCompetences` dans `parcours_smoke.js` et passage complet clair et sombre, 0 erreur console | haut | Playwright ; vrai assistant : essai de Denis |
 
+### Séances regroupées par niveau d'effort (règle du 2026-10-01 : une séance, un niveau)
+
+| Séance | Niveau | Étapes | Pourquoi ce niveau |
+|---|---|---|---|
+| **A** | `[effort : haut]` | 1 (logique pure et filet par ligne) puis 4a (généralisation du passage, rejeu de l'essai de « Un CV, plusieurs métiers » avant et après) | Fonction partagée à changer, algorithme du filet refait |
+| **B** | `[effort : moyen]` | 2, 3, 4b (écran « L'assistant » du nouveau module), 7, 8 | Patrons existants, plusieurs fichiers, essai navigateur, aucun choix de conception |
+| **C** | `[effort : haut]` | 5 (relecture), 6 (document), 9 (essais complets) | Plus gros morceau d'interface, second passage, essais de bout en bout |
+
+Dépendances respectées : 2 et 3 s'appuient sur 1 ; 4b s'appuie sur 2, 3 et 4a ; 5 s'appuie sur 4b ; 6 sur 5 ; 9 sur tout.
+
 ## 7. Ce qui est simple, risqué, imprévu
 
 - **Simple** : introduction, routes, pastille, tuile, aide, recherche, Lexique, Nouveautés, dépôt (patrons existants).
