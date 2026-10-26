@@ -14,6 +14,7 @@
 4. `npm test` (le test des nouveautés contrôle les routes et les tirets longs), puis envoi sur GitHub à la demande de Denis.
 
 ## Journal
+2026-10-26 | Mise en page du CV | changer de modèle dans la galerie ne fait plus clignoter l'aperçu (le CV reste affiché pendant le changement) | à condenser
 2026-10-26 | Toute l'application | bouton « Signaler un problème » (accueil, page Nouveautés, panneau de la roue) : un formulaire Google, page courante préremplie, courriel à Denis | à condenser
 2026-10-26 | Nouveautés | chaque bouton « Essayer » porte l'icône du module qu'il ouvre | fait le 2026-10-26
 2026-10-26 | Nouveautés | bouton toujours visible (4e icône), pastille, page d'historique par mois, étiquette « Nouveau » | fait le 2026-10-26

@@ -18837,6 +18837,16 @@ function _mepSurveillerNouvelApercu() {
 var _mepConserverJusqua = 0;
 var _mepGarageApercu = null;
 function _mepConserverApercuPendant(ms) { _mepConserverJusqua = Date.now() + (ms || 3000); }
+// Un changement de modèle repart de la largeur de colonne par défaut (curseur à 35 %, soit 36 % à l'écran), exactement comme avant que l'aperçu soit conservé :
+// l'ancien chemin refaisait l'aperçu à neuf et le curseur y revenait toujours à 35. Sans cette remise, l'aperçu conservé garderait la largeur de la recette
+// du modèle (30, 40 ou 50 %) ou celle réglée à la main. Choix de Denis (26/10/2026) : garder le comportement actuel ; la largeur propre à chaque modèle sera tranchée à part.
+function _mepRemettreLargeurColonneDefaut() {
+  try {
+    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+    var curseur = d && d.getElementById('regLargeurColonneGauche');
+    if (curseur && curseur.value !== '35') { curseur.value = '35'; curseur.dispatchEvent(new Event('input', { bubbles: true })); }
+  } catch (e) { /* aperçu pas prêt : le rendu repartira du défaut */ }
+}
 function _mepGarerZoneApercu() {
   if (Date.now() >= _mepConserverJusqua || typeof document.body.moveBefore !== 'function') { return false; }
   var zone = document.getElementById('zonePdfInlineCV');
@@ -22832,7 +22842,9 @@ function _wireCarteSimpleMiseEnPage() {
       var id = this.getAttribute('data-mep-galerie-creatif');
       _mepPousserHistorique('modeleCreatif');
       _mepDernierMessageMEP = ''; // TACHE (retour Denis 2026-09-27, P6) : voir lancerTirageAuHasard plus haut.
+      _mepConserverApercuPendant(4000);   // l'aperçu n'est plus refait à chaque changement de modèle (plus de clignotement)
       _mepClicMoteur(null, 'pdfChoisirCreatif_' + id);
+      _mepRemettreLargeurColonneDefaut();
       _mepSyncColonnesDepuisMoteur();
       setTimeout(rerendre, 30);
     });
@@ -22855,7 +22867,9 @@ function _wireCarteSimpleMiseEnPage() {
       var variante = this.getAttribute('data-mep-galerie-sobre');
       _mepPousserHistorique('varianteSobre');
       _mepDernierMessageMEP = ''; // TACHE (retour Denis 2026-09-27, P6) : voir lancerTirageAuHasard plus haut.
+      _mepConserverApercuPendant(4000);   // l'aperçu n'est plus refait à chaque changement de modèle (plus de clignotement)
       _mepClicMoteur(null, 'pdfChoisirSobre_' + variante);
+      _mepRemettreLargeurColonneDefaut();
       _mepSyncColonnesDepuisMoteur();
       setTimeout(rerendre, 30);
     });
