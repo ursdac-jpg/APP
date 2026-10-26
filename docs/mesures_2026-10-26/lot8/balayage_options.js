@@ -25,7 +25,8 @@ const FIXTURE = process.env.FIXTURE || 'moyen';
   await p.reload(); await p.waitForTimeout(2500);
   await p.evaluate(async () => { (0, eval)(await (await fetch('/scripts/rendu/banc.js?' + Date.now())).text()); });
   const modeles = await p.evaluate(() => [{ cle: 'standard', id: 'standard', standard: true, sobre: false }].concat(window.__rendu.liste().map(m => ({ cle: m.cle, id: m.id, sobre: m.sobre }))));
-  const aFaire = modeles.filter((m, i) => i % tN === tIdx && (!FILTRE || m.cle.includes(FILTRE)));
+  const LISTE = FILTRE ? FILTRE.split(',') : [];
+  const aFaire = modeles.filter((m, i) => i % tN === tIdx && (!FILTRE || (LISTE.length > 1 ? LISTE.indexOf(m.cle) !== -1 : m.cle.includes(FILTRE))));
   fs.writeFileSync(SORTIE, '');
 
   async function ouvrirModele(m) {
