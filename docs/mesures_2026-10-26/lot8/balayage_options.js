@@ -98,7 +98,7 @@ const FIXTURE = process.env.FIXTURE || 'moyen';
     return p.evaluate(() => {
       const d = document.getElementById('__bo').contentDocument, l = [];
       d.querySelectorAll('select[id^=reg], input[type=checkbox][id^=reg], input[type=range][id^=reg]').forEach(e => {
-        if (/^regCouleur|^regPhoto|Fichier|^regSobreActif$|^regCreatifActif$/.test(e.id)) { return; }
+        if (/^regCouleur|^regPhoto|Fichier|^regSobreActif$|^regCreatifActif$|^regFormatCV$/.test(e.id)) { return; }
         if (e.tagName === 'SELECT') { [...e.options].filter(o => !o.hidden).forEach(o => l.push({ id: e.id, v: o.value, lib: o.textContent.trim().slice(0, 30) })); }
         else if (e.type === 'checkbox') { l.push({ id: e.id, v: !e.checked, lib: e.checked ? 'décoché' : 'coché' }); }
         else { l.push({ id: e.id, v: e.min, lib: 'min' }); l.push({ id: e.id, v: e.max, lib: 'max' }); }

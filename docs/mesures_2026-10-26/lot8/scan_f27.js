@@ -213,7 +213,7 @@ function combos(cap) {
           const hits = await analyserPixels({ B, R, V, M }, tag.elements);
           nbS++; if (hits.length) { nbH++; }
           fs.appendFileSync(SORTIE, JSON.stringify({ modele: m.cle, scenario: sc.nom, pages: tag.nbPages, nbTextes: tag.elements.length, geom: tag.geom, hits }) + '\n');
-          if ((hits.length || (tag.geom && (tag.geom.teteRatio > 0.3 || Math.abs(tag.geom.trou || 0) > 2))) && process.env.PHOTOS) {
+          if ((hits.length || (tag.geom && (tag.geom.teteRatio > 0.3 || (tag.geom.trou || 0) > 2))) && process.env.PHOTOS) {
             fs.mkdirSync(process.env.PHOTOS, { recursive: true });
             await p.screenshot({ clip, path: path.join(process.env.PHOTOS, (m.cle + '__' + sc.nom).replace(/[^a-zA-Z0-9_+-]/g, '_') + '.png') });
           }
