@@ -21,6 +21,7 @@
 | Bandeau « Contour rectangle » (cadre vide) | Le nom devient sombre. |
 | « Style rapide » Créatif et Sobre | Tirage sans répétition : chaque modèle une fois par tour, ordre mélangé, jamais deux modèles de la même famille de suite, plus de bandeaux en Sobre. |
 | Balayage des options | Complet (contenu court, moyen et long). |
+| En-tête avec un nom, un titre ou une accroche longs | Disposition **empilée** (validée sur captures le 26/10/2026) : photo et nom sur une ligne ; titre du CV pleine largeur sur deux lignes au plus, taille légèrement ajustée ; coordonnées sur une ligne ; accroche en bas, pleine largeur. Choix **automatique** quand l'en-tête serait trop grand ou l'accroche trop étroite (seulement tant que la personne n'a pas réglé l'en-tête) **et option du panneau** « Disposition de l'en-tête ». Le texte qui sort du bandeau ou de la colonne reprend la **couleur du bandeau ou de la colonne** (texte à deux tons : blanc sur la forme colorée, couleur de la forme sur le blanc). D'abord les modèles à en-tête « photo + nom + coordonnées / titre / accroche » (dont les modèles à colonne qui traverse l'en-tête) ; « Éditorial » et « Chrono foncé » (en-têtes d'une autre structure) ensuite, séparément. |
 
 ## 3. Fait et poussé (branche `claude/youthful-fermi-6q9gzu`)
 
