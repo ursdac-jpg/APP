@@ -48,3 +48,12 @@ async function deposerFichierDepuis(p, btnId, fichier) {
   await L.clic(p, '#btnContinuerWizard', 'Continuer (vérification)'); await p.waitForTimeout(3000);
 }
 module.exports.deposerFichierDepuis = deposerFichierDepuis;
+// Idem assistantEtColler mais avec un texte brut (reponse reelle archivee) et un bouton « Coller » dont l'identifiant est cherche
+async function assistantEtCollerBrut(p, texte, prefixe, assistant) {
+  await L.clicTexte(p, assistant || 'Claude', prefixe + ' assistant'); await p.waitForTimeout(1200);
+  const c = p.getByText('Je comprends, continuer', { exact: false }).first(); if (await c.count()) { await c.click(); await p.waitForTimeout(3500); }
+  const r = p.locator('#btnJeSuisDeRetourIA').first(); await r.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {}); if (await r.isVisible().catch(() => false)) { await r.click(); await p.waitForTimeout(1000); }
+  await p.evaluate(txt => navigator.clipboard.writeText(txt), texte);
+  await L.clic(p, '[id^="btnCollerAuto"]:visible, button:has-text("Coller la réponse"):visible', prefixe + ' Coller la réponse'); await p.waitForTimeout(2500);
+}
+module.exports.assistantEtCollerBrut = assistantEtCollerBrut;

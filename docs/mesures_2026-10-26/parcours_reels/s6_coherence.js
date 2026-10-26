@@ -19,7 +19,22 @@ const L = require('./lib.js'); const S = require('./saisies4.js');
     if (!(await cand.isEnabled())) { console.log('  GRISÉ :', (await L.boutons(p)).filter(x => !/aide-option|pastille|jeton/.test(x)).slice(0, 25).join(' ; ')); break; }
     console.log('  clic sur « ' + (await cand.textContent()).trim() + ' »'); await cand.click(); await p.waitForTimeout(2500);
   }
-  await p.waitForTimeout(6000); await L.photo(p, 'coh-6-rapport-apres-6s');
+  await p.waitForTimeout(2000);
+  await L.clic(p, '#ctBoutonEntretienAvance', 'Aller plus loin : mon entretien'); await p.waitForTimeout(2500); await L.photo(p, 'coh-7');
+  console.log('boutons:', (await L.boutons(p)).filter(x => !/aide-option|jeton/.test(x)).slice(0, 22).join(' ; '));
+  console.log('texte:', (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(300, 1100));
+  await p.fill('#ctReponseEntretien0', 'Parce que je cherche un poste stable près de chez moi.'); await p.fill('#ctReponseEntretien1', 'Je préviens mon responsable et je note la référence.');
+  await L.clic(p, '#btnValiderEntretienAvance', 'Valider (entretien avancé)'); await p.waitForTimeout(2500); await L.photo(p, 'coh-8');
+  console.log('boutons:', (await L.boutons(p)).filter(x => !/aide-option|jeton/.test(x)).slice(0, 22).join(' ; '));
+  console.log('texte:', (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(250, 900));
+  await S.assistantEtColler(p, { synthese: 'Entretien globalement réussi.', pointsForts: ['Réponses claires'], axesAmelioration: ['Développer un exemple'], recommandations: ['Préparer un exemple chiffré.'], parQuestion: [{ question: 'Pourquoi ce poste ?', resumeReponse: 'Poste stable près de chez moi.', attentesEmployeur: 'Vérifier la motivation.' }, { question: 'Que faites-vous en cas de produit manquant ?', resumeReponse: 'Je préviens mon responsable.', attentesEmployeur: 'Vérifier l’autonomie.' }] }, 'coh-ent');
+  for (let i = 1; i <= 4; i++) {
+    const e = await L.etat(p, 'coh-ent écran ' + i); await L.photo(p, 'coh-9-ecran' + i);
+    const cand = p.locator('#btnContinuerCollage:visible, #btnSuivantNavigation:visible, .barre-navigation-fixe .btn-success:visible').first();
+    if (!(await cand.count()) || !(await cand.isEnabled())) { console.log('  fin de chaîne. boutons :', (await L.boutons(p)).filter(x => /^button/.test(x) && !/aide-option|pastille|jeton/.test(x)).slice(0, 14).join(' ; ')); break; }
+    console.log('  clic sur « ' + (await cand.textContent()).trim() + ' »'); await cand.click(); await p.waitForTimeout(2500);
+  }
+  await L.photo(p, 'coh-6-rapport-apres-6s');
   console.log('titres des boutons grisés:', JSON.stringify(await p.evaluate(() => ['ctBoutonVoirLettre', 'ctBoutonRelancerAnalyse'].map(id => { const b = document.getElementById(id); return b ? { id, disabled: b.disabled, title: b.title, aria: b.getAttribute('aria-label'), explication: (b.parentElement.innerText || '').replace(/\\s+/g, ' ').slice(0, 160) } : { id, absent: true }; }))));
   console.log('états après 6 s:', (await L.boutons(p)).filter(x => /ctBouton|Résumé|Relancer|Voir\/imprimer/.test(x)).join(' ; '));
   console.log('erreurs:', p.errs);
