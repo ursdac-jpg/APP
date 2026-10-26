@@ -3584,11 +3584,12 @@
       ucpmReinitialiser();
       var etat = ouvrirUnCvPlusieursMetiers();
       naviguerVers('un-cv-plusieurs-metiers'); await attente(800);
-      cas('ucpm p1 : « Choisir mon assistant » est bloqué tant que le CV n’est pas relu', !!$('#btnUcpmVersAssistant') && $('#btnUcpmVersAssistant').disabled);
-      cas('ucpm p1 : « Continuer » est bloqué tant que les métiers ne sont pas reçus', $('#btnSuivantNavigation').disabled);
+      cas('ucpm p1 : pas de bouton « Continuer » dans la page (un seul, dans la barre du bas)', !$('#btnUcpmVersAssistant'));
+      cas('ucpm p1 : « Continuer » de la barre est bloqué tant que le CV n’est pas relu', $('#btnSuivantNavigation').disabled);
       etat.texteCV = 'Agent d’entretien des bâtiments, dix ans d’expérience.'; etat.cvRelu = true; ucpmRendrePage(); await attente(400);
       cas('ucpm p1 : le texte relu et masqué est visible avant l’envoi', !!$('details textarea[readonly]'));
-      $('#btnUcpmVersAssistant').click(); await attente(500);
+      cas('ucpm p1 : CV relu : « Continuer » de la barre s’active, toujours aucun bouton dans la page', !$('#btnSuivantNavigation').disabled && !$('#btnUcpmVersAssistant'));
+      $('#btnSuivantNavigation').click(); await attente(500);
       cas('ucpm p1 : le choix de l’assistant propose les six assistants de l’application', document.querySelectorAll('[data-assistant-ucpm]').length === 6);
       etat.passages = { metiers: { vue: 'coller', assistant: 'chatgpt' } }; ucpmRendrePage(); await attente(400);
       $('#texteCollageUcpmMetiers').value = 'Voici mes conseils, sans aucun JSON.';
@@ -4282,7 +4283,7 @@
       cas('ucpm p1 : tant que rien n’est validé, le CV de la page reste vide', !etat.cvRelu && !etat.texteCV);
       boutons().filter(function (b) { return /Enregistrer/.test(b.innerText) && b.offsetParent; })[0].click(); await attente(600);
       boutons().filter(function (b) { return /^Continuer/.test(b.innerText.trim()) && b.offsetParent && !b.disabled; })[0].click(); await attente(1200);
-      cas('ucpm p1 : une fois validé, le CV est prêt et on peut choisir l’assistant', etat.cvRelu && /Josiane BOKENOMAE/.test(etat.texteCV) && !$('#btnUcpmVersAssistant').disabled && /Votre CV est prêt/.test(texte($('#contenuPageUcpm'))));
+      cas('ucpm p1 : une fois validé, le CV est prêt et on peut choisir l’assistant', etat.cvRelu && /Josiane BOKENOMAE/.test(etat.texteCV) && !$('#btnSuivantNavigation').disabled && /Votre CV est prêt/.test(texte($('#contenuPageUcpm'))));
       // remplacer le CV puis fermer la fenêtre sans valider : le dernier CV validé reste en place
       var ancien = etat.texteCV;
       $('#btnUcpmDeposerAutre').click(); await attente(600);

@@ -8,7 +8,7 @@ const REPONSES = [() => '```json\n' + JSON.stringify(EXT) + '\n```', () => '```j
   await L.carte(p, 'orientation', 'btnCarteAccueilUnCvPlusieursMetiers', 'tuile UCPM');
   await L.clic(p, '#btnUcpmCommencer', 'Commencer');
   await S.deposerFichierDepuis(p, 'btnUcpmDeposer');
-  await L.clic(p, '#btnUcpmVersAssistant', 'Choisir mon assistant (dans la page)'); await p.waitForTimeout(1200);
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (barre du bas) : envoyer le CV à l’assistant'); await p.waitForTimeout(1200);
   await S.assistantEtCollerBrut(p, fs.readFileSync(REP + '01_metiers_V5_chatgpt_1.txt', 'utf8'), 'ucpm-metiers');
   await L.etat(p, 'ucpm après collage des métiers'); await L.photo(p, 'ucpm-5');
   for (let i = 1; i <= 40; i++) {

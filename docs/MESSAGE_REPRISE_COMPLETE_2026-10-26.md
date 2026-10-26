@@ -20,6 +20,7 @@
 | **L0 (C18)** dépôt du CV par texte collé : la suite est celle du fichier | `12efec0` (`data/metiers.js`) | rejeu de bout en bout des deux dépôts, même écran, même barre |
 | **L1a (C7)** « Retour » de « Votre profil » vers « Votre parcours » en création | `bb78a2e` (`js/app.js`) | référence des retours mise à jour (2 lignes), matrice des familles identique |
 | **L4a (D13, D14, D37)** Mes Repères : bouton du Carnet, champ de recherche, débordement à 375 px | `c2351ce` (`modules/reperes/reperes.css`) | recouvrement 768 px² puis 0, débordement 12 px puis 0 |
+| **D30** « Un CV, plusieurs métiers », page 1 : un seul « Continuer », dans la barre du bas (premier cas de la grappe G1, demande de Denis) | commit de la séance (`modules/un-cv-plusieurs-metiers/page1Cv.js`) | rejeu par de vrais clics (`u2_ucpm_continuer.js`) : barre grisée avant dépôt, active après dépôt, envoi à l'assistant, retour avec « Refaire la demande » dans la page, page 2 |
 | Registre des familles de « Vos documents », étape 0 (module pur, 26 essais) | `a7190bc` (`modules/vos-documents/familles.js`) | pas encore branché sur l'application |
 | **Lot 8, clignotement** au changement de modèle de la galerie | `dc2bbd4` (`js/app.js`) | 37 modèles, CV identique, un seul cadre, plus de flash |
 | **Lot 8, lisibilité du texte** (garde-fou « seulement si illisible », dates des certifications sous l'intitulé, formes de bandeau dessinées) | `9bd5605`, `0c6d5f9` (`modules/cv-pdf-html/cvPdfLisibilite.js`, `tests/lisibilite.test.js`) | cas illisibles de 74 à environ 3 sur 1 074 combinaisons ; banc de rendu identique à la référence |
@@ -51,11 +52,11 @@ Journal des changements : une ligne par changement visible est notée dans `docs
 10. **[effort : bas] Mesure finale** après les correctifs (`scan_f27.js` avec `RAPIDE=1 COTES=gauche`, `balayage_options.js`), mise à jour du cahier du Lot 8.
 
 ### B. Audit des cartes, détail dans `docs/SYNTHESE_AUDIT_TOUTES_CARTES_ET_PLAN_2026-10-26.md` (lots, constats, tableau de la section 8)
-Faits : L0, L1a, L4a. Restent, **sans décision de Denis d'abord** :
+Faits : L0, L1a, L4a, et **D30 (« Un CV, plusieurs métiers », page 1 : un seul « Continuer », dans la barre)**, premier modèle de la grappe G1 à étendre aux autres modules (lot L5). Restent, **sans décision de Denis d'abord** :
 - **[effort : bas] L4b** : deux contrastes du mode sombre (`.metier-resume-nom` 2,5 et `button.pastille-export-docx` 1,2) : variables `[data-theme="sombre"]`.
 - **[effort : bas] L3a** : titre automatique d'un Repère ou d'une note du Carnet (D12) coupé au mot entier avec « … ».
 - **[effort : moyen] L7 étape 1** : brancher le titre de « Vos documents » sur le registre (`signauxVosDocuments()` puis `familleVosDocuments(...).titre`) ; la matrice de mesure (`docs/mesures_2026-10-26/matrice_vos_documents.js`) ne doit pas bouger.
-Restent, **après décision de Denis** (section 5) : L1b (C14), L2 (C1 : le 2e passage de l'assistant pour Reformuler), L3b (le mot « département », D25), L3c (textes : D9, D11, C8, D32), L4c (D38 : boutons flottants à 375 px, maquette, à voir sur un vrai téléphone), L5 (G1 : « Continuer » et barre du bas), L6 (C17 : règle de fin de parcours), L7 suite (registre), L8 (« Revoir la présentation » : une seule brique), L9 (G3 : vocabulaire des barres d'étapes), L10 (G4 : dépôt du CV, brique commune), L11 (G10 : enveloppe commune de l'étape de l'assistant).
+Modèle à reproduire pour la grappe G1 (lot L5) : voir D30 (page 1 d'« Un CV, plusieurs métiers »), `peutContinuer` / `raisonBlocage` / `continuer` et le rejeu `u2_ucpm_continuer.js`. Restent, **après décision de Denis** (section 5) : L1b (C14), L2 (C1 : le 2e passage de l'assistant pour Reformuler), L3b (le mot « département », D25), L3c (textes : D9, D11, C8, D32), L4c (D38 : boutons flottants à 375 px, maquette, à voir sur un vrai téléphone), L5 (G1 : « Continuer » et barre du bas), L6 (C17 : règle de fin de parcours), L7 suite (registre), L8 (« Revoir la présentation » : une seule brique), L9 (G3 : vocabulaire des barres d'étapes), L10 (G4 : dépôt du CV, brique commune), L11 (G10 : enveloppe commune de l'étape de l'assistant).
 
 ## 5. Décisions que Denis doit encore prendre (à lui poser en une fois, avec une recommandation)
 
