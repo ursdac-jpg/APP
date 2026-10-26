@@ -116,3 +116,63 @@ Chaque ligne : fiche, source, et ce qu'on dirait (idée seulement, texte à réd
 - [ ] Les contacts de F : à passer par le sas ?
 - [ ] « Analyse de pratiques professionnelles » comme fiche : oui ou non ?
 - [ ] Qui est l'auteur du texte sur le coach ?
+
+---
+
+# Partie 2 : les photos (affiches, dépliants, diapositives, tableaux blancs)
+
+Contexte donné par Denis : photos prises pendant la formation, les stages et les échanges. Les textes manuscrits difficiles à lire sont laissés de côté. **Règle de Denis pour les contacts : jamais de nom de personne ; la structure, son téléphone et son mail suffisent.** Aucune photo n'a de date de relevé fiable : tout part au sas, rien n'est publié avant un appel ou l'ouverture de la page.
+
+## 1. Fait dans cette séance : 14 lignes déposées dans le sas (`outils/sas/lieux.sas.txt`)
+
+Format du registre « Qui fait quoi » (colonne mail comprise), colonne date vide, source « relevé sur affiche, à vérifier ». `npm test` : 2020 verts sur 2021 ; l'échec restant est un essai de chemin Windows (`tests/veillePont.test.js`), sans lien avec ce travail.
+
+| Structure | Téléphone | Mail | Remarque |
+|---|---|---|---|
+| Équipe mobile psychiatrie précarité du Bergeracois (CH de Vauclaire) | 05 53 27 71 41 | bergerac.precarite@ch-vauclaire.fr | accueil inconditionnel, lundi au vendredi ; secteur : agglomération bergeracoise, Port-Sainte-Foy, Vergt, Buisson-de-Cadouin, Monpazier, Eymet |
+| 8 groupes d'entraide mutuelle (Croix Marine) : Bergerac, Excideuil, Montpon, Neuvic, Nontron, Périgueux, Sarlat, Terrasson | un fixe chacun | aucun (voir plus bas) | le 9e, Pineuilh, est en Gironde : hors périmètre |
+| Part'ÂGE, espace de vie sociale (quartier Campréal, Bergerac) | 05 53 57 28 57 | campreal.evs@gmail.com | aide au numérique, bus numérique, ateliers, écoute, aide administrative |
+| Association BASE (siège de Part'ÂGE) | 05 53 58 88 69 | associationbase@gmail.com | site noté sur l'affiche : à ouvrir avant de l'inscrire |
+| Centre médico-social de Sigoulès | 05 53 02 06 13 | aucun | permanences à Issigeac, Faux, Eymet ; les noms des personnes ne sont pas repris |
+| La Traverse, accès aux droits et aide au numérique | 07 69 63 67 85 | acces.aux.droits@latraverse-bergerac.fr | ordinateurs reconditionnés, forfaits prépayés solidaires (les prix ne sont pas repris) |
+| CIDFF 24, accompagnements numériques | 05 53 35 90 90 | cidff.cnum@gmail.com | distinct du numéro général du CIDFF déjà publié |
+
+Les structures marquées « Petite structure ; » : GEM, Part'ÂGE, BASE, La Traverse (décision D3 du 19/10 : à confirmer par Denis au moment du « C'est bon »).
+
+## 2. Déjà dans l'application ou dans le sas : rien à faire
+
+Les Saveurs du Bois du Roc (atelier chantier d'insertion, Monestier), eva24.fr (plateforme des violences), CLAP / maison de protection des familles, CSAPA du CEID, AIDE 24, AF2P Ligue 24 (DELF A1 à B2), GEIQ 24 (même téléphone que sur l'affiche), La Traverse et son rendez-vous des entrepreneurs, Croix Marine (siège), la fiche « aide à la garde d'enfants » de France Travail, les fiches Visale et Loca-Pass, la fiche sur la santé et la sécurité (INRS).
+
+## 3. À corriger ou compléter dans l'existant
+
+- [ ] **Croix Marine** (fiche publiée) : ajouter le mail `association@croixmarine24.fr` (le site et le téléphone y sont déjà).
+- [ ] **Agences d'intérim de Bergerac** (affiche « Mon inscription aux agences d'intérim ») : adresses concordantes sauf deux. **Proman** : l'affiche dit 89 rue Neuve d'Argenson, le sas dit 21 place Gambetta. **Interim 24** : « rue de la Roque » sur l'affiche, « avenue de la Roque » dans le sas. À trancher par un appel.
+- [ ] **C3I** (agence de Sainte-Foy-la-Grande) : en Gironde, hors périmètre.
+
+## 4. Pistes de contenu (hors annuaire)
+
+- [ ] **Action Logement** `[effort : moyen]` : sept diapositives. Absents de l'application d'après une recherche : **Mobili-Jeune**, l'**accession abordable** (PSLA, bail réel solidaire, vente HLM, TVA réduite), le **prêt accession**, les **prêts travaux**, le **service d'accompagnement social**. Visale et Loca-Pass existent déjà : comparer, ne pas dupliquer. **Les chiffres des diapositives (plafonds, durées, âges) ne sont jamais copiés d'une photo** : bloc daté, relu sur le site officiel, comme le veut le chantier « chiffres à jour ».
+- [ ] **Lexique, fiches métier du social** `[effort : moyen]` : le tableau blanc cite CISP (conseiller en insertion socioprofessionnelle), CESF (conseiller en économie sociale et familiale), assistant de service social, CEP, CIP. Aucune fiche CISP ni CESF dans le Lexique. Besoin réel : savoir qui on a en face de soi. Rédigées par Denis.
+- [ ] **Lexique, fiche CACES** `[effort : bas]` : absente. L'affiche des métiers de la logistique (préparateur de commandes, cariste, agent magasinier) donne les catégories de chariots, à expliquer sans consigne. Les métiers existent déjà dans `data/secteurs.js` : comparer les compétences listées.
+- [ ] **Lexique, valeurs de la République** `[effort : moyen]` : le tableau blanc de la formation (AFPA) confirme quatre thèmes : valeurs de la République et laïcité, violences sexistes et sexuelles, sensibilisation au handicap, développement durable avec RSE, économie circulaire et ESS. Déjà dans `LEXIQUE_MATIERE_A_INTEGRER.md` ; « laïcité », « RSE » et « économie circulaire » sont à ajouter à la liste.
+- [ ] **Liste des documents à préparer pour s'inscrire en intérim** `[effort : moyen]` : CV, pièce d'identité valide, carte vitale ou attestation de sécurité sociale, RIB, attestation d'hébergement, permis. « Attestation d'hébergement » est absente du Lexique. Rayon emploi de « Comprendre le cadre » ou liste dans « Mes documents » : à choisir par Denis.
+- [ ] **« À partir de mon récit » et compétences** `[effort : moyen]` : l'infographie « 12 compétences clés » (communication, empathie, envie d'apprendre, écoute active, adaptabilité, négociation, résilience, persuasion, gestion du temps, esprit d'équipe, audace, persévérance) est l'œuvre d'un auteur nommé. On reprend l'idée, pas l'image. Comparer avec `data/competences.js` : « négociation », « persuasion » et « audace » sont peut-être à ajouter.
+- [ ] **Santé mentale et emploi** : l'affiche « Mieux dans ma tête, mieux dans mon job » (Terres Equi'Solidaires, APES 24, La Fab'coop, préfecture) décrit un accompagnement confidentiel pour la santé mentale et l'insertion. **Son contact n'apparaît pas sur la photo** : à demander à Denis. Le dépliant « Terres Equi'Solidaires » présente une entreprise d'insertion de médiation équine (ouverture en février 2021). L'icône de cerveau à visage de l'affiche n'est pas reprise (règle des icônes).
+- [ ] **Pair'mission** (Mission Locale du Bergeracois et La Gare Mondiale, cofinancé par l'Union européenne) : projet pour agir, expérimenter, transmettre une idée ou une passion. Rayon jeunes. Contact non visible.
+- [ ] **« Raconte-moi ton projet »** (dispositif d'assistance au parcours de vie, service gratuit) : le nom du porteur et le contact ne sont pas sur la photo. À demander.
+- [ ] **« Mortel ton taf »** (INRS) : série en ligne sur la sécurité au travail, à ajouter comme lien dans la fiche santé et sécurité après ouverture de la page. `[effort : bas]`
+- [ ] **Forfaits et ordinateurs solidaires** : seule l'existence de l'offre de La Traverse est reprise, jamais les prix. Une note collante sur l'affiche (forfait, box, seuil de ressources de la CAF) est à moitié lisible : à demander à Denis si c'est un tarif social à décrire.
+- [ ] **Rattachement d'une commune à son centre médico-social** : la feuille de Sigoulès donne, commune par commune, qui accueille. Idée : « Qui fait quoi » dirait « votre centre médico-social » selon la commune. Chantier à part, Mode A, `[effort : haut]`, à ne pas lancer sans décision de Denis.
+
+## 5. À ne pas reprendre
+
+- Feuille manuscrite de contacts : noms de personnes et numéros personnels. **Non transcrits.** À retenir seulement : un secrétariat RSA à Bergerac (05 53 02 28 04, à confirmer par appel) ; la boîte « partenaires » de la CAF est destinée aux professionnels, pas au public ; le même numéro est écrit pour deux intercommunalités (probable erreur de copie) ; un « atelier des apprentissages » à Bergerac dont la nature n'est pas écrite.
+- Tableaux blancs « points + / fragilités » : travail de groupe de la formation, sans contenu pour l'application.
+- Photographies de personnes des affiches (logistique, « Mortel ton taf »).
+
+## 6. Décisions attendues de Denis (partie photos)
+
+- [ ] Valides-tu le dépôt des 14 lignes dans le sas, avec la marque « Petite structure ; » pour GEM, Part'ÂGE, BASE et La Traverse ?
+- [ ] Quel est le contact de « Mieux dans ma tête » (Terres Equi'Solidaires), de Pair'mission et de « Raconte-moi ton projet » ?
+- [ ] La note collante sur les forfaits : tarif social à décrire, oui ou non ?
+- [ ] Les pistes de la section 4 : on les classe dans `TACHES_VALIDEES.md` par niveau d'effort quand tu auras tranché.
