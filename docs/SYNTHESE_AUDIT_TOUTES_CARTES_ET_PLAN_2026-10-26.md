@@ -110,6 +110,9 @@ Mise à jour du 26/10/2026 : **tout ce qui était faisable dans le cloud a été
 4. Pour un parcours complet : `docs/mesures_2026-10-26/parcours_reels/LISEZMOI.md`.
 5. Après chaque lot : essai de Denis sur les écrans touchés (liste donnée par le lot), puis seulement fusion.
 
+## 7 bis. Avancement en fin de séance cloud (26/10/2026)
+**Faits et poussés** sur la branche `claude/youthful-fermi-6q9gzu` : **L0** (C18, commit `12efec0`), **L1a** (C7, `bb78a2e`, référence des retours mise à jour), **L4a** (D13, D14, D37, `c2351ce`), registre étape 0 (`a7190bc`), et tout le **Lot 8** décrit dans `docs/CHANTIER_LOT8_EDITEUR_CV_2026-10-26.md`. **Restent** : L4b, L3a (sans décision), puis L1b, L2, L3b, L3c, L4c, L5 à L11 (après les décisions de la section 6). Point d'entrée de la reprise : `docs/MESSAGE_REPRISE_COMPLETE_2026-10-26.md`.
+
 ## 8. Ce qui peut être commencé depuis le cloud (mise à jour du 26/10/2026)
 Critère : changement **étroit**, **vérifiable ici** (`npm test`, scripts de mesure, captures) et **sans choix d'interface** pour Denis. Chaque ligne se fait en **un commit**, sur la branche, avec le grep de tous les appelants et la comparaison des fichiers `*.REFERENCE.json`. Rien n'est fusionné dans `master` : Denis essaie en local, puis décide.
 

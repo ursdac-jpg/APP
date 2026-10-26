@@ -28,6 +28,7 @@
 - **Clignotement au changement de modèle : corrigé** (commit `dc2bbd4`). Cause mesurée : seul le dé « Style rapide » conservait l'aperçu ; les clics de galerie reconstruisaient le cadre (2 images avec un cadre à 794 px au lieu de 420, « photo » de l'aperçu pendant environ 270 ms). Les clics Créatif et Sobre conservent maintenant l'aperçu (`_mepConserverApercuPendant`) et la largeur de colonne repart de 35 % (`_mepRemettreLargeurColonneDefaut`). Preuve : 37 modèles comparés, empreinte du CV identique à l'ancien comportement, un seul cadre, aucun flash.
 - **Garde-fou de lisibilité** (nouveau fichier `modules/cv-pdf-html/cvPdfLisibilite.js`, 9 tests dans `tests/lisibilite.test.js`). Appelé après chaque rendu, juste après le texte à deux tons. Règles de prudence : texte déjà lisible jamais touché, couche de fond non comprise = rien, composition ou croisement actifs = rien. Sur les 7 cas de la maquette, 6 sont corrigés. Un seul modèle change en rendu de base : « Colonne et frise » (titre « Compétences comportementales » gris sur bleu-gris, maintenant sombre) ; empreinte du registre et miniature mises à jour pour ce seul modèle.
 - Maquette de lisibilité : `docs/MAQUETTE_LISIBILITE_TEXTE_2026-10-26.html` (7 cas avant / après).
+- **Disposition d'en-tête « Empilée »** (commit `243929f`) : disposition 5 de l'en-tête libre, bouton « Empilée » à côté de « Décalée » dans le grand aperçu. Le texte reprend la couleur du CV hors de la colonne colorée (texte à deux tons) et reste blanc sur la colonne. Banc de rendu des 39 modèles identique à la référence : aucun CV actuel ne change tant que l'option n'est pas choisie. Choix automatique : pas encore fait.
 
 ## 4. Constats mesurés (numérotés, à ne pas perdre)
 
@@ -63,7 +64,7 @@ Contenu long : accroche de 5 phrases, titre long, nom composé, 6 expériences. 
 - Les garde-fous existants (`_pdfEnteteTropHaut` à 30 %, `_pdfAccrocheTropEtroite` sous 160 px) détectent ces cas mais ne les réparent qu'au tirage du dé : rien ne répare quand la personne règle elle-même l'option.
 - Contenus court et moyen : balayage complet demandé, non fait à ce stade.
 
-## 5. À faire, dans l'ordre
+## 5. À faire, dans l'ordre (détail et étiquettes d'effort dans `docs/MESSAGE_REPRISE_COMPLETE_2026-10-26.md`, section 4)
 
 1. Dates des certifications sous l'intitulé dans une colonne étroite (L8-9) : vérifier par vrais clics, puis coder.
 2. En-tête et colonnes (L8-12 à L8-15) : bornes de sécurité seulement dans les cas anormaux (accroche jamais plus étroite que 160 px, en-tête jamais au-delà de 30 %, texte qui ne sort pas de la page), après enquête sur la cause de `mq-editorial` et de `regFondColonnes = droite`.
