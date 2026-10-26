@@ -1,5 +1,6 @@
 const { chromium } = require('playwright');
-const SC = '' + (process.env.CAPTURES || require('os').tmpdir() + '/captures_parcours') + '';
+const { controlerEcran } = require('./controles.js');
+const SC = '/tmp/claude-0/-home-user-APP/642c3445-eb3e-5259-ba86-29201aa22f54/scratchpad/captures';
 require('fs').mkdirSync(SC, { recursive: true });
 async function ouvrir() {
   const b = await chromium.launch();
@@ -9,8 +10,9 @@ async function ouvrir() {
   const p = await ctx.newPage(); p.errs = []; p.log = [];
   p.on('pageerror', e => p.errs.push(String(e).slice(0, 160)));
   p.on('dialog', d => { p.log.push('DIALOGUE: ' + d.message().slice(0, 120)); d.accept(); });
-  await p.goto('' + (process.env.URL_APP || 'http://localhost:8123') + '/index.html'); await p.waitForTimeout(2500);
+  await p.goto('http://localhost:8123/index.html'); await p.waitForTimeout(2500);
   await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  if (process.env.THEME === 'sombre') { await p.evaluate(() => document.documentElement.setAttribute('data-theme', 'sombre')); await p.waitForTimeout(400); }
   return { b, p };
 }
 async function etat(p, etiquette) {
@@ -25,6 +27,7 @@ async function etat(p, etiquette) {
   });
   const ligne = `[${etiquette}] route=${e.route} | h1=${e.h1} | barre=${e.barre || '(aucune)'} | bas=${e.bas}${e.modal ? ' | FENÊTRE OUVERTE' : ''}`;
   p.log.push(ligne); console.log(ligne);
+  if (process.env.CONTROLES !== '0') { await controlerEcran(p, (process.env.PARCOURS || '') + ' / ' + etiquette); }
   return e;
 }
 async function clic(p, sel, etiquette) {
@@ -38,3 +41,8 @@ async function clicTexte(p, texte, etiquette) {
 async function photo(p, nom) { await p.screenshot({ path: `${SC}/${nom}.png` }); }
 async function boutons(p) { return p.evaluate(() => [...document.querySelectorAll('button, a.btn, input[type=text], input[type=checkbox], select, textarea')].filter(e => e.offsetParent !== null).slice(0, 80).map(e => `${e.tagName.toLowerCase()}#${e.id || ''}.${(e.className + '').split(' ')[0]} «${(e.textContent || e.placeholder || e.value || '').trim().replace(/\s+/g, ' ').slice(0, 50)}»${e.disabled ? ' (grisé)' : ''}`)); }
 module.exports = { ouvrir, etat, clic, clicTexte, photo, boutons };
+async function carte(p, id, tuile, etiquette) {
+  await clic(p, `[data-carte-accueil="${id}"]`, 'carte d’accueil ' + id);
+  if (tuile) { return clic(p, '#' + tuile, etiquette || ('tuile ' + tuile)); }
+}
+module.exports.carte = carte;

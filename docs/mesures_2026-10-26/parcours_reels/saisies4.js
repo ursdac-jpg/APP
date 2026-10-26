@@ -37,3 +37,14 @@ async function deposerFichierEtEnregistrer(p) {
   await L.clic(p, '#btnContinuerWizard', 'Continuer (vérification)'); await p.waitForTimeout(3000);
 }
 module.exports.deposerFichierEtEnregistrer = deposerFichierEtEnregistrer;
+// Depose le CV par la fenetre commune (vrai choix de fichier) depuis le bouton d'un module quelconque
+async function deposerFichierDepuis(p, btnId) {
+  await L.clic(p, '#' + btnId, 'Déposer mon fichier (' + btnId + ')'); await p.waitForTimeout(1000);
+  const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.locator('#fichierWizardCVBouton').click()]);
+  await fc.setFiles(__dirname + '/cv_camille.txt'); await p.waitForTimeout(4000);
+  await L.clic(p, '#btnContinuerWizard', 'Continuer (dépôt du fichier)'); await p.waitForTimeout(2500);
+  const jaune = p.getByText('Retirer tout ce qui est en jaune', { exact: false }).first(); if (await jaune.count()) { await jaune.click(); await p.waitForTimeout(600); }
+  await L.clic(p, '#verifDocBtnEnregistrer', 'Enregistrer'); await p.waitForTimeout(1200);
+  await L.clic(p, '#btnContinuerWizard', 'Continuer (vérification)'); await p.waitForTimeout(3000);
+}
+module.exports.deposerFichierDepuis = deposerFichierDepuis;

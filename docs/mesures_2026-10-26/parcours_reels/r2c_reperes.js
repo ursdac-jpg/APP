@@ -1,0 +1,20 @@
+const L = require('./lib.js');
+(async () => {
+  const { b, p } = await L.ouvrir();
+  await L.carte(p, 'boiteaoutils', 'btnCarteAccueilReperes', 'tuile Mes Repères');
+  await L.clic(p, '#btnReperesIntroCommencer', 'Je commence'); await p.waitForTimeout(800);
+  await L.clicTexte(p, 'Garder une réflexion', 'Garder une réflexion'); await p.locator('.reperes-type-btn', { hasText: 'Question' }).click(); await p.waitForTimeout(600);
+  await p.locator('#reperesSaisieTexte').fill('Comment présenter mes quatre ans d’entretien de bureaux à un employeur ?'); await p.waitForTimeout(500);
+  console.log('titre auto:', await p.locator('#reperesSaisieTitre').inputValue());
+  await p.locator('#reperesSaisieTerminer').click(); await p.waitForTimeout(1000);
+  await L.etat(p, 'après « C’est noté »'); await L.photo(p, 'rep-7');
+  await p.locator('.reperes-item-head').first().click(); await p.waitForTimeout(800); await L.photo(p, 'rep-8-item-ouvert');
+  console.log((await L.boutons(p)).filter(x => !/aide-option|jeton|quickadd/.test(x)).slice(0, 24).join('\n'));
+  console.log('texte:', (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(300, 1100));
+  await p.getByRole('button', { name: '🗑️ Supprimer' }).click(); await p.waitForTimeout(400); await L.photo(p, 'rep-9a'); await p.waitForTimeout(1500);
+  console.log('après clic Supprimer:', await p.evaluate(() => ({ fenetre: (document.querySelector('.fenetre-erip-overlay.visible') || {}).innerText || 'aucune', items: document.querySelectorAll('.reperes-item-head').length })));
+  await L.photo(p, 'rep-9-apres-supprimer'); console.log('texte après:', (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(300, 900));
+  console.log('dialogues:', p.log.filter(l => /DIALOG|ECHEC/.test(l)));
+  console.log('erreurs:', p.errs);
+  await b.close();
+})();

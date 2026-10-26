@@ -51,3 +51,20 @@ async function jusquAValider(p, prefixe, max) {
   return false;
 }
 module.exports.jusquAValider = jusquAValider;
+// Fin d'un document lettre ou entretien : Valider, export Word, « j'ai fini »
+async function finirDocument(p, prefixe) {
+  const principal = p.locator('#btnSuivantNavigation:visible').first();
+  if (await principal.count()) { await principal.click(); await p.waitForTimeout(1800); await L.etat(p, prefixe + ' après Valider'); }
+  const wd = p.getByText(/Télécharger le (fichier )?Word/, { exact: false }).first();
+  if (await wd.count()) { await wd.click().catch(() => {}); await p.waitForTimeout(2500); }
+  const e = await L.etat(p, prefixe + ' après export');
+  console.log('  suggestions:', (await L.boutons(p)).filter(x => /btnSuggerer|M’entraîner|Écrire ma lettre/.test(x)).join(' ; ') || '(aucune)');
+  const fin = p.locator('.barre-navigation-fixe .btn-success');
+  if (await fin.count()) {
+    await fin.first().click(); await p.waitForTimeout(1500);
+    const f = await p.evaluate(() => { const x = document.querySelector('.fenetre-erip-overlay.visible'); return x ? x.innerText.replace(/\s+/g, ' ').slice(0, 300) : null; });
+    await L.etat(p, prefixe + ' après « j’ai fini »'); console.log('  fenêtre après « j’ai fini » :', f || 'aucune');
+  } else { console.log('  PAS de bouton « Merci bien, j’ai fini »'); }
+  return e;
+}
+module.exports.finirDocument = finirDocument;
