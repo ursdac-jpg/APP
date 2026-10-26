@@ -9,9 +9,9 @@ Ce dossier remplace la synthèse courte de `docs/APPORTS_DOCUMENTS_2026-10-26.md
 ## 0. La réponse en dix lignes
 
 - **Récupéré** : 7 documents (PDF, plus de cent pages, dont un doublon) et toutes les photos reçues, tous lus. Seules les parties illisibles ou purement manuscrites sont laissées de côté.
-- **Informations utiles retenues : 62 au premier tri, ramenées ensuite par le filtre de Denis (section 0bis) : 12 fiches faites, 16 lignes du sas, le reste écarté ou gardé pour la suite**, réparties ainsi : **Lexique 26** (22 fiches nouvelles, 4 fiches existantes à enrichir), **Mes Repères et Carnet 5**, **Entretien 3**, **À partir de mon récit 1**, **Comprendre le cadre 9** (logement, budget, emploi, santé et sécurité, santé mentale), **mots du métier du social 3**, **Qui fait quoi 16 lignes de structures** (déjà déposées dans le sas). Le détail est dans les sections 2 à 8.
+- **Informations utiles retenues : 62 au premier tri, ramenées ensuite par le filtre de Denis (section 0bis) : 12 fiches faites, 18 lignes du sas, le reste écarté ou gardé pour la suite**, réparties ainsi : **Lexique 26** (22 fiches nouvelles, 4 fiches existantes à enrichir), **Mes Repères et Carnet 5**, **Entretien 3**, **À partir de mon récit 1**, **Comprendre le cadre 9** (logement, budget, emploi, santé et sécurité, santé mentale), **mots du métier du social 3**, **Qui fait quoi 18 lignes de structures** (déjà déposées dans le sas). Le détail est dans les sections 2 à 8.
 - **Écarté, avec la raison** : section 9. En gros : tout ce qui étiquette la personne (questionnaires avec scores, « faible estime de soi »), les chiffres, les noms de personnes, les illustrations protégées.
-- **Déjà fait dans cette séance** : 16 lignes de structures dans `outils/sas/lieux.sas.txt` (à vérifier par un appel avant publication). Le reste est un plan.
+- **Déjà fait dans cette séance** : 18 lignes de structures dans `outils/sas/lieux.sas.txt` (à vérifier par un appel avant publication). Le reste est un plan.
 - **Ce que tu dois faire ensuite** : section 11, en cinq gestes. Le premier est de choisir un lot.
 - **Pour retrouver tout ça sur ta machine** : section 12 (le fichier t'est aussi envoyé directement, et un message prêt à coller y figure).
 
@@ -30,12 +30,13 @@ Ce dossier remplace la synthèse courte de `docs/APPORTS_DOCUMENTS_2026-10-26.md
 | Ce qui est gardé | Pourquoi | Vérifié en ligne |
 |---|---|---|
 | Les 12 fiches ci-dessus | Des définitions : ce que c'est et pourquoi ça existe, aucun conseil | DESC : Sharon et Gordon Bower, ouvrage sur l'affirmation de soi, quatre étapes confirmées ; coach : mot venu de Kocs (Hongrie), sens « entraîneur » depuis le XIXe siècle, profession non réglementée en France ; CESF : diplôme d'État, travailleur social de la vie quotidienne (page du ministère des Solidarités) ; CACES : l'autorisation de conduite est délivrée par l'employeur (Code du travail) |
-| Les 16 lignes de structures du sas | Concrètes (structure, téléphone, mail), aucun nom de personne | **Non retrouvées en ligne** pour les groupes d'entraide, Part'ÂGE, l'équipe mobile de Vauclaire, Sigoulès, La Traverse accès aux droits : ce sont de petites structures, leur numéro se vérifie par un appel (règle D1 du 19/10). Elles sont marquées « non retrouvé en ligne le 26/10/2026 » dans le sas |
+| Les 18 lignes de structures du sas | Concrètes (structure, téléphone, mail), aucun nom de personne | **Non retrouvées en ligne** pour les groupes d'entraide, Part'ÂGE, l'équipe mobile de Vauclaire, Sigoulès, La Traverse accès aux droits : ce sont de petites structures, leur numéro se vérifie par un appel (règle D1 du 19/10). Elles sont marquées « non retrouvé en ligne le 26/10/2026 » dans le sas |
 
 ### Gardé pour la suite (concret, factuel), sans rien rédiger encore
 
 - **Lexique** : empathie, intelligence émotionnelle, résistance et réactance (vocabulaire de la relation d'aide), alliance de travail, pyramide de Maslow (premier repère théorique de la partie 7 de l'état des chantiers, au conditionnel), communication non violente, analyse de pratiques professionnelles. Chacune doit rester une définition, sans consigne.
 - **Comprendre le cadre, logement** : **Mobili-Jeune** (aide d'Action Logement au loyer des alternants de moins de trente ans : concept confirmé en ligne ; les montants, plafonds et durées divergent selon les sites et sont **relus sur la page officielle**, puis écrits seulement dans un bloc daté) ; **service d'accompagnement social d'Action Logement** (voir ci-dessous : réservé aux salariés) ; **Loca-Pass** (déjà traité : plafond, remboursement et délai de deux mois confirmés par Action Logement ; la condition « étudiants » est différente sur la diapositive et en ligne : ne rien ajouter).
+- **Comprendre le cadre, logement (suite)** : prêts travaux, prêt accession, accession abordable, Anah, France Rénov' : voir la correction ci-dessus.
 - **Comprendre le cadre, budget** : compléter `budget-microcredit-personnel` avec les quatre acteurs (voir « corrections » ci-dessous).
 - **Comprendre le cadre, emploi** : la liste des documents à fournir pour s'inscrire en intérim (liste factuelle) ; lien vers « Mortel ton taf » (INRS, web-série avec Inès Reg pour les jeunes salariés, site mortel-ton-taf.fr : **confirmé en ligne**) dans la fiche santé et sécurité.
 - **À partir de mon récit** : comparer le vocabulaire des qualités et des compétences concrètes (A p.30 et 31) à `data/competences.js` ; n'ajouter que les mots manquants. Pas d'exercice de notation.
@@ -51,9 +52,17 @@ Ce dossier remplace la synthèse courte de `docs/APPORTS_DOCUMENTS_2026-10-26.md
 | Rétroaction, rapport collaboratif, communication verbale et non verbale, confirmation et apposition | Trop minces, redondants, ou des techniques à appliquer. |
 | Enrichir l'écoute active avec « questions ouvertes » et « révélation de soi » | Conseils ; seuls les liens ont été ajoutés. |
 | Objectifs SMART enrichis par la grille d'Alèthéia | Licence, et « formuler en positif » est un conseil. |
-| **Prêt accession, accession abordable, prêts travaux** d'Action Logement | Réservés aux salariés propriétaires de leur résidence principale, très loin du public. Pas de valeur concrète pour lui. |
 | CISP (fiche) | Recoupe la fiche du CIP, intitulé non unique. |
 | Les quatre dispositifs de la mission locale en lignes séparées | Voir section 7 : une phrase unique après lecture de leur site. |
+
+### CORRECTION (26/10/2026, remarque de Denis) : prêts travaux, prêt accession et accession abordable d'Action Logement sont GARDÉS
+
+J'avais écarté ces trois sujets en jugeant qu'ils étaient « loin du public ». **C'était une erreur de ma part** : Denis accompagne des personnes qui sont propriétaires de leur logement (par héritage) sans avoir les moyens de l'entretenir, certaines sont salariées, et Action Logement est intervenu lui-même dans sa formation de conseiller en insertion professionnelle. Sujets donc gardés, avec l'état vérifié en ligne le 26/10/2026 :
+
+- **Prêt travaux** : prêt de l'organisme pour les **salariés** de certaines entreprises du secteur privé, **propriétaires occupants** de leur résidence principale ; il finance des travaux de rénovation, d'économie d'énergie, d'adaptation du logement à un handicap, ainsi que des travaux qui ouvrent droit à une aide de l'Anah. Le prêt peut dépendre de l'accord de l'employeur. Montants et taux : **bloc daté, jamais dans le texte**.
+- **Prêt accession** : pour acheter sa résidence principale en accession sociale (location-accession, bail réel solidaire, achat d'un logement HLM), pour un salarié qui n'a pas été propriétaire depuis longtemps. Mêmes précautions sur les chiffres.
+- **Accession abordable** : voir la diapositive (location-accession, vente HLM, bail réel solidaire, TVA réduite, plateforme Havitat.fr, Organisme national de vente).
+- **Lacune de l'application, découverte en cherchant** : **rien sur l'Anah** (MaPrimeRénov', MaPrimeAdapt') ni sur **France Rénov'** dans l'application, alors que ce sont **les aides qui concernent les propriétaires sans emploi salarié ou aux revenus modestes**. MaPrimeAdapt' : aide de l'Anah pour adapter le logement à la perte d'autonomie ou au handicap ; France Rénov' : service public gratuit, point d'entrée pour être conseillé et orienté. **À ajouter** dans le rayon « Logement » : une fiche « J'ai hérité d'un logement sans pouvoir l'entretenir : à qui m'adresser » (Mode A, `[effort : haut]`, car nouveau sujet pour l'application) qui regroupe Action Logement (salariés), l'Anah, France Rénov' et l'ADIL 24 (déjà dans l'application). Deux lignes de structures déposées dans le sas.
 
 ### Corrections apportées après vérification en ligne
 
@@ -186,7 +195,7 @@ Les photos montrent sept diapositives d'une présentation d'Action Logement (org
 
 ---
 
-## 7. Qui fait quoi : 16 lignes de structures `[effort : bas, déjà fait]`
+## 7. Qui fait quoi : 18 lignes de structures `[effort : bas, déjà fait]`
 
 **Règle de Denis (26/10/2026) : jamais de nom de personne ; la structure, son téléphone et son mail suffisent.** Toutes les lignes sont dans `outils/sas/lieux.sas.txt`, colonne date vide, source « relevé sur affiche, à vérifier ». Elles ne s'affichent pas au public : elles sortent du sas quand Denis ouvre la page ou appelle, puis clique « C'est bon ».
 
@@ -255,7 +264,7 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 1. **Lis les sections 2 et 3 et coche** GARDER, ÉCARTER ou À REVOIR sur chaque entrée (ce fichier est fait pour ça). Si tu veux aller vite, ne coche que les lots entiers.
 2. **Choisis le premier lot.** Ma recommandation : **le lot 1 du Lexique** (estime de soi, confiance en soi, affirmation de soi, les trois voisines). Pourquoi : c'est le plus demandé par le public, il ne dépend d'aucun autre chantier, il demande peu de code (le moteur de fiches existe), et la rédaction reste à toi. Risque : une fiche sur l'estime touche un terrain sensible, d'où la relecture ligne à ligne.
 3. **Tranche la phrase unique sur les quatre dispositifs** (section 7), puis donne-moi les réponses de la section 10.
-4. **Ouvre l'outil de veille** (`outils/veille.html`) : les 16 lignes de la section 7 y attendent leur « C'est bon » après un appel.
+4. **Ouvre l'outil de veille** (`outils/veille.html`) : les 18 lignes de la section 7 y attendent leur « C'est bon » après un appel.
 5. **Les exercices de la section 3** ne partent qu'après maquette et avec toi (Mode A) : on ne les lance pas un jour de fatigue.
 
 **Verdict mode nuit** : **NON APTE AU MODE NUIT** pour tout ce dossier : aucune décision de contenu n'est tranchée. Il le deviendra pour le lot 1 une fois tes cases cochées et le texte de chaque fiche validé par toi.
@@ -274,7 +283,7 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 
 **Le message à jour est dans `docs/MESSAGE_REPRISE_LOCAL_APPORTS_2026-10-26.md`** (il remplace l'ancienne version de cette section et tient compte des brouillons de fiches et du fichier de lignes du sas). Il t'est aussi envoyé comme fichier.
 
-**Trois fichiers à retrouver sur ta machine** : ce dossier, `docs/BROUILLONS_LEXIQUE_LOTS_1_2_2026-10-26.md` (dix fiches au format exact) et `docs/LIGNES_SAS_APPORTS_2026-10-26.txt` (les 16 lignes du sas, copie de secours).
+**Trois fichiers à retrouver sur ta machine** : ce dossier, `docs/BROUILLONS_LEXIQUE_LOTS_1_2_2026-10-26.md` (dix fiches au format exact) et `docs/LIGNES_SAS_APPORTS_2026-10-26.txt` (les 18 lignes du sas, copie de secours).
 
 ---
 
@@ -289,4 +298,4 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 | Entretien (M6 à M8) | 3 | haut, audit de prompt d'abord | Non |
 | À partir de mon récit (M9) | 1 | moyen | Après comparaison |
 | Comprendre le cadre (C1 à C9) | 9 | moyen | Après relecture des chiffres |
-| Qui fait quoi (section 7) | 16 lignes déposées + 5 corrections + 1 phrase à décider (mission locale) | bas | Fait, attend les appels |
+| Qui fait quoi (section 7) | 18 lignes déposées + 5 corrections + 1 phrase à décider (mission locale) | bas | Fait, attend les appels |

@@ -920,3 +920,9 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 - **Symptôme** : après une trentaine d'échanges, l'assistant dit ne plus retrouver des paragraphes pourtant validés et livre un JSON vide.
 - **Cause** : le prompt demandait à l'assistant de « tenir un registre » et de relire la conversation ; un assistant extérieur retrouve mal un texte situé loin dans l'historique, surtout avec la recherche web.
 - **Règle** : pour tout prompt à étapes longues, l'état validé est réécrit en bloc cumulatif dans chaque nouveau message (« Votre lettre jusqu'ici »), et la livraison copie ce dernier bloc. Ne jamais compter sur la mémoire de l'historique. Voir décision 48 du cahier de la lettre.
+
+## 9.60 Écarter un contenu parce qu'il serait « loin du public », sans le demander à Denis (2026-10-26)
+
+- **Symptôme** : lors du tri des apports de Denis, les prêts travaux, le prêt accession et l'accession abordable d'Action Logement ont été écartés comme « réservés aux salariés propriétaires, sans valeur pour le public ». Denis a corrigé : il accompagne des personnes propriétaires par héritage sans moyens d'entretenir leur logement, certaines salariées, et Action Logement est intervenu dans sa formation.
+- **Cause** : jugement sur le public cible fait de l'extérieur, à partir d'une supposition, au lieu de poser la question à celui qui connaît le terrain (même après une carte blanche pour trier).
+- **Règle** : un contenu qui ne ressemble pas au cœur du public se range en « à confirmer par Denis », jamais en « écarté », sauf quand il contredit la philosophie (conseil, diagnostic, étiquette). Un écart de public se pose en une question, et une carte blanche sur le tri ne dispense pas de signaler ce qu'on écarte pour cette raison. Effet de bord utile : en cherchant, une lacune est apparue (rien sur l'Anah ni sur France Rénov' dans l'application).
