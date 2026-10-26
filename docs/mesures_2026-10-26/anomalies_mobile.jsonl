@@ -1,0 +1,72 @@
+{"ecran":"p1d_fin-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p1d_fin-mobile / tuile Créer","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Créer un nouveau CV »"]}
+{"ecran":"p1d_fin-mobile / carte À la main","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Créer mon CV à la main, sans a »"]}
+{"ecran":"p2e-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p2e-mobile / tuile Créer","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Créer un nouveau CV »"]}
+{"ecran":"p3_recit-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p3_recit-mobile / tuile Créer","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Créer un nouveau CV »"]}
+{"ecran":"p3_recit-mobile / carte À partir de mon récit","theme":"clair","type":"chevauchement","details":["Carnet recouvre « À partir de mon récit »"]}
+{"ecran":"p3_recit-mobile / assistant Claude (2e passage)","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Oui »","Nouveautés : 7 ajouts récents recouvre « Non »","Aide sur cette page recouvre « Oui »"]}
+{"ecran":"p4_docs-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p4_docs-mobile / tuile Reprendre mon CV","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Reprendre mon CV »"]}
+{"ecran":"p4_docs-mobile / un métier précis","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Changer de métierValoriser vos »","Nouveautés : 7 ajouts récents recouvre « Changer de métierValoriser vos »","Aide sur cette page recouvre « Changer de métierValoriser vos »"]}
+{"ecran":"p4_docs-mobile / présentation générale","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Plusieurs métiers d’un même do »","Nouveautés : 7 ajouts récents recouvre « Plusieurs métiers d’un même do »","Aide sur cette page recouvre « Plusieurs métiers d’un même do »"]}
+{"ecran":"p4_docs-mobile / v1 écran 4","theme":"clair","type":"chevauchement","details":["Carnet recouvre « ✏️Corriger mon CV »"]}
+{"ecran":"p4_docs-mobile / v1 documents : Continuer (ouvre le choix de l’assistant)","theme":"clair","type":"chevauchement","details":["Carnet recouvre « ✏️Corriger mon CV »"]}
+{"ecran":"p4_docs-mobile / v1-2e assistant Claude","theme":"clair","type":"chevauchement","details":["Préférences d'affichage recouvre « Oui »","Sauvegarder ma session / chang recouvre « Oui »","Nouveautés : 7 ajouts récents recouvre « Non »","Aide sur cette page recouvre « Oui »"]}
+{"ecran":"p5_voie2-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p5_voie2-mobile / tuile Reprendre mon CV","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Reprendre mon CV »"]}
+{"ecran":"p5_voie2-mobile / un métier précis","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Changer de métierValoriser vos »","Nouveautés : 7 ajouts récents recouvre « Changer de métierValoriser vos »","Aide sur cette page recouvre « Changer de métierValoriser vos »"]}
+{"ecran":"p5_voie2-mobile / présentation générale","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Plusieurs métiers d’un même do »","Nouveautés : 7 ajouts récents recouvre « Plusieurs métiers d’un même do »","Aide sur cette page recouvre « Plusieurs métiers d’un même do »"]}
+{"ecran":"p5_voie2-mobile / v2b écran 3","theme":"clair","type":"chevauchement","details":["Carnet recouvre « ✏️Corriger mon CV »"]}
+{"ecran":"p5_voie2-mobile / v2 documents : Continuer","theme":"clair","type":"chevauchement","details":["Carnet recouvre « ✏️Corriger mon CV »"]}
+{"ecran":"p5_voie2-mobile / v2-2e assistant Claude","theme":"clair","type":"chevauchement","details":["Préférences d'affichage recouvre « Oui »","Sauvegarder ma session / chang recouvre « Oui »","Nouveautés : 7 ajouts récents recouvre « Non »","Aide sur cette page recouvre « Oui »"]}
+{"ecran":"p5_voie2-mobile / v2 (retour aux documents) écran 2","theme":"clair","type":"chevauchement","details":["Carnet recouvre « ✏️Corriger mon CV »"]}
+{"ecran":"p5_voie2-mobile / v2 après « Merci bien, j’ai fini »","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p6_voie3-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p6_voie3-mobile / tuile Reprendre mon CV","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Reprendre mon CV »"]}
+{"ecran":"p7_rapide-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p7_rapide-mobile / tuile Lettre et entretien rapide","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Lettre et entretien en version »"]}
+{"ecran":"p7_rapide-mobile / un métier précis","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Changer de métierValoriser vos »","Nouveautés : 7 ajouts récents recouvre « Changer de métierValoriser vos »","Aide sur cette page recouvre « Changer de métierValoriser vos »"]}
+{"ecran":"p7_rapide-mobile / présentation générale","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Plusieurs métiers d’un même do »","Nouveautés : 7 ajouts récents recouvre « Plusieurs métiers d’un même do »","Aide sur cette page recouvre « Plusieurs métiers d’un même do »"]}
+{"ecran":"p7_rapide-mobile / rap écran 4","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap documents : Continuer","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap-2e assistant Claude","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap-2e Je comprends","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap-2e Je suis de retour","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap-2e Coller la réponse","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap Valider la lettre","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap après export","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p7_rapide-mobile / rap après j’ai fini","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p8_entretien_rapide-mobile / carte","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"p8_entretien_rapide-mobile / tuile Lettre et entretien rapide","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Lettre et entretien en version »"]}
+{"ecran":"p8_entretien_rapide-mobile / un métier précis","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Changer de métierValoriser vos »","Nouveautés : 7 ajouts récents recouvre « Changer de métierValoriser vos »","Aide sur cette page recouvre « Changer de métierValoriser vos »"]}
+{"ecran":"p8_entretien_rapide-mobile / présentation générale","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Plusieurs métiers d’un même do »","Nouveautés : 7 ajouts récents recouvre « Plusieurs métiers d’un même do »","Aide sur cette page recouvre « Plusieurs métiers d’un même do »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap écran 4","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap documents : Continuer","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap-2e assistant Claude","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap-2e Je comprends","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap-2e Je suis de retour","theme":"clair","type":"chevauchement","details":["Carnet recouvre « 📋Vos informations »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap-2e Coller la réponse","theme":"clair","type":"chevauchement","details":["Préférences d'affichage recouvre « 💬Assistant »","Sauvegarder ma session / chang recouvre « 📥Réponse »","Nouveautés : 7 ajouts récents recouvre « 📥Réponse »","Aide sur cette page recouvre « 💬Assistant »"]}
+{"ecran":"p8_entretien_rapide-mobile / fiche prête","theme":"clair","type":"chevauchement","details":["Préférences d'affichage recouvre « 💬Assistant »","Sauvegarder ma session / chang recouvre « 📥Réponse »","Nouveautés : 7 ajouts récents recouvre « 📥Réponse »","Aide sur cette page recouvre « 💬Assistant »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap après export","theme":"clair","type":"chevauchement","details":["Préférences d'affichage recouvre « 💬Assistant »","Sauvegarder ma session / chang recouvre « 📥Réponse »","Nouveautés : 7 ajouts récents recouvre « 📥Réponse »","Aide sur cette page recouvre « 💬Assistant »"]}
+{"ecran":"p8_entretien_rapide-mobile / rap après j’ai fini","theme":"clair","type":"chevauchement","details":["Préférences d'affichage recouvre « 💬Assistant »","Sauvegarder ma session / chang recouvre « 📥Réponse »","Nouveautés : 7 ajouts récents recouvre « 📥Réponse »","Aide sur cette page recouvre « 💬Assistant »"]}
+{"ecran":"q1_lettre-mobile / carte d’accueil preparer","theme":"clair","type":"chevauchement","details":["Nouveautés : 7 ajouts récents recouvre « BUTTON »"]}
+{"ecran":"q1_lettre-mobile / un métier précis","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Changer de métierValoriser vos »","Nouveautés : 7 ajouts récents recouvre « Changer de métierValoriser vos »","Aide sur cette page recouvre « Changer de métierValoriser vos »"]}
+{"ecran":"q1_lettre-mobile / présentation générale","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Plusieurs métiers d’un même do »","Nouveautés : 7 ajouts récents recouvre « Plusieurs métiers d’un même do »","Aide sur cette page recouvre « Plusieurs métiers d’un même do »"]}
+{"ecran":"q1_lettre-mobile / lettre assistant Claude","theme":"clair","type":"chevauchement","details":["Carnet recouvre « ✕ »"]}
+{"ecran":"q1_lettre-mobile / lettre Je suis de retour","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « 📋 Copier de nouveau le messag »","Nouveautés : 7 ajouts récents recouvre « 📋 Copier de nouveau le messag »","Aide sur cette page recouvre « 📋 Copier de nouveau le messag »"]}
+{"ecran":"q1_lettre-mobile / lettre Coller la réponse","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « 📋 Copier de nouveau le messag »","Nouveautés : 7 ajouts récents recouvre « 📋 Copier de nouveau le messag »","Aide sur cette page recouvre « 📋 Copier de nouveau le messag »"]}
+{"ecran":"q1_lettre-mobile / lettre étape 1","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « 📋 Copier de nouveau le messag »","Nouveautés : 7 ajouts récents recouvre « 📋 Copier de nouveau le messag »","Aide sur cette page recouvre « 📋 Copier de nouveau le messag »"]}
+{"ecran":"q1_lettre-mobile / lettre après Valider","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « 📄 Vos documents »","Nouveautés : 7 ajouts récents recouvre « 📄 Vos documents »","Aide sur cette page recouvre « 📄 Vos documents »","Carnet recouvre « 📄 Vos documents »"]}
+{"ecran":"q1_lettre-mobile / lettre après « j’ai fini »","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Par où voulez-vous commencer ? »"]}
+{"ecran":"q2_entretien-mobile / carte d’accueil preparer","theme":"clair","type":"chevauchement","details":["Nouveautés : 7 ajouts récents recouvre « BUTTON »"]}
+{"ecran":"q2_entretien-mobile / un métier précis","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Changer de métierValoriser vos »","Nouveautés : 7 ajouts récents recouvre « Changer de métierValoriser vos »","Aide sur cette page recouvre « Changer de métierValoriser vos »"]}
+{"ecran":"q2_entretien-mobile / présentation générale","theme":"clair","type":"chevauchement","details":["Sauvegarder ma session / chang recouvre « Plusieurs métiers d’un même do »","Nouveautés : 7 ajouts récents recouvre « Plusieurs métiers d’un même do »","Aide sur cette page recouvre « Plusieurs métiers d’un même do »"]}
+{"ecran":"r2c_reperes-mobile / tuile Mes Repères","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Mes Repères »"]}
+{"ecran":"r2c_reperes-mobile / Je commence","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Mes Repères »"]}
+{"ecran":"r2c_reperes-mobile / Garder une réflexion","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Mes Repères »"]}
+{"ecran":"r2c_reperes-mobile / après « C’est noté »","theme":"clair","type":"debordement","details":["387>375"]}
+{"ecran":"r2c_reperes-mobile / après « C’est noté »","theme":"clair","type":"chevauchement","details":["Journal de parcours recouvre « Mes Repères »","Carnet recouvre « Mes Repères »"]}
+{"ecran":"r4_lexique-mobile / tuile Lexique","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Lexique »"]}
+{"ecran":"s2_bilan-mobile / tuile Analyser ma candidature","theme":"clair","type":"chevauchement","details":["Carnet recouvre « Analyser ma candidature »"]}
