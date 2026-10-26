@@ -858,7 +858,8 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['bien écouter en entretien'],
     corps: "L'écoute active est une posture d'écoute qui vise à comprendre réellement ce qu'exprime une personne, au-delà des seuls mots utilisés, plutôt que d'écouter en préparant déjà une réponse. Elle s'appuie notamment sur la reformulation, pour vérifier que ce qui a été compris correspond bien à ce que la personne voulait dire.",
     relations: [
-      { ficheId: 'reformulation', type: 'voir-aussi' }
+      { ficheId: 'reformulation', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' },
+      { ficheId: 'message-en-je', type: 'voir-aussi' }
     ]
   },
   {
@@ -867,6 +868,95 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['redire avec ses mots'],
     corps: "La reformulation consiste à redire, avec ses propres mots, ce qu'une personne vient d'exprimer, pour vérifier que la compréhension est la bonne avant de poursuivre l'échange. Elle n'ajoute rien et ne juge rien : elle renvoie simplement ce qui a été entendu.",
     relations: []
+  },
+  // -- Famille : Confiance en soi et communication (26/10/2026, d'après des supports de formation, idées reprises et reformulées) --
+  {
+    id: 'estime-de-soi', titre: 'Estime de soi', titreDeTri: 'Estime de soi', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ["valeur que je m'accorde", 'image de soi', 'regard sur soi'],
+    corps: "L'estime de soi désigne la valeur qu'une personne s'accorde à elle-même. Elle n'est pas fixe : elle évolue au fil des expériences, des réussites, des difficultés et des relations avec les autres. Une estime de soi dite juste ne consiste pas à se croire meilleur ou moins bon que les autres, mais à connaître ses points forts comme ses points faibles.",
+    relations: [
+      { ficheId: 'confiance-en-soi', type: 'voir-aussi' }, { ficheId: 'estime-confiance-ou-affirmation', type: 'voir-aussi' },
+      { ficheId: 'croyance-limitante', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'confiance-en-soi', titre: 'Confiance en soi', titreDeTri: 'Confiance en soi', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['se sentir capable', 'croire en mes capacités'],
+    corps: "La confiance en soi désigne le sentiment d'être capable d'agir, de réussir une tâche ou de faire face à une situation. Elle se construit surtout à partir d'expériences vécues, y compris de petites réussites, et elle peut varier d'un domaine à l'autre : on peut se sentir très sûr de soi dans son métier et beaucoup moins pour prendre la parole en réunion. Elle se distingue de l'estime de soi, qui porte sur la valeur qu'on s'accorde plutôt que sur ce qu'on se sent capable de faire.",
+    relations: [
+      { ficheId: 'estime-de-soi', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' },
+      { ficheId: 'plan-action', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'affirmation-de-soi', titre: 'Affirmation de soi', titreDeTri: 'Affirmation de soi', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['assertivité', 'savoir dire non', "s'exprimer sans se braquer"],
+    corps: "L'affirmation de soi, aussi appelée assertivité, consiste à exprimer clairement ce qu'on pense, ce qu'on ressent et ce dont on a besoin, tout en respectant l'autre. Elle se distingue de la soumission, qui consiste à se taire ou à céder, et de l'agressivité, qui consiste à imposer son point de vue.",
+    relations: [
+      { ficheId: 'ecoute-active', type: 'voir-aussi' }, { ficheId: 'message-en-je', type: 'voir-aussi' },
+      { ficheId: 'styles-de-communication', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'estime-confiance-ou-affirmation', titre: 'Estime de soi, confiance en soi ou affirmation de soi ?', titreDeTri: 'Estime de soi confiance en soi ou affirmation de soi',
+    type: 'notion', gabarit: 'comparatif', univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: [],
+    corps: "Ce qui les rapproche : les trois parlent du rapport qu'une personne entretient avec elle-même et avec les autres, et elles s'influencent mutuellement. Ce qui les distingue : l'estime de soi porte sur la valeur qu'on s'accorde, la confiance en soi sur ce qu'on se sent capable de faire, et l'affirmation de soi sur la façon de s'exprimer face aux autres. Certains auteurs les décrivent comme trois étages qui se soutiennent, sans qu'aucun doive nécessairement précéder les autres.",
+    relations: [
+      { ficheId: 'estime-de-soi', type: 'voir-aussi' }, { ficheId: 'confiance-en-soi', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'croyance-limitante', titre: 'Croyance limitante', titreDeTri: 'Croyance limitante', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['phrase qui me bloque', "je n'y arriverai pas", 'pensée qui me freine'],
+    corps: "Une croyance limitante est une phrase qu'une personne se répète, souvent depuis longtemps, et qui limite ce qu'elle ose entreprendre, par exemple « je ne suis pas fait pour ça » ou « mon avis ne compte pas ». Ces phrases viennent souvent de l'éducation, de remarques entendues ou d'expériences passées. Elles décrivent une façon de voir les choses, pas une vérité sur la personne.",
+    relations: [
+      { ficheId: 'estime-de-soi', type: 'voir-aussi' }, { ficheId: 'frein-emploi', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'message-en-je', titre: 'Message en « je »', titreDeTri: 'Message en je', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['parler avec je', 'dire ce que je ressens'],
+    corps: "Le message en « je » est une façon de s'exprimer qui consiste à dire ce qu'on observe, ce qu'on ressent et l'effet que cela a sur soi, plutôt que de reprocher quelque chose à l'autre en commençant par « tu ». Par exemple, « je m'inquiète quand les retards se répètent » décrit le ressenti de celui qui parle, alors que « tu es toujours en retard » porte un jugement sur l'autre. Cette forme existe parce qu'un reproche direct conduit souvent l'autre à se défendre plutôt qu'à écouter.",
+    relations: [
+      { ficheId: 'affirmation-de-soi', type: 'voir-aussi' }, { ficheId: 'methode-desc', type: 'voir-aussi' },
+      { ficheId: 'critique-ou-reproche', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'methode-desc', titre: 'Méthode DESC', titreDeTri: 'Méthode DESC', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip', 'langage-rh'],
+    variantesRecherche: ['décrire exprimer suggérer conclure', 'aborder un désaccord'],
+    corps: "La méthode DESC est une méthode de communication en quatre étapes : décrire les faits, exprimer ce qu'on ressent, suggérer une solution, puis dire les conséquences positives attendues si chacun tient ses engagements. Elle est souvent utilisée en entreprise pour aborder un désaccord sans accuser. Son intérêt est de séparer les faits, les ressentis et les propositions, qui se mélangent facilement dans une discussion tendue.",
+    relations: [
+      { ficheId: 'message-en-je', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' },
+      { ficheId: 'critique-ou-reproche', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'critique-ou-reproche', titre: 'Critique ou reproche ?', titreDeTri: 'Critique ou reproche',
+    type: 'notion', gabarit: 'comparatif', univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['critique constructive', 'recevoir une critique'],
+    corps: "Ce qui les rapproche : dans les deux cas, une personne dit qu'un comportement ne lui convient pas. Ce qui les distingue : la critique décrit des faits précis et porte sur un comportement, dans le but de permettre à l'autre d'évoluer ; le reproche vise à faire reconnaître un tort, s'adresse à la personne elle-même et joue souvent sur la culpabilité.",
+    relations: [
+      { ficheId: 'message-en-je', type: 'voir-aussi' }, { ficheId: 'methode-desc', type: 'voir-aussi' },
+      { ficheId: 'ecoute-active', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'styles-de-communication', titre: 'Styles de communication : passif, agressif ou assertif ?', titreDeTri: 'Styles de communication passif agressif ou assertif',
+    type: 'notion', gabarit: 'comparatif', univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['passif agressif assertif', 'ma façon de réagir'],
+    corps: "Ce qui les rapproche : ce sont trois manières de réagir quand on exprime un besoin, une opinion ou un désaccord, et une même personne peut passer de l'une à l'autre selon les situations. Ce qui les distingue : le style passif consiste à se taire ou à céder, le style agressif à imposer son point de vue sans tenir compte de l'autre, le style assertif à exprimer son point de vue tout en respectant celui de l'autre. Ces styles décrivent des comportements dans des situations données, jamais des types de personnes.",
+    relations: [
+      { ficheId: 'affirmation-de-soi', type: 'voir-aussi' }, { ficheId: 'ecoute-active', type: 'voir-aussi' },
+      { ficheId: 'message-en-je', type: 'voir-aussi' }
+    ]
   },
   {
     id: 'questionnement', titre: 'Questionnement', titreDeTri: 'Questionnement', type: 'terme',
