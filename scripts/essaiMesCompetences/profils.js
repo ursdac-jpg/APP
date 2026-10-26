@@ -50,7 +50,8 @@ const PROFILS = [
     minCompetences: 3,
     attendus: [/commande/i, /chariot|caces/i, /palette|colis/i],
     attendusPreciser: [/responsable|équipe/i],
-    interditsLibelle: [/esprit d.?équipe/i, /dynamique|motiv|sérieu/i],
+    intitulesSeuls: [/Responsable de l.équipe du samedi/i],
+    interditsLibelle: [/esprit d.?équipe/i, /dynamique|motiv|sérieu/i, /football/i],
     motsAuDessusDeLaPreuve: ['piloter', 'stratég', 'management', 'manager'],
     nomsAEviter: []
   },
@@ -111,7 +112,7 @@ const PROFILS = [
     attendus: [/accueil/i, /rendez-vous|agenda/i, /courrier/i, /démarches|administrati/i],
     interditsLibelle: [/dynamique|motiv|sérieu/i],
     motsAuDessusDeLaPreuve: ['stratég', 'management'],
-    nomsAEviter: ['Delorme', 'Entraide Famille', 'entraide-famille']
+    nomsAEviter: ['Delorme', 'Entraide Famille', 'entraide-famille', 'directeur', 'directrice']
   },
   {
     id: 'parcours_atypique_contexte_sensible',

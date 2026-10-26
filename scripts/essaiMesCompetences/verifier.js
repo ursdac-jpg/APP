@@ -110,6 +110,17 @@ function verifier(reponse, profil, options) {
   if (comps.length > 14) { E(comps.length + ' compétences : plus de 14.'); }
   if (comps.length < (profil.minCompetences || 3)) { W(comps.length + ' compétence(s) : en dessous de ' + (profil.minCompetences || 3) + ' attendues pour ce profil.'); }
 
+  /* Mots dont la forme accentuée existe dans les documents : écrits sans accent dans la réponse = faute */
+  const accentues = {};
+  docs.forEach(function (d) { (d.brut.match(/[A-Za-zÀ-ÿ]+/g) || []).forEach(function (t) { if (t !== sansAccents(t)) { accentues[sansAccents(t).toLowerCase()] = t.toLowerCase(); } }); });
+  const accentsVus = {};
+  function accents(champ, nom) {
+    (String(champ || '').match(/[A-Za-zÀ-ÿ]+/g) || []).forEach(function (t) {
+      const k = t.toLowerCase();
+      const acc = accentues[k];
+      if (k.length > 3 && t === sansAccents(t) && acc && !(acc.slice(-1) === 'é' && acc.slice(0, -1) === k.slice(0, -1)) && !accentsVus[nom + k]) { accentsVus[nom + k] = true; E(nom + ' : accent manquant (« ' + t + ' » au lieu de « ' + accentues[k] + ' »).'); }
+    });
+  }
   const vus = {};
   let nbEtrePreciser = 0;
   comps.forEach(function (c, i) {
@@ -141,6 +152,11 @@ function verifier(reponse, profil, options) {
       E(nom + ' : extrait ABSENT des documents (invention ou reformulation) : « ' + p.extrait + ' ».');
     });
 
+    [c.libelle, c.enMotsSimples, c.pourLeCV, c.pourLOral, c.pourPreparer, c.question].concat(c.synonymes || []).forEach(function (champ) { accents(champ, nom); });
+    if (c.confirmation !== 'aPreciser' && preuves.length && (profil.intitulesSeuls || []).some(function (re) { return preuves.every(function (p) { return re.test(p.extrait || ''); }); })) {
+      E(nom + ' : un intitulé de poste seul doit être « à préciser », pas une compétence ' + c.confirmation + '.');
+    }
+    if (/\b(certificat|dipl[oô]me|caces|titre obtenu)\b/i.test((c.question || '') + ' ' + (c.pourPreparer || ''))) { W(nom + ' : une question porte sur un diplôme ou un certificat (interdit).'); }
     if (c.confirmation === 'confirmee') {
       if (Object.keys(sources).length < 2) { E(nom + ' : « confirmée » avec une seule source.'); }
       else if (!preuves.some(function (p) { return p.typeDocument === 'recommandation' || p.typeDocument === 'reponse'; })) { E(nom + ' : « confirmée » sans source tierce (lettre de recommandation ou réponse de la personne) : deux documents écrits par la personne comptent comme « relevée ».'); }

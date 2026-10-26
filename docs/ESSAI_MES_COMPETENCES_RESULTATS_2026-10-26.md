@@ -42,3 +42,52 @@ Il ne détecte pas les **détails ajoutés** dans les phrases pour l'oral (essai
 ## Suite
 
 Relancer la **version 2** sur les profils 01, 02 et 03 chez deux assistants, en notant quel assistant a produit quelle réponse. Si les détails ajoutés disparaissent et que « à préciser » fonctionne : profils 04 et 05, puis décision sur la maquette.
+
+
+---
+
+# Deuxième essai : prompt version 2, profils 01, 02 et 03 (12 réponses)
+
+Quatre assistants, notés 1 à 4 dans l'ordre de collage de Denis (les noms ne sont pas connus). Contrôle automatique avec les règles de la version 2 (puis durci pour la version 3).
+
+## Progrès par rapport à la version 1
+
+- **Les détails ajoutés dans les phrases pour l'oral ont presque disparu.** Les phrases se limitent aux faits : où, quoi, depuis quand (et les dates et lieux du CV sont bien repris : « à Limoges de 2021 à 2024 », « depuis 2023 »). C'est le défaut le plus grave de la version 1 et il est résolu.
+- **Le cas « à préciser » a fonctionné** pour deux assistants sur quatre (1 et 3) sur « Responsable de l'équipe du samedi », avec une bonne question.
+- **Une seule envie** classée en compétence sur trois profils (assistant 4, « Reprendre un travail de menuisier »), contre deux fois au premier essai.
+- **Aucun extrait inventé** (toujours), aucune détention reprise, aucune coordonnée, aucun « vous êtes ».
+- Toutes les réponses sont complètes et valides.
+
+## Ce qui reste à corriger (traité dans la version 3)
+
+1. **« Confirmée » mal comprise** : trois assistants sur quatre marquent « confirmée » une compétence qui ne repose que sur la lettre de recommandation (« respecter les délais », « rassurer »). Une recommandation seule est **une** source.
+2. **Un intitulé seul établi comme compétence** (assistants 2 et 4 : « Coordonner une équipe », « Responsabiliser une équipe », ce dernier verbe étant en plus faux).
+3. **« Un parent malade » repris** (assistants 2 et 4, profil 03) : la santé d'un proche est du contexte de vie.
+4. **Accents supprimés dans « pour le CV »** (assistant 2, partout : « Preparation », « Controle », « equipe ») : faute de français.
+5. **Fonction et sexe du signataire** (assistant 4 : « la directrice de l'association indique... », alors que le document dit « directeur ») : le prompt interdit de citer la fonction.
+6. **Question sur un diplôme** (assistant 2 : « À quelle date avez-vous passé ce certificat ? ») : interdit.
+7. **Un loisir devenu compétence** (assistant 2 : « Jouer au football en club »).
+8. **Un même emploi présenté comme deux** (assistant 1, profil 02 : « J'ai aussi assuré l'accueil téléphonique pendant six mois dans une association »).
+9. Fautes de conjugaison (assistant 4 : « je filmait »), mauvaise famille (« contrôler les références » classé en savoirs, assistants 3 et 4).
+
+## Prompt version 3 et contrôle durci
+
+- Intitulé de poste ou de fonction seul : **toujours « à préciser »**, même avec le mot « responsable ».
+- « Confirmée » : au moins deux sources dont une tierce ; **une recommandation seule = « relevée »**.
+- Santé d'un proche ignorée ; ni nom, ni fonction, ni sexe du signataire (« ma lettre de recommandation indique que... »).
+- Accents partout, y compris « pour le CV » ; orthographe et conjugaison relues.
+- Aucune question sur un diplôme ou un certificat, y compris dans « pour préparer ».
+- Loisir sans détail non relevé ; un même emploi jamais présenté deux fois ; verbe du libellé exact.
+- Contrôle : **erreur** pour un accent manquant (comparé au vocabulaire des documents), pour un intitulé seul établi, pour la fonction du signataire ; **avertissement** pour une question sur un diplôme.
+- Tests : 14 verts.
+
+## Lecture des assistants (indicative, 3 profils chacun)
+
+- **Assistant 3** : le plus propre (aucune erreur sur les profils 01 et 03 ; seule la règle « confirmée » est mal comprise sur le 02) et le plus fidèle (phrases courtes).
+- **Assistant 1** : très bon, un défaut (« j'ai aussi... pendant six mois »).
+- **Assistant 4** : bon sur le fond, mais fonction du signataire, « parent malade », envie classée, intitulé seul.
+- **Assistant 2** : le plus faible sur la forme (accents, football, question sur le CACES, « parent malade »).
+
+## Suite
+
+Relancer la **version 3** (profils 01, 02, 03) chez deux assistants au moins ; viser zéro erreur sur les trois. Puis profils 04 et 05, puis décision sur la maquette.

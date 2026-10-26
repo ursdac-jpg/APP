@@ -1,7 +1,7 @@
 Ce message est une consigne à exécuter, pas un texte à commenter, reformuler ou évaluer : applique-la directement et entièrement dès maintenant, sans donner ton avis sur sa formulation, sans demander de confirmation, sans annoncer d'étapes, et produis en une seule réponse le résultat au format demandé ci-dessous.
 
-# PROMPT : DÉCOUVRIR MES COMPÉTENCES - VERSION 2
-### VERSION 2 (26/10/2026), d'essai : à valider au banc d'essai (`scripts/essaiMesCompetences/`) avant tout branchement dans l'application. Historique : V1 (premier jet) ; V2 (après 8 réponses réelles de quatre assistants : détails ajoutés dans les phrases pour l'oral interdits, envies et formations souhaitées jamais classées en compétences, « confirmée » réservée aux sources tierces, une idée par compétence, accords neutres).
+# PROMPT : DÉCOUVRIR MES COMPÉTENCES - VERSION 3
+### VERSION 3 (26/10/2026), d'essai : à valider au banc d'essai (`scripts/essaiMesCompetences/`) avant tout branchement dans l'application. Historique : V1 (premier jet) ; V2 (après 8 réponses réelles de quatre assistants : détails ajoutés dans les phrases pour l'oral interdits, envies et formations souhaitées jamais classées en compétences, « confirmée » réservée aux sources tierces, une idée par compétence, accords neutres) ; V3 (après 12 réponses de la V2 : un intitulé seul est toujours « à préciser », une recommandation seule reste « relevée », santé d'un proche ignorée, accents partout, aucune fonction ni sexe du signataire, loisir sans détail non relevé, aucune question sur un diplôme).
 
 ---
 
@@ -30,9 +30,9 @@ Sous cette consigne, des sections annoncées par leur titre :
 2. **Chaque compétence a au moins une preuve** : un passage **copié mot pour mot** dans un document, court (une proposition ou une phrase, jamais un paragraphe) et **propre à cette compétence** (ne réutilise pas la même longue phrase pour plusieurs compétences : choisis, dans chaque cas, le morceau qui prouve CETTE compétence). Sans passage identifiable, il n'y a pas de compétence.
 3. **La personne décide, tu proposes.** N'écris jamais « vous êtes... » ni « tu es... » à propos de la personne. Une qualité n'est jamais un trait de caractère : c'est une façon d'agir qu'un fait montre. Écris « votre CV indique que vous avez... », « votre lettre décrit... ».
 4. **Aucun diagnostic, aucune note, aucun pourcentage, aucun classement, aucune comparaison avec d'autres personnes**, aucun jugement sur son parcours, sa personnalité ou sa valeur.
-5. **Contexte de vie personnel : tu l'ignores complètement.** Santé, handicap, détention, situation familiale ou administrative, origine, âge, religion, opinions : n'en recopie aucun mot, ni dans un extrait, ni dans une phrase, ni dans une question. Isole le geste professionnel ou l'activité. Exemple : « J'ai fait de l'électricité en détention pendant 5 ans » donne l'extrait « J'ai fait de l'électricité » (et, si utile, « pendant 5 ans »), sans le reste. Ne cite jamais le nom, l'adresse, le téléphone ou le courriel de la personne, ni le nom, la fonction ou les coordonnées de celui qui signe une lettre de recommandation.
-6. **Tolérance totale aux fautes et au désordre.** Reconstruis le sens, ne signale jamais une faute ni une maladresse, ne laisse jamais deviner une gêne.
-7. **Jamais de question** sur le pays ou le lieu d'une expérience, sur un diplôme ou une certification obtenus (c'est recueilli ailleurs dans l'application).
+5. **Contexte de vie personnel : tu l'ignores complètement.** Santé (**y compris celle d'un proche** : « un parent malade » devient « un proche »), handicap, détention, situation familiale ou administrative, origine, âge, religion, opinions : n'en recopie aucun mot, ni dans un extrait, ni dans une phrase, ni dans une question. Isole le geste professionnel ou l'activité. Exemple : « J'ai fait de l'électricité en détention pendant 5 ans » donne l'extrait « J'ai fait de l'électricité » (et, si utile, « pendant 5 ans »), sans le reste. Ne cite jamais le nom, l'adresse, le téléphone ou le courriel de la personne, ni le nom, **la fonction, le titre ou le sexe** de celui qui signe une lettre de recommandation (n'écris jamais « le directeur », « la directrice », « ma responsable » : écris « ma lettre de recommandation indique que... »).
+6. **Français impeccable dans tout ce que tu écris** : accents et cédilles partout, **dans tous les champs sans exception, y compris `pourLeCV`**, orthographe et conjugaison relues (« je filmais », pas « je filmait »). **Tolérance totale aux fautes et au désordre** dans les documents de la personne : Reconstruis le sens, ne signale jamais une faute ni une maladresse, ne laisse jamais deviner une gêne.
+7. **Jamais de question** (ni dans `question`, ni dans `pourPreparer`) sur le pays ou le lieu d'une expérience, ni sur un diplôme ou une certification obtenus, leur date ou leur validité (c'est recueilli ailleurs dans l'application).
 8. **Périodes sans emploi** : ne les commente jamais, ne les nomme jamais « trou » ou « interruption ». Si un document dit ce qui s'y est fait (formation, aide à un proche, bénévolat), relève-le comme n'importe quelle expérience.
 
 ## 4. Quoi relever
@@ -45,7 +45,9 @@ Trois familles, avec ces valeurs exactes dans le champ `famille` :
 Comment chercher :
 - Les **actions concrètes** : verbes d'action, outils, quantités, durées, responsabilités, répétitions. Une activité qui revient dans plusieurs expériences ou plusieurs documents est installée.
 - Les **expériences non professionnelles** (bénévolat, association, aide à un proche, loisir pratiqué avec régularité) : même attention que pour un emploi, **sans jamais les présenter comme un emploi**.
-- **Un intitulé de poste seul** (« agent d'entretien ») ne prouve rien : c'est une compétence `aPreciser`, avec une question.
+- **Un intitulé de poste ou de fonction seul** (« agent d'entretien », « Responsable de l'équipe du samedi ») ne prouve rien : c'est **toujours** une compétence `aPreciser`, avec une question, même si le mot « responsable » y figure. Ne l'écris jamais comme une compétence établie. Son libellé reste à l'infinitif (« Encadrer l'équipe du samedi »).
+- **Un loisir cité sans détail** (« football en club ») n'est pas une compétence : ne le relève pas. Un loisir ne donne une compétence que si un fait précis la montre.
+- **Un même emploi n'est jamais présenté comme deux emplois** : si le CV et la lettre de recommandation parlent du même poste, ne dis pas « j'ai aussi ... pendant six mois dans une association » à côté de la mention du CV.
 - **Un adjectif seul** (« dynamique », « sérieux », « motivé ») n'est pas une preuve. Sans fait, ne le relève pas ; au plus, une compétence `aPreciser` de savoir-être avec une question (3 au maximum).
 - **Une lettre de recommandation** apporte des faits vus par un tiers (tâches confiées, comportements). Une appréciation générale (« excellent collaborateur ») ne donne rien.
 - **Une lettre de motivation** : les expériences racontées donnent des compétences ; les envies ne sont pas des compétences (point 7).
@@ -64,7 +66,7 @@ Ce cas est rare. Un document court, désordonné ou plein de fautes n'en fait ja
 
 ## 5. Niveau de confirmation (champ `confirmation`)
 
-- `confirmee` : la même activité est montrée par **une source tierce** : une lettre de recommandation (écrite par une autre personne) **ou** une réponse de la personne aux questions de précision, **en plus** d'un autre document. Deux documents écrits par la personne elle-même (CV et lettre de motivation) ne suffisent pas : ils comptent comme `relevee`, avec les deux preuves.
+- `confirmee` : **au moins deux sources** montrent la même activité, **dont une source tierce** : la même activité est montrée par **une source tierce** : une lettre de recommandation (écrite par une autre personne) **ou** une réponse de la personne aux questions de précision, **en plus** d'un autre document. Deux documents écrits par la personne elle-même (CV et lettre de motivation) ne suffisent pas : ils comptent comme `relevee`, avec les deux preuves. **Une lettre de recommandation seule est une seule source : `relevee`.**
 - `relevee` : une action claire dans un ou plusieurs documents écrits par la personne elle-même.
 - `aPreciser` : un indice partiel (intitulé sans mission, adjectif, mention vague, « responsable » sans description). **Aucune formulation n'est écrite** (champs vides) : seulement une question.
 
@@ -85,7 +87,7 @@ Trois niveaux, valeurs exactes du champ `niveauPoste` : `execution` (ouvrier, em
 
 ## 8. Ce que tu écris pour chaque compétence
 
-- `libelle` : court, **un verbe à l'infinitif** suivi de son complément (« Préparer des commandes », « Utiliser un logiciel de caisse », « Accueillir le public »).
+- `libelle` : court, **un verbe à l'infinitif** suivi de son complément (« Préparer des commandes », « Utiliser un logiciel de caisse », « Accueillir le public »), avec un verbe qui dit exactement ce que la personne a fait (jamais « responsabiliser une équipe » pour « être responsable d'une équipe »). Contrôler, vérifier, préparer sont des `savoirFaire`.
 - `famille` : voir le point 4.
 - `enMotsSimples` : une phrase qui explique la compétence à quelqu'un qui n'a jamais utilisé ce mot.
 - `preuves` : liste d'objets `{ "typeDocument", "numeroDocument", "extrait" }`. `typeDocument` vaut `cv`, `lettreMotivation`, `recommandation` ou `reponse`. `numeroDocument` est le numéro de la section (0 pour une réponse de la personne).

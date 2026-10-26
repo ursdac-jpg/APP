@@ -53,10 +53,10 @@ const BONNE = {
       pourLeCV: 'Explication simple de documents administratifs', pourLOral: 'J’ai appris à expliquer les documents simplement. Je le fais à l’accueil de jour.', synonymes: ['Rendre un papier clair', 'Vulgariser'] }),
     comp({ libelle: 'Rassurer les personnes dans les situations tendues', famille: 'savoirEtre',
       preuves: [{ typeDocument: 'recommandation', numeroDocument: 3, extrait: 'a su rassurer les personnes lors de situations tendues' }],
-      pourLeCV: 'Savoir rassurer le public en situation tendue', pourLOral: 'Quand une situation était tendue, je rassurais les personnes. C’est ce que mon directeur a écrit dans sa recommandation.', synonymes: ['Calmer une situation', 'Apaiser'] }),
+      pourLeCV: 'Savoir rassurer le public en situation tendue', pourLOral: 'Quand une situation était tendue, je rassurais les personnes. C’est ce qu’indique ma lettre de recommandation.', synonymes: ['Calmer une situation', 'Apaiser'] }),
     comp({ libelle: 'Respecter les délais', famille: 'savoirEtre',
       preuves: [{ typeDocument: 'recommandation', numeroDocument: 3, extrait: 'Elle a toujours respecté les délais' }],
-      pourLeCV: 'Délais toujours respectés', pourLOral: 'Dans mon travail à l’association, je respectais les délais. Mon directeur l’a écrit.', synonymes: ['Être à l’heure', 'Tenir ses échéances'] }),
+      pourLeCV: 'Délais toujours respectés', pourLOral: 'Dans mon travail à l’association, je respectais les délais. Ma lettre de recommandation l’indique.', synonymes: ['Être à l’heure', 'Tenir ses échéances'] }),
     comp({ libelle: 'Aider les personnes âgées au quotidien', preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Aide aux courses, aux repas et à la toilette' }],
       pourLeCV: 'Aide aux courses, aux repas et à la toilette', pourLOral: 'J’ai travaillé comme aide à domicile auprès de personnes âgées. Je les aidais pour les courses et les repas.', synonymes: ['Aider à domicile', 'Accompagner au quotidien'] }),
     comp({ libelle: 'Fiabilité', famille: 'savoirEtre', confirmation: 'aPreciser',
@@ -156,6 +156,22 @@ test('« confirmée » sans source tierce, envie classée en compétence, libell
   assert.ok(verifier(reponse(o3), p).avertissements.some((w) => /infinitif/.test(w)));
   const o4 = copie(BONNE); o4.competences[0].pourLOral = 'J\u2019accueillais le public au téléphone et sur place. J\u2019accueillais le public sur place et au téléphone.';
   assert.ok(verifier(reponse(o4), p).avertissements.some((w) => /presque la même chose/.test(w)));
+});
+
+test('accent manquant, intitulé seul établi, fonction du signataire, question sur un diplôme : signalés', () => {
+  const p = profil('logistique_cv_seul');
+  const base = (o) => reponse({ niveauPoste: 'execution', niveauPosteIndices: 'Vos documents montrent surtout des tâches d\u2019entrepôt.', competences: [o], motivations: [] });
+  const ok = comp({ libelle: 'Préparer des commandes', preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Préparation d\u2019environ 80 colis par jour' }],
+    pourLeCV: 'Préparation d\u2019environ 80 colis par jour', pourLOral: 'J\u2019ai préparé environ 80 colis par jour dans un entrepôt de distribution.', pourPreparer: 'Quelles étapes suiviez-vous ?' });
+  assert.deepEqual(verifier(base(ok), p).erreurs, []);
+  assert.ok(verifier(base(Object.assign({}, ok, { pourLeCV: 'Preparation d\u2019environ 80 colis par jour' })), p).erreurs.some((e) => /accent manquant/.test(e)));
+  const intitule = comp({ libelle: 'Encadrer l\u2019équipe du samedi', preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Responsable de l\u2019équipe du samedi' }],
+    pourLeCV: 'Responsable de l\u2019équipe du samedi', pourLOral: 'J\u2019étais responsable de l\u2019équipe du samedi.' });
+  assert.ok(verifier(base(intitule), p).erreurs.some((e) => /intitulé de poste seul/.test(e)));
+  assert.ok(verifier(base(Object.assign({}, ok, { pourPreparer: 'À quelle date avez-vous passé ce certificat ?' })), p).avertissements.some((w) => /diplôme ou un certificat/.test(w)));
+  const p2 = profil('accueil_trois_documents');
+  const o2 = copie(BONNE); o2.competences[0].pourLOral = 'La directrice de l\u2019association indique que j\u2019ai assuré l\u2019accueil.';
+  assert.ok(verifier(reponse(o2), p2).erreurs.some((e) => /Nom de tiers/.test(e)));
 });
 
 test('un JSON coupé ou invalide, ou « analyseImpossible » à tort, sont signalés', () => {
