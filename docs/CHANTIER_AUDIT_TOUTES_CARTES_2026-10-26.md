@@ -62,3 +62,16 @@ Rejoué jusqu'au premier écran de travail de chaque module ; les parcours compl
 - **D29 (titre de la page, famille C19)** : « Un CV, plusieurs métiers » affiche « **Mon CV** » comme titre de l'écran de travail ; « Comparer mes pistes » affiche « **Ajouter mes pistes** » : le titre est celui de l'étape, pas celui du module (les modules de la carte « Me préparer à candidater » gardent le nom du module).
 - **D30** : « Un CV, plusieurs métiers » affiche **deux boutons « Continuer » grisés en même temps** (`btnUcpmVersAssistant` dans la page et `btnSuivantNavigation` dans la barre du bas) : la règle du 19/10/2026 demande un seul « Continuer », dans la barre.
 - **D31** : la barre d'étapes de « Un CV, plusieurs métiers » compte 8 repères (Mon CV, Métiers, Référence, Accroches, Mes CV, Lettres, Fin, Entretiens) : la plus longue de l'application, avec un repère facultatif (Entretiens).
+
+## Compléments (après les cartes) : Regard recruteur rejoué de bout en bout, l'étape de l'assistant dans tous les modules
+**Un regard sur mon CV** rejoué avec une image de CV, le **vrai outil de masquage** (rectangle dessiné à la souris sur le canevas, « Enregistrer », « Toutes mes images sont masquées, continuer »), le choix de l'assistant, le collage, « Ce qu'on voit sur votre CV » et « Votre fiche de préparation ». Aucune erreur de page.
+- **D32 (français, accord)** : « 📝 Candidature **recommandé** à compléter » dans Regard et dans ATS : « Candidature » est féminin, il faut « recommandée ». À corriger partout où le composant « Votre candidature » affiche cette pastille (grep `recommandé à compléter`).
+- **D33** : Regard se termine sur « Votre fiche de préparation » (Imprimer, Télécharger, Copier) **sans étape « Terminé » ni bouton « Merci bien, j'ai fini »**, alors que sa barre d'étapes annonce « Ma fiche » en dernier repère et que les documents (CV, lettre, entretien) ont tous ce bouton de fin. Même constat à vérifier pour ATS et Cohérence.
+- **D34 (l'étape de l'assistant n'a pas la même forme partout)** : ce qui est commun, ce sont les pièces (fenêtre « Avant de continuer vers X », « Je suis de retour », « Coller la réponse », choix des pastilles d'assistant). Ce qui diffère, c'est l'**enveloppe** :
+  - Créer avec l'assistant : une page « L'assistant en ligne » à trois rectangles repliables (style, choix, import) ;
+  - Récit : deux écrans successifs, « Choisissez votre assistant » puis « Collez la réponse de l'assistant », avec des **identifiants de bouton différents** (`btnCollerAutoDecouverte` pour la première réponse, `btnCollerAutoActionIA` pour la seconde) ;
+  - Reprendre voies 1 et 2, lettre et entretien rapides : l'écran « Assistant » reste dans la page de préparation, le titre ne change pas ; le deuxième passage est **dans la page « Vos documents »** (rectangles repliables) ;
+  - Lettre approfondie et Entretien : « En attente de votre lettre de motivation » / « En attente de votre préparation d'entretien » ;
+  - Analyse de candidature : un seul titre sur toutes les étapes ;
+  - Regard : trois écrans (« Choisir l'assistant », « L'assistant va s'ouvrir », « De retour : coller la réponse »).
+  C'est la plus grande source d'incohérence ressentie par la personne : elle refait le même geste, dans des décors différents. À traiter comme une **brique** (grappe G10 de la synthèse).
