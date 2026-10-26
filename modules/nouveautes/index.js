@@ -35,12 +35,13 @@ function pageNouveautes() {
       return '<div class="nv-carte"><div class="nv-tete"><span class="nv-date">' + _nvEchap(nvDateFr(n.date)) + '</span>' +
         (nvEstNouveau(n, auj) ? '<span class="nv-nouveau">Nouveau</span>' : '') + '</div>' +
         '<div class="nv-titre">' + _nvEchap(n.titre) + '</div><p class="mb-2">' + _nvEchap(n.texte) + '</p>' +
-        (n.route ? '<button type="button" class="btn btn-sm btn-outline-primary" data-nv-route="' + _nvEchap(n.route) + '">Essayer : ' + _nvEchap(n.module || 'ouvrir') + '</button>' : '') + '</div>';
+        (n.route ? '<button type="button" class="btn btn-sm btn-outline-primary" data-nv-route="' + _nvEchap(n.route) + '">' + (n.icone ? '<i class="bi ' + _nvEchap(n.icone) + '" aria-hidden="true"></i> ' : '') + 'Essayer : ' + _nvEchap(n.module || 'ouvrir') + '</button>' : '') + '</div>';
     }).join('');
   }).join('');
   app.innerHTML = '<div class="page-catalogue-contenu nv-page">' +
     '<div class="text-center"><h1><i class="bi bi-megaphone" aria-hidden="true"></i> Nouveautés</h1>' +
     '<p class="sousTitre">Ce qui a été ajouté à l’application, du plus récent au plus ancien. Les ajouts des 30 derniers jours portent la mention « Nouveau ».</p></div>' +
+    '<div class="text-center mb-2"><button type="button" class="btn btn-sm btn-outline-secondary" data-signaler-probleme="1"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Un problème avec une nouveauté ? Signalez-le</button></div>' +
     (corps || '<p class="text-center text-muted">Rien à signaler pour l’instant.</p>') + '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation('cv', null, null) + '</div>';
   app.querySelectorAll('[data-nv-route]').forEach(function (b) {

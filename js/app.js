@@ -5131,6 +5131,37 @@ function ouvrirFenetreRetourExperience() {
 }
 
 
+// Signalement d'un problème (26/10/2026, docs/CHANTIER_NOUVEAUTES_2026-10-26.md) : un 2e formulaire Google Forms, distinct de « Retour sur votre expérience »,
+// créé et administré par Denis (notification par courriel côté Google). Même principe que ci-dessus : fenêtre ERIP par-dessus la page, la personne ne perd pas sa place.
+// La question « Sur quelle page étiez-vous ? » (entry.684680569) est préremplie avec la page courante : seulement son titre et son nom de route, jamais de donnée personnelle.
+var FORMULAIRE_SIGNALEMENT_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSc1VFOCRPm1HbM7wuOO-1jCKgRUgBsZqu9K3bEwrSGWeZvKFw/viewform';
+var FORMULAIRE_SIGNALEMENT_ENTREE_PAGE = 'entry.684680569';
+function nomPagePourSignalement() {
+  var h1 = document.querySelector('#app h1'), titre = h1 ? String(h1.textContent || '').replace(/\s+/g, ' ').trim() : '';
+  return (titre ? titre + ' ' : '') + '(' + String(pageActuelle || '') + ')';
+}
+function urlFormulaireSignalement(nomPage) {
+  return FORMULAIRE_SIGNALEMENT_URL + '?embedded=true&' + FORMULAIRE_SIGNALEMENT_ENTREE_PAGE + '=' + encodeURIComponent(String(nomPage || '').slice(0, 120));
+}
+function ouvrirFenetreSignalement() {
+  var url = urlFormulaireSignalement(nomPagePourSignalement());
+  ouvrirFenetreERIP({
+    titre: '<i class="bi bi-exclamation-triangle titre-icone-accent"></i> Signaler un problème',
+    taille: 'tresLarge',
+    contenuHTML:
+      '<p class="small text-muted">Quelque chose ne fonctionne pas ? Décrivez-le en quelques mots : cela nous aide à améliorer l’application.</p>' +
+      '<iframe src="' + url + '" class="iframe-retour-experience" frameborder="0" marginheight="0" marginwidth="0">Chargement…</iframe>'
+  });
+  if (typeof trackEvenement === 'function') { trackEvenement('outil_utilise', { outil: 'signaler_probleme' }); }
+}
+// Tout bouton portant data-signaler-probleme ouvre le signalement (accueil, page Nouveautés, panneau des réglages) : un seul point d'entrée.
+if (typeof document !== 'undefined' && document.addEventListener) {
+  document.addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('[data-signaler-probleme]') : null;
+    if (b) { ev.preventDefault(); ouvrirFenetreSignalement(); }
+  });
+}
+
 // Minuteur de l'exemple de recherche qui tourne dans le champ vide de
 // l'accueil (Bloc 3). Module-level pour pouvoir l'annuler a chaque nouveau
 // rendu de pageChoixCV() -- LECONS 9.7 (accumulation de minuteurs).
@@ -5234,6 +5265,7 @@ function pageChoixCV() {
       '<button type="button" id="btnConfidentialite"><i class="bi bi-shield-check"></i> Confidentialité de vos données</button>' +
       '<button type="button" id="btnLiensUtiles"><i class="bi bi-link-45deg"></i> Liens utiles</button>' +
       '<button type="button" id="btnRetourExperience"><i class="bi bi-chat-square-text"></i> Retour sur votre expérience</button>' +
+      '<button type="button" id="btnSignalerProbleme" data-signaler-probleme="1"><i class="bi bi-exclamation-triangle"></i> Signaler un problème</button>' +
     '</div>';
 
   // TACHE (chantier accueil, Bloc 2) : ouvrir le panneau d'une carte n'est

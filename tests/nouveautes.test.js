@@ -45,6 +45,7 @@ test('les données : chaque ligne a une date, un titre, un texte, un lien connu 
     assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(n.date), n.titre);
     assert.ok(n.titre && n.texte, n.date);
     assert.ok(!n.route || app.indexOf("'" + n.route + "':") !== -1, 'route inconnue : ' + n.route);
+    assert.ok(!n.route || /^bi-[a-z0-9-]+$/.test(n.icone || ''), 'icône manquante : ' + n.titre);
     const t = n.titre + ' ' + n.texte + ' ' + (n.module || '');
     assert.ok(!/[–—]/.test(t) && !/\bIA\b/.test(t), 'tiret long ou « IA » : ' + n.titre);
     assert.ok(!/territoire/i.test(t), 'fonction fermée au public : ' + n.titre);
