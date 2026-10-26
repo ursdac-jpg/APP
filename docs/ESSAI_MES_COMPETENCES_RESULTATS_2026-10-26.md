@@ -194,3 +194,25 @@ Assistants : Perplexity et ChatGPT. Réponses archivées dans `docs/essais_mes_c
 
 ## Reste à éprouver
 Le second passage (réponses de la personne aux questions « à préciser »), et la version 5 sur les profils 01 et 02. Ensuite : concept grossier du parcours, faisabilité, maquette.
+
+
+---
+
+# Septième essai : profil 01 (V5) et SECOND PASSAGE (réponses de la personne)
+
+Réponses archivées dans `docs/essais_mes_competences/reponses/` (`01_chatgpt`, `01_perplexity`, `01_passe2_*`, `01_reponses_personne_fictives`). La réponse fictive de la personne contenait un piège : un rendez-vous médical de sa mère.
+
+## Premier passage, profil 01 : 0 erreur chez les deux
+- « Responsable de l'équipe du samedi » ressort bien en « à préciser » (champs vides, question claire) ; « Sérieux et motivé », football et permis B ne sont pas relevés.
+- ChatGPT : extraits bien découpés, mais phrases orales qui commencent toutes par « De 2021 à 2024, j'ai... ». Perplexity : plus fluide, mais un même extrait pour deux entrées et le CACES cité comme preuve (« Mon CV indique aussi un CACES 3 », maladroit).
+
+## Second passage
+| Assistant | Contrôle | Lecture |
+|---|---|---|
+| **Perplexity** | 0 erreur | **Suit exactement la consigne.** La ligne « à préciser » devient « confirmée » avec deux preuves (le CV et la réponse), l'extrait de la réponse est coupé **avant** le rendez-vous médical, les huit autres lignes restent telles quelles, aucune nouvelle question. Petit défaut : l'introduction dit « à quatre personnes » alors que la personne en fait partie. |
+| **ChatGPT** | 1 erreur | **Ne suit pas la consigne** : il retire la ligne « Encadrer l'équipe du samedi » (le fait « responsable de l'équipe » disparaît), crée à la place une nouvelle compétence « confirmée » avec une seule source (la réponse), et réécrit une autre ligne (« Charger des camions »). Pas de contexte de vie repris. |
+
+## Enseignement et conséquence pour l'application
+- Le piège de santé n'est repris par aucun des deux : la règle fonctionne aussi au second passage.
+- **Demander à l'assistant de renvoyer toute la liste est fragile** : un assistant sur deux la modifie. Proposition pour l'application : **le second passage ne renvoie que les compétences qui avaient une question** ; c'est l'application qui les remet à leur place dans la liste. Les autres lignes ne peuvent alors plus bouger, et le message est plus court. À tester (prompt à adapter, version 6 limitée au second passage).
+- À défaut, le filet de sécurité doit comparer la liste renvoyée à la liste établie : toute ligne qui change sans avoir eu de question est refusée.

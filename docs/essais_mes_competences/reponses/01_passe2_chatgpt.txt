@@ -1,0 +1,204 @@
+Votre réponse précise ce que vous faisiez le samedi avec une équipe de quatre personnes. Elle montre que vous distribuiez les listes de colis et que vous vérifiiez le chargement des camions avant midi.
+```json
+{
+ "niveauPoste": "execution",
+ "niveauPosteIndices": "Votre CV et votre réponse décrivent des tâches concrètes de préparation de commandes, de manutention et de répartition du travail dans une équipe.",
+ "competences": [
+  {
+   "libelle": "Préparer des colis",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Préparer les colis à envoyer en suivant les commandes.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Préparation d’environ 80 colis par jour avec un terminal à main"
+    }
+   ],
+   "confirmation": "relevee",
+   "pourLeCV": "Préparation d’environ 80 colis par jour avec un terminal à main",
+   "pourLOral": "De 2021 à 2024, j'ai préparé environ 80 colis par jour avec un terminal à main.",
+   "pourPreparer": "Comment se passait la préparation des commandes, du début jusqu'à la fermeture des colis ?",
+   "synonymes": [
+    "Préparer des commandes",
+    "Faire les colis"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Contrôler les références des produits",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Vérifier que les références des produits correspondent à la commande avant de fermer les colis.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Contrôle des références avant la fermeture des colis"
+    }
+   ],
+   "confirmation": "relevee",
+   "pourLeCV": "Contrôle des références avant la fermeture des colis",
+   "pourLOral": "De 2021 à 2024, je contrôlais les références avant la fermeture des colis.",
+   "pourPreparer": "Que faisiez-vous lorsque vous trouviez une référence qui ne correspondait pas à la commande ?",
+   "synonymes": [
+    "Vérifier les références",
+    "Vérifier les produits commandés"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Charger des camions",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Mettre les marchandises dans les camions pour leur transport.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Chargement des camions"
+    },
+    {
+     "typeDocument": "reponse",
+     "numeroDocument": 0,
+     "extrait": "avant midi je vérifiais que tous les camions étaient chargés"
+    }
+   ],
+   "confirmation": "confirmee",
+   "pourLeCV": "Chargement des camions et vérification du chargement avant midi",
+   "pourLOral": "De 2021 à 2024, j'ai chargé des camions. Le samedi, je vérifiais que tous les camions étaient chargés avant midi.",
+   "pourPreparer": "Que faisiez-vous si un camion n'était pas chargé avant midi ?",
+   "synonymes": [
+    "Charger les marchandises",
+    "Vérifier le chargement des camions"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Filmer des palettes",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Envelopper les palettes avec un film pour maintenir les marchandises en place.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "filmage des palettes"
+    }
+   ],
+   "confirmation": "relevee",
+   "pourLeCV": "Filmage des palettes",
+   "pourLOral": "De 2021 à 2024, j'ai filmé des palettes.",
+   "pourPreparer": "Comment procédiez-vous pour filmer les palettes ?",
+   "synonymes": [
+    "Emballer les palettes avec un film",
+    "Envelopper les palettes"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Conduire un chariot élévateur",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Utiliser un chariot élévateur pour déplacer des marchandises.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Conduite du chariot élévateur"
+    }
+   ],
+   "confirmation": "relevee",
+   "pourLeCV": "Conduite du chariot élévateur",
+   "pourLOral": "De 2021 à 2024, j'ai conduit un chariot élévateur.",
+   "pourPreparer": "Quelles marchandises déplaciez-vous avec le chariot élévateur ?",
+   "synonymes": [
+    "Utiliser un chariot élévateur",
+    "Déplacer des marchandises avec un chariot"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Charger et décharger des marchandises",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Déplacer des marchandises pour les faire entrer ou sortir d'un camion ou d'un espace de stockage.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Chargement, déchargement"
+    }
+   ],
+   "confirmation": "relevee",
+   "pourLeCV": "Chargement et déchargement de marchandises",
+   "pourLOral": "De 2019 à 2021, j'ai chargé et déchargé des marchandises dans plusieurs entreprises de la région.",
+   "pourPreparer": "Quels types de marchandises chargiez-vous et déchargiez-vous ?",
+   "synonymes": [
+    "Déplacer des marchandises",
+    "Faire le chargement et le déchargement"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Ranger des marchandises",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Placer les marchandises dans les espaces prévus pour les retrouver et les déplacer ensuite.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "rangement de marchandises"
+    }
+   ],
+   "confirmation": "relevee",
+   "pourLeCV": "Rangement de marchandises",
+   "pourLOral": "De 2019 à 2021, j'ai rangé des marchandises dans plusieurs entreprises de la région.",
+   "pourPreparer": "Comment saviez-vous où ranger les marchandises ?",
+   "synonymes": [
+    "Ranger les produits",
+    "Mettre les marchandises à leur place"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Utiliser un terminal à main",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Se servir d'un appareil tenu à la main pour effectuer des tâches liées à la préparation des commandes.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "avec un terminal à main"
+    }
+   ],
+   "confirmation": "relevee",
+   "pourLeCV": "Utilisation d'un terminal à main pour préparer les commandes",
+   "pourLOral": "De 2021 à 2024, j'ai utilisé un terminal à main pour préparer environ 80 colis par jour.",
+   "pourPreparer": "À quoi vous servait le terminal à main pendant la préparation des commandes ?",
+   "synonymes": [
+    "Se servir d'un terminal à main",
+    "Utiliser un appareil de préparation des commandes"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Répartir les listes de colis dans une équipe",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Donner à chaque personne la liste des colis qu'elle doit préparer.",
+   "preuves": [
+    {
+     "typeDocument": "reponse",
+     "numeroDocument": 0,
+     "extrait": "Au début de la matinée, je donnais à chacun sa liste de colis"
+    }
+   ],
+   "confirmation": "confirmee",
+   "pourLeCV": "Répartition des listes de colis dans une équipe de quatre personnes",
+   "pourLOral": "Le samedi, nous étions quatre. Au début de la matinée, je donnais à chacun sa liste de colis.",
+   "pourPreparer": "Comment décidiez-vous quelle liste de colis donner à chaque personne ?",
+   "synonymes": [
+    "Distribuer les listes de colis",
+    "Répartir le travail de préparation des colis"
+   ],
+   "question": ""
+  }
+ ],
+ "motivations": []
+}
+```
