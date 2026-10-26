@@ -135,7 +135,7 @@ function combos(cap) {
         const rects = [];
         tn.forEach(t => { const r = d.createRange(); r.selectNodeContents(t); [...r.getClientRects()].forEach(q => { if (q.width > 1 && q.height > 1 && q.bottom > 0 && q.top < 1123 && q.right > 0 && q.left < 794) { rects.push([q.left, q.top, q.right, q.bottom]); } }); });
         if (!rects.length) { return; }
-        const id = 'e' + (n++); e.setAttribute('data-f27', g);
+        const id = 'e' + (n++); e.setAttribute('data-f27', g); e.setAttribute('data-f27id', String(n - 1));
         liste.push({ id: n - 1, g, c, txt: tn.map(x => x.textContent.trim()).join(' ').slice(0, 40), cls: (e.className && e.className.baseVal === undefined ? e.className : '') + '', tag: e.tagName.toLowerCase(), rects });
       });
       // Géométrie : hauteur de l'en-tête, trou entre le bandeau et la colonne colorée
@@ -189,7 +189,7 @@ function combos(cap) {
             }
           }
         });
-        if (tot >= 6 && bas >= 6 && bas / tot > 0.15) { hits.push({ txt: el.txt, g: el.g, tag: el.tag, cls: el.cls.slice(0, 40), couleur: el.c.slice(0, 3), pixels: tot, illisibles: bas, fond: fonds[0] || null }); }
+        if (tot >= 6 && bas >= 6 && bas / tot > 0.15) { hits.push({ id: el.id, fondMoyen: (function () { let r = 0, g2 = 0, b2 = 0, k = 0; el.rects.forEach(rc => { for (let y = Math.max(0, Math.floor(rc[1])); y < Math.min(H, Math.ceil(rc[3])); y += 2) for (let x = Math.max(0, Math.floor(rc[0])); x < Math.min(W, Math.ceil(rc[2])); x += 2) { const i = (y * W + x) * 4; r += B.data[i]; g2 += B.data[i + 1]; b2 += B.data[i + 2]; k++; } }); return k ? [Math.round(r / k), Math.round(g2 / k), Math.round(b2 / k)] : null; })(), txt: el.txt, g: el.g, tag: el.tag, cls: el.cls.slice(0, 40), couleur: el.c.slice(0, 3), pixels: tot, illisibles: bas, fond: fonds[0] || null }); }
       });
       return hits;
     }, { imgs, elements });
@@ -201,6 +201,7 @@ function combos(cap) {
     try {
       await ouvrirModele(m);
       for (const sc of scenarios(cap)) {
+        if (process.env.SEULS && !new RegExp(process.env.SEULS).test(sc.nom)) { continue; }
         try {
           await appliquer(sc.regs);
           await fixerStyle('');
@@ -213,6 +214,14 @@ function combos(cap) {
           const hits = await analyserPixels({ B, R, V, M }, tag.elements);
           nbS++; if (hits.length) { nbH++; }
           fs.appendFileSync(SORTIE, JSON.stringify({ modele: m.cle, scenario: sc.nom, pages: tag.nbPages, nbTextes: tag.elements.length, geom: tag.geom, hits }) + '\n');
+          if (process.env.APRES && hits.length && process.env.PHOTOS && new RegExp(process.env.APRES).test(m.cle + '__' + sc.nom)) {
+            fs.mkdirSync(process.env.PHOTOS, { recursive: true });
+            const nomF = (m.cle + '__' + sc.nom).replace(/[^a-zA-Z0-9_+=-]/g, '_');
+            await fixerStyle(''); await p.screenshot({ clip, path: path.join(process.env.PHOTOS, nomF + '__avant.png') });
+            const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+            const regles = hits.filter(h => h.fondMoyen).map(h => '[data-f27id="' + h.id + '"]{color:' + (lum(h.fondMoyen) < 0.35 ? '#ffffff' : '#1b1b1b') + '!important;-webkit-text-fill-color:' + (lum(h.fondMoyen) < 0.35 ? '#ffffff' : '#1b1b1b') + '!important;}').join('');
+            await fixerStyle(regles); await p.screenshot({ clip, path: path.join(process.env.PHOTOS, nomF + '__apres.png') }); await fixerStyle('');
+          }
           if ((hits.length || (tag.geom && (tag.geom.teteRatio > 0.3 || (tag.geom.trou || 0) > 2))) && process.env.PHOTOS) {
             fs.mkdirSync(process.env.PHOTOS, { recursive: true });
             await p.screenshot({ clip, path: path.join(process.env.PHOTOS, (m.cle + '__' + sc.nom).replace(/[^a-zA-Z0-9_+-]/g, '_') + '.png') });
