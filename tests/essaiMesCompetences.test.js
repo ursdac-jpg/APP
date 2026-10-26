@@ -44,7 +44,7 @@ const BONNE = {
         { typeDocument: 'recommandation', numeroDocument: 3, extrait: 'le suivi du courrier' }],
       pourLeCV: 'Suivi du courrier et classement des dossiers',
       pourLOral: 'Je m’occupais du courrier de l’association. Je classais aussi les dossiers.', synonymes: ['Gérer le courrier', 'Classer des dossiers'] }),
-    comp({ libelle: 'Accompagner dans les démarches administratives', confirmation: 'confirmee',
+    comp({ libelle: 'Accompagner dans les démarches administratives', confirmation: 'relevee',
       preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'aide aux démarches administratives' },
         { typeDocument: 'lettreMotivation', numeroDocument: 2, extrait: 'j’ai accompagné des personnes pour leurs démarches administratives' }],
       pourLeCV: 'Aide aux démarches administratives à l’accueil de jour',
@@ -113,7 +113,7 @@ test('une bonne réponse passe sans erreur', () => {
   const r = verifier(reponse(BONNE), profil('accueil_trois_documents'));
   assert.deepEqual(r.erreurs, []);
   assert.equal(r.infos.nbCompetences, 9);
-  assert.equal(r.infos.repartition.confirmee, 4);
+  assert.equal(r.infos.repartition.confirmee, 3);
   assert.equal(r.infos.repartition.aPreciser, 1);
   assert.equal(r.infos.nbMotivations, 2);
 });
@@ -143,6 +143,19 @@ test('un chiffre inventé, une compétence confirmée par une seule source, un �
   assert.ok(verifier(reponse(o2), p).erreurs.some((e) => /une seule source/.test(e)));
   const o3 = copie(BONNE); o3.competences[8].pourLeCV = 'Personne fiable';
   assert.ok(verifier(reponse(o3), p).erreurs.some((e) => /à préciser/.test(e)));
+});
+
+test('« confirmée » sans source tierce, envie classée en compétence, libellé sans verbe, phrases redondantes : signalés', () => {
+  const p = profil('accueil_trois_documents');
+  const o1 = copie(BONNE); o1.competences[3].confirmation = 'confirmee';
+  assert.ok(verifier(reponse(o1), p).erreurs.some((e) => /sans source tierce/.test(e)));
+  const o2 = copie(BONNE); o2.competences[4] = comp({ libelle: 'Travailler dans l\u2019accompagnement social', famille: 'savoirs',
+    preuves: [{ typeDocument: 'lettreMotivation', numeroDocument: 2, extrait: 'Je souhaite aujourd\u2019hui travailler dans l\u2019accompagnement social' }], pourLeCV: 'Projet dans l\u2019accompagnement social', pourLOral: 'Je souhaite travailler dans l\u2019accompagnement social.' });
+  assert.ok(verifier(reponse(o2), p).avertissements.some((w) => /envie ou un projet/.test(w)));
+  const o3 = copie(BONNE); o3.competences[0].libelle = 'Accueil du public';
+  assert.ok(verifier(reponse(o3), p).avertissements.some((w) => /infinitif/.test(w)));
+  const o4 = copie(BONNE); o4.competences[0].pourLOral = 'J\u2019accueillais le public au téléphone et sur place. J\u2019accueillais le public sur place et au téléphone.';
+  assert.ok(verifier(reponse(o4), p).avertissements.some((w) => /presque la même chose/.test(w)));
 });
 
 test('un JSON coupé ou invalide, ou « analyseImpossible » à tort, sont signalés', () => {

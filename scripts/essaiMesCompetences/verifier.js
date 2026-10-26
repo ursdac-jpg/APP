@@ -141,7 +141,15 @@ function verifier(reponse, profil, options) {
       E(nom + ' : extrait ABSENT des documents (invention ou reformulation) : « ' + p.extrait + ' ».');
     });
 
-    if (c.confirmation === 'confirmee' && Object.keys(sources).length < 2) { E(nom + ' : « confirmée » avec une seule source.'); }
+    if (c.confirmation === 'confirmee') {
+      if (Object.keys(sources).length < 2) { E(nom + ' : « confirmée » avec une seule source.'); }
+      else if (!preuves.some(function (p) { return p.typeDocument === 'recommandation' || p.typeDocument === 'reponse'; })) { E(nom + ' : « confirmée » sans source tierce (lettre de recommandation ou réponse de la personne) : deux documents écrits par la personne comptent comme « relevée ».'); }
+    }
+    /* Une envie ou un projet ne doit pas être classé parmi les compétences */
+    if (c.confirmation !== 'aPreciser' && preuves.some(function (p) { return /\b(je souhaite|je veux|je voudrais|je désire|j.aimerais|j.aime)\b/i.test(p.extrait || '') && !/\bj.ai\b/i.test(p.extrait || ''); })) {
+      W(nom + ' : une envie ou un projet semble classé parmi les compétences (à placer dans les motivations).');
+    }
+    if (c.confirmation !== 'aPreciser' && c.libelle && !/^(se |s')?[a-zéèêàâîïôûç]+(er|ir|re|oir)\b/i.test(String(c.libelle).trim())) { W(nom + ' : libellé qui ne commence pas par un verbe à l\u2019infinitif.'); }
 
     const ecrits = [c.pourLeCV, c.pourLOral, c.pourPreparer];
     if (c.confirmation === 'aPreciser') {
@@ -151,11 +159,14 @@ function verifier(reponse, profil, options) {
       if (c.famille === 'savoirEtre') { nbEtrePreciser++; }
     } else {
       if (!c.pourLeCV || !String(c.pourLeCV).trim()) { E(nom + ' : « pour le CV » vide.'); }
-      else if (mots(c.pourLeCV).length > 15) { W(nom + ' : « pour le CV » de ' + mots(c.pourLeCV).length + ' mots (15 au plus).'); }
+      else if (/[.!?]\s*$/.test(String(c.pourLeCV).trim())) { W(nom + ' : « pour le CV » se termine par un point.'); }
+      if (c.pourLeCV && mots(c.pourLeCV).length > 15) { W(nom + ' : « pour le CV » de ' + mots(c.pourLeCV).length + ' mots (15 au plus).'); }
       if (!c.pourLOral || !String(c.pourLOral).trim()) { E(nom + ' : « pour l’oral » vide.'); }
       else {
         const n = nombreDePhrases(c.pourLOral);
-        if (n < 2 || n > 4) { W(nom + ' : « pour l’oral » de ' + n + ' phrase(s) (2 à 3 attendues).'); }
+        if (n < 1 || n > 3) { W(nom + ' : « pour l’oral » de ' + n + ' phrase(s) (1 à 3 attendues).'); }
+        const phrases = String(c.pourLOral).split(/[.!?]+(?:\s|$)/).filter(function (x) { return x.trim(); });
+        for (let a = 0; a < phrases.length; a++) { for (let b = a + 1; b < phrases.length; b++) { if (jaccard(phrases[a], phrases[b]) > 0.5) { W(nom + ' : deux phrases de « pour l’oral » disent presque la même chose.'); } } }
         if (!/\b(j'|j’|je|mon|ma|mes|m')/i.test(c.pourLOral)) { W(nom + ' : « pour l’oral » n’est pas à la première personne.'); }
       }
       if (!c.synonymes || c.synonymes.length < 2) { W(nom + ' : moins de deux synonymes.'); }
@@ -185,6 +196,10 @@ function verifier(reponse, profil, options) {
   /* Rappel : ce que le relevé devrait retrouver */
   const tousLibelles = comps.map(function (c) { return (c.libelle || '') + ' ' + (c.pourLeCV || '') + ' ' + (c.enMotsSimples || ''); }).join(' | ');
   (profil.attendus || []).forEach(function (re) { if (!re.test(tousLibelles)) { W('Rappel : rien ne correspond à ' + re + '.'); } });
+
+  (profil.attendusPreciser || []).forEach(function (re) {
+    if (!comps.some(function (c) { return c.confirmation === 'aPreciser' && re.test((c.libelle || '') + ' ' + (c.question || '')); })) { W('Rappel : aucune compétence « à préciser » ne correspond à ' + re + '.'); }
+  });
 
   /* Motivations */
   const motivations = Array.isArray(rep.motivations) ? rep.motivations : [];

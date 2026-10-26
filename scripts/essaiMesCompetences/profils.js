@@ -35,6 +35,7 @@ const PROFILS = [
           '- Contrôle des références avant la fermeture des colis',
           '- Chargement des camions et filmage des palettes',
           '- Conduite du chariot élévateur',
+          '- Responsable de l\u2019équipe du samedi',
           '2019 - 2021 | Manutentionnaire en intérim, plusieurs entreprises de la région',
           '- Chargement, déchargement et rangement de marchandises',
           '',
@@ -48,6 +49,7 @@ const PROFILS = [
     ],
     minCompetences: 3,
     attendus: [/commande/i, /chariot|caces/i, /palette|colis/i],
+    attendusPreciser: [/responsable|équipe/i],
     interditsLibelle: [/esprit d.?équipe/i, /dynamique|motiv|sérieu/i],
     motsAuDessusDeLaPreuve: ['piloter', 'stratég', 'management', 'manager'],
     nomsAEviter: []
