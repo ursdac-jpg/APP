@@ -14,6 +14,7 @@
 4. `npm test` (le test des nouveautés contrôle les routes et les tirets longs), puis envoi sur GitHub à la demande de Denis.
 
 ## Journal
+2026-10-26 | Mise en page du CV | nouvelle disposition d'en-tête « Empilée » (grand aperçu, à côté de « Décalée ») : photo et nom sur une ligne, titre du CV pleine largeur sur deux lignes au plus, coordonnées sur une ligne, accroche en bas ; sur une colonne colorée, le texte est blanc sur la colonne et de la couleur du CV sur le blanc | à condenser
 2026-10-26 | Mes Repères | le bouton « + Garder une réflexion » n'est plus caché par le bouton rond du Carnet, le champ de recherche est assez large pour son texte d'aide, et l'écran ne déborde plus sur téléphone | à condenser
 2026-10-26 | Créer un nouveau CV | le bouton « Retour » de « Votre profil » ramène à « Votre parcours » (l'étape d'avant) au lieu de « Vos informations » | à condenser
 2026-10-26 | Reprendre mon CV, lettre et entretien rapides | quand on colle le texte de son CV (au lieu d'un fichier), la suite est la même qu'avec un fichier : « Vos informations » avec la barre du parcours | à condenser
