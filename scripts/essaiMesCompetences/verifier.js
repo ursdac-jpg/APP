@@ -174,6 +174,7 @@ function verifier(reponse, profil, options) {
     if (c.confirmation !== 'aPreciser' && preuves.some(function (p) { return /\b(je souhaite|je veux|je voudrais|je désire|j.aimerais|j.aime)\b/i.test(p.extrait || '') && !/\bj.ai\b/i.test(p.extrait || ''); })) {
       W(nom + ' : une envie ou un projet semble classé parmi les compétences (à placer dans les motivations).');
     }
+    if (/^\s*pr[ée]ciser\b/i.test(String(c.libelle || ''))) { E(nom + ' : le libellé commence par « Préciser » : ce n\u2019est pas une compétence.'); }
     if (c.confirmation !== 'aPreciser' && c.libelle && !/^(se |s')?[a-zéèêàâîïôûç]+(er|ir|re|oir)\b/i.test(String(c.libelle).trim())) { W(nom + ' : libellé qui ne commence pas par un verbe à l\u2019infinitif.'); }
 
     const ecrits = [c.pourLeCV, c.pourLOral, c.pourPreparer];

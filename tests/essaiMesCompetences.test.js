@@ -192,6 +192,13 @@ test('libellé sans rapport avec ses extraits, extrait partagé, accord sans ind
   assert.ok(verifier(base(Object.assign({}, a, { pourLOral: 'Je me suis occupé des colis.' })), p).avertissements.some((w) => /genre/.test(w)));
 });
 
+test('un libellé « Préciser ... » n\u2019est pas une compétence', () => {
+  const p = profil('logistique_cv_seul');
+  const o = comp({ libelle: 'Préciser les missions d\u2019aide-menuisier', confirmation: 'aPreciser', preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Préparation d\u2019environ 80 colis par jour' }],
+    pourLeCV: '', pourLOral: '', pourPreparer: '', synonymes: [], question: 'Quelles tâches faisiez-vous ?' });
+  assert.ok(verifier(reponse({ niveauPoste: 'execution', niveauPosteIndices: 'Vos documents montrent surtout des tâches d\u2019entrepôt.', competences: [o], motivations: [] }), p).erreurs.some((e) => /Préciser/.test(e)));
+});
+
 test('un JSON coupé ou invalide, ou « analyseImpossible » à tort, sont signalés', () => {
   const p = profil('accueil_trois_documents');
   assert.ok(verifier('Voici.\n```json\n{ "niveauPoste": "execution", "competences": [', p).erreurs.some((e) => /JSON coupé/.test(e)));

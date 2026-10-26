@@ -120,3 +120,32 @@ Réponses relues à la main (pas de transcription dans le contrôle automatique)
 - Une compétence « à préciser » doit reposer sur un extrait qui parle du même sujet.
 - Un extrait partagé par plusieurs compétences : une seule entrée, ou le morceau précis de la ligne pour chacune.
 - Contrôle : avertissements pour libellé sans mot commun avec ses extraits, extrait partagé, accord de genre sans indice (profils 01 et 03), « à préciser » sans explication ; test anti-contamination des exemples. 16 tests verts.
+
+
+---
+
+# Quatrième essai : prompt version 4, deux assistants (X et Y), profils 01, 02, 03
+
+Six réponses relues à la main (le contrôle automatique n'a pas été relancé). Les noms des assistants ne sont pas connus.
+
+## Assistant Y : sans défaut relevé sur les trois profils
+- Extraits coupés au bon endroit pour chaque tâche (« Courses », « repas », « gestion des papiers » ; « Chargement des camions », « filmage des palettes »).
+- Contexte de vie absent partout (« appris à entretenir les machines » sans la détention) ; « à préciser » seulement sur « Responsable de l'équipe du samedi », avec une bonne question ; aucun accord de genre deviné ; phrases courtes qui reprennent seulement les faits (lieux et dates du CV).
+- Introductions de 3 à 4 phrases, bonnes (une réponse collée sans introduction).
+
+## Assistant X : bon sur les profils 01 et 02, quatre défauts sur le profil 03
+1. **Détention dans un extrait** : « Pendant ma détention, j'ai travaillé à l'atelier et appris à entretenir les machines. » copié en entier.
+2. **Une même ligne éclatée en quatre entrées** (« Courses, repas, rendez-vous médicaux, gestion des papiers » → courses, repas, papiers, rendez-vous), avec le même extrait entier.
+3. **Accords au masculin devinés** : « je me suis occupé de papiers », « de rendez-vous ».
+4. **Une ligne « à préciser » inutile** : « Préciser les missions d'aide-menuisier » alors que les tâches sont décrites juste en dessous (effet de bord de la règle « un intitulé seul est à préciser » : l'assistant cherche à en placer une).
+Sur le profil 02 : un lien inventé (« Respecter les délais de traitement du courrier » alors que la recommandation dit seulement « les délais »), et deux phrases pour l'oral qui se répètent. Sur le profil 01 : deux entrées sur le même extrait (camions / palettes).
+
+## Version 5 (corrige ces points)
+- « À préciser » seulement si aucune tâche n'est décrite sous l'intitulé ; jamais de libellé « Préciser... » (erreur dans le contrôle).
+- Jamais de lien inventé entre une compétence et un contexte que l'extrait ne cite pas (exemple neutre ajouté).
+- Ligne à plusieurs tâches : un morceau de la ligne par entrée, jamais la ligne entière.
+- Dernière relecture demandée des extraits (santé, détention, handicap, situation familiale) et des accords.
+- Test anti-contamination : un exemple de la consigne coïncidait encore avec le profil 02 (corrigé). 17 tests verts.
+
+## Conclusion d'étape et conséquence pour l'application
+Le jalon « zéro défaut chez deux assistants » est atteint par l'un d'eux, pas encore par le second. **Les contrôles du banc d'essai serviront de filet de sécurité dans l'application** : après le collage de la réponse, l'application rejettera ou masquera une ligne dont l'extrait n'est pas dans les documents, qui contient un mot de contexte de vie, qui est « confirmée » sans source tierce, etc. On ne dépend donc jamais d'un seul assistant.
