@@ -66,6 +66,7 @@ function _lisibiliteGarderCorps(pageEl) {
   if (!cssRgba || !hexDe || !composer) { return; }
   // remise a zero (le geste « Regler l'en-tete » et les poignees relancent le dessin sans refaire la page)
   Array.prototype.forEach.call(pageEl.querySelectorAll('[data-lisib]'), function (e) { e.style.removeProperty('color'); e.style.removeProperty('-webkit-text-fill-color'); e.removeAttribute('data-lisib'); });
+  Array.prototype.forEach.call(pageEl.querySelectorAll('[data-lisib-place]'), function (e) { e.style.removeProperty('flex-direction'); e.style.removeProperty('gap'); e.style.removeProperty('align-items'); e.style.removeProperty('max-width'); e.removeAttribute('data-lisib-place'); });
   if (pageEl.hasAttribute('data-compo') || pageEl.hasAttribute('data-croi')) { return; }
   var pr = pageEl.getBoundingClientRect(), k = (pageEl.offsetWidth && pr.width) ? pr.width / pageEl.offsetWidth : 1;
   var sPage = vue.getComputedStyle(pageEl);
@@ -80,6 +81,20 @@ function _lisibiliteGarderCorps(pageEl) {
       var x0 = isFinite(gauche) ? gauche : (isFinite(droite) ? pageEl.offsetWidth - droite - larg : 0), y0 = isFinite(parseFloat(pv.top)) ? parseFloat(pv.top) : 0;
       colonne = { x: x0, y: y0, w: larg, h: haut, clip: pv.clipPath, couleurs: degr.length ? degr : [pv.backgroundColor] };
     } else if (pv.backgroundImage && pv.backgroundImage !== 'none') { return; }   // fond de colonne en image : non compris, on ne touche a rien
+  }
+  // PLACE : une ligne datee (intitule a gauche, date a droite) qui commence dans la colonne coloree de gauche mais dont la date sort du fond colore (texte blanc qui continue sur le papier) :
+  // la ligne est bornee a la colonne coloree et la date passe SOUS l'intitule (decision de Denis, 26/10/2026). Les lignes qui tiennent, ou qui sont dans l'autre colonne, ne bougent pas.
+  if (colonne && colonne.x + colonne.w / 2 < pageEl.offsetWidth / 2) {
+    var droiteCol = colonne.x + colonne.w;
+    Array.prototype.forEach.call(pageEl.querySelectorAll('.ligne'), function (row) {
+      if (row.closest(_LISIB_HORS)) { return; }
+      var d = null; for (var c = 0; c < row.children.length; c++) { if (row.children[c].classList && row.children[c].classList.contains('dates')) { d = row.children[c]; } }
+      if (!d) { return; }
+      var rr = row.getBoundingClientRect(), left = (rr.left - pr.left) / k, droiteDate = (d.getBoundingClientRect().right - pr.left) / k;
+      if (left < colonne.x + 2 || left > droiteCol - 20) { return; }   // ne commence pas dans la colonne coloree
+      if (droiteDate <= droiteCol - 2) { return; }                     // tient dans la colonne
+      row.style.setProperty('flex-direction', 'column'); row.style.setProperty('gap', '0'); row.style.setProperty('align-items', 'flex-start'); row.style.setProperty('max-width', Math.max(40, Math.floor(droiteCol - left - 8)) + 'px'); row.setAttribute('data-lisib-place', '1');
+    });
   }
   var marcheur = doc.createTreeWalker(pageEl, 4, null, false), n, parElement = [];
   while ((n = marcheur.nextNode())) {
@@ -98,25 +113,39 @@ function _lisibiliteGarderCorps(pageEl) {
     var texteHex = hexDe(st.webkitTextFillColor && cssRgba(st.webkitTextFillColor) ? st.webkitTextFillColor : st.color);
     // couches derriere le texte : les ancetres (du plus exterieur au plus interieur), jamais plus de ce qu'on comprend
     var chaine = []; for (var e = p; e && e !== pageEl; e = e.parentElement) { chaine.unshift(e); }
-    var inconnu = false;
+    var inconnu = false, couches = [];
     chaine.forEach(function (e) {
       var se = vue.getComputedStyle(e);
       if (parseFloat(se.opacity) < 1 || (se.mixBlendMode && se.mixBlendMode !== 'normal') || (se.filter && se.filter !== 'none')) { inconnu = true; }
       if (se.backgroundImage && se.backgroundImage !== 'none' && !_lisibiliteCouleursDegrade(se.backgroundImage).length) { inconnu = true; }
       ['::before', '::after'].forEach(function (ps) {
         var s2 = vue.getComputedStyle(e, ps); if (!s2 || s2.content === 'none') { return; }
-        var c2 = cssRgba(s2.backgroundColor), visible = (c2 && c2[3] > 0) || (s2.backgroundImage && s2.backgroundImage !== 'none');
+        var c2 = cssRgba(s2.backgroundColor), degr2 = _lisibiliteCouleursDegrade(s2.backgroundImage), visible = (c2 && c2[3] > 0) || (s2.backgroundImage && s2.backgroundImage !== 'none');
         if (!visible) { return; }
         var w2 = parseFloat(s2.width), h2 = parseFloat(s2.height);
         if (isFinite(w2) && isFinite(h2) && (w2 < 30 || h2 < 30)) { return; }   // petite puce ou filet decoratif
+        // un ::before dessine un fond SOUS le texte (forme decoupee d'un bandeau) : sa boite, sa forme et sa couleur sont lues telles qu'affichees ; un ::after (au-dessus du texte) reste inconnu
+        var l2 = parseFloat(s2.left), t2 = parseFloat(s2.top);
+        if (ps === '::before' && s2.position === 'absolute' && isFinite(w2) && isFinite(h2) && isFinite(l2) && isFinite(t2) && (s2.backgroundImage === 'none' || degr2.length) && (!s2.mixBlendMode || s2.mixBlendMode === 'normal') && (!s2.filter || s2.filter === 'none')) {
+          var er = e.getBoundingClientRect();
+          couches.push({ e: e, x: (er.left - pr.left) / k + l2, y: (er.top - pr.top) / k + t2, w: w2, h: h2, clip: s2.clipPath, couleurs: degr2.length ? degr2 : [s2.backgroundColor] });
+          return;
+        }
         inconnu = true;
       });
     });
     if (inconnu) { return; }
-    var fondsTotal = [];
+    // Texte de l'en-tete a deux tons : la partie qui sort de la forme est deja reprise par la copie `.tete-hors` (couleur du bandeau) ; seuls les points DANS une couche coloree comptent.
+    var teteP = p.closest('.tete'), deuxTons = !!(teteP && !teteP.classList.contains('tete-vide') && String(vue.getComputedStyle(teteP).getPropertyValue('--hors-actif')).trim() === '1');
+    var fondsTotal = [], fondsCouleur = [];
     o.items.forEach(function (q) {
-      var y = ((q.top + q.bottom) / 2 - pr.top) / k, xs = [((q.left + q.right) / 2 - pr.left) / k, (q.left - pr.left) / k + 1, (q.right - pr.left) / k - 1];
-      xs.forEach(function (x) {
+      // une grille de points sur le texte (5 en largeur, 3 en hauteur) : un texte a cheval sur le bord d'une forme est vu des deux cotes
+      var gx = [], gy = [], i2, j2;
+      for (i2 = 0; i2 < 5; i2++) { gx.push((q.left + 1 + (q.width - 2) * i2 / 4 - pr.left) / k); }
+      for (j2 = 0; j2 < 3; j2++) { gy.push((q.top + q.height * (0.25 + 0.25 * j2) - pr.top) / k); }
+      var pointsXY = []; gy.forEach(function (yy) { gx.forEach(function (xx) { pointsXY.push([xx, yy]); }); });
+      pointsXY.forEach(function (pt) {
+        var x = pt[0], y = pt[1];
         var fonds = [base];
         if (colonne && _lisibiliteDansForme(colonne.clip, colonne.w, colonne.h, x - colonne.x, y - colonne.y)) {
           fonds = colonne.couleurs.map(function (c) { return composer(base, c); });
@@ -125,11 +154,15 @@ function _lisibiliteGarderCorps(pageEl) {
           var se = vue.getComputedStyle(e), degr = _lisibiliteCouleursDegrade(se.backgroundImage);
           if (degr.length) { fonds = degr.map(function (c) { return composer(fonds[0], c); }); }
           else { fonds = fonds.map(function (f) { return composer(f, se.backgroundColor); }); }
+          couches.forEach(function (cc) {
+            if (cc.e === e && _lisibiliteDansForme(cc.clip, cc.w, cc.h, x - cc.x, y - cc.y)) { var dessous = fonds[0]; fonds = cc.couleurs.map(function (c) { return composer(dessous, c); }); }
+          });
         });
         fondsTotal = fondsTotal.concat(fonds);
+        if (fonds.length !== 1 || fonds[0] !== base) { fondsCouleur = fondsCouleur.concat(fonds); }
       });
     });
-    var c = _lisibiliteDecision(texteHex, fondsTotal, _LISIBILITE_SEUIL);
+    var c = _lisibiliteDecision(texteHex, deuxTons ? fondsCouleur : fondsTotal, _LISIBILITE_SEUIL);
     if (!c) { return; }
     p.style.setProperty('color', c, 'important'); p.style.setProperty('-webkit-text-fill-color', c, 'important'); p.setAttribute('data-lisib', '1');
   });

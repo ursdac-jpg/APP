@@ -20,6 +20,7 @@ const { vers } = require('./vers_editeur.js');
     const f = p.locator('#zonePdfInlineCV iframe').first(); await f.scrollIntoViewIfNeeded().catch(() => {});
     await f.screenshot({ path: SC + '/' + nomCapture + '.png' });
   };
-  await cas('creatif', 'colonneClaire', 'bandeau', 'reel_colonneClaire_bandeau', 'droit', 'Droit');
+  const CAS = { colonneClaire: ['colonneClaire', 'bandeau', 'reel_colonneClaire_bandeau', 'droit', 'Droit'], bandeauVertical: ['bandeauVertical', 'colonne', 'reel_bandeauVertical_colonne', 'droit', 'Droite'] };
+  const c = CAS[process.env.CAS || 'colonneClaire']; await cas('creatif', c[0], c[1], c[2], c[3], c[4]);
   await b.close();
 })();

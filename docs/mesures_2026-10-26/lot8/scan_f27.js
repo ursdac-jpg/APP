@@ -72,7 +72,7 @@ function combos(cap) {
   await p.evaluate(async () => { (0, eval)(await (await fetch('/scripts/rendu/banc.js?' + Date.now())).text()); });
   const caps = await p.evaluate(async () => (await fetch('/scripts/rendu/capacites.json')).json());
   const modeles = await p.evaluate(() => window.__rendu.liste().map(m => ({ cle: m.cle, id: m.id, sobre: m.sobre, nom: m.nom })));
-  const aFaire = modeles.filter((m, i) => i % tN === tIdx && (!FILTRE || m.cle.includes(FILTRE)));
+  const aFaire = modeles.filter((m, i) => i % tN === tIdx && (!FILTRE || FILTRE.split(',').some(f => (FILTRE.indexOf(',') !== -1 ? m.cle === f : m.cle.includes(f)))));
   fs.writeFileSync(SORTIE, '');
 
   // Ouvre un cadre visible (794 x 1123, en haut à gauche) avec le CV du modèle.

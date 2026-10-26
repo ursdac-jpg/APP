@@ -3,7 +3,7 @@
    Lecture seule. Usage : node sonde_structures.js */
 const { chromium } = require('playwright');
 const CAS = [
-  ['creatif:colonneClaire', { regBandeauEnTete: true, regBordBandeau: 'droit' }],
+  ['creatif:colonneClaire', { regBandeauEnTete: true, regBordBandeau: 'vallonne' }],
   ['creatif:chronoFonce', { regBandeauEnTete: true, regBordBandeau: 'droit' }],
   ['sobre:mq-bandeau', { regColonnes: '2', regFondColonnes: 'gauche', regColonneBordDroit: true }],
   ['creatif:colonneBandeau', { regBordBandeau: 'contour' }],
