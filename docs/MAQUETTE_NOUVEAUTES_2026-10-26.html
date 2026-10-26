@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--
+  Maquette (concept) : bouton « Nouveautés » toujours visible et page d'historique. Chantier : docs/CHANTIER_NOUVEAUTES_2026-10-26.md. Rien n'est codé dans l'application.
+  Le bouton prend la 4e place de la ligne des icônes du haut (roue, ampoule, disquette), mêmes dimensions, donc visible sur toutes les pages.
+  Les nouveautés affichées reprennent docs/NOUVEAUTES_POUR_LES_PARTENAIRES_2026-10-26.md. Ouverture : http://localhost:8123/docs/MAQUETTE_NOUVEAUTES_2026-10-26.html
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Nouveautés</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* Le 4e bouton de la ligne du haut : mêmes dimensions que les trois autres (roue à 20, ampoule à 74, disquette à 128). */
+  #btnNouveautes { position: fixed; top: 19px; left: 182px; z-index: 2700; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-strong);
+    background: var(--bg-card); color: var(--accent); font-size: 1.3rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  #btnNouveautes:hover { background: var(--bg-hover); }
+  [data-theme="sombre"] #btnNouveautes { border: 2px solid var(--border-strong); box-shadow: none; }
+  #btnNouveautes .pastille-nouveau { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; border-radius: 9px; background: #c2410c; color: #fff; font-size: .68rem; font-weight: 700; line-height: 18px; padding: 0 4px; }
+  [data-theme="sombre"] #btnNouveautes .pastille-nouveau { background: #fb923c; color: #1b212c; }
+  @media (max-width: 575px) { #btnNouveautes { top: var(--hauteur-progression, 5rem); left: 8px; width: 38px; height: 38px; font-size: 1.1rem; margin-top: 132px; } }
+  .mq-barre { position: sticky; top: 0; z-index: 30; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); padding: .6rem 1rem .6rem 260px; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  @media (max-width: 575px) { .mq-barre { padding-left: 1rem; } }
+  .mq-page { max-width: 820px; margin: 0 auto; padding: 1.2rem 1rem 6rem; }
+  .mq-ecran[hidden] { display: none; }
+  .mq-mois { margin-top: 1.6rem; font-size: 1rem; font-weight: 700; color: var(--text-muted); text-transform: capitalize; border-bottom: 1px solid var(--border); padding-bottom: .2rem; }
+  .nv-carte { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem 0; }
+  .nv-tete { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; margin-bottom: .3rem; }
+  .nv-date { font-size: .82rem; color: var(--text-muted); }
+  .nv-titre { font-weight: 700; font-size: 1.02rem; }
+  .nv-nouveau { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #fff; background: #c2410c; border-radius: 999px; padding: .05rem .55rem; }
+  [data-theme="sombre"] .nv-nouveau { background: #fb923c; color: #1b212c; }
+  .mq-toast { position: fixed; left: 50%; bottom: 5rem; transform: translateX(-50%); z-index: 2800; max-width: min(92vw, 560px); background: var(--text-strong); color: var(--bg-card); padding: .6rem 1rem; border-radius: .6rem; font-size: .9rem; }
+  .mq-toast[hidden] { display: none; }
+  .mq-note { font-size: .85rem; color: var(--text-muted); border-left: 3px solid var(--border-strong); padding: .2rem .7rem; margin: 1.4rem 0 .4rem; }
+</style>
+</head>
+<body>
+<!-- Les trois boutons existants de la ligne du haut, tels que dans l'application -->
+<button type="button" id="btnPreferencesAffichage" aria-label="Préférences d'affichage"><i class="bi bi-gear" aria-hidden="true"></i></button>
+<button type="button" id="btnAide" aria-label="Aide sur cette page"><i class="bi bi-lightbulb" aria-hidden="true"></i></button>
+<button type="button" id="btnSessionTransfert" aria-label="Enregistrer mon travail"><i class="bi bi-floppy" aria-hidden="true"></i></button>
+<!-- Le nouveau : 4e icône, même ligne, même forme. La pastille dit combien de nouveautés datent de moins de 30 jours. -->
+<button type="button" id="btnNouveautes" aria-label="Nouveautés : voir ce qui a été ajouté" title="Nouveautés"><i class="bi bi-megaphone" aria-hidden="true"></i><span class="pastille-nouveau" id="nvPastille"></span></button>
+
+<div class="mq-barre">
+  <strong>Maquette : Nouveautés</strong>
+  <button type="button" class="btn btn-sm btn-primary" data-aller="accueil">Une page de l'application</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-aller="nouveautes">Page Nouveautés</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="mqSombre"><i class="bi bi-moon-stars"></i> Mode sombre</button>
+</div>
+
+<div class="mq-page">
+  <section class="mq-ecran" id="mq-accueil">
+    <h1 class="h3 text-center mt-4">N'importe quelle page de l'application</h1>
+    <p class="text-center text-muted">Regardez en haut à gauche : la ligne des icônes (réglages, aide, enregistrer) a maintenant une 4e icône, le haut-parleur <i class="bi bi-megaphone"></i>. Elle reste au même endroit sur toutes les pages. La pastille orange indique le nombre de nouveautés des 30 derniers jours. Cliquez dessus.</p>
+    <div class="mq-note"><strong>Pourquoi là :</strong> la ligne des icônes est déjà « toujours au même endroit » sur toutes les pages (décision de Denis). Rien n'est ajouté à l'accueil, qui reste simple. <strong>Sur téléphone</strong>, les icônes se rangent déjà en colonne à gauche : la 4e vient dessous (réduisez la fenêtre pour voir).</div>
+  </section>
+
+  <section class="mq-ecran" id="mq-nouveautes" hidden>
+    <h1 class="h3 text-center mt-4"><i class="bi bi-megaphone"></i> Nouveautés</h1>
+    <p class="text-center text-muted">Ce qui a été ajouté à l'application, du plus récent au plus ancien. Les ajouts des 30 derniers jours portent la mention « Nouveau ».</p>
+    <div id="nvListe"></div>
+    <div class="mq-note"><strong>Bouton « Essayer » :</strong> il ouvre directement le module concerné. <strong>Barre de recherche de l'accueil :</strong> on pourra y taper « nouveautés ». <strong>Ce qui n'est pas ouvert au public</strong> n'apparaît jamais dans cette liste.</div>
+  </section>
+</div>
+<div class="barre-navigation-fixe" id="mqBarreBas" hidden><div class="d-flex justify-content-between align-items-center barre-navigation"><button class="btn btn-nav-erip btn-lg" id="nvRetour">← Retour</button><button class="btn btn-nav-erip btn-accueil" data-dire="Dans l'application : retour à l'accueil."><i class="bi bi-house-door"></i> Accueil</button><span></span></div></div>
+<div class="mq-toast" id="mqToast" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+  var AUJOURDHUI = new Date(2026, 9, 26);   // 26 octobre 2026 : la date de la maquette (dans l'application : la vraie date du jour)
+  var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  // Les nouveautés (dans l'application : un fichier de données, une ligne chacune). Les trois premières sont les plus récentes.
+  var NOUVEAUTES = [
+    { date: '2026-10-26', titre: 'Reprendre mon CV : un seul dépôt, trois voies', texte: 'Déposez votre CV une fois, puis choisissez : le garder et le compléter, le reformuler, ou le refaire vous-même dans un modèle, sans assistant et sans rien reformuler.', module: 'Reprendre mon CV' },
+    { date: '2026-10-26', titre: 'Fiche et entraînement à l’entretien', texte: 'Une fiche rapide (idées pour vous présenter, questions probables, cas pratique) et un entraînement où l’assistant joue le recruteur, relance et fait un bilan.', module: 'M’entraîner à un entretien' },
+    { date: '2026-10-25', titre: 'Voir nos modèles avant de remplir son CV', texte: 'Parcourez les modèles sur un CV d’exemple et gardez-en jusqu’à cinq. Ils s’affichent ensuite avec votre propre texte.', module: 'Créer un nouveau CV' },
+    { date: '2026-10-25', titre: 'Créer un nouveau CV de trois façons', texte: 'À la main sans assistant, avec l’assistant, ou à partir de votre récit.', module: 'Créer un nouveau CV' },
+    { date: '2026-10-24', titre: 'Écrire sa lettre avec l’assistant, en plus complet', texte: 'Mêmes choix pour une offre, une candidature spontanée ou un changement de métier. Lettres de recommandation, export PDF et Word.', module: 'Écrire ma lettre avec l’assistant' },
+    { date: '2026-10-20', titre: 'Beaucoup plus de modèles et d’options de CV', texte: 'Formes de bandeau et de colonne, décors, couleurs, titres de rubriques au choix, et un bouton « Style rapide ».', module: 'Mes documents' },
+    { date: '2026-10-20', titre: 'Chiffres à jour dans le Lexique', texte: 'Montants, durées et dates sont affichés avec leur source et leur date de vérification, et revérifiés tous les six mois.', module: 'Lexique' },
+    { date: '2026-09-15', titre: 'Un CV pour plusieurs métiers', texte: 'Adaptez un même CV à plusieurs métiers visés, sans tout refaire.', module: 'Un CV, plusieurs métiers' }
+  ];
+  var JOUR = 86400000;
+  function ageJours(iso) { var p = iso.split('-'); return Math.round((AUJOURDHUI - new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]))) / JOUR); }
+  function dateFr(iso) { var p = iso.split('-'); return Number(p[2]) + ' ' + MOIS[Number(p[1]) - 1] + ' ' + p[0]; }
+  function moisFr(iso) { var p = iso.split('-'); return MOIS[Number(p[1]) - 1] + ' ' + p[0]; }
+  function echap(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  var nbNouveaux = NOUVEAUTES.filter(function (n) { return ageJours(n.date) <= 30; }).length;
+  document.getElementById('nvPastille').textContent = nbNouveaux || '';
+  document.getElementById('nvPastille').hidden = !nbNouveaux;
+  var moisCourant = '', h = '';
+  NOUVEAUTES.forEach(function (n) {
+    var m = moisFr(n.date);
+    if (m !== moisCourant) { h += '<h2 class="mq-mois">' + m + '</h2>'; moisCourant = m; }
+    h += '<div class="nv-carte"><div class="nv-tete"><span class="nv-date">' + dateFr(n.date) + '</span>' + (ageJours(n.date) <= 30 ? '<span class="nv-nouveau">Nouveau</span>' : '') + '</div>' +
+      '<div class="nv-titre">' + echap(n.titre) + '</div><p class="mb-2">' + echap(n.texte) + '</p>' +
+      '<button type="button" class="btn btn-sm btn-outline-primary" data-dire="Dans l’application : ouvre « ' + echap(n.module) + ' ».">Essayer : ' + echap(n.module) + '</button></div>';
+  });
+  document.getElementById('nvListe').innerHTML = h;
+  var vue = 'accueil';
+  function aller(v) {
+    vue = v;
+    document.getElementById('mq-accueil').hidden = v !== 'accueil'; document.getElementById('mq-nouveautes').hidden = v !== 'nouveautes';
+    document.getElementById('mqBarreBas').hidden = v !== 'nouveautes';
+    document.querySelectorAll('.mq-barre [data-aller]').forEach(function (b) { var a = b.dataset.aller === v; b.classList.toggle('btn-primary', a); b.classList.toggle('btn-outline-primary', !a); });
+    window.scrollTo(0, 0);
+  }
+  var minuteur = null;
+  function dire(m) { var t = document.getElementById('mqToast'); t.textContent = m; t.hidden = false; clearTimeout(minuteur); minuteur = setTimeout(function () { t.hidden = true; }, 3800); }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-aller]'); if (a) { aller(a.dataset.aller); return; }
+    var d = e.target.closest('[data-dire]'); if (d) { dire(d.dataset.dire); return; }
+    if (e.target.closest('#btnNouveautes')) { aller('nouveautes'); return; }
+    if (e.target.closest('#nvRetour')) { aller('accueil'); return; }
+    if (e.target.closest('#btnPreferencesAffichage, #btnAide, #btnSessionTransfert')) { dire('Bouton existant de l’application, inchangé.'); }
+  });
+  document.getElementById('mqSombre').addEventListener('click', function () {
+    var html = document.documentElement; if (html.getAttribute('data-theme') === 'sombre') { html.removeAttribute('data-theme'); } else { html.setAttribute('data-theme', 'sombre'); }
+  });
+  aller('accueil');
+})();
+</script>
+</body>
+</html>

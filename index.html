@@ -183,6 +183,8 @@
        endroit (juste en dessous de l'oeil, retour utilisateur explicite),
        jamais une 3e logique de panneau flottant. Contenu adapte a CHAQUE
        page affichee (pageActuelle), pas seulement l'accueil. -->
+  <!-- Nouveautés (26/10/2026, docs/CHANTIER_NOUVEAUTES_2026-10-26.md) : 4e icône de la ligne du haut, même forme, visible sur toutes les pages ; la pastille compte les ajouts des 30 derniers jours. -->
+  <button type="button" id="btnNouveautes" aria-label="Nouveautés : voir ce qui a été ajouté" title="Nouveautés"><i class="bi bi-megaphone" aria-hidden="true"></i><span class="pastille-nouveau" id="nvPastille" hidden></span></button>
   <button type="button" id="btnAide" aria-label="Aide sur cette page" title="Aide sur cette page"><i class="bi bi-lightbulb" aria-hidden="true"></i></button>
   <div id="panneauAide" hidden>
     <h6><i class="bi bi-lightbulb"></i> Besoin d'aide ?</h6>
@@ -575,6 +577,10 @@
   <script src="modules/cv-sans-assistant/logique.js" charset="UTF-8"></script>
   <script src="modules/cv-sans-assistant/lecteurPdf.js" charset="UTF-8"></script>
   <script src="modules/cv-sans-assistant/index.js" charset="UTF-8"></script>
+  <!-- Nouveautés : données, logique pure, interface ; avant js/app.js (route 'nouveautes'). -->
+  <script src="data/nouveautes.js" charset="UTF-8"></script>
+  <script src="modules/nouveautes/logique.js" charset="UTF-8"></script>
+  <script src="modules/nouveautes/index.js" charset="UTF-8"></script>
   <script src="js/app.js" charset="UTF-8"></script>
 
 </body>

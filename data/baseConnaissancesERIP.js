@@ -51,6 +51,8 @@ var MODULES_RECHERCHABLES = [
   // autres parcours CV -> la personne clique ensuite la tuile (qui remet
   // l'etat a zero proprement).
   // F9 (25/10/2026) : une seule tuile « Reprendre mon CV » pour les parcours « Mettre a jour » et « Reformuler » ; le CV se depose une fois, puis on choisit la voie.
+  { titre: 'Nouveautés', desc: 'Ce qui a été ajouté à l’application, du plus récent au plus ancien.',
+    motsCles: ['nouveautes', 'nouveaute', 'quoi de neuf', 'ce qui change', 'dernieres nouveautes', 'mises a jour', 'ajouts', 'historique des nouveautes'], cible: 'route:nouveautes' },
   { titre: 'Reprendre mon CV', desc: 'Vous avez déjà un CV : déposez-le une seule fois, puis complétez-le, reformulez-le (avec l’assistant), ou refaites-le vous-même dans un de nos modèles (sans assistant).',
     motsCles: ['reprendre mon cv', 'mettre a jour mon cv', 'mise a jour cv', 'completer mon cv', 'j ai deja un cv', 'deposer mon cv', 'modifier mon cv', 'corriger mon cv', 'cv existant', 'refaire mon cv moi meme', 'mettre mon cv en page', 'mon cv dans un modele', 'sans assistant', 'garder mes mots', 'ne rien changer a mon cv'], cible: 'carte:mesdocuments' },
   { titre: 'Reformuler et présenter mon CV', desc: 'Un CV déjà complet, remis au bon niveau de langage et de vocabulaire pour le poste visé, sans en changer le fond.',

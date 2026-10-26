@@ -455,7 +455,7 @@ body {
      une marge d'air a droite. La barre garde 0.75rem de haut (la vraie
      cause d'un ancien bug de debordement au survol etait la hauteur
      inconstante des pastilles, voir .etape). */
-  padding: 0.75rem 100px 0.75rem 184px;
+  padding: 0.75rem 100px 0.75rem 238px;   /* 4e icone « Nouveautés » a 182, finit a 226 (26/10/2026) */
   box-shadow: 0 4px 12px rgba(11,26,51,0.08);
 }
 /* Les etapes (pastilles Vous/Objectif/...) vivent dans ce conteneur INTERNE
@@ -466,7 +466,7 @@ body {
    sur deux") : flex-wrap:nowrap desormais (plus de retour a la ligne),
    overflow-x:auto en filet de securite si le contenu venait malgre tout a
    depasser sur un tres petit ecran (jamais un depassement invisible/coupe). */
-.progression-etapes { display: flex; flex-wrap: nowrap; gap: 12px; justify-content: center; flex: 1 1 auto; overflow-x: auto; }
+.progression-etapes { display: flex; flex-wrap: nowrap; gap: 12px; justify-content: safe center; flex: 1 1 auto; overflow-x: auto; }
 
 /* TACHE (retour utilisateur : "un petit sélecteur, à gauche, en haut, un
    peu plus bas de la barre de navigation... l'icone doit être présente
@@ -5002,3 +5002,32 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 .csa-ligne-autre { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: .4rem; margin-bottom: .35rem; }
 @media (max-width: 560px) { .csa-ligne-autre { grid-template-columns: minmax(0, 1fr); } }
 .bloc-depli > summary .rpast { margin-right: .5rem; }
+
+/* ============================================================
+   Nouveautés (26/10/2026, modules/nouveautes) : 4e icône de la ligne du haut (roue à 20, ampoule à 74, disquette à 128, nouveautés à 182), mêmes dimensions.
+   ============================================================ */
+#btnNouveautes {
+  position: fixed; top: 19px; left: 182px; z-index: 2700;
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-strong);
+  background: var(--bg-card); color: var(--accent); font-size: 1.3rem;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+#btnNouveautes:hover { background: var(--bg-hover); }
+[data-theme="sombre"] #btnNouveautes { border: 2px solid var(--border-strong); box-shadow: none; }
+#btnNouveautes .pastille-nouveau {
+  position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; border-radius: 9px;
+  background: #c2410c; color: #fff; font-size: .68rem; font-weight: 700; line-height: 18px; padding: 0 4px;
+}
+#btnNouveautes .pastille-nouveau[hidden] { display: none; }
+[data-theme="sombre"] #btnNouveautes .pastille-nouveau { background: #fb923c; color: #1b212c; }
+@media (max-width: 768px) {
+  #btnNouveautes { top: var(--hauteur-progression, 5rem); left: 140px; width: 38px; height: 38px; font-size: 1.1rem; }
+  .progression { padding-left: 184px; }
+}
+.nv-mois { margin-top: 1.6rem; font-size: 1rem; font-weight: 700; color: var(--text-muted); text-transform: capitalize; border-bottom: 1px solid var(--border); padding-bottom: .2rem; }
+.nv-carte { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem 1rem; margin: .7rem 0; }
+.nv-tete { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; margin-bottom: .3rem; }
+.nv-date { font-size: .82rem; color: var(--text-muted); }
+.nv-titre { font-weight: 700; font-size: 1.02rem; }
+.nv-nouveau { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #fff; background: #c2410c; border-radius: 999px; padding: .05rem .55rem; }
+[data-theme="sombre"] .nv-nouveau { background: #fb923c; color: #1b212c; }

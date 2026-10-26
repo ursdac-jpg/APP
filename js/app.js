@@ -4069,6 +4069,8 @@ var routes = {
   // 'pret'/'maj' (_prepLEMode = 'reformuler'). Fonction dans data/metiers.js.
   'reformuler-cv': pageReformulerCv,
   'reprendre-cv': pageReprendreCv,
+  // Nouveautés (26/10/2026) : historique de ce qui a été ajouté (modules/nouveautes/index.js).
+  'nouveautes': typeof pageNouveautes === 'function' ? pageNouveautes : function () { naviguerVers('cv'); },
   // Voie 3 de « Reprendre mon CV » (Lot 7) : classer les informations du CV deja depose, sans assistant (modules/cv-sans-assistant/index.js).
   'cv-sans-assistant': typeof pageCvSansAssistant === 'function' ? pageCvSansAssistant : function () { naviguerVers('reprendre-cv'); },
   'complement-cv': pageComplementCV,
