@@ -37,3 +37,4 @@ async function continuerJusquAuxDocuments(p, L) {
   await L.etat(p, 'Vos documents (arrivée)');
 }
 module.exports.continuerJusquAuxDocuments = continuerJusquAuxDocuments;
+module.exports.REPONSE = REPONSE;

@@ -1,0 +1,23 @@
+module.exports = `Camille MARTIN
+Agent d'entretien
+12 rue des Lilas, 87000 Limoges
+06 12 34 56 78 - camille.martin@exemple.fr
+
+EXPERIENCES PROFESSIONNELLES
+2019 - 2023 : Agent d'entretien, Clean Limousin, Limoges
+Nettoyage de bureaux, 12 locaux par jour, gestion des produits et du matériel.
+2016 - 2019 : Agent de service, Collège Jean Moulin, Limoges
+Service de restauration scolaire, entretien des salles, accueil des élèves.
+
+FORMATION
+2015 : CAP Agent de propreté et d'hygiène, Lycée professionnel de Limoges
+
+COMPETENCES
+Utilisation de matériel professionnel, respect des protocoles d'hygiène, ponctualité, travail en équipe.
+
+LANGUES
+Français (langue maternelle), Anglais (notions)
+
+PERMIS
+Permis B
+`;

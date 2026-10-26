@@ -9,7 +9,7 @@ async function ouvrir() {
   const p = await ctx.newPage(); p.errs = []; p.log = [];
   p.on('pageerror', e => p.errs.push(String(e).slice(0, 160)));
   p.on('dialog', d => { p.log.push('DIALOGUE: ' + d.message().slice(0, 120)); d.accept(); });
-  await p.goto('http://localhost:8123/index.html'); await p.waitForTimeout(2500);
+  await p.goto('' + (process.env.URL_APP || 'http://localhost:8123') + '/index.html'); await p.waitForTimeout(2500);
   await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
   return { b, p };
 }
