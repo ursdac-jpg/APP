@@ -15,6 +15,26 @@ Créé le 26/10/2026. Mode A, `[effort : haut]`. Lot 9 de `docs/MESSAGES_PAR_LOT
 - **Ambition à long terme** : ce document devient une **source concrète** pour le CV, la lettre et l'entretien. Au lieu de laisser l'assistant inventer, on lui donne des éléments tirés de l'expérience de la personne, qu'elle peut défendre. (Décision de plus tard, pas dans la première version.)
 - **Difficulté posée par Denis** : tracer les limites pour ne pas empiéter sur les modules existants.
 
+## 1bis. Précision de Denis (26/10/2026, soir) : le document a un double sens
+
+1. **Pour la personne** : un papier à regarder, qui valorise et aide à se défendre à l'oral.
+2. **Pour l'application** : si la personne le garde sous ce format, il devient un **appui** pour tout ce qu'on écrit :
+   - **avec l'assistant en ligne** : il reçoit le document et s'inspire des tournures, des compétences, de ce qu'on peut mettre en avant, sans chercher trop loin ; **sans document, on fait comme jusqu'ici** (section optionnelle) ;
+   - **sans assistant** : appui pour écrire ou modifier son CV à la main (parcours « Créer un nouveau CV à la main »).
+3. **Décision à prendre selon le résultat des essais, prompt par prompt** : le document a-t-il une vraie plus-value dans les prompts du CV, de la lettre, de l'entretien ? Sinon il reste indicatif (encouragement, préparation de stratégie d'entretien). Rien n'est branché dans un prompt avant le résultat de l'essai.
+
+Précédent dans le code : `prompts/entretien.md` gère déjà « Fiche déjà établie / Pas de fiche » (section optionnelle, comportement par défaut si absente). Même mécanique pour une section « MES COMPÉTENCES VALIDÉES PAR LA PERSONNE ».
+
+**Conséquences de conception (recommandations de Claude)**
+- Le contrat de données est posé **dès la version 1**, versionné, dans un champ à part `dossier.mesCompetences` (jamais à la place de `dossier.competences`, qui reste un tableau de chaînes lu par le CV). Rendu papier (PDF, Word, texte) et données viennent de la même source. Persiste par la sauvegarde du dossier (« disquette »).
+- « Éditer ce papier » = **dans l'application** (écran de validation). Relire un papier modifié à la main (PDF ou Word) serait fragile : hors version 1.
+- Dans un prompt, on ne passe **jamais le document entier** : seulement un extrait court (8 à 12 lignes) choisi selon l'objectif de la personne, avec ses propres mots, pour ne pas alourdir les prompts ni répéter les mêmes phrases partout.
+- Deux producteurs de compétences (« À partir de mon récit » et ce nouvel outil) : dédoublonnage par `fusionnerSansDoublon` ; une compétence ajoutée au CV passe par les mêmes fonctions que l'existant.
+- Date et provenance sur chaque ligne : un document devenu vieux (CV modifié depuis) est signalé.
+
+**Protocole d'essai de la plus-value (avant tout branchement)**
+Mêmes cas réels (4 à 5 profils : ouvrier, employé, parcours atypique, technicien, cadre), même prompt **avec** et **sans** la section ; grille : fidélité (aucune invention), précision (faits concrets), voix de la personne, répétition d'un document à l'autre, longueur. Méthode et outil existants : `docs/essais_prompts_ucpm/`, `scripts/lettreInventaire/mesurer.js`. Règle : branché seulement si le résultat est meilleur sans rien perdre, prompt par prompt. Hypothèse à vérifier (non prouvée) : plus forte plus-value pour l'entretien et la lettre (preuves concrètes) que pour le CV (qui a déjà ses missions).
+
 ## 2. Audit du code réel (26/10/2026) : qui touche déjà aux compétences
 
 | Où | Ce que ça fait aujourd'hui | Recoupement avec le nouvel outil |
@@ -57,7 +77,7 @@ Créé le 26/10/2026. Mode A, `[effort : haut]`. Lot 9 de `docs/MESSAGES_PAR_LOT
 ## 5bis. Recommandations de Claude pour Q1 à Q6 (26/10/2026, à valider par Denis)
 
 - **Q1** Documents (CV, lettres de motivation et de recommandation, plusieurs de chaque) plus de courtes **questions de précision** par expérience ; pas de récit complet (c'est « À partir de mon récit »).
-- **Q2** Les deux : document « Mes compétences » à télécharger ET objet gardé dans le dossier dès la version 1, mais **aucun autre module ne le lit** avant une décision ultérieure.
+- **Q2** (précisé par Denis, voir 1bis) Les deux : document « Mes compétences » à télécharger ET objet gardé dans le dossier dès la version 1, mais **aucun autre module ne le lit** avant une décision ultérieure.
 - **Q3** Même outil, même document final, mais **sections distinctes** : « Ce que je sais faire / connais / ma façon de travailler », puis « Ce qui me donne envie » et « Où je veux aller ». Les motivations ne sont jamais appelées compétences.
 - **Q4** Pas de Lexique de compétences (décision de septembre maintenue) ; seulement 2 ou 3 fiches : savoir-faire, savoir-être et savoirs ; comment défendre une compétence.
 - **Q5** La personne choisit le niveau du poste (proposé d'après les documents) ; la formulation ne dépasse **jamais** ce que les documents prouvent.
