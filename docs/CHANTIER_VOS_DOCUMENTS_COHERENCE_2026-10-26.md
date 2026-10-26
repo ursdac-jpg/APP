@@ -51,6 +51,32 @@ Trois documents (CV, lettre, entretien) et au moins **dix barres d'étapes diff�
 - **Cohérence** : cette famille a le seul dernier repère nommé « Mon CV » et la seule barre à 7 repères ; la lettre et l'entretien n'y sont pas proposés (volontaire : on revient par « Reprendre mon CV », F9). C'est un cas d'exception du registre de la piste B, pas une anomalie.
 - **Vérifié, pas d'anomalie** : le drapeau persistant `decouverteTerminee` est remis à faux au départ de « Reprendre mon CV » (`data/metiers.js` ligne 6235, `onCta`), qui précède les trois voies, donc aussi la voie 3.
 
+## 3 ter. Mesure dans un vrai navigateur (26/10/2026, états SIMULÉS : `docs/mesures_2026-10-26/matrice_vos_documents.js`, planche `planche_vos_documents.png`)
+Méthode : navigateur sans fenêtre (Playwright) sur `serveur_dev.py`, on pose les drapeaux de chaque famille dans `dossier`, on ouvre `resultats` et on relève la barre, le titre H1, les boutons du bas et l'action du « Retour ». Aucune erreur de page sur les 12 essais. **Limite** : états posés à la main, pas des parcours rejoués de bout en bout (cette étape reste à faire).
+
+| Famille | Barre sur « Vos documents » | Titre | Boutons du bas | « Retour » |
+|---|---|---|---|---|
+| 01 Nouveau, à la main | Objectif > Informations > Parcours > Profil > Documents (5) | Vos documents | Retour / Accueil / **Valider le CV** | `retourPagePrecedente()` |
+| 02 Nouveau, avec assistant | idem + Assistant (6) | Vos documents | idem | `retourPagePrecedente()` |
+| 03 Récit | Préparer > Assistant > Réponse > Compétences > Compléter > Rédiger mon CV > Mon CV (7) | Vos documents | Retour / Accueil / Valider le CV | `reafficherDecouverteCompetences()` |
+| 04 Mettre à jour (maj) | Préparer > Assistant > Réponse > Corriger mon CV > Vos documents | Vos documents | Retour / Accueil / **Continuer** | `retourPagePrecedente()` |
+| 05 Reformuler | **identique à 04** (pas la barre de Reformuler) | Vos documents | Continuer | `retourPagePrecedente()` |
+| 06 Voie 3 (à la main, reprise) | Déposer > Ma voie > Classer > Vérifier > Vos documents | Vos documents | Valider le CV | `naviguerVers('cv-sans-assistant')` |
+| 07 J'ai déjà un CV (lettre) | Préparer > Assistant > Réponse > Vos informations > Vos documents | Ma lettre de motivation rapide | Continuer | `retourPagePrecedente()` |
+| 08 Écrire ma lettre | Préparer > Assistant > Rédiger > **Terminé** | Vos documents | **aucun bouton principal** (Retour / Accueil) | `retourPagePrecedente()` |
+| 09 M'entraîner à l'entretien | Préparer > Assistant > S'entraîner > **Terminé** | Votre préparation d'entretien | Continuer | `naviguerVers('prepa-entretien')` |
+| 10 Un CV, plusieurs métiers | 8 repères (Mon CV, Métiers, Référence, Accroches, Mes CV, Lettres, Fin, Entretiens) | Vos documents | Continuer | `ucpmRetourDepuisEditeur()` |
+| 11 Bilan | **ancienne barre à 9 repères** (défilante) | Vos documents | Continuer | `naviguerVers('bilan')` |
+| 12 Arrivée directe (import de session, ATS) | **ancienne barre à 9 repères** | Vos documents | Continuer | `retourPagePrecedente()` |
+
+**Constats confirmés par la mesure**
+- **C1 confirmé** : Reformuler montre la barre de « Mettre à jour » (famille 05 = 04). Le module Reformuler affiche pourtant « Vérifier » et « Mise en forme » avant.
+- **C10 (nouveau)** : le Bilan et l'arrivée directe tombent sur l'ancienne barre à 9 repères (cartes cliquables vers des pages qui n'ont rien à voir avec le parcours), alors que tous les autres parcours ont une barre de module. Ce sont les deux seuls à ne pas avoir de barre cohérente.
+- **C11 (nouveau)** : le bouton principal du bas s'appelle « **Valider le CV** » dans les parcours de création et « **Continuer** » dans les autres ; en famille 08 il n'y a **aucun** bouton principal.
+- **C12 (nouveau)** : cinq façons différentes de revenir (`retourPagePrecedente`, un `naviguerVers` par module, `reafficherDecouverteCompetences`, `ucpmRetourDepuisEditeur`).
+- **C13 (nouveau)** : seul le parcours rapide de la lettre a un titre propre ; la famille 08 (lettre approfondie) s'intitule « Vos documents ».
+- Dernier repère : Vos documents (01, 02, 04, 05, 06, 07), Mon CV (03), Terminé (08, 09), Fin / Entretiens (10), aucun (11, 12).
+
 ## 4. Pistes communes (à chiffrer après la lecture des familles 3 à 12)
 - **A. Une seule définition « du dernier repère »** : décider un nom unique (ou deux au plus, selon le document) et une fonction qui choisit la barre à partir de la famille, au lieu de dix branches. `[effort : haut]`
 - **B. Un registre des familles** : une table `{ famille, signal, barre, titre, retour, documents proposés }` lue par `pageResultats`, `afficherProgression` et `resultatsCibleRetour`. Les signaux sans mémoire remplacent les drapeaux qui restent. `[effort : haut]`, risque moyen à élevé.
