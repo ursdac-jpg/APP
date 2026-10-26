@@ -10,6 +10,12 @@ Cahier d'audit : `docs/CHANTIER_VOS_DOCUMENTS_COHERENCE_2026-10-26.md` (constats
 5. Une ligne dans `docs/JOURNAL_DES_CHANGEMENTS.md` dans le même commit pour tout changement visible.
 6. Essai réel de Denis (liste donnée à la fin de chaque lot) avant de fusionner dans `master`.
 
+## Lot 0 : un défaut réel à corriger en premier (effort bas, C18)
+- **Défaut** : dépôt du CV par **texte collé** dans la fenêtre de dépôt de « Reprendre mon CV » et de « Lettre et entretien en version rapide » : `dossier.cvAnalyse` n'est jamais posé (seul le chemin « fichier » le fait, `data/metiers.js` ligne 3458). Conséquence mesurée sur 3 parcours (voie 1, lettre rapide, entretien rapide) : après l'import de l'assistant, la personne arrive sur « Votre parcours » (4 questions à cocher, « Continuer » grisé, ancienne barre à 9 repères) au lieu de « Vos informations ».
+- **Correction proposée** : poser `dossier.cvAnalyse = true` aussi quand le texte collé est enregistré (au moment du « Continuer » de la fenêtre de dépôt, `etat.modeEditeur === 'texte'`), au même endroit que le chemin fichier, sans toucher à `pageObjectif` ni à `pageProjet`. Alternative moins sûre : changer la condition de `pageObjectif` (ligne 5985 environ) ; à écarter, car partagée.
+- **Preuve** : relancer `docs/mesures_2026-10-26/parcours_reels/p4_debug.js` avec `DEPOT=texte` : la route après « Continuer » doit passer de `votre-parcours` à `projet`, comme avec `DEPOT=fichier`. Grep préalable de `cvAnalyse` sur tout le dépôt (`js/`, `data/`, `modules/`, `tests/`) : l'état est lu par `cvDisponible()`, `pageObjectif`, `pageProjet` et le wizard.
+- **Où** : cloud possible (code, `npm test`, script), puis essai de Denis en local : déposer un CV en collant le texte, voie 1, vérifier qu'on arrive sur « Vos informations ».
+
 ## Lot 1 : trois corrections ciblées de « Créer un nouveau CV » (effort bas)
 Défauts trouvés pendant l'audit, corrigés dans le même passage (règle du 2026-09-12). Aucun choix d'interface à trancher.
 - **1a. « Retour » de « Votre profil »** (C7). Fichier : `js/app.js`, `pageRevelation` (la barre du bas passe `'projet'` en dur). Cible : `'votre-parcours'` quand `dossier.modeCreation === 'nouveau'` et `!dossier.cvAnalyse` (même condition que la navigation vers l'avant de `pageProjet`), `'projet'` pour tous les autres modes (maj, pret, reformuler, voie 3, un CV plusieurs métiers). Réserve : la garde anti-boucle de `naviguerVers` (`js/app.js` autour de la ligne 4176, `_pageOrigineAvantProjet`) exclut déjà `votre-parcours` ; vérifier à la main qu'il n'y a pas de boucle « Retour, Retour ». Preuve : `parcours_retours_et_barres.js` (la ligne `retourVa` de A-main et A-assistant passe de `projet` à `votre-parcours`, rien d'autre ne bouge) + un essai « Retour » deux fois de suite.
@@ -44,17 +50,30 @@ Défauts trouvés pendant l'audit, corrigés dans le même passage (règle du 20
 - **Où** : conception en local avec Denis ; la migration famille par famille peut se faire dans le cloud avec la matrice comme filet.
 
 ## Lot 6 : rejouer les parcours complets de bout en bout (effort moyen, avant le lot 5)
-Les mesures actuelles posent l'état à la main. Rejouer, avec de vraies saisies et `scripts/parcours/parcours_smoke.js`, les trois parcours de création, « Reprendre mon CV » (trois voies), « J'ai déjà un CV », la lettre, l'entretien, « Un CV, plusieurs métiers », le Bilan. Objectif : ajouter à la matrice les écrans intermédiaires et les sorties réelles. **Où** : local (outil d'aperçu), parce que ce sont les essais déjà conçus pour lui.
+**Fait le 26/10/2026 pour les 8 parcours de la carte « Mes documents »** (cahier, section 3 quinquies, scripts dans `docs/mesures_2026-10-26/parcours_reels/`). Restent à rejouer : « Écrire ma lettre avec l'assistant », « M'entraîner à un entretien », « Un CV, plusieurs métiers », le Bilan (hors de la carte « Mes documents »).
+
+À l'origine, les mesures posaient l'état à la main. Rejouer, avec de vraies saisies et `scripts/parcours/parcours_smoke.js`, les trois parcours de création, « Reprendre mon CV » (trois voies), « J'ai déjà un CV », la lettre, l'entretien, « Un CV, plusieurs métiers », le Bilan. Objectif : ajouter à la matrice les écrans intermédiaires et les sorties réelles. **Où** : local (outil d'aperçu), parce que ce sont les essais déjà conçus pour lui.
+
+
+## Lot 7 : décisions de cohérence issues des 8 parcours réels (à trancher avec Denis, maquette avant code)
+- **7a. La fin d'un parcours (C17)** : une seule façon de finir. Reco : « Merci bien, j'ai fini » ouvre toujours la même fenêtre « Et maintenant ? » (lettre, entretien, ou rien), jamais un retour muet à l'accueil ni un message d'effacement qui inquiète le public cible. À valider.
+- **7b. Reformuler, 2e passage de l'assistant (C1)** : faut-il le garder après « Mise en forme » ? Reco : le retirer pour la voie 2 (la personne vient de choisir sa version), et afficher la barre de Reformuler jusqu'au bout.
+- **7c. Titre de l'écran de préparation de l'assistant (C19)** : « Vos documents » désigne la préparation ET le résultat. Reco : titre propre à la préparation (« L'assistant en ligne ») comme en création avec l'assistant.
+- **7d. « Continuer » toujours dans la barre du bas (C16)** : récit (« Découverte de vos compétences »), voie 2 (« Continuer » de « Récupérer votre CV »).
+- **7e. Objectif en 6 cartes partout (C15, C20)** : récit à 6 cartes ; objectif repris d'un parcours à l'autre sans le redemander.
+- **7f. Libellés d'export (C22)** et **7g. « Vos appuis » demandé une seule fois (C23)**.
 
 ## Répartition cloud / local
 | Lot | Cloud | Local |
 |---|---|---|
+| 0 défaut C18 (texte collé) | code, `npm test`, script | essai de Denis, fusion |
 | 1 corrections ciblées | code, tests, scripts de mesure | essai de Denis, fusion |
 | 2 barre de Reformuler | code après décision | décision, maquette, essai |
 | 3 Bilan et arrivée directe | audit des chemins, code après décision | décision, maquette, essai |
 | 4 vocabulaire | audit de la famille 08 | décisions, maquette |
 | 5 registre | migration par famille avec la matrice | conception, maquette, essais |
-| 6 parcours de bout en bout | non (pas d'outil d'aperçu) | tout |
+| 6 parcours de bout en bout | fait pour la carte « Mes documents » ; reste les modules hors carte | essais réels de Denis |
+| 7 décisions de cohérence | audit, code après décision | décisions, maquettes |
 
 ## Ce que je ne peux pas vérifier dans le cloud
 Le ressenti visuel, la lisibilité pour le public cible, le vrai presse-papiers et la vraie ouverture de l'assistant, les parcours réels avec des données de Denis. Tout cela reste à son essai.
