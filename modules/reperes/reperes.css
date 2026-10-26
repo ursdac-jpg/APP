@@ -97,6 +97,11 @@
   flex-wrap: wrap;
   margin-bottom: 4px;
 }
+/* Sur un ecran large, le bouton « + Garder une reflexion » (a droite de cette ligne) passait sous le bouton rond du Carnet (position:fixed, right:20px, jusqu'a 58px) : meme reserve de 90px
+   que la ligne de recherche (.reperes-recherche-ligne). Sur mobile les boutons flottants sont ailleurs (voir css/style.css) : rien a reserver. */
+@media (min-width: 769px) {
+  .reperes-entete-ecran { padding-right: 90px; }
+}
 .reperes-entete-ecran h1 {
   flex: 1;
   text-align: center;
@@ -155,6 +160,12 @@
    right:20px, jusqu'a 58px de large) ne recouvre la barre de recherche
    sur un ecran large. */
 .reperes-recherche-ligne { display: flex; justify-content: flex-end; margin-bottom: 10px; padding-right: 90px; }
+/* Le texte d'aide « Rechercher dans mes Repères » (262 px avec l'icône) etait coupe dans un champ de 260 px, et de 253 px sur mobile : champ un peu plus large, jusqu'a la largeur de la ligne. */
+.reperes-recherche-ligne .reperes-rapports-recherche-champ { flex: 0 1 300px; }
+@media (max-width: 768px) {
+  .reperes-recherche-ligne { padding-right: 0; }
+  .reperes-recherche-ligne .reperes-rapports-recherche-champ { flex: 1 1 100%; }
+}
 
 /* ---- Page "Mes rapports" : filtre par type, une carte par rapport ---- */
 /* TACHE (retour utilisateur, 2026-08-26, recherche) : filtre par type et
@@ -345,9 +356,10 @@
   .reperes-colonnes { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 560px) {
-  .reperes-colonnes { grid-template-columns: 1fr; }
+  .reperes-colonnes { grid-template-columns: minmax(0, 1fr); }   /* minmax(0, ...) : la colonne ne depasse plus de l'ecran (387 px sur 375) quand son contenu est plus large que la piste */
 }
 .reperes-colonne {
+  min-width: 0;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-radius: 0.8rem;
