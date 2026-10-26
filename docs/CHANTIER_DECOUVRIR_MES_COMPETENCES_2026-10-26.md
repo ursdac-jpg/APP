@@ -29,7 +29,7 @@ Précédent dans le code : `prompts/entretien.md` gère déjà « Fiche déjà �
 - Le contrat de données est posé **dès la version 1**, versionné, dans un champ à part `dossier.mesCompetences` (jamais à la place de `dossier.competences`, qui reste un tableau de chaînes lu par le CV). Rendu papier (PDF, Word, texte) et données viennent de la même source. Persiste par la sauvegarde du dossier (« disquette »).
 - « Éditer ce papier » = **dans l'application** (écran de validation). Relire un papier modifié à la main (PDF ou Word) serait fragile : hors version 1.
 - Dans un prompt, on ne passe **jamais le document entier** : seulement un extrait court (8 à 12 lignes) choisi selon l'objectif de la personne, avec ses propres mots, pour ne pas alourdir les prompts ni répéter les mêmes phrases partout.
-- Deux producteurs de compétences (« À partir de mon récit » et ce nouvel outil) : dédoublonnage par `fusionnerSansDoublon` ; une compétence ajoutée au CV passe par les mêmes fonctions que l'existant.
+- **Pas de fusion avec « À partir de mon récit »** (correction de Denis, 26/10/2026) : ce parcours sert à quelqu'un qui n'a jamais fait de CV, raconte ce qu'il a fait et en obtient un. « Découvrir mes compétences » a une autre optique : valoriser, expliquer, préparer l'oral, à partir de documents existants, sans construire de CV. Les deux ne se dédoublonnent pas. Seule une action volontaire « Ajouter à mon CV » écrirait dans `dossier.competences`, par les fonctions existantes.
 - Date et provenance sur chaque ligne : un document devenu vieux (CV modifié depuis) est signalé.
 
 **Protocole d'essai de la plus-value (avant tout branchement)**
@@ -39,7 +39,7 @@ Mêmes cas réels (4 à 5 profils : ouvrier, employé, parcours atypique, techni
 
 | Où | Ce que ça fait aujourd'hui | Recoupement avec le nouvel outil |
 |---|---|---|
-| `modules/decouverte-competences/` (6 fichiers, `decouverteParcours.js` 2791 lignes), prompts `decouverte-competences.md` (1er passage) et `decouverte-redaction.md` (2e passage) | À partir d'un **récit**, relève les expériences (fragments), les compétences (savoir-faire, savoir-être, savoirs, centres d'intérêt), propose 5 formulations par fragment, pose des questions ciblées, **écrit dans le dossier** (`experiences`, `competences`, `loisirs`, `engagements`) via une table fixe (`decouverteMapping.js`) puis rédige le CV. Déjà renommé « À partir de mon récit » (troisième parcours de « Créer un nouveau CV »). | **FORT** : même matière. À ne pas dupliquer. |
+| `modules/decouverte-competences/` (6 fichiers, `decouverteParcours.js` 2791 lignes), prompts `decouverte-competences.md` (1er passage) et `decouverte-redaction.md` (2e passage) | **But : créer un CV pour quelqu'un qui n'en a jamais fait** (but précisé par Denis le 26/10/2026). À partir d'un **récit**, relève les expériences (fragments), les compétences (savoir-faire, savoir-être, savoirs, centres d'intérêt), propose 5 formulations par fragment, pose des questions ciblées, **écrit dans le dossier** (`experiences`, `competences`, `loisirs`, `engagements`) via une table fixe (`decouverteMapping.js`) puis rédige le CV. Déjà renommé « À partir de mon récit » (troisième parcours de « Créer un nouveau CV »). | **Matière voisine, but différent** : pas de fusion. On peut réutiliser des mécanismes (questions ciblées, retrait du contexte de vie), pas le parcours. |
 | `prompts/extraction-cv.md` | Lit un CV déposé et en tire les données, y compris les compétences (savoir-faire, savoir-être déduits des loisirs, savoirs). | **FORT** : c'est déjà le lecteur de CV. À réutiliser. |
 | Bilan (`bilan-v1/v2`), Cohérence, Regard recruteur, ATS, Reformuler | Comparent ou jugent un CV (face à une offre, au marché, aux recruteurs). | Moyen : eux évaluent, le nouvel outil révèle. Frontière : **jamais de note, jamais de comparaison à une offre**. |
 | `data/competences.js` (79 compétences, descriptifs) et `data/competencesSecteurs.js` (827 lignes), clic compétence vers pistes de métiers | Catalogue de départ déjà existant, classé savoir-faire / savoir-être / savoirs. | **Matière première** du répertoire (à enrichir, pas à recréer). |
@@ -51,7 +51,7 @@ Mêmes cas réels (4 à 5 profils : ouvrier, employé, parcours atypique, techni
 
 ## 3. Pistes de frontières (à valider par Denis)
 
-1. **Récit** : « À partir de mon récit » reste le seul parcours qui part d'un récit et qui **rédige un CV**. L'outil « Découvrir mes compétences » part de **documents** (et peut proposer, en option, un petit récit pour une expérience sans document), mais **ne rédige jamais de CV**.
+1. **Récit** : « À partir de mon récit » reste le seul parcours qui part d'un récit et qui **rédige un CV** (public : jamais fait de CV). L'outil « Découvrir mes compétences » part de **documents** (et peut proposer, en option, un petit récit pour une expérience sans document), mais **ne rédige jamais de CV**.
 2. **Lecture des documents** : réutiliser le lecteur existant (`extraction-cv.md` pour le CV). Les lettres sont nouvelles à lire pour ce but : un prompt dédié.
 3. **Évaluation** : jamais de note ni de comparaison à une offre (c'est le Bilan, la Cohérence, le Regard recruteur).
 4. **Oral** : l'outil donne « comment défendre cette compétence » (quelques phrases, une preuve). L'entraînement par échanges reste « M'entraîner à l'entretien ».

@@ -920,3 +920,9 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 - **Symptôme** : après une trentaine d'échanges, l'assistant dit ne plus retrouver des paragraphes pourtant validés et livre un JSON vide.
 - **Cause** : le prompt demandait à l'assistant de « tenir un registre » et de relire la conversation ; un assistant extérieur retrouve mal un texte situé loin dans l'historique, surtout avec la recherche web.
 - **Règle** : pour tout prompt à étapes longues, l'état validé est réécrit en bloc cumulatif dans chaque nouveau message (« Votre lettre jusqu'ici »), et la livraison copie ce dernier bloc. Ne jamais compter sur la mémoire de l'historique. Voir décision 48 du cahier de la lettre.
+
+### 9.64 Deux modules qui écrivent la même donnée n'ont pas forcément le même but : demander l'intention avant de parler de doublon (2026-10-26)
+
+- **Symptôme** : pour « Découvrir mes compétences », Claude a présenté « À partir de mon récit » et le nouvel outil comme « deux producteurs de compétences à dédoublonner avec `fusionnerSansDoublon` ». Denis : « Absolument pas. »
+- **Cause** : rapprochement fait sur le code (les deux écrivent des compétences) sans comparer l'intention. « À partir de mon récit » sert à quelqu'un qui n'a jamais fait de CV : il raconte, on en construit un. « Découvrir mes compétences » part de documents existants pour valoriser, expliquer et préparer l'oral, sans construire de CV.
+- **Règle** : avant de signaler un recoupement ou une fusion entre deux modules, comparer d'abord le but pour la personne (quel besoin, quel point de départ, quel résultat) et pas seulement les données écrites. En cas de doute, poser la question à Denis au lieu de proposer une fusion.
