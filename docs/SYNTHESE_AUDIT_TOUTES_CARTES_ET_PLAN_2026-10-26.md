@@ -72,7 +72,7 @@ Chaque lot : annoncer le mode et l'effort, relire le cahier du lot, **grep sur t
 | **L4** | **G7 aspect** : D13, D14, D15, deux contrastes sombres, chevauchements mobile | bas | essai visuel | |
 | **L5** | **G1** : un seul « Continuer » dans la barre, « Valider ... » nommé pareil, message du blocage montrant la section (D1) | moyen | noms des boutons | L1 |
 | **L6** | **C17** : fin de parcours (appliquer la règle de Denis à tous les CV) ; D7 : texte de l'entretien | bas | **oui** | L5 |
-| **L7** | **G9** : registre des familles (conception du fichier de conception, étapes 0 à 7) | haut | **oui** (vocabulaire, titre, fin) | L1 à L6 |
+| **L7** | **G9** : registre des familles (étapes 0 à 7 du fichier de conception ; **l'étape 0 est faite** : `modules/vos-documents/familles.js` et `tests/vosDocumentsFamilles.test.js`, 26 essais verts) | haut | **oui** (vocabulaire, titre, fin) | L1 à L6 |
 | **L8** | **G8** : « Revoir la présentation » unique | moyen | non | L7 |
 | **L9** | **G3** : vocabulaire des barres, navigation distincte | haut | **oui** | L7 |
 | **L11** | **G10** : une enveloppe commune pour l'étape de l'assistant (module par module) | haut | **oui** (maquette) | L7 |
