@@ -11355,7 +11355,9 @@ function pageRevelation(conserverTirage) {
     (function () {
       // « A la main, sans assistant » : « Votre profil » mene directement a « Vos documents ».
       var routeApres = (dossier.modeCreation === 'nouveau' && !_creerCvSansAssistant()) ? 'assistant' : 'resultats';
-      return '<div class="barre-navigation-fixe">' + barreNavigation('projet', routeApres, _creerCvSansAssistant() ? 'Voir mon CV &#8594;' : '&#128640; Passer à l’action', { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' }) + '</div>';
+      // « Retour » revient à l'écran d'où l'on vient : en création (« nouveau ») sans CV déposé, « Votre profil » vient de « Votre parcours » (même règle que le « Continuer » de « Vos informations »).
+      var routeAvant = (dossier.modeCreation === 'nouveau' && !dossier.cvAnalyse) ? 'votre-parcours' : 'projet';
+      return '<div class="barre-navigation-fixe">' + barreNavigation(routeAvant, routeApres, _creerCvSansAssistant() ? 'Voir mon CV &#8594;' : '&#128640; Passer à l’action', { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' }) + '</div>';
     })();
   app.innerHTML = html;
 
