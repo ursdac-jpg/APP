@@ -9,11 +9,59 @@ Ce dossier remplace la synthèse courte de `docs/APPORTS_DOCUMENTS_2026-10-26.md
 ## 0. La réponse en dix lignes
 
 - **Récupéré** : 7 documents (PDF, plus de cent pages, dont un doublon) et toutes les photos reçues, tous lus. Seules les parties illisibles ou purement manuscrites sont laissées de côté.
-- **Informations utiles retenues : 62**, réparties ainsi : **Lexique 26** (22 fiches nouvelles, 4 fiches existantes à enrichir), **Mes Repères et Carnet 5**, **Entretien 3**, **À partir de mon récit 1**, **Comprendre le cadre 9** (logement, budget, emploi, santé et sécurité, santé mentale), **mots du métier du social 3**, **Qui fait quoi 15 lignes de structures** (déjà déposées dans le sas). Le détail est dans les sections 2 à 8.
+- **Informations utiles retenues : 62 au premier tri, ramenées ensuite par le filtre de Denis (section 0bis) : 12 fiches faites, 16 lignes du sas, le reste écarté ou gardé pour la suite**, réparties ainsi : **Lexique 26** (22 fiches nouvelles, 4 fiches existantes à enrichir), **Mes Repères et Carnet 5**, **Entretien 3**, **À partir de mon récit 1**, **Comprendre le cadre 9** (logement, budget, emploi, santé et sécurité, santé mentale), **mots du métier du social 3**, **Qui fait quoi 16 lignes de structures** (déjà déposées dans le sas). Le détail est dans les sections 2 à 8.
 - **Écarté, avec la raison** : section 9. En gros : tout ce qui étiquette la personne (questionnaires avec scores, « faible estime de soi »), les chiffres, les noms de personnes, les illustrations protégées.
-- **Déjà fait dans cette séance** : 15 lignes de structures dans `outils/sas/lieux.sas.txt` (à vérifier par un appel avant publication). Le reste est un plan.
+- **Déjà fait dans cette séance** : 16 lignes de structures dans `outils/sas/lieux.sas.txt` (à vérifier par un appel avant publication). Le reste est un plan.
 - **Ce que tu dois faire ensuite** : section 11, en cinq gestes. Le premier est de choisir un lot.
 - **Pour retrouver tout ça sur ta machine** : section 12 (le fichier t'est aussi envoyé directement, et un message prêt à coller y figure).
+
+---
+
+## 0bis. DÉCISIONS DU 26/10/2026 (soir) : ce bloc l'emporte sur toutes les cases ci-dessous
+
+**Consigne de Denis** : ne garder que des choses **concrètes, cohérentes, qui ont une valeur ajoutée, jamais des conseils**. Ce qui s'approche d'un conseil dépasse la philosophie de l'application : on ne le garde pas. Denis m'a donné carte blanche pour trier, vérifier sur Internet et compléter. Il n'a pas relu chaque fiche : **la relecture finale reste la sienne**, dans l'application en local.
+
+### Fait dans le dépôt (branche `claude/fervent-ritchie-hmq5cn`)
+
+**12 fiches dans `data/lexique.js`** (contrôle du Lexique : 0 erreur, 0 avertissement ; `npm test` : 2020 verts sur 2021, le seul échec est un essai de chemin Windows sans rapport) : estime de soi, confiance en soi, affirmation de soi, « estime, confiance ou affirmation ? », croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication, **coach**, **le rôle du CESF**, **CACES**. Elles sont reliées aux fiches existantes (écoute active, CIP, assistante sociale, certification). Ligne notée au journal des changements.
+
+### Gardé et déjà fait
+
+| Ce qui est gardé | Pourquoi | Vérifié en ligne |
+|---|---|---|
+| Les 12 fiches ci-dessus | Des définitions : ce que c'est et pourquoi ça existe, aucun conseil | DESC : Sharon et Gordon Bower, ouvrage sur l'affirmation de soi, quatre étapes confirmées ; coach : mot venu de Kocs (Hongrie), sens « entraîneur » depuis le XIXe siècle, profession non réglementée en France ; CESF : diplôme d'État, travailleur social de la vie quotidienne (page du ministère des Solidarités) ; CACES : l'autorisation de conduite est délivrée par l'employeur (Code du travail) |
+| Les 16 lignes de structures du sas | Concrètes (structure, téléphone, mail), aucun nom de personne | **Non retrouvées en ligne** pour les groupes d'entraide, Part'ÂGE, l'équipe mobile de Vauclaire, Sigoulès, La Traverse accès aux droits : ce sont de petites structures, leur numéro se vérifie par un appel (règle D1 du 19/10). Elles sont marquées « non retrouvé en ligne le 26/10/2026 » dans le sas |
+
+### Gardé pour la suite (concret, factuel), sans rien rédiger encore
+
+- **Lexique** : empathie, intelligence émotionnelle, résistance et réactance (vocabulaire de la relation d'aide), alliance de travail, pyramide de Maslow (premier repère théorique de la partie 7 de l'état des chantiers, au conditionnel), communication non violente, analyse de pratiques professionnelles. Chacune doit rester une définition, sans consigne.
+- **Comprendre le cadre, logement** : **Mobili-Jeune** (aide d'Action Logement au loyer des alternants de moins de trente ans : concept confirmé en ligne ; les montants, plafonds et durées divergent selon les sites et sont **relus sur la page officielle**, puis écrits seulement dans un bloc daté) ; **service d'accompagnement social d'Action Logement** (voir ci-dessous : réservé aux salariés) ; **Loca-Pass** (déjà traité : plafond, remboursement et délai de deux mois confirmés par Action Logement ; la condition « étudiants » est différente sur la diapositive et en ligne : ne rien ajouter).
+- **Comprendre le cadre, budget** : compléter `budget-microcredit-personnel` avec les quatre acteurs (voir « corrections » ci-dessous).
+- **Comprendre le cadre, emploi** : la liste des documents à fournir pour s'inscrire en intérim (liste factuelle) ; lien vers « Mortel ton taf » (INRS, web-série avec Inès Reg pour les jeunes salariés, site mortel-ton-taf.fr : **confirmé en ligne**) dans la fiche santé et sécurité.
+- **À partir de mon récit** : comparer le vocabulaire des qualités et des compétences concrètes (A p.30 et 31) à `data/competences.js` ; n'ajouter que les mots manquants. Pas d'exercice de notation.
+- **Mots du métier** : valait le coup pour le CESF, le CACES et le coach (faits). Le « CISP » n'est pas un titre unique (des sources parlent de conseiller en insertion sociale et professionnelle, d'autres de conseiller en insertion socioprofessionnelle) et recoupe la fiche existante du CIP : **écarté**.
+
+### Écarté (avec la raison)
+
+| Écarté | Raison |
+|---|---|
+| **Tous les exercices** de « Mes Repères » et du Carnet (carnet de réussites, livre d'or, carte d'identité relationnelle, « Qui suis-je ? », exercice du miroir) | Ils prescrivent un « travail à faire » : c'est un conseil. |
+| **Entretien** : phrases types pour demander, dire non, recevoir une critique ou un compliment ; liste d'auto-vérification verbale ; droits de celui qui s'exprime | Conseils de comportement. À ne reprendre que si Denis le demande. |
+| **Le cercle de l'estime de soi** | Théorie qui décrit un mécanisme chez la personne : trop proche d'un diagnostic. |
+| Rétroaction, rapport collaboratif, communication verbale et non verbale, confirmation et apposition | Trop minces, redondants, ou des techniques à appliquer. |
+| Enrichir l'écoute active avec « questions ouvertes » et « révélation de soi » | Conseils ; seuls les liens ont été ajoutés. |
+| Objectifs SMART enrichis par la grille d'Alèthéia | Licence, et « formuler en positif » est un conseil. |
+| **Prêt accession, accession abordable, prêts travaux** d'Action Logement | Réservés aux salariés propriétaires de leur résidence principale, très loin du public. Pas de valeur concrète pour lui. |
+| CISP (fiche) | Recoupe la fiche du CIP, intitulé non unique. |
+| Les quatre dispositifs de la mission locale en lignes séparées | Voir section 7 : une phrase unique après lecture de leur site. |
+
+### Corrections apportées après vérification en ligne
+
+- **Service d'accompagnement social d'Action Logement** : la diapositive ne dit pas à qui il s'adresse. La page officielle précise qu'il est **réservé aux salariés** de certaines entreprises du secteur privé (conditions sur le site), avec un numéro unique non surtaxé en semaine. **Ligne déposée dans le sas**, description honnête sur ce point. Un demandeur d'emploi n'y a pas accès : c'est utile après une reprise d'emploi.
+- **Parcours Confiance** : le mail de la fiche remise à Denis (apc@parcours-confiance.fr) **n'a pas été retrouvé** ; l'annuaire de la Banque de France donne d'autres adresses, réservées aux structures accompagnantes. **Mail retiré de la ligne du sas**, site officiel ajouté. Brochure 2026 : le prêt s'adresse aux personnes exclues du crédit bancaire classique, avec un accompagnement par une structure partenaire. Aucune structure accompagnante de la Dordogne n'a été trouvée.
+- **La Banque Postale, service L'Appui** : service confirmé (gratuit, confidentiel, clients de la banque, lundi au vendredi, numéro unique non surtaxé) mais **le numéro 09 69 36 39 20 n'a pas été retrouvé** ; ne pas le publier avant de l'avoir confirmé.
+- **ADIE Saint-Astier** : l'adresse « 8 rue Amiral Courbet » n'a pas été retrouvée en ligne (cette rue abrite une médiathèque) : à confirmer avant de la mettre à jour.
+- **Groupes d'entraide mutuelle** : aucune page en ligne n'a confirmé les groupes de Croix Marine en Dordogne ; la recherche a seulement trouvé un autre groupe à Périgueux, porté par un autre organisme. Ne rien publier avant un appel.
 
 ---
 
@@ -138,7 +186,7 @@ Les photos montrent sept diapositives d'une présentation d'Action Logement (org
 
 ---
 
-## 7. Qui fait quoi : 15 lignes de structures `[effort : bas, déjà fait]`
+## 7. Qui fait quoi : 16 lignes de structures `[effort : bas, déjà fait]`
 
 **Règle de Denis (26/10/2026) : jamais de nom de personne ; la structure, son téléphone et son mail suffisent.** Toutes les lignes sont dans `outils/sas/lieux.sas.txt`, colonne date vide, source « relevé sur affiche, à vérifier ». Elles ne s'affichent pas au public : elles sortent du sas quand Denis ouvre la page ou appelle, puis clique « C'est bon ».
 
@@ -152,6 +200,7 @@ Les photos montrent sept diapositives d'une présentation d'Action Logement (org
 | 13 | CIDFF 24, accompagnements numériques | 05 53 35 90 90 | cidff.cnum@gmail.com | P |
 | 14 | Parcours Confiance (microcrédit, national) | aucun | apc@parcours-confiance.fr | F |
 | 15 | La Banque Postale, service L'Appui (microcrédit) | 09 69 36 39 20 | aucun | F |
+| 16 | Action Logement, service d'accompagnement social (salariés) | 09 70 800 800 | aucun | P et page officielle |
 
 **Correction du 26/10/2026 (soir)** : la ligne « Association BASE » que j'avais déposée était un **doublon** : BASE est déjà publiée (`asso-base-24`, même téléphone 05 53 58 88 69, bus numérique compris). Je l'ai retirée du sas. Il reste à ajouter à la fiche publiée le mail `associationbase@gmail.com` et le lien avec l'espace de vie sociale Part'ÂGE.
 
@@ -206,7 +255,7 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 1. **Lis les sections 2 et 3 et coche** GARDER, ÉCARTER ou À REVOIR sur chaque entrée (ce fichier est fait pour ça). Si tu veux aller vite, ne coche que les lots entiers.
 2. **Choisis le premier lot.** Ma recommandation : **le lot 1 du Lexique** (estime de soi, confiance en soi, affirmation de soi, les trois voisines). Pourquoi : c'est le plus demandé par le public, il ne dépend d'aucun autre chantier, il demande peu de code (le moteur de fiches existe), et la rédaction reste à toi. Risque : une fiche sur l'estime touche un terrain sensible, d'où la relecture ligne à ligne.
 3. **Tranche la phrase unique sur les quatre dispositifs** (section 7), puis donne-moi les réponses de la section 10.
-4. **Ouvre l'outil de veille** (`outils/veille.html`) : les 15 lignes de la section 7 y attendent leur « C'est bon » après un appel.
+4. **Ouvre l'outil de veille** (`outils/veille.html`) : les 16 lignes de la section 7 y attendent leur « C'est bon » après un appel.
 5. **Les exercices de la section 3** ne partent qu'après maquette et avec toi (Mode A) : on ne les lance pas un jour de fatigue.
 
 **Verdict mode nuit** : **NON APTE AU MODE NUIT** pour tout ce dossier : aucune décision de contenu n'est tranchée. Il le deviendra pour le lot 1 une fois tes cases cochées et le texte de chaque fiche validé par toi.
@@ -225,7 +274,7 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 
 **Le message à jour est dans `docs/MESSAGE_REPRISE_LOCAL_APPORTS_2026-10-26.md`** (il remplace l'ancienne version de cette section et tient compte des brouillons de fiches et du fichier de lignes du sas). Il t'est aussi envoyé comme fichier.
 
-**Trois fichiers à retrouver sur ta machine** : ce dossier, `docs/BROUILLONS_LEXIQUE_LOTS_1_2_2026-10-26.md` (dix fiches au format exact) et `docs/LIGNES_SAS_APPORTS_2026-10-26.txt` (les 15 lignes du sas, copie de secours).
+**Trois fichiers à retrouver sur ta machine** : ce dossier, `docs/BROUILLONS_LEXIQUE_LOTS_1_2_2026-10-26.md` (dix fiches au format exact) et `docs/LIGNES_SAS_APPORTS_2026-10-26.txt` (les 16 lignes du sas, copie de secours).
 
 ---
 
@@ -240,4 +289,4 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 | Entretien (M6 à M8) | 3 | haut, audit de prompt d'abord | Non |
 | À partir de mon récit (M9) | 1 | moyen | Après comparaison |
 | Comprendre le cadre (C1 à C9) | 9 | moyen | Après relecture des chiffres |
-| Qui fait quoi (section 7) | 15 lignes déposées + 5 corrections + 1 phrase à décider (mission locale) | bas | Fait, attend les appels |
+| Qui fait quoi (section 7) | 16 lignes déposées + 5 corrections + 1 phrase à décider (mission locale) | bas | Fait, attend les appels |

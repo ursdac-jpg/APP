@@ -1,54 +1,60 @@
-# Message à coller au début de ta session locale (apports de Denis, 26/10/2026)
+# Messages à coller en local (apports de Denis, 26/10/2026), version du soir
 
-À coller tel quel, dans l'ordre. Il contient tout ce qu'une nouvelle session doit savoir. Avant de le coller, vérifie que ces trois fichiers sont bien dans `docs/` de ton dépôt local (sinon, copie-les depuis ceux que je t'ai envoyés) :
-
-- `docs/DOSSIER_MATIERE_APPORTS_2026-10-26.md`
-- `docs/BROUILLONS_LEXIQUE_LOTS_1_2_2026-10-26.md`
-- `docs/LIGNES_SAS_APPORTS_2026-10-26.txt`
+Le travail est fait **dans le dépôt, sur la branche `claude/fervent-ritchie-hmq5cn`**. En local, il y a deux messages : le premier fusionne la branche dans `master`, le second reprend le travail.
 
 ---
+
+## Message 1 : fusionner la branche dans master (sans rien pousser)
+
+```
+/app Fusion locale d'une branche de travail dans master, sans rien pousser.
+
+Contexte : une session cloud a travaillé sur la branche claude/fervent-ritchie-hmq5cn du dépôt ursdac-jpg/APP (tri des documents et photos apportés par Denis). Elle ajoute : des fichiers de documentation dans docs/, 16 lignes à la fin de outils/sas/lieux.sas.txt (non lu par l'application), et 12 fiches dans data/lexique.js (une ligne ajoutée dans docs/JOURNAL_DES_CHANGEMENTS.md). Rien d'autre du code n'est modifié.
+
+Étapes, dans cet ordre, en t'arrêtant et en me prévenant à la moindre difficulté (jamais de mode tunnel) :
+1. git status et git log -5 : dis-moi si mon dossier local a des modifications non enregistrées. Si oui, arrête-toi et demande-moi quoi faire.
+2. git fetch origin claude/fervent-ritchie-hmq5cn
+3. Montre-moi git diff --stat master origin/claude/fervent-ritchie-hmq5cn : je dois voir des fichiers dans docs/, outils/sas/lieux.sas.txt et data/lexique.js. Si un autre fichier apparaît, arrête-toi.
+4. Si mon master local a des commits que la branche n'a pas, dis-le-moi avant de fusionner. Conflits possibles : outils/sas/lieux.sas.txt et data/lexique.js. En cas de conflit, ne choisis jamais un côté à ma place : garde les deux, montre-moi le résultat.
+5. git merge origin/claude/fervent-ritchie-hmq5cn (jamais de force, jamais de réécriture d'historique).
+6. npm test, puis node scripts/checkLexique.js : tout doit être vert (0 erreur, 0 avertissement). Un échec est connu sur la machine cloud (tests/veillePont.test.js, chemin Windows) ; chez moi il doit passer.
+7. Ne pousse RIEN. Dis-moi en une ligne le résultat et comment vérifier moi-même en dix secondes (taper « estime de soi » dans la barre de l'accueil).
+Mode C, [effort : bas]. Attends mon réglage d'effort et mon « démarre ».
+```
+
+---
+
+## Message 2 : reprendre le travail (après la fusion)
 
 ```
 /app Reprise des apports de Denis du 26/10/2026 (documents et photos pris en formation et en stage).
 
 LIS D'ABORD, dans l'ordre :
-1. docs/DOSSIER_MATIERE_APPORTS_2026-10-26.md (l'inventaire : 62 informations utiles, module cible, garde-fous, cases de décision).
-2. docs/BROUILLONS_LEXIQUE_LOTS_1_2_2026-10-26.md (dix brouillons de fiches du Lexique au format exact de data/lexique.js, déjà contrôlés par node scripts/checkLexique.js : aucune erreur).
-3. docs/DOCTRINE_LEXIQUE.md (le Lexique explique le pourquoi, jamais le comment ; aucun chiffre qui peut vieillir ; jamais de diagnostic sur la personne).
-4. docs/LIGNES_SAS_APPORTS_2026-10-26.txt (15 lignes de structures de la Dordogne pour le sas).
+1. docs/DOSSIER_MATIERE_APPORTS_2026-10-26.md, en commençant par la section 0bis (décisions du 26/10 soir : ce qui est gardé, écarté, corrigé après vérification en ligne). Elle l'emporte sur les cases plus bas.
+2. docs/DOCTRINE_LEXIQUE.md.
 
 RÈGLES DE DENIS À RESPECTER :
-- Jamais de nom de personne. Pour une structure : son nom, son téléphone, son mail. Rien d'autre.
-- Les coordonnées passent par le sas (outils/sas/lieux.sas.txt), colonne date vide. Rien n'est publié avant que Denis ait appelé ou ouvert la page, puis cliqué « C'est bon » dans l'outil de veille.
-- Les fiches du Lexique sont rédigées par Denis. Tu prépares la matière et des brouillons ; il tranche.
-- Jamais de chiffre (montant, plafond, durée, pourcentage) dans le texte d'une fiche : ils vont dans un bloc daté vérifié à la source (chantier « chiffres à jour »).
-- Ne reprends ni les textes ni les schémas des auteurs (supports de Lagarde et de Chaillat, 2017) : idées seulement, formulations propres. Ne reprends pas les questions de la grille d'Alèthéia (licence Creative Commons probablement sans modification).
+- Ne garder que du concret, cohérent, à valeur ajoutée. Jamais de conseil, jamais de « travail à faire », jamais de consigne. Si une information s'approche d'un conseil, on ne la garde pas.
+- Jamais de nom de personne. Pour une structure : son nom, son téléphone, son mail.
+- Les coordonnées passent par le sas (outils/sas/lieux.sas.txt), colonne date vide. Rien n'est publié avant que Denis ait appelé ou ouvert la page, puis cliqué « C'est bon ».
+- Jamais de chiffre (montant, plafond, durée, pourcentage, âge) dans le texte d'une fiche : ils vont dans un bloc daté vérifié à la source officielle.
+- Ne reprends ni les textes ni les schémas des auteurs. Ne reprends pas les questions de la grille d'Alèthéia.
 - Respecte le protocole de CLAUDE.md : annonce mode et effort, attends mon réglage et mon « démarre », un commit par sous-étape, npm test avant, ligne dans docs/JOURNAL_DES_CHANGEMENTS.md, aucun push sans ma demande.
 
-CE QUI EST DÉJÀ FAIT :
-- 15 lignes de structures préparées (équipe mobile psychiatrie précarité du Bergeracois, 8 groupes d'entraide mutuelle de Croix Marine, Part'ÂGE, centre médico-social de Sigoulès, La Traverse accès aux droits, CIDFF 24 numérique, Parcours Confiance, service L'Appui de La Banque Postale). Vérifie d'abord si elles sont déjà dans outils/sas/lieux.sas.txt (cherche par identifiant) ; sinon ajoute-les à la fin du fichier, sans doublon.
-- Dix brouillons de fiches du Lexique (estime de soi, confiance en soi, affirmation de soi, les trois notions voisines, croyance limitante, cercle de l'estime de soi, message en « je », méthode DESC, critique ou reproche, styles de communication). Rien n'est dans data/lexique.js.
+CE QUI EST DÉJÀ FAIT (sur la branche, à ne pas refaire) :
+- 12 fiches dans data/lexique.js : estime de soi, confiance en soi, affirmation de soi, « estime, confiance ou affirmation ? », croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication, coach, CESF, CACES. Contrôle du Lexique : 0 erreur, 0 avertissement.
+- 16 lignes de structures de la Dordogne et nationales dans outils/sas/lieux.sas.txt, avec la copie docs/LIGNES_SAS_APPORTS_2026-10-26.txt.
 
 MODE B, [effort : moyen]. TÂCHES, dans cet ordre :
-A. [effort : bas] Sas : vérifier que les 15 lignes sont bien dans outils/sas/lieux.sas.txt, lancer npm test, et me dire en une ligne ce qui reste à valider dans l'outil de veille (appels).
-B. [effort : bas] Fiches publiées à compléter : ajouter le mail associationbase@gmail.com à la fiche asso-base-24 et mentionner l'espace de vie sociale Part'ÂGE ; ajouter le mail association@croixmarine24.fr à asso-croix-marine-24 ; comparer l'Atelier budgétaire de Périgueux (sas, ligne atelier-budgetaire-perigueux-24) avec le mail contact24@latelierbudgetaire.org et l'adresse 5 rue Sirey ; comparer Adie Saint-Astier avec la fiche du dossier. Tout passe par le sas ou par la procédure habituelle, avec date « j'ai appelé ».
-C. [effort : moyen] Lexique, lot 1 puis lot 2 : relis avec moi chaque brouillon (une fiche à la fois, je dis GARDER, CORRIGER ou ÉCARTER), colle les fiches validées dans data/lexique.js, lance node scripts/checkLexique.js (0 erreur et 0 avertissement) et npm test, ajoute la ligne du journal, puis vérifie dans le navigateur la recherche de l'accueil et celle du Lexique, en clair et en sombre.
-D. Les quatre dispositifs de la Mission Locale du Bergeracois (« Mieux dans ma tête, mieux dans mon job », Pair'mission, « Raconte-moi ton projet », Terres Equi'Solidaires) : NE crée PAS quatre lignes. Lis la page officielle missionlocaledubergeracois.com pour confirmer qui porte chacun, puis propose-moi UNE phrase pour la ligne publiée asso-mission-locale-du-bergeracois-24. Attention : la brochure de Terres Equi'Solidaires porte le logo de l'association APES 24, il faut vérifier le porteur.
-E. Plus tard, séances séparées, Mode A [effort : haut] (maquette d'abord, jamais à chaud) : les exercices de Mes Repères et du Carnet (carnet de réussites, livre d'or des paroles bienveillantes, carte d'identité relationnelle), les phrases d'entraînement à l'entretien, puis les fiches du logement (Mobili-Jeune, accompagnement social d'Action Logement) avec bloc daté pour les chiffres.
+A. [effort : bas] Vérifier dans le navigateur les 12 fiches : taper « estime de soi », « DESC », « coach », « CACES » dans la barre de l'accueil et dans celle du Lexique ; lire chaque fiche en clair et en mode sombre ; me dire en une ligne ce qui ne va pas. Je relis les textes et je corrige ce qui me déplaît.
+B. [effort : bas] Sas : vérifier que les 16 lignes sont dans outils/sas/lieux.sas.txt (chercher par identifiant, sans doublon), lancer npm test, me dire ce qu'il reste à appeler.
+C. [effort : bas] Fiches publiées à compléter, par le sas ou la procédure habituelle avec la date « j'ai appelé » : mail associationbase@gmail.com pour asso-base-24 et mention de Part'ÂGE ; mail association@croixmarine24.fr pour asso-croix-marine-24 ; Atelier budgétaire de Périgueux (mail contact24@latelierbudgetaire.org, 5 rue Sirey) ; Adie Saint-Astier (l'adresse « 8 rue Amiral Courbet » n'a pas été retrouvée en ligne : à confirmer par un appel). Ne pas publier le numéro 09 69 36 39 20 de L'Appui (non retrouvé) ni le mail apc@parcours-confiance.fr (non retrouvé).
+D. [effort : moyen] Les quatre dispositifs de la Mission Locale du Bergeracois (« Mieux dans ma tête, mieux dans mon job », Pair'mission, « Raconte-moi ton projet », Terres Equi'Solidaires) : NE crée PAS quatre lignes. Lis la page officielle missionlocaledubergeracois.com pour confirmer qui porte chacun, puis propose UNE phrase pour la ligne publiée asso-mission-locale-du-bergeracois-24. La brochure de Terres Equi'Solidaires porte le logo de l'association APES 24 : vérifier le porteur.
+E. [effort : moyen] Comprendre le cadre, rayon logement : proposer une fiche « Mobili-Jeune » (aide d'Action Logement au loyer des alternants de moins de trente ans) et une phrase dans la section « à qui s'adresser » sur le service d'accompagnement social d'Action Logement (réservé aux salariés). Lire d'abord la page officielle d'Action Logement ; les montants, plafonds et durées divergent selon les sites : ils vont dans un bloc daté, jamais dans le texte. Compléter aussi budget-microcredit-personnel avec les quatre acteurs du microcrédit.
+F. [effort : moyen] Fiche santé et sécurité : ajouter le lien vers mortel-ton-taf.fr (INRS, web-série pour les jeunes salariés, confirmée en ligne). Liste des documents à fournir pour une inscription en intérim (CV, pièce d'identité en cours de validité, carte vitale ou attestation, RIB, attestation d'hébergement si besoin, permis) : proposer où la mettre (rayon « Emploi » ou « Mes documents »).
+G. Plus tard, Mode A [effort : haut], seulement si je le demande : les autres mots du Lexique gardés pour la suite (empathie, intelligence émotionnelle, résistance et réactance, alliance de travail, pyramide de Maslow, communication non violente, analyse de pratiques professionnelles).
 
-ÉCARTÉ, ne pas reproposer : questionnaires avec scores, étiquettes « faible ou haute estime de soi », portrait du manipulateur, pourcentages de communication, planches illustrées, feuille manuscrite de contacts.
+ÉCARTÉ, NE PAS REPROPOSER : exercices de Mes Repères et du Carnet, phrases types pour l'entretien, listes d'auto-vérification, questionnaires avec scores, « faible ou haute estime de soi », cercle de l'estime de soi, prêt accession, accession abordable, prêts travaux d'Action Logement, fiche CISP, pourcentages de communication, planches illustrées, feuille manuscrite de contacts.
 
-À CHAQUE ÉTAPE : dis-moi en une ligne comment vérifier moi-même en dix secondes (quoi cliquer, quoi regarder). Si tu constates une erreur ou un malentendu, inscris-le dans docs/LECONS_A_NE_PAS_REPRODUIRE.md.
+À CHAQUE ÉTAPE : dis-moi en une ligne comment vérifier moi-même en dix secondes. Si tu constates une erreur ou un malentendu, inscris-le dans docs/LECONS_A_NE_PAS_REPRODUIRE.md.
 ```
-
----
-
-## Ce que fait chaque tâche pour toi
-
-| Tâche | Ce que tu obtiens | Ce que tu fais |
-|---|---|---|
-| A | les 15 structures sont dans le sas | appeler, puis « C'est bon » dans l'outil de veille |
-| B | trois fiches publiées complétées avec des mails | rien, juste valider |
-| C | dix fiches dans le Lexique, contrôlées et trouvables par la recherche | dire GARDER, CORRIGER ou ÉCARTER pour chaque fiche |
-| D | une phrase unique sur les quatre dispositifs, ou rien | dire oui ou non |
-| E | maquettes, jamais du code direct | tranches en Mode A, un jour où tu es en forme |

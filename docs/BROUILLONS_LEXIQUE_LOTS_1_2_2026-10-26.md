@@ -1,6 +1,8 @@
 # Brouillons de fiches du Lexique : lots 1 et 2 (26/10/2026)
 
-**Statut : BROUILLONS, rien n'est dans `data/lexique.js`.** Dix fiches au format exact du corpus, prêtes à coller, **à relire, corriger et valider par Denis** (la rédaction lui revient, règle « Claude opère, Denis décide »). Matière : `docs/DOSSIER_MATIERE_APPORTS_2026-10-26.md` (entrées LX1 à LX10). Sources : supports de Lagarde (2017) et de Chaillat (2017) : **idées reprises, formulations propres**, aucun texte ni schéma recopié ; sources à citer si Denis le souhaite dans une page « Sources ».
+**Statut mis à jour le 26/10/2026 (soir) : NEUF de ces dix fiches sont maintenant dans `data/lexique.js` (version corrigée, sans conseil), la fiche « Le cercle de l'estime de soi » est ÉCARTÉE (théorie qui décrit un mécanisme chez la personne). Ce fichier n'est plus qu'une trace : la version qui fait foi est celle de `data/lexique.js`. Les textes ci-dessous sont les brouillons d'origine.**
+
+Ancien statut : **BROUILLONS, rien n'est dans `data/lexique.js`.** Dix fiches au format exact du corpus, prêtes à coller, **à relire, corriger et valider par Denis** (la rédaction lui revient, règle « Claude opère, Denis décide »). Matière : `docs/DOSSIER_MATIERE_APPORTS_2026-10-26.md` (entrées LX1 à LX10). Sources : supports de Lagarde (2017) et de Chaillat (2017) : **idées reprises, formulations propres**, aucun texte ni schéma recopié ; sources à citer si Denis le souhaite dans une page « Sources ».
 
 **Contrôles faits** : ces dix fiches ont été insérées temporairement dans une copie de `data/lexique.js`, `node scripts/checkLexique.js` a été lancé (résultat en bas de ce fichier), puis la copie a été remise dans son état d'origine : le dépôt n'est pas modifié.
 
