@@ -153,6 +153,9 @@ function verifier(reponse, profil, options) {
     });
 
     [c.libelle, c.enMotsSimples, c.pourLeCV, c.pourLOral, c.pourPreparer, c.question].concat(c.synonymes || []).forEach(function (champ) { accents(champ, nom); });
+    if (c.confirmation === 'aPreciser' && preuves.length && (profil.intitulesAvecTaches || []).some(function (re) { return preuves.every(function (p) { return re.test(p.extrait || ''); }); })) {
+      W(nom + ' : « à préciser » sur un intitulé dont les tâches sont décrites dans les documents (ligne parasite).');
+    }
     if (c.confirmation !== 'aPreciser' && preuves.length && (profil.intitulesSeuls || []).some(function (re) { return preuves.every(function (p) { return re.test(p.extrait || ''); }); })) {
       E(nom + ' : un intitulé de poste seul doit être « à préciser », pas une compétence ' + c.confirmation + '.');
     }

@@ -1,0 +1,27 @@
+J'ai lu votre CV et votre lettre de motivation. Ils montrent que vous dirigez une équipe de six préparateurs, que vous répartissez les tâches selon les départs de camions et que vous signalez les retards à votre responsable. Ils montrent aussi que vous accueillez les nouveaux intérimaires et leur expliquez les consignes de sécurité.
+```json
+{
+  "niveauPoste": "cadre",
+  "niveauPosteIndices": "Vous avez choisi le niveau cadre ou direction. Vos documents montrent surtout la direction d'une équipe de six préparateurs et l'organisation des tâches, pas encore de responsabilités d'encadrement plus larges.",
+  "competences": [
+    {"libelle": "Répartir les tâches de l'équipe","famille": "savoirFaire","enMotsSimples": "Cela veut dire décider qui fait quoi dans l'équipe pour que le travail avance.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Équipe de six préparateurs : répartition des tâches chaque matin" },{ "typeDocument": "lettreMotivation", "numeroDocument": 2, "extrait": "Je répartis les tâches selon les départs de camions" }],
+      "confirmation": "relevee","pourLeCV": "Répartition des tâches d'une équipe de six préparateurs selon les départs de camions","pourLOral": "Depuis sept ans, je dirige chaque matin une équipe de six personnes. Je répartis les tâches selon les départs de camions.","pourPreparer": "Qu'est-ce qui change dans la répartition des tâches quand plusieurs camions partent en même temps ?","synonymes": ["Organiser le travail de l'équipe", "Attribuer les tâches"],"question": ""},
+    {"libelle": "Suivre les retards et remonter les problèmes","famille": "savoirFaire","enMotsSimples": "Cela veut dire regarder ce qui prend du retard et prévenir la personne qui peut aider à régler le problème.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Suivi des retards et remontée des problèmes au responsable d’exploitation" },{ "typeDocument": "lettreMotivation", "numeroDocument": 2, "extrait": "je signale les retards à mon responsable" }],
+      "confirmation": "relevee","pourLeCV": "Suivi des retards et remontée des problèmes au responsable d'exploitation","pourLOral": "Je suis les retards et je remonte les problèmes au responsable d'exploitation. Je signale aussi les retards à mon responsable.","pourPreparer": "Quel genre de problème remontez-vous le plus souvent à votre responsable ?","synonymes": ["Signaler les retards", "Informer sur les difficultés"],"question": ""},
+    {"libelle": "Accueillir les nouveaux intérimaires","famille": "savoirFaire","enMotsSimples": "Cela veut dire recevoir les personnes qui arrivent pour travailler et leur expliquer comment se passe le travail.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Accueil des nouveaux intérimaires" }],
+      "confirmation": "relevee","pourLeCV": "Accueil des nouveaux intérimaires","pourLOral": "J'accueille les nouveaux intérimaires sur la plateforme logistique où je travaille.","pourPreparer": "Qu'est-ce que vous expliquez en premier à un nouvel intérimaire ?","synonymes": ["Recevoir les nouveaux", "Intégrer les intérimaires"],"question": ""},
+    {"libelle": "Expliquer les consignes de sécurité","famille": "savoirFaire","enMotsSimples": "Cela veut dire dire aux personnes les règles à respecter pour travailler sans se blesser.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "explication des consignes de sécurité" }],
+      "confirmation": "relevee","pourLeCV": "Explication des consignes de sécurité aux nouveaux intérimaires","pourLOral": "J'explique les consignes de sécurité aux nouveaux intérimaires.","pourPreparer": "Quelles consignes de sécurité expliquez-vous le plus souvent ?","synonymes": ["Expliquer les règles de sécurité", "Sensibiliser à la sécurité"],"question": ""},
+    {"libelle": "Diriger une équipe de préparateurs","famille": "savoirFaire","enMotsSimples": "Cela veut dire être la personne qui organise et suit le travail des préparateurs.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "2017 - 2024 | Chef d’équipe, plateforme logistique, Brive (19)" },{ "typeDocument": "lettreMotivation", "numeroDocument": 2, "extrait": "Depuis sept ans, je dirige chaque matin une équipe de six personnes" }],
+      "confirmation": "relevee","pourLeCV": "Direction d'une équipe de six préparateurs depuis 2017","pourLOral": "Depuis sept ans, je dirige chaque matin une équipe de six personnes.","pourPreparer": "Qu'est-ce qui vous aide à garder l'équipe mobilisée dans le travail ?","synonymes": ["Encadrer une équipe", "Animer une équipe"],"question": ""}
+  ],
+  "motivations": [
+    { "libelle": "Prendre davantage de responsabilités dans l'organisation d'un entrepôt", "preuve": { "typeDocument": "lettreMotivation", "numeroDocument": 2, "extrait": "Je souhaite aujourd’hui prendre davantage de responsabilités dans l’organisation d’un entrepôt" } }
+  ]
+}
+```

@@ -1,0 +1,40 @@
+J’ai lu vos deux documents, votre CV et votre lettre de recommandation. Ils décrivent des tâches concrètes en maintenance industrielle, comme le dépannage des machines, la lecture de schémas et la recherche de pannes. Ils montrent aussi que vous avez formé des collègues et que vous préveniez le chef d’atelier avant d’intervenir sur une machine en production.
+```json
+{
+  "niveauPoste": "technicien",
+  "niveauPosteIndices": "Votre CV indique un poste de technicien de maintenance industrielle de 2015 à 2024, avec des tâches de dépannage, de maintenance préventive et de lecture de schémas électriques et pneumatiques.",
+  "competences": [
+    {"libelle": "Dépanner les machines de production","famille": "savoirFaire","enMotsSimples": "Rechercher et résoudre les pannes qui empêchent les machines de fonctionner.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Dépannage des machines de la ligne de production"},{"typeDocument": "recommandation","numeroDocument": 2,"extrait": "a diagnostiqué seul une panne récurrente de la ligne 3"}],
+      "confirmation": "confirmee","pourLeCV": "Dépannage des machines de la ligne de production","pourLOral": "J'ai dépanné les machines de la ligne de production. J'ai aussi diagnostiqué une panne récurrente de la ligne 3.","pourPreparer": "Comment faisiez-vous pour trouver l'origine d'une panne sur une machine ?","synonymes": ["Réparer les machines de production","Rechercher l'origine des pannes"],"question": ""},
+    {"libelle": "Assurer la maintenance préventive des machines","famille": "savoirFaire","enMotsSimples": "Faire les opérations d'entretien prévues pour limiter les pannes des machines.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Maintenance préventive selon le planning de la GMAO"}],
+      "confirmation": "relevee","pourLeCV": "Maintenance préventive selon le planning de la GMAO","pourLOral": "J'ai assuré la maintenance préventive des machines selon le planning de la GMAO.","pourPreparer": "Quelles opérations de maintenance préventive réalisiez-vous sur les machines ?","synonymes": ["Faire l'entretien préventif des machines","Réaliser les opérations d'entretien prévues"],"question": ""},
+    {"libelle": "Lire des schémas électriques","famille": "savoirFaire","enMotsSimples": "Lire un schéma pour repérer les éléments électriques d'une machine et comprendre leur branchement.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Lecture de schémas électriques"}],
+      "confirmation": "relevee","pourLeCV": "Lecture de schémas électriques","pourLOral": "J'ai lu des schémas électriques dans le cadre de mon travail en maintenance industrielle.","pourPreparer": "Dans quelles situations utilisiez-vous les schémas électriques pendant vos interventions ?","synonymes": ["Comprendre des plans électriques","Lire des plans de câblage électrique"],"question": ""},
+    {"libelle": "Lire des schémas pneumatiques","famille": "savoirFaire","enMotsSimples": "Lire un schéma qui représente le fonctionnement d'un circuit utilisant de l'air comprimé.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "pneumatiques"}],
+      "confirmation": "relevee","pourLeCV": "Lecture de schémas pneumatiques","pourLOral": "J'ai lu des schémas pneumatiques dans le cadre de mon travail en maintenance industrielle.","pourPreparer": "Dans quelles situations utilisiez-vous les schémas pneumatiques ?","synonymes": ["Comprendre des plans pneumatiques","Lire des plans de circuits pneumatiques"],"question": ""},
+    {"libelle": "Tenir les fiches d'intervention","famille": "savoirFaire","enMotsSimples": "Renseigner les fiches qui permettent de garder une trace des interventions de maintenance.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Tenue des fiches d’intervention"}],
+      "confirmation": "relevee","pourLeCV": "Tenue des fiches d'intervention","pourLOral": "J'ai tenu les fiches d'intervention pendant mon travail en maintenance industrielle.","pourPreparer": "Quelles informations inscriviez-vous sur les fiches d'intervention ?","synonymes": ["Remplir les fiches d'intervention","Renseigner les comptes rendus d'intervention"],"question": ""},
+    {"libelle": "Former de nouveaux techniciens","famille": "savoirFaire","enMotsSimples": "Transmettre des connaissances et expliquer le travail à des personnes qui arrivent dans l'équipe.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Accueil et formation de deux nouveaux techniciens"},{"typeDocument": "recommandation","numeroDocument": 2,"extrait": "Il a aussi formé deux collègues arrivés en 2022."}],
+      "confirmation": "confirmee","pourLeCV": "Accueil et formation de deux nouveaux techniciens","pourLOral": "J'ai accueilli et formé deux nouveaux techniciens. J'ai aussi formé deux collègues arrivés en 2022.","pourPreparer": "Quelles tâches ou quelles opérations avez-vous expliquées aux personnes que vous avez formées ?","synonymes": ["Accompagner les nouveaux techniciens","Transmettre les méthodes de travail aux nouveaux collègues"],"question": ""},
+    {"libelle": "Reprendre le câblage d'un capteur","famille": "savoirFaire","enMotsSimples": "Intervenir sur les branchements d'un capteur dans le cadre de la recherche d'une panne.",
+      "preuves": [{"typeDocument": "recommandation","numeroDocument": 2,"extrait": "en reprenant le câblage du capteur"}],
+      "confirmation": "relevee","pourLeCV": "Reprise du câblage d'un capteur pour résoudre une panne","pourLOral": "J'ai repris le câblage du capteur de la ligne 3 pour résoudre une panne récurrente.","pourPreparer": "Comment avez-vous repéré ce qu'il fallait reprendre dans le câblage du capteur ?","synonymes": ["Intervenir sur le câblage d'un capteur","Revoir les branchements d'un capteur"],"question": ""},
+    {"libelle": "Lire des notices techniques en anglais","famille": "savoirs","enMotsSimples": "Comprendre des notices techniques rédigées en anglais pour trouver des informations utiles sur un équipement.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Anglais technique : lecture des notices."}],
+      "confirmation": "relevee","pourLeCV": "Lecture de notices techniques en anglais","pourLOral": "J'ai lu des notices techniques en anglais.","pourPreparer": "Quelles informations recherchiez-vous dans les notices techniques en anglais ?","synonymes": ["Comprendre des notices techniques en anglais","Consulter des documents techniques en anglais"],"question": ""},
+    {"libelle": "Prévenir le chef d'atelier avant une intervention","famille": "savoirEtre","enMotsSimples": "Informer le chef d'atelier avant de commencer à travailler sur une machine en production.",
+      "preuves": [{"typeDocument": "recommandation","numeroDocument": 2,"extrait": "Il prévient toujours le chef d’atelier avant d’intervenir sur une machine en production."}],
+      "confirmation": "relevee","pourLeCV": "Information du chef d'atelier avant une intervention sur une machine en production","pourLOral": "Je prévenais le chef d'atelier avant d'intervenir sur une machine en production.","pourPreparer": "Que signaliez-vous au chef d'atelier avant de commencer une intervention ?","synonymes": ["Informer le chef d'atelier avant d'intervenir","Signaler une intervention avant de travailler sur une machine"],"question": ""},
+    {"libelle": "Organiser les interventions de maintenance selon le planning","famille": "savoirFaire","enMotsSimples": "S'appuyer sur le planning de maintenance pour réaliser les opérations prévues.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "selon le planning de la GMAO"}],
+      "confirmation": "relevee","pourLeCV": "Maintenance préventive réalisée selon le planning de la GMAO","pourLOral": "J'ai réalisé la maintenance préventive selon le planning de la GMAO.","pourPreparer": "Comment utilisiez-vous le planning de la GMAO pour préparer vos interventions ?","synonymes": ["Suivre le planning de maintenance","Réaliser les opérations prévues au planning"],"question": ""}
+  ],
+  "motivations": []
+}
+```

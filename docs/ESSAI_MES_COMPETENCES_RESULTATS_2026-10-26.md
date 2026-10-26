@@ -166,3 +166,31 @@ Assistants : Perplexity, DeepSeek, ChatGPT (noms donnés par Denis). Réponses t
 **Résultat** : sur le profil le plus exigeant, la version 5 donne **zéro erreur chez les trois assistants** (les quatre défauts du deuxième assistant de l'essai précédent ont disparu : pas de détention dans un extrait, pas de ligne éclatée avec la ligne entière, pas d'« à préciser » parasite). Restent des défauts de finesse (accord de genre, verbe déduit) que le filet de sécurité de l'application devra signaler.
 
 **Reste à éprouver** : profils 04 (technicien) et 05 (niveau « cadre » trop haut), le second passage (réponses de la personne aux questions « à préciser »), et la version 5 sur les profils 01 et 02.
+
+
+---
+
+# Sixième essai : prompt version 5, profils 04 (technicien) et 05 (niveau « cadre » trop haut)
+
+Assistants : Perplexity et ChatGPT. Réponses archivées dans `docs/essais_mes_competences/reponses/`. Contrôle automatique : **0 erreur sur les quatre réponses**.
+
+## Profil 04 : technicien de maintenance (CV + recommandation)
+| Assistant | Erreurs / avertissements | Lecture |
+|---|---|---|
+| **Perplexity** | 0 / 0 | 7 compétences, sûres. « Dépanner » et « Former » correctement **confirmées** (CV + recommandation). Habilitation et BTS ignorés (bon). Défauts de finesse : présent là où l'emploi est terminé (« Je lis les notices », « je préviens toujours »), et une phrase orale qui cite la lettre (« Ma lettre de recommandation indique que je préviens... »), maladroite à dire. |
+| **ChatGPT** | 0 / 2 | 10 compétences, plus riches, mais : « schémas électriques » et « schémas pneumatiques » éclatés en deux entrées sur la même ligne du CV (l'extrait « pneumatiques » tient en un mot), « Organiser les interventions... selon le planning » qui redit la maintenance préventive avec un extrait déjà utilisé, phrases pour l'oral proches. Aucune invention, aucun contexte de vie. |
+
+## Profil 05 : chef d'équipe, niveau « cadre » choisi
+| Assistant | Erreurs / avertissements | Lecture |
+|---|---|---|
+| **Perplexity** | 0 / 1 | **Reste au niveau de la preuve** et le dit (« pas encore de responsabilités d'encadrement plus larges »). Aucun « leadership / stratégique / vision ». 5 compétences, 1 envie classée en `motivations`. Défauts : « Répartir » et « Diriger » se recoupent, « depuis 2017 » laisse croire que l'emploi continue. |
+| **ChatGPT** | 0 / 3 | Même respect du niveau, même phrase honnête dans `niveauPosteIndices`. **Mais une ligne « à préciser » parasite** : « Encadrer une équipe » à partir de « Chef d'équipe », alors que les tâches sont décrites dessous (la règle de la V5 n'est pas suivie). « Préparer des commandes » à préciser est, lui, correct (intitulé seul). Phrases orales qui se répètent. |
+
+## Enseignements
+- Les deux jalons de ces profils sont atteints : **le niveau choisi ne gonfle pas le vocabulaire**, et la confirmation par un tiers fonctionne.
+- Perplexity est de nouveau le plus rigoureux, ChatGPT le plus bavard (éclatements, redites, ligne parasite).
+- Nouveau contrôle automatique ajouté : « à préciser » sur un intitulé dont les tâches sont décrites (profil 05). 18 tests verts.
+- Défauts de finesse (temps du verbe, citer la lettre à l'oral, redites) : **pas de version 6 pour l'instant** ; le filet de sécurité de l'application les signalera, et la personne valide chaque ligne.
+
+## Reste à éprouver
+Le second passage (réponses de la personne aux questions « à préciser »), et la version 5 sur les profils 01 et 02. Ensuite : concept grossier du parcours, faisabilité, maquette.

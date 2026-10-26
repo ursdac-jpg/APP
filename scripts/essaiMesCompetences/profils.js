@@ -247,6 +247,7 @@ const PROFILS = [
     minCompetences: 5,
     attendus: [/équipe|répartition|répartir/i, /consigne|sécurité/i, /retard/i],
     interditsLibelle: [/leadership|stratég|vision/i],
+    intitulesAvecTaches: [/^Chef d.équipe$/i],
     motsAuDessusDeLaPreuve: ['stratég', 'leadership', 'piloter', 'pilotage', 'arbitr', 'direction de'],
     nomsAEviter: []
   }

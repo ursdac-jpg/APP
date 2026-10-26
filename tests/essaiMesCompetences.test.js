@@ -220,3 +220,11 @@ test('la normalisation ignore accents, apostrophes et ponctuation', () => {
   assert.equal(normaliser('L’accueil téléphonique, la prise…'), normaliser("l'accueil telephonique la prise"));
   assert.ok(extraireJson('a\n```json\n{"a":1}\n```').json.a === 1);
 });
+
+test('« à préciser » sur un intitulé dont les tâches sont décrites dessous : signalé (ligne parasite)', () => {
+  const p = profil('chef_equipe_niveau_cadre_choisi');
+  const o = comp({ libelle: 'Encadrer une équipe', confirmation: 'aPreciser', preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Chef d’équipe' }],
+    enMotsSimples: 'Animer le travail d’une équipe.', pourLeCV: '', pourLOral: '', pourPreparer: '', synonymes: [], question: 'Quelles missions aviez-vous ?' });
+  const r = verifier(reponse({ niveauPoste: 'cadre', niveauPosteIndices: 'Vos documents montrent surtout l’organisation d’une équipe de six.', competences: [o], motivations: [] }), p);
+  assert.ok(r.avertissements.some((w) => /ligne parasite/.test(w)));
+});
