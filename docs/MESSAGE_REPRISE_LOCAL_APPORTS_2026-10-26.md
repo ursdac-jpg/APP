@@ -42,7 +42,7 @@ RÈGLES DE DENIS À RESPECTER :
 - Respecte le protocole de CLAUDE.md : annonce mode et effort, attends mon réglage et mon « démarre », un commit par sous-étape, npm test avant, ligne dans docs/JOURNAL_DES_CHANGEMENTS.md, aucun push sans ma demande.
 
 CE QUI EST DÉJÀ FAIT (sur la branche, à ne pas refaire) :
-- 12 fiches dans data/lexique.js : estime de soi, confiance en soi, affirmation de soi, « estime, confiance ou affirmation ? », croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication, coach, CESF, CACES. Contrôle du Lexique : 0 erreur, 0 avertissement.
+- 12 fiches dans data/lexique.js : estime de soi, confiance en soi, affirmation de soi, « estime, confiance ou affirmation ? », croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication, coach, CESF, CACES. Contrôle du Lexique : 0 erreur, 0 avertissement. Les 12 textes ont été relus et validés par Denis le 26/10/2026 dans le chat ; la tâche A ne sert qu'à vérifier l'affichage.
 - 18 lignes de structures de la Dordogne et nationales dans outils/sas/lieux.sas.txt, avec la copie docs/LIGNES_SAS_APPORTS_2026-10-26.txt.
 
 MODE B, [effort : moyen]. TÂCHES, dans cet ordre :
