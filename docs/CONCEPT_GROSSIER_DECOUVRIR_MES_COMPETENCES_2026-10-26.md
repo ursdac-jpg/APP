@@ -1,6 +1,6 @@
 # Concept grossier : « Découvrir mes compétences » (parcours de la personne)
 
-Statut : brouillon pour discussion avec Denis, **ni maquette ni code**. S'appuie sur les décisions Q1 à Q8 (`docs/CHANTIER_DECOUVRIR_MES_COMPETENCES_2026-10-26.md`) et sur les sept essais du prompt (`docs/ESSAI_MES_COMPETENCES_RESULTATS_2026-10-26.md`). Mode A, `[effort : haut]`.
+Statut : VALIDÉ par Denis le 26/10/2026 (brouillon de départ), **ni maquette ni code**. S'appuie sur les décisions Q1 à Q8 (`docs/CHANTIER_DECOUVRIR_MES_COMPETENCES_2026-10-26.md`) et sur les sept essais du prompt (`docs/ESSAI_MES_COMPETENCES_RESULTATS_2026-10-26.md`). Mode A, `[effort : haut]`.
 
 ## En une phrase
 La personne dépose ses documents, un assistant en ligne en tire des compétences **prouvées par ses propres phrases**, elle relit chaque ligne et garde ce qui lui ressemble, et elle repart avec un document « Mes compétences ».

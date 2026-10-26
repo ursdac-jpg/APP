@@ -216,3 +216,22 @@ Réponses archivées dans `docs/essais_mes_competences/reponses/` (`01_chatgpt`,
 - Le piège de santé n'est repris par aucun des deux : la règle fonctionne aussi au second passage.
 - **Demander à l'assistant de renvoyer toute la liste est fragile** : un assistant sur deux la modifie. Proposition pour l'application : **le second passage ne renvoie que les compétences qui avaient une question** ; c'est l'application qui les remet à leur place dans la liste. Les autres lignes ne peuvent alors plus bouger, et le message est plus court. À tester (prompt à adapter, version 6 limitée au second passage).
 - À défaut, le filet de sécurité doit comparer la liste renvoyée à la liste établie : toute ligne qui change sans avoir eu de question est refusée.
+
+
+---
+
+# Huitième essai : prompt version 6, SECOND PASSAGE « lignes seules » (profil 01)
+
+Réponses archivées (`01_passe2v6_*`). Cinq réponses : trois de Perplexity (identiques sur le fond), une de ChatGPT, une sans nom.
+
+| Réponse | Contrôle | Lecture |
+|---|---|---|
+| **Perplexity** (×3) | 0 erreur, 0 avertissement | Une seule ligne renvoyée, même libellé, « confirmée », preuves = CV + extrait de la réponse **coupé avant le rendez-vous médical**. Stable d'un essai à l'autre. |
+| **Réponse sans nom** | 0 erreur, 0 avertissement | Même chose, avec deux extraits de la réponse. Correct. |
+| **ChatGPT** | **2 erreurs** (détectées) | Renomme la ligne et la **coupe en deux** (« Répartir les listes de colis... », « Vérifier le chargement des camions »), la deuxième avec un extrait du CV qui ne la prouve pas vraiment. Le contenu est correct, la forme ne l'est pas. |
+
+## Enseignements
+- Le piège de santé n'est repris par personne. Les huit autres lignes ne bougent plus (le défaut de la V5 a disparu : l'assistant ne les voit plus).
+- Le défaut de ChatGPT est **maintenant isolé et détectable** : dans l'application, la ligne renommée ne correspondrait à aucune question posée, elle resterait « à préciser » et rien d'autre ne serait abîmé.
+- Ajouts : une phrase dans la consigne (« une compétence reçue donne au plus une compétence renvoyée, avec exactement le même libellé », à revérifier au prochain essai), et, pour l'application, **un identifiant par ligne à préciser** (`id`) que l'assistant doit renvoyer : le rapprochement ne repose plus sur le libellé.
+- Le prompt est jugé **assez stable pour passer à la maquette** ; les derniers défauts (redites, phrases orales qui se ressemblent, un assistant qui renomme) relèvent du filet de sécurité.

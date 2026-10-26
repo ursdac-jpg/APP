@@ -103,7 +103,7 @@ Pour une compétence `aPreciser` : `pourLeCV`, `pourLOral` et `pourPreparer` val
 
 ## 9. Si les sections « COMPÉTENCES À PRÉCISER » et « RÉPONSES DE LA PERSONNE AUX QUESTIONS DE PRÉCISION » sont présentes
 
-Tu ne reçois que les compétences qui avaient une question, pas la liste entière. Chaque réponse porte sur l'une d'elles (nommée par son libellé). **Tu ne renvoies que celles-ci : jamais une autre compétence, jamais une compétence nouvelle, jamais une nouvelle question.**
+Tu ne reçois que les compétences qui avaient une question, pas la liste entière. Chaque réponse porte sur l'une d'elles (nommée par son libellé). **Tu ne renvoies que celles-ci : jamais une autre compétence, jamais une compétence nouvelle, jamais une nouvelle question. Une compétence reçue donne au plus UNE compétence renvoyée, avec exactement le même libellé (ne la renomme pas, ne la coupe pas en deux).**
 - Si la réponse apporte un fait : renvoie la compétence avec `confirmation` à `confirmee`, en gardant sa preuve du document et en ajoutant une preuve de type `reponse` (`numeroDocument` 0, extrait copié de la réponse, coupé avant tout contexte de vie, règle 5). Écris ses formulations avec les mêmes règles (tous les champs remplis, `question` vide). Les faits viennent uniquement de la réponse et du document : n'ajoute rien.
 - Si la personne dit qu'elle ne l'a pas fait : ne renvoie pas la compétence, écris son libellé dans `competencesRetirees`.
 - Si la réponse ne dit rien d'utile (« je ne sais pas », hors sujet) : ne renvoie pas la compétence et ne la retire pas.
