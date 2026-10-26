@@ -54,11 +54,20 @@ Créé le 26/10/2026. Mode A, `[effort : haut]`. Lot 9 de `docs/MESSAGES_PAR_LOT
 - **Q5** Niveau du poste : la personne le choisit-elle (ouvrier, employé, technicien, cadre, direction) ou l'outil le propose-t-il à partir des documents ?
 - **Q6** Où ranger la phrase « défendre à l'oral » : dans l'outil seulement, ou aussi branchée vers la fiche d'entretien ?
 
+## 5bis. Recommandations de Claude pour Q1 à Q6 (26/10/2026, à valider par Denis)
+
+- **Q1** Documents (CV, lettres de motivation et de recommandation, plusieurs de chaque) plus de courtes **questions de précision** par expérience ; pas de récit complet (c'est « À partir de mon récit »).
+- **Q2** Les deux : document « Mes compétences » à télécharger ET objet gardé dans le dossier dès la version 1, mais **aucun autre module ne le lit** avant une décision ultérieure.
+- **Q3** Même outil, même document final, mais **sections distinctes** : « Ce que je sais faire / connais / ma façon de travailler », puis « Ce qui me donne envie » et « Où je veux aller ». Les motivations ne sont jamais appelées compétences.
+- **Q4** Pas de Lexique de compétences (décision de septembre maintenue) ; seulement 2 ou 3 fiches : savoir-faire, savoir-être et savoirs ; comment défendre une compétence.
+- **Q5** La personne choisit le niveau du poste (proposé d'après les documents) ; la formulation ne dépasse **jamais** ce que les documents prouvent.
+- **Q6** La phrase pour l'oral reste dans l'outil en version 1 ; branchement à la fiche d'entretien plus tard.
+
 ## 6. Plan (à compléter après décisions)
 
 Méthode : concept grossier, carte de faisabilité (verdict GO / NO GO), maquette détaillée, audit complet et verdict avant code (cas module neuf : vérification contre `LANGAGE_VISUEL_COMMUN.md` et `BRIQUES_COMMUNES.md`).
 
-- [ ] `[effort : haut]` Messages de recherche chez d'autres plateformes : `docs/PROMPTS_AUTRES_IA_DECOUVRIR_COMPETENCES_2026-10-26.md` (fait, à lancer par Denis) puis rapporter les réponses dans un fichier du chantier.
+- [x] `[effort : haut]` Messages de recherche chez d'autres plateformes : `docs/PROMPTS_AUTRES_IA_DECOUVRIR_COMPETENCES_2026-10-26.md` ; réponses de 5 plateformes reçues et triées le 26/10/2026 : `docs/SYNTHESE_REPONSES_AUTRES_IA_DECOUVRIR_COMPETENCES_2026-10-26.md` (à lire avant de trancher Q1 à Q6).
 - [ ] `[effort : haut]` Trancher Q1 à Q6.
 - [ ] `[effort : haut]` Concept grossier puis carte de faisabilité (verdict).
 - [ ] `[effort : haut]` Maquette détaillée.
