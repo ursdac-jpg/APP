@@ -149,3 +149,20 @@ Sur le profil 02 : un lien inventé (« Respecter les délais de traitement du c
 
 ## Conclusion d'étape et conséquence pour l'application
 Le jalon « zéro défaut chez deux assistants » est atteint par l'un d'eux, pas encore par le second. **Les contrôles du banc d'essai serviront de filet de sécurité dans l'application** : après le collage de la réponse, l'application rejettera ou masquera une ligne dont l'extrait n'est pas dans les documents, qui contient un mot de contexte de vie, qui est « confirmée » sans source tierce, etc. On ne dépend donc jamais d'un seul assistant.
+
+
+---
+
+# Cinquième essai : prompt version 5, profil 03, trois assistants nommés
+
+Assistants : Perplexity, DeepSeek, ChatGPT (noms donnés par Denis). Réponses transcrites et passées au contrôle automatique.
+
+| Assistant | Erreurs | Avertissements | Lecture |
+|---|---|---|---|
+| **Perplexity** | 0 | 1 (fausse alerte : « Aider un proche... » paraphrase la ligne du CV) | Le meilleur : extraits coupés au bon endroit (« appris à entretenir les machines » sans la détention), « proche » sans « malade », aucun accord de genre, phrases fidèles, introduction bonne. |
+| **DeepSeek** | 0 | 0 | Très sûr mais minimal : phrases pour l'oral d'une ligne (« Je trie des denrées. »), 8 compétences, pas de courses/repas/rendez-vous. Introduction non transmise. |
+| **ChatGPT** | 0 | 4 | Correct mais le moins rigoureux : deux accords au masculin devinés (« je me suis occupé de la gestion des papiers »), phrases très proches entre « courses » et « repas », et « Organiser des rendez-vous » alors que le CV dit seulement « rendez-vous médicaux » (verbe déduit). Introduction non transmise. |
+
+**Résultat** : sur le profil le plus exigeant, la version 5 donne **zéro erreur chez les trois assistants** (les quatre défauts du deuxième assistant de l'essai précédent ont disparu : pas de détention dans un extrait, pas de ligne éclatée avec la ligne entière, pas d'« à préciser » parasite). Restent des défauts de finesse (accord de genre, verbe déduit) que le filet de sécurité de l'application devra signaler.
+
+**Reste à éprouver** : profils 04 (technicien) et 05 (niveau « cadre » trop haut), le second passage (réponses de la personne aux questions « à préciser »), et la version 5 sur les profils 01 et 02.
