@@ -21,6 +21,8 @@ Ce dossier remplace la synthèse courte de `docs/APPORTS_DOCUMENTS_2026-10-26.md
 
 **Consigne de Denis** : ne garder que des choses **concrètes, cohérentes, qui ont une valeur ajoutée, jamais des conseils**. Ce qui s'approche d'un conseil dépasse la philosophie de l'application : on ne le garde pas. Denis m'a donné carte blanche pour trier, vérifier sur Internet et compléter. Il n'a pas relu chaque fiche : **la relecture finale reste la sienne**, dans l'application en local.
 
+**VALIDATION DE DENIS (26/10/2026, soir) : les 12 fiches du Lexique ont été relues dans le chat et validées (réponse « ok »). Les 18 lignes du sas ne sont PAS encore validées : elles attendent les appels et le « C'est bon » dans l'outil de veille.**
+
 ### Fait dans le dépôt (branche `claude/fervent-ritchie-hmq5cn`)
 
 **12 fiches dans `data/lexique.js`** (contrôle du Lexique : 0 erreur, 0 avertissement ; `npm test` : 2020 verts sur 2021, le seul échec est un essai de chemin Windows sans rapport) : estime de soi, confiance en soi, affirmation de soi, « estime, confiance ou affirmation ? », croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication, **coach**, **le rôle du CESF**, **CACES**. Elles sont reliées aux fiches existantes (écoute active, CIP, assistante sociale, certification). Ligne notée au journal des changements.
