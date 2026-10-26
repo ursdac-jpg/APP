@@ -46,8 +46,8 @@ BALAYER (une fois par trimestre, quatre prompts SÉPARÉS, aucun ne produit de f
     -> veille.html produit  modules/comprendre-les-chiffres/contenu/<mois>.md
        (+ [PORTRAIT] et [CHIFFRES-UE], annuels : voir 5ter.2 / 5ter.3 ; + profil des découpes
        et professions de santé, annuels, sans recherche web : voir 5ter.4 / 5ter.5)
-    -> LEXIQUE (web) : termes nouveaux ou changés, au format data/lexique.js  -> [LEXIQUE]
-       puis TRIAGE-MOTS (existe déjà ? nouveau ?) -> [TRIAGE-MOTS] -> NOUVEAUTES_A_STATUER.md
+    -> LEXIQUE (web) : idées de mots nouveaux ou changés  -> [LEXIQUE-BRUT]
+       -> fenêtre « Le Lexique » de l'outil, « Ma liste » (tri des doublons fait par le code, § 5quater)
     -> À CONFRONTER (web) : le non officiel du réseau, recoupé à l'officiel   -> [CONFRONTER]
     -> veille.html produit  contenu/a-confronter/<mois>.md
     -> ASSOCIATIONS (web) : assos 24 / 87 par rayon, pour « Près de chez moi » -> [ASSOCIATIONS]
@@ -940,191 +940,175 @@ entrée dans ce registre, jamais une nouvelle fonction ni un nouveau bouton.
 
 ---
 
-## 5quater. Nourrir le Lexique (le circuit veille -> mots)
+## 5quater. Le Lexique de l'outil de veille (la fenêtre « Le Lexique »)
 
-**Rôle :** repérer les termes, sigles, dispositifs et pratiques du champ de l'insertion **apparus ou qui
-ont changé de sens** récemment, et produire des **entrées prêtes à coller dans `data/lexique.js`** (le
-corpus que le module Lexique lit vraiment - 154 fiches). Décision Denis 2026-09-04 ; **retargeté le
-2026-09-06** (avant : visait `docs/CORPUS_LEXIQUE.md`, doc éditorial de 42 fiches, périmé). **Rien
-n'apparaît dans le module « Se tenir informé »** : c'est du travail de fond. **Rien n'est écrit
-automatiquement** : l'outil sort des entrées candidates, Denis relit, tranche, et je colle celles qu'il
-garde.
+**Rôle :** tenir `data/lexique.js` (le corpus que le module Lexique de l'application lit vraiment) : lire la
+liste des mots, **modifier un mot champ par champ avec l'avant et l'après**, suivre l'évolution des mots,
+et trier les **idées de mots nouveaux** dans une liste d'attente (« Ma liste »). Décisions de Denis du
+20 octobre 2026 (cahier : `docs/CHANTIER_MODERNISATION_LEXIQUE_VEILLE_2026-10-20.md`, maquette :
+`docs/MAQUETTE_LEXIQUE_VEILLE_2026-10-20.html`). **Rien n'apparaît dans le module « Se tenir informé »** :
+c'est du travail de fond. **Un assistant en ligne ne rédige jamais le texte d'un mot** : il peut
+seulement proposer des idées avec leur source ; le texte est écrit par Denis dans l'écran, ou par Claude
+directement dans « Ma liste » à sa demande, puis relu par Denis (case « J'ai relu le texte » obligatoire).
 
-Même pattern que le circuit veille -> fiche : **repérer** (`[LEXIQUE]`) -> **trier** (`[TRIAGE-MOTS]`,
-§ 5quater.1) -> **statuer** (`docs/NOUVEAUTES_A_STATUER.md`, section mots) -> **produire** (objet
-`LEXIQUE_FICHES`) -> **déposer** (`data/lexique.js` + `node scripts/checkLexique.js` + commit).
+**Ce qui a remplacé l'ancien circuit.** Le bloc « Nourrir le Lexique » de la page d'édition n'existe
+plus. Sont donc retirés (validé par Denis le 20 octobre 2026) : le chargement manuel de
+`data/lexique.js`, la case « Termes déjà dans le Lexique » (la liste est lue toute seule dans le
+dépôt), le fichier `lexique-candidats-AAAA-MM.js` à recopier, le prompt `[TRIAGE-MOTS]` (le tri des
+doublons est fait par du code : mot identique, mot proche, mot déjà écarté) et le tableau « Mots du
+Lexique à statuer » de `docs/NOUVEAUTES_A_STATUER.md` (« Ma liste » est maintenant le registre).
 
-Bloc « Nourrir le Lexique » dans `veille.html`, mode « Entretenir ». Le bloc est câblé sur ce format
-depuis le 2026-09-06 (mini-chantier de cohérence).
+### Où le trouver
 
-### Charger les termes existants (parité avec « Ma base » du circuit fiches)
+Page d'édition de `outils/veille.html`, section **« 9. Le Lexique »**, bouton « Ouvrir le Lexique »
+(les deux cartes du menu « Lexique » et la ligne « Lexique » de la liste du trimestre ouvrent la même
+fenêtre). Aucune clé, aucun fichier à charger.
 
-Le bloc a un sélecteur **« Charger `data/lexique.js` »** : il lit le fichier, en extrait
-`LEXIQUE_FICHES` et remplit tout seul le champ « Termes déjà dans le Lexique » (une ligne
-`identifiant | titre` par fiche). Cette liste part dans le prompt `[LEXIQUE]` (bloc « TERMES
-EXISTANTS », pour cadrer les `relations` et repérer les doublons) **et** dans `[TRIAGE-MOTS]`. Sans ce
-chargement, l'assistant n'a aucune vue des fiches déjà écrites et peut reproposer un mot qui existe
-(cas vécu le 2026-09-06 : « réseau pour l'emploi » reproposé comme nouveau alors que la fiche
-existait). À défaut de fichier, la liste se colle à la main.
+### Les quatre vues de la fenêtre
 
-**Inventaire hors navigateur (`--termes`)** : `node scripts/checkLexique.js --termes` imprime le
-même inventaire, en plus riche : `id | titre | variantes de recherche`, puis la liste des familles
-(collections / parcours). C'est la référence « tout ça est DÉJÀ couvert » à coller en tête d'un
-balayage fait à la main ou dans un chat. Un mot qui figure dans cette sortie (titre **ou** variante)
-ne se re-propose pas : au mieux il devient une `MISE À JOUR` de la fiche existante.
+| Vue | Ce qu'elle fait |
+|---|---|
+| **Les mots** (liste) | Les 408 fiches de `data/lexique.js` lues directement dans le dépôt. Recherche, filtres : « Avec un chiffre ou une date dans le texte » (relecture de la doctrine, 64 fiches au 20 octobre 2026), « Sans mot de recherche », « Sans renvoi », « Cités par aucun autre mot », « Modifiés avec l'outil » ; famille ; mot ou notion. Les fiches venues de `data/freins.js` et `data/urgences.js` ne sont pas dans ce fichier : la fenêtre le dit et ne les liste pas. |
+| **Ajouter un mot** (bouton de la liste, 20 octobre 2026) | Formulaire vide : titre (l'identifiant et le titre de tri sont proposés), **type de fiche en liste de choix** (un mot, ou une notion avec son gabarit parmi les 6 de `scripts/checkLexique.js`), famille en liste de choix, registres en cases, renvois choisis dans la liste des mots existants (un mot inconnu est refusé). Même publication contrôlée que « Ma liste ». |
+| **Modifier un mot** | Formulaire champ par champ : titre, titre de tri (champ éditorial, saisi, jamais calculé), **type de fiche (mot ou notion avec sa présentation, en listes de choix, depuis le 20 octobre 2026 : seule la ligne `type` change dans le fichier, avec un avertissement et sa carte dans l'écran « Avant d'enregistrer »)**, famille, registres, mots de recherche, texte, renvois. L'`id` est verrouillé. La liste des mots a un résumé cliquable (« À regarder : N avec un chiffre ou une date, N sans renvoi, N sans mot de recherche, N cités par aucun autre mot »). Contrôles en direct (plafonds de `scripts/checkLexique.js`). Avertissement « chiffre ou date » : il prévient sans bloquer. Écran « Avant d'enregistrer » : l'avant et l'après de chaque champ, texte comparé mot à mot, case « J'ai relu », phrase pour le journal. L'enregistrement n'écrit que les propriétés changées, lance `scripts/checkLexique.js` et `npm test`, et **revient en arrière tout seul** si une erreur apparaît ; il s'annule avec « Annuler la dernière publication ». |
+| **Les mots à proposer** (« Ma liste ») | Voir ci-dessous. |
+| **L'évolution des mots** | Relevé de chaque modification (l'avant, l'après, date et heure en français, phrase de Denis), fichier `outils/evolution_lexique.txt`. Les modifications faites avant la mise en service de ce relevé n'y figurent pas. La vue « Historique » existante a une option « Mots du Lexique ». |
 
-**« Tout ce que je récolte finit dans le Lexique »** : chaque terme retenu au triage fait **une ligne**
-dans `docs/NOUVEAUTES_A_STATUER.md`, tableau « Mots du Lexique à statuer », décision
-`NOUVEAU MOT` / `MISE À JOUR` / `ÉCARTÉ`. Une ligne ne se referme (`FAIT (commit)`) que quand la fiche
-est dans `data/lexique.js` et que `checkLexique` passe à 0 erreur / 0 avertissement. Rien ne se perd :
-si un lot n'est pas fini, les lignes restent `à statuer` jusqu'au passage suivant.
+### « Ma liste » et les trois portes d'entrée
+
+Fichier `outils/sas/mots.sas.txt` (créé au premier usage, jamais lu par l'application, comme les autres
+sas). Une ligne par idée : état (idée, en rédaction, en attente, écartée, publiée), origine, motif
+d'écart, brouillon. Une idée repérée automatiquement n'est écrite dans le fichier que quand Denis
+agit dessus (retenir, plus tard, écarter). « Écarter » est mémorisé : l'idée n'est jamais reproposée.
+« Publier » passe par la voie existante (`analyserCandidatsLexique` puis `integrerCandidatsLexique` de
+`outils/veilleDepot.js`, forme stricte, refus d'un `id` déjà pris, contrôle `checkLexique`, retour en
+arrière automatique) et la ligne passe à « publiée ».
+
+- **Porte A, « Mots qui reviennent dans l'application »** : script local, gratuit, sans envoi sur Internet. Lit
+  166 fichiers du dépôt (fiches du cadre, fichiers de chiffres et digests des veilles, « Qui fait
+  quoi »). Trois signaux, du plus fort au plus faible : un mot expliqué dans le bloc « Mots expliqués »
+  d'une fiche du cadre mais sans fiche du Lexique (sa définition est montrée comme matière à
+  reformuler, jamais recopiée) ; un sigle présent dans au moins 3 fichiers sans fiche ; un sigle de
+  structure de « Qui fait quoi ». Plafond de 30 idées, sigles comparés en casse exacte, niveaux de
+  langue exclus. **C'est un aide-mémoire pour trier, jamais une liste à vider** (doctrine, principe 6 :
+  une fiche naît d'un besoin réel, pas d'un effort de couverture).
+- **Porte C, « Demander à un assistant en ligne »** (ChatGPT ou Perplexity) : le prompt ci-dessous est
+  assemblé par l'outil, **avec la liste des mots existants ajoutée automatiquement**. La réponse
+  `[LEXIQUE-BRUT]` se colle dans la zone prévue (« Coller ici et lire ») : les idées arrivent dans
+  « Ma liste » avec leur source et le fait brut, sans texte de fiche.
+- **Porte D, « Saisir un mot rencontré »** : un champ « le mot », un champ « où je l'ai rencontré »
+  (facultatif). Contrôle immédiat : mot déjà existant (bouton « Modifier cette fiche »), mot proche, ou
+  déjà dans la liste.
+- **Porte B, « Recherches sans résultat »** (codée le 20 octobre 2026, à la demande de Denis, **sans avoir pu vérifier le
+  contenu réel de l'export Umami** : la vérification B0 reste à faire par Denis). L'outil **ne se connecte jamais à Umami** : Denis
+  copie dans Umami (onglet « Events », événement `lexique_recherche_sans_resultat`, propriété `texte`) la liste des valeurs, et la
+  colle dans la zone de la porte B (« Coller ici et lire »). Formats acceptés : une recherche par ligne, avec ou sans son nombre
+  (séparé par une tabulation, un point-virgule, une virgule, deux espaces ou « (3) »), ou un fichier CSV avec une colonne `texte`
+  (ou `string_value`, `value`) et, si elle existe, une colonne `event_name` (seules les lignes de l'événement sont gardées).
+  **Vie privée** : seules les formes courtes (40 caractères et 4 mots au plus, lettres seulement : ni chiffre, ni « @ », ni adresse)
+  cherchées au moins 2 fois sont montrées ; tout le reste est écarté et seulement compté, jamais affiché. Les idées arrivent comme
+  celles de la porte A (retenir et rédiger, plus tard, écarter avec motif) avec la porte `umami`. Code : `lireRecherches`
+  (`outils/veilleIdees.js`), route `/api/lexique/recherches`. Si le format réel de l'export diffère, ajuster `lireRecherches`.
 
 ### Le modèle de données (autorité : `scripts/checkLexique.js`)
 
-| Champ (objet `LEXIQUE_FICHES`) | Règle |
+L'outil lit ses listes et plafonds **directement dans le script** (exportés, aucune copie : c'est la
+correction du constat D du cahier, il manquait `acces-aux-soins` dans l'ancien prompt).
+
+| Champ de la fiche | Règle |
 |---|---|
-| `id` | kebab-case, unique. L'assistant propose ; Denis confirme. |
+| `id` | kebab-case, unique. Verrouillé à la modification. |
 | `titre` | tel qu'on l'écrit (sigle développé entre parenthèses si utile). |
-| `titreDeTri` | le titre sans accents, cédilles ni apostrophes (tri alphabétique). |
-| `type` | `terme` (un mot / sigle à définir) ou `notion` (concept avec gabarit, rare - par défaut `terme`, signaler si ça mérite une notion). |
-| `gabarit` | **uniquement si `type: notion`** : un parmi `explication`, `comparatif`, `decryptage`, `grille-lecture`, `deroule-demarche`, `role`. Interdit sur un `terme` (checkLexique le refuse). |
-| `univers` | **UNE seule valeur exacte** parmi : `accompagnement-insertion`, `emploi-recrutement`, `ressources-humaines`, `organisation-travail-management`, `droit-travail`, `contrats-statuts-emploi`, `formation`, `bulletin-salaire`, `protection-sociale`, `sante-travail`, `structures-organismes`, `dispositifs`, `mobilite-budget`, `entrepreneuriat-independance`, `demarches-administratives`, `conditions-travail`. |
-| `registres` | 1 à 3 valeurs exactes parmi : `langage-cip`, `langage-rh`, `langage-juridique`, `langage-employeur`, `langage-administratif`, `langage-france-travail`. |
-| `variantesRecherche` | 1 à **4**, langage naturel, pas de doublon. |
-| `corps` | 2 à 4 phrases, langage simple, sigle développé une fois ; pour un dispositif : à qui il s'adresse et ce qu'il permet. |
-| `relations` | 0 à 3 `voir-aussi` + 0 à 2 `a-ne-pas-confondre`, chacune vers un `id` **existant** de `data/lexique.js`. L'assistant propose depuis la liste fournie ; Denis confirme. |
+| `titreDeTri` | le titre sans accents, cédilles ni apostrophes (champ éditorial : 253 fiches sur 408 en ont un différent du titre). |
+| `type` | `terme` ou `notion`. Verrouillé à la modification. |
+| `gabarit` | uniquement si `type: notion` : `explication`, `comparatif`, `decryptage`, `grille-lecture`, `deroule-demarche`, `role`. |
+| `univers` | UNE valeur parmi les 17 familles du script : `accompagnement-insertion`, `emploi-recrutement`, `ressources-humaines`, `organisation-travail-management`, `droit-travail`, `contrats-statuts-emploi`, `formation`, `bulletin-salaire`, `protection-sociale`, `sante-travail`, **`acces-aux-soins`**, `structures-organismes`, `dispositifs`, `mobilite-budget`, `entrepreneuriat-independance`, `demarches-administratives`, `conditions-travail`. |
+| `registres` | 1 à 3 parmi : `langage-cip`, `langage-rh`, `langage-juridique`, `langage-employeur`, `langage-administratif`, `langage-france-travail`. |
+| `variantesRecherche` | 1 à **4**, langage naturel, sans doublon. |
+| `corps` | 2 à 4 phrases, langage simple, sigle développé une fois ; **jamais de chiffre ni de règle susceptible de devenir fausse** (`docs/DOCTRINE_LEXIQUE.md`). |
+| `relations` | 0 à 3 `voir-aussi` + 0 à 2 `a-ne-pas-confondre`, vers un `id` **existant**. |
 
-`statut`, `changement`, `source` et `collection` **ne sont pas stockés** dans `data/lexique.js` : ils
-servent au triage, au registre et à la vérification de Denis. `collection` est une **note de relecture** :
-l'assistant dit si l'entrée rejoint un regroupement thématique déjà existant du Lexique (les
-`LEXIQUE_COLLECTIONS`) ; Denis raccroche la fiche à la collection à la main s'il le veut.
+Pas de date « Vérifié le » : ce sont de purs textes. La liste de contrôle « chiffre ou date » avertit et
+ne bloque pas (64 fiches existantes contiennent déjà un chiffre : case B2, relecture par Denis).
 
-### Texte assemblé par l'outil
+**Inventaire hors outil** : `node scripts/checkLexique.js --termes` imprime `id | titre | variantes de
+recherche`, puis la liste des familles. Utile pour un balayage fait à la main ou dans un chat. Un mot
+qui figure dans cette sortie ne se re-propose pas : au mieux il devient une modification de la fiche
+existante.
+
+**Après chaque modification** : `node scripts/checkLexique.js` (0 erreur ET 0 avertissement attendus,
+LECONS 9.26) et `npm test`. L'outil les lance lui-même à l'enregistrement.
+
+### Prompt de la porte C (texte assemblé par l'outil)
 
 ```
 Je maintiens un lexique pour des professionnels de l'insertion et des personnes en
 recherche d'emploi. Repère les termes, sigles, dispositifs et pratiques du champ de
 l'insertion professionnelle qui sont APPARUS ou ont CHANGÉ DE SENS sur [PÉRIODE, défaut :
-les douze derniers mois].
+les douze derniers mois]. Ton rôle est UNIQUEMENT de collecter des faits sur ces termes,
+PAS de rédiger une définition ni de classer le terme.
 
-Recherche web obligatoire. Cherche sur : service-public.fr, Légifrance, ministère du
-Travail (dont la lettre hebdo travail-emploi), France Travail, France compétences, les
-CARIF-OREF (Cap Métiers Nouvelle-Aquitaine), vie-publique.fr. Adresse de la
-source obligatoire. Ne propose pas un terme dont tu n'as pas trouvé de source officielle :
+[SOCLE DE RECHERCHE COMMUN - voir 2bis] Cherche sur : service-public.fr, Légifrance,
+ministère du Travail (dont la lettre hebdo travail-emploi), France Travail, France
+compétences, les CARIF-OREF (Cap Métiers Nouvelle-Aquitaine), vie-publique.fr. Adresse de
+la source obligatoire. Ne propose pas un terme dont tu n'as pas trouvé de source officielle :
 mieux vaut une liste courte et sûre. Pas d'avis, pas de recommandation.
 
 Pour chaque terme, renseigne EXACTEMENT ces champs, dans cet ordre :
-- id : identifiant court en minuscules avec des traits d'union (ex. « contrat-valorisation-experience »)
+- id : identifiant court en minuscules avec des traits d'union (ex. contrat-valorisation-experience)
 - titre : le terme tel qu'on l'écrit (sigle développé entre parenthèses si utile)
-- titreDeTri : le titre sans accents, cédilles ni apostrophes
-- type : terme (par défaut) ou notion (concept qui demande un gabarit - rare ; signale-le)
-- gabarit : SEULEMENT si type = notion, un parmi : explication, comparatif, decryptage,
-  grille-lecture, deroule-demarche, role ; sinon laisse vide
-- univers : UNE seule valeur parmi cette liste, jamais autre chose :
-  accompagnement-insertion, emploi-recrutement, ressources-humaines,
-  organisation-travail-management, droit-travail, contrats-statuts-emploi, formation,
-  bulletin-salaire, protection-sociale, sante-travail, structures-organismes, dispositifs,
-  mobilite-budget, entrepreneuriat-independance, demarches-administratives, conditions-travail
-- registres : 1 à 3 valeurs parmi cette liste, jamais autre chose :
-  langage-cip, langage-rh, langage-juridique, langage-employeur, langage-administratif,
-  langage-france-travail
-- variantes : 1 à 4 façons qu'une personne aurait de chercher ça en langage naturel, sans doublon
-- corps : la définition en 2 à 4 phrases, langage simple, sigle développé une fois ; pour
-  un dispositif, dis à qui il s'adresse et ce qu'il permet
-- relations : 0 à 3 renvois « voir aussi » et 0 à 2 « à ne pas confondre » vers d'autres
-  termes du lexique, au format « identifiant (voir-aussi) » ou « identifiant (a-ne-pas-confondre) ».
-  N'utilise QUE des identifiants de la liste « TERMES EXISTANTS » ci-dessous. Si tu n'es pas
-  sûr, laisse vide.
-- collection : si cette entrée rejoint un regroupement thématique déjà existant du Lexique,
-  dis-le en clair (ex. « rejoint la collection sur l'accompagnement ») ; sinon laisse vide.
-  C'est une note pour la relecture, pas un champ de la fiche.
 - statut : nouveau / evolue / obsolete
 - changement : seulement si évolué ou obsolète, ce qui a changé et par quoi c'est remplacé
-- source : nom-court | titre | https://adresse | AAAA-MM-JJ
+- fait_brut : ce que dit la source officielle sur ce terme, TEL QUEL (à qui il s'adresse, ce
+  qu'il permet, conditions, montants) - pas une définition simplifiée, le fait complet
+- source : nom-court | titre | https://adresse | JJ/MM/AAAA
 
-TERMES EXISTANTS (identifiant | titre) - pour les relations et pour éviter les doublons :
-[l'outil colle ici la liste des id | titre de data/lexique.js]
+TERMES EXISTANTS, pour ne pas proposer un doublon (identifiant | titre) :
+[l'outil colle ici la liste lue dans data/lexique.js]
 
-Termine par un bloc entre [LEXIQUE] et [/LEXIQUE], une entrée par terme, séparées par une
-ligne vide, les champs dans l'ordre ci-dessus (une ligne « champ: valeur » chacun).
-[LEXIQUE]
+Termine par un bloc entre [LEXIQUE-BRUT] et [/LEXIQUE-BRUT], une entrée par terme, séparées par
+une ligne vide, les champs dans l'ordre ci-dessus (une ligne « champ: valeur » chacun).
+[LEXIQUE-BRUT]
 id: ...
 titre: ...
-titreDeTri: ...
-type: terme
-gabarit:
-univers: ...
-registres: ..., ...
-variantes: ..., ...
-corps: ...
-relations: identifiant (voir-aussi)
-collection:
 statut: nouveau | evolue | obsolete
 changement: -
-source: nom-court | titre | https://adresse | AAAA-MM-JJ
-[/LEXIQUE]
+fait_brut: ...
+source: nom-court | titre | https://adresse | JJ/MM/AAAA
+[/LEXIQUE-BRUT]
 ```
 
-### La sortie
+(L'assistant en ligne ne classe rien et ne rédige rien : la famille, les registres, les mots de
+recherche, le texte et les renvois sont choisis par Denis dans le formulaire du mot.)
 
-Un fichier `lexique-candidats-<mois>.js` : **un objet `LEXIQUE_FICHES` par entrée**, prêt à coller
-dans `data/lexique.js` (bloc de la famille correspondante), avec `statut` / `changement` / `source` /
-`collection` en **commentaire** au-dessus (jamais dans l'objet). La ligne `gabarit:` n'est écrite dans
-l'objet **que** si `type: notion` ; sur un `terme`, elle est omise. Denis relit, garde ce qui vaut ;
-je colle, `node scripts/checkLexique.js` (0 erreur ET 0 avertissement attendus, LECONS 9.26), commit.
+**`docs/CORPUS_LEXIQUE.md`** : doc éditorial de 42 fiches, **marqué périmé le 2026-09-06**. La source de
+vérité est `data/lexique.js`. Conservé pour l'historique ; ne rien y ajouter.
 
-Exemple d'une entrée produite :
+### 5quater.2 - Les chiffres à jour d'une fiche, et leur revérification tous les 6 mois (21 octobre 2026)
 
-```js
-// nouveau · source : Le contrat de valorisation de l'expérience |
-//   https://travail-emploi.gouv.fr/le-contrat-de-valorisation-de-lexperience-cve | 2026-09-06
-{
-  id: 'contrat-valorisation-experience',
-  titre: "Contrat de valorisation de l'expérience (CVE)",
-  titreDeTri: "Contrat de valorisation de l experience CVE", type: 'terme',
-  univers: 'contrats-statuts-emploi',
-  registres: ['langage-juridique', 'langage-rh', 'langage-france-travail'],
-  variantesRecherche: ['CVE', 'contrat senior', "embaucher un demandeur d'emploi de plus de 60 ans"],
-  corps: "Le contrat de valorisation de l'expérience (CVE) est un contrat à durée indéterminée créé à titre expérimental par la loi du 24 octobre 2025 (jusqu'en 2030) pour faciliter l'embauche des demandeurs d'emploi de 60 ans et plus (57 ans si un accord de branche le prévoit). Il permet de compléter ses trimestres jusqu'à la retraite à taux plein. Pour l'employeur, il ouvre une exonération partielle de cotisations sur l'indemnité de mise à la retraite, pendant trois ans.",
-  relations: [
-    { ficheId: 'cdi', type: 'voir-aussi' }
-  ]
-}
-```
+Chantier `docs/CHANTIER_LEXIQUE_CHIFFRES_A_JOUR_2026-10-20.md`. Décision de Denis : ne pas niveler par le bas, donner l'information à jour avec le maximum de détails utiles, tant qu'elle est vérifiée.
 
-**`docs/CORPUS_LEXIQUE.md`** : doc éditorial de 42 fiches, **marqué périmé le 2026-09-06** (en-tête
-du fichier). La source de vérité est `data/lexique.js` (154 fiches). Conservé pour l'historique
-éditorial ; ne rien y ajouter. Le régénérer depuis `data/lexique.js` (vue de relecture markdown)
-reste une option ouverte, non faite.
+**Le principe.** Une fiche a un **texte de fond sans chiffre qui vieillit** et, si besoin, un **bloc « Les chiffres à jour »** (champ `detailsAJour` de `data/lexique.js`) : date de vérification, source officielle (nom et adresse https), lignes (libellé, valeur, catégorie, « peut changer »), 8 lignes au plus. L'application n'affiche le bloc que s'il a été **vérifié depuis moins de 6 mois** (constante `LEXIQUE_SEUIL_MOIS_DETAILS` de `modules/lexique/index.js`, lue aussi par l'outil) ; sinon un **message général**, le même pour toutes les fiches, renvoie à la source officielle. Un bloc dont aucune ligne ne peut changer (faits passés) ne se périme jamais. Une fiche migrée mais jamais vérifiée montre le message général. **Aucun bouton de modification dans l'application.**
 
-### 5quater.1 - `[TRIAGE-MOTS]` : le terme existe-t-il déjà ?
+**Retrouver les fiches concernées (existantes et futures).** Un seul détecteur, `scripts/reperesChiffres.js` : date ou année, montant, durée, pourcentage, référence de texte, âge ou seuil ; les chiffres des noms (115, bulletin n° 3, A1 à C2) et les tournures (« un jour relancé », « d'un trimestre à l'autre ») ne sont pas des repères. Il sert à l'outil (formulaire, filtres de la liste), à `scripts/checkLexique.js` et aux essais : **un chiffre dans le texte d'une fiche absente de la liste de transition est une erreur**, quelle que soit la façon dont la fiche est arrivée (écrite à la main, créée dans l'outil, modifiée par Claude). La liste de transition (`outils/lexique_transition_chiffres.txt`) ne fait que rétrécir.
 
-> Documentation d'abord (2026-09-06). Se colle après un `[LEXIQUE]`, quand il y a plusieurs candidats.
-> Pas besoin de recherche web.
+**Dans « Le Lexique » de l'outil.** Formulaire d'un mot : bloc « Les chiffres à jour » (lignes, source, case « J'ai ouvert la source », bouton « Marquer comme vérifié le … » : la date ne change jamais toute seule), « Placer dans le bloc » (les chiffres repérés dans le texte deviennent des lignes), avant et après du bloc. Liste des mots : filtres par catégorie et par état (à jour, bientôt à revérifier, périmé, jamais vérifié, faits qui ne changent pas), résumé « chiffres à revérifier ». Rappel : carte « Revérifier les chiffres des fiches » du menu Lexique (rythme « Tous les 6 mois ») et badge du Lexique sur l'accueil de l'outil.
+
+**Prompt de vérification par lot** (filtre « chiffres à revérifier », bouton « Préparer la vérification de ces fiches », huit fiches au plus, les plus en retard d'abord ; routes `/api/lexique/verification-prompt` et `/api/lexique/verification-lire`). Il reprend la structure du complément qui marche (`docs/PROMPT_VERIFICATION_COMPLEMENT_QUI_MARCHE_2026-10-17.md`) : recherche web, sites officiels seulement, règle par cas « confirmé », « corrigé », « non vérifiable », forums, blogs et comparateurs interdits, suite en PARTIE 2, aucun commentaire. Réponse attendue entre `[LEXIQUE-CHIFFRES]` et `[/LEXIQUE-CHIFFRES]`, une ligne par valeur :
 
 ```
-Voici des entrées candidates repérées par la veille pour le Lexique, et la liste des
-fiches existantes du Lexique. Pour CHAQUE entrée candidate, dis-moi :
-- existe déjà : donne l'identifiant exact de la fiche existante, action MISE À JOUR ;
-- nouveau : action NOUVEAU MOT ;
-- hors périmètre du Lexique (trop pointu, éphémère, pas un mot du champ insertion) :
-  action ÉCARTÉ.
-Ne réécris rien. Ne cherche rien sur le web.
-
-CANDIDATS :
-[coller le bloc [LEXIQUE]]
-
-FICHES EXISTANTES (identifiant | titre) :
-[coller la liste des id | titre de data/lexique.js]
-
-Termine par un bloc entre [TRIAGE-MOTS] et [/TRIAGE-MOTS], une ligne par candidat :
-[TRIAGE-MOTS]
-- terme: <titre candidat> | fiche: <identifiant existant ou « aucune »> | action: <MISE À JOUR | NOUVEAU MOT | ÉCARTÉ> | note: <une ligne>
-[/TRIAGE-MOTS]
+identifiant de la fiche | libellé | statut | valeur lue sur la page officielle | URL exacte de la page lue | ce que tu as lu
 ```
 
-La sortie se recopie dans `docs/NOUVEAUTES_A_STATUER.md` (une ligne par mot, colonne « Fiche(s)
-concernée(s) » = l'`id` Lexique ou « nouveau mot »).
+L'outil lit la réponse contre les vrais blocs (libellé exact, tableau markdown toléré, adresse https seulement) et montre des **propositions** : « Ouvrir la fiche avec les valeurs proposées » les met dans le bloc sans rien enregistrer. L'assistant propose, **Denis ouvre la source, coche et enregistre**.
+
+**Migration des fiches existantes (21 octobre 2026).** Les 69 fiches de la liste de transition ont chacune une proposition (texte de fond sans chiffre, lignes du bloc reprises du texte actuel, source) dans `outils/sas/migration_chiffres.sas.txt` (7 lots ; trois fiches sans bloc). Bouton « Proposition de migration (lot N) » dans la liste des mots : la proposition se met à l'écran sans rien enregistrer ; Denis relit, corrige, enregistre ; la fiche sort alors de la liste de transition dans le même enregistrement.
+
+### 5quater.1 - Le prompt `[TRIAGE-MOTS]` n'existe plus
+
+Retiré le 20 octobre 2026 (décision 6 de Denis) : le tri « ce mot existe-t-il déjà ? » est fait par le
+code de l'outil (identifiant identique, titre proche, mot déjà en liste ou déjà écarté), sans assistant
+en ligne et sans coût. Voir « Ma liste » ci-dessus.
 
 ---
 
@@ -1217,8 +1201,8 @@ L'outil prépare **un des trois prompts** selon la destination choisie. Décisio
   - **Comprendre le cadre** : l'assistant dit à quel(s) rayon(s) le texte se rattache, puis produit
     des blocs `[FICHE n]` (même format que le prompt 2) et un bloc `[COLLECTE]` (sources +
     structures avec portée). Dépôt à la main dans `contenu/`.
-  - **Lexique** : bloc `[LEXIQUE]` au format de 5quater. Peut se coller dans le bloc « Nourrir le
-    Lexique » de l'outil (« Lire »), ou directement dans `CORPUS_LEXIQUE.md`.
+  - **Lexique** : bloc `[LEXIQUE-BRUT]` (§ 5quater, porte C). Se colle dans la fenêtre « Le Lexique »
+    de l'outil (« Les mots à proposer », « Coller ici et lire »).
   - **Chiffres** : bloc `[CHIFFRES]`. **Le prompt existe, le branchement vers le module « Comprendre
     les chiffres » est reporté** à la construction de ce module (voir
     `CHANTIER_IMPORT_MANUEL_VEILLE.md`).
@@ -1297,6 +1281,9 @@ trois, sources repointées vers des clés déjà datées (voir `docs/PAQUET_B_BL
 ---
 
 ## 5octies. `[ASSOCIATIONS]` - l'annuaire associatif 24 / 87 (le circuit veille -> « Près de chez moi »)
+
+> **RETIRÉ le 20/10/2026** : le bloc de recherche ouverte correspondant a été supprimé de l'outil de veille (décision de Denis : pas de recherche ouverte à l'extérieur). Le repérage des structures se fait désormais dans l'onglet « Structures d'aide » de l'outil de prospection (saisie à la main, texte lu sur une photo, page d'un partenaire), puis le pont vers le sas. Voir `docs/CHANTIER_PROSPECTION_PONT_REPERAGE_PETITES_STRUCTURES_2026-10-20.md`. Ce qui suit est conservé pour mémoire, ne plus l'utiliser.
+
 
 **Rôle :** repérer les **associations et structures non officielles** (monde associatif, insertion,
 accompagnement social, solidarité) actives en Dordogne (24) et en Haute-Vienne (87), et les rattacher
@@ -1414,7 +1401,7 @@ Le panneau **« Ce trimestre »** (en haut, en miroir de « Ce mois-ci ») liste
 chacun dès que son bloc a été lu. On voit d'un coup ce qui reste.
 
 Quatre blocs séparés : « Balayage trimestriel » (les changements officiels), « Chiffres clés du
-trimestre » (les valeurs), « Nourrir le Lexique » (les termes), « À confronter » (le non officiel,
+trimestre » (les valeurs), la fenêtre « Le Lexique » (les mots), « À confronter » (le non officiel,
 recoupé). Chacun a son prompt déjà généré à l'ouverture, pour le dernier trimestre civil complet (ou
 un autre, en choisissant un mois du trimestre voulu). Copier, lancer en recherche web, recoller le
 bloc (`[BALAYAGE]` / `[CHIFFRES]` / `[LEXIQUE]` / `[CONFRONTER]`), relire l'aperçu, télécharger vers
@@ -1477,7 +1464,7 @@ tombale). On ne garde jamais une information fausse « pour l'historique ».
   (2026-09-06), puis câblés en blocs `veille.html` (mode « Entretenir la base », section « Chaque
   trimestre ») dans le même passage. La section « Comment ça marche » de `veille.html` décrit le
   circuit pour qu'il soit reproductible sans Denis.
-- `[LEXIQUE]` retargeté et `[TRIAGE-MOTS]` (§ 5quater, 5quater.1) : chantier veille -> mots, 2026-09-06.
+- (Historique, remplacé le 20 octobre 2026 par la fenêtre « Le Lexique », § 5quater : le bloc « Nourrir le Lexique » et le prompt `[TRIAGE-MOTS]` n'existent plus.) `[LEXIQUE]` retargeté et `[TRIAGE-MOTS]` : chantier veille -> mots, 2026-09-06.
   Bloc 1 (doc) + bloc 2 (rewire du bloc « Nourrir le Lexique » de `veille.html` vers le format objet
   `data/lexique.js`, champ « termes existants », bouton `[TRIAGE-MOTS]`) + bloc 3
   (`docs/CORPUS_LEXIQUE.md` marqué périmé ; « Comment ça marche » de `veille.html` complété) : faits.

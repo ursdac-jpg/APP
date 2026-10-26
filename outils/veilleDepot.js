@@ -13,17 +13,22 @@ const crypto = require('crypto');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const lexique = require('./veilleLexique.js');
+const motsLexique = require('./veilleMots.js');
+const reperesChiffres = require('../scripts/reperesChiffres.js');
+const reglesLexique = require('../scripts/checkLexique.js');
+const ideesLexique = require('./veilleIdees.js');
 const liens = require('./veilleLiens.js');
 const territoire = require('./veilleTerritoire.js');
 const controle = require('./veilleControle.js');
 const sas = require('./veilleSas.js');
+const { creerPont, FICHIERS: pontFichiers } = require('./veillePont.js');
 const chg = require('./veilleChangements.js');
 const ficheChamps = require('./veilleFiche.js');
 const choix = require('./veilleChoix.js');
 const chiffres = require('./veilleChiffres.js');
 const sansNumero = require('./veilleSansNumero.js');
 const logiqueTerritoire = require('../modules/mon-territoire/logique.js');
-const RE_TERRITOIRE_CHIFFRES = /^(departements-region|regions-france|zones-emploi|(medecins|dentistes|pharmaciens|specialistes)-(departements-region|regions-france))\.md$/;
+const RE_TERRITOIRE_CHIFFRES = /^(departements-region|regions-france|zones-emploi|entreprises-departements|(medecins|dentistes|pharmaciens|specialistes)-(departements-region|regions-france))\.md$/;
 
 // Les fichiers de chiffres que l'outil sait modifier : digest trimestriel, fiches de territoire, documents annuels (portrait, Europe) et fiches methode
 // (celles de « Comprendre les chiffres » : « methode/<id>.md » ; celles de « Comprendre le cadre » : « cadre-methode/<id>.md »). Rend { forme, chemin: [...] } ou null.
@@ -97,6 +102,7 @@ const LEX = {
   variantes: new RegExp('^  variantesRecherche: \\[(' + CH + '(, ' + CH + ')*)?\\],$'),
   corps: new RegExp('^  corps: ' + CH + ',?$'),
   relOuvre: /^  relations: \[$/,
+  relVide: /^  relations: \[\]$/,
   relItem: /^    \{ ficheId: '[a-z0-9-]+', type: '(voir-aussi|a-ne-pas-confondre)' \},?$/,
   relFerme: /^  \]$/
 };
@@ -123,6 +129,10 @@ function analyserCandidatsLexique(brut) {
         const manque = requis.filter(function (k) { return !champs.vus[k]; });
         if (manque.length) { return { ok: false, erreur: 'Ligne ' + n + ' : entree incomplete (manque : ' + manque.join(', ') + ').' }; }
         etat = 'dehors'; gardees.push(l); gardees.push(''); continue;
+      }
+      if (LEX.relVide.test(l)) {
+        if (!champs.vus.corps) { return { ok: false, erreur: 'Ligne ' + n + ' : « relations » avant « corps ».' }; }
+        champs.dernier = ordre.length; gardees.push(l); continue;
       }
       if (LEX.relOuvre.test(l)) {
         if (!champs.vus.corps) { return { ok: false, erreur: 'Ligne ' + n + ' : « relations » avant « corps ».' }; }
@@ -181,7 +191,9 @@ function integrerCandidatsLexique(contenu, candidats, mois, options) {
     const fin = lexique.objetsDeLaListe(texte).finListe;
     let avant = texte.slice(0, fin).replace(/\s+$/, '');
     if (!/,$/.test(avant)) { avant += ','; }
-    const entete = '\n\n  // -- Ajouts de la veille ' + String(mois || '') + ' --\n\n';
+    const titreBloc = '// -- Ajouts de la veille ' + String(mois || '') + ' --';
+    // Un deuxieme ajout du meme mois s'ajoute a la suite du premier, sans repeter le titre du bloc.
+    const entete = texte.indexOf(titreBloc) !== -1 ? '\n\n' : '\n\n  ' + titreBloc + '\n\n';
     const corps = nouvelles.map(function (e) {
       return e.lignes.map(function (l) { return '  ' + l; }).join('\n');
     }).join('\n\n');
@@ -237,6 +249,24 @@ function validerFichier(racine, f, rayons) {
     if (!cib) { return { ok: false, erreur: 'Fichier de chiffres non pris en charge : ' + nom.slice(0, 50) + '.' }; }
     if (!f.demande || typeof f.demande !== 'object' || Array.isArray(f.demande)) { return { ok: false, erreur: nom + ' : aucune modification a enregistrer.' }; }
     return { ok: true, chemin: cib.chemin.join('/'), type: 'chiffres-champs', rayon: '', nom: nom, texte: '', demande: f.demande, phrase: String(f.phrase || ''), forme: cib.forme };
+  }
+  if (type === 'mots-liste') {
+    // « Ma liste » du Lexique (mots proposes, jamais lus par l'application) : des ACTIONS (ajouter, changer l'etat, ecrire un brouillon) que veilleIdees.js applique.
+    if (!Array.isArray(f.actions) || !f.actions.length) { return { ok: false, erreur: 'Aucune modification de la liste des mots a enregistrer.' }; }
+    if (f.actions.length > 100) { return { ok: false, erreur: 'Trop d\'actions d\'un coup (100 au plus).' }; }
+    return { ok: true, chemin: ideesLexique.CHEMIN_LISTE, type: 'mots-liste', fichier: '', rayon: '', nom: path.basename(ideesLexique.CHEMIN_LISTE), texte: '', actions: f.actions };
+  }
+  if (type === 'lexique-champs') {
+    // Un mot EXISTANT du Lexique modifie champ par champ : pas de texte envoye, des champs que veilleLexique.remplacerChamps applique (jamais une creation).
+    const idM = String(f.id || '');
+    if (!/^[a-z0-9][a-z0-9-]{0,100}$/.test(idM)) { return { ok: false, erreur: 'Identifiant de mot refuse.' }; }
+    if (!f.champs || typeof f.champs !== 'object' || Array.isArray(f.champs) || !Object.keys(f.champs).length) { return { ok: false, erreur: idM + ' : aucune modification a enregistrer.' }; }
+    return { ok: true, chemin: CHEMIN_LEXIQUE, type: 'lexique-champs', rayon: '', nom: idM, texte: '', champs: f.champs, phrase: String(f.phrase || '') };
+  }
+  if (type === 'lexique-nouveau') {
+    // Un mot NEUF, ecrit dans l'ecran « Le Lexique » (jamais un fichier de candidats a recopier) : ses champs, que veilleMots.js controle puis ecrit dans la forme stricte.
+    if (!f.mot || typeof f.mot !== 'object' || Array.isArray(f.mot)) { return { ok: false, erreur: 'Mot neuf mal forme.' }; }
+    return { ok: true, chemin: CHEMIN_LEXIQUE, type: 'lexique-nouveau', rayon: '', nom: String(f.mot.id || ''), texte: '', mot: f.mot, origine: String(f.origine || ''), sasId: String(f.sasId || '') };
   }
   if (type === 'liens') {
     // Registre des adresses : pas de texte envoye, des ACTIONS (valider, modifier, supprimer, ajouter) que veilleLiens.js applique ligne par ligne.
@@ -329,6 +359,8 @@ function creerDepot(racine, options) {
   const lancer = opt.lancerCommande || function (prog, args) { return lancerCommande(racine, prog, args); };
   const git = function (args) { return lancer('git', args); };
   let derniere = null;   // { hash, chemins } : la derniere publication de cette seance (la seule annulable)
+  // La liste de transition des chiffres du Lexique (fichier lu aussi par scripts/checkLexique.js, qui en est l'autorite) : les fiches dont le texte garde un chiffre.
+  function transitionIds() { const b = lireOuNull(path.resolve(racine, 'outils/lexique_transition_chiffres.txt')); return b === null ? [] : reglesLexique.lireTransition(b.toString('utf8')); }
 
   // Les lignes d'etat « XY chemin » d'un `git status --porcelain` (git peut y mele des avertissements, par exemple pour un dossier qui n'existe pas encore : ce ne sont pas des modifications).
   // REPÈRE D'ENREGISTREMENT : posé juste avant d'écrire les fichiers, retiré quand tout est fini. S'il reste, l'enregistrement a été interrompu (page ou fenêtre fermée, programme arrêté).
@@ -431,8 +463,8 @@ function creerDepot(racine, options) {
     const prevus = {};   // chemin -> nouveau contenu (Buffer)
     const nouvelles = [];
     const journalAjouts = [];
-    let motsAjoutes = [], motsRemplaces = [], resumeLiens = null, resumeTerritoire = null, resumeSas = null, resumeSansNumero = null, resumeChangements = null;
-    const resumeFiches = [], resumeChiffres = [];
+    let resumeListe = null, motsAjoutes = [], motsRemplaces = [], resumeLiens = null, resumeTerritoire = null, resumeSas = null, resumeSansNumero = null, resumeChangements = null;
+    const resumeFiches = [], resumeChiffres = [], resumeLexique = [];
     for (const v of valides) {
       if (v.type === 'lexique') {
         const courant = (lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE)) || Buffer.from('')).toString('utf8');
@@ -440,6 +472,82 @@ function creerDepot(racine, options) {
         if (!r.ok) { return { ok: false, code: r.code || 'lexique', ids: r.ids, erreur: v.nom + ' : ' + r.erreur }; }
         prevus[v.chemin] = Buffer.from(r.texte, 'utf8');
         motsAjoutes = motsAjoutes.concat(r.ajoutes); motsRemplaces = motsRemplaces.concat(r.remplaces);
+        continue;
+      }
+      if (v.type === 'mots-liste') {
+        const courantM = (lireOuNull(path.resolve(racine, v.chemin)) || Buffer.from('')).toString('utf8');
+        const lxM = lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE)), tousM = lxM ? lexique.lireMots(lxM.toString('utf8')) : null;
+        if (!tousM) { return { ok: false, code: 'lexique', erreur: 'data/lexique.js : liste LEXIQUE_FICHES introuvable.' }; }
+        const r = ideesLexique.appliquer(courantM, v.actions, { existants: tousM, aujourdhui: aujourdhui() });
+        if (!r.ok) { return { ok: false, code: 'mots-liste', erreur: r.erreur }; }
+        if (!r.resume.ajoutees.length && !r.resume.changees && !r.resume.brouillons) { return { ok: false, code: 'mots-liste-rien', erreur: r.resume.ignorees.length ? 'Rien à ajouter : ' + r.resume.ignorees.map(function (x) { return '« ' + x.mot + ' » ' + (x.raison === 'existe' ? 'existe déjà dans le Lexique' : 'est déjà dans votre liste'); }).join(' ; ') + '.' : 'Ces modifications ne changent rien à la liste.' }; }
+        prevus[v.chemin] = Buffer.from(r.texte, 'utf8'); resumeListe = r.resume;
+        continue;
+      }
+      if (v.type === 'lexique-champs' || v.type === 'lexique-nouveau') {
+        const courantLx = (lireOuNull(path.resolve(racine, CHEMIN_LEXIQUE)) || Buffer.from('')).toString('utf8');
+        const tousLx = lexique.lireMots(courantLx);
+        if (!tousLx) { return { ok: false, code: 'lexique', erreur: 'data/lexique.js : liste LEXIQUE_FICHES introuvable.' }; }
+        const quand = maintenant();
+        const vide = { titre: '', titreDeTri: '', univers: '', registres: [], variantes: [], corps: '', relations: [] };
+        if (v.type === 'lexique-champs') {
+          const original = tousLx.filter(function (x) { return x.id === v.nom; })[0];
+          if (!original) { return { ok: false, code: 'mot-absent', erreur: v.nom + ' : ce mot n\'existe pas dans le Lexique (la creation d\'un mot ne passe pas par cette voie).' }; }
+          const mot = Object.assign({}, original, v.champs);
+          const verif = motsLexique.verifierMot(mot, tousLx.filter(function (x) { return x.id !== v.nom; }), { original: original, phrase: v.phrase, transition: transitionIds() });
+          if (verif.erreurs.length) { return { ok: false, code: 'lexique-mot', erreur: v.nom + ' : ' + verif.erreurs[0], erreurs: verif.erreurs }; }
+          if (!verif.modifies.length) { return { ok: false, code: 'lexique-rien', erreur: v.nom + ' : ces modifications ne changent rien au mot.' }; }
+          const aEcrire = {};
+          verif.modifies.forEach(function (c) {
+            aEcrire[c] = (c === 'titre' || c === 'corps') ? String(mot[c]).trim() : (c === 'variantes' ? mot[c].map(function (x) { return String(x).trim(); }).filter(Boolean) : mot[c]);
+          });
+          const r = lexique.remplacerChamps(courantLx, v.nom, aEcrire);
+          if (!r.ok) { return { ok: false, code: 'lexique-ecriture', erreur: v.nom + ' : ' + r.erreur }; }
+          prevus[v.chemin] = Buffer.from(r.texte, 'utf8');
+          const apresMot = Object.assign({}, mot, aEcrire);
+          // Migration : si le texte du mot n'a plus aucun chiffre et que la fiche etait sur la liste de transition, elle en sort DANS LE MEME enregistrement
+          // (sinon la verification du Lexique refuserait : une fiche listee doit encore avoir un chiffre).
+          if (transitionIds().indexOf(v.nom) !== -1 && !reperesChiffres.reperes(String(apresMot.corps || '')).length) {
+            const cheminT = 'outils/lexique_transition_chiffres.txt', brutT = (lireOuNull(path.resolve(racine, cheminT)) || Buffer.from('')).toString('utf8');
+            prevus[cheminT] = Buffer.from(brutT.split('\n').filter(function (l) { return l.replace(/#.*$/, '').trim() !== v.nom; }).join('\n'), 'utf8');
+          }
+          const diffs = motsLexique.differences(original, apresMot);
+          const ancienEvo = (lireOuNull(path.resolve(racine, motsLexique.CHEMIN_EVOLUTION)) || Buffer.from('')).toString('utf8');
+          prevus[motsLexique.CHEMIN_EVOLUTION] = Buffer.from(motsLexique.ajouterEvolution(ancienEvo, motsLexique.lignesEvolution(quand, v.nom, apresMot.titre, 'modifié', v.phrase, diffs)), 'utf8');
+          journalAjouts.push(quand + ' | lexique | ' + v.nom + ' | modifiée | ' + String(v.phrase || '').replace(/\|/g, '/'));
+          resumeLexique.push({ mot: v.nom, titre: apresMot.titre, action: 'modifié', champs: verif.modifies, avertissements: verif.avertissements });
+          motsRemplaces.push(v.nom);
+        } else {
+          const mot = {
+            id: String(v.mot.id || '').trim(), titre: String(v.mot.titre || '').trim(), titreDeTri: String(v.mot.titreDeTri || '').trim(), type: v.mot.type === 'notion' ? 'notion' : 'terme', gabarit: v.mot.type === 'notion' ? String(v.mot.gabarit || '') : '', univers: String(v.mot.univers || ''),
+            registres: Array.isArray(v.mot.registres) ? v.mot.registres : [], variantes: (Array.isArray(v.mot.variantes) ? v.mot.variantes : []).map(function (x) { return String(x).trim(); }).filter(Boolean),
+            corps: String(v.mot.corps || '').trim(), relations: Array.isArray(v.mot.relations) ? v.mot.relations : [], chiffres: '', details: v.mot.details || null
+          };
+          const verif = motsLexique.verifierMot(mot, tousLx, { nouveau: true, transition: transitionIds() });
+          if (verif.erreurs.length) { return { ok: false, code: 'lexique-mot', erreur: (mot.id || 'mot neuf') + ' : ' + verif.erreurs[0], erreurs: verif.erreurs }; }
+          const cand = analyserCandidatsLexique(motsLexique.lignesPourInsertion(mot).join('\n') + '\n');
+          if (!cand.ok) { return { ok: false, code: 'lexique-ecriture', erreur: mot.id + ' : ' + cand.erreur }; }
+          const r = integrerCandidatsLexique(courantLx, { ids: cand.ids, texte: cand.texte, entrees: cand.entrees }, quand.slice(0, 7), {});
+          if (!r.ok) { return { ok: false, code: r.code || 'lexique', ids: r.ids, erreur: mot.id + ' : ' + r.erreur }; }
+          let texteNeuf = r.texte;
+          if (mot.details) {   // un mot neuf peut naitre avec son bloc « Les chiffres a jour » : insere dans le meme enregistrement
+            const rd = lexique.remplacerChamps(texteNeuf, mot.id, { details: mot.details });
+            if (!rd.ok) { return { ok: false, code: 'lexique-ecriture', erreur: mot.id + ' : ' + rd.erreur }; }
+            texteNeuf = rd.texte;
+          }
+          prevus[v.chemin] = Buffer.from(texteNeuf, 'utf8');
+          const ancienEvo = (lireOuNull(path.resolve(racine, motsLexique.CHEMIN_EVOLUTION)) || Buffer.from('')).toString('utf8');
+          prevus[motsLexique.CHEMIN_EVOLUTION] = Buffer.from(motsLexique.ajouterEvolution(ancienEvo, motsLexique.lignesEvolution(quand, mot.id, mot.titre, 'créé', v.origine, motsLexique.differences(vide, mot))), 'utf8');
+          journalAjouts.push(quand + ' | lexique | ' + mot.id + ' | ajoutée | ' + String(v.origine || '').replace(/\|/g, '/'));
+          resumeLexique.push({ mot: mot.id, titre: mot.titre, action: 'créé', champs: motsLexique.CHAMPS, avertissements: verif.avertissements });
+          motsAjoutes.push(mot.id);
+          if (v.sasId) {
+            const cheminL = ideesLexique.CHEMIN_LISTE, courantL2 = prevus[cheminL] ? prevus[cheminL].toString('utf8') : (lireOuNull(path.resolve(racine, cheminL)) || Buffer.from('')).toString('utf8');
+            const rl = ideesLexique.appliquer(courantL2, [{ op: 'publie', k: v.sasId }], { existants: tousLx, aujourdhui: aujourdhui() });
+            if (!rl.ok) { return { ok: false, code: 'mots-liste', erreur: rl.erreur }; }
+            prevus[cheminL] = Buffer.from(rl.texte, 'utf8');
+          }
+        }
         continue;
       }
       if (v.type === 'chiffres-champs') {
@@ -535,7 +643,7 @@ function creerDepot(racine, options) {
     // Ne jamais ecraser un travail en cours : un fichier cible deja modifie et non enregistre arrete tout.
     const cibles = Object.keys(prevus);
     // Fichiers EXISTANTS qui vont etre remplaces (une fiche mise a jour, un digest refait) : signales dans le bilan.
-    const remplaces = valides.filter(function (v) { return v.type !== 'lexique' && v.type !== 'liens' && v.type !== 'territoire' && v.type !== 'sas' && v.type !== 'changements' && fs.existsSync(path.resolve(racine, v.chemin)); }).map(function (v) { return v.chemin; });
+    const remplaces = valides.filter(function (v) { return v.type !== 'lexique' && v.type !== 'lexique-champs' && v.type !== 'lexique-nouveau' && v.type !== 'liens' && v.type !== 'territoire' && v.type !== 'sas' && v.type !== 'changements' && fs.existsSync(path.resolve(racine, v.chemin)); }).map(function (v) { return v.chemin; });
     const st = git(['status', '--porcelain', '--'].concat(cibles));
     if (st.code === 0 && lignesModifiees(st).length) {
       return { ok: false, code: 'travail-en-cours', erreur: 'Un enregistrement précédent a été interrompu : le fichier ' + lignesModifiees(st)[0].slice(3).trim() + ' contient des changements qui ne sont pas rangés dans l\'historique. Par prudence, rien n\'a été écrit. Un bandeau en haut de la page vous propose de terminer cet enregistrement ou de le défaire.' };
@@ -557,7 +665,7 @@ function creerDepot(racine, options) {
     } catch (e) { restaurer(); return { ok: false, code: 'ecriture', erreur: 'Ecriture impossible : ' + (e && e.message) }; }
 
     // Regeneration des copies derivees, puis tests.
-    const seulementSas = valides.every(function (v) { return v.type === 'sas' || v.type === 'sans-numero' || (v.type === 'changements' && !v.actions.some(function (a) { return a && a.op === 'valider'; })); });   // le sas n'est pas lu par l'application : rien a regenerer, rien a tester
+    const seulementSas = valides.every(function (v) { return v.type === 'sas' || v.type === 'mots-liste' || v.type === 'sans-numero' || (v.type === 'changements' && !v.actions.some(function (a) { return a && a.op === 'valider'; })); });   // le sas n'est pas lu par l'application : rien a regenerer, rien a tester
     const etapes = [];
     const base = path.join(racine, 'scripts', 'genererBaseVeille.js');
     if (!seulementSas && fs.existsSync(base)) { etapes.push(lancer(process.execPath, ['scripts/genererBaseVeille.js'])); }
@@ -566,7 +674,7 @@ function creerDepot(racine, options) {
     const echecGen = etapes.find(function (r) { return r.code !== 0; });
     if (echecGen) { restaurer(); return { ok: false, code: 'generation', erreur: 'La mise a jour des copies de l\'outil a echoue : rien n\'est publie.', details: echecGen.sortie.split('\n').slice(-15).join('\n') }; }
     let avertissementsLexique = [];
-    if (valides.some(function (v) { return v.type === 'lexique'; })) {
+    if (valides.some(function (v) { return v.type === 'lexique' || v.type === 'lexique-champs' || v.type === 'lexique-nouveau'; })) {
       const verif = lancer(process.execPath, ['scripts/checkLexique.js']);
       if (verif.code !== 0) { restaurer(); return { ok: false, code: 'lexique-verification', erreur: 'La verification du Lexique (checkLexique) a echoue : rien n\'est publie, tout est remis comme avant.', details: verif.sortie.split('\n').slice(-25).join('\n') }; }
       // Avertissements : non bloquants mais montres (par exemple un mot jamais cite par un autre).
@@ -597,7 +705,7 @@ function creerDepot(racine, options) {
       ok: true, commit: hash.slice(0, 8), fichiers: valides.map(function (v) { return v.chemin; }),
       nouvelles: nouvelles.map(function (v) { return v.nom.replace(/\.md$/, ''); }),
       nouveauxMots: motsAjoutes, motsRemplaces: motsRemplaces, resumeLiens: resumeLiens, resumeTerritoire: resumeTerritoire, resumeSas: resumeSas, resumeSansNumero: resumeSansNumero, resumeChangements: resumeChangements, resumeFiches: resumeFiches, resumeChiffres: resumeChiffres,
-      avertissementsLexique: avertissementsLexique, remplaces: remplaces,
+      avertissementsLexique: avertissementsLexique, resumeLexique: resumeLexique, resumeListe: resumeListe, remplaces: remplaces,
       resteAFaire: valides.some(function (v) { return v.type === 'fiche'; }) ? ['Dater les nouvelles adresses : ouvrez « Les adresses » dans le panneau Dépôt, cliquez chaque lien, puis « Valider » (il faut ouvrir et juger chaque page).'] : []
     };
   }
@@ -667,6 +775,37 @@ function creerDepot(racine, options) {
     return sas.analyserLot(f, texte, registresDuDepot(), t ? t.toString('utf8') : '', territoire.contexteDepuis(racine, aujourdhui()), aujourdhui());
   }
 
+  // ---------- Le pont depuis la prospection : lignes deposees par l'outil de prospection (lecture seule), sans celles que la veille connait deja ----------
+  const pont = opt.pont || creerPont(racine);
+  function inconnuesDuPont(f) {
+    const r = pont.lire(f);
+    if (!r.ok) { return r; }
+    const t = lireOuNull(path.resolve(racine, sas.CHEMINS[f])), texteSas = t ? t.toString('utf8') : '';
+    const regs = registresDuDepot(), ctx = territoire.contexteDepuis(racine, aujourdhui());
+    const connues = {}; let nbConnues = 0;
+    for (let i = 0; i < r.lignes.length; i += sas.MAX_LIGNES) {
+      const paquet = r.lignes.slice(i, i + sas.MAX_LIGNES);
+      const a = sas.analyserLot(f, paquet.join('\n'), regs, texteSas, ctx, aujourdhui());
+      if (!a.ok) { continue; }
+      a.lignes.forEach(function (l) { if (l.statut === 'connue' || l.statut === 'rien') { connues[i + l.numero - 1] = true; nbConnues++; } });
+    }
+    return { ok: true, deposeLe: r.deposeLe, total: r.lignes.length, connues: nbConnues, inconnues: r.lignes.filter(function (l, k) { return !connues[k]; }) };
+  }
+  // Rend au plus 100 lignes que la veille ne connait pas encore (le plafond d'un import) et dit combien restent.
+  function lirePont(fichier) {
+    const f = String(fichier || '');
+    if (!sas.CHEMINS[f] || f === 'complements') { return { ok: false, erreur: 'Destination inconnue.' }; }
+    const r = inconnuesDuPont(f);
+    if (!r.ok) { return r; }
+    return { ok: true, deposeLe: r.deposeLe, total: r.total, connues: r.connues, lignes: r.inconnues.slice(0, sas.MAX_LIGNES), restantes: Math.max(0, r.inconnues.length - sas.MAX_LIGNES) };
+  }
+  // Combien de lignes nouvelles attendent dans chaque fichier du pont (le bouton n'apparait que s'il y en a).
+  function etatPont() {
+    const o = {};
+    Object.keys(pontFichiers).forEach(function (f) { const r = inconnuesDuPont(f); o[f] = r.ok ? r.inconnues.length : 0; });
+    return { ok: true, nouvelles: o };
+  }
+
   // Le contenu du sas (fiches proposees en attente de verification).
   function listerSas(fichier) {
     const f = String(fichier || '');
@@ -680,6 +819,119 @@ function creerDepot(racine, options) {
     }
     if (r.ok) { r.aujourdhui = aujourdhui(); annoterEtablissements(r.lignes); if (f === 'employeurs') { annoterPresenceEnseignes(r.lignes); } }
     return r;
+  }
+
+  // ---------- Le Lexique : la liste des mots lue dans le depot, et les controles d'un mot (lecture seule) ----------
+  function lireTexteDepot(chemin) { const b = lireOuNull(path.resolve(racine, chemin)); return b ? b.toString('utf8') : null; }
+  function listerMots() {
+    const t = lireTexteDepot(CHEMIN_LEXIQUE);
+    if (t === null) { return { ok: false, erreur: 'data/lexique.js introuvable.' }; }
+    const mots = lexique.lireMots(t);
+    if (!mots) { return { ok: false, erreur: 'data/lexique.js : liste LEXIQUE_FICHES introuvable.' }; }
+    const cols = lexique.lireCollections(t), citations = motsLexique.citationsDuCadre(lireTexteDepot('data/lexique-renvois-cadre.js') || ''), modifs = dernieresModifications('lexique');
+    const entrants = {}, parColl = {};
+    mots.forEach(function (m) { m.relations.forEach(function (r) { entrants[r[0]] = (entrants[r[0]] || 0) + 1; }); });
+    cols.forEach(function (c) { c.fiches.forEach(function (id) { (parColl[id] = parColl[id] || []).push(c.titre); }); });
+    const module_ = lireTexteDepot('modules/lexique/index.js') || '', R = motsLexique.REGLES, seuilDetails = motsLexique.lireSeuilDetails(module_);
+    return {
+      ok: true, aujourdhui: aujourdhui(),
+      seuilMois: seuilDetails, migrations: propositionsMigration(), categories: reperesChiffres.CATEGORIES, mots: mots.map(function (m) { return Object.assign({}, m, { detailsEtat: motsLexique.etatDetails(m.details, aujourdhui(), seuilDetails), collections: parColl[m.id] || [], entrants: entrants[m.id] || 0, citeParCadre: citations[m.id] || 0, reperes: reperesChiffres.categoriesDe(m.corps), modifieLe: modifs[m.id] || '' }); }),
+      univers: motsLexique.libellesDepuis(module_, '_LEXIQUE_LIBELLES_UNIVERS', R.UNIVERS_CONNUS), registres: motsLexique.libellesDepuis(module_, '_LEXIQUE_LIBELLES_REGISTRES', R.REGISTRES_CONNUS),
+      regles: { maxVariantes: R.MAX_VARIANTES, maxVoirAussi: R.MAX_VOIR_AUSSI, maxNePasConfondre: R.MAX_A_NE_PAS_CONFONDRE, gabarits: R.GABARITS_CONNUS, maxLignesDetails: R.MAX_LIGNES_DETAILS },
+      evolution: motsLexique.lireEvolution(lireTexteDepot(motsLexique.CHEMIN_EVOLUTION) || '').slice(0, 3000)
+    };
+  }
+  // Les controles d'un mot (bloquants et avertissements), demandes par l'ecran pendant la saisie : l'ecran n'en recopie aucun.
+  // « Ma liste » : les idees de mots, avec leur etat (lecture seule).
+  function listerListe() {
+    const lx = lireTexteDepot(CHEMIN_LEXIQUE), tous = lx === null ? null : lexique.lireMots(lx);
+    if (!tous) { return { ok: false, erreur: 'data/lexique.js illisible.' }; }
+    const lignes = ideesLexique.parser(lireTexteDepot(ideesLexique.CHEMIN_LISTE) || '').map(ideesLexique.versObjet);
+    const nb = {}; ideesLexique.ETATS.forEach(function (e) { nb[e] = 0; }); lignes.forEach(function (l) { nb[l.etat] = (nb[l.etat] || 0) + 1; });
+    return { ok: true, lignes: lignes, nb: nb, motifs: ideesLexique.MOTIFS, aujourdhui: aujourdhui() };
+  }
+  // Porte A : les mots qui reviennent dans l'application sans fiche du Lexique (lecture seule, rien n'est ecrit).
+  function idees() {
+    const lx = lireTexteDepot(CHEMIN_LEXIQUE), tous = lx === null ? null : lexique.lireMots(lx);
+    if (!tous) { return { ok: false, erreur: 'data/lexique.js illisible.' }; }
+    const vus = ideesLexique.parser(lireTexteDepot(ideesLexique.CHEMIN_LISTE) || '').map(function (l) { return l.mot; });
+    const r = ideesLexique.repererIdees(racine, tous, vus, {});
+    return { ok: true, idees: r.idees, total: r.total, lus: r.lus };
+  }
+  // Les propositions de migration des chiffres (case M7) : outils/sas/migration_chiffres.sas.txt, une ligne JSON par fiche. Seules celles dont la fiche est ENCORE sur la liste de transition sont proposees.
+  function propositionsMigration() {
+    const brut = lireTexteDepot('outils/sas/migration_chiffres.sas.txt'), sortie = {};
+    if (!brut) { return sortie; }
+    const encore = transitionIds();
+    brut.split(/\r?\n/).forEach(function (l) {
+      if (!l.trim() || l.trim().charAt(0) === '#') { return; }
+      try { const p = JSON.parse(l); if (p && p.id && encore.indexOf(p.id) !== -1 && typeof p.fond === 'string' && p.source && Array.isArray(p.lignes)) { sortie[p.id] = p; } } catch (e) { /* ligne illisible : ignoree */ }
+    });
+    return sortie;
+  }
+  // Verification des chiffres du Lexique par lots (case M6) : le prompt pour un assistant en ligne, puis la lecture de sa reponse. Rien n'est ecrit : ce sont des propositions.
+  const MAX_FICHES_PAR_LOT = 8;
+  function fichesAvecBloc() {
+    const lx = lireTexteDepot(CHEMIN_LEXIQUE), tous = lx === null ? null : lexique.lireMots(lx);
+    if (!tous) { return null; }
+    const seuil = motsLexique.lireSeuilDetails(lireTexteDepot('modules/lexique/index.js') || '');
+    return tous.filter(function (m) { return m.details && !m.details.illisible && Array.isArray(m.details.lignes) && m.details.lignes.length; })
+      .map(function (m) { return { id: m.id, titre: m.titre, details: m.details, etat: motsLexique.etatDetails(m.details, aujourdhui(), seuil) }; });
+  }
+  function promptVerificationChiffres(d) {
+    const fiches = fichesAvecBloc();
+    if (!fiches) { return { ok: false, erreur: 'data/lexique.js illisible.' }; }
+    const demandes = d && Array.isArray(d.ids) && d.ids.length ? d.ids : null;
+    const ordre = { perime: 0, jamais: 1, bientot: 2, ajour: 3 };
+    let choix = fiches.filter(function (f) { return demandes ? demandes.indexOf(f.id) !== -1 : (f.etat === 'perime' || f.etat === 'jamais' || f.etat === 'bientot'); })
+      .sort(function (a, b) { return (ordre[a.etat] - ordre[b.etat]) || (a.details.verifieLe < b.details.verifieLe ? -1 : 1); });
+    if (!choix.length) { return { ok: false, erreur: 'Aucune fiche à revérifier : tous les blocs sont à jour (ou n\'ont que des faits qui ne changent pas).' }; }
+    const reste = Math.max(0, choix.length - MAX_FICHES_PAR_LOT);
+    choix = choix.slice(0, MAX_FICHES_PAR_LOT);
+    return { ok: true, prompt: motsLexique.promptVerificationChiffres(choix, aujourdhui()), fiches: choix.map(function (f) { return { id: f.id, titre: f.titre, etat: f.etat, nbLignes: f.details.lignes.length }; }), reste: reste, plafond: MAX_FICHES_PAR_LOT };
+  }
+  function lireVerificationChiffres(d) {
+    const fiches = fichesAvecBloc();
+    if (!fiches) { return { ok: false, erreur: 'data/lexique.js illisible.' }; }
+    const texte = String((d && d.texte) || '');
+    if (!texte.trim()) { return { ok: false, erreur: 'Rien à lire : collez d\'abord la réponse de l\'assistant.' }; }
+    const r = motsLexique.lireVerificationChiffres(texte, fiches);
+    if (!r.fiches.length) { return { ok: false, erreur: 'Aucune ligne reconnue dans cette réponse. Elle doit reprendre le format demandé : identifiant de la fiche | libellé | statut | valeur lue | adresse | ce qui a été lu.', inconnues: r.inconnues.slice(0, 10) }; }
+    return { ok: true, fiches: r.fiches, inconnues: r.inconnues.slice(0, 20) };
+  }
+  // Porte B : les recherches sans resultat collees depuis Umami (rien n'est ecrit ici : l'ecran montre les idees, Denis agit).
+  function recherchesSansResultat(d) {
+    const lx = lireTexteDepot(CHEMIN_LEXIQUE), tous = lx === null ? null : lexique.lireMots(lx);
+    if (!tous) { return { ok: false, erreur: 'data/lexique.js illisible.' }; }
+    const texte = String((d && d.texte) || '');
+    if (!texte.trim()) { return { ok: false, erreur: 'Rien à lire : collez d\'abord ce que vous avez copié dans Umami.' }; }
+    const vus = ideesLexique.parser(lireTexteDepot(ideesLexique.CHEMIN_LISTE) || '').map(function (l) { return l.mot; });
+    return ideesLexique.lireRecherches(texte, tous, vus, {});
+  }
+  // Porte D : ce mot existe-t-il deja, ou est-il proche d'un mot existant, ou deja dans la liste ?
+  function chercherMot(d) {
+    const lx = lireTexteDepot(CHEMIN_LEXIQUE), tous = lx === null ? null : lexique.lireMots(lx);
+    if (!tous) { return { ok: false, erreur: 'data/lexique.js illisible.' }; }
+    const mot = String((d && d.mot) || '').trim();
+    const r = ideesLexique.chercherDansLexique(mot, tous);
+    const deja = ideesLexique.parser(lireTexteDepot(ideesLexique.CHEMIN_LISTE) || '').filter(function (l) { return motsLexique.norm(l.mot) === motsLexique.norm(mot); })[0];
+    return { ok: true, exact: r.exact, proche: r.proche, dansLaListe: deja ? { k: deja.k, etat: deja.etat } : null };
+  }
+  // Ce que l'outil propose pour un mot neuf (jamais impose) : son identifiant et son titre de tri.
+  function proposerMot(d) {
+    const mot = String((d && d.mot) || '').trim();
+    if (!mot) { return { ok: false, erreur: 'Le mot est vide.' }; }
+    return { ok: true, id: motsLexique.idPropose(mot), titreDeTri: motsLexique.titreDeTriPropose(mot) };
+  }
+  function verifierMotLexique(d) {
+    const t = lireTexteDepot(CHEMIN_LEXIQUE), tous = t === null ? null : lexique.lireMots(t);
+    if (!tous) { return { ok: false, erreur: 'data/lexique.js illisible.' }; }
+    if (!d || typeof d.mot !== 'object' || !d.mot) { return { ok: false, erreur: 'Mot mal forme.' }; }
+    const original = d.nouveau ? null : (tous.filter(function (x) { return x.id === String(d.mot.id || ''); })[0] || null);
+    if (!d.nouveau && !original) { return { ok: false, erreur: 'Ce mot n\'existe pas dans le Lexique.' }; }
+    const mot = Object.assign({}, original || {}, d.mot);
+    const v = motsLexique.verifierMot(mot, tous.filter(function (x) { return x.id !== mot.id; }), { nouveau: !!d.nouveau, original: original, phrase: String(d.phrase || ''), transition: transitionIds() });
+    return { ok: true, erreurs: v.erreurs, avertissements: v.avertissements, modifies: v.modifies, corpsVerifie: String(mot.corps || ''), reperes: reperesChiffres.reperes(String(mot.corps || '')) };
   }
 
   // Les fiches du cadre (une ligne par fiche, sans leur texte) pour la liste de l'ecran « Modifier une fiche » ; lecture seule.
@@ -946,7 +1198,7 @@ function creerDepot(racine, options) {
     return controle.controler(adresses).then(function (resultats) { return { ok: true, resultats: resultats, date: aujourdhui() }; });
   }
 
-  return { etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerChiffres: listerChiffres, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
+  return { etat: etat, publier: publier, annuler: annuler, listerLiens: listerLiens, listerTerritoire: listerTerritoire, controlerTerritoire: controlerTerritoire, reprendre: reprendre, analyserLot: analyserLot, lirePont: lirePont, etatPont: etatPont, listerSas: listerSas, listerChangements: listerChangements, listerFiches: listerFiches, listerMots: listerMots, verifierMotLexique: verifierMotLexique, proposerMot: proposerMot, listerListe: listerListe, idees: idees, chercherMot: chercherMot, recherchesSansResultat: recherchesSansResultat, promptVerificationChiffres: promptVerificationChiffres, lireVerificationChiffres: lireVerificationChiffres, listerChiffres: listerChiffres, verifierChiffres: verifierChiffres, lireChiffres: lireChiffres, lireFiche: lireFiche, listerHistorique: listerHistorique, promptChangement: promptChangement, lireReponseChangement: lireReponseChangement };
 }
 
 module.exports = { analyserCandidatsLexique: analyserCandidatsLexique, integrerCandidatsLexique: integrerCandidatsLexique, creerDepot: creerDepot, validerFichier: validerFichier, ajouterLigneReadme: ajouterLigneReadme, rayonsExistants: rayonsExistants, lancerCommande: lancerCommande, TAILLE_MAX: TAILLE_MAX };

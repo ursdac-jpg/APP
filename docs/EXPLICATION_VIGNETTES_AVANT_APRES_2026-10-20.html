@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vignettes : aujourd'hui et avec A3</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --band:#1e3a5f; --col:#c9d6ea; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --col:#6a7fa5; } }
+* { box-sizing:border-box; }
+body { margin:0; padding:16px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui,Segoe UI,sans-serif; }
+h1 { font-size:1.3rem; margin:0 0 6px; } h2 { font-size:1.1rem; margin:0 0 4px; } p { margin:0 0 8px; } .muted { color:var(--muted); font-size:.92rem; }
+.deux { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px; } @media (max-width:900px) { .deux { grid-template-columns:1fr; } }
+.boite { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--card); }
+.etape { background:var(--accent-bg); border-radius:8px; padding:6px 10px; margin:8px 0; font-size:.95rem; }
+.vignettes { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:10px 0; }
+.cadre { display:flex; flex-direction:column; gap:6px; }
+.vign { border:2px solid var(--border); border-radius:12px; padding:8px; background:var(--card); color:var(--text); font:inherit; cursor:pointer; text-align:center; }
+.vign[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-bg); }
+.vign b { display:block; font-size:.9rem; margin-top:4px; }
+.mini { position:relative; height:84px; background:#fff; border:1px solid #aab4c8; overflow:hidden; }
+.mini .b { position:absolute; left:0; right:0; top:0; height:30%; background:var(--band); }
+.mini .c { position:absolute; left:0; top:30%; bottom:0; width:34%; background:var(--col); }
+.mini.sans-b .b { display:none; } .mini.sans-b .c { top:0; }
+.f-pointe { clip-path:polygon(0 0,100% 0,100% 75%,50% 100%,0 75%); } .f-arrondi { border-radius:0 0 14px 14px; }
+.opts { display:flex; gap:4px; } .opt { flex:1; font:inherit; font-size:.82rem; padding:.3rem .2rem; border:1.5px solid var(--accent); border-radius:8px; background:var(--card); color:var(--accent); cursor:pointer; }
+.opt[aria-expanded="true"] { background:var(--accent); color:#fff; }
+.tiroir { border:1.5px solid var(--accent); border-radius:10px; padding:8px; margin-bottom:8px; }
+.chip { font:inherit; font-size:.9rem; padding:.35rem .6rem; border:1.5px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); cursor:pointer; margin:2px; }
+.chip[aria-checked="true"] { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); font-weight:600; }
+.apercu { display:flex; gap:12px; align-items:flex-start; margin-top:8px; }
+.apercu .mini { width:120px; height:170px; flex:none; } .apercu .mini .b { height:24%; } .apercu .mini .c { top:24%; }
+.apercu .t { font-size:.92rem; }
+.memoire { border:1px dashed #b3261e; border-radius:10px; padding:8px; margin-top:10px; font-size:.9rem; }
+.memoire b { color:#b3261e; }
+.tabs { display:flex; gap:6px; margin:8px 0 4px; } .tabs .opt { flex:none; padding:.4rem .8rem; }
+.rouge { color:#b3261e; font-weight:600; }
+</style>
+</head>
+<body>
+<h1>Quelle différence entre aujourd'hui et la nouvelle façon ?</h1>
+<p class="muted">Même exemple des deux côtés : vous voulez le modèle « Colonne et bandeau » avec un <b>bandeau en pointe</b>. Faites les étapes dans l'ordre, des deux côtés, et comparez ce que fait la vignette.</p>
+
+<div class="deux">
+ <section class="boite" id="avant">
+  <h2>AUJOURD'HUI</h2>
+  <p class="muted">Chaque vignette a ses propres boutons de réglage.</p>
+  <div class="etape"><b>Essayez :</b> sous la vignette du milieu (« Colonne et bandeau »), cliquez sur « Bandeau », puis « En pointe ». Ne cliquez pas sur la vignette elle-même.</div>
+  <div class="vignettes" id="vAvant"></div>
+  <div id="tAvant"></div>
+  <div class="apercu"><div class="mini" id="apAvant"></div><div class="t" id="txtAvant"></div></div>
+  <div class="memoire" id="memAvant"></div>
+ </section>
+
+ <section class="boite" id="apres">
+  <h2>AVEC A3</h2>
+  <p class="muted">Les vignettes n'ont plus de boutons. Les réglages sont sur l'aperçu.</p>
+  <div class="etape"><b>Essayez :</b> cliquez sur la vignette « Colonne et bandeau » pour la choisir. Puis, sur l'aperçu, cliquez sur l'onglet « Bandeau » puis « En pointe ».</div>
+  <div class="vignettes" id="vApres"></div>
+  <div class="apercu"><div class="mini" id="apApres"></div>
+   <div class="t"><div class="tabs" id="tabsApres"></div><div id="tApres"></div><div id="txtApres"></div></div></div>
+  <div class="memoire" id="memApres"></div>
+ </section>
+</div>
+
+<div class="boite" style="margin-top:16px">
+ <h2>En résumé</h2>
+ <p><b>La seule différence visible :</b> aujourd'hui, la vignette du milieu <b>change de dessin</b> dès que vous réglez son bandeau, même si vous ne l'avez pas choisie (vous la voyez avec sa pointe avant de la choisir). Avec A3, la vignette <b>ne change jamais</b> : elle montre toujours le modèle « de base », et le bandeau en pointe ne se voit que sur l'aperçu, une fois le modèle choisi.</p>
+ <p><b>Pourquoi ça compte pour le code :</b> pour que la vignette change avant d'être choisie, l'application doit garder en mémoire un « souhait » par modèle et fabriquer une image par variante (101 images). Avec A3, plus besoin ni de la mémoire ni des images.</p>
+ <p><b>Ce que vous perdez :</b> la possibilité de comparer plusieurs modèles « déjà réglés » côte à côte avant d'en choisir un. <b>Ce que vous gagnez :</b> un seul endroit pour régler (l'aperçu), identique pour tous les modèles, y compris l'allure Standard, et une application plus simple à faire évoluer.</p>
+ <p><b>Ma recommandation :</b> oui à A3 (vignettes de base). Si comparer des modèles déjà réglés vous est précieux, dites-le : on garde alors les vignettes qui changent, au prix de plus de code à maintenir.</p>
+</div>
+
+<script>
+var $ = function (s) { return document.querySelector(s); };
+var MOD = [ { id:'bandeau', nom:'Bandeau entier', b:true, c:false }, { id:'colband', nom:'Colonne et bandeau', b:true, c:true }, { id:'colonne', nom:'Colonne simple', b:false, c:true } ];
+function dessin(el, m, forme) { el.className = el.className.split(' ')[0] + (m.b ? '' : ' sans-b'); el.innerHTML = (m.b ? '<div class="b ' + (forme === 'pointe' ? 'f-pointe' : (forme === 'arrondi' ? 'f-arrondi' : '')) + '"></div>' : '') + (m.c ? '<div class="c"></div>' : ''); }
+
+// ---------- AUJOURD'HUI ----------
+var A = { choisi:'colband', souhaits:{}, ouvert:null };
+function majAvant() {
+  var v = $('#vAvant'); v.innerHTML = '';
+  MOD.forEach(function (m) {
+    var cadre = document.createElement('div'); cadre.className = 'cadre';
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign'; b.setAttribute('aria-pressed', A.choisi === m.id ? 'true' : 'false');
+    b.innerHTML = '<div class="mini"></div><b>' + m.nom + '</b>'; dessin(b.firstChild, m, A.souhaits[m.id] || 'droit');
+    b.addEventListener('click', function () { A.choisi = m.id; majAvant(); }); cadre.appendChild(b);
+    if (m.b) { var o = document.createElement('div'); o.className = 'opts'; var ob = document.createElement('button'); ob.type = 'button'; ob.className = 'opt'; ob.textContent = 'Bandeau'; ob.setAttribute('aria-expanded', A.ouvert === m.id ? 'true' : 'false'); ob.addEventListener('click', function () { A.ouvert = A.ouvert === m.id ? null : m.id; majAvant(); }); o.appendChild(ob); cadre.appendChild(o); }
+    v.appendChild(cadre);
+  });
+  var t = $('#tAvant'); t.innerHTML = '';
+  if (A.ouvert) { var d = document.createElement('div'); d.className = 'tiroir'; d.innerHTML = '<b>Forme du bandeau, ' + chercher(A.ouvert).nom + '</b><br>';
+    ['droit', 'arrondi', 'pointe'].forEach(function (f) { var c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.setAttribute('role', 'radio'); c.setAttribute('aria-checked', (A.souhaits[A.ouvert] || 'droit') === f ? 'true' : 'false'); c.textContent = { droit:'Droit', arrondi:'Arrondi', pointe:'En pointe' }[f];
+      c.addEventListener('click', function () { A.souhaits[A.ouvert] = f; majAvant(); }); d.appendChild(c); });
+    t.appendChild(d); }
+  var m = chercher(A.choisi); dessin($('#apAvant'), m, A.souhaits[m.id] || 'droit');
+  $('#txtAvant').innerHTML = '<b>Aperçu :</b> modèle choisi = ' + m.nom + '.<br>' + (A.souhaits[m.id] === 'pointe' && A.choisi === m.id ? 'La pointe se voit ici.' : '');
+  var ls = Object.keys(A.souhaits).map(function (k) { return chercher(k).nom + ' : ' + { droit:'droit', arrondi:'arrondi', pointe:'en pointe' }[A.souhaits[k]]; });
+  var cache = Object.keys(A.souhaits).some(function (k) { return A.souhaits[k] !== 'droit'; });
+  $('#memAvant').innerHTML = '<b>Ce que l\'application doit retenir :</b> ' + (ls.length ? ls.join(' ; ') : 'rien pour l\'instant') + (cache ? '<br><span class="rouge">Regardez la vignette que vous venez de régler : son dessin a changé' + (Object.keys(A.souhaits).some(function (k) { return k !== A.choisi && A.souhaits[k] !== 'droit'; }) ? ' alors que vous ne l\'avez pas choisie' : '') + '.</span>' : '') + '<br>Et fabriquer une image de vignette pour chaque combinaison (101 images en tout).';
+}
+function chercher(id) { return MOD.filter(function (m) { return m.id === id; })[0]; }
+
+// ---------- AVEC A3 ----------
+var P = { choisi:'colband', forme:'droit', ouvert:false };
+function majApres() {
+  var v = $('#vApres'); v.innerHTML = '';
+  MOD.forEach(function (m) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign'; b.setAttribute('aria-pressed', P.choisi === m.id ? 'true' : 'false');
+    b.innerHTML = '<div class="mini"></div><b>' + m.nom + '</b>'; dessin(b.firstChild, m, 'droit');
+    b.addEventListener('click', function () { if (P.choisi !== m.id) { P.choisi = m.id; P.ouvert = false; if (!m.b) { P.forme = 'droit'; } majApres(); } }); v.appendChild(b);
+  });
+  var m = chercher(P.choisi); dessin($('#apApres'), m, P.forme);
+  var tabs = $('#tabsApres'); tabs.innerHTML = '';
+  if (m.b) { var o = document.createElement('button'); o.type = 'button'; o.className = 'opt'; o.textContent = 'Bandeau'; o.setAttribute('aria-expanded', P.ouvert ? 'true' : 'false'); o.addEventListener('click', function () { P.ouvert = !P.ouvert; majApres(); }); tabs.appendChild(o); }
+  var t = $('#tApres'); t.innerHTML = '';
+  if (P.ouvert && m.b) { ['droit', 'arrondi', 'pointe'].forEach(function (f) { var c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.setAttribute('role', 'radio'); c.setAttribute('aria-checked', P.forme === f ? 'true' : 'false'); c.textContent = { droit:'Droit', arrondi:'Arrondi', pointe:'En pointe' }[f]; c.addEventListener('click', function () { P.forme = f; majApres(); }); t.appendChild(c); }); }
+  $('#txtApres').innerHTML = '<p class="muted" style="margin-top:6px">Aperçu : ' + m.nom + (P.forme === 'pointe' ? ', bandeau en pointe.' : '.') + '</p>';
+  $('#memApres').innerHTML = '<b>Ce que l\'application doit retenir :</b> seulement le réglage du modèle en cours (' + (P.forme === 'pointe' ? 'bandeau en pointe' : 'rien de particulier') + '). Aucune image de variante.' + (P.forme === 'pointe' ? '<br><span class="rouge">Regardez les vignettes : elles n\'ont pas bougé. Seul l\'aperçu montre la pointe.</span>' : '');
+}
+majAvant(); majApres();
+</script>
+</body>
+</html>

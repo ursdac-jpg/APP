@@ -329,7 +329,7 @@ function _reperesOuvrirSaisieLibre(id, optionsSaisie) {
   var r = _reperesTrouver(id);
   if (!r) { return; }
   var meta = _REPERES_TYPES[r.type] || _REPERES_TYPES.question;
-  var labelTitre = (optionsSaisie && optionsSaisie.labelTitre) || 'Titre du Repère (facultatif)';
+  var labelTitre = (optionsSaisie && optionsSaisie.labelTitre) || 'Titre du Repère (à compléter)';
   var placeholderTitre = (optionsSaisie && optionsSaisie.placeholderTitre) ||
     'Se remplit automatiquement avec le début de votre texte, modifiable à tout moment.';
   ouvrirFenetreERIP({
@@ -339,7 +339,7 @@ function _reperesOuvrirSaisieLibre(id, optionsSaisie) {
       '<label class="reperes-saisie-label" for="reperesSaisieTitre">' + labelTitre + '</label>' +
       '<input type="text" class="form-control mb-3" id="reperesSaisieTitre" maxlength="80" ' +
         'placeholder="' + echapperAttribut(placeholderTitre) + '">' +
-      '<label class="reperes-saisie-label" for="reperesSaisieTexte">Votre réflexion (facultatif)</label>' +
+      '<label class="reperes-saisie-label" for="reperesSaisieTexte">Votre réflexion (à compléter)</label>' +
       _reperesRenduAstuceDictee() +
       '<textarea class="form-control" id="reperesSaisieTexte" rows="6" ' +
         'placeholder="Quelques mots suffisent. Rien n\'est obligatoire."></textarea>' +
@@ -1684,7 +1684,7 @@ function _reperesOuvrirDetail(id) {
       var valeurDepart = rActuel.texte || '';
       var champ = document.createElement('textarea');
       champ.className = 'form-control reperes-detail-corps';
-      champ.placeholder = 'Ajoutez quelques mots si vous le souhaitez, c\'est facultatif.';
+      champ.placeholder = 'Ajoutez quelques mots si vous le souhaitez, c\'est à compléter.';
       champ.value = valeurDepart;
       champ.addEventListener('input', function () {
         var r2 = _reperesTrouver(id);
@@ -1961,7 +1961,7 @@ function _reperesBrancherModifierContenu(racine) {
       // parcours-ci, jamais de celui de la création).
       var labelTitre = document.createElement('label');
       labelTitre.className = 'reperes-saisie-label';
-      labelTitre.textContent = 'Titre du Repère (facultatif)';
+      labelTitre.textContent = 'Titre du Repère (à compléter)';
       var champTitre = document.createElement('input');
       champTitre.type = 'text';
       champTitre.className = 'form-control mb-2';
@@ -1969,12 +1969,12 @@ function _reperesBrancherModifierContenu(racine) {
       champTitre.value = titreDepart;
       var labelTexte = document.createElement('label');
       labelTexte.className = 'reperes-saisie-label';
-      labelTexte.textContent = 'Votre réflexion (facultatif)';
+      labelTexte.textContent = 'Votre réflexion (à compléter)';
       var astuce = document.createElement('div');
       astuce.innerHTML = _reperesRenduAstuceDictee();
       var champ = document.createElement('textarea');
       champ.className = 'reperes-detail-corps';
-      champ.placeholder = 'Ajoutez quelques mots si vous le souhaitez, c\'est facultatif.';
+      champ.placeholder = 'Ajoutez quelques mots si vous le souhaitez, c\'est à compléter.';
       champ.value = texteDepart;
       var confirmation = document.createElement('p');
       confirmation.className = 'reperes-confirmation-enregistrement';

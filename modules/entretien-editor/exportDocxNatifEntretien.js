@@ -67,9 +67,9 @@ function _dneConstruireClair(docx, objetEntretien, opts) {
     enfants.push(texte(contexte, { size: 20, color: TEXTE_MUTED, after: 200 }));
   }
 
-  // ---- Ma présentation ----
+  // ---- Pour me présenter ----
   if (objetEntretien.presentation) {
-    enfants.push(titreSection('Ma présentation'));
+    enfants.push(titreSection('Pour me présenter'));
     enfants.push(texte(objetEntretien.presentation, { after: 160 }));
   }
 

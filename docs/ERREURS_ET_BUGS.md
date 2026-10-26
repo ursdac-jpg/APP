@@ -99,3 +99,16 @@ Chaque événement envoie : `message` (tronqué à 200 caractères), `fichier` (
 ### Essai de parcours « ucpm p6 : on arrive toujours en haut de la page... » en échec, présent avant les modifications du 2026-10-13 (constaté, non corrigé)
 - **Symptôme** : dans `scripts/parcours/parcours_smoke.js`, parcours `unCvMetiersPage6`, le cas « on arrive toujours en haut de la page, sur le style d'écriture, même venant d'une page défilée » échoue (« avant 111.2, après 111.2 »). Vérifié en mettant de côté les modifications du jour : l'échec est identique, il ne vient donc pas d'elles.
 - **Cause probable (non vérifiée)** : la page n'est pas réellement défilée dans le volet du navigateur intégré (fenêtre étroite), donc la mesure « avant » et « après » est la même. À rejouer dans une fenêtre plus grande avant de toucher au code.
+
+### Carte « Choisir une ambiance » : texte écrasé à 36 px quand elle est ouverte avec les boutons agrandis (CORRIGÉ le 2026-10-20)
+- **Symptôme** : essai `grandsBoutons` de `scripts/parcours/parcours_smoke.js` en échec (`amb-txt:72/36`) ; à l'écran, « Choisir une ambiance » écrasé en une colonne étroite entre la palette de couleurs et « Fermer ».
+- **Cause (vérifiée)** : reproduit à 1200 px de large avec « Boutons plus grands » et la carte ouverte. La colonne de la mise en page fait 288 px ; moins les marges (2 × 14 px), les écarts (2 × 14 px), la palette (145 px) et « Fermer » (48 px), il restait 36 px au texte. Absent à 738 et 1440 px (colonne plus large) et quand la carte est fermée.
+- **Correction** : `css/mise-en-page-maquette.css`, la carte passe à la ligne (`flex-wrap`) et le texte garde au moins 7 rem ; quand la place manque, le texte se met sous la palette. Essai `grandsBoutons` : 17 sur 17.
+- **Statut** : CORRIGÉ.
+
+### Boutons agrandis : six boutons de la carte « Compétences » débordaient à 1043 px de fenêtre (CORRIGÉ le 2026-10-20)
+- **Symptôme** : à 1043 px de large avec « Boutons plus grands », « Afficher les compétences… », « Les montrer et les choisir », « Deux colonnes », « Pastilles » et « Texte » dépassaient de leur carte ; l'essai `grandsBoutons` échouait à cette largeur et passait à 1200 px.
+- **Cause (vérifiée)** : la grille à deux colonnes `.grille-el` gardait deux colonnes de 279 px dans une carte de 497 px ; avec les gros boutons, chaque colonne ne pouvait plus se rétrécir.
+- **Correction** : `css/mise-en-page-maquette.css`, en boutons agrandis la grille passe à une colonne dès qu'il n'y a pas la place pour deux (`auto-fit`, 17 rem), et les lignes de boutons passent à la ligne. Essai `grandsBoutons` : 17 sur 17 à 1043 et à 1200 px.
+- **Règle** : un essai de mise en page se rejoue à plusieurs largeurs (738, 1043, 1200), pas à une seule.
+- **Statut** : CORRIGÉ.

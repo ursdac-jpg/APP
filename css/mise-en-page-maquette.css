@@ -299,6 +299,8 @@
 .mep-mq .bloc-valider-mep .mep-btn { white-space: nowrap; flex: 0 0 auto; }
 .mep-mq .bloc-valider-mep .valider-infos { display: flex; flex-direction: column; gap: 0.2rem; flex: 1 1 14rem; min-width: 0; }
 .mep-mq .bloc-valider-mep .avert-page { font-size: 0.75rem; }
+.mep-mq .bloc-valider-mep .valider-titre { margin: 0; font-size: 0.8rem; font-weight: 700; color: var(--text-strong); }
+.mep-mq .bloc-valider-mep .valider-complement { margin-left: auto; flex: 0 0 auto; }
 .mep-mq .bloc-valider-mep .info-page { margin: 0; flex-direction: column; gap: 0.1rem; }
 
 /* ---- Plein ecran (tranche 4) : memes regles que .plein / .plein-corps / .plein-outils / .plein-zone / .plein-tete / .barre-rub / .toast de la maquette
@@ -312,7 +314,9 @@
 .mep-mq .plein-outils details { border: 1px solid var(--border); border-radius: 10px; padding: 0.3937rem 0.6125rem; font-size: 0.7525rem; background: var(--bg-subtle); }
 .mep-mq .plein-outils details summary { cursor: pointer; font-weight: 600; color: var(--text-strong); }
 .mep-mq .plein-outils details p { margin: 0.35rem 0 0; color: var(--text-muted); }
-.mep-mq .plein-zone { overflow: auto; padding: 0.875rem; display: flex; justify-content: center; background: var(--bg-page); }
+.mep-mq .plein-zone { overflow: auto; padding: 0.875rem; display: flex; justify-content: flex-start; background: var(--bg-page); }
+/* Le CV (cadre de 830 px, REDUIT par _mqAjusterEchelle quand la zone est plus etroite, jamais coupe) est centre par des marges automatiques dans son conteneur #mqEchelle. Avec justify-content: center, un cadre plus large que la zone etait coupe des DEUX cotes, sans moyen de defiler vers la gauche (retour Denis, 2026-10-20 : nom, « C » de Competences, « L » de Langues coupes). */
+.mep-mq .plein-zone > #mqEchelle { flex: none; margin: 0 auto; }
 .mep-mq .plein-tete { display: flex; gap: 0.525rem; align-items: center; padding: 0.525rem 0.875rem; border-bottom: 1px solid var(--border); background: var(--bg-card); }
 .mep-mq .plein-tete .hint { color: var(--text-muted); font-size: 0.7437rem; }
 .mep-mq #mqZoneDisp { border: 1px solid var(--border); border-radius: 10px; padding: 0.4375rem 0.525rem; background: var(--bg-subtle); font-size: 0.735rem; }
@@ -423,7 +427,15 @@
 .mep-mq .prop-carte { display: flex; flex-direction: column; gap: 0.3rem; text-align: left; border: 1.5px solid var(--border-strong); border-radius: 10px; padding: 0.45rem; background: var(--bg-card); color: var(--text); min-width: 0; }
 .mep-mq .prop-carte b { color: var(--text-strong); font-size: 0.78rem; overflow-wrap: anywhere; }
 .mep-mq .prop-carte .gain { color: var(--accent); font-weight: 700; font-size: 0.7rem; }
-.mep-mq .prop-carte.choisie { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg-subtle); background: var(--accent-bg-subtle); }
+.mep-mq .prop-carte.choisie { border-color: var(--accent); border-width: 3px; padding: calc(0.45rem - 1.5px); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); background: var(--accent-bg-subtle); }
+.mep-mq .prop-carte .etiquette-choisie { align-self: flex-start; background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 700; border-radius: 999px; padding: 0.1rem 0.55rem; }
+/* Avant le 1er clic, les trois cartes pulsent l'une apres l'autre (retour Denis, 2026-10-19) : un tiers du cycle chacune. */
+.mep-mq .prop-carte.pulse-sugg { animation: pulseSugg 4.5s ease-in-out infinite; animation-delay: calc(var(--rang-pulse, 0) * 1.5s); border-color: var(--accent); }
+@keyframes pulseSugg {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); }
+  12% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 30%, transparent); }
+  33%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+}
 .mep-mq .prop-carte .etiquette-appliquee { font-size: 0.68rem; font-weight: 700; color: var(--accent); }
 .mep-mq .sugg-detail { margin-top: 0.6rem; padding: 0.5rem 0.65rem; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-card); font-size: 0.8rem; color: var(--text-strong); }
 .mep-mq .sugg-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
@@ -541,6 +553,13 @@
 [data-grands-boutons="1"] .mep-mq .btn-miss,
 [data-grands-boutons="1"] .mep-mq .mep-btn { min-height: 2.75rem; }
 [data-grands-boutons="1"] .mep-mq details.mep-carte > summary { min-height: 3rem; }
+/* Fenetre etroite (1043 px) : les lignes de gros boutons passent a la ligne au lieu de depasser de leur carte (defaut constate le 2026-10-20, essai grandsBoutons). */
+[data-grands-boutons="1"] .mep-mq .ligne-comp { flex-wrap: wrap; }
+[data-grands-boutons="1"] .mep-mq .seg, [data-grands-boutons="1"] .mep-mq .seg-mini { flex-wrap: wrap; max-width: 100%; }
+[data-grands-boutons="1"] .mep-mq .ligne-comp .btn-miss, [data-grands-boutons="1"] .mep-mq .ck-marque { white-space: normal; max-width: 100%; }
+[data-grands-boutons="1"] .mep-mq details.mep-carte { overflow-wrap: anywhere; }
+/* Les deux colonnes de reglages : en gros boutons, elles passent l'une sous l'autre des qu'il n'y a pas la place pour deux colonnes de 16 rem (cause du debordement de 1043 px). */
+[data-grands-boutons="1"] .mep-mq .grille-el { grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
 [data-grands-boutons="1"] .mep-mq .sous,
 [data-grands-boutons="1"] .mep-mq .ex,
 [data-grands-boutons="1"] .mep-mq .choix-aide,
@@ -819,12 +838,13 @@
 .mep-mq .look-annuler:disabled { opacity: .4; cursor: default; }
 .mep-mq .looks-etat { flex: 1 1 12rem; }
 /* Carte « Choisir une ambiance » = un vrai bouton (Denis, 2026-10-08, maquette MAQUETTE_CARTE_AMBIANCE) : palette, ombre, rond « Ouvrir » ; ouverte, pleine de la couleur du theme. */
-.mep-mq .amb-carte { width: 100%; display: flex; align-items: center; gap: 0.6rem; text-align: left; border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--text); border-radius: 12px; padding: 0.55rem 0.65rem; font: inherit; cursor: pointer; box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 30%, transparent); }
+.mep-mq .amb-carte { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; text-align: left; border: 1.5px solid var(--accent); background: var(--bg-card); color: var(--text); border-radius: 12px; padding: 0.55rem 0.65rem; font: inherit; cursor: pointer; box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 30%, transparent); }
 .mep-mq .amb-carte:hover:not(.desactivee) { background: var(--accent-bg-subtle); }
 .mep-mq .amb-carte:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .mep-mq .amb-pal { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, 0.75rem); gap: 3px; }
 .mep-mq .amb-pal i { width: 0.75rem; height: 0.75rem; border-radius: 50%; display: block; }
-.mep-mq .amb-txt { flex: 1; min-width: 0; }
+/* Le texte garde au moins 7rem : sinon, quand la colonne est etroite (boutons agrandis, carte ouverte), il etait ecrase a 36 px entre la palette et « Fermer » ; il passe alors a la ligne (2026-10-20). */
+.mep-mq .amb-txt { flex: 1 1 7rem; min-width: 7rem; }
 .mep-mq .amb-txt b { display: block; color: var(--accent); font-size: 0.88rem; }
 .mep-mq .amb-txt small { display: block; color: var(--text-muted); font-size: 0.68rem; line-height: 1.25; margin-top: 1px; }
 .mep-mq .amb-bout { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--accent); font-size: 0.7rem; font-weight: 700; }
@@ -871,7 +891,7 @@
   70% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 0%, transparent); }
   100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
 }
-@media (prefers-reduced-motion: reduce) { .mep-mq .pulse-mep, .mep-mq .pulse-allure { animation: none; box-shadow: 0 0 0 3px var(--accent); } }
+@media (prefers-reduced-motion: reduce) { .mep-mq .pulse-mep, .mep-mq .pulse-allure, .mep-mq .prop-carte.pulse-sugg { animation: none; box-shadow: 0 0 0 3px var(--accent); } }
 
 
 /* Bouton « Degrade » (Denis, 2026-10-08) : un bouton comme les autres, sur la meme ligne que « Options supplementaires », avec son « ? ». Actif = cadre et fond de la couleur du theme, gras et coche. */
@@ -1078,31 +1098,54 @@
 .mep-mq .gab-ligne .vign { flex: 0 0 96px; }
 .mep-mq .mini[data-mini-reel] { width: 100%; height: auto; aspect-ratio: 794 / 1123; box-sizing: border-box; }
 
-/* Interrupteur « Vallonné » sous la vignette des modeles a colonne coloree (Denis, 2026-10-11) : la miniature montre tout de suite le bord obtenu. */
-.mep-mq .vign-cadre { display: flex; flex-direction: column; gap: 4px; flex: 0 0 96px; width: 96px; }
-.mep-mq .gab-ligne .vign-cadre .vign { flex: 0 0 auto; width: 100%; }
-.mep-mq .vign-bord { display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent; padding: 2px; color: var(--text); font-size: 0.68rem; line-height: 1.1; cursor: pointer; border-radius: 8px; }
-.mep-mq .vign-bord:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.mep-mq .vign-bord-piste { position: relative; flex: none; width: 28px; height: 16px; border-radius: 8px; background: var(--border-strong); transition: background .15s; }
-.mep-mq .vign-bord-bouton { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.35); transition: left .15s; }
-.mep-mq .vign-bord[aria-checked="true"] .vign-bord-piste { background: var(--accent); }
-.mep-mq .vign-bord[aria-checked="true"] .vign-bord-bouton { left: 14px; }
-.mep-mq .vign-bord[aria-checked="true"] .vign-bord-nom { color: var(--accent); font-weight: 700; }
-[data-grands-boutons="1"] .mep-mq .vign-cadre { flex: 0 0 7.2rem !important; width: 7.2rem; }
-[data-grands-boutons="1"] .mep-mq .vign-cadre .vign { flex: 0 0 auto !important; width: 100%; }
-[data-grands-boutons="1"] .mep-mq .vign-bord { font-size: 0.9rem; padding: 6px 2px; }
-[data-grands-boutons="1"] .mep-mq .vign-bord-piste { width: 38px; height: 22px; border-radius: 11px; }
-[data-grands-boutons="1"] .mep-mq .vign-bord-bouton { width: 18px; height: 18px; }
-[data-grands-boutons="1"] .mep-mq .vign-bord[aria-checked="true"] .vign-bord-bouton { left: 18px; }
-/* Trois petits boutons dessines « Bord du bandeau » (droit, arrondi, vallonne) sous la vignette des modeles a bandeau au choix. */
-.mep-mq .vign-bords { display: flex; gap: 3px; justify-content: center; }
-.mep-mq .vign-bord3 { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; height: 24px; padding: 0; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-muted, var(--text)); border-radius: 7px; cursor: pointer; }
-.mep-mq .vign-bord3:hover { border-color: var(--accent); }
-.mep-mq .vign-bord3:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.mep-mq .vign-bord3[aria-checked="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
-.mep-mq .vign-bord3 svg { width: 20px; height: 12px; }
-[data-grands-boutons="1"] .mep-mq .vign-bord3 { height: 36px; }
-[data-grands-boutons="1"] .mep-mq .vign-bord3 svg { width: 26px; height: 16px; }
+/* Barre d'onglets « Bandeau », « Colonne », « Formes » au-dessus de l'apercu (tache A3, 2026-10-20) et tiroir des choix ; ancien : boutons sous la vignette (Denis, 2026-10-11 puis 2026-10-20 : un seul mecanisme, brique B.39). */
+.mep-mq .vign-forme:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mep-mq .gab-tiroir { flex: 0 0 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 0.5rem; padding: 0.55rem 0.7rem; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--accent-bg-subtle); }
+.mep-mq .gab-tiroir-tete { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.7rem; font-size: 0.85rem; }
+.mep-mq .gab-tiroir-modele { color: var(--text-muted, var(--text)); flex: 1 1 auto; }
+.mep-mq .gab-tiroir-choix { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.mep-mq .vign-forme { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.8rem; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text); border-radius: 9px; font-size: 0.88rem; cursor: pointer; }
+.mep-mq .vign-forme:hover { border-color: var(--accent); }
+.mep-mq .vign-forme[aria-checked="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; box-shadow: 0 0 0 2px var(--accent); }
+.mep-mq .vign-forme svg { width: 34px; height: 20px; flex: none; }
+.mep-mq .gab-tiroir-note { margin: 0; font-size: 0.78rem; color: var(--text-muted, var(--text)); }
+/* Onglet « Forme n » avec sa croix : la croix est dans le COIN en haut a droite (dans le remplissage de l'onglet, jamais hors de sa boite), dehors du texte (jamais sur le chiffre) ; un petit carre aux coins arrondis, comme les autres boutons. */
+.mep-mq .gab-tiroir .gab-onglet { position: relative; display: inline-flex; padding: 10px 10px 0 0; }
+.mep-mq .gab-tiroir .gab-onglet .vign-forme { padding: 0.35rem 0.65rem; }
+.mep-mq .gab-tiroir .gab-onglet-croix { position: absolute; top: 0; right: 0; z-index: 1; width: 22px; height: 22px; padding: 0; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-card); color: var(--text); font-size: 1rem; line-height: 1; cursor: pointer; }
+.mep-mq .gab-tiroir .gab-onglet-croix:hover { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); }
+.mep-mq .gab-tiroir .gab-onglet-croix:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+[data-grands-boutons="1"] .mep-mq .gab-tiroir .gab-onglet { padding: 14px 14px 0 0; }
+[data-grands-boutons="1"] .mep-mq .gab-tiroir .gab-onglet .vign-forme { padding: 0.55rem 0.9rem; }
+[data-grands-boutons="1"] .mep-mq .gab-tiroir .gab-onglet-croix { top: 0; right: 0; width: 32px; height: 32px; font-size: 1.3rem; }
+/* La croix de l'onglet est faite pour la souris (PC) : sur un ecran tactile (telephone, tablette) elle serait trop petite et peu claire ; on y garde le bouton « Retirer cette forme ». */
+@media (pointer: coarse), (hover: none) {
+  .mep-mq .gab-tiroir .gab-onglet-croix { display: none; }
+  .mep-mq .gab-tiroir .gab-onglet, [data-grands-boutons="1"] .mep-mq .gab-tiroir .gab-onglet { padding: 0; }
+}
+.mep-mq .gab-tiroir-onglets { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+.mep-mq .gab-tiroir-onglets .gab-ajout { margin-left: auto; }
+/* Boutons d'action du tiroir et du bloc des formes (Ajouter, Retourner, Retirer, Terminé, Fermer) : meme aspect que les autres boutons du panneau (rectangle aux coins arrondis, bordure de la couleur d'accent). */
+.mep-mq .gab-tiroir .btn-miss { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 8px; padding: 0.4rem 0.85rem; font-size: 0.82rem; font-weight: 600; line-height: 1.2; cursor: pointer; }
+.mep-mq .gab-tiroir .btn-miss:hover:not(:disabled) { background: var(--accent-bg-subtle); }
+.mep-mq .gab-tiroir .btn-miss:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mep-mq .gab-tiroir .btn-miss:disabled { opacity: .5; cursor: not-allowed; }
+[data-grands-boutons="1"] .mep-mq .gab-tiroir .btn-miss { padding: 0.6rem 1.1rem; font-size: 1rem; }
+[data-grands-boutons="1"] .mep-mq .gab-tiroir .vign-forme { padding: 0.55rem 0.9rem; font-size: 1rem; }
+/* Boutons plus grands : aucun texte de reglage sous 14 px (regle de l'essai grandsBoutons). */
+[data-grands-boutons="1"] .mep-mq .gab-tiroir-lib { font-size: 1rem; }
+[data-grands-boutons="1"] .mep-mq .gab-tiroir-note, [data-grands-boutons="1"] .mep-mq .gab-tiroir-edition, [data-grands-boutons="1"] .mep-mq .gab-sw-libre, [data-grands-boutons="1"] .mep-mq .gab-tiroir-tete { font-size: 1rem; }
+[data-grands-boutons="1"] .mep-mq .gab-sw { width: 38px; height: 38px; }
+.mep-mq .gab-tiroir-edition { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; padding: 0.45rem 0.6rem; border: 1px dashed var(--accent); border-radius: 9px; background: var(--bg-card); font-size: 0.8rem; }
+.mep-mq .gab-formes-corps { display: flex; flex-direction: column; gap: 0.5rem; }
+.mep-mq .gab-tiroir-rang { display: flex; flex-direction: column; gap: 0.25rem; }
+.mep-mq .gab-tiroir-lib { font-size: 0.78rem; font-weight: 700; }
+.mep-mq .gab-tiroir .vign-forme { padding: 0.35rem 0.65rem; font-size: 0.82rem; }
+.mep-mq .gab-tiroir .vign-forme[role="tab"][aria-selected="true"] { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; box-shadow: 0 0 0 2px var(--accent); }
+.mep-mq .gab-sw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--bg-card, #fff); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; padding: 0; }
+.mep-mq .gab-sw[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--accent); }
+.mep-mq .gab-sw-libre { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; margin-left: 0.3rem; }
+.mep-mq .gab-sw-libre input { width: 36px; height: 30px; padding: 0; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-card); cursor: pointer; }
 
 /* Bloc « Autres couleurs de votre CV » de la carte d'ambiance (Denis, 2026-10-11) : memes pastilles que les couleurs proposees. */
 .mep-mq #panneauAmbiances .autres-coul { margin-top: 0.6rem; padding: 0.6rem 0.7rem; border: 1px dashed var(--border-strong); border-radius: 10px; background: var(--bg-card); }
@@ -1126,3 +1169,126 @@
 .mep-mq #panneauAmbiances .reprise-pastilles i { display: inline-block; width: 1rem; height: 1rem; border-radius: 4px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
 .mep-mq #panneauAmbiances .ck-garder { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text); cursor: pointer; margin: 0; }
 .mep-mq #panneauAmbiances .ck-garder input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+
+/* Case grisee (retour Denis 2026-10-19) : « Barre a gauche du texte » sans phrase d accroche. */
+.mep-mq label.ck.desactivee { opacity: .5; cursor: not-allowed; }
+
+/* Barre d'onglets sur l'apercu (A3) : meme aspect que les autres boutons du panneau (rectangle aux coins arrondis, bordure d'accent). */
+.mep-onglets-apercu { margin-bottom: 0.6rem; }
+.mep-onglets-apercu:empty { display: none; }
+.mep-onglets-invite { margin: 0 0 0.45rem; font-size: 0.9rem; font-weight: 600; color: var(--text-strong, var(--text)); }
+[data-grands-boutons="1"] .mep-onglets-invite { font-size: 1rem; }
+.mep-onglets-barre { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.5rem; }
+.mep-onglet-apercu svg { width: 15px; height: 20px; flex: none; }
+[data-grands-boutons="1"] .mep-onglet-apercu svg { width: 19px; height: 25px; }
+/* Invitation : les onglets pulsent l'un apres l'autre (meme animation que les trois cartes de suggestions) jusqu'au premier clic ; un onglet seul pulse doucement, plus souvent. */
+.mep-onglet-apercu.pulse-sugg { animation: pulseSugg 4.5s ease-in-out infinite; animation-delay: calc(var(--rang-pulse, 0) * 1.5s); }
+.mep-onglet-apercu.pulse-seul { animation-duration: 2.6s; animation-delay: 0s; }
+@media (prefers-reduced-motion: reduce) { .mep-onglet-apercu.pulse-sugg { animation: none; } }
+.mep-onglet-apercu { display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 8px; padding: 0.4rem 0.85rem; font-size: 0.9rem; font-weight: 600; line-height: 1.2; cursor: pointer; }
+.mep-onglet-apercu small { font-weight: 400; opacity: 0.9; font-size: 0.85rem; }
+.mep-onglet-apercu:hover { background: var(--accent-bg-subtle); }
+.mep-onglet-apercu:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mep-onglet-apercu[aria-expanded="true"] { background: var(--accent); color: #fff; }
+[data-grands-boutons="1"] .mep-onglet-apercu { padding: 0.6rem 1.1rem; font-size: 1rem; }
+[data-grands-boutons="1"] .mep-onglet-apercu small { font-size: 0.9rem; }
+.mep-onglets-apercu .gab-tiroir { flex: none; }
+
+/* Panneaux de formes (A3) : a gauche, a la place des vignettes, des 700 px ; plusieurs panneaux ouverts a la fois, dans l'ordre Bandeau, Colonne, Formes. */
+.mep-panneaux-forme { display: flex; flex-direction: column; gap: 0.6rem; margin: 0.5rem 0 0.8rem; }
+.mep-panneaux-forme .gab-tiroir { flex: none; }
+@media (min-width: 700px) { .mep-2col.mep-panneaux-ouverts .gab-familles, .mep-2col.mep-panneaux-ouverts .ligne-allure { display: none; } }
+.mep-fermer-panneaux { align-self: flex-end; display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--accent); background: var(--bg-card); color: var(--accent); border-radius: 8px; padding: 0.45rem 0.95rem; font-size: 0.9rem; font-weight: 600; line-height: 1.2; cursor: pointer; }
+.mep-fermer-panneaux:hover { background: var(--accent-bg-subtle); }
+.mep-fermer-panneaux:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[data-grands-boutons="1"] .mep-fermer-panneaux { padding: 0.6rem 1.1rem; font-size: 1rem; }
+/* Page en deux colonnes entre 700 et 1250 px : la colonne des reglages est etroite ; la ligne « Allure generale » met son titre au-dessus des trois cartes (qui restent sur une ligne) au lieu de les serrer a cote (retour Denis, 2026-10-20 : cartes coupees). */
+@media (min-width: 700px) and (max-width: 1250px) {
+  .mep-mq .ligne-allure { grid-template-columns: minmax(0, 1fr); }
+  /* Les deux grandes cartes du haut (« Un autre modele », « Mise en page ») s'empilent : cote a cote, chacune n'avait que 258 px et son titre etait coupe. */
+  .mep-mq .cartes-haut { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Panneaux de formes : le titre a gauche, « Fermer » en haut a DROITE du panneau (Denis, 2026-10-20). */
+.mep-panneaux-forme .gab-tiroir-tete { flex-wrap: nowrap; justify-content: space-between; align-items: center; }
+.mep-panneaux-forme .gab-tiroir-tete .gab-tiroir-fermer { margin-left: auto; flex: none; }
+
+/* Formes proposees (panneau « Formes » sans aucune forme) : dessinees, cliquables, elles passent a la ligne sans deborder (Denis, 2026-10-20). */
+.mep-mq .gab-propositions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mep-mq .gab-proposition { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; min-width: 5.2rem; padding: 0.4rem 0.6rem; border: 1.5px solid var(--accent); border-radius: 10px; background: var(--bg-card); color: var(--text); font-size: 0.82rem; cursor: pointer; }
+.mep-mq .gab-proposition svg { width: 3.1rem; height: 1.9rem; color: var(--accent); }
+.mep-mq .gab-proposition:hover { background: var(--accent-bg-subtle); }
+.mep-mq .gab-proposition:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[data-grands-boutons="1"] .mep-mq .gab-proposition { font-size: 1rem; padding: 0.55rem 0.8rem; }
+[data-grands-boutons="1"] .mep-mq .gab-proposition svg { width: 3.8rem; height: 2.3rem; }
+
+/* « Retirer toutes les formes » : tout a droite de la ligne du bas, separe des autres boutons. */
+.mep-mq .gab-tiroir .gab-retirer-toutes { margin-left: auto; }
+
+/* Panneau Formes (Denis, 2026-10-20) : « Fermer » est TOUJOURS a droite et sur la premiere ligne ; l'option « Garder mes formes » est dessous quand le panneau est etroit, et entre le titre et « Fermer » quand il y a la place. */
+.mep-panneaux-forme .gab-tiroir[data-mep-tiroir="formes"] { container-type: inline-size; container-name: pformes; }
+.mep-panneaux-forme .gab-tiroir[data-mep-tiroir="formes"] .gab-tiroir-tete { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "titre fermer" "garder garder"; align-items: center; gap: 0.4rem 0.7rem; }
+.mep-panneaux-forme .gab-tiroir[data-mep-tiroir="formes"] .gab-tiroir-tete > strong { grid-area: titre; }
+.mep-panneaux-forme .gab-tiroir[data-mep-tiroir="formes"] .gab-tiroir-tete .gab-tiroir-fermer { grid-area: fermer; justify-self: end; margin-left: 0; }
+.mep-garder-formes { grid-area: garder; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+.mep-garder-formes input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); cursor: pointer; flex: none; }
+@container pformes (min-width: 640px) {
+  .mep-panneaux-forme .gab-tiroir[data-mep-tiroir="formes"] .gab-tiroir-tete { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "titre garder fermer"; }
+}
+[data-grands-boutons="1"] .mep-garder-formes { font-size: 1rem; }
+
+/* Onglets des formes deja posees (« Forme 1 », « Forme 2 »...) : l'image de la forme + son nom, sur un fond legerement colore a la couleur d'accent du site, pour les distinguer des boutons de CHOIX plus bas (fond blanc) (Denis, 2026-10-20). */
+.mep-mq .gab-tiroir .gab-onglet .vign-forme { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--accent-bg-subtle); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
+.mep-mq .gab-tiroir .gab-onglet .vign-forme svg { width: 2.1rem; height: 1.3rem; flex: none; color: var(--accent); }
+.mep-mq .gab-tiroir .gab-onglet .vign-forme[aria-selected="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); font-weight: 700; }
+[data-grands-boutons="1"] .mep-mq .gab-tiroir .gab-onglet .vign-forme svg { width: 2.7rem; height: 1.6rem; }
+
+/* Phrase sous le CV de l'aperçu, seulement tant qu'un panneau (Bandeau, Colonne, Formes) est ouvert : un clic sur le CV n'ouvre alors pas le grand aperçu */
+
+/* ===== Regler l'en-tete sur le petit apercu (cvPdfEnteteApercu.js, 2026-10-21) : bouton de meme taille que les onglets, panneau libre ===== */
+.mep-onglets-entete { margin-top: -0.1rem; }
+/* BARRE COMPACTE (Denis, 2026-10-22, maquette docs/MAQUETTE_BARRE_BOUTONS_APERCU_2026-10-22.html, choix B) : ligne 1 = les onglets, icone au-dessus d'un mot court, TOUJOURS sur une seule ligne ;
+   ligne 2 = « Regler l'en-tete », « Remettre comme avant », pastille « i ». La valeur reglee est dans l'infobulle, une pastille verte dit « il y a un reglage ici ». */
+.mep-onglets-barre:not(.mep-onglets-entete) { flex-wrap: nowrap; gap: 0.3rem; }
+.mep-onglets-barre:not(.mep-onglets-entete) .mep-onglet-apercu[data-mep-onglet] { flex: 1 1 0; min-width: 0; flex-direction: column; justify-content: center; gap: 0.1rem; padding: 0.35rem 0.05rem 0.3rem; font-size: 0.7rem; line-height: 1.15; letter-spacing: -0.01em; position: relative; text-align: center; }
+.mep-onglets-barre:not(.mep-onglets-entete) .mep-onglet-apercu[data-mep-onglet] svg { width: 18px; height: 23px; }
+.mep-onglets-barre:not(.mep-onglets-entete) .mep-onglet-apercu[data-mep-onglet] span { max-width: 100%; overflow: visible; white-space: nowrap; }
+.mep-onglet-pt { position: absolute; top: -4px; right: -3px; width: 10px; height: 10px; border-radius: 50%; background: #1f8a4c; border: 2px solid var(--bg-card, #fff); }
+[data-grands-boutons="1"] .mep-onglets-barre:not(.mep-onglets-entete) .mep-onglet-apercu[data-mep-onglet] { font-size: 0.95rem; padding: 0.5rem 0.2rem; }
+[data-grands-boutons="1"] .mep-onglets-barre:not(.mep-onglets-entete) .mep-onglet-apercu[data-mep-onglet] svg { width: 22px; height: 28px; }
+.mep-onglet-apercu[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.ea-panneau { position: fixed; z-index: 3200; width: 340px; max-width: calc(100vw - 16px); background: var(--bg-card); color: var(--text-strong); border: 1.5px solid var(--warning, #b45309); border-radius: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); font-size: 0.8rem; user-select: none; -webkit-user-select: none; }
+.ea-panneau[hidden] { display: none; }
+.ea-titre { display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; padding: 0.4rem 0.55rem; background: var(--accent-bg-subtle); border-radius: 8px 8px 0 0; font-weight: 700; cursor: grab; touch-action: none; }
+.ea-titre.ea-prise { cursor: grabbing; }
+.ea-manche { letter-spacing: 2px; color: var(--warning, #b45309); margin-right: 0.4rem; }
+.ea-corps { padding: 0.45rem 0.55rem 0.55rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.ea-panneau.ea-reduit .ea-corps { display: none; }
+.ea-lig { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
+.ea-lig > label { font-weight: 700; font-size: 0.76rem; min-width: 4.2rem; }
+.ea-esp { width: 0.6rem; }
+.ea-sep { border-top: 1px dashed var(--border-strong); }
+.ea-mini { font: inherit; font-size: 0.8rem; min-width: 1.9rem; min-height: 1.9rem; padding: 0 0.45rem; border: 1.5px solid var(--border-strong); border-radius: 7px; background: var(--bg-card); color: var(--text-strong); cursor: pointer; }
+.ea-mini.on { border-color: var(--accent); background: var(--accent-bg-subtle); color: var(--accent); font-weight: 700; }
+.ea-mini:focus-visible, .ea-sw:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ea-repli { flex: 1; text-align: left; }
+.ea-droite { margin-left: auto; }
+.ea-valeur { font-size: 0.78rem; color: var(--text-muted); }
+.ea-panneau input[type="color"] { width: 1.9rem; height: 1.9rem; padding: 0; border: 1.5px solid var(--border-strong); border-radius: 7px; background: var(--bg-card); }
+.ea-hors, .ea-palette { width: 100%; flex-direction: column; align-items: flex-start; }
+.ea-palette { display: flex; gap: 0.35rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 8px; }
+.ea-cases { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+.ea-sw { width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 2px solid var(--border-strong); padding: 0; cursor: pointer; position: relative; }
+.ea-sw.on { outline: 3px solid var(--accent); outline-offset: 2px; }
+.ea-sw.ea-bandeau { border: 2px dashed #fff; box-shadow: 0 0 0 1px var(--border-strong); }
+.ea-sw.ea-bandeau::after { content: "="; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 0.8rem; }
+.ea-sw.ea-aucun::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; background: var(--danger); transform: rotate(45deg); }
+.ea-perso { display: flex; align-items: center; gap: 5px; font-size: 0.76rem; cursor: pointer; position: relative; }
+.ea-roue { width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 2px solid var(--border-strong); background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); }
+.ea-perso input { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.ea-legende { font-size: 0.74rem; color: var(--text-muted); }
+@media (max-width: 560px) { .ea-panneau { left: 8px !important; right: 8px; width: auto; top: auto !important; bottom: 8px; max-height: 60vh; overflow: auto; } .ea-mini { min-width: 2.5rem; min-height: 2.5rem; } }
+
+/* Pastille « i » du reglage de l'en-tete et courte alerte (seulement s'il y a un probleme) */
+.mep-onglet-apercu.mep-ea-info { min-width: 2.2rem; justify-content: center; border-radius: 50%; padding-left: 0; padding-right: 0; font-style: italic; font-family: Georgia, serif; }
+.mep-ea-alerte { margin: 0 0 0.5rem; padding: 0.35rem 0.6rem; font-size: 0.85rem; color: var(--alert, #a3372b); background: var(--alert-bg, #fbe6e3); border-radius: 8px; }

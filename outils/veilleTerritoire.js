@@ -21,7 +21,7 @@ const MAX_ACTIONS = 100;
 
 const LIBELLES = {
   id: 'Identifiant', type: 'Type', nom: 'Nom', description: 'Ce qu\'il fait', commune: 'Commune', zone: 'Zone desservie (epci:code ; commune:Nom, vide si pas relevée)', telephone: 'Téléphone',
-  site: 'Site (https://...)', portee: 'Portée', rayons: 'Rayons de Comprendre le cadre', source: 'Source', date: 'Dernière vérification',
+  site: 'Site (https://...)', mail: 'Mail (adresse de service, jamais celle d’une personne)', portee: 'Portée', rayons: 'Rayons de Comprendre le cadre', source: 'Source', date: 'Dernière vérification',
   nature: 'Nature', secteur: 'Secteur', etablissements: 'Établissements (Commune:adresse ; Commune:adresse)', recrutement: 'Page de recrutement (https://...)',
   modes: 'Modes de candidature',
   famille: 'Famille', territoire: 'Territoire', page: 'Page où l\'employeur publie ses offres (https://...)', employeur: 'Fiche d\'employeur liée (identifiant, vide si aucune)',
@@ -31,7 +31,7 @@ const LIBELLES = {
 // Dans l'OUTIL, une structure ou un employeur est « à revérifier » dès 6 mois ; le site public garde sa règle (12 mois, MT_VALIDITE_MOIS) : seul Denis décide de ce qui est affiché.
 const REVOIR_MOIS = 6;
 const FICHIERS = {
-  lieux: { chemin: 'modules/mon-territoire/contenu/lieux.txt', colonnes: L.MT_COLONNES_LIEUX, coordonnees: ['telephone', 'site'], verifier: L.mtVerifierLieux, revoirMois: REVOIR_MOIS },
+  lieux: { chemin: 'modules/mon-territoire/contenu/lieux.txt', colonnes: L.MT_COLONNES_LIEUX, coordonnees: ['telephone', 'site', 'mail'], verifier: L.mtVerifierLieux, revoirMois: REVOIR_MOIS },
   employeurs: { chemin: 'modules/mon-territoire/contenu/employeurs.txt', colonnes: L.MT_COLONNES_EMPLOYEURS, coordonnees: ['telephone', 'site', 'recrutement'], verifier: L.mtVerifierEmployeurs, revoirMois: REVOIR_MOIS },
   // Une page d'offres ne s'enregistre jamais sans date de vérification à la main (dateObligatoire) ; « controle » et « stages » ne se modifient pas ici.
   offres: { chemin: 'modules/mon-territoire/contenu/offres.txt', colonnes: L.MT_COLONNES_OFFRES, coordonnees: ['page'], verifier: L.mtVerifierOffres, dateObligatoire: true, cachees: ['controle', 'stages'], revoirMois: L.MT_VALIDITE_OFFRES_MOIS, masqueeMois: L.MT_VALIDITE_MOIS }
@@ -84,6 +84,10 @@ function analyser(texte, colonnes) {
   const lignes = texte.split(/\r?\n/).map(function (brut) {
     if (!brut.trim() || /^\s*#/.test(brut)) { return { brut: brut }; }
     const p = brut.trim().split(/\s*\|\s*/).map(function (x) { return x.trim(); });
+    // Anciennes lignes des structures : la colonne « mail » (la dernière) peut manquer.
+    if (p.length === colonnes.length - 1 && colonnes[colonnes.length - 1] === 'mail') { p.push(''); }
+    // Anciennes lignes des structures : la colonne « mail » (la dernière) peut manquer.
+    if (p.length === colonnes.length - 1 && colonnes[colonnes.length - 1] === 'mail') { p.push(''); }
     if (p.length !== colonnes.length) { return { brut: brut }; }
     const v = {};
     colonnes.forEach(function (c, k) { v[c] = p[k]; });
@@ -94,6 +98,8 @@ function analyser(texte, colonnes) {
 
 // Une ligne d'enregistrement : colonnes separees par « | », une colonne vide s'ecrit « | | », la derniere peut rester vide.
 function formater(colonnes, v) {
+  // La colonne « mail » (la dernière des structures) est omise quand elle est vide : les lignes sans mail gardent leurs 12 colonnes d'origine.
+  if (colonnes[colonnes.length - 1] === 'mail' && !String(v.mail == null ? '' : v.mail).trim()) { colonnes = colonnes.slice(0, -1); }
   let t = colonnes.map(function (c) { return String(v[c] == null ? '' : v[c]).trim(); }).join(' | ');
   while (t.indexOf(' |  | ') !== -1) { t = t.replace(' |  | ', ' | | '); }
   return t.replace(/ \| $/, ' |');
@@ -178,7 +184,11 @@ function appliquer(fichier, texte, actions, aujourdhui, ctx) {
     if (ac.op === 'modifier') {
       const r = lireValeurs(id, ac.valeurs); if (r.erreur) { return { ok: false, erreur: r.erreur }; }
       const v = Object.assign({}, lignes[i].valeurs, r.valeurs);
+      // La marque « Via prospection » (debut de la source) ne se perd ni ne s'ajoute par une modification : la fiche passerait en silence d'une rubrique a l'autre.
+      if (f.colonnes.indexOf('source') !== -1 && L.mtViaProspection(lignes[i].valeurs) !== L.mtViaProspection(v)) { return { ok: false, erreur: id + ' : le début de la source (« Via prospection ; ») ne peut pas être changé ici : la fiche changerait de rubrique.' }; }
       // Les numeros PAR MAGASIN (colonne « etablissements », « Commune:adresse:05 53 00 00 00 ») sont aussi des coordonnees : un numero qui change demande une nouvelle verification.
+      // La marque « Petite structure » (début de la source) suit la même règle : on ne la pose ni ne la retire en modifiant la fiche.
+      if (f.colonnes.indexOf('source') !== -1 && L.mtPetiteStructure(lignes[i].valeurs) !== L.mtPetiteStructure(v)) { return { ok: false, erreur: id + ' : le début de la source (« Petite structure ; ») ne peut pas être changé ici : la fiche changerait de catégorie.' }; }
       const numerosMagasins = function (x) { return f.colonnes.indexOf('etablissements') !== -1 ? L.mtParserEtablissements(x.etablissements).map(function (e) { return e.telephone; }).join('|') : ''; };
       const coordonneeChangee = f.coordonnees.some(function (c) { return String(lignes[i].valeurs[c] || '') !== String(v[c] || ''); }) || numerosMagasins(lignes[i].valeurs) !== numerosMagasins(v);
       v.date = ac.dater === true ? aujourdhui : (coordonneeChangee ? '' : lignes[i].valeurs.date);

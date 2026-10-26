@@ -112,6 +112,21 @@ function corrigerForme(valeurs, colonnes, ctx) {
     const f = formatTelephone(v.telephone);
     if (f && f !== v.telephone) { noter('telephone', v.telephone, f, 'numéro mis au format 05 53 00 00 00'); v.telephone = f; }
   }
+  // Communes : le fichier officiel Sirene (donc la prospection) les ecrit sans accent et avec des majuscules (« SARLAT-LA-CANEDA », « Saint-Laurent-Des-Vignes »). Une commune qui ne differe de
+  // la liste officielle que par les accents, les majuscules ou les tirets prend l'ecriture officielle (correspondance exacte sur la cle de mtNormaliser : aucune collision sur les 698 communes).
+  if (ctx && ctx.communesNoms && ctx.communesNoms.length) {
+    const officiel = {}; ctx.communesNoms.forEach(function (n) { officiel[norm(n)] = n; });
+    const officielle = function (nom) { const o = officiel[norm(nom)]; return (o && o !== String(nom).trim()) ? o : null; };
+    if (colonnes.indexOf('commune') !== -1 && v.commune) { const o = officielle(v.commune); if (o) { noter('commune', v.commune, o, 'commune écrite comme dans la liste officielle'); v.commune = o; } }
+    if (colonnes.indexOf('etablissements') !== -1 && v.etablissements) {
+      const de = v.etablissements;
+      const vers = de.split(';').map(function (e) {
+        const i = e.indexOf(':'); if (i === -1) { return e; }
+        const o = officielle(e.slice(0, i)); return o ? (/^\s/.test(e) ? ' ' : '') + o + e.slice(i) : e;
+      }).join(';');
+      if (vers !== de) { noter('etablissements', de, vers, 'commune écrite comme dans la liste officielle'); v.etablissements = vers; }
+    }
+  }
   // Listes fermees : mise en minuscules, tirets bas et espaces en tirets, SEULEMENT si cela donne une valeur connue.
   const connue = { type: Object.keys(L.MT_TYPES), nature: ['enseigne', 'local', 'interim'], famille: ['employeur', 'portail-officiel', 'groupement', 'federation'], territoire: ['24', '87', 'region', 'national'], portee: L.MT_PORTEES, secteur: (ctx && ctx.secteurs) || [] };
   Object.keys(connue).forEach(function (c) {
@@ -248,6 +263,9 @@ function memeAdresse(index, v) {
 function decouper(brut, colonnes) {
   let p = brut.split(/\s*\|\s*/).map(function (x) { return x.trim(); });
   if (p.length === colonnes.length + 1 && p[p.length - 1] === '') { p.pop(); }
+  // Les anciennes lignes des structures n'ont pas la colonne « mail » (la dernière) : elle est alors vide.
+  if (colonnes[colonnes.length - 1] === 'mail' && p.length === colonnes.length - 2) { p.push(''); }
+  if (colonnes[colonnes.length - 1] === 'mail' && p.length === colonnes.length - 1) { p.push(''); }
   if (p.length === colonnes.length - 1) { p.push(''); }
   if (p.length !== colonnes.length) { return { ok: false, message: 'Cette ligne a ' + p.length + ' colonnes au lieu de ' + colonnes.length + ' (' + colonnes.join(' | ') + '). Une colonne vide s\'écrit « | | ».' }; }
   const v = {}; colonnes.forEach(function (c, k) { v[c] = p[k]; });
@@ -414,6 +432,12 @@ function appliquer(fichier, texteSas, actions, registres, ctx, aujourdhui) {
       const r = analyserLot(fichier, String(ac.ligne || ''), registres, sans.texte, ctx, aujourdhui);
       if (!r.ok) { return { ok: false, erreur: id + ' : ' + r.erreur }; }
       if (r.lignes.length !== 1 || r.lignes[0].statut !== 'prete') { return { ok: false, erreur: id + ' : la ligne corrigée n\'est pas valide (' + ((r.lignes[0] && r.lignes[0].problemes[0] && r.lignes[0].problemes[0].message) || (r.lignes[0] && r.lignes[0].statut) || 'illisible') + ').' }; }
+      // Les marques « Via prospection ; » et « Petite structure ; » (début de la source) ne se perdent ni ne s'ajoutent en corrigeant une carte du sas : la fiche changerait de rubrique en silence.
+      const avant = (lireSas(texte, colonnes).lignes.filter(function (l) { return l.id === id; })[0] || {}).valeurs || {}, apres = r.lignes[0].valeurs || {};
+      if (colonnes.indexOf('source') !== -1) {
+        if (L.mtViaProspection(avant) !== L.mtViaProspection(apres)) { return { ok: false, erreur: id + ' : le début de la source (« Via prospection ; ») ne peut pas être changé ici : la fiche changerait de rubrique.' }; }
+        if (L.mtPetiteStructure(avant) !== L.mtPetiteStructure(apres)) { return { ok: false, erreur: id + ' : le début de la source (« Petite structure ; ») ne peut pas être changé ici : la fiche changerait de catégorie.' }; }
+      }
       const nouvelle = T.formater(colonnes, Object.assign({}, r.lignes[0].valeurs, { date: '' }));
       const a = lignesDe(texte);
       texte = a.lignes.map(function (l) { return (l.id && l.id === id) ? nouvelle : l.brut; }).join(a.fin);

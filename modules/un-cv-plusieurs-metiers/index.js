@@ -93,6 +93,18 @@ function ucpmRepriseContinuer() {
 }
 
 // Détruit le travail du module (« Recommencer » et « Tout effacer »). Seul endroit qui remet l'état à zéro.
+// « Merci bien, j'ai fini » (page 8, apres un telechargement) : meme geste de fin que les autres parcours (la session est sauvegardee, puis effacee), mais sans passer par
+// terminerParcours(), qui propose ensuite une lettre ou un entretien (sans objet ici : le module les a deja traites).
+function ucpmTerminerParcours() {
+  if (typeof confirmerAction !== 'function') { return; }
+  confirmerAction(
+    'Merci, tout est en ordre',
+    'Vos documents sont enregistrés sur votre ordinateur. Toutes les informations de cette session vont être effacées ; vous pourrez les restaurer depuis la page d’accueil tant que vous n’aurez pas commencé un nouveau parcours.',
+    'Terminer', 'btn-success',
+    function () { if (typeof ecrireSauvegarde === 'function' && typeof sauvegarderSession === 'function') { ecrireSauvegarde(sauvegarderSession()); } if (typeof recommencer === 'function') { recommencer(); } }
+  );
+}
+
 function ucpmReinitialiser() {
   _ucpmSessionHistorique++;
   _ucpmEtat = null;
@@ -187,7 +199,10 @@ function ucpmRendrePage() {
       onclickPrecedent: 'ucpmBarreRetour()',
       onclickSuivant: 'ucpmBarreContinuer()',
       suivantDesactive: !peutContinuer,
-      suivantDesactiveMessage: raison || 'Complétez cette page pour continuer.'
+      suivantDesactiveMessage: raison || 'Complétez cette page pour continuer.',
+      // Page 8 : une fois une préparation téléchargée, le bouton vert de fin remplace l'emplacement de « Continuer » (qui n'existe pas à la dernière page).
+      terminerParcours: n >= UCPM_NB_PAGES && !!etat.p8Telecharge,
+      onclickTerminer: 'ucpmTerminerParcours()'
     }) +
     '</div>';
 
@@ -198,7 +213,7 @@ function ucpmRendrePage() {
   // Tout NOUVEL écran (autre page, ou autre vue d'un passage avec l'assistant) s'ouvre en haut : sur les pages 4 et 6, on arrive donc toujours sur « Réglez le style d'écriture »
   // (retour 50 de Denis, 2026-10-10). Un simple réaffichage du même écran (un réglage coché) garde la position.
   var vueEl = document.querySelector('[data-ucpm-vue]');
-  var cleEcran = n + ':' + (vueEl ? vueEl.getAttribute('data-ucpm-vue') : '');
+  var cleEcran = n + ':' + (vueEl ? vueEl.getAttribute('data-ucpm-vue') : (n === 3 && etat.p3Vue ? etat.p3Vue : ''));   // page 3 : chaque vue (choix, assistant, complément, éditeur) s'ouvre en haut
   var nouvelEcran = cleEcran !== _ucpmEcranRendu;
   _ucpmEcranRendu = cleEcran;
   window.scrollTo(0, (arrivee || nouvelEcran) ? 0 : scrollPrecedent);

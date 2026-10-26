@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : un seul écran d'objectif</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--warn:#f0c36a;--warnbg:#3b2f10;--new:#d9a6ec;--newbg:#3a2644}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 130px}
+.page{max-width:900px;margin:0 auto}
+h1{font-size:1.7rem;margin:1rem 0 .2rem;text-align:center}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+select{border:2px solid var(--bord);border-radius:10px;padding:.35rem .6rem;background:var(--card)}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.4rem 1rem 1rem}
+.sec>h2{font-size:1.1rem;margin:.6rem 0 .3rem;display:flex;gap:.6rem;align-items:center}
+.num{background:var(--acc);color:#fff;border-radius:50%;width:1.9rem;height:1.9rem;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:.6rem 0}
+@media(max-width:640px){.grille{grid-template-columns:1fr}}
+.cobj{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.7rem;text-align:left;display:flex;flex-direction:column;gap:.15rem;transition:border-color .2s,background .2s,box-shadow .2s}
+.cobj .ico{font-size:1.4rem;width:2.2rem;height:2.2rem;border-radius:10px;background:var(--accbg);display:inline-flex;align-items:center;justify-content:center;color:var(--acc)}
+.cobj b{display:block}.cobj span.d{font-size:.85rem;color:var(--muted)}
+.cobj:hover{border-color:var(--acc)}.cobj.actif{border-color:var(--acc);background:var(--accbg)}
+.cobj.invite{border-color:var(--acc);background:var(--accbg);box-shadow:0 0 0 4px var(--accbg),0 4px 14px rgba(13,110,253,.25)}
+.cobj.invite .ico{background:var(--acc);color:#fff}
+.jetons{display:flex;flex-wrap:wrap;gap:.5rem;margin:.3rem 0;align-items:center}
+.jeton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.45rem .9rem;font-weight:600}
+.jeton:hover{border-color:var(--acc)}
+.jeton.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.jeton.actif::before{content:"\2713\00a0"}
+.lib{font-weight:700;margin:.9rem 0 .3rem;font-size:1.02rem}
+.champ{border:2px solid var(--bord);border-left:5px solid var(--acc);border-radius:10px;padding:.6rem .8rem;background:var(--sub);margin:.6rem 0}
+.champ label{display:block;font-weight:700;margin-bottom:.25rem}
+input[type=text]{width:100%;border:2px solid var(--bord);border-radius:10px;padding:.5rem .7rem;background:var(--card)}
+.opt{border:2px dashed var(--bord);border-radius:12px;padding:.5rem .8rem;margin:.7rem 0;background:var(--sub)}
+.opt h3{font-size:1rem;margin:.2rem 0}
+.resume{background:var(--sub);border-left:4px solid var(--acc);border-radius:8px;padding:.5rem .8rem;margin-top:1rem}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:900px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.nav.suivant:disabled{opacity:.45;cursor:not-allowed}
+.raison{position:absolute;right:0;bottom:calc(100% + .5rem);max-width:24rem;text-align:right;color:var(--warn);background:var(--warnbg);border:1px solid var(--warn);border-radius:8px;padding:.25rem .6rem;font-size:.85rem}
+.raison:empty{display:none}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.tag{font-size:.75rem;border-radius:999px;padding:.1rem .6rem;background:var(--newbg);color:var(--new);margin-left:auto}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:2rem 0}
+.questions h2{color:var(--new);font-size:1.1rem}.questions li{margin:.7rem 0}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (25/10/2026) : un seul écran d'objectif</strong>
+  <span style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+    <label class="tog">Parcours :
+      <select id="parcours">
+        <option value="lettre">Écrire ma lettre avec l'assistant</option>
+        <option value="entretien">M'entraîner à un entretien</option>
+        <option value="cv">Créer un nouveau CV</option>
+        <option value="reformuler">Reformuler mon CV</option>
+        <option value="reprendre">Reprendre mon CV (voie 1)</option>
+        <option value="rapide">Lettre ou fiche en version rapide</option>
+        <option value="bilan">Analyser ma candidature</option>
+        <option value="coherence">Cohérence de mon dossier</option>
+      </select></label>
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Annotations</label>
+    <button class="mini" id="tTheme" type="button">Mode sombre</button>
+    <button class="mini" id="tReset" type="button">Revenir au début</button>
+  </span>
+</div>
+
+<div class="note"><b>Ce que montre cette maquette.</b> C'est <b>le même écran</b> dans tous les parcours : les six mêmes cartes, le même effet d'invitation, la même partie « Votre candidature » (celle de « Écrire ma lettre »). Seules les cases en pointillés changent d'un parcours à l'autre (menu en haut). Les cartes viennent toujours <b>avant</b> le premier passage chez l'assistant.</div>
+
+<h1 id="titre">&#127919; Votre objectif</h1>
+<p class="muted" style="text-align:center" id="sous">Le poste ou le type de démarche que vous visez.</p>
+<div class="note" id="noteOrdre"></div>
+
+<div class="sec"><h2><span class="num">1</span> Quel type de candidature préparez-vous ? <span class="tag">cartes identiques partout</span></h2>
+  <div class="grille" id="cartes"></div>
+  <div class="note">Effet d'invitation : tant qu'aucune carte n'est choisie, les cartes se mettent en avant <b>une à une, sans s'arrêter, jusqu'au premier clic</b> (comme dans « Créer un nouveau CV à la main »). Il reprend à chaque arrivée sans carte choisie. Il s'arrête aussi si vous passez la souris sur une carte.</div>
+</div>
+
+<div id="zoneSuite"></div>
+
+<div class="questions">
+  <h2>Questions pour Denis</h2>
+  <ol>
+    <li><b>L'emballage unique (recommandé)</b> : la partie numérotée « Votre candidature » de la lettre, toujours ouverte, partout. Les anciens blocs repliables « Candidature recommandé » disparaissent. Bénéfice : un seul écran à entretenir, plus de différences entre parcours. Risque : un peu de re-test sur Bilan, Cohérence et Découverte, qui l'utilisent aujourd'hui.</li>
+    <li><b>Les phrases des cartes</b> : aujourd'hui elles parlent du CV, même dans la lettre. Neutres (« Adapter vos documents à une offre ») recommandé ; sinon on les garde telles quelles.</li>
+    <li><b>Découverte</b> garde-t-elle ses trois cartes (offre, spontanée, stage) ou passe-t-elle aux six ?</li>
+    <li><b>Les appuis (lettre de recommandation)</b> sur « Votre objectif » du CV : oui, comme dans la lettre (recommandé) ; en version rapide, non.</li>
+    <li><b>Ordre des pas</b> : d'abord l'écran unique et « Votre objectif » du CV, puis Reformuler et Reprendre mon CV (cartes avant le premier passage), puis Bilan et Cohérence, Découverte et « Un CV, plusieurs métiers », puis la version rapide (Lot 4b).</li>
+  </ol>
+</div>
+</div>
+
+<div class="barre"><div class="in">
+  <button class="nav" type="button">&#8592; Retour</button>
+  <button class="nav" type="button">&#127968; Accueil</button>
+  <span class="raison" id="raison"></span>
+  <button class="nav suivant" id="continuer" type="button" disabled>Continuer &#8594;</button>
+</div></div>
+
+<script>
+var CARTES=[
+ {id:'offre',ico:'📄',t:'Répondre à une offre',d:'Adapter vos documents à une offre.'},
+ {id:'spontanee',ico:'🏢',t:'Candidature spontanée',d:'Préparer une candidature pour une entreprise.'},
+ {id:'reconversion',ico:'🔁',t:'Changer de métier',d:'Valoriser vos compétences.'},
+ {id:'stage',ico:'🎓',t:'Stage',d:'Adapter vos documents à une recherche de stage.'},
+ {id:'alternance',ico:'👥',t:'Alternance',d:'Adapter vos documents à une alternance.'},
+ {id:'formation',ico:'📖',t:'Formation',d:'Adapter vos documents à une demande de formation.'}];
+// Ce que chaque parcours ajoute (cases en pointillés) : appuis, civilité du recruteur, poste recherché, situation, module.
+var PARCOURS={
+ lettre:{h1:'✍️ Écrire ma lettre de motivation avec l’assistant',appuis:1,civ:1,poste:1,situation:1,ordre:'Ordre : 1 Votre CV, 2 Votre candidature (cartes), 3 Adaptation au métier, puis Continuer. Référent : rien ne change ici.'},
+ entretien:{h1:'🎤 M’entraîner à un entretien d’embauche',appuis:1,civ:1,poste:0,situation:1,ordre:'Ordre : 1 Votre CV, 2 Votre candidature (cartes), 3 Adaptation au métier. Comme la lettre.'},
+ cv:{h1:'🎯 Votre objectif',appuis:1,civ:0,poste:1,couleur:1,situation:0,ordre:'Ordre : cartes, puis Vos informations. Change : le bloc repliable « Candidature » disparaît pour stage, alternance et formation, et les appuis s’ajoutent.'},
+ reformuler:{h1:'📝 Préparer votre CV',appuis:0,civ:0,poste:0,metier:1,situation:0,ordre:'Ordre : 1 Votre CV, 2 Votre objectif (cartes), puis Choisir mon assistant. Change : emballage unique, plus de bloc repliable.'},
+ reprendre:{h1:'✏️ Reprendre mon CV : le garder et le compléter',appuis:0,civ:0,poste:0,metier:1,situation:0,ordre:'<b>Change (point 2 de Denis)</b> : les cartes viennent maintenant <b>avant</b> le premier passage chez l’assistant (aujourd’hui : l’assistant d’abord, les cartes après). Ordre : CV, objectif, assistant, vérification.'},
+ rapide:{h1:'⚡ Lettre et entretien en version rapide',appuis:0,civ:0,poste:0,situation:0,ordre:'<b>Change (points 6 et 10, Lot 4b)</b> : CV, choix du parcours, <b>objectif</b>, premier passage (lecture du CV), style d’écriture, second passage. Pas de lettre de recommandation en version rapide.'},
+ bilan:{h1:'🔎 Analyser ma candidature',appuis:0,civ:0,poste:0,situation:1,ordre:'Ordre : 1 Votre CV, 2 Votre candidature (cartes). Change : emballage unique ; la situation reste propre à l’analyse.'},
+ coherence:{h1:'🧩 Cohérence de mon dossier',appuis:0,civ:0,poste:0,situation:1,module:1,ordre:'Ordre : 1 Votre CV, 2 Lettre, 3 Entretien, 4 Votre candidature (cartes). Change : emballage unique ; l’aide « photo de l’offre » et la question libre restent propres au module.'}
+};
+var etat={carte:null,forme:null,metier:'',entreprise:'',reco:null};
+var tempo=null, idx=0;
+function $(s){return document.querySelector(s)}
+function rendreCartes(){
+  $('#cartes').innerHTML=CARTES.map(function(c){return '<button class="cobj'+(etat.carte===c.id?' actif':'')+'" data-id="'+c.id+'" type="button" aria-pressed="'+(etat.carte===c.id)+'"><span class="ico">'+c.ico+'</span><b>'+c.t+'</b><span class="d">'+c.d+'</span></button>'}).join('');
+  document.querySelectorAll('.cobj').forEach(function(b){b.addEventListener('click',function(){etat.carte=b.dataset.id;etat.forme=null;arreterInvite();rendre()});b.addEventListener('mouseenter',arreterInvite)});
+}
+function arreterInvite(){clearInterval(tempo);tempo=null;document.querySelectorAll('.cobj.invite').forEach(function(e){e.classList.remove('invite')})}
+function lancerInvite(){
+  arreterInvite(); if(etat.carte){return}
+  var cs=document.querySelectorAll('.cobj'); idx=0;
+  function pas(){cs.forEach(function(c){c.classList.remove('invite')});cs[idx%cs.length].classList.add('invite');idx++}
+  pas(); tempo=setInterval(pas,1800);
+}
+function jetons(liste,cle){return '<div class="jetons">'+liste.map(function(x){return '<button type="button" class="jeton'+(etat[cle]===x[0]?' actif':'')+'" data-cle="'+cle+'" data-val="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'}
+function rendreSuite(){
+  var p=PARCOURS[$('#parcours').value], h='';
+  if(!etat.carte){$('#zoneSuite').innerHTML='<p class="muted" style="text-align:center">Choisissez un type de candidature ci-dessus pour préciser votre candidature.</p>';return}
+  var c=etat.carte, num=($('#parcours').value==='coherence')?'4':'2';
+  h+='<div class="sec"><h2><span class="num">'+num+'</span> Votre candidature <span class="tag">emballage unique (celui de la lettre)</span></h2>';
+  h+='<p class="muted">Plus vous en dites ici, plus le résultat sera ciblé. Tout est à compléter, rien d’autre n’est bloquant.</p>';
+  if(c==='offre'){
+    h+='<div class="champ"><label>&#128188; L’offre et l’entreprise</label><input type="text" id="fEnt" placeholder="Entreprise ciblée (à compléter)" value="'+etat.entreprise+'"><input type="text" placeholder="Lien ou texte de l’offre (à compléter)" style="margin-top:.4rem"></div>';
+    h+='<p class="lib">Quel métier cherchez-vous ?</p><input type="text" id="fMet" placeholder="Recherchez un métier" value="'+etat.metier+'">';
+  } else if(c==='spontanee'||c==='reconversion'){
+    h+='<p class="lib">Votre recherche porte sur :</p>'+jetons([['m','Un métier précis'],['d','Plusieurs métiers d’un même domaine']],'forme');
+    h+='<p class="lib">&#128221; Comment présentez-vous votre candidature ?</p>'+jetons([['g','Je me présente de façon générale'],['e','Je m’adresse à une entreprise précise']],'reco2');
+    if(etat.reco2==='e'){h+='<div class="champ"><label>&#127970; L’entreprise visée</label><input type="text" id="fEnt" placeholder="Nom de l’entreprise (nécessaire pour continuer)" value="'+etat.entreprise+'"></div>'}
+  } else {
+    h+='<p class="lib">Type de structure et dates</p><div class="champ"><label>&#127970; Structure d’accueil</label><input type="text" id="fEnt" placeholder="À compléter" value="'+etat.entreprise+'"></div>';
+    if(c==='stage'){h+='<p class="lib">Quel type de stage ?</p>'+jetons([['f','Stage de formation'],['i','Stage d’immersion (PMSMP)']],'reco2')}
+  }
+  if(p.metier&&(c==='stage'||c==='alternance'||c==='formation')){h+='<div class="opt"><h3>Métier ou domaine visé (à compléter)</h3><input type="text" placeholder="Le vocabulaire de l’assistant en dépend"><div class="small muted">Case du parcours « '+$('#parcours').selectedOptions[0].text+' »</div></div>'}
+  if(p.civ&&(c==='offre'||c==='spontanee'||c==='reconversion')){h+='<div class="opt"><h3>Connaissez-vous la personne en charge du recrutement ?</h3>'+jetons([['n','Je ne sais pas'],['m','Oui, Monsieur'],['f','Oui, Madame']],'civ')+'<div class="small muted">Case de ce parcours : civilité du recruteur.</div></div>'}
+  if(p.poste){h+='<div class="opt"><h3>&#128188; Le poste que vous recherchez (à compléter)</h3><div class="small muted">Contrat, temps de travail, disponibilité, horaires. Case de ce parcours.</div><div class="jetons"><span class="jeton">CDD</span><span class="jeton">CDI</span><span class="jeton">Temps plein</span></div></div>'}
+  if(p.couleur){h+='<div class="opt"><h3>Couleur de l’entreprise (CV seulement)</h3><div class="small muted">Case propre au CV.</div></div>'}
+  if(p.appuis){h+='<div class="opt"><h3>&#129309; Vos appuis</h3><p class="small">Une lettre de recommandation donne du poids à votre candidature.</p>'+jetons([['o','Oui'],['n','Non']],'reco')+'<div class="small muted">Case des parcours approfondis (jamais en version rapide). Nouveau sur « Votre objectif » du CV.</div></div>'}
+  if(p.situation){h+='<div class="opt"><h3>Votre situation actuelle</h3><div class="small muted">Case propre au parcours (adapte la lettre, l’entretien ou l’analyse).</div></div>'}
+  if(p.module){h+='<div class="opt"><h3>&#128172; Une question ou une demande précise ? (à compléter)</h3><div class="small muted">Case propre à Cohérence. Avec l’aide « photo de l’offre ».</div></div>'}
+  h+='</div><div class="resume"><b>Récapitulatif :</b> '+CARTES.filter(function(x){return x.id===c})[0].t+(etat.entreprise?' · '+etat.entreprise:'')+(etat.metier?' · '+etat.metier:'')+'</div>';
+  $('#zoneSuite').innerHTML=h;
+  document.querySelectorAll('.jeton[data-cle]').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.cle;etat[k]=(etat[k]===b.dataset.val)?null:b.dataset.val;rendreSuite();majBarre()})});
+  ['fEnt','fMet'].forEach(function(id){var e=document.getElementById(id);if(e){e.addEventListener('input',function(){if(id==='fEnt')etat.entreprise=e.value;else etat.metier=e.value;majBarre()})}});
+}
+function raison(){
+  if(!etat.carte)return 'Choisissez d’abord un type de candidature ci-dessus.';
+  if((etat.carte==='spontanee'||etat.carte==='reconversion')&&etat.reco2==='e'&&!etat.entreprise)return 'Il reste à indiquer le nom de l’entreprise visée.';
+  if(etat.carte==='offre'&&!etat.metier&&!etat.entreprise)return 'Il reste à indiquer le métier cherché ou l’entreprise.';
+  return '';
+}
+function majBarre(){var r=raison();$('#raison').textContent=r;$('#continuer').disabled=!!r}
+function rendre(){
+  var p=PARCOURS[$('#parcours').value];
+  $('#titre').innerHTML=p.h1; $('#noteOrdre').innerHTML='<b>Ordre des écrans dans ce parcours.</b> '+p.ordre;
+  rendreCartes(); rendreSuite(); majBarre(); if(!etat.carte){setTimeout(lancerInvite,150)}
+}
+$('#parcours').addEventListener('change',function(){etat={carte:null,forme:null,metier:'',entreprise:'',reco:null};rendre()});
+$('#tAnn').addEventListener('change',function(){document.body.classList.toggle('ann',this.checked)});
+$('#tTheme').addEventListener('click',function(){var s=document.documentElement.getAttribute('data-theme')==='sombre';document.documentElement.setAttribute('data-theme',s?'clair':'sombre')});
+$('#tReset').addEventListener('click',function(){etat={carte:null,forme:null,metier:'',entreprise:'',reco:null};rendre()});
+rendre();
+</script>
+</body>
+</html>

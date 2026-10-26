@@ -113,6 +113,16 @@ function ucpmLireReponseAccroches(texte, ids) {
 
 // ---------------- Page 6 : lettres ----------------
 
+// L'assistant écrit les lettres par groupes de ce nombre (prompts/ucpm-lettres.md) ; au-delà, la personne lui répond « oui » pour la suite (page 6).
+var UCPM_LETTRES_PAR_REPONSE = 5;
+
+// Les CV (identifiants) dont la lettre est encore à recevoir, SEULEMENT quand la demande a dépassé un groupe : jusqu'à 5 CV tout arrive d'un coup, aucune suite à annoncer.
+function ucpmIdsEnAttenteDeSuite(ids, lettres) {
+  var liste = ids || [];
+  if (liste.length <= UCPM_LETTRES_PAR_REPONSE) { return []; }
+  return liste.filter(function (id) { return !String((lettres && lettres[id]) || '').trim(); });
+}
+
 // Bloc {CVS} : une entrée par CV, avec titre, accroche retenue, objectif complet, ligne directrice, détails, et ce que la personne a donné (employeur, recruteur, poste,
 // extrait d'offre, « autre chose à dire »). items = [{ titre, accroche, objectif }].
 function ucpmBlocCvLettres(items, lignes) {
@@ -335,6 +345,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ucpmNomComplet: ucpmNomComplet, ucpmPreparerLettresRecues: ucpmPreparerLettresRecues, ucpmFusionnerLettres: ucpmFusionnerLettres,
     ucpmHachage: ucpmHachage, ucpmSignatureEntree: ucpmSignatureEntree, ucpmSignaturesAccroches: ucpmSignaturesAccroches, ucpmAccrochesPerimees: ucpmAccrochesPerimees,
     ucpmSignaturesLettres: ucpmSignaturesLettres, ucpmLettresPerimees: ucpmLettresPerimees,
+    UCPM_LETTRES_PAR_REPONSE: UCPM_LETTRES_PAR_REPONSE, ucpmIdsEnAttenteDeSuite: ucpmIdsEnAttenteDeSuite,
     ucpmLettreLongue: ucpmLettreLongue, ucpmSansTiretLong: ucpmSansTiretLong, UCPM_LETTRE_LONGUE_MOTS: UCPM_LETTRE_LONGUE_MOTS
   };
 }

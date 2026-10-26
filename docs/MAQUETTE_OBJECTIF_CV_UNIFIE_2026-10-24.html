@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Votre objectif du CV</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 120px}
+.page{max-width:900px;margin:0 auto}
+h1{font-size:1.7rem;margin:1rem 0 .2rem;text-align:center}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.4rem 1rem 1rem}
+.sec>h2{font-size:1.1rem;margin:.6rem 0 .3rem;display:flex;gap:.6rem;align-items:center}
+.num{background:var(--acc);color:#fff;border-radius:50%;width:1.9rem;height:1.9rem;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:.6rem 0}
+.cobj{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.7rem;text-align:center}
+.cobj:hover{border-color:var(--acc)}.cobj.actif{border-color:var(--acc);background:var(--accbg)}
+.cobj b{display:block}.cobj span{font-size:.85rem;color:var(--muted)}
+.jetons{display:flex;flex-wrap:wrap;gap:.5rem;margin:.3rem 0;align-items:center}
+.jeton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.45rem .9rem;font-weight:600}
+.jeton:hover{border-color:var(--acc)}
+.jeton.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.jeton.actif::before{content:"\2713\00a0"}
+.lib{font-weight:700;margin:.9rem 0 .3rem;font-size:1.02rem}
+.champ{border:2px solid var(--bord);border-left:5px solid var(--acc);border-radius:10px;padding:.6rem .8rem;background:var(--sub);margin:.6rem 0}
+.champ label{display:block;font-weight:700;font-size:1.02rem;margin-bottom:.25rem}
+input[type=text],textarea,select{width:100%;border:2px solid var(--bord);border-radius:10px;padding:.5rem .7rem;background:var(--card)}
+.retenu{font-weight:600;color:var(--ok);margin:.4rem 0}
+.alerte{background:var(--warnbg);border:2px solid var(--warn);border-radius:12px;padding:.6rem .9rem;margin:.6rem 0}
+.resume{background:var(--sub);border-left:4px solid var(--acc);border-radius:8px;padding:.5rem .8rem;margin-top:1rem}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:900px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.nav.suivant:disabled{opacity:.45;cursor:not-allowed}
+.barre .in{position:relative}
+.raison{position:absolute;right:0;bottom:calc(100% + .5rem);max-width:24rem;text-align:right;color:var(--warn);background:var(--warnbg);border:1px solid var(--warn);border-radius:8px;padding:.25rem .6rem;font-size:.85rem;margin:0}
+.raison:empty{display:none}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.tag{font-size:.75rem;border-radius:999px;padding:.1rem .6rem;background:var(--sub);border:1px solid var(--bord);margin-left:auto}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:2rem 0}
+.questions h2{color:var(--new);font-size:1.1rem}.questions li{margin:.7rem 0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:var(--txt);color:var(--bg);border-radius:10px;padding:.5rem 1rem;font-size:.9rem;opacity:0;transition:opacity .3s;z-index:9;pointer-events:none}
+.toast.vu{opacity:1}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (24/10/2026) : « Votre objectif » du CV, un seul écran</strong>
+  <span style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Voir les annotations</label>
+    <button class="mini" id="tTheme" type="button">Mode sombre</button>
+    <button class="mini" id="tReset" type="button">Revenir au début</button>
+  </span>
+</div>
+<h1>&#127919; Votre objectif</h1>
+<p class="muted" style="text-align:center">Le poste ou le type de démarche que vous visez.</p>
+<div class="note">Cette maquette remplace les deux blocs repliables d'aujourd'hui (« Candidature » puis « Le poste que vous recherchez ») par <b>un seul écran en trois parties numérotées</b>, avec la logique de la lettre : offre sans offre = spontanée, spontanée à deux choix, domaine avec intitulé, changer de métier à trois choix, champs démarqués. Tout est cliquable.</div>
+
+<div class="sec"><h2><span class="num">1</span> Quel type de candidature préparez-vous ?</h2>
+  <div class="grille" id="cartes"></div>
+  <div class="note">Les six cartes d'aujourd'hui, inchangées. Changer de carte entre « Répondre à une offre », « Candidature spontanée » et « Changer de métier » remet à zéro la partie 2 (aucune information conservée : plus de contradictions). Stage, alternance, immersion et formation gardent leur écran actuel (hors de cette refonte).</div>
+</div>
+
+<div class="sec" id="sec2" hidden><h2><span class="num">2</span> Votre candidature <span class="tag" id="tag2">à compléter</span></h2>
+  <div id="corps2"></div>
+</div>
+
+<div class="sec" id="sec3" hidden><h2><span class="num">3</span> Le poste que vous recherchez <span class="tag">à compléter</span></h2>
+  <p class="small muted">Ce que vous acceptez : cela aide à proposer un CV adapté.</p>
+  <div class="lib">&#128188; Type de contrat</div><div class="jetons" id="jContrat"></div>
+  <div class="lib">&#9201;&#65039; Temps de travail</div><div class="jetons" id="jTemps"></div>
+  <div class="lib">&#128197; Horaires acceptés</div><div class="jetons" id="jHoraires"></div>
+  <div class="note">Les mêmes questions qu'aujourd'hui dans « Le poste que vous recherchez » (contrat, temps de travail, horaires), à plat, avec les mêmes jetons. Pas de destinataire, de service ni de lettre de recommandation : ce sont des questions de la lettre, pas du CV.</div>
+</div>
+
+<div class="resume" id="resume" hidden></div>
+
+<div class="questions">
+  <h2>Trois questions pour vous, Denis</h2>
+  <ol>
+    <li><b>Un seul écran en trois parties, au lieu de deux blocs repliables ?</b> Recommandé : <b>oui</b>, c'est ce qui a comblé les trous sur la lettre, et tout reste visible sans replier ni déplier. Autre choix : garder les deux blocs, mais avec les nouvelles questions dedans.</li>
+    <li><b>La partie 3 (contrat, temps de travail, horaires) reste-t-elle sur cet écran ?</b> Recommandé : <b>oui</b>, elle existe déjà ici aujourd'hui et sert au CV ; elle ne s'affiche que pour offre, spontanée et changer de métier. Autre choix : la déplacer ailleurs (plus de pas pour la personne).</li>
+    <li><b>Le bouton « Continuer » reste dans la barre du bas, grisé avec la raison écrite au-dessus</b> (comme « Choisir mon assistant ») ? Recommandé : <b>oui</b>. Autre choix : un bouton dans la page.</li>
+  </ol>
+</div>
+</div>
+
+<div class="barre"><div class="in">
+  <p class="raison" id="raison"></p>
+  <button class="nav" type="button" id="nRetour">&larr; Retour</button>
+  <button class="nav" type="button" id="nAccueil">&#127968; Accueil</button>
+  <button class="nav suivant" type="button" id="nSuite" disabled>Continuer &rarr;</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  var CARTES = [
+    ['offre', '&#128196;', 'Répondre à une offre', 'Adapter votre CV à une offre.'],
+    ['spontanee', '&#127970;', 'Candidature spontanée', 'Créer un CV pour une entreprise.'],
+    ['reconversion', '&#128260;', 'Changer de métier', 'Valoriser vos compétences.'],
+    ['stage', '&#127891;', 'Stage', 'CV adapté à une recherche de stage.'],
+    ['alternance', '&#128101;', 'Alternance', 'CV adapté à une alternance.'],
+    ['formation', '&#128214;', 'Formation', 'CV adapté à une demande de formation.']
+  ];
+  var DOMAINE = 'Bâtiment et travaux publics';
+  var INTITULES = ['Ouvrier polyvalent du bâtiment', 'Aide-maçon polyvalent', 'Ouvrier du second œuvre', 'Ouvrier de chantier polyvalent', 'Aide-électricien du bâtiment', 'Ouvrier peintre en bâtiment'];
+  var CONTRATS = ['CDD', 'CDI', 'Remplacements', 'Intérim', 'Tout'];
+  var TEMPS = ['Temps plein', 'Temps partiel', 'Peu importe'];
+  var HORAIRES = ['Journée', 'Soir', 'Week-end', 'Nuit', 'Horaires coupés', 'Peu importe'];
+  var init = function () { return { obj: null, forme: null, mode: 'metier', metier: '', ent: '', site: '', offre: '', struct: '', intitule: '', libre: false, contrat: [], temps: [], horaires: [], domaine: false }; };
+  var E = init();
+
+  function jetons(el, liste, cle, multi) {
+    $(el).innerHTML = liste.map(function (v) { var a = E[cle].indexOf(v) !== -1; return '<button type="button" class="jeton' + (a ? ' actif' : '') + '" data-v="' + esc(v) + '">' + esc(v) + '</button>'; }).join('');
+    Array.prototype.forEach.call($(el).querySelectorAll('[data-v]'), function (b) {
+      b.addEventListener('click', function () { var v = this.getAttribute('data-v'); var i = E[cle].indexOf(v); if (i === -1) { E[cle].push(v); } else { E[cle].splice(i, 1); } maj(); });
+    });
+  }
+  function jetonUn(cle, valeur, lib, action) { return '<button type="button" class="jeton' + (E[cle] === valeur ? ' actif' : '') + '" data-act="' + action + '" data-val="' + esc(valeur) + '">' + lib + '</button>'; }
+  function champ(ico, lib, corps) { return '<div class="champ"><label>' + ico + ' ' + lib + '</label>' + corps + '</div>'; }
+
+  function sans() { return !E.offre.trim(); }
+  function corps2() {
+    var h = '';
+    if (E.obj === 'offre') {
+      h += '<div class="lib">&#128188; Quel est le métier de l\'offre ?</div><input type="text" id="fMetier" placeholder="Ex. Magasinier" value="' + esc(E.metier) + '">';
+      h += champ('&#127970;', 'Entreprise ciblée', '<input type="text" id="fEnt" placeholder="Ex. Boulangerie Dupont" value="' + esc(E.ent) + '">');
+      h += champ('&#127760;', 'Site internet de l’entreprise', '<input type="text" id="fSite" placeholder="https://..." value="' + esc(E.site) + '">');
+      h += champ('&#128196;', 'Offre d’emploi', '<textarea id="fOffre" rows="3" placeholder="Collez ici le texte de l’offre, ou son lien">' + esc(E.offre) + '</textarea>');
+      h += '<div class="alerte" id="msgSansOffre"' + (sans() ? '' : ' hidden') + '>Sans offre saisie, votre candidature sera traitée comme une <b>candidature spontanée</b> auprès de cette entreprise.</div>';
+    } else if (E.obj === 'spontanee' || E.obj === 'reconversion') {
+      if (E.obj === 'reconversion') {
+        h += '<div class="lib">&#128221; Comment présentez-vous votre candidature ?</div><div class="jetons">' + jetonUn('forme', 'offre', '', 'forme').replace('></button>', '>Je réponds à une offre d’emploi</button>') + jetonUn('forme', 'entreprise', 'Je m’adresse à une entreprise précise, sans offre', 'forme') + jetonUn('forme', 'generale', 'Je me présente de façon générale, sans viser une entreprise', 'forme') + '</div>';
+      } else {
+        h += '<div class="lib">&#128221; Comment présentez-vous votre candidature ?</div><div class="jetons">' + jetonUn('forme', 'generale', 'Je me présente de façon générale, sans viser une entreprise', 'forme') + jetonUn('forme', 'entreprise', 'Je m’adresse à une entreprise précise', 'forme') + '</div>';
+      }
+      h += '<div class="lib">&#128269; Votre recherche porte sur</div><div class="jetons">' + jetonUn('mode', 'metier', 'Un métier précis', 'mode') + jetonUn('mode', 'domaine', 'Plusieurs métiers d’un même domaine', 'mode') + '</div>';
+      if (E.mode === 'metier') {
+        h += '<div class="lib">&#128188; Quel métier cherchez-vous ?</div><input type="text" id="fMetier" placeholder="Ex. Magasinier" value="' + esc(E.metier) + '">';
+      } else {
+        h += '<div class="lib">&#127991;&#65039; Domaine choisi</div><p class="retenu">&#10003; ' + DOMAINE + '</p>' +
+          '<div class="lib">&#127991;&#65039; Quel intitulé de poste mettre en avant ?</div><div class="jetons">' +
+          INTITULES.map(function (n) { return '<button type="button" class="jeton' + (!E.libre && E.intitule === n ? ' actif' : '') + '" data-act="intitule" data-val="' + esc(n) + '">' + n + '</button>'; }).join('') +
+          '<button type="button" class="jeton' + (E.libre ? ' actif' : '') + '" data-act="libre">&#9998;&#65039; Écrire mon intitulé</button></div>' +
+          (E.libre ? '<input type="text" id="fIntitule" placeholder="Écrivez votre intitulé de poste" value="' + esc(E.intitule) + '" style="margin-top:.5rem">' : '') +
+          '<p class="retenu" id="retenu">' + (E.intitule ? '&#10003; Intitulé retenu : ' + esc(E.intitule) : '<span class="muted">Aucun intitulé retenu pour le moment.</span>') + '</p>';
+      }
+      if (E.forme === 'entreprise' || (E.obj === 'reconversion' && E.forme === 'offre')) {
+        h += champ('&#127970;', 'Entreprise ciblée', '<input type="text" id="fEnt" placeholder="Ex. Boulangerie Dupont" value="' + esc(E.ent) + '">');
+        h += champ('&#127760;', 'Site internet de l’entreprise', '<input type="text" id="fSite" placeholder="https://..." value="' + esc(E.site) + '">');
+        if (E.forme === 'offre') { h += champ('&#128196;', 'Offre d’emploi', '<textarea id="fOffre" rows="3" placeholder="Collez ici le texte de l’offre, ou son lien">' + esc(E.offre) + '</textarea>'); }
+      }
+      if (E.forme === 'generale') { h += champ('&#127991;&#65039;', 'Type de structure', '<select id="fStruct"><option>Non précisé</option><option>Entreprise privée</option><option>Association</option><option>Collectivité</option></select>'); }
+    } else {
+      h += '<p class="muted">Stage, alternance, formation : l’écran actuel est conservé (non redessiné ici).</p>';
+    }
+    return h;
+  }
+  function ok() {
+    if (!E.obj) { return 'Choisissez d’abord un type de candidature.'; }
+    if (['stage', 'alternance', 'formation'].indexOf(E.obj) !== -1) { return ''; }
+    if (E.obj === 'offre') { return !E.metier.trim() ? 'Il reste à indiquer le métier visé.' : !E.ent.trim() ? 'Il reste à indiquer le nom de l’entreprise.' : ''; }
+    if (!E.forme) { return 'Il reste à choisir comment vous présentez votre candidature.'; }
+    if (E.mode === 'metier' && !E.metier.trim()) { return 'Il reste à indiquer le métier visé.'; }
+    if (E.mode === 'domaine' && !E.intitule.trim()) { return 'Il reste à choisir ou écrire l’intitulé de poste.'; }
+    if ((E.forme === 'entreprise' || E.forme === 'offre') && !E.ent.trim()) { return 'Il reste à indiquer le nom de l’entreprise.'; }
+    return '';
+  }
+  function maj(redessiner) {
+    $('cartes').innerHTML = CARTES.map(function (c) { return '<button type="button" class="cobj' + (E.obj === c[0] ? ' actif' : '') + '" data-c="' + c[0] + '"><b>' + c[1] + ' ' + c[2] + '</b><span>' + c[3] + '</span></button>'; }).join('');
+    Array.prototype.forEach.call($('cartes').querySelectorAll('[data-c]'), function (b) {
+      b.addEventListener('click', function () {
+        var n = this.getAttribute('data-c'); var trois = ['offre', 'spontanee', 'reconversion'];
+        if (E.obj && E.obj !== n && trois.indexOf(E.obj) !== -1 && trois.indexOf(n) !== -1) { var c = E.contrat, t = E.temps, hh = E.horaires; E = init(); E.contrat = c; E.temps = t; E.horaires = hh; toast('Carte changée : la partie 2 est remise à zéro.'); }
+        E.obj = n; maj(true);
+      });
+    });
+    $('sec2').hidden = !E.obj; $('sec3').hidden = !E.obj || ['offre', 'spontanee', 'reconversion'].indexOf(E.obj) === -1;
+    $('corps2').innerHTML = corps2();
+    câbler();
+    jetons('jContrat', CONTRATS, 'contrat'); jetons('jTemps', TEMPS, 'temps'); jetons('jHoraires', HORAIRES, 'horaires');
+    var r = ok(); $('tag2').textContent = E.obj && !r ? 'complété' : 'à compléter'; $('raison').textContent = r ? '⚠️ ' + r : ''; $('nSuite').disabled = !!r;
+    var rs = $('resume'); rs.hidden = !E.obj;
+    var l = [(CARTES.filter(function (c) { return c[0] === E.obj; })[0] || [0, 0, ''])[2]];
+    if (E.mode === 'domaine' && E.intitule) { l.push(DOMAINE + ' : ' + E.intitule); } else if (E.metier) { l.push(E.metier); }
+    if (E.ent) { l.push(E.ent); } if (E.forme === 'generale') { l.push('candidature générale'); } if (E.contrat.length) { l.push(E.contrat.join(', ')); } if (E.temps.length) { l.push(E.temps.join(', ')); }
+    rs.innerHTML = '<b>En résumé :</b> ' + l.map(esc).join(' &middot; ');
+  }
+  function câbler() {
+    Array.prototype.forEach.call($('corps2').querySelectorAll('[data-act]'), function (b) {
+      b.addEventListener('click', function () {
+        var a = this.getAttribute('data-act'), v = this.getAttribute('data-val');
+        if (a === 'forme') { E.forme = v; } else if (a === 'mode') { E.mode = v; E.intitule = ''; E.libre = false; } else if (a === 'intitule') { E.intitule = v; E.libre = false; } else if (a === 'libre') { E.libre = true; E.intitule = ''; }
+        maj(true); var f = $('fIntitule'); if (f && a === 'libre') { f.focus(); }
+      });
+    });
+    [['fMetier', 'metier'], ['fEnt', 'ent'], ['fSite', 'site'], ['fOffre', 'offre'], ['fIntitule', 'intitule']].forEach(function (p) {
+      var el = $(p[0]); if (!el) { return; }
+      el.addEventListener('input', function () {
+        E[p[1]] = this.value;
+        var r = ok(); $('raison').textContent = r ? '⚠️ ' + r : ''; $('nSuite').disabled = !!r; $('tag2').textContent = E.obj && !r ? 'complété' : 'à compléter';
+        if (p[1] === 'offre' && $('msgSansOffre')) { $('msgSansOffre').hidden = !sans(); }
+        if (p[1] === 'intitule' && $('retenu')) { $('retenu').innerHTML = E.intitule.trim() ? '&#10003; Intitulé retenu : ' + esc(E.intitule) : '<span class="muted">Aucun intitulé retenu pour le moment.</span>'; }
+      });
+    });
+  }
+  var tt = null; function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('vu'); clearTimeout(tt); tt = setTimeout(function () { t.classList.remove('vu'); }, 2400); }
+  $('nSuite').addEventListener('click', function () { toast('Ici on continue vers l’étape suivante du CV (hors maquette).'); });
+  $('nRetour').addEventListener('click', function () { toast('Retour (hors maquette).'); });
+  $('nAccueil').addEventListener('click', function () { toast('Accueil (hors maquette).'); });
+  $('tAnn').addEventListener('change', function () { document.body.classList.toggle('ann', this.checked); });
+  $('tTheme').addEventListener('click', function () { var s = document.documentElement.getAttribute('data-theme') === 'sombre'; document.documentElement.setAttribute('data-theme', s ? '' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair'; });
+  $('tReset').addEventListener('click', function () { E = init(); maj(true); });
+  maj(true);
+})();
+</script>
+</body>
+</html>

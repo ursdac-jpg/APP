@@ -188,9 +188,45 @@ var SECTEURS_DETAIL = [
   }
 ];
 
+// ---- Etape c5 du chantier lettre (24/10/2026) : intitules de poste proposes quand la personne cherche « plusieurs metiers d'un meme
+// domaine » (page « Preparer » de « Ecrire ma lettre avec l'assistant »). Listes validees par Denis le 24/10/2026, produites a partir de
+// docs/INTITULES_PAR_DOMAINE_2026-10-23.md : un intitule qu'une personne sans diplome particulier peut porter, sans doublon ni intitule tres
+// proche, sans « selon formation ». Exception assumee : Securite (domaine entierement reglemente, 4 intitulés).
+var INTITULES_POLYVALENTS = {
+  'btp': ["Ouvrier polyvalent du bâtiment", "Aide-maçon polyvalent", "Ouvrier du second œuvre", "Ouvrier de chantier polyvalent", "Aide-électricien du bâtiment", "Ouvrier peintre en bâtiment"],
+  'industrie': ["Opérateur de production polyvalent", "Agent de production", "Opérateur sur machines", "Agent de maintenance polyvalent", "Opérateur de fabrication", "Agent de conditionnement"],
+  'hotellerie-restauration': ["Employé polyvalent de restauration", "Serveur polyvalent", "Commis de cuisine", "Barman polyvalent", "Réceptionniste polyvalent", "Employé d'étage"],
+  'agriculture-nature': ["Ouvrier agricole polyvalent", "Ouvrier paysagiste", "Ouvrier horticole", "Agent d'entretien des espaces verts", "Ouvrier viticole", "Ouvrier maraîcher"],
+  'transport-logistique': ["Magasinier polyvalent", "Préparateur de commandes", "Agent de quai", "Agent de manutention", "Opérateur de tri de colis", "Agent de réception et d'expédition"],
+  'sante': ["Agent de service hospitalier", "Agent d'accueil en établissement de santé", "Brancardier", "Agent de stérilisation", "Agent de restauration en établissement de santé", "Agent de lingerie en établissement de santé"],
+  'social-personne': ["Aide à domicile", "Accompagnant de personnes âgées", "Employé familial polyvalent", "Garde d'enfants à domicile", "Agent de service en collectivité", "Agent de service en résidence pour personnes âgées"],
+  'commerce-vente': ["Employé polyvalent de commerce", "Vendeur polyvalent", "Employé de libre-service", "Hôte de caisse", "Employé de rayon frais", "Préparateur de commandes en drive"],
+  'administration': ["Agent administratif polyvalent", "Secrétaire", "Agent d'accueil", "Standardiste", "Agent de saisie", "Agent de classement et d'archivage"],
+  'communication-culture': ["Assistant communication", "Community manager junior", "Assistant événementiel", "Agent technique de l'événementiel", "Monteur de stands", "Agent d'accueil culturel"],
+  'animalier': ["Auxiliaire animalier", "Aide en élevage", "Employé de refuge animalier", "Employé de pension pour animaux", "Palefrenier polyvalent", "Employé d'animalerie"],
+  'proprete': ["Agent d'entretien polyvalent", "Agent de nettoyage industriel", "Agent de collecte", "Laveur de vitres", "Agent de tri", "Agent de bionettoyage"],
+  'sport-animation': ["Animateur polyvalent", "Agent d'accueil en centre sportif", "Agent d'entretien d'équipements sportifs", "Équipier de parc de loisirs", "Agent d'accueil en camping", "Agent de location de matériel de loisirs"],
+  'numerique': ["Technicien de maintenance informatique", "Technicien support utilisateurs", "Technicien systèmes et réseaux", "Technicien de déploiement informatique", "Développeur web junior", "Intégrateur web junior"],
+  'banque-assurance-immobilier': ["Assistant administratif en agence", "Chargé d'accueil en agence", "Assistant immobilier", "Assistant commercial", "Assistant de gestion locative", "Employé de gestion"],
+  'artisanat': ["Aide-artisan", "Menuisier polyvalent", "Couturier polyvalent", "Assistant créateur", "Aide-tapissier", "Assistant en atelier de céramique"],
+  'artisanat-bouche': ["Aide-boulanger polyvalent", "Vendeur en boulangerie", "Aide-pâtissier", "Aide-boucher", "Aide-traiteur", "Employé polyvalent de laboratoire alimentaire"],
+  'education-formation': ["Assistant d'éducation", "Accompagnant d'élèves en situation de handicap", "Animateur périscolaire", "Assistant de formation", "Agent d'accueil en établissement scolaire", "Agent de service en établissement scolaire", "Agent de restauration scolaire"],
+  'automobile': ["Aide-mécanicien automobile", "Agent de centre auto", "Monteur en pneumatiques", "Préparateur de véhicules", "Agent de lavage automobile", "Agent d'accueil en atelier automobile"],
+  'securite': ["Agent de sécurité", "Agent d'accueil et de sécurité", "Agent de surveillance de site", "Agent de sécurité événementiel"],
+  'coiffure-esthetique': ["Aide-coiffeur", "Aide-esthéticien", "Assistant de salon", "Conseiller de vente en parfumerie", "Hôte d'accueil en institut de beauté"]
+};
+SECTEURS_DETAIL.forEach(function (s) { s.intitulesPolyvalents = INTITULES_POLYVALENTS[s.cle] || []; });
+
+// Intitules proposes pour un domaine donne par son libelle (« Bâtiment et travaux publics »), liste vide si le domaine est inconnu.
+function intitulesPolyvalentsDuDomaine(libelle) {
+  var detail = SECTEURS_DETAIL.filter(function (s) { return s.libelle === libelle; })[0];
+  return detail ? detail.intitulesPolyvalents.slice() : [];
+}
+
 if (typeof window !== 'undefined') {
   window.SECTEURS_DETAIL = SECTEURS_DETAIL;
+  window.intitulesPolyvalentsDuDomaine = intitulesPolyvalentsDuDomaine;
 }
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { SECTEURS_DETAIL: SECTEURS_DETAIL };
+  module.exports = { SECTEURS_DETAIL: SECTEURS_DETAIL, INTITULES_POLYVALENTS: INTITULES_POLYVALENTS, intitulesPolyvalentsDuDomaine: intitulesPolyvalentsDuDomaine };
 }

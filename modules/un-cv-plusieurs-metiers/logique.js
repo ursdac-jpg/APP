@@ -46,7 +46,7 @@ function ucpmEtatInitial() {
     autres: null,        // colonne de droite de la page 2 (autres métiers)
     sexe: '',            // 'f', 'm' ou '' : connu seulement quand la personne a choisi son identité (page 3)
     refId: '',           // page 3 : identifiant de l'entrée qui sert de CV de référence
-    p3Vue: 'choix',      // page 3 : 'choix', 'structurer', 'assistant' ou 'editeur'
+    p3Vue: 'choix',      // page 3 : 'choix', 'structurer', 'infos', 'assistant', 'complement' ou 'editeur'
     p3Extrait: false,    // le CV a été rangé en rubriques (étape d'analyse faite)
     refPret: false,      // l'éditeur de CV a été validé (« Ce CV me convient »)
     refTitre: '',        // titre du CV de référence au moment de la validation
@@ -74,6 +74,7 @@ function ucpmEtatInitial() {
     p8Metier: '',        // page 8 : métier de la préparation approfondie
     p8Reglages: null,    // page 8 : réglages de la préparation approfondie (niveau, nombre, sujets, pistes)
     p8Sel: '',           // page 8 : préparation affichée
+    p8Telecharge: false, // page 8 : une préparation a été envoyée à l'impression (le bouton vert de fin apparaît dans la barre du bas)
     p7Telecharge: false, // page 7 : un document a été envoyé à l'impression (la recherche d'offres en direct apparaît alors)
     departementLibre: '' // département ou ville écrits à la main quand « ailleurs » est choisi (recherche d'offres)
   };

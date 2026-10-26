@@ -173,3 +173,64 @@ test('_comprendreLesChiffresParserZonesEmploi : plusieurs departements et plusie
   assert.equal(out.parDep['24'][0].nom, 'Zone A');
   assert.equal(out.parDep['87'][0].nom, 'Zone B');
 });
+
+// ---------- bloc « Les entreprises ici » (repères d'entreprises, 2026-10-19) ----------
+const fsEntreprises = require('node:fs');
+const pathEntreprises = require('node:path');
+const {
+  _comprendreLesChiffresParserEntreprises,
+  _comprendreLesChiffresEvolutionEntiers,
+  _comprendreLesChiffresDateEnClair,
+  _comprendreLesChiffresPeriodeEnClair
+} = require('../modules/comprendre-les-chiffres/index.js');
+
+test('entreprises : le vrai fichier se lit, deux départements, nombres entiers, source présente', () => {
+  const md = fsEntreprises.readFileSync(pathEntreprises.join(__dirname, '..', 'modules', 'comprendre-les-chiffres', 'contenu', 'entreprises-departements.md'), 'utf8');
+  const doc = _comprendreLesChiffresParserEntreprises(md);
+  assert.ok(doc);
+  assert.deepEqual(Object.keys(doc.parDep).sort(), ['24', '87']);
+  ['24', '87'].forEach((dep) => {
+    const d = doc.parDep[dep];
+    ['ouvertures', 'ouverturesPrec', 'ventes', 'ventesPrec'].forEach((k) => assert.ok(Number.isInteger(d[k]) && d[k] > 0, dep + ' ' + k));
+    assert.ok(doc.sources[d.sourcesCles[0]].url.startsWith('https://'), dep + ' : source');
+  });
+  ['24', '87'].forEach((dep) => assert.ok(_comprendreLesChiffresPeriodeEnClair(doc.parDep[dep].periodeDu, doc.parDep[dep].periodeAu).startsWith('du '), dep + ' : période en toutes lettres'));
+  // le fichier est soit « a-valider » (bloc caché), soit daté après la validation de Denis : les deux états sont normaux
+  assert.ok(doc.verifie_le === 'a-valider' || _comprendreLesChiffresDateEnClair(doc.verifie_le) !== null, 'verifie_le : ' + doc.verifie_le);
+  // et « a-valider » ne se lit jamais comme une date, donc cache le bloc
+  assert.equal(_comprendreLesChiffresDateEnClair('a-valider'), null);
+});
+
+test('entreprises : un nombre mal écrit donne null, jamais NaN ; un département inconnu est ignoré', () => {
+  const doc = _comprendreLesChiffresParserEntreprises('---\nperiode: x\nverifie_le: 2026-10\n---\n\n# d\n\n## Dordogne\nouvertures: 3 28\nouvertures_an_precedent: abc\n\n## Gironde\nouvertures: 5\n');
+  assert.equal(doc.parDep['24'].ouvertures, 328);
+  assert.equal(doc.parDep['24'].ouverturesPrec, null);
+  assert.deepEqual(Object.keys(doc.parDep), ['24']);
+  assert.equal(_comprendreLesChiffresParserEntreprises('pas d\'en-tête'), null);
+});
+
+test('entreprises : évolution en mots, stable sous 3 %, jamais de phrase si une donnée manque', () => {
+  assert.equal(_comprendreLesChiffresEvolutionEntiers(328, 348), 'en baisse d’environ 6 %');
+  assert.equal(_comprendreLesChiffresEvolutionEntiers(206, 192), 'en hausse d’environ 7 %');
+  assert.equal(_comprendreLesChiffresEvolutionEntiers(392, 396), 'à peu près stable');
+  assert.equal(_comprendreLesChiffresEvolutionEntiers(5, null), '');
+  assert.equal(_comprendreLesChiffresEvolutionEntiers(5, 0), '');
+});
+
+test('entreprises : date en clair, jour ou mois seulement, sinon null', () => {
+  assert.equal(_comprendreLesChiffresDateEnClair('2026-10-18'), '18 octobre 2026');
+  assert.equal(_comprendreLesChiffresDateEnClair('2026-02-01'), '1er février 2026');
+  assert.equal(_comprendreLesChiffresDateEnClair('2026-12'), 'décembre 2026');
+  assert.equal(_comprendreLesChiffresDateEnClair('a-valider'), null);
+  assert.equal(_comprendreLesChiffresDateEnClair('2026-13-01'), null);
+});
+
+test('entreprises : date écrite en français (jour/mois/année) lue en toutes lettres, date qui n\'existe pas refusée, période complète ou rien', () => {
+  assert.equal(_comprendreLesChiffresDateEnClair('18/10/2026'), '18 octobre 2026');
+  assert.equal(_comprendreLesChiffresDateEnClair('01/11/2025'), '1er novembre 2025');
+  assert.equal(_comprendreLesChiffresDateEnClair('31/02/2026'), null);
+  assert.equal(_comprendreLesChiffresDateEnClair('2026-02-31'), null);
+  assert.equal(_comprendreLesChiffresPeriodeEnClair('01/11/2025', '18/10/2026'), 'du 1er novembre 2025 au 18 octobre 2026');
+  assert.equal(_comprendreLesChiffresPeriodeEnClair('01/11/2025', ''), '');
+  assert.equal(_comprendreLesChiffresPeriodeEnClair('', '18/10/2026'), '');
+});

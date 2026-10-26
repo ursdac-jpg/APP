@@ -268,7 +268,14 @@ function _reconstruireContenuPanneau(type, modeleActif, couleurActive, formatPag
   // aide/personnalisation).
   panneau.innerHTML =
     '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1.2rem;border-bottom:1px solid #E5E7EB;background:#F8F9FA;flex:none;flex-wrap:wrap;gap:0.6rem;">' +
-      (type !== 'cv' ? '<div></div>' :
+      // Lettre : « Modifier le texte » aussi ici (demande de Denis, 24/10/2026) : la grande page est plus lisible pour relire et corriger.
+      // Les paragraphes de la lettre deviennent modifiables sur la feuille elle-meme (F3, 24/10/2026) ; « Enregistrer » et « Annuler » n'apparaissent que pendant la correction.
+      (type === 'lettre' ? '<div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">' +
+        '<button type="button" id="apercu-docx-btn-modifier-texte" style="font-size:0.9rem;font-weight:600;padding:0.4rem 0.9rem;border:1px solid #0d6efd;background:#FFFFFF;color:#0d6efd;border-radius:8px;cursor:pointer;">&#9999;&#65039; Modifier le texte</button>' +
+        '<button type="button" id="apercu-docx-btn-enregistrer-texte" style="display:none;font-size:0.9rem;font-weight:700;padding:0.4rem 1.1rem;border:1px solid #0d6efd;background:#0d6efd;color:#FFFFFF;border-radius:8px;cursor:pointer;">Enregistrer</button>' +
+        '<button type="button" id="apercu-docx-btn-annuler-texte" style="display:none;font-size:0.9rem;font-weight:600;padding:0.4rem 0.9rem;border:1px solid #6B7280;background:#FFFFFF;color:#374151;border-radius:8px;cursor:pointer;">Annuler</button>' +
+        '</div>' :
+      type !== 'cv' ? '<div></div>' :
       '<div style="display:flex;align-items:center;gap:0.6rem;flex:1;min-width:0;">' +
         '<style>#apercu-docx-carrousel-modeles .carte-modele-cv{cursor:pointer;border:2px solid #E5E7EB;border-radius:6px;' +
         'padding:0.2rem;flex:0 0 auto;width:44px;text-align:center;background:#FFFFFF;}' +
@@ -348,7 +355,12 @@ function _reconstruireContenuPanneau(type, modeleActif, couleurActive, formatPag
           '</div>'
         : '') +
       '<div>' +
-        '<button type="button" id="apercu-docx-btn-telecharger" class="btn btn-primary btn-sm" style="margin-right:0.5rem;">Télécharger le Word</button>' +
+        // Demande de Denis (2026-10-19) : voir toute la feuille d'un coup, sans défiler (fiche d'entretien seulement pour l'instant).
+        (type === 'entretien'
+          ? '<button type="button" id="apercu-docx-btn-ajuster" class="btn btn-outline-secondary btn-sm" style="margin-right:0.5rem;" aria-pressed="false">Voir toute la feuille</button>'
+          : '') +
+        // Lettre et fiche d'entretien : pas de « Télécharger le Word » ici (Denis, 24/10/2026 puis 25/10/2026) ; le format (Word, PDF, texte) se choisit apres la validation, a l'etape « Exporter ».
+        ((type === 'lettre' || type === 'entretien') ? '' : '<button type="button" id="apercu-docx-btn-telecharger" class="btn btn-primary btn-sm" style="margin-right:0.5rem;">Télécharger le Word</button>') +
         // TACHE (retour utilisateur, 2026-08-22 -- "je valide mon CV" vs
         // "fermer", 2 sorties a intention differente) : "Je valide" marque
         // le document comme version retenue (marquerDocumentEnregistre(),
@@ -431,7 +443,178 @@ function _reconstruireContenuPanneau(type, modeleActif, couleurActive, formatPag
     }
     if (typeof _synchroniserPanneauReglagesXXLGrandApercu === 'function') { _synchroniserPanneauReglagesXXLGrandApercu(); }
   }
-  document.getElementById('apercu-docx-btn-fermer').addEventListener('click', _fermerPanneauApercuDocx);
+  var editionTexte = null;   // lettre : { modifie } tant que la personne corrige le texte sur la feuille
+  document.getElementById('apercu-docx-btn-fermer').addEventListener('click', function () {
+    if (editionTexte && editionTexte.modifie && !window.confirm('Fermer sans enregistrer vos corrections ?')) { return; }
+    editionTexte = null;
+    _fermerPanneauApercuDocx();
+  });
+  var boutonModifierTexte = document.getElementById('apercu-docx-btn-modifier-texte');
+  if (boutonModifierTexte) {
+    var boutonEnregistrerTexte = document.getElementById('apercu-docx-btn-enregistrer-texte');
+    var boutonAnnulerTexte = document.getElementById('apercu-docx-btn-annuler-texte');
+    var normaliserEspaces = function (t) { return String(t || '').replace(/\s+/g, ' ').trim(); };
+    var afficherBoutonsEdition = function (enCours) {
+      boutonModifierTexte.style.display = enCours ? 'none' : '';
+      boutonEnregistrerTexte.style.display = enCours ? '' : 'none';
+      boutonAnnulerTexte.style.display = enCours ? '' : 'none';
+    };
+    var paragrapheEditableVoisin = function (p, sens) {
+      var q = sens > 0 ? p.nextElementSibling : p.previousElementSibling;
+      while (q && !q.hasAttribute('data-edition-lettre')) { q = sens > 0 ? q.nextElementSibling : q.previousElementSibling; }
+      return q;
+    };
+    var placerCurseur = function (noeud, position) {
+      var plage = document.createRange();
+      plage.setStart(noeud, position); plage.collapse(true);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(plage);
+    };
+    var rendreEditable = function (p, role) {
+      p.setAttribute('data-edition-lettre', role);
+      p.setAttribute('contenteditable', 'plaintext-only');
+      if (p.contentEditable !== 'plaintext-only') { p.setAttribute('contenteditable', 'true'); }
+      p.style.outline = '1px dashed #0d6efd'; p.style.outlineOffset = '2px'; p.style.background = 'rgba(13,110,253,0.05)'; p.style.cursor = 'text';
+      p.addEventListener('input', function () { editionTexte.modifie = true; });
+      p.addEventListener('keydown', function (e) {
+        var sel = window.getSelection();
+        if (!sel.rangeCount) { return; }
+        var plage = sel.getRangeAt(0);
+        if (e.key === 'Enter') {
+          // Entree = nouveau paragraphe (une ligne vide dans le texte) ; la suite du paragraphe passe dans le nouveau.
+          e.preventDefault();
+          var suite = document.createRange();
+          suite.setStart(plage.endContainer, plage.endOffset); suite.setEnd(p, p.childNodes.length);
+          var neuf = p.cloneNode(false);
+          neuf.appendChild(suite.extractContents());
+          if (!neuf.textContent) { neuf.appendChild(document.createElement('br')); }
+          rendreEditable(neuf, 'corps');
+          p.parentNode.insertBefore(neuf, p.nextSibling);
+          placerCurseur(neuf, 0);
+          editionTexte.modifie = true;
+        } else if (e.key === 'Backspace' && plage.collapsed) {
+          // Retour arriere au tout debut d'un paragraphe du corps : il rejoint le precedent.
+          var avant = plage.cloneRange(); avant.selectNodeContents(p); avant.setEnd(plage.startContainer, plage.startOffset);
+          var precedent = paragrapheEditableVoisin(p, -1);
+          if (avant.toString() === '' && precedent && precedent.getAttribute('data-edition-lettre') === 'corps' && p.getAttribute('data-edition-lettre') === 'corps') {
+            e.preventDefault();
+            var repere = precedent.childNodes.length;
+            while (p.firstChild) { precedent.appendChild(p.firstChild); }
+            p.parentNode.removeChild(p);
+            placerCurseur(precedent, repere);
+            editionTexte.modifie = true;
+          }
+        }
+      });
+      p.addEventListener('paste', function (e) {
+        // Texte brut seulement ; deux lignes vides dans le texte colle = nouveau paragraphe.
+        e.preventDefault();
+        var texteColle = ((e.clipboardData || window.clipboardData).getData('text') || '').replace(/\r/g, '');
+        var morceaux = (p.getAttribute('data-edition-lettre') === 'objet') ? [texteColle.replace(/\s+/g, ' ')] : texteColle.split(/\n{2,}/);
+        document.execCommand('insertText', false, morceaux[0].replace(/\n/g, ' '));
+        var dernier = p;
+        for (var k = 1; k < morceaux.length; k++) {
+          var neuf = p.cloneNode(false);
+          neuf.textContent = morceaux[k].replace(/\n/g, ' ');
+          rendreEditable(neuf, 'corps');
+          dernier.parentNode.insertBefore(neuf, dernier.nextSibling);
+          dernier = neuf;
+        }
+        editionTexte.modifie = true;
+      });
+    };
+    // Rend modifiables l'objet et les paragraphes du corps. Ils suivent l'objet, dans l'ordre et avec le meme texte que les blocs du texte : sinon on ne devine pas, on n'edite pas.
+    var demarrerEditionTexte = function () {
+      var zone = document.getElementById('apercu-docx-zone');
+      var donnees = (typeof normaliserDonneesLettre === 'function') ? normaliserDonneesLettre(dossier) : null;
+      if (!zone || !donnees) { return false; }
+      var paragraphes = Array.prototype.slice.call(zone.querySelectorAll('p'));
+      var blocs = donnees.texte.split(/\n{2,}/).filter(function (b) { return b.trim(); });
+      if (!blocs.length) { return false; }
+      var indiceObjet = -1;
+      if (donnees.objet) {
+        paragraphes.forEach(function (p, i) {
+          var t = normaliserEspaces(p.textContent);
+          if (indiceObjet < 0 && /^objet\s*:/i.test(t) && t.indexOf(normaliserEspaces(donnees.objet)) !== -1) { indiceObjet = i; }
+        });
+        if (indiceObjet < 0) { return false; }
+      }
+      var debut = -1;
+      for (var i = indiceObjet + 1; i + blocs.length <= paragraphes.length && debut < 0; i++) {
+        var tous = blocs.every(function (b, k) { return normaliserEspaces(paragraphes[i + k].textContent) === normaliserEspaces(b); });
+        if (tous) { debut = i; }
+      }
+      if (debut < 0) { return false; }
+      editionTexte = { modifie: false };
+      if (indiceObjet >= 0) { rendreEditable(paragraphes[indiceObjet], 'objet'); }
+      for (var k = 0; k < blocs.length; k++) { rendreEditable(paragraphes[debut + k], 'corps'); }
+      return true;
+    };
+    var quitterEditionTexte = function () {
+      editionTexte = null;
+      afficherBoutonsEdition(false);
+      var message = document.getElementById('apercu-docx-message');
+      if (message) { message.textContent = ''; }
+    };
+    boutonModifierTexte.addEventListener('click', function () {
+      if (!demarrerEditionTexte()) {
+        // Repli : la fenetre d'edition de la page « La mise en page » (meme enregistrement), si la feuille ne correspond pas au texte.
+        _fermerPanneauApercuDocx();
+        var source = document.getElementById('btnModifierVersionLettre');
+        if (source) { source.click(); }
+        return;
+      }
+      afficherBoutonsEdition(true);
+      var message = document.getElementById('apercu-docx-message');
+      if (message) { message.textContent = 'Cliquez dans le texte pour le corriger (Entrée = nouveau paragraphe), puis « Enregistrer ». La mise en page se recalcule à l’enregistrement.'; }
+      var premier = document.querySelector('#apercu-docx-zone [data-edition-lettre="corps"]');
+      if (premier) { premier.focus(); }
+    });
+    boutonAnnulerTexte.addEventListener('click', function () {
+      quitterEditionTexte();
+      _rafraichirApercuDocx(type, _modeleActifPanneau, null, null, false, _couleurActifPanneau, _formatPageActifPanneau);
+    });
+    boutonEnregistrerTexte.addEventListener('click', function () {
+      var champs = Array.prototype.slice.call(document.querySelectorAll('#apercu-docx-zone [data-edition-lettre]'));
+      var champObjet = champs.filter(function (c) { return c.getAttribute('data-edition-lettre') === 'objet'; })[0];
+      var corps = champs.filter(function (c) { return c.getAttribute('data-edition-lettre') === 'corps'; })
+        .map(function (c) { return c.textContent.replace(/ /g, ' ').trim(); }).filter(Boolean);
+      var message = document.getElementById('apercu-docx-message');
+      if (!corps.length) { if (message) { message.textContent = 'La lettre ne peut pas être vide : écrivez au moins un paragraphe.'; } return; }
+      var ancien = (dossier.ia && dossier.ia.lettre && dossier.ia.lettre.lettre) || { objet: '' };
+      var objet = champObjet ? champObjet.textContent.replace(/^\s*Objet\s*:?\s*/i, '').replace(/\s+/g, ' ').trim() : ancien.objet;
+      if (typeof enregistrerTexteLettreModifie === 'function') { enregistrerTexteLettreModifie(objet, corps.join('\n\n')); }
+      quitterEditionTexte();
+      if (message) { message.textContent = 'Enregistrement…'; }
+      // La page « La mise en page » recalcule d'abord sa taille de texte (celle qui fait tenir la lettre sur une page), puis la grande feuille la reprend.
+      Promise.resolve(typeof rechargerApercuInline === 'function' ? rechargerApercuInline('lettre', _modeleActifPanneau) : null).then(function () {
+        return _rafraichirApercuDocx(type, _modeleActifPanneau, null, null, false, _couleurActifPanneau, _formatPageActifPanneau);
+      });
+    });
+  }
+  // « Voir toute la feuille » : réduit l'aperçu pour que la première page tienne en entier dans la zone visible (zoom CSS, jamais le fichier téléchargé).
+  var boutonAjuster = document.getElementById('apercu-docx-btn-ajuster');
+  if (boutonAjuster) {
+    var ajusterActif = false;
+    var appliquerAjustement = function () {
+      var zone = document.getElementById('apercu-docx-zone');
+      if (!zone) { return; }
+      zone.style.zoom = '';
+      if (!ajusterActif) { return; }
+      var page = zone.querySelector('section.apercu-docx-rendu');
+      var conteneur = zone.parentNode;
+      if (!page || !conteneur) { return; }
+      var echelle = Math.min(1, (conteneur.clientHeight - 48) / (page.offsetHeight + 60), (conteneur.clientWidth - 48) / (page.offsetWidth + 60));
+      if (echelle > 0.2 && echelle < 1) { zone.style.zoom = String(echelle); }
+      conteneur.scrollTop = 0;
+    };
+    boutonAjuster.addEventListener('click', function () {
+      ajusterActif = !ajusterActif;
+      this.textContent = ajusterActif ? 'Taille réelle' : 'Voir toute la feuille';
+      this.setAttribute('aria-pressed', ajusterActif ? 'true' : 'false');
+      appliquerAjustement();
+    });
+    window.addEventListener('resize', function () { if (ajusterActif) { appliquerAjustement(); } });
+  }
   // TACHE (retour utilisateur 2026-09-15) : n'existe plus que pour le CV
   // (voir sa construction plus haut) -- garde-fou, jamais d'exception pour
   // lettre/entretien.
@@ -443,7 +626,8 @@ function _reconstruireContenuPanneau(type, modeleActif, couleurActive, formatPag
       _fermerPanneauApercuDocx();
     });
   }
-  document.getElementById('apercu-docx-btn-telecharger').addEventListener('click', function () {
+  var boutonTelechargerApercu = document.getElementById('apercu-docx-btn-telecharger');
+  if (boutonTelechargerApercu) { boutonTelechargerApercu.addEventListener('click', function () {
     var cfg = _configApercuDocx(_typeApercuDocxActif);
     var modele = _modeleActifPanneau;
     var boutonRef = this;
@@ -478,7 +662,7 @@ function _reconstruireContenuPanneau(type, modeleActif, couleurActive, formatPag
       boutonRef.disabled = false;
       alert('Impossible de générer le fichier Word pour le moment.');
     });
-  });
+  }); }
 
   // TACHE (retour utilisateur : cartes de modeles, coherence CV/Lettre/
   // Entretien) : reutilise integralement genererCartesSelecteurModeles()/
@@ -818,6 +1002,12 @@ function _rafraichirApercuDocx(type, modele, zoneApercuOverride, zoneMessageOver
       });
     })
     .then(function () {
+      // Lettre : le Word ne fixe pas d'interligne, le rendu heritait donc de celui de l'application (1,55) et paraissait un tiers plus haut
+      // que le vrai fichier ; « normal » est l'interligne simple de Word. Sans cela, la mesure de la page (mise en page de la lettre) serait faussee.
+      if (type === 'lettre') {
+        var enveloppeLettre = zoneApercu.querySelector('.apercu-docx-rendu-wrapper');
+        if (enveloppeLettre) { enveloppeLettre.style.lineHeight = 'normal'; }
+      }
       // TACHE (Projet XXL, mecanisme A/B/C -- "C = un simple constat") :
       // mesure REELLE du nombre de pages rendues par docx-preview, jamais
       // une estimation cote code (impossible, voir composeurRegles.js

@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Options et formes des CV : maquette</title>
+<style>
+:root { --fond:#f4f6f9; --carte:#fff; --bord:#cfd6df; --texte:#1c2530; --accent:#1e4f8a; --accent-pale:#e3edf8; --neuf:#c2570c; }
+* { box-sizing: border-box; }
+body { margin:0; padding:18px 16px 60px; background:var(--fond); color:var(--texte); font:15px/1.45 system-ui, "Segoe UI", Arial, sans-serif; max-width:1180px; margin-inline:auto; }
+h1 { font-size:1.25rem; margin:0 0 6px; }
+h2 { font-size:1.02rem; margin:0 0 8px; }
+p.intro { max-width:56em; margin:0 0 10px; font-size:.92rem; }
+.legende { display:flex; gap:14px; flex-wrap:wrap; font-size:.8rem; margin:8px 0 14px; }
+.tag-neuf { display:inline-block; background:var(--neuf); color:#fff; border-radius:6px; padding:0 6px; font-size:.66rem; font-weight:700; vertical-align:middle; margin-left:4px; letter-spacing:.03em; }
+.plan { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+.galerie { flex:1 1 520px; min-width:0; }
+.cote { flex:0 0 360px; max-width:100%; position:sticky; top:8px; }
+@media (max-width:900px) { .cote { position:static; flex:1 1 100%; } }
+.grille { display:flex; flex-wrap:wrap; gap:14px 12px; }
+.cadre { width:116px; display:flex; flex-direction:column; gap:5px; }
+.vign { border:2px solid var(--bord); border-radius:8px; background:#fff; padding:0; cursor:pointer; overflow:hidden; position:relative; display:block; width:100%; }
+.vign[aria-pressed="true"] { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-pale); }
+.vign .mini { display:block; width:100%; }
+.vign-nom { font-size:.72rem; font-weight:700; text-align:center; line-height:1.15; }
+.rang { display:flex; justify-content:center; gap:3px; flex-wrap:nowrap; }
+.b3 { border:1px solid var(--bord); background:#fff; border-radius:7px; width:27px; height:24px; padding:0; cursor:pointer; color:var(--texte); display:flex; align-items:center; justify-content:center; }
+.b3[aria-checked="true"] { border-color:var(--accent); background:var(--accent-pale); color:var(--accent); }
+.b3.nv { border-style:dashed; border-color:var(--neuf); }
+.inter { display:flex; align-items:center; justify-content:center; gap:5px; border:0; background:transparent; padding:2px; font-size:.68rem; cursor:pointer; color:var(--texte); border-radius:8px; }
+.inter.nv { outline:1px dashed var(--neuf); outline-offset:1px; }
+.piste { position:relative; width:28px; height:16px; border-radius:8px; background:var(--bord); flex:none; transition:background .15s; }
+.piste i { position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.35); transition:left .15s; }
+.inter[aria-checked="true"] .piste { background:var(--accent); }
+.inter[aria-checked="true"] .piste i { left:14px; }
+.inter[aria-checked="true"] { color:var(--accent); font-weight:700; }
+.case { display:flex; align-items:center; justify-content:center; gap:5px; font-size:.7rem; cursor:pointer; border:1px dashed var(--neuf); border-radius:8px; padding:2px 4px; background:#fff; }
+.case input { margin:0; }
+.boite { background:var(--carte); border:1px solid var(--bord); border-radius:12px; padding:12px 14px; margin-bottom:12px; }
+.boite.neuf { border:2px dashed var(--neuf); }
+.apercu { user-select:none; -webkit-user-select:none; border:1px solid var(--bord); border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,.15); background:#fff; overflow:hidden; width:100%; position:relative; }
+.titre-ligne { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.croix { border:1px solid var(--bord); background:#fff; border-radius:8px; width:32px; height:32px; font-size:1.1rem; cursor:pointer; line-height:1; }
+.rangee { margin-top:10px; }
+.rangee > label, .rangee > .lib { font-weight:600; display:block; font-size:.82rem; margin-bottom:4px; }
+.chips { display:flex; flex-wrap:wrap; gap:5px; }
+.chip { border:1px solid var(--bord); background:#fff; border-radius:9px; padding:4px 9px; font-size:.78rem; cursor:pointer; color:var(--texte); display:inline-flex; align-items:center; gap:5px; }
+.chip[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-pale); color:var(--accent); font-weight:700; }
+.chip svg { display:block; }
+.btn { border:1px solid var(--accent); background:#fff; color:var(--accent); border-radius:9px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-weight:600; }
+.btn:disabled { opacity:.4; cursor:default; }
+.btn.sec { border-color:var(--bord); color:var(--texte); font-weight:400; }
+.aide { font-size:.78rem; opacity:.85; margin:6px 0 0; }
+.cache { display:none !important; }
+.notes { margin-top:26px; max-width:60em; font-size:.88rem; }
+.notes li { margin-bottom:5px; }
+
+.leg { font-size:.66rem; text-align:center; opacity:.85; min-height:1em; }
+.case-btn { display:flex; align-items:center; justify-content:center; gap:5px; font-size:.7rem; cursor:pointer; border:1px dashed var(--neuf); border-radius:8px; padding:3px 4px; background:#fff; color:var(--texte); }
+.case-btn[aria-pressed="true"] { border-style:solid; border-color:var(--accent); background:var(--accent-pale); color:var(--accent); font-weight:700; }
+.btns-vign { display:flex; flex-direction:column; gap:3px; }
+.chip.gros { padding:8px 12px; font-size:.86rem; }
+.chip.gros svg { width:34px; height:20px; }
+.chip.special { border-style:dashed; border-color:var(--neuf); }
+#cadreEdition { position:absolute; border:2px dashed var(--accent); background:rgba(30,79,138,.08); cursor:move; touch-action:none; box-sizing:border-box; }
+#cadreEdition .poignee { position:absolute; right:-9px; bottom:-9px; width:18px; height:18px; background:var(--accent); border:2px solid #fff; border-radius:4px; cursor:nwse-resize; box-shadow:0 1px 3px rgba(0,0,0,.4); }
+.barre-edition { background:var(--accent-pale); border:1px solid var(--accent); border-radius:10px; padding:8px 10px; font-size:.82rem; margin:0 0 8px; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.sw { width:28px; height:28px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px var(--bord); cursor:pointer; padding:0; }
+.sw[aria-pressed="true"] { box-shadow:0 0 0 3px var(--accent); }
+.sw-libre { display:inline-flex; align-items:center; gap:6px; font-size:.78rem; margin-left:4px; }
+.sw-libre input { width:34px; height:28px; padding:0; border:1px solid var(--bord); border-radius:6px; background:#fff; cursor:pointer; }
+button:focus-visible, input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+</style>
+</head>
+<body>
+<h1>Options sous les vignettes, formes décoratives et deux modèles neufs</h1>
+<p class="intro">Maquette cliquable. Les vignettes sont les <b>vraies miniatures</b> de l'application ; sous chaque vignette, jusqu'à trois boutons : <b>Bandeau</b>, <b>Colonne</b>, <b>Formes</b>. Seuls ceux que le modèle permet sont proposés, et dans chacun seules les formes compatibles apparaissent (jamais d'option impossible à cliquer). En <span class="tag-neuf" style="margin:0">orange pointillé</span> ce qui serait <b>ajouté</b>. Cliquez un bouton : le choix s'ouvre à côté de l'aperçu (en dessous sur téléphone) et tout se voit tout de suite, sur la vignette et sur l'aperçu. Les deux derniers modèles (Frise sobre, Bandeaux noirs) sont dessinés pour la maquette.</p>
+<div class="legende">
+  <span><span class="tag-neuf" style="margin:0">NOUVEAU</span> à ajouter</span>
+  <span>Trait plein : existe déjà dans l'application</span>
+  <span>Rendu indicatif : le code utilisera le vrai moteur de CV</span>
+</div>
+
+<div class="plan">
+  <section class="galerie" aria-label="Galerie de modèles">
+    <h2>Choisir un modèle</h2>
+    <div class="grille" id="grille"></div>
+
+    <div class="boite neuf" style="margin-top:16px">
+      <h2>Autres options de style, pour tous les modèles <span class="tag-neuf">NOUVEAU</span></h2>
+      <p class="aide" style="margin-top:0">Chaque réglage agit sur toutes les vignettes à la fois, et sur l'aperçu.</p>
+      <div class="rangee"><span class="lib">Lettres des titres</span><div class="chips" id="o-espace"></div></div>
+      <div class="rangee"><span class="lib">Casse des titres</span><div class="chips" id="o-casse"></div></div>
+      <div class="rangee"><span class="lib">Forme de la photo</span><div class="chips" id="o-photo"></div></div>
+      <div class="rangee"><span class="lib">Graisse du nom</span><div class="chips" id="o-nom"></div></div>
+      <button type="button" class="btn sec" id="raz" style="margin-top:12px">Remettre le style d'origine</button>
+    </div>
+  </section>
+
+  <aside class="cote" aria-label="Aperçu et formes">
+    <div class="boite">
+      <div class="titre-ligne"><h2 id="titreApercu">Aperçu</h2></div>
+      <div class="barre-edition cache" id="barreEdition"><span><b>Réglage à la main.</b> Déplacez la forme avec le doigt ou la souris, tirez le petit carré du coin pour la grandir ou la réduire. Clavier : flèches, + et -.</span><button type="button" class="btn" id="termineEdition">Terminé</button></div>
+      <div class="apercu" id="grand"></div>
+    </div>
+
+    <div class="boite neuf cache" id="panneauOptions">
+      <div class="titre-ligne"><h2 id="titreOptions">Forme</h2><button type="button" class="croix" id="fermerOptions" aria-label="Fermer">&times;</button></div>
+      <div class="chips" id="o-forme" style="margin-top:8px"></div>
+      <p class="aide" id="noteOptions"></p>
+    </div>
+
+    <div class="boite neuf cache" id="panneauFormes">
+      <div class="titre-ligne"><h2>Formes décoratives <span class="tag-neuf">NOUVEAU</span></h2><button type="button" class="croix" id="fermerFormes" aria-label="Fermer le choix des formes">&times;</button></div>
+      <p class="aide" id="compteFormes" style="margin:2px 0 0"></p>
+      <div class="chips" id="ongletsFormes" style="margin-top:6px"></div>
+      <div class="rangee"><span class="lib">Forme</span><div class="chips" id="f-forme"></div></div>
+      <div class="rangee"><span class="lib">Où la placer</span><div class="chips" id="f-zone"></div></div>
+      <div class="rangee"><span class="lib">Taille</span><div class="chips" id="f-taille"></div></div>
+      <div class="rangee"><span class="lib">Transparence</span><div class="chips" id="f-transp"></div></div>
+      <div class="rangee"><span class="lib">Couleur</span><div class="chips" id="f-couleur"></div></div>
+      <div class="rangee cache" id="rTeinte"><span class="lib">Quelle couleur claire ?</span><div class="chips" id="f-teinte" style="align-items:center"></div></div>
+      <div class="rangee" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn" id="ajoutForme">Ajouter une deuxième forme</button>
+        <button type="button" class="btn sec" id="retourner">Retourner la forme</button>
+        <button type="button" class="btn sec" id="retireForme">Retirer cette forme</button>
+      </div>
+      <p class="aide">La forme passe <b>sous la lecture</b> : le texte reste net par-dessus. La transparence ne dépasse jamais un plafond, pour que le CV reste lisible, même imprimé en noir et blanc. Un CV porte quatre formes au plus.</p>
+    </div>
+  </aside>
+</div>
+
+<section class="notes">
+  <h2>Ce que vous pouvez tester</h2>
+  <ul>
+    <li><b>Bandeau et Colonne sont deux boutons séparés</b> : un CV peut avoir les deux réglés en même temps (essayez « Colonne et bandeau » : bandeau en pointe ET colonne vallonnée). Le choix s'ouvre en grandes images avec leur nom. Sur « Colonne et bandeau », l'arche n'est pas proposée (le bandeau cache le haut de la colonne) ; sur « Colonne foncée », elle l'est. Les modèles sobres n'ont que « Formes ».</li>
+    <li><b>Bouton « Formes »</b> sous chaque vignette (jusqu'à <b>quatre formes</b> par CV, avec leur compteur) : il ouvre le choix dans la page, à côté de l'aperçu. Les formes se règlent une fois et suivent le CV quand on change de modèle (comme « Garder mes couleurs »). <b>Placement libre</b> et <b>Régler moi-même</b> (taille) mènent au même réglage à la main : on déplace et on agrandit la forme directement sur l'aperçu, puis « Terminé ». <b>Couleur claire</b> : on choisit laquelle (8 teintes ou une autre couleur).</li>
+    <li><b>Frise sobre</b> et <b>Bandeaux noirs</b> : les deux modèles neufs retenus.</li>
+  </ul>
+  <h2>Ce que la maquette ne montre pas encore</h2>
+  <ul>
+    <li>Les zones de formes grisées quand elles tombent sur la photo ou sur un fond déjà coloré.</li>
+    <li>Les autres options de la liste (puces rondes, icônes de contact en carrés, accroche en bande, arche sur d'autres modèles...) : elles viendront dans les rangées de la même façon.</li>
+    <li>Le message d'attention du Word : inchangé, le PDF est la référence.</li>
+  </ul>
+</section>
+
+<script>
+(function () {
+'use strict';
+var GRILLE = document.getElementById('grille');
+var PW = 794, PH = 1123;
+
+var B4 = ['droit', 'arrondi', 'vallonne', 'pointe'];
+var MODELES = [
+  { id: 'creatif:colonneBandeau', nom: 'Colonne et bandeau', bandeauOpts: B4, bandeauSimule: true, colonneOpts: ['droit', 'vallonne'] },
+  { id: 'creatif:colonneFoncee', nom: 'Colonne foncée', colonneOpts: ['droit', 'vallonne', 'arche'] },
+  { id: 'creatif:mqBandeau', nom: 'Bandeau entier', bandeauOpts: B4 },
+  { id: 'creatif:duoOvale', nom: 'Duo ovale', bandeauOpts: B4 },
+  { id: 'creatif:vagueMarine', nom: 'Vague marine', bandeauOpts: B4 },
+  { id: 'sobre:mq-editorial', nom: 'Éditorial' },
+  { id: 'sobre:mq-chrono', nom: 'Chronologique' },
+  { id: 'neuf:frise', nom: 'Frise sobre', neuf: true },
+  { id: 'neuf:noirs', nom: 'Bandeaux noirs', neuf: true }
+];
+
+/* ---------- Deux modèles neufs, dessinés pour la maquette ---------- */
+var SILHOUETTE = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#cfd6df"/><circle cx="50" cy="38" r="18" fill="#8d99a8"/><path d="M12 100c2-26 18-38 38-38s36 12 38 38z" fill="#8d99a8"/></svg>');
+function lignesExp(rangees) {
+  return rangees.map(function (r) { return '<div class="exp"><div class="dates">' + r[0] + '</div><div class="gras">' + r[1] + '</div><div class="lieu">' + r[2] + '</div><ul><li>' + r[3] + '</li></ul></div>'; }).join('');
+}
+var EXPS = [
+  ['2022 - à ce jour', 'Agent de sécurité', 'Groupe Sûreté, Limoges', 'Surveillance de sites et accueil des visiteurs'],
+  ['2019 - 2022', 'Agent de prévention', 'Centre commercial, Limoges', 'Rondes, contrôle des accès, premiers secours'],
+  ['2016 - 2019', 'Employé polyvalent', 'Logistique Nord, Brive', 'Préparation de commandes, conduite de chariot'],
+  ['2014 - 2016', 'Aide magasinier', 'Bricolage Plus, Tulle', 'Réception et mise en rayon'],
+  ['2012 - 2014', 'Équipier de restauration', 'Brasserie du Centre, Limoges', 'Service en salle et accueil de la clientèle'],
+  ['2010 - 2012', 'Ouvrier agricole', 'Ferme des Monts, Eymoutiers', 'Soins aux animaux et entretien du matériel']
+];
+var NEUF_FRISE = {
+  nom: 'Frise sobre',
+  css: '.page-a4.cv{--cv:#23303f;width:794px;height:1123px;position:relative;overflow:hidden;background:#fff;font:13px/1.4 Arial,Helvetica,sans-serif;color:#222}' +
+    '.fg{position:absolute;left:0;top:0;bottom:0;width:36%;background:#e6e9ee}' +
+    '.ban{position:absolute;left:150px;right:34px;top:38px;height:104px;background:#2b2b2b;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center}' +
+    '.ban .nom{font-size:30px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.ban .metier{font-size:14px;letter-spacing:.2em;text-transform:uppercase;margin-top:4px;opacity:.9}' +
+    '.col-g{position:absolute;left:28px;top:200px;width:36%;padding-right:34px}.col-d{position:absolute;left:38%;right:34px;top:166px}' +
+    '.photo-mq{width:96px;height:96px;object-fit:cover;display:block;margin:0 0 18px;border-radius:50%}' +
+    '.cv h2{display:flex;align-items:center;gap:10px;font-size:15px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px;color:#222}' +
+    '.cv h2:after{content:"";flex:1;height:1px;background:var(--cv)}' +
+    '.sec{margin-bottom:20px}.sec ul{margin:0;padding-left:16px}.sec li{margin-bottom:3px}' +
+    '.coords{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:24px;font-size:12.5px}' +
+    '.coords .ic{display:inline-block;width:18px;height:18px;background:#2b2b2b;color:#fff;border-radius:3px;text-align:center;line-height:18px;font-size:11px;margin-right:7px}' +
+    '.frise{position:relative;margin-left:6px;border-left:2px solid var(--cv);padding-left:20px}' +
+    '.exp{position:relative;margin-bottom:17px}.exp:before{content:"";position:absolute;left:-28px;top:2px;width:10px;height:10px;border:2px solid var(--cv);border-radius:50%;background:#fff}' +
+    '.exp .dates{float:right;font-style:italic;font-size:12px;color:#444}.exp .gras{font-weight:700;font-size:14px}.exp .lieu{color:#555}.exp ul{margin:3px 0 0;padding-left:16px;font-size:12.5px}',
+  html: '<div class="page-a4 cv"><div class="fg"></div><div class="ban"><div class="nom"><span>Camille MARTIN</span></div><div class="metier"><span>Agent de sécurité</span></div></div>' +
+    '<div class="col-g"><img class="photo-mq" src="' + SILHOUETTE + '" alt="Photo">' +
+    '<div class="sec"><h2><span>Formation</span></h2><ul><li>2014 : CAP Agent de sécurité</li><li>2016 : SSIAP 1</li><li>2019 : Secourisme (SST)</li></ul></div>' +
+    '<div class="sec"><h2><span>Permis</span></h2><ul><li>Permis B</li><li>CACES R489 cat. 1B, 3</li></ul></div>' +
+    '<div class="sec"><h2><span>Compétences</span></h2><ul><li>Gestion d\'équipe</li><li>Contrôle des accès</li><li>Rédaction de rapports</li><li>Sang-froid</li></ul></div>' +
+    '<div class="sec"><h2><span>Langues</span></h2><ul><li>Français : langue maternelle</li><li>Anglais : B1</li></ul></div>' +
+    '<div class="sec"><h2><span>Loisirs</span></h2><ul><li>Randonnée</li><li>Cuisine</li></ul></div></div>' +
+    '<div class="col-d"><div class="coords"><div><span class="ic">&#9742;</span>06.00.00.00.00</div><div><span class="ic">&#8962;</span>Limoges, 87000</div><div><span class="ic">&#9993;</span>camille@ex.fr</div></div>' +
+    '<h2><span>Expérience</span></h2><div class="frise">' + lignesExp(EXPS) + '</div></div></div>'
+};
+var NEUF_NOIRS = {
+  nom: 'Bandeaux noirs',
+  css: '.page-a4.cv{--cv:#161616;width:794px;height:1123px;position:relative;overflow:hidden;background:#fff;font:13px/1.4 Arial,Helvetica,sans-serif;color:#222}' +
+    '.ent{background:#161616;color:#fff;padding:46px 56px 74px;clip-path:polygon(0 0,100% 0,100% 74%,0 100%)}' +
+    '.ent .nom{font-size:40px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.ent .metier{font-size:15px;letter-spacing:.24em;text-transform:uppercase;margin-top:6px}' +
+    '.photo-mq{position:absolute;right:56px;top:34px;width:100px;height:100px;object-fit:cover;border-radius:50%;border:4px solid #fff}' +
+    '.contact{padding:0 56px;margin:-12px 0 6px;display:flex;gap:26px;flex-wrap:wrap;font-size:12.5px}' +
+    '.bloc{padding:0 56px;margin-top:18px}.bloc.alt{text-align:right}' +
+    '.cv h2{display:inline-block;margin:0 0 10px;background:#161616;color:#fff;font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:6px 44px 6px 24px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 100%,0 100%)}' +
+    '.alt h2{padding:6px 24px 6px 44px;clip-path:polygon(16px 0,100% 0,100% 100%,0 100%)}' +
+    '.pill{display:inline-block;border:1.5px solid #161616;border-radius:14px;padding:3px 13px;margin:0 6px 7px 0;font-size:12.5px}.alt .pill{margin:0 0 7px 6px}' +
+    '.exp{margin-bottom:12px;text-align:left}.exp .dates{float:right;font-style:italic;font-size:12px;color:#444}.exp .gras{font-weight:700;font-size:14px}.exp .lieu{color:#555}.exp ul{margin:3px 0 0;padding-left:16px;font-size:12.5px}' +
+    '.deux{display:flex;gap:30px;text-align:left}.deux>div{flex:1}',
+  html: '<div class="page-a4 cv"><div class="ent"><div class="nom"><span>Camille MARTIN</span></div><div class="metier"><span>Agent de sécurité</span></div></div>' +
+    '<img class="photo-mq" src="' + SILHOUETTE + '" alt="Photo">' +
+    '<div class="contact"><span>06.00.00.00.00</span><span>camille@ex.fr</span><span>Limoges, 87000</span></div>' +
+    '<div class="bloc"><h2><span>Compétences</span></h2><div><span class="pill">Gestion d\'équipe</span><span class="pill">Contrôle des accès</span><span class="pill">Rapports</span><span class="pill">Premiers secours</span><span class="pill">Sang-froid</span></div></div>' +
+    '<div class="bloc alt"><h2><span>Expérience</span></h2>' + lignesExp(EXPS.slice(0, 5)) + '</div>' +
+    '<div class="bloc"><div class="deux"><div><h2><span>Formation</span></h2><div class="exp"><div class="gras">SSIAP 1</div><div class="lieu">2016</div></div><div class="exp"><div class="gras">CAP Agent de sécurité</div><div class="lieu">2014</div></div></div>' +
+    '<div><h2><span>Langues</span></h2><div class="exp"><div class="gras">Français</div><div class="lieu">Langue maternelle</div></div><div class="exp"><div class="gras">Anglais</div><div class="lieu">B1</div></div></div></div></div>' +
+    '<div class="bloc alt"><h2><span>Centres d&rsquo;intérêt</span></h2><div><span class="pill">Randonnée</span><span class="pill">Cuisine</span><span class="pill">Bénévolat</span></div></div></div>'
+};
+
+/* ---------- État ---------- */
+var etat = {
+  sel: 'creatif:colonneBandeau',
+  colForme: {}, bandeau: {},
+  formes: { actif: false, liste: [], courant: 0 },
+  edition: null, panneau: null,
+  typo: { espace: 'non', casse: 'auto', photo: 'auto', nom: 'auto' }
+};
+
+/* ---------- Chargement des miniatures réelles ---------- */
+var cache = {};
+function charger(nomFichier) {
+  if (cache[nomFichier]) { return cache[nomFichier]; }
+  cache[nomFichier] = fetch('../data/miniatures/' + nomFichier + '.json').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  return cache[nomFichier];
+}
+function fichier(id) { return id.replace(':', '_'); }
+function choisirSource(m) {
+  if (m.id === 'neuf:frise') { return Promise.resolve(NEUF_FRISE); }
+  if (m.id === 'neuf:noirs') { return Promise.resolve(NEUF_NOIRS); }
+  var base = fichier(m.id);
+  return charger(base).then(function (d) {
+    if (!d) { return null; }
+    if (m.colonneOpts) {
+      var forme = etat.colForme[m.id] || d.bord;
+      var vrai = (forme === 'arche') ? 'droit' : forme;
+      if (d.bord && vrai !== d.bord) { return charger(base + '.bord').then(function (alt) { return alt || d; }); }
+    }
+    if (m.bandeauOpts && !m.bandeauSimule) {
+      var b = etat.bandeau[m.id] || d.bandeau;
+      var vraiBord = (b === 'pointe') ? 'droit' : b;
+      if (d.bandeau && vraiBord !== d.bandeau) { return charger(base + '.bandeau-' + vraiBord).then(function (alt) { return alt || d; }); }
+    }
+    return d;
+  });
+}
+
+/* ---------- Formes décoratives ---------- */
+var FORMES = [
+  { id: 'rond', nom: 'Rond', w: 1, ratio: 1, svg: '<circle cx="50" cy="50" r="50" fill="currentColor"/>', vb: '0 0 100 100' },
+  { id: 'anneau', nom: 'Anneau', w: 1, ratio: 1, svg: '<circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="14"/>', vb: '0 0 100 100' },
+  { id: 'demi', nom: 'Demi-rond', w: 1, ratio: 0.5, svg: '<path d="M0 50A50 50 0 0 1 100 50Z" fill="currentColor"/>', vb: '0 0 100 50' },
+  { id: 'triangle', nom: 'Triangle', w: 1, ratio: 1, svg: '<polygon points="0,0 100,0 0,100" fill="currentColor"/>', vb: '0 0 100 100', miroir: true },
+  { id: 'lame', nom: 'Lame effilée', w: 2.6, ratio: 0.1, svg: '<polygon points="0,0 100,0 0,100" fill="currentColor"/>', vb: '0 0 100 100', miroir: true },
+  { id: 'bande', nom: 'Bande oblique', w: 1.3, ratio: 0.3, svg: '<polygon points="20,0 100,0 80,100 0,100" fill="currentColor"/>', vb: '0 0 100 100' }
+];
+var ZONES = [
+  { id: 'hg', nom: 'Coin en haut à gauche' },
+  { id: 'hd', nom: 'Coin en haut à droite' },
+  { id: 'nom', nom: 'Derrière le nom' },
+  { id: 'sous', nom: 'Sous l\'en-tête' },
+  { id: 'mil', nom: 'Au milieu de la page' },
+  { id: 'bas', nom: 'En bas de page' }
+];
+var TAILLES = [
+  { id: 'XS', nom: 'Très petite', px: 100 }, { id: 'S', nom: 'Petite', px: 160 }, { id: 'M', nom: 'Moyenne', px: 250 },
+  { id: 'L', nom: 'Grande', px: 380 }, { id: 'XL', nom: 'Très grande', px: 560 }
+];
+var TRANSP = [{ id: 'leger', nom: 'Légère', op: 0.28 }, { id: 'moyen', nom: 'Moyenne', op: 0.46 }];
+var COULEURS = [{ id: 'cv', nom: 'Couleur du CV', css: 'var(--cv,#1e3a5f)' }, { id: 'claire', nom: 'Couleur claire', css: '#9db8d9' }, { id: 'gris', nom: 'Gris', css: '#8a8f98' }];
+function trouve(liste, id) { for (var i = 0; i < liste.length; i++) { if (liste[i].id === id) { return liste[i]; } } return liste[0]; }
+var TEINTES = ['#9db8d9', '#a8d5ba', '#f3d58a', '#f0b4a8', '#d3b5e5', '#b5e0e0', '#f5c6d6', '#cfcfcf'];
+function formeParDefaut() { return { forme: 'rond', zone: 'hd', taille: 'M', transp: 'leger', couleur: 'cv', teinte: '#9db8d9', flip: false }; }
+function hauteurDe(F, w) { return F.id === 'lame' ? Math.round(w * 0.028) + 8 : Math.round(w * F.ratio); }
+
+function geometrie(f) {
+  var F = trouve(FORMES, f.forme);
+  var w = (f.taille === 'perso') ? Math.round(f.fw * PW) : Math.min(PW, Math.round(trouve(TAILLES, f.taille).px * F.w));
+  var h = hauteurDe(F, w);
+  var pos, mirBase = false;
+  if (f.zone === 'libre') { pos = 'left:' + Math.round(f.fx * PW) + 'px;top:' + Math.round(f.fy * PH) + 'px;'; }
+  else {
+    mirBase = !!(F.miroir && (f.zone === 'hd' || f.zone === 'mil'));
+    if (f.zone === 'hg') { pos = 'left:0;top:0;'; }
+    else if (f.zone === 'hd') { pos = 'right:0;top:0;'; }
+    else if (f.zone === 'nom') { pos = 'left:70px;top:70px;'; }
+    else if (f.zone === 'sous') { pos = (F.id === 'lame' ? 'left:0;' : 'left:' + Math.round((PW - w) / 2) + 'px;') + 'top:214px;'; }
+    else if (f.zone === 'mil') { pos = 'right:36px;top:520px;'; }
+    else { pos = 'left:' + Math.round((PW - w) / 2) + 'px;bottom:0;'; }
+  }
+  return { F: F, w: w, h: h, pos: pos, miroir: mirBase !== !!f.flip, mirBase: mirBase };
+}
+
+function htmlFormes() {
+  if (!etat.formes.actif) { return ''; }
+  return etat.formes.liste.map(function (f, i) {
+    var g = geometrie(f), P = trouve(TRANSP, f.transp), C = trouve(COULEURS, f.couleur);
+    return '<div class="forme-deco" data-idx="' + i + '" data-zone="' + f.zone + '" style="position:absolute;' + g.pos + 'width:' + g.w + 'px;height:' + g.h + 'px;color:' + (f.couleur === 'claire' ? (f.teinte || '#9db8d9') : C.css) + ';opacity:' + P.op +
+      ';mix-blend-mode:multiply;z-index:5;pointer-events:none;' + (g.miroir ? 'transform:scaleX(-1);' : '') + '">' +
+      '<svg viewBox="' + g.F.vb + '" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true">' + g.F.svg + '</svg></div>';
+  }).join('');
+}
+
+/* ---------- CSS ajouté par les options ---------- */
+function cssOptions(m) {
+  var c = '.page-a4{position:relative !important;}';
+  var t = etat.typo;
+  if (t.espace === 'leger') { c += '.cv h2{letter-spacing:.09em !important;}'; }
+  if (t.espace === 'large') { c += '.cv h2{letter-spacing:.2em !important;} .cv .metier{letter-spacing:.2em !important;}'; }
+  if (t.casse === 'maj') { c += '.cv h2{text-transform:uppercase !important;}'; }
+  if (t.casse === 'cap') { c += '.cv h2{text-transform:capitalize !important;}'; }
+  if (t.casse === 'min') { c += '.cv h2{text-transform:lowercase !important;}'; }
+  if (t.photo === 'ronde') { c += '.cv .photo-mq{border-radius:50% !important;clip-path:none !important;}'; }
+  if (t.photo === 'carree') { c += '.cv .photo-mq{border-radius:0 !important;clip-path:none !important;}'; }
+  if (t.photo === 'arrondie') { c += '.cv .photo-mq{border-radius:16% !important;clip-path:none !important;}'; }
+  if (t.photo === 'losange') { c += '.cv .photo-mq{border-radius:0 !important;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%) !important;}'; }
+  if (t.nom === 'fin') { c += '.cv .nom{font-weight:300 !important;}'; }
+  if (t.nom === 'gras') { c += '.cv .nom{font-weight:900 !important;}'; }
+  var bb = m.bandeauOpts ? etat.bandeau[m.id] : null;
+  if (bb === 'pointe') {
+    c += '.cv .tete-fond{padding-bottom:46px !important;clip-path:polygon(0 0,100% 0,100% calc(100% - 38px),50% 100%,0 calc(100% - 38px));}';
+  }
+  if (m.bandeauSimule && bb === 'arrondi') { c += '.cv .tete-fond{border-radius:0 0 30px 30px !important;}'; }
+  if (m.bandeauSimule && bb === 'vallonne') {
+    var pts = ['0 0', '100% 0'];
+    for (var k = 20; k >= 0; k--) { pts.push((k * 5) + '% calc(100% - ' + (16 + Math.round(8 * Math.sin(k / 20 * 6.2832 * 1.5))) + 'px)'); }
+    c += '.cv .tete-fond{padding-bottom:30px !important;clip-path:polygon(' + pts.join(',') + ');}';
+  }
+  if (m.colonneOpts && etat.colForme[m.id] === 'arche') {
+    c += '.cv.col-vague-g::before,.cv.col-vague-d::before{clip-path:none !important;top:16mm !important;border-radius:40mm 40mm 0 0 !important;}.cv.col-vague-g .tete > div:first-child{padding:24mm 2mm 0 12mm !important;}';
+  }
+  return c;
+}
+
+/* ---------- Dessin d'une miniature ---------- */
+function dessiner(el, m, largeur) {
+  return choisirSource(m).then(function (d) {
+    if (!d) { el.textContent = 'Miniature indisponible'; return; }
+    var racine = el.shadowRoot || el.attachShadow({ mode: 'open' });
+    el.style.height = Math.round(largeur * PH / PW) + 'px';
+    racine.innerHTML = '<style>:host{all:initial;display:block;position:relative;overflow:hidden;height:' + Math.round(largeur * PH / PW) + 'px}' +
+      '.ech{position:absolute;top:0;left:0;width:' + PW + 'px;transform-origin:0 0;transform:scale(' + (largeur / PW) + ');}.ech *{pointer-events:none;}' + d.css + cssOptions(m) + '</style>' +
+      '<div class="ech">' + d.html + '</div>';
+    var page = racine.querySelector('.page-a4');
+    if (page) {
+      page.insertAdjacentHTML('beforeend', htmlFormes());
+      var ent = page.querySelector('.tete-fond, .tete, .ban, .ent');
+      var bas = ent ? (ent.offsetTop + ent.offsetHeight) : 214;
+      Array.prototype.forEach.call(page.querySelectorAll('.forme-deco[data-zone="sous"]'), function (n) { n.style.top = (bas - 8) + 'px'; });
+      Array.prototype.forEach.call(page.querySelectorAll('.forme-deco[data-zone="nom"]'), function (n) { n.style.top = Math.max(24, Math.round(bas / 2 - n.offsetHeight / 2)) + 'px'; });
+    }
+  });
+}
+
+/* ---------- Vignettes : TOUTES les options sont des rangées de petites images ---------- */
+var SVG = {
+  bDroit: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><path d="M1 1h22v8H1z" fill="currentColor"/></svg>',
+  bArrondi: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><path d="M1 1h22v4a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4z" fill="currentColor"/></svg>',
+  bVallonne: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><path d="M1 1h22v5c-3 3-5 3-8 0s-5-3-7 0-5 3-7 0z" fill="currentColor"/></svg>',
+  bPointe: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><path d="M1 1h22v5l-11 6L1 6z" fill="currentColor"/></svg>',
+  cDroit: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><path d="M3 1h9v12H3z" fill="currentColor"/></svg>',
+  cVallonne: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><path d="M3 1h8c-2 2.5-2 4 0 6.2S13 11.2 11 13H3z" fill="currentColor"/></svg>',
+  cArche: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><path d="M3 13V7a4.5 4.5 0 0 1 9 0v6z" fill="currentColor"/></svg>',
+  formes: '<svg viewBox="0 0 24 14" width="22" height="13" aria-hidden="true"><circle cx="8" cy="7" r="5" fill="currentColor" opacity=".55"/><path d="M12 13L22 3v10z" fill="currentColor" opacity=".8"/></svg>'
+};
+var defautsBandeau = { 'creatif:colonneBandeau': 'droit', 'creatif:mqBandeau': 'droit', 'creatif:duoOvale': 'arrondi', 'creatif:vagueMarine': 'vallonne' };
+var defautsColonne = { 'creatif:colonneBandeau': 'droit', 'creatif:colonneFoncee': 'droit' };
+
+
+function construireGalerie() {
+  GRILLE.innerHTML = '';
+  MODELES.forEach(function (m) {
+    var cadre = document.createElement('div'); cadre.className = 'cadre';
+    var v = document.createElement('button'); v.type = 'button'; v.className = 'vign'; v.setAttribute('data-id', m.id);
+    v.setAttribute('aria-label', 'Choisir le modèle ' + m.nom);
+    var mini = document.createElement('span'); mini.className = 'mini'; v.appendChild(mini);
+    v.addEventListener('click', function () { choisir(m.id); });
+    cadre.appendChild(v);
+    var nom = document.createElement('div'); nom.className = 'vign-nom'; nom.textContent = m.nom;
+    if (m.neuf) { nom.innerHTML = m.nom + '<span class="tag-neuf">NOUVEAU</span>'; }
+    cadre.appendChild(nom);
+
+    var rangeeBtn = document.createElement('div'); rangeeBtn.className = 'btns-vign';
+    [['bandeau', 'Bandeau', SVG.bVallonne, !!m.bandeauOpts], ['colonne', 'Colonne', SVG.cVallonne, !!m.colonneOpts], ['formes', 'Formes', SVG.formes, true]].forEach(function (k) {
+      if (!k[3]) { return; }
+      var fb = document.createElement('button'); fb.type = 'button'; fb.className = 'case-btn' + (k[0] === 'formes' ? ' nv' : '');
+      fb.setAttribute('data-ouvre', k[0]); fb.setAttribute('data-modele', m.id); fb.setAttribute('aria-pressed', 'false');
+      fb.title = k[0] === 'formes' ? 'Formes décoratives' : (k[0] === 'bandeau' ? 'Forme du bandeau' : 'Forme de la colonne');
+      fb.innerHTML = k[2] + '<span>' + k[1] + '</span>';
+      fb.addEventListener('click', function () { etat.sel = m.id; ouvrir(k[0]); });
+      rangeeBtn.appendChild(fb);
+    });
+    cadre.appendChild(rangeeBtn);
+    GRILLE.appendChild(cadre);
+  });
+}
+
+function rafraichirControles() {
+  MODELES.forEach(function (m) {
+    var v = GRILLE.querySelector('.vign[data-id="' + m.id + '"]');
+    if (v) { v.setAttribute('aria-pressed', etat.sel === m.id ? 'true' : 'false'); }
+  });
+  Array.prototype.forEach.call(GRILLE.querySelectorAll('[data-ouvre]'), function (b) {
+    var k = b.getAttribute('data-ouvre'), mine = b.getAttribute('data-modele') === etat.sel;
+    var on = (k === 'formes') ? (etat.formes.liste.length > 0) : (etat.panneau === k && mine);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+
+function choisir(id) {
+  etat.sel = id;
+  var m = modeleSel();
+  if ((etat.panneau === 'bandeau' && !m.bandeauOpts) || (etat.panneau === 'colonne' && !m.colonneOpts)) { etat.panneau = null; }
+  montrerPanneaux(); toutDessiner();
+}
+function modeleSel() { return MODELES.filter(function (m) { return m.id === etat.sel; })[0]; }
+
+var grand = document.getElementById('grand');
+function dessinerGrand() {
+  var w = grand.clientWidth || 340;
+  var m = modeleSel();
+  document.getElementById('titreApercu').textContent = 'Aperçu : ' + m.nom;
+  var inner = grand.querySelector('.mini-grand');
+  if (!inner) { inner = document.createElement('div'); inner.className = 'mini-grand'; grand.appendChild(inner); }
+  return dessiner(inner, m, w).then(placerCadreEdition);
+}
+function toutDessiner() {
+  MODELES.forEach(function (m) {
+    var mini = GRILLE.querySelector('.vign[data-id="' + m.id + '"] .mini');
+    if (mini) { dessiner(mini, m, 112); }
+  });
+  return dessinerGrand();
+}
+
+/* ---------- Panneau des formes ---------- */
+var panneau = document.getElementById('panneauFormes');
+var panneauOpt = document.getElementById('panneauOptions');
+var MAX_FORMES = 4;
+function ouvrir(quoi) {
+  if (quoi === 'formes') {
+    if (!etat.formes.liste.length) { etat.formes.liste = [formeParDefaut()]; etat.formes.courant = 0; }
+    etat.formes.actif = true;
+    etat.panneau = (etat.panneau === 'formes') ? null : 'formes';
+  } else {
+    etat.panneau = (etat.panneau === quoi) ? null : quoi;
+  }
+  if (etat.panneau !== 'formes') { sortirEdition(true); }
+  montrerPanneaux(); toutDessiner();
+}
+function montrerPanneaux() {
+  panneau.classList.toggle('cache', etat.panneau !== 'formes');
+  panneauOpt.classList.toggle('cache', etat.panneau !== 'bandeau' && etat.panneau !== 'colonne');
+  if (etat.panneau === 'formes') { majPanneau(); }
+  if (etat.panneau === 'bandeau' || etat.panneau === 'colonne') { majPanneauOptions(); }
+  rafraichirControles();
+}
+var NOMS_FORMES = { droit: 'Droit', arrondi: 'Arrondi', vallonne: 'Vallonné', pointe: 'En pointe', arche: 'Arche' };
+var ICONES = {
+  bandeau: { droit: SVG.bDroit, arrondi: SVG.bArrondi, vallonne: SVG.bVallonne, pointe: SVG.bPointe },
+  colonne: { droit: SVG.cDroit, vallonne: SVG.cVallonne, arche: SVG.cArche }
+};
+function majPanneauOptions() {
+  var m = modeleSel(), k = etat.panneau;
+  var opts = (k === 'bandeau') ? m.bandeauOpts : m.colonneOpts;
+  if (!opts) { return; }
+  var cur = (k === 'bandeau') ? (etat.bandeau[m.id] || defautsBandeau[m.id] || 'droit') : (etat.colForme[m.id] || defautsColonne[m.id] || 'droit');
+  document.getElementById('titreOptions').textContent = (k === 'bandeau' ? 'Forme du bandeau' : 'Forme de la colonne') + ' : ' + m.nom;
+  var c = document.getElementById('o-forme'); c.innerHTML = '';
+  opts.forEach(function (o) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip gros'; b.setAttribute('aria-pressed', o === cur ? 'true' : 'false');
+    b.innerHTML = ICONES[k][o] + '<span>' + NOMS_FORMES[o] + '</span>';
+    b.addEventListener('click', function () {
+      if (k === 'bandeau') { etat.bandeau[m.id] = o; } else { etat.colForme[m.id] = o; }
+      majPanneauOptions(); toutDessiner();
+    });
+    c.appendChild(b);
+  });
+  document.getElementById('noteOptions').textContent = 'Seules les formes possibles avec ce modèle sont proposées.';
+}
+document.getElementById('fermerOptions').addEventListener('click', function () { etat.panneau = null; montrerPanneaux(); });
+
+function chips(idConteneur, liste, valeurCourante, quand, avecIcone) {
+  var c = document.getElementById(idConteneur); c.innerHTML = '';
+  liste.forEach(function (o) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (o.special ? ' special' : ''); b.setAttribute('aria-pressed', o.id === valeurCourante ? 'true' : 'false');
+    b.innerHTML = (avecIcone && o.svg ? '<svg viewBox="' + o.vb + '" width="22" height="' + (o.id === 'lame' ? 8 : (o.ratio === 0.5 ? 12 : 20)) + '" preserveAspectRatio="none" aria-hidden="true">' + o.svg + '</svg>' : '') + '<span>' + o.nom + '</span>';
+    b.addEventListener('click', function () { quand(o.id); });
+    c.appendChild(b);
+  });
+}
+function majPanneau() {
+  var F = etat.formes;
+  if (!F.actif) { return; }
+  var f = F.liste[F.courant];
+  var onglets = document.getElementById('ongletsFormes'); onglets.innerHTML = '';
+  if (F.liste.length > 1) {
+    F.liste.forEach(function (_, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', i === F.courant ? 'true' : 'false'); b.textContent = 'Forme ' + (i + 1);
+      b.addEventListener('click', function () { F.courant = i; if (etat.edition !== null) { etat.edition = i; } majPanneau(); dessinerGrand(); });
+      onglets.appendChild(b);
+    });
+  }
+  chips('f-forme', FORMES, f.forme, function (v) { f.forme = v; changerFormes(); }, true);
+  chips('f-zone', ZONES.concat([{ id: 'libre', nom: 'Placement libre', special: true }]), f.zone, function (v) {
+    if (v === 'libre') { entrerEdition(F.courant); } else { sortirEdition(true); f.zone = v; changerFormes(); }
+  });
+  chips('f-taille', TAILLES.concat([{ id: 'perso', nom: 'Régler moi-même', special: true }]), f.taille, function (v) {
+    if (v === 'perso') { entrerEdition(F.courant); } else { f.taille = v; changerFormes(); }
+  });
+  chips('f-transp', TRANSP, f.transp, function (v) { f.transp = v; changerFormes(); });
+  chips('f-couleur', COULEURS, f.couleur, function (v) { f.couleur = v; changerFormes(); });
+  var rT = document.getElementById('rTeinte'); rT.classList.toggle('cache', f.couleur !== 'claire');
+  var cT = document.getElementById('f-teinte'); cT.innerHTML = '';
+  TEINTES.forEach(function (h) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'sw'; b.style.background = h; b.title = 'Couleur ' + h; b.setAttribute('aria-label', 'Choisir cette couleur claire'); b.setAttribute('aria-pressed', (f.teinte || '#9db8d9').toLowerCase() === h ? 'true' : 'false');
+    b.addEventListener('click', function () { f.teinte = h; changerFormes(); });
+    cT.appendChild(b);
+  });
+  var lib = document.createElement('label'); lib.className = 'sw-libre'; lib.innerHTML = '<span>Autre couleur</span><input type="color" aria-label="Choisir une autre couleur claire" value="' + (f.teinte || '#9db8d9') + '">';
+  lib.querySelector('input').addEventListener('input', function (e) { f.teinte = e.target.value; toutDessiner(); });
+  lib.querySelector('input').addEventListener('change', function () { majPanneau(); });
+  cT.appendChild(lib);
+  document.getElementById('ajoutForme').disabled = F.liste.length >= MAX_FORMES;
+  document.getElementById('ajoutForme').textContent = F.liste.length === 1 ? 'Ajouter une deuxième forme' : (F.liste.length >= MAX_FORMES ? 'Quatre formes au maximum' : 'Ajouter une forme de plus');
+  document.getElementById('compteFormes').textContent = F.liste.length + ' forme' + (F.liste.length > 1 ? 's' : '') + ' sur ' + MAX_FORMES + ' au plus';
+  document.getElementById('retireForme').textContent = F.liste.length > 1 ? 'Retirer cette forme' : 'Retirer toutes les formes';
+}
+function changerFormes() { majPanneau(); toutDessiner(); }
+document.getElementById('ajoutForme').addEventListener('click', function () {
+  var F = etat.formes; if (F.liste.length >= MAX_FORMES) { return; }
+  var n = formeParDefaut(); var suite = [['anneau', 'bas', 'L', 'claire'], ['triangle', 'hg', 'M', 'cv'], ['demi', 'mil', 'S', 'gris']][F.liste.length - 1] || ['rond', 'mil', 'S', 'gris']; n.forme = suite[0]; n.zone = suite[1]; n.taille = suite[2]; n.couleur = suite[3];
+  F.liste.push(n); F.courant = F.liste.length - 1; sortirEdition(true); changerFormes();
+});
+document.getElementById('retireForme').addEventListener('click', function () {
+  var F = etat.formes; sortirEdition(true);
+  if (F.liste.length > 1) { F.liste.splice(F.courant, 1); F.courant = 0; changerFormes(); }
+  else { F.liste = []; etat.formes.actif = false; etat.panneau = null; montrerPanneaux(); toutDessiner(); }
+});
+document.getElementById('fermerFormes').addEventListener('click', function () { sortirEdition(true); etat.panneau = null; montrerPanneaux(); });
+document.getElementById('retourner').addEventListener('click', function () {
+  var f = etat.formes.liste[etat.formes.courant]; if (!f) { return; }
+  f.flip = !f.flip; changerFormes();
+});
+
+/* ---------- Réglage à la main sur l'aperçu : déplacer ET agrandir ---------- */
+var barre = document.getElementById('barreEdition');
+var cadreEdit = document.createElement('div');
+cadreEdit.id = 'cadreEdition'; cadreEdit.className = 'cache'; cadreEdit.tabIndex = 0;
+cadreEdit.setAttribute('role', 'group'); cadreEdit.setAttribute('aria-label', 'Forme en cours de réglage : flèches pour la déplacer, plus et moins pour la grandir ou la réduire');
+cadreEdit.innerHTML = '<span class="poignee" aria-hidden="true"></span>';
+grand.appendChild(cadreEdit);
+
+function echelle() { return (grand.clientWidth || 340) / PW; }
+function figerPosition(i) {
+  var f = etat.formes.liste[i]; if (f.zone === 'libre' && f.taille === 'perso') { return Promise.resolve(); }
+  var inner = grand.querySelector('.mini-grand'); var racine = inner && inner.shadowRoot;
+  var el = racine && racine.querySelector('.forme-deco[data-idx="' + i + '"]');
+  if (!el) { return Promise.resolve(); }
+  var g = geometrie(f);
+  f.fx = el.offsetLeft / PW; f.fy = el.offsetTop / PH; f.fw = el.offsetWidth / PW;
+  f.flip = g.miroir; f.zone = 'libre'; f.taille = 'perso';
+  return Promise.resolve();
+}
+function entrerEdition(i) {
+  etat.formes.courant = i;
+  figerPosition(i).then(function () {
+    etat.edition = i;
+    barre.classList.remove('cache');
+    majPanneau(); toutDessiner().then(function () { grand.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); cadreEdit.focus({ preventScroll: true }); });
+  });
+}
+function sortirEdition(silencieux) {
+  if (etat.edition === null) { return; }
+  etat.edition = null; barre.classList.add('cache'); cadreEdit.classList.add('cache');
+  if (!silencieux) { majPanneau(); toutDessiner(); }
+}
+document.getElementById('termineEdition').addEventListener('click', function () { sortirEdition(false); });
+
+function placerCadreEdition() {
+  if (etat.edition === null) { cadreEdit.classList.add('cache'); return; }
+  var f = etat.formes.liste[etat.edition]; if (!f) { cadreEdit.classList.add('cache'); return; }
+  var g = geometrie(f), s = echelle();
+  var pos = grand.querySelector('.mini-grand');
+  cadreEdit.classList.remove('cache');
+  cadreEdit.style.left = Math.round(f.fx * PW * s) + 'px';
+  cadreEdit.style.top = Math.round(f.fy * PH * s) + 'px';
+  cadreEdit.style.width = Math.max(14, Math.round(g.w * s)) + 'px';
+  cadreEdit.style.height = Math.max(14, Math.round(g.h * s)) + 'px';
+  if (pos) { cadreEdit.style.zIndex = 3; }
+}
+function limiter(f) {
+  var g = geometrie(f);
+  f.fw = Math.max(0.05, Math.min(1.3, f.fw));
+  f.fx = Math.max(-g.w * 0.7 / PW, Math.min(1 - g.w * 0.3 / PW, f.fx));
+  f.fy = Math.max(-g.h * 0.7 / PH, Math.min(1 - g.h * 0.3 / PH, f.fy));
+}
+(function brancherGlisser() {
+  var mode = null, dep = null;
+  cadreEdit.addEventListener('pointerdown', function (e) {
+    var f = etat.formes.liste[etat.edition]; if (!f) { return; }
+    mode = e.target.classList.contains('poignee') ? 'taille' : 'deplacer';
+    dep = { x: e.clientX, y: e.clientY, fx: f.fx, fy: f.fy, fw: f.fw };
+    cadreEdit.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  cadreEdit.addEventListener('pointermove', function (e) {
+    if (!mode) { return; }
+    var f = etat.formes.liste[etat.edition], s = echelle();
+    var dx = (e.clientX - dep.x) / s / PW, dy = (e.clientY - dep.y) / s / PH;
+    if (mode === 'deplacer') { f.fx = dep.fx + dx; f.fy = dep.fy + dy; } else { f.fw = dep.fw + dx; }
+    limiter(f); dessinerGrand();
+  });
+  function fin(e) { if (!mode) { return; } mode = null; try { cadreEdit.releasePointerCapture(e.pointerId); } catch (x) {} toutDessiner(); }
+  cadreEdit.addEventListener('pointerup', fin); cadreEdit.addEventListener('pointercancel', fin);
+  cadreEdit.addEventListener('keydown', function (e) {
+    var f = etat.formes.liste[etat.edition]; if (!f) { return; }
+    var pas = (e.shiftKey ? 20 : 5), ok = true;
+    if (e.key === 'ArrowLeft') { f.fx -= pas / PW; } else if (e.key === 'ArrowRight') { f.fx += pas / PW; }
+    else if (e.key === 'ArrowUp') { f.fy -= pas / PH; } else if (e.key === 'ArrowDown') { f.fy += pas / PH; }
+    else if (e.key === '+' || e.key === '=') { f.fw += pas * 2 / PW; } else if (e.key === '-') { f.fw -= pas * 2 / PW; }
+    else if (e.key === 'Escape' || e.key === 'Enter') { sortirEdition(false); ok = true; e.preventDefault(); return; }
+    else { ok = false; }
+    if (ok) { e.preventDefault(); limiter(f); toutDessiner(); }
+  });
+})();
+
+/* ---------- Autres options de style ---------- */
+function groupe(idC, liste, cle) {
+  chips(idC, liste, etat.typo[cle], function (v) { etat.typo[cle] = v; majOptions(); toutDessiner(); });
+}
+function majOptions() {
+  groupe('o-espace', [{ id: 'non', nom: 'Normales' }, { id: 'leger', nom: 'Un peu espacées' }, { id: 'large', nom: 'Très espacées' }], 'espace');
+  groupe('o-casse', [{ id: 'auto', nom: 'Celle du modèle' }, { id: 'maj', nom: 'MAJUSCULES' }, { id: 'cap', nom: 'Capitales Initiales' }, { id: 'min', nom: 'minuscules' }], 'casse');
+  groupe('o-photo', [{ id: 'auto', nom: 'Celle du modèle' }, { id: 'ronde', nom: 'Ronde' }, { id: 'carree', nom: 'Carrée' }, { id: 'arrondie', nom: 'Arrondie' }, { id: 'losange', nom: 'Losange' }], 'photo');
+  groupe('o-nom', [{ id: 'auto', nom: 'Celle du modèle' }, { id: 'fin', nom: 'Fin' }, { id: 'gras', nom: 'Très gras' }], 'nom');
+}
+document.getElementById('raz').addEventListener('click', function () {
+  etat.typo = { espace: 'non', casse: 'auto', photo: 'auto', nom: 'auto' }; majOptions(); toutDessiner();
+});
+
+construireGalerie(); majOptions(); montrerPanneaux();
+toutDessiner();
+window.addEventListener('resize', function () { toutDessiner(); });
+window.__maquette = { etat: etat, dessiner: dessiner, modeles: MODELES, entrerEdition: entrerEdition, ouvrir: ouvrir };
+})();
+</script>
+</body>
+</html>

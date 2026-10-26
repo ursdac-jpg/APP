@@ -1656,7 +1656,7 @@ function _comprendreLeCadreRenduRechercheQuestions() {
     universelles +
     parRayon +
     assistant +
-    '<label class="mt-3" for="comprendreLeCadreRechercheContexte">Autre chose à ajouter ? <span class="text-muted small">(facultatif)</span></label>' +
+    '<label class="mt-3" for="comprendreLeCadreRechercheContexte">Autre chose à ajouter ? <span class="text-muted small">(à compléter)</span></label>' +
     '<textarea id="comprendreLeCadreRechercheContexte" class="comprendre-le-cadre-textarea" rows="3" ' +
       'placeholder="Un détail qui vous paraît important..."></textarea>' +
     '<button type="button" class="btn btn-primary mt-3" id="comprendreLeCadreRechercheVersPrompt2">' +
@@ -1906,15 +1906,8 @@ function _comprendreLeCadreDepartementCourant() {
 // seulement si l'adresse est vérifiée, LECONS 9.16 ; sinon nom +
 // description en texte simple avec une mention honnête).
 function _comprendreLeCadreRenduCarteStructure(s) {
-  return '' +
-    '<div class="comprendre-le-cadre-encart mb-2">' +
-      '<span class="d-block fw-semibold">' + s.titre + (s.couvre === true ? ' <span class="badge text-bg-primary ms-1">Couvre votre commune</span>' : '') + '</span>' +
-      (s.detail ? '<span class="d-block small">' + s.detail + '</span>' : '') +
-      (s.verifie
-        ? '<a href="' + s.url + '" target="_blank" rel="noopener" class="d-block small mt-1"><i class="bi bi-box-arrow-up-right"></i> ' + s.url + '</a>' +
-          '<span class="comprendre-le-cadre-source-date">adresse vérifiée le ' + _comprendreLeCadreDateFr(s.date) + '</span>'
-        : '<span class="d-block small text-muted mt-1"><i class="bi bi-clock-history"></i> Adresse pas encore vérifiée.</span>') +
-    '</div>';
+  // UNE carte partagée avec « Qui fait quoi » (mtCarteStructureHtml, modules/mon-territoire/logique.js) : nom, description, téléphone, mail, lien et date.
+  return mtCarteStructureHtml(s, { dateFr: _comprendreLeCadreDateFr, texteNonVerifie: 'Adresse pas encore vérifiée.' });
 }
 
 // Écran "Près de chez moi" : les structures à qui s'adresser pour ce

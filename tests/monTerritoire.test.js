@@ -207,6 +207,38 @@ test('mtVerifierLieux : refuse les lignes mal écrites', () => {
   refuse(ligne.replace('une phrase', 'une phrase \u2014 tiret'), 'tiret long');
 });
 
+// Petites structures (chantier docs/CHANTIER_PETITES_STRUCTURES_2026-10-19.md) : colonne « mail » facultative, marque « Petite structure ; », carte avec contacts.
+test('petites structures : mail, marque et contacts (mtParserLieux, mtVerifierLieux, mtLieuEnStructure)', () => {
+  const ancienne = 'x1 | ccas | Un organisme | une phrase | | | | | national | logement | Source |';
+  assert.equal(L.mtParserLieux(ancienne).lignes[0].mail, '', 'une ancienne ligne à 12 colonnes reste lisible, mail vide');
+  const petite = 'p1 | francais-langue | Un atelier | des cours | Bergerac | | 05 53 00 00 01 | | 24 | francais | Petite structure ; page des contacts | 2026-10-12 | contact@exemple.fr';
+  assert.deepEqual(L.mtVerifierLieux(petite, ctxReel), []);
+  const refuse = (texte, morceau) => { const e = L.mtVerifierLieux(texte, ctxReel); assert.ok(e.some((m) => m.indexOf(morceau) !== -1), 'attendu « ' + morceau + ' », obtenu : ' + JSON.stringify(e)); };
+  refuse(petite.replace('contact@exemple.fr', 'pas-un-mail'), 'mail mal écrit');
+  refuse(petite.replace('| 2026-10-12 |', '| |'), 'sans date');
+  refuse(petite.replace('05 53 00 00 01', '').replace('| contact@exemple.fr', '|'), 'au moins un téléphone ou un mail');
+  refuse(petite.replace('Petite structure ; page', 'petite structure : page'), 'doit s’écrire exactement');
+  assert.deepEqual(L.mtVerifierLieux(petite.replace('05 53 00 00 01', ''), ctxReel), [], 'un mail seul suffit');
+  const lieu = L.mtParserLieux(petite).lignes[0];
+  const st = L.mtLieuEnStructure(lieu, '2026-10-20', null);
+  assert.equal(st.telephone, '05 53 00 00 01'); assert.equal(st.mail, 'contact@exemple.fr'); assert.equal(st.petite, true); assert.equal(st.commune, 'Bergerac'); assert.equal(st.coordonnees, true);
+  const vieux = L.mtLieuEnStructure(lieu, '2028-10-20', null);
+  assert.equal(vieux.telephone, ''); assert.equal(vieux.mail, ''); assert.equal(vieux.coordonnees, false, 'plus de 12 mois : aucune coordonnée affichée');
+  assert.equal(L.mtLieuEnStructure(L.mtParserLieux(ancienne).lignes[0], '2026-10-20', null).petite, false);
+});
+
+test('carte de structure partagée : téléphone et mail cliquables et datés, pastille, aide, jamais de coordonnée sans date', () => {
+  const lieu = L.mtParserLieux('p1 | francais-langue | Un atelier <b> | des cours | Bergerac | | 05 53 00 00 01 | | 24 | francais | Petite structure ; page | 2026-10-12 | contact@exemple.fr').lignes[0];
+  const h = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2026-10-20', null), { dateFr: (d) => 'le-' + d });
+  assert.ok(h.indexOf('href="tel:0553000001"') !== -1 && h.indexOf('href="mailto:contact@exemple.fr"') !== -1);
+  assert.ok(h.indexOf('Petite structure locale') !== -1 && h.indexOf('coordonnées vérifiées le le-2026-10-12') !== -1 && h.indexOf('téléphonez ou écrivez') !== -1);
+  assert.ok(h.indexOf('Un atelier &lt;b&gt;') !== -1, 'le nom est échappé');
+  const vieux = L.mtCarteStructureHtml(L.mtLieuEnStructure(lieu, '2028-10-20', null), {});
+  assert.ok(vieux.indexOf('tel:') === -1 && vieux.indexOf('mailto:') === -1 && vieux.indexOf('pas encore vérifiées') !== -1, 'sans date récente : aucune coordonnée');
+  const grosse = L.mtCarteStructureHtml({ titre: 'Un service', detail: 'd', url: 'https://a.fr/', verifie: true, date: '2026-10-12' }, {});
+  assert.ok(grosse.indexOf('adresse vérifiée le') !== -1 && grosse.indexOf('Petite structure') === -1, 'structure de collecte : comme avant');
+});
+
 const HISTORIQUE_LOGEMENT = ['115-samu-social', 'siao-dordogne', 'accueils-de-jour-dordogne', 'ccas-domiciliation', 'conseil-departemental-dordogne-fsl', 'adil-dordogne',
   'action-logement-nouvelle-aquitaine', 'caf-dordogne-logement', 'prefecture-dordogne-dalo', 'habitat-jeunes-perigord', 'asso-soliha-dordogne'];
 
@@ -1022,4 +1054,36 @@ test('mtVerifierEmployeurs : un numéro de magasin mal écrit est refusé ; un n
   assert.deepEqual(L.mtVerifierEmployeurs(avecTel + ' 2026-10-10', ctx), []);
   refus(avecTel.replace('05 53 05 62 50', '05 53 05') + ' 2026-10-10', 'téléphone mal écrit pour le magasin de Bergerac');
   assert.deepEqual(L.mtVerifierEmployeurs(avecTel.replace('05 53 05 62 50', '+33 5 53 05 62 50') + ' 2026-10-10', ctx), []);
+});
+
+// ---------- marque « Via prospection » (chantier docs/CHANTIER_VIA_PROSPECTION_QUI_FAIT_QUOI_2026-10-18.md) ----------
+
+const lignePros = (source, nature, id) => ['pros-' + (id || 'a'), nature || 'local', 'Exemple Prospection ' + (id || 'A'), 'commerce-vente', 'Bergerac:1 rue A', '', '', '', 'non-indique', source, ''].join(' | ');
+
+test('mtViaProspection : seule la forme exacte « Via prospection ; » au début de la source compte', () => {
+  assert.equal(L.mtViaProspection({ source: 'Via prospection ; Registre des entreprises (Sirene)' }), true);
+  assert.equal(L.mtViaProspection({ source: '  Via prospection ; Sirene' }), true);
+  ['via prospection ; Sirene', 'Via prospection', 'Sirene ; Via prospection ;', 'Via  prospection ; Sirene', '', undefined].forEach((s) => assert.equal(L.mtViaProspection({ source: s }), false, String(s)));
+  assert.equal(L.mtViaProspection(null), false);
+});
+
+test('mtSeparerProspection : chaque fiche est dans une seule liste, jamais de mélange', () => {
+  const liste = L.mtParserEmployeurs(base + '\n' + lignePros('Via prospection ; Sirene', 'local', 'a') + '\n' + lignePros('Sirene', 'local', 'b')).lignes;
+  const r = L.mtSeparerProspection(liste);
+  assert.deepEqual(r.prospection.map((e) => e.id), ['pros-a']);
+  assert.deepEqual(r.normaux.map((e) => e.id), ['x1', 'pros-b']);
+  assert.equal(r.prospection.length + r.normaux.length, liste.length);
+});
+
+test('mtVerifierEmployeurs : la marque « Via prospection » est contrôlée (forme exacte, employeur local, jamais ailleurs dans la source)', () => {
+  assert.deepEqual(L.mtVerifierEmployeurs(lignePros('Via prospection ; Registre des entreprises (Sirene)', 'local'), ctx), []);
+  const refusPros = (ligne, morceau) => { const e = L.mtVerifierEmployeurs(ligne, ctx); assert.ok(e.some((m) => m.indexOf(morceau) !== -1), 'attendu « ' + morceau + ' », obtenu : ' + JSON.stringify(e)); };
+  refusPros(lignePros('via prospection ; Sirene'), 'Via prospection ;');
+  refusPros(lignePros('Via prospection Sirene'), 'Via prospection ;');
+  refusPros(lignePros('Sirene ; Via prospection ;'), 'Via prospection ;');
+  refusPros(lignePros('Via prospection ; Sirene', 'enseigne'), 'employeur local');
+});
+
+test('contenu/employeurs.txt : aucune fiche ne mentionne la prospection ailleurs qu\'au début de sa source', () => {
+  L.mtParserEmployeurs(texteEmployeurs).lignes.forEach((e) => { if (/prospection/i.test(e.source)) { assert.equal(L.mtViaProspection(e), true, e.id); } });
 });

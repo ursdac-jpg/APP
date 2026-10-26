@@ -999,7 +999,7 @@ function ouvrirComparerPistes() {
       // --- Bloc 3 : ou etes-vous (facultatif) ---
       '<details class="bloc-depli' + (etat.territoire ? ' bd-ok' : '') + '" id="cpBlocTerritoire" open>' +
       '<summary><span class="preparer-num">3</span><span class="preparer-titre">Où êtes-vous ?</span>' +
-      '<span class="preparer-oblig">facultatif</span>' + ecran0PiluleTerritoire() + '</summary>' +
+      '<span class="preparer-oblig">à compléter</span>' + ecran0PiluleTerritoire() + '</summary>' +
       '<div class="bloc-depli-corps">' +
       '<p class="preparer-detail" style="margin-top:0;">Précise les informations locales (formations près de chez vous, acteurs du département). Sans réponse, la recherche reste nationale.</p>' +
       (territoireLbl
@@ -1011,7 +1011,7 @@ function ouvrirComparerPistes() {
       // --- Bloc 4 : handicap (facultatif) ---
       '<details class="bloc-depli' + (etat.handicap ? ' bd-ok' : '') + '" id="cpBlocHandicap" open>' +
       '<summary><span class="preparer-num">4</span><span class="preparer-titre">Une situation de handicap, une RQTH, un besoin d’aménagement ?</span>' +
-      '<span class="preparer-oblig">facultatif</span>' + ecran0PiluleHandicap() + '</summary>' +
+      '<span class="preparer-oblig">à compléter</span>' + ecran0PiluleHandicap() + '</summary>' +
       '<div class="bloc-depli-corps">' +
       '<p class="preparer-detail" style="margin-top:0;">Si vous l’indiquez, les informations et les acteurs cités seront adaptés (aménagements possibles, formations accessibles, Cap emploi, MDPH, AGEFIPH). Ce que vous cochez ici reste dans l’application : le texte préparé pour l’assistant ne dira que « la personne a, ou demande, une RQTH ».</p>' +
       '<div class="preparer-jetons">' +
@@ -1020,7 +1020,7 @@ function ouvrirComparerPistes() {
       '<button type="button" class="preparer-jeton' + (etat.handicap === 'non' ? ' preparer-jeton-actif' : '') + '" data-cp-handicap="non">Pas concerné(e)</button>' +
       '</div>' +
       '<textarea class="form-control form-control-sm mt-2" rows="2" data-cp-handicap-note ' +
-      'placeholder="Un besoin d’aménagement à ne pas oublier ? (facultatif)">' + echapperTexte(etat.handicapNote || '') + '</textarea>' +
+      'placeholder="Un besoin d’aménagement à ne pas oublier ? (à compléter)">' + echapperTexte(etat.handicapNote || '') + '</textarea>' +
       '</div></details>' +
 
       '<p class="preparer-detail" style="margin-top:1rem;">Vous n’avez rien d’autre à catégoriser. La façon de regarder vos pistes (côte à côte, ou dans le temps) est déterminée à l’étape suivante, à partir de vos pistes, et vous pourrez la corriger.</p>' +
@@ -1387,9 +1387,9 @@ function ouvrirComparerPistes() {
 
     return '<details class="bloc-depli mt-2" id="cpBlocB" open><summary>' +
       '<span class="preparer-titre">&#128172; Quelques précisions selon votre situation</span>' +
-      '<span class="preparer-oblig">facultatif</span></summary>' +
+      '<span class="preparer-oblig">à compléter</span></summary>' +
       '<div class="bloc-depli-corps">' +
-      '<p class="preparer-detail" style="margin-top:0;">' + echapperTexte(serie.titre) + '. Ces questions changent selon ce que vous avez indiqué. Tout est facultatif ; « Je ne sais pas » devient une question pour votre conseiller.</p>' +
+      '<p class="preparer-detail" style="margin-top:0;">' + echapperTexte(serie.titre) + '. Ces questions changent selon ce que vous avez indiqué. Tout est à compléter, mais rien n’est bloquant ; « Je ne sais pas » devient une question pour votre conseiller.</p>' +
       qHTML +
       '</div></details>';
   }
@@ -1713,7 +1713,7 @@ function ouvrirComparerPistes() {
     if (phase === 'coller') {
       var erreurColler = cfg.erreur();
       return '<div class="cv-section bilan-etape-import-ia"><h4>&#128229; De retour : collez la réponse</h4>' +
-        '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nomAssistant) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+        '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nomAssistant) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
         (cfg.aideColler || '') +
         '<div class="bilan-zone-collage">' +
         (typeof htmlCollageInstantane === 'function'
@@ -2009,7 +2009,7 @@ function ouvrirComparerPistes() {
     ];
     return '<details class="bloc-depli mt-2" id="cpBlocC" open><summary>' +
       '<span class="preparer-titre">&#10068; Avant de continuer : qu’est-ce qui compte pour vous ?</span>' +
-      '<span class="preparer-oblig">facultatif</span></summary>' +
+      '<span class="preparer-oblig">à compléter</span></summary>' +
       '<div class="bloc-depli-corps">' +
       '<p class="preparer-detail" style="margin-top:0;">Plusieurs possibles, aucune n’est « la bonne ». Réutilisé à l’étape « Aller plus loin ».</p>' +
       '<div class="preparer-jetons">' + opts.map(function (o) {
@@ -3256,7 +3256,7 @@ var COMPARER_BLOC_B = {
     titre: 'Sans emploi : reprendre vite, ou attendre le bon poste',
     questions: [
       _cpJetons('droits_are', 'Jusqu’à quand vos droits (ARE) courent-ils ?', ['Encore longtemps', 'Bientôt la fin', 'À vérifier']),
-      _cpTexte('charges', 'Des charges qui rendent l’attente difficile ? (facultatif)'),
+      _cpTexte('charges', 'Des charges qui rendent l’attente difficile ? (à compléter)'),
       _cpJetons('poste_realiste', 'Le « bon poste » est-il réaliste à court terme près de chez vous ?', ['Plutôt oui', 'Pas sûr', 'Plutôt non'])
     ]
   },
@@ -3273,7 +3273,7 @@ var COMPARER_BLOC_B = {
     questions: [
       _cpJetons('idee_activite', 'Une idée d’activité précise ?', ['Oui', 'Pas encore']),
       _cpJetons('are', 'Percevez-vous l’ARE ?', ['Oui', 'Non']),
-      _cpTexte('filet_securite', 'Un filet de sécurité pour les premiers mois ? (facultatif)')
+      _cpTexte('filet_securite', 'Un filet de sécurité pour les premiers mois ? (à compléter)')
     ]
   },
   B8: {
@@ -3288,7 +3288,7 @@ var COMPARER_BLOC_B = {
     titre: 'Handicap : votre accompagnement',
     questions: [
       _cpJetons('milieu', 'Milieu ordinaire, ou vous vous interrogez sur le milieu protégé / adapté ?', ['Milieu ordinaire', 'Je m’interroge']),
-      _cpTexte('amenagement', 'Un besoin d’aménagement identifié ? (facultatif)'),
+      _cpTexte('amenagement', 'Un besoin d’aménagement identifié ? (à compléter)'),
       _cpJetons('suivi', 'Êtes-vous suivi par Cap emploi, la MDPH, un autre acteur ?', ['Oui', 'Non', 'En cours'])
     ]
   },
@@ -3296,14 +3296,14 @@ var COMPARER_BLOC_B = {
     titre: 'Mobilité, projet de vie',
     questions: [
       _cpJetons('demenager', 'Prêt à déménager ?', ['Oui', 'Sous conditions', 'Non']),
-      _cpTexte('contrainte_familiale', 'Une contrainte familiale (conjoint, enfants, proche aidé) ? (facultatif)'),
+      _cpTexte('contrainte_familiale', 'Une contrainte familiale (conjoint, enfants, proche aidé) ? (à compléter)'),
       _cpJetons('ailleurs_justifie', 'À vos yeux, « ailleurs » justifie-t-il le changement ?', ['Oui', 'Pas sûr', 'Non'])
     ]
   },
   B11: {
     titre: 'Vous ne savez pas encore par où commencer',
     questions: [
-      _cpTexte('idees_vagues', 'Une ou deux idées de métier ou de secteur, même vagues ? (facultatif)'),
+      _cpTexte('idees_vagues', 'Une ou deux idées de métier ou de secteur, même vagues ? (à compléter)'),
       _cpJetons('bouger_ou_reflechir', 'D’abord bouger (travailler, un stage) ou d’abord réfléchir (bilan, CEP) ?', ['Bouger', 'Réfléchir']),
       _cpJetons('accompagne', 'Êtes-vous accompagné aujourd’hui ?', ['Oui', 'Non'])
     ]

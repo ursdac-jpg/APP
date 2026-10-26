@@ -14,7 +14,7 @@ var WordExtracteur = (function () {
   var U = (typeof WordUnites !== 'undefined') ? WordUnites : null;
   var C = (typeof WordCouleurs !== 'undefined') ? WordCouleurs : null;
 
-  var CLASSES_IGNOREES = /(^|\s)(ctl-exp|poi-l|poi-h|poi-b|x|rc-poignee|marque-page)(\s|$)/;
+  var CLASSES_IGNOREES = /(^|\s)(ctl-exp|poi-l|poi-h|poi-b|x|rc-poignee|marque-page|formes-deco|forme-deco-edition|poignees-cv|tete-hors)(\s|$)/;   // `formes-deco` : le calque des formes decoratives (cvPdfFormesDeco.js) n'est pas reproduit dans Word
   var BALISES_IGNOREES = { SCRIPT: 1, STYLE: 1, NOSCRIPT: 1, BUTTON: 1, TEMPLATE: 1 };
 
   function extraire(doc, options) {
@@ -55,6 +55,54 @@ var WordExtracteur = (function () {
       for (var e = el; e && e.nodeType === 1; e = e.parentElement) { var v = parseFloat(cs(e).zoom); if (isFinite(v) && v > 0 && v !== 1) { z *= v; } }
       return z;
     }
+    // TEXTE A DEUX TONS (2026-10-22, demande de Denis) : dans le PDF, le texte blanc de l'en-tete qui sort de la forme coloree (ruban court, texte agrandi, etc.) prend la couleur choisie (copie `.tete-hors`, cvPdfTexteHors.js).
+    // Word ne sait pas decouper un texte par une forme : on recolore donc MOT PAR MOT. Un mot dont le centre est hors de la forme prend la couleur de la copie ; un mot a cheval sur le bord prend une seule couleur (approximation).
+    // Le DOM de l'export est jetable (iframe cachee) : les mots a recolorer sont enveloppes dans un <span> colore, l'extraction normale fait le reste (une suite d'execution par couleur).
+    function recolorerTexteHors() {
+      var copies = cv.querySelectorAll('.tete-hors'), total = 0;
+      Array.prototype.forEach.call(copies, function (copie) {
+        var tete = copie.previousElementSibling;
+        if (!tete || !tete.classList || !tete.classList.contains('tete')) { return; }
+        if (cs(copie).display === 'none') { return; }   // une composition remplace le bandeau et cache la copie : son texte a deja la couleur voulue (essai Word reel, 2026-10-22 : titre invisible sur les modeles chronologiques)
+        var m = /path\(\s*evenodd\s*,\s*["']([^"']*)["']\s*\)/.exec(copie.getAttribute('style') || '') || /path\(\s*evenodd\s*,\s*["']([^"']*)["']\s*\)/.exec(copie.style.clipPath || '');
+        if (!m || typeof win.Path2D !== 'function') { return; }
+        var ctx = doc.createElement('canvas').getContext('2d'), chemin = new win.Path2D(m[1]);
+        var rt = tete.getBoundingClientRect(), k = tete.offsetWidth ? rt.width / tete.offsetWidth : 1;
+        var horsCss = cs(copie).color;   // `.tete-hors * { color: var(--hors) }` : la couleur choisie par la personne
+        var noeuds = [], marcheur = doc.createTreeWalker(tete, 4, null, false), n;
+        while ((n = marcheur.nextNode())) { if (/\S/.test(n.nodeValue)) { noeuds.push(n); } }
+        noeuds.forEach(function (noeud) {
+          var parent = noeud.parentElement; if (!parent || ignore(parent)) { return; }
+          var couleur = C.analyser(cs(parent).color);
+          if (!couleur || (0.2126 * couleur.r + 0.7152 * couleur.g + 0.0722 * couleur.b) / 255 < 0.85) { return; }   // seul le texte CLAIR (blanc sur la couleur) peut sortir sur le fond blanc
+          var texte = noeud.nodeValue, mots = [], re = /\S+/g, mm;
+          while ((mm = re.exec(texte))) { mots.push({ a: mm.index, b: mm.index + mm[0].length, mot: mm[0] }); }
+          var hors = mots.map(function (w) {
+            var rg = doc.createRange(); rg.setStart(noeud, w.a); rg.setEnd(noeud, w.b);
+            var q = rg.getBoundingClientRect(); if (q.width < 1 || q.height < 1) { return false; }
+            var x = ((q.left + q.right) / 2 - rt.left) / k, y = ((q.top + q.bottom) / 2 - rt.top) / k;
+            return ctx.isPointInPath(chemin, x, y, 'evenodd');   // le chemin est « grand rectangle moins la forme » : vrai = hors de la forme
+          });
+          if (!hors.some(Boolean)) { return; }
+          var frag = doc.createDocumentFragment(), pos = 0;
+          mots.forEach(function (w, i) {
+            if (w.a > pos) { frag.appendChild(doc.createTextNode(texte.slice(pos, w.a))); }
+            if (hors[i]) { var sp = doc.createElement('span'); sp.setAttribute('data-wx-hors', '1'); sp.style.color = horsCss; sp.textContent = w.mot; frag.appendChild(sp); }
+            else { frag.appendChild(doc.createTextNode(w.mot)); }
+            pos = w.b;
+          });
+          if (pos < texte.length) { frag.appendChild(doc.createTextNode(texte.slice(pos))); }
+          parent.replaceChild(frag, noeud);
+          if (hors.every(Boolean)) {   // la ligne entiere est hors de la forme : sa petite puce decorative (coordonnees) suit
+            parent.setAttribute('data-wx-hors-tout', '1'); parent.style.setProperty('--wx-hors', horsCss);
+            if (!doc.getElementById('wxHorsStyle')) { var st = doc.createElement('style'); st.id = 'wxHorsStyle'; st.textContent = '[data-wx-hors-tout]::before{background:var(--wx-hors) !important}'; (doc.head || doc.documentElement).appendChild(st); }
+          }
+          total += hors.filter(Boolean).length;
+        });
+      });
+      return total;
+    }
+    recolorerTexteHors();
     function ignore(el) {
       if (BALISES_IGNOREES[el.tagName]) { return true; }
       if (typeof el.className === 'string' && CLASSES_IGNOREES.test(el.className)) { return true; }
@@ -187,6 +235,20 @@ var WordExtracteur = (function () {
       return null;
     }
 
+    // Une boite dont UN SEUL coin est arrondi a pleine taille (`border-radius: 0 0 0 100%`) est un quart de cercle : le centre de l'arc est au coin opposé. Word n'a pas de quart de cercle simple ;
+    // sans cela l'export en faisait un disque entier (vu dans un vrai Word le 2026-10-22). Points relatifs a la boite, comme ceux d'un `clip-path: polygon()`.
+    function quartDeCercle(r, s) {
+      var rv = function (v) { v = String(v || ''); return /%$/.test(v) ? parseFloat(v) / 100 * Math.min(r.l, r.h) : px(v); };   // le navigateur rend « 100% » tel quel
+      var rayons = [rv(s.borderTopLeftRadius), rv(s.borderTopRightRadius), rv(s.borderBottomRightRadius), rv(s.borderBottomLeftRadius)];
+      var grands = [], i;
+      for (i = 0; i < 4; i++) { if (rayons[i] >= Math.min(r.l, r.h) - 0.5) { grands.push(i); } else if (rayons[i] > 0.5) { return null; } }
+      if (grands.length !== 1 || Math.abs(r.l - r.h) > 2) { return null; }
+      var c = grands[0], cx = (c === 0 || c === 3) ? r.l : 0, cy = (c === 0 || c === 1) ? r.h : 0;   // centre de l'arc : le coin OPPOSE
+      var sx = cx > 0 ? -1 : 1, sy = cy > 0 ? -1 : 1, pts = [], b;
+      for (i = 0; i <= 24; i++) { b = (i / 24) * Math.PI / 2; pts.push([cx + sx * r.l * Math.cos(b), cy + sy * r.h * Math.sin(b)]); }
+      pts.push([cx, cy]);
+      return pts;
+    }
     function decorRectangle(r, s, aFond, pseudoCle) {
       var rayon = Math.min(px(s.borderTopLeftRadius), px(s.borderTopRightRadius), px(s.borderBottomLeftRadius), px(s.borderBottomRightRadius));
       var rayonMax = Math.max(px(s.borderTopLeftRadius), px(s.borderTopRightRadius), px(s.borderBottomLeftRadius), px(s.borderBottomRightRadius));
@@ -201,6 +263,7 @@ var WordExtracteur = (function () {
       var f = { xPx: r.x, yPx: r.y, lPx: r.l, hPx: r.h, remplissage: rem };
       // superposition du PDF (z-index positif) : sans elle, l'ordre du code HTML decidait seul (le petit coin de la frise etait cache par la colonne)
       var zCss = parseInt(s.zIndex, 10); if (zCss > 0) { f._z = zCss; }
+      if (!pts) { pts = quartDeCercle(r, s); }   // un seul grand coin arrondi (quart de cercle) : un polygone, pas un disque entier
       if (pts) { f.genre = 'polygone'; f.points = pts; }
       else if (rayonMax >= Math.min(r.l, r.h) / 2 - 0.5 && Math.abs(r.l - r.h) < 2) { f.genre = 'ellipse'; }
       else if (rayonMax > 0.5) { f.genre = 'rectArrondi'; f.rayonPx = rayonMax; }
@@ -1173,7 +1236,7 @@ var WordExtracteur = (function () {
     // change. Avertissement seulement (jamais de rejet -- rejeter declenche le repli silencieux vers
     // l'ancien moteur Word, cote appelant, qui perd l'avertissement).
     (function verifierEnTeteLibreDeborde() {
-      var zones = cv.querySelectorAll('.tete.libre, .rc-boxes.libre');
+      var zones = cv.querySelectorAll('.tete.libre:not(.tete-hors), .rc-boxes.libre');
       var probleme = Array.prototype.some.call(zones, function (zone) {
         var estRect = zone.classList.contains('rc-boxes');
         var basLibre = estRect && zone.getAttribute('data-hfixe') !== '1';

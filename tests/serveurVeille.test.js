@@ -311,6 +311,25 @@ test('API : la liste et la lecture des fiches du cadre sont reservees au bon jet
   } finally { await s.fermer(); }
 });
 
+test('API : la liste des mots du Lexique et les controles d\'un mot sont reserves au bon jeton et transmettent le mot', async () => {
+  const appels = [];
+  const depot = { listerMots: () => { appels.push(['lister']); return { ok: true, mots: [] }; }, verifierMotLexique: (d) => { appels.push(['verifier', d.mot.id, d.nouveau]); return { ok: true, erreurs: [], avertissements: [], modifies: [] }; }, listerListe: () => { appels.push(['liste']); return { ok: true, lignes: [] }; }, idees: () => { appels.push(['idees']); return { ok: true, idees: [] }; }, chercherMot: (d) => { appels.push(['chercher', d.mot]); return { ok: true, exact: null }; }, proposerMot: (d) => { appels.push(['proposer', d.mot]); return { ok: true, id: 'x', titreDeTri: 'X' }; } };
+  const s = await lancer({ depot, envoi: faux().envoi, ouvrir: () => {} });
+  try {
+    for (const chemin of ['/api/lexique/lister', '/api/lexique/verifier', '/api/lexique/liste', '/api/lexique/idees', '/api/lexique/chercher', '/api/lexique/proposer']) {
+      assert.strictEqual((await requete(s.port, chemin, { method: 'POST', headers: { 'Content-Type': 'application/json' } }, '{}')).code, 403);
+      assert.strictEqual((await requete(s.port, chemin)).code, 404, 'pas de GET');
+    }
+    assert.deepStrictEqual(appels, []);
+    assert.strictEqual((await requete(s.port, '/api/lexique/lister', { method: 'POST', headers: entetesJson(s.jeton) }, '{}')).code, 200);
+    assert.strictEqual((await requete(s.port, '/api/lexique/verifier', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ mot: { id: 'cdi' }, nouveau: false }))).code, 200);
+    for (const c of ['/api/lexique/liste', '/api/lexique/idees']) { assert.strictEqual((await requete(s.port, c, { method: 'POST', headers: entetesJson(s.jeton) }, '{}')).code, 200); }
+    assert.strictEqual((await requete(s.port, '/api/lexique/chercher', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ mot: 'forfait jours' }))).code, 200);
+    assert.strictEqual((await requete(s.port, '/api/lexique/proposer', { method: 'POST', headers: entetesJson(s.jeton) }, JSON.stringify({ mot: 'Forfait jours' }))).code, 200);
+    assert.deepStrictEqual(appels, [['lister'], ['verifier', 'cdi', false], ['liste'], ['idees'], ['chercher', 'forfait jours'], ['proposer', 'Forfait jours']]);
+  } finally { await s.fermer(); }
+});
+
 test('API : l\'historique des modifications est reserve au bon jeton', async () => {
   const appels = [];
   const depot = { listerHistorique: () => { appels.push(['histo']); return { ok: true, entrees: [] }; } };

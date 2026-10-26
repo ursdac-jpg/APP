@@ -74,8 +74,8 @@ function _ucpmP5HtmlCarte(etat, e, ref) {
   return '<div class="cv-section" style="margin:0;" data-ucpm-carte="' + e.id + '">' +
     '<div style="display:flex;gap:.8rem;align-items:flex-start;">' +
     '<div data-ucpm-miniature="' + e.id + '" style="width:' + UCPM_LARGEUR_MINIATURE + 'px;height:' + Math.round(UCPM_LARGEUR_MINIATURE * 1123 / 794) + 'px;flex:0 0 ' + UCPM_LARGEUR_MINIATURE + 'px;border:1px solid var(--border);border-radius:4px;background:var(--bg-card);overflow:hidden;position:relative;"' +
-    ' role="img" aria-label="Aperçu du CV ' + _ucpmP5Numero(etat, e.id) + '"><span class="small" style="color:var(--text-muted);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem;">Préparation de l’aperçu…</span></div>' +
-    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong>CV ' + _ucpmP5Numero(etat, e.id) + '</strong>' + (estRef ? ' <span class="badge bg-secondary">CV de référence</span>' : '') + '</p>' +
+    ' role="img" aria-label="Aperçu du ' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '"><span class="small" style="color:var(--text-muted);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem;">Préparation de l’aperçu…</span></div>' +
+    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong data-ucpm-libelle-cv="' + e.id + '">' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong>' + (estRef ? ' <span class="badge bg-secondary">CV de référence</span>' : '') + '</p>' +
     '<p class="small mb-1" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) + '</p>' +
     '<p class="small mb-0" data-ucpm-alerte-pages="' + e.id + '" style="color:var(--warning-strong);"' + (alerte ? '' : ' hidden') + '>' + _ucpmEsc(alerte) + '</p></div></div>' +
     '<div class="mt-2 mb-2"><label class="form-label small mb-1" for="ucpmTitre_' + e.id + '"><strong>Titre du CV</strong></label>' +
@@ -104,11 +104,11 @@ function _ucpmP5Rendre(etat) {
 
 // ---------------- Miniatures ----------------
 
-function _ucpmP5MontrerMiniature(id, r) {
+function _ucpmP5MontrerMiniature(id, r, largeur) {   // largeur (facultative) : celle de la vignette en pixels, sinon UCPM_LARGEUR_MINIATURE
   var el = document.querySelector('[data-ucpm-miniature="' + id + '"]');
   if (!el) { return; }
   var racine = el.shadowRoot || el.attachShadow({ mode: 'open' });
-  var echelle = UCPM_LARGEUR_MINIATURE / 794;
+  var echelle = (largeur || UCPM_LARGEUR_MINIATURE) / 794;
   racine.innerHTML = '<style>:host{display:block;}.ucpm-ech{width:794px;transform-origin:0 0;transform:scale(' + echelle + ');}.ucpm-ech *{pointer-events:none;}' + r.css + '</style>' +
     '<div class="ucpm-ech">' + r.html + '</div>';
   var alerte = document.querySelector('[data-ucpm-alerte-pages="' + id + '"]');
@@ -145,6 +145,8 @@ function _ucpmP5Cabler(etat) {
       var id = el.getAttribute('data-ucpm-titre');
       var t = String(el.value || '').replace(/[\u2013\u2014]/g, '-').replace(/\s+/g, ' ').trim();
       etat.cvs[id].titre = t;
+      var entete = document.querySelector('[data-ucpm-libelle-cv="' + id + '"]');
+      if (entete) { entete.textContent = ucpmLibelleCv(etat, { id: id }); }
       var ref = ucpmRefCourante(etat);
       if (ref && ref.id === id) { etat.refTitre = t; var v = ucpmDossierVrai(); if (v) { v.titreCV = t; } }
       rafraichir(id);

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : régler l'en-tête sur le petit aperçu</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --band:#1e3a5f; --col:#dfe6f3; --orange:#e8710a; --rouge:#d32f2f; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; } }
+* { box-sizing:border-box; }
+body { margin:0; padding:16px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui,Segoe UI,sans-serif; }
+h1 { font-size:1.3rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 6px; } p { margin:0 0 8px; }
+.muted { color:var(--muted); font-size:.92rem; }
+.boite { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--card); margin-bottom:14px; }
+.btn { font:inherit; font-size:.92rem; font-weight:600; padding:.4rem .85rem; border:1.5px solid var(--accent); border-radius:8px; background:var(--card); color:var(--accent); cursor:pointer; display:inline-flex; gap:6px; align-items:center; min-height:38px; }
+.btn[aria-pressed="true"] { background:var(--accent); color:#fff; }
+.btn:focus-visible, .mini:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.scenes { display:grid; grid-template-columns:repeat(auto-fit,minmax(380px,1fr)); gap:16px; align-items:start; }
+.scene h2 span { background:var(--accent); color:#fff; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-size:.85rem; margin-right:6px; }
+/* colonne de l'aperçu (comme dans l'application : étroite) */
+.colonne { width:380px; max-width:100%; margin:0 auto; border:1px solid var(--border); border-radius:12px; padding:10px; background:var(--card); }
+.rangee { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+.rangee .btn { font-size:.85rem; padding:.3rem .7rem; min-height:0; font-weight:inherit; border-width:1.5px; border-radius:8px; }
+.rangee .btn[aria-pressed="true"] { font-weight:600; }
+.onglet { font:inherit; font-size:.85rem; padding:.3rem .7rem; border:1.5px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); cursor:default; }
+.onglet.on { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); font-weight:600; }
+/* page */
+.cadre { position:relative; width:340px; height:480px; margin:0 auto; }
+.page { position:relative; width:340px; height:480px; background:#fff; color:#222; box-shadow:0 2px 10px rgba(0,0,0,.25); overflow:hidden; font-size:9px; }
+.bandeau { position:absolute; left:0; top:0; width:100%; height:112px; background:var(--band); border-radius:0 0 50% 50% / 0 0 22px 22px; }
+.colg { position:absolute; left:0; top:112px; bottom:0; width:34%; background:var(--col); }
+.corps { position:absolute; left:38%; top:128px; right:10px; }
+.corps i { display:block; height:5px; background:#c9cfdc; border-radius:3px; margin:0 0 5px; }
+.corps b { display:block; height:7px; width:50%; background:#8c96ad; border-radius:3px; margin:10px 0 6px; }
+.colg i { display:block; height:5px; background:#b4bfd4; border-radius:3px; margin:0 8px 5px; position:relative; top:14px; }
+.blc { position:absolute; color:#fff; padding:2px 4px; line-height:1.25; cursor:default; user-select:none; touch-action:none; }
+.blc.nom { font-size:19px; font-weight:700; }
+.blc.metier { font-size:11px; }
+.blc.coord { font-size:8.5px; }
+.blc.accroche { font-size:8.5px; font-style:italic; }
+/* mode "régler l'en-tête" actif */
+.reglage .blc { outline:1.5px dashed var(--orange); cursor:grab; }
+.reglage .blc.sel { outline:2px solid var(--orange); background:rgba(232,113,10,.18); }
+.reglage .blc.rouge { outline-color:var(--rouge); }
+.poi { display:none; position:absolute; right:-6px; top:50%; width:11px; height:11px; margin-top:-5px; border-radius:50%; background:var(--orange); border:2px solid #fff; cursor:ew-resize; }
+.reglage .blc.sel .poi { display:block; }
+.poi-h { display:none; position:absolute; left:50%; bottom:-7px; width:34px; height:10px; margin-left:-17px; border-radius:5px; background:var(--orange); border:2px solid #fff; cursor:ns-resize; }
+.reglage .poi-h { display:block; }
+/* petite barre flottante : la même que dans le grand aperçu, en plus compacte */
+.barre { position:fixed; z-index:50; background:var(--card); color:var(--text); border:1.5px solid var(--orange); border-radius:10px; padding:0 8px 8px; box-shadow:0 6px 20px rgba(0,0,0,.35); display:flex; flex-wrap:wrap; gap:5px 4px; align-items:center; width:352px; font-size:.78rem; user-select:none; -webkit-user-select:none; }
+.barre[hidden] { display:none; }
+.barre b.t { width:calc(100% + 16px); margin:0 -8px 2px; padding:6px 8px; font-size:.8rem; display:flex; justify-content:space-between; align-items:center; background:var(--accent-bg); border-radius:8px 8px 0 0; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+.barre b.t.prise { cursor:grabbing; }
+.barre b.t .manche { letter-spacing:2px; color:var(--orange); margin-right:6px; }
+.barre .lig { width:100%; display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
+.barre .lig > label { font-weight:700; font-size:.76rem; min-width:62px; }
+.barre .sep { width:100%; border-top:1px dashed var(--border); margin:2px 0; }
+.barre select { font:inherit; font-size:.8rem; min-height:30px; border:1.5px solid var(--border); border-radius:7px; background:var(--card); color:var(--text); }
+.barre [data-pour] { display:none; }
+.barre [data-pour].vu { display:flex; }
+.cases { display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+.cases .sw { width:26px; height:26px; border-radius:50%; border:2px solid var(--border); padding:0; cursor:pointer; position:relative; }
+.cases .sw.on { outline:3px solid var(--accent); outline-offset:2px; }
+.cases .sw.bandeau { border:2px dashed #fff; box-shadow:0 0 0 1px var(--border); }
+.cases .sw.bandeau::after { content:"="; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:.8rem; }
+.cases .sw.aucun::after { content:""; position:absolute; left:50%; top:-3px; bottom:-3px; width:2px; background:var(--rouge); transform:rotate(45deg); }
+.barre .perso { display:flex; align-items:center; gap:5px; font-size:.76rem; border-left:1px solid var(--border); padding-left:8px; cursor:pointer; position:relative; }
+.barre .perso .roue { width:26px; height:26px; border-radius:50%; border:2px solid var(--border); background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red); }
+.barre .perso.on .roue { outline:3px solid var(--accent); outline-offset:2px; }
+.barre.reduit > :not(.t) { display:none !important; }
+.barre[hidden], .barre [hidden] { display:none !important; }
+@media (max-width:560px) { .barre { left:8px !important; right:8px; width:auto; top:auto !important; bottom:8px; max-height:60vh; overflow:auto; } .mini { min-width:40px; min-height:40px; } }
+.barre .palette { width:100%; display:flex; flex-direction:column; gap:6px; padding:6px; border:1px solid var(--border); border-radius:8px; }
+.barre .palette[hidden] { display:none; }
+.barre .perso input { position:absolute; left:0; top:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.barre .legende { width:100%; font-size:.74rem; color:var(--muted); }
+.page, .blc { user-select:none; -webkit-user-select:none; }
+.mini { font:inherit; font-size:.8rem; min-width:30px; min-height:30px; padding:0 6px; border:1.5px solid var(--border); border-radius:7px; background:var(--card); color:var(--text); cursor:pointer; }
+.mini.on { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); font-weight:700; }
+.barre input[type=color] { width:30px; height:30px; padding:0; border:1.5px solid var(--border); border-radius:7px; }
+.barre .grp { display:inline-flex; gap:3px; align-items:center; margin-right:4px; }
+/* phrase d'aide sous l'aperçu, en bas de page */
+.phrase { margin-top:10px; padding:8px 10px; border-left:4px solid var(--orange); background:var(--card); border-radius:6px; font-size:.88rem; }
+.pied { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
+ul.q { margin:6px 0 0 18px; padding:0; } ul.q li { margin-bottom:6px; }
+.tag { display:inline-block; font-size:.75rem; font-weight:700; border-radius:6px; padding:0 6px; background:var(--accent-bg); color:var(--accent); }
+.reco { border-left:4px solid var(--accent); padding-left:10px; }
+</style>
+</head>
+<body>
+
+<h1>Maquette : régler l'en-tête directement sur le petit aperçu</h1>
+<p class="muted">Cette page est interactive : dans la scène 2, activez le bouton « Régler l'en-tête », glissez les textes, cliquez sur l'un d'eux. Rien ne prend de place en plus : pas de panneau à part, la même petite barre que dans le grand aperçu apparaît à côté du bloc touché.</p>
+
+<div class="boite reco">
+  <h2>L'idée en trois lignes</h2>
+  <p><b>1.</b> Un seul bouton, <b>« Régler l'en-tête »</b>, placé sur la rangée des onglets déjà présents (Bandeau, Colonne, Formes). Ce n'est pas un onglet : il ne déplie aucun panneau.</p>
+  <p><b>2.</b> Une fois activé, les quatre textes de l'en-tête (nom, métier, coordonnées, accroche) sont entourés en orange. On les <b>glisse</b>, on tire la <b>poignée ronde</b> pour la largeur, la <b>poignée plate</b> sous l'en-tête pour sa hauteur. Rien d'autre à apprendre : ce sont les gestes du grand aperçu.</p>
+  <p><b>3.</b> Un clic sur un texte ouvre <b>son panneau de réglages</b> (taille, interligne, gras, italique, couleur, largeur, position : ceux du grand aperçu). <b>Ce panneau se prend par sa barre de titre (la poignée ⠿) et se pose n'importe où</b>, même hors de l'aperçu, pour voir ce qui se passe autour. Il reste là où vous l'avez posé pour les textes suivants. Son titre n'est plus sélectionnable par erreur.</p>
+  <p><b>4.</b> Dans ce même panneau, selon le texte choisi : <b>« Nom sur 1 ou 2 lignes »</b>, <b>« Métier sur 1 ou 2 lignes »</b>, <b>coordonnées « une par ligne », « sur 1 ligne » ou « sur 2 lignes »</b> (téléphone, e-mail, ville, permis et le reste, séparés par un point), <b>téléphone et e-mail en gras séparément</b>, et <b>« Couleur du texte qui sort du bandeau »</b>, en <b>cases de couleur à cliquer</b> comme pour la colonne (la case « = » reprend la couleur du bandeau, puis foncé, gris, une palette, « Autre » pour toute couleur, et la case barrée pour ne rien changer). Essayez : sortez un texte du bandeau, la partie qui dépasse change de couleur.</p>
+</div>
+
+<div class="scenes">
+
+  <!-- SCENE 1 : etat au repos -->
+  <div class="scene">
+    <h2><span>1</span>Au repos : une seule ligne en plus</h2>
+    <div class="colonne">
+      <div class="rangee">
+        <span class="onglet on">Bandeau</span><span class="onglet">Colonne</span><span class="onglet">Formes</span>
+      </div>
+      <div class="rangee"><button class="btn" type="button" aria-pressed="false" tabindex="-1">&#10530; Régler l'en-tête</button></div>
+      <div class="cadre"><div class="page" id="p1">
+        <div class="bandeau"></div><div class="colg"><i></i><i></i><i></i><i></i></div>
+        <div class="corps"><b></b><i></i><i></i><i></i><b></b><i></i><i></i></div>
+        <div class="blc nom" style="left:90px;top:14px">Camille MARTIN</div>
+        <div class="blc metier" style="left:90px;top:44px">Agente d'accueil</div>
+        <div class="blc coord" style="left:14px;top:76px;width:150px">06 12 34 56 78<br>camille@exemple.fr</div>
+        <div class="blc accroche" style="left:180px;top:70px;width:150px">Sérieuse et ponctuelle, j'aime le contact.</div>
+      </div></div>
+    </div>
+    <p class="muted" style="margin-top:8px">Le bouton garde l'aspect des autres boutons. Aucun clic sur le CV ne l'active : jamais de surprise.</p>
+  </div>
+
+  <!-- SCENE 2 : interactive -->
+  <div class="scene">
+    <h2><span>2</span>Essayez : réglage actif (interactif)</h2>
+    <div class="colonne">
+      <div class="rangee">
+        <span class="onglet on">Bandeau</span><span class="onglet">Colonne</span><span class="onglet">Formes</span>
+      </div>
+      <div class="rangee"><button class="btn" type="button" id="bascule" aria-pressed="true">&#10530; Régler l'en-tête</button>
+        <button class="btn" type="button" id="raz">&#8634; Remettre comme avant</button></div>
+      <div class="cadre" id="cadre2"><div class="page reglage" id="p2">
+        <div class="bandeau"></div><div class="colg"><i></i><i></i><i></i><i></i></div>
+        <div class="corps"><b></b><i></i><i></i><i></i><b></b><i></i><i></i></div>
+        <div class="blc nom" data-n="Nom" style="left:90px;top:14px"><span class="tx">Camille MARTIN</span><span class="poi"></span></div>
+        <div class="blc metier" data-n="Métier" style="left:90px;top:44px"><span class="tx">Agente d'accueil</span><span class="poi"></span></div>
+        <div class="blc coord" data-n="Coordonnées" style="left:14px;top:76px;width:150px"><span class="tx"></span><span class="poi"></span></div>
+        <div class="blc accroche" data-n="Accroche" style="left:180px;top:70px;width:150px"><span class="tx">Sérieuse et ponctuelle, j'aime le contact.</span><span class="poi"></span></div>
+        <span class="poi-h" id="poiH" style="top:112px" title="Hauteur de l'en-tête"></span>
+      </div>
+      <div class="barre" id="barre" hidden>
+        <b class="t" id="barreTete" title="Prenez ici pour déplacer ce panneau où vous voulez"><span><span class="manche" aria-hidden="true">&#10303;</span><span id="barreNom">Nom</span></span><span><button class="mini" type="button" id="barreRed" aria-label="Réduire le panneau" title="Réduire : ne garder que la barre de titre">&minus;</button> <button class="mini" type="button" id="barreX" aria-label="Fermer" title="Fermer">&times;</button></span></b>
+        <div class="lig"><label>Taille</label><button class="mini" data-t="-1" type="button" aria-label="Plus petit">A&minus;</button><button class="mini" data-t="1" type="button" aria-label="Plus grand">A+</button>
+        <span style="width:10px"></span><button class="mini" id="bG" type="button" aria-label="Gras"><b>G</b></button><button class="mini" id="bI" type="button" aria-label="Italique"><i>I</i></button><input type="color" id="bC" value="#ffffff" aria-label="Couleur du texte" title="Couleur du texte"></div>
+        <div class="lig" data-pour="nom"><label>Nom sur</label><button class="mini" data-nom="1" type="button">1 ligne</button><button class="mini" data-nom="2" type="button">2 lignes</button></div>
+        <div class="lig" data-pour="metier"><label>Métier sur</label><button class="mini" data-met="1" type="button">1 ligne</button><button class="mini" data-met="2" type="button">2 lignes</button></div>
+        <div class="lig" data-pour="coord"><label>Coordonnées</label><button class="mini" data-co="col" type="button">Une par ligne</button><button class="mini" data-co="1" type="button">Sur 1 ligne</button><button class="mini" data-co="2" type="button">Sur 2 lignes</button></div>
+        <div class="lig" data-pour="coord"><label>En gras</label><button class="mini" data-cg="tel" type="button">Téléphone</button><button class="mini" data-cg="mail" type="button">E-mail</button></div>
+        <div class="sep"></div>
+        <div class="lig"><button class="mini repli" id="horsBtn" type="button" aria-expanded="false" style="flex:1;text-align:left">Texte qui sort du bandeau : <b id="horsRes">comme le bandeau</b> &#9662;</button></div>
+        <div class="lig" id="horsDetail" hidden style="align-items:flex-start">
+          <div class="cases" id="horsCases" role="radiogroup" aria-label="Couleur du texte qui sort du bandeau"></div>
+          <button type="button" class="mini" id="horsAutre" aria-expanded="false">Autre couleur</button>
+          <div class="palette" id="horsPalette" hidden><div class="cases" id="horsSw"></div><div class="lig"><label class="perso" title="Choisir n'importe quelle couleur"><span class="roue"></span><input type="color" id="horsPerso" value="#2f6690" aria-label="Couleur personnalisée"> Personnalisée</label><button type="button" class="mini" id="horsPipette" title="Récupérez une couleur n'importe où sur votre écran">Pipette</button></div></div>
+          <div class="legende" id="horsLegende"></div>
+        </div>
+        <div class="sep"></div>
+        <div class="lig"><button class="mini" id="plusBtn" type="button" aria-expanded="false">Plus de réglages &#9662;</button><button class="mini" id="razBloc" type="button" style="margin-left:auto">&#8634; Remettre ce texte</button></div>
+        <div class="lig" id="plusZone" hidden><label>Interligne</label><button class="mini" data-il="-0.1" type="button" aria-label="Moins d'interligne">&minus;</button><button class="mini" data-il="0.1" type="button" aria-label="Plus d'interligne">+</button></div>
+      </div></div></div>
+    <div class="phrase" id="phrase">Glissez un texte pour le déplacer. Cliquez sur un texte pour plus de réglages : taille, gras, couleur, nombre de lignes… La poignée ronde l'élargit, celle du bas règle la hauteur de l'en-tête.</div>
+    <p class="muted" style="margin-top:6px">La phrase est posée sous l'aperçu, en bas de page (règle de Denis), jamais sur le CV.</p>
+  </div>
+
+</div>
+
+<div class="boite" style="margin-top:6px">
+  <h2>Ce qui est repris du grand aperçu, sans rien refaire</h2>
+  <ul class="q">
+    <li><span class="tag">GARDÉ</span> Glisser un bloc, poignée de largeur, poignée de hauteur de l'en-tête (mêmes gestes, même code : <code>_mqBrancherZone</code>).</li>
+    <li><span class="tag">GARDÉ</span> La petite barre par bloc : taille, interligne, gras, italique, couleur, largeur, position (mêmes réglages, même code).</li>
+    <li><span class="tag">GARDÉ</span> « Texte du bandeau qui sort de la couleur » (couleur du bandeau, foncé, gris, autre couleur, ne rien changer) : réglage déjà codé, aujourd'hui dans le panneau Bandeau ; il est repris ici sans doublon, un seul réglage, deux endroits. Il vaut pour tout l'en-tête.</li>
+    <li><span class="tag">GARDÉ</span> Téléphone et e-mail en gras, séparément (réglage déjà codé dans la carte « En-tête de CV », <code>coordGras</code>), repris dans le panneau du bloc Coordonnées.</li>
+    <li><span class="tag">NOUVEAU</span> Nom, métier et coordonnées sur 1 ou 2 lignes ; coordonnées sur une ligne continue. Le nom « sur 2 lignes » met le prénom au-dessus du nom ; le métier « sur 2 lignes » coupe au milieu. À ne pas confondre avec « Coordonnées en ligne sous l'en-tête » (réglage existant, qui sort les coordonnées de l'en-tête dans une bande) : ici elles restent dans leur bloc, que l'on place où l'on veut.</li>
+    <li><span class="tag">GARDÉ</span> Le cadre rouge quand deux <b>textes</b> se touchent ou qu'un bloc sort de l'en-tête (règle du 20/10/2026), et le texte à deux tons quand le texte sort de la forme.</li>
+    <li><span class="tag">GARDÉ</span> « Remettre l'en-tête à sa place » : ici sous le nom « Remettre comme avant ». Une seule fonction, deux endroits.</li>
+    <li><span class="tag">DÉPLACÉ</span> Le réglage de l'en-tête passe aussi dans le petit aperçu, mais le grand aperçu garde tout ce qu'il a déjà : rien n'est retiré.</li>
+    <li><span class="tag">NON REPRIS</span> Le choix de la disposition de départ (3 colonnes, 2 colonnes, décalée) et les rectangles de compétences : trop de place pour le petit aperçu, ils restent dans le grand.</li>
+  </ul>
+</div>
+
+<div class="boite">
+  <h2>Questions pour Denis</h2>
+  <p><b>Q1. Où mettre le bouton ?</b></p>
+  <ul class="q">
+    <li><b>(Recommandé) Sur la rangée des onglets, à côté de Bandeau / Colonne / Formes.</b> Bénéfice : on le trouve là où on règle l'allure de l'en-tête, aucune place prise. Risque : sur un téléphone étroit, la rangée passe à la ligne.</li>
+    <li>Dans l'onglet Bandeau seulement. Bénéfice : plus discret. Risque : introuvable pour qui cherche à déplacer le nom sans penser « bandeau ».</li>
+    <li>Un 4ᵉ onglet « En-tête » (première idée). Bénéfice : cohérent avec les autres. Risque : un panneau en plus, donc de la place en plus, ce que tu veux éviter.</li>
+  </ul>
+  <p><b>Q2. (Tranchée par Denis) Le panneau est libre :</b> il s'ouvre près du texte puis se déplace où l'on veut. Le même principe sera appliqué au grand aperçu si ce n'est pas déjà le cas (à vérifier : sur le grand aperçu, le panneau s'ouvre près du bloc, mais se prend-il ?).</p>
+  <p><b>Q3. Où retrouver « Si le texte sort de la couleur » ?</b></p>
+  <ul class="q">
+    <li><b>(Recommandé) Dans le panneau des textes, comme ici, et aussi dans le panneau Bandeau (même réglage).</b> Bénéfice : on le trouve au moment où l'on fait sortir un texte. Risque : aucun, c'est le même réglage lu à deux endroits.</li>
+    <li>Seulement dans le panneau Bandeau. Bénéfice : un seul endroit. Risque : on n'y pense pas en déplaçant un texte, ce que tu veux justement faciliter.</li>
+  </ul>
+  <p><b>Q4. Le nom « sur 2 lignes » : prénom puis nom (Camille / MARTIN) ?</b> Recommandé : oui, c'est la coupure naturelle. Risque : un nom composé (Jean-Pierre Dupont de la Tour) se coupe après le prénom seulement ; on garde la largeur pour affiner.</p>
+  <p class="muted">Verdict de faisabilité préliminaire : GO AVEC RÉSERVES. Simple : l'état de l'en-tête est déjà unique, les gestes existent. Risqué : rendre ces gestes utilisables sur le document du petit aperçu sans les dupliquer (brique commune), et qu'un clic sur le CV n'ouvre pas le grand aperçu pendant le réglage. Effort : haut.</p>
+</div>
+
+<script>
+(function () {
+  var p = document.getElementById('p2'), cadre = document.getElementById('cadre2'), barre = document.getElementById('barre');
+  var blocs = Array.prototype.slice.call(p.querySelectorAll('.blc')), sel = null, actif = true;
+  var depart = blocs.map(function (b) { return { l: b.style.left, t: b.style.top, w: b.style.width, fs: '', g: '', i: '', c: '', il: '' }; });
+  var phrase = document.getElementById('phrase');
+  var AIDE = phrase.textContent;
+  var etat = { nom: '1', met: '1', co: 'col', cgTel: false, cgMail: false, hors: 'dessous', horsPerso: '#2f6690' };
+  var CASES = [['dessous', '#1e3a5f', 'Comme le bandeau (le texte devient de la couleur du bandeau)', 'bandeau'], ['fonce', '#222222', 'Foncé', ''], ['gris', '#6b7280', 'Gris', ''], ['aucun', '#ffffff', 'Ne rien changer : le texte reste blanc', 'aucun']];
+  var PALETTE = ['#2e7d5b', '#2f6690', '#7d8790', '#b23a3a', '#6b3fa0', '#1e3a5f', '#1f7a72', '#b5553a', '#8f3a5c', '#33383d', '#8a6a1e', '#4f5b23', '#d4974f', '#93aac6', '#e8bf8f', '#ffffff'];
+  var COORD = [['tel', '06 12 34 56 78'], ['mail', 'camille@exemple.fr'], ['ville', 'Bergerac, 24100'], ['permis', 'Permis B (véhiculé)']];
+  function rendu() {
+    p.querySelector('.nom .tx').innerHTML = etat.nom === '2' ? 'Camille<br>MARTIN' : 'Camille MARTIN';
+    p.querySelector('.metier .tx').innerHTML = etat.met === '2' ? 'Agente<br>d’accueil' : 'Agente d’accueil';
+    var co = p.querySelector('.coord .tx'), cb = p.querySelector('.coord');
+    var it = COORD.map(function (c) { var t = c[1]; if ((c[0] === 'tel' && etat.cgTel) || (c[0] === 'mail' && etat.cgMail)) { t = '<b>' + t + '</b>'; } return t; });
+    if (etat.co === 'col') { co.innerHTML = it.join('<br>'); cb.style.width = '120px'; }
+    else if (etat.co === '1') { co.innerHTML = it.join(' &middot; '); cb.style.width = '320px'; }
+    else { co.innerHTML = it.slice(0, 2).join(' &middot; ') + '<br>' + it.slice(2).join(' &middot; '); cb.style.width = '210px'; }
+    rouge();
+  }
+  // texte a deux tons : la partie du texte qui depasse du bandeau prend la couleur choisie
+  function colorier() {
+    var bas = p.querySelector('.bandeau').offsetHeight; depasse = blocs.some(function (b) { return bas - b.offsetTop - 4 < b.offsetHeight; });
+    blocs.forEach(function (b) {
+      var tx = b.querySelector('.tx'), c = b.style.color || '#ffffff', y = bas - b.offsetTop - 4;
+      var cou = { dessous: '#1e3a5f', fonce: '#222222', gris: '#6b7280', perso: etat.horsPerso }[etat.hors];
+      if (etat.hors === 'aucun' || y >= b.offsetHeight) { tx.style.cssText = ''; return; }
+      y = Math.max(0, y);
+      tx.style.cssText = 'display:block;background:linear-gradient(to bottom,' + c + ' 0,' + c + ' ' + y + 'px,' + cou + ' ' + y + 'px);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;';
+    });
+  }
+  function rouge() {
+    var rs = blocs.map(function (b) { return b.getBoundingClientRect(); }), n = 0;
+    blocs.forEach(function (b, i) {
+      var r = rs[i], pr = p.getBoundingClientRect();
+      var sort = r.left < pr.left - 1 || r.right > pr.right + 1 || r.bottom > pr.bottom;
+      var touche = rs.some(function (q, j) { return j !== i && !(r.right <= q.left || r.left >= q.right || r.bottom <= q.top || r.top >= q.bottom); });
+      b.classList.toggle('rouge', sort || touche); if (sort || touche) { n++; }
+    });
+    phrase.textContent = n ? '⚠ Cadre rouge : un texte en recouvre un autre ou sort de la page. Déplacez-le ou réduisez-le.' : AIDE;
+    colorier();
+  }
+  var barreMemo = false;   // le panneau reste là où la personne l'a posé
+  function majBarre(b) {
+    var k = b.classList.contains('nom') ? 'nom' : b.classList.contains('metier') ? 'metier' : b.classList.contains('coord') ? 'coord' : 'accroche';
+    Array.prototype.forEach.call(barre.querySelectorAll('[data-pour]'), function (x) { x.classList.toggle('vu', x.getAttribute('data-pour') === k); });
+    document.getElementById('barreNom').textContent = 'Vous réglez : ' + b.getAttribute('data-n');
+    document.getElementById('bG').classList.toggle('on', parseInt(getComputedStyle(b).fontWeight, 10) >= 600);
+    document.getElementById('bI').classList.toggle('on', getComputedStyle(b).fontStyle === 'italic');
+    Array.prototype.forEach.call(barre.querySelectorAll('[data-nom]'), function (x) { x.classList.toggle('on', x.getAttribute('data-nom') === etat.nom); });
+    Array.prototype.forEach.call(barre.querySelectorAll('[data-met]'), function (x) { x.classList.toggle('on', x.getAttribute('data-met') === etat.met); });
+    Array.prototype.forEach.call(barre.querySelectorAll('[data-co]'), function (x) { x.classList.toggle('on', x.getAttribute('data-co') === etat.co); });
+    barre.querySelector('[data-cg="tel"]').classList.toggle('on', etat.cgTel);
+    barre.querySelector('[data-cg="mail"]').classList.toggle('on', etat.cgMail);
+    majCases();
+  }
+  var paletteOuverte = false, horsOuvert = null, depasse = false;
+  function majCases() {
+    var h = document.getElementById('horsCases'), leg = document.getElementById('horsLegende');
+    h.innerHTML = CASES.map(function (c, i) {
+      var on = c[0] === etat.hors;
+      return '<button type="button" class="sw ' + c[3] + (on ? ' on' : '') + '" role="radio" aria-checked="' + on + '" data-i="' + i + '" title="' + c[2] + '" aria-label="' + c[2] + '" style="background:' + c[1] + '"></button>';
+    }).join('');
+    var bt = document.getElementById('horsAutre'), ouv = paletteOuverte || etat.hors === 'perso';
+    bt.classList.toggle('on', etat.hors === 'perso'); bt.setAttribute('aria-expanded', ouv);
+    document.getElementById('horsPalette').hidden = !ouv;
+    document.getElementById('horsSw').innerHTML = PALETTE.map(function (c) {
+      return '<button type="button" class="sw' + (etat.hors === 'perso' && c.toLowerCase() === etat.horsPerso.toLowerCase() ? ' on' : '') + '" data-pc="' + c + '" title="Couleur" aria-label="Couleur ' + c + '" style="background:' + c + '"></button>';
+    }).join('');
+    var nom = { dessous: 'Le texte qui dépasse prend la couleur du bandeau.', fonce: 'Le texte qui dépasse devient foncé.', gris: 'Le texte qui dépasse devient gris.', perso: 'Le texte qui dépasse prend la couleur choisie.', aucun: 'Le texte reste blanc, même hors du bandeau.' };
+    leg.textContent = nom[etat.hors];
+    var res = { dessous: 'comme le bandeau', fonce: 'foncé', gris: 'gris', perso: 'couleur choisie', aucun: 'ne rien changer' };
+    document.getElementById('horsRes').textContent = res[etat.hors];
+    var ouvert = horsOuvert === null ? depasse : horsOuvert;
+    document.getElementById('horsDetail').hidden = !ouvert; document.getElementById('horsBtn').setAttribute('aria-expanded', ouvert);
+  }
+  function ouvrirBarre(b) {
+    sel = b; blocs.forEach(function (x) { x.classList.toggle('sel', x === b); });
+    barre.hidden = false; majBarre(b);
+    if (!barreMemo) {   // première ouverture : à côté du texte ; ensuite, là où la personne l'a posé
+      var r = b.getBoundingClientRect();
+      barre.style.left = Math.max(8, Math.min(innerWidth - 360, r.left)) + 'px';
+      barre.style.top = Math.max(8, Math.min(innerHeight - barre.offsetHeight - 8, r.bottom + 10)) + 'px';
+    }
+  }
+  function fermer() { sel = null; barre.hidden = true; blocs.forEach(function (x) { x.classList.remove('sel'); }); }
+  // le panneau se prend par sa barre de titre et se pose n'importe où
+  (function () {
+    var t = document.getElementById('barreTete');
+    t.addEventListener('pointerdown', function (ev) {
+      if (ev.target.closest('button')) { return; }
+      ev.preventDefault(); t.setPointerCapture(ev.pointerId); t.classList.add('prise');
+      var x0 = ev.clientX, y0 = ev.clientY, l0 = barre.offsetLeft, t0 = barre.offsetTop;
+      function mv(e) { barre.style.left = Math.max(0, Math.min(innerWidth - 60, l0 + e.clientX - x0)) + 'px'; barre.style.top = Math.max(0, Math.min(innerHeight - 40, t0 + e.clientY - y0)) + 'px'; barreMemo = true; }
+      function up() { t.classList.remove('prise'); t.removeEventListener('pointermove', mv); t.removeEventListener('pointerup', up); }
+      t.addEventListener('pointermove', mv); t.addEventListener('pointerup', up);
+    });
+  })();
+  blocs.forEach(function (b) {
+    b.addEventListener('pointerdown', function (ev) {
+      if (!actif || ev.target.classList.contains('poi')) { return; }
+      ev.preventDefault(); b.setPointerCapture(ev.pointerId);
+      var x0 = ev.clientX, y0 = ev.clientY, l0 = b.offsetLeft, t0 = b.offsetTop, bouge = false;
+      function mv(e) { var dx = e.clientX - x0, dy = e.clientY - y0; if (Math.abs(dx) + Math.abs(dy) > 3) { bouge = true; }
+        b.style.left = Math.max(0, Math.min(p.offsetWidth - b.offsetWidth, l0 + dx)) + 'px'; b.style.top = Math.max(0, t0 + dy) + 'px'; rouge(); if (sel) { ouvrirBarre(b); } }
+      function up() { b.removeEventListener('pointermove', mv); b.removeEventListener('pointerup', up); if (!bouge) { ouvrirBarre(b); } }
+      b.addEventListener('pointermove', mv); b.addEventListener('pointerup', up);
+    });
+    var poi = b.querySelector('.poi');
+    poi.addEventListener('pointerdown', function (ev) {
+      ev.preventDefault(); ev.stopPropagation(); poi.setPointerCapture(ev.pointerId);
+      var x0 = ev.clientX, w0 = b.offsetWidth;
+      function mv(e) { b.style.width = Math.max(40, Math.min(p.offsetWidth - b.offsetLeft, w0 + e.clientX - x0)) + 'px'; rouge(); }
+      function up() { poi.removeEventListener('pointermove', mv); poi.removeEventListener('pointerup', up); }
+      poi.addEventListener('pointermove', mv); poi.addEventListener('pointerup', up);
+    });
+  });
+  var ph = document.getElementById('poiH');
+  ph.addEventListener('pointerdown', function (ev) {
+    ev.preventDefault(); ph.setPointerCapture(ev.pointerId);
+    var y0 = ev.clientY, h0 = p.querySelector('.bandeau').offsetHeight;
+    function mv(e) { var h = Math.max(70, Math.min(200, h0 + e.clientY - y0)); p.querySelector('.bandeau').style.height = h + 'px'; p.querySelector('.colg').style.top = h + 'px'; ph.style.top = h + 'px'; rouge(); }
+    function up() { ph.removeEventListener('pointermove', mv); ph.removeEventListener('pointerup', up); }
+    ph.addEventListener('pointermove', mv); ph.addEventListener('pointerup', up);
+  });
+  document.addEventListener('pointerdown', function (ev) { if (!ev.target.closest('.blc, #barre, #bascule, #raz, .poi-h')) { fermer(); } });
+  barre.addEventListener('click', function (ev) {
+    var t = ev.target.closest('button'); if (!t || !sel) { return; }
+    if (t.id === 'barreX') { fermer(); return; }
+    if (t.id === 'barreRed') { barre.classList.toggle('reduit'); t.innerHTML = barre.classList.contains('reduit') ? '+' : '&minus;'; return; }
+    if (t.id === 'horsBtn') { var ou = document.getElementById('horsDetail').hidden; horsOuvert = ou; majCases(); return; }
+    if (t.id === 'plusBtn') { var z = document.getElementById('plusZone'); z.hidden = !z.hidden; t.setAttribute('aria-expanded', !z.hidden); return; }
+    if (t.id === 'razBloc') { var ix = blocs.indexOf(sel), d0 = depart[ix]; sel.removeAttribute('style'); sel.style.left = d0.l; sel.style.top = d0.t; if (d0.w) { sel.style.width = d0.w; } if (sel.classList.contains('nom')) { etat.nom = '1'; } if (sel.classList.contains('metier')) { etat.met = '1'; } if (sel.classList.contains('coord')) { etat.co = 'col'; etat.cgTel = false; etat.cgMail = false; } rendu(); majBarre(sel); return; }
+    if (t.hasAttribute('data-i') && t.classList.contains('sw')) { var c = CASES[parseInt(t.getAttribute('data-i'), 10)]; etat.hors = c[0]; paletteOuverte = false; majCases(); colorier(); return; }
+    if (t.hasAttribute('data-pc')) { etat.hors = 'perso'; etat.horsPerso = t.getAttribute('data-pc'); majCases(); colorier(); return; }
+    if (t.id === 'horsAutre') { paletteOuverte = !paletteOuverte; if (etat.hors !== 'perso' && paletteOuverte) { etat.hors = 'perso'; colorier(); } majCases(); return; }
+    if (t.id === 'horsPipette') { return; }
+    if (t.hasAttribute('data-nom')) { etat.nom = t.getAttribute('data-nom'); rendu(); majBarre(sel); return; }
+    if (t.hasAttribute('data-met')) { etat.met = t.getAttribute('data-met'); rendu(); majBarre(sel); return; }
+    if (t.hasAttribute('data-co')) { etat.co = t.getAttribute('data-co'); rendu(); majBarre(sel); return; }
+    if (t.hasAttribute('data-cg')) { if (t.getAttribute('data-cg') === 'tel') { etat.cgTel = !etat.cgTel; } else { etat.cgMail = !etat.cgMail; } rendu(); majBarre(sel); return; }
+    var cs = getComputedStyle(sel);
+    if (t.hasAttribute('data-t')) { sel.style.fontSize = (parseFloat(cs.fontSize) + parseInt(t.getAttribute('data-t'), 10) * 1.2) + 'px'; }
+    if (t.id === 'bG') { sel.style.fontWeight = parseInt(cs.fontWeight, 10) >= 600 ? '400' : '700'; t.classList.toggle('on'); }
+    if (t.id === 'bI') { sel.style.fontStyle = cs.fontStyle === 'italic' ? 'normal' : 'italic'; t.classList.toggle('on'); }
+    if (t.hasAttribute('data-il')) { var lh = parseFloat(cs.lineHeight) / parseFloat(cs.fontSize) || 1.25; sel.style.lineHeight = Math.max(1, Math.min(2, lh + parseFloat(t.getAttribute('data-il')))); }
+    if (t.hasAttribute('data-w')) { sel.style.width = Math.max(40, sel.offsetWidth + parseInt(t.getAttribute('data-w'), 10)) + 'px'; }
+    if (t.hasAttribute('data-m')) { var m = t.getAttribute('data-m').split(','); sel.style.left = (sel.offsetLeft + parseInt(m[0], 10)) + 'px'; sel.style.top = (sel.offsetTop + parseInt(m[1], 10)) + 'px'; }
+    rouge();
+  });
+  // (plus de menu : les cases ci-dessus)
+  document.getElementById('horsPerso').addEventListener('input', function (e) { etat.hors = 'perso'; etat.horsPerso = e.target.value; majCases(); colorier(); });
+  document.addEventListener('keydown', function (e) {
+    if (!sel || !/^Arrow/.test(e.key) || /INPUT|SELECT/.test((document.activeElement || {}).tagName || '')) { return; }
+    var pas = e.shiftKey ? 10 : 2, dx = e.key === 'ArrowLeft' ? -pas : e.key === 'ArrowRight' ? pas : 0, dy = e.key === 'ArrowUp' ? -pas : e.key === 'ArrowDown' ? pas : 0;
+    e.preventDefault(); sel.style.left = (sel.offsetLeft + dx) + 'px'; sel.style.top = Math.max(0, sel.offsetTop + dy) + 'px'; rouge();
+  });
+  document.getElementById('bC').addEventListener('input', function (e) { if (sel) { sel.style.color = e.target.value; } });
+  document.getElementById('raz').addEventListener('click', function () {
+    blocs.forEach(function (b, i) { b.removeAttribute('style'); b.style.left = depart[i].l; b.style.top = depart[i].t; if (depart[i].w) { b.style.width = depart[i].w; } });
+    p.querySelector('.bandeau').style.height = ''; p.querySelector('.colg').style.top = ''; ph.style.top = '112px'; etat.nom = '1'; etat.met = '1'; etat.co = 'col'; etat.cgTel = false; etat.cgMail = false; fermer(); rendu();
+  });
+  document.getElementById('bascule').addEventListener('click', function () {
+    actif = !actif; this.setAttribute('aria-pressed', actif ? 'true' : 'false'); p.classList.toggle('reglage', actif); fermer();
+    phrase.style.display = actif ? '' : 'none';
+  });
+  rendu();
+})();
+</script>
+</body>
+</html>

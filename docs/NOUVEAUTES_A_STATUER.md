@@ -1,5 +1,7 @@
 # Nouveautés à statuer - registre du circuit veille
 
+> Note du 20/10/2026 : le bloc `[ASSOCIATIONS]` de l'outil de veille est retiré (voir `docs/VEILLE_PROMPTS.md` § 5octies). Les structures sont repérées par l'onglet « Structures d'aide » de l'outil de prospection.
+
 > Créé le 2026-09-06. Rien ne se perd : chaque ligne porte **la décision de Denis**.
 > Trois tableaux : **dispositifs / mesures / lois** repérés (Balayage, contrôle mensuel,
 > Denis en direct), **mots du Lexique**, **structures associatives**. Fait partie du
@@ -73,6 +75,8 @@ c'est bien l'asso -> date écrite dans `liens-verifies.txt`), `URL CORRIGÉE`, o
 ---
 
 ## Mots du Lexique à statuer
+
+> **Ce tableau n'est plus alimenté (20 octobre 2026).** Le registre des mots à statuer est « Ma liste » de la fenêtre « Le Lexique » de l'outil de veille (fichier `outils/sas/mots.sas.txt` : état, origine, motif d'écart, brouillon). Voir `docs/VEILLE_PROMPTS.md` § 5quater. Les deux lignes ci-dessous restent comme historique (faites).
 
 | Repéré le | D'où | Terme | Fiche `data/lexique.js` | Décision | Note |
 |---|---|---|---|---|---|

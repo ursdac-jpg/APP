@@ -47,9 +47,9 @@ test('sans candidature ni contexteDestination : les 4 champs de contexte + Exper
   const texteReel = fs.readFileSync(path.join(__dirname, '../prompts/bilan-v2-lot.md'), 'utf8');
   const prompt = bilanConstruirePromptAmeliorationLot(texteReel, [demandeValide('dem-1')], {});
   const occurrencesNonFourni = prompt.texte.split('Non fourni.').length - 1;
-  // 4 champs de contexte de candidature + 1 Experience concernee
+  // 4 champs de contexte de candidature + les disponibilites (lot 4, 24/10/2026) + 1 Experience concernee
   // (correctif "suggestion pertinente par experience", 2026-08-25).
-  assert.equal(occurrencesNonFourni, 5);
+  assert.equal(occurrencesNonFourni, 6);
 });
 
 test('leve RecommandationInexistante si le lot est vide', () => {

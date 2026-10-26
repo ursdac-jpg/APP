@@ -303,3 +303,16 @@ test('modifier : le numero d\'un MAGASIN (Commune:adresse:05 53 00 00 00) efface
   assert.ok(adresse.ok, adresse.erreur);
   assert.match(adresse.texte, /126 avenue Charles de Gaulle \|[^\n]*\| 2026-10-12/, 'une adresse corrigee garde la date');
 });
+
+test('modifier : le debut de la source « Via prospection ; » ne se perd ni ne s\'ajoute (la fiche changerait de rubrique)', () => {
+  const ligne = 'pros-essai | local | Exemple Prospection | commerce-vente | Bergerac:1 rue A | | | | non-indique | Via prospection ; Registre des entreprises (Sirene) | ';
+  const texte = EMPLOYEURS.replace(/\s*$/, '\n') + ligne + '\n';
+  const perd = T.appliquer('employeurs', texte, [{ op: 'modifier', id: 'pros-essai', valeurs: { source: 'Registre des entreprises (Sirene)' } }], AUJ, ctx);
+  assert.ok(!perd.ok); assert.match(perd.erreur, /Via prospection/);
+  const ajoute = T.appliquer('employeurs', texte, [{ op: 'modifier', id: 'netto', valeurs: { source: 'Via prospection ; Sirene' } }], AUJ, ctx);
+  assert.ok(!ajoute.ok); assert.match(ajoute.erreur, /Via prospection/);
+  const garde = T.appliquer('employeurs', texte, [{ op: 'modifier', id: 'pros-essai', valeurs: { source: 'Via prospection ; Registre des entreprises (Sirene), site ouvert' } }], AUJ, ctx);
+  assert.ok(garde.ok, JSON.stringify(garde));
+  const autre = T.appliquer('employeurs', texte, [{ op: 'modifier', id: 'pros-essai', valeurs: { nom: 'Exemple Prospection bis' } }], AUJ, ctx);
+  assert.ok(autre.ok, JSON.stringify(autre));
+});

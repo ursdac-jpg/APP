@@ -72,3 +72,61 @@ test('indexSecondNiveau : inverse fichesEntree -> id de fiche -> liste d\'entree
   assert.deepEqual(idx['cdi'], ['sn-details']);
   assert.equal(idx['cdd'], undefined);
 });
+
+// ---------- « Les chiffres a jour » d'une fiche (chantier du 20 octobre 2026) : la regle des 6 mois, avec des dates simulees ----------
+const { _lexiqueEtatDetails, _lexiqueRenduDetails, _lexiqueDateFr, LEXIQUE_SEUIL_MOIS_DETAILS } = require('../modules/lexique/index.js');
+global.echapperAttribut = function (t) { return String(t || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+const BLOC_TEST = {
+  verifieLe: '2026-10-12',
+  source: { nom: 'service-public.fr', url: 'https://www.service-public.fr' },
+  lignes: [{ libelle: 'Plafond', valeur: '1 500 €', categorie: 'montant', peutChanger: true }, { libelle: 'Décret', valeur: '26 février 2026', categorie: 'date', peutChanger: false }]
+};
+
+test('chiffres a jour : la regle des 6 mois, jour par jour (dates simulees)', () => {
+  assert.equal(LEXIQUE_SEUIL_MOIS_DETAILS, 6);
+  assert.equal(_lexiqueEtatDetails(BLOC_TEST, '2026-10-12'), 'ajour', 'le jour meme');
+  assert.equal(_lexiqueEtatDetails(BLOC_TEST, '2027-04-10'), 'ajour', 'presque 6 mois');
+  assert.equal(_lexiqueEtatDetails(BLOC_TEST, '2027-04-13'), 'message', '6 mois revolus');
+  assert.equal(_lexiqueEtatDetails(BLOC_TEST, '2028-01-01'), 'message');
+  assert.equal(_lexiqueEtatDetails(BLOC_TEST, '2026-10-12', 3), 'ajour');
+  assert.equal(_lexiqueEtatDetails(BLOC_TEST, '2027-01-20', 3), 'message', 'seuil reglable a 3 mois');
+});
+
+test('chiffres a jour : horloge de l\'appareil en retard, jamais verifie, faits qui ne changent pas, bloc mal forme', () => {
+  assert.equal(_lexiqueEtatDetails(BLOC_TEST, '2025-01-01'), 'ajour', 'horloge avant la verification : jamais masque a tort');
+  assert.equal(_lexiqueEtatDetails(Object.assign({}, BLOC_TEST, { verifieLe: '' }), '2026-10-20'), 'message', 'jamais verifie');
+  assert.equal(_lexiqueEtatDetails(Object.assign({}, BLOC_TEST, { verifieLe: undefined }), '2026-10-20'), 'message');
+  assert.equal(_lexiqueEtatDetails(Object.assign({}, BLOC_TEST, { verifieLe: 'bientot' }), '2026-10-20'), 'message');
+  const stable = Object.assign({}, BLOC_TEST, { verifieLe: '', lignes: [{ libelle: 'Fin', valeur: '31 décembre 2024', categorie: 'date', peutChanger: false }] });
+  assert.equal(_lexiqueEtatDetails(stable, '2040-01-01'), 'stable', 'un fait passe ne se perime jamais, meme sans date');
+  [undefined, null, 5, {}, { lignes: [] }, { lignes: 'x', source: BLOC_TEST.source }, { lignes: BLOC_TEST.lignes }, { lignes: BLOC_TEST.lignes, source: {} }].forEach((m) => {
+    assert.equal(_lexiqueEtatDetails(m, '2026-10-20'), 'absent', JSON.stringify(m));
+  });
+});
+
+test('chiffres a jour : le rendu (bloc, message general, rien), tout est echappe et la source n\'est un lien que si elle est en https', () => {
+  const fiche = { id: 'x', detailsAJour: BLOC_TEST };
+  const ajour = _lexiqueRenduDetails(fiche, '2026-10-20');
+  assert.match(ajour, /data-lexique-chiffres="ajour"/);
+  assert.match(ajour, /Les chiffres à jour/);
+  assert.match(ajour, /<dt>Plafond<\/dt><dd>1 500 €<\/dd>/);
+  assert.match(ajour, /Vérifié le 12 octobre 2026\./);
+  assert.match(ajour, /href="https:\/\/www\.service-public\.fr"[^>]*rel="noopener noreferrer"/);
+  assert.match(ajour, /vous quittez l’application/);
+  const perime = _lexiqueRenduDetails(fiche, '2027-06-01');
+  assert.match(perime, /data-lexique-chiffres="message"/);
+  assert.ok(perime.indexOf('1 500') === -1, 'aucun chiffre du bloc n\'est montre quand il est perime');
+  assert.match(perime, /changent régulièrement/);
+  assert.match(perime, /service-public\.fr/);
+  assert.equal(_lexiqueRenduDetails({ id: 'y' }, '2026-10-20'), '');
+  const piege = { detailsAJour: { verifieLe: '2026-10-12', source: { nom: '<b>x</b>', url: 'javascript:alert(1)' }, lignes: [{ libelle: '<img src=x onerror=alert(1)>', valeur: '"a" & b', categorie: 'date', peutChanger: true }] } };
+  const h = _lexiqueRenduDetails(piege, '2026-10-20');
+  assert.ok(h.indexOf('<img') === -1 && h.indexOf('<b>') === -1, 'HTML brut jamais insere');
+  assert.ok(h.indexOf('href=') === -1, 'une adresse qui n\'est pas en https n\'est jamais un lien');
+  assert.match(h, /&quot;a&quot; &amp; b/);
+  const stable = _lexiqueRenduDetails({ detailsAJour: { verifieLe: '', source: BLOC_TEST.source, lignes: [BLOC_TEST.lignes[1]] } }, '2040-01-01');
+  assert.match(stable, /data-lexique-chiffres="stable"/);
+  assert.ok(stable.indexOf('Vérifié le') === -1, 'un fait passe ne porte pas de date de verification');
+  assert.equal(_lexiqueDateFr('2026-11-01'), '1er novembre 2026');
+  assert.equal(_lexiqueDateFr('n’importe quoi'), '');
+});

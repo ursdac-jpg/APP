@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la page Synthèse et l'introduction rapide (version 2)</title>
+<style>
+  :root { --accent:#0d6efd; --accent-solide:#0b5ed7; --accent-bg:#e8f0fe; --bg:#f6f8fb; --card:#fff; --border:#cfd8e3; --text:#0b1a33; --muted:#5b6b82; --ok:#146c43; --ok-bg:#e6f4ec; --warn:#8a5a00; --warn-bg:#fff4dc; }
+  [data-theme="sombre"] { --accent:#6ea8fe; --accent-solide:#3d7fe0; --accent-bg:#14233f; --bg:#0d1420; --card:#172233; --border:#33445c; --text:#e8eef8; --muted:#9db0c9; --ok:#75c99b; --ok-bg:#12301f; --warn:#f0c36d; --warn-bg:#3a2d10; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--text); line-height:1.45; }
+  .page { max-width: 820px; margin: 0 auto; padding: 1rem 1rem 6rem; }
+  h1 { font-size:1.55rem; text-align:center; margin:.4rem 0 .2rem; }
+  .sous { text-align:center; color:var(--muted); margin:0 0 1rem; }
+  .onglets { display:flex; gap:.5rem; justify-content:center; margin:.8rem 0 1rem; flex-wrap:wrap; }
+  .onglets button, .btn { font:inherit; border:2px solid var(--accent); background:var(--card); color:var(--accent); border-radius:10px; padding:.45rem .9rem; cursor:pointer; font-weight:600; }
+  .onglets button[aria-pressed="true"], .btn-plein { background:var(--accent-solide); color:#fff; border-color:var(--accent-solide); }
+  .btn-sm { padding:.25rem .65rem; font-size:.85rem; }
+  .etapes { display:flex; gap:.4rem; justify-content:center; flex-wrap:wrap; margin:.5rem 0; font-size:.85rem; }
+  .etapes span { border:1px solid var(--border); border-radius:999px; padding:.15rem .7rem; background:var(--card); }
+  .etapes .actif { background:var(--accent-bg); border-color:var(--accent); font-weight:700; }
+  .synthese { border:2px solid var(--accent); border-radius:14px; background:var(--card); padding:1rem; margin:1rem 0; }
+  .synthese h2 { margin:.1rem 0 .3rem; font-size:1.15rem; }
+  .ligne { display:flex; gap:.6rem; align-items:flex-start; padding:.65rem 0; border-top:1px solid var(--border); }
+  .ligne:first-of-type { border-top:0; }
+  .pastille { flex:0 0 auto; width:1.6rem; height:1.6rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; }
+  .pastille.ok { background:var(--ok-bg); color:var(--ok); }
+  .pastille.vide { background:var(--warn-bg); color:var(--warn); }
+  .ligne .corps { flex:1 1 auto; min-width:0; }
+  .ligne .titre { font-weight:700; }
+  .ligne .detail { color:var(--muted); font-size:.9rem; }
+  .jetons { display:flex; flex-wrap:wrap; gap:.3rem; margin-top:.25rem; }
+  .jeton { background:var(--accent-bg); border-radius:999px; padding:.1rem .6rem; font-size:.82rem; }
+  .confid { margin-top:.6rem; padding:.6rem .8rem; background:var(--ok-bg); border-radius:10px; font-size:.9rem; }
+  .barre { position:fixed; left:0; right:0; bottom:0; background:var(--card); border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:.5rem; padding:.6rem 1rem; }
+  .barre .btn { font-size:1rem; padding:.55rem 1.1rem; }
+  .note { font-size:.88rem; color:var(--muted); margin:.4rem 0; }
+  .bascules { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0; font-size:.9rem; padding:.5rem .7rem; border:1px dashed var(--border); border-radius:10px; background:var(--card); }
+  .vue { display:none; } .vue.actif { display:block; }
+  .theme { position:fixed; top:.5rem; right:.5rem; z-index:5; }
+  .parcours { border:2px solid var(--border); border-radius:14px; background:var(--card); padding:.9rem 1rem; margin-bottom:.9rem; }
+  .parcours-tete { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.4rem; font-size:1.1rem; }
+  .num { font-size:.78rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; background:var(--accent-solide); color:#fff; padding:.2rem .75rem; border-radius:999px; }
+  .section { border:1px solid var(--border); border-radius:14px; background:var(--card); padding:.9rem 1rem; margin:.8rem 0; }
+  .section h3 { margin:.1rem 0 .4rem; font-size:1.05rem; }
+  table { border-collapse:collapse; width:100%; font-size:.92rem; } td, th { border-bottom:1px solid var(--border); padding:.3rem .4rem; text-align:left; vertical-align:top; }
+</style>
+</head>
+<body>
+<button class="btn btn-sm theme" id="theme">Mode sombre</button>
+<div class="page">
+  <h1>Maquette (version 2) : la page Synthèse et l'introduction rapide</h1>
+  <p class="sous">Après tes remarques : la synthèse est une page à part, le CV n'y est plus modifiable, les appuis et la lettre s'ajoutent seulement s'ils manquent.</p>
+  <div class="onglets" role="group" aria-label="Choisir l'écran">
+    <button type="button" data-vue="lettre" aria-pressed="true">✉ Synthèse : lettre approfondie</button>
+    <button type="button" data-vue="entretien" aria-pressed="false">🎤 Synthèse : entraînement</button>
+    <button type="button" data-vue="intro" aria-pressed="false">Introduction « Lettre et entretien en version rapide »</button>
+    <button type="button" data-vue="parcours" aria-pressed="false">Parcours et boutons</button>
+  </div>
+
+  <section class="vue actif" id="vue-lettre">
+    <div class="etapes"><span class="actif">📝 Préparer</span><span>💬 Assistant</span><span>🖋 Rédiger</span><span>✅ Terminé</span></div>
+    <h1>✒ Écrire ma lettre de motivation avec l'assistant</h1>
+    <p class="sous">Page « Synthèse » : on vérifie que tout est bien reçu avant de choisir l'assistant.</p>
+    <div class="bascules"><b>Voir les deux cas :</b>
+      <label><input type="checkbox" id="l-reco" checked> une lettre de recommandation est déjà ajoutée</label></div>
+    <div class="synthese">
+      <h2>Voici ce que l'assistant va recevoir</h2>
+      <p class="note">Rien ne part avant que vous ayez choisi un assistant. Pour changer quelque chose, utilisez « Retour » : tout se modifie dans la page « Préparer ».</p>
+      <div class="ligne"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Votre CV est bien reçu</div><div class="detail"><b>Cariste-magasinier</b> · Logistique du Sud (2021 à 2024) · Boulangerie Dupuis (2019 à 2021) · CACES 3</div></div></div>
+      <div class="ligne"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Votre candidature</div>
+        <div class="jetons"><span class="jeton">Type : répondre à une offre</span><span class="jeton">Offre : Cariste-magasinier</span><span class="jeton">Entreprise : Logistique du Sud, Périgueux</span><span class="jeton">Destinataire : service recrutement</span><span class="jeton">Disponibilité : dès que possible</span></div>
+        <div class="detail">Pour une candidature spontanée, on lirait ici : « Candidature spontanée », le domaine, l'intitulé visé, l'entreprise si elle est connue.</div></div></div>
+      <div class="ligne" id="l-ligne-reco-oui"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Votre appui : une lettre de recommandation</div><div class="detail">Lettre de <b>Mme Martin</b>, ancienne responsable (1 page). Elle sera envoyée pour ancrer votre lettre dans du concret.</div></div></div>
+      <div class="ligne" id="l-ligne-reco-non" style="display:none"><span class="pastille vide">…</span><div class="corps"><div class="titre">Votre appui : aucune lettre de recommandation</div><div class="detail">Facultatif. Une lettre écrite par un ancien employeur ou un formateur aide l'assistant à ancrer votre lettre dans du concret.</div><div style="margin-top:.4rem"><button class="btn btn-sm">+ Ajouter une lettre de recommandation</button></div></div></div>
+      <div class="ligne"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Vos choix</div><div class="jetons"><span class="jeton">Niveau : ouvrier qualifié</span><span class="jeton">Langage : professionnel</span><span class="jeton">Ton : équilibré</span><span class="jeton">Longueur : équilibrée</span><span class="jeton">Situation : en recherche d'emploi</span></div><div class="detail">Ces choix sont déjà pris en compte dans le message pour l'assistant : vous n'avez rien à refaire à l'étape suivante.</div></div></div>
+      <div class="confid">🔒 Votre nom et vos coordonnées ne partent jamais vers l'assistant. Il reçoit un texte copié, que vous collez vous-même.</div>
+    </div>
+  </section>
+
+  <section class="vue" id="vue-entretien">
+    <div class="etapes"><span class="actif">📝 Préparer</span><span>💬 Assistant</span><span>🎤 S'entraîner</span><span>✅ Terminé</span></div>
+    <h1>🎤 M'entraîner à un entretien d'embauche</h1>
+    <p class="sous">Page « Synthèse » : on vérifie que tout est bien reçu avant de choisir l'assistant.</p>
+    <div class="bascules"><b>Voir les cas :</b>
+      <label><input type="checkbox" id="e-lettre" checked> la lettre de motivation est déjà déposée</label>
+      <label><input type="checkbox" id="e-reco"> une lettre de recommandation est déjà ajoutée</label></div>
+    <div class="synthese">
+      <h2>Voici ce que l'assistant va recevoir</h2>
+      <p class="note">Rien ne part avant que vous ayez choisi un assistant. Pour changer quelque chose, utilisez « Retour » : tout se modifie dans la page « Préparer ».</p>
+      <div class="ligne"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Votre CV est bien reçu</div><div class="detail"><b>Cariste-magasinier</b> · Logistique du Sud (2021 à 2024) · Boulangerie Dupuis (2019 à 2021) · CACES 3</div></div></div>
+      <div class="ligne" id="e-ligne-lettre-oui"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Votre lettre de motivation est bien reçue</div><div class="detail">Objet : « Candidature au poste de cariste-magasinier » · 1 page</div></div></div>
+      <div class="ligne" id="e-ligne-lettre-non" style="display:none"><span class="pastille vide">…</span><div class="corps"><div class="titre">Pas de lettre de motivation</div><div class="detail">Facultatif, mais utile : avec votre lettre, l'assistant pose des questions qui correspondent à ce que vous avez écrit, et l'entretien raconte la même histoire que votre candidature.</div><div style="margin-top:.4rem"><button class="btn btn-sm">+ Ajouter ma lettre de motivation</button></div></div></div>
+      <div class="ligne"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Votre candidature</div>
+        <div class="jetons"><span class="jeton">Type : répondre à une offre</span><span class="jeton">Offre : Cariste-magasinier</span><span class="jeton">Entreprise : Logistique du Sud, Périgueux</span><span class="jeton">Disponibilité : dès que possible</span></div></div></div>
+      <div class="ligne" id="e-ligne-reco-oui" style="display:none"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Votre appui : une lettre de recommandation</div><div class="detail">Lettre de <b>Mme Martin</b>, ancienne responsable (1 page). Elle aide l'assistant à choisir un cas pratique qui vous ressemble.</div></div></div>
+      <div class="ligne" id="e-ligne-reco-non"><span class="pastille vide">…</span><div class="corps"><div class="titre">Votre appui : aucune lettre de recommandation</div><div class="detail">Facultatif. Elle aide l'assistant à choisir un cas pratique qui vous ressemble.</div><div style="margin-top:.4rem"><button class="btn btn-sm">+ Ajouter une lettre de recommandation</button></div></div></div>
+      <div class="ligne"><span class="pastille ok">✓</span><div class="corps"><div class="titre">Vos choix</div><div class="jetons"><span class="jeton">Niveau : ouvrier qualifié</span><span class="jeton">Langage : professionnel</span><span class="jeton">Ton : équilibré</span><span class="jeton">Situation : en recherche d'emploi</span></div><div class="detail">Ces choix sont déjà pris en compte dans le message pour l'assistant : vous n'avez rien à refaire à l'étape suivante.</div></div></div>
+      <div class="confid">🔒 Votre nom et vos coordonnées ne partent jamais vers l'assistant.</div>
+    </div>
+  </section>
+
+  <section class="vue" id="vue-intro">
+    <h1>📄 Lettre et entretien en version rapide</h1>
+    <p class="sous">À partir de votre CV seul. Deux parcours, indépendants : vous faites l'un, l'autre, ou les deux.</p>
+    <div class="section">
+      <h3>🧭 Deux parcours, chacun avec son but</h3>
+      <div class="parcours">
+        <div class="parcours-tete"><span class="num">Parcours 1</span><span>✉</span><b>Ma lettre de motivation rapide</b></div>
+        <p><b>Version rapide.</b> L'assistant vous propose deux lettres de motivation, vous en choisissez une. <span class="note">« Je veux avoir le papier tout de suite. »</span></p>
+        <ul><li><b>Le but :</b> avoir une lettre prête, vite, à partir de votre CV.</li><li><b>Pour qui :</b> une candidature à envoyer sans attendre.</li><li><b>Ce que ça ne fait pas :</b> ne s'appuie pas sur une lettre de recommandation, ne s'ancre pas dans votre terrain. Pour une lettre plus poussée : « Écrire ma lettre avec l'assistant », dans « Me préparer à candidater ».</li></ul>
+      </div>
+      <div class="parcours">
+        <div class="parcours-tete"><span class="num">Parcours 2</span><span>🎤</span><b>Ma fiche de préparation à l'entretien</b></div>
+        <p><b>Version rapide.</b> Une fiche de synthèse : votre présentation, les questions probables, un cas pratique, les questions à poser. <span class="note">« Je peux déjà m'imaginer l'entretien et me répondre à quelques questions. »</span></p>
+        <ul><li><b>Le but :</b> se faire une première idée de l'entretien, en une seule réponse.</li><li><b>Pour qui :</b> un entretien proche, pour se préparer rapidement.</li><li><b>Ce que ça ne fait pas :</b> pas d'échange, pas de retour sur vos réponses. Pour s'entraîner : « M'entraîner à un entretien », dans « Me préparer à candidater ».</li></ul>
+      </div>
+    </div>
+    <div class="section"><h3>📋 Ce qui va se passer</h3><ul><li>Vous déposez votre CV une seule fois, vous le relisez et masquez ce que vous ne voulez pas transmettre.</li><li>Vous choisissez un parcours (vous pouvez passer de l'un à l'autre).</li><li>Un assistant en ligne répond en une fois ; vous rapportez sa réponse ici.</li></ul></div>
+    <p class="note">Mêmes noms, mêmes pastilles et mêmes phrases que les deux cartes de la page de dépôt (une seule source dans le code, comme pour « Reprendre mon CV »).</p>
+  </section>
+
+  <section class="vue" id="vue-parcours">
+    <div class="section">
+      <h3>Le parcours, page par page (lettre approfondie et entraînement)</h3>
+      <table>
+        <tr><th>1. Préparer</th><td>CV, candidature, adaptation. Le bouton du bas devient <b>« Voir la synthèse → »</b> (au lieu de « Choisir mon assistant »).</td></tr>
+        <tr><th>2. Synthèse (page à part, nouvelle)</th><td>Lecture seule du CV et de la candidature ; ajout possible de la lettre de motivation (entraînement) et de la lettre de recommandation si elles manquent. Bouton du bas : <b>« Choisir mon assistant → »</b>. « Retour » ramène à « Préparer ».</td></tr>
+        <tr><th>3. Choisir l'assistant</th><td>Inchangée.</td></tr>
+        <tr><th>Dans le module rapide (page de travail)</th><td>Au-dessus du titre, la pastille <span class="num">Parcours 1</span> avec « Ma lettre de motivation rapide », ou <span class="num">Parcours 2</span> avec « Ma fiche de préparation à l'entretien » : la personne sait toujours dans quel parcours elle est. La carte de dépôt porte la même pastille.</td></tr>
+        <tr><th>Barre d'étapes</th><td>Inchangée (4 étapes). La synthèse appartient à « Préparer » : pas de cinquième étape.</td></tr>
+        <tr><th>Depuis la version rapide</th><td>Le bouton de l'encart (lettre ou fiche) ouvre directement la page <b>Synthèse</b> avec le CV déjà reçu : la personne ne redépose rien.</td></tr>
+      </table>
+    </div>
+    <div class="section">
+      <h3>Ce qui change pour l'entraînement (rappel)</h3>
+      <ul><li>Ajout du panneau « Vos appuis » (même brique que la lettre).</li><li>Prompt refondu à partir de la fiche rapide : questions plus pointues, stratégies de présentation, zones délicates (étape à part, avec ta relecture).</li><li>Texte visible sur le mode vocal, comme la lettre.</li></ul>
+    </div>
+  </section>
+</div>
+<div class="barre"><button class="btn">← Retour</button><button class="btn btn-plein">Choisir mon assistant →</button></div>
+<script>
+  document.querySelectorAll('.onglets button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.onglets button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      document.querySelectorAll('.vue').forEach(function (v) { v.classList.toggle('actif', v.id === 'vue-' + b.dataset.vue); });
+    });
+  });
+  function basc(idCase, idOui, idNon) {
+    var c = document.getElementById(idCase);
+    function maj() { document.getElementById(idOui).style.display = c.checked ? '' : 'none'; document.getElementById(idNon).style.display = c.checked ? 'none' : ''; }
+    c.addEventListener('change', maj); maj();
+  }
+  basc('l-reco', 'l-ligne-reco-oui', 'l-ligne-reco-non');
+  basc('e-lettre', 'e-ligne-lettre-oui', 'e-ligne-lettre-non');
+  basc('e-reco', 'e-ligne-reco-oui', 'e-ligne-reco-non');
+  document.getElementById('theme').addEventListener('click', function () {
+    var s = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', s ? '' : 'sombre');
+    this.textContent = s ? 'Mode sombre' : 'Mode clair';
+  });
+</script>
+</body>
+</html>

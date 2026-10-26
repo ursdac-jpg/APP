@@ -158,7 +158,8 @@ function ouvrirApercuPdfHtml(type, dossierSource) {
   // pour que le CV occupe toute la place disponible (2026-09-26, demande de Denis).
   try {
     var styleApercuIntegre = iframe.contentDocument.createElement('style');
-    styleApercuIntegre.textContent = 'html,body{overflow:hidden !important;} .zone-apercu{padding:6px !important;overflow:hidden !important;}';
+    // A L'ECRAN seulement : sans « @media screen », ce style s'appliquait aussi a l'impression (marge blanche de 6 px autour de la feuille, page 2 quasi vide ; essai d'impression reel, 2026-10-21).
+    styleApercuIntegre.textContent = '@media screen{html,body{overflow:hidden !important;} .zone-apercu{padding:6px !important;overflow:hidden !important;}}';
     iframe.contentDocument.head.appendChild(styleApercuIntegre);
   } catch (e) { /* l'apercu reste utilisable avec ses marges d'origine */ }
   // TACHE (retour utilisateur 2026-09-15) : delai court, le temps que

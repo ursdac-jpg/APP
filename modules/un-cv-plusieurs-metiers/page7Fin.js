@@ -55,7 +55,8 @@ function ucpmImprimerDocument(titre, html) {
 }
 
 // Nom proposé à l'enregistrement du PDF (le navigateur reprend le titre de la page), décidé par Denis le 2026-10-13 pour CE module :
-//   tous les CV, ou un CV seul : « CV_NOM »  ·  toutes les lettres : « L_M_NOM »  ·  un CV avec sa lettre : « metier_NOM ».
+//   tous les CV, ou un CV seul : « CV_NOM »  ·  toutes les lettres : « L_M_NOM »  ·  un CV avec sa lettre : « metier_NOM »  ·  une préparation d'entretien : « metier_NOM_preparation »
+//   ·  toutes les préparations : « NOM_preparations » (décision de Denis, 24/10/2026).
 // NOM = le nom écrit sur le CV, en majuscules, sans accent (même règle que le reste de l'application, nomFichierCV) ; metier = l'intitulé du CV choisi, en minuscules,
 // mots reliés par des tirets, 40 caractères au plus. Sans nom : le prénom ; sans rien : le préfixe seul (« CV », « L_M ») ou « cv ».
 function _ucpmP7Segment(texte) {
@@ -70,28 +71,14 @@ function ucpmNomFichierPdf(mode, titreCV, identite) {
   else if (mode === 'cv-lettre' || mode === 'preparation') {
     var metier = _ucpmP7Segment(String(titreCV || '').toLocaleLowerCase('fr-FR'));
     if (metier.length > 40) { metier = metier.slice(0, 40).replace(/-[^-]*$/, '').replace(/^$/, metier.slice(0, 40)); }
-    morceaux = mode === 'preparation' ? ['preparation', metier, nom] : [metier, nom];
+    morceaux = mode === 'preparation' ? [metier, nom, 'preparation'] : [metier, nom];
   }
-  else if (mode === 'preparations') { morceaux = ['PREPARATION', nom]; }
+  else if (mode === 'preparations') { morceaux = [nom, 'preparations']; }
   else { morceaux = ['CV', nom]; }
   return morceaux.filter(Boolean).join('_') || 'cv';
 }
 function _ucpmP7NomFichier(mode, titreCV) {
   return ucpmNomFichierPdf(mode, titreCV, ucpmDossierVrai().identite);
-}
-
-// Coordonnées de la lettre : le téléphone écrit comme sur le CV (formaterTelephone, cv-core/identiteFormat.js), jamais en bloc de chiffres.
-function _ucpmP7IdentiteLettre() {
-  var id = Object.assign({}, ucpmDossierVrai().identite || {});
-  if (typeof formaterTelephone === 'function' && id.telephone) { id.telephone = formaterTelephone(id.telephone); }
-  return id;
-}
-
-function _ucpmP7FeuilleLettre(etat, e, police) {
-  return {
-    css: UCPM_CSS_LETTRE,
-    html: ucpmHtmlLettre({ identite: _ucpmP7IdentiteLettre(), objectif: e.objectif, texte: _ucpmP7TexteLettre(etat, e.id), dateTexte: ucpmDateEnTexte(new Date()), police: police })
-  };
 }
 
 // mode : 'cvs' (tous les CV), 'lettres' (toutes les lettres), 'cv' (un CV, id), 'cv-lettre' (un CV puis sa lettre, id).
@@ -107,7 +94,10 @@ function _ucpmP7Telecharger(etat, mode, id) {
     chaine = chaine.then(function (feuilles) {
       return ucpmRendreCv(etat, e.id).then(function (r) {
         if (mode === 'cvs' || mode === 'cv' || mode === 'cv-lettre') { feuilles.push({ css: r.css, html: r.html }); }
-        if (mode === 'lettres' || mode === 'cv-lettre') { feuilles.push(_ucpmP7FeuilleLettre(etat, e, r.police)); }
+        if (mode === 'lettres' || mode === 'cv-lettre') {
+          // La lettre prend le modele choisi a la page 6, la couleur et la police de son CV (24/10/2026).
+          return ucpmRendreLettre(etat, e, etat.modeleLettre).then(function (l) { feuilles.push({ css: l.css, html: l.html }); return feuilles; });
+        }
         return feuilles;
       });
     });
@@ -143,8 +133,8 @@ function _ucpmP7HtmlCarte(etat, e, ref) {
   return '<div class="cv-section" style="margin:0;" data-ucpm-carte="' + e.id + '">' +
     '<div style="display:flex;gap:.8rem;align-items:flex-start;">' +
     '<div data-ucpm-miniature="' + e.id + '" style="width:' + UCPM_LARGEUR_MINIATURE + 'px;height:' + Math.round(UCPM_LARGEUR_MINIATURE * 1123 / 794) + 'px;flex:0 0 ' + UCPM_LARGEUR_MINIATURE + 'px;border:1px solid var(--border);border-radius:4px;background:var(--bg-card);overflow:hidden;position:relative;"' +
-    ' role="img" aria-label="Aperçu du CV ' + _ucpmP6Numero(etat, e.id) + '"><span class="small" style="color:var(--text-muted);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem;">Préparation de l’aperçu…</span></div>' +
-    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong>CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(cv.titre || ucpmNomMetier(e, etat.sexe)) + '</strong>' + (estRef ? ' <span class="badge bg-secondary">CV de référence</span>' : '') + '</p>' +
+    ' role="img" aria-label="Aperçu du ' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '"><span class="small" style="color:var(--text-muted);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.5rem;">Préparation de l’aperçu…</span></div>' +
+    '<div style="flex:1;min-width:0;"><p class="mb-1"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong>' + (estRef ? ' <span class="badge bg-secondary">CV de référence</span>' : '') + '</p>' +
     '<p class="small mb-1" style="color:var(--text-muted);">Objectif : ' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) + '</p>' +
     '<p class="small mb-1" data-ucpm-alerte-pages="' + e.id + '" style="color:var(--warning-strong);"' + (alerte ? '' : ' hidden') + '>' + _ucpmEsc(alerte) + '</p>' +
     (longue ? '<p class="small mb-0" style="color:var(--warning-strong);">Sa lettre est longue : elle risque de passer sur deux pages.</p>' : '') + '</div></div>' +
@@ -190,7 +180,7 @@ function _ucpmP7Rendre(etat) {
   h += _ucpmP7HtmlPerimees(etat);
   h += '<div class="cv-section"><h4>&#128196; Document 1 : mes CV</h4>' +
     '<p class="mb-2">Un seul document PDF de ' + nbPages + ' page' + (nbPages > 1 ? 's' : '') + (nbPages > cvs.length ? ' (certains CV passent sur plusieurs pages)' : ', un CV par page') + '.</p>' +
-    '<div class="mb-2">' + cvs.map(function (e) { var cv = (etat.cvs && etat.cvs[e.id]) || {}; return '<span class="badge bg-secondary me-1 mb-1">CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(cv.titre || ucpmNomMetier(e, etat.sexe)) + '</span>'; }).join('') + '</div>' +
+    '<div class="mb-2">' + cvs.map(function (e) { var cv = (etat.cvs && etat.cvs[e.id]) || {}; return '<span class="badge bg-secondary me-1 mb-1">' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</span>'; }).join('') + '</div>' +
     '<button type="button" class="btn btn-primary" data-ucpm-tel="cvs"' + desactive + '>Télécharger mes CV (un seul PDF)</button></div>';
 
   h += '<div class="cv-section"><h4>&#9993;&#65039; Document 2 : mes lettres de motivation</h4>' +
@@ -213,11 +203,18 @@ function _ucpmP7Rendre(etat) {
 // Document 3 : les préparations d'entretien (facultatives, pour la personne seule : jamais dans les fichiers à envoyer).
 function _ucpmP7HtmlPreparations(etat) {
   var avec = _ucpmP8AvecPrep(etat);
-  return '<div class="cv-section" style="border-left:4px solid var(--accent);"><h4>&#128221; Document 3 : mes préparations d’entretien <span class="small" style="color:var(--text-muted);font-weight:400;">(facultatif)</span></h4>' +
+  // Un seul PDF « toutes mes préparations » n'a de sens qu'avec au moins deux préparations ; avec une seule, on la télécharge ou on en fait une autre (F22).
+  var boutonsPdf = avec.length > 1
+    ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-tel-p7="toutes">Télécharger toutes mes préparations (un seul PDF)</button>'
+    : (avec.length === 1
+      ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-tel-p7="' + avec[0].id + '">Télécharger cette préparation</button>' +
+        '<button type="button" class="btn btn-outline-secondary" id="btnUcpmP7AutrePrep">Faire une autre préparation</button>'
+      : '');
+  return '<div class="cv-section" style="border-left:4px solid var(--accent);"><h4>&#128221; Document 3 : mes préparations d’entretien</h4>' +
     '<p class="mb-2">Une feuille par métier : les questions probables, ce que le recruteur cherche, des pistes pour répondre et des conseils. À garder pour vous.</p>' +
     '<div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary" id="btnUcpmP7Entretiens">' + (avec.length ? 'Voir mes préparations' : 'Préparer mes entretiens') + ' &#8594;</button>' +
-    (avec.length ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-tel-p7="toutes">Télécharger toutes mes préparations (un seul PDF)</button>' : '') + '</div>' +
-    (avec.length ? '<p class="small mt-2 mb-0" style="color:var(--text-muted);">' + avec.length + ' préparation' + (avec.length > 1 ? 's' : '') + ' : une feuille A4 par métier (deux pour une préparation approfondie qui ne tient pas sur une page).</p>' : '') + '</div>';
+    boutonsPdf + '</div>' +
+    (avec.length ? '<p class="small mt-2 mb-0" style="color:var(--text-muted);">' + avec.length + ' préparation' + (avec.length > 1 ? 's' : '') + ' : une feuille A4 par métier (deux pour une préparation approfondie qui ne tient pas sur une page).</p>' + _ucpmP8HtmlContenuPdf(etat) : '') + '</div>';
 }
 
 // Règle de Retour : une lettre dont ce qui avait été envoyé a changé est signalée avant le téléchargement (rien n'est modifié ici).
@@ -225,7 +222,7 @@ function _ucpmP7HtmlPerimees(etat) {
   var p = _ucpmP6Perimees(etat);
   if (!p.length) { return ''; }
   return '<div class="cv-section" style="border-left:4px solid var(--warning-strong);" role="status"><p class="mb-0 small"><strong>' + (p.length > 1 ? 'Certaines lettres ne correspondent peut-être plus' : 'Une lettre ne correspond peut-être plus') + '</strong> à ce que vous avez changé depuis la demande (' +
-    p.map(function (e) { return 'CV ' + _ucpmP6Numero(etat, e.id); }).join(', ') + '). Pour la mettre à jour, revenez à la page des lettres avec le bouton « Retour ». Vous pouvez aussi télécharger telle quelle.</p></div>';
+    p.map(function (e) { return _ucpmEsc(ucpmLibelleCv(etat, e)); }).join(', ') + '). Pour la mettre à jour, revenez à la page des lettres avec le bouton « Retour ». Vous pouvez aussi télécharger telle quelle.</p></div>';
 }
 
 function _ucpmP7Cabler(etat) {
@@ -237,6 +234,8 @@ function _ucpmP7Cabler(etat) {
   // Document 3 : préparations d'entretien (page 8).
   var entretiens = document.getElementById('btnUcpmP7Entretiens');
   if (entretiens) { entretiens.addEventListener('click', function () { etat.p8Vue = _ucpmP8AvecPrep(etat).length ? 'lecture' : 'choix'; ucpmAllerPage(8); }); }
+  var autrePrep = document.getElementById('btnUcpmP7AutrePrep');
+  if (autrePrep) { autrePrep.addEventListener('click', function () { etat.p8Vue = 'choix'; ucpmAllerPage(8); }); }
   $$('[data-ucpm-p8-tel-p7]', function (el) {
     el.addEventListener('click', function () { var v = el.getAttribute('data-ucpm-p8-tel-p7'); ucpmTelechargerPreparations(etat, v === 'toutes' ? null : v); });
   });
@@ -284,7 +283,7 @@ function _ucpmP7Cabler(etat) {
 ucpmEnregistrerPage(7, {
   rendre: _ucpmP7Rendre,
   cabler: _ucpmP7Cabler,
-  libelleContinuer: 'Préparer mes entretiens (facultatif) &#8594;',
+  libelleContinuer: 'Préparer mes entretiens &#8594;',
   peutContinuer: function () { return true; },
   retour: function () { _ucpmUi7.offres = null; return false; }
 });

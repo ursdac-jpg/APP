@@ -1,277 +1,288 @@
 {
  "creatif:bandeauVertical": {
-  "html": "e67ba238:10273",
-  "css": "e6bc4630:15327",
-  "xml": "43918b80:66032",
+  "html": "5e44d42:10310",
+  "css": "6c0115b8:15470",
+  "xml": "38875bae:68089",
   "pages": 1,
-  "couverture": 46
+  "couverture": 44
+ },
+ "creatif:bandeauxNoirs": {
+  "html": "3603defe:11992",
+  "css": "1e901253:16730",
+  "xml": "d01e7820:42725",
+  "pages": 1,
+  "couverture": 16,
+  "bandeau": "diagonale"
  },
  "creatif:cadreBarre": {
-  "html": "51e33dfc:10051",
-  "css": "bfa56234:15327",
-  "xml": "39a4722a:65389",
+  "html": "95450d7a:10310",
+  "css": "81445e90:15470",
+  "xml": "ba731aec:67208",
   "pages": 1,
-  "couverture": 25
+  "couverture": 24
  },
  "creatif:chronoFonce": {
-  "html": "e10de0:10440",
-  "css": "a98e0bd7:18171",
-  "xml": "d6e3cc:58454",
+  "html": "2fe11686:13109",
+  "css": "c400ba17:20175",
+  "xml": "400a7c58:58446",
   "pages": 1,
-  "couverture": 40,
-  "bord": "droit",
-  "bordAlt": "5b50d848:28879"
+  "couverture": 38,
+  "bord": "droit"
  },
  "creatif:colonneBandeau": {
-  "html": "735200fc:10196",
-  "css": "b60348a7:17471",
-  "xml": "3f40dab0:52602",
+  "html": "98aa8290:11921",
+  "css": "9d22a0e4:18718",
+  "xml": "1a7dcb08:52594",
   "pages": 1,
-  "couverture": 52,
+  "couverture": 50,
   "bord": "droit",
-  "bordAlt": "c18d7774:27936"
+  "bandeau": "droit"
  },
  "creatif:colonneClaire": {
-  "html": "c7357218:10216",
-  "css": "fd0e1fd0:17951",
-  "xml": "9afa691a:45918",
+  "html": "5bcaf4db:10255",
+  "css": "cd9f8d18:17234",
+  "xml": "28d62034:45910",
   "pages": 1,
-  "couverture": 36
+  "couverture": 36,
+  "bord": "droit"
  },
  "creatif:colonneFoncee": {
-  "html": "65a041d0:10227",
-  "css": "b93f7f14:17283",
-  "xml": "c68a2dc2:52666",
+  "html": "6ee586e2:12857",
+  "css": "bd5985dc:20074",
+  "xml": "d53ab544:52658",
   "pages": 1,
-  "couverture": 40,
-  "bord": "droit",
-  "bordAlt": "5da0cce7:27779"
+  "couverture": 38,
+  "bord": "droit"
  },
  "creatif:colonneRuban": {
-  "html": "be89ec8:10240",
-  "css": "253d354c:17603",
-  "xml": "2d1e5102:52540",
+  "html": "822bd11e:12870",
+  "css": "4fee9e50:20394",
+  "xml": "115cab1c:52540",
   "pages": 1,
   "couverture": 47,
-  "bord": "droit",
-  "bordAlt": "1f63db30:28112"
+  "bord": "droit"
  },
  "creatif:diagonalesContrastees": {
-  "html": "f8115f9c:10218",
-  "css": "c73b08b4:15327",
-  "xml": "b8c747ea:52016",
+  "html": "cb416fd2:11936",
+  "css": "62987cf8:16634",
+  "xml": "dfef3a28:52017",
   "pages": 1,
-  "couverture": 7
+  "couverture": 6
  },
  "creatif:duoOvale": {
-  "html": "e1f8f5d2:10213",
-  "css": "2826deb0:15544",
-  "xml": "f9c78ab4:49109",
+  "html": "441b4150:11921",
+  "css": "2c62ae70:16831",
+  "xml": "ab910318:49107",
   "pages": 1,
-  "couverture": 27,
-  "bandeau": "arrondi",
-  "bandeauAlt": "942d218b:25675;96c764b0:26254;"
+  "couverture": 25,
+  "bandeau": "arrondi"
  },
  "creatif:frise": {
-  "html": "10a22670:9782",
+  "html": "bfee7c2c:9791",
   "css": "a4a5ef33:7390",
-  "xml": "51e27692:48595",
+  "xml": "85aae024:48595",
   "pages": 1,
   "couverture": 39
  },
  "creatif:friseFoncee": {
-  "html": "196867bc:9795",
+  "html": "2db8d534:9804",
   "css": "d2de6e6f:8010",
-  "xml": "b3a51db0:48945",
+  "xml": "3a489dbc:48945",
   "pages": 1,
   "couverture": 39
  },
  "creatif:losangeVert": {
-  "html": "24295f14:10256",
-  "css": "f610fe70:15065",
-  "xml": "ffd3706c:44188",
+  "html": "9ce87ccc:10274",
+  "css": "3dd06e38:15208",
+  "xml": "32301b7c:44180",
   "pages": 1,
   "couverture": 0
  },
  "creatif:medaillon": {
-  "html": "6567d3e:10823",
-  "css": "c8168b80:15281",
-  "xml": "82fc1fa2:45942",
+  "html": "301a3784:11125",
+  "css": "8abbb4f4:15424",
+  "xml": "107a2a18:45934",
   "pages": 1,
   "couverture": 13
  },
  "creatif:mqBandeau": {
-  "html": "48d5ecc4:10255",
-  "css": "3adf1b37:15100",
-  "xml": "7b0ae5a8:42695",
+  "html": "5fc379e8:11894",
+  "css": "a9244b57:16348",
+  "xml": "82606844:42689",
   "pages": 1,
   "couverture": 20,
-  "bandeau": "droit",
-  "bandeauAlt": "4e3eb1eb:25439;3fbeb9c4:25852;"
+  "bandeau": "droit"
  },
  "creatif:mqCadre": {
-  "html": "abd29528:10296",
-  "css": "998b4240:15234",
-  "xml": "ae88ec28:46564",
+  "html": "2c9354c8:10305",
+  "css": "b1cff570:15378",
+  "xml": "c07cd334:46558",
   "pages": 1,
   "couverture": 0
  },
  "creatif:mqColonne": {
-  "html": "62f37e50:10156",
-  "css": "3adf1b37:15100",
-  "xml": "23ae03f4:46141",
+  "html": "d684f3e4:12849",
+  "css": "a1fdd02f:19326",
+  "xml": "aadf6312:52448",
   "pages": 1,
-  "couverture": 32
+  "couverture": 58,
+  "bord": "droit"
  },
  "creatif:mqDiagonale": {
-  "html": "c37a276a:10246",
-  "css": "3adf1b37:15100",
-  "xml": "f7ab6514:42981",
+  "html": "25296864:11948",
+  "css": "2ab16340:16408",
+  "xml": "a2a9b5e4:42975",
   "pages": 1,
   "couverture": 0
  },
  "creatif:mqPicto": {
-  "html": "1e818248:10283",
-  "css": "37472220:15100",
-  "xml": "dd37e172:43562",
+  "html": "b2f489e2:10292",
+  "css": "e14e7248:15244",
+  "xml": "9825986e:43394",
   "pages": 1,
   "couverture": 0
  },
  "creatif:pastille": {
-  "html": "845b6a30:14163",
-  "css": "41489848:15352",
-  "xml": "e41be6d8:54165",
+  "html": "11f4e016:14181",
+  "css": "1d914290:15495",
+  "xml": "dc706fcc:53995",
   "pages": 1,
   "couverture": 0
  },
  "creatif:photoFrise": {
-  "html": "bde085a4:10635",
+  "html": "ae034084:10644",
   "css": "ab165690:5201",
-  "xml": "4fcbe170:53519",
+  "xml": "c0ebfab2:53817",
   "pages": 1,
   "couverture": 0
  },
  "creatif:rectangles": {
-  "html": "a25a69f2:7709",
-  "css": "4014ba48:5308",
-  "xml": "c3f26cba:40804",
-  "pages": 1,
-  "couverture": 23
- },
- "creatif:rubanDiagonal": {
-  "html": "345d870c:10237",
-  "css": "ce9aa7e8:15864",
-  "xml": "171231e2:54913",
+  "html": "e4e74e50:7796",
+  "css": "5507174f:5324",
+  "xml": "35c66578:42377",
   "pages": 1,
   "couverture": 28
  },
- "creatif:sidebarVague": {
-  "html": "3c5aee28:10325",
-  "css": "5acd5b2b:18030",
-  "xml": "492355b8:70246",
+ "creatif:rubanDiagonal": {
+  "html": "903779ca:11955",
+  "css": "5e1a3aa0:17171",
+  "xml": "d81975a0:54974",
   "pages": 1,
-  "couverture": 54,
-  "bord": "vallonne",
-  "bordAlt": "95609a08:28088"
+  "couverture": 25
+ },
+ "creatif:sidebarVague": {
+  "html": "55a732a8:12955",
+  "css": "97bae5c8:21019",
+  "xml": "45f4ae76:70307",
+  "pages": 1,
+  "couverture": 53,
+  "bord": "vallonne"
  },
  "creatif:triangleSavoir": {
-  "html": "c2157118:10162",
-  "css": "6bcccf6f:15065",
-  "xml": "393c0c5a:44132",
+  "html": "67d4fd1a:10199",
+  "css": "5848923f:15208",
+  "xml": "b4e6ebac:44124",
   "pages": 1,
-  "couverture": 20
+  "couverture": 19
  },
  "creatif:vagueMarine": {
-  "html": "beab6af2:10254",
-  "css": "3face0ac:16029",
-  "xml": "a60ae5b0:63918",
+  "html": "5f84f918:12468",
+  "css": "cb09467c:18230",
+  "xml": "d2e67a70:63979",
   "pages": 1,
   "couverture": 23,
-  "bandeau": "vallonne",
-  "bandeauAlt": "bb5a8b2c:25705;ab0513a0:25788;"
+  "bandeau": "vallonne"
  },
  "sobre:mq-bandeau": {
-  "html": "4a320af4:10232",
-  "css": "3adf1b37:15100",
-  "xml": "8341c674:34925",
+  "html": "35671282:10273",
+  "css": "2104adb7:15243",
+  "xml": "8466873a:34917",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-cartes": {
-  "html": "2fa9bc88:10194",
-  "css": "a4920068:15533",
-  "xml": "b67f1b14:47231",
+  "html": "501dd268:10212",
+  "css": "4c5fdf94:15864",
+  "xml": "1c42acd8:47263",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-cartes-couleurs": {
-  "html": "c8d71218:10210",
-  "css": "deb4e074:16659",
-  "xml": "48b8fb00:47231",
+  "html": "e3751e42:10228",
+  "css": "6a0b43b4:16990",
+  "xml": "7d95fba0:47263",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-chrono": {
-  "html": "3d1f3ed2:10448",
-  "css": "91638564:18487",
-  "xml": "4bd1d09c:62563",
+  "html": "bb10cbe8:13121",
+  "css": "42bb9720:20385",
+  "xml": "cd7b9438:62616",
   "pages": 1,
-  "couverture": 0
+  "couverture": 0,
+  "bord": "droit"
  },
  "sobre:mq-editorial": {
-  "html": "84168740:10253",
-  "css": "c5128588:15696",
-  "xml": "546a5262:37288",
+  "html": "37deeb5a:10271",
+  "css": "37d9b618:16027",
+  "xml": "280eaa40:37280",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-editorial-large": {
-  "html": "d6c67bb8:10302",
-  "css": "c483e32c:16808",
-  "xml": "ead5d082:36476",
+  "html": "593628d4:10320",
+  "css": "bf218f80:17139",
+  "xml": "64e579a:36537",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-epure": {
-  "html": "2465cce0:10311",
-  "css": "81da59e0:15310",
-  "xml": "396dabd2:33382",
+  "html": "e81c0da8:10320",
+  "css": "abc8f9c:15453",
+  "xml": "cea39b8:33382",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-fond": {
-  "html": "9067d7e8:10325",
-  "css": "3adf1b37:15100",
-  "xml": "3f841e26:35970",
+  "html": "fbb0f450:10334",
+  "css": "2104adb7:15243",
+  "xml": "6a3c26a:35962",
+  "pages": 1,
+  "couverture": 0
+ },
+ "sobre:mq-frise": {
+  "html": "c8af3ab8:8565",
+  "css": "f76ab4d8:8835",
+  "xml": "e790d872:45063",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-grille": {
-  "html": "46c61952:10190",
-  "css": "be6d5d04:15462",
-  "xml": "e09b4a42:42323",
+  "html": "8a54fb94:10208",
+  "css": "b1190284:15793",
+  "xml": "314e4328:42323",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-photo": {
-  "html": "85b63fae:8735",
-  "css": "fe44ab00:5255",
-  "xml": "49df12d8:49010",
+  "html": "f235b248:8744",
+  "css": "ce27f0a8:5255",
+  "xml": "4354f598:49343",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-rectangles": {
-  "html": "2d51982c:7715",
-  "css": "81c6b050:5824",
-  "xml": "ac709216:34406",
+  "html": "c5655ff8:7802",
+  "css": "6de8bc8b:5840",
+  "xml": "b84278be:33011",
   "pages": 1,
   "couverture": 0
  },
  "sobre:mq-technique": {
-  "html": "f97d7eb8:10391",
-  "css": "7d2cf66f:15856",
-  "xml": "8547a6d4:39599",
+  "html": "3cf58c0:10400",
+  "css": "10b3ff60:16187",
+  "xml": "cb30c0f0:39599",
   "pages": 1,
-  "couverture": 19
+  "couverture": 18
  }
 }

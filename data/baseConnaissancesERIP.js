@@ -50,14 +50,17 @@ var MODULES_RECHERCHABLES = [
   // 4e parcours de « Mes documents ». cible 'carte:mesdocuments' comme les
   // autres parcours CV -> la personne clique ensuite la tuile (qui remet
   // l'etat a zero proprement).
+  // F9 (25/10/2026) : une seule tuile « Reprendre mon CV » pour les parcours « Mettre a jour » et « Reformuler » ; le CV se depose une fois, puis on choisit la voie.
+  { titre: 'Reprendre mon CV', desc: 'Vous avez déjà un CV : déposez-le une seule fois, puis complétez-le, reformulez-le (avec l’assistant), ou refaites-le vous-même dans un de nos modèles (sans assistant).',
+    motsCles: ['reprendre mon cv', 'mettre a jour mon cv', 'mise a jour cv', 'completer mon cv', 'j ai deja un cv', 'deposer mon cv', 'modifier mon cv', 'corriger mon cv', 'cv existant', 'refaire mon cv moi meme', 'mettre mon cv en page', 'mon cv dans un modele', 'sans assistant', 'garder mes mots', 'ne rien changer a mon cv'], cible: 'carte:mesdocuments' },
   { titre: 'Reformuler et présenter mon CV', desc: 'Un CV déjà complet, remis au bon niveau de langage et de vocabulaire pour le poste visé, sans en changer le fond.',
     motsCles: ['reformuler mon cv', 'presenter mon cv', 'mettre en forme mon cv', 'remettre mon cv au propre', 'rendre mon cv presentable', 'cv mal presente', 'cv pas assez professionnel', 'ameliorer la formulation de mon cv', 'meilleure formulation cv', 'vocabulaire de mon cv', 'reformulation cv'], cible: 'carte:mesdocuments' },
   { titre: 'Écrire ma lettre de motivation avec l’assistant', desc: 'Écrire une lettre de motivation avec un assistant, phrase par phrase.',
     motsCles: ['lettre', 'lettre de motivation', 'motivation', 'co-construire ma lettre'], cible: 'route:co-lettre' },
   { titre: 'M’entraîner à un entretien d’embauche', desc: 'S’entraîner aux questions d’un entretien, à l’écrit ou à l’oral.',
     motsCles: ['entretien', 'entretien d embauche', 'preparer un entretien', 'preparation entretien', 'oral'], cible: 'route:prepa-entretien' },
-  { titre: 'Découvrir mes compétences', desc: 'Partir de ce que vous avez vécu pour en tirer un CV.',
-    motsCles: ['decouverte', 'decouvrir mes competences', 'mes competences', 'competences', 'valoriser'], cible: 'route:decouverte-intro' },
+  { titre: 'À partir de mon récit', desc: 'Partir de ce que vous avez vécu pour en tirer un CV.',
+    motsCles: ['a partir de mon recit', 'mon recit', 'recit', 'raconter mon parcours', 'decouverte', 'decouvrir mes competences', 'mes competences', 'competences', 'valoriser'], cible: 'route:decouverte-intro' },
   { titre: 'Analyser ma candidature', desc: 'Un assistant repère ce qui mérite d’être renforcé dans votre CV.',
     motsCles: ['analyser ma candidature', 'bilan', 'bilan de candidature', 'analyse cv', 'analyser mon cv'], cible: 'fn:bilan' },
   { titre: 'Cohérence de mon dossier', desc: 'Vérifier que CV, lettre et entretien racontent la même histoire.',
@@ -261,6 +264,12 @@ function rechercherBaseConnaissances(texte) {
     var chiffresSujets = COMPRENDRE_LES_CHIFFRES_CARTES.map(function (c) { return { t: c.q || '', d: '' }; });
     if (typeof COMPRENDRE_LES_CHIFFRES_PORTRAIT_BLOCS !== 'undefined' && Array.isArray(COMPRENDRE_LES_CHIFFRES_PORTRAIT_BLOCS)) {
       chiffresSujets = chiffresSujets.concat(COMPRENDRE_LES_CHIFFRES_PORTRAIT_BLOCS);
+    }
+    // Bloc « Les entreprises ici » (chantier repères d'entreprises, 2026-10-19) :
+    // titre et description cherchables des sa creation (faillite, liquidation,
+    // fonds de commerce, annonces legales).
+    if (typeof COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC !== 'undefined') {
+      chiffresSujets = chiffresSujets.concat([COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC]);
     }
     if (typeof COMPRENDRE_LES_CHIFFRES_METHODE_BLOCS !== 'undefined' && Array.isArray(COMPRENDRE_LES_CHIFFRES_METHODE_BLOCS)) {
       chiffresSujets = chiffresSujets.concat(COMPRENDRE_LES_CHIFFRES_METHODE_BLOCS);

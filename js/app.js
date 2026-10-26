@@ -338,6 +338,7 @@ var dossier = {
   competencesProfilRetirees: {},
   contrat: [],           // CDD, CDI, Remplacements, Interim
   tempsTravail: [],       // Temps plein, Temps partiel
+  horaires: [],           // horaires acceptes (HORAIRES_EMPLOI, modules/lettre-core/disponibilitesLettreCo.js) : candidature spontanee et changer de metier
   accepte: [],            // alimentaire, saisonnier (J'accepte egalement)
   accepteAucune: false,   // TACHE (complement) : "Aucune de ces propositions", exclusif des 2 ci-dessus, absent du resume
   offre: { lien: '', poste: '', structure: '', type: '', dispo: [] },   // objectif "offre" (dispo = choix multiple)
@@ -401,6 +402,7 @@ var dossier = {
   // cartes Lettre/Entretien selon le parcours choisi (modeCreation).
   cvTermine: false,
   lettreTerminee: false,
+  entretienTermine: false,   // 25/10/2026 : « Continuer » de la fiche d'entretien ouvre « Exporter » (comme « Valider la lettre » et « Valider le CV »)
   // TACHE (bouton "Merci bien, j'ai fini") : poses a true au moment ou la
   // personne enregistre reellement le document (telechargement du Word ou
   // du texte a copier) -- distinct de cvTermine/lettreTerminee ci-dessus,
@@ -475,6 +477,10 @@ var dossier = {
   // valide) -- evite de reposer la question a chaque « Passer a l'action ».
   // Remis a false a chaque changement d'objectif (voir wireObjectifCarte()).
   civiliteRecruteurDemandee: false,
+  formeChoisie: null,   // 'offre' | 'entreprise' | null : choix explicite de la forme de candidature (formeCandidatureLettreCo)
+  // Bloc du destinataire de la lettre (temps 3, modules/lettre-core/destinataireLettreCo.js) : choix de « a qui je m'adresse » (+ texte « Autre »), adresse
+  // de l'entreprise (pour = entreprise concernee), rue de la personne imprimee ou non. Saisi uniquement dans le panneau de mise en page de la lettre.
+  lettreDestinataire: { choix: 'recrutement', autre: '', adresse: '', pour: '', rue: false },
   // TACHE (consolidation Bilan, bloc 3.2 / DEC-2, 2026-08-30) : avancement
   // des corrections { recoId: 'corrigee' | 'copiee', ... }. Objet SEPARE de
   // _bilanStatutsCorrection (le cache d'interface, jamais persiste tel quel
@@ -708,7 +714,7 @@ var CATEGORIES_PERMIS = ['A', 'B', 'C', 'D', 'E'];
 // retrait d'option, aucune logique ne teste la presence de 'doctorat'
 // specifiquement, donc aucun risque de regression cote Decouverte.
 var NIVEAUX_DIPLOME_SIMPLES = [
-  { id: 'sansdiplome', label: 'Sans diplôme', rncp: 1, placeholder: 'Facultatif' },
+  { id: 'sansdiplome', label: 'Sans diplôme', rncp: 1, placeholder: 'À compléter' },
   { id: 'cap', label: 'CAP / BEP', rncp: 3, placeholder: 'CAP Cuisine, BEP Vente...' },
   { id: 'bac', label: 'Bac', rncp: 4, placeholder: 'Bac général, Bac pro Commerce, Bac techno STMG...' },
   { id: 'bac2', label: 'Bac +2', rncp: 5, placeholder: 'BTS Commerce, DUT GEA, BTS Management...' },
@@ -2002,7 +2008,7 @@ function activerCollageInstantane(config) {
     if (!messageCollage) { return; }
     messageCollage.style.color = 'var(--success-strong)';
     messageCollage.textContent = estAjout
-      ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Importer si c’était le dernier.'
+      ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.'
       : '✅ Réponse importée automatiquement depuis le presse-papiers.';
   };
   var onErreurCollage = (typeof config.onErreur === 'function') ? config.onErreur : function (texteErreur) {
@@ -2014,6 +2020,27 @@ function activerCollageInstantane(config) {
   var onCollerManuel = (typeof config.onCollerManuel === 'function') ? config.onCollerManuel : reinitialiserMessageCollage;
 
   _configCollageActif = config;
+  // Retour Denis 25/10/2026 (point 8) : sur tous les ecrans « coller la reponse de l'assistant », « Continuer » vit dans la barre du bas avec « Retour » et « Accueil » ; plus de bouton
+  // « Importer » dans la page. Le bouton d'origine (celui du composant, ou celui du module : attribut data-barre-bas="1" sur son bouton) est range dans une zone data-barre-bas-zone
+  // toujours presente (grise tant que rien n'est colle, avec son message) ; la brique de la barre le recopie et c'est lui qui reçoit le clic : aucun cablage a refaire.
+  var btnContinuer = document.getElementById(config.idBoutonImporter || ('btnImporter' + suffixeZone));
+  var continuerDansBarre = !!(btnContinuer && btnContinuer.getAttribute('data-barre-bas') === '1');
+  function majBoutonContinuer() { if (continuerDansBarre) { btnContinuer.disabled = !texteArea.value.trim(); } }
+  if (continuerDansBarre) {
+    if (!btnContinuer.closest('[data-barre-bas-zone]')) {
+      var zoneContinuer = document.createElement('div');
+      zoneContinuer.setAttribute('data-barre-bas-zone', '1');
+      zoneContinuer.className = 'text-center my-2';
+      var refZone = zoneActions || zoneAuto;
+      refZone.parentNode.insertBefore(zoneContinuer, refZone.nextSibling);
+      zoneContinuer.appendChild(btnContinuer);
+    }
+    btnContinuer.setAttribute('data-barre-bas-remplace', '1');
+    if (!btnContinuer.getAttribute('data-barre-bas-libelle')) { btnContinuer.setAttribute('data-barre-bas-libelle', 'Continuer &#8594;'); }
+    if (!btnContinuer.getAttribute('data-barre-bas-message')) { btnContinuer.setAttribute('data-barre-bas-message', 'Collez d’abord la réponse de l’assistant pour continuer.'); }
+    texteArea.addEventListener('input', majBoutonContinuer);
+    majBoutonContinuer();
+  }
   // Suit si le mode "texte visible" (collage manuel) est actif, pour que
   // "Coller un morceau supplementaire" sache ou ajouter le texte : dans la
   // zone visible, ou en silence derriere la confirmation compacte.
@@ -2042,6 +2069,7 @@ function activerCollageInstantane(config) {
   }
   function afficherSuccesCompact(texte, estAjout) {
     accumulerTexte(texte, estAjout);
+    majBoutonContinuer();
     zoneAuto.style.display = 'none';
     if (zoneCollerManuel) { zoneCollerManuel.style.display = 'none'; }
     zoneApercu.style.display = 'none';
@@ -2053,6 +2081,7 @@ function activerCollageInstantane(config) {
   }
   function afficherApercuVisible(texte, estAjout) {
     accumulerTexte(texte, estAjout);
+    majBoutonContinuer();
     zoneAuto.style.display = 'none';
     if (zoneCollerManuel) { zoneCollerManuel.style.display = 'none'; }
     if (zoneSucces) { zoneSucces.style.display = 'none'; }
@@ -2070,6 +2099,7 @@ function activerCollageInstantane(config) {
     texteArea.removeAttribute('readonly');
     texteArea.style.background = '';
     texteArea.value = '';
+    majBoutonContinuer();
     texteArea.focus();
   }
 
@@ -2121,6 +2151,7 @@ function activerCollageInstantane(config) {
       if (zoneActions) { zoneActions.style.display = 'none'; }
       zoneAuto.style.display = 'block';
       if (zoneCollerManuel) { zoneCollerManuel.style.display = ''; }
+      majBoutonContinuer();
       onEffacer();
     });
   }
@@ -2307,8 +2338,8 @@ function htmlCollageInstantane(suffixe, options) {
     // differents, jamais le meme emplacement.
     '<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mt-2">' +
     '<div>' +
-    '<p class="small mb-2" style="max-width:260px;">' + echapperAttribut(texteExplication) + '</p>' +
-    '<button type="button" id="btnImporter' + suffixe + '" class="bouton-incitation-action" style="font-size:1.15rem;font-weight:700;padding:0.8rem 2rem;' +
+    '<p class="small mb-2" style="max-width:260px;">' + (options.sansBarre ? echapperAttribut(texteExplication) : 'La réponse est collée. Cliquez maintenant sur <strong>« Continuer »</strong>, en bas à droite.') + '</p>' +
+    '<button type="button" id="btnImporter' + suffixe + '" class="bouton-incitation-action"' + (options.sansBarre ? '' : ' data-barre-bas="1"') + ' style="font-size:1.15rem;font-weight:700;padding:0.8rem 2rem;' +
     'background:var(--accent);color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; ' + echapperAttribut(libelleImporter) + '</button>' +
     '<div id="messageCollage' + suffixe + '" class="small mt-2" style="max-width:260px;"></div>' +
     '</div>' +
@@ -2662,10 +2693,10 @@ function htmlRemonteeEnPro(config, item, i) {
   var msg = _remonteeEnProMessage[config.cle + ':' + i];
   return '<div class="remontee-pro mt-2 mb-2">' +
     '<p class="small mb-1"><strong>Faire figurer dans l’expérience professionnelle</strong></p>' +
-    '<p class="small text-muted mb-2">Par défaut, cette expérience reste dans la rubrique « Expérience personnelle » du CV. Si vous la souhaitez dans vos expériences professionnelles, elle n’apparaîtra plus dans la rubrique personnelle. L’année de début est nécessaire (sans année de fin, elle est indiquée « en cours ») ; l’entreprise et le lieu sont facultatifs.</p>' +
+    '<p class="small text-muted mb-2">Par défaut, cette expérience reste dans la rubrique « Expérience personnelle » du CV. Si vous la souhaitez dans vos expériences professionnelles, elle n’apparaîtra plus dans la rubrique personnelle. L’année de début est nécessaire (sans année de fin, elle est indiquée « en cours ») ; l’entreprise et le lieu sont à compléter.</p>' +
     '<div class="d-flex gap-2 flex-wrap mb-2">' +
-    '<input type="text" class="form-control form-control-sm" style="flex:1 1 180px;min-width:0;" placeholder="Entreprise (facultatif)" data-catalogue-edition-entreprise="' + config.cle + '" data-index="' + i + '" value="' + echapperAttribut(item.entreprise || '') + '">' +
-    '<input type="text" class="form-control form-control-sm" style="flex:1 1 140px;min-width:0;" placeholder="Lieu (facultatif)" data-catalogue-edition-lieu="' + config.cle + '" data-index="' + i + '" value="' + echapperAttribut(item.lieu || '') + '">' +
+    '<input type="text" class="form-control form-control-sm" style="flex:1 1 180px;min-width:0;" placeholder="Entreprise (à compléter)" data-catalogue-edition-entreprise="' + config.cle + '" data-index="' + i + '" value="' + echapperAttribut(item.entreprise || '') + '">' +
+    '<input type="text" class="form-control form-control-sm" style="flex:1 1 140px;min-width:0;" placeholder="Lieu (à compléter)" data-catalogue-edition-lieu="' + config.cle + '" data-index="' + i + '" value="' + echapperAttribut(item.lieu || '') + '">' +
     '</div>' +
     '<button type="button" class="btn btn-sm ' + (actif ? 'btn-primary' : 'btn-outline-primary') + '" data-catalogue-remonter="' + config.cle + '" data-index="' + i + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' +
     (actif ? 'Affichée dans l’expérience professionnelle : cliquer pour la remettre en personnelle' : 'Afficher dans l’expérience professionnelle') + '</button>' +
@@ -2706,7 +2737,7 @@ function blocPastillesEditables(config, liste) {
         (config.avecDetail
           ? '<input type="text" class="form-control form-control-sm mb-2" placeholder="Détail (optionnel)" data-catalogue-edition-detail="' + config.cle + '" data-index="' + i + '" value="' + echapperAttribut(detail.detail) + '">'
           : '') +
-        '<textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Ce que vous avez fait (une mission par ligne, facultatif)" data-catalogue-edition-missions="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(detail.missions) + '</textarea>' +
+        '<textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Ce que vous avez fait (une mission par ligne, à compléter)" data-catalogue-edition-missions="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(detail.missions) + '</textarea>' +
         (config.avecContexte
           ? '<textarea class="form-control form-control-sm mb-1" rows="2" placeholder="Dans quel cadre ? Qu’avez-vous fait concrètement ? Un chiffre si possible." data-catalogue-edition-contexte="' + config.cle + '" data-index="' + i + '">' + echapperAttribut(detail.contexte) + '</textarea>' +
             '<p class="small text-muted mb-2">Vous pouvez dicter (touches Windows + H), l’assistant remettra en forme. Ce texte est transmis à l’assistant, jamais affiché tel quel sur le CV. La croix retire l’élément et son contexte.</p>'
@@ -2965,7 +2996,7 @@ function contenuCatalogueOuiNon(config) {
       // l'astuce forte de la maquette "Mes informations" (verte + en gras,
       // meme texte que INCITATION_CTX de MAQUETTE_MES_INFORMATIONS). Visible
       // des qu'au moins un element existe (sinon rien a cliquer).
-      (liste.length ? '<p class="mt-2 mb-0" style="font-weight:700;color:var(--success-strong)">&#128161; Astuce : cliquez sur un élément ajouté pour préciser le contexte (facultatif mais fortement conseillé). Ces détails peuvent faire ressortir une compétence recherchée pour le poste que vous visez.</p>' : '');
+      (liste.length ? '<p class="mt-2 mb-0" style="font-weight:700;color:var(--success-strong)">&#128161; Astuce : cliquez sur un élément ajouté pour préciser le contexte (à compléter, c’est fortement conseillé). Ces détails peuvent faire ressortir une compétence recherchée pour le poste que vous visez.</p>' : '');
   }
   return html;
 }
@@ -3877,6 +3908,11 @@ function afficherProgression(activeId) {
   // compacte du module au lieu de la vieille barre a 9 reperes, sur les
   // ecrans qu'ils atteignent reellement.
   if (typeof dossier !== 'undefined' && dossier && typeof barreEtapesModule === 'function') {
+    // Sortie de « M'entraîner à un entretien » (docs/CHANTIER_ATS_ET_ENTRETIEN_AMELIORATIONS_2026-10-19.md, D2) : même barre que les écrans du module,
+    // étape « Terminé ». Signal sans mémoire (page d'où l'on vient + document actif), testé AVANT les modes CV : un ancien parcours CV ne doit pas l'emporter.
+    if (activeId === 'resultats' && _pageOrigineAvantResultats === 'prepa-entretien' && typeof PREPA_ENTRETIEN_NAV_ETAPES !== 'undefined' && docActifActuel() === 'entretien') {
+      return barreEtapesModule(PREPA_ENTRETIEN_NAV_ETAPES, 3);
+    }
     if ((dossier.modeCreation === 'pret' || dossier.modeCreation === 'maj') &&
         ['objectif', 'projet', 'revelation', 'resultats'].indexOf(activeId) !== -1 &&
         typeof _prepLENavIndex === 'function') {
@@ -3910,7 +3946,7 @@ function afficherProgression(activeId) {
     if (dossier.modeCreation === 'nouveau' && typeof CREER_CV_NAV_ETAPES !== 'undefined' &&
         typeof _creerCvNavIndex === 'function' &&
         ['objectif', 'votre-parcours', 'projet', 'revelation', 'assistant', 'resultats'].indexOf(activeId) !== -1) {
-      return barreEtapesModule(CREER_CV_NAV_ETAPES, _creerCvNavIndex(activeId),
+      return barreEtapesModule(_creerCvEtapes(), _creerCvNavIndex(activeId),
         { routeParIndex: function (i) {
           // TACHE (retour utilisateur 2026-09-15, bug reel confirme : "je ne
           // peux pas cliquer sur Vos documents, pourtant j'y ai ete") :
@@ -3925,7 +3961,7 @@ function afficherProgression(activeId) {
           // plutot que sur celui d'ou la personne vient reellement. Les
           // index 0-4 viennent de _creerCvRouteParIndex() (data/metiers.js,
           // source unique partagee avec "Continuer" de pageCreerCv()).
-          if (i === 5) { return 'js:_assistantRetourDocPrecedent()'; }
+          if (i === _creerCvEtapes().length - 1) { return 'js:_assistantRetourDocPrecedent()'; }
           return (typeof _creerCvRouteParIndex === 'function') ? _creerCvRouteParIndex(i) : null;
         } });
     }
@@ -3939,7 +3975,7 @@ function afficherProgression(activeId) {
     // dossier._origineReformuler pour "Reformuler et presenter mon CV")
     // signale ce cas -- meme barre que sur les 4 ecrans du module lui-meme
     // (CO_LETTRE_NAV_ETAPES), etape "Terminé" (index 3) mise en avant.
-    if (dossier._origineCoLettre && activeId === 'resultats' && typeof CO_LETTRE_NAV_ETAPES !== 'undefined') {
+    if (coLettreEnCoursLettreCo(dossier, docActifActuel()) && activeId === 'resultats' && typeof CO_LETTRE_NAV_ETAPES !== 'undefined') {
       return barreEtapesModule(CO_LETTRE_NAV_ETAPES, 3);
     }
   }
@@ -4023,12 +4059,19 @@ var routes = {
   // un CV") et "Mettre a jour mon CV". Fonctions dans data/metiers.js, elles
   // partagent la meme page "Preparer" depliante.
   'creer-cv': pageCreerCv,
+  // Présentations des deux parcours classiques de « Créer un nouveau CV » (F11) : à la main, avec l'assistant.
+  'creer-cv-main': pageCreerCvMain,
+  'creer-cv-assistant': pageCreerCvAssistant,
   'preparer-lettre-entretien': pagePreparerLettreEntretien,
   'mettre-a-jour-cv': pageMettreAJourCv,
   // TACHE (chantier « Reformuler et presenter mon CV », etape 1, 2026-09-07) :
   // 4e parcours de « Mes documents », meme page "Preparer" depliante que
   // 'pret'/'maj' (_prepLEMode = 'reformuler'). Fonction dans data/metiers.js.
   'reformuler-cv': pageReformulerCv,
+  'reprendre-cv': pageReprendreCv,
+  // Voie 3 de « Reprendre mon CV » (Lot 7) : classer les informations du CV deja depose, sans assistant (modules/cv-sans-assistant/index.js).
+  'cv-sans-assistant': typeof pageCvSansAssistant === 'function' ? pageCvSansAssistant : function () { naviguerVers('reprendre-cv'); },
+  'complement-cv': pageComplementCV,
   // TACHE (retour Denis, 2026-08-31) : pages de presentation de 3 modules
   // PAS ENCORE CONSTRUITS (ATS, Regard recruteur, Se tenir informe),
   // integrees a la Boite a outils pour preparer la refonte de l'accueil.
@@ -4087,6 +4130,8 @@ var routes = {
 };
 
 function naviguerVers(route, sansHistorique) {
+  // « Voir nos modèles » : quitter l'essai (autrement que par « J'ai fini de regarder ») rend aussi le vrai dossier, avant tout le reste.
+  if (typeof mgSurNavigation === 'function') { mgSurNavigation(route); }
   // Module « Un CV, plusieurs metiers » : si le dossier d'un autre CV a ete mis a la place du vrai pour regler son aspect, le vrai dossier revient des qu'on quitte l'editeur.
   if (typeof ucpmGardeDossier === 'function') { ucpmGardeDossier(route); }
   if (!routes[route]) { route = 'cv'; }
@@ -4117,7 +4162,7 @@ function naviguerVers(route, sansHistorique) {
   // de route) -- ce reset ne vise donc que les autres sorties de
   // 'resultats' (ex. un clic direct sur un onglet du fil d'Ariane) : dans
   // ce cas, la fenetre Decouverte masquee devient hors-sujet.
-  if (pageActuelle === 'resultats' && route !== 'resultats') { window._decouverteVersResultats = false; window._importVersResultats = false; window._modeModuleUcpm = false; }
+  if (pageActuelle === 'resultats' && route !== 'resultats') { window._decouverteVersResultats = false; window._importVersResultats = false; window._modeModuleUcpm = false; window._modeVoie3Csa = false; }
   // TACHE (Vague 2, "navigation reelle") : capture AVANT d'ecraser
   // pageActuelle -- garde defensive identique a _carnetPageOrigine, ne
   // capture jamais 'resultats' comme origine de lui-meme (cette page se
@@ -4504,6 +4549,10 @@ window.rafraichirSiIdentiteAffichee = function () {
 function _barreAdopterBoutonEtape() {
   var bar = document.querySelector('.barre-navigation-fixe .barre-navigation');
   if (!bar || bar.querySelector('.btn-success')) { return; }
+  // La page a son propre bouton de validation dans la barre (« Valider la lettre », « Continuer » de la fiche) : on n'y copie pas celui d'un accordéon.
+  if (document.querySelector('#app [data-barre-bas-masque="1"]')) { return; }
+  // « Exporter » ouvert : l'étape de réglage est terminée, aucun bouton d'accordéon n'a plus rien à valider dans la barre.
+  if (document.querySelector('#app [data-rect-doc="exporter"]')) { return; }
   var source = ['btnStyleCvOk', 'btnValiderRelectureIACV'].map(function (id) { return document.getElementById(id); })
     .filter(function (b) { return b && b.offsetParent !== null; })[0];
   if (!source) { return; }
@@ -4523,6 +4572,121 @@ function _barreAdopterBoutonEtape() {
   bar.appendChild(bouton);
   var conteneur = source.closest('.assistant-actions-fin');
   if (conteneur) { conteneur.style.display = 'none'; }
+}
+
+// BOUTON « CONTINUER » DANS LA BARRE DU BAS (retour Denis 2026-10-19, cohérence globale) : un bouton de page marqué data-barre-bas="1" est recopié à droite de la barre fixe
+// (Retour / Accueil), quand la barre n'a pas de bouton à cette place ; le bouton d'origine reste dans la page, caché avec sa zone (data-barre-bas-zone, sinon lui seul), et
+// c'est lui qui reçoit le clic : AUCUN câblage à refaire. L'état « désactivé » est suivi en direct. Attributs facultatifs : data-barre-bas-message (infobulle quand il est
+// désactivé), data-barre-bas-libelle (texte de la barre, sinon celui du bouton). Une seule source de vérité : jamais un 2e bouton « Continuer » à écrire dans les modules.
+function _barreBasSource() {
+  var cands = document.querySelectorAll('#app [data-barre-bas]');
+  for (var i = 0; i < cands.length; i++) {
+    if (cands[i].closest('.barre-navigation-fixe')) { continue; }
+    var zone = cands[i].closest('[data-barre-bas-zone]') || cands[i];
+    // Visible : ni la zone cachée par nous, ni un panneau replié. (display:none posé par nous sur la zone ne compte pas.)
+    var visible = !!(cands[i].getAttribute('data-barre-bas-masque') === '1' || cands[i].offsetParent !== null);
+    if (visible && zone) { return cands[i]; }
+  }
+  return null;
+}
+// G1 (regle de Denis, 24/10/2026) : le message qui explique pourquoi « Continuer » est grise s'affiche AU-DESSUS de ce bouton (a droite), jamais ailleurs :
+// « Accueil » n'a rien a voir avec la condition. message vide = rien d'affiche. Une seule fonction pour toute la barre du bas.
+function definirRaisonSuivantBarre(bouton, message) {
+  var bar = bouton && bouton.closest ? bouton.closest('.barre-navigation') : null;
+  if (!bar) { return; }
+  var span = bar.querySelector(':scope > .barre-raison-suivant');
+  if (!message) { if (span) { span.remove(); } return; }
+  if (!span) {
+    span = document.createElement('span');
+    span.className = 'barre-raison-suivant';
+    span.setAttribute('role', 'status');
+    bar.appendChild(span);
+  }
+  if (span.textContent !== message) { span.textContent = message; }
+}
+
+function _barreBasAppliquer() {
+  var bar = document.querySelector('#app .barre-navigation-fixe .barre-navigation');
+  if (!bar) { return; }
+  var adopte = bar.querySelector('[data-barre-bas-adopte]');
+  var source = _barreBasSource();
+  // Ecran de collage (point 8, 25/10/2026) : le « Continuer » qui lance l'import (data-barre-bas-remplace="1") prend la place du « Continuer » grise du module, le temps de l'ecran ;
+  // le bouton du module revient des que l'ecran change (il n'est que cache, jamais retire).
+  var remplace = !!(source && source.getAttribute('data-barre-bas-remplace') === '1');
+  // Le « Continuer » du module n'est remplace que s'il est grise : s'il est actif (la reponse est deja importee), la personne doit pouvoir avancer avec lui.
+  var boutonModuleEtat = bar.querySelector(':scope > button.btn-primary:not([data-barre-bas-adopte]), :scope > button.btn-success');
+  if (remplace && boutonModuleEtat && !boutonModuleEtat.disabled) { remplace = false; }
+  if (!source || !remplace) {
+    Array.prototype.slice.call(bar.querySelectorAll(':scope > [data-barre-bas-cache]')).forEach(function (b) {
+      b.style.display = ''; b.removeAttribute('data-barre-bas-cache');
+      // La phrase qui expliquait pourquoi le bouton du module est grise revient avec lui.
+      var raisonModule = bar.getAttribute('data-barre-raison-module');
+      bar.removeAttribute('data-barre-raison-module');
+      if (adopte) { adopte.removeAttribute('data-barre-bas-adopte-remplace'); }
+      definirRaisonSuivantBarre(b, b.disabled ? (raisonModule || '') : '');
+    });
+  }
+  if (!source) {
+    if (adopte) { adopte.remove(); if (!bar.querySelector(':scope > #btnSuivantNavigation, :scope > .btn-success')) { bar.appendChild(document.createElement('span')); } }
+    return;
+  }
+  // Le bouton du module est redevenu actif pendant l'ecran de collage : il reprend sa place, le « Continuer » d'import revient dans la page.
+  if (adopte && adopte.id === 'btnContinuerCollage' && !remplace) {
+    adopte.remove(); adopte = null;
+    var zoneRendue = source.closest('[data-barre-bas-zone]');
+    if (zoneRendue) { zoneRendue.style.display = ''; }
+    source.removeAttribute('data-barre-bas-masque');
+    return;
+  }
+  // Une barre qui a déjà son bouton (module, « Merci bien, j'ai fini ») garde le sien, sauf pour un ecran de collage.
+  var boutonDuModule = bar.querySelector(':scope > button.btn-primary:not([data-barre-bas-adopte]), :scope > button.btn-success');
+  if (!adopte && boutonDuModule && !remplace) { return; }
+  if (remplace && boutonDuModule && boutonDuModule.style.display !== 'none') {
+    var spanRaison = bar.querySelector(':scope > .barre-raison-suivant');
+    bar.setAttribute('data-barre-raison-module', spanRaison ? spanRaison.textContent : '');
+    boutonDuModule.style.display = 'none'; boutonDuModule.setAttribute('data-barre-bas-cache', '1');
+  }
+  var libelle = source.getAttribute('data-barre-bas-libelle') || source.innerHTML;
+  var message = source.disabled ? (source.getAttribute('data-barre-bas-message') || source.getAttribute('title') || 'Complétez cette page pour continuer.') : '';
+  if (!adopte) {
+    Array.prototype.slice.call(bar.children).forEach(function (enfant) {
+      if (enfant.tagName === 'SPAN' && !enfant.textContent.trim() && enfant !== bar.firstElementChild) { enfant.remove(); }
+    });
+    adopte = document.createElement('button');
+    adopte.type = 'button'; adopte.id = remplace ? 'btnContinuerCollage' : 'btnSuivantNavigation'; adopte.className = 'btn btn-primary btn-lg';
+    adopte.setAttribute('data-barre-bas-adopte', '1');
+    adopte.addEventListener('click', function () { var src = _barreBasSource(); if (src && !src.disabled) { src.click(); } });
+    bar.appendChild(adopte);
+  }
+  if (adopte.innerHTML !== libelle) { adopte.innerHTML = libelle; }
+  if (adopte.disabled !== !!source.disabled) { adopte.disabled = !!source.disabled; }
+  if ((adopte.getAttribute('title') || '') !== message) { if (message) { adopte.setAttribute('title', message); } else { adopte.removeAttribute('title'); } }
+  definirRaisonSuivantBarre(adopte, message);
+  var zone = source.closest('[data-barre-bas-zone]') || source;
+  if (zone.style.display !== 'none') { zone.style.display = 'none'; }
+  source.setAttribute('data-barre-bas-masque', '1');
+}
+var _barreBasPlanifie = false;
+var _barreBasPasses = 0;
+var _barreBasRemisePlanifiee = false;
+function initBoutonsBarreBas() {
+  var racine = document.getElementById('app');
+  if (!racine || typeof MutationObserver !== 'function') { return; }
+  // Retour Denis 25/10/2026 (point 1) : le bouton de la barre se pose dans la MEME passe que le redessin de la page (le rappel d'un observateur passe avant l'affichage). Avec l'ancien delai de 20 ms,
+  // chaque choix qui redessine la page montrait un instant la barre sans bouton et le gros bouton de la page, puis l'inverse : « les boutons apparaissent et disparaissent ».
+  // Garde-fou : au plus 3 passes immediates d'affilee (une boucle de reecriture ne gele jamais la page), ensuite l'ancien delai prend le relais.
+  new MutationObserver(function () {
+    if (_barreBasPlanifie) { return; }
+    if (_barreBasPasses < 3) {
+      _barreBasPasses++;
+      try { _barreBasAppliquer(); } catch (e) { /* la barre garde son état */ }
+      if (!_barreBasRemisePlanifiee) { _barreBasRemisePlanifiee = true; setTimeout(function () { _barreBasPasses = 0; _barreBasRemisePlanifiee = false; }, 0); }
+      return;
+    }
+    _barreBasPlanifie = true;
+    setTimeout(function () { _barreBasPlanifie = false; try { _barreBasAppliquer(); } catch (e) { /* la barre garde son état */ } }, 20);
+  }).observe(racine, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'data-barre-bas', 'class'] });
+  _barreBasAppliquer();
 }
 
 // Bloc de navigation bas de page.
@@ -4557,8 +4721,19 @@ function retourPagePrecedente() {
     try { naviguerVers('cv'); } finally { _navigationEnArriere = false; }
   }
 }
+// Regle de Denis (25/10/2026) : sur la barre du bas, le bouton qui fait passer d'une etape a l'autre s'appelle toujours « Continuer » ; seuls gardent leur nom les boutons qui valident
+// ou appliquent quelque chose de definitif (« Valider le CV », « Valider la lettre », « Appliquer... », « Garder celui-ci et exporter ») et le retour au rapport. Une seule source : ici.
+function libelleSuivantBarre(libelle) {
+  if (!libelle) { return libelle; }
+  // Boutons des pages d'introduction (Commencer, Reprendre, Revenir au module) : ils disent s'il s'agit d'un depart, d'une reprise ou d'un retour ; ils gardent leur nom.
+  if (/lib-intro-/.test(String(libelle))) { return libelle; }
+  var brut = String(libelle).replace(/<[^>]*>/g, '');
+  if (/valider|appliquer|exporter|revenir au rapport|ce cv me convient/i.test(brut)) { return libelle; }
+  return 'Continuer &#8594;';
+}
 function barreNavigation(precedent, suivant, labelSuivant, options) {
   options = options || {};
+  labelSuivant = libelleSuivantBarre(labelSuivant);
   var html = '<div class="d-flex justify-content-between align-items-center mt-4 barre-navigation">';
   // TACHE (retour utilisateur : "Retour" depuis la page Action doit
   // rouvrir la fenêtre "Informations complémentaires" du parcours
@@ -4585,11 +4760,11 @@ function barreNavigation(precedent, suivant, labelSuivant, options) {
   var retourPile = (!options.onclickPrecedent && precedentReel === 'cv' && pagePrecedenteDansPile()) ? 'retourPagePrecedente()' : null;
   var onclickRetour = options.onclickPrecedent || retourPile || (precedentReel ? "naviguerVers('" + precedentReel + "')" : null);
   html += onclickRetour
-    ? '<button class="btn btn-nav-erip btn-lg" onclick="' + onclickRetour + '">&#8592; Retour</button>'
+    ? '<button class="btn btn-nav-erip btn-lg" onclick="' + onclickRetour + '">' + (options.libellePrecedent || '&#8592; Retour') + '</button>'
     : '<span></span>';
   html += '<button class="btn btn-nav-erip btn-accueil" onclick="naviguerVers(\'cv\')"><i class="bi bi-house-door" aria-hidden="true"></i> Accueil</button>';
   if (options.terminerParcours) {
-    html += '<button class="btn btn-success btn-lg" onclick="terminerParcours()">&#9989; Merci bien, j\'ai fini</button>';
+    html += '<button class="btn btn-success btn-lg" onclick="' + (options.onclickTerminer || 'terminerParcours()') + '">&#9989; Merci bien, j\'ai fini</button>';
   } else if (suivant) {
     // TACHE 43bis : bouton "suivant" desactivable (ex. selection minimale requise),
     // sans impact sur les appelants qui ne passent pas cette option.
@@ -4614,7 +4789,8 @@ function barreNavigation(precedent, suivant, labelSuivant, options) {
         (options.suivantDesactiveMessage || 'Selectionnez au moins un element pour continuer.') + '" ' +
         'onmouseenter="var c=' + cibleClignote + '; if(c){c.classList.add(\'bloc-erip-clignote-leger\');}" ' +
         'onmouseleave="var c=' + cibleClignote + '; if(c){c.classList.remove(\'bloc-erip-clignote-leger\');}">' +
-        (labelSuivant || 'Continuer &#8594;') + '</button>';
+        (labelSuivant || 'Continuer &#8594;') + '</button>' +
+        (options.suivantDesactiveMessage ? '<span class="barre-raison-suivant" role="status">' + options.suivantDesactiveMessage + '</span>' : '');
     } else {
       // TACHE (avertissement metier cible) : options.onclickSuivant permet a un
       // appelant d'intercepter le clic (ex. verifier qu'un metier cible est
@@ -5029,7 +5205,7 @@ function pageChoixCV() {
         ['Écrire ma lettre avec l’assistant', 'M’entraîner à un entretien'].concat((typeof mtOuvert === 'function' && mtOuvert()) ? ['Employeurs près de chez moi'] : [])) +
       htmlCarteAccueil('boiteaoutils', 'bi-briefcase', 'Boîte à outils',
         'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.',
-        ['Découvrir mes compétences', 'Mes Repères', 'Mon Carnet', 'Lexique']) +
+        ['Mes Repères', 'Mon Carnet', 'Lexique']) +
       htmlCarteAccueil('analyse', 'bi-graph-up-arrow', 'Outils d’analyse',
         'Vérifier la solidité de votre candidature avant de postuler.',
         ['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']) +
@@ -5326,12 +5502,12 @@ function classeMemoriseSi(valeurMemorisee, valeurCarte) {
 // bloc 3 "Votre situation" de htmlBilanPreparer() (jetons) -- meme choix,
 // memes libelles, jamais une 2e liste qui pourrait diverger.
 var OBJECTIF_CHOIX_CANDIDATURE = [
-  { id: 'offre', icon: 'bi-file-earmark-text', title: 'Répondre à une offre', desc: 'Adapter votre CV à une offre.' },
-  { id: 'spontanee', icon: 'bi-building', title: 'Candidature spontanée', desc: 'Créer un CV pour une entreprise.' },
+  { id: 'offre', icon: 'bi-file-earmark-text', title: 'Répondre à une offre', desc: 'Adapter vos documents à une offre.' },
+  { id: 'spontanee', icon: 'bi-building', title: 'Candidature spontanée', desc: 'Préparer une candidature pour une entreprise.' },
   { id: 'reconversion', icon: 'bi-arrow-repeat', title: 'Changer de métier', desc: 'Valoriser vos compétences.' },
-  { id: 'stage', icon: 'bi-mortarboard', title: 'Stage', desc: 'CV adapté à une recherche de stage.' },
-  { id: 'alternance', icon: 'bi-people', title: 'Alternance', desc: 'CV adapté à une alternance.' },
-  { id: 'formation', icon: 'bi-journal-bookmark', title: 'Formation', desc: 'CV adapté à une demande de formation.' }
+  { id: 'stage', icon: 'bi-mortarboard', title: 'Stage', desc: 'Documents adaptés à une recherche de stage.' },
+  { id: 'alternance', icon: 'bi-people', title: 'Alternance', desc: 'Documents adaptés à une alternance.' },
+  { id: 'formation', icon: 'bi-journal-bookmark', title: 'Formation', desc: 'Documents adaptés à une demande de formation.' }
 ];
 // TACHE (meme chantier) : extrait du gestionnaire de clic de
 // pageObjectif() -- effet de bord (nettoyage + affectation), jamais la
@@ -5511,11 +5687,25 @@ var _panneauSansCiviliteCouleur = false;
 // options.avecMetierVise : pour stage / alternance / immersion, ajoute « Metier ou domaine vise » (Reformuler : le vocabulaire de
 // l'assistant depend du metier et de la structure visee, retour Denis 2026-09-30).
 var _panneauAvecMetierVise = false;
+// E1.2 (24/10/2026) : le panneau « Candidature » partage prend la logique de la lettre (offre sans offre = spontanee, formes, champs demarques) quand l'appelant
+// le demande (Bilan, Coherence) ; les autres (ATS, Regard recruteur, Reformuler) gardent leur rendu.
+var _panneauModeUnifie = false;
+// options.sansDisponibilites : seule Decouverte (qui montre deja « Le poste que vous recherchez ») les retire ; partout ailleurs, Bilan compris depuis le lot 4, la logique de la
+// lettre s'applique en entier.
+var _panneauSansDispo = false;
+function optionsModeRechercheDuPanneau() {
+  return _panneauModeUnifie ? { modeUnifie: true, sansDisponibilites: _panneauSansDispo, formeCandidature: formeCandidatureActuelle() } : undefined;
+}
+function contenuModeRecherchePanneau(depuisBilan, options) { return contenuModeRecherche(depuisBilan, options || optionsModeRechercheDuPanneau()); }
 function htmlPanneauCandidaturePartage(options) {
   options = options || {};
   var avant = _panneauSansCiviliteCouleur;
   var avantMetier = _panneauAvecMetierVise;
   _panneauAvecMetierVise = !!options.avecMetierVise;
+  var avantUnifie = _panneauModeUnifie;
+  _panneauModeUnifie = !!options.modeUnifie;
+  var avantSansDispo = _panneauSansDispo;
+  _panneauSansDispo = !!options.sansDisponibilites;
   var avantOffre = (typeof _ciblageOffreSeule !== 'undefined') ? _ciblageOffreSeule : false;
   _panneauSansCiviliteCouleur = !!options.sansCiviliteCouleur;
   if (typeof _ciblageOffreSeule !== 'undefined') { _ciblageOffreSeule = !!options.offreSeule; }
@@ -5525,6 +5715,8 @@ function htmlPanneauCandidaturePartage(options) {
   } finally {
     _panneauSansCiviliteCouleur = avant;
     _panneauAvecMetierVise = avantMetier;
+    _panneauModeUnifie = avantUnifie;
+    _panneauSansDispo = avantSansDispo;
     if (typeof _ciblageOffreSeule !== 'undefined') { _ciblageOffreSeule = avantOffre; }
   }
 }
@@ -5544,8 +5736,18 @@ var LIGNES_DIRECTRICES_SITUATION = {
   alternance: 'l’engagement dans la durée et l’assiduité, la capacité à faire le lien entre la formation et l’entreprise, la motivation pour apprendre un métier en situation de travail.',
   formation: 'ce qui prépare à la formation visée (expériences, diplômes, prérequis) et la motivation et le projet quand le CV les montre.'
 };
-function ligneDirectriceSituation() {
+// E1.5 (24/10/2026) : la situation REELLE de la candidature pour les prompts. La carte « Repondre a une offre » sans offre (ni texte ni lien) est en fait une
+// candidature spontanee : l'assistant ne doit pas croire qu'il y a une offre (source unique : situationReelleLettreCo). Les autres cartes sont inchangees.
+function objectifPourPrompts() {
   var o = (typeof dossier !== 'undefined' && dossier) ? dossier.objectif : null;
+  if ((o === 'offre' || o === 'spontanee') && typeof situationReelleLettreCo === 'function') {
+    var reelle = situationReelleLettreCo({ objectif: o, typeRecherche: dossier.typeRecherche, rechercheCandidature: dossier.rechercheCandidature });
+    return reelle === 'offre' ? 'offre' : 'spontanee';
+  }
+  return o;
+}
+function ligneDirectriceSituation() {
+  var o = objectifPourPrompts();
   return (o && LIGNES_DIRECTRICES_SITUATION[o]) || '';
 }
 function contexteCandidaturePourAnalyse() {
@@ -5560,11 +5762,24 @@ function contexteCandidaturePourAnalyse() {
   };
   var cible = '';
   var o = dossier.objectif;
+  var oPrompt = objectifPourPrompts();
   var obj = o && dossier[o];
   if (obj && obj.poste) { cible = (o === 'formation' ? 'Formation visée : ' : 'Métier visé : ') + obj.poste; }
   else if (dossier.metierCible) { cible = 'Métier visé : ' + dossier.metierCible; }
   else if (dossier.secteurCible) { cible = 'Domaine visé (pas un métier précis) : ' + dossier.secteurCible; }
-  return { situation: (o && situations[o]) || '', cible: cible };
+  return { situation: (oPrompt && situations[oPrompt]) || '', cible: cible, disponibilites: texteDisponibilitesPourAnalyse() };
+}
+// Disponibilites de la personne (contrat, temps de travail, debut possible, horaires) en lignes de texte, pour les assistants d'ANALYSE qui n'ont pas texteProfil()
+// (Coherence, Decouverte) : ce que la personne renseigne sur l'ecran des cartes doit atteindre l'assistant. Vide si rien n'est renseigne.
+function texteDisponibilitesPourAnalyse() {
+  if (typeof dossier === 'undefined' || !dossier) { return ''; }
+  var t = '';
+  if ((dossier.contrat || []).length) { t += '- Type de contrat recherché : ' + dossier.contrat.join(', ') + '\n'; }
+  if ((dossier.tempsTravail || []).length) { t += '- Temps de travail : ' + dossier.tempsTravail.join(', ') + '\n'; }
+  var of = dossier.objectif && dossier[dossier.objectif];
+  if (of && Array.isArray(of.dispo) && of.dispo.length) { t += '- Début possible : ' + of.dispo.join(', ') + '\n'; }
+  if (typeof texteHorairesProfil === 'function') { t += texteHorairesProfil(dossier.horaires); }
+  return t.trim();
 }
 // Ouvre les 2 blocs une fois par arrivee / par choix de situation (etat =
 // objet du module hote, jamais le global de pageObjectif()).
@@ -5577,9 +5792,26 @@ function amorcerPanneauCandidaturePartage(etat) {
     etat.blocCandidatureAmorce = true;
   }
 }
+// Memorise « une offre » ou « une entreprise precise sans offre » (dossier.formeChoisie) au clic, avant le gestionnaire commun (meme technique que « Votre objectif »).
+function memoriserFormeCandidatureAuClic(zone) {
+  if (!zone) { return; }
+  zone.addEventListener('click', function (evenement) {
+    var cibleForme = evenement.target && evenement.target.closest ? evenement.target.closest('[data-forme]') : null;
+    if (!cibleForme) { return; }
+    dossier.formeChoisie = cibleForme.getAttribute('data-forme');
+    if (dossier.formeChoisie === 'entreprise') {
+      var rcForme = dossier.rechercheCandidature || (dossier.rechercheCandidature = {});
+      rcForme.texteOffre = '';
+      rcForme.lienOffre = '';
+    }
+  }, true);
+}
 function wirePanneauCandidaturePartage(rerender, options) {
   options = options || {};
   wireBlocERIP(options.sansSituation ? CONFIG_BLOC_CANDIDATURE_ANALYSE : CONFIG_BLOC_CANDIDATURE, rerender);
+  if (options.modeUnifie) { memoriserFormeCandidatureAuClic(document.getElementById('blocERIP-candidature') || document.getElementById('objectifBlocCandidature')); }
+  // Disponibilites de la lettre (contrat, temps, debut, horaires) quand le panneau les montre : memes gestionnaires que la page de la lettre.
+  if (options.modeUnifie && !options.sansDisponibilites && options.projet === false) { wireContratTemps(rerender); wireDisponibilite(rerender); }
   if (options.projet !== false) {
     wireBlocERIP(CONFIG_BLOC_PROJET, rerender);
     wireContratTemps();
@@ -5600,6 +5832,63 @@ function wireCartesSituationPartagees(attrCarte, etat, rerender, apresChoix, ava
       rerender();
     });
   });
+}
+
+// Raisons pour lesquelles « Continuer » est grise sur « Votre objectif » (offre, spontanee, changer de metier) : memes regles que la page de la lettre,
+// sans les points propres a la lettre (CV, situation actuelle).
+function raisonsBlocageObjectifCV() {
+  var rc = dossier.rechercheCandidature || {};
+  return raisonsBlocageLettreCo({
+    cvPresent: true, cvRelu: true, situationActuelle: 'x',
+    objectif: dossier.objectif, modeRecherche: dossier.modeRecherche, metierCible: dossier.metierCible, secteurCible: dossier.secteurCible,
+    typeRecherche: dossier.typeRecherche, forme: dossier.objectif === 'reconversion' ? formeCandidatureActuelle() : null,
+    intituleDomaine: intituleDomaineActuel(), entreprise: rc.entreprise
+  });
+}
+
+// Ce qui reste a faire dans la partie « Votre candidature » avant de passer a la suivante (deverrouillage progressif, Lot 5) : liste de phrases, vide quand la partie est remplie.
+function raisonsCandidatureAvantSuite() {
+  if (!dossier.objectif) { return ['Choisissez d’abord le type de candidature (partie 2) : ce point s’active ensuite.']; }
+  if ((dossier.objectif === 'stage' || dossier.objectif === 'pmsmp') && dossier._typeStageATrancher) { return ['Dites d’abord de quel type de stage il s’agit (partie 2) : ce point s’active ensuite.']; }
+  var r = raisonsBlocageObjectifCV();
+  return r.length ? ['Complétez d’abord la partie 2 : ' + phraseBlocageLettreCo(r)] : [];
+}
+// COMPOSANT « Votre candidature » (Lot 4a, 25/10/2026, retour Denis) : le contenu de la partie « Votre candidature » de « Ecrire ma lettre avec l'assistant », repris tel quel par « Votre objectif »
+// du CV, « Reformuler mon CV » et « Reprendre mon CV ». Offre, spontanee, changer de metier = contenuModeRecherche (mode unifie) ; stage, alternance, immersion, formation = contenuCandidature
+// (avec duree, dates et heures). options.sansCiviliteCouleur : sans civilite du recruteur ni couleur de l'entreprise (utiles seulement pour fabriquer un document) ;
+// options.avecMetierVise : « metier ou domaine vise » pour stage, alternance, formation ; options.sansDisponibilites : sans le bloc de disponibilites.
+function objectifEstStageFamille(o) { return ['stage', 'alternance', 'pmsmp', 'formation'].indexOf(o) !== -1; }
+function htmlCandidatureComposant(options) {
+  options = options || {};
+  var avantCivilite = _panneauSansCiviliteCouleur, avantMetier = _panneauAvecMetierVise;
+  _panneauSansCiviliteCouleur = !!options.sansCiviliteCouleur;
+  _panneauAvecMetierVise = !!options.avecMetierVise;
+  _candidatureCalendrierIci = true;
+  try {
+    if (objectifEstStageFamille(dossier.objectif)) { return contenuCandidature(true); }
+    if (typeof _coLettreNormaliserCarteOffre === 'function') { _coLettreNormaliserCarteOffre(); }
+    return contenuModeRecherche(false, { modeUnifie: true, sansDisponibilites: !!options.sansDisponibilites, formeCandidature: formeCandidatureActuelle() });
+  } finally {
+    _candidatureCalendrierIci = false;
+    _panneauSansCiviliteCouleur = avantCivilite;
+    _panneauAvecMetierVise = avantMetier;
+  }
+}
+// Cablage du composant ci-dessus. conteneurId : l'element qui le contient ; rerender : ce qui redessine l'ecran. Memes gestionnaires que la page de la lettre.
+function wireCandidatureComposant(rerender, conteneurId, options) {
+  options = options || {};
+  var cont = document.getElementById(conteneurId);
+  if (cont && typeof activerChampsStandardises === 'function') { activerChampsStandardises(cont); }
+  if (objectifEstStageFamille(dossier.objectif)) { wireObjectifDetails(rerender); return; }
+  wireModeRecherche(rerender);
+  wireEvidenceMetierCible();
+  // Memorise « une offre » ou « une entreprise precise sans offre » avant le gestionnaire commun (meme technique que la page de la lettre).
+  if (cont) { memoriserFormeCandidatureAuClic(cont); }
+  // Disponibilites de la lettre (contrat, temps de travail, debut, horaires).
+  if (!options.sansDisponibilites && (dossier.objectif === 'spontanee' || dossier.objectif === 'reconversion')) {
+    wireContratTemps(rerender);
+    wireDisponibilite(rerender);
+  }
 }
 
 function pageObjectif() {
@@ -5645,11 +5934,12 @@ function pageObjectif() {
   // deja toujours vrai a ce stade), rien a changer pour eux.
   var routeSuivante = (dossier.modeCreation === 'nouveau') ? 'projet' : (dossier.cvAnalyse ? 'projet' : 'votre-parcours');
   var acces = etatAccesRevelation();
-  var suivantDesactive = !objectifChoisi || !acces.accessible;
+  var raisonsUnifie = (objectifChoisi && ['offre', 'spontanee', 'reconversion'].indexOf(dossier.objectif) !== -1) ? raisonsBlocageObjectifCV() : [];
+  var suivantDesactive = !objectifChoisi || !acces.accessible || raisonsUnifie.length > 0;
   var suivantMessage = !objectifChoisi
     ? 'Choisissez d’abord un objectif ci-dessus.'
-    : acces.message;
-  var html = afficherProgression('objectif') +
+    : (raisonsUnifie.length ? phraseBlocageLettreCo(raisonsUnifie) : acces.message);
+  var html = afficherProgression('objectif') + (typeof _creerCvBandeRevoirSurEcran === 'function' ? _creerCvBandeRevoirSurEcran('objectif') : '') +
     '<div class="page-catalogue-contenu">' +
     '<div class="text-center"><h1>&#127919; Votre objectif</h1>' +
     '<p class="sousTitre">Le poste ou le type de démarche que vous visez.</p></div>' +
@@ -5672,13 +5962,22 @@ function pageObjectif() {
   // Candidature lui-meme (contenuModeRecherche() -> contenuRechercheMetierCorps()/
   // contenuRechercheDomaineCorps()), plus dans un 2e rectangle separe --
   // voir contenuModeRecherche() pour le detail. Rien a inserer ici.
+  // E1.3 (24/10/2026, maquette docs/MAQUETTE_OBJECTIF_CV_UNIFIE_2026-10-24.html) : pour offre, spontanee et changer de metier, UN seul ecran en parties
+  // numerotees avec la logique de la lettre (modeUnifie) ; stage, alternance, immersion et formation gardent leur ecran (deux blocs).
+  // 25/10/2026 (Lot 4a, retour Denis) : « Votre objectif » reprend TEL QUEL le composant « Votre candidature » de « Ecrire ma lettre avec l'assistant » (le parcours referent) pour les six
+  // cartes : offre, spontanee et changer de metier = contenuModeRecherche en mode unifie ; stage, alternance, immersion et formation = contenuCandidature. Plus de bloc repliable
+  // « Candidature » ni de bloc « Le poste que vous recherchez » : les disponibilites sont celles de la lettre.
+  var objectifUnifie = objectifChoisi && ['offre', 'spontanee', 'reconversion'].indexOf(dossier.objectif) !== -1;
+  var objectifStageEtc = objectifChoisi && ['stage', 'alternance', 'pmsmp', 'formation'].indexOf(dossier.objectif) !== -1;
   if (objectifChoisi) {
-    // etape 2b : le bloc "Le poste que vous recherchez" / "Vos disponibilites"
-    // (CONFIG_BLOC_PROJET, facultatif) descend aussi ici. Il reste sur
-    // "Vos informations" jusqu'a l'etape 2c.
+    var corpsCandidature = htmlCandidatureComposant();
     html += '<div class="objectif-cadrage" style="margin-top:16px">' +
-      blocERIP(CONFIG_BLOC_CANDIDATURE) +
-      blocERIP(CONFIG_BLOC_PROJET) +
+      '<div class="cv-section" id="objectifBlocCandidature"><h2 style="font-size:1.15rem;margin-bottom:0.5rem;">&#128221; Votre candidature</h2>' +
+      corpsCandidature +
+      // Lettre de recommandation (« Vos appuis ») : proposee quand on cree ou reprend son CV AVEC l'assistant, jamais dans la version rapide (decision de Denis, 25/10/2026),
+      // ni dans « Creer un nouveau CV » a la main, sans assistant : personne ne la lirait (decision de Denis, 26/10/2026).
+      ((dossier.modeCreation !== 'pret' && !_creerCvSansAssistant() && typeof _coLettreHtmlAppuis === 'function') ? _coLettreHtmlAppuis({ pourCv: true }) : '') +
+      '</div>' +
       resumeObjectifLigne() +
       '</div>';
   } else {
@@ -5694,14 +5993,20 @@ function pageObjectif() {
   var precedentObjectif = (dossier.modeCreation === 'nouveau' &&
     typeof historiquePages !== 'undefined' && historiquePages.indexOf('creer-cv') !== -1)
     ? 'creer-cv' : 'cv';
+  // F11 : « Retour » ne saute jamais la présentation : dans « Créer un nouveau CV », il ramène à la présentation du parcours (à la main ou avec l'assistant).
+  var retourPresentationCv = (precedentObjectif === 'creer-cv' && typeof _creerCvAllerPresentation === 'function') ? '_creerCvAllerPresentation()' : null;
   html += '</div>' +
     '<div class="barre-navigation-fixe">' + barreNavigation(precedentObjectif, routeSuivante, 'Continuer &#8594;',
       { suivantDesactive: suivantDesactive, suivantDesactiveMessage: suivantMessage,
-        blocCibleId: 'blocERIP-candidature' }) + '</div>';
+        blocCibleId: 'objectifBlocCandidature', onclickPrecedent: retourPresentationCv || undefined }) + '</div>';
   app.innerHTML = html;
   document.querySelectorAll('[data-action="objectif"]').forEach(function (el) {
     el.addEventListener('click', function () {
-      definirObjectifCandidature(this.dataset.value);
+      // Changer de carte entre offre, spontanee et changer de metier remet a zero la candidature (decision 57 du cahier lettre, reprise ici : E1.3).
+      var objectifAvant = dossier.objectif;
+      var objectifApres = this.dataset.value;
+      definirObjectifCandidature(objectifApres);
+      if (changementCarteEffaceLettreCo(objectifAvant, objectifApres)) { _coLettreEffacerCandidature(); }
       // TACHE (5bis Objectif) : choisir (ou changer d') objectif ré-ouvre
       // "Candidature" par defaut, comme une nouvelle arrivee.
       _objectifBlocsAmorces = false;
@@ -5710,19 +6015,21 @@ function pageObjectif() {
     });
   });
   if (objectifChoisi) {
-    // TACHE (fusion 2026-09-13) : le cablage de la recherche metier/domaine
-    // (wireRechercheMetierCible, clics candidats/domaine...) est desormais
-    // fait DANS wireBlocERIP -> wireModeRecherche() (contenuModeRecherche()
-    // genere ce contenu a l'interieur de CONFIG_BLOC_CANDIDATURE). Reste
-    // ici uniquement wireEvidenceMetierCible() (surlignage #banniereMetierCibleZone,
-    // inoffensif si l'element n'est pas dans le DOM).
-    wireBlocERIP(CONFIG_BLOC_CANDIDATURE, pageObjectif);
-    wireEvidenceMetierCible();
-    wireBlocERIP(CONFIG_BLOC_PROJET, pageObjectif);
-    wireContratTemps();
-    // Retour Denis 2026-10-01 : tant que le type de stage (formation ou immersion) n'est pas choisi, « Vos disponibilites » reste desactive.
-    appliquerVerrouBlocs([{ id: 'blocERIP-projet', actif: !((dossier.objectif === 'stage' || dossier.objectif === 'pmsmp') && dossier._typeStageATrancher),
-      message: 'Choisissez d’abord le type de stage ci-dessus : cette partie s’active ensuite.' }]);
+    var blocUnifie = document.getElementById('objectifBlocCandidature');
+    wireCandidatureComposant(pageObjectif, 'objectifBlocCandidature');
+    // Les champs ne re-rendent pas la page : le bouton et la phrase se mettent a jour a la saisie.
+    if (dossier.modeCreation !== 'pret' && !_creerCvSansAssistant() && typeof _coLettreBrancherAppuis === 'function') { _coLettreBrancherAppuis(pageObjectif); }
+    var majContinuerObjectif = function () {
+      var raisons = objectifUnifie ? raisonsBlocageObjectifCV() : [];
+      var bouton = document.getElementById('btnSuivantNavigation');
+      if (bouton) { bouton.disabled = raisons.length > 0 || !etatAccesRevelation().accessible; if (raisons.length) { bouton.setAttribute('title', phraseBlocageLettreCo(raisons)); } else { bouton.removeAttribute('title'); } definirRaisonSuivantBarre(bouton, raisons.length ? phraseBlocageLettreCo(raisons) : ''); }
+      var phrase = document.getElementById('objectifRaisonBlocage');
+      if (phrase) {
+        phrase.textContent = raisons.length ? '⚠️ ' + phraseBlocageLettreCo(raisons) : 'Vous pouvez continuer (bouton en bas).';
+        phrase.style.color = raisons.length ? 'var(--warning-strong)' : '';
+      }
+    };
+    ['input', 'change', 'click'].forEach(function (nom) { if (blocUnifie) { blocUnifie.addEventListener(nom, function () { setTimeout(majContinuerObjectif, 0); }); } });
   } else {
     // TACHE (Paquet C, maquette MAQUETTE_LISIBILITE_CARTES_OBJECTIF_2026-09-26.html,
     // validee par Denis) : pulse sequentiel tant qu'aucun objectif n'est
@@ -5730,30 +6037,34 @@ function pageObjectif() {
     pulseObjectifUneFois();
   }
 }
-// TACHE (Paquet C) : parcourt les cartes ".carte-objectif" une par une (2
-// cycles complets), 3 secondes chacune (duree demandee par Denis), pour
-// montrer qu'elles sont cliquables -- une seule fois par session (jamais
-// rejoue au re-rendu de cet ecran, ex. apres un clic sur une carte).
-// Classe posee/retiree ici, jamais en CSS pur (voir .pulse-objectif-actif,
-// css/style.css) : pas de boucle infinie, s'arrete d'elle-meme.
-var _objectifPulseJoueUneFois = false;
-function pulseObjectifUneFois() {
-  if (_objectifPulseJoueUneFois) { return; }
-  _objectifPulseJoueUneFois = true;
-  var cartes = document.querySelectorAll('.grille-objectif .carte-objectif');
-  if (!cartes.length) { return; }
-  var dureeParCarte = 3000;
-  var totalEtapes = cartes.length * 2;
-  var i = 0;
+// EFFET D'INVITATION des cartes d'objectif (Lot 4a, 25/10/2026, demande de Denis) : tant qu'aucune carte n'est choisie, les cartes se mettent en avant UNE A UNE, EN BOUCLE, jusqu'au premier
+// clic (celui d'« Ecrire ma lettre » et de « Votre objectif », maintenant le meme partout). Il s'arrete des que l'on choisit une carte ou que l'on pose la souris sur l'une d'elles, et il
+// reprend a chaque arrivee sans carte choisie. Classe posee/retiree ici, jamais en CSS pur (voir .pulse-objectif-actif, css/style.css). Une seule boucle a la fois.
+var _invitationObjectifMinuterie = null;
+// dejaChoisi (facultatif) : pour un ecran qui garde son choix ailleurs que dans dossier.objectif (« Un CV, plusieurs metiers » : brouillon du panneau).
+function invitationCartesObjectif(dejaChoisi) {
+  if (_invitationObjectifMinuterie) { clearTimeout(_invitationObjectifMinuterie); _invitationObjectifMinuterie = null; }
+  var choisi = function () { return (dejaChoisi === undefined) ? !!(typeof dossier !== 'undefined' && dossier && dossier.objectif) : !!dejaChoisi; };
+  if (choisi()) { return; }
+  var cartes = [].filter.call(document.querySelectorAll('.grille-objectif .carte-objectif'), function (c) {
+    return !c.hasAttribute('data-pret-choix-premier') && !c.hasAttribute('data-reprendre-voie') && !c.id && !c.classList.contains('carte-objectif--bloquee');
+  });
+  if (cartes.length < 2) { return; }
+  var arret = false, i = 0;
+  function retirer() { cartes.forEach(function (c) { c.classList.remove('pulse-objectif-actif'); }); }
+  function arreter() { arret = true; retirer(); if (_invitationObjectifMinuterie) { clearTimeout(_invitationObjectifMinuterie); _invitationObjectifMinuterie = null; } }
+  cartes.forEach(function (c) { c.addEventListener('mouseenter', arreter); c.addEventListener('focus', arreter); c.addEventListener('click', arreter); });
   function etape() {
-    cartes.forEach(function (c) { c.classList.remove('pulse-objectif-actif'); });
-    if (i >= totalEtapes || !document.body.contains(cartes[0])) { return; }
+    retirer();
+    if (arret || !document.body.contains(cartes[0]) || choisi()) { _invitationObjectifMinuterie = null; return; }
     cartes[i % cartes.length].classList.add('pulse-objectif-actif');
     i++;
-    setTimeout(etape, dureeParCarte);
+    _invitationObjectifMinuterie = setTimeout(etape, 2500);
   }
   etape();
 }
+// Ancien nom (« Votre objectif », une seule fois par session) : meme appel que les autres ecrans.
+function pulseObjectifUneFois() { invitationCartesObjectif(); }
 
 // Fabrique une page a cartes multi-selection (activites, actions, environnement, valeurs)
 function pageCartes(config) {
@@ -5962,8 +6273,10 @@ function contenuAccepte() {
 // et blocAccepte() retires -- 0 appelant (ex-enveloppes de pageProjet Etape D,
 // remplacees par les sous-sections de CONFIG_BLOC_PROJET).
 
-function wireContratTemps() {
-  var optionsPar = { contrat: CONTRATS, tempsTravail: TEMPS_TRAVAIL, accepte: ['alimentaire', 'saisonnier'] };
+// rerender (facultatif) : l'ecran qui demande le rafraichissement ; par defaut la page courante, comme avant.
+function wireContratTemps(rerender) {
+  var optionsPar = { contrat: CONTRATS, tempsTravail: TEMPS_TRAVAIL, accepte: ['alimentaire', 'saisonnier'],
+    horaires: (typeof HORAIRES_EMPLOI !== 'undefined' ? HORAIRES_EMPLOI : []).map(function (h) { return h.val; }) };
   // Uniquement les jetons contrat/temps/accepte (data-champ) : ne pas capter
   // les pastilles de disponibilite (data-dispo), gerees par wireObjectifDetails.
   // (Jetons rendus par htmlJetons() depuis l'etape 6 -- data-champ/data-val
@@ -5973,6 +6286,7 @@ function wireContratTemps() {
       var champ = this.dataset.champ;
       var val = this.dataset.val;
       var options = optionsPar[champ];
+      if (!Array.isArray(dossier[champ])) { dossier[champ] = []; }   // anciennes sessions : champ absent
       if (val === '__tout') {
         // si tout n'est pas deja complet, on coche tout ; sinon on decoche tout
         var complet = options.every(function (o) { return dossier[champ].indexOf(o) !== -1; });
@@ -5984,7 +6298,7 @@ function wireContratTemps() {
       // TACHE (complement) : choisir une vraie option "J'accepte" annule
       // automatiquement "Aucune de ces propositions" (mutuellement exclusifs).
       if (champ === 'accepte' && dossier.accepte.length > 0) { dossier.accepteAucune = false; }
-      routes[pageActuelle]();   // rafraichit la page courante (Attentes OU Potentiel)
+      (rerender || routes[pageActuelle])();   // rafraichit la page courante (Attentes OU Potentiel) ou l'ecran demandeur
     });
   });
   // TACHE (complement) : pastille "Aucune de ces propositions", exclusive
@@ -6172,7 +6486,7 @@ function pageVotreParcours() {
   }).join('');
 
   var html = '<div class="page-catalogue-contenu">' +
-    afficherProgression('votre-parcours') +
+    afficherProgression('votre-parcours') + (typeof _creerCvBandeRevoirSurEcran === 'function' ? _creerCvBandeRevoirSurEcran('votre-parcours') : '') +
     _vpStyle() +
     '<div class="text-center"><h1>&#129517; Votre parcours</h1>' +
     '<p class="sousTitre">Quatre questions courtes, sur une seule page. Repensez à vos expériences, professionnelles ou personnelles.</p></div>' +
@@ -6315,9 +6629,28 @@ function blocDisponibilite(dispoArr) {
 // deja construite et deja eprouvee pour cette meme donnee
 // (dossier.rechercheCandidature) par 2 autres parcours -- aucune 3e
 // implementation du meme formulaire.
-function contenuModeRecherche(depuisBilan) {
+// Intitule du domaine : la personne a choisi « Écrire mon intitulé » (la saisie est alors affichee, jamais en meme temps qu'un intitule de la liste).
+var _intituleLibreDomaine = false;
+// Option metierDonne de contenuModeRecherche (chantier F14, 24/10/2026) : le metier est deja connu (« Un CV, plusieurs metiers » : celui de chaque CV), la brique ne le
+// demande ni ne le cherche. Le drapeau est leve par le panneau du module pendant ses evenements : changer de mode n'ouvre alors AUCUNE fenetre de confirmation (son retour
+// arriverait apres que le dossier prete a la brique soit rendu).
+var _metierDonneActif = false;
+function contenuModeRecherche(depuisBilan, options) {
+  var metierDonne = !!(options && options.metierDonne);
   var mode = dossier.modeRecherche;
   var type = dossier.typeRecherche;
+  // Etape c2 du chantier lettre (24/10/2026, docs/CHANTIER_OBJECTIF_OFFRE_SPONTANEE_CLARIFIE_2026-10-23.md) : options.modeUnifie,
+  // passe UNIQUEMENT par la page « Preparer » de « Ecrire ma lettre avec l'assistant » (data/metiers.js), change l'AFFICHAGE de la
+  // carte « Repondre a une offre » : ni « Votre recherche porte sur », ni « Votre recherche concerne » (c'est forcement un metier
+  // precis et une offre), puis directement le metier et « L'offre et l'entreprise ». Les autres appelants (Mon projet, Bilan,
+  // Decouverte, Preparer l'entretien) ne passent jamais cette option : rendu strictement inchange.
+  var offreUnifiee = !!(options && options.modeUnifie) && dossier.objectif === 'offre';
+  // Etape c3 (24/10/2026) : meme principe pour la carte « Candidature spontanee » : deux choix explicites au lieu de « Je cherche
+  // simplement un emploi / Je reponds a une offre », et jamais de champ « offre » (une offre collee en ferait autre chose).
+  var spontaneeUnifiee = !!(options && options.modeUnifie) && dossier.objectif === 'spontanee';
+  // Etape c4 : « Changer de metier » a trois choix (une offre, une entreprise precise sans offre, de facon generale) ; avec « plusieurs
+  // metiers d'un domaine », jamais « une offre » (une offre vise un poste precis). options.formeCandidature vient de l'appelant.
+  var reconversionUnifiee = !!(options && options.modeUnifie) && dossier.objectif === 'reconversion';
   // TACHE (6conv-3) : jetons de la brique commune quand on est hors Bilan
   // (pageObjectif) OU dans un rendu unifie (fenetre Candidature du Bilan, qui
   // pose _renduInfosUnifie depuis 6conv-3). Sinon (aucun appelant restant a ce
@@ -6340,7 +6673,7 @@ function contenuModeRecherche(depuisBilan) {
     return '<div class="mt-2">' +
       '<label class="form-label small d-block mb-1">' +
       (pourMode === 'metier' ? 'Quel métier visez-vous ?' : 'Quel domaine visez-vous ?') +
-      ' <span class="text-muted">(facultatif)</span></label>' +
+      ' <span class="text-muted">(à compléter)</span></label>' +
       '<input type="text" class="form-control form-control-sm" id="champCibleCandidatureBilan" ' +
       'data-cible-candidature="' + pourMode + '" ' +
       'placeholder="' + (pourMode === 'metier' ? 'Ex. Vendeur en boulangerie, Agent d’accueil…' : 'Ex. Commerce, Bâtiment, Logistique…') + '" ' +
@@ -6380,8 +6713,91 @@ function contenuModeRecherche(depuisBilan) {
       '</div>';
   }
 
+  // Valeurs de typeRecherche conservees : 'simple' = de facon generale, 'offre' = entreprise precise (meme modele partout, voir
+  // le cahier de la lettre, decision 54). Le wiring (data-type-recherche, wireModeRecherche) est donc inchange.
+  // Etape d (24/10/2026, demande de Denis) : pour la spontanee et « changer de metier » (aucune offre ne donne le cadre), la personne dit
+  // ce qui est vrai pour elle : contrat, temps de travail, quand elle peut commencer, horaires. Briques existantes (contenuContrat,
+  // contenuPastillesChamp, blocDisponibilite) + les horaires, nouveaux. Cablage : wireContratTemps / wireDisponibilite (data/metiers.js).
+  function htmlDisponibilitesUnifiees() {
+    assurerDetailsObjectifs();
+    var detailsObjectif = (dossier.objectif && dossier[dossier.objectif]) || {};
+    return '<hr class="my-3"><p class="mb-1 fw-bold">&#128197; Votre disponibilité</p>' +
+      '<p class="text-muted small mb-2">Ces informations aident l’employeur à savoir s’il peut compter sur vous. Cochez ce qui est vrai pour vous.</p>' +
+      '<p class="mb-1 small fw-semibold">Type de contrat recherché</p>' + contenuContrat() +
+      '<p class="mb-1 mt-2 small fw-semibold">Temps de travail</p>' + contenuPastillesChamp('tempsTravail', TEMPS_TRAVAIL) +
+      '<p class="mb-1 mt-2 small fw-semibold">Quand pouvez-vous commencer ?</p>' + blocDisponibilite(detailsObjectif.dispo || []) +
+      '<p class="mb-1 mt-2 small fw-semibold">Horaires que vous acceptez</p>' +
+      htmlJetons({ champ: 'horaires', options: HORAIRES_EMPLOI, multiple: true, avecTout: true, labelTout: 'Tous les horaires', compact: false });
+  }
+
+  function htmlChoixSpontaneeUnifiee() {
+    var h = '<hr class="my-3"><p class="mb-2">&#128221; Comment présentez-vous votre candidature ?</p>' +
+      ligneTypeRecherche('Je me présente de façon générale, sans viser une entreprise', 'Je m’adresse à une entreprise précise');
+    if (type === 'offre') {
+      h += contenuCoordonneesEntrepriseBilanInline(jetons, true, { modeUnifie: true, sansOffre: true });
+    } else if (type === 'simple') {
+      // De facon generale : type de structure seulement, la personne qui recrute n'est pas connue (question masquee).
+      var civiliteAvant = _panneauSansCiviliteCouleur;
+      _panneauSansCiviliteCouleur = true;
+      h += contenuCandidatureReduiteSansStructure(jetons);
+      _panneauSansCiviliteCouleur = civiliteAvant;
+    }
+    if ((type === 'simple' || type === 'offre') && !(options && options.sansDisponibilites)) { h += htmlDisponibilitesUnifiees(); }
+    return h;
+  }
+
+  // Etape c5 : la lettre porte UN intitule ; il se choisit parmi ceux du domaine (jetons) OU s'ecrit (dernier jeton « Écrire mon intitulé »).
+  // Demande de Denis (24/10/2026) : jamais un intitule choisi ET une barre de saisie en meme temps ; l'intitule retenu s'affiche clairement,
+  // comme le domaine choisi.
+  function htmlIntituleDomaineUnifie() {
+    var propositions = (typeof intitulesPolyvalentsDuDomaine === 'function') ? intitulesPolyvalentsDuDomaine(dossier.secteurCible) : [];
+    var courant = intituleDomaineActuel();
+    var horsListe = !!courant && propositions.indexOf(courant) === -1;
+    var libre = _intituleLibreDomaine || horsListe;
+    return '<hr class="my-3"><p class="mb-1 fw-bold" style="font-size:1.05rem;">&#127991;&#65039; Quel intitulé de poste voulez-vous mettre en avant dans votre lettre ?</p>' +
+      '<p class="text-muted small mb-2">Votre lettre portera un seul intitulé et dira que vous êtes ouvert à plusieurs postes de ce domaine. Choisissez-en un, ou écrivez le vôtre.</p>' +
+      '<div class="jetons-ligne">' + propositions.map(function (nom) {
+        var actif = !libre && courant === nom;
+        return '<button type="button" class="jeton jeton--radio jeton--compact' + (actif ? ' is-actif' : '') + '" data-intitule-domaine="' + echapperAttribut(nom) +
+          '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + echapperAttribut(nom) + '</button>';
+      }).join('') +
+      '<button type="button" class="jeton jeton--radio jeton--compact' + (libre ? ' is-actif' : '') + '" data-intitule-libre="1" aria-pressed="' + (libre ? 'true' : 'false') + '">&#9998;&#65039; Écrire mon intitulé</button></div>' +
+      (libre ? '<div class="mt-2"><input type="text" class="form-control champ-grand" id="champIntituleDomaine" placeholder="Écrivez votre intitulé de poste" value="' + echapperAttribut(courant || '') + '"></div>' : '') +
+      '<p class="mt-2 mb-0" id="intituleRetenuDomaine" style="font-weight:600;color:' + (courant ? 'var(--success-strong)' : 'var(--text-muted)') + ';">' +
+      (courant ? '&#10003; Intitulé retenu : ' + echapperAttribut(courant) : 'Aucun intitulé retenu pour le moment.') + '</p>';
+  }
+
+  function htmlChoixReconversionUnifiee() {
+    var forme = (options && options.formeCandidature) || null;
+    // 'offre' et 'entreprise' partagent typeRecherche 'offre' : data-forme les distingue (capte par la page « Preparer », data/metiers.js).
+    function jetonForme(valeurForme, valeurType, label) {
+      var actif = forme === valeurForme;
+      return '<button type="button" class="jeton jeton--radio' + (actif ? ' is-actif' : '') + '" data-type-recherche="' + valeurType +
+        '" data-forme="' + valeurForme + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + label + '</button>';
+    }
+    var h = '<hr class="my-3"><p class="mb-2">&#128221; Comment présentez-vous votre candidature ?</p><div class="jetons-ligne">' +
+      (mode === 'metier' ? jetonForme('offre', 'offre', 'Je réponds à une offre d’emploi') : '') +
+      jetonForme('entreprise', 'offre', 'Je m’adresse à une entreprise précise, sans offre') +
+      jetonForme('generale', 'simple', 'Je me présente de façon générale, sans viser une entreprise') +
+      '</div>';
+    if (forme === 'offre') {
+      h += contenuCoordonneesEntrepriseBilanInline(jetons, false, { modeUnifie: true });
+    } else if (forme === 'entreprise') {
+      h += contenuCoordonneesEntrepriseBilanInline(jetons, true, { modeUnifie: true, sansOffre: true });
+    } else if (forme === 'generale') {
+      var civiliteAvantR = _panneauSansCiviliteCouleur;
+      _panneauSansCiviliteCouleur = true;
+      h += contenuCandidatureReduiteSansStructure(jetons);
+      _panneauSansCiviliteCouleur = civiliteAvantR;
+    }
+    if (forme && !(options && options.sansDisponibilites)) { h += htmlDisponibilitesUnifiees(); }
+    return h;
+  }
+
   var html;
-  if (jetons) {
+  if (offreUnifiee) {
+    html = metierDonne ? '' : '<p class="mb-2">Quel métier cherchez-vous ?</p>';
+  } else if (jetons) {
     html = '<div class="jetons-ligne">' +
       '<div class="jetons-lib">Votre recherche porte sur :</div>' +
       jetonRadioMode('data-mode-recherche', 'metier', mode, 'Un métier précis') +
@@ -6427,10 +6843,13 @@ function contenuModeRecherche(depuisBilan) {
     !(dossier.metierCible || dossier.secteurCible));
   if (mode === 'metier') {
     html += '<hr class="my-3"><div id="banniereMetierCibleZone"' +
-      (enEvidenceMetier ? ' class="a-completer"' : '') + '>' + contenuRechercheMetierCorps() + '</div>';
+      (enEvidenceMetier ? ' class="a-completer"' : '') + '>' +
+      (metierDonne ? '<p class="small text-muted mb-0">Le métier de chaque CV est repris tel quel : pas besoin de l’écrire ici.</p>' : contenuRechercheMetierCorps()) + '</div>';
   } else if (mode === 'domaine') {
     html += '<hr class="my-3"><div id="banniereMetierCibleZone"' +
       (enEvidenceMetier ? ' class="a-completer"' : '') + '>' + contenuRechercheDomaineCorps() + '</div>';
+    // Etape c5 : une fois le domaine choisi, l'intitule de poste a mettre en avant (page « Preparer » de la lettre seulement).
+    if ((spontaneeUnifiee || reconversionUnifiee) && dossier.secteurCible) { html += htmlIntituleDomaineUnifie(); }
   }
 
   // TACHE (retour utilisateur 2026-09-16, bug reel confirme : "pourquoi ce
@@ -6445,7 +6864,13 @@ function contenuModeRecherche(depuisBilan) {
   // clairement facultative, jamais conditionnee au choix simple/offre (qui
   // n'a pas vraiment de sens pour ces 2 objectifs).
   var estSpontaneeOuReconversionObj = (dossier.objectif === 'spontanee' || dossier.objectif === 'reconversion');
-  if (mode === 'metier') {
+  if (offreUnifiee) {
+    if (mode === 'metier') { html += contenuCoordonneesEntrepriseBilanInline(jetons, false, { modeUnifie: true }); }
+  } else if (spontaneeUnifiee) {
+    if (mode === 'metier' || mode === 'domaine') { html += htmlChoixSpontaneeUnifiee(); }
+  } else if (reconversionUnifiee) {
+    if (mode === 'metier' || mode === 'domaine') { html += htmlChoixReconversionUnifiee(); }
+  } else if (mode === 'metier') {
     html += '<hr class="my-3">' +
       '<p class="mb-2">Votre recherche concerne :</p>' +
       ligneTypeRecherche('Je cherche simplement un emploi', 'Je réponds à une offre d’emploi');
@@ -6622,7 +7047,7 @@ function wireModeRecherche(rerender, depuisBilan) {
   // presence reelle dans le DOM (meme principe que le correctif urgent
   // ci-dessus) suffit seule a distinguer les deux cas, plus besoin de
   // redeviner la condition metier ici.
-  if (zone && zone.querySelector('#ciblageOffre')) {
+  if (zone && (zone.querySelector('#ciblageOffre') || zone.querySelector('#ciblageEntreprise'))) {
     // TACHE (dette B.1, resorption du reliquat interne au collecteur #1) :
     // bilanCablerCiblageOffre() gere la detection d'URL / le champ "Autre" ;
     // onChange relit et ecrit dans dossier.rechercheCandidature a chaque
@@ -6753,7 +7178,7 @@ function wireModeRecherche(rerender, depuisBilan) {
       // de l'ecraser (reutilise confirmerAction(), deja utilisee ailleurs
       // dans l'appli -- ex. reinitialiserSession()) ; sinon, changement
       // immediat comme avant (rien a perdre).
-      if (existeSelectionMetierOuDomaine()) {
+      if (existeSelectionMetierOuDomaine() && !_metierDonneActif) {
         var libelle = libelleSelectionMetierOuDomaine();
         var texteConfirmation = 'Vous avez déjà commencé cette recherche' +
           (libelle ? ' : « ' + echapperAttribut(libelle) + ' »' : '') +
@@ -6821,6 +7246,41 @@ function wireModeRecherche(rerender, depuisBilan) {
       rerender();
     });
   });
+
+  // Etape c5 : intitule de poste du domaine (jetons ou champ libre), enregistre avec son domaine. Absents des autres ecrans : sans effet.
+  function enregistrerIntituleDomaine(valeur) {
+    var propre = String(valeur || '').trim();
+    dossier.intituleDomaine = propre ? { secteur: dossier.secteurCible, intitule: propre } : null;
+  }
+  document.querySelectorAll('[data-intitule-domaine]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      _intituleLibreDomaine = false;
+      enregistrerIntituleDomaine(this.dataset.intituleDomaine);
+      rerender();
+    });
+  });
+  document.querySelectorAll('[data-intitule-libre]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      // « Écrire mon intitulé » : la saisie remplace tout intitule choisi dans la liste (jamais les deux).
+      _intituleLibreDomaine = true;
+      enregistrerIntituleDomaine('');
+      rerender();
+      var champ = document.getElementById('champIntituleDomaine');
+      if (champ) { champ.focus(); }
+    });
+  });
+  var champIntituleDomaine = document.getElementById('champIntituleDomaine');
+  if (champIntituleDomaine) {
+    champIntituleDomaine.addEventListener('input', function () {
+      enregistrerIntituleDomaine(this.value);
+      var retenu = document.getElementById('intituleRetenuDomaine');
+      var valeurSaisie = this.value.trim();
+      if (retenu) {
+        retenu.innerHTML = valeurSaisie ? '&#10003; Intitulé retenu : ' + echapperAttribut(valeurSaisie) : 'Aucun intitulé retenu pour le moment.';
+        retenu.style.color = valeurSaisie ? 'var(--success-strong)' : 'var(--text-muted)';
+      }
+    });
+  }
 }
 
 // TACHE (retour utilisateur : "est-ce qu'on a aussi l'identité du
@@ -6861,7 +7321,7 @@ function contenuCiviliteRecruteurCandidature(sansPreselection) {
     choixRadioVosInfos('data-cand-civilite-recruteur', 'Madame', civRec === 'Madame', 'Oui, Madame', false, '', true) +
     '</div></div>' +
     (civRec
-      ? '<div class="mb-3"><input type="text" class="form-control champ-grand" id="candNomRecruteur" placeholder="Son nom (facultatif)" value="' + echapperAttribut(rc.nomRecruteur || '') + '"></div>'
+      ? '<div class="mb-3"><input type="text" class="form-control champ-grand" id="candNomRecruteur" placeholder="Son nom (à compléter)" value="' + echapperAttribut(rc.nomRecruteur || '') + '"></div>'
       : '');
 }
 
@@ -6902,7 +7362,7 @@ function contenuCandidatureReduiteSansStructure(jetons) {
       choixRadioVosInfos('data-cand-civilite-recruteur-reduit', 'Madame', civRec === 'Madame', 'Oui, Madame', false, '', true) +
       '</div></div>' +
       (civRec
-        ? '<div class="mb-3"><input type="text" class="form-control champ-grand" id="candNomRecruteurReduit" placeholder="Son nom (facultatif)" value="' + echapperAttribut(rc.nomRecruteur || '') + '"></div>'
+        ? '<div class="mb-3"><input type="text" class="form-control champ-grand" id="candNomRecruteurReduit" placeholder="Son nom (à compléter)" value="' + echapperAttribut(rc.nomRecruteur || '') + '"></div>'
         : ''));
   _renduInfosUnifie = _renduInfosUnifieAvant;
   return html;
@@ -7095,7 +7555,11 @@ function wireCiviliteEtCouleurRecruteurCandidature(rerender, ouvrirBlocProjetApr
 // de "Preparer" et Coherence). Gain au passage : type de structure (absent
 // avant ici) + detection d'URL dans l'offre. Cablage : bilanCablerCiblageOffre()
 // dans wireModeRecherche() ci-dessous.
-function contenuCoordonneesEntrepriseBilanInline(jetons, nomNecessaire) {
+function contenuCoordonneesEntrepriseBilanInline(jetons, nomNecessaire, options) {
+  // Etape c2 (24/10/2026) : options.modeUnifie (page « Preparer » de la lettre seulement) = plus de « (facultatif) », et un message
+  // visible quand aucune offre n'est saisie (la candidature sera traitee comme une candidature spontanee).
+  var unifie = !!(options && options.modeUnifie);
+  var sansOffreOpt = !!(options && options.sansOffre);   // candidature spontanee visant une entreprise : jamais de champ offre
   // TACHE (retour utilisateur 2026-09-13) : civilite/couleur d'entreprise
   // s'affichaient en pastilles grises (ancien rendu), incoherentes avec les
   // jetons juste au-dessus (mode/type de recherche) -- choixRadioVosInfos()
@@ -7123,10 +7587,27 @@ function contenuCoordonneesEntrepriseBilanInline(jetons, nomNecessaire) {
   // (contenuCandidature()), jamais une 2e logique inventee -- distingue
   // deja "jamais repondu" de "a repondu je ne sais pas" via
   // civiliteRecruteurTouchee (wireCiviliteEtCouleurRecruteurCandidature()).
+  var rcMessage = dossier.rechercheCandidature || {};
+  var sansOffre = !aUneOffreLettreCo(rcMessage);
+  var sansOffreAvant = _ciblageSansOffre;
+  _ciblageSansOffre = sansOffreOpt;
+  var demarqueAvant = _ciblageDemarque;
+  _ciblageDemarque = unifie;   // page « Preparer » de la lettre : champs demarques, titres plus grands, icones
+  var corpsCiblage = bilanCorpsCiblageOffreHTML();
+  _ciblageDemarque = demarqueAvant;
+  _ciblageSansOffre = sansOffreAvant;
   var html = '<hr class="my-3">' +
-    '<p class="mb-2 fw-bold small">L’offre et l’entreprise <span class="text-muted fw-normal">(' + (nomNecessaire ? 'le nom de l’entreprise est nécessaire pour continuer, le reste est facultatif' : 'facultatif') + ')</span></p>' +
-    bilanCorpsCiblageOffreHTML() +
-    (_panneauSansCiviliteCouleur ? '' : contenuCiviliteRecruteurCandidature(true) + contenuCouleurEntrepriseCandidature());
+    (unifie
+      ? (sansOffreOpt
+        ? '<p class="mb-1 fw-bold" style="font-size:1.1rem;">&#127970; L’entreprise visée</p><p class="text-muted small mb-2">Le nom de l’entreprise est nécessaire pour continuer ; son site est conseillé : il aide l’assistant à comprendre ce qu’elle fait.</p>'
+        : '<p class="mb-2 fw-bold" style="font-size:1.1rem;">&#128188; L’offre et l’entreprise</p>')
+      : '<p class="mb-2 fw-bold small">L’offre et l’entreprise <span class="text-muted fw-normal">(' + (nomNecessaire ? 'le nom de l’entreprise est nécessaire pour continuer, le reste est à compléter' : 'à compléter') + ')</span></p>') +
+    corpsCiblage +
+    (_panneauSansCiviliteCouleur ? '' : contenuCiviliteRecruteurCandidature(true) + contenuCouleurEntrepriseCandidature()) +
+    (unifie && !sansOffreOpt
+      ? '<div id="messageSansOffreLettreCo" class="encart-limite-missions" role="status"' + (sansOffre ? '' : ' hidden') + '>' +
+        (sansOffre ? messageSansOffreLettreCo(rcMessage.entreprise) : '') + '</div>'
+      : '');
   _renduInfosUnifie = _renduInfosUnifieAvant;
   return html;
 }
@@ -7142,11 +7623,11 @@ function contenuCoordonneesEntrepriseBilanInline(jetons, nomNecessaire) {
 function contenuImmersionCalendrierChamps(im) {
   im = im || {};
   return '<div class="row g-2 mt-2">' +
-    '<div class="col-md-4"><label class="form-label">Durée (facultatif)</label>' +
+    '<div class="col-md-4"><label class="form-label">Durée (à compléter)</label>' +
     '<input type="text" class="form-control champ-grand" id="immDuree" placeholder="' + (dossier.objectif === 'formation' ? 'Ex : 6 mois' : 'Ex : 2 mois') + '" value="' + echapperAttribut(im.duree || '') + '"></div>' +
-    '<div class="col-md-4"><label class="form-label">' + (dossier.objectif === 'formation' ? 'Session ou dates (facultatif)' : 'Dates (facultatif)') + '</label>' +
+    '<div class="col-md-4"><label class="form-label">' + (dossier.objectif === 'formation' ? 'Session ou dates (à compléter)' : 'Dates (à compléter)') + '</label>' +
     '<input type="text" class="form-control champ-grand" id="immDates" placeholder="' + (dossier.objectif === 'formation' ? 'Ex : Session de septembre 2026' : 'Ex : Octobre 2027 à Mars 2028') + '" value="' + echapperAttribut(im.dates || '') + '"></div>' +
-    '<div class="col-md-4"><label class="form-label">Heures / semaine (facultatif)</label>' +
+    '<div class="col-md-4"><label class="form-label">Heures / semaine (à compléter)</label>' +
     '<input type="text" class="form-control champ-grand" id="immHeures" placeholder="Ex : 35h" value="' + echapperAttribut(im.heures || '') + '"></div>' +
     '</div>';
 }
@@ -7157,12 +7638,14 @@ function contenuImmersionCalendrierChamps(im) {
 // -- transmis a contenuCiviliteRecruteurCandidature() pour que "Je ne
 // sais pas" ne soit plus precoche tant que la personne n'a pas reellement
 // clique (voir cette fonction pour le detail).
+// Leve par pageObjectif() le temps de son rendu : « Votre objectif » montre alors la duree, les dates et les heures dans le composant, comme la page de la lettre (Lot 4a, 25/10/2026).
+var _candidatureCalendrierIci = false;
 function contenuCandidature(sansPreselectionCivilite) {
   assurerDetailsObjectifs();
   var o = dossier.objectif;
   // Sur l'ecran Objectif, duree / dates / heures sont rendus par le bloc
   // « Vos disponibilites » (contenuDisponibilite), pas ici (etape 6a-5a).
-  var calendrierIci = pageActuelle !== 'objectif';
+  var calendrierIci = pageActuelle !== 'objectif' || _candidatureCalendrierIci;
   // TACHE (nettoyage code mort, passe convergence Bilan) : la branche
   // offre / spontanee / reconversion de contenuCandidature() est retiree --
   // 0 appelant vivant (contenuCandidature() n'est plus appele que pour
@@ -7200,18 +7683,18 @@ function contenuCandidature(sansPreselectionCivilite) {
     return '<div id="zoneCandidatureChamps">' + htmlTypeStage + boutonImport +
       '<p class="mb-2">Si vous connaissez déjà ces informations, renseignez-les : elles seront transmises à l’assistant.</p>' +
       (estFormationCand
-        ? '<div class="mb-3"><label class="form-label">Formation visée (facultatif)</label>' +
+        ? '<div class="mb-3"><label class="form-label">Formation visée (à compléter)</label>' +
           '<input type="text" class="form-control champ-grand" id="immPoste" placeholder="Ex : Titre professionnel plaquiste" value="' + echapperAttribut(im.poste || '') + '"></div>'
         : '') +
       (_panneauAvecMetierVise && !estFormationCand
-        ? '<div class="mb-3"><label class="form-label">Métier ou domaine visé (facultatif, mais utile : un stage en association et un stage en industrie ne se présentent pas pareil)</label>' +
+        ? '<div class="mb-3"><label class="form-label">Métier ou domaine visé (à compléter, c’est utile : un stage en association et un stage en industrie ne se présentent pas pareil)</label>' +
           '<input type="text" class="form-control champ-grand" id="immPoste" placeholder="Ex : Aide-soignant, magasinier, secrétaire…" value="' + echapperAttribut(im.poste || '') + '"></div>'
         : '') +
-      '<div class="mb-3"><label class="form-label">' + (estFormationCand ? 'Adresse internet de la formation (facultatif)' : 'Adresse internet (facultatif)') + '</label>' +
+      '<div class="mb-3"><label class="form-label">' + (estFormationCand ? 'Adresse internet de la formation (à compléter)' : 'Adresse internet (à compléter)') + '</label>' +
       '<input type="url" class="form-control champ-grand" id="immLien" placeholder="https://..." value="' + (im.lien || '') + '"></div>' +
       '<div class="row g-2"><div class="col-md-12"><label class="form-label">' + (estFormationCand
-        ? 'Nom de l’organisme de formation (facultatif - laissez vide si vous ne le connaissez pas encore)'
-        : 'Nom de la structure (facultatif - laissez vide pour une candidature générale)') + '</label>' +
+        ? 'Nom de l’organisme de formation (à compléter - laissez vide si vous ne le connaissez pas encore)'
+        : 'Nom de la structure (à compléter - laissez vide pour une candidature générale)') + '</label>' +
       '<input type="text" class="form-control champ-grand" id="immStructure" placeholder="' + (estFormationCand ? 'Ex : AFPA, GRETA, CFA…' : 'Ex : Boulangerie Martin') + '" value="' + (im.structure || '') + '"></div></div>' +
       (calendrierIci ? contenuImmersionCalendrierChamps(im) : '') +
       // TACHE (6conv-3b-3, option C) : recruteur + couleur d'entreprise ne sont
@@ -9244,242 +9727,8 @@ function contenuRechercheDomaineCorps() {
   return zoneChoix + confirmation;
 }
 
-// TACHE (retour utilisateur 2026-09-13) : ORPHELINE -- plus aucun appelant
-// depuis la fusion ci-dessus (contenuRechercheMetierCorps/contenuRechercheDomaineCorps
-// dans contenuModeRecherche()). Laissee intacte volontairement (contient
-// encore la logique de reference "Changer de mode" + titre + estImmersion),
-// jamais recablee sans verification exhaustive prealable.
-function banniereDomaineCible() {
-  var actif = !!dossier.secteurCible;
-  var tousLesSecteurs = secteursDisponibles();
-  var texteNormalise = normaliserTexte(etatRechercheDomaine.texte).trim();
 
-  function pastilleSecteur(s) {
-    return '<span class="pastille" data-domaine-choix="' + echapperAttribut(s.nom) + '">' +
-      echapperAttribut(s.nom) + '</span>';
-  }
 
-  var zoneChoix = '';
-  if (!actif) {
-    var raccourcis = tousLesSecteurs.slice()
-      .sort(function (a, b) { return b.count - a.count || a.nom.localeCompare(b.nom, 'fr'); })
-      .slice(0, LIMITE_RACCOURCIS_DOMAINES);
-    var listeComplete = tousLesSecteurs.slice().sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); });
-    // Retour de Denis (2026-10-10) : la liste complète des secteurs est toujours visible (plus de « parmi les plus courants »).
-    var enRecherche = true;
-    var listeAffichee = texteNormalise.length > 0
-      ? listeComplete.filter(function (s) { return normaliserTexte(s.nom).indexOf(texteNormalise) !== -1; })
-      : listeComplete;
-
-    zoneChoix = '<div class="banniere-metier-cible-recherche">' +
-      '<p class="mb-1 small fw-semibold">&#128269; Choisissez votre domaine dans la liste, ou recherchez-le :</p>' +
-      '<input type="text" class="form-control" id="rechercheDomaineInput" placeholder="Un domaine..." ' +
-      'value="' + echapperAttribut(etatRechercheDomaine.texte) + '"></div>' +
-      (!enRecherche
-        ? '<div class="pastilles mt-2">' + raccourcis.map(pastilleSecteur).join('') + '</div>' +
-          '<p class="text-muted small mt-2 mb-0">Ou recherchez dans la liste complète (' +
-          tousLesSecteurs.length + ' domaines) ci-dessus.</p>'
-        : (listeAffichee.length
-            ? '<div class="pastilles mt-2">' + listeAffichee.map(pastilleSecteur).join('') + '</div>'
-            : '<p class="text-muted small mt-2 mb-0">Aucun domaine ne correspond à cette recherche.</p>'));
-  }
-
-  // TACHE (retour utilisateur : "le bouton Changer de domaine est plus
-  // visible que le domaine choisi lui-meme, on croit avoir fait une
-  // erreur") : confirmation agrandie (banniere-metier-cible-confirmation,
-  // deja prevue a cet effet dans le CSS mais jamais utilisee jusqu'ici) +
-  // couleur de succes conservee (banniere-metier-cible-max) ; le bouton
-  // passe de btn-danger (rouge, alarmant) a un lien discret -- ce n'est
-  // pas une action destructive/dangereuse, juste une option secondaire.
-  var confirmation = actif
-    ? '<p class="mb-0 mt-2 banniere-metier-cible-max banniere-metier-cible-confirmation">&#9989; Domaine cible : <strong>' +
-      echapperAttribut(dossier.secteurCible) + '</strong>.</p>'
-    : '';
-  // TACHE (retour utilisateur : "Changer de domaine passe quasiment
-  // inapercu a cote de Changer de mode, qui lui est bien lisible") : meme
-  // traitement pastille que .btn-changer-mode-recherche (taille/forme),
-  // mais en jaune pour rester distinct visuellement -- voir
-  // .btn-changer-domaine-pastille dans css/style.css.
-  var btnEffacerTout = actif
-    ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-changer-domaine-pastille" ' +
-      'data-domaine-reset="1">&#10227; Changer de domaine</button></div>'
-    : '';
-
-  return '<div class="banniere-metier-cible' + (actif ? ' banniere-metier-cible-actif banniere-metier-cible-compacte' : '') +
-    // TACHE (retour utilisateur : "une fois que j'ai choisi domaine ou
-    // métier, le contour rouge n'a plus besoin d'être visible") : garde-fou
-    // explicite sur "actif" en plus de metierCibleEnEvidence -- le contour
-    // rouge n'a plus lieu d'etre des qu'un domaine est reellement choisi,
-    // quel que soit l'etat exact du drapeau (qui ne se reinitialise qu'au
-    // premier clic/saisie dans la zone, un detail d'implementation qui ne
-    // doit pas pouvoir laisser un contour rouge sur un choix deja fait).
-    ((metierCibleEnEvidence && !actif) ? ' a-completer' : '') + '" id="banniereMetierCibleZone">' +
-    '<div class="banniere-metier-cible-titre d-flex justify-content-between align-items-center flex-wrap gap-2">' +
-    '<span>&#127760; Domaine cible</span>' +
-    '<button type="button" class="btn btn-sm btn-outline-primary btn-changer-mode-recherche" ' +
-    'id="btnChangerModeRecherche">&#128260; Changer de mode</button></div>' +
-    btnEffacerTout +
-    zoneChoix +
-    confirmation +
-    // TACHE (retour utilisateur : integrer "Votre candidature est prête"
-    // dans ce meme bandeau, sous la confirmation "Domaine cible : X") :
-    // reutilise banniereJePostuleContenu(), qui gere deja les deux cas
-    // (metier OU secteur) -- l'ancien bandeau independant banniereJePostule()
-    // est retire, devenu redondant (voir pageRevelation()).
-    (actif ? '<div class="banniere-je-postule banniere-je-postule-accent mt-3">' + banniereJePostuleContenu() + '</div>' : '') +
-    '</div>';
-}
-
-function wireBanniereDomaineCible(rerender) {
-  // TACHE (retour utilisateur : bouton "Changer de mode de recherche") :
-  // present sur cette banniere (mode domaine).
-  var btnChangerMode = document.getElementById('btnChangerModeRecherche');
-  if (btnChangerMode) {
-    btnChangerMode.addEventListener('click', function () {
-      etatAfficherChoixModeRecherche = true;
-      rerender();
-    });
-  }
-  var input = document.getElementById('rechercheDomaineInput');
-  if (input) {
-    input.addEventListener('input', function () {
-      etatRechercheDomaine.texte = this.value;
-      rerender();
-    });
-    input.focus();
-    var pos = input.value.length;
-    input.setSelectionRange(pos, pos);
-  }
-  document.querySelectorAll('[data-domaine-choix]').forEach(function (el) {
-    el.addEventListener('click', function () {
-      // TACHE (reutilisation du moteur existant) : meme champ que l'ancien
-      // panneau "Choisissez un secteur d'activite" (ouvrirPanneauChoixSecteur).
-      dossier.secteurCible = this.dataset.domaineChoix;
-      dossier.metierCible = null;
-      etatRechercheDomaine.texte = '';
-      rerender();
-    });
-  });
-  var btnReset = document.querySelector('[data-domaine-reset]');
-  if (btnReset) {
-    btnReset.addEventListener('click', function () {
-      dossier.secteurCible = null;
-      rerender();
-    });
-  }
-}
-
-function banniereMetierCible() {
-  // TACHE (retour utilisateur : impossible de revenir sur le choix
-  // metier/domaine) : si le bouton "Changer" (voir plus bas, present sur
-  // les 2 bannieres) a ete utilise, on affiche le choix "Comment
-  // souhaitez-vous rechercher un emploi ?" quel que soit le mode DEJA
-  // choisi -- verifie AVANT le dispatch metier/domaine habituel, qui ne
-  // s'applique donc que si ce choix n'est pas en train d'etre modifie.
-  if (etatAfficherChoixModeRecherche) {
-    return '<div class="banniere-metier-cible" id="banniereMetierCibleZone">' +
-      '<div class="banniere-metier-cible-titre">&#127919; Comment souhaitez-vous rechercher un emploi ?</div>' +
-      '<p class="text-muted small mb-2">Vous pouvez changer ce choix à tout moment.</p>' +
-      contenuModeRecherche() +
-      '</div>';
-  }
-
-  // TACHE (refonte Candidature/Potentiel, Etape 2) : en mode "domaine", cette
-  // banniere entiere est remplacee par l'ecran de choix de domaine ci-dessus
-  // -- plus de recherche de metier ni de "Ce metier"/"Secteur(s)" dans ce
-  // mode, un seul choix guide.
-  if (modeRechercheEffectif() === 'domaine') { return banniereDomaineCible(); }
-
-  // TACHE (retour utilisateur : nettoyage code mort) : cette fonction ne
-  // s'execute donc plus JAMAIS qu'en mode "metier precis" (modeRechercheEffectif()
-  // === 'metier' garanti : choisi explicitement dans le bloc Candidature,
-  // prerequis desormais impossible a contourner -- voir pageObjectif(), qui
-  // envoie systematiquement vers "Mon projet" apres un CV analyse, plutot
-  // que de sauter directement vers Potentiel -- ou implicite pour
-  // stage/alternance/pmsmp) -- la mono-selection (au plus 1 metier, classique
-  // OU hors repertoire) y est donc elle aussi garantie. Tout ce qui necessitait
-  // de distinguer "mono" vs "multi" ou d'afficher une limite (compteurs X/5 et
-  // X/3, message "selection complete") a ete retire : ces cas ne se
-  // produisent plus jamais ici. LIMITE_METIERS_CANDIDATS/LIMITE_METIERS_HORS_
-  // REPERTOIRE restent neanmoins utilisees ailleurs (ex. clic sur un metier
-  // recommande depuis un autre bloc de Potentiel, hors de ce bandeau).
-  var actif = !!(dossier.metierCible || dossier.secteurCible);
-
-  // TACHE (retour utilisateur : "Ce metier" automatique) : le choix est
-  // desormais immediat (voir ajouterMetierCandidat) -- la recherche reste
-  // donc accessible meme apres un choix, pour changer directement de metier
-  // sans passer par "Tout effacer".
-  var zoneRecherche = '<div class="banniere-metier-cible-recherche">' +
-    '<p class="mb-1 small fw-semibold">&#128269; ' +
-    (actif ? 'Vous pouvez choisir un autre métier à tout moment :' :
-      'Recherchez un métier : s’il est dans notre répertoire, cliquez dessus pour l’ajouter. ' +
-      'Sinon, appuyez sur Entrée pour l’ajouter tel quel :') +
-    '</p>' +
-    '<input type="text" class="form-control" id="rechercheMetierCibleInput" ' +
-    'placeholder="Quel métier recherchez-vous ?">' +
-    '<div id="resultatsMetierCible"></div>' +
-    '</div>';
-
-  // TACHE (demande : metiers hors repertoire) : la saisie libre se fait
-  // desormais directement dans la barre de recherche ci-dessus (voir
-  // wireRechercheMetierCible) -- seuls les metiers hors repertoire DEJA
-  // ajoutes restent affiches ici (chips), plus de bouton/champ separes.
-  var horsRepertoire = dossier.metiersHorsRepertoire;
-  var zoneHorsRepertoire = horsRepertoire.length
-    ? '<div class="banniere-metier-cible-hors-repertoire">' +
-      '<div class="metiers-chips mt-2">' + horsRepertoire.map(pastilleMetierHorsRepertoireHTML).join('') + '</div>' +
-      '</div>'
-    : '';
-
-  var candidats = dossier.metiersCandidats;
-  var htmlPastillesCandidats = candidats.length
-    ? '<div class="metiers-chips mt-2">' + candidats.map(pastilleMetierCandidatHTML).join('') + '</div>'
-    : '';
-
-  // TACHE (retour utilisateur : suppression definitive du toggle "Ce
-  // metier"/"Secteur(s) d'activite") : desormais que le choix "Comment
-  // souhaitez-vous rechercher un emploi ?" du bloc Candidature est un
-  // prerequis pour acceder a Potentiel (voir etatAccesRevelation()),
-  // Potentiel n'a plus jamais a arbitrer lui-meme entre metier/secteur --
-  // il ne fait plus que s'adapter au choix deja fait.
-
-  // TACHE (retour utilisateur : "Tout effacer" inutile) : en mono-selection,
-  // il n'y a jamais qu'un seul metier -- la croix de retrait sur son chip
-  // (deja disponible) fait exactement la meme chose, "Tout effacer" est donc
-  // retire (bouton + cablage data-metiers-candidats-reset).
-
-  // TACHE (retour utilisateur : retirer les couleurs bleu/jaune) : plus de
-  // variante jaune -- le candidat ne doit jamais voir si son metier est
-  // "reconnu" par le referentiel ou saisi librement.
-  // TACHE (retour utilisateur : pas de "changer de mode" pour stage/
-  // alternance/immersion) : ces 3 parcours n'ont jamais eu ce choix a faire
-  // (mode "metier" implicite, voir modeRechercheEffectif()) -- le bouton
-  // n'a donc pas lieu d'etre ici, contrairement a offre/spontanee/
-  // reconversion ou le choix metier/domaine est reel.
-  var estImmersion = (dossier.objectif === 'stage' || dossier.objectif === 'alternance' || dossier.objectif === 'pmsmp' || dossier.objectif === 'formation');
-  var boutonChangerMode = estImmersion ? '' :
-    '<button type="button" class="btn btn-sm btn-outline-primary btn-changer-mode-recherche" ' +
-    'id="btnChangerModeRecherche">&#128260; Changer de mode</button>';
-
-  return '<div class="banniere-metier-cible' +
-    (actif ? ' banniere-metier-cible-actif' : '') +
-    (actif ? ' banniere-metier-cible-compacte' : '') +
-    ((metierCibleEnEvidence && !actif) ? ' a-completer' : '') + '" id="banniereMetierCibleZone">' +
-    '<div class="banniere-metier-cible-titre d-flex justify-content-between align-items-center flex-wrap gap-2">' +
-    '<span>&#127919; Métier cible</span>' +
-    boutonChangerMode + '</div>' +
-    zoneRecherche +
-    zoneHorsRepertoire +
-    htmlPastillesCandidats +
-    (candidats.length === 0 && horsRepertoire.length === 0
-      ? '<p class="mb-0 mt-2 small text-muted">Aucun métier sélectionné. Recherchez un métier ci-dessus pour personnaliser ' +
-        'votre CV, votre lettre de motivation et votre préparation à l’entretien.</p>'
-      : '') +
-    // TACHE (retour utilisateur) : "Votre candidature est prête" integre ici
-    // -- voir meme commentaire dans banniereDomaineCible().
-    (actif ? '<div class="banniere-je-postule banniere-je-postule-accent mt-3">' + banniereJePostuleContenu() + '</div>' : '') +
-    '</div>';
-}
 // Pastille d'un metier hors repertoire : croix de retrait + nom en texte
 // simple -- meme comportement que pastilleMetierCandidatHTML (retour
 // utilisateur : metier reconnu ou non, le meme traitement partout).
@@ -9489,55 +9738,6 @@ function pastilleMetierHorsRepertoireHTML(nom) {
     '<span class="metier-resume-suppr" data-metier-hr-suppr="' + echapperAttribut(nom) + '" title="Retirer">&#10005;</span>' +
     '<span class="metier-resume-nom">' + (estCible ? '&#127919; ' : '') + nom + '</span>' +
     '</span>';
-}
-function wireBanniereMetierCible(rerender) {
-  // TACHE (retour utilisateur : impossible de revenir sur le choix
-  // metier/domaine) : cablage du repli "changer de mode" (voir
-  // banniereMetierCible()) -- reutilise wireModeRecherche() tel quel.
-  if (etatAfficherChoixModeRecherche) {
-    wireModeRecherche(rerender);
-    return;
-  }
-
-  // TACHE (refonte Candidature/Potentiel, Etape 2) : cablage dedie en mode
-  // "domaine" (voir banniereDomaineCible ci-dessus) -- aucun des elements
-  // ci-dessous (recherche metier, candidats, "Ce metier"/"Secteur(s)") n'est
-  // present dans ce mode, donc rien a cabler parmi eux.
-  if (modeRechercheEffectif() === 'domaine') { wireBanniereDomaineCible(rerender); return; }
-
-  // TACHE (retour utilisateur : bouton "Changer de mode de recherche") :
-  // present sur cette banniere (mode metier) une fois un choix deja fait.
-  var btnChangerMode = document.getElementById('btnChangerModeRecherche');
-  if (btnChangerMode) {
-    btnChangerMode.addEventListener('click', function () {
-      etatAfficherChoixModeRecherche = true;
-      rerender();
-    });
-  }
-
-  // TACHE (retour utilisateur 2026-09-13, bug confirme) : wireRechercheMetierCible()
-  // (barre de recherche + resultats + Entree pour saisie libre) etait
-  // definie mais n'etait appelee NULLE PART -- la zone de recherche
-  // s'affichait mais ne repondait a aucune frappe. Orphelin depuis le
-  // dernier refactor de cette fonction, jamais remarque puisque
-  // banniereMetierCible() elle-meme n'avait plus d'appelant.
-  wireRechercheMetierCible(rerender);
-
-  document.querySelectorAll('[data-metier-candidat-suppr]').forEach(function (el) {
-    el.addEventListener('click', function (e) {
-      e.stopPropagation();
-      retirerMetierCandidat(this.dataset.metierCandidatSuppr);
-      rerender();
-    });
-  });
-
-  document.querySelectorAll('[data-metier-hr-suppr]').forEach(function (el) {
-    el.addEventListener('click', function (e) {
-      e.stopPropagation();
-      retirerMetierHorsRepertoire(this.dataset.metierHrSuppr);
-      rerender();
-    });
-  });
 }
 // TACHE (autocompletion, mise en evidence) : affichage uniquement -- entoure
 // la portion du nom qui correspond au texte tape d'un <mark>. Insensible aux
@@ -11112,18 +11312,22 @@ function pageRevelation(conserverTirage) {
     // N'apporte rien, source de confusion. Le mecanisme reperesBoutonAncre()
     // reste utilise ailleurs sur cette meme page (une carte metier
     // precise, CONFIG_BLOC_METIERS) -- jamais touche ici.
-    '<p class="revelation-et-apres">À l\'étape suivante, l\'assistant en ligne rédige votre CV à partir de tout ceci.</p>' +
+    '<p class="revelation-et-apres">' + (_creerCvSansAssistant() ? 'À l’étape suivante, vous voyez votre CV et vous le mettez en page : les textes sont les vôtres.' : 'À l\'étape suivante, l\'assistant en ligne rédige votre CV à partir de tout ceci.') + '</p>' +
+    (_creerCvSansAssistant() ? '<div class="text-center mb-3"><button type="button" class="btn btn-outline-secondary btn-sm" id="btnCreerCvChangerAvecAssistantProfil">Changer : être aidé par l’assistant</button></div>' : '') +
     '</div>' +
     // TACHE (refonte parcours guide, etape 5, sous-etape 5.1) : le parcours
     // 'nouveau' passe par la page 'assistant' ; 'maj'/'pret'/domaine vont
     // directement a 'resultats' (phase assistant deja faite via le wizard).
     (function () {
-      var routeApres = (dossier.modeCreation === 'nouveau') ? 'assistant' : 'resultats';
-      return '<div class="barre-navigation-fixe">' + barreNavigation('projet', routeApres, '&#128640; Passer à l’action', { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' }) + '</div>';
+      // « A la main, sans assistant » : « Votre profil » mene directement a « Vos documents ».
+      var routeApres = (dossier.modeCreation === 'nouveau' && !_creerCvSansAssistant()) ? 'assistant' : 'resultats';
+      return '<div class="barre-navigation-fixe">' + barreNavigation('projet', routeApres, _creerCvSansAssistant() ? 'Voir mon CV &#8594;' : '&#128640; Passer à l’action', { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' }) + '</div>';
     })();
   app.innerHTML = html;
 
   wireBlocERIP(CONFIG_BLOC_PROFIL, function () { pageRevelation(true); });
+  var btnChangerAssistant = document.getElementById('btnCreerCvChangerAvecAssistantProfil');
+  if (btnChangerAssistant) { btnChangerAssistant.addEventListener('click', function () { dossier.creationSansAssistant = false; pageRevelation(true); }); }
 
   if (!modeDomaineEffectif) { wireBlocERIP(CONFIG_BLOC_METIERS, function () { pageRevelation(true); }); }
 
@@ -11347,7 +11551,7 @@ function contenuRectangleStyleCV(docActif, masquerBoutonValider, situationObliga
     '<p class="assistant-groupe-titre"><span aria-hidden="true">&#128188;</span>Votre situation en ce moment' +
     (situationObligatoire
       ? '<span class="assistant-badge-fac" style="background:var(--warning-bg-subtle);color:var(--warning-strong);border-color:var(--warning-border);">à indiquer</span>'
-      : '<span class="assistant-badge-fac">facultatif</span>') + '</p>' +
+      : '<span class="assistant-badge-fac">à compléter</span>') + '</p>' +
     '<p class="assistant-groupe-aide">Cela aide l\'assistant à présenter votre parcours au mieux. Jamais un jugement ; ' +
     (situationObligatoire ? 'nécessaire pour passer à la suite de ce parcours.' : 'transmis seulement si vous le renseignez. Vous pouvez passer.') + '</p>' +
     '<div class="assistant-jetons">' +
@@ -11374,7 +11578,7 @@ function contenuRectangleStyleCV(docActif, masquerBoutonValider, situationObliga
     'Les réglages ci-dessous conviennent à la plupart des situations : gardez-les tels quels, ou ajustez-les.</p>' +
     boutonReprendreStyleCv + groupes + groupeSituation +
     (masquerBoutonValider ? '' : '<div class="assistant-actions-fin">' +
-      '<button type="button" class="assistant-btn plein sm" id="btnStyleCvOk">Ces réglages me conviennent &#8594;</button>' +
+      '<button type="button" class="assistant-btn plein sm" id="btnStyleCvOk">Continuer &#8594;</button>' +
       '</div>');
 }
 function resumeRectangleStyleCV(docActif) {
@@ -11532,7 +11736,7 @@ function pageAssistant() {
     _relectureIAValideeParType[docActif] = true;
   }
 
-  var html = afficherProgression('assistant') +
+  var html = afficherProgression('assistant') + (typeof _creerCvBandeRevoirSurEcran === 'function' ? _creerCvBandeRevoirSurEcran('assistant') : '') +
     '<div class="page-catalogue-contenu">' +
     '<div class="text-center"><h1>&#128172; L\'assistant en ligne</h1>' +
     '<p class="sousTitre">L\'application prépare et copie tout pour vous. Vous échangez avec l\'assistant, puis vous revenez coller sa réponse. Vous n\'avez rien à taper.</p></div>' +
@@ -11557,7 +11761,6 @@ function pageAssistant() {
       '<p class="assistant-groupe-titre"><span aria-hidden="true">&#128193;</span>Vos informations sont déjà enregistrées</p>' +
       '<p class="assistant-groupe-aide">Les informations que vous avez saisies jusqu\'ici (parcours, projet, expériences...) sont conservées : elles serviront directement à préparer votre entretien. Réglez ci-dessous le style d\'écriture, ou reprenez directement celui utilisé précédemment.</p>' +
       '</div>' : '') +
-    htmlBanniereComplementCV() +
     rectangleAssistant('adaptation-metier',
       '&#127898;&#65039;', 'Réglez le style d\'écriture',
       resumeRectangleStyleCV(docActif),
@@ -11576,7 +11779,7 @@ function pageAssistant() {
       '&#128209;', 'Ce que l’assistant a préparé',
       (_relectureIAValideeParType[docActif] ? 'choix validés' : ''),
       contenuRectangleRelectureIA()) : '') +
-    ((docActif === 'cv' && reponseIAImportee(docActif)) ? rectangleComplementCV() : '') +
+    ((docActif === 'cv' && reponseIAImportee(docActif) && !complementCVEnAttente()) ? rectangleComplementCV() : '') +
     '</div>' +
     // Sous-etape 5.5 : "Continuer vers Vos documents" reste desactive tant
     // que les choix n'ont pas ete valides (maquette v5).
@@ -11598,7 +11801,7 @@ function pageAssistant() {
     // restaure d'abord dernierDocumentPrepare au document d'ou la personne
     // venait REELLEMENT (_docAvantAssistant, capture a chaque entree vers
     // "assistant", voir plus haut dans ce fichier) avant de naviguer.
-    barreNavigation(docActif === 'cv' ? 'revelation' : 'resultats', 'resultats', (docActif === 'cv' ? libelleContinuerComplementCV('Continuer vers « Vos documents » &#8594;') : 'Continuer vers « Vos documents » &#8594;'), {
+    barreNavigation(docActif === 'cv' ? 'revelation' : 'resultats', 'resultats', 'Continuer &#8594;', {
       onclickPrecedent: docActif === 'cv' ? undefined : '_assistantRetourDocPrecedent()',
       suivantDesactive: !_relectureIAValideeParType[docActif],
       suivantDesactiveMessage: 'Importez d\'abord la réponse de l\'assistant : ses propositions s\'appliquent alors toutes seules.'
@@ -11868,11 +12071,11 @@ function contenuIdentiteChampsInterne() {
       '</div>' + notePrenomNomHTML() +
       // adresse postale marquee facultative + phrase. Code postal / Ville sans mention.
       '<div class="row g-2 mt-1">' +
-      '<div class="col-6"><input type="text" class="form-control form-control-sm" id="identiteAdresse" placeholder="Adresse postale (facultatif)" value="' + echapperAttribut(id.adresse) + '"></div>' +
+      '<div class="col-6"><input type="text" class="form-control form-control-sm" id="identiteAdresse" placeholder="Adresse postale (à compléter)" value="' + echapperAttribut(id.adresse) + '"></div>' +
       '<div class="col-3"><input type="text" inputmode="numeric" maxlength="5" class="form-control form-control-sm" id="identiteCodePostal" placeholder="Code postal" value="' + echapperAttribut(id.codePostal) + '"></div>' +
       '<div class="col-3"><input type="text" class="form-control form-control-sm" id="identiteVille" placeholder="Ville" value="' + echapperAttribut(id.ville) + '"></div>' +
       '</div>' +
-      '<div class="row g-2 mt-1"><div class="col-12"><input type="text" class="form-control form-control-sm" id="identiteLien" placeholder="Lien LinkedIn ou site personnel (facultatif)" value="' + echapperAttribut(id.lien || '') + '"></div></div>' +
+      '<div class="row g-2 mt-1"><div class="col-12"><input type="text" class="form-control form-control-sm" id="identiteLien" placeholder="Lien LinkedIn ou site personnel (à compléter)" value="' + echapperAttribut(id.lien || '') + '"></div></div>' +
       '<p class="small text-muted mt-1 mb-0">Sur un CV, le code postal et la ville suffisent. L\'adresse précise n\'est plus attendue ; ne la renseignez que si c\'est utile (proximité avec l\'entreprise).</p>' +
       '<button type="button" class="btn btn-primary btn-sm mt-2" id="btnEnregistrerIdentite"' + (pretPourEnregistrer ? '' : ' disabled title="' + phraseMinimum + '"') + '>&#128190; Enregistrer mon identité</button>' +
       (pretPourEnregistrer ? '' : '<p class="small text-muted mt-1 mb-0">' + phraseMinimum + '</p>');
@@ -12061,7 +12264,7 @@ function contenuMissionsFormationBrouillon(nf) {
       '<p class="mb-1 small fw-semibold">Exemples de missions pour ce secteur (cliquez pour sélectionner) :</p>' +
       '<div class="pastilles mb-2">' + pastillesMissions + '</div></div>';
   }
-  return '<p class="mb-1 small text-muted">Qu’avez-vous fait pendant cette formation ? (facultatif -- utilisé pour enrichir votre CV, jamais affiché tel quel)</p>' +
+  return '<p class="mb-1 small text-muted">Qu’avez-vous fait pendant cette formation ? (à compléter - utilisé pour enrichir votre CV, jamais affiché tel quel)</p>' +
     '<p class="mb-1 small">Secteur le plus proche :</p>' +
     '<div class="pastilles mb-2">' + pastillesSecteurs + '</div>' +
     blocMissionsExemples +
@@ -12318,9 +12521,9 @@ function contenuFormations() {
     // TACHE (Denis, 2026-09-25) : centre de formation et lieu, facultatifs : la personne choisira ensuite, dans « La mise en page »,
     // de les afficher ou non sur le CV.
     '<div class="row g-2 mb-3" id="zoneFormationCentreLieu">' +
-    '<div class="col-7"><input type="text" class="form-control form-control-sm" id="niveauFormationCentre" placeholder="Centre de formation ou école (facultatif)"' +
+    '<div class="col-7"><input type="text" class="form-control form-control-sm" id="niveauFormationCentre" placeholder="Centre de formation ou école (à compléter)"' +
     (niveauChoisi ? '' : ' disabled') + ' value="' + echapperAttribut(nf.centre || '') + '"></div>' +
-    '<div class="col-5"><input type="text" class="form-control form-control-sm" id="niveauFormationLieu" placeholder="Ville (facultatif)"' +
+    '<div class="col-5"><input type="text" class="form-control form-control-sm" id="niveauFormationLieu" placeholder="Ville (à compléter)"' +
     (niveauChoisi ? '' : ' disabled') + ' value="' + echapperAttribut(nf.lieu || '') + '"></div>' +
     '</div>' +
     contenuMissions +
@@ -12976,6 +13179,8 @@ function lignePastillesAssistantsIA(liste, couleurFond, couleurBordure, couleurT
 // PROFIL inchangee, seules les INSTRUCTIONS envoyees changent). Omis
 // (undefined) partout ailleurs : comportement exactement identique a avant.
 function wireChoixAssistantIA(rerender, clePromptOverride) {
+  // E5 : panneau « Vos appuis » (lettres de recommandation) de la page du CV ; sans effet quand il est absent.
+  if (typeof _coLettreBrancherAppuis === 'function' && docActifActuel() === 'cv') { _coLettreBrancherAppuis(rerender || pageResultats); }
   document.querySelectorAll('[data-assistant]').forEach(function (el) {
     el.addEventListener('click', function () {
       var id = this.dataset.assistant;
@@ -12995,9 +13200,17 @@ function wireChoixAssistantIA(rerender, clePromptOverride) {
         // entretien" (accueil) et le choix explicite depuis une fiche metier.
         // 'nouveau' n'est pas concerne (hors decision).
         construireTexteACopier: function () {
-          var cleP = clePromptOverride || ((type === 'entretien' && (dossier.modeCreation === 'pret' || dossier.modeCreation === 'maj'))
-            ? 'entretien-accueil' : type);
-          return promptCache(cleP, texteProfilEffectif(type));
+          // 25/10/2026 : dans « Vos documents », l'entretien est TOUJOURS la fiche rapide (aussi dans « Créer un nouveau CV », où il donnait avant l'entraînement approfondi) ;
+          // l'entraînement par échanges vit dans le module « M'entraîner à un entretien ».
+          var cleP = clePromptOverride || (type === 'entretien' ? 'entretien-accueil' : type);
+          var messageAssistant = promptCache(cleP, texteProfilEffectif(type));
+          // E5 (24/10/2026) : lettres de recommandation du CV (deux au plus), relues et masquees par la personne, apres le profil ; rien si « Non » ou aucune.
+          // 25/10/2026 (décision Denis) : la lettre de motivation rapide et la fiche d'entretien rapide vont vite, sans lettre de recommandation ; elle reste pour le CV et pour les deux modules approfondis (leurs propres messages).
+          if (type === 'cv') {
+            var sectionReco = sectionRecommandationPourMessage();
+            if (sectionReco) { messageAssistant += '\n\n' + sectionReco; }
+          }
+          return messageAssistant;
         },
         onApresValidation: function (urlAssistant, nomAssistant) {
           _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
@@ -13008,6 +13221,12 @@ function wireChoixAssistantIA(rerender, clePromptOverride) {
     });
   });
 }
+// Section « LETTRE DE RECOMMANDATION » a ajouter apres le profil (CV, entretien) : une seule lettre de reference, la meme que pour la lettre
+// de motivation (decision de Denis, 24/10/2026), relue et masquee par la personne ; vide si « Non » ou aucune lettre deposee.
+function sectionRecommandationPourMessage() {
+  if (typeof _coLettreRecos === 'undefined' || _coLettreRecoReponse === 'non' || typeof sectionRecommandationLettreCo !== 'function') { return ''; }
+  return sectionRecommandationLettreCo(recommandationEnvoyeeLettreCo(_coLettreRecos, _coLettreRecoChoisie)) || '';
+}
 // --- Rectangle 2 de pageAssistant : "Choisissez votre assistant" (5.3) ---
 // TACHE (dette B.2, BRIQUES_COMMUNES.md, resorption, 2026-09-04) : dernier
 // des 3 endroits, migre vers le composant partage htmlChoixAssistantBilanCorps()
@@ -13016,9 +13235,11 @@ function wireChoixAssistantIA(rerender, clePromptOverride) {
 // a partir de champs structures (dossier.profilTexteManuel / texteProfil()),
 // jamais un texte deja depose tel quel par la personne comme les 3 autres
 // modules -- ajoute donc APRES le composant partage, jamais absorbe dedans.
-function contenuRectangleChoixIA(docActif) {
+function contenuRectangleChoixIA(docActif, options) {
   var texteModifie = !!dossier.profilTexteManuel;
-  return '<p class="assistant-aide">Cliquez sur un assistant. L\'application prépare et copie tout, affiche un court écran d\'attente, puis ouvre l\'assistant dans un nouvel onglet : vous n\'avez rien à taper.</p>' +
+  // options.sansAppuis : le module qui l'affiche deja au-dessus des rectangles (« Un CV, plusieurs métiers », page 3) ne le repète pas ici.
+  return ((docActif === 'cv' && !(options && options.sansAppuis) && typeof _coLettreHtmlAppuis === 'function') ? '<div class="mb-3">' + _coLettreHtmlAppuis({ pourCv: true }) + '</div>' : '') +
+    '<p class="assistant-aide">Cliquez sur un assistant. L\'application prépare et copie tout, affiche un court écran d\'attente, puis ouvre l\'assistant dans un nouvel onglet : vous n\'avez rien à taper.</p>' +
     htmlChoixAssistantBilanCorps({
       idErreur: 'assistantErreurChoixIA', attrAssistant: 'data-assistant',
       etapes: ETAPES_DETAIL_CHOIX_IA,
@@ -13097,15 +13318,9 @@ function _phraseLimitesWordCv() {
   }
   return (typeof phraseLimitesWord === 'function') ? phraseLimitesWord(pr) : '';
 }
-function contenuRectangleExporter(docActif) {
-  if (docActif !== 'cv') {
-    return construireContenuExportDocument(docActif);
-  }
-  // TACHE (demande explicite de Denis 2026-09-27, "un seul ecran, le format se choisit a la fin") :
-  // plus de format "deja choisi" en amont -- les DEUX boutons (Word et PDF) sont toujours proposes
-  // ensemble, quel que soit le format de PAGE choisi dans "La mise en page" (A4 ou Mini CV A5).
-  var dejaFait = !!(dossier.documentsEnregistres && dossier.documentsEnregistres.cv);
-  var style = '<style>' +
+// Style des boutons d'export (CV et lettre) : une seule definition.
+function _styleExportDocument() {
+  return '<style>' +
     '.expo-grille{display:flex;flex-wrap:wrap;gap:.6rem;}' +
     '.expo-btn{display:inline-flex;align-items:center;gap:.4rem;font-weight:600;font-size:.95rem;' +
     'padding:.7rem 1.1rem;border-radius:10px;border:1px solid var(--accent);background:var(--bg-card);' +
@@ -13124,6 +13339,190 @@ function contenuRectangleExporter(docActif) {
     'border-left:3px solid var(--accent);border-radius:8px;padding:.7rem .95rem;margin-top:.6rem;}' +
     '.expo-autre{margin-top:1rem;}' +
     '</style>';
+}
+
+// ----- Export de la lettre (lot C, 24/10/2026 ; maquette docs/MAQUETTE_LETTRE_APERCU_PARCOURS_2026-10-24.html) -----
+// Trois boutons, dans l'ordre voulu par Denis : PDF (document de reference), Word, texte a copier. Le PDF vient de l'impression du meme apercu que
+// le Word (essai de faisabilite de la decision 66) ; les lettres de recommandation deposees (PDF ou photo) peuvent y etre jointes, telles que deposees.
+var _joindreRecosLettre = 'aucune';   // 'aucune' | 'ref' | 'toutes'
+
+function contenuExportLettre() {
+  var dejaFait = !!(dossier.documentsEnregistres && dossier.documentsEnregistres.lettre);
+  var recos = (typeof recommandationsJoignablesLettreCo === 'function') ? recommandationsJoignablesLettreCo() : [];
+  var joignables = recos.filter(function (r) { return r.joignable; });
+  var refJoignable = joignables.filter(function (r) { return r.reference; })[0];
+  if (_joindreRecosLettre === 'ref' && !refJoignable) { _joindreRecosLettre = 'aucune'; }
+  if (_joindreRecosLettre === 'toutes' && !joignables.length) { _joindreRecosLettre = 'aucune'; }
+  var jeton = function (id, libelle) {
+    var actif = _joindreRecosLettre === id;
+    return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-joindre-recos="' + id + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + libelle + '</button>';
+  };
+  var carteJoindre = '';
+  if (recos.length) {
+    var nonJoignables = recos.length - joignables.length;
+    carteJoindre = '<div style="margin-top:1rem;padding:0.6rem 0.85rem 0.8rem;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;background:var(--bg-subtle);">' +
+      '<h4 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">&#129309; Joindre vos lettres de recommandation au PDF</h4>' +
+      (joignables.length
+        ? '<div class="jetons-ligne">' + jeton('aucune', 'Aucune') + (refJoignable ? jeton('ref', 'Seulement celle de référence') : '') + (joignables.length > 1 ? jeton('toutes', 'Toutes (' + joignables.length + ')') : '') + '</div>' +
+          '<p class="small text-muted mb-0">Les pages jointes sont celles que vous avez déposées, <strong>sans masquage</strong> : la lettre part chez l’employeur, pas chez l’assistant.</p>'
+        : '') +
+      (nonJoignables ? '<p class="small mb-0 mt-1" style="color:var(--warning-strong);">' + nonJoignables + (nonJoignables > 1 ? ' lettres ne peuvent pas être jointes' : ' lettre ne peut pas être jointe') +
+        ' : collée en texte ou déposée en Word, on n’en a pas l’original. Déposez-la en PDF ou en photo pour la joindre.</p>' : '') +
+      '</div>';
+  }
+  var avecJointes = _joindreRecosLettre !== 'aucune';
+  return _styleExportDocument() +
+    '<p class="assistant-aide">Votre lettre est prête. Choisissez comment la récupérer : <strong>le PDF est le document de référence</strong>.</p>' +
+    '<div class="expo-grille">' +
+    '<button type="button" class="expo-btn expo-btn-principal' + (dejaFait ? ' expo-btn-fait' : '') + '" data-format-export="pdf-lettre">&#128196; ' + (dejaFait ? '&#8635; Enregistrer à nouveau ma lettre en PDF' : 'Enregistrer ma lettre en PDF') + '</button>' +
+    '<button type="button" class="expo-btn" data-format-export="docx">&#128190; Télécharger le Word</button>' +
+    '<button type="button" class="expo-btn" data-format-export="copier-lettre">&#128203; Copier le texte</button>' +
+    '</div>' +
+    '<p class="expo-aide-copie" style="border-left:3px solid var(--accent);padding:.5rem .7rem;background:var(--accent-bg-subtle);border-radius:6px;">' +
+    'Pour le PDF : dans la fenêtre qui s’ouvre, choisissez <b>« Enregistrer au format PDF »</b>, puis <b>« Enregistrer »</b>.</p>' +
+    '<p class="expo-aide-copie" role="note" style="border-left:3px solid var(--warning);padding:.55rem .75rem;background:var(--bg-subtle);border-radius:6px;">' +
+    '&#9888;&#65039; Le PDF reproduit exactement l’aperçu : c’est lui qu’il faut envoyer. Le fichier Word peut présenter de petits écarts (polices, espaces) selon l’ordinateur qui l’ouvre' +
+    (avecJointes ? ', et il ne contient pas vos lettres de recommandation jointes' : '') + '. Nous vous conseillons le PDF.</p>' +
+    (!gabaritLettreCo((dossier.lettreDestinataire || {}).gabarit).wordFidele ? '<p class="expo-aide-copie" role="note" style="border-left:3px solid var(--warning);padding:.55rem .75rem;background:var(--bg-subtle);border-radius:6px;">&#9888;&#65039; Avec le gabarit choisi, le Word s’écarte du PDF (la colonne colorée ne couvre que la première page) : <strong>il est recommandé d’enregistrer en PDF</strong>.</p>' : '') +
+    carteJoindre +
+    '<p id="messageTelechargerWord" class="small mt-2 mb-0" style="display:none;color:var(--warning);"></p>';
+}
+
+function cablerExportLettre() {
+  document.querySelectorAll('[data-joindre-recos]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      _joindreRecosLettre = this.getAttribute('data-joindre-recos');
+      _rectDocOuvert = 'exporter';
+      pageResultats();
+    });
+  });
+}
+
+// Pages (images) des lettres de recommandation a joindre, selon le choix de la personne.
+function pagesJointesLettre() {
+  if (_joindreRecosLettre === 'aucune' || typeof recommandationsJoignablesLettreCo !== 'function' || typeof pagesEnImagesRecommandation !== 'function') { return Promise.resolve([]); }
+  var choisies = recommandationsJoignablesLettreCo().filter(function (r) { return r.joignable && (_joindreRecosLettre === 'toutes' || r.reference); });
+  var toutes = [];
+  var suite = Promise.resolve();
+  choisies.forEach(function (r) {
+    suite = suite.then(function () { return pagesEnImagesRecommandation(r.fichier); }).then(function (pages) { toutes = toutes.concat(pages); });
+  });
+  return suite.then(function () { return toutes; });
+}
+
+// Regles ajoutees au rendu d'un Word de lettre pour l'imprimer : les fonds colores des gabarits (colonne, bandeau) doivent s'imprimer, le papier est blanc, aucune ombre.
+var CSS_IMPRESSION_LETTRE_DOCX =
+  '*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+  '.apercu-docx-rendu-wrapper{background:none!important;padding:0!important;display:block!important;line-height:normal;}' +
+  'section.apercu-docx-rendu{box-shadow:none!important;margin:0!important;display:block!important;overflow:visible!important;}';
+
+// Un Word de lettre (blob) affiche par docx-preview puis mis en page pour l'impression : marges de la lettre rendues par une ligne vide repetee en haut et en bas de
+// chaque page (essai de la decision 66). Source unique : la lettre seule ET les lettres de « Un CV, plusieurs metiers » passent par ici.
+// Retourne { styles, sections, nbPages } (promesse) ; sections = le HTML des pages, styles = les regles docx-preview.
+function sectionsLettreDepuisDocx(blob) {
+  return chargerLibrairieDocxPreview().then(function (lib) {
+    var zone = document.createElement('div');
+    zone.style.cssText = 'position:fixed;left:-10000px;top:0;width:900px;';
+    document.body.appendChild(zone);
+    return lib.renderAsync(blob, zone, undefined, { className: 'apercu-docx-rendu', inWrapper: true, ignoreWidth: false, ignoreHeight: false, breakPages: true }).then(function () {
+      var styles = Array.prototype.map.call(zone.querySelectorAll('style'), function (s) { return s.textContent; }).join('\n');
+      var pages = zone.querySelectorAll('.apercu-docx-rendu-wrapper > section');
+      var sections = Array.prototype.map.call(pages, function (sec) {
+        var cs = getComputedStyle(sec);
+        var haut = parseFloat(cs.paddingTop) || 0, bas = parseFloat(cs.paddingBottom) || 0, gauche = parseFloat(cs.paddingLeft) || 0, droite = parseFloat(cs.paddingRight) || 0;
+        var article = sec.querySelector('article');
+        return '<section class="apercu-docx-rendu" style="padding:0;width:auto;min-height:0;"><table style="width:100%;border-collapse:collapse;">' +
+          '<thead><tr><td style="height:' + haut + 'px;padding:0;"></td></tr></thead><tfoot><tr><td style="height:' + bas + 'px;padding:0;"></td></tr></tfoot>' +
+          '<tbody><tr><td style="padding:0 ' + droite + 'px 0 ' + gauche + 'px;">' + (article ? article.outerHTML : '') + '</td></tr></tbody></table></section>';
+      }).join('');
+      var nbPages = pages.length;
+      zone.remove();
+      return { styles: styles, sections: sections, nbPages: nbPages };
+    }, function (erreur) { zone.remove(); throw erreur; });
+  });
+}
+
+// Document imprimable : le Word de la lettre est affiche par docx-preview (comme l'apercu), puis mis en page pour l'impression : marge de page a zero (aucun
+// en-tete ni pied du navigateur) et marges de la lettre rendues par une ligne vide repetee en haut et en bas de chaque page (essai de la decision 66).
+// Les pages des lettres de recommandation suivent, en images pleine page. Retourne la promesse du texte HTML.
+function construireHtmlImpressionLettre() {
+  return Promise.all([genererDocxNatifLettreFormat('sobre', null, 'A4'), pagesJointesLettre()]).then(function (r) {
+    return sectionsLettreDepuisDocx(r[0]).then(function (rendu) {
+      var pagesImages = r[1].map(function (url) {
+        return '<div style="break-before:page;page-break-before:always;width:210mm;height:296mm;display:flex;align-items:center;justify-content:center;overflow:hidden;">' +
+          '<img src="' + url + '" style="max-width:100%;max-height:100%;"></div>';
+      }).join('');
+      return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Lettre</title><style>' + rendu.styles +
+        '\n@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#fff}' + CSS_IMPRESSION_LETTRE_DOCX +
+        '</style></head><body><div class="apercu-docx-rendu-wrapper">' + rendu.sections + '</div>' + pagesImages + '</body></html>';
+    });
+  });
+}
+
+// La lettre du dossier courant (qui peut etre une copie prêtee par un module, voir ucpmAvecDossier) rendue par son gabarit, avec la mise en page mesuree qui la
+// fait tenir sur une page : meme descente d'essais que l'apercu (ajusterApercuLettreEntier), mesuree sur le nombre de pages du rendu.
+// Retourne { css, html, nbPages } (promesse), de quoi la placer dans un compartiment etanche (shadow root) ; ne touche pas au dossier.
+function construireFeuilleLettreGabarit() {
+  var etat = etatApercuInline.lettre;
+  var avant = { sig: etat.miseEnPageSig, indice: etat.miseEnPageIndice, optimisee: etat.miseEnPageOptimisee };
+  var objet = normaliserDonneesLettre(dossier);
+  var signature = signatureMiseEnPageLettreCo(objet);
+  var restaurer = function () { etat.miseEnPageSig = avant.sig; etat.miseEnPageIndice = avant.indice; etat.miseEnPageOptimisee = avant.optimisee; };
+  var essayer = function (indice) {
+    etat.miseEnPageSig = signature; etat.miseEnPageIndice = indice; etat.miseEnPageOptimisee = true;
+    return genererDocxNatifLettreFormat('sobre', null, 'A4').then(sectionsLettreDepuisDocx).then(function (rendu) {
+      if (rendu.nbPages > 1 && indice < CANDIDATS_MISE_EN_PAGE_LETTRE_CO.length - 1) { return essayer(indice + 1); }
+      return { css: ':host{display:block;}' + rendu.styles + '\n' + CSS_IMPRESSION_LETTRE_DOCX, html: '<div class="apercu-docx-rendu-wrapper">' + rendu.sections + '</div>', nbPages: rendu.nbPages };
+    });
+  };
+  return essayer(INDICE_MISE_EN_PAGE_DEFAUT_LETTRE_CO).then(function (r) { restaurer(); return r; }, function (e) { restaurer(); throw e; });
+}
+
+// Ouvre la boite d'impression du navigateur sur ce document (iframe cachee, comme le PDF du CV) ; le nom propose est « NOM_lettre-de-motivation ».
+// PDF de la fiche d'entretien : meme principe que la lettre (le Word natif de la fiche affiche par docx-preview, puis la boite d'impression du navigateur).
+function construireHtmlImpressionEntretien() {
+  var etat = etatApercuInline.entretien || {};
+  return genererDocxNatifEntretienFormat(etat.modele || 'clair', etat.couleur || null, etat.formatPage || 'A4').then(sectionsLettreDepuisDocx).then(function (rendu) {
+    return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Fiche d’entretien</title><style>' + rendu.styles +
+      '\n@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#fff}' + CSS_IMPRESSION_LETTRE_DOCX +
+      '</style></head><body><div class="apercu-docx-rendu-wrapper">' + rendu.sections + '</div></body></html>';
+  });
+}
+function imprimerEntretienPdf() { return imprimerLettrePdf(construireHtmlImpressionEntretien, 'fiche de préparation à l’entretien'); }
+function imprimerLettrePdf(constructeurHtml, titreDocument) {
+  return (constructeurHtml || construireHtmlImpressionLettre)().then(function (html) {
+    return new Promise(function (resoudre) {
+      var iframe = document.createElement('iframe');
+      iframe.setAttribute('title', 'Impression de la lettre');
+      iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:210mm;height:297mm;border:0;opacity:0;pointer-events:none;';
+      document.body.appendChild(iframe);
+      var titreAvant = document.title;
+      iframe.onload = function () {
+        var fenetre = iframe.contentWindow;
+        var attente = (fenetre.document.fonts && fenetre.document.fonts.ready) ? fenetre.document.fonts.ready : Promise.resolve();
+        var images = Array.prototype.slice.call(fenetre.document.images).map(function (im) { return im.complete ? Promise.resolve() : new Promise(function (ok) { im.onload = ok; im.onerror = ok; }); });
+        Promise.all([attente].concat(images)).then(function () {
+          try { if (typeof nomFichierCV === 'function') { document.title = nomFichierCV({ identite: dossier.identite, titreCV: titreDocument || 'lettre de motivation' }); } } catch (e) { /* titre inchange */ }
+          try { fenetre.focus(); fenetre.print(); } finally { document.title = titreAvant; }
+          setTimeout(function () { iframe.remove(); }, 120000);
+          resoudre();
+        });
+      };
+      iframe.srcdoc = html;
+    });
+  });
+}
+
+function contenuRectangleExporter(docActif) {
+  if (docActif === 'lettre') { return contenuExportLettre(); }
+  if (docActif !== 'cv') {
+    return construireContenuExportDocument(docActif);
+  }
+  // TACHE (demande explicite de Denis 2026-09-27, "un seul ecran, le format se choisit a la fin") :
+  // plus de format "deja choisi" en amont -- les DEUX boutons (Word et PDF) sont toujours proposes
+  // ensemble, quel que soit le format de PAGE choisi dans "La mise en page" (A4 ou Mini CV A5).
+  var dejaFait = !!(dossier.documentsEnregistres && dossier.documentsEnregistres.cv);
+  var style = _styleExportDocument();
   // TACHE (chantier refonte "La mise en page" du CV, phase 5.1, cahier
   // docs/CHANTIER_REFONTE_MISE_EN_PAGE_PDF_2026-09-21.md § 4 "Panneau et
   // exportation", Q109, maquette docs/MAQUETTE_MISE_EN_PAGE_PDF_2026-09-21.html
@@ -13152,7 +13551,7 @@ function contenuRectangleExporter(docActif) {
     '<p class="expo-aide-copie">Pour Word : des <b>lignes pointillées</b> peuvent apparaître à l\'écran autour des blocs. Ce sont des repères d\'affichage de Word : elles ne s\'impriment pas et ne sont pas dans le PDF. Pour les masquer, cliquez dans un bloc, puis onglet <b>&laquo;&nbsp;Disposition&nbsp;&raquo;</b>, bouton <b>&laquo;&nbsp;Afficher le quadrillage&nbsp;&raquo;</b>.</p>' +
     '<p class="expo-aide-copie">« Copier le texte » : pour remplir un autre modèle de CV, sur Canva ou n\'importe quelle autre plateforme, sans rien ressaisir.</p>' +
     '<div class="expo-secondaires">' +
-    '<button type="button" class="expo-sec" data-format-export="csv-canva">&#127912; Envoyer vers Canva</button>' +
+    '<button type="button" class="expo-sec" data-format-export="csv-canva">&#127912; Envoyer vers Canva <small>(le remplissage avec le fichier fourni est une fonction payante de Canva)</small></button>' +
     '<button type="button" class="expo-sec" data-expo="odt">&#128462; Version ODT (LibreOffice)</button>' +
     '</div>' +
     '<div id="expoAideOdt" class="expo-aide-odt" style="display:none;">&#128462; Pour obtenir un fichier <b>.odt</b> : cliquez sur « Copier le texte » ci-dessus, ouvrez un document vide dans <b>LibreOffice Writer</b> ou <b>Google Docs</b>, collez, puis enregistrez au format <b>.odt</b>. Un bouton de téléchargement direct en .odt arrivera plus tard.</div>' +
@@ -13279,10 +13678,12 @@ function contenuRectangleRelectureIA() {
     }
     return '<p class="assistant-aide">Importez d\'abord la réponse de l\'assistant (rectangle ci-dessus). Cet écran vous permettra ensuite de voir ce qu\'il a préparé pour votre CV.</p>';
   }
+  // Une fois la relecture validee (c'est le cas des l'import : les propositions s'appliquent seules), le bouton ne ferait que revalider sans rien changer : il n'est plus
+  // dessine (Denis, 24/10/2026) ; le geste de continuer est porte par le bouton de la barre du bas.
+  if (_relectureIAValideeParType[docActifActuel()]) { return _syntheseHtmlPropositionsIA(_brouillonRelectureIACV); }
   return _syntheseHtmlPropositionsIA(_brouillonRelectureIACV) +
     '<div class="assistant-actions-fin">' +
-    '<button type="button" class="assistant-btn plein" id="btnValiderRelectureIACV">' +
-    (_relectureIAValideeParType[docActifActuel()] ? 'Mettre à jour et continuer' : 'Continuer vers « La mise en page »') + ' &#8594;</button>' +
+    '<button type="button" class="assistant-btn plein" id="btnValiderRelectureIACV">Continuer &#8594;</button>' +
     '</div>';
 }
 // TACHE (K1, 2026-09-28) : plus d'onglets interactifs a cabler (voir
@@ -13386,6 +13787,10 @@ function fusionnerComplementCV(texteColle) {
   });
   var couleurs = normaliserCouleursEntrepriseIA(rb.couleursEntrepriseSuggerees !== undefined ? rb.couleursEntrepriseSuggerees : brut.couleursEntrepriseSuggerees, undefined);
   nb += couleurs.length;
+  // Retour Denis 2026-10-19 : la personne recolle la 1re partie (déjà importée) au lieu de la 2e : on lui dit quoi faire, sans le mot « IA ».
+  if (!nb && ['titresProposes', 'accrochesProposees', 'pointsForts', 'motsCles'].some(function (c) { return brut[c] !== undefined; })) {
+    return { succes: false, erreur: 'Ce message est la première partie de la réponse, que vous avez déjà importée. Pour avoir le complément : retournez dans la dernière fenêtre de l’assistant en ligne, répondez-lui « oui », puis copiez sa nouvelle réponse et collez-la ici.' };
+  }
   if (!nb) {
     return { succes: false, erreur: 'Je n’ai trouvé aucun élément du complément de CV dans ce texte. Vérifiez que vous avez collé la réponse à « complément de CV ».' };
   }
@@ -13419,11 +13824,15 @@ function _complementTexteResultat(r) {
   });
   (r.objets || []).forEach(function (o) { morceaux.push(o); });
   if (r.couleurs) { morceaux.push('les couleurs de l’entreprise'); }
-  return 'Ajouté à votre CV : ' + morceaux.join(', ') + '. Vous les retrouvez dans « Ce que l’assistant a préparé » et dans l’éditeur de CV.';
+  return 'Ajouté à votre CV : ' + morceaux.join(', ') + '. Vous les retrouvez dans les cartes de réglage de l’éditeur de CV (Formations, Compétences...), où vous choisissez ce qui s’affiche.';
 }
 // Bannière : l'assistant a proposé le complément de CV (sa question était dans le texte collé) et la personne ne l'a pas encore ajouté.
 function complementCVEnAttente() {
-  return !!(typeof dossier !== 'undefined' && dossier && dossier.complementCVPropose && !dossier.complementCVAjoute && !dossier.complementCVRefuse);
+  return !!(typeof dossier !== 'undefined' && dossier && dossier.complementCVPropose && !dossier.complementCVAjoute && !dossier.complementCVRefuse && !dossier.complementCVPasse);
+}
+// Le complément reste importable plus tard (bouton « Ajouter le complément du CV » sur « Vos documents ») tant qu'il a été proposé et pas ajouté, qu'on l'ait passé ou non.
+function complementCVImportable() {
+  return !!(typeof dossier !== 'undefined' && dossier && dossier.complementCVPropose && !dossier.complementCVAjoute);
 }
 // Libellé du bouton « Continuer » : tant que le complément proposé n'est pas ajouté, il le dit clairement (décision de Denis, 2026-10-10).
 function libelleContinuerComplementCV(libelleHabituel) {
@@ -13431,13 +13840,14 @@ function libelleContinuerComplementCV(libelleHabituel) {
 }
 function htmlBanniereComplementCV() {
   if (!complementCVEnAttente()) { return ''; }
-  return '<div class="complement-cv-banniere" role="note"><p class="mb-1"><strong>&#10133; Votre assistant vous propose un complément de CV (facultatif)</strong></p>' +
+  // Bandeau d'étape (retour Denis 2026-10-19) : la personne voit que c'est la 2e partie de la réponse de l'assistant, pas la même étape.
+  return '<div class="complement-cv-banniere" role="note"><p class="complement-cv-etape">&Eacute;tape 2 sur 2 : le compl&eacute;ment</p><p class="mb-1"><strong>&#10133; Votre assistant vous propose un complément de CV</strong></p>' +
     '<p class="mb-1">Ce sont des informations en plus pour votre CV : le regroupement des expériences, les thèmes et les compétences en action, les qualités attendues, les missions de vos formations et de vos certifications. Pour les avoir :</p>' +
     '<ol class="mb-1" style="padding-left:1.25rem;"><li>Retournez dans la <strong>dernière fenêtre de l’assistant en ligne</strong>, celle où vous avez eu la réponse.</li>' +
     '<li>Répondez-lui : <strong>oui</strong>.</li>' +
     '<li>Copiez sa nouvelle réponse, puis revenez ici.</li>' +
     '<li>Cliquez sur le <strong>rond bleu</strong> ci-dessous : la réponse se colle et s’ajoute toute seule à votre CV.</li></ol>' +
-    htmlCollageInstantane('ComplementBandeau', { libelleImporter: 'Ajouter à mon CV', texteExplication: 'Ce bouton ajoute le complément copié à votre CV.' }) +
+    htmlCollageInstantane('ComplementBandeau', { sansBarre: true, libelleImporter: 'Ajouter à mon CV', texteExplication: 'Ce bouton ajoute le complément copié à votre CV.' }) +
     '<p class="mb-0 small">Vous n’en voulez pas ? <button type="button" class="btn btn-sm btn-outline-secondary" data-complement-refus="1">Je ne suis pas intéressé(e)</button> Votre CV est déjà prêt.</p></div>';
 }
 // Affiche la bannière en haut d'une page déjà dessinée (page Vos documents, où la personne atterrit après l'import).
@@ -13455,6 +13865,54 @@ function injecterBanniereComplementCV(rerender) {
     setTimeout(function () { try { banniere.scrollIntoView({ block: 'start' }); } catch (e) { /* rien */ } }, 150);
   }
 }
+// ---------------- Écran « Étape 2 sur 2 : le complément » (retour Denis 2026-10-19) ----------------
+// Après la 1re partie, AVANT la page de création du CV : la personne choisit d'importer la 2e partie ou de passer. Passer reste toujours possible plus tard (bouton
+// « Ajouter le complément du CV » sur « Vos documents »). Le complément importé garde le modèle et la mise en page déjà choisis : seul le contenu s'enrichit.
+// Contenu de l'écran « Étape 2 sur 2 » (titre, bandeau, importer, passer), partagé par la page « Vos documents » et le module « Un CV, plusieurs métiers » : une seule source.
+function htmlEcranComplementCV(sansTitre) {
+  return (sansTitre ? '' : '<div class="text-center"><h1><i class="bi bi-plus-circle"></i> Le complément de votre CV</h1></div>') +
+    '<div class="complement-cv-banniere" role="note"><p class="complement-cv-etape">&Eacute;tape 2 sur 2 : le compl&eacute;ment</p>' +
+    '<p class="mb-2">Vous avez d&eacute;j&agrave; de quoi cr&eacute;er votre CV avec l&rsquo;essentiel. Cette deuxi&egrave;me partie ajoute des informations en plus : le regroupement des exp&eacute;riences, les th&egrave;mes et les comp&eacute;tences en action, les qualit&eacute;s attendues, les missions de vos formations et de vos certifications.</p>' +
+    '<p class="mb-1"><strong>Deux possibilit&eacute;s :</strong> aller chercher ce compl&eacute;ment maintenant, ou passer directement &agrave; votre CV.</p>' +
+    '<p class="mb-0"><strong>Vous pourrez aussi y revenir plus tard</strong> : un bouton &laquo;&nbsp;Ajouter le compl&eacute;ment du CV&nbsp;&raquo; est pr&eacute;vu &agrave; cet effet, en bas de la page de votre CV.</p></div>' +
+    '<div class="cv-section complement-cv-choix"><h4>&#10133; Je veux le compl&eacute;ment</h4>' +
+    '<ol class="mb-2" style="padding-left:1.25rem;"><li>Retournez dans la <strong>derni&egrave;re fen&ecirc;tre de l&rsquo;assistant en ligne</strong>, celle o&ugrave; vous avez eu la r&eacute;ponse.</li>' +
+    '<li>R&eacute;pondez-lui : <strong>oui</strong>.</li>' +
+    '<li>Copiez sa nouvelle r&eacute;ponse, puis revenez ici.</li>' +
+    '<li>Cliquez sur le <strong>rond bleu</strong> ci-dessous : la r&eacute;ponse se colle, puis ajoutez-la &agrave; votre CV.</li></ol>' +
+    htmlCollageInstantane('Complement', { sansBarre: true, libelleImporter: 'Importer le complément', texteExplication: 'Ce bouton ajoute le complément copié à votre CV.' }) +
+    '</div>' +
+    '<div class="cv-section complement-cv-choix"><h4>&#10145;&#65039; Je passe pour l&rsquo;instant</h4>' +
+    '<p class="mb-2">Vous avez de quoi g&eacute;n&eacute;rer votre CV avec l&rsquo;essentiel : le bouton <strong>&laquo;&nbsp;Passer, je vois mon CV&nbsp;&raquo;</strong>, en bas &agrave; droite, vous y am&egrave;ne tout de suite.</p>' +
+    '<p class="mb-0"><strong>Rien n&rsquo;est perdu si vous passez.</strong> Vous pourrez y revenir plus tard : un bouton <strong>&laquo;&nbsp;Ajouter le compl&eacute;ment du CV&nbsp;&raquo;</strong> est pr&eacute;vu &agrave; cet effet, <strong>en bas de la page &laquo;&nbsp;Vos documents&nbsp;&raquo;</strong>, &agrave; c&ocirc;t&eacute; du r&eacute;sum&eacute; de votre CV. Il vous permettra de l&rsquo;importer. Votre CV gardera alors son mod&egrave;le et sa mise en page : seules les informations s&rsquo;ajouteront.</p></div>';
+}
+function pageComplementCV() {
+  app.innerHTML = '<div class="page-catalogue-contenu complement-cv-ecran">' +
+    htmlEcranComplementCV() +
+    '</div>' +
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'resultats', 'Passer, je vois mon CV &#8594;', { onclickSuivant: 'complementCVPasser()' }) + '</div>';
+  wireComplementCV(pageResultats);
+}
+// Fenêtre « Ajouter le complément du CV » (page « Vos documents ») : le complément s'ajoute au contenu ; le modèle, la forme et les réglages déjà choisis sont gardés.
+function ouvrirFenetreComplementCV() {
+  ouvrirFenetreERIP({
+    titre: 'Ajouter le complément du CV',
+    taille: 'large',
+    contenuHTML: '<p class="mb-2">Ce complément est à compléter si vous le voulez. Votre CV garde son mod&egrave;le et sa mise en page : seules les informations s&rsquo;ajoutent.</p>' +
+      '<ol class="mb-2" style="padding-left:1.25rem;"><li>Retournez dans la <strong>derni&egrave;re fen&ecirc;tre de l&rsquo;assistant en ligne</strong>, celle o&ugrave; vous avez eu la r&eacute;ponse.</li>' +
+      '<li>R&eacute;pondez-lui : <strong>oui</strong>.</li>' +
+      '<li>Copiez sa nouvelle r&eacute;ponse, puis revenez ici.</li>' +
+      '<li>Cliquez sur le <strong>rond bleu</strong> ci-dessous.</li></ol>' +
+      htmlCollageInstantane('Complement', { sansBarre: true, libelleImporter: 'Importer le complément', texteExplication: 'Ce bouton ajoute le complément copié à votre CV.' })
+  });
+  wireComplementCV(function () { try { fermerFenetreERIP(); } catch (e) { /* rien */ } pageResultats(); });
+}
+function complementCVPasser() {
+  if (dossier) { dossier.complementCVPasse = true; }
+  if (typeof trackEvenement === 'function') { trackEvenement('complement_cv_passe'); }
+  pageResultats();
+  window.scrollTo(0, 0);
+}
 function contenuRectangleComplementCV() {
   // Une fois le complément ajouté (ou refusé), plus de zone de collage : la personne ne risque pas de le coller une deuxième fois (retour de Denis, 2026-10-11).
   if (dossier && dossier.complementCVAjoute) {
@@ -13465,15 +13923,16 @@ function contenuRectangleComplementCV() {
       '<button type="button" class="btn btn-sm btn-outline-secondary" data-complement-reprendre="1">Finalement, je le veux</button>';
   }
   // Même composant que « Importer la réponse » (rond bleu qui lit le presse-papiers en un clic, puis un bouton) : jamais de zone de texte à remplir à la main (décision de Denis, 2026-10-10).
-  return '<p class="mb-2">Ce complément est facultatif. L’assistant vous a demandé : « Voulez-vous aussi le complément de CV ? ». Si vous le voulez, répondez-lui <strong>oui</strong> dans la même conversation, copiez sa nouvelle réponse, puis cliquez sur le rond bleu ci-dessous : elle se colle toute seule. Vous aurez alors le regroupement des expériences, les thèmes de compétences, les compétences en action, les qualités attendues et les missions de vos formations et de vos certifications.</p>' +
+  return '<p class="mb-2">Ce complément est à compléter si vous le voulez. L’assistant vous a demandé : « Voulez-vous aussi le complément de CV ? ». Si vous le voulez, répondez-lui <strong>oui</strong> dans la même conversation, copiez sa nouvelle réponse, puis cliquez sur le rond bleu ci-dessous : elle se colle toute seule. Vous aurez alors le regroupement des expériences, les thèmes de compétences, les compétences en action, les qualités attendues et les missions de vos formations et de vos certifications.</p>' +
     htmlCollageInstantane('Complement', {
+      sansBarre: true,
       libelleImporter: 'Ajouter à mon CV',
       texteExplication: 'Ce bouton ajoute le complément copié à votre CV.'
     }) +
     '<p class="mb-0 mt-2"><button type="button" class="btn btn-sm btn-outline-secondary" data-complement-refus="1">Je ne suis pas intéressé(e)</button></p>';
 }
 function rectangleComplementCV() {
-  return rectangleAssistant('complement-cv', '&#10133;', 'Compléter mon CV (facultatif)', 'missions des formations, des certifications', contenuRectangleComplementCV());
+  return rectangleAssistant('complement-cv', '&#10133;', 'Compléter mon CV', 'missions des formations, des certifications', contenuRectangleComplementCV());
 }
 function wireComplementCV(rerender) {
   // « Je ne suis pas intéressé(e) » : le rectangle se referme, la consigne disparaît, rien n'est ajouté. « Finalement, je le veux » rouvre la zone de collage.
@@ -13562,7 +14021,7 @@ function contenuAccordeonImportIA(docActif) {
       texteExplication: 'Ce bouton intègre la réponse collée dans ' + libellesImportIA[docActif] + '.'
     }) +
     // Complément de CV (facultatif) : un petit bouton à côté de l'import, une fois la réponse principale importée (décision de Denis, 2026-10-10).
-    ((docActif === 'cv' && reponseIAImportee('cv') && !complementCVEnAttente()) ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-complement-cv" id="btnOuvrirComplementCV">Importer le complément de CV</button> <span class="small" style="color:var(--text-muted);">facultatif</span></div>' : '')
+    ((docActif === 'cv' && reponseIAImportee('cv') && !complementCVEnAttente()) ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-complement-cv" id="btnOuvrirComplementCV">Importer le complément de CV</button></div>' : '')
   );
 }
 
@@ -13764,6 +14223,7 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
         dossier.complementCVPropose = /compl[ée]ment de CV/i.test(texte);
         dossier.complementCVAjoute = false;
         dossier.complementCVRefuse = false;
+        dossier.complementCVPasse = false;
         var resultat = analyserReponseIACV(texte);
         // TACHE (retour Denis, 2026-08-31, Chantier 4) : l'assistant a repondu
         // que le profil ne contient rien d'exploitable -> ecran dedie qui
@@ -13788,7 +14248,7 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
         if (!resultat.succes) {
           trackEvenement('erreur_import', { document: 'cv', raison: raisonErreurImport(resultat.erreur) });
           messageImportIA.style.color = 'var(--danger)';
-          messageImportIA.textContent = '⚠️ ' + resultat.erreur + ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+          messageImportIA.textContent = '⚠️ ' + resultat.erreur + ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
           return;
         }
         // TACHE (phase 3.8(b)) : champ du JSON de l'assistant qu'aucun code
@@ -13894,7 +14354,7 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
         if (!resultatLettre.succes) {
           trackEvenement('erreur_import', { document: 'lettre', raison: raisonErreurImport(resultatLettre.erreur) });
           messageImportIA.style.color = 'var(--danger)';
-          messageImportIA.textContent = '⚠️ ' + resultatLettre.erreur + ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+          messageImportIA.textContent = '⚠️ ' + resultatLettre.erreur + ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
           return;
         }
         if (!dossier.ia) { dossier.ia = creerDossierIAVide(); }
@@ -13921,7 +14381,7 @@ function wireImportIA(docActif, rerender, idEtapeApres) {
         if (!resultatEntretien.succes) {
           trackEvenement('erreur_import', { document: 'entretien', raison: raisonErreurImport(resultatEntretien.erreur) });
           messageImportIA.style.color = 'var(--danger)';
-          messageImportIA.textContent = '⚠️ ' + resultatEntretien.erreur + ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+          messageImportIA.textContent = '⚠️ ' + resultatEntretien.erreur + ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
           return;
         }
         if (!dossier.ia) { dossier.ia = creerDossierIAVide(); }
@@ -14506,7 +14966,7 @@ function blocERIP(config) {
   // strictement inchangees.
   var estFacultatif = config.niveau === 'facultatif';
   var htmlTagNiveau = config.niveau
-    ? '<span class="bloc-erip-tag bloc-erip-tag-' + (estFacultatif ? 'fac' : 'rec') + '">' + (estFacultatif ? 'facultatif' : 'recommandé') + '</span>'
+    ? '<span class="bloc-erip-tag bloc-erip-tag-' + (estFacultatif ? 'fac' : 'rec') + '">' + (estFacultatif ? 'à compléter' : 'recommandé') + '</span>'
     : '';
   var htmlEtatNiveau = config.niveau
     ? '<span class="bloc-erip-badge-etat' + (blocComplet ? ' complet' : '') + '">' + (blocComplet ? 'complété' : 'à compléter') + '</span>'
@@ -15584,6 +16044,7 @@ function resumeProjet() {
   // mais plus aucun écran ne les renseigne ni ne les affiche.
   var of = (dossier.objectif && dossier[dossier.objectif]) || {};
   (of.dispo || []).forEach(function (d, i) { items.push({ label: d, source: 'dispo', index: i }); });
+  (dossier.horaires || []).forEach(function (h, i) { items.push({ label: h, source: 'horaires', index: i }); });
   return items;
 }
 function resumeOnSuppressionProjet(idx) {
@@ -15594,6 +16055,7 @@ function resumeOnSuppressionProjet(idx) {
   else if (item.source === 'contrat') { dossier.contrat.splice(item.index, 1); }
   else if (item.source === 'tempsTravail') { dossier.tempsTravail.splice(item.index, 1); }
   else if (item.source === 'accepte') { dossier.accepte.splice(item.index, 1); }
+  else if (item.source === 'horaires') { dossier.horaires.splice(item.index, 1); }
   else if (item.source === 'dispo') {
     var of = dossier.objectif && dossier[dossier.objectif];
     if (of && of.dispo) { of.dispo.splice(item.index, 1); }
@@ -15646,6 +16108,12 @@ var _SOUS_SECTIONS_PROJET = [
     complet: function () { var of = (dossier.objectif && dossier[dossier.objectif]) || {}; return (of.dispo || []).length > 0; },
     contenuHTML: contenuDisponibilite,
     wire: function (rerender) { wireDisponibilite(rerender); }
+  },
+  // Lot 4 (25/10/2026) : les horaires acceptes de la lettre (jetons deja lus par texteProfil et par les assistants d'analyse) : meme choix sur tous les ecrans d'objectif.
+  {
+    id: 'horaires', titre: 'Horaires que vous acceptez',
+    complet: function () { return (dossier.horaires || []).length > 0; },
+    contenuHTML: function () { return htmlJetons({ champ: 'horaires', options: HORAIRES_EMPLOI, multiple: true, avecTout: true, labelTout: 'Tous les horaires', compact: false }); }
   }
 ];
 var CONFIG_BLOC_PROJET = {
@@ -15684,6 +16152,7 @@ var CONFIG_BLOC_PROJET = {
   onResetTout: function () {
     dossier.contrat = [];
     dossier.tempsTravail = [];
+    dossier.horaires = [];
     dossier.accepte = [];
     dossier.accepteAucune = false;
     var of = dossier.objectif && dossier[dossier.objectif];
@@ -15861,7 +16330,7 @@ var CONFIG_BLOC_CANDIDATURE = {
       {
         id: 'modeRecherche', titre: 'Comment souhaitez-vous rechercher un emploi ?',
         complet: modeRechercheRempli,
-        contenuHTML: contenuModeRecherche,
+        contenuHTML: contenuModeRecherchePanneau,
         wire: function (rerender) { wireModeRecherche(rerender); },
         enEvidence: function () { return false; },
         clefEvidence: null
@@ -15881,7 +16350,7 @@ var CONFIG_BLOC_CANDIDATURE_ANALYSE = Object.assign({}, CONFIG_BLOC_CANDIDATURE,
     return [{
       id: 'modeRecherche', titre: 'Comment souhaitez-vous rechercher un emploi ?',
       complet: modeRechercheRempli,
-      contenuHTML: contenuModeRecherche,
+      contenuHTML: contenuModeRecherchePanneau,
       wire: function (rerender) { wireModeRecherche(rerender); },
       enEvidence: function () { return false; },
       clefEvidence: null
@@ -16480,7 +16949,7 @@ function construireChampsIdentiteFenetre() {
     '<div class="row g-2 mt-1"><div class="col-md-8"><input type="text" class="form-control form-control-sm" id="identiteAdresse" placeholder="Adresse" value="' + echapperAttribut(id.adresse || '') + '"></div>' +
     '<div class="col-md-4"><input type="text" class="form-control form-control-sm" id="identiteCodePostal" placeholder="Code postal" value="' + echapperAttribut(id.codePostal || '') + '"></div></div>' +
     '<div class="row g-2 mt-1"><div class="col-12"><input type="text" class="form-control form-control-sm" id="identiteVille" placeholder="Ville" value="' + echapperAttribut(id.ville || '') + '"></div></div>' +
-    '<div class="row g-2 mt-1"><div class="col-12"><input type="text" class="form-control form-control-sm" id="identiteLien" placeholder="Lien LinkedIn ou site personnel (facultatif)" value="' + echapperAttribut(id.lien || '') + '"></div></div>';
+    '<div class="row g-2 mt-1"><div class="col-12"><input type="text" class="form-control form-control-sm" id="identiteLien" placeholder="Lien LinkedIn ou site personnel (à compléter)" value="' + echapperAttribut(id.lien || '') + '"></div></div>';
 }
 function lireChampsIdentiteFenetre() {
   return {
@@ -16528,6 +16997,354 @@ function styleBoutonsFormatPageAccordeon() {
     '</style>';
 }
 
+// ----- Ecran « La mise en page » de la lettre (temps 3, decisions 22 a 28 et 68 du cahier lettre ; maquette docs/MAQUETTE_LETTRE_APERCU_PARCOURS_2026-10-24.html) -----
+// Coordonnees de la personne (en haut a gauche) et destinataire (a droite). Le service, l'adresse de l'entreprise et la ligne « A l'attention » se
+// saisissent UNIQUEMENT ici (decision 28). Logique pure : modules/lettre-core/destinataireLettreCo.js.
+function _styleCarteLettre() {
+  return 'margin-top:0.9rem;padding:0.6rem 0.85rem 0.8rem;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;background:var(--bg-subtle);';
+}
+function _titreCarteLettre(texte) { return '<h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.4rem;">' + texte + '</h4>'; }
+
+// Couleur du CV de la personne (hex sans #) : celle du PDF (le document de reference), sinon celle choisie pour le Word ; '' si aucune.
+function couleurCvDeLaPersonne() {
+  var hexOk = function (v) { var h = String(v || '').replace(/^#/, ''); return /^[0-9a-fA-F]{6}$/.test(h) ? h.toUpperCase() : ''; };
+  var pdf = hexOk(dossier.pdfReglages && dossier.pdfReglages.regCouleurDebut);
+  if (pdf) { return pdf; }
+  var id = (typeof etatApercuInline !== 'undefined' && etatApercuInline.cv) ? etatApercuInline.cv.couleur : null;
+  if (!id || typeof id !== 'string') { return ''; }
+  if (typeof PALETTES_COULEURS_CV !== 'undefined' && PALETTES_COULEURS_CV[id]) { return hexOk(PALETTES_COULEURS_CV[id].primaire); }
+  var r = (typeof composeurExtraireReglagesDepuisId === 'function') ? composeurExtraireReglagesDepuisId(id) : null;
+  if (r && r.couleurHexLibre) { return hexOk(r.couleurHexLibre); }
+  if (r && r.couleurBase && typeof PALETTES_COULEURS_CV !== 'undefined') {
+    var pal = PALETTES_COULEURS_CV[r.couleurBase + '-' + (r.nuance || 10)] || PALETTES_COULEURS_CV[r.couleurBase];
+    if (pal) { return hexOk(pal.primaire); }
+  }
+  return '';
+}
+
+// Miniatures des gabarits (petits dessins, comme celles du CV).
+function _miniatureGabaritLettre(id, couleur) {
+  var c = '#' + couleur;
+  var lignes = function (x, y, w, n) { var h = ''; for (var i = 0; i < n; i++) { h += '<rect x="' + x + '" y="' + (y + i * 5) + '" width="' + (i === n - 1 ? w * 0.6 : w) + '" height="2" fill="#9ca3af"/>'; } return h; };
+  var fond = '<rect x="0.5" y="0.5" width="59" height="80" fill="#fff" stroke="#d1d5db"/>';
+  var corps = {
+    g0: '<rect x="6" y="6" width="18" height="2" fill="#555"/><rect x="6" y="10" width="14" height="2" fill="#9ca3af"/><rect x="36" y="16" width="18" height="2" fill="#555"/>' + lignes(6, 30, 48, 8),
+    g1: '<rect x="6" y="6" width="22" height="4" fill="' + c + '"/><rect x="30" y="5" width="1" height="12" fill="' + c + '"/><rect x="34" y="7" width="20" height="2" fill="#555"/><rect x="6" y="19" width="48" height="1" fill="' + c + '"/><rect x="6" y="23" width="12" height="2" fill="' + c + '"/>' + lignes(6, 34, 48, 8),
+    g2: '<rect x="0.5" y="0.5" width="19" height="80" fill="' + c + '"/><rect x="3" y="6" width="13" height="3" fill="#fff"/><rect x="3" y="14" width="13" height="2" fill="#ffffff99"/>' + lignes(25, 10, 30, 12),
+    g3: '<rect x="0.5" y="0.5" width="59" height="19" fill="' + c + '"/><rect x="6" y="6" width="22" height="3" fill="#fff"/><rect x="6" y="12" width="30" height="1.5" fill="#ffffffaa"/>' + lignes(6, 28, 48, 10),
+    g4: '<rect x="6" y="6" width="28" height="4" fill="' + c + '"/><rect x="6" y="12" width="16" height="2" fill="' + c + '"/><rect x="6" y="19" width="14" height="1" fill="' + c + '"/>' + lignes(6, 22, 12, 5) + lignes(24, 24, 30, 10)
+  }[id] || '';
+  return '<svg viewBox="0 0 60 81" width="54" height="73" aria-hidden="true">' + fond + corps + '</svg>';
+}
+
+// Galerie des gabarits, couleurs et options (lot D, maquette du 24/10/2026). Choix enregistres dans dossier.lettreDestinataire (gabarit, couleur, icones, coordLigne).
+function htmlGabaritCouleurLettre() {
+  var ld = dossier.lettreDestinataire || {};
+  var gab = gabaritLettreCo(ld.gabarit);
+  var cvCouleur = couleurCvDeLaPersonne();
+  var couleurActive = couleurLettreEffectiveCo(gab.id, ld.couleur, cvCouleur);
+  var galerie = GABARITS_LETTRE_CO.map(function (g) {
+    var actif = g.id === gab.id;
+    return '<button type="button" data-gabarit-lettre="' + g.id + '" aria-pressed="' + (actif ? 'true' : 'false') + '" ' +
+      'style="border:2px solid ' + (actif ? 'var(--accent)' : 'var(--border)') + ';background:' + (actif ? 'var(--accent-bg-subtle)' : 'var(--bg-card)') + ';border-radius:10px;padding:0.3rem;text-align:center;font-size:0.72rem;font-weight:600;cursor:pointer;width:84px;">' +
+      _miniatureGabaritLettre(g.id, couleurLettreEffectiveCo(g.id, ld.couleur, cvCouleur)) + '<div>' + g.nom + '</div></button>';
+  }).join('');
+  var COULEURS = [['Bleu', '1F5FBF'], ['Marine', '0B3D6E'], ['Vert', '2E7D4F'], ['Bordeaux', '8E2A3A'], ['Orange', 'C8641A'], ['Gris', '4A5565']];
+  var pastilles = COULEURS.map(function (c) {
+    var actif = hexSansDieseLettreCo(ld.couleur) === c[1];
+    return '<button type="button" data-couleur-lettre="' + c[1] + '" title="' + c[0] + '" aria-label="' + c[0] + '" aria-pressed="' + (actif ? 'true' : 'false') + '" style="width:30px;height:30px;border-radius:50%;background:#' + c[1] + ';border:3px solid var(--bg-card);box-shadow:0 0 0 ' + (actif ? '3px var(--text-strong)' : '1px var(--border-strong)') + ';cursor:pointer;"></button>';
+  }).join('');
+  var optionsG1 = gab.id === 'g1'
+    ? '<div class="jetons-ligne mt-2"><div class="jetons-lib">Icônes</div>' +
+      '<button type="button" class="jeton' + (ld.icones !== false ? ' is-actif' : '') + '" data-option-g1="icones-oui">Avec icônes</button>' +
+      '<button type="button" class="jeton' + (ld.icones === false ? ' is-actif' : '') + '" data-option-g1="icones-non">Sans icônes</button></div>' +
+      '<div class="jetons-ligne mt-1"><div class="jetons-lib">Coordonnées</div>' +
+      '<button type="button" class="jeton' + (!ld.coordLigne ? ' is-actif' : '') + '" data-option-g1="coord-colonne">En colonne</button>' +
+      '<button type="button" class="jeton' + (ld.coordLigne ? ' is-actif' : '') + '" data-option-g1="coord-ligne">En ligne sous le filet</button></div>'
+    : '';
+  var avertWord = !gab.wordFidele
+    ? '<p class="small mb-0 mt-2" id="avertWordGabarit" style="color:var(--warning-strong);">&#9888;&#65039; Avec ce gabarit, le Word peut s’écarter du PDF (la colonne colorée ne couvre que la première page) : <strong>il est recommandé d’enregistrer en PDF</strong>.</p>'
+    : '';
+  return '<div style="' + _styleCarteLettre() + '">' + _titreCarteLettre('&#127912; Gabarit') +
+    '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;">' + galerie + '</div>' + optionsG1 + avertWord + '</div>' +
+    '<div style="' + _styleCarteLettre() + '">' + _titreCarteLettre('&#127752; Couleur') +
+    '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">' + pastilles +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" data-couleur-lettre="">Par défaut</button></div>' +
+    (cvCouleur ? '<div class="mt-2"><button type="button" class="btn btn-outline-primary btn-sm" data-couleur-lettre="' + cvCouleur + '">&#127912; Reprendre la couleur de mon CV <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#' + cvCouleur + ';vertical-align:-1px;margin-left:0.25rem;"></span></button></div>' : '') +
+    '<p class="small text-muted mb-0 mt-1">Couleur actuelle : <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#' + couleurActive + ';vertical-align:-1px;"></span>' + (ld.couleur ? '' : ' (par défaut' + (gab.id !== 'g0' && cvCouleur ? ' : celle de votre CV' : '') + ')') + '</p></div>';
+}
+
+function htmlCoordonneesDestinataireLettre() {
+  if (etatApercuInline.lettre.formatPage === 'A4-essentiel') {
+    return '<p class="small text-muted mt-3 mb-0">Le « Message par mail » n’a pas de bloc d’adresses : c’est un texte à copier dans un courriel.</p>';
+  }
+  var id = dossier.identite || {};
+  var ld = dossier.lettreDestinataire || {};
+  var nomComplet = [id.prenom, id.nom].filter(Boolean).join(' ');
+  var telephoneAffiche = (typeof formaterTelephone === 'function') ? formaterTelephone(id.telephone) : id.telephone;
+  var imprimes = [nomComplet, ligneCodePostalVilleLettreCo(id), telephoneAffiche, id.email].filter(Boolean);
+  var manque = [];
+  if (!nomComplet) { manque.push('nom'); }
+  if (!ligneCodePostalVilleLettreCo(id)) { manque.push('code postal et ville'); }
+  if (!id.telephone) { manque.push('téléphone'); }
+  if (!id.email) { manque.push('e-mail'); }
+  // « Mise en page » : bouton bleu plein, plus grand que les autres, qui pulse doucement (6 fois) tant que la lettre n'a pas ete optimisee, et de nouveau apres un
+  // changement de gabarit (Denis, 24/10/2026) : le gabarit change le texte disponible, donc l'ajustement peut redevenir utile. Arrete des qu'on clique dessus.
+  var etatMepBouton = etatApercuInline.lettre;
+  var pulseMep = etatMepBouton.miseEnPageAPulser === true || (etatMepBouton.miseEnPageAPulser === undefined && !etatMepBouton.miseEnPageOptimisee);
+  var html = '<div style="margin-top:0.9rem;"><button type="button" class="btn btn-primary' + (pulseMep ? ' bouton-incitation-action' : '') + '" id="btnMiseEnPageLettre" style="font-weight:600;padding:0.5rem 1.2rem;">&#128207; Mise en page</button>' +
+    '<span class="small text-muted ms-2">Fait tenir la lettre sur une page, ni trop petite ni trop serrée.</span>' +
+    '<p class="small mt-1 mb-0" id="msgMiseEnPageLettre" style="color:var(--success-strong);"></p></div>' +
+    htmlGabaritCouleurLettre() +
+    '<div style="margin-top:0.9rem;"><p class="small fw-bold mb-1">&#128289; Police d’écriture</p><div class="jetons-ligne" id="lettrePolices">' +
+    POLICES_LETTRE_CO.map(function (nom) {
+      var actif = nom === policeLettreCo((dossier.lettreDestinataire || {}).police);
+      return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-police="' + nom + '" aria-pressed="' + (actif ? 'true' : 'false') + '" style="font-family:' + nom + ';">' + nom + '</button>';
+    }).join('') + '</div></div>' +
+    '<div style="' + _styleCarteLettre() + '">' + _titreCarteLettre('&#128100; Vos coordonnées (en haut à gauche)') +
+    '<div class="small mb-2" style="border:1px dashed var(--success);background:var(--success-bg-subtle);border-radius:8px;padding:0.4rem 0.6rem;">Imprimé : ' +
+    (imprimes.length ? imprimes.map(function (t) { return '<strong>' + echapperAttribut(t) + '</strong>'; }).join(', ') : '<em>rien pour le moment</em>') + '</div>' +
+    (manque.length ? '<p class="small mb-2" style="color:var(--warning);">À compléter dans « Vos informations » : ' + manque.join(', ') + '.</p>' : '') +
+    (id.adresse ? '<div class="form-check small"><input type="checkbox" class="form-check-input" id="lettreDestRue"' + (ld.rue ? ' checked' : '') + '>' +
+      '<label class="form-check-label" for="lettreDestRue">Ajouter aussi ma rue (' + echapperAttribut(id.adresse) + ')</label></div>' : '') +
+    '</div>';
+
+  var entreprise = entrepriseCibleActuelle();
+  var bloc = blocDestinataireLettreCo(dossier);
+  var adresse = (ld.adresse && (!ld.pour || ld.pour === entreprise)) ? ld.adresse : '';
+  var choixActuel = choixDestinataireLettreCo(ld.choix);
+  var jetons = choixProposesLettreCo(bloc.personneConnue).map(function (c) {
+    var actif = c.id === choixActuel.id || (bloc.personneConnue && !choixActuel.service && c.id === 'recrutement');
+    return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-dest-choix="' + c.id + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + c.lib + '</button>';
+  }).join('');
+  return html + '<div style="' + _styleCarteLettre() + '" id="blocDestinataireLettre">' + _titreCarteLettre('&#9993;&#65039; À qui s’adresse la lettre ? (en haut à droite)') +
+    (entreprise
+      ? '<p class="small mb-1"><strong>' + echapperAttribut(entreprise) + '</strong></p>' +
+        '<label class="form-label small mb-1" for="lettreDestAdresse">Code postal et commune de l’entreprise (à compléter)</label>' +
+        '<input type="text" class="form-control form-control-sm mb-1" id="lettreDestAdresse" placeholder="24100 Bergerac" value="' + echapperAttribut(adresse) + '">' +
+        '<p class="small text-muted mb-2">Utile quand le recrutement est commun à plusieurs magasins : votre candidature arrive au bon endroit.</p>'
+      : '<p class="small text-muted mb-2">Aucune entreprise n’est indiquée : la lettre est adressée au service, sans nom d’entreprise. Pour en ajouter une, indiquez-la dans la partie « Votre candidature » de la page « Préparer ».</p>') +
+    '<p class="small fw-bold mb-1">' + (bloc.personneConnue ? 'Service de ' + echapperAttribut(lignePersonneConnueLettreCo(dossier)) : 'À qui vous adressez-vous ?') + '</p>' +
+    '<div class="jetons-ligne" id="lettreDestChoix">' + jetons + '</div>' +
+    '<input type="text" class="form-control form-control-sm mt-2" id="lettreDestAutre"' + (choixActuel.id === 'autre' ? '' : ' hidden') +
+    ' placeholder="' + (bloc.personneConnue ? 'Écrivez le nom du service (par exemple : Service logistique)' : 'Écrivez la suite de « À l’attention » (par exemple : de Monsieur le Directeur)') + '" value="' + echapperAttribut(ld.autre || '') + '">' +
+    '<p class="small text-muted mt-2 mb-0" id="lettreDestResume">Ligne imprimée : <strong>' + echapperAttribut(bloc.ligneAttention) + '</strong></p>' +
+    (bloc.personneConnue ? '<p class="small text-muted mb-0">Vous connaissez la personne : son nom est écrit sur cette ligne, et la lettre commence par sa civilité seule.</p>' : '') +
+    '</div>';
+}
+
+function cablerDestinataireLettre() {
+  function donnees() { return dossier.lettreDestinataire || (dossier.lettreDestinataire = { choix: 'recrutement', autre: '', adresse: '', pour: '', rue: false }); }
+  var minuteur = null;
+  function rafraichir() {
+    var resume = document.getElementById('lettreDestResume');
+    if (resume) { resume.innerHTML = 'Ligne imprimée : <strong>' + echapperAttribut(blocDestinataireLettreCo(dossier).ligneAttention) + '</strong>'; }
+    clearTimeout(minuteur);
+    minuteur = setTimeout(function () {
+      if (typeof rechargerApercuInline === 'function') { rechargerApercuInline('lettre', etatApercuInline.lettre.modele || 'sobre'); }
+    }, 400);
+  }
+  var btnMep = document.getElementById('btnMiseEnPageLettre');
+  if (btnMep) {
+    btnMep.addEventListener('click', function () {
+      // Repart de l'essai le plus aere et descend jusqu'a ce que la lettre tienne (mesure reelle, voir ajusterApercuLettreEntier).
+      etatApercuInline.lettre.miseEnPageIndice = 0;
+      etatApercuInline.lettre.miseEnPageOptimisee = true;
+      etatApercuInline.lettre.miseEnPageAPulser = false;
+      btnMep.classList.remove('bouton-incitation-action');
+      if (typeof rechargerApercuInline === 'function') { rechargerApercuInline('lettre', etatApercuInline.lettre.modele || 'sobre'); }
+    });
+  }
+  var msgMep = document.getElementById('msgMiseEnPageLettre');
+  if (msgMep) {
+    // « Revenir comme avant » : retire l'ajustement et retrouve la taille d'origine (le texte ne rapetisse que si la lettre deborde).
+    msgMep.addEventListener('click', function (e) {
+      if (!e.target || e.target.id !== 'btnAnnulerMiseEnPageLettre') { return; }
+      etatApercuInline.lettre.miseEnPageIndice = INDICE_MISE_EN_PAGE_DEFAUT_LETTRE_CO;
+      etatApercuInline.lettre.miseEnPageOptimisee = false;
+      if (typeof rechargerApercuInline === 'function') { rechargerApercuInline('lettre', etatApercuInline.lettre.modele || 'sobre'); }
+    });
+  }
+  // Gabarit, couleur, options du gabarit « En-tete et filet » : on enregistre puis on redessine la page (la galerie et l'avertissement changent).
+  function changerPuisRedessiner(modif) {
+    modif(donnees());
+    etatApercuInline.lettre.miseEnPageAPulser = true;   // un autre gabarit : « Mise en page » peut de nouveau optimiser, le bouton le rappelle
+    _rectDocOuvert = 'mise-en-page';
+    pageResultats();
+  }
+  document.querySelectorAll('[data-gabarit-lettre]').forEach(function (b) {
+    b.addEventListener('click', function () { var id = this.getAttribute('data-gabarit-lettre'); changerPuisRedessiner(function (ld) { ld.gabarit = id; }); });
+  });
+  document.querySelectorAll('[data-couleur-lettre]').forEach(function (b) {
+    b.addEventListener('click', function () { var hex = this.getAttribute('data-couleur-lettre'); changerPuisRedessiner(function (ld) { ld.couleur = hex ? '#' + hex : ''; }); });
+  });
+  document.querySelectorAll('[data-option-g1]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var o = this.getAttribute('data-option-g1');
+      changerPuisRedessiner(function (ld) {
+        if (o === 'icones-oui') { ld.icones = true; } else if (o === 'icones-non') { ld.icones = false; }
+        else if (o === 'coord-ligne') { ld.coordLigne = true; } else if (o === 'coord-colonne') { ld.coordLigne = false; }
+      });
+    });
+  });
+  var zonePolice = document.getElementById('lettrePolices');
+  if (zonePolice) {
+    zonePolice.querySelectorAll('[data-police]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        donnees().police = this.getAttribute('data-police');
+        zonePolice.querySelectorAll('[data-police]').forEach(function (x) { var a = x === b; x.classList.toggle('is-actif', a); x.setAttribute('aria-pressed', a ? 'true' : 'false'); });
+        rafraichir();
+      });
+    });
+  }
+  var caseRue = document.getElementById('lettreDestRue');
+  if (caseRue) { caseRue.addEventListener('change', function () { donnees().rue = this.checked; rafraichir(); }); }
+  var champAdresse = document.getElementById('lettreDestAdresse');
+  if (champAdresse) {
+    champAdresse.addEventListener('input', function () { var ld = donnees(); ld.adresse = this.value; ld.pour = entrepriseCibleActuelle(); rafraichir(); });
+  }
+  var champAutre = document.getElementById('lettreDestAutre');
+  if (champAutre) { champAutre.addEventListener('input', function () { donnees().autre = this.value; rafraichir(); }); }
+  var zoneChoix = document.getElementById('lettreDestChoix');
+  if (zoneChoix) {
+    zoneChoix.querySelectorAll('[data-dest-choix]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        donnees().choix = this.getAttribute('data-dest-choix');
+        zoneChoix.querySelectorAll('[data-dest-choix]').forEach(function (x) {
+          var actif = x === b;
+          x.classList.toggle('is-actif', actif);
+          x.setAttribute('aria-pressed', actif ? 'true' : 'false');
+        });
+        if (champAutre) { champAutre.hidden = donnees().choix !== 'autre'; if (!champAutre.hidden) { champAutre.focus(); } }
+        rafraichir();
+      });
+    });
+  }
+  var cadre = document.getElementById('btnOuvrirGrandApercu');
+  if (cadre && cadre.getAttribute('role') === 'button') {
+    cadre.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cadre.click(); } });
+  }
+}
+
+// Enregistre l'objet et le texte corriges dans la version active de la lettre (fenetre « Modifier la version » ET correction directe dans le grand apercu : une seule
+// ecriture). L'edition manuelle ne touche que la version longue : texteCourt (redige separement pour le message par mail) reste inchange.
+function enregistrerTexteLettreModifie(nouvelObjet, nouveauTexte) {
+  var i = dossier.ia.lettre.versionActive || 0;
+  var texteCourtExistant = (dossier.ia.lettre.versions[i] || {}).texteCourt || '';
+  dossier.ia.lettre.versions[i] = { objet: nouvelObjet, texte: nouveauTexte, texteCourt: texteCourtExistant };
+  dossier.ia.lettre.lettre = { objet: nouvelObjet, texte: nouveauTexte, texteCourt: texteCourtExistant };
+}
+
+// Disposition de l'ecran de la lettre, comme celle du CV : reglages a gauche, apercu a droite, ENTIER (sans barre de defilement), colle en haut quand
+// on fait defiler la page ; un clic dessus ouvre le grand apercu. « Valider la lettre » vit dans la barre du bas (data-barre-bas) et ouvre « Exporter ».
+function htmlMiseEnPageLettre(colonneGauche) {
+  return '<style>.lettre-2col{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.5rem;align-items:start;}' +
+    '.lettre-2col-reglages>div{flex:1 1 auto !important;max-width:none !important;min-width:0 !important;}' +
+    '.lettre-2col-apercu{position:sticky;top:0.5rem;}' +
+    '@media (max-width:699px){.lettre-2col{grid-template-columns:minmax(0,1fr);}.lettre-2col-apercu{position:static;}}</style>' +
+    '<div class="lettre-2col"><div class="lettre-2col-reglages">' + colonneGauche + '</div>' +
+    '<div class="lettre-2col-apercu">' +
+    '<div id="messageApercuInlineLettre" class="small text-muted mb-1"></div>' +
+    '<div id="btnOuvrirGrandApercu" role="button" tabindex="0" title="Cliquez pour voir la lettre en grand" aria-label="Ouvrir le grand aperçu de la lettre" ' +
+    'style="cursor:zoom-in;border:1px solid var(--border);border-radius:10px;background:var(--bg-subtle);padding:6px;">' +
+    '<div id="zoneApercuInlineLettre" style="width:100%;overflow:hidden;"></div></div>' +
+    '<div id="infoPageLettre" class="small text-muted mt-1"></div>' +
+    '<div id="controlesTexteLettre" class="small mt-1"></div>' +
+    '</div></div>' +
+    '<div data-barre-bas-zone style="display:none;"><button type="button" class="btn btn-primary" id="btnContinuerApercu" data-barre-bas="1" data-barre-bas-masque="1" ' +
+    'data-barre-bas-libelle="Valider la lettre &#8594;">Valider la lettre &#8594;</button></div>';
+}
+
+// Apres le rendu du Word dans la zone d'apercu : retire le cadre gris, met la page entiere a l'echelle de la colonne (et de la hauteur de l'ecran),
+// donc sans barre de defilement, puis ecrit la ligne d'information sous l'apercu.
+function ajusterApercuLettreEntier() {
+  var zone = document.getElementById('zoneApercuInlineLettre');
+  if (!zone) { return; }
+  var w = zone.querySelector('.apercu-docx-rendu-wrapper');
+  if (!w) { return; }
+  w.style.background = 'none';
+  w.style.padding = '0';
+  w.style.display = 'block';
+  var largeurPage = 794;
+  var largeurZone = zone.clientWidth;
+  var hauteur = Math.max(w.scrollHeight, 1123);
+  var e = Math.min(1, largeurZone / largeurPage, Math.max(0.3, (window.innerHeight - 210) / hauteur));
+  w.style.width = largeurPage + 'px';
+  w.style.transformOrigin = 'top left';
+  w.style.transform = 'scale(' + e + ')';
+  w.style.marginLeft = Math.max(0, (largeurZone - largeurPage * e) / 2) + 'px';
+  zone.style.height = Math.ceil(hauteur * e) + 'px';
+  // Mesure reelle : si la lettre deborde, essai suivant (destinataire a cote des coordonnees, puis texte plus petit), jusqu'a ce qu'elle tienne.
+  var objetMesure = (typeof normaliserDonneesLettre === 'function') ? normaliserDonneesLettre(dossier) : null;
+  var etatMep = etatApercuInline.lettre;
+  var mail = etatMep.formatPage === 'A4-essentiel';
+  if (objetMesure && !mail) {
+    var signature = signatureMiseEnPageLettreCo(objetMesure);
+    if (etatMep.miseEnPageSig !== signature) { etatMep.miseEnPageSig = signature; etatMep.miseEnPageIndice = INDICE_MISE_EN_PAGE_DEFAUT_LETTRE_CO; etatMep.miseEnPageOptimisee = false; }
+    if (w.scrollHeight > 1126 && etatMep.miseEnPageIndice < CANDIDATS_MISE_EN_PAGE_LETTRE_CO.length - 1) {
+      etatMep.miseEnPageIndice++;
+      return rechargerApercuInline('lettre', etatMep.modele || 'sobre');
+    }
+  }
+  var info = document.getElementById('infoPageLettre');
+  var essaiRetenu = (!mail && objetMesure) ? CANDIDATS_MISE_EN_PAGE_LETTRE_CO[etatMep.miseEnPageIndice] : null;
+  var plusDUnePage = w.scrollHeight > 1126;
+  if (info) {
+    var texte = objetMesure ? (objetMesure.texte || '') : '';
+    var nbMots = texte.split(/\s+/).filter(Boolean).length;
+    info.innerHTML = mail
+      ? 'Message court à copier dans un courriel (<strong>' + nbMots + '</strong> mots).'
+      : (plusDUnePage
+        ? '<span style="color:var(--warning);">La lettre dépasse une page</span> (<strong>' + nbMots + '</strong> mots). Raccourcissez le texte avec « Modifier le texte ».'
+        : '<strong style="color:var(--success);">La lettre tient sur une page</strong> (<strong>' + nbMots + '</strong> mots).');
+  }
+  afficherControlesTexteLettre(objetMesure ? (objetMesure.texte || '') : '', mail);
+  // Compte rendu du bouton « Mise en page » : ce qui a ete choisi pour que la lettre tienne sur une page.
+  var compteRendu = document.getElementById('msgMiseEnPageLettre');
+  if (compteRendu) {
+    var boutonAnnuler = ' <button type="button" class="btn btn-outline-secondary ms-1" id="btnAnnulerMiseEnPageLettre" style="font-size:0.72rem;padding:0.1rem 0.5rem;">&#8630; Revenir comme avant</button>';
+    if (!essaiRetenu || !etatMep.miseEnPageOptimisee) { compteRendu.textContent = ''; }
+    else if (plusDUnePage) { compteRendu.innerHTML = 'Même au plus serré, la lettre dépasse une page : raccourcissez le texte avec « Modifier le texte ».' + boutonAnnuler; }
+    else {
+      var libEsp = { 'large': 'texte aéré', 'normal': '', 'serre': 'moins d’espace entre les paragraphes', 'tres-serre': 'espaces réduits entre les paragraphes' }[essaiRetenu.espacement];
+      compteRendu.innerHTML = 'Mise en page ajustée : texte en ' + String(essaiRetenu.tailleCorps / 2).replace('.', ',') + ' pt' + (essaiRetenu.cote ? ', destinataire à droite des coordonnées' : '') + (libEsp ? ', ' + libEsp : '') + '.' + boutonAnnuler;
+    }
+  }
+}
+// C4 (24/10/2026) : sous l'apercu, un conseil si la lettre est courte et, pour deux phrases quasi identiques, un bouton « Supprimer cette phrase ».
+// Jamais automatique : la personne decide. Le message court a copier dans un courriel n'est pas concerne.
+function afficherControlesTexteLettre(texte, mail) {
+  var zone = document.getElementById('controlesTexteLettre');
+  if (!zone) { return; }
+  if (mail || typeof phrasesProchesLettreCo !== 'function') { zone.innerHTML = ''; return; }
+  var nbMots = texte.split(/\s+/).filter(Boolean).length;
+  var html = '';
+  if (conseilLongueurLettreCo(nbMots) === 'courte') {
+    html += '<p class="mb-1">&#128161; Votre lettre est courte (' + nbMots + ' mots). Une lettre de 200 à 300 mots convainc davantage : avec « Modifier le texte », vous pouvez ajouter une phrase sur ce que vous apporteriez à ce poste.</p>';
+  }
+  var paires = phrasesProchesLettreCo(texte);
+  paires.forEach(function (paire, i) {
+    html += '<p class="mb-1">&#128161; Ces deux phrases se ressemblent : <em>« ' + echapperAttribut(paire.premiere) + ' »</em> et <em>« ' + echapperAttribut(paire.seconde) + ' »</em> ' +
+      '<button type="button" class="btn btn-outline-secondary btn-sm ms-1" data-supprimer-phrase-lettre="' + i + '">Supprimer la seconde</button></p>';
+  });
+  zone.innerHTML = html;
+  zone.querySelectorAll('[data-supprimer-phrase-lettre]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var lettreIa = dossier.ia && dossier.ia.lettre;
+      if (!lettreIa || !lettreIa.lettre) { return; }
+      var nouveau = retirerPhraseLettreCo(lettreIa.lettre.texte, paires[parseInt(this.getAttribute('data-supprimer-phrase-lettre'), 10)].seconde);
+      lettreIa.lettre.texte = nouveau;
+      var i = lettreIa.versionActive || 0;
+      if (lettreIa.versions && lettreIa.versions[i]) { lettreIa.versions[i].texte = nouveau; }
+      rechargerApercuInline('lettre', etatApercuInline.lettre.modele || 'sobre');
+    });
+  });
+}
+if (typeof window !== 'undefined') {
+  var _minuteurRedimLettre = null;
+  window.addEventListener('resize', function () { clearTimeout(_minuteurRedimLettre); _minuteurRedimLettre = setTimeout(ajusterApercuLettreEntier, 150); });
+}
+
 function svgMiniatureChoixDocumentPdf() {
   return '<svg viewBox="0 0 100 130" width="76" height="99" style="margin:0 auto 0.7rem;display:block;">' +
     '<rect x="1" y="1" width="98" height="128" rx="4" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="2"/>' +
@@ -16569,10 +17386,12 @@ function construireContenuExportDocument(type) {
   // .export-jetons > ... : aucun autre bouton d'export de l'app touche.
   var formatsParTypeExport = {
     cv: [{ id: 'docx', label: 'Télécharger' }, { id: 'texte-blocs', label: 'Texte à copier' }, { id: 'autre', label: 'Autre' }],
-    lettre: [{ id: 'apercu', label: 'Aperçu' }, { id: 'docx', label: 'Télécharger' }, { id: 'texte-blocs', label: 'Texte à copier' }],
-    entretien: [{ id: 'apercu', label: 'Aperçu' }, { id: 'docx', label: 'Télécharger' }, { id: 'texte-blocs', label: 'Texte à copier' }]
+    // Lettre : l'apercu s'ouvre en cliquant dessus (page « La mise en page »), seuls le Word et le texte se recuperent ici (decision 68).
+    lettre: [{ id: 'docx', label: 'Télécharger' }, { id: 'texte-blocs', label: 'Texte à copier' }],
+    // Fiche d'entretien (25/10/2026, retour Denis) : a l'etape « Exporter », en Word ou en PDF (ou en texte) ; plus d'« Aperçu » ici (il est dans la mise en page).
+    entretien: [{ id: 'pdf-entretien', label: 'Enregistrer en PDF' }, { id: 'docx', label: 'Télécharger le Word' }, { id: 'texte-blocs', label: 'Texte à copier' }]
   };
-  var iconesFormatsExport = { docx: '&#128190;', 'texte-blocs': '&#128203;', autre: '&#128193;', apercu: '&#128065;' };
+  var iconesFormatsExport = { docx: '&#128190;', 'texte-blocs': '&#128203;', autre: '&#128193;', apercu: '&#128065;', 'pdf-entretien': '&#128196;' };
   var styleExport = '<style>' +
     '.export-jetons{display:flex;flex-wrap:wrap;gap:.4rem;}' +
     '.export-jetons > .pastille-selection{font-size:.9rem;font-weight:600;cursor:pointer;padding:.45rem .95rem;' +
@@ -16879,11 +17698,12 @@ function construireContenuApercuFinalisation(docActif, opts) {
         // Bootstrap .btn-sm deja utilisees partout ailleurs sur cet ecran
         // (ex. "Modifier le texte" juste au-dessus), plutot qu'un gabarit
         // "pleine largeur" qui pesait trop lourd dans une colonne etroite.
-        (docActif !== 'cv'
+        (docActif === 'lettre' ? htmlCoordonneesDestinataireLettre() : '') +
+        // Lettre : l'apercu se ferme/ouvre en cliquant dessus, « Télécharger » vit dans « Exporter » (decision 68) ; seul l'entretien garde ces 2 boutons.
+        (docActif === 'entretien'
           ? '<div style="margin-top:1.1rem;padding-top:0.9rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:0.5rem;">' +
             '<button type="button" id="btnOuvrirGrandApercu" class="btn btn-primary btn-sm">&#128196; Aper&ccedil;u &agrave; taille r&eacute;elle</button>' +
-            '<button type="button" data-format-export="docx" class="btn btn-primary btn-sm">&#128190; Télécharger</button>' +
-            '</div>'
+            '</div>'   // 25/10/2026 (retour Denis) : le telechargement (Word ou PDF) n'existe qu'a l'etape « Exporter », une fois la fiche validee
           : '') +
         '</div>';
 
@@ -17086,6 +17906,8 @@ function construireContenuApercuFinalisation(docActif, opts) {
               '</div>' +
             '</div>';
           }
+          // Lettre : meme disposition que le CV (decision 68 du cahier lettre).
+          if (docActif === 'lettre') { return htmlMiseEnPageLettre(colonneGauche); }
           var ongletApercu = etatApercuInline.cv.ongletApercu || 'word';
           var bascule = (docActif !== 'cv') ? '' :
             '<div class="d-flex gap-2 mb-3">' +
@@ -17118,7 +17940,7 @@ function construireContenuApercuFinalisation(docActif, opts) {
             // === 'pdf' quand le format reel est PDF (zero changement pour le PDF).
             if (_cvEcranUniqueMiseEnPage()) {
               // PDF (2026-09-26, demande de Denis) : un SEUL « Valider le CV », sous « Reglages supplementaires » (construireMiseEnPageCV).
-              return '<div id="zonePdfInlineCV" style="width:100%;"></div>';
+              return '<div id="mepOngletsApercu" class="mep-onglets-apercu" style="min-height:' + _mepHauteurOnglets + 'px;"></div><div id="zonePdfInlineCV" style="width:100%;"></div>';
             }
             return '<div class="mep-ancien-gauche" style="display:none;" aria-hidden="true">' + colonneGauche + '</div>' + colonneDroite + btnValiderCvInline;
           }
@@ -17129,7 +17951,7 @@ function construireContenuApercuFinalisation(docActif, opts) {
               '</div>' +
               '<p class="small text-muted mt-3 mb-2">&#128196; Ceci est le rendu exact du fichier Word qui sera téléchargé - ' +
               'vous pourrez le modifier librement, avec toutes les options de mise en forme de Word, une fois ouvert.</p>' +
-              '<div class="d-flex justify-content-end mt-3"><button type="button" class="btn btn-primary" id="btnContinuerApercu">Continuer &#8594;</button></div>';
+              '<div data-barre-bas-zone style="display:none;"><button type="button" class="btn btn-primary" id="btnContinuerApercu" data-barre-bas="1" data-barre-bas-masque="1" data-barre-bas-libelle="Continuer &#8594;">Continuer &#8594;</button></div>';
           }
 
           // ongletApercu === 'pdf' (docActif === 'cv' garanti par le if precedent)
@@ -17503,7 +18325,7 @@ function _mepLibelleDe() {
     } catch (e) {
       _assurerReglagesMiseEnPageCV();
       var deuxColonnes = String((dossier.reglagesMiseEnPageCV || {}).colonnes) !== '1';
-      ids = ['mq-bandeau', 'mq-fond', 'mq-epure'].concat(deuxColonnes ? ['mq-photo'] : ['mq-rectangles']).concat(['mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs']);
+      ids = ['mq-bandeau', 'mq-fond', 'mq-epure'].concat(deuxColonnes ? ['mq-photo'] : ['mq-rectangles']).concat(['mq-frise', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs']);
     }
     actuel = _mepVarianteSobreActuelle();
   }
@@ -17533,20 +18355,37 @@ function _mepMiniMontrer(el, d) {
   // « all: initial » : la miniature n'herite rien de la vignette qui la porte (le texte centre de la vignette se retrouvait dans le CV).
   racine.innerHTML = '<style>:host{all:initial;display:block;position:relative;overflow:hidden;}.mini-ech{position:absolute;top:0;left:0;width:794px;transform-origin:0 0;transform:scale(' + (largeur / 794) + ');}.mini-ech *{pointer-events:none;}' + d.css + '</style>' +
     '<div class="mini-ech">' + d.html + '</div>';
+  // Formes decoratives choisies par la personne : posees sur la miniature comme sur le CV (cvPdfFormesDeco.js, une seule regle).
+  try { if (typeof _formesDecoPoser === 'function') { _formesDecoPoser(racine.querySelector('.page-a4'), _mepFormesDeco()); } } catch (e) { /* un plus : jamais bloquer la galerie */ }
   return true;
 }
 function _mepMiniaturesReelles() {
+  _mepMajOngletsApercu();   // la barre d'onglets de l'apercu (se redessine a chaque reconstruction du panneau)
+  _mepRedessinerMiniatures();
+}
+// Dessine (ou redessine) les miniatures des vignettes. Une miniature masquee (panneau de formes ouvert a la place des vignettes) n'a pas de largeur : elle ne peut pas etre dessinee ;
+// on la redessine donc des que les vignettes reviennent (fermeture du dernier panneau).
+function _mepRedessinerMiniatures() {
   Array.prototype.forEach.call(document.querySelectorAll('[data-mini-reel]'), function (el) {
     var cle = el.getAttribute('data-mini-reel');
     if (_mepMiniCache[cle]) { _mepMiniMontrerVignette(el, _mepMiniCache[cle]); return; }
     _mepMiniCharger(cle).then(function (d) { if (document.body.contains(el)) { _mepMiniMontrerVignette(el, d); } });
   });
 }
-// BORD DE LA COLONNE au choix (Denis, 2026-10-11) : les modeles Creatif a colonne coloree pleine hauteur portent, sur leur vignette, un interrupteur « Vallonné ».
-// La miniature montre aussitot le bord qu'il donnera (fichier data/miniatures/<famille>_<id>.bord.json, fabrique par le banc de rendu a cote de la miniature du modele).
-// Un modele n'a l'interrupteur que si sa miniature dit son bord (champ `bord`) : la source est le rendu reel (classe `bord-choix` du gabarit), jamais une liste ecrite ici.
-// Modele actuel : l'interrupteur agit tout de suite sur le CV. Autre modele : il garde le souhait (_mepBordVignette) et l'applique quand la personne choisit ce modele.
-var _mepBordVignette = {};
+// OPTIONS DE FORME DU BANDEAU, DE LA COLONNE ET FORMES DECORATIVES, SUR L'APERCU DU CV (tache A3, Denis, 2026-10-20 ; avant : trois boutons sous chaque vignette).
+// Au-dessus de l'apercu (#mepOngletsApercu), une barre d'onglets « Bandeau », « Colonne », « Formes », seulement ceux que le MODELE EN COURS permet (table des capacites, brique B.39,
+// cvPdfCapacitesModeles.js : jamais une option impossible, masquee et non grisee). Un clic ouvre, DANS la page, juste sous la barre, le choix en images et en noms. Jamais de fenetre.
+// Les vignettes de la galerie montrent toujours l'allure de base du modele (plus de souhaits par modele ni de miniatures de variantes).
+// Le bandeau et la colonne NE SUIVENT PAS d'un modele a l'autre (decision de Denis, 2026-10-20 : tous les modeles n'en ont pas, la personne ne comprendrait pas pourquoi certains choix suivent et d'autres non) :
+// chaque modele garde sa forme de depart et la personne choisit selon le CV qu'elle recupere. Seules les FORMES DECORATIVES peuvent suivre (interrupteur « Garder mes formes », `garderFormes`).
+var _mepFormeAppliquer = { bandeau: null, colonne: null };   // branches par le gestionnaire du panneau (la, _mepReglageMoteur est accessible)
+var _mepTiroirForme = null;   // { bandeau, colonne, formes } : les panneaux ouverts (plusieurs a la fois) ou null ; vit hors de la galerie, qui est reconstruite a chaque reglage
+var _mepTirageDecorDeja = false;   // les formes decoratives viennent d'etre tirees par le style rapide du Standard
+var _mepTirageFormesEnAttente = false;   // vrai apres un clic sur le tirage au hasard : au prochain rendu, le tirage choisit bandeau, colonne (avec leur sens) et formes, puis ouvre les panneaux concernes
+var _mepModeleVu = null, _mepModeleVuDossier = null;   // dernier modele vu : un changement de modele sans « Garder mes formes » efface les formes decoratives
+// Interrupteur « Garder mes formes quand je change de modele » (Denis, 2026-10-20) : reglage `garderFormes` du CV ; sans lui, un autre modele repart sans forme ; avec lui, les formes suivent ET le style au hasard n'y touche jamais.
+function _mepGarderFormes() { try { return !!(dossier.reglagesMiseEnPageCV && dossier.reglagesMiseEnPageCV.garderFormes === true); } catch (e) { return false; } }
+var _mepOngletsTouche = false;   // vrai des que la personne a clique un onglet : la pulsation d'invitation s'arrete (Denis, 2026-10-20)
 // DERNIERES COULEURS (Denis, 2026-10-11) : chaque modele arrive avec ses couleurs d'origine ; ce que la personne a choisi est garde dans le CV (reglages `dernieresCouleurs`) et se reprend
 // d'un clic (« Reprendre mes dernieres couleurs ») ou tout seul a chaque changement de modele (case « Garder mes couleurs », reglage `garderCouleurs`).
 // `dernieresCouleurs` = { accent, baseCouleur, accentClair, nuance, colonne, secondaire, texte, texteAuto } : seules les cles choisies par la personne y sont.
@@ -17588,121 +18427,883 @@ function _htmlReprendreCouleurs(allure) {
 }
 // Ajuste le texte sur le fond colore quand la personne a choisi « Automatique » (branche par le gestionnaire du panneau, ou _mepReglageMoteur est accessible).
 var _mepTexteAutoAjuster = null;
-// Pose du bord sur le CV en cours : branchee par le gestionnaire du panneau (la, _mepReglageMoteur est accessible), jamais appelee avant.
-var _mepBordAppliquer = null;
-function _mepBordColonne() {
+
+// Les deux familles d'options de forme : le BANDEAU (aucun, droit, arrondi, vallonne, en pointe, et depuis le 2026-10-20 douze formes de plus) et la COLONNE (droite, vallonnee, arche). Ce que chaque modele propose vient de la table des capacites
+// (_cvFormesPourModele) : jamais une forme que le modele ne sait pas faire. « Aucun » n'existe que pour un modele dont le bandeau s'ajoute (il n'en a pas d'office).
+var _MEP_FORMES_SVG = {
+  bAucun: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1.5 1.5h21v7h-21z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 2"/></svg>',
+  bDroit: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v8H1z" fill="currentColor"/></svg>',
+  bArrondi: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v4a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4z" fill="currentColor"/></svg>',
+  bVallonne: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v5c-3 3-5 3-8 0s-5-3-7 0-5 3-7 0z" fill="currentColor"/></svg>',
+  bPointe: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v5l-11 6L1 6z" fill="currentColor"/></svg>',
+  bDiagonale: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v5L1 12z" fill="currentColor"/></svg>',
+  bDiagonaleInv: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v11L1 6z" fill="currentColor"/></svg>',
+  bCoin: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v10H6L1 7z" fill="currentColor"/></svg>',
+  bDemiovale: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v1c0 6-5 10-11 10S1 8 1 2z" fill="currentColor"/></svg>',
+  bVague2: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v5l-4 3-4-3-4 3-4-3-4 3-2-1.5z" fill="currentColor"/></svg>',
+  bCreneaux: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 1h22v7v3h-2.75V8h-2.75v3h-2.75V8h-2.75v3h-2.75V8h-2.75v3h-2.75V8h-2.75z" fill="currentColor"/></svg>',
+  bCarte: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 2h18a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="currentColor"/></svg>',
+  bPilule: '<svg viewBox="0 0 24 14" aria-hidden="true"><rect x="1.5" y="2.5" width="21" height="8.5" rx="4.2" fill="currentColor"/></svg>',
+  bRuban: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 2h22l-3.5 9H1z" fill="currentColor"/></svg>',
+  bRubanCourt: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 2h15l-3 9H1z" fill="currentColor"/></svg>',
+  bContour: '<svg viewBox="0 0 24 14" aria-hidden="true"><rect x="2" y="2.5" width="20" height="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>',
+  bContourRond: '<svg viewBox="0 0 24 14" aria-hidden="true"><rect x="2" y="2.5" width="20" height="8.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>',
+  bFilets: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M1 2.5h22" stroke="currentColor" stroke-width="2.4"/><path d="M1 10.5h22" stroke="currentColor" stroke-width="1.2"/></svg>',
+  cDroit: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h9v12H3z" fill="currentColor"/></svg>',
+  cVallonne: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h8c-2 2.5-2 4 0 6.2S13 11.2 11 13H3z" fill="currentColor"/></svg>',
+  cArche: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 13V7a4.5 4.5 0 0 1 9 0v6z" fill="currentColor"/></svg>',
+  cDiagonale: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h9l-2.5 12H3z" fill="currentColor"/></svg>',
+  cPointeBas: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h9v8l-4.5 4L3 9z" fill="currentColor"/></svg>',
+  cCoin: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h9v8l-3 4H3z" fill="currentColor"/></svg>',
+  cDemiovale: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h6c3.5 0 3.5 2.5 3.5 6s0 6-3.5 6H3z" fill="currentColor"/></svg>',
+  cVague2: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h9l-2 3 2 3-2 3 2 3H3z" fill="currentColor"/></svg>',
+  cCreneaux: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3 1h9v2.4H9.5v2.4H12v2.4H9.5v2.4H12V13H3z" fill="currentColor"/></svg>',
+  cCarte: '<svg viewBox="0 0 24 14" aria-hidden="true"><rect x="3" y="2" width="9" height="10" rx="1.8" fill="currentColor"/></svg>',
+  cPilule: '<svg viewBox="0 0 24 14" aria-hidden="true"><rect x="3.5" y="1.5" width="8" height="11" rx="4" fill="currentColor"/></svg>',
+  cContour: '<svg viewBox="0 0 24 14" aria-hidden="true"><rect x="3.5" y="1.8" width="8" height="10.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  cContourRond: '<svg viewBox="0 0 24 14" aria-hidden="true"><rect x="3.5" y="1.8" width="8" height="10.4" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  cAucun: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M3.5 1.5h8v11h-8z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 2"/></svg>',
+  cFilets: '<svg viewBox="0 0 24 14" aria-hidden="true"><path d="M9.2 1v12" stroke="currentColor" stroke-width="1.1"/><path d="M12 1v12" stroke="currentColor" stroke-width="2.4"/></svg>',
+  formes: '<svg viewBox="0 0 24 14" aria-hidden="true"><circle cx="8" cy="7" r="5" fill="currentColor" opacity=".55"/><path d="M12 13L22 3v10z" fill="currentColor" opacity=".8"/></svg>',
+  // Icones des trois onglets de l'apercu (A3) : une petite page vue de face, pour comprendre d'un coup d'oeil de quoi il s'agit (bandeau en haut, colonne sur le cote, formes posees sur la page).
+  ongBandeau: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2.2" y="2.2" width="13.6" height="7.5" fill="currentColor"/><path d="M5 13.5h8M5 16.5h8M5 19.5h5" stroke="currentColor" stroke-width="1.3" opacity=".55"/></svg>',
+  ongColonne: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2.2" y="2.2" width="5.8" height="19.6" fill="currentColor"/><path d="M10.5 6h4M10.5 9h4M10.5 12h4M10.5 15h4" stroke="currentColor" stroke-width="1.3" opacity=".55"/></svg>',
+  ongFormes: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="8.5" r="3.6" fill="currentColor" opacity=".6"/><path d="M8 20.5l7-8.5v8.5z" fill="currentColor" opacity=".85"/></svg>',
+  ongComposition: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.2 2.2h13.6v6H6.5v13.6H2.2z" fill="currentColor"/><path d="M9.5 13.5h5M9.5 16.5h5M9.5 19.5h3" stroke="currentColor" stroke-width="1.3" opacity=".55"/></svg>'
+};
+// Les onze formes de colonne de plus (2026-10-20) : elles se choisissent par le reglage « Forme de la colonne » (regColonneForme), jamais par les cases du bord.
+var _MEP_COLONNE_PLUS = ['diagonale', 'pointeBas', 'coin', 'demiovale', 'vague2', 'creneaux', 'carte', 'pilule', 'contour', 'contourRond', 'filets'];
+var _MEP_ONG_ICONES = { composition: 'ongComposition', bandeau: 'ongBandeau', colonne: 'ongColonne', formes: 'ongFormes' };
+var _MEP_FORMES = {
+  bandeau: {
+    court: 'Bandeau', titre: 'Forme du bandeau',
+    formes: [['aucun', 'Aucun', _MEP_FORMES_SVG.bAucun], ['droit', 'Droit', _MEP_FORMES_SVG.bDroit], ['arrondi', 'Arrondi', _MEP_FORMES_SVG.bArrondi], ['vallonne', 'Vallonné', _MEP_FORMES_SVG.bVallonne], ['pointe', 'En pointe', _MEP_FORMES_SVG.bPointe], ['diagonale', 'Diagonale', _MEP_FORMES_SVG.bDiagonale], ['coin', 'Coin coupé', _MEP_FORMES_SVG.bCoin], ['demiovale', 'Demi-ovale', _MEP_FORMES_SVG.bDemiovale], ['vague2', 'Double vague', _MEP_FORMES_SVG.bVague2], ['creneaux', 'Créneaux', _MEP_FORMES_SVG.bCreneaux], ['carte', 'Carte flottante', _MEP_FORMES_SVG.bCarte], ['pilule', 'Pilule', _MEP_FORMES_SVG.bPilule], ['ruban', 'Ruban incliné', _MEP_FORMES_SVG.bRuban], ['rubanCourt', 'Ruban court', _MEP_FORMES_SVG.bRubanCourt], ['contour', 'Contour rectangle', _MEP_FORMES_SVG.bContour], ['contourRond', 'Contour arrondi', _MEP_FORMES_SVG.bContourRond], ['filets', 'Deux filets', _MEP_FORMES_SVG.bFilets]]
+  },
+  colonne: {
+    court: 'Colonne', titre: 'Forme de la colonne',
+    formes: [['aucun', 'Aucune', _MEP_FORMES_SVG.cAucun], ['droit', 'Droite', _MEP_FORMES_SVG.cDroit], ['vallonne', 'Vallonnée', _MEP_FORMES_SVG.cVallonne], ['arche', 'Arche', _MEP_FORMES_SVG.cArche], ['diagonale', 'Diagonale', _MEP_FORMES_SVG.cDiagonale], ['pointeBas', 'Pointe en bas', _MEP_FORMES_SVG.cPointeBas], ['coin', 'Coin coupé', _MEP_FORMES_SVG.cCoin], ['demiovale', 'Demi-ovale', _MEP_FORMES_SVG.cDemiovale], ['vague2', 'Double vague', _MEP_FORMES_SVG.cVague2], ['creneaux', 'Créneaux', _MEP_FORMES_SVG.cCreneaux], ['carte', 'Carte flottante', _MEP_FORMES_SVG.cCarte], ['pilule', 'Pilule', _MEP_FORMES_SVG.cPilule], ['contour', 'Contour rectangle', _MEP_FORMES_SVG.cContour], ['contourRond', 'Contour arrondi', _MEP_FORMES_SVG.cContourRond], ['filets', 'Double filet', _MEP_FORMES_SVG.cFilets]]
+  },
+  formes: { court: 'Formes', titre: 'Formes décoratives' },
+  composition: { court: 'Composition', titre: 'Composition de l’en-tête' }
+};
+// L'etat REEL du CV affiche (lu dans l'iframe, d'apres les classes du gabarit) : { bandeau, colonne } ; une valeur null = ce modele n'a pas ce choix ; null entier = apercu pas pret.
+function _mepEtatFormesActuel() {
   try {
     var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
     var cv = d && d.querySelector('#conteneurPage .cv');
-    var cas = d && d.getElementById('regColonneBordDroit');
-    if (!cv || !cas || !cv.classList.contains('bord-choix')) { return null; }
-    return cas.checked ? 'droit' : 'vallonne';
+    if (!cv) { return null; }
+    var sel = d.getElementById('regBordBandeau'), cas = d.getElementById('regColonneBordDroit');
+    return {
+      bandeau: cv.classList.contains('bord-bandeau-choix') ? (sel ? (sel.value === 'diagonaleInv' ? 'diagonale' : (sel.value || (cv.classList.contains('bandeau-diagonal-origine') ? 'diagonale' : (cv.classList.contains('bandeau-arrondi-origine') ? 'arrondi' : 'droit')))) : null) : 'aucun',
+      bandeauPale: cv.classList.contains('bandeau-pale'),
+      bandeauTeinte: ((d.getElementById('regBandeauTeinte') || {}).value) === 'pleine' ? 'pleine' : 'douce',
+      colonneTeinte: ((d.getElementById('regColonneTeinte') || {}).value) || '',
+      bandeauDouxSeul: cv.classList.contains('cv-rect'),   // Sobre rectangles : le bandeau n'a que la teinte douce
+      colonneSens: (function () { var sc = d.getElementById('regColonneSens'); return sc ? (parseInt(sc.value, 10) || 0) : 0; })(),
+      bandeauSens: (function () { var ss = d.getElementById('regBordBandeauSens'), v = ss ? (parseInt(ss.value, 10) || 0) : 0; return (sel && sel.value === 'diagonaleInv') ? 1 : v; })(),
+      colonne: cv.classList.contains('col-arche') ? 'arche' : ((cv.classList.contains('col-forme') && (d.getElementById('regColonneForme') || {}).value) ? d.getElementById('regColonneForme').value : (cv.classList.contains('bord-choix') ? (cas && cas.checked ? 'droit' : 'vallonne') : (cv.classList.contains('deux-col') ? 'aucun' : null))),
+      // Le NOMBRE REEL de colonnes du CV affiche (classe `deux-col` du gabarit) et le fond choisi : l'onglet « Colonne » en depend (etape 4.2, regle 2 de Denis).
+      deuxColonnes: cv.classList.contains('deux-col'),
+      bandeauChoisi: !!(sel && sel.value),   // la personne a choisi une forme de bandeau (sinon : la forme d'origine du modele) : pastille verte de l'onglet
+      colonneChoisie: !!(((d.getElementById('regColonneForme') || {}).value) || cv.classList.contains('col-arche')),
+      aEntete: !!(cv.querySelector('.tete') && cv.querySelector('.tete').offsetHeight > 20),
+      croisementCoin: cv.hasAttribute('data-croi') ? cv.getAttribute('data-croi-coin') === '1' : (typeof _croisementMesurer === 'function' && !!(_croisementMesurer(cv) || {}).coinPossible),
+      croisementOk: cv.hasAttribute('data-croi') || (typeof _croisementMesurer === 'function' && !!_croisementMesurer(cv)),   // bandeau a fond propre ET colonne dessinee a gauche : les reglages du croisement existent
+      aTrait: !!cv.querySelector(':scope > .trait'),   // le trait sous l'en-tete existe (modeles dont l'en-tete n'a pas de fond propre) : choix « Trait sous l'en-tete » du panneau Composition
+      // la colonne (la plus etroite des deux colonnes du corps) est a GAUCHE : condition des compositions a deux colonnes
+      colonneADroite: (function () { var c = cv.querySelector('.corps.deux'); if (!c || c.children.length !== 2) { return false; } var a = c.children[0].getBoundingClientRect(), b = c.children[1].getBoundingClientRect(), p = cv.getBoundingClientRect(), e = a.width <= b.width ? a : b; return e.width > 40 && ((e.left + e.right) / 2 - p.left) >= p.width / 2; })(),
+      colonneAGauche: (function () { var c = cv.querySelector('.corps.deux'); if (!c || c.children.length !== 2) { return false; } var a = c.children[0].getBoundingClientRect(), b = c.children[1].getBoundingClientRect(), p = cv.getBoundingClientRect(), e = a.width <= b.width ? a : b; return e.width > 40 && ((e.left + e.right) / 2 - p.left) < p.width / 2; })(),   // un en-tete horizontal mesurable : condition des compositions (cvPdfCompositions.js)
+      fondColonnes: (d.getElementById('regFondColonnes') || {}).value || 'aucun'
+    };
   } catch (e) { return null; }
 }
-// Le bord que la vignette de ce modele doit montrer : le reglage reel si c'est le modele actuel, sinon le souhait garde, sinon le bord du modele.
-function _mepBordAffiche(id, bordModele) {
-  if (_mepModeleCreatifActuel() === id) { return _mepBordColonne() || bordModele; }
-  return _mepBordVignette[id] || bordModele;
+// La cle du modele en cours dans la table des capacites : « creatif:<id> », « sobre:<variante> » ou « standard ».
+function _mepCleModeleActuel() {
+  var a = _mepAllureActuelle();
+  if (a === 'creatif') { var c = _mepModeleCreatifActuel(); return c ? 'creatif:' + c : null; }
+  if (a === 'sobre') { var v = _mepVarianteSobreActuelle(); return v ? 'sobre:' + v : null; }
+  return 'standard';
 }
-function _mepMiniMontrerVignette(el, d) {
-  _mepMiniMontrer(el, d);
-  if (!d || !(d.bord || d.bandeau) || !el.closest) { return; }
-  var vign = el.closest('.vign');
-  if (!vign) { return; }   // les petits apercus des onglets de familles n'ont pas d'interrupteur
-  var cle = el.getAttribute('data-mini-reel'), id = cle.split(':')[1];
-  var cadre = vign.parentElement;
-  if (!cadre.classList.contains('vign-cadre')) {
-    cadre = document.createElement('div'); cadre.className = 'vign-cadre';
-    vign.parentElement.insertBefore(cadre, vign); cadre.appendChild(vign);
+// Les kinds (bandeau, colonne) que ce modele permet, d'apres la table des capacites.
+// Le « Colonne » ne se propose que si le CV AFFICHE a deux colonnes (le tableau des capacites dit seulement ce que le modele PEUT faire) et que son fond n'est pas « Les deux » (la colonne dessinee est d'un seul cote). `e` : l'etat lu dans l'apercu (sans lui, on se fie au seul tableau).
+function _mepKindsDuModele(cle, e) {
+  var etat = (e === undefined) ? _mepEtatFormesActuel() : e;
+  return ['bandeau', 'colonne'].filter(function (k) {
+    if (_cvFormesPourModele(cle, k).length === 0) { return false; }
+    if (k === 'colonne' && etat && (!etat.deuxColonnes || etat.fondColonnes === 'lesDeux')) { return false; }
+    return true;
+  });
+}
+// Les formes PROPOSEES pour ce modele, tenant compte de l'autre choix : l'arche exclut le bandeau colore, donc elle n'est pas proposee tant qu'un bandeau est choisi.
+function _mepFormesProposees(kind, cle) {
+  var l = _cvFormesPourModele(cle, kind), cap = _cvCapacitesModele(cle);
+  if (kind === 'bandeau' && cap && cap.bandeau === 'ajoutable') { l = ['aucun'].concat(l); }
+  if (kind === 'colonne' && cap && cap.colonne === 'ajoutable') { l = ['aucun'].concat(l); }   // une colonne qu'on peut ne pas colorer : « Aucune » est un choix
+  if (kind === 'colonne' && _mepKindsDuModele(cle).indexOf('bandeau') !== -1) {
+    var e = _mepEtatFormesActuel();
+    if (e && e.bandeau && e.bandeau !== 'aucun') { l = l.filter(function (x) { return x !== 'arche'; }); }
   }
-  if (d.bord) { _mepPoserInterrupteurBord(el, d, vign, cadre, cle, id); }
-  if (d.bandeau) { _mepPoserChoixBandeau(el, d, vign, cadre, cle, id); }
+  return l;
 }
-function _mepPoserInterrupteurBord(el, d, vign, cadre, cle, id) {
-  var affiche = _mepBordAffiche(id, d.bord);
-  if (affiche !== d.bord) { _mepMiniCharger(cle + '.bord').then(function (alt) { if (alt && document.body.contains(el) && _mepBordAffiche(id, d.bord) === alt.bord) { _mepMiniMontrer(el, alt); } }); }
-  if (cadre.querySelector('.vign-bord')) { return; }
-  var inter = document.createElement('button');
-  inter.type = 'button'; inter.className = 'vign-bord'; inter.setAttribute('role', 'switch');
-  inter.setAttribute('aria-checked', affiche === 'vallonne' ? 'true' : 'false');
-  inter.setAttribute('aria-label', 'Bord vallonné de la colonne, ' + (vign.querySelector('.vign-nom') ? vign.querySelector('.vign-nom').textContent : ''));
-  inter.setAttribute('data-mep-bord-vign', id);
-  inter.innerHTML = '<span class="vign-bord-piste" aria-hidden="true"><span class="vign-bord-bouton"></span></span><span class="vign-bord-nom">Vallonné</span>';
-  inter.addEventListener('click', function () {
-    var vers = inter.getAttribute('aria-checked') === 'true' ? 'droit' : 'vallonne';
-    _mepBordVignette[id] = vers;
-    if (_mepModeleCreatifActuel() === id) {
-      if (_mepBordAppliquer) { _mepBordAppliquer(vers); }   // agit sur le CV, puis tout est redessine
-      return;
-    }
-    inter.setAttribute('aria-checked', vers === 'vallonne' ? 'true' : 'false');
-    if (vers === d.bord) { _mepMiniMontrer(el, d); } else { _mepMiniCharger(cle + '.bord').then(function (alt) { if (alt) { _mepMiniMontrer(el, alt); } }); }
-  });
-  cadre.appendChild(inter);
+function _mepMiniMontrerVignette(el, d) { _mepMiniMontrer(el, d); }
+function _mepNomForme(kind, forme) {
+  var def = _MEP_FORMES[kind] && _MEP_FORMES[kind].formes && _MEP_FORMES[kind].formes.filter(function (x) { return x[0] === forme; })[0];
+  return def ? def[1] : '';
 }
-// BORD DU BANDEAU au choix (Denis, 2026-10-11) : Bandeau entier, Duo ovale, Vague marine portent, sous leur vignette, trois petits boutons dessines (droit, arrondi, vallonne).
-// Meme mecanisme que le bord de la colonne : la miniature dit son bord de depart (champ `bandeau`), les deux autres sont dans data/miniatures/<famille>_<id>.bandeau-<bord>.json (fabriques par le banc).
-var _mepBandeauVignette = {};
-var _mepBandeauAppliquer = null;   // branche par le gestionnaire du panneau, comme _mepBordAppliquer
-var _MEP_BORDS_BANDEAU = [
-  ['droit', 'Droit', '<svg viewBox="0 0 24 14" width="24" height="14" aria-hidden="true"><path d="M1 1h22v8H1z" fill="currentColor"/></svg>'],
-  ['arrondi', 'Arrondi', '<svg viewBox="0 0 24 14" width="24" height="14" aria-hidden="true"><path d="M1 1h22v4a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4z" fill="currentColor"/></svg>'],
-  ['vallonne', 'Vallonné', '<svg viewBox="0 0 24 14" width="24" height="14" aria-hidden="true"><path d="M1 1h22v5c-3 3-5 3-8 0s-5-3-7 0-5 3-7 0z" fill="currentColor"/></svg>']
-];
-function _mepBandeauActuel() {
-  try {
-    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
-    var cv = d && d.querySelector('#conteneurPage .cv');
-    var sel = d && d.getElementById('regBordBandeau');
-    if (!cv || !sel || !cv.classList.contains('bord-bandeau-choix')) { return null; }
-    return sel.value;
-  } catch (e) { return null; }
+// Les panneaux ouverts : { bandeau, colonne, formes } (plusieurs en meme temps, Denis 2026-10-20) ; `_mepTiroirForme` vaut null quand tout est ferme.
+function _mepPanneauOuvert(kind) { return !!(_mepTiroirForme && _mepTiroirForme[kind]); }
+function _mepBasculerTiroirForme(kind) {
+  var o = { composition: _mepPanneauOuvert('composition'), bandeau: _mepPanneauOuvert('bandeau'), colonne: _mepPanneauOuvert('colonne'), formes: _mepPanneauOuvert('formes') };
+  o[kind] = !o[kind];
+  _mepTiroirForme = (o.composition || o.bandeau || o.colonne || o.formes) ? o : null;
+  _mepMajOngletsApercu();
 }
-function _mepBandeauAffiche(id, bordModele) {
-  if (_mepModeleCreatifActuel() === id) { return _mepBandeauActuel() || bordModele; }
-  return _mepBandeauVignette[id] || bordModele;
+function _mepFermerTiroirForme(kind) {
+  if (_mepTiroirForme) { _mepTiroirForme[kind] = false; if (!_mepTiroirForme.composition && !_mepTiroirForme.bandeau && !_mepTiroirForme.colonne && !_mepTiroirForme.formes) { _mepTiroirForme = null; } }
+  _mepMajOngletsApercu();
 }
-function _mepMontrerBandeau(el, d, cle, bord) {
-  if (bord === d.bandeau) { _mepMiniMontrer(el, d); return; }
-  _mepMiniCharger(cle + '.bandeau-' + bord).then(function (alt) { if (alt && document.body.contains(el)) { _mepMiniMontrer(el, alt); } });
+// Ecran large (ordinateur, tablette) : les panneaux prennent la place des vignettes, a GAUCHE de l'apercu ; ecran de telephone (moins de 700 px) : sous l'apercu.
+function _mepEcranLarge() { try { return window.matchMedia('(min-width: 700px)').matches; } catch (e) { return true; } }
+var _mepRedimBranche = false;
+// Pose (ou deplace) le conteneur des panneaux au bon endroit, et masque les vignettes quand un panneau est ouvert a gauche.
+function _mepPlacerPanneaux(hote, ouvert) {
+  var large = _mepEcranLarge(), grille = document.querySelector('.mep-2col');
+  if (large) {
+    // Les panneaux prennent la place du bloc « Allure generale » (boutons Sobre, Standard, Creatif + legende) ET des vignettes (Denis, 2026-10-20) : personne ne change de modele pendant qu'il regle le sien.
+    var allure = document.querySelector('.ligne-allure'), galerie = document.querySelector('.gab-familles'), legende = document.querySelector('.desc-allure');
+    if (allure && allure.parentNode) { allure.parentNode.insertBefore(hote, allure); }
+    else if (galerie && galerie.parentNode) { galerie.parentNode.insertBefore(hote, galerie); }
+    else if (legende && legende.parentNode) { legende.parentNode.insertBefore(hote, legende.nextSibling); }
+    else { var g = document.querySelector('.mep-2col-reglages'); if (g) { g.insertBefore(hote, g.firstChild); } }
+  } else {
+    var zone = document.getElementById('zonePdfInlineCV');
+    if (zone && zone.parentNode) { zone.parentNode.insertBefore(hote, zone.nextSibling); }
+  }
+  if (grille) { grille.classList.toggle('mep-panneaux-ouverts', !!(ouvert && large)); }
 }
-function _mepPoserChoixBandeau(el, d, vign, cadre, cle, id) {
-  var affiche = _mepBandeauAffiche(id, d.bandeau);
-  if (affiche !== d.bandeau) { _mepMontrerBandeau(el, d, cle, affiche); }
-  if (cadre.querySelector('.vign-bords')) { return; }
-  var groupe = document.createElement('div');
-  groupe.className = 'vign-bords'; groupe.setAttribute('role', 'radiogroup');
-  groupe.setAttribute('aria-label', 'Bord du bandeau, ' + (vign.querySelector('.vign-nom') ? vign.querySelector('.vign-nom').textContent : ''));
-  groupe.setAttribute('data-mep-bandeau-vign', id);
-  _MEP_BORDS_BANDEAU.forEach(function (b) {
-    var bouton = document.createElement('button');
-    bouton.type = 'button'; bouton.className = 'vign-bord3'; bouton.setAttribute('role', 'radio');
-    bouton.setAttribute('aria-checked', affiche === b[0] ? 'true' : 'false');
-    bouton.setAttribute('aria-label', 'Bord ' + b[1].toLowerCase()); bouton.title = 'Bord ' + b[1].toLowerCase();
-    bouton.setAttribute('data-bord', b[0]);
-    bouton.innerHTML = b[2];
-    bouton.addEventListener('click', function () {
-      _mepBandeauVignette[id] = b[0];
-      if (_mepModeleCreatifActuel() === id) {
-        if (_mepBandeauAppliquer) { _mepBandeauAppliquer(b[0]); }   // agit sur le CV, puis tout est redessine
-        return;
-      }
-      Array.prototype.forEach.call(groupe.querySelectorAll('.vign-bord3'), function (x) { x.setAttribute('aria-checked', x === bouton ? 'true' : 'false'); });
-      _mepMontrerBandeau(el, d, cle, b[0]);
+// Un panneau « Bandeau » ou « Colonne » : les formes en images et en noms, dans la page. Jamais de fenetre.
+function _mepConstruirePanneauForme(kind, cle, e) {
+  var f = _MEP_FORMES[kind];
+  var t = document.createElement('div'); t.className = 'gab-tiroir'; t.setAttribute('role', 'region'); t.setAttribute('aria-label', f.titre); t.setAttribute('data-mep-tiroir', kind);
+  var tete = document.createElement('div'); tete.className = 'gab-tiroir-tete';
+  tete.innerHTML = '<strong>' + f.titre + '</strong>';
+  var fermer = document.createElement('button'); fermer.type = 'button'; fermer.className = 'btn-miss gab-tiroir-fermer'; fermer.textContent = 'Fermer';
+  fermer.addEventListener('click', function () { _mepFermerTiroirForme(kind); });
+  tete.appendChild(fermer); t.appendChild(tete);
+  var choix = document.createElement('div'); choix.className = 'gab-tiroir-choix'; choix.setAttribute('role', 'radiogroup'); choix.setAttribute('aria-label', f.titre);
+  _mepFormesProposees(kind, cle).forEach(function (forme) {
+    var def = f.formes.filter(function (x) { return x[0] === forme; })[0]; if (!def) { return; }
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign-forme'; b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', forme === e[kind] ? 'true' : 'false'); b.setAttribute('data-mep-forme', forme);
+    b.innerHTML = def[2] + '<span>' + def[1] + '</span>';
+    b.addEventListener('click', function () {
+      // l'arche et le bandeau colore s'excluent : le choix qui vient d'etre fait fait sauter l'autre, sans message (regle dans _mepFormeAppliquer)
+      if (_mepFormeAppliquer[kind]) { _mepFormeAppliquer[kind](forme, cle); }   // agit sur le CV, puis tout est redessine (les panneaux reviennent)
     });
-    groupe.appendChild(bouton);
+    choix.appendChild(b);
   });
-  cadre.appendChild(groupe);
+  t.appendChild(choix);
+  // Sens de la forme choisie (images), s'il y en a plusieurs
+  _mepAjouterRangeeSens(t, kind, e[kind], kind === 'bandeau' ? e.bandeauSens : e.colonneSens);
+  // Texte qui sort de la couleur de la COLONNE (nom, coordonnees, accroche en blanc dans la colonne) : meme reglage que pour le bandeau, seulement s'il n'y a pas de bandeau colore (le reglage est alors dans le panneau Bandeau) et pour les colonnes pleine hauteur dessinees par un polygone.
+  // Mode Sobre, modeles dont la colonne est douce d'office (etape 4.4) : rangee « Teinte » (Douce, Pleine).
+  if (kind === 'colonne' && e.colonne && e.colonne !== 'aucun' && _mepAllureActuelle() === 'sobre' && (e.colonneTeinte === 'douce' || e.colonneTeinte === 'pleine')) { _mepAjouterRangeeTeinte(t, e, 'colonne'); }
+  if (kind === 'colonne' && e.colonne && e.colonne !== 'aucun' && e.colonneTeinte !== 'douce' && ['carte', 'pilule', 'contour', 'contourRond', 'filets'].indexOf(e.colonne) === -1 && (!e.bandeau || e.bandeau === 'aucun')) { _mepAjouterRangeeTexteHors(t); }
+  // Texte a deux tons (Denis, 2026-10-20, cvPdfTexteHors.js) : ce que devient le texte du bandeau quand il sort de la couleur. Seulement pour un bandeau colore (pas « Aucun », pas les trois formes vides).
+  // Mode Sobre : le bandeau est une teinte DOUCE d'office, la couleur pleine est un choix (maquette validee par Denis, 2026-10-21).
+  if (kind === 'bandeau' && e.bandeau && e.bandeau !== 'aucun' && _mepAllureActuelle() === 'sobre' && !e.bandeauDouxSeul) { _mepAjouterRangeeTeinte(t, e); }
+  if (kind === 'bandeau' && e.bandeau && e.bandeau !== 'aucun' && !e.bandeauPale && ['contour', 'contourRond', 'filets'].indexOf(e.bandeau) === -1) { _mepAjouterRangeeTexteHors(t); }
+  // Aucune phrase d'explication (demande de Denis, 2026-10-20) : l'incompatibilite se voit au comportement.
+  return t;
 }
-// Au choix d'un modele sur la galerie : si la personne avait deja bascule son interrupteur, le bord voulu est applique au modele qui vient d'arriver.
-function _mepAppliquerBordSouhaite(id) {
+// La rangee « Teinte » du panneau Bandeau en mode Sobre : Douce (teinte claire, texte sombre) ou Pleine (la couleur du CV, texte blanc).
+function _mepAjouterRangeeTeinte(hote, e, kind) {
+  kind = kind || 'bandeau';
+  var courant = (kind === 'colonne') ? (e.colonneTeinte || 'douce') : (e.bandeauTeinte || 'douce');
+  var r = document.createElement('div'); r.className = 'gab-tiroir-rang'; r.setAttribute('data-mep-teinte-rang', kind);
+  r.innerHTML = '<div class="gab-tiroir-lib">Teinte</div>';
+  var c = document.createElement('div'); c.className = 'gab-tiroir-choix'; c.setAttribute('role', 'radiogroup'); c.setAttribute('aria-label', kind === 'colonne' ? 'Teinte de la colonne' : 'Teinte du bandeau');
+  [['douce', 'Douce'], ['pleine', 'Pleine']].forEach(function (o) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign-forme'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', courant === o[0] ? 'true' : 'false'); b.setAttribute('data-mep-teinte', o[0]);
+    b.innerHTML = '<span>' + o[1] + '</span>';
+    b.addEventListener('click', function () { if (kind === 'colonne') { _mepReglageMoteur_teinteColonne(o[0]); } else { _mepReglageMoteur_teinte(o[0]); } });
+    c.appendChild(b);
+  });
+  r.appendChild(c); hote.appendChild(r);
+}
+// Les choix du texte qui sort de la couleur du bandeau (valeur lue dans l'apercu : regTexteHors et regTexteHorsPerso).
+function _mepAjouterRangeeTexteHors(hote) {
+  var d = null; try { d = document.querySelector('#zonePdfInlineCV iframe').contentDocument; } catch (er) { return; }
+  var sel = d && d.getElementById('regTexteHors'), perso = d && d.getElementById('regTexteHorsPerso'); if (!sel) { return; }
+  var r = document.createElement('div'); r.className = 'gab-tiroir-rang';
+  r.innerHTML = '<div class="gab-tiroir-lib">Couleur du texte qui sort de la couleur</div>';
+  // Memes cases de couleur que le panneau « Régler l'en-tête » de l'apercu (cvPdfEnteteApercu.js : _enteteCasesHors) : un seul dessin, un seul reglage.
+  var c = document.createElement('div'); c.className = 'gab-tiroir-choix ea-cases'; c.setAttribute('role', 'radiogroup'); c.setAttribute('aria-label', 'Couleur du texte qui sort de la couleur');
+  c.innerHTML = _enteteCasesHors({ mode: sel.value, perso: perso ? perso.value : '#2f6690' }, _eaCouleurBandeau());
+  Array.prototype.forEach.call(c.querySelectorAll('[data-ea-hors]'), function (b) { b.setAttribute('data-mep-texte-hors', b.getAttribute('data-ea-hors')); b.addEventListener('click', function () { _mepReglageMoteur_texteHors(b.getAttribute('data-ea-hors'), null); }); });
+  var lab = document.createElement('label'); lab.className = 'gab-sw-libre'; lab.innerHTML = '<span>Autre couleur</span><input type="color" aria-label="Choisir une autre couleur pour le texte qui sort" value="' + (perso ? perso.value : '#2f6690') + '">';
+  lab.querySelector('input').addEventListener('change', function (ev) { _mepReglageMoteur_texteHors('perso', ev.target.value); });
+  c.appendChild(lab);
+  var leg = document.createElement('div'); leg.className = 'ea-legende'; leg.textContent = _eaLegendeHors(sel.value);
+  r.appendChild(c); r.appendChild(leg); hote.appendChild(r);
+}
+// Les SENS d'une forme (maquette docs/MAQUETTE_SENS_DES_FORMES_2026-10-20.html) : un seul bouton de forme, et une rangée d'IMAGES (la forme dessinée dans chaque sens) quand la forme en a plusieurs. Le premier est la forme d'origine.
+// [nom (pour l'infobulle et les lecteurs d'ecran), trace du dessin]
+var _MEP_SENS = {
+  bandeau: {
+    arrondi: { vb: '0 0 100 30', sens: [['Arrondi en bas', 'M0 0H100V16Q100 26 90 26H10Q0 26 0 16Z'], ['Arrondi en haut', 'M0 10Q0 0 10 0H90Q100 0 100 10V26H0Z'], ['Arrondi en haut et en bas', 'M0 10Q0 0 10 0H90Q100 0 100 10V16Q100 26 90 26H10Q0 26 0 16Z']] },
+    pointe: { vb: '0 0 100 30', sens: [['Pointe vers le bas', 'M0 0H100V16L50 26L0 16Z'], ['Pointe vers le haut', 'M0 0H100V26L50 16L0 26Z']] },
+    demiovale: { vb: '0 0 100 30', sens: [['Bombé vers le bas', 'M0 0H100V12Q100 26 50 26Q0 26 0 12Z'], ['Creusé vers le haut', 'M0 0H100V26Q50 6 0 26Z']] },
+    diagonale: { vb: '0 0 100 30', sens: [['Plus basse à gauche', 'M0 0H100V16L0 26Z'], ['Plus basse à droite', 'M0 0H100V26L0 16Z']] },
+    coin: { vb: '0 0 100 30', sens: [['Coin à gauche', 'M0 0H100V26H14L0 18Z'], ['Coin à droite', 'M0 0H100V18L86 26H0Z']] },
+    ruban: { vb: '0 0 100 30', sens: [['Bord incliné à droite', 'M0 0H100L90 26H0Z'], ['Bord incliné à gauche', 'M0 0H100V26H10Z']] },
+    rubanCourt: { vb: '0 0 100 30', sens: [['Ruban attaché à gauche', 'M0 0H66L56 26H0Z'], ['Ruban attaché à droite', 'M34 0H100V26H44Z']] },
+    vague2: { vb: '0 0 100 30', sens: [['Pointes vers le bas', 'M0 0H100V16L83 24L66 16L50 24L33 16L16 24L0 16Z'], ['Pointes vers le haut', 'M0 0H100V24L83 16L66 24L50 16L33 24L16 16L0 24Z'], ['Bord du haut ondulé', 'M0 5Q12 0 25 5T50 5T75 5T100 5V26H0Z']] },
+    creneaux: { vb: '0 0 100 30', sens: [['Dents vers le bas', 'M0 0H100V18H92V26H83V18H75V26H66V18H58V26H50V18H42V26H33V18H25V26H16V18H8V26H0Z'], ['Dents vers le haut', 'M0 0H100V26H92V18H83V26H75V18H66V26H58V18H50V26H42V18H33V26H25V18H16V26H8V18H0Z'], ['Bord du haut en créneaux', 'M0 7H8V3H16V7H25V3H33V7H42V3H50V7H58V3H66V7H75V3H83V7H92V3H100V26H0Z']] }
+  },
+  colonne: {
+    vallonne: { vb: '0 0 26 100', sens: [['Bord intérieur ondulé', 'M0 0H20Q24 14 20 28T20 56T20 84L20 98H0Z'], ['Bord extérieur ondulé, tout près de la page', 'M1.3 0H22V98H1.3Q-1.2 91 1.3 84T1.3 70T1.3 56T1.3 42T1.3 28T1.3 14T1.3 0Z'], ['Les deux bords ondulés', 'M1.3 0H20Q24 14 20 28T20 56T20 84V98H1.3Q-1.2 91 1.3 84T1.3 70T1.3 56T1.3 42T1.3 28T1.3 14T1.3 0Z']] },
+    arche: { vb: '0 0 26 100', sens: [['Arche en haut', 'M0 98V12A11 11 0 0 1 22 12V98Z'], ['Arche en bas', 'M0 0H22V86A11 11 0 0 1 0 86Z']] },
+    pointeBas: { vb: '0 0 26 100', sens: [['Pointe vers le bas', 'M0 0H22V86L11 98L0 86Z'], ['Pointe vers le haut', 'M0 12L11 0L22 12V98H0Z']] },
+    diagonale: { vb: '0 0 26 100', sens: [['Plus étroite en bas', 'M0 0H24L16 98H0Z'], ['Plus étroite en haut', 'M0 0H16L24 98H0Z']] },
+    coin: { vb: '0 0 26 100', sens: [['Coin du bas', 'M0 0H22V80L8 98H0Z'], ['Coin du haut', 'M0 18L8 0H22V98H0Z']] },
+    creneaux: { vb: '0 0 26 100', sens: [['Créneaux sur le bord intérieur', 'M0 0H22V9H18V18H22V27H18V36H22V45H18V54H22V63H18V72H22V81H18V90H22V98H0Z'], ['Créneaux tout près de la page', 'M2.6 0H22V98H2.6V90H0V81H2.6V72H0V63H2.6V54H0V45H2.6V36H0V27H2.6V18H0V9H2.6Z']] }
+  }
+};
+// La rangée d'images « Sens » d'un panneau (Bandeau ou Colonne), seulement quand la forme choisie a plusieurs sens.
+function _mepAjouterRangeeSens(t, kind, forme, courant) {
+  var def = _MEP_SENS[kind] && _MEP_SENS[kind][forme]; if (!def) { return; }
+  var r = document.createElement('div'); r.className = 'gab-tiroir-rang'; r.setAttribute('data-mep-sens-rang', kind);
+  r.innerHTML = '<div class="gab-tiroir-lib">Sens</div>';
+  var c = document.createElement('div'); c.className = 'gab-tiroir-choix'; c.setAttribute('role', 'radiogroup'); c.setAttribute('aria-label', 'Sens de la forme');
+  def.sens.forEach(function (sv, i) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign-forme vign-sens'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', i === (courant || 0) ? 'true' : 'false');
+    b.setAttribute('aria-label', sv[0]); b.title = sv[0]; b.setAttribute('data-mep-sens', String(i));
+    b.innerHTML = '<svg viewBox="' + def.vb + '" aria-hidden="true" style="width:' + (def.vb === '0 0 100 30' ? '56px' : '14px') + ';height:' + (def.vb === '0 0 100 30' ? '17px' : '50px') + '"><path d="' + sv[1] + '" fill="currentColor"/></svg>';
+    b.addEventListener('click', function () { if (_mepFormeAppliquer.sens) { _mepFormeAppliquer.sens(kind, i); } });
+    c.appendChild(b);
+  });
+  r.appendChild(c); t.appendChild(r);
+}
+function _mepConstruirePanneauFormesDeco() {
+  var f = _MEP_FORMES.formes;
+  var t = document.createElement('div'); t.className = 'gab-tiroir'; t.setAttribute('role', 'region'); t.setAttribute('aria-label', f.titre); t.setAttribute('data-mep-tiroir', 'formes');
+  var tete = document.createElement('div'); tete.className = 'gab-tiroir-tete';
+  tete.innerHTML = '<strong>' + f.titre + '</strong>';
+  // Entre le titre et « Fermer » : l'interrupteur « Garder mes formes si je change de modele » (une vraie case a cocher, comme « Garder mes couleurs »).
+  var garder = document.createElement('label'); garder.className = 'mep-garder-formes';
+  garder.innerHTML = '<input type="checkbox" id="mepGarderFormes"' + (_mepGarderFormes() ? ' checked' : '') + '> <span>Garder mes formes si je change de modèle</span>';
+  garder.querySelector('input').addEventListener('change', function () { _assurerReglagesMiseEnPageCV(); dossier.reglagesMiseEnPageCV.garderFormes = this.checked; });
+  tete.appendChild(garder);
+  var fermer = document.createElement('button'); fermer.type = 'button'; fermer.className = 'btn-miss gab-tiroir-fermer'; fermer.textContent = 'Fermer';
+  fermer.addEventListener('click', function () { _mepFermerTiroirForme('formes'); });
+  tete.appendChild(fermer); t.appendChild(tete);
+  var corps = document.createElement('div'); corps.className = 'gab-formes-corps'; t.appendChild(corps);
+  _mepRemplirPanneauFormes(corps);
+  return t;
+}
+// La barre d'onglets au-dessus de l'apercu et les panneaux ouverts (dans l'ordre Bandeau, Colonne, Formes). Redessinee a chaque reconstruction du panneau (la galerie, elle, est reconstruite a chaque reglage).
+// Si l'apercu n'est pas encore pret (iframe en construction), on reessaie un peu plus tard : jamais une barre vide ni une exception.
+// Ce que l'apercu montre comme poignees rondes (cvPdfPoigneesCv.js) : seulement pour un panneau ouvert ET un modele qui permet ce choix (table des capacites).
+function _mepPoigneesCvContexte() {
+  var cle = _mepCleModeleActuel(), kinds = cle ? _mepKindsDuModele(cle) : [];
+  return { bandeau: _mepPanneauOuvert('bandeau') && kinds.indexOf('bandeau') !== -1, colonne: _mepPanneauOuvert('colonne') && kinds.indexOf('colonne') !== -1 };
+}
+function _mepRafraichirPoignees() {
+  try { var w = document.querySelector('#zonePdfInlineCV iframe').contentWindow; if (typeof w._pdfPoserPoigneesCv === 'function') { w._pdfPoserPoigneesCv(); } } catch (e) { /* apercu pas pret */ }
+}
+// Stabilite de l'ecran « La mise en page » (retour de Denis, 24/10/2026 : « le CV monte, redescend, page blanche, on dirait Windows 95 »). Chaque reglage refait la page entiere, y compris l'apercu du CV
+// (une iframe), parfois plusieurs fois de suite pour un seul clic. Deux remedes : (1) la place de la barre d'options est gardee d'un rendu a l'autre, pour que le CV ne monte plus puis ne redescende ;
+// (2) l'ancien apercu est photographie (une copie fixe, sans script) et reste affiche a sa place jusqu'a ce que le nouveau soit pret et stable : plus de page blanche.
+var _mepHauteurOnglets = 0;   // hauteur mesuree de la barre d'options (Bandeau, Colonne, Composition, Formes), reservee au rendu suivant
+var _mepPhotoApercu = null;   // { html, style, classe } : la copie de l'apercu tant qu'un nouvel apercu n'est pas pret
+var _mepPhotoMinuteur = null;
+// L'ancien apercu est photographie AVANT la reconstruction : une copie fixe (sans script) est posee sur lui, on attend qu'elle soit peinte, et seulement alors la page est refaite derriere.
+// (Poser la copie apres coup laissait un instant blanc, le temps qu'elle se charge.) La copie reste jusqu'a ce que le nouvel apercu soit pret et stable.
+function _mepPhotographierApercu() {
+  if (_mepPhotoApercu) { return; }   // un passage precedent la garde deja (l'iframe actuelle peut etre encore vide)
   try {
-    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
-    var voulu = _mepBordVignette[id], cas = d.getElementById('regColonneBordDroit');
-    if (voulu && cas && cas.checked !== (voulu === 'droit') && _mepBordAppliquer) { _mepBordAppliquer(voulu); }
-    var voulu2 = _mepBandeauVignette[id], sel = d.getElementById('regBordBandeau');
-    if (voulu2 && sel && sel.value !== voulu2 && _mepBandeauAppliquer) { _mepBandeauAppliquer(voulu2); }
-  } catch (e) { /* iframe pas prete */ }
+    var ifr = document.querySelector('#zonePdfInlineCV iframe:not(.mep-photo-apercu)');
+    var d = ifr && ifr.contentDocument;
+    var page = d && d.querySelector('#conteneurPage');
+    if (!page || !d.querySelector('#conteneurPage .cv')) { return; }
+    var styles = Array.prototype.map.call(d.querySelectorAll('style'), function (s) { return s.textContent; }).join('\n');
+    var contenant = ifr.closest('.mep-2col-apercu') || ifr.parentElement;
+    var rc = contenant.getBoundingClientRect(), ri = ifr.getBoundingClientRect();
+    _mepPhotoApercu = {
+      html: '<!doctype html><html><head><meta charset="utf-8"><style>' + styles + '</style></head><body style="margin:0;background:#fff">' + page.outerHTML + '</body></html>',
+      style: ifr.style.cssText, classe: ifr.className,
+      // position de l'apercu dans sa colonne (l'echelle part du coin haut gauche : le coin ne bouge pas avec elle), et taille de la colonne
+      dx: Math.round(ri.left - rc.left), dy: Math.round(ri.top - rc.top), colonneGauche: Math.round(rc.left + window.scrollX), colonneHaut: Math.round(rc.top + window.scrollY),
+      colonneL: Math.round(rc.width), colonneH: Math.round(rc.height),
+      barre: (document.getElementById('mepOngletsApercu') || {}).innerHTML || ''
+    };
+  } catch (e) { _mepPhotoApercu = null; }
+}
+function _mepPoserPhotoApercu() {
+  if (!_mepPhotoApercu || document.querySelector('.mep-photo-apercu-cadre')) { return; }
+  // Posee sur la page, hors de la zone d'apercu : placee dedans, elle elargissait la zone qui defile et y laissait une barre de defilement horizontale.
+  var cadre = document.createElement('div');
+  cadre.className = 'mep-photo-apercu-cadre';
+  cadre.setAttribute('aria-hidden', 'true');
+  cadre.style.cssText = 'position:absolute;left:' + _mepPhotoApercu.colonneGauche + 'px;top:' + _mepPhotoApercu.colonneHaut + 'px;width:' + _mepPhotoApercu.colonneL + 'px;height:' + _mepPhotoApercu.colonneH + 'px;overflow:hidden;z-index:50;pointer-events:none;background:var(--bg-card,#fff);';
+  var photo = document.createElement('iframe');
+  photo.className = (_mepPhotoApercu.classe ? _mepPhotoApercu.classe + ' ' : '') + 'mep-photo-apercu';
+  photo.setAttribute('sandbox', '');   // aucune execution : une simple image du CV
+  photo.tabIndex = -1;
+  photo.style.cssText = _mepPhotoApercu.style + ';position:absolute;left:' + _mepPhotoApercu.dx + 'px;top:' + _mepPhotoApercu.dy + 'px;pointer-events:none;border:0;background:#fff;';
+  photo.srcdoc = _mepPhotoApercu.html;
+  cadre.appendChild(photo);
+  document.body.appendChild(cadre);
+}
+// Pendant l'echange, la colonne d'apercu garde sa hauteur et la barre d'options reste recopiee (sans clic possible) : plus de saut ni de trou derriere la copie.
+function _mepGelerColonneApercu() {
+  if (!_mepPhotoApercu) { return; }
+  var colonne = document.querySelector('.mep-2col-apercu');
+  if (colonne && _mepPhotoApercu.colonneH > 0) { colonne.style.height = _mepPhotoApercu.colonneH + 'px'; }
+  var barreHote = document.getElementById('mepOngletsApercu');
+  if (barreHote) { barreHote.style.pointerEvents = 'none'; if (!barreHote.children.length && _mepPhotoApercu.barre) { barreHote.innerHTML = _mepPhotoApercu.barre; } }
+}
+// Pose la copie, attend qu'elle soit peinte (ou 400 ms au plus), puis lance la reconstruction.
+function _mepAvecPhotoApercu(suite) {
+  if (_mepPhotoApercu) { suite(); return; }
+  _mepPhotographierApercu();
+  if (!_mepPhotoApercu) { suite(); return; }
+  _mepPoserPhotoApercu();
+  var photo = document.querySelector('.mep-photo-apercu'), fait = false;
+  var fin = function () { if (!fait) { fait = true; suite(); } };
+  if (photo) { photo.addEventListener('load', function () { requestAnimationFrame(function () { requestAnimationFrame(fin); }); }); }
+  setTimeout(fin, 400);
+}
+// Retire la copie quand le nouvel apercu est pret (CV rendu, calcul initial termine, page visible) et n'a pas change pendant deux relevés de suite ; au bout de 6 secondes, de toute facon.
+function _mepSurveillerNouvelApercu() {
+  clearInterval(_mepPhotoMinuteur);
+  var debut = Date.now(), derniere = null, stables = 0;
+  _mepPhotoMinuteur = setInterval(function () {
+    var retirer = function () {
+      clearInterval(_mepPhotoMinuteur); _mepPhotoApercu = null;
+      Array.prototype.forEach.call(document.querySelectorAll('.mep-photo-apercu-cadre'), function (p) { p.remove(); });
+      var colonneFigee = document.querySelector('.mep-2col-apercu'); if (colonneFigee) { colonneFigee.style.height = ''; }
+      var barreFigee = document.getElementById('mepOngletsApercu'); if (barreFigee) { barreFigee.style.pointerEvents = ''; }
+    };
+    var vrai = null; try { vrai = document.querySelector('#zonePdfInlineCV iframe'); } catch (e) { vrai = null; }
+    if (!vrai || Date.now() - debut > 6000) { retirer(); return; }
+    var pret = false;
+    try {
+      var d = vrai.contentDocument, w = vrai.contentWindow;
+      pret = !!d && !!d.querySelector('#conteneurPage .cv') && w.__cvPdfRemplissagePret !== false && d.documentElement.style.visibility !== 'hidden';
+    } catch (e2) { pret = false; }
+    if (pret && vrai === derniere) { stables++; } else { stables = 0; }
+    derniere = vrai;
+    if (stables >= 2) { retirer(); }
+  }, 90);
+}
+// L'apercu du CV (une iframe) n'est plus detruit puis reconstruit a chaque clic sur « Style rapide » ou « Mise en page » : ces deux boutons agissent deja DANS l'apercu, la page autour est seule refaite.
+// L'apercu est mis de cote (deplace sans etre recharge : moveBefore) pendant la reconstruction, puis remis a sa place. Sans moveBefore (navigateur ancien), l'ancien chemin (copie fixe) reste en vigueur.
+var _mepConserverJusqua = 0;
+var _mepGarageApercu = null;
+function _mepConserverApercuPendant(ms) { _mepConserverJusqua = Date.now() + (ms || 3000); }
+function _mepGarerZoneApercu() {
+  if (Date.now() >= _mepConserverJusqua || typeof document.body.moveBefore !== 'function') { return false; }
+  var zone = document.getElementById('zonePdfInlineCV');
+  var ifr = zone && zone.querySelector('iframe');
+  var pret = false;
+  try { pret = !!(ifr && ifr.contentDocument && ifr.contentDocument.querySelector('#conteneurPage .cv') && ifr.contentWindow.__cvPdfRemplissagePret !== false); } catch (e) { pret = false; }
+  if (!pret) { return false; }
+  var garage = document.createElement('div');
+  garage.id = 'mepGarageApercu';
+  garage.setAttribute('aria-hidden', 'true');
+  garage.style.cssText = 'position:fixed;left:-20000px;top:0;width:900px;height:1400px;overflow:hidden;pointer-events:none;';
+  document.body.appendChild(garage);
+  try { garage.moveBefore(zone, null); } catch (e2) { garage.remove(); return false; }
+  _mepGarageApercu = { garage: garage, zone: zone };
+  return true;
+}
+// Appelee par pageResultats() juste apres l'ecriture de la page : l'apercu vivant remplace la zone vide de la nouvelle page.
+function _mepReprendreZoneVivante() {
+  var g = _mepGarageApercu;
+  if (!g) { return; }
+  _mepGarageApercu = null;
+  var nouvelle = app.querySelector('#zonePdfInlineCV');
+  if (nouvelle && nouvelle.parentNode) {
+    try { nouvelle.parentNode.moveBefore(g.zone, nouvelle); nouvelle.remove(); window._mepApercuConserve = true; } catch (e) { /* la page construira son apercu comme avant */ }
+  }
+  g.garage.remove();
+}
+function _mepMajOngletsApercu(essai) {
+  var barreHote = document.getElementById('mepOngletsApercu');
+  Array.prototype.forEach.call(document.querySelectorAll('#mepPanneauxForme'), function (x) { x.remove(); });
+  if (!barreHote) { return; }
+  if (!_mepRedimBranche) { _mepRedimBranche = true; window.addEventListener('resize', function () { _mepMajOngletsApercu(); }); }
+  barreHote.innerHTML = '';
+  if (!_cvEcranUniqueMiseEnPage()) { return; }
+  var cle = _mepCleModeleActuel(), e = _mepEtatFormesActuel();
+  if (!cle || !e) {
+    if ((essai || 0) < 12) { setTimeout(function () { _mepMajOngletsApercu((essai || 0) + 1); }, 350); }
+    return;
+  }
+  // Autre modele que le precedent : sans « Garder mes formes », ses formes decoratives sont retirees (aucune ne suit toute seule) ; la reconstruction qui suit redessine tout.
+  if (_mepModeleVuDossier !== dossier) { _mepModeleVuDossier = dossier; _mepModeleVu = null; }
+  // Une composition ne suit pas d'un modele a l'autre (comme le bandeau et la colonne) ni ne reste sur un CV qui ne la permet plus : elle est retiree, puis le CV est reconstruit. Garde-fou : trois essais au plus.
+  if (_mepComposition() && ((_mepModeleVu && _mepModeleVu !== cle) || !_mepCompositionDispo(cle, e) || !_mepCompositionValide(_mepComposition(), e)) && _mepCompoRetraits < 3) {
+    _mepCompoRetraits++;
+    _mepAppelerIframePdf('_pdfDefinirComposition', '');
+    if (_mepRerendre) { setTimeout(_mepRerendre, 30); }
+    return;
+  }
+  if (!_mepComposition()) { _mepCompoRetraits = 0; }
+  // Un croisement ne suit pas d'un modele a l'autre et ne reste pas sur un CV qui ne s'y prete plus : retire, puis le CV est reconstruit (trois essais au plus).
+  if (_croisementActif(_mepCroisement()) && ((_mepModeleVu && _mepModeleVu !== cle) || !_mepCroisementDispo(cle, e)) && _mepCroiRetraits < 3) {
+    _mepCroiRetraits++;
+    _mepAppelerIframePdf('_pdfDefinirCroisement', {});
+    if (_mepRerendre) { setTimeout(_mepRerendre, 30); }
+    return;
+  }
+  if (!_croisementActif(_mepCroisement())) { _mepCroiRetraits = 0; }
+  // Un decor ne suit pas d'un modele a l'autre (trois essais au plus).
+  if (_decorActif(_mepDecor()) && _mepModeleVu && _mepModeleVu !== cle && _mepDecorRetraits < 3) {
+    _mepDecorRetraits++;
+    _mepAppelerIframePdf('_pdfDefinirDecor', {});
+    if (_mepRerendre) { setTimeout(_mepRerendre, 30); }
+    return;
+  }
+  if (!_decorActif(_mepDecor())) { _mepDecorRetraits = 0; }
+  if (_mepModeleVu && _mepModeleVu !== cle && !_mepGarderFormes() && _mepFormesDeco().length) {
+    _mepModeleVu = cle; _mepFormeDecoCourante = 0;
+    _mepAppelerIframePdf('_pdfDefinirFormesDeco', []);
+    if (_mepRerendre) { setTimeout(_mepRerendre, 30); }
+    return;
+  }
+  _mepModeleVu = cle;
+  var kinds = _mepKindsDuModele(cle, e).concat(['formes']);
+  // Composition (cvPdfCompositions.js) : proposee seulement quand le modele et le CV affiche la permettent ; elle REMPLACE le bandeau, donc les onglets Bandeau et Colonne disparaissent tant qu'elle est choisie.
+  if (_mepCompositionDispo(cle, e)) {
+    if (_mepComposition()) { kinds = kinds.filter(function (k) { return k !== 'bandeau' && k !== 'colonne'; }); }
+    kinds.splice(kinds.indexOf('formes'), 0, 'composition');   // ordre voulu par Denis : Bandeau, Colonne, Composition, Formes
+  }
+  // Tirage au hasard (Denis, 2026-10-20) : bandeau, colonne et formes decoratives sont tires comme si la personne les avait choisis, puis les panneaux concernes s'ouvrent sur ce choix (elle peut changer le sens tout de suite).
+  if (_mepTirageFormesEnAttente) {
+    _mepTirageFormesEnAttente = false;
+    var tire = (typeof window._mepTirerFormesCv === 'function') ? window._mepTirerFormesCv(cle, e, kinds) : null;
+    if (tire) { return; }   // le tirage a relance un rendu : les onglets sont refaits a ce moment-la
+  }   // « Formes » : tous les modeles (calque transparent)
+  if (_mepTiroirForme) {
+    kinds.length && ['composition', 'bandeau', 'colonne', 'formes'].forEach(function (k) { if (_mepTiroirForme && _mepTiroirForme[k] && kinds.indexOf(k) === -1) { _mepTiroirForme[k] = false; } });
+    if (_mepTiroirForme && !_mepTiroirForme.composition && !_mepTiroirForme.bandeau && !_mepTiroirForme.colonne && !_mepTiroirForme.formes) { _mepTiroirForme = null; }
+  }
+  _mepRafraichirPoignees();   // poignees rondes de l'apercu : selon les panneaux ouverts
+  // La phrase d'invitation : la personne peut personnaliser visuellement son CV (formulation selon ce que le modele permet).
+  var invite = document.createElement('p'); invite.className = 'mep-onglets-invite';
+  // La phrase dit seulement ce que CE modèle propose (composition, forme du bandeau, forme de la colonne, formes décoratives).
+  var propose = []; if (kinds.indexOf('composition') !== -1) { propose.push('une composition de l’en-tête'); } if (kinds.indexOf('bandeau') !== -1) { propose.push('la forme du bandeau'); } if (kinds.indexOf('colonne') !== -1) { propose.push('la forme de la colonne'); }
+  invite.textContent = propose.length
+    ? 'Vous pouvez personnaliser l’allure de ce modèle : choisissez ci-dessous ' + propose.join(', ') + ' ou des formes décoratives.'
+    : 'Vous pouvez personnaliser l’allure de ce modèle : ajoutez des formes décoratives sur votre CV.';
+  barreHote.appendChild(invite);
+  var barre = document.createElement('div'); barre.className = 'mep-onglets-barre'; barre.setAttribute('role', 'group'); barre.setAttribute('aria-label', 'Réglages sur l’aperçu du CV');
+  kinds.forEach(function (k, rang) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'btn-miss mep-onglet-apercu' + (_mepOngletsTouche ? '' : ' pulse-sugg' + (kinds.length === 1 ? ' pulse-seul' : ''));
+    b.style.setProperty('--rang-pulse', String(rang));
+    b.setAttribute('data-mep-onglet', k);
+    b.setAttribute('aria-expanded', _mepPanneauOuvert(k) ? 'true' : 'false');
+    var val = (k === 'formes') ? (_mepFormesDeco().length ? String(_mepFormesDeco().length) : '') : (k === 'composition' ? ((_compoStyle(_mepComposition()) || {}).nom || '') : _mepNomForme(k, e[k]));
+    var choisi = (k === 'formes') ? _mepFormesDeco().length > 0 : (k === 'composition' ? !!_mepComposition() : !!(k === 'bandeau' ? e.bandeauChoisi : e.colonneChoisie));
+    b.innerHTML = _MEP_FORMES_SVG[_MEP_ONG_ICONES[k]] + '<span>' + _MEP_FORMES[k].court + '</span>' + (choisi ? '<i class="mep-onglet-pt" aria-hidden="true"></i>' : '');
+    b.setAttribute('aria-label', _MEP_FORMES[k].titre + (val ? ', ' + val : ''));
+    b.title = _MEP_FORMES[k].titre + (val ? ' : ' + val : '');
+    b.addEventListener('click', function () { _mepOngletsTouche = true; _mepBasculerTiroirForme(k); });
+    barre.appendChild(b);
+  });
+  barreHote.appendChild(barre);
+  // « Régler l'en-tête » (cvPdfEnteteApercu.js) : deuxieme rangee, meme taille que les onglets (Denis, 2026-10-21) ; seulement si le modele a un en-tete reglable.
+  var enteteDispo = false; try { enteteDispo = typeof _enteteApercuDisponible === 'function' && _enteteApercuDisponible(); } catch (er) { /* apercu pas pret */ }
+  if (!enteteDispo && typeof _enteteApercu !== 'undefined' && _enteteApercu.actif) { _enteteApercu.actif = false; }
+  // MESSAGES DERRIERE LA PASTILLE « i » (Denis, 2026-10-22) : plus aucune phrase posee sur la page. Tout message a montrer (ici : « un clic sur le CV n'ouvre pas le grand apercu » tant qu'un panneau est ouvert)
+  // va dans la bulle de la pastille « i », qui PULSE tant qu'un nouveau message n'a pas ete lu. D'autres messages se posent avec _mepMessageInfo(id, texte) et se retirent avec _mepMessageInfo(id, '').
+  _mepMessageInfo('panneau', kinds.some(function (k) { return _mepPanneauOuvert(k); }) ? _MEP_MSG_CLIC_CV : '');
+  var messagesInfo = _mepMessagesInfoListe();
+  if (enteteDispo || messagesInfo.length) {
+    var barreEnt = document.createElement('div'); barreEnt.className = 'mep-onglets-barre mep-onglets-entete'; barreEnt.setAttribute('role', 'group'); barreEnt.setAttribute('aria-label', 'Réglage de l’en-tête sur l’aperçu du CV');
+    if (enteteDispo) {
+      var bEnt = document.createElement('button'); bEnt.type = 'button'; bEnt.className = 'btn-miss mep-onglet-apercu'; bEnt.id = 'btnMepEnteteApercu';
+      bEnt.setAttribute('aria-pressed', _enteteApercu.actif ? 'true' : 'false');
+      bEnt.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l-3 3h2v4H7V8l-3 3 3 3v-2h4v4H9l3 3 3-3h-2v-4h4v2l3-3-3-3v2h-4V6h2z" fill="currentColor"/></svg><span>Régler l’en-tête</span>';
+      bEnt.addEventListener('click', function () { _enteteApercuBasculer(); });
+      barreEnt.appendChild(bEnt);
+    }
+    // Pastille « i » : l'explication n'est jamais affichee en continu sur le CV ; elle s'ouvre au toucher (bulle commune, brique B.11) et, UNE SEULE FOIS, d'elle-meme a la premiere activation (Denis, 2026-10-21).
+    var bInfo = document.createElement('button'); bInfo.type = 'button'; bInfo.className = 'btn-miss mep-onglet-apercu mep-ea-info'; bInfo.id = 'btnMepEnteteInfo';
+    bInfo.setAttribute('aria-label', messagesInfo.length ? 'Information' + (enteteDispo ? ' : comment régler l’en-tête ?' : '') : 'Comment régler l’en-tête ?'); bInfo.setAttribute('aria-expanded', 'false'); bInfo.textContent = 'i';
+    var nonLus = _mepMessagesInfoNonLus();
+    if (nonLus) { bInfo.classList.add('pulse-sugg', 'pulse-seul'); }
+    bInfo.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      bulleInfoFlottanteBasculer(bInfo, (enteteDispo ? _eaAide() + ' ' : '') + _mepMessagesInfoListe().join(' '));
+      _mepMessagesInfoMarquerLus(); bInfo.classList.remove('pulse-sugg', 'pulse-seul');
+    });
+    barreEnt.appendChild(bInfo);
+    if (enteteDispo && _enteteApercu.actif && typeof _enteteApercuBulleAuto === 'function') { _enteteApercuBulleAuto(bInfo); }
+    if (enteteDispo && _enteteApercu.actif && typeof _enteteApercuModifie === 'function' && _enteteApercuModifie()) {
+      var bRaz = document.createElement('button'); bRaz.type = 'button'; bRaz.className = 'btn-miss mep-onglet-apercu'; bRaz.id = 'btnMepEnteteRaz';
+      bRaz.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6.5 12 11V8a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z" fill="currentColor"/></svg><span>Remettre comme avant</span>';
+      bRaz.addEventListener('click', function () { _enteteApercuToutRemettre(); });
+      barreEnt.appendChild(bRaz);
+    }
+    barreHote.appendChild(barreEnt);
+  }
+  var hote = document.createElement('div'); hote.id = 'mepPanneauxForme'; hote.className = 'mep-panneaux-forme';
+  var ouvert = false;
+  // « Fermer les panneaux » : seulement quand au moins deux panneaux sont ouverts (avec un seul, son propre « Fermer » suffit) ; ajoute en tete apres la construction des panneaux.
+  var toutFermer = document.createElement('button'); toutFermer.type = 'button'; toutFermer.className = 'btn-miss mep-fermer-panneaux'; toutFermer.id = 'btnMepFermerPanneaux'; toutFermer.textContent = 'Fermer les panneaux';
+  toutFermer.addEventListener('click', function () { _mepTiroirForme = null; _mepMajOngletsApercu(); });
+  var nbOuverts = 0;
+  ['bandeau', 'colonne', 'composition', 'formes'].forEach(function (k) {
+    if (kinds.indexOf(k) === -1 || !_mepPanneauOuvert(k)) { return; }
+    ouvert = true; nbOuverts++;
+    hote.appendChild(k === 'formes' ? _mepConstruirePanneauFormesDeco() : (k === 'composition' ? _mepConstruirePanneauComposition(cle, e) : _mepConstruirePanneauForme(k, cle, e)));
+  });
+  if (nbOuverts >= 2) { hote.insertBefore(toutFermer, hote.firstChild); }
+  _mepPlacerPanneaux(hote, ouvert);
+  if (!ouvert) { hote.remove(); _mepRedessinerMiniatures(); }
+  // Le CV de l'apercu : cliquable pour l'ouvrir en grand seulement quand aucun panneau n'est ouvert (le curseur et l'info-bulle le disent).
+  try {
+    var enteteActif = !!(enteteDispo && _enteteApercu.actif);
+    var pageApercu = document.querySelector('#zonePdfInlineCV iframe').contentDocument.querySelector('#conteneurPage .page-a4');
+    if (pageApercu) { pageApercu.style.cursor = (ouvert || enteteActif) ? '' : 'pointer'; pageApercu.title = (ouvert || enteteActif) ? '' : 'Cliquez sur le CV pour le modifier en grand'; }
+    // (plus de phrase posee sous le CV : le message est derriere la pastille « i », voir _mepMessageInfo)
+    var ancienne = document.getElementById('mepPhraseApercu'); if (ancienne) { ancienne.remove(); }
+  } catch (err) { /* apercu pas pret */ }
+}
+
+// ====== Messages derriere la pastille « i » du CV (2026-10-22) ======
+var _MEP_MSG_CLIC_CV = 'Tant que vous réglez la composition, le bandeau, la colonne ou les formes, un clic sur le CV n’ouvre pas le grand aperçu. Pour déplacer le texte, les rubriques ou l’en-tête, utilisez le bouton « Aperçu en plein écran » : il offre des réglages en plus.';
+var _mepMessagesInfo = {};   // id -> { texte, lu }
+function _mepMessageInfo(id, texte) {
+  if (!texte) { delete _mepMessagesInfo[id]; return; }
+  if (!_mepMessagesInfo[id] || _mepMessagesInfo[id].texte !== texte) { _mepMessagesInfo[id] = { texte: texte, lu: false }; }
+}
+function _mepMessagesInfoListe() { return Object.keys(_mepMessagesInfo).map(function (k) { return _mepMessagesInfo[k].texte; }); }
+function _mepMessagesInfoNonLus() { return Object.keys(_mepMessagesInfo).some(function (k) { return !_mepMessagesInfo[k].lu; }); }
+function _mepMessagesInfoMarquerLus() { Object.keys(_mepMessagesInfo).forEach(function (k) { _mepMessagesInfo[k].lu = true; }); }
+
+// ====== COMPOSITIONS de l'en-tete et des marges (2026-10-22, regles et dessins dans cvPdfCompositions.js ; maquette docs/MAQUETTE_COMPOSITIONS_UNE_COLONNE_2026-10-22.html) ======
+// L'etat vit dans l'apercu du CV (iframe : `_cvPdfComposition`, garde dans dossier.pdfReglages.composition, donc annulable comme tout reglage) ; ici, le panneau et les conditions.
+var _mepCompoRetraits = 0;   // garde-fou du retrait automatique d'une composition (jamais de boucle)
+function _mepComposition() {
+  try {
+    var pr = dossier.pdfReglages;
+    if (pr && typeof pr === 'object' && typeof pr.composition === 'string') { return _compoNormaliser(pr.composition); }
+    return _compoNormaliser(document.querySelector('#zonePdfInlineCV iframe').contentWindow._cvPdfComposition);
+  } catch (e) { return ''; }
+}
+// ====== CROISEMENT du bandeau et de la colonne (2026-10-22, cvPdfCompositions.js) : couleurs, qui est devant, angle droit ou arrondi, filet blanc ; seulement avec « Comme aujourd'hui » ======
+var _mepCroiRetraits = 0;
+function _mepCroisement() {
+  try {
+    var pr = dossier.pdfReglages;
+    if (pr && typeof pr === 'object' && pr.croisement && typeof pr.croisement === 'object') { return _croisementNormaliser(pr.croisement); }
+    return _croisementNormaliser(document.querySelector('#zonePdfInlineCV iframe').contentWindow._cvPdfCroisement);
+  } catch (e) { return {}; }
+}
+function _mepDefinirCroisement(patch) {
+  try { _mepModeleVu = _mepCleModeleActuel(); } catch (e) { /* modele pas connu */ }
+  _mepPousserHistorique('croisement');
+  var o = _mepCroisement();
+  Object.keys(patch).forEach(function (k) { if (patch[k] === null || patch[k] === undefined || patch[k] === '' || patch[k] === false) { delete o[k]; } else { o[k] = patch[k]; } });
+  _mepAppelerIframePdf('_pdfDefinirCroisement', o);
+  _mepMajOngletsApercu();
+}
+// Les reglages existent quand le CV s'y prete ET que les formes du bandeau et de la colonne restent droites (un bord ondule ou oblique ferait un trou blanc au croisement).
+var _MEP_CROI_BANDEAUX = ['droit', 'arrondi', 'coin', 'ruban', 'rubanCourt'], _MEP_CROI_COLONNES = ['droit', 'pointeBas', 'coin'];
+function _mepCroisementDispo(cle, e, sansCompo) {
+  return !!(e && e.croisementOk && e.deuxColonnes && e.colonneAGauche && e.bandeau && e.bandeau !== 'aucun' && _MEP_CROI_BANDEAUX.indexOf(e.bandeau) !== -1 && _MEP_CROI_COLONNES.indexOf(e.colonne) !== -1 && (sansCompo || !_mepComposition()) && typeof _compoModeleExclu === 'function' && !_compoModeleExclu(cle));
+}
+// Appelee a la pose : le choix a vraiment poser ({} quand le CV affiche ne s'y prete pas).
+function _mepCroisementAutorise(o) {
+  try { var cle = _mepCleModeleActuel(), e = _mepEtatFormesActuel(); return (cle && _mepCroisementDispo(cle, e, true)) ? o : {}; } catch (er) { return {}; }
+}
+// ====== DECOR AJOUTE (2026-10-22, cvPdfCompositions.js) : equerre, ruban, quarts de cercle, plaque sur le titre ; couleur automatique, du CV ou grise ; seulement avec « Comme aujourd'hui » ======
+var _mepDecorRetraits = 0;
+function _mepDecor() {
+  try {
+    var pr = dossier.pdfReglages;
+    if (pr && typeof pr === 'object' && pr.decor && typeof pr.decor === 'object') { return _decorNormaliser(pr.decor); }
+    return _decorNormaliser(document.querySelector('#zonePdfInlineCV iframe').contentWindow._cvPdfDecor);
+  } catch (e) { return {}; }
+}
+function _mepDefinirDecor(patch) {
+  try { _mepModeleVu = _mepCleModeleActuel(); } catch (e) { /* modele pas connu */ }
+  _mepPousserHistorique('decor');
+  var o = _mepDecor();
+  Object.keys(patch).forEach(function (k) { if (patch[k] === null || patch[k] === undefined || patch[k] === '') { delete o[k]; } else { o[k] = patch[k]; } });
+  _mepAppelerIframePdf('_pdfDefinirDecor', o);
+  _mepMajOngletsApercu();
+}
+// Le decor existe quand le CV a un en-tete mesurable et que le modele n'est pas a structure propre ; jamais avec une composition.
+function _mepDecorDispo(cle, e, sansCompo) {
+  return !!(e && e.aEntete && (sansCompo || !_mepComposition()) && typeof _compoModeleExclu === 'function' && !_compoModeleExclu(cle));
+}
+function _mepDecorAutorise(o) {
+  // appelee par l'apercu au moment de la pose, quand il sait deja qu'aucune composition n'est choisie (les reglages enregistres ne sont mis a jour qu'apres)
+  try { var cle = _mepCleModeleActuel(), e = _mepEtatFormesActuel(); return (cle && _mepDecorDispo(cle, e, true)) ? o : {}; } catch (er) { return {}; }
+}
+// Un decor choisi mais impossible a poser (les quarts de cercle sans place libre a cote du texte) : la personne le sait derriere la pastille « i », au lieu d'un clic sans effet.
+function _mepDecorMessage(page, o) {
+  try {
+    var pose = !!page.getAttribute('data-deco');
+    var sansPlace = _decorActif(o) && !pose && _decorActif(_mepDecorAutorise(o));
+    _mepMessageInfo('decor', sansPlace ? 'Ce décor ne trouve pas de place sur ce CV sans passer sous le texte de l’en-tête : choisissez-en un autre.' : '');
+  } catch (e) { /* sans effet */ }
+}
+function _mepCompositionTrait() {
+  try {
+    var pr = dossier.pdfReglages;
+    if (pr && typeof pr === 'object' && typeof pr.compositionTrait === 'string') { return _compoTraitNormaliser(pr.compositionTrait); }
+    return _compoTraitNormaliser(document.querySelector('#zonePdfInlineCV iframe').contentWindow._cvPdfCompositionTrait);
+  } catch (e) { return ''; }
+}
+function _mepDefinirCompositionTrait(v) {
+  _mepPousserHistorique('compositionTrait');
+  _mepAppelerIframePdf('_pdfDefinirCompositionTrait', v);
+  _mepMajOngletsApercu();
+}
+function _mepDefinirComposition(id) {
+  try { _mepModeleVu = _mepCleModeleActuel(); } catch (e) { /* modele pas connu */ }   // la personne choisit pour CE modele : jamais retiree comme « venue d'un autre modele »
+  _mepPousserHistorique('composition');
+  _mepAppelerIframePdf('_pdfDefinirComposition', id);
+  _mepMajOngletsApercu();   // les onglets Bandeau et Colonne disparaissent (ou reviennent) selon la composition
+}
+// Les compositions se proposent pour un CV a UNE colonne, ou a DEUX colonnes quand la colonne est a gauche (une colonne a droite n'en a pas pour l'instant), un modele qui a un en-tete horizontal, et jamais sur les modeles a structure propre (frises, rectangles, photo, bande verticale).
+function _mepCompositionDispo(cle, e) {
+  return !!(e && e.aEntete && (!e.deuxColonnes || e.colonneAGauche || e.colonneADroite) && typeof _compoModeleExclu === 'function' && !_compoModeleExclu(cle));
+}
+// Une composition est-elle valable pour la structure du CV affiche ? (le ruban et les quarts de cercle n'existent qu'a une colonne, la carte qu'a deux : un style, deux dessins)
+function _mepCompositionValide(id, e) {
+  return !id || _compoListePour(e && e.deuxColonnes ? 2 : 1).some(function (s) { return s.id === id; });
+}
+// Appelee au moment de poser la composition : l'identifiant a vraiment poser (vide si le CV affiche ne la permet pas : jamais un decor sur un modele qui ne le supporte pas).
+function _mepCompositionAutorisee(id) {
+  try { var cle = _mepCleModeleActuel(), e = _mepEtatFormesActuel(); return (cle && _mepCompositionDispo(cle, e) && _mepCompositionValide(id, e)) ? id : ''; } catch (er) { return ''; }
+}
+function _mepConstruirePanneauComposition(cle, e) {
+  var f = _MEP_FORMES.composition, courant = _mepComposition();
+  var t = document.createElement('div'); t.className = 'gab-tiroir'; t.setAttribute('role', 'region'); t.setAttribute('aria-label', f.titre); t.setAttribute('data-mep-tiroir', 'composition');
+  var tete = document.createElement('div'); tete.className = 'gab-tiroir-tete';
+  tete.innerHTML = '<strong>' + f.titre + '</strong>';
+  var fermer = document.createElement('button'); fermer.type = 'button'; fermer.className = 'btn-miss gab-tiroir-fermer'; fermer.textContent = 'Fermer';
+  fermer.addEventListener('click', function () { _mepFermerTiroirForme('composition'); });
+  tete.appendChild(fermer); t.appendChild(tete);
+  var choix = document.createElement('div'); choix.className = 'gab-tiroir-choix'; choix.setAttribute('role', 'radiogroup'); choix.setAttribute('aria-label', f.titre);
+  var liste = [{ id: '', nom: 'Comme aujourd’hui', ico: '<rect x="3" y="3" width="58" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="6 4"/>' }].concat(_compoListePour(e && e.deuxColonnes ? 2 : 1));
+  liste.forEach(function (s) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign-forme'; b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', s.id === courant ? 'true' : 'false'); b.setAttribute('data-mep-compo', s.id);
+    b.innerHTML = '<svg viewBox="0 0 64 44" aria-hidden="true">' + s.ico + '</svg><span>' + s.nom + '</span>';
+    b.addEventListener('click', function () { if (s.id !== courant) { _mepDefinirComposition(s.id); } });
+    choix.appendChild(b);
+  });
+  t.appendChild(choix);
+  // Reglages du croisement du bandeau et de la colonne : avec « Comme aujourd'hui » seulement, quand le CV s'y prete (maquette fusionnee de Denis, 2026-10-22)
+  if (!courant && e && _mepCroisementDispo(cle, e)) {
+    var cr = _mepCroisement();
+    var rang = function (titre, options, courantId, quand, dataAttr) {
+      var rr = document.createElement('div'); rr.className = 'gab-tiroir-rang'; rr.setAttribute('data-mep-croi-rang', dataAttr);
+      rr.innerHTML = '<div class="gab-tiroir-lib">' + titre + '</div>';
+      var cc = document.createElement('div'); cc.className = 'gab-tiroir-choix'; cc.setAttribute('role', 'radiogroup'); cc.setAttribute('aria-label', titre);
+      options.forEach(function (o) {
+        var bb = document.createElement('button'); bb.type = 'button'; bb.className = 'vign-forme'; bb.setAttribute('role', 'radio'); bb.setAttribute('aria-checked', o[0] === courantId ? 'true' : 'false'); bb.setAttribute('data-mep-croi', dataAttr + ':' + o[0]);
+        bb.innerHTML = '<span>' + o[1] + '</span>';
+        bb.addEventListener('click', function () { if (o[0] !== courantId) { quand(o[0]); } });
+        cc.appendChild(bb);
+      });
+      rr.appendChild(cc); t.appendChild(rr);
+    };
+    rang('Couleurs', [['non', 'Chacune la sienne'], ['oui', 'Même couleur']], cr.meme === 'oui' ? 'oui' : 'non', function (v) { _mepDefinirCroisement({ meme: v === 'oui' ? 'oui' : '' }); }, 'meme');
+    if (cr.meme !== 'oui') { rang('Quel est devant ?', [['bandeau', 'Bandeau devant'], ['colonne', 'Colonne devant']], cr.devant === 'colonne' ? 'colonne' : 'bandeau', function (v) { _mepDefinirCroisement({ devant: v === 'colonne' ? 'colonne' : '' }); }, 'devant'); }
+    if (e.croisementCoin || cr.angle === 'arrondi') { rang('Angle au croisement', [['droit', 'Droit'], ['arrondi', 'Arrondi']], cr.angle === 'arrondi' ? 'arrondi' : 'droit', function (v) { _mepDefinirCroisement({ angle: v === 'arrondi' ? 'arrondi' : '' }); }, 'angle'); }
+    rang('Liseré blanc entre les deux', [['non', 'Sans'], ['oui', 'Avec']], cr.lisere ? 'oui' : 'non', function (v) { _mepDefinirCroisement({ lisere: v === 'oui' }); }, 'lisere');
+  }
+  // Decor ajoute (maquette validee par Denis, 2026-10-22) : avec « Comme aujourd'hui » seulement, par-dessus le bandeau et la colonne du modele
+  if (!courant && e && _mepDecorDispo(cle, e)) {
+    var dc = _mepDecor();
+    var rangD = function (titre, options, courantId, quand, dataAttr) {
+      var rr = document.createElement('div'); rr.className = 'gab-tiroir-rang'; rr.setAttribute('data-mep-decor-rang', dataAttr);
+      rr.innerHTML = '<div class="gab-tiroir-lib">' + titre + '</div>';
+      var cc = document.createElement('div'); cc.className = 'gab-tiroir-choix'; cc.setAttribute('role', 'radiogroup'); cc.setAttribute('aria-label', titre);
+      options.forEach(function (o) {
+        var bb = document.createElement('button'); bb.type = 'button'; bb.className = 'vign-forme'; bb.setAttribute('role', 'radio'); bb.setAttribute('aria-checked', o[0] === courantId ? 'true' : 'false'); bb.setAttribute('data-mep-decor', dataAttr + ':' + o[0]);
+        bb.innerHTML = '<span>' + o[1] + '</span>';
+        bb.addEventListener('click', function () { if (o[0] !== courantId) { quand(o[0]); } });
+        cc.appendChild(bb);
+      });
+      rr.appendChild(cc); t.appendChild(rr);
+    };
+    rangD('Décor ajouté', [['', 'Aucun']].concat(_DECORS.LISTE.map(function (d) { return [d.id, d.nom]; })), dc.id || '', function (v) { _mepDefinirDecor({ id: v }); }, 'id');
+    if (dc.id) { rangD('Couleur du décor', _DECORS.COULEURS.map(function (c) { return [c.id, c.nom]; }), dc.couleur || '', function (v) { _mepDefinirDecor({ couleur: v }); }, 'couleur'); }
+  }
+  // « Trait sous l'en-tete » : seulement quand une composition est choisie ET que ce CV a ce trait (un trait de la couleur du bandeau ressemblait a une erreur : Denis, 2026-10-22)
+  if (courant && e && e.aTrait) {
+    var r = document.createElement('div'); r.className = 'gab-tiroir-rang'; r.setAttribute('data-mep-trait-rang', '1');
+    r.innerHTML = '<div class="gab-tiroir-lib">Trait sous l’en-tête</div>';
+    var c2 = document.createElement('div'); c2.className = 'gab-tiroir-choix'; c2.setAttribute('role', 'radiogroup'); c2.setAttribute('aria-label', 'Trait sous l’en-tête');
+    var actuel = _mepCompositionTrait();
+    _COMPO_TRAITS.forEach(function (o) {
+      var b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'vign-forme'; b2.setAttribute('role', 'radio'); b2.setAttribute('aria-checked', o.id === actuel ? 'true' : 'false'); b2.setAttribute('data-mep-trait', o.id);
+      b2.innerHTML = '<span>' + o.nom + '</span>';
+      b2.addEventListener('click', function () { if (o.id !== actuel) { _mepDefinirCompositionTrait(o.id); } });
+      c2.appendChild(b2);
+    });
+    r.appendChild(c2); t.appendChild(r);
+  }
+  return t;
+}
+
+// ====== FORMES DECORATIVES (tache A2, 2026-10-20) : calque transparent, pour TOUS les modeles (regles dans cvPdfFormesDeco.js) ======
+// L'etat vit dans l'apercu du CV (iframe : `_cvPdfFormesDeco`, garde dans dossier.pdfReglages.formesDeco, donc annulable comme tout reglage) ; ici, seulement le panneau.
+var _mepFormeDecoCourante = 0;   // la forme dont les reglages sont ouverts (onglet « Forme n »)
+var _mepRerendre = null;   // `rerendre` du panneau « La mise en page » (la fermeture qui le definit le branche ici)
+function _mepFormesDeco() {
+  try {
+    var pr = dossier.pdfReglages;
+    if (pr && typeof pr === 'object' && Array.isArray(pr.formesDeco)) { return _formesDecoNormaliser(pr.formesDeco); }
+    return _formesDecoNormaliser(document.querySelector('#zonePdfInlineCV iframe').contentWindow._cvPdfFormesDeco);
+  } catch (e) { return []; }
+}
+function _mepDefinirFormesDeco(liste) {
+  _mepPousserHistorique('formesDeco');
+  _mepAppelerIframePdf('_pdfDefinirFormesDeco', liste);
+  if (_mepRerendre) { setTimeout(_mepRerendre, 30); }
+}
+// Reglage a la main : on touche la forme sur l'apercu du CV (iframe, cvPdfFormesDeco.js) et on la deplace ; le panneau est seulement rafraichi (`_mepRafraichirPanneauxFormes`), jamais l'apercu.
+function _mepRafraichirPanneauxFormes() {
+  Array.prototype.forEach.call(document.querySelectorAll('.gab-formes-corps'), function (h) { _mepRemplirPanneauFormes(h); });
+}
+// Une rangee de boutons (libelle + choix). `quand(id)` est appele au clic.
+function _mepRangeeFormesDeco(hote, titre, options, courant, quand) {
+  var r = document.createElement('div'); r.className = 'gab-tiroir-rang';
+  var l = document.createElement('div'); l.className = 'gab-tiroir-lib'; l.textContent = titre; r.appendChild(l);
+  var c = document.createElement('div'); c.className = 'gab-tiroir-choix'; c.setAttribute('role', 'radiogroup'); c.setAttribute('aria-label', titre);
+  options.forEach(function (o) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign-forme'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', o.id === courant ? 'true' : 'false');
+    b.innerHTML = (o.ico ? '<svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style="width:34px;height:20px">' + o.ico + '</svg>' : '') + '<span>' + o.nom + '</span>';
+    b.addEventListener('click', function () { quand(o.id); });
+    c.appendChild(b);
+  });
+  r.appendChild(c); hote.appendChild(r);
+}
+function _mepRemplirPanneauFormes(hote) {
+  hote.innerHTML = '';
+  var D = _FORMES_DECO, liste = _mepFormesDeco();
+  if (_mepFormeDecoCourante >= liste.length) { _mepFormeDecoCourante = Math.max(0, liste.length - 1); }
+  var intro = document.createElement('p'); intro.className = 'gab-tiroir-note';
+  intro.textContent = liste.length ? ('Vous pouvez bouger librement vos formes directement sur le CV, choisir librement leur taille en tirant le rond de leur coin, et les faire pivoter avec la flèche ronde au-dessus. ' + liste.length + ' forme' + (liste.length > 1 ? 's' : '') + ' sur ' + D.MAX + ' au plus.')
+    : 'Touchez une forme pour l’ajouter à votre CV (jusqu’à ' + D.MAX + ') : le texte reste lisible par-dessus. Vous pourrez ensuite la bouger et choisir sa taille librement, directement sur le CV.';
+  hote.appendChild(intro);
+  var actions = document.createElement('div'); actions.className = 'gab-tiroir-choix';
+  var changer = function (nouvelle) { _mepDefinirFormesDeco(nouvelle); };
+  var copie = function () { return JSON.parse(JSON.stringify(liste)); };
+  // Aucune forme : quelques formes proposees, dessinees et cliquables, tiennent lieu de bouton « Ajouter une forme » (Denis, 2026-10-20). Un clic ajoute cette forme, deja selectionnee, et le panneau complet s'ouvre
+  // (autres formes, remplissage, zone, taille, couleur, bouton « Ajouter une forme »). Elles passent a la ligne : jamais de debordement.
+  if (!liste.length) {
+    var vit = document.createElement('div'); vit.className = 'gab-propositions'; vit.setAttribute('role', 'group'); vit.setAttribute('aria-label', 'Quelques formes : touchez-en une pour l’ajouter à votre CV');
+    ['rond', 'ovale', 'losange', 'hexagone', 'pilule', 'rectarrondi', 'anneau', 'points'].forEach(function (id) {
+      var def = D.FORMES.filter(function (x) { return x.id === id; })[0]; if (!def) { return; }
+      var bp = document.createElement('button'); bp.type = 'button'; bp.className = 'gab-proposition'; bp.setAttribute('data-mep-proposition', id);
+      bp.innerHTML = '<svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + def.ico + '</svg><span>' + def.nom + '</span>';
+      bp.addEventListener('click', function () { var premiere = _formesDecoParDefaut(); premiere.forme = id; _mepFormeDecoCourante = 0; changer([premiere]); });
+      vit.appendChild(bp);
+    });
+    hote.appendChild(vit);
+    return;
+  }
+  // Rangee du haut : les formes (« Forme 1 », « Forme 2 »...) a gauche, le bouton « Ajouter une forme » en haut a droite (demande de Denis, 2026-10-20).
+  var haut = document.createElement('div'); haut.className = 'gab-tiroir-onglets';
+  var onglets = document.createElement('div'); onglets.className = 'gab-tiroir-choix'; onglets.setAttribute('role', 'tablist');
+  liste.forEach(function (_, i) {
+    // Chaque forme : son onglet, avec une petite croix en haut a droite qui la retire d'un clic (meme geste que « Retirer cette forme », en plus rapide).
+    var onglet = document.createElement('div'); onglet.className = 'gab-onglet';
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign-forme'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', i === _mepFormeDecoCourante ? 'true' : 'false');
+    b.setAttribute('aria-checked', i === _mepFormeDecoCourante ? 'true' : 'false');
+    // L'image de la forme choisie + son nom (« Forme n ») : on sait de quelle forme il s'agit sans la chercher sur le CV (Denis, 2026-10-20).
+    var defOnglet = D.FORMES.filter(function (x) { return x.id === liste[i].forme; })[0] || D.FORMES[0];
+    b.innerHTML = '<svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + (defOnglet.ico || '') + '</svg><span>Forme ' + (i + 1) + '</span>';
+    b.title = defOnglet.nom;
+    b.addEventListener('click', function () { _mepFormeDecoCourante = i; _mepRemplirPanneauFormes(hote); });
+    var croix = document.createElement('button'); croix.type = 'button'; croix.className = 'gab-onglet-croix'; croix.textContent = '\u00d7';
+    croix.setAttribute('aria-label', 'Retirer la forme ' + (i + 1)); croix.title = 'Retirer la forme ' + (i + 1);
+    croix.addEventListener('click', function () { var n = copie(); n.splice(i, 1); _mepFormeDecoCourante = 0; changer(n); });
+    onglet.appendChild(b); onglet.appendChild(croix);
+    onglets.appendChild(onglet);
+  });
+  haut.appendChild(onglets);
+  var ajouter = document.createElement('button'); ajouter.type = 'button'; ajouter.className = 'btn-miss gab-ajout';
+  ajouter.textContent = liste.length === 0 ? 'Ajouter une forme' : (liste.length >= D.MAX ? D.MAX + ' formes au maximum' : 'Ajouter une forme');
+  ajouter.disabled = liste.length >= D.MAX;
+  ajouter.addEventListener('click', function () { var n = copie(); n.push(liste.length ? _formesDecoSuivante(liste.length, liste) : _formesDecoParDefaut()); _mepFormeDecoCourante = n.length - 1; changer(n); });
+  haut.appendChild(ajouter);
+  hote.appendChild(haut);
+  if (liste.length) {
+    var f = liste[_mepFormeDecoCourante];
+    var poser = function (champ, valeur) { var n = copie(); n[_mepFormeDecoCourante][champ] = valeur; changer(n); };
+    _mepRangeeFormesDeco(hote, 'Forme', D.FORMES, f.forme, function (v) { poser('forme', v); });
+    // Remplissage : plein, vide (decoupe qui laisse voir le papier) ou contour. Un motif (points, hachures) n'a pas de contour : l'option n'est pas proposee.
+    var fDef = D.FORMES.filter(function (x) { return x.id === f.forme; })[0] || D.FORMES[0];
+    _mepRangeeFormesDeco(hote, 'Remplissage', D.STYLES.filter(function (x) { return !(x.id === 'contour' && fDef.sansContour); }), f.style || 'plein', function (v) { poser('style', v); });
+    // Plus de bouton « Placement libre » ni « Regler moi-meme » (Denis, 2026-10-20) : on touche la forme sur le CV et on la deplace ; ces deux rangees sont des raccourcis. Une forme deplacee a la main
+    // n'a alors aucune zone ni taille cochee ; choisir une taille prete la remet a cette taille, sans la faire bouger.
+    _mepRangeeFormesDeco(hote, 'Où la placer', D.ZONES, f.zone, function (v) { poser('zone', v); });
+    _mepRangeeFormesDeco(hote, 'Taille', D.TAILLES, f.taille, function (v) {
+      var n = copie(), cur = n[_mepFormeDecoCourante];
+      if (cur.zone === 'libre') {
+        var Fd = D.FORMES.filter(function (x) { return x.id === cur.forme; })[0] || D.FORMES[0], T = D.TAILLES.filter(function (x) { return x.id === v; })[0];
+        cur.fw = Math.min(1.3, T.px * (Fd.w || 1) / D.PAGE_L); cur.taille = 'perso'; delete cur.fr;
+      } else { cur.taille = v; }
+      changer(n);
+    });
+    // Contour : quand le trait passe sur des lettres, deux facons au choix (Denis, 2026-10-20) : le trait reste entier et les lettres changent de couleur (par defaut), ou le trait s'interrompt autour des lettres.
+    if ((f.style || 'plein') === 'contour') {
+      _mepRangeeFormesDeco(hote, 'Quand le trait passe sur des lettres', [{ id: 'contraste', nom: 'Le trait reste entier, les lettres changent de couleur' }, { id: 'coupe', nom: 'Le trait s’interrompt autour des lettres' }], f.croise === 'coupe' ? 'coupe' : 'contraste', function (v) { poser('croise', v); });
+    }
+    // Forme vide : la forme ne cache jamais le texte (fond papier, texte fonce a l'interieur) ; option pour voir ou s'arretent le bandeau et la colonne (zones colorees en teinte tres claire) ou les cacher.
+    if ((f.style || 'plein') === 'vide') {
+      _mepRangeeFormesDeco(hote, 'Bandeau et colonne dans la forme', [{ id: 'oui', nom: 'Les montrer' }, { id: 'non', nom: 'Les cacher' }], f.traits === false ? 'non' : 'oui', function (v) { poser('traits', v !== 'non'); });
+    }
+    // Orientation (rotation 2D, la forme reste sur place) : angles courants ; on tourne aussi a la main avec la poignee ronde au-dessus de la forme selectionnee (un clic = 45 degres de plus).
+    _mepRangeeFormesDeco(hote, 'Orientation', [{ id: '0', nom: 'Droit' }, { id: '45', nom: '45°' }, { id: '90', nom: '90°' }, { id: '135', nom: '135°' }], String(f.rot || 0), function (v) { poser('rot', Number(v)); });
+    // La transparence ne sert qu'a une forme pleine ; la couleur, pas a une decoupe (elle prend la couleur du papier) : rien d'inutile a l'ecran.
+    if ((f.style || 'plein') === 'plein') { _mepRangeeFormesDeco(hote, 'Transparence', D.TRANSPARENCES, f.transp, function (v) { poser('transp', v); }); }
+    if ((f.style || 'plein') !== 'vide') { _mepRangeeFormesDeco(hote, 'Couleur', D.COULEURS, f.couleur, function (v) { poser('couleur', v); }); }
+    if (f.couleur === 'claire' && (f.style || 'plein') !== 'vide') {
+      var rt = document.createElement('div'); rt.className = 'gab-tiroir-rang';
+      rt.innerHTML = '<div class="gab-tiroir-lib">Quelle couleur claire ?</div>';
+      var ct = document.createElement('div'); ct.className = 'gab-tiroir-choix';
+      D.TEINTES.forEach(function (h) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'gab-sw'; b.style.background = h; b.title = 'Couleur ' + h; b.setAttribute('aria-label', 'Choisir cette couleur claire');
+        b.setAttribute('aria-pressed', (f.teinte || '').toLowerCase() === h ? 'true' : 'false');
+        b.addEventListener('click', function () { poser('teinte', h); });
+        ct.appendChild(b);
+      });
+      var lab = document.createElement('label'); lab.className = 'gab-sw-libre'; lab.innerHTML = '<span>Autre couleur</span><input type="color" aria-label="Choisir une autre couleur claire" value="' + (f.teinte || '#9db8d9') + '">';
+      lab.querySelector('input').addEventListener('change', function (e) { poser('teinte', e.target.value); });
+      ct.appendChild(lab); rt.appendChild(ct); hote.appendChild(rt);
+    }
+    var retourner = document.createElement('button'); retourner.type = 'button'; retourner.className = 'btn-miss'; retourner.textContent = 'Retourner la forme';
+    retourner.addEventListener('click', function () { poser('flip', !f.flip); });
+    actions.appendChild(retourner);
+  }
+  if (liste.length) {
+    var retirer = document.createElement('button'); retirer.type = 'button'; retirer.className = 'btn-miss';
+    retirer.textContent = liste.length > 1 ? 'Retirer cette forme' : 'Retirer la forme';
+    retirer.addEventListener('click', function () { var n = copie(); n.splice(_mepFormeDecoCourante, 1); _mepFormeDecoCourante = 0; changer(n); });
+    actions.appendChild(retirer);
+    // « Retirer toutes les formes » : tout a droite de la meme ligne, separe des deux autres (Denis, 2026-10-20) ; seulement quand il y a au moins deux formes (avec une seule, « Retirer la forme » suffit).
+    if (liste.length >= 2) {
+      var toutes = document.createElement('button'); toutes.type = 'button'; toutes.className = 'btn-miss gab-retirer-toutes'; toutes.textContent = 'Retirer toutes les formes';
+      toutes.addEventListener('click', function () { _mepFormeDecoCourante = 0; changer([]); });
+      actions.appendChild(toutes);
+    }
+  }
+  if (actions.childNodes.length) { hote.appendChild(actions); }
 }
 // TACHE (Denis, 2026-09-25, tranche 2) : TOUS les modeles, dans l'ordre de la maquette d'abord (Bandeau
 // entier, Bandeau diagonal, Colonne colorée, Cadre de page, Titres a pictogrammes, Colonne et frise), puis ceux
@@ -17726,6 +19327,7 @@ var _MEP_GALERIE_CREATIF = [
   ['colonneRuban', 'Colonne foncée et rubans', '#1f2a44', 'colonneRuban', true],
   ['chronoFonce', 'Colonne foncée chronologique', '#1f2a44', 'chronoFonce', true],
   ['rubanDiagonal', 'Ruban diagonal', '#0F6E56', 'rubanDiagonal', true],
+  ['bandeauxNoirs', 'Bandeaux noirs', '#1f2933', 'mqBandeau', false],
   ['duoOvale', 'Duo ovale', '#2f6690', 'duoOvale', true],
   ['cadreBarre', 'Cadre et barre', '#1c3d52', 'cadreBarre', true],
   ['pastille', 'Pastille', '#7d2e43', 'pastille', true],
@@ -17746,7 +19348,7 @@ function _mepPhotoPresente() { return !!(dossier && dossier.photo && dossier.pho
 function _mepModeleVisible(id) { return _mepPhotoPresente() || _MEP_MODELES_A_PHOTO.indexOf(id) === -1; }
 var _MEP_FAMILLES_CREATIF = [
   ['colonnes', 'Colonnes', ['mqColonne', 'frise', 'friseFoncee', 'photoFrise', 'sidebarVague', 'colonneFoncee', 'colonneClaire', 'colonneBandeau', 'colonneRuban', 'chronoFonce', 'bandeauVertical']],
-  ['bandeaux', 'Bandeaux et en-têtes', ['mqBandeau', 'mqDiagonale', 'duoOvale', 'rubanDiagonal', 'vagueMarine', 'medaillon']],
+  ['bandeaux', 'Bandeaux et en-têtes', ['mqBandeau', 'mqDiagonale', 'duoOvale', 'rubanDiagonal', 'bandeauxNoirs', 'vagueMarine', 'medaillon']],
   ['cadres', 'Cadres et blocs', ['mqCadre', 'cadreBarre', 'rectangles']],
   ['formes', 'Formes et pictogrammes', ['mqPicto', 'pastille', 'triangleSavoir', 'diagonalesContrastees', 'losangeVert']]
 ];
@@ -17769,6 +19371,7 @@ var _MEP_GALERIE_SOBRE = [
   ['mq-fond', 'sobre-fond', 'Fond pâle', true],
   ['mq-epure', 'sobre-epure', 'Épuré', true],
   ['mq-photo', 'photoFrise', 'Photo et frise', true, true],
+  ['mq-frise', 'friseSobre', 'Frise sobre', true],
   ['mq-rectangles', 'sobre-rectangles', 'Rectangles arrondis', true, false, true],
   ['mq-chrono', 'sobre-chrono', 'Chronologique', true],
   ['mq-editorial', 'sobre-editorial', 'Éditorial', true],
@@ -17796,6 +19399,7 @@ function _htmlGalerieModelesMiseEnPage(allure, partie) {
   // partie « legende » : le texte qui explique le mode (dans la place libre sous Sobre / Standard / Creatif) ;
   // partie « rangee » : les modeles, sur TOUTE la largeur, toujours tous (rien n'est cache selon 1 ou 2 colonnes).
   if (allure === 'defaut') {
+    if (partie !== 'legende') { return ''; }   // pas de vignettes en Standard ; les formes se choisissent dans la barre d'onglets de l'apercu
     return partie === 'legende'
       ? '<div class="desc-allure"><b>Standard</b> &middot; la base libre. Le bouton &laquo;&nbsp;Style rapide&nbsp;&raquo; compose pour vous une ambiance au hasard (couleurs, titres, comp&eacute;tences, coins, ic&ocirc;nes&hellip;) et respecte le nombre de colonnes que vous avez choisi. Votre contenu ne change jamais.</div>'
       : '';
@@ -18410,7 +20014,8 @@ function _htmlRubriquesMasqueesMep() {
 var _mepSuggestions = [];
 var _mepSuggestionsOuvert = false;
 var _mepSuggestionAppliquee = -1;
-var _mepSuggSelection = 0;
+var _mepSuggSelection = -1;   // -1 : aucune suggestion preselectionnee (retour Denis 2026-10-19), la personne choisit
+var _mepSuggCarteChoisie = false;   // avant le 1er clic sur une carte, les cartes pulsent une apres l'autre ; apres, plus
 var _mepSuggPage = 0;
 // Suggestions CUMULABLES (2026-09-26, demande de Denis) : chaque suggestion appliquee reste appliquee ; la liste est recalculee a partir du
 // nouvel etat (celles qui n'ont plus de sens disparaissent, de nouvelles peuvent apparaitre). « Defaire la derniere » / « Tout defaire »
@@ -18421,7 +20026,8 @@ function _mepSuggestionsRecues(liste, garder) {
   _mepSuggestions = liste || [];
   if (_mepSuggPulseAttendu) { _mepSuggPulseAttendu = false; if (_mepSuggestions.length && !_mepSuggestionsOuvert) { _mepSuggPulseJusqua = Date.now() + 10000; _mepPulseArreter(); } }
   _mepSuggestionAppliquee = -1;
-  _mepSuggSelection = 0;
+  _mepSuggSelection = -1;
+  _mepSuggCarteChoisie = false;
   _mepSuggPage = 0;
   // TACHE (retour Denis 2026-09-27, P4) : une nouvelle liste rend l'index
   // previsualise potentiellement invalide (suggestions recalculees) --
@@ -18430,8 +20036,9 @@ function _mepSuggestionsRecues(liste, garder) {
   // la reference.
   _mepSuggPreviewIndex = -1;
   _mepSuggPreviewEtatAvant = null;
+  _mepSuggPreviewParentAvant = null;
   if (!garder) { _mepSuggAppliquees = []; _mepSuggSens = _mepSuggestions.length ? _mepSuggestions[0].sens : null; }
-  setTimeout(function () { if (typeof _mepRerendre === 'function') { _mepRerendre(); } }, 30);
+  _mepDemanderRebuild();
 }
 function _mepRecalculerSuggestionsPlusTard() {
   setTimeout(function () { _mepAppelerIframePdf('_pdfRecalculerSuggestions', _mepSuggSens); }, 1000);
@@ -18450,6 +20057,27 @@ function _mepRecalculerSuggestionsPlusTard() {
 // reserve a Annuler/Refaire "pour de vrai").
 var _mepSuggPreviewIndex = -1;
 var _mepSuggPreviewEtatAvant = null;
+var _mepSuggPreviewParentAvant = null;
+// Reglages gardes cote page (interlignes, espaces...) que l'ajustement automatique d'une suggestion peut toucher : l'etat de l'apercu (iframe) ne les contient pas, il faut les capturer et les rendre a part.
+function _mepInstantaneParentSuggestion() {
+  try {
+    var xxl = (typeof etatApercuInline !== 'undefined' && etatApercuInline.cv) ? etatApercuInline.cv.reglagesProjetXXL : null;
+    return { reg: JSON.stringify(dossier.reglagesMiseEnPageCV || null), xxl: JSON.stringify(xxl || null) };
+  } catch (e) { return null; }
+}
+function _mepRestaurerParentSuggestion(o) {
+  if (!o) { return; }
+  var rendre = function (cible, json) {
+    var src = JSON.parse(json);
+    if (!cible || !src) { return; }
+    Object.keys(cible).forEach(function (k) { if (!(k in src)) { delete cible[k]; } });
+    Object.keys(src).forEach(function (k) { cible[k] = src[k]; });
+  };
+  try {
+    if (dossier.reglagesMiseEnPageCV) { rendre(dossier.reglagesMiseEnPageCV, o.reg); }
+    if (typeof etatApercuInline !== 'undefined' && etatApercuInline.cv && etatApercuInline.cv.reglagesProjetXXL) { rendre(etatApercuInline.cv.reglagesProjetXXL, o.xxl); }
+  } catch (e) { /* sans effet */ }
+}
 function _mepFenetreIframePdf() {
   try {
     var el = document.querySelector('#zonePdfInlineCV iframe');
@@ -18457,6 +20085,7 @@ function _mepFenetreIframePdf() {
   } catch (e) { return null; }
 }
 function _mepAnnulerPreviewSuggestion() {
+  _mepRestaurerParentSuggestion(_mepSuggPreviewParentAvant);   // AVANT le redessin de l'apercu : il lit ces reglages
   if (_mepSuggPreviewEtatAvant) {
     var w = _mepFenetreIframePdf();
     if (w && typeof w._pdfAppliquerEtatPersistant === 'function') {
@@ -18469,6 +20098,7 @@ function _mepAnnulerPreviewSuggestion() {
       if (typeof w._pdfRafraichir === 'function') { w._pdfRafraichir(); }
     }
   }
+  _mepSuggPreviewParentAvant = null;
   _mepSuggPreviewEtatAvant = null;
   _mepSuggPreviewIndex = -1;
 }
@@ -18490,6 +20120,8 @@ function _mepAppliquerChangementsSuggestion(s) {
     else if (c.cle === '__comp') { _mepAppelerIframePdf('_pdfDefinirCompetencesMaxAbsolu', c.quoi, c.valeur); }
     else { _mepAppelerIframePdf('_pdfMqChoix', c.cle, c.valeur); }
   });
+  // Retour Denis 2026-10-19 : des qu'une suggestion est choisie, le CV occupe toute la page (resserre ou agrandi avec les leviers de « Mise en page »).
+  _mepAppelerIframePdf('_pdfAjusterPourSuggestion');
 }
 // Appelee des qu'une carte de suggestion devient la selection courante
 // (clic sur la carte, ou pagination) -- jamais sur "Appliquer".
@@ -18505,6 +20137,7 @@ function _mepPrevisualiserSuggestion(i) {
   _mepAnnulerPreviewSuggestion();
   var w = _mepFenetreIframePdf();
   _mepSuggPreviewEtatAvant = (w && typeof w._pdfCapturerEtatPersistant === 'function') ? w._pdfCapturerEtatPersistant() : null;
+  _mepSuggPreviewParentAvant = _mepInstantaneParentSuggestion();
   _mepAppliquerChangementsSuggestion(s);
   _mepSuggPreviewIndex = i;
   setTimeout(_mepRerendre, 60);
@@ -18528,6 +20161,7 @@ function _mepAppliquerSuggestion(i) {
   // data-mep-stylecomp, qui inverserait ce qui vient d'etre pose).
   if (_mepSuggPreviewIndex !== i) { _mepAppliquerChangementsSuggestion(s); }
   _mepSuggPreviewEtatAvant = null;
+  _mepSuggPreviewParentAvant = null;
   _mepSuggPreviewIndex = -1;
   _mepSuggAppliquees.push(s.titre);
   setTimeout(_mepRerendre, 60);
@@ -18571,27 +20205,35 @@ function _htmlPanneauSuggestionsMep() {
   }
   var debut = _mepSuggPage * 3;
   var visibles = _mepSuggestions.slice(debut, debut + 3);
-  if (_mepSuggSelection < debut || _mepSuggSelection >= debut + 3) { _mepSuggSelection = debut; }
-  var choisie = _mepSuggestions[_mepSuggSelection];
+  if (_mepSuggSelection < debut || _mepSuggSelection >= debut + 3) { _mepSuggSelection = -1; }
+  var choisie = _mepSuggestions[_mepSuggSelection] || null;
   var nbPages = Math.ceil(_mepSuggestions.length / 3);
   var cartes = visibles.map(function (s, k) {
     var i = debut + k;
-    return '<button type="button" class="prop-carte' + (i === _mepSuggSelection ? ' choisie' : '') + '" data-mep-sugg-choisir="' + i + '">' +
-      _mepPictoSuggestion(s.picto) + '<b>' + s.titre + '</b><span class="gain">' + (s.equilibre ? (s.libelle || '&Eacute;quilibre visuel') : (s.sens === 'remplir' ? 'Remplit environ ' + s.gain + (s.gain > 1 ? ' lignes' : ' ligne') + ' de plus' : 'Gain : environ ' + s.gain + (s.gain > 1 ? ' lignes' : ' ligne'))) + '</span></button>';
+    return '<button type="button" class="prop-carte' + (i === _mepSuggSelection ? ' choisie' : '') + (!_mepSuggCarteChoisie ? ' pulse-sugg' : '') + '" style="--rang-pulse:' + k + '" aria-pressed="' + (i === _mepSuggSelection ? 'true' : 'false') + '" data-mep-sugg-choisir="' + i + '">' +
+      (i === _mepSuggSelection ? '<span class="etiquette-choisie">&#10003; Suggestion choisie</span>' : '') + _mepPictoSuggestion(s.picto) + '<b>' + s.titre + '</b><span class="gain">' + (s.equilibre ? (s.libelle || '&Eacute;quilibre visuel') : (s.sens === 'remplir' ? 'Remplit environ ' + s.gain + (s.gain > 1 ? ' lignes' : ' ligne') + ' de plus' : 'Gain : environ ' + s.gain + (s.gain > 1 ? ' lignes' : ' ligne'))) + '</span></button>';
   }).join('');
   var pager = nbPages > 1
     ? '<div class="sugg-pager"><button type="button" class="mep-btn" data-mep-sugg-page="-1"' + (_mepSuggPage === 0 ? ' disabled' : '') + '>&#8249; Pr&eacute;c&eacute;dentes</button><span>' + (_mepSuggPage + 1) + ' / ' + nbPages + '</span>' +
       '<button type="button" class="mep-btn" data-mep-sugg-page="1"' + (_mepSuggPage >= nbPages - 1 ? ' disabled' : '') + '>Suivantes &#8250;</button></div>' : '';
   return '<div class="depli sugg-relie"><p class="sous">Autres fa&ccedil;ons d&rsquo;agencer votre CV. Cliquez sur une suggestion pour lire ce qu&rsquo;elle fait ; vous pouvez en appliquer <b>plusieurs, l&rsquo;une apr&egrave;s l&rsquo;autre</b>. Aucune ne change votre dossier.</p>' +
     '<div class="props">' + cartes + '</div>' + pager +
-    '<div class="sugg-detail"><b>Ce que fera &laquo;&nbsp;' + (choisie.changes.some(function (c) { return c.cle === '__ouvrirChoix'; }) ? 'Ouvrir la liste' : 'Appliquer') + '&nbsp;&raquo; :</b> <span>' + choisie.detail + '</span>' +
+    (!choisie ? '<div class="sugg-detail"><b>Aucune suggestion choisie.</b> <span>Cliquez sur l&rsquo;une des cartes ci-dessus : son effet s&rsquo;affiche tout de suite sur votre CV, et vous pourrez ensuite l&rsquo;appliquer ou en essayer une autre.</span></div>' : '<div class="sugg-detail"><b>Ce que fera &laquo;&nbsp;' + (choisie.changes.some(function (c) { return c.cle === '__ouvrirChoix'; }) ? 'Ouvrir la liste' : 'Appliquer') + '&nbsp;&raquo; :</b> <span>' + choisie.detail + '</span>' +
     '<div class="sugg-actions"><button type="button" class="mep-btn principal" data-mep-sugg-appliquer="' + _mepSuggSelection + '">' +
-    (choisie.changes.some(function (c) { return c.cle === '__ouvrirChoix'; }) ? 'Ouvrir la liste' : 'Appliquer') + '</button></div></div>' + recap + '</div>';
+    (choisie.changes.some(function (c) { return c.cle === '__ouvrirChoix'; }) ? 'Ouvrir la liste' : 'Appliquer') + '</button></div></div>') + recap + '</div>';
 }
 
+// Une seule reconstruction de la page pour plusieurs demandes arrivees ensemble (clic, message de « Mise en page », suggestions) : elles etaient trois, l'une apres l'autre.
+// Les valeurs sont posees avant chaque demande ; la reconstruction qui part les contient donc toutes.
+var _mepRebuildPlanifie = false;
+function _mepDemanderRebuild() {
+  if (_mepRebuildPlanifie) { return; }
+  _mepRebuildPlanifie = true;
+  setTimeout(function () { _mepRebuildPlanifie = false; if (typeof _mepRerendre === 'function') { _mepRerendre(); } }, 30);
+}
 function _mepMessageMEPRecu(texte) {
   _mepDernierMessageMEP = String(texte || '').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]*>/g, '');
-  setTimeout(function () { if (typeof _mepRerendre === 'function') { _mepRerendre(); } }, 30);
+  _mepDemanderRebuild();
 }
 function _mepLireMessageMiseEnPageIframe() {
   try {
@@ -19211,8 +20853,10 @@ function _htmlSecCouleursMiseEnPage(masquerChampsSimplifies) {
     '<details class="mep-details3 details-direct" open><summary>D&eacute;tails</summary>' +
     '<div class="champ-mep"><label>Effet du fond des colonnes</label>' +
     _htmlDuoMiseEnPage('mep-fondeffet', [['fondSeul', 'Fond plein'], ['titres', 'Titres seulement']], c.fondColonnesEffet === 'titres' ? 'titres' : 'fondSeul') + '</div>' +
+    // Sur le PDF, une colonne coloree a gauche ou a droite est toujours dessinee sur toute la hauteur (etape 4.2) : ce choix n'a alors d'effet que pour « Les deux » ou « Titres seulement » ; ailleurs il n'est pas propose (jamais un bouton qui ne fait rien).
+    ((estPdf && c.fondColonnesEffet !== 'titres' && c.fondColonnes !== 'lesDeux') ? '' :
     '<div class="champ-mep"><label>Fond de colonne pleine hauteur</label>' +
-    _htmlDuoMiseEnPage('mep-fondpleine', [['1', 'Oui'], ['0', 'Non']], c.fondColonnePleineHauteur ? '1' : '0') + '</div>' +
+    _htmlDuoMiseEnPage('mep-fondpleine', [['1', 'Oui'], ['0', 'Non']], c.fondColonnePleineHauteur ? '1' : '0') + '</div>') +
     (estPdf
       ? '<div class="champ-mep"><label>Couleur des pastilles de comp&eacute;tences</label>' +
         '<input type="color" class="mep-accent" data-mep-coulcomp value="' + String(c.couleurFondCompetences || '#e9e9e9').toLowerCase() + '"></div>' +
@@ -19638,10 +21282,14 @@ function construireMiseEnPageCV(docActif) {
   // bouton a gauche, puis a sa suite le message « le CV depasse une page » et les infos « experiences affichees / estimation ». Toujours cliquable. Il ouvre le bloc « Exporter » DANS la page (plus de fenetre).
   var htmlBlocValiderMepPdf = estPdfMep
     ? '<details class="corrections-cv" id="mepCorrections" style="display:none"></details>' +
-      '<div class="bloc-valider-mep"><button type="button" class="mep-btn principal" id="btnMepValider">Valider le CV &rarr;</button>' +
-      '<div class="valider-infos"><span class="avert-page" id="mepAvertPage" style="display:none" role="alert"></span>' +
+      // Retour Denis 2026-10-19 : « Valider le CV » vit dans la barre du bas, a droite (data-barre-bas, brique commune) ; la synthese reste ici, visible et non cliquable, sous un titre informatif.
+      '<div class="bloc-valider-mep"><button type="button" class="mep-btn principal" id="btnMepValider" data-barre-bas="1" data-barre-bas-libelle="Valider le CV &#8594;">Valider le CV &rarr;</button>' +
+      '<div class="valider-infos"><p class="valider-titre">R&eacute;sum&eacute; de votre CV</p><span class="avert-page" id="mepAvertPage" style="display:none" role="alert"></span>' +
       '<div class="info-page" id="mepInfoPage"></div>' +
-      '<div class="info-page" style="font-weight:600;">Le PDF enregistr&eacute; sera identique &agrave; l&rsquo;aper&ccedil;u du CV (la ligne pointill&eacute;e montre o&ugrave; la page 1 se termine).</div></div></div>'
+      '<div class="info-page" style="font-weight:600;">Le PDF enregistr&eacute; sera identique &agrave; l&rsquo;aper&ccedil;u du CV (la ligne pointill&eacute;e montre o&ugrave; la page 1 se termine).</div></div>' +
+      // Retour Denis 2026-10-19 : a droite de la synthese, le bouton pour aller chercher la 2e partie (facultative) quand elle a ete proposee et pas encore ajoutee.
+      (complementCVImportable() ? '<div class="valider-complement"><button type="button" class="mep-btn" id="btnMepAjouterComplement">&#10133; Ajouter le compl&eacute;ment du CV</button></div>' : '') +
+      '</div>'
     : '';
   // TACHE (Denis, 2026-09-23 : "dans la maquette, le panneau il est
   // large... je veux que le panneau d'options aille la largeur de ce
@@ -19652,16 +21300,16 @@ function construireMiseEnPageCV(docActif) {
   var largeurColonneReglages = 'minmax(0, 1.5fr)';
   var largeurColonneApercuMep = 'minmax(0, 1fr)';
   return '<style>.mep-2col-grille{display:grid;grid-template-columns:' + largeurColonneReglages + ' ' + largeurColonneApercuMep + ';gap:1.5rem;align-items:start;}' +
-    // TACHE (Denis, 2026-09-25) : PDF = point de bascule de la maquette (1050 px) et colonnes
+    // TACHE (Denis, 2026-09-25) : PDF = point de bascule de la maquette ; ramene de 1050 a 700 px le 2026-10-20 (Denis : panneaux de formes a gauche sur ordinateur ET tablette, sous l'apercu seulement sur telephone) ; colonnes
     // minmax(0,...) + min-width:0 : un texte de bouton ne peut plus faire deborder le panneau.
-    '@media (max-width:' + (estPdfMep ? '1050' : '900') + 'px){.mep-2col-grille{grid-template-columns:minmax(0,1fr);}}' +
+    '@media (max-width:' + (estPdfMep ? '699' : '900') + 'px){.mep-2col-grille{grid-template-columns:minmax(0,1fr);}}' +
     '.mep-2col-reglages,.mep-2col-apercu{min-width:0;}' +
     // TACHE (Denis, 2026-09-23, "quand je descends sur la barre de
     // navigation en bas, je veux l'avoir aussi en bas") : la colonne
     // apercu suit le defilement, comme la maquette (.apercu,
     // "position:sticky;top:.5rem"). PDF uniquement (estPdfMep) -- jamais
     // touche pour le Word, hors perimetre de ce chantier.
-    (estPdfMep ? '.mep-2col-apercu{position:sticky;top:0.5rem;max-height:calc(100vh - 6.5rem);overflow-y:auto;}@media (max-width:1050px){.mep-2col-apercu{position:static;max-height:none;overflow:visible;}}' : '') +
+    (estPdfMep ? '.mep-2col-apercu{position:sticky;top:0.5rem;max-height:calc(100vh - 6.5rem);overflow-y:auto;overflow-x:hidden;}@media (max-width:699px){.mep-2col-apercu{position:static;max-height:none;overflow:visible;}}' : '') +
     '</style>' +
     '<div class="mep-2col mep-mq">' +
     htmlEnteteMepPdf +
@@ -19741,9 +21389,11 @@ function _mepMajInfoPage() {
   var feuilleClic = pagesA4[0];
   if (feuilleClic && !feuilleClic.__mqClic && typeof ouvrirPleinEcranMaquette === 'function' && _mepModeleMaquetteActif()) {
     feuilleClic.__mqClic = true;
-    feuilleClic.style.cursor = 'pointer';
-    feuilleClic.title = 'Cliquez sur le CV pour le modifier en grand';
+    feuilleClic.style.cursor = _mepTiroirForme ? '' : 'pointer';
+    feuilleClic.title = _mepTiroirForme ? '' : 'Cliquez sur le CV pour le modifier en grand';
     feuilleClic.addEventListener('click', function (ev) {
+      // Un panneau Bandeau, Colonne ou Formes est ouvert : un clic sur le CV n'ouvre JAMAIS le grand apercu (Denis, 2026-10-20) ; seul le bouton « Aperçu en plein écran » y mène.
+      if (_mepTiroirForme || (typeof _enteteApercuActif === 'function' && _enteteApercuActif())) { return; }
       var cible = null, blc = ev.target.closest && ev.target.closest('[data-bl]'), h = ev.target.closest && ev.target.closest('h2[data-rub]');
       var enTete = ev.target.closest && ev.target.closest('.tete');
       if (blc) { cible = { bloc: blc.getAttribute('data-bl') }; }
@@ -19852,10 +21502,25 @@ function _wireCarteSimpleMiseEnPage() {
   // pulses, repositionnement Carnet/Journal), scrollY restaure explicitement
   // en plus au cas ou le remplacement du DOM deplacerait la page seul.
   var rerendre = function () {
+    // Un minuteur de l'aperçu (formes, composition...) qui se déclenche après le départ de la page ne doit jamais redessiner « Vos documents » par-dessus la page d'arrivée.
+    if (pageActuelle !== 'resultats') { return; }
     var scrollY = window.scrollY;
-    pageResultats();
-    window.scrollTo(0, scrollY);
+    // Chemin sans reconstruction de l'apercu (moveBefore disponible) : la zone vivante est mise de cote, la page refaite, la zone remise.
+    if (_mepGarerZoneApercu()) {
+      pageResultats();
+      _mepReprendreZoneVivante();   // au cas ou la page n'a pas appele la reprise elle-meme
+      window.scrollTo(0, scrollY);
+      return;
+    }
+    _mepAvecPhotoApercu(function () {
+      pageResultats();
+      window.scrollTo(0, scrollY);
+      if (_mepPhotoApercu) { _mepGelerColonneApercu(); _mepSurveillerNouvelApercu(); }
+      // la barre d'options garde sa place au rendu suivant (le CV ne monte plus puis ne redescend)
+      setTimeout(function () { var hote = document.getElementById('mepOngletsApercu'); if (hote && hote.children.length && !_mepPhotoApercu) { _mepHauteurOnglets = Math.round(hote.getBoundingClientRect().height); } }, 1500);
+    });
   };
+  _mepRerendre = rerendre;   // le meme geste, pour les fonctions hors de cette fermeture (formes decoratives)
   if (typeof _mepCablerCartesMaquette === 'function') { _mepCablerCartesMaquette(); }
 
   // --- Annuler / Refaire pas a pas (sous-etape 8)
@@ -20094,8 +21759,132 @@ function _wireCarteSimpleMiseEnPage() {
     if (!opts.sansRerendre) { setTimeout(rerendre, 30); }
   }
   function _numOuNull(v) { var n = parseFloat(v); return isFinite(n) ? n : null; }
-  _mepBandeauAppliquer = function (bord) { _mepReglageMoteur('bordBandeau', bord, null, 'regBordBandeau', {}); };
-  _mepBordAppliquer = function (vers) { _mepReglageMoteur('bordColonneDroit', vers === 'droit' ? '1' : '0', null, 'regColonneBordDroit', { bool: true }); };
+  // Formes du bandeau et de la colonne (tiroir sous la vignette). Plusieurs reglages d'un coup : tous sauf le dernier sans nouveau rendu, le dernier redessine le CV.
+  _mepFormeAppliquer.bandeau = function (forme, cle) {
+    var e = _mepEtatFormesActuel() || {}, cap = _cvCapacitesModele(cle) || {};
+    var arche = (e.colonne === 'arche');
+    if (forme === 'aucun') {
+      _mepReglageMoteur('bandeauEnTete', '0', 'data-projetxxl-fondtete', 'regBandeauEnTete', { bool: true, wordRegl: 'fondTete' });
+      return;
+    }
+    if (arche) { _mepReglageMoteur('colonneArche', '0', null, 'regColonneArche', { bool: true, sansRerendre: true }); }   // un bandeau colore remplace l'arche
+    if (cap.bandeau === 'ajoutable' && e.bandeau === 'aucun') { _mepReglageMoteur('bandeauEnTete', '1', 'data-projetxxl-fondtete', 'regBandeauEnTete', { bool: true, wordRegl: 'fondTete', sansRerendre: true }); }
+    // Une autre forme repart de son premier sens ; le choix du sens est refait ensuite par la rangee d'images.
+    _mepReglageMoteur('bordBandeauSens', '0', null, 'regBordBandeauSens', { sansRerendre: true });
+    _mepReglageMoteur('bordBandeau', forme, null, 'regBordBandeau', {});
+  };
+  // TIRAGE AU HASARD des formes du bandeau et de la colonne (Denis, 2026-10-20) : chaque famille a une chance sur deux ou presque d'etre tiree (jamais une forme impossible : la liste vient de la table des capacites),
+  // avec un sens au hasard quand la forme en a plusieurs ; les formes decoratives sont tirees pour Creatif et Sobre (le Standard les tire deja). Tout se pose SANS rendu intermediaire, un seul rendu a la fin.
+  window._mepTirerFormesCv = function (cle, e, kinds) {
+    var tire = function (t) { return t[Math.floor(Math.random() * t.length)]; };
+    var sens = function (kind, forme) { var d = _MEP_SENS[kind] && _MEP_SENS[kind][forme]; return d ? Math.floor(Math.random() * d.sens.length) : 0; };
+    var cap = _cvCapacitesModele(cle) || {}, ouvre = { composition: false, bandeau: false, colonne: false, formes: false }, fait = false, etatAvant = e || {};
+    var bandeauTire = '', colonneTiree = false, compoTiree = '';
+    // COMPOSITION, CROISEMENT ET DECOR AU HASARD (Denis, 2026-10-22) : une composition (30 %) REMPLACE le bandeau et la colonne tires ; sinon, selon ce que le CV permet, un croisement
+    // bandeau et colonne (25 %) et un decor ajoute (30 %) se tirent par-dessus. Les formes decoratives tirees ensuite evitent le decor.
+    var wTir = null; try { wTir = document.querySelector('#zonePdfInlineCV iframe').contentWindow; } catch (er) { wTir = null; }
+    window._mepInterditsDecor = [];
+    if (wTir && kinds.indexOf('composition') !== -1 && !_mepGarderFormes() && Math.random() < 0.3) {
+      compoTiree = tire(_compoListePour(etatAvant.deuxColonnes ? 2 : 1)).id;
+      wTir._cvPdfComposition = compoTiree; wTir._cvPdfCroisement = {}; wTir._cvPdfDecor = {};
+      fait = true; ouvre.composition = true;
+    }
+    if (kinds.indexOf('bandeau') !== -1 && !compoTiree && Math.random() < 0.6) {
+      var lb = _mepFormesProposees('bandeau', cle).filter(function (x) { return x !== 'aucun'; });
+      if (lb.length) {
+        var fb = tire(lb); bandeauTire = fb; fait = true; ouvre.bandeau = true;
+        if (etatAvant.colonne === 'arche') { _mepReglageMoteur('colonneArche', '0', null, 'regColonneArche', { bool: true, sansRerendre: true }); }
+        if (cap.bandeau === 'ajoutable' && etatAvant.bandeau === 'aucun') { _mepReglageMoteur('bandeauEnTete', '1', 'data-projetxxl-fondtete', 'regBandeauEnTete', { bool: true, wordRegl: 'fondTete', sansRerendre: true }); }
+        _mepReglageMoteur('bordBandeauSens', String(sens('bandeau', fb)), null, 'regBordBandeauSens', { sansRerendre: true });
+        _mepReglageMoteur('bordBandeau', fb, null, 'regBordBandeau', { sansRerendre: true });
+      }
+    }
+    if (kinds.indexOf('colonne') !== -1 && !compoTiree && Math.random() < 0.6) {
+      colonneTiree = true;
+      var lc = _mepFormesProposees('colonne', cle).filter(function (x) { return x !== 'aucun' && !(bandeauTire && x === 'arche'); });
+      if (lc.length) {
+        var fc = tire(lc); fait = true; ouvre.colonne = true;
+        var avantArche = (etatAvant.colonne === 'arche' && !bandeauTire);
+        if (etatAvant.colonne === 'aucun') {   // deux colonnes sans fond : la colonne tiree se colore (meme chemin que le choix a la main)
+          _mepReglageMoteur('fondColonnesEffet', 'fondSeul', null, 'regFondColonnesEffet', { sansRerendre: true });
+          _mepReglageMoteur('fondColonnes', 'gauche', 'data-projetxxl-fondcolonnes', 'regFondColonnes', { sansRerendre: true });
+        }
+        _mepReglageMoteur('colonneArche', fc === 'arche' ? '1' : '0', null, 'regColonneArche', { bool: true, sansRerendre: true });
+        if (fc === 'arche' && cap.bandeau === 'ajoutable' && !bandeauTire && etatAvant.bandeau && etatAvant.bandeau !== 'aucun') { _mepReglageMoteur('bandeauEnTete', '0', 'data-projetxxl-fondtete', 'regBandeauEnTete', { bool: true, wordRegl: 'fondTete', sansRerendre: true }); }
+        _mepReglageMoteur('colonneForme', (_MEP_COLONNE_PLUS.indexOf(fc) !== -1) ? fc : '', null, 'regColonneForme', { sansRerendre: true });
+        if (fc === 'droit' || fc === 'vallonne') { _mepReglageMoteur('bordColonneDroit', fc === 'droit' ? '1' : '0', null, 'regColonneBordDroit', { bool: true, sansRerendre: true }); }
+        _mepReglageMoteur('colonneSens', String(sens('colonne', fc)), null, 'regColonneSens', { sansRerendre: true });
+      }
+    }
+    if (wTir && !compoTiree) {
+      var tirerCroi = !bandeauTire && !colonneTiree && _mepCroisementDispo(cle, etatAvant) && Math.random() < 0.25;
+      if (tirerCroi) {
+        var cr = {}; if (Math.random() < 0.3) { cr.meme = 'oui'; } if (!cr.meme && Math.random() < 0.45) { cr.devant = 'colonne'; } if (etatAvant.croisementCoin && Math.random() < 0.4) { cr.angle = 'arrondi'; } if (Math.random() < 0.3) { cr.lisere = true; }
+        if (_croisementActif(cr)) { wTir._cvPdfCroisement = _croisementNormaliser(cr); fait = true; ouvre.composition = true; }
+      }
+      if (_mepDecorDispo(cle, etatAvant) && Math.random() < 0.3) {
+        var dec = tire(_DECORS.LISTE).id, r = Math.random(), dcol = r < 0.7 ? '' : (r < 0.85 ? 'cv' : 'gris');
+        wTir._cvPdfDecor = _decorNormaliser({ id: dec, couleur: dcol }); fait = true; ouvre.composition = true;
+        // les formes decoratives libres evitent le decor
+        window._mepInterditsDecor = dec === 'equerre' ? [{ x: 0, y: 0, w: 460, h: 24 }, { x: 0, y: 0, w: 24, h: 382 }, { x: 334, y: 1099, w: 460, h: 24 }, { x: 770, y: 786, w: 24, h: 337 }] : (dec === 'ruban' ? [{ x: 668, y: 0, w: 76, h: 300 }] : (dec === 'quarts' ? [{ x: 554, y: 0, w: 240, h: 240 }] : []));
+      }
+    }
+    // formes decoratives : Standard les a deja tirees (et ouvre son panneau) ; Creatif et Sobre les tirent ici, sauf avec « Garder mes formes »
+    if (_mepTirageDecorDeja) { ouvre.formes = _mepFormesDeco().length > 0; }
+    else if (!_mepGarderFormes() && _mepAllureActuelle() !== 'defaut' && Math.random() < 0.6) {
+      try { var w = document.querySelector('#zonePdfInlineCV iframe').contentWindow; _mepTirageFormesDeco(w); ouvre.formes = true; fait = true; } catch (er) { /* un plus */ }
+    }
+    _mepTirageDecorDeja = false;
+    if (!fait && !ouvre.formes) { return null; }
+    // Retour de Denis (24/10/2026) : le tirage n'ouvre plus aucun panneau (Bandeau, Colonne, Composition, Formes) ; ils restent fermes, seule la personne les ouvre (le grand apercu reste accessible).
+    _mepTiroirForme = null;
+    if (fait) { setTimeout(rerendre, 30); return true; }
+    return null;
+  };
+  _mepFormeAppliquer.sensColonne = function (i) { _mepReglageMoteur('colonneSens', String(i), null, 'regColonneSens', {}); };
+  _mepFormeAppliquer.sens = function (kind, i) {
+    if (kind === 'bandeau') {
+      // l'ancienne « diagonale inversee » enregistree redevient la diagonale (sens choisi par la rangee d'images)
+      var d = null; try { d = document.querySelector('#zonePdfInlineCV iframe').contentDocument; } catch (er) { /* apercu pas pret */ }
+      var sel = d && d.getElementById('regBordBandeau');
+      if (sel && sel.value === 'diagonaleInv') { _mepReglageMoteur('bordBandeau', 'diagonale', null, 'regBordBandeau', { sansRerendre: true }); }
+      _mepReglageMoteur('bordBandeauSens', String(i), null, 'regBordBandeauSens', {});
+    } else if (kind === 'colonne' && _mepFormeAppliquer.sensColonne) { _mepFormeAppliquer.sensColonne(i); }
+  };
+  // Largeur de la colonne reglee a la main par la poignee ronde de l'apercu (cvPdfPoigneesCv.js) : meme chemin que le curseur « Largeur de la colonne » (un seul rendu a la fin du geste).
+  _mepFormeAppliquer.largeurColonne = function (pct) { _mepReglageMoteur('largeurColonneGauche', String(pct), null, 'regLargeurColonneGauche', { num: true }); };
+  // Texte qui sort de la couleur du bandeau : le choix (et, pour « Autre couleur », la couleur) va dans les reglages de l'apercu, puis tout est redessine.
+  window._mepReglageMoteur_teinte = function (teinte) { _mepReglageMoteur('bandeauTeinte', teinte, null, 'regBandeauTeinte', {}); };
+  window._mepReglageMoteur_teinteColonne = function (teinte) { _mepReglageMoteur('colonneTeinte', teinte, null, 'regColonneTeinte', {}); };
+  window._mepReglageMoteur_texteHors = function (mode, couleur) {
+    if (couleur) { _mepReglageMoteur('texteHorsPerso', couleur, null, 'regTexteHorsPerso', { sansRerendre: true }); }
+    _mepReglageMoteur('texteHors', mode, null, 'regTexteHors', {});
+  };
+  _mepFormeAppliquer.colonne = function (forme, cle) {
+    var e = _mepEtatFormesActuel() || {}, cap = _cvCapacitesModele(cle) || {};
+    if (forme === 'aucun') {   // pas de colonne coloree : le fond des colonnes s'eteint, le reste (forme, sens) est garde pour plus tard
+      _mepReglageMoteur('fondColonnes', 'aucun', 'data-projetxxl-fondcolonnes', 'regFondColonnes', {});
+      return;
+    }
+    if (e.colonne === 'aucun') {   // une forme choisie sur un CV a deux colonnes sans fond : la colonne se colore (fond a gauche, fond plein), puis la forme s'applique
+      _mepReglageMoteur('fondColonnesEffet', 'fondSeul', null, 'regFondColonnesEffet', { sansRerendre: true });
+      _mepReglageMoteur('fondColonnes', 'gauche', 'data-projetxxl-fondcolonnes', 'regFondColonnes', { sansRerendre: true });
+      _mepReglageMoteur('colonneForme', '', null, 'regColonneForme', { sansRerendre: true });   // la colonne repart d'un bord droit : jamais la forme d'un choix d'avant « Aucune »
+      _mepReglageMoteur('colonneArche', '0', null, 'regColonneArche', { bool: true, sansRerendre: true });
+    }
+    _mepReglageMoteur('colonneSens', '0', null, 'regColonneSens', { sansRerendre: true });   // une autre forme repart de son premier sens
+    if (forme === 'arche') {
+      if (_MEP_COLONNE_PLUS.indexOf(e.colonne) !== -1) { _mepReglageMoteur('colonneForme', '', null, 'regColonneForme', { sansRerendre: true }); }
+      if (cap.bandeau === 'ajoutable' && e.bandeau && e.bandeau !== 'aucun') { _mepReglageMoteur('bandeauEnTete', '0', 'data-projetxxl-fondtete', 'regBandeauEnTete', { bool: true, wordRegl: 'fondTete', sansRerendre: true }); }   // l'arche remplace le bandeau
+      _mepReglageMoteur('colonneArche', '1', null, 'regColonneArche', { bool: true });
+      return;
+    }
+    var nouvelle = _MEP_COLONNE_PLUS.indexOf(forme) !== -1;
+    if (e.colonne === 'arche') { _mepReglageMoteur('colonneArche', '0', null, 'regColonneArche', { bool: true, sansRerendre: true }); }
+    if (nouvelle) { _mepReglageMoteur('colonneForme', forme, null, 'regColonneForme', {}); return; }
+    if (_MEP_COLONNE_PLUS.indexOf(e.colonne) !== -1) { _mepReglageMoteur('colonneForme', '', null, 'regColonneForme', { sansRerendre: true }); }   // une forme de plus laisse la place au bord choisi
+    _mepReglageMoteur('bordColonneDroit', forme === 'droit' ? '1' : '0', null, 'regColonneBordDroit', { bool: true });
+  };
 
   // --- 6b : section "La page"
   // Un SEUL gestionnaire pour les deux attributs (carte « Format » : data-mep-format-simple ; Word : data-mep-format).
@@ -20195,16 +21984,16 @@ function _wireCarteSimpleMiseEnPage() {
     el.addEventListener('change', function () {
       if (!dossier.photo) { dossier.photo = { url: null, inclure: false }; }
       dossier.photo.inclure = this.checked;
-      naviguerVers('resultats');
+      rerendre();
     });
   });
   _mepPourChaque('mepPhotoAjuster', function (el) {
-    el.addEventListener('click', function () { ajusterCadragePhoto(function () { naviguerVers('resultats'); }); });
+    el.addEventListener('click', function () { ajusterCadragePhoto(function () { rerendre(); }); });
   });
   _mepPourChaque('mepPhotoRetirer', function (el) {
     el.addEventListener('click', function () {
       dossier.photo = { url: null, inclure: false };
-      naviguerVers('resultats');
+      rerendre();
     });
   });
   _mepPourChaque('mepPhotoChanger', function (el) {
@@ -20227,7 +22016,7 @@ function _wireCarteSimpleMiseEnPage() {
         if (!fichier) { return; }
         ajouterPhotoAuDossier(fichier, function () {
           if (dossier.photo) { dossier.photo.inclure = true; }
-          naviguerVers('resultats');
+          rerendre();
         }, function (message) { alert(message); });
       });
     });
@@ -20407,8 +22196,29 @@ function _wireCarteSimpleMiseEnPage() {
   // « Style rapide » en allure STANDARD (decision de Denis, 2026-10-07 : ce tirage etait tres pauvre, 13 de ses 19 reglages etaient remis a leur valeur d'avant) : une ambiance
   // tiree au hasard (jamais la meme deux fois de suite), puis des variantes visuelles prises dans ce que les modeles savent deja faire. Jamais le contenu, jamais le nombre de colonnes
   // de la personne. Sobre et Creatif gardent leur propre fonctionnement (un modele de la galerie apres l'autre). Tout le tirage = une seule etape d'annulation.
+  // Tire les formes decoratives du style aleatoire (regles et geometrie : _formesDecoAuHasard, cvPdfFormesDeco.js). Les zones interdites (photo et nom) sont mesurees sur la page affichee.
+  function _mepTirageFormesDeco(w) {
+    try {
+      if (typeof _formesDecoAuHasard !== 'function') { return; }
+      var page = w.document.querySelector('#conteneurPage .page-a4'); if (!page) { return; }
+      var pr = page.getBoundingClientRect(), k = (page.offsetWidth && pr.width) ? pr.width / page.offsetWidth : 1, interdits = [];
+      Array.prototype.forEach.call(page.querySelectorAll('.photo-mq, .nom'), function (e) { var r = e.getBoundingClientRect(); if (r.width > 0 && r.height > 0) { interdits.push({ x: (r.left - pr.left) / k - 6, y: (r.top - pr.top) / k - 6, w: r.width / k + 12, h: r.height / k + 12 }); } });
+      // Tout le texte du CV est interdit (decision de Denis, 24/10/2026) : les formes proposees ne vont que sur du blanc ; la personne seule decide d'en mettre une sur du texte.
+      var marcheurTexte = w.document.createTreeWalker(page, NodeFilter.SHOW_TEXT, null);
+      while (marcheurTexte.nextNode()) {
+        var noeudTexte = marcheurTexte.currentNode;
+        if (!/\S/.test(noeudTexte.nodeValue) || !noeudTexte.parentElement || /^(STYLE|SCRIPT)$/.test(noeudTexte.parentElement.tagName)) { continue; }
+        var plageTexte = w.document.createRange(); plageTexte.selectNodeContents(noeudTexte);
+        Array.prototype.forEach.call(plageTexte.getClientRects(), function (r) { if (r.width > 0 && r.height > 0) { interdits.push({ x: (r.left - pr.left) / k - 4, y: (r.top - pr.top) / k - 4, w: r.width / k + 8, h: r.height / k + 8 }); } });
+      }
+      (window._mepInterditsDecor || []).forEach(function (z) { interdits.push(z); });   // le decor ajoute (equerre, ruban, quarts de cercle) : les formes libres s'en tiennent a distance
+      _mepFormeDecoCourante = 0;
+      _mepAppelerIframePdf('_pdfDefinirFormesDeco', _formesDecoAuHasard({ pageL: page.offsetWidth, pageH: page.offsetHeight, interdits: interdits }));
+    } catch (e) { /* un plus : le tirage reste valable sans les formes */ }
+  }
   window._mepTirageStandardRiche = function () {
     if (_mepAllureActuelle() !== 'defaut') { return false; }
+    window._mepInterditsDecor = [];   // pas de decor tire pour l'instant : les formes libres n'ont rien a eviter
     var tire = function (t) { return t[Math.floor(Math.random() * t.length)]; };
     var chance = function (p) { return Math.random() < p; };
     var w = null; try { w = document.querySelector('#zonePdfInlineCV iframe').contentWindow; } catch (e) { return false; }
@@ -20433,6 +22243,8 @@ function _wireCarteSimpleMiseEnPage() {
       var coin = chance(0.25);
       try { if (coin && !w._pdfCoinCouleurPossible()) { coin = false; } } catch (e) { coin = false; }
       voulu('_cvPdfCoinCouleur', '_pdfBasculerCoinCouleur', coin);
+      // Formes decoratives (Denis, 2026-10-20) : 1 a 4 formes au hasard, jamais sur la photo ni sur le nom ; avec « Garder mes formes », le tirage n'ajoute, ne change et ne retire AUCUNE forme.
+      if (!_mepGarderFormes()) { _mepTirageFormesDeco(w); }
     } finally { _mepHistoGele = false; }
     _mepLookActif = null;
     return true;
@@ -20757,6 +22569,15 @@ function _wireCarteSimpleMiseEnPage() {
     });
   });
   // Forme des puces : un seul choix pour toutes les listes a puces (« rond » = comportement d'avant, rien d'ecrit).
+  document.querySelectorAll('[data-mep-titrescasse]').forEach(function (b) {
+    b.addEventListener('click', function () { var v = this.getAttribute('data-mep-titrescasse'); _mepDefinirChoixMq('titresCasse', v || null); });
+  });
+  document.querySelectorAll('[data-mep-titresesp]').forEach(function (b) {
+    b.addEventListener('click', function () { _mepDefinirChoixMq('titresEspaces', this.getAttribute('data-mep-titresesp') === 'oui' ? true : null); });
+  });
+  document.querySelectorAll('[data-mep-sepexp]').forEach(function (b) {
+    b.addEventListener('click', function () { var v = this.getAttribute('data-mep-sepexp'); _mepDefinirChoixMq('separateurExp', v || null); });
+  });
   document.querySelectorAll('[data-mep-formepuce]').forEach(function (b) {
     b.addEventListener('click', function () { var v = this.getAttribute('data-mep-formepuce'); _mepDefinirChoixMq('formePuce', v === 'rond' ? null : v); });
   });
@@ -20979,7 +22800,6 @@ function _wireCarteSimpleMiseEnPage() {
       _mepDernierMessageMEP = ''; // TACHE (retour Denis 2026-09-27, P6) : voir lancerTirageAuHasard plus haut.
       _mepClicMoteur(null, 'pdfChoisirCreatif_' + id);
       _mepSyncColonnesDepuisMoteur();
-      _mepAppliquerBordSouhaite(id);
       setTimeout(rerendre, 30);
     });
   });
@@ -21060,6 +22880,9 @@ function _wireCarteSimpleMiseEnPage() {
   });
   document.querySelectorAll('[data-mep-grands-boutons]').forEach(function (bt) {
     bt.addEventListener('click', function () { var p = preferencesAffichageActuelles(); p.grandsBoutons = (p.grandsBoutons === '1') ? '0' : '1'; appliquerPreferencesAffichage(p); });
+  });
+  document.querySelectorAll('[data-mep-barre-profil]').forEach(function (cb) {
+    cb.addEventListener('change', function () { _mepPousserHistorique('barreProfil'); _mepDefinirChoixMq('barreProfil', this.checked ? true : null); });
   });
   document.querySelectorAll('[data-mep-dates-adapter]').forEach(function (cb) {
     cb.addEventListener('change', function () { _mepPousserHistorique('datesAdapter'); _mepDefinirChoixMq('adapterDatesCote', this.checked ? null : false); });
@@ -21640,7 +23463,7 @@ function _wireCarteSimpleMiseEnPage() {
         // TACHE (retour Denis 2026-09-27, P4) : le panneau s'ouvre direct-
         // ement sur l'aperçu de la suggestion deja selectionnee (la
         // 1re, par defaut), jamais sur une simple description a lire.
-        _mepPrevisualiserSuggestion(_mepSuggSelection);
+        if (_mepSuggSelection >= 0) { _mepPrevisualiserSuggestion(_mepSuggSelection); }
       } else {
         // Fermer sans avoir clique "Appliquer" retrouve le CV d'avant.
         _mepAnnulerPreviewSuggestion();
@@ -21654,6 +23477,7 @@ function _wireCarteSimpleMiseEnPage() {
   document.querySelectorAll('[data-mep-sugg-choisir]').forEach(function (b) {
     b.addEventListener('click', function () {
       _mepSuggSelection = parseInt(this.getAttribute('data-mep-sugg-choisir'), 10);
+      _mepSuggCarteChoisie = true;   // la personne a compris : les cartes cessent de pulser
       _mepPrevisualiserSuggestion(_mepSuggSelection);
       rerendre();
     });
@@ -21661,8 +23485,8 @@ function _wireCarteSimpleMiseEnPage() {
   document.querySelectorAll('[data-mep-sugg-page]').forEach(function (b) {
     b.addEventListener('click', function () {
       _mepSuggPage = Math.max(0, _mepSuggPage + parseInt(this.getAttribute('data-mep-sugg-page'), 10));
-      _mepSuggSelection = _mepSuggPage * 3;
-      _mepPrevisualiserSuggestion(_mepSuggSelection);
+      _mepSuggSelection = -1;
+      _mepAnnulerPreviewSuggestion();
       rerendre();
     });
   });
@@ -21846,6 +23670,8 @@ function _wireCarteSimpleMiseEnPage() {
   if (btnMepValider) {
     btnMepValider.addEventListener('click', _mepValiderCVEtExporter);
   }
+  var btnMepAjouterComplement = document.getElementById('btnMepAjouterComplement');
+  if (btnMepAjouterComplement) { btnMepAjouterComplement.addEventListener('click', ouvrirFenetreComplementCV); }
   setTimeout(_mepMajInfoPage, 0);
   var btnMepAide = document.getElementById('btnMepAide');
   if (btnMepAide) {
@@ -21892,11 +23718,35 @@ function _wireCarteSimpleMiseEnPage() {
       // une fois un autre modele en place, au meme titre que "Annuler"/
       // "Revenir au modele de depart" qui l'effacent deja plus bas.
       _mepDernierMessageMEP = '';
+      _mepConserverApercuPendant(4000);
       _mepClicMoteur('btnProposerModeleXXL', 'btnStyleAleatoire');
       _mepSyncMiroirAllure();
       _mepSyncColonnesDepuisMoteur();
-      if (window._mepTirageStandardRiche) { window._mepTirageStandardRiche(); }
-      setTimeout(rerendre, 30);
+      // Retour de Denis (24/10/2026) : un clic sur le de refaisait la page DEUX fois (une fois pour le style, une seconde pour bandeau, colonne et formes). Tout est maintenant tire d'abord,
+      // puis la page n'est refaite qu'UNE fois. Les retraits (croisement, decor, formes d'un autre modele) se font ici, avant le tirage, comme le rendu les faisait.
+      try {
+        var cleAvantTirage = _mepCleModeleActuel();
+        if (_mepModeleVu && _mepModeleVu !== cleAvantTirage) {
+          if (_croisementActif(_mepCroisement())) { _mepAppelerIframePdf('_pdfDefinirCroisement', {}); }
+          if (_decorActif(_mepDecor())) { _mepAppelerIframePdf('_pdfDefinirDecor', {}); }
+          if (!_mepGarderFormes() && _mepFormesDeco().length) { _mepFormeDecoCourante = 0; _mepAppelerIframePdf('_pdfDefinirFormesDeco', []); }
+        }
+        _mepModeleVu = cleAvantTirage;
+      } catch (errRetraits) { /* le rendu refera ces retraits */ }
+      var decorTire = false;
+      if (window._mepTirageStandardRiche) { decorTire = !!window._mepTirageStandardRiche(); }
+      _mepTirageDecorDeja = decorTire && !_mepGarderFormes();
+      var tirageFait = null;
+      try {
+        var cleTirage = _mepCleModeleActuel(), etatTirage = _mepEtatFormesActuel();
+        var kindsTirage = _mepKindsDuModele(cleTirage, etatTirage).concat(['formes']);
+        if (_mepCompositionDispo(cleTirage, etatTirage)) {
+          if (_mepComposition()) { kindsTirage = kindsTirage.filter(function (k) { return k !== 'bandeau' && k !== 'colonne'; }); }
+          kindsTirage.splice(kindsTirage.indexOf('formes'), 0, 'composition');
+        }
+        if (typeof window._mepTirerFormesCv === 'function') { tirageFait = window._mepTirerFormesCv(cleTirage, etatTirage, kindsTirage); }
+      } catch (errTirage) { tirageFait = null; _mepTirageFormesEnAttente = true; }
+      if (!tirageFait) { setTimeout(rerendre, 30); }   // sinon le tirage a deja demande la (seule) reconstruction
     };
     // TACHE (retour utilisateur 2026-09-14, "le clic est volontaire, la
     // personne sait que ca va tout changer -- annuler existe deja comme
@@ -21922,10 +23772,11 @@ function _wireCarteSimpleMiseEnPage() {
       _mepPousserHistorique('miseEnPage');
       _mepDernierMessageMEP = '';
       _mepSuggestions = []; _mepSuggestionsOuvert = false; _mepSuggestionAppliquee = -1; _mepSuggAppliquees = [];
+      _mepConserverApercuPendant(15000);   // le calcul peut durer plusieurs secondes ; le message arrive ensuite
       _mepClicMoteur('btnMiseEnFormeUltimeXXL', 'btnMiseEnPage');
       // Le calcul est differe (parfois plus de 10 s sur un long CV) : le panneau (iframe) envoie lui-meme son message ici quand il a fini
       // (_mepMessageMEPRecu), meme si l'iframe a ete reconstruite entre-temps.
-      setTimeout(rerendre, 30);
+      _mepDemanderRebuild();
     });
   }
 
@@ -22024,6 +23875,10 @@ function pageResultats() {
   // Module « Un CV, plusieurs metiers » (modules/un-cv-plusieurs-metiers) : l'editeur de CV est celui de cette page. Le drapeau grise « accroche longue »
   // (seules les accroches courtes sont proposees dans ce module) ; il retombe des qu'on quitte cette page (voir naviguerVers).
   window._modeModuleUcpm = (_pageOrigineAvantResultats === 'un-cv-plusieurs-metiers');
+  // Voie 3 de « Reprendre mon CV » (Lot 7) : le CV vient d'etre ecrit a la main, sans assistant, par modules/cv-sans-assistant. Pas de 2e passage de l'assistant, et la barre d'etapes est celle de la voie.
+  window._modeVoie3Csa = (_pageOrigineAvantResultats === 'cv-sans-assistant') && !!(dossier && dossier.modeFidele);
+  // Retour Denis 2026-10-19 : tant que la personne n'a pas choisi (importer ou passer) pour le complément du CV, elle ne voit pas la page de création.
+  if (!window._modeModuleUcpm && !window._modeVoie3Csa && !window._decouverteVersResultats && docActifActuel() === 'cv' && complementCVEnAttente() && reponseIAImportee('cv')) { pageComplementCV(); return; }
   // TACHE (retour utilisateur : "je suis en train de faire mon CV, la carte
   // est bleue 'Sélectionné', mais rien ne s'affiche en dessous") : carteChoisie
   // se basait sur dossier.dernierDocumentPrepare, qui ne se remplit qu'a des
@@ -22048,6 +23903,9 @@ function pageResultats() {
   var depuisDecouverte = !!window._decouverteVersResultats || !!(dossier && dossier.decouverteTerminee);
   var docActif = depuisDecouverte ? 'cv' : docActifActuel();
   var carteChoisie = !!docActif;
+  // « Voir nos modèles » (modules/cv-modeles-gardes) : l'essai (CV d'exemple) et, pour un vrai CV, le dernier modèle gardé déjà posé à l'arrivée.
+  var essaiModeles = (typeof mgEssaiActif === 'function') && mgEssaiActif();
+  if (typeof mgAppliquerArrivee === 'function') { mgAppliquerArrivee(docActif); }
   // TACHE (refonte page "Créer mon CV", 2026-09-02) : dans le parcours guidé
   // "Créer un nouveau CV", tant que le CV n'est pas terminé, le sélecteur
   // CV / Lettre / Entretien est un faux choix (Lettre et Entretien grisés) et
@@ -22067,7 +23925,13 @@ function pageResultats() {
   // "Adaptation au metier" + un 2e passage IA ici serait sans effet reel
   // (la lettre est deja ecrite) et pretement redondant. Meme garde que
   // creationCvGuidee/depuisDecouverte plus bas.
-  var venantDeCoLettre = !!(dossier && dossier._origineCoLettre);
+  // Retour de Denis, 24/10/2026 : une fois la lettre importee (aussi par « Preparer ma lettre et mon entretien »), la page ne montre plus que la mise en page,
+  // sans « Adaptation au metier » ni choix de l'assistant.
+  var venantDeCoLettre = coLettreEnCoursLettreCo(dossier, docActif) || lettreDejaImportee(docActif);
+  // Même idée pour « M'entraîner à un entretien » (D1 à D3 du chantier ATS et Entretien, 2026-10-19) : la préparation vient d'être importée par le module,
+  // « Adaptation au métier » et le second passage de l'assistant n'ont plus de sens ici. Pas de drapeau mémorisé (jamais remis à zéro pour la lettre) :
+  // on lit la page d'où l'on vient, comme pour le Bilan et « Un CV, plusieurs métiers ».
+  var venantDeEntretien = (docActif === 'entretien' && _pageOrigineAvantResultats === 'prepa-entretien');
   // TACHE (retour utilisateur 2026-09-14, "choisissez votre action fait
   // doublon avec ce que j'ai plus bas") : jusqu'ici, ce selecteur
   // reapparaissait une fois dossier.cvTermine vrai -- a l'epoque ou ce
@@ -22496,7 +24360,7 @@ function pageResultats() {
     // l'arrivée (voir le garde-fou plus haut) ; la 1re vraie étape est "Infos".
     accordeonAdaptation = styleAdaptationMetier +
       '<details class="adapt-facultatif">' +
-      '<summary>&#127912; Régler le style du texte du CV <span class="adapt-facultatif-tag">facultatif</span></summary>' +
+      '<summary>&#127912; Régler le style du texte du CV <span class="adapt-facultatif-tag">à compléter</span></summary>' +
       '<div class="adapt-facultatif-corps">' +
       '<p class="adapt-groupe-aide" style="margin:.3rem 0 .85rem;">Sans réglage, l’assistant adapte le style à votre métier et à votre parcours. ' +
       'Ces choix orientent seulement l’assistant, ils n’apparaissent jamais dans votre CV.</p>' +
@@ -22617,10 +24481,8 @@ function pageResultats() {
     // maintenant") : le lien "Revoir mon CV" (introduit le 2026-09-15) est
     // retire, sur demande explicite -- plus de bouton du tout ici pour ce
     // geste, jamais remplace par un autre.
-    suggestionSuivante = '<div class="text-center border rounded p-3 mt-3" style="background:var(--bg-subtle);">' +
-      '<p class="small mb-2">On peut préparer ensemble l’entretien d’embauche, à partir de cette lettre et du CV créé précédemment.</p>' +
-      '<button type="button" id="btnSuggererEntretien" class="btn btn-outline-primary">&#127908; Préparation à l’entretien</button>' +
-      '</div>';
+    // Decision 68 (Denis, 24/10/2026) : la suite vers l'entretien n'apparait qu'une fois la lettre recuperee (telechargee ou copiee), pas avant.
+    suggestionSuivante = (!_parcoursRapide() && dossier.documentsEnregistres && dossier.documentsEnregistres.lettre) ? _htmlSuiteEntretienApresLettre() : '';
   } else if (docActif === 'entretien') {
     // TACHE (retour utilisateur 2026-09-15) : l'entretien n'avait ICI
     // absolument aucune suggestion (contrairement a cv/lettre) -- avec le
@@ -22637,8 +24499,13 @@ function pageResultats() {
     // TACHE (retour utilisateur 2026-09-16, meme demande que pour la lettre
     // juste au-dessus dans ce fichier) : "Revoir mon CV" retire ici aussi.
     var lettreExisteDejaEntretien = !!dossier.lettreTerminee;
-    suggestionSuivante = '<div class="text-center border rounded p-3 mt-3" style="background:var(--bg-subtle);">' +
-      (lettreExisteDejaEntretien
+    suggestionSuivante = _parcoursRapide() ? '' : '<div class="text-center border rounded p-3 mt-3" style="background:var(--bg-subtle);">' +
+      // Venu du module « M'entraîner à un entretien » : on propose le module de la lettre (même interface que l'entretien), jamais l'ancien parcours « Vos documents »
+      // (demande de Denis, 2026-10-19). Le module lettre a son propre dépôt de CV (`_coLettreDocument`, distinct de `_prepaEntretienDocumentCv`) : le CV y est redemandé (constaté au code, 2026-10-19).
+      (venantDeEntretien
+        ? '<p class="small mb-2">' + (lettreExisteDejaEntretien ? 'Vous avez déjà écrit une lettre : vous pouvez la retrouver ou en écrire une nouvelle.' : 'Vous pouvez aussi écrire votre lettre de motivation avec l’assistant.') + '</p>' +
+          '<button type="button" id="btnSuggererLettreModule" class="btn btn-outline-primary">&#9993; Écrire ma lettre avec l’assistant</button>'
+        : lettreExisteDejaEntretien
         ? '<p class="small mb-2">Vous pouvez revoir les documents déjà préparés à tout moment.</p>' +
           '<button type="button" id="btnRevoirLettreDepuisEntretien" class="btn btn-outline-secondary btn-sm">&#8592; Revoir ma lettre</button>'
         : '<p class="small mb-2">On peut aussi préparer votre lettre de motivation, à partir de ce même CV.</p>' +
@@ -22667,11 +24534,14 @@ function pageResultats() {
   // reste FERME (simple en-tete, ni options ni message inquietant) tant que « Valider le CV » n'a pas
   // ete clique, pour le CV quel que soit le format de sortie choisi ensuite (Word OU PDF) -- avant,
   // ce verrou n'existait qu'en PDF, asymetrie qui n'a plus de sens une fois les 2 boutons cote a cote.
-  var exportVerrouille = docActif === 'cv' && !dossier.cvTermine;
-  var rectExporter = exportVerrouille
+  // Lettre : meme verrou (decision 68) : « Exporter » s'ouvre apres « Valider la lettre » (barre du bas).
+  var exportVerrouille = (docActif === 'cv' && !dossier.cvTermine) || (docActif === 'lettre' && !dossier.lettreTerminee) || (docActif === 'entretien' && !dossier.entretienTermine);
+  // Lettre (decision de Denis, 24/10/2026) : « Exporter » n'est pas visible du tout avant « Valider la lettre ».
+  var rectExporter = (exportVerrouille && (docActif === 'lettre' || docActif === 'entretien')) ? ''
+    : exportVerrouille
     ? '<div class="assistant-rect rect-verrouille" data-rect-doc="exporter-verrou" style="opacity:.7;">' +
       '<div class="assistant-rect-tete" style="cursor:default;"><span class="assistant-rect-ico" aria-hidden="true">&#128228;</span>' +
-      '<span class="assistant-rect-titre">Exporter<span class="assistant-rect-sous">s\'ouvrira apr&egrave;s &laquo;&nbsp;Valider le CV&nbsp;&raquo;</span></span></div></div>'
+      '<span class="assistant-rect-titre">Exporter<span class="assistant-rect-sous">s\'ouvrira apr&egrave;s &laquo;&nbsp;' + (docActif === 'lettre' ? 'Valider la lettre' : 'Valider le CV') + '&nbsp;&raquo;</span></span></div></div>'
     : rectDoc('exporter', '&#128228;', 'Exporter', sousTitreExport, contenuExporter);
 
   // TACHE (Phase 1 -- extraction "atelier CV", 2026-08-22) : le calcul du
@@ -22709,7 +24579,8 @@ function pageResultats() {
         // TACHE (chantier "La mise en page du CV", sous-etape 4a) : CV =
         // carte "niveau Simple" au-dessus du panneau existant ; lettre /
         // entretien = panneau existant inchange.
-        construireMiseEnPageCV(docActif));
+        // « Mes modèles » (modules/cv-modeles-gardes) : les modèles gardés avant de remplir, avec le texte de la personne ; sans modèle gardé, rien ne change.
+        mgEnvelopperMiseEnPage(docActif, construireMiseEnPageCV(docActif)));
 
   // TACHE (retour utilisateur : bandeaux hors parcours) : retires -- prevus
   // depuis le debut comme temporaires ("a garder tel quel jusqu'a ce que
@@ -22799,7 +24670,9 @@ function pageResultats() {
   // competences", sous-etape 6/8) : indices 6/7 (ex-5/6) -- DECOUVERTE_NAV_ETAPES
   // gagne un repere "Rediger mon CV" (index 5) entre "Completer" et "Mon CV",
   // qui devient donc l'index 6.
-  var barreHaut = depuisDecouverte
+  var barreHaut = essaiModeles ? mgHtmlBandeauEssai() : (window._modeVoie3Csa && typeof CSA_NAV_ETAPES !== 'undefined')
+    ? barreEtapesModule(CSA_NAV_ETAPES, 4) + (typeof _htmlBandeRevoirModule === 'function' ? _htmlBandeRevoirModule('bi-pencil-square', 'csaVoirPresentation()') : '')   // voie 3 : meme barre et meme bande que ses autres ecrans
+    : depuisDecouverte
     ? barreEtapesModule(DECOUVERTE_NAV_ETAPES, dossier.cvTermine ? 7 : 6)
     : ((window._modeModuleUcpm && typeof UCPM_NAV_ETAPES !== 'undefined'
       ? barreEtapesModule(UCPM_NAV_ETAPES, window._modeAspectUcpm ? 4 : 2)   // « Un CV, plusieurs metiers » : meme barre visuelle que le module, page 3 « Reference » (page 5 pour un aspect)
@@ -22815,14 +24688,19 @@ function pageResultats() {
   // tout a ete capte automatiquement, la personne doit verifier puis enregistrer.
   appliquerIdentiteCapteeAuDossier();
   var identiteAVerifier = !dossier.identiteEnregistree && Object.keys(_identiteCapteeMarques).some(function (c) { return _identiteCapteeMarques[c] && dossier.identite && dossier.identite[c]; });
+  // Lettre (demande de Denis, 24/10/2026) : les coordonnees lues dans le CV anonymise s'affichent d'emblee, pre-remplies, dans la page (pas derriere un bouton) ;
+  // la personne les verifie et les enregistre, puis la mise en page apparait.
+  // 25/10/2026 (retour Denis, point 9) : la vérification des coordonnées s'affiche ainsi dans tous les parcours du CV et de la lettre ; la fiche d'entretien n'en a pas besoin.
+  if (docActif !== 'entretien' && !dossier.identiteEnregistree && !identiteEntierementVide()) { identiteAVerifier = true; }   // (ni fiche d'entretien : pas d'identité)
   // Retour Denis 2026-09-30 : ce rectangle n'apparait que s'il reste des trous, ou si la personne n'a encore rien vu ni enregistre
   // dans « Vos informations ». Identite complete deja montree la-bas => on ne la redemande pas.
   var identiteDejaVerifiee = !!(_identiteMontreeEnVosInfos && identitePeutEtreEnregistree() && !_coordonneesRectangleOuvert);
-  var bandeauCoordonneesManquantes = !identiteDejaVerifiee && (identiteEntierementVide() || !identitePeutEtreEnregistree() || identiteAVerifier || _coordonneesRectangleOuvert) && !dossier.identiteEnregistree
+  // 25/10/2026 (retour Denis) : la fiche d'entretien, rapide comme approfondie, n'a pas besoin de l'identité : aucun panneau de coordonnées.
+  var bandeauCoordonneesManquantes = docActif !== 'entretien' && !identiteDejaVerifiee && (identiteEntierementVide() || !identitePeutEtreEnregistree() || identiteAVerifier || _coordonneesRectangleOuvert) && !dossier.identiteEnregistree
     ? '<div class="cv-section" id="rectangleCoordonneesDocuments" style="border-left:3px solid var(--warning-border);background:var(--warning-bg-subtle);">' +
       '<p class="mb-2" style="color:var(--warning-strong);"><strong>&#9888;&#65039; ' +
-      (identiteAVerifier ? 'Vos coordonnées ont été repérées dans votre CV : vérifiez-les.' : 'Il manque vos coordonnées.') + '</strong> ' +
-      'Sans elles, votre CV ne pourra pas être finalisé.</p>' +
+      (identiteAVerifier ? 'Vos coordonnées ont été repérées dans votre CV : vérifiez-les.' : (docActif === 'entretien' ? 'Il manque votre nom pour l’en-tête de la fiche.' : 'Il manque vos coordonnées.')) + '</strong> ' +
+      (docActif === 'entretien' ? 'Vous pouvez compléter vos coordonnées, ou télécharger la fiche sans.' : (docActif === 'lettre' ? 'Vérifiez-les et enregistrez-les : la mise en page de votre lettre s’affiche ensuite.' : (identiteAVerifier ? 'Vérifiez-les et enregistrez-les pour continuer.' : 'Sans elles, votre CV ne pourra pas être finalisé.'))) + '</p>' +
       (_coordonneesRectangleOuvert || identiteAVerifier
         ? '<div id="zoneIdentiteChamps">' + contenuIdentiteChamps() + '</div>'
         : '<button type="button" class="btn btn-sm btn-outline-secondary" id="btnOuvrirCoordonneesDocuments">&#8594; Compléter mes coordonnées</button>') +
@@ -22843,7 +24721,7 @@ function pageResultats() {
   // CV que Decouverte produit joue deja ce role, une seule fois. Calcule ici
   // (avant le grand enchainement de "+" ci-dessous) car une affectation
   // `var` ne peut pas s'inserer au milieu d'une expression.
-  var secondPasseIARequise = !window._decouverteVersResultats && !creationCvGuidee && !venantDeCoLettre;
+  var secondPasseIARequise = !window._decouverteVersResultats && !window._modeVoie3Csa && !creationCvGuidee && !venantDeCoLettre && !venantDeEntretien;
   // TACHE (retour utilisateur 2026-09-16, meme jour -- bug reel confirme,
   // "cul-de-sac" : import de lettre reussi, mais Vos documents restait
   // bloque sur "Terminez d'abord Choisir ce qui ira sur le CV") : le
@@ -22885,7 +24763,14 @@ function pageResultats() {
     // qu'il n'aiderait.
     // TACHE (refonte parcours guide, sous-etape 5.6) : titre unique "Vos
     // documents" (la barre d'etapes dit deja ca), fin du "Passons a l'action".
-    '<div class="text-center"><h1>&#128196; Vos documents</h1></div>' +
+    // 25/10/2026 (retour Denis, point 5) : en version rapide le grand titre est le nom du parcours choisi, sans pastille (elle reste sur la tuile, la présentation et la carte).
+    '<div class="text-center"><h1>&#128196; ' + (essaiModeles ? 'Nos modèles de CV' : venantDeEntretien ? 'Votre préparation d’entretien' : titreParcoursRapideSiBesoin(docActif, venantDeEntretien) || 'Vos documents') + '</h1></div>' +
+    // Maquette validée par Denis (docs/MAQUETTE_SORTIE_ENTRETIEN_2026-10-19.html) : confirmation juste après l'import du module Entretien.
+    (venantDeEntretien && dossier.ia && dossier.ia.entretien && dossier.ia.entretien.presentation
+      ? '<div class="cv-section" id="encartPreparationEnregistree" style="border-left:4px solid var(--success);background:var(--success-bg-subtle);">' +
+        '<p class="mb-1"><strong>&#9989; Votre préparation est enregistrée.</strong></p>' +
+        '<p class="mb-0" style="color:var(--text-muted);font-size:.9rem;">Elle contient votre présentation, les points à préparer, vos questions probables et les questions à poser au recruteur.</p></div>'
+      : '') +
     // Le selecteur CV / Lettre / Entretien : garde quand il a du sens (masque
     // pour Decouverte et pour 'nouveau' tant que le CV n'est pas termine).
     ((depuisDecouverte || masquerFauxChoixCv) ? '' : selecteurDocument) +
@@ -22906,10 +24791,10 @@ function pageResultats() {
           // professionnelles (ex-sectionExperiences) ne sont plus rajoutees
           // ici -- leur edition est deja terminee sur l'etape dediee du
           // parcours (voir plus haut).
-          (depuisDecouverte
+          (essaiModeles ? '' : depuisDecouverte
             ? boiteCoordonnees
             : bandeauCoordonneesManquantes) +
-          ((depuisDecouverte || creationCvGuidee || venantDeCoLettre) ? '' : accordeonAdaptation) +
+          ((depuisDecouverte || creationCvGuidee || venantDeCoLettre || venantDeEntretien || window._modeVoie3Csa) ? '' : accordeonAdaptation) +   // voie 3 : aucun reglage « pour l'assistant »
           // TACHE (retour utilisateur 2026-09-16, bug reel confirme : "il n'y
           // a pas de 2e passage IA -- j'arrive direct sur le format, avec un
           // CV tronque/incoherent") : pour 'pret'/'maj' uniquement -- jamais
@@ -22950,9 +24835,11 @@ function pageResultats() {
               // en-tete toujours visible, cliquable, qui garde la capacite
               // de rouvrir. Cablage dedie plus bas (brancherEvenementsResultats).
               // Decision Denis 2026-09-29 : seulement une fois la reponse de l'assistant importee.
-              ((estDocCv && reponseIAImportee(docActif)) ? rectangleAssistant('relecture-ia', '&#128209;', 'Ce que l’assistant a préparé',
+              // Retour Denis 2026-10-19 : une fois les choix validés (la mise en page est accessible), « Ce que l'assistant a préparé » et « Compléter mon CV » n'ont plus de valeur
+              // ajoutée sur cette page : ils disparaissent. Le complément encore attendu garde sa bannière (injecterBanniereComplementCV) ; « Retour » ramène à l'étape d'avant.
+              ((estDocCv && reponseIAImportee(docActif) && !secondPasseIAValidee) ? rectangleAssistant('relecture-ia', '&#128209;', 'Ce que l’assistant a préparé',
                 (_relectureIAValideeParType[docActif] ? 'choix validés' : ''), contenuRectangleRelectureIA()) : '') +
-              ((estDocCv && reponseIAImportee(docActif)) ? rectangleComplementCV() : '')
+              ((estDocCv && reponseIAImportee(docActif) && !secondPasseIAValidee) ? rectangleComplementCV() : '')
             : '') +
           // TACHE (sous-etape 5.8, MAQUETTE_VOS_DOCUMENTS v3) : trois rectangles
           // depliants (rectDoc / _rectDocOuvert), un seul ouvert a la fois,
@@ -22966,13 +24853,14 @@ function pageResultats() {
           // passage IA (juste au-dessus) n'est pas valide -- jamais visibles
           // avant, pour ne pas laisser croire que le CV est deja pret.
           ((!secondPasseIARequise || secondPasseIAValidee)
-            ? rectMiseEnPage + rectExporter
+            // Lettre (demande de Denis, 24/10/2026) : la mise en page n'apparait qu'une fois l'identite verifiee et enregistree dans le rectangle ci-dessus.
+            ? (essaiModeles || (typeof mgMasquerExporterVerrouille === 'function' && mgMasquerExporterVerrouille(docActif)) ? rectMiseEnPage : (docActif === 'lettre' && bandeauCoordonneesManquantes) ? '' : (docActif === 'cv' || docActif === 'lettre' || docActif === 'entretien') ? ((!exportVerrouille && _rectDocOuvert === 'exporter') ? rectExporter : rectMiseEnPage) : rectMiseEnPage + rectExporter)
             : '<p class="assistant-aide text-center" style="margin-top:1rem;">' +
               (estDocCv
                 ? 'Importez d’abord la réponse de l’assistant ci-dessus : ses propositions s’appliquent alors toutes seules et la mise en forme devient accessible.'
                 : 'Importez d’abord la réponse de l’assistant ci-dessus : la mise en forme sera alors accessible.') +
               '</p>') +
-          suggestionSuivante
+          (essaiModeles ? '' : _htmlEncartVersApprofondi(docActif, coLettreEnCoursLettreCo(dossier, docActif), venantDeEntretien) + suggestionSuivante)
         )
       : '') +
     // TACHE (bouton "Merci bien, j'ai fini") : n'apparait que si le document
@@ -22998,23 +24886,28 @@ function pageResultats() {
     // voir bilanNaviguerVersResultats()) : ni l'un ni l'autre ne convient
     // ici. La priorite "venu du Bilan" passe donc AVANT le calcul habituel
     // (document enregistre ou non), quel que soit l'etat d'enregistrement.
-    '<div class="barre-navigation-fixe">' + (window._modeModuleUcpm && typeof ucpmBarreDepuisEditeur === 'function'
+    '<div class="barre-navigation-fixe">' + (essaiModeles ? mgBarreEssai() : window._modeModuleUcpm && typeof ucpmBarreDepuisEditeur === 'function'
       ? ucpmBarreDepuisEditeur()   // « Un CV, plusieurs metiers » : Retour au module et « Ce CV me convient », voir modules/un-cv-plusieurs-metiers/page3Reference.js
       : (_pageOrigineAvantResultats === 'bilan'
       ? barreNavigation(cibleRetourResultats, 'bilan', 'Revenir au rapport', {
           onclickPrecedent: _retourResultats.onclickPrecedent
         })
-      : barreNavigation(cibleRetourResultats, null, null, {
+      : barreNavigation(cibleRetourResultats, null, null, _optionsRetourModifierLettre({
           terminerParcours: !!(dossier.documentsEnregistres && dossier.documentsEnregistres[docActif]),
           onclickPrecedent: _retourResultats.onclickPrecedent
-        }))) + '</div>';
+        })))) + '</div>';
   app.innerHTML = html;
+  _mepReprendreZoneVivante();
+  if (docActif === 'cv' && !essaiModeles) { _afficherEncartCvSansAssistant(); }
   // « Un CV, plusieurs metiers » : pour l'aspect d'un CV, seuls les panneaux d'aspect restent (le corps du CV est celui de la reference).
   if (window._modeAspectUcpm && typeof UCPM_CSS_ASPECT !== 'undefined') { app.insertAdjacentHTML('afterbegin', UCPM_CSS_ASPECT); }
+  // L'essai des modèles (modules/cv-modeles-gardes) : même masquage des panneaux de contenu, et le bouton « Garder ce modèle » sous l'aperçu.
+  if (essaiModeles) { app.insertAdjacentHTML('afterbegin', mgCssEssai()); }
 
   brancherEvenementsResultats();
   _wireCarteSimpleMiseEnPage();
   _barreAdopterBoutonEtape();
+  if (essaiModeles) { mgBrancherEssai(); } else if (typeof mgBrancherMesModeles === 'function') { mgBrancherMesModeles(); }
   // R15 : rectangle des coordonnees (ouverture + formulaire d'identite partage), page qui ne remonte pas.
   var rerendreCoordonnees = function () {
     var scrollY = window.scrollY;
@@ -23030,6 +24923,22 @@ function pageResultats() {
   }
 }
 var _coordonneesRectangleOuvert = false;
+
+// « Creer un nouveau CV » a la main, sans assistant (25/10/2026) : sur « Vos documents », un encart dit que les textes sont ceux de la personne, invite (sans l'imposer) a ecrire
+// la phrase d'accroche, et explique ce que l'assistant aurait ajoute. Dans la page (jamais une fenetre) ; lettre et entretien restent avec l'assistant, dit clairement.
+function _afficherEncartCvSansAssistant() {
+  if (typeof _creerCvSansAssistant !== 'function' || !_creerCvSansAssistant() || document.getElementById('encartCvSansAssistant')) { return; }
+  var cible = app.querySelector('.barre-etapes-bilan, .progression-etapes, .barre-etapes-module, .module-etapes');
+  if (!cible) { return; }
+  var accrocheVide = !(dossier.ia && dossier.ia.cv && dossier.ia.cv.profil);
+  cible.insertAdjacentHTML('afterend',
+    '<div class="cv-section" id="encartCvSansAssistant" role="note"><p class="mb-1"><strong>&#9997;&#65039; Vous avez fait votre CV à la main : vos textes sont exactement les vôtres.</strong></p>' +
+    (accrocheVide ? '<p class="mb-1">Il n’y a pas de phrase d’accroche toute faite. Vous pouvez en écrire une dans « La mise en page » (titre et phrase d’accroche), ou vous en passer.</p>' : '') +
+    '<details class="small"><summary>Voir ce que l’assistant en ligne aurait pu ajouter</summary>' +
+    '<ul class="mb-1" style="padding-left:1.25rem;"><li>une phrase d’accroche proposée ;</li><li>vos missions regroupées et reformulées ;</li><li>des compétences mises en situation et les qualités attendues pour le poste.</li></ul>' +
+    '<p class="mb-0">Vous pouvez toujours changer d’avis : « Retour » jusqu’à « Votre profil », puis choisir l’assistant.</p></details>' +
+    '<p class="small text-muted mb-0 mt-2">La lettre de motivation et la préparation d’entretien, proposées ensuite, se préparent avec l’assistant en ligne : vous les faites quand vous voulez, ou vous vous arrêtez ici.</p></div>');
+}
 
 // TACHE (integration module Bilan de candidature) : page dediee, en dehors
 // du tunnel CV/Lettre/Entretien -- outil independant, atteint depuis la
@@ -23770,7 +25679,6 @@ function htmlBilanPreparer() {
       : '<p>Déposez votre CV. Il est lu directement dans votre navigateur, <strong>il n’est envoyé nulle part</strong> pour l’instant.</p>' +
         '<div class="d-flex gap-2 flex-wrap">' +
         '<button type="button" id="btnPreparerDeposerCv" class="btn btn-primary btn-sm">Déposer mon CV</button>' +
-        '<button type="button" id="btnPreparerCollerCv" class="btn btn-outline-secondary btn-sm">Ou coller le texte</button>' +
         '</div>' +
         '<p class="preparer-detail"><strong>Tous les formats sont acceptés</strong> : PDF, Word, .txt, une photo ou une capture d’écran de votre CV. L’application reconnaît le format toute seule.</p>' +
         '<div id="preparerCollerZone" hidden class="mt-2">' +
@@ -23813,8 +25721,8 @@ function htmlBilanPreparer() {
   blocs.push(
     '<details class="bloc-depli' + (situationConnue ? ' bd-ok' : '') + '" id="preparerBloc3"' + (bloc3Ouvert ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">' + n + '</span><span class="preparer-titre">Votre situation et l’offre visée</span>' +
-    '<span class="preparer-oblig">facultatif</span>' +
-    '<span class="pilule-etat ' + (situationConnue ? 'pe-ok">' + echapperAttribut(objectifLabel) : 'pe-info">Facultatif &middot; conseillé si vous l’avez') + '</span></summary>' +
+    '<span class="preparer-oblig">à compléter</span>' +
+    '<span class="pilule-etat ' + (situationConnue ? 'pe-ok">' + echapperAttribut(objectifLabel) : 'pe-info">À compléter &middot; conseillé si vous l’avez') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
     (montrerBloc3
       ? '<p>Cela adapte l’analyse à votre situation réelle, notamment sur la façon dont votre savoir-être est valorisé. Sans réponse, vous aurez l’analyse habituelle - mais si vous connaissez votre situation, <strong>renseignez-la</strong>.</p>' +
@@ -23830,7 +25738,7 @@ function htmlBilanPreparer() {
         '<p class="preparer-detail">Cette information est réutilisée ailleurs dans l’application (elle a pu être renseignée pendant un autre parcours).</p>' +
         '<div class="mt-3 pt-3" style="border-top:1px solid var(--border);">'
       : '') +
-    '<p class="mb-1"><strong>Si vous connaissez déjà l’entreprise ou l’offre visée</strong>' + (montrerBloc3 ? ' <span class="assistant-badge-fac">facultatif</span>' : '') + '</p>' +
+    '<p class="mb-1"><strong>Si vous connaissez déjà l’entreprise ou l’offre visée</strong>' + (montrerBloc3 ? ' <span class="assistant-badge-fac">à compléter</span>' : '') + '</p>' +
     '<p class="preparer-detail">L’analyse en tient compte : le diagnostic et les corrections s’alignent sur les attentes du poste et sur le vocabulaire du type de structure.</p>' +
     // TACHE (retour Denis 2026-09-19) : "je veux emporter tout ce qui est
     // derriere ces cartes" -- remplace bilanCorpsCiblageOffreHTML() (saisie
@@ -23846,7 +25754,8 @@ function htmlBilanPreparer() {
     // Decision Denis 2026-09-29 : ni « Le poste que vous recherchez » (contrat,
     // temps, disponibilites) ni civilite/couleur d'entreprise : le Bilan ne les
     // lit pas, les remplir ne changerait rien au diagnostic.
-    htmlPanneauCandidaturePartage({ projet: false, sansCiviliteCouleur: true }) +
+    // Lot 4a (25/10/2026) : le composant « Votre candidature » de la lettre, tel quel (sans civilite ni couleur, que le Bilan ne lit pas).
+    (dossier.objectif ? '<div id="bilanComposantCandidature">' + htmlCandidatureComposant({ sansCiviliteCouleur: true }) + '</div>' : '') +
     (montrerBloc3 ? '</div>' : '') +
     '</div></details>'
   );
@@ -23862,7 +25771,7 @@ function htmlBilanPreparer() {
     // regle transversale que le reste de ce chantier, la condition
     // d'activation (cvPresent && relu) est recalculee A CHAQUE rendu sur
     // les donnees reelles, jamais un drapeau fige.
-    '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'bilan', 'Choisir mon assistant', {
+    '<div class="barre-navigation-fixe">' + barreNavigation('cv', 'bilan', 'Continuer', {
       onclickPrecedent: 'bilanRetour()', onclickSuivant: 'bilanPreparerContinuer()',
       suivantDesactive: !(cvPresent && relu),
       suivantDesactiveMessage: 'Déposez d’abord votre CV, puis relisez-le et masquez ce que vous ne voulez pas transmettre (partie 1).'
@@ -24041,11 +25950,11 @@ function htmlBilanEtapeImportIA(diagnostic) {
     '<h4>&#128229; De retour : collez la réponse</h4>' +
     '<p class="text-muted small mb-2">Vous revenez de ' +
     (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     htmlBanniereTransitionIA() +
     '<div class="bilan-zone-collage">' +
     htmlCollageInstantane('Bilan', {
-      messageImportInitial: echec ? '⚠️ La réponse collée précédemment n’a pas pu être lue. Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».' : '',
+      messageImportInitial: echec ? '⚠️ La réponse collée précédemment n’a pas pu être lue. Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».' : '',
       messageImportInitialErreur: echec
     }) +
     '</div>' +
@@ -24096,7 +26005,7 @@ function htmlBilanOrganisationColler() {
     '<h4>&#128229; De retour : collez la réponse</h4>' +
     '<p class="text-muted small mb-2">Vous revenez de ' +
     (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     htmlBanniereTransitionIA() +
     '<div class="bilan-zone-collage">' +
     htmlCollageInstantane('BilanOrganisation', {}) +
@@ -24298,7 +26207,7 @@ function brancherEvenementsOrganisationColler() {
       if (!resultat.succes) {
         msg.style.color = 'var(--danger)';
         msg.textContent = '⚠️ ' + (resultat.erreur || 'Cette réponse n’a pas pu être lue. Vérifiez qu’elle contient bien tout le bloc renvoyé par l’assistant.') +
-          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
         return;
       }
       dossier.imports = dossier.imports || {};
@@ -24561,7 +26470,7 @@ function htmlBilanCorrectionLotChiffres() {
       '<textarea class="form-control correction-lot-precision-champ mb-2" rows="3" placeholder="Racontez une situation vécue, ou laissez vide" data-correction-lot-precision-texte="' + echapperAttribut(reco.id) + '">' + echapperAttribut(saisie.texte || '') + '</textarea>' +
       (experiences.length
         ? '<select class="form-select form-select-sm correction-lot-precision-champ" data-correction-lot-precision-experience="' + echapperAttribut(reco.id) + '">' +
-          '<option value="">Cette réponse concerne (facultatif)...</option>' + options + '</select>'
+          '<option value="">Cette réponse concerne (à compléter)...</option>' + options + '</select>'
         : '') +
       '</div>';
   }).join('');
@@ -24747,7 +26656,7 @@ function htmlBilanCorrectionLotColler() {
     '<h4>&#128229; De retour : collez la réponse</h4>' +
     '<p class="text-muted small mb-2">Vous revenez de ' +
     (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     htmlBanniereTransitionIA() +
     '<div class="bilan-zone-collage">' +
     htmlCollageInstantane('CorrectionLot', {}) +
@@ -24847,7 +26756,7 @@ function brancherEvenementsCorrectionLotColler() {
       } catch (erreur) {
         msg.style.color = 'var(--danger)';
         msg.textContent = '⚠️ ' + ((erreur && erreur.message) || 'La réponse n’a pas pu être lue.') +
-          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
       }
     });
   }
@@ -25511,7 +27420,7 @@ function htmlBilanTitreAccrocheChoixIA() {
     '<div class="text-center"><h1><i class="bi bi-graph-up"></i> Analyser ma candidature</h1>' +
     '<p class="sousTitre">Générer un titre et une accroche, construits uniquement à partir du contenu réel de votre CV.</p></div>' +
     '<div class="cv-section bilan-etape-choix-ia">' +
-    '<div class="mb-3"><label class="form-label small fw-bold" for="champMetierViseGeneration">Métier visé (facultatif)</label>' +
+    '<div class="mb-3"><label class="form-label small fw-bold" for="champMetierViseGeneration">Métier visé (à compléter)</label>' +
     '<input type="text" class="form-control form-control-sm" id="champMetierViseGeneration" placeholder="Ex. Chargé de clientèle" value="' + echapperAttribut(metierConnu) + '"></div>' +
     '<h4>&#128172; Choisissez votre assistant</h4>' +
     htmlChoixAssistantBilanCorps({
@@ -25583,7 +27492,7 @@ function htmlBilanTitreAccrocheColler() {
     '<h4>&#128229; De retour : collez la réponse</h4>' +
     '<p class="text-muted small mb-2">Vous revenez de ' +
     (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     htmlBanniereTransitionIA() +
     '<div class="bilan-zone-collage">' +
     htmlCollageInstantane('TitreAccroche', {}) +
@@ -25678,7 +27587,7 @@ function brancherEvenementsTitreAccrocheColler() {
         pageBilanCandidature();
       } catch (erreur) {
         msg.style.color = 'var(--danger)';
-        msg.textContent = '⚠️ Réponse illisible ou incomplète, merci de vérifier le texte collé. Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+        msg.textContent = '⚠️ Réponse illisible ou incomplète, merci de vérifier le texte collé. Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
       }
     });
   }
@@ -25782,7 +27691,7 @@ function bilanOuvrirGenerationTitreAccroche() {
     taille: 'large',
     contenuHTML:
       '<p class="small text-muted mb-2">Construit uniquement à partir du contenu réel de votre CV. Si vous visez un métier précis, précisez-le ci-dessous pour une proposition plus ciblée.</p>' +
-      '<div class="mb-3"><label class="form-label small fw-bold" for="champMetierViseGeneration">Métier visé (facultatif)</label>' +
+      '<div class="mb-3"><label class="form-label small fw-bold" for="champMetierViseGeneration">Métier visé (à compléter)</label>' +
       '<input type="text" class="form-control form-control-sm" id="champMetierViseGeneration" placeholder="Ex. Chargé de clientèle" value="' + echapperAttribut(metierConnu) + '"></div>' +
       '<div id="' + idErreur + '" class="small mb-2" style="display:none;color:var(--danger);"></div>' +
       '<p class="small text-muted mb-2">Choisissez un assistant :</p>' +
@@ -27622,7 +29531,7 @@ function htmlBilanAssistancePreparationChiffres() {
       '<textarea class="form-control assistance-precision-champ mb-2" rows="3" placeholder="Racontez une situation vécue, ou laissez vide" data-assistance-precision-texte="' + echapperAttribut(reco.id) + '">' + echapperAttribut(saisie.texte || '') + '</textarea>' +
       (experiences.length
         ? '<select class="form-select form-select-sm assistance-precision-champ" data-assistance-precision-experience="' + echapperAttribut(reco.id) + '">' +
-          '<option value="">Cette réponse concerne (facultatif)...</option>' + options + '</select>'
+          '<option value="">Cette réponse concerne (à compléter)...</option>' + options + '</select>'
         : '') +
       '</div>';
   }).join('');
@@ -28077,7 +29986,7 @@ function htmlBilanAssistanceLotColler() {
     '<h4>&#128229; De retour : collez la réponse</h4>' +
     '<p class="text-muted small mb-2">Vous revenez de ' +
     (_etatTransitionIA ? '<strong>' + echapperAttribut(_etatTransitionIA.nomAssistant) + '</strong>' : 'l’assistant') +
-    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     htmlBanniereTransitionIA() +
     '<div class="bilan-zone-collage">' +
     htmlCollageInstantane('AssistanceLot', {}) +
@@ -28177,7 +30086,7 @@ function brancherEvenementsAssistanceLotColler() {
       } catch (erreur) {
         msg.style.color = 'var(--danger)';
         msg.textContent = '⚠️ ' + ((erreur && erreur.message) || 'La réponse n’a pas pu être lue.') +
-          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
       }
     });
   }
@@ -28475,12 +30384,15 @@ function bilanTerminerAgirVersCloture() {
 function bilanOuvrirFenetreCandidature() {
   var o = dossier.objectif;
   var estStageAlternance = (o === 'stage' || o === 'alternance' || o === 'pmsmp' || o === 'formation');
+  // E1.2 (24/10/2026) : offre, candidature spontanee et changer de metier prennent la logique de la lettre (offre sans offre = spontanee, formes de la spontanee,
+  // champs demarques) ; sans les disponibilites, deja dans « Mon projet ». Stage, alternance, immersion et formation gardent leur ecran.
+  var unifie = !estStageAlternance && (o === 'offre' || o === 'spontanee' || o === 'reconversion');
   function rendre() {
     // TACHE (6conv-3) : rendu au style unifie (jetons). Remis a false juste
     // apres la construction du HTML ; le cablage s'appuie sur le rendu.
     _renduInfosUnifie = true;
     var contenuHTML = '<div class="cv-section">' +
-      (estStageAlternance ? contenuCandidature() : contenuModeRecherche(true)) +
+      (estStageAlternance ? contenuCandidature() : contenuModeRecherche(true, unifie ? { modeUnifie: true, formeCandidature: formeCandidatureActuelle() } : undefined)) +
       '</div>' +
       '<div class="text-end mt-3"><button type="button" class="btn btn-success btn-sm" id="btnCandidatureValider">&#9989; Je valide</button></div>';
     _renduInfosUnifie = false;
@@ -28489,6 +30401,22 @@ function bilanOuvrirFenetreCandidature() {
       wireObjectifDetails(rendre);
     } else {
       wireModeRecherche(rendre, true);
+      if (unifie) {
+        // Memorise « une offre » ou « une entreprise precise sans offre » avant le gestionnaire commun (meme technique que « Votre objectif »).
+        var fenetreCandidature = document.querySelector('.fenetre-erip-corps');
+        if (fenetreCandidature) { fenetreCandidature.addEventListener('click', function (evenement) {
+          var cibleForme = evenement.target && evenement.target.closest ? evenement.target.closest('[data-forme]') : null;
+          if (!cibleForme) { return; }
+          dossier.formeChoisie = cibleForme.getAttribute('data-forme');
+          if (dossier.formeChoisie === 'entreprise') {
+            var rcForme = dossier.rechercheCandidature || (dossier.rechercheCandidature = {});
+            rcForme.texteOffre = '';
+            rcForme.lienOffre = '';
+          }
+        }, true); }
+        // Disponibilites de la lettre (contrat, temps, debut, horaires) : lues par l'assistant du Bilan depuis le lot 4.
+        if (dossier.objectif === 'spontanee' || dossier.objectif === 'reconversion') { wireContratTemps(rendre); wireDisponibilite(rendre); }
+      }
     }
     var btnValider = document.getElementById('btnCandidatureValider');
     if (btnValider) {
@@ -29193,15 +31121,19 @@ function brancherEvenementsBilanPreparer() {
   if (btnRelecture) { btnRelecture.addEventListener('click', ouvrirRelectureBilanPreparer); }
 
   // ----- Bloc 3 : Votre situation -----
+  var objectifAvantBilan = null;
   wireCartesSituationPartagees('data-preparer-situation', etat, rerender, function () {
     etat.situationTouchee = true;
-  });
+    // Changer de carte entre offre, spontanee et changer de metier remet a zero la candidature saisie (meme regle que la lettre).
+    if (changementCarteEffaceLettreCo(objectifAvantBilan, dossier.objectif)) { _coLettreEffacerCandidature(); }
+  }, function () { objectifAvantBilan = dossier.objectif; });
 
   // ----- Bloc 4 : panneau « Candidature » partage (briques de « Votre
   // objectif », sans « Le poste que vous recherchez », decision Denis
   // 2026-09-29) -- meme cablage que pageObjectif(), jamais une 2e
   // implementation.
-  wirePanneauCandidaturePartage(rerender, { projet: false });
+  if (dossier.objectif) { wireCandidatureComposant(rerender, 'bilanComposantCandidature'); }
+  else { invitationCartesObjectif(); }
 }
 
 // TACHE (retour Denis 2026-09-19, point 14) : extrait du click listener de
@@ -29651,7 +31583,7 @@ function brancherEvenementsBilanCandidature(diagnostic) {
         }
         msg.style.color = 'var(--danger)';
         msg.textContent = '⚠️ ' + ((erreur && erreur.message) || 'La réponse n’a pas pu être lue.') +
-          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+          ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
       }
     });
   }
@@ -29692,7 +31624,7 @@ function bilanOuvrirModaleAmelioration(recommandation) {
     contenuHTML:
       '<p class="small text-muted mb-1">Recommandation concernée :</p>' +
       '<p class="mb-3">' + echapperAttribut(recommandation.contenu) + '</p>' +
-      '<label for="' + idZoneObjectifs + '" class="form-label small">Un point particulier à travailler ? (facultatif)</label>' +
+      '<label for="' + idZoneObjectifs + '" class="form-label small">Un point particulier à travailler ? (à compléter)</label>' +
       '<input type="text" class="form-control mb-3" id="' + idZoneObjectifs + '" placeholder="Ex. un ton plus direct, une formulation plus courte...">' +
       '<div id="' + idErreur + '" class="small mb-2" style="display:none;color:var(--danger);"></div>' +
       (assistantMemorise
@@ -29770,7 +31702,7 @@ function bilanAfficherEtapeCollageAmelioration(demande, assistant) {
           'Votre navigateur a bloqué l’ouverture automatique. ' +
           '<button type="button" id="bilanAmeliorationOuvrirBloque" class="btn btn-sm btn-outline-primary ms-2">Ouvrir ' + echapperAttribut(assistant.nom) + ' maintenant</button></div>'
         : '<p class="text-muted small mb-2">' + echapperAttribut(assistant.nom) + ' s’est ouvert dans un nouvel onglet. Une fois sa réponse copiée, collez-la ci-dessous.</p>') +
-      htmlCollageInstantane('Amelioration', {})
+      htmlCollageInstantane('Amelioration', { sansBarre: true })
   });
 
   var boutonOuvrirBloque = document.getElementById('bilanAmeliorationOuvrirBloque');
@@ -29797,7 +31729,7 @@ function bilanAfficherEtapeCollageAmelioration(demande, assistant) {
     } catch (erreur) {
       msg.style.color = 'var(--danger)';
       msg.textContent = '⚠️ ' + ((erreur && erreur.message) || 'La réponse n’a pas pu être lue.') +
-        ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+        ' Effacez, retournez sur la page de l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
     }
   });
 }
@@ -30268,7 +32200,7 @@ function ouvrirRevoirPropositionsIA() {
 }
 
 function brancherEvenementsResultats() {
-  if (docActifActuel() === 'cv' && !window._modeModuleUcpm) { injecterBanniereComplementCV(pageResultats); }
+  // (la consigne du complément n'est plus affichée ici : elle a son propre écran avant cette page, voir pageComplementCV)
   // TACHE (chantier "ecran tampon avant l’assistant") : coupe systematiquement
   // tout decompte herite d'un rendu precedent AVANT de reconstruire quoi
   // que ce soit -- sans cela, naviguer ailleurs pendant le decompte (ex.
@@ -30428,8 +32360,9 @@ function brancherEvenementsResultats() {
   // TACHE (retour utilisateur 2026-09-17, point 6/8) : meme garde que
   // venantDeCoLettre dans pageResultats() -- ce cablage n'a aucun effet
   // utile pour une lettre deja co-construite via "Co-construire ma lettre".
-  var venantDeCoLettreWire = !!(dossier && dossier._origineCoLettre);
-  if (!depuisDecouverteWire && !creationCvGuideeWire && !venantDeCoLettreWire) {
+  var venantDeCoLettreWire = coLettreEnCoursLettreCo(dossier, docActif) || lettreDejaImportee(docActif);
+  var venantDeEntretienWire = (docActif === 'entretien' && _pageOrigineAvantResultats === 'prepa-entretien');   // même garde que venantDeEntretien dans pageResultats()
+  if (!depuisDecouverteWire && !creationCvGuideeWire && !venantDeCoLettreWire && !venantDeEntretienWire && !window._modeVoie3Csa) {
     wireRectangleStyleCV(docActif, pageResultats);
     wireRectangleChoixIA(docActif, pageResultats);
     wireImportIA(docActif, pageResultats, 'relecture-ia');
@@ -30551,6 +32484,7 @@ function brancherEvenementsResultats() {
       var typeApercuActif = docActifActuel();
       if (typeApercuActif === 'cv') { dossier.cvTermine = true; }
       else if (typeApercuActif === 'lettre') { dossier.lettreTerminee = true; }
+      else if (typeApercuActif === 'entretien') { dossier.entretienTermine = true; }
       // TACHE (sous-etape 5.8) : "Vos documents" n'est plus une pile
       // d'accordeons pilotes par etatAccordeon -- on passe simplement le
       // rectangle ouvert de "La mise en page" a "Exporter" (MAQUETTE_VOS_DOCUMENTS,
@@ -30608,6 +32542,7 @@ function brancherEvenementsResultats() {
   // du format et "Envoyer vers Canva" passent par le handler
   // [data-format-export] cable plus bas -- pas de doublon.
   wireRectExporter(pageResultats);
+  cablerExportLettre();
 
   // TACHE (retour utilisateur : cartes de modeles pour Lettre/Entretien) :
   // le <select> n'existe plus pour aucun des 3 types (carrousel de
@@ -30692,7 +32627,7 @@ function brancherEvenementsResultats() {
         taille: 'large',
         aideContexte: 'modifier-entretien',
         contenuHTML:
-          '<label class="small fw-bold text-muted d-block mb-1">Ma présentation</label>' +
+          '<label class="small fw-bold text-muted d-block mb-1">Pour me présenter</label>' +
           '<textarea class="form-control form-control-sm mb-3" rows="4" id="editionPresentationEntretien">' + echapperAttribut(ent.presentation || '') + '</textarea>' +
           '<label class="small fw-bold text-muted d-block mb-1">Points à préparer (un par ligne)</label>' +
           '<textarea class="form-control form-control-sm mb-3" rows="4" id="editionPointsEntretien">' + echapperAttribut((ent.pointsAPreparer || []).join('\n')) + '</textarea>' +
@@ -30739,9 +32674,7 @@ function brancherEvenementsResultats() {
         // version longue -- texteCourt (rédigé séparément par l’assistant,
         // jamais une coupure de la version longue) reste inchangé, pas
         // écrasé silencieusement par une chaîne vide.
-        var texteCourtExistant = (dossier.ia.lettre.versions[i] || {}).texteCourt || '';
-        dossier.ia.lettre.versions[i] = { objet: nouvelObjet, texte: nouveauTexte, texteCourt: texteCourtExistant };
-        dossier.ia.lettre.lettre = { objet: nouvelObjet, texte: nouveauTexte, texteCourt: texteCourtExistant };
+        enregistrerTexteLettreModifie(nouvelObjet, nouveauTexte);
         fermerFenetreERIP();
         pageResultats();
       });
@@ -30755,6 +32688,56 @@ function brancherEvenementsResultats() {
       // format "pdf" n'est declenche par aucun bouton (voir
       // formatsParTypeExport plus haut) -- bloc mort retire, avec le
       // systeme de popup dont il dependait (ouvrirApercuCV/ouvrirApercuLettre).
+      if (format === 'pdf-lettre') {
+        // PDF de la lettre (lot C) : boite d'impression du navigateur sur le meme apercu ; « recupere » des l'ouverture (on ne peut pas savoir si elle est enregistree).
+        var boutonPdf = this;
+        var texteAvantPdf = boutonPdf.innerHTML;
+        boutonPdf.disabled = true;
+        boutonPdf.textContent = 'Préparation du PDF…';
+        imprimerLettrePdf().then(function () {
+          boutonPdf.disabled = false; boutonPdf.innerHTML = texteAvantPdf;
+          marquerDocumentEnregistre('lettre');
+          trackEvenement('lettre_telecharge', { format: 'pdf' });
+        }).catch(function (erreur) {
+          boutonPdf.disabled = false; boutonPdf.innerHTML = texteAvantPdf;
+          trackEvenement('erreur_generation_document', { type: 'pdf', document: 'lettre' });
+          var msgPdf = document.getElementById('messageTelechargerWord');
+          if (msgPdf) { msgPdf.style.display = 'block'; msgPdf.textContent = 'Le PDF n’a pas pu être préparé (' + (erreur && erreur.message ? erreur.message : 'erreur') + '). Vous pouvez télécharger le Word ou copier le texte.'; }
+        });
+        return;
+      }
+      if (format === 'pdf-entretien') {
+        var boutonPdfEntretien = this;
+        var texteAvantPdfEntretien = boutonPdfEntretien.innerHTML;
+        boutonPdfEntretien.disabled = true;
+        boutonPdfEntretien.textContent = 'Préparation du PDF…';
+        imprimerEntretienPdf().then(function () {
+          boutonPdfEntretien.disabled = false; boutonPdfEntretien.innerHTML = texteAvantPdfEntretien;
+          marquerDocumentEnregistre('entretien');
+          trackEvenement('entretien_telecharge', { format: 'pdf' });
+        }).catch(function (erreur) {
+          boutonPdfEntretien.disabled = false; boutonPdfEntretien.innerHTML = texteAvantPdfEntretien;
+          trackEvenement('erreur_generation_document', { type: 'pdf', document: 'entretien' });
+          var msgPdfEntretien = document.getElementById('messageTelechargerWord');
+          if (msgPdfEntretien) { msgPdfEntretien.style.display = 'block'; msgPdfEntretien.textContent = 'Le PDF n’a pas pu être préparé (' + (erreur && erreur.message ? erreur.message : 'erreur') + '). Vous pouvez télécharger le Word ou copier le texte.'; }
+        });
+        return;
+      }
+      if (format === 'copier-lettre') {
+        var texteLettre = genererBlocsTexteLettre(normaliserDonneesLettre(dossier));
+        var msgCopie = document.getElementById('messageTelechargerWord');
+        var confirmerCopie = function () {
+          marquerDocumentEnregistre('lettre');
+          trackEvenement('lettre_telecharge', { format: 'texte' });
+          if (msgCopie) { msgCopie.style.display = 'block'; msgCopie.style.color = 'var(--success-strong)'; msgCopie.textContent = '✓ Le texte de votre lettre est copié : collez-le où vous voulez (Ctrl + V).'; }
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(texteLettre).then(confirmerCopie).catch(function () {
+            telechargerFichierTexte('lettre-texte.txt', texteLettre, 'text/plain;charset=utf-8'); confirmerCopie();
+          });
+        } else { telechargerFichierTexte('lettre-texte.txt', texteLettre, 'text/plain;charset=utf-8'); confirmerCopie(); }
+        return;
+      }
       if (format === 'autre') {
         // TACHE (correction bug : "Autre" ne faisait rien) : bascule via une
         // classe CSS (plus robuste qu'une lecture de style inline, qui peut
@@ -31141,13 +33124,15 @@ var LABELS_PREFERENCES_IA = {
 // circuit sera retire, seules CES deux fonctions auront besoin d'etre
 // modifiees, pas chaque endroit qui lit une entreprise/un lien.
 // ============================================================
+// Logique deplacee dans modules/lettre-core/destinataireLettreCo.js (fonction pure testee, aussi lue par le bloc du destinataire de la lettre).
+// Forme de la candidature (offre, entreprise precise sans offre, generale) : une seule lecture pour tous les ecrans (lettre, entretien...).
+function formeCandidatureActuelle() {
+  return formeCandidatureLettreCo({ modeRecherche: dossier.modeRecherche, typeRecherche: dossier.typeRecherche,
+    rechercheCandidature: dossier.rechercheCandidature, formeChoisie: dossier.formeChoisie });
+}
+
 function entrepriseCibleActuelle() {
-  var rc = dossier.rechercheCandidature;
-  if (rc && rc.entreprise) { return rc.entreprise; }
-  var o = dossier.objectif;
-  var obj = o && dossier[o];
-  if (obj && obj.structure) { return obj.structure; }
-  return '';
+  return entrepriseCibleDuDossierLettreCo(dossier);
 }
 // TACHE (retour utilisateur : lien/message de l'offre séparé du site) :
 // meme principe que entrepriseCibleActuelle()/lienOffreCibleActuel() --
@@ -31176,7 +33161,17 @@ function posteCibleActuel() {
   var o = dossier.objectif;
   var obj = o && dossier[o];
   if (obj && obj.poste) { return obj.poste; }
+  // Etape c5 (24/10/2026) : « plusieurs metiers d'un domaine » : le poste porte l'intitule choisi pour la lettre (le domaine reste dans secteurCible).
+  var intituleDomaine = intituleDomaineActuel();
+  if (dossier.modeRecherche === 'domaine' && intituleDomaine) { return intituleDomaine; }
   return dossier.metierCible || dossier.secteurCible || '';
+}
+
+// Etape c5 : intitule de poste choisi pour le domaine en cours, enregistre AVEC son domaine ({ secteur, intitule }) : changer de domaine
+// l'invalide tout seul, sans modifier les gestionnaires de choix du domaine (il y en a deux, dans deux parcours).
+function intituleDomaineActuel() {
+  var i = dossier.intituleDomaine;
+  return (i && i.secteur && i.secteur === dossier.secteurCible && i.intitule) ? String(i.intitule).trim() : '';
 }
 
 // TACHE (dette technique, chantier 1 : calcul du document actif) : point
@@ -31193,6 +33188,11 @@ function posteCibleActuel() {
 // n'etait appliquee qu'a 3 endroits sur 10 -- les 7 autres utilisaient un
 // repli simplifie ('cv' toujours), avec un resultat potentiellement
 // different dans ce cas precis (mode "pret", aucun document choisi).
+// Vrai quand le document affiche est une lettre dont le texte a deja ete recupere de l'assistant.
+function lettreDejaImportee(docActif) {
+  var l = docActif === 'lettre' && dossier.ia && dossier.ia.lettre && dossier.ia.lettre.lettre;
+  return !!(l && typeof l.texte === 'string' && l.texte.trim());
+}
 function docActifActuel() {
   return dossier.dernierDocumentPrepare || (dossier.modeCreation === 'pret' ? 'lettre' : 'cv');
 }
@@ -31290,7 +33290,7 @@ function texteProfil(type, sectionsSeulement) {
       candidature += '- Mode CV GÉNÉRAL : rédigez un CV polyvalent, adaptable à plusieurs employeurs/métiers proches.\n';
     }
   }
-  candidature += '- Objectif : ' + (dossier.objectif || 'non défini') + '\n';
+  candidature += '- Objectif : ' + (objectifPourPrompts() || 'non défini') + '\n';
   if (ligneDirectriceSituation()) { candidature += '- Ce que cette situation demande de mettre en avant : ' + ligneDirectriceSituation() + '\n'; }
   // TACHE 36 (context engineering, chantier 2 recadre : contradiction
   // avaree) : informations saisies via le parcours autonome "Preparer un
@@ -31341,6 +33341,10 @@ function texteProfil(type, sectionsSeulement) {
       if (of.ancien) { candidature += '- Activité précédente de la personne (ancien ' + of.ancien + ').\n'; }
       if (posteCible) { candidature += '- Métier visé : ' + posteCible + '\n'; }
       if (entrepriseCible) { candidature += '- Entreprise cible : ' + entrepriseCible + '\n'; }
+    }
+    // Etape c5 : avec « plusieurs metiers d'un domaine », l'assistant doit savoir que l'intitule ci-dessus n'est pas un metier unique.
+    if (dossier.modeRecherche === 'domaine' && dossier.secteurCible && intituleDomaineActuel()) {
+      candidature += '- Domaine visé : ' + dossier.secteurCible + ' (la personne est ouverte à plusieurs postes de ce domaine ; le poste ci-dessus est l’intitulé qu’elle met en avant).\n';
     }
     if (of.dispo && of.dispo.length) { candidature += '- Disponibilités : ' + of.dispo.join(', ') + '\n'; }
   }
@@ -31406,9 +33410,18 @@ function texteProfil(type, sectionsSeulement) {
   if (rcCiviliteRecruteur) {
     var rcNomRecruteur = dossier.rechercheCandidature.nomRecruteur;
     var rcIdentiteRecruteur = rcCiviliteRecruteur + (rcNomRecruteur ? ' ' + rcNomRecruteur : '');
-    candidature += '- Personne en charge du recrutement, déjà connue : ' + rcIdentiteRecruteur +
-      '. Pour une lettre de motivation, utilisez directement "' + rcIdentiteRecruteur + ',"' +
-      ' comme formule d’appel ET dans la formule de politesse finale, à la place de "Madame, Monsieur,". Ne posez pas la question, cette information est déjà connue.\n';
+    // E2.0 (24/10/2026) : toute lettre (pas seulement la seance) : civilite seule, le bloc du destinataire de l'application porte le nom.
+    if ((typeof _profilCiviliteSeule !== 'undefined' && _profilCiviliteSeule) || type === 'lettre') {
+      // Etape (f) (24/10/2026) : « Ecrire ma lettre avec l'assistant » : formule d'appel avec la civilite SEULE (« Madame, »), jamais le nom ;
+      // l'application place le nom dans le bloc du destinataire (« A l'attention de Madame Dupont »). Aligne le profil sur prompts/lettre-co.md.
+      candidature += '- Personne en charge du recrutement, déjà connue : ' + rcIdentiteRecruteur +
+        '. Pour la lettre, la formule d’appel est "' + rcCiviliteRecruteur + ',"' + ' (la civilité seule, sans le nom) et la formule de politesse finale reprend "' + rcCiviliteRecruteur +
+        '". N’écrivez jamais son nom dans le texte de la lettre. Ne posez pas la question, cette information est déjà connue.\n';
+    } else {
+      candidature += '- Personne en charge du recrutement, déjà connue : ' + rcIdentiteRecruteur +
+        '. Pour une lettre de motivation, utilisez directement "' + rcIdentiteRecruteur + ',"' +
+        ' comme formule d’appel ET dans la formule de politesse finale, à la place de "Madame, Monsieur,". Ne posez pas la question, cette information est déjà connue.\n';
+    }
   }
   // TACHE (refonte L1 "Co-construire ma lettre", etape 6, 2026-09-07) : le
   // type de structure (association / entreprise privee / fonction publique /
@@ -31517,6 +33530,10 @@ function texteProfil(type, sectionsSeulement) {
       strategie += (strategie ? '\n' : '') + 'Stratégie déjà définie pour la lettre (à réutiliser et rester cohérent avec elle, jamais à refaire depuis zéro) :\n';
       if (iaLettre.accroche) { strategie += '- Accroche retenue pour la lettre : ' + iaLettre.accroche + '\n'; }
       if (iaLettre.arguments && iaLettre.arguments.length) { strategie += '- Arguments retenus pour la lettre : ' + iaLettre.arguments.join(', ') + '\n'; }
+    }
+    // N4 (24/10/2026) : le texte de la lettre envoyee, pour que le cas pratique parte de ce que la personne a vraiment mis en avant.
+    if (iaLettre && iaLettre.lettre && typeof iaLettre.lettre.texte === 'string' && iaLettre.lettre.texte.trim()) {
+      strategie += (strategie ? '\n' : '') + 'Lettre de motivation de la personne (pour rester cohérent et nourrir le cas pratique ; ne la recopie jamais) :\n' + iaLettre.lettre.texte.trim() + '\n';
     }
   }
 
@@ -31637,6 +33654,7 @@ function texteProfil(type, sectionsSeulement) {
   var contraintes = '';
   if (dossier.contrat.length) { contraintes += '- Type de contrat recherché : ' + dossier.contrat.join(', ') + '\n'; }
   if (dossier.tempsTravail.length) { contraintes += '- Temps de travail : ' + dossier.tempsTravail.join(', ') + '\n'; }
+  if (typeof texteHorairesProfil === 'function') { contraintes += texteHorairesProfil(dossier.horaires); }
   if (dossier.accepte && dossier.accepte.indexOf('alimentaire') !== -1) {
     contraintes += '- Le candidat accepte un emploi alimentaire pour favoriser un retour rapide à l’emploi.\n';
   }
@@ -33040,7 +35058,7 @@ function ouvrirEcranChoixReponseIACV(brouillon, onValider, onRetour) {
       '<div id="corpsEcranChoixIACV">' + _syntheseHtmlPropositionsIA(brouillon) + '</div>' +
       '<div class="d-flex justify-content-between align-items-center mt-3">' +
       '<button type="button" id="retourChoixIACVBtn" class="btn btn-outline-secondary">&#8592; Retour</button>' +
-      '<button type="button" id="validerChoixIACVBtn" class="btn btn-primary">Continuer vers « La mise en page » &#8594;</button>' +
+      '<button type="button" id="validerChoixIACVBtn" class="btn btn-primary">Continuer &#8594;</button>' +
       '</div>'
   });
   document.getElementById('retourChoixIACVBtn').addEventListener('click', function () {
@@ -34157,6 +36175,16 @@ function analyserReponseIALettre(texteColle) {
   };
 
   var auMoinsUneVersionRemplie = resultat.versions.some(function (v) { return !!v.texte || !!v.objet; });
+  // Etape (d) du chantier lettre (24/10/2026) : une lettre sans texte n'est pas une lettre. Cas reel constate a l'essai : l'assistant a
+  // livre une accroche et des arguments avec « versions » vide. Avant, l'import « reussissait » et la personne arrivait sur une lettre vide.
+  var auMoinsUneVersionAvecTexte = resultat.versions.some(function (v) { return !!v.texte; });
+  if (!auMoinsUneVersionAvecTexte) {
+    return {
+      succes: false,
+      erreur: 'La réponse ne contient pas le texte de la lettre. Retournez dans la conversation avec l’assistant, demandez-lui de ' +
+        'redonner la lettre complète (avec le code à copier), puis collez à nouveau sa dernière réponse.'
+    };
+  }
   var auMoinsUnChampRempli = !!resultat.accroche || resultat.arguments.length > 0 || auMoinsUneVersionRemplie;
 
   if (!auMoinsUnChampRempli) {
@@ -34617,7 +36645,27 @@ function afficherClarificationPointsAVerifier(points, onTerminer, options) {
   }
   points.forEach(function (p, i) {
     var champ = document.getElementById('reponsePointAVerifier' + i);
-    if (champ) { champ.addEventListener('blur', function () { if (champ.value.trim()) { marquerRepondu(i, 'répondu'); } }); }
+    if (champ) { champ.addEventListener('blur', function () { if (champ.value.trim() && !champ.readOnly) { marquerRepondu(i, 'répondu : ' + champ.value.trim().slice(0, 24)); } }); }
+    // Touche Entrée (retour Denis 2026-10-19) : valide la réponse et passe à la question suivante ; après la dernière, le bouton « Continuer » prend le focus.
+    if (champ) {
+      champ.addEventListener('keydown', function (ev) {
+        if (ev.key !== 'Enter') { return; }
+        ev.preventDefault();
+        if (champ.value.trim()) { marquerRepondu(i, 'répondu : ' + champ.value.trim().slice(0, 24)); }   // la réponse reste lisible dans l'en-tête, même si la fenêtre défile vers la question suivante
+        var suivant = null;
+        for (var k = i + 1; k < points.length && !suivant; k++) {
+          var c = document.getElementById('reponsePointAVerifier' + k);
+          if (c && !c.disabled && !c.readOnly) { suivant = c; }
+        }
+        if (suivant) {
+          var d = suivant.closest('details'); if (d) { d.open = true; }
+          suivant.focus({ preventScroll: true });
+          suivant.scrollIntoView({ block: 'nearest' });
+        } else {
+          var bc = document.getElementById('btnClarificationContinuer'); if (bc) { bc.focus({ preventScroll: true }); bc.scrollIntoView({ block: 'nearest' }); }
+        }
+      });
+    }
   });
   document.querySelectorAll('[data-utiliser-suggestion-point]').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -37200,9 +39248,20 @@ function chargerApercuLettreInline(modele) {
   var zone = document.getElementById('zoneApercuInlineLettre');
   if (!zone) { return; }
   etatApercuInline.lettre.modele = modele;
+  // L'essai de mise en page retenu ne vaut que pour le contenu qui l'a fait choisir : contenu change => on repart du plus confortable.
+  if (typeof normaliserDonneesLettre === 'function' && typeof signatureMiseEnPageLettreCo === 'function') {
+    var sigLettre = signatureMiseEnPageLettreCo(normaliserDonneesLettre(dossier));
+    if (etatApercuInline.lettre.miseEnPageSig !== sigLettre) {
+      etatApercuInline.lettre.miseEnPageSig = sigLettre;
+      etatApercuInline.lettre.miseEnPageIndice = INDICE_MISE_EN_PAGE_DEFAUT_LETTRE_CO;
+      etatApercuInline.lettre.miseEnPageOptimisee = false;
+    }
+  }
 
   if (typeof _rafraichirApercuDocx === 'function') {
-    return _rafraichirApercuDocx('lettre', modele, zone, document.getElementById('messageApercuInlineLettre'), true, etatApercuInline.lettre.couleur, etatApercuInline.lettre.formatPage);
+    // La mise a l'echelle (page entiere, sans barre de defilement) est faite par ajusterApercuLettreEntier(), pas par le parametre « reduire ».
+    var promesse = _rafraichirApercuDocx('lettre', modele, zone, document.getElementById('messageApercuInlineLettre'), false, etatApercuInline.lettre.couleur, etatApercuInline.lettre.formatPage);
+    return promesse && promesse.then ? promesse.then(ajusterApercuLettreEntier) : promesse;
   }
 }
 
@@ -38030,6 +40089,7 @@ function activerMiseEnFormeUltimeXXL(boutonRef) {
 // systematiquement en fin de pageResultats(), no-op si le conteneur est
 // absent (ouvrirApercuPdfHtml() le verifie deja lui-meme).
 function initialiserApercuPdfInlineSiOuvert() {
+  if (window._mepApercuConserve) { window._mepApercuConserve = false; return; }   // l'apercu vivant a ete remis en place : rien a reconstruire
   if (docActifActuel() === 'cv' && document.getElementById('zonePdfInlineCV') && typeof ouvrirApercuPdfHtml === 'function') {
     ouvrirApercuPdfHtml('cv', dossier);
   }
@@ -38567,6 +40627,7 @@ function initialiserApercuInlineSiOuvert() {
       var modele = etatApercuInline.lettre.modele || 'sobre';
       construireCarrouselModeles('lettre', 'Lettre', MODELES_LETTRE_DISPONIBLES, modele, metasParModele);
       construireBoutonsFormatPage('lettre', 'Lettre');
+      cablerDestinataireLettre();
       chargerApercuLettreInline(modele);
     });
   } else if (type === 'entretien' && document.getElementById('zoneApercuInlineEntretien')) {
@@ -38998,7 +41059,7 @@ function viderContenuCVDossier() {
     catalogueActif: {}, experiences: [], experiencesPerso: [],
     formations: [], loisirs: [], engagements: [], certifications: [], langues: [], languesFrancaisUniquement: false, permis: { possede: null, categories: [], vehicule: null },
     competencesProfilRetirees: {},
-    contrat: [], tempsTravail: [], accepte: [], accepteAucune: false,
+    contrat: [], tempsTravail: [], horaires: [], accepte: [], accepteAucune: false,
     offre: { lien: '', poste: '', structure: '', type: '', dispo: [] },
     spontanee: { lien: '', poste: '', structure: '', type: '', dispo: [] },
     reconversion: { lien: '', poste: '', structure: '', type: '', dispo: [] },
@@ -39012,6 +41073,7 @@ function viderContenuCVDossier() {
     lettreMotivation: { texte: '' },
     cvTermine: false,
     lettreTerminee: false,
+    entretienTermine: false,
     documentsEnregistres: { cv: false, lettre: false, entretien: false },
     bilanCvModifie: false,
     texteAmelioreCanva: '',
@@ -39031,6 +41093,8 @@ function viderContenuCVDossier() {
     formatCV: null,
     modeRecherche: null, typeRecherche: null, rechercheCandidature: { entreprise: '', site: '', lienOffre: '', civiliteRecruteur: '', nomRecruteur: '', mettreEnAvantCouleurEntreprise: false, couleurEntreprise: '' },
     civiliteRecruteurDemandee: false,
+    formeChoisie: null,
+    lettreDestinataire: { choix: 'recrutement', autre: '', adresse: '', pour: '', rue: false },
     bilanAvancementCorrection: {}
   };
 }
@@ -39042,6 +41106,8 @@ function declencherImpressionAvecNomCV(boutonImprimer) {
   try { boutonImprimer.click(); } finally { document.title = titreAvant; }
 }
 function recommencer() {
+  // Les lettres de recommandation (donnees d'une tierce personne, jamais enregistrees) ne survivent pas a un nouveau parcours.
+  if (typeof _coLettreRecos !== 'undefined') { _coLettreRecos = []; _coLettreRecoFichiers = {}; _coLettreRecoChoisie = null; _coLettreRecoReponse = null; }
   // TACHE (retour utilisateur : "le panneau 'Vous hésitez encore ?' garde
   // toujours le dernier département choisi, même après Réinitialiser") :
   // ce choix est mémorisé dans le navigateur (localStorage, voir
@@ -39072,6 +41138,8 @@ function recommencer() {
   // faites" des le debut d'un tout nouveau parcours.
   if (typeof _barreEtapesMaxAtteint !== 'undefined') { _barreEtapesMaxAtteint = new WeakMap(); }
   viderContenuCVDossier();
+  // Les modèles de CV gardés (module « Mes modèles ») repartent de zéro avec le reste d'une réinitialisation complète.
+  if (typeof mgReinitialiser === 'function') { mgReinitialiser(); }
   // Un parcours « Reformuler / Mettre a jour / Creer » termine (« Merci, tout est en ordre ») ou recommence repart de zero : sans cela, le CV depose restait en memoire du module et la page
   // d'introduction proposait « Continuer / Recommencer » sur un parcours fini ; « Continuer » ramenait sur la 1re page (retour de Denis, 2026-10-11).
   try {
@@ -39170,11 +41238,75 @@ function _htmlEtMaintenantCV() {
   return '<div class="et-apres">' +
     '<h3>&#128640; Et maintenant ?</h3>' +
     '<p>Vos informations sont enregistrées : votre lettre de motivation et votre entretien repartent de votre CV, sans rien ressaisir.</p>' +
+    '<p class="small"><strong>La lettre proposée ici est une lettre rapide</strong> : elle est faite en une fois, pour avoir le papier tout de suite. Si vous voulez une lettre plus poussée, ancrée dans la réalité du terrain, nous vous conseillons « Écrire ma lettre avec l’assistant », dans « Me préparer à candidater ».</p>' +
     '<div class="ea-boutons">' +
-    '<button type="button" id="btnSuggererLettre" class="btn btn-primary btn-sm">&#9993; Préparer ma lettre de motivation</button>' +
-    '<button type="button" id="btnSuggererEntretien" class="btn btn-primary btn-sm">&#127908; Préparer mon entretien</button>' +
-    '</div></div>';
+    '<button type="button" id="btnSuggererLettre" class="btn btn-primary btn-sm">&#9993; Ma lettre de motivation rapide</button>' +
+    '<button type="button" id="btnSuggererEntretien" class="btn btn-primary btn-sm">&#127908; Ma fiche de préparation à l’entretien</button>' +
+    '</div>' +
+    '<p class="small mt-2 mb-0">La fiche d’entretien est une synthèse faite en une fois (présentation, questions probables, questions à poser). Pour vous entraîner en échangeant avec l’assistant, choisissez « M’entraîner à un entretien », dans « Me préparer à candidater ».</p>' +
+    '</div>';
 }
+// Parcours rapides (« Lettre et entretien en version rapide », « Reprendre mon CV ») : plus de renvoi entre la lettre et l'entretien (retour de Denis, 25/10/2026). « Créer un nouveau CV » les garde.
+function _parcoursRapide() { return dossier.modeCreation === 'pret' || dossier.modeCreation === 'maj'; }
+// Passerelle de la version rapide vers la version approfondie (demande de Denis, 25/10/2026) : sous les deux lettres ou la fiche d'entretien, un encart visible propose
+// l'échange approfondi si le résultat ne satisfait pas. Le bouton reprend le CV déjà déposé et relu (ouvrirLettreApprofondieDepuisRapide, data/metiers.js) : pas de redépôt.
+// Pas de lettre de recommandation dans la version rapide : elle reste le plus de « Écrire ma lettre avec l'assistant » et de « M'entraîner à un entretien ».
+function _htmlEncartVersApprofondi(docActif, deepLettreEnCours, venantDeEntretien) {
+  if (docActif !== 'lettre' && docActif !== 'entretien') { return ''; }
+  if (dossier.modeCreation !== 'pret' && dossier.modeCreation !== 'maj') { return ''; }
+  if (deepLettreEnCours || venantDeEntretien) { return ''; }   // déjà dans la version approfondie : rien à proposer
+  // Seulement en bas de la fenêtre où l'on choisit parmi les résultats (lettre importée, fiche importée), jamais avant (retour de Denis, 25/10/2026).
+  if (docActif === 'lettre' && !lettreDejaImportee('lettre')) { return ''; }
+  if (docActif === 'entretien' && !(dossier.ia && dossier.ia.entretien && dossier.ia.entretien.presentation)) { return ''; }
+  var estLettre = (docActif === 'lettre');
+  return '<div class="encart-approfondir" id="encartVersApprofondi">' +
+    '<p class="encart-approfondir-titre"><i class="bi bi-chat-dots" aria-hidden="true"></i> ' + (estLettre ? 'Pas encore satisfait de ces deux lettres ?' : 'Envie d’aller plus loin que cette fiche ?') + '</p>' +
+    '<p class="mb-2">' + (estLettre
+      ? 'Ces deux lettres ont été écrites en une seule fois, à partir des informations de votre CV. Vous pouvez les modifier. Si elles ne vous conviennent toujours pas, vous pouvez aussi écrire votre lettre <strong>par un échange approfondi avec l’assistant</strong> : il vous pose des questions, vous choisissez le ton et les points forts, et la lettre peut s’appuyer sur une <strong>lettre de recommandation</strong> pour l’ancrer dans du concret.'
+      : 'Cette fiche a été préparée en une seule fois, à partir des informations de votre CV : c’est une base de réflexion. Dans la version approfondie, vous <strong>vous entraînez en échangeant avec l’assistant</strong> : il vous pose des <strong>questions plus pertinentes et plus pointues</strong>, vous fait répondre, vous donne des <strong>stratégies pour vous présenter</strong> et pour aborder les points délicats. Il s’appuie sur votre CV, votre lettre de motivation et, si vous en avez, une lettre de recommandation.') + '</p>' +
+    '<button type="button" class="btn btn-outline-primary" onclick="' + (estLettre ? 'ouvrirLettreApprofondieDepuisRapide()' : 'ouvrirEntretienApprofondiDepuisRapide()') + '">' +
+    (estLettre ? '&#9993; Écrire ma lettre avec l’assistant' : '&#127908; M’entraîner à un entretien') + ' &#8594;</button>' +
+    '</div>';
+}
+
+// Barre du bas de la lettre (decision de Denis, 24/10/2026) : une fois la lettre validee et « Exporter » ouvert, « Retour » devient
+// « Modifier la lettre » et rouvre la mise en page ; « Merci bien, j'ai fini » (terminerParcours) apparait apres un telechargement ou une copie.
+function _optionsRetourModifierLettre(options) {
+  if (docActifActuel() === 'lettre' && dossier.lettreTerminee && _rectDocOuvert === 'exporter') {
+    options.libellePrecedent = '&#8592; Modifier la lettre';
+    options.onclickPrecedent = 'retourModifierLettre()';
+  } else if (docActifActuel() === 'entretien' && dossier.entretienTermine && _rectDocOuvert === 'exporter') {
+    options.libellePrecedent = (dossier.modeCreation === 'pret' || dossier.modeCreation === 'maj') ? '&#8592; Modifier la fiche' : '&#8592; Modifier l’entretien';
+    options.onclickPrecedent = 'retourModifierLettre()';
+  } else if (docActifActuel() === 'cv' && dossier.cvTermine && _rectDocOuvert === 'exporter' && !window._modeModuleUcpm) {
+    // Retour de Denis, 25/10/2026 : sur « Exporter », la mise en page n'existe plus (elle est validee) ; « Retour » la rouvre.
+    options.libellePrecedent = '&#8592; Modifier le CV';
+    options.onclickPrecedent = 'retourModifierLettre()';
+  }
+  return options;
+}
+function retourModifierLettre() {
+  _rectDocOuvert = 'mise-en-page';
+  pageResultats();
+  window.scrollTo(0, 0);
+}
+
+// Suite proposee apres la lettre (decision 68) : l'entretien, seulement une fois la lettre recuperee.
+function _htmlSuiteEntretienApresLettre() {
+  return '<div class="text-center border rounded p-3 mt-3" id="suiteEntretienApresLettre" style="background:var(--bg-subtle);">' +
+    '<p class="small mb-2">On peut préparer ensemble l’entretien d’embauche, à partir de cette lettre et du CV créé précédemment.</p>' +
+    '<button type="button" id="btnSuggererEntretien" class="btn btn-outline-primary">&#127908; Ma fiche de préparation à l’entretien</button>' +
+    '</div>';
+}
+// Meme principe que pour le CV : la carte apparait SOUS « Exporter » sans recreer la page (le message « Pensez a sauvegarder » reste affiche).
+function _afficherSuiteApresRecuperationLettre() {
+  if (_parcoursRapide() || pageActuelle !== 'resultats' || docActifActuel() !== 'lettre' || document.getElementById('suiteEntretienApresLettre')) { return; }
+  var rect = document.querySelector('[data-rect-doc="exporter"]');
+  if (!rect) { return; }
+  rect.insertAdjacentHTML('afterend', _htmlSuiteEntretienApresLettre());
+  _cablerBoutonsEtMaintenant();
+}
+
 // Une fois le CV en PDF reellement exporte (enregistre ou copie), le panneau apparait SOUS le bloc « Exporter », sans recreer la page
 // (recreer la page detruirait l'apercu en cours d'impression).
 function _afficherEtMaintenantApresExportPdf() {
@@ -39189,6 +41321,8 @@ function _afficherEtMaintenantApresExportPdf() {
 
 // Gestionnaires des boutons « Lettre de motivation » et « Preparation a l'entretien » (panneau « Et maintenant ? » ou cartes de suggestion).
 function _cablerBoutonsEtMaintenant() {
+  var btnSuggererLettreModule = document.getElementById('btnSuggererLettreModule');
+  if (btnSuggererLettreModule) { btnSuggererLettreModule.addEventListener('click', function () { ouvrirModuleCoLettre(); }); }
   var btnSuggererLettre = document.getElementById('btnSuggererLettre');
   if (btnSuggererLettre) {
     btnSuggererLettre.addEventListener('click', function () {
@@ -39251,6 +41385,7 @@ function marquerDocumentEnregistre(type) {
   if (!dossier.documentsEnregistres) { dossier.documentsEnregistres = { cv: false, lettre: false, entretien: false }; }
   dossier.documentsEnregistres[type] = true;
   if (type === 'cv') { _afficherEtMaintenantApresExportPdf(); }
+  if (type === 'lettre') { _afficherSuiteApresRecuperationLettre(); }
   // TACHE (retour utilisateur : "Télécharger le Word / Texte à copier /
   // JSON / CSV = valider le parcours -- le bandeau Exporter doit devenir
   // déjà validé") : ecrit directement dans le bon tiroir par type (voir
@@ -39280,8 +41415,8 @@ function marquerDocumentEnregistre(type) {
     // import direct, page reellement quittee).
     var depuisDecouverte = !!window._decouverteVersResultats || !!(dossier && dossier.decouverteTerminee);
     var cibleRetour = resultatsCibleRetour(depuisDecouverte);
-    enveloppe.innerHTML = barreNavigation(cibleRetour.cible, null, null,
-      { terminerParcours: !!(dossier.documentsEnregistres && dossier.documentsEnregistres[docActifCourant]), onclickPrecedent: cibleRetour.onclickPrecedent });
+    enveloppe.innerHTML = barreNavigation(cibleRetour.cible, null, null, _optionsRetourModifierLettre(
+      { terminerParcours: !!(dossier.documentsEnregistres && dossier.documentsEnregistres[docActifCourant]), onclickPrecedent: cibleRetour.onclickPrecedent }));
     conteneur.replaceWith(enveloppe.firstElementChild);
   }
 }
@@ -39306,7 +41441,8 @@ function collecterEtatsModulesPourSauvegarde() {
     comparerPistes: typeof comparerPistesExporterEtatPourSauvegarde === 'function' ? comparerPistesExporterEtatPourSauvegarde() : null,
     unCvPlusieursMetiers: typeof ucpmExporterEtatPourSauvegarde === 'function' ? ucpmExporterEtatPourSauvegarde() : null,
     ats: typeof atsExporterEtatPourSauvegarde === 'function' ? atsExporterEtatPourSauvegarde() : null,
-    regardRecruteur: typeof regardRecruteurExporterEtatPourSauvegarde === 'function' ? regardRecruteurExporterEtatPourSauvegarde() : null
+    regardRecruteur: typeof regardRecruteurExporterEtatPourSauvegarde === 'function' ? regardRecruteurExporterEtatPourSauvegarde() : null,
+    modelesGardes: typeof mgExporterEtatPourSauvegarde === 'function' ? mgExporterEtatPourSauvegarde() : null
   };
 }
 
@@ -39319,6 +41455,7 @@ function restaurerEtatsModules(modulesEtat) {
   if (typeof ucpmRestaurerEtatDepuisSauvegarde === 'function') { ucpmRestaurerEtatDepuisSauvegarde(modulesEtat.unCvPlusieursMetiers || null); }
   if (typeof atsRestaurerEtatDepuisSauvegarde === 'function') { atsRestaurerEtatDepuisSauvegarde(modulesEtat.ats || null); }
   if (typeof regardRecruteurRestaurerEtatDepuisSauvegarde === 'function') { regardRecruteurRestaurerEtatDepuisSauvegarde(modulesEtat.regardRecruteur || null); }
+  if (typeof mgRestaurerEtatDepuisSauvegarde === 'function') { mgRestaurerEtatDepuisSauvegarde(modulesEtat.modelesGardes || null); }
 }
 
 // Copie complete et independante de la session : tout le dossier, l'etape en
@@ -40167,7 +42304,7 @@ var AIDE_PAGES = {
     { selecteur: '[data-carte-accueil="preparer"]', icone: '<i class="bi bi-person"></i>', titre: 'Me préparer à candidater',
       texte: function () { var qfq = (typeof mtOuvert === 'function' && mtOuvert()); return 'Tout ce qui prépare la rencontre avec le recruteur : <strong>écrire une lettre de motivation avec l’assistant</strong> (au clavier ou à la voix, sans CV obligatoire)' + (qfq ? ',' : ' et') + ' <strong>vous entraîner aux questions d’un entretien d’embauche</strong>' + (qfq ? ', et <strong>Employeurs près de chez moi</strong> pour trouver des employeurs de votre département, par secteur, et leur envoyer une candidature spontanée' : '') + '.'; } },
     { selecteur: '[data-carte-accueil="boiteaoutils"]', icone: '<i class="bi bi-briefcase"></i>', titre: 'Boîte à outils',
-      texte: 'Des outils pour mieux vous connaître et comprendre le monde professionnel, utilisables à tout moment : <strong>Découvrir mes compétences</strong> (tirer un CV de ce que vous avez vécu), <strong>Mes Repères</strong> (garder les réflexions utiles de votre parcours), <strong>Mon Carnet</strong> (noter librement, jamais lu ni analysé), <strong>Lexique</strong> (les mots de l’emploi expliqués simplement).' },
+      texte: 'Des outils pour mieux vous connaître et comprendre le monde professionnel, utilisables à tout moment : <strong>Mes Repères</strong> (garder les réflexions utiles de votre parcours), <strong>Mon Carnet</strong> (noter librement, jamais lu ni analysé), <strong>Lexique</strong> (les mots de l’emploi expliqués simplement).' },
     { selecteur: '[data-carte-accueil="analyse"]', icone: '<i class="bi bi-graph-up-arrow"></i>', titre: 'Outils d’analyse',
       texte: 'Vérifier la solidité de votre candidature avant de postuler : <strong>Analyser ma candidature</strong> (un assistant repère ce qui mérite d’être renforcé dans votre CV face au métier visé), <strong>Un regard sur mon CV</strong> (anticiper ce qu’un recruteur pourrait y remarquer), <strong>Cohérence de mon dossier</strong> (vérifier que CV, lettre et entretien racontent la même histoire), et <strong>Les mots de votre CV (ATS)</strong> (le vocabulaire de votre CV face à un premier tri automatisé : pas un logiciel de tri, mais la même vérification, en clair). Ces outils demandent un CV déjà créé.' },
     { selecteur: '[data-carte-accueil="informe"]', icone: '<i class="bi bi-newspaper"></i>', titre: 'Se tenir informé',
@@ -40217,7 +42354,7 @@ var AIDE_PAGES = {
     { selecteur: '#blocERIP-candidature', icone: '&#128221;', titre: 'Votre candidature',
       texte: 'Indiquez si vous visez un métier précis ou plusieurs métiers d’un même domaine, et si vous répondez à une offre ou cherchez de façon générale. Ces choix se font au clic sur les jetons ; rien n’est obligatoire.' },
     { selecteur: '#blocERIP-projet', icone: '&#128188;', titre: 'Le poste que vous recherchez',
-      texte: 'Type de contrat, temps de travail, ce que vous acceptez en plus, et vos disponibilités : cochez ce qui vous concerne. Tout est facultatif : une réponse vide vaut « peu importe ».' },
+      texte: 'Type de contrat, temps de travail, ce que vous acceptez en plus, et vos disponibilités : cochez ce qui vous concerne. Tout est à compléter, mais rien n’est bloquant : une réponse vide vaut « peu importe ».' },
     { selecteur: '.barre-navigation', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’étape précédente, « Accueil » ramène à l’écran de départ, sans perdre vos réponses.' }
   ],
@@ -40241,7 +42378,7 @@ var AIDE_PAGES = {
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
       texte: 'La barre en haut suit les étapes de votre parcours. Vous êtes à « Vos informations ». Cliquez sur une étape déjà faite pour y revenir, sans rien perdre.' },
     { selecteur: '.grille-mon-projet', icone: '&#128203;', titre: 'Vos informations',
-      texte: 'Cinq bandeaux (Vous, Parcours, Expériences professionnelles, Expériences personnelles, Compléments) se déplient au clic, indépendamment les uns des autres. Complétez ce qui vous concerne : tout est facultatif, rien n’est obligatoire.' },
+      texte: 'Cinq bandeaux (Vous, Parcours, Expériences professionnelles, Expériences personnelles, Compléments) se déplient au clic, indépendamment les uns des autres. Complétez ce qui vous concerne : tout est à compléter, rien n’est obligatoire.' },
     { selecteur: '[data-blocs-tout]', icone: '&#128194;', titre: 'Tout déplier ou tout replier',
       texte: '« Tout déplier » ouvre les cinq bandeaux d’un coup pour un survol rapide, « Tout replier » referme tout. Dans un bandeau, cliquez un jeton pour cocher ou décocher un choix ; pour les listes (loisirs, certifications, expériences...), un menu déroulant ajoute un élément, et un clic sur un élément déjà ajouté permet de le préciser ou de le retirer.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#129517;', titre: 'Votre profil',
@@ -40301,7 +42438,7 @@ var AIDE_PAGES = {
     { selecteur: '.assistant-rect', icone: '&#128172;', titre: 'Quatre étapes avec l’assistant',
       texte: 'De haut en bas : réglez le style d’écriture (ces jetons orientent seulement l’assistant, ils n’apparaissent jamais sur le CV), choisissez votre assistant, importez sa réponse, puis choisissez ce qui ira sur le CV. Chaque encadré s’ouvre au clic et se remplit à votre rythme ; les réglages par défaut conviennent à la plupart des situations.' },
     { selecteur: '.barre-navigation', icone: '&#128640;', titre: 'Continuer',
-      texte: '« Continuer vers Vos documents » vous mène à la dernière étape. « Retour » et « Accueil » ne perdent jamais vos réponses.' }
+      texte: '« Continuer » vous mène à la dernière étape. « Retour » et « Accueil » ne perdent jamais vos réponses.' }
   ],
   // TACHE (integration module Bilan de candidature) : page independante
   // (routes.bilan, jamais docActifActuel()) -- un seul selecteur listant
@@ -40322,7 +42459,7 @@ var AIDE_PAGES = {
     // TACHE (chantier aide a jour, 2026-10-15) : la page de presentation
     // (avant « Je commence ») n'avait aucune etape. Ajoutee, rien retire.
     { selecteur: '#ctBoutonJeCommence', icone: '<i class="bi bi-play-circle"></i>', titre: 'Cohérence de mon dossier',
-      texte: 'Ce module compare votre CV, votre lettre et votre préparation d’entretien pour voir s’ils racontent la même histoire. Il ne note rien et ne juge pas : il repère seulement ce qui mérite d’être ajusté. Votre CV et votre lettre sont nécessaires, le reste est facultatif. Cliquez sur « Je commence » quand vous êtes prêt(e).' },
+      texte: 'Ce module compare votre CV, votre lettre et votre préparation d’entretien pour voir s’ils racontent la même histoire. Il ne note rien et ne juge pas : il repère seulement ce qui mérite d’être ajusté. Votre CV et votre lettre sont nécessaires, le reste est à compléter. Cliquez sur « Je commence » quand vous êtes prêt(e).' },
     // TACHE (audit de stabilisation, 2026-09-13, finding 4) : deplacees
     // depuis AIDE_FENETRES['coherence-transversale-collecte'], jamais
     // atteignables la-bas (l'ecran de collecte est une page routee, pas
@@ -40331,7 +42468,7 @@ var AIDE_PAGES = {
     // #ctChampLettre n'existe plus depuis le passage au depot par bouton
     // (chantier "elimination des fenetres de depot CV", 2026-09-04).
     { selecteur: '#ctCollecteBlocLettre', icone: '&#9997;', titre: 'Votre lettre de motivation',
-      texte: 'Le CV et la lettre sont les deux seuls éléments indispensables pour cette analyse - tout le reste est facultatif et vient enrichir le résultat.' },
+      texte: 'Le CV et la lettre sont les deux seuls éléments indispensables pour cette analyse - tout le reste est à compléter et vient enrichir le résultat.' },
     { selecteur: '#ctChampQuestions', icone: '&#128172;', titre: 'Une question précise ?',
       texte: 'Vous pouvez taper ou dicter (micro de votre clavier) une question ou une demande précise sur votre candidature - l’analyse y répondra explicitement.' },
     { selecteur: '.coherence-etape-choix-ia, .coherence-etape-import-ia', icone: '&#9989;', titre: 'Comment ça marche',
@@ -40348,7 +42485,7 @@ var AIDE_PAGES = {
     // (avant « Je commence ») n'avait aucune etape : la visite guidee
     // s'ouvrait vide. Trois etapes ajoutees pour cet ecran, rien retire.
     { selecteur: '.reperes-accueil-types', icone: '<i class="bi bi-tags"></i>', titre: 'Les quatre types de Repère',
-      texte: 'Question, idée, à approfondir, à discuter : ces quatre types servent seulement à vous y retrouver plus tard. Ils sont facultatifs, et « En savoir plus » donne un exemple pour chacun.' },
+      texte: 'Question, idée, à approfondir, à discuter : ces quatre types servent seulement à vous y retrouver plus tard. Ils sont à compléter, et « En savoir plus » donne un exemple pour chacun.' },
     { selecteur: '.barre-navigation-fixe .btn-primary', icone: '<i class="bi bi-play-circle"></i>', titre: 'Je commence',
       texte: 'Ouvre votre espace de Repères. Rien n’est obligatoire, et vous pouvez revenir lire cette présentation à tout moment avec « Revoir la présentation ».' },
     { selecteur: '.reperes-entete-ecran', icone: '<i class="bi bi-bookmark-star"></i>', titre: 'Garder une réflexion',
@@ -40417,9 +42554,32 @@ var AIDE_PAGES = {
     { selecteur: '#btnPrepLERelecture', icone: '&#128396;&#65039;', titre: 'Relire, corriger, masquer',
       texte: 'Dès que votre CV est déposé, la relecture s’ouvre toute seule : vous vérifiez le texte, le corrigez si besoin, et masquez ce que vous ne voulez pas transmettre (téléphone, e-mail, adresse...). Ce bouton permet de la rouvrir. Le surlignage jaune repère automatiquement les informations sensibles.' },
     { selecteur: '#prepLEBloc3', icone: '&#128221;', titre: 'Pourquoi ce CV ?',
-      texte: 'Choisissez la raison de cette candidature (répondre à une offre, candidature spontanée, changer de métier, stage (de formation ou d’immersion), alternance, formation). Ce choix aide l’assistant à ajuster la lettre. Facultatif, mais utile.' },
+      texte: 'Choisissez la raison de cette candidature (répondre à une offre, candidature spontanée, changer de métier, stage (de formation ou d’immersion), alternance, formation). Ce choix aide l’assistant à ajuster la lettre. À compléter, mais utile.' },
     { selecteur: '#btnPrepLEVersAssistant', icone: '&#128640;', titre: 'Choisir mon assistant',
       texte: 'Ce bouton s’active une fois votre CV déposé et relu. Il vous mène au choix de l’assistant en ligne qui lira votre CV et en ressortira vos informations.' }
+  ],
+  'reprendre-cv': [
+    { selecteur: 'h1', icone: '<i class="bi bi-pencil-square"></i>', titre: 'Reprendre mon CV',
+      texte: 'Vous avez déjà un CV : vous le déposez une seule fois, puis vous choisissez parmi trois voies. Cette page explique ce que fait chacune : le garder et le compléter, le reformuler et le présenter, ou le refaire moi-même dans un modèle.' },
+    { selecteur: '#btnReprendreCvCommencer', icone: '&#9999;&#65039;', titre: 'Déposer mon CV',
+      texte: 'Ce bouton ouvre la page de dépôt : déposer votre CV, le relire et masquer ce que vous ne voulez pas transmettre. La mise en page d’origine n’est pas conservée.' },
+    { selecteur: '#prepLEBloc1', icone: '&#128196;', titre: 'Votre CV',
+      texte: 'Déposez votre CV : fichier, copier-coller, photo ou scan. Il n’est envoyé nulle part à ce stade, et vous ne le redéposerez pas si vous changez de voie.' },
+    { selecteur: '#prepLEBloc2', icone: '&#129517;', titre: 'Que voulez-vous faire de votre CV ?',
+      texte: 'Trois voies : le garder et le compléter, ou le reformuler et le présenter (toutes deux avec l’assistant), ou le refaire moi-même dans un modèle (sans assistant). Les cartes s’activent une fois votre CV déposé et relu.' },
+    { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+      texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Votre CV déposé n’est pas perdu.' }
+  ],
+  // Voie 3 de « Reprendre mon CV » (Lot 7) : classer puis verifier, sans assistant.
+  'cv-sans-assistant': [
+    { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
+      texte: 'Votre CV est déjà déposé. Ici vous le remettez en page vous-même, sans assistant : vous classez ses informations, vous les vérifiez, puis vous choisissez un modèle. Rien n’est reformulé, vos mots restent les vôtres.' },
+    { selecteur: '#csaBlocs', icone: '&#128450;&#65039;', titre: 'Classer',
+      texte: 'Votre CV est découpé en blocs. Ce qui est sûr est déjà classé. Touchez la pastille d’un bloc pour changer sa rubrique, les ciseaux pour couper un bloc, « Fusionner » pour le rattacher à celui du dessus. Un bloc que nous ne savons pas classer va dans « Autres informations » : rien n’est perdu.' },
+    { selecteur: '#csaFiches', icone: '&#9989;', titre: 'Vérifier',
+      texte: 'Une fiche par rubrique, déjà remplie. Les cases « à vérifier » ont été lues d’après leur place dans votre CV : corrigez-les si besoin. Vous pouvez ajouter ou retirer une fiche, et déplacer une ligne d’« Autres informations » vers la bonne rubrique.' },
+    { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+      texte: '« Retour » revient à l’écran précédent sans rien perdre, « Accueil » ramène à l’écran de départ. Votre CV déposé reste là : vous pouvez changer de voie.' }
   ],
   'mettre-a-jour-cv': [
     { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
@@ -40431,7 +42591,7 @@ var AIDE_PAGES = {
     { selecteur: '#btnPrepLERelecture', icone: '&#128396;&#65039;', titre: 'Relire, corriger, masquer',
       texte: 'Dès que votre CV est déposé, la relecture s’ouvre toute seule : vous vérifiez le texte, le corrigez si besoin, et masquez ce que vous ne voulez pas transmettre. Ce bouton permet de la rouvrir. Le surlignage jaune repère automatiquement téléphone, e-mail, adresse...' },
     { selecteur: '#prepLEBloc3', icone: '&#128221;', titre: 'Pourquoi ce CV ?',
-      texte: 'Indiquez la raison de cette candidature. Facultatif, mais cela aide à orienter la mise à jour.' },
+      texte: 'Indiquez la raison de cette candidature. À compléter : cela aide à orienter la mise à jour.' },
     { selecteur: '#btnPrepLEVersAssistant', icone: '&#128640;', titre: 'Choisir mon assistant',
       texte: 'Ce bouton s’active une fois votre CV déposé et relu. Il vous mène au choix de l’assistant qui en ressortira vos informations à corriger.' }
   ],
@@ -40494,7 +42654,7 @@ var AIDE_PAGES = {
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ.' }
   ],
   'decouverte-intro': [
-    { selecteur: 'h1', icone: '<i class="bi bi-stars"></i>', titre: 'Découvrir mes compétences',
+    { selecteur: 'h1', icone: '<i class="bi bi-stars"></i>', titre: 'À partir de mon récit',
       texte: 'À partir de ce que vous racontez de votre parcours, ce module vous aide à en tirer un CV, même si vous n’avez jamais eu d’emploi déclaré. Il n’invente rien et ne porte aucun avis sur vous.' },
     { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
       texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos réponses ne sont pas perdues.' }
@@ -40519,6 +42679,13 @@ AIDE_PAGES['un-cv-plusieurs-metiers'] = [
     texte: '« Retour » revient à la page d’avant sans rien effacer, « Accueil » ramène à l’écran de départ. Votre travail est gardé tant que vous ne cliquez pas sur « Recommencer ».' }
 ];
 AIDE_PAGES['un-cv-plusieurs-metiers-intro'] = AIDE_PAGES['un-cv-plusieurs-metiers'];
+// Page « Le complément de votre CV » (route complement-cv) : une aide guidee, comme toutes les pages routees (essai « aide »).
+AIDE_PAGES['complement-cv'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-plus-circle"></i>', titre: 'Le complément de votre CV',
+    texte: 'L’assistant propose parfois de compléter votre CV (missions de vos formations, de vos certifications). Vous pouvez importer sa réponse maintenant, ou passer : votre CV est déjà prêt.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à la page d’avant sans rien effacer, « Accueil » ramène à l’écran de départ. Le complément reste importable plus tard depuis la page de création du CV.' }
+];
 // Pages qui n'avaient aucune aide (inventaire du 2026-10-15, docs/CHANTIER_AIDE_A_JOUR.md).
 AIDE_PAGES['candidater'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-send"></i>', titre: 'Candidater',
@@ -40528,9 +42695,9 @@ AIDE_PAGES['candidater'] = [
   { selecteur: '[data-cand-groupe="parcours"]', icone: '&#128221;', titre: 'Ce que vous préparez',
     texte: 'Choisissez ce dont vous avez besoin maintenant : votre CV, votre lettre de motivation ou votre entretien. Vous pourrez revenir en préparer un autre ensuite.' },
   { selecteur: '[data-cand-groupe="type"]', icone: '&#127919;', titre: 'Votre cible',
-    texte: '« Une structure précise » si vous visez une entreprise ou une offre déterminée, « Recherche plus générale » si vous n’avez pas encore de cible. Les deux sont possibles, mais une lettre est plus forte avec une structure précise. Avec une structure précise, des champs apparaissent juste en dessous : le nom de l’entreprise est nécessaire pour continuer, le site, l’offre et le reste sont facultatifs.' },
+    texte: '« Une structure précise » si vous visez une entreprise ou une offre déterminée, « Recherche plus générale » si vous n’avez pas encore de cible. Les deux sont possibles, mais une lettre est plus forte avec une structure précise. Avec une structure précise, des champs apparaissent juste en dessous : le nom de l’entreprise est nécessaire pour continuer, le site, l’offre et le reste sont à compléter.' },
   { selecteur: '#candZoneEntreprise', icone: '&#127970;', titre: 'L’entreprise visée',
-    texte: 'Indiquez au moins le nom de l’entreprise : le bloc passe alors en « complété ». Le site, le texte ou le lien de l’offre, le type de structure, la personne qui recrute et les couleurs de l’entreprise sont facultatifs, mais aident à personnaliser votre CV et votre lettre. Tout s’enregistre au fur et à mesure.' },
+    texte: 'Indiquez au moins le nom de l’entreprise : le bloc passe alors en « complété ». Le site, le texte ou le lien de l’offre, le type de structure, la personne qui recrute et les couleurs de l’entreprise sont à compléter, mais aident à personnaliser votre CV et votre lettre. Tout s’enregistre au fur et à mesure.' },
   { selecteur: '[data-cand-groupe="cv"]', icone: '&#128196;', titre: 'Votre CV',
     texte: 'Dites si vous avez déjà un CV. Si oui, vous choisissez de le compléter ou de le garder tel quel ; si non, l’application vous aide à le créer à partir de votre parcours.' },
   { selecteur: '[data-cand-continuer]', icone: '&#9193;', titre: 'Continuer',
@@ -40540,13 +42707,33 @@ AIDE_PAGES['candidater'] = [
 ];
 AIDE_PAGES['creer-cv'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-stars"></i>', titre: 'Créer un nouveau CV',
-    texte: 'On part d’une page blanche et l’application vous accompagne pas à pas, une question à la fois. À la fin, vous obtenez un CV complet, prêt à mettre en forme.' },
-  { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
-    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Continuer » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
+    texte: 'On part d’une page blanche. Trois façons de faire : à la main, avec l’assistant en ligne, ou à partir de votre récit. À la fin, vous obtenez un CV complet, prêt à mettre en forme.' },
+  { selecteur: '#btnCreerCvSansAssistant', icone: '<i class="bi bi-pencil"></i>', titre: 'Les trois parcours',
+    texte: '« À la main » : vous écrivez tout vous-même, rien n’est envoyé. « Avec l’assistant en ligne » : il vous aide à formuler vos informations. « À partir de mon récit » : vous racontez ce que vous avez vécu, l’assistant en tire vos expériences et vos compétences. Un clic sur une carte ouvre la présentation du parcours, avec le bouton pour commencer.' },
+  { selecteur: '#blocMgVoirModeles', icone: '<i class="bi bi-grid-1x2"></i>', titre: 'Voir nos modèles',
+    texte: 'Regardez nos modèles de CV avant de remplir quoi que ce soit, et gardez jusqu’à 5 modèles : vous les retrouverez, avec votre texte, au moment de choisir la mise en page.' },
+  { selecteur: '#btnCreerCvRecitContinuer, #btnCreerCvContinuer, #btnCreerCvReprendre', icone: '&#9193;', titre: 'Continuer ou recommencer',
+    texte: 'Si vous avez déjà commencé un parcours, il n’y en a qu’un à la fois : « Continuer » reprend là où vous en étiez, « Recommencer » repart de zéro après confirmation, et les trois parcours reviennent.' },
   { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Les étapes',
     texte: 'Cette barre montre le chemin complet. Elle sert de repère : on avance avec « Continuer », sans rien envoyer sans votre accord.' },
   { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
     texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
+];
+AIDE_PAGES['creer-cv-main'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-pencil"></i>', titre: 'Créer mon CV à la main',
+    texte: 'Vous écrivez vous-même vos informations, étape par étape, sans assistant en ligne : rien n’est envoyé nulle part et vos textes restent exactement les vôtres. Cette page explique ce qui va se passer.' },
+  { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
+    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Continuer » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient aux trois façons de faire, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
+];
+AIDE_PAGES['creer-cv-assistant'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-chat-dots"></i>', titre: 'Créer mon CV avec l’assistant en ligne',
+    texte: 'Vous remplissez vos informations, puis un assistant en ligne vous aide à les formuler : phrase d’accroche, missions reformulées. Cette page explique ce qui va se passer.' },
+  { selecteur: '#btnCreerCvCommencer', icone: '&#9193;', titre: 'Commencer mon CV',
+    texte: 'Lance le parcours. Si vous avez déjà commencé, ce bouton laisse sa place à « Continuer » (qui reprend là où vous en étiez) et à « Recommencer » (qui repart de zéro, après confirmation).' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient aux trois façons de faire, « Accueil » ramène à l’écran de départ. Ce que vous avez saisi est gardé.' }
 ];
 AIDE_PAGES['comprendre-les-chiffres-intro'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-bar-chart"></i>', titre: 'Comprendre les chiffres',
@@ -40749,10 +42936,10 @@ var AIDE_FENETRES = {
   ],
   'regard-exterieur-resultat': [
     { selecteur: '#zoneCollageAutoRegardExterieur, #zoneApercuCollageRegardExterieur', icone: '&#128203;', titre: 'Un aller-retour tout simple',
-      texte: 'Ouvrez l’assistant, collez-y le texte déjà copié, récupérez sa réponse complète, puis revenez ici la coller à votre tour, et cliquez sur Importer.' },
+      texte: 'Ouvrez l’assistant, collez-y le texte déjà copié, récupérez sa réponse complète, puis revenez ici la coller à votre tour, et cliquez sur Continuer.' },
     { selecteur: '.regard-exterieur-toggle-vues', icone: '&#128270;', titre: 'Deux façons de lire le résultat',
       texte: '« Vue d’ensemble » relie vos Repères entre eux, quelle que soit leur catégorie : c’est elle qui fait apparaître des liens qu’une lecture séparée ne montrerait pas. « Vue par catégorie » reprend chaque catégorie de Repère (Question, Idée, À approfondir, À discuter) séparément.' },
-    { selecteur: '#btnRegardExterieurApprofondir', icone: '&#10133;', titre: 'Aller plus loin (facultatif)',
+    { selecteur: '#btnRegardExterieurApprofondir', icone: '&#10133;', titre: 'Aller plus loin',
       texte: 'Ce bouton propose de choisir une ou plusieurs catégories à approfondir. Vous répondrez ensuite à quelques questions déjà préparées pour ces catégories, jamais obligatoires : répondez seulement à celles qui vous parlent.' }
   ],
   'regard-exterieur-selection-categories': [
@@ -40786,7 +42973,7 @@ var AIDE_FENETRES = {
   ],
   'reperes-saisie-libre': [
     { selecteur: '#reperesSaisieTitre', icone: '&#127991;&#65039;', titre: 'Un titre, si vous voulez',
-      texte: 'Facultatif. S’il reste vide, il se remplit tout seul avec le début de votre texte, et vous pouvez le changer quand vous voulez.' },
+      texte: 'À compléter. S’il reste vide, il se remplit tout seul avec le début de votre texte, et vous pouvez le changer quand vous voulez.' },
     { selecteur: '#reperesSaisieTexte', icone: '&#9999;&#65039;', titre: 'Votre réflexion',
       texte: 'Quelques mots suffisent, rien n’est obligatoire. Vous pouvez aussi dicter votre texte : le raccourci est rappelé au-dessus du champ.' },
     { selecteur: '#reperesSaisieTerminer', icone: '&#10003;', titre: 'C’est noté',
@@ -40797,7 +42984,7 @@ var AIDE_FENETRES = {
       texte: 'Le CCAS de votre mairie et la Maison Départementale des Solidarités de votre secteur peuvent débloquer une aide d’urgence et vous orienter vers les bons dispositifs.' }
   ],
   'regard-exterieur-deuxieme-regard-optin': [
-    { selecteur: '.fenetre-erip-corps', icone: '&#128300;', titre: 'C’est facultatif',
+    { selecteur: '.fenetre-erip-corps', icone: '&#128300;', titre: 'C’est à compléter',
       texte: 'Répondre à ces quelques questions aide l’assistant à mieux comprendre ce qui se joue autour de vos Repères. Si vous préférez aller vite, choisissez « Non, relire tel quel » : l’assistant relira vos Repères comme aujourd’hui.' }
   ]
 };
@@ -41496,6 +43683,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initHauteurProgressionFixe();
   initAncrageLexiqueReperes();
   initBulleInfoHoverFlottante();
+  initBoutonsBarreBas();
 });
 
 // TACHE (chantier tests) : export CommonJS protege -- n'existe que sous
@@ -41513,6 +43701,7 @@ if (typeof module !== 'undefined') {
     // l'utilisent deja (CV, lettre, entretien) : ajout d'un export, pas
     // une modification de comportement.
     extraireBlocJSONDepuisTexte: extraireBlocJSONDepuisTexte,
+    analyserReponseIALettre: analyserReponseIALettre,   // testee dans tests/analyserReponseIALettre.test.js
     // Panneau Candidature partage (2026-09-29) : fonctions de lecture pures,
     // testees dans tests/panneauCandidaturePartage.test.js.
     contexteCandidaturePourAnalyse: contexteCandidaturePourAnalyse,

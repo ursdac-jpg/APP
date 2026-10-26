@@ -4,7 +4,7 @@
    Seule couche du module qui connait les noms reels des placeholders du
    Prompt 1 -- CV, NIVEAU_ANALYSE, METIER_VISE_OU_NON_FOURNI,
    OFFRE_EMPLOI_OU_NON_FOURNIE, ENTREPRISE_CIBLEE_OU_NON_FOURNIE,
-   SITE_ENTREPRISE_OU_NON_FOURNI, TYPE_STRUCTURE_OU_NON_FOURNI,
+   SITE_ENTREPRISE_OU_NON_FOURNI, TYPE_STRUCTURE_OU_NON_FOURNI, DISPONIBILITES_OU_NON_FOURNIES,
    PROFIL_RECONVERSION_OU_DEBUTANT,
    OBSERVATIONS_DETERMINISTES, POINTS_DEJA_CONNUS_OU_NON_FOURNIS,
    ELEMENTS_DEJA_IDENTIFIES_OU_NON_FOURNIS (voir prompts/bilan-v1.md,
@@ -66,6 +66,7 @@ function bilanConstruireValeursPlaceholders(candidature, contexteAnalyse) {
     ENTREPRISE_CIBLEE_OU_NON_FOURNIE: bilanFormaterValeurOptionnelle(candidature.entrepriseCiblee),
     SITE_ENTREPRISE_OU_NON_FOURNI: bilanFormaterValeurOptionnelle(candidature.siteEntreprise),
     TYPE_STRUCTURE_OU_NON_FOURNI: bilanFormaterTypeStructure(candidature),
+    DISPONIBILITES_OU_NON_FOURNIES: bilanFormaterValeurOptionnelle(candidature.disponibilites),
     PROFIL_RECONVERSION_OU_DEBUTANT: bilanProfilRequiertPosturePrioritaire(candidature) ? 'Oui' : 'Non',
     OBSERVATIONS_DETERMINISTES: bilanFormaterObservationsDeterministes(contexteAnalyse.observations),
     // TACHE (chantier "ignorer un point du rapport", 2026-08-25, DECISION

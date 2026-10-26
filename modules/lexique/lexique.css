@@ -394,3 +394,20 @@
   [id^="lexique"] .lexique-fiche-renvoi { grid-template-columns: 1fr; gap: 0.25rem; }
   [id^="lexique"] .lexique-fiche-renvoi-lib { padding-top: 0; }
 }
+
+/* TACHE (chantier « des chiffres a jour dans le Lexique », 2026-10-20, maquette docs/MAQUETTE_LEXIQUE_CHIFFRES_A_JOUR_2026-10-20.html) :
+   le bloc « Les chiffres a jour » d'une fiche, sous la definition. Libelle au-dessus de la valeur (lisible sur telephone).
+   Couleurs : uniquement des jetons de theme (--accent, --bg-subtle, --border, --text-*), donc mode sombre automatique.
+   Le message general (bloc perime) prend le meme cadre, en pointilles. */
+[id^="lexique"] .lexique-fiche-chiffres {
+  margin: 1rem 0 1.2rem; padding: 0.9rem 1.1rem; max-width: 62ch;
+  background: var(--bg-subtle); border: 1px solid var(--border); border-left: 6px solid var(--accent);
+  border-radius: 0.7rem;
+}
+[id^="lexique"] .lexique-fiche-chiffres h2.h6 { margin: 0 0 0.6rem; color: var(--text-strong); font-weight: 700; }
+[id^="lexique"] .lexique-fiche-chiffres dl { margin: 0; }
+[id^="lexique"] .lexique-fiche-chiffres dt { color: var(--text-muted); font-size: 0.95rem; font-weight: 400; }
+[id^="lexique"] .lexique-fiche-chiffres dd { margin: 0 0 0.6rem; color: var(--text-strong); font-size: 1.06rem; font-weight: 700; }
+[id^="lexique"] .lexique-fiche-chiffres-pied { color: var(--text-muted); font-size: 0.95rem; }
+[id^="lexique"] .lexique-fiche-chiffres-message { border-left: 1px dashed var(--border-strong); border: 1px dashed var(--border-strong); }
+[id^="lexique"] .lexique-fiche-chiffres .btn { min-height: 44px; display: inline-flex; align-items: center; gap: 0.4rem; text-align: left; }

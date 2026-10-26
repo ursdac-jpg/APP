@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : aperçu et parcours de la lettre</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--off:#9aa3b2;--feuille:#fff;--feuilletxt:#1a1a1a}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342;--off:#5a6476;--feuille:#fff;--feuilletxt:#1a1a1a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 110px}
+.page{max-width:1180px;margin:0 auto}
+h1{font-size:1.9rem;margin:1rem 0 .4rem;text-align:center}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.cas{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;font-size:.85rem}
+.cas select{width:auto;border:1px solid var(--bord);border-radius:8px;padding:.2rem .4rem;background:var(--card)}
+.rect{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;overflow:hidden}
+.rect.ok{border-color:var(--ok)}
+.rect.verrou{opacity:.65}
+.tete{padding:.8rem 1rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.tete .titre{font-weight:700;font-size:1.05rem}
+.tete .sous{color:var(--muted);font-size:.85rem}
+.pil{margin-left:auto;font-size:.8rem;border-radius:999px;padding:.15rem .7rem;background:var(--sub);border:1px solid var(--bord)}
+.pil.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.corps{padding:0 1rem 1rem}
+.grille{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.5rem;align-items:start}
+@media (max-width:760px){.grille{grid-template-columns:minmax(0,1fr)}.colapercu{position:static !important}}
+.carte{border:1px solid var(--bord);border-left:4px solid var(--acc);border-radius:10px;background:var(--sub);padding:.6rem .9rem .8rem;margin:.7rem 0}
+.carte h3{font-size:.98rem;margin:.1rem 0 .3rem}
+.jetons{display:flex;flex-wrap:wrap;gap:.45rem;margin:.3rem 0;align-items:center}
+.jeton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.35rem .8rem;font-weight:600;font-size:.92rem}
+.jeton:hover{border-color:var(--acc)}
+.jeton.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.jeton.actif::before{content:"\2713\00a0"}
+input[type=text]{width:100%;border:2px solid var(--bord);border-radius:10px;padding:.45rem .7rem;background:var(--card)}
+input:focus{outline:none;border-color:var(--acc)}
+.champ label.lb{display:block;font-weight:700;font-size:.88rem;margin:.5rem 0 .2rem}
+.btn{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.5rem 1rem;font-weight:600}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.imprime{border:1px dashed var(--ok);background:var(--okbg);border-radius:8px;padding:.4rem .6rem;font-size:.86rem;margin:.4rem 0}
+.colapercu{position:sticky;top:3.6rem}
+.cadre{border:1px solid var(--bord);border-radius:10px;background:var(--sub);padding:6px;cursor:zoom-in}
+.cadre:hover{border-color:var(--acc)}
+.fenetre{position:relative;overflow:hidden;margin:0 auto}
+.feuille{width:794px;height:1123px;background:var(--feuille);color:var(--feuilletxt);font-family:Georgia,'Times New Roman',serif;padding:60px 73px;transform-origin:top left;position:absolute;left:0;top:0;box-shadow:0 0 0 1px #0002;overflow:hidden}
+.feuille .exp{font-size:13.3px;line-height:1.45}
+.feuille .dest{text-align:right;font-size:13.3px;line-height:1.45;margin-top:22px}
+.feuille .date{text-align:right;font-size:13.3px;margin:18px 0 20px}
+.feuille .objet{font-size:14px;margin-bottom:20px}
+.feuille .corps2 p{font-size:14px;margin:0 0 13px;text-align:justify;line-height:1.5}
+.feuille .mail{font:15px/1.6 system-ui,Arial,sans-serif}
+.infopage{font-size:.84rem;color:var(--muted);margin:.4rem 2px 0}
+.infopage b{color:var(--ok)}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:1180px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.nav.cache{visibility:hidden}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.suite{background:var(--sub);border:1px solid var(--bord);border-radius:12px;padding:.8rem;text-align:center;margin:.9rem 0}
+.exp-btns{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0}
+.rappel{color:var(--warn);font-size:.88rem;margin-top:.4rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:80px;background:var(--txt);color:var(--bg);border-radius:10px;padding:.5rem 1rem;font-size:.9rem;opacity:0;transition:opacity .3s;z-index:20;pointer-events:none}
+.toast.vu{opacity:1}
+.plein{position:fixed;inset:0;background:var(--bg);z-index:15;display:none;flex-direction:column;align-items:center;overflow:auto;padding:3.4rem 1rem 1rem}
+.plein.ouvert{display:flex}
+.plein .fermer{position:fixed;top:12px;left:12px;z-index:16}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:2rem 0}
+.questions h2{color:var(--new);font-size:1.1rem}
+.questions li{margin:.7rem 0}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (24/10/2026) : aperçu et parcours de la lettre</strong>
+  <span class="cas"><label for="cas">Cas à essayer :</label>
+    <select id="cas">
+      <option value="entreprise">Entreprise connue, personne inconnue</option>
+      <option value="connue">Personne connue (Madame Machin)</option>
+      <option value="generale">Aucune entreprise (candidature générale)</option>
+    </select></span>
+  <span style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Voir les annotations</label>
+    <button class="mini" id="tTheme" type="button">Mode sombre</button>
+    <button class="mini" id="tReset" type="button">Revenir au début</button>
+  </span>
+</div>
+
+<h1>&#128196; Vos documents</h1>
+<div class="note">Cette maquette montre l'écran de la lettre après le retour de l'assistant : <b>1) La mise en page</b> (aperçu comme dans le CV, qui suit le défilement), <b>2) « Valider la lettre » dans la barre du bas</b>, <b>3) Exporter</b> (verrouillé avant la validation, avec « Télécharger »), <b>4) Préparer l'entretien</b> (après un téléchargement seulement). Chaque réglage change l'aperçu en direct.</div>
+
+<!-- Rectangle 1 : la mise en page -->
+<section class="rect" id="rectMep">
+  <div class="tete"><span aria-hidden="true">&#128208;</span><span class="titre">La mise en page</span><span class="sous" id="sousMep"></span><span class="pil" id="pilMep">En cours</span></div>
+  <div class="corps" id="corpsMep">
+    <div class="grille">
+      <div class="colreglages">
+        <button class="btn" type="button" id="btnTexte">&#9999;&#65039; Modifier le texte</button>
+        <div class="note">« Modifier le texte » reste comme aujourd'hui (il n'est pas redessiné ici).</div>
+
+        <div class="carte">
+          <h3>&#128209; Format</h3>
+          <div class="jetons" id="jFormat">
+            <button class="jeton actif" type="button" data-f="A4">Feuille A4</button>
+            <button class="jeton" type="button" data-f="mail">Message par mail</button>
+          </div>
+          <p class="small muted" id="aideFormat">Feuille A4 : la lettre à imprimer ou à envoyer en pièce jointe.</p>
+          <div style="margin-top:.5rem"><button class="btn" type="button" id="btnAjuster">&#128207; Ajuster le texte à la page</button> <span class="small muted" id="ajusteMsg"></span></div>
+          <div class="note">Le bouton « Ajuster le texte à la page » (étape suivante du chantier) choisit la taille du texte, de 10 à 12 points, pour que la lettre remplisse bien une page, ni trop petite ni qui déborde.</div>
+        </div>
+
+        <div class="carte">
+          <h3>&#128100; Vos coordonnées (en haut à gauche)</h3>
+          <div class="imprime" id="imprimeExp">Imprimé : <b>Marie Durand</b>, <b>24100 Bergerac</b>, <b>06.12.34.56.78</b>, <b>marie.durand@exemple.fr</b></div>
+          <label class="tog"><input type="checkbox" id="cRue"> Ajouter aussi ma rue (12 rue des Lilas)</label>
+          <div class="note">Le nom, le code postal et la ville, le téléphone et l'e-mail sont toujours imprimés. La rue est facultative, décochée au départ (question 1 en bas de page).</div>
+        </div>
+
+        <div class="carte" id="carteDest">
+          <h3>&#9993;&#65039; À qui s'adresse la lettre ? (en haut à droite)</h3>
+          <div id="blocAucune" class="small muted" hidden>Aucune entreprise n'est indiquée : la lettre commence par « Madame, Monsieur, » et n'a pas de bloc destinataire. Pour en ajouter un, indiquez l'entreprise dans la partie « Votre candidature » de la page « Préparer ».</div>
+          <div id="blocDest">
+            <p class="small" style="margin:.1rem 0"><b id="nomEnt">XEFI Bergerac</b></p>
+            <div class="champ"><label class="lb" for="adrEnt">Adresse de l'entreprise (à compléter)</label>
+              <input type="text" id="adrEnt" placeholder="12 rue des Lilas, 24100 Bergerac">
+              <p class="small muted" style="margin:.2rem 0">Elle n'est imprimée que s'il reste de la place sur la page.</p></div>
+            <div class="champ"><label class="lb" id="libChoix">À qui vous adressez-vous ?</label>
+              <div class="jetons" id="jServ"></div>
+              <input type="text" id="autreServ" placeholder="Écrivez la suite de « À l'attention » (par exemple : de Monsieur le Directeur)" hidden>
+            </div>
+            <p class="small muted" id="resumeDest" style="margin:.3rem 0"></p>
+            <div class="note">Une seule liste de choix (question 2 en bas de page). Si vous connaissez la personne, son nom est écrit sur la ligne « À l'attention de » et la liste ne propose que le service.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="colapercu">
+        <div class="cadre" id="cadre" role="button" tabindex="0" aria-label="Ouvrir le grand aperçu"><div class="fenetre" id="fenetre"><div class="feuille" id="feuille"></div></div></div>
+        <div class="infopage" id="infoPage"></div>
+        <div class="note">L'aperçu s'affiche en entier (aucune barre de défilement), suit le défilement de la page, et un clic dessus ouvre le grand aperçu. Plus de bouton « Aperçu à taille réelle » ni « Télécharger » ici.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Rectangle 2 : exporter -->
+<section class="rect verrou" id="rectExp">
+  <div class="tete"><span aria-hidden="true">&#128228;</span><span class="titre">Exporter</span><span class="sous" id="sousExp">s'ouvrira après « Valider la lettre »</span><span class="pil" id="pilExp"></span></div>
+  <div class="corps" id="corpsExp" hidden>
+    <div class="exp-btns">
+      <button class="btn p" type="button" id="bWord">&#128190; Télécharger le Word</button>
+      <button class="btn p" type="button" id="bPdf">&#128196; Enregistrer en PDF</button>
+      <button class="btn" type="button" id="bTexte">&#128203; Texte à copier</button>
+    </div>
+    <div class="note">Le PDF vient de l'impression du même aperçu que le Word (essai de faisabilité réussi le 24/10/2026) : le texte reste sélectionnable.</div>
+    <div class="carte" id="carteJoindre">
+      <h3>&#129309; Joindre vos lettres de recommandation au PDF</h3>
+      <div class="jetons" id="jJoindre">
+        <button class="jeton actif" type="button" data-j="aucune">Aucune</button>
+        <button class="jeton" type="button" data-j="ref">Seulement celle de référence</button>
+        <button class="jeton" type="button" data-j="toutes">Toutes (2)</button>
+      </div>
+      <p class="small muted">Les pages jointes sont celles que vous avez déposées, <b>sans masquage</b> : la lettre part chez l'employeur, pas chez l'assistant.</p>
+      <div class="note">Dernière étape du chantier (jointure au PDF). Visible ici pour valider la place de ce choix : il n'apparaît que si vous avez déposé une lettre de recommandation.</div>
+    </div>
+    <p class="rappel" id="rappel" hidden>&#128190; Pensez à sauvegarder ce document : envoyez-le-vous par e-mail, ou copiez-le sur une clé USB ou un espace personnel. Ce site ne conserve aucune donnée.</p>
+  </div>
+</section>
+
+<!-- Suite : entretien -->
+<div class="suite" id="suiteEntretien" hidden>
+  <p class="small" style="margin:.2rem 0 .5rem">On peut préparer ensemble l'entretien d'embauche, à partir de cette lettre et du CV créé précédemment.</p>
+  <button class="btn" type="button" id="bEntretien">&#127908; Préparation à l'entretien</button>
+</div>
+<div class="note">« Préparation à l'entretien » n'apparaît qu'une fois la lettre téléchargée ou copiée (avant, rien : plus de risque de partir sans avoir récupéré sa lettre).</div>
+
+<div class="questions">
+  <h2>Trois questions pour vous, Denis</h2>
+  <ol>
+    <li><b>La rue dans votre en-tête ?</b> Recommandé : <b>non</b> par défaut (nom, code postal et ville, téléphone, e-mail suffisent pour un recruteur, et c'est une information en moins qui circule), avec la case « Ajouter aussi ma rue » pour qui y tient. Autre choix : toujours l'imprimer comme aujourd'hui, sans case.</li>
+    <li><b>Une seule liste de choix pour « à qui je m'adresse » ?</b> Recommandé : <b>oui</b> (service recrutement, ressources humaines, service technique, commercial, comptabilité, responsable du recrutement, direction, gérant, ou « Autre » à écrire). Quand la personne est connue, la liste se limite aux services. Autre choix : deux listes séparées (un service, puis un destinataire), plus précis mais plus lourd à remplir.</li>
+    <li><b>« Préparation à l'entretien » après le premier téléchargement ou copie ?</b> Recommandé : <b>oui</b>, dès que la personne a récupéré sa lettre par un des trois boutons. Autre choix : seulement après le Word ou le PDF (pas après le « texte à copier »).</li>
+  </ol>
+</div>
+</div>
+
+<!-- Barre du bas -->
+<div class="barre"><div class="in">
+  <button class="nav" type="button" id="nRetour">&larr; Retour</button>
+  <button class="nav" type="button" id="nAccueil">&#127968; Accueil</button>
+  <button class="nav suivant" type="button" id="nValider">Valider la lettre &rarr;</button>
+</div></div>
+
+<!-- Grand aperçu -->
+<div class="plein" id="plein">
+  <button class="btn fermer" type="button" id="bFermer">&larr; Revenir aux réglages</button>
+  <div class="fenetre" id="fenetreG"><div class="feuille" id="feuilleG"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var E = { cas: 'entreprise', format: 'A4', service: 'recrutement', autre: '', rue: false, adresse: '', valide: false, recupere: false, joindre: 'aucune', taille: 14 };
+  var SERVICES = [
+    { id: 'recrutement', lib: 'Service recrutement', ligne: 'du service recrutement', service: true },
+    { id: 'rh', lib: 'Ressources humaines', ligne: 'du service des ressources humaines', service: true },
+    { id: 'technique', lib: 'Service technique', ligne: 'du service technique', service: true },
+    { id: 'commercial', lib: 'Service commercial', ligne: 'du service commercial', service: true },
+    { id: 'compta', lib: 'Service comptabilité', ligne: 'du service comptabilité', service: true },
+    { id: 'responsable', lib: 'Responsable du recrutement', ligne: 'du responsable du recrutement', service: false },
+    { id: 'direction', lib: 'Direction', ligne: 'de la direction', service: false },
+    { id: 'gerant', lib: 'Gérant', ligne: 'du gérant', service: false },
+    { id: 'autre', lib: 'Autre…', ligne: '', service: true }
+  ];
+  function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function serviceChoisi() { return SERVICES.filter(function (s) { return s.id === E.service; })[0] || SERVICES[0]; }
+  function ligneAttention() {
+    if (E.cas === 'connue') { return 'À l’attention de Madame Machin'; }
+    var s = serviceChoisi();
+    return 'À l’attention ' + (s.id === 'autre' ? (E.autre.trim() || '…') : s.ligne);
+  }
+  function mots(t) { return t.split(/\s+/).filter(Boolean).length; }
+  var CORPS = [
+    'Madame, Monsieur,',
+    'Je me permets de vous proposer ma candidature au poste de technicien de maintenance informatique au sein de votre entreprise. Formée en maintenance des systèmes numériques, j’ai appris à diagnostiquer une panne, à intervenir chez un client et à expliquer simplement ce que je fais.',
+    'Votre entreprise accompagne les professionnels de la région avec réactivité et proximité. Ce sont deux valeurs auxquelles je tiens : lors de mon stage, j’ai pris en charge des demandes de dépannage et appris à rassurer les personnes avant d’intervenir.',
+    'Au cours de mes expériences, j’ai installé des postes, vérifié des équipements et suivi des interventions jusqu’à leur clôture. J’aime comprendre l’origine d’un dysfonctionnement et laisser un poste en état de marche, avec des explications claires pour l’utilisateur.',
+    'Je serais heureuse de vous rencontrer pour vous présenter ma motivation et échanger sur les besoins de votre équipe. Je reste disponible pour un entretien à votre convenance.',
+    'Je vous prie d’agréer, Madame, Monsieur, mes salutations distinguées.'
+  ];
+  function htmlFeuille() {
+    var corps = E.taille;
+    var exp = '<div class="exp"><b>Marie Durand</b>' + (E.rue ? '<br>12 rue des Lilas' : '') + '<br>24100 Bergerac<br>06.12.34.56.78<br>marie.durand@exemple.fr</div>';
+    var dest = '';
+    if (E.cas !== 'generale') {
+      var lignes = ['<b>XEFI Bergerac</b>'];
+      if (E.adresse.trim() && E.taille <= 14.7) { lignes.push(esc(E.adresse.trim())); }
+      if (E.cas === 'connue') { lignes.push(esc(serviceChoisi().id === 'autre' ? (E.autre.trim() || 'Service') : serviceChoisi().lib)); }
+      lignes.push(esc(ligneAttention()));
+      dest = '<div class="dest">' + lignes.join('<br>') + '</div>';
+    }
+    return exp + dest +
+      '<div class="date">24 octobre 2026</div>' +
+      '<div class="objet" style="font-size:' + corps + 'px"><b>Objet :</b> Candidature au poste de technicien de maintenance informatique</div>' +
+      '<div class="corps2">' + CORPS.map(function (p) { return '<p style="font-size:' + corps + 'px">' + esc(p) + '</p>'; }).join('') + '</div>';
+  }
+  function htmlMail() {
+    return '<div class="mail"><p><b>Objet :</b> Candidature au poste de technicien de maintenance</p><p>Madame, Monsieur,</p>' +
+      '<p>Formée en maintenance des systèmes numériques, je vous propose ma candidature au poste de technicien de maintenance informatique. J’ai appris à diagnostiquer une panne, intervenir chez un client et expliquer simplement ce que je fais.</p>' +
+      '<p>Je serais heureuse de vous rencontrer. Vous trouverez mon CV en pièce jointe.</p><p>Cordialement,<br>Marie Durand<br>06.12.34.56.78</p></div>';
+  }
+  function remplir(feuille) { feuille.innerHTML = E.format === 'mail' ? htmlMail() : htmlFeuille(); feuille.style.padding = E.format === 'mail' ? '40px 50px' : ''; }
+  function echelle(fenetre, feuille, largeurMax, hauteurMax) {
+    var e = Math.min(largeurMax / 794, hauteurMax / 1123);
+    feuille.style.transform = 'scale(' + e + ')';
+    fenetre.style.width = (794 * e) + 'px'; fenetre.style.height = (1123 * e) + 'px';
+  }
+  function dessiner() {
+    remplir($('feuille')); remplir($('feuilleG'));
+    var col = $('cadre').parentNode.clientWidth - 14;
+    echelle($('fenetre'), $('feuille'), col, window.innerHeight - 190);
+    echelle($('fenetreG'), $('feuilleG'), window.innerWidth - 40, window.innerHeight - 90);
+    var n = mots(CORPS.join(' '));
+    $('infoPage').innerHTML = E.format === 'mail'
+      ? 'Message court à copier dans un courriel : pas de bloc d’adresses.'
+      : '<b>La lettre tient sur une page</b> (' + n + ' mots, texte en ' + (E.taille * 0.75).toFixed(1).replace('.', ',') + ' pt).';
+  }
+  function jetonsServices() {
+    var liste = SERVICES.filter(function (s) { return E.cas !== 'connue' || s.service; });
+    $('libChoix').textContent = E.cas === 'connue' ? 'Service de Madame Machin' : 'À qui vous adressez-vous ?';
+    $('jServ').innerHTML = liste.map(function (s) {
+      return '<button type="button" class="jeton' + (s.id === E.service ? ' actif' : '') + '" data-s="' + s.id + '">' + esc(s.lib) + '</button>';
+    }).join('');
+    $('autreServ').hidden = E.service !== 'autre';
+    $('autreServ').placeholder = E.cas === 'connue' ? 'Écrivez le nom du service (par exemple : Service logistique)' : 'Écrivez la suite de « À l’attention » (par exemple : de Monsieur le Directeur)';
+    $('resumeDest').innerHTML = 'Ligne imprimée : <b>' + esc(ligneAttention()) + '</b>';
+    Array.prototype.forEach.call($('jServ').querySelectorAll('[data-s]'), function (b) {
+      b.addEventListener('click', function () { E.service = this.getAttribute('data-s'); majTout(); });
+    });
+  }
+  function majCas() {
+    var g = E.cas === 'generale';
+    $('blocAucune').hidden = !g; $('blocDest').hidden = g;
+  }
+  function majTout() { majCas(); jetonsServices(); dessiner(); }
+
+  // Réglages
+  $('cas').addEventListener('change', function () { E.cas = this.value; if (E.cas === 'connue' && !serviceChoisi().service) { E.service = 'recrutement'; } majTout(); });
+  Array.prototype.forEach.call($('jFormat').querySelectorAll('[data-f]'), function (b) {
+    b.addEventListener('click', function () {
+      E.format = this.getAttribute('data-f');
+      Array.prototype.forEach.call($('jFormat').children, function (x) { x.classList.toggle('actif', x === b); });
+      $('aideFormat').textContent = E.format === 'mail' ? 'Message par mail : un texte plus court, rédigé à part par l’assistant, à copier dans le corps d’un courriel. Pas de bloc d’adresses.' : 'Feuille A4 : la lettre à imprimer ou à envoyer en pièce jointe.';
+      $('btnAjuster').disabled = E.format === 'mail';
+      $('carteDest').style.display = E.format === 'mail' ? 'none' : '';
+      $('imprimeExp').parentNode.style.display = E.format === 'mail' ? 'none' : '';
+      dessiner();
+    });
+  });
+  $('cRue').addEventListener('change', function () { E.rue = this.checked; dessiner(); });
+  $('adrEnt').addEventListener('input', function () { E.adresse = this.value; dessiner(); });
+  $('autreServ').addEventListener('input', function () { E.autre = this.value; $('resumeDest').innerHTML = 'Ligne imprimée : <b>' + esc(ligneAttention()) + '</b>'; dessiner(); });
+  $('btnAjuster').addEventListener('click', function () {
+    E.taille = E.taille === 14 ? 15.3 : 14;
+    $('ajusteMsg').textContent = E.taille > 14 ? 'Texte agrandi (11,5 pt) : la lettre est courte, elle remplit mieux la page. L’adresse de l’entreprise passe en premier si la place manque.' : 'Taille d’origine rétablie (10,5 pt).';
+    dessiner();
+  });
+  $('btnTexte').addEventListener('click', function () { toast('Ici s’ouvre « Modifier le texte », comme aujourd’hui.'); });
+  $('imprimeExp').innerHTML = 'Imprimé : <b>Marie Durand</b>, <b>24100 Bergerac</b>, <b>06.12.34.56.78</b>, <b>marie.durand@exemple.fr</b>';
+
+  // Grand aperçu : clic sur l'aperçu
+  function ouvrirPlein() { $('plein').classList.add('ouvert'); dessiner(); }
+  $('cadre').addEventListener('click', ouvrirPlein);
+  $('cadre').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrirPlein(); } });
+  $('bFermer').addEventListener('click', function () { $('plein').classList.remove('ouvert'); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { $('plein').classList.remove('ouvert'); } });
+
+  // Parcours : valider -> exporter -> entretien
+  function etat() {
+    var r = $('rectExp'), c = $('corpsExp');
+    r.classList.toggle('verrou', !E.valide);
+    r.classList.toggle('ok', E.valide && E.recupere);
+    c.hidden = !E.valide;
+    $('sousExp').textContent = E.valide ? (E.recupere ? 'document récupéré' : '') : 's’ouvrira après « Valider la lettre »';
+    $('pilMep').textContent = E.valide ? 'Validée' : 'En cours';
+    $('pilMep').classList.toggle('ok', E.valide);
+    $('rectMep').classList.toggle('ok', E.valide);
+    $('corpsMep').hidden = E.valide;
+    $('sousMep').textContent = E.valide ? 'lettre validée : cliquez pour la modifier' : '';
+    $('suiteEntretien').hidden = !E.recupere;
+    $('rappel').hidden = !E.recupere;
+    $('nValider').classList.toggle('cache', E.valide);
+    $('nRetour').textContent = E.valide ? '← Modifier la lettre' : '← Retour';
+  }
+  $('nValider').addEventListener('click', function () { E.valide = true; etat(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(dessiner, 50); });
+  $('nRetour').addEventListener('click', function () { if (E.valide) { E.valide = false; etat(); setTimeout(dessiner, 50); } else { toast('Retour vers l’écran précédent (hors maquette).'); } });
+  $('nAccueil').addEventListener('click', function () { toast('Retour à l’accueil (hors maquette).'); });
+  $('rectMep').querySelector('.tete').addEventListener('click', function () { if (E.valide) { E.valide = false; etat(); setTimeout(dessiner, 50); } });
+  function recuperer(msg) { E.recupere = true; etat(); toast(msg); }
+  $('bWord').addEventListener('click', function () { recuperer('Le Word est téléchargé.'); });
+  $('bPdf').addEventListener('click', function () { recuperer('La boîte d’impression s’ouvre : choisissez « Enregistrer en PDF ».'); });
+  $('bTexte').addEventListener('click', function () { recuperer('Le texte est copié.'); });
+  $('bEntretien').addEventListener('click', function () { toast('Ici s’ouvre la préparation à l’entretien (hors maquette).'); });
+  Array.prototype.forEach.call($('jJoindre').querySelectorAll('[data-j]'), function (b) {
+    b.addEventListener('click', function () { Array.prototype.forEach.call($('jJoindre').children, function (x) { x.classList.toggle('actif', x === b); }); });
+  });
+
+  // Maquette
+  $('tAnn').addEventListener('change', function () { document.body.classList.toggle('ann', this.checked); dessiner(); });
+  $('tTheme').addEventListener('click', function () {
+    var s = document.documentElement.getAttribute('data-theme') === 'sombre';
+    document.documentElement.setAttribute('data-theme', s ? '' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair';
+  });
+  $('tReset').addEventListener('click', function () { E.valide = false; E.recupere = false; E.taille = 14; E.rue = false; E.adresse = ''; $('cRue').checked = false; $('adrEnt').value = ''; $('ajusteMsg').textContent = ''; etat(); majTout(); });
+  var tt = null;
+  function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('vu'); clearTimeout(tt); tt = setTimeout(function () { t.classList.remove('vu'); }, 2400); }
+  window.addEventListener('resize', dessiner);
+  etat(); majTout();
+})();
+</script>
+</body>
+</html>

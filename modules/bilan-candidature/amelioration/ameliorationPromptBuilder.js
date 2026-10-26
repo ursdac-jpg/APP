@@ -58,6 +58,7 @@ function bilanFormaterValeursCandidatureAmelioration(candidature) {
     ENTREPRISE_CIBLEE_OU_NON_FOURNIE: bilanFormaterValeurOptionnelle(candidature.entrepriseCiblee),
     SITE_ENTREPRISE_OU_NON_FOURNI: bilanFormaterValeurOptionnelle(candidature.siteEntreprise),
     TYPE_STRUCTURE_OU_NON_FOURNI: bilanFormaterTypeStructure(candidature),
+    DISPONIBILITES_OU_NON_FOURNIES: bilanFormaterValeurOptionnelle(candidature.disponibilites),
     // TACHE (posture prioritaire pour profil reconversion/debutant,
     // 2026-08-24, DECISION DE DENIS) : le Prompt 2 n'a jamais besoin de
     // savoir si une recommandation est "prioritaire" (ca ne le regarde

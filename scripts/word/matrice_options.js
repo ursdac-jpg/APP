@@ -104,8 +104,8 @@
   window.__typeLent = window.__typeLent || {}; window.__sansEffetConfirme = window.__sansEffetConfirme || {};
   window.__matModeles = function () {
     var l = [{ type: 'standard', id: 'standard' }];
-    ['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].forEach(function (v) { l.push({ type: 'sobre', id: v }); });
-    ['mqBandeau', 'mqDiagonale', 'mqColonne', 'mqCadre', 'mqPicto', 'frise', 'photoFrise', 'rectangles', 'sidebarVague', 'colonneFoncee', 'colonneClaire', 'colonneBandeau', 'colonneRuban', 'chronoFonce', 'friseFoncee', 'rubanDiagonal', 'duoOvale', 'cadreBarre', 'bandeauVertical', 'triangleSavoir', 'vagueMarine', 'diagonalesContrastees', 'losangeVert', 'pastille', 'medaillon'].forEach(function (i) { l.push({ type: 'creatif', id: i }); });
+    ['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-frise', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].forEach(function (v) { l.push({ type: 'sobre', id: v }); });
+    ['mqBandeau', 'mqDiagonale', 'mqColonne', 'mqCadre', 'mqPicto', 'frise', 'photoFrise', 'rectangles', 'sidebarVague', 'colonneFoncee', 'colonneClaire', 'colonneBandeau', 'colonneRuban', 'chronoFonce', 'friseFoncee', 'rubanDiagonal', 'bandeauxNoirs', 'duoOvale', 'cadreBarre', 'bandeauVertical', 'triangleSavoir', 'vagueMarine', 'diagonalesContrastees', 'losangeVert', 'pastille', 'medaillon'].forEach(function (i) { l.push({ type: 'creatif', id: i }); });
     return l;
   };
 

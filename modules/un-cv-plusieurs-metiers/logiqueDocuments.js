@@ -1,83 +1,13 @@
 /* ============================================================
    Module « Un CV, plusieurs métiers » : LOGIQUE PURE des documents à télécharger (page 7). Aucun DOM, testé par Node (tests/unCvPlusieursMetiersDocuments.test.js).
-   - La LETTRE : mise en page classique française sur une page A4 (décision de Denis du 2026-10-09) : coordonnées de la personne en haut à gauche, destinataire (employeur,
-     recruteur) et « lieu, le date » à droite, puis le texte de la lettre (formule d'appel, corps, formule de politesse, signature), marges de 25 mm, même police que le CV.
+   - La LETTRE : mise en page par les gabarits de la lettre seule (js/app.js, construireFeuilleLettreGabarit ; 24/10/2026, demande de Denis : tous les modèles, couleur et police du CV),
+     plus bas : police et dossier prêtés à chaque lettre.
    - Le DOCUMENT à imprimer : un document HTML dans lequel chaque CV et chaque lettre vit dans son propre compartiment étanche (shadow root déclaratif), pour que le style d'un
      modèle ne déforme jamais celui d'un autre (prototype du 2026-10-08, docs/CHANTIER_UN_CV_PLUSIEURS_METIERS_2026-09-30.md section 19).
    ============================================================ */
 
-var UCPM_POLICE_LETTRE_DEFAUT = '"Segoe UI", Roboto, Arial, sans-serif';
-
 function ucpmEchapperHtml(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function _ucpmTexteSimple(v) { return String(v == null ? '' : v).replace(/\s+/g, ' ').trim(); }
-
-// Les lignes de coordonnées de la personne (en haut à gauche) : nom, adresse, code postal et ville, téléphone, courriel. Une ligne vide est omise.
-function ucpmCoordonneesLettre(identite) {
-  var i = identite || {};
-  var nom = [_ucpmTexteSimple(i.prenom), _ucpmTexteSimple(i.nom)].filter(Boolean).join(' ');
-  var villeCp = [_ucpmTexteSimple(i.codePostal), _ucpmTexteSimple(i.ville)].filter(Boolean).join(' ');
-  return [nom, _ucpmTexteSimple(i.adresse), villeCp, _ucpmTexteSimple(i.telephone), _ucpmTexteSimple(i.email)].filter(Boolean);
-}
-
-// Les lignes du destinataire (à droite) : l'employeur et le recruteur seulement s'ils sont connus ; sinon rien (la lettre sert alors à plusieurs structures).
-function ucpmDestinataireLettre(objectif) {
-  var o = objectif || {};
-  var recruteur = [_ucpmTexteSimple(o.civiliteRecruteur), _ucpmTexteSimple(o.nomRecruteur)].filter(Boolean).join(' ');
-  return [_ucpmTexteSimple(o.employeur), recruteur].filter(Boolean);
-}
-
-// « Limoges, le 10 octobre 2026 » ; sans ville connue : « Le 10 octobre 2026 ». dateTexte vient de ucpmDateEnTexte (« 10 octobre 2026 », « 1er » le premier du mois).
-function ucpmLieuDateLettre(identite, dateTexte) {
-  var ville = _ucpmTexteSimple(identite && identite.ville);
-  var d = _ucpmTexteSimple(dateTexte);
-  return ville ? ville + ', le ' + d : 'Le ' + d;
-}
-
-// Les paragraphes du texte de la lettre : séparés par une ligne vide ; les lignes d'un même paragraphe restent ensemble.
-function ucpmParagraphesLettre(texte) {
-  var NL = String.fromCharCode(10);
-  var lignes = String(texte == null ? '' : texte).split(String.fromCharCode(13)).join('').split(NL);
-  var paragraphes = [];
-  var courant = [];
-  lignes.forEach(function (l) {
-    if (!l.trim()) { if (courant.length) { paragraphes.push(courant); courant = []; } return; }
-    courant.push(l.trim());
-  });
-  if (courant.length) { paragraphes.push(courant); }
-  return paragraphes;
-}
-
-// Les règles de la feuille de lettre, dans son compartiment : A4, marges de 25 mm. La police est posée en ligne par ucpmHtmlLettre.
-var UCPM_CSS_LETTRE =
-  ':host{display:block;}' +
-  '.ucpm-lettre{box-sizing:border-box;width:210mm;min-height:297mm;padding:25mm;background:#fff;color:#111;font-size:11pt;line-height:1.5;}' +
-  '.ucpm-lettre p{margin:0 0 4.5mm 0;}' +
-  '.ucpm-lettre .expediteur{margin:0 0 14mm 0;}' +
-  '.ucpm-lettre .expediteur p{margin:0;}' +
-  '.ucpm-lettre .expediteur p.nom{font-weight:700;}' +
-  '.ucpm-lettre .destinataire{margin:0 0 12mm 95mm;}' +
-  '.ucpm-lettre .destinataire p{margin:0;}' +
-  '.ucpm-lettre .destinataire p.lieu-date{margin-top:4mm;}' +
-  '.ucpm-lettre .corps p.signature{margin-top:6mm;}';
-
-// La feuille de lettre en HTML. donnees = { identite, objectif, texte, dateTexte, police }.
-function ucpmHtmlLettre(donnees) {
-  var d = donnees || {};
-  var coord = ucpmCoordonneesLettre(d.identite);
-  var dest = ucpmDestinataireLettre(d.objectif);
-  var paragraphes = ucpmParagraphesLettre(d.texte);
-  var police = String(d.police || UCPM_POLICE_LETTRE_DEFAUT).replace(/"/g, "'");
-  var h = '<div class="ucpm-lettre" style="font-family:' + ucpmEchapperHtml(police) + ';">';
-  h += '<div class="expediteur">' + coord.map(function (l, k) { return '<p' + (k === 0 ? ' class="nom"' : '') + '>' + ucpmEchapperHtml(l) + '</p>'; }).join('') + '</div>';
-  h += '<div class="destinataire">' + dest.map(function (l) { return '<p>' + ucpmEchapperHtml(l) + '</p>'; }).join('') + '<p class="lieu-date">' + ucpmEchapperHtml(ucpmLieuDateLettre(d.identite, d.dateTexte)) + '</p></div>';
-  h += '<div class="corps">' + paragraphes.map(function (p, k) {
-    var derniere = k === paragraphes.length - 1 && k > 0 && p.length === 1 && p[0].length <= 60;
-    return '<p' + (derniere ? ' class="signature"' : '') + '>' + p.map(ucpmEchapperHtml).join('<br>') + '</p>';
-  }).join('') + '</div></div>';
-  return h;
 }
 
 // Les règles du document imprimé : pages A4 sans marge (les marges sont dans les feuilles), un saut de page après chaque pièce.
@@ -100,6 +30,34 @@ function ucpmDocumentImpression(titre, feuilles) {
 // sur « :root » ; dans un compartiment, « :root » ne désigne rien et le CV perdrait couleurs et tailles : on le remplace par « :host ».
 function ucpmCssPourCompartiment(css) {
   return String(css == null ? '' : css).replace(/:root\b/g, ':host');
+}
+
+// ---------------- Lettres mises en page par les gabarits de la lettre (24/10/2026, demande de Denis : tous les modeles, couleur du CV) ----------------
+
+// Police de la lettre a partir de celle du CV (jeton de l'editeur de CV : segoe, georgia, times, garamond...). La lettre n'en propose que trois : Georgia, Times New Roman, Arial.
+// Une police a empattements reste a empattements ; toute autre devient Arial ; rien de connu : Georgia, la police d'origine de la lettre.
+function ucpmPoliceLettreDepuisCv(jeton) {
+  var j = String(jeton == null ? '' : jeton).toLowerCase();
+  if (!j) { return 'Georgia'; }
+  if (j.indexOf('georgia') >= 0) { return 'Georgia'; }
+  if (/times|garamond|palatino|serif/.test(j) && j.indexOf('sans') < 0) { return 'Times New Roman'; }
+  return 'Arial';
+}
+
+// Le dossier prete a UN CV, completé pour que les gabarits de la lettre y trouvent tout : texte de la lettre, entreprise et recruteur de l'objectif, titre du CV (poste),
+// modele choisi, police du CV. La couleur n'est pas posee ici : les gabarits lisent celle du CV dans ce meme dossier. Modifie et retourne la copie.
+// donnees = { texte, employeur, civiliteRecruteur, nomRecruteur, titre, gabarit, jetonPolice }.
+function ucpmPreparerDossierLettre(copie, donnees) {
+  var d = donnees || {};
+  var c = copie || {};
+  c.ia = c.ia || {};
+  c.ia.lettre = { lettre: { objet: '', texte: String(d.texte == null ? '' : d.texte) } };
+  c.rechercheCandidature = { entreprise: String(d.employeur || '').trim(), civiliteRecruteur: d.civiliteRecruteur || '', nomRecruteur: String(d.nomRecruteur || '').trim() };
+  c.objectif = '';
+  c.metierCible = String(d.titre || '');
+  c.titreCV = String(d.titre || c.titreCV || '');
+  c.lettreDestinataire = { choix: 'recrutement', gabarit: d.gabarit || 'g0', police: ucpmPoliceLettreDepuisCv(d.jetonPolice), couleur: '', icones: true, coordLigne: false };
+  return c;
 }
 
 // Marge de sécurité d'impression (décision de Denis, plan de la nuit) : sous cet espace libre en bas de page, un CV d'une page à l'écran risque de passer sur deux à l'impression
@@ -126,10 +84,9 @@ function ucpmPagesDocument(pagesParCv, nbLettres) {
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    UCPM_CSS_LETTRE: UCPM_CSS_LETTRE, UCPM_CSS_IMPRESSION: UCPM_CSS_IMPRESSION, UCPM_POLICE_LETTRE_DEFAUT: UCPM_POLICE_LETTRE_DEFAUT,
-    ucpmEchapperHtml: ucpmEchapperHtml, ucpmCoordonneesLettre: ucpmCoordonneesLettre, ucpmDestinataireLettre: ucpmDestinataireLettre,
-    ucpmLieuDateLettre: ucpmLieuDateLettre, ucpmParagraphesLettre: ucpmParagraphesLettre, ucpmHtmlLettre: ucpmHtmlLettre,
+    UCPM_CSS_IMPRESSION: UCPM_CSS_IMPRESSION, ucpmEchapperHtml: ucpmEchapperHtml,
     ucpmDocumentImpression: ucpmDocumentImpression, ucpmPagesDocument: ucpmPagesDocument, ucpmCssPourCompartiment: ucpmCssPourCompartiment,
+    ucpmPoliceLettreDepuisCv: ucpmPoliceLettreDepuisCv, ucpmPreparerDossierLettre: ucpmPreparerDossierLettre,
     UCPM_MARGE_SECURITE_PX: UCPM_MARGE_SECURITE_PX, ucpmCvTresRempli: ucpmCvTresRempli, ucpmTexteAlerteCv: ucpmTexteAlerteCv
   };
 }

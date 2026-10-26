@@ -699,7 +699,7 @@ _mepCkMqSansObjet('data-mep-org-formpleine', 'Formations en bas', !!_mepEtatChoi
     '</div>' + _mepHtmlPucesParRubrique(choix) + _htmlBoutonOptionsSupp('org') + '</div></details>';
 }
 // Une forme de puce par rubrique (retour Denis 2026-10-03) : visible seulement quand « Mêmes puces partout » est décochée. choixMq.formesPuces = { exp, form, perso, comp } (null = même forme partout).
-var _MEP_PUCES_FORMES = [['rond', '&bull;'], ['carre', '&#9642;'], ['triangle', '&#9656;'], ['losange', '&#9670;'], ['tiret', '&ndash;']];
+var _MEP_PUCES_FORMES = [['rond', '&bull;'], ['carre', '&#9642;'], ['triangle', '&#9656;'], ['losange', '&#9670;'], ['tiret', '&ndash;'], ['creux', '&#9702;']];
 function _mepHtmlPucesParRubrique(choix) {
   if (!choix.formesPuces) { return ''; }
   var lignes = [['exp', _PDF_INTITULES.experience], ['form', _PDF_INTITULES.formations], ['perso', _PDF_INTITULES.experiencePerso], ['comp', _PDF_INTITULES.competences]];
@@ -803,6 +803,8 @@ function _htmlSecEnteteMiseEnPage() {
     // Denis, 2026-09-29 : les deux choix sur UNE ligne, en grands boutons ; « Version courte » a droite, sous le bouton « Modifier ».
     '<div class="ligne-accroche-options">' +
     _mepCkMq('data-mep-sans-accroche-case', 'Sans accroche', sansAccroche, 'ck ck-marque' + (sansAccroche ? ' on' : '')) +
+    // Sans phrase d'accroche, il n'y a pas de texte à côté duquel mettre la barre : la case est grisée, avec sa raison (retour Denis 2026-10-19).
+    _mepCkMq('data-mep-barre-profil' + (sansAccroche ? ' disabled title="Pas de phrase d’accroche : décochez « Sans accroche » pour mettre la barre."' : ''), 'Barre à gauche du texte', !sansAccroche && !!_mepEtatChoixMq().barreProfil, 'ck ck-marque' + ((!sansAccroche && _mepEtatChoixMq().barreProfil) ? ' on' : '') + (sansAccroche ? ' desactivee' : '')) +
     '</div></div>' +
     // TACHE (retour Denis 2026-09-28/29, cohérence + compacité) : bouton dans la continuité du
     // texte (une seule ligne par action, jamais une ligne label + une ligne texte + une ligne
@@ -1662,7 +1664,7 @@ function _htmlSecSupplementairesMiseEnPage() {
 // Informations complementaires : lien (LinkedIn, site) de l'identite, et lignes libres (disponibilite, RQTH, mobilite...) captees a l'import
 // ou ajoutees ici. Rien n'est affiche d'office, sauf le lien renseigne par la personne dans son identite.
 function _htmlSuggestionsInfosCompMq(dejaLa) {
-  return '<div class="sugg-infos">' + _MEP_SUGGESTIONS_INFOS.map(function (g, gi) {
+  return '<div class="sugg-infos">' + _mepGroupesSuggestionsInfos().map(function (g, gi) {
     return '<div class="sugg-groupe"><b>' + g.groupe + '</b><div class="sugg-liste">' + g.items.map(function (it, ii) {
       var present = dejaLa.indexOf(it.t) !== -1;
       return '<button type="button" class="mep-btn sugg-item' + (present ? ' deja' : '') + '" data-mep-info-sugg="' + gi + ':' + ii + '"' + (present ? ' disabled' : '') + '>' +
@@ -1675,10 +1677,17 @@ function _htmlSuggestionsInfosCompMq(dejaLa) {
 // Le permis et le vehicule ne sont pas proposes ici : ils figurent deja dans les coordonnees du CV (jamais deux fois la meme information).
 var _MEP_SUGGESTIONS_INFOS = [
   { groupe: 'Disponibilit&eacute;', items: [{ t: 'Disponible imm\u00e9diatement' }, { t: 'Disponible sous 15 jours' }, { t: 'Disponibilit\u00e9 \u00e0 convenir' }] },
+  { groupe: 'Horaires (une force pour l&rsquo;employeur)', items: [{ t: 'Prêt à accepter tout type d’horaire' }, { t: 'Horaires adaptables : en soirée, le week-end' }, { t: 'Disponible tôt le matin' }] },
   { groupe: 'Mobilit&eacute;', items: [{ t: 'Mobile sur toute la France' }, { t: 'Mobile dans la r\u00e9gion' }, { t: 'Mobile dans le d\u00e9partement' }] },
   { groupe: 'Statut', items: [{ t: 'Reconnu travailleur handicap\u00e9 (RQTH)', sensible: true }] },
   { groupe: 'Exp&eacute;rience', items: [{ t: 'Plus de 5 ans d\u2019exp\u00e9rience en ', modele: true }] }
 ];
+// E6 (24/10/2026) : en tete, ce que la personne a deja indique dans son projet (debut possible, horaires acceptes), propose en un clic.
+// Meme liste pour l'affichage et pour le clic (l'indice du groupe doit rester le meme).
+function _mepGroupesSuggestionsInfos() {
+  var deduites = (typeof lignesDisponibiliteCv === 'function') ? lignesDisponibiliteCv(dossier) : [];
+  return deduites.length ? [{ groupe: 'D&rsquo;apr&egrave;s votre projet', items: deduites.map(function (t) { return { t: t }; }) }].concat(_MEP_SUGGESTIONS_INFOS) : _MEP_SUGGESTIONS_INFOS;
+}
 var _mepSuggInfosOuvert = false;
 function _mepInfosSaisies() { return (dossier.informationsNonClassees || []).filter(function (x) { return typeof x === 'string' && x.trim(); }); }
 // Lot I1 (plan 2026-10-07) : « Informations complementaires » seule peut quitter les colonnes (bandeau pleine largeur en haut ou en bas, eventuellement a cote d'une
@@ -1707,7 +1716,7 @@ function _htmlBoiteInfosCompMq() {
           : '<p style="font-size:.8rem;color:var(--text-muted);margin:.2rem 0">Votre lien LinkedIn ou site se renseigne dans votre identit&eacute; (&laquo; Vos informations &raquo;).</p>') +
     (infos.length ? '<div class="checks auto" style="grid-template-columns:1fr">' + infos.map(function (t, i) {
       return _mepCkMq('data-mep-info-comp="' + i + '"', echapperAttribut(t), cochees.indexOf(t) !== -1);
-    }).join('') + '</div>' : '<p style="font-size:.8rem;color:var(--text-muted);margin:.2rem 0">Aucune information ajout&eacute;e (disponibilit&eacute;, mobilit&eacute;, RQTH&hellip;). Rien ne s&rsquo;affiche sans que vous le cochiez.</p>') +
+    }).join('') + '</div>' : '<p style="font-size:.8rem;color:var(--text-muted);margin:.2rem 0">Aucune information &agrave; compl&eacute;ter pour le moment. Vous pouvez y mettre votre disponibilit&eacute; (imm&eacute;diate), vos horaires (d&eacute;cal&eacute;s, tous types d&rsquo;horaires : c&rsquo;est une force), votre mobilit&eacute;&hellip; Rien ne s&rsquo;affiche sans que vous le cochiez.</p>') +
     '<div class="champ" style="margin-top:.4rem"><label for="mepInfoNouvelle">Ajouter une information</label>' +
     '<div style="display:flex;gap:.4rem;flex-wrap:wrap"><input type="text" id="mepInfoNouvelle" maxlength="120" placeholder="Ex. : Disponible imm&eacute;diatement" style="flex:1 1 9rem;min-width:0">' +
     '<button type="button" class="mep-btn principal" style="white-space:nowrap;flex:0 0 auto" data-mep-info-ajouter>+ Ajouter</button>' +
@@ -2036,6 +2045,10 @@ function _htmlSecTexteSimplifieeMiseEnPage() {
     '<div class="champ"><label>Comp&eacute;tences</label>' + _mepSegMq('mep-stylecomp', [['pastille', 'Pastilles'], ['rectangle', 'Rectangles'], ['texte-seul', 'Texte']], styleComp) + '</div>' +
     // Forme des puces (retour Denis 2026-10-02) : un seul choix pour toutes les listes a puces (missions epurees, listes de competences, formations).
     '<div class="champ"><label>Forme des puces ' + _mepAideBtn(choix.formesPuces ? 'Indisponible ici : chaque rubrique a sa propre forme de puce (Organisation du CV, option « Mêmes puces partout » décochée).' : 'Pour toutes les listes.') + '</label>' + (choix.formesPuces ? _mepSegMq('mep-formepuce', _MEP_PUCES_FORMES, choix.formePuce || 'rond', 'seg-mini').replace(/<button type="button"/g, '<button type="button" disabled') : _mepSegMq('mep-formepuce', _MEP_PUCES_FORMES, choix.formePuce || 'rond', 'seg-mini')) + '</div>' +
+    // Lot d'options simples (2026-10-21, cahier T1, T2, P4) : casse et espacement des titres, separateur entre les experiences ; « Comme le modele » = rien d'ecrit.
+    '<div class="champ"><label>Casse des titres</label>' + _mepSegMq('mep-titrescasse', [['', 'Modèle'], ['maj', 'MAJUSCULES'], ['min', 'minuscules'], ['normale', 'Normale']], choix.titresCasse || '', 'seg-mini') + '</div>' +
+    '<div class="champ"><label>Lettres des titres</label>' + _mepSegMq('mep-titresesp', [['', 'Modèle'], ['oui', 'Espacées']], choix.titresEspaces ? 'oui' : '', 'seg-mini') + '</div>' +
+    '<div class="champ"><label>Entre les expériences</label>' + _mepSegMq('mep-sepexp', [['', 'Rien'], ['filet', 'Filet fin'], ['espace', 'Espace large']], choix.separateurExp || '', 'seg-mini') + '</div>' +
     '<div class="champ"><label>Fond de la colonne</label>' + _mepSegMq('mep-fondcolonnes', [['aucun', 'Aucun'], ['gauche', 'Gauche'], ['droite', 'Droite']], fondCol) + '</div>' +
     '</div>' + _htmlBoutonOptionsSupp('texte') + '</div></details>';
 }
@@ -2301,7 +2314,7 @@ function _mepCablerCartesMaquette() {
   document.querySelectorAll('[data-mep-info-sugg]').forEach(function (b) {
     b.addEventListener('click', function () {
       var ref = this.getAttribute('data-mep-info-sugg').split(':');
-      var it = _MEP_SUGGESTIONS_INFOS[parseInt(ref[0], 10)].items[parseInt(ref[1], 10)];
+      var it = _mepGroupesSuggestionsInfos()[parseInt(ref[0], 10)].items[parseInt(ref[1], 10)];
       if (it.modele) {
         // Phrase a completer : elle est posee dans le champ de saisie, la personne modifie le chiffre et le domaine.
         var champ = document.getElementById('mepInfoNouvelle');
@@ -2845,7 +2858,7 @@ function _htmlZoneCertificationsMq() {
         champ('intitule', 'Intitul&eacute; de la certification', '', true) +
         champ('organisme', 'Organisme', 'Ex. : AFPA') + champ('lieu', 'Lieu', 'Ex. : Limoges') +
         champ('date', 'Date', 'Ex. : 2023 ou juin 2023') +
-        '<div class="champ" style="grid-column:1/-1"><label>Missions (facultatif) <span class="sous" style="font-weight:400">une par ligne : laissez vide si vous n&rsquo;en avez pas, rien ne sera &eacute;crit</span></label>' +
+        '<div class="champ" style="grid-column:1/-1"><label>Missions (à compléter) <span class="sous" style="font-weight:400">une par ligne : laissez vide si vous n&rsquo;en avez pas, rien ne sera &eacute;crit</span></label>' +
         '<textarea rows="3" data-certif-missions>' + echapperAttribut(_mepMissionsCertifSaisies(k)) + '</textarea></div></div>' +
         '<div class="exp-edit-pied"><span class="exp-edit-etat" aria-live="polite">' + message + '</span>' +
         '<button type="button" class="mep-btn' + (modifie ? ' principal' : '') + '" data-certif-valider>' + (modifie ? 'Valider' : 'Annuler') + '</button></div></div>';

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Créer un nouveau CV, avec ou sans assistant</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--ret:#a12b2b;--retbg:#fbe9e9}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342;--ret:#ff9b9b;--retbg:#3c1f1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 110px}
+.page{max-width:940px;margin:0 auto}
+h1{font-size:1.6rem;margin:1rem 0 .2rem;text-align:center}
+h2{font-size:1.1rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+.mini.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.5rem 1rem 1rem}
+.etapes{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0}
+.etape{border:2px solid var(--bord);background:var(--card);border-radius:999px;padding:.2rem .8rem;font-size:.85rem}
+.etape.ici{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.etape.fait{border-color:var(--ok);color:var(--ok)}
+.etape.absent{text-decoration:line-through;opacity:.5}
+.voies{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:.8rem 0}
+.voie{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.8rem;text-align:left;display:flex;flex-direction:column;gap:.3rem}
+.voie:hover{border-color:var(--acc)}.voie.actif{border-color:var(--acc);background:var(--accbg)}
+.voie h3{margin:.1rem 0;font-size:1.05rem}
+.voie ul{margin:.2rem 0;padding-left:1.1rem;font-size:.88rem}
+.cv{border:1px solid var(--bord);border-radius:6px;background:#fff;color:#222;padding:.8rem;font-size:.8rem;max-width:420px;margin:.6rem auto}
+.cv b{display:block;font-size:1rem}
+.vide{background:var(--warnbg);color:var(--warn);border:1px dashed var(--warn);border-radius:6px;padding:.2rem .5rem;font-size:.78rem}
+.info{background:var(--okbg);border:1px dashed var(--ok);border-radius:8px;padding:.45rem .7rem;font-size:.9rem;margin:.5rem 0}
+.alerte{background:var(--warnbg);border:2px solid var(--warn);border-radius:10px;padding:.4rem .8rem;margin:.6rem 0;color:var(--warn)}
+.champ{border:2px solid var(--bord);border-left:5px solid var(--acc);border-radius:10px;padding:.5rem .8rem;background:var(--sub);margin:.5rem 0}
+.champ label{display:block;font-weight:700;margin-bottom:.2rem}
+input[type=text],textarea{width:100%;border:2px solid var(--bord);border-radius:10px;padding:.45rem .7rem;background:var(--card)}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:940px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.nav.suivant:disabled{opacity:.45;cursor:not-allowed}
+.raison{position:absolute;right:0;bottom:calc(100% + .5rem);max-width:24rem;text-align:right;color:var(--warn);background:var(--warnbg);border:1px solid var(--warn);border-radius:8px;padding:.25rem .6rem;font-size:.85rem;margin:0}
+.raison:empty{display:none}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.tag{font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;display:inline-block}
+.tag.g{background:var(--okbg);color:var(--ok)}.tag.e{background:var(--newbg);color:var(--new)}.tag.d{background:var(--accbg);color:var(--acc)}.tag.f{background:var(--warnbg);color:var(--warn)}.tag.r{background:var(--retbg);color:var(--ret)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid var(--bord);padding:.35rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--sub)}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:1.5rem 0}
+.questions h2{color:var(--new)}.questions li{margin:.7rem 0}
+.ec{display:none}.ec.vu{display:block}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (25/10/2026) : « Créer un nouveau CV », avec ou sans assistant</strong>
+  <span style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+    <button class="mini actif" data-ec="intro" type="button">1. Introduction</button>
+    <button class="mini" data-ec="profil" type="button">2. Fin de « Votre profil »</button>
+    <button class="mini" data-ec="docs" type="button">3. Vos documents</button>
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Annotations</label>
+    <label class="tog"><input type="checkbox" id="tSombre"> Mode sombre</label>
+  </span>
+</div>
+
+<!-- ÉCRAN 1 -->
+<div class="ec vu" id="ec-intro">
+  <h1>Créer un nouveau CV</h1>
+  <p class="muted small" style="text-align:center">On part d'une page blanche. Une question à la fois. Première question : voulez-vous être aidé par un assistant en ligne ?</p>
+  <div class="voies" id="lesVoies">
+    <button class="voie" type="button" data-choix="avec">
+      <h3>💬 Avec l'assistant en ligne</h3>
+      <span class="small">Vous racontez votre parcours, l'assistant vous aide à le formuler.</span>
+      <ul><li>Une phrase d'accroche proposée</li><li>Vos missions reformulées</li><li>Des compétences mises en situation</li></ul>
+      <span class="tag g">GARDÉ : le parcours actuel, six étapes</span>
+    </button>
+    <button class="voie" type="button" data-choix="sans">
+      <h3>✍️ À la main, sans assistant</h3>
+      <span class="small">Vous écrivez vous-même vos informations. Rien n'est envoyé nulle part.</span>
+      <ul><li>Les mêmes questions, les mêmes modèles de CV</li><li>Vos textes restent exactement les vôtres</li><li>Pas de phrase d'accroche toute faite : vous l'écrivez, ou vous vous en passez</li></ul>
+      <span class="tag e">NOUVEAU : cinq étapes, sans l'étape « Assistant »</span>
+    </button>
+  </div>
+  <div class="etapes" id="barreIntro"></div>
+  <div class="note">Le choix se fait sur la page d'introduction, avant « Votre objectif ». Il est enregistré dans le dossier (donc sauvegardé avec la session) et peut être changé tant qu'on n'est pas arrivé à « Votre profil » : un petit lien « Changer pour avec l'assistant » reste visible.</div>
+  <div class="info" id="choisi" style="display:none"></div>
+</div>
+
+<!-- ÉCRAN 2 -->
+<div class="ec" id="ec-profil">
+  <div class="etapes" id="barreProfil"></div>
+  <h1>Votre profil</h1>
+  <p class="muted small" style="text-align:center">Ce que votre parcours montre de vous (calcul fait dans votre navigateur, sans assistant).</p>
+  <div class="sec"><p class="small">… compétences repérées, métiers proches : écran actuel, inchangé <span class="tag g">GARDÉ</span></p></div>
+  <div class="note">Avec l'assistant : le bouton du bas dit « Passer à l'action » et mène à l'étape « Assistant ». Sans assistant : il dit « Voir mon CV » et mène directement à « Vos documents ». Les règles d'avertissement actuelles (métier visé manquant, etc.) restent.</div>
+</div>
+
+<!-- ÉCRAN 3 -->
+<div class="ec" id="ec-docs">
+  <div class="etapes" id="barreDocs"></div>
+  <h1>Vos documents</h1>
+  <div class="sec">
+    <div class="info">Vous avez fait votre CV à la main : vos textes sont exactement les vôtres. <button class="mini" type="button">Voir ce que l'assistant aurait pu ajouter</button> <span class="tag e">NOUVEAU</span></div>
+    <div class="cv"><b>Léa MARTIN</b>Agent d'entretien<br><span class="vide">Phrase d'accroche : à écrire</span><br><br><b style="font-size:.85rem">Expérience</b>Agent d'entretien, Clinique Sainte-Marie, 2020 - 2024<br>- Nettoyage des chambres<br>- Gestion des stocks de produits<br><b style="font-size:.85rem;margin-top:.4rem">Formation</b>CAP Agent de propreté, GRETA, 2019</div>
+    <div class="champ"><label>Votre phrase d'accroche <span class="muted" style="font-weight:400">(à compléter)</span></label><textarea rows="2" placeholder="Par exemple : Agent d'entretien expérimenté en milieu hospitalier"></textarea><p class="small muted">Une ou deux lignes en haut du CV. Vous pouvez aussi vous en passer.</p></div>
+    <p class="small">En dessous : « La mise en page », « Style rapide », « Mise en page », les ambiances, l'export Word et PDF, <b>exactement comme aujourd'hui</b> <span class="tag g">GARDÉ</span> (mesuré dans l'application le 25/10/2026 : tout fonctionne sans réponse de l'assistant).</p>
+  </div>
+  <div class="sec">
+    <h2>Et maintenant ?</h2>
+    <p class="small">Lettre de motivation et préparation d'entretien passent par l'assistant en ligne : « Ils se préparent avec l'assistant. Vous pouvez les faire quand vous voulez, ou vous arrêter ici. » <span class="tag f">DIT HONNÊTEMENT</span></p>
+  </div>
+</div>
+
+<div class="sec" style="margin-top:2rem">
+<h2>Inventaire : ce qui existe aujourd'hui et ce que la maquette en fait</h2>
+<table>
+<tr><th>Élément actuel</th><th>Dans la maquette</th><th>Étiquette</th></tr>
+<tr><td>Introduction « Créer un nouveau CV » : un seul bouton « Commencer mon CV » (`pageCreerCv`)</td><td>Deux cartes : avec l'assistant / à la main, sans assistant</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>Parcours à six étapes (objectif, informations, parcours, profil, assistant, documents)</td><td>Inchangé « avec l'assistant » ; cinq étapes « sans assistant »</td><td><span class="tag g">GARDÉ</span> / <span class="tag e">NOUVEAU</span></td></tr>
+<tr><td>Étape « Assistant » (style, choix, import, relecture : `pageAssistant`)</td><td>Non montrée sans assistant ; reste intacte avec</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Suite de « Votre profil » vers l'assistant (`verifierAvantPasserAction('assistant')`)</td><td>Vers « Vos documents » sans assistant, mêmes avertissements</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>« Vos documents » : modèles, mise en page, ambiances, export (déjà indépendants de l'assistant)</td><td>Inchangé ; un encart explique l'absence d'accroche et propose de l'écrire</td><td><span class="tag g">GARDÉ</span> / <span class="tag e">ENRICHI</span></td></tr>
+<tr><td>Phrase d'accroche, missions reformulées, compétences mises en situation, qualités attendues (apportées par l'assistant)</td><td>Absentes sans assistant ; l'accroche s'écrit à la main dans l'éditeur (champ libre déjà prévu)</td><td><span class="tag f">NE SE FAIT PAS SANS ASSISTANT</span> (dit clairement à la personne)</td></tr>
+<tr><td>Lettre de motivation et entretien après le CV</td><td>Restent avec l'assistant ; annoncés comme tels</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Le choix d'être aidé ou non</td><td>Réversible jusqu'à « Votre profil » ; « Recommencer » le remet à zéro</td><td><span class="tag e">NOUVEAU</span></td></tr>
+</table>
+</div>
+
+<div class="sec">
+<h2>Faisabilité (étape 2 de la méthode) : GO</h2>
+<ul class="small">
+<li><b>Prouvé</b> dans l'application : un CV fait à la main, sans réponse de l'assistant, arrive à « Vos documents » avec aperçu, mise en page et export.</li>
+<li><b>Simple</b> : un drapeau dans le dossier, une carte de plus sur l'introduction, la barre d'étapes à cinq étapes, un lien direct de « Votre profil » vers « Vos documents », un encart.</li>
+<li><b>À surveiller</b> : le « Retour » de « Vos documents » et la barre d'étapes à six endroits ; un CV sans accroche paraît plus nu : il faut le dire sans culpabiliser. Aucun bloquant.</li>
+</ul>
+</div>
+
+<div class="questions">
+<h2>Questions pour Denis</h2>
+<ol>
+<li><b>Le texte du choix</b> : « Avec l'assistant en ligne » / « À la main, sans assistant » (<b>recommandé</b>, mots simples) ou « Accompagné » / « En autonomie » (plus court ; risque : moins clair pour le public).</li>
+<li><b>Changer d'avis</b> : possible jusqu'à « Votre profil » avec un lien « Changer pour avec l'assistant » (<b>recommandé</b> ; bénéfice : aucune impasse ; risque : un lien de plus) ou choix définitif sauf « Recommencer » (bénéfice : plus simple ; risque : perte de travail si on regrette).</li>
+<li><b>Accroche absente</b> : encart qui invite à l'écrire, sans l'imposer (<b>recommandé</b>) ou CV sans aucune mention (bénéfice : plus sobre ; risque : la personne ne sait pas que cette ligne existe).</li>
+<li><b>Lettre et entretien</b> : proposés avec l'assistant, dit clairement (<b>recommandé</b>) ou masqués pour ce parcours (risque : on cache une suite utile).</li>
+<li><b>Ordre de travail</b> : (1) le choix et le drapeau, (2) les cinq étapes et la suite de « Votre profil », (3) l'encart de « Vos documents », (4) essai réel. Un commit par étape, effort moyen.</li>
+</ol>
+</div>
+</div>
+
+<div class="barre"><div class="in">
+  <button class="nav" type="button" id="bRetour">&larr; Retour</button>
+  <button class="nav" type="button">Accueil</button>
+  <span style="flex:1"></span>
+  <p class="raison" id="raison"></p>
+  <button class="nav suivant" type="button" id="bSuivant" disabled>Continuer &rarr;</button>
+</div></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var ORDRE = ['intro', 'profil', 'docs'];
+  var etat = { ec: 'intro', choix: '' };
+  var ETAPES_AVEC = ['Votre objectif', 'Vos informations', 'Votre parcours', 'Votre profil', 'Assistant', 'Vos documents'];
+  function barre(id, ici) {
+    var liste = etat.choix === 'sans' ? ETAPES_AVEC.filter(function (e) { return e !== 'Assistant'; }) : ETAPES_AVEC;
+    $(id).innerHTML = liste.map(function (e, i) { return '<span class="etape ' + (i < liste.indexOf(ici) ? 'fait' : (e === ici ? 'ici' : '')) + '">' + (i + 1) + ' ' + e + '</span>'; }).join('') +
+      (etat.choix === 'sans' ? '<span class="etape absent" title="Étape non montrée sans assistant">Assistant</span>' : '');
+  }
+  function montrer(ec) {
+    etat.ec = ec;
+    Array.prototype.forEach.call(document.querySelectorAll('.ec'), function (e) { e.classList.toggle('vu', e.id === 'ec-' + ec); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ec]'), function (b) { b.classList.toggle('actif', b.getAttribute('data-ec') === ec); });
+    barre('barreIntro', 'Votre objectif'); barre('barreProfil', 'Votre profil'); barre('barreDocs', 'Vos documents');
+    maj();
+  }
+  function maj() {
+    var raison = (etat.ec === 'intro' && !etat.choix) ? 'Il reste à choisir : avec l’assistant ou à la main.' : '';
+    $('raison').textContent = raison ? '⚠️ ' + raison : '';
+    $('bSuivant').disabled = !!raison || etat.ec === 'docs';
+    $('bSuivant').textContent = etat.ec === 'intro' ? 'Commencer mon CV →' : (etat.ec === 'profil' ? (etat.choix === 'sans' ? 'Voir mon CV →' : 'Passer à l’action →') : 'Continuer →');
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ec]'), function (b) { b.addEventListener('click', function () { montrer(b.getAttribute('data-ec')); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-choix]'), function (b) {
+    b.addEventListener('click', function () {
+      etat.choix = b.getAttribute('data-choix');
+      Array.prototype.forEach.call(document.querySelectorAll('[data-choix]'), function (x) { x.classList.toggle('actif', x === b); });
+      var c = $('choisi'); c.style.display = '';
+      c.textContent = etat.choix === 'sans' ? 'Vous faites votre CV à la main : cinq étapes, rien n’est envoyé à un assistant. Vous pourrez changer d’avis jusqu’à « Votre profil ».' : 'Vous faites votre CV avec l’assistant : six étapes, comme aujourd’hui.';
+      montrer('intro');
+    });
+  });
+  $('bSuivant').addEventListener('click', function () { var i = ORDRE.indexOf(etat.ec); if (i < ORDRE.length - 1) { montrer(ORDRE[i + 1]); } });
+  $('bRetour').addEventListener('click', function () { var i = ORDRE.indexOf(etat.ec); if (i > 0) { montrer(ORDRE[i - 1]); } });
+  $('tAnn').addEventListener('change', function () { document.body.classList.toggle('ann', $('tAnn').checked); });
+  $('tSombre').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', $('tSombre').checked ? 'sombre' : ''); });
+  montrer('intro');
+})();
+</script>
+</body>
+</html>

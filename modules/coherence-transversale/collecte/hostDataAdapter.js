@@ -48,7 +48,10 @@ function ctLecteursParDefaut() {
       return (typeof dossier !== 'undefined' && dossier.rechercheCandidature && dossier.rechercheCandidature.typeStructure) || '';
     },
     lireSituationCandidature: function () {
-      return typeof contexteCandidaturePourAnalyse === 'function' ? (contexteCandidaturePourAnalyse().situation || '') : '';
+      if (typeof contexteCandidaturePourAnalyse !== 'function') { return ''; }
+      var ctx = contexteCandidaturePourAnalyse();
+      // Les disponibilites (contrat, temps de travail, debut, horaires) renseignees sur l'ecran des cartes accompagnent la situation (lot 4, 24/10/2026).
+      return (ctx.situation || '') + (ctx.disponibilites ? '\n' + ctx.disponibilites : '');
     },
     lireCibleVisee: function () {
       return typeof contexteCandidaturePourAnalyse === 'function' ? (contexteCandidaturePourAnalyse().cible || '') : '';

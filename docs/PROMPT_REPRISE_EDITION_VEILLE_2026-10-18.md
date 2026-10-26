@@ -1,3 +1,5 @@
+> **PÉRIMÉ (2026-10-19) : ce message a été utilisé ; le chantier a continué sur l'autre compte et tout ce qui y est listé comme « reste » a été fait. Ne pas le recoller.**
+
 # Message de reprise : chantier « tout modifier depuis l'outil de veille » (2026-10-18)
 
 À coller tel quel au début d'une session neuve (autre compte Claude), dans le dossier `Site_V2`.

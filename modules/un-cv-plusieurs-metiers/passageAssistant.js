@@ -12,12 +12,12 @@
      idSuffixe        suffixe des identifiants du collage (ex. 'UcpmMetiers')
      etapes           les quatre temps affichés dans le choix (tableau { titre, detail })
      texteConfidentialite   rappel de ce qui ne part pas
-     recapHtml        (facultatif) HTML d'un récapitulatif de ce qui va être envoyé
+     recapHtml        (à compléter) HTML d'un récapitulatif de ce qui va être envoyé
      construireTexte  function () -> Promise<string> ou string : le texte à copier
      importer         function (texteColle) -> { succes, erreur } : lit la réponse ; si succes, le module enregistre lui-même le résultat
      apresSucces      function () : suite quand la réponse est lue (en général aller à la page suivante)
-     nomAssistant     (facultatif) function (assistant) -> texte d'alerte propre à ce passage
-     avantEnvoi       (facultatif) function () -> texte : si non vide, la demande n'est pas préparée et ce texte est montré à la place (ex. trop de métiers pour une seule réponse)
+     nomAssistant     (à compléter) function (assistant) -> texte d'alerte propre à ce passage
+     avantEnvoi       (à compléter) function () -> texte : si non vide, la demande n'est pas préparée et ce texte est montré à la place (ex. trop de métiers pour une seule réponse)
    ============================================================ */
 
 var _ucpmIntervalleDecompte = null;
@@ -211,7 +211,7 @@ function _ucpmPassageHtmlColler(config) {
   var nom = (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA && _etatTransitionIA.nomAssistant) || 'l’assistant';
   return '<div class="cv-section bilan-etape-import-ia" data-ucpm-vue="coller">' +
     '<h4>&#128229; De retour : collez la réponse</h4>' +
-    '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     '<div class="bilan-zone-collage">' +
     (typeof htmlCollageInstantane === 'function' ? htmlCollageInstantane(config.idSuffixe, {}) : '<p style="color:var(--text-muted);">Collage (composant partagé).</p>') +
     '</div></div>';
@@ -241,7 +241,7 @@ function _ucpmPassageCablerColler(etat, cle, config) {
       if (typeof trackEvenement === 'function') { trackEvenement('erreur_import', { document: 'ucpm', raison: (r && r.coupe) ? 'coupee' : 'illisible' }); }
       if (msg) {
         msg.style.color = 'var(--danger)';
-        msg.textContent = '⚠️ ' + ((r && r.erreur) || 'La réponse n’a pas pu être lue.') + ' Effacez, retournez chez l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Importer ».';
+        msg.textContent = '⚠️ ' + ((r && r.erreur) || 'La réponse n’a pas pu être lue.') + ' Effacez, retournez chez l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';
       }
       return;
     }

@@ -119,7 +119,7 @@ function _ucpmHtmlP1Depot(etat) {
     (recu
       ? '<p class="mb-2"><strong>&#9989; Les métiers sont reçus.</strong> Cliquez sur « Continuer » en bas de page, ou refaites la demande.</p>' +
         '<button type="button" class="btn btn-outline-secondary" id="btnUcpmRefaireMetiers">Refaire la demande</button>'
-      : '<button type="button" class="btn btn-primary" id="btnUcpmVersAssistant"' + (pret ? '' : ' disabled title="Déposez d’abord votre CV."') + '>Choisir mon assistant &#8594;</button>');
+      : '<button type="button" class="btn btn-primary" id="btnUcpmVersAssistant"' + (pret ? '' : ' disabled title="Déposez d’abord votre CV."') + '>Continuer &#8594;</button>');
   return '<div class="cv-section"><h4>&#128196; 1. Déposer mon CV</h4>' + carte1 + '</div>' +
     '<div class="cv-section"><h4>&#129517; 2. Demander à l’assistant les métiers proches</h4>' + carte2 + '</div>';
 }

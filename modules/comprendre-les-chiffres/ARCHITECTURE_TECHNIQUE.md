@@ -222,3 +222,7 @@ cliquable (dépliants imbriqués pour le portrait). Ouvertes d'office en vue
 d'ensemble. Le reste (les 5 chiffres clés, les 3 dépliants méthode, l'encart des
 pièges, la lecture du territoire, l'encart de prudence, « Une autre question »)
 inchangé. Valable pour les niveaux département / région / France.
+
+### Ajout 2026-10-19 : bloc « Les entreprises ici : ce qui se vend, ce qui ferme »
+
+`contenu/entreprises-departements.md` (format « fiche de territoire », modifiable champ par champ par l'outil de veille : `ouvertures`, `ouvertures_an_precedent`, `ventes`, `ventes_an_precedent`, source `bodacc-annonces`). Chargé par `_comprendreLesChiffresChargerEntreprises()` avec le portrait, lu par `_comprendreLesChiffresParserEntreprises()`, rendu par `_comprendreLesChiffresRenduEntreprises()` dans la couche 2, juste après « Le territoire bouge-t-il ». **Niveau « mon département » seulement ; caché tant que `verifie_le` n'est pas une vraie date** (`a-valider` = chiffres relevés, pas encore vérifiés à la source). On ne compte QUE des ouvertures de liquidation ou de redressement judiciaire et des annonces de fonds de commerce, jamais de créations ni de radiations par département (non comparables). Cadence : trimestrielle. Cahier : `docs/CHANTIER_REPERES_ENTREPRISES_TERRITOIRE_2026-10-18.md`. Quatre fiches du Lexique l'accompagnent (collection `collection-lire-les-chiffres-entreprises`).

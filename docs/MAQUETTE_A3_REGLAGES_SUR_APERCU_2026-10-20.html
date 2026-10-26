@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette A3 : réglages posés sur l'aperçu du CV</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --page:#fff; --band:#1e3a5f; --band-txt:#fff; --col:#e4ecf8; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --page:#f5f5f2; --col:#cfd9ea; } }
+* { box-sizing: border-box; }
+body { margin:0; padding:16px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, Segoe UI, sans-serif; }
+h1 { font-size:1.3rem; margin:0 0 6px; } h2 { font-size:1.05rem; margin:0 0 8px; } p { margin:0 0 8px; }
+.muted { color:var(--muted); font-size:.92rem; }
+.reglage-vue { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center; }
+.btn { font:inherit; font-size:.95rem; padding:.45rem .8rem; border:1.5px solid var(--accent); border-radius:10px; background:var(--card); color:var(--accent); cursor:pointer; }
+.btn[aria-pressed="true"], .btn.on { background:var(--accent); color:#fff; }
+.btn:focus-visible, .onglet:focus-visible, .chip:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+#ecran { margin:0 auto; border:2px dashed var(--border); border-radius:14px; padding:12px; background:var(--card); transition:width .2s; }
+#ecran.w1200 { width:1160px; max-width:100%; } #ecran.w738 { width:738px; max-width:100%; } #ecran.w375 { width:375px; max-width:100%; }
+.mise { display:grid; gap:14px; } .w1200 .mise { grid-template-columns: 1fr; } .w1200 .vignettes { grid-template-columns:repeat(4,1fr); } .w1200 .avant { display:none; }
+.boite { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--card); }
+.vignettes { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:10px; }
+.vign { border:2px solid var(--border); border-radius:12px; padding:8px; background:var(--card); color:var(--text); font:inherit; cursor:pointer; text-align:center; }
+.vign[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-bg); }
+.vign .mini { height:70px; border-radius:6px; background:#e9edf5; margin-bottom:6px; position:relative; overflow:hidden; }
+.vign .mini i { position:absolute; background:var(--band); } .vign small { display:block; color:var(--muted); font-size:.82rem; }
+.avant { border:1px dashed var(--border); border-radius:10px; padding:8px; margin-top:10px; font-size:.9rem; color:var(--muted); }
+.avant .fausses { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; } .avant .fausses span { border:1px solid var(--border); border-radius:8px; padding:2px 8px; text-decoration:line-through; }
+
+/* ---- L'aperçu et ses réglages ---- */
+.apercu-carte { position:relative; }
+.titre-ligne { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
+.scene { display:grid; gap:8px; justify-items:center; }
+/* Disposition « bords » : un onglet par bord de la page, collé à ce bord */
+.w1200 .scene { grid-template-columns: minmax(0,1fr) 340px minmax(0,1fr); grid-template-areas: ". haut ." "gauche page droite" ". bas ."; justify-content:center; align-items:center; }
+.o-page { width:100%; }
+.w1200 .o-haut { grid-area:haut; } .w1200 .o-bas { grid-area:bas; } .w1200 .o-page { grid-area:page; } .w1200 .o-cote { grid-area:gauche; } .w1200 .scene.colonne-droite .o-cote { grid-area:droite; }
+.w1200 .o-tiroir-haut { grid-area:haut; }
+/* Disposition « barre » : trois onglets en rang au-dessus de la page */
+.w738 .scene, .w375 .scene { grid-template-columns:1fr; }
+.w738 .o-page, .w375 .o-page { max-width:280px; width:100%; }
+.w375 .o-page { max-width:240px; }
+.barre-onglets { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.w1200 .barre-onglets { display:contents; }
+.onglet { font:inherit; font-size:.95rem; font-weight:600; padding:.45rem .8rem; border:1.5px solid var(--accent); border-radius:10px; background:var(--card); color:var(--accent); cursor:pointer; display:inline-flex; gap:6px; align-items:center; min-height:40px; }
+.onglet[aria-expanded="true"] { background:var(--accent); color:#fff; }
+.onglet small { font-weight:400; opacity:.85; }
+.w1200 .onglet { writing-mode:horizontal-tb; }
+.tiroir { border:1.5px solid var(--accent); border-radius:12px; padding:10px; background:var(--card); width:100%; }
+.w1200 .tiroir { width:auto; }
+.tiroir h3 { font-size:.98rem; margin:0 0 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+.chip { font:inherit; font-size:.92rem; padding:.35rem .65rem; border:1.5px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); cursor:pointer; position:relative; min-height:36px; }
+.chip[aria-checked="true"] { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); font-weight:600; }
+.lib { font-size:.86rem; color:var(--muted); display:block; margin:4px 0 2px; }
+.ligne-haut { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; }
+.croix { position:absolute; top:-9px; right:-9px; width:20px; height:20px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font-size:.9rem; line-height:1; padding:0; cursor:pointer; }
+@media (pointer:coarse) { .croix { display:none; } }
+.main-note { font-size:.86rem; color:var(--accent); }
+
+/* ---- La page du CV dessinée ---- */
+.page { position:relative; width:100%; aspect-ratio:210/297; background:var(--page); border:1px solid #aab4c8; box-shadow:0 2px 10px rgba(0,0,0,.18); overflow:hidden; color:#222; font-size:clamp(5px,1.1vw,8px); }
+.w1200 .page { font-size:7px; } .w738 .page { font-size:6.5px; } .w375 .page { font-size:5.4px; }
+.bandeau { position:absolute; left:0; right:0; top:0; height:var(--hb,17%); background:var(--band); color:var(--band-txt); padding:5% 6% 0; }
+.bandeau b { display:block; font-size:2.1em; } .bandeau span { font-size:1.2em; opacity:.9; }
+.sans-bandeau .bandeau { background:none; color:#222; }
+.b-arrondi { border-radius:0 0 28px 28px; } .b-vallonne { border-radius:0 0 50% 50% / 0 0 16px 16px; } .b-pointe { clip-path:polygon(0 0,100% 0,100% 78%,50% 100%,0 78%); }
+.b-diagonale { clip-path:polygon(0 0,100% 0,100% 62%,0 100%); } .b-diagonaleInv { clip-path:polygon(0 0,100% 0,100% 100%,0 62%); }
+.b-coin { clip-path:polygon(0 0,100% 0,100% 100%,14% 100%,0 70%); }
+.b-demiovale { border-radius:0 0 50% 50% / 0 0 100% 100%; }
+.b-vague2 { border-radius:0 0 50% 50% / 0 0 14px 14px; clip-path:polygon(0 0,100% 0,100% 82%,83% 96%,66% 82%,50% 96%,33% 82%,16% 96%,0 82%); }
+.b-creneaux { clip-path:polygon(0 0,100% 0,100% 80%,92% 80%,92% 100%,83% 100%,83% 80%,75% 80%,75% 100%,66% 100%,66% 80%,58% 80%,58% 100%,50% 100%,50% 80%,42% 80%,42% 100%,33% 100%,33% 80%,25% 80%,25% 100%,16% 100%,16% 80%,8% 80%,8% 100%,0 100%); }
+.b-carte { left:4%; right:4%; top:3%; height:calc(var(--hb,17%) - 3%); border-radius:16px; padding-top:3%; }
+.b-pilule { left:5%; right:5%; top:3%; height:calc(var(--hb,17%) - 3%); border-radius:999px; padding:3% 9% 0; }
+.b-ruban { right:auto; width:78%; clip-path:polygon(0 0,100% 0,88% 100%,0 100%); padding-right:16%; }
+.b-contour, .b-contourRond, .b-filets { background:none !important; color:var(--band) !important; }
+.b-contour { left:4%; right:4%; top:3%; height:calc(var(--hb,17%) - 3%); border:3px solid var(--band); border-radius:0; padding-top:3%; }
+.b-contourRond { left:4%; right:4%; top:3%; height:calc(var(--hb,17%) - 3%); border:3px solid var(--band); border-radius:16px; padding-top:3%; }
+.b-filets { border-top:5px solid var(--band); border-bottom:2px solid var(--band); height:calc(var(--hb,17%) - 2%); top:2%; }
+.corps { position:absolute; left:0; right:0; bottom:0; top:var(--hb,17%); display:flex; }
+.sans-bandeau.p-arche .corps { top:0; }
+.colonne { width:var(--lc,34%); background:var(--col); padding:6% 4%; flex:none; position:relative; }
+.scene.colonne-droite .corps { flex-direction:row-reverse; }
+.c-vallonne { border-radius:0 26px 26px 0 / 0 26px 26px 0; } .scene.colonne-droite .c-vallonne { border-radius:26px 0 0 26px; }
+.c-arche { border-radius:70px 70px 0 0; margin-top:3%; }
+.texte { flex:1; padding:5% 5%; } .texte h4, .colonne h4 { margin:0 0 3px; font-size:1.15em; } .ligne { height:.7em; background:#c8cedc; border-radius:3px; margin:0 0 .6em; }
+.ligne.c { width:70%; } .ligne.d { width:85%; } .colonne .ligne { background:#9fb0ce; }
+.f-deco { position:absolute; background:var(--band); opacity:.28; mix-blend-mode:multiply; pointer-events:none; }
+.f-deco.vide { background:var(--page); opacity:1; mix-blend-mode:normal; } .f-deco.contour { background:none; border:3px solid var(--band); opacity:.9; }
+.poignee { position:absolute; width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; display:none; align-items:center; justify-content:center; font-size:13px; cursor:grab; touch-action:none; z-index:6; box-shadow:0 1px 4px rgba(0,0,0,.4); }
+.poignee.vue { display:flex; }
+.ph-b { left:50%; margin-left:-13px; } .ph-c { top:50%; margin-top:-13px; }
+
+
+/* formes de colonne proposées (colonne à gauche ; .cx retourne le tout quand la colonne est à droite) */
+.scene.colonne-droite .colonne.cx { transform:scaleX(-1); } .scene.colonne-droite .colonne.cx > * { transform:scaleX(-1); }
+.c-diagonale { clip-path:polygon(0 0,100% 0,72% 100%,0 100%); } .c-pointeBas { clip-path:polygon(0 0,100% 0,100% 88%,50% 100%,0 88%); }
+.c-coin { clip-path:polygon(0 0,100% 0,100% 84%,70% 100%,0 100%); } .c-demiovale { border-radius:0 100px 100px 0 / 0 50% 50% 0; }
+.c-vague2 { clip-path:polygon(0 0,100% 0%,90% 10%,100% 20%,90% 30%,100% 40%,90% 50%,100% 60%,90% 70%,100% 80%,90% 90%,100% 100%,0 100%); } .c-creneaux { clip-path:polygon(0 0,100% 0%,100% 10%,88% 10%,88% 20%,100% 20%,100% 30%,88% 30%,88% 40%,100% 40%,100% 50%,88% 50%,88% 60%,100% 60%,100% 70%,88% 70%,88% 80%,100% 80%,100% 90%,88% 90%,88% 100%,100% 100%,0 100%); }
+.c-carte { margin:3%; border-radius:16px; } .c-pilule { margin:3%; border-radius:999px; padding-top:14%; }
+.c-contour, .c-contourRond, .c-filets { background:none !important; }
+.c-contour { margin:3%; border:3px solid var(--band); } .c-contourRond { margin:3%; border:3px solid var(--band); border-radius:16px; }
+.c-filets { border-right:7px double var(--band); }
+.gal-c { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; }
+.gal-c figure { margin:0; border:1px solid var(--border); border-radius:10px; padding:6px; background:var(--card); }
+.gal-c .mc { position:relative; height:110px; background:var(--page); border:1px solid #aab4c8; overflow:hidden; font-size:6px; display:flex; }
+.gal-c .mc .colonne { width:46%; height:100%; padding:8% 6%; } .gal-c figcaption { font-size:.85rem; text-align:center; margin-top:4px; } .gal-c figcaption small { display:block; color:var(--muted); }
+/* ---- Galerie des formes de bandeau ---- */
+.gal-b { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+.gal-b figure { margin:0; border:1px solid var(--border); border-radius:10px; padding:6px; background:var(--card); }
+.gal-b .mb { position:relative; height:74px; background:var(--page); border:1px solid #aab4c8; overflow:hidden; font-size:6px; --hb:70%; }
+.gal-b figcaption { font-size:.85rem; text-align:center; margin-top:4px; } .gal-b figcaption small { display:block; color:var(--muted); }
+/* ---- Notes ---- */
+.notes { max-width:1160px; margin:18px auto 0; }
+.notes .boite { margin-bottom:12px; }
+table { border-collapse:collapse; width:100%; font-size:.9rem; } th, td { border:1px solid var(--border); padding:5px 8px; text-align:left; vertical-align:top; }
+th { background:var(--accent-bg); } .ret { color:#b3261e; font-weight:600; }
+.cache { display:none !important; }
+</style>
+</head>
+<body>
+<h1>Maquette A3 : les réglages posés sur l'aperçu du CV</h1>
+<p class="muted">Cliquable. Changez de modèle (à gauche) et regardez quels onglets apparaissent : un onglet n'existe que si le modèle permet le réglage, jamais grisé. Les poignées rondes (épaisseur du bandeau, largeur de la colonne) servent de démonstration pour la suite A1c.</p>
+<div class="reglage-vue" role="group" aria-label="Largeur de l'écran simulée">
+  <span class="muted">Largeur simulée :</span>
+  <button type="button" class="btn" data-w="w1200" aria-pressed="true">1200 px (ordinateur)</button>
+  <button type="button" class="btn" data-w="w738" aria-pressed="false">738 px (tablette)</button>
+  <button type="button" class="btn" data-w="w375" aria-pressed="false">375 px (téléphone)</button>
+</div>
+
+<div id="ecran" class="w1200">
+ <div class="mise">
+  <div class="boite">
+    <h2>Choisir un modèle</h2>
+    <div class="vignettes" id="vignettes"></div>
+    <div class="avant">
+      <b>Ce qui disparaît sous les vignettes :</b>
+      <div class="fausses"><span>Bandeau</span><span>Colonne</span><span>Formes</span></div>
+      Les vignettes ne montrent plus que l'allure de base du modèle ; les réglages se font sur l'aperçu, pour le modèle en cours.
+    </div>
+  </div>
+  <div class="boite apercu-carte">
+    <div class="titre-ligne"><h2>Aperçu et réglages</h2><span class="muted" id="modeleActuel"></span></div>
+    <div class="scene" id="scene">
+      <div class="barre-onglets" id="barre"></div>
+      <div class="o-page" id="zonePage"></div>
+    </div>
+  </div>
+ </div>
+</div>
+
+<div class="notes">
+ <div class="boite"><h2>Propositions de formes de bandeau (en plus des quatre actuelles)</h2>
+  <p class="muted">Dessinées sur le même bandeau. Elles s'essaient aussi dans l'onglet « Bandeau » de l'aperçu ci-dessus. Les deux contours gardent le bandeau vide : le nom passe en couleur foncée, comme sans bandeau.</p>
+  <div class="gal-b" id="galB"></div>
+ </div>
+ <div class="boite"><h2>Propositions de formes de colonne (en plus de droite, vallonnée et arche)</h2>
+  <p class="muted">Même principe que pour le bandeau : essayables dans l'onglet « Colonne » (modèles Colonne et bandeau, Colonne simple). Les deux contours laissent la colonne vide, avec un cadre de couleur.</p>
+  <div class="gal-c" id="galC"></div>
+ </div>
+ <div class="boite"><h2>Ce que la maquette montre</h2>
+  <p><b>Ordinateur (1200 px) : onglets sur les bords de la page.</b> « Bandeau » au-dessus de la page, « Colonne » collé du côté de la colonne, « Formes » sous la page. Le choix s'ouvre juste à côté de l'onglet, dans la page (jamais une fenêtre).</p>
+  <p><b>Tablette et téléphone (738 et 375 px) : une barre de trois onglets au-dessus de la page.</b> Les marges de côté prendraient trop de place à une page déjà petite ; le choix s'ouvre sous la page, pour voir l'effet pendant qu'on choisit. Même contenu, même ordre, mêmes onglets.</p>
+  <p><b>Modèle sans bandeau ni colonne (Frise) :</b> un seul onglet, « Formes ». <b>Allure Standard :</b> mêmes onglets, selon le modèle de mise en page choisi (aujourd'hui Standard n'a aucun choix de forme de bandeau ou de colonne).</p>
+ </div>
+ <div class="boite"><h2>Carte de faisabilité (étape 2 de la méthode)</h2>
+  <p><b>Verdict préliminaire : GO AVEC RÉSERVES.</b></p>
+  <ul>
+   <li><b>Simple (reprise de l'existant) :</b> le contenu des tiroirs (formes de bandeau et de colonne, formes décoratives), la table des capacités, les règles « arche / bandeau », l'annulation, le Word. Tout reste, seul l'emplacement change.</li>
+   <li><b>Risque moyen :</b> l'aperçu est dans un cadre séparé (iframe) ; les onglets collés « exactement » à la forme du bandeau varieraient d'un modèle à l'autre. Choix de la maquette : onglets collés aux <i>bords de la page</i>, pas à la forme (robuste). Les poignées de glisser (A1c) existent déjà sous la même forme pour les formes décoratives (cadre dans l'aperçu).</li>
+   <li><b>Réserve :</b> sur téléphone, la page de l'aperçu est petite ; on garde donc une barre d'onglets (pas de bords) et rien ne se glisse du doigt sur un aperçu aussi petit sans poignée assez grande (26 px minimum).</li>
+   <li><b>Pas bloquant, à trancher :</b> voir les questions ci-dessous.</li>
+  </ul>
+ </div>
+ <div class="boite"><h2>Inventaire de l'existant (étape 4, version provisoire à valider)</h2>
+  <table>
+   <tr><th>Existant</th><th>Étiquette</th><th>Détail</th></tr>
+   <tr><td>Boutons « Bandeau », « Colonne », « Formes » sous chaque vignette (Créatif et Sobre)</td><td>DÉPLACÉ</td><td>Trois onglets sur l'aperçu, pour le modèle en cours.</td></tr>
+   <tr><td>Contenu des tiroirs (formes de bandeau et de colonne, panneau des formes décoratives, croix, « Ajouter » en haut à droite)</td><td>GARDÉ</td><td>Identique, ouvert à côté de l'onglet.</td></tr>
+   <tr><td>Table des capacités (jamais d'option impossible, masquée et non grisée)</td><td>GARDÉ</td><td>Décide quels onglets existent.</td></tr>
+   <tr><td>Règles arche / bandeau, sans phrase d'explication</td><td>GARDÉ</td><td>Jouées dans la maquette.</td></tr>
+   <tr><td>Formes visibles sur les miniatures de tous les modèles</td><td>GARDÉ</td><td>Les miniatures montrent le CV avec ses formes.</td></tr>
+   <tr><td>Placement libre et cadre de réglage à la main sur l'aperçu</td><td>GARDÉ</td><td>Déjà sur l'aperçu.</td></tr>
+   <tr><td>Souhaits de forme par modèle (une forme mémorisée pour chaque vignette non choisie)</td><td class="ret">RETIRÉ (à valider)</td><td>Plus utile : on règle le modèle en cours seulement.</td></tr>
+   <tr><td>Miniatures de variantes (bandeau en pointe, colonne en arche... 101 fichiers de <code>data/miniatures</code>)</td><td class="ret">RETIRÉ (à valider)</td><td>La vignette montre l'allure de base. Les fichiers restent pour le banc de rendu.</td></tr>
+  </table>
+ </div>
+ <div class="boite"><h2>Questions pour Denis</h2>
+  <p><b>1. Quand on change de modèle, que devient la forme choisie ?</b> Recommandé : on la garde si le nouveau modèle la permet, sinon retour à sa forme de départ, sans message. Bénéfice : le style choisi suit la personne. Risque : un CV change un peu sans qu'on l'ait touché. Autre option : retour systématique aux formes de départ ; bénéfice : prévisible ; risque : on perd son réglage à chaque essai de modèle.</p>
+  <p><b>2. Tablette et téléphone : barre d'onglets au-dessus de la page ?</b> Recommandé (page lisible). Autre option : onglets sur les bords aussi, mais la page devient très petite.</p>
+  <p><b>3. Retirer les souhaits par modèle et les miniatures de variantes ?</b> Recommandé : oui (moins de code, plus de 100 fichiers inutiles à tenir à jour). Risque : on ne voit plus une vignette « avec arche » avant de la choisir.</p>
+ </div>
+</div>
+
+<script>
+var MODELES = [
+  { id:'mqBandeau', nom:'Bandeau entier', bandeau:['droit','arrondi','vallonne','pointe'], colonne:[], bDef:'droit' },
+  { id:'colBand', nom:'Colonne et bandeau', bandeau:['droit','arrondi','vallonne','pointe'], colonne:['droit','vallonne'], bDef:'arrondi', cDef:'droit' },
+  { id:'colSimple', nom:'Colonne simple', bandeau:['aucun','droit','arrondi','vallonne','pointe'], colonne:['droit','vallonne','arche'], bDef:'aucun', cDef:'droit' },
+  { id:'frise', nom:'Frise', bandeau:[], colonne:[], bDef:'aucun' }
+];
+var NOMS = { pointeBas:'Pointe en bas', diagonale:'Diagonale', diagonaleInv:'Diagonale inversée', coin:'Coin coupé', demiovale:'Demi-ovale', vague2:'Double vague', creneaux:'Créneaux', carte:'Carte flottante', pilule:'Pilule', ruban:'Ruban incliné', contour:'Contour rectangle', contourRond:'Contour arrondi', filets:'Deux filets', aucun:'Aucun', droit:'Droit', arrondi:'Arrondi', vallonne:'Vallonné', pointe:'En pointe', arche:'Arche' };
+var FORMES = ['Ovale','Rond','Losange','Anneau','Lame effilée','Points','Hachures'], SANS_CONTOUR = ['Points','Hachures','Anneau','Lame effilée'], ZONES = ['Haut à droite','Bas à gauche','Autour du métier','Milieu à droite'], REMPL = ['Plein','Vide','Contour'];
+var NOUVELLES_C = ['diagonale','pointeBas','coin','demiovale','vague2','creneaux','carte','pilule','contour','contourRond','filets'];
+var NOMS_C = { filets:'Double filet' };
+var NOUVELLES = ['diagonale','diagonaleInv','coin','demiovale','vague2','creneaux','carte','pilule','ruban','contour','contourRond','filets'];
+var etat = { modele:MODELES[1], b:'arrondi', c:'droit', ouvert:null, formes:[], cur:0, hb:17, lc:34 };
+var $ = function (s) { return document.querySelector(s); };
+function chercher(id) { return MODELES.filter(function (m) { return m.id === id; })[0]; }
+
+function choisirModele(m) {
+  var ancB = etat.b, ancC = etat.c;
+  etat.modele = m;
+  // Règle proposée (question 1) : on garde la forme si le nouveau modèle la permet, sinon forme de départ.
+  etat.b = m.bandeau.length ? (m.bandeau.indexOf(ancB) !== -1 ? ancB : m.bDef) : 'aucun';
+  etat.c = m.colonne.length ? (m.colonne.indexOf(ancC) !== -1 ? ancC : m.cDef) : 'droit';
+  if (etat.b !== 'aucun' && etat.c === 'arche') { etat.c = 'droit'; }
+  if (etat.ouvert && !onglets().some(function (o) { return o.k === etat.ouvert; })) { etat.ouvert = null; }
+  dessiner();
+}
+function onglets() {
+  var m = etat.modele, l = [];
+  if (m.bandeau.length) { l.push({ k:'bandeau', lib:'Bandeau', val:NOMS[etat.b] }); }
+  if (m.colonne.length) { l.push({ k:'colonne', lib:'Colonne', val:(NOMS_C[etat.c] || NOMS[etat.c]) }); }
+  l.push({ k:'formes', lib:'Formes', val:etat.formes.length ? String(etat.formes.length) : '' });
+  return l;
+}
+function chip(txt, actif, fn, aide) {
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', actif ? 'true' : 'false'); b.textContent = txt;
+  b.addEventListener('click', fn); return b;
+}
+function tiroir(k) {
+  var m = etat.modele, t = document.createElement('div'); t.className = 'tiroir'; t.setAttribute('role', 'region');
+  var titres = { bandeau:'Forme du bandeau', colonne:'Forme de la colonne', formes:'Formes décoratives' };
+  var h = document.createElement('h3'); h.innerHTML = '<span>' + titres[k] + '</span>';
+  var f = document.createElement('button'); f.type = 'button'; f.className = 'chip'; f.textContent = 'Fermer'; f.addEventListener('click', function () { etat.ouvert = null; dessiner(); });
+  h.appendChild(f); t.appendChild(h);
+  if (k === 'bandeau') {
+    var c = document.createElement('div'); c.className = 'chips'; c.setAttribute('role', 'radiogroup');
+    m.bandeau.forEach(function (x) { c.appendChild(chip(NOMS[x], etat.b === x, function () { etat.b = x; if (x !== 'aucun' && etat.c === 'arche') { etat.c = 'droit'; } dessiner(); })); });
+    t.appendChild(c);
+    var ln = document.createElement('span'); ln.className = 'lib'; ln.innerHTML = 'Propositions de nouvelles formes <b style="color:var(--accent)">(à valider)</b>'; t.appendChild(ln);
+    var cn = document.createElement('div'); cn.className = 'chips'; cn.setAttribute('role', 'radiogroup');
+    NOUVELLES.forEach(function (x) { cn.appendChild(chip(NOMS[x], etat.b === x, function () { etat.b = x; if (etat.c === 'arche') { etat.c = 'droit'; } dessiner(); })); });
+    t.appendChild(cn); var n = document.createElement('div'); n.className = 'main-note'; n.textContent = 'Épaisseur du bandeau : tirez la poignée ronde sous le bandeau.'; if (etat.b !== 'aucun') { t.appendChild(n); }
+  }
+  if (k === 'colonne') {
+    var c2 = document.createElement('div'); c2.className = 'chips'; c2.setAttribute('role', 'radiogroup');
+    m.colonne.filter(function (x) { return !(x === 'arche' && etat.b !== 'aucun'); }).forEach(function (x) { c2.appendChild(chip(NOMS[x], etat.c === x, function () { etat.c = x; if (x === 'arche') { etat.b = 'aucun'; } dessiner(); })); });
+    t.appendChild(c2);
+    var l2 = document.createElement('span'); l2.className = 'lib'; l2.innerHTML = 'Propositions de nouvelles formes <b style="color:var(--accent)">(à valider)</b>'; t.appendChild(l2);
+    var cn2 = document.createElement('div'); cn2.className = 'chips'; cn2.setAttribute('role', 'radiogroup');
+    NOUVELLES_C.forEach(function (x) { cn2.appendChild(chip(NOMS_C[x] || NOMS[x], etat.c === x, function () { etat.c = x; dessiner(); })); });
+    t.appendChild(cn2);
+    var n2 = document.createElement('div'); n2.className = 'main-note'; n2.textContent = 'Largeur de la colonne : tirez la poignée ronde sur son bord.'; t.appendChild(n2);
+  }
+  if (k === 'formes') { formesPanneau(t); }
+  return t;
+}
+function formesPanneau(t) {
+  var haut = document.createElement('div'); haut.className = 'ligne-haut';
+  var ong = document.createElement('div'); ong.className = 'chips';
+  etat.formes.forEach(function (f, i) {
+    var w = document.createElement('span'); w.style.position = 'relative';
+    var b = chip('Forme ' + (i + 1), i === etat.cur, function () { etat.cur = i; dessiner(); }); w.appendChild(b);
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'croix'; x.innerHTML = '&times;'; x.setAttribute('aria-label', 'Retirer la forme ' + (i + 1));
+    x.addEventListener('click', function () { etat.formes.splice(i, 1); etat.cur = 0; dessiner(); }); w.appendChild(x); ong.appendChild(w);
+  });
+  haut.appendChild(ong);
+  var aj = document.createElement('button'); aj.type = 'button'; aj.className = 'btn'; aj.textContent = etat.formes.length >= 7 ? '7 formes au maximum' : 'Ajouter une forme'; aj.disabled = etat.formes.length >= 7;
+  aj.addEventListener('click', function () { etat.formes.push({ forme:FORMES[etat.formes.length % FORMES.length], zone:etat.formes.length % 4, rempl:0 }); etat.cur = etat.formes.length - 1; dessiner(); });
+  haut.appendChild(aj); t.appendChild(haut);
+  var f = etat.formes[etat.cur];
+  if (!f) { var p = document.createElement('p'); p.className = 'muted'; p.textContent = 'Aucune forme pour l\'instant.'; t.appendChild(p); return; }
+  [['Forme', FORMES, function (v) { return f.forme === v; }, function (v) { f.forme = v; if (SANS_CONTOUR.indexOf(v) !== -1 && f.rempl === 2) { f.rempl = 0; } }],
+   ['Où la placer', ZONES, function (v) { return ZONES[f.zone] === v; }, function (v) { f.zone = ZONES.indexOf(v); }],
+   ['Remplissage', REMPL.filter(function (v) { return !(v === 'Contour' && SANS_CONTOUR.indexOf(f.forme) !== -1); }), function (v) { return REMPL[f.rempl] === v; }, function (v) { f.rempl = REMPL.indexOf(v); }]].forEach(function (r) {
+    var l = document.createElement('span'); l.className = 'lib'; l.textContent = r[0]; t.appendChild(l);
+    var c = document.createElement('div'); c.className = 'chips'; c.setAttribute('role', 'radiogroup');
+    r[1].forEach(function (v) { c.appendChild(chip(v, r[2](v), function () { r[3](v); dessiner(); })); }); t.appendChild(c);
+  });
+}
+function page() {
+  var m = etat.modele, avecB = m.bandeau.length > 0 && etat.b !== 'aucun', avecC = m.colonne.length > 0;
+  var p = document.createElement('div'); p.className = 'page' + (avecB ? '' : ' sans-bandeau') + (etat.c === 'arche' ? ' p-arche' : '');
+  p.style.setProperty('--hb', (m.bandeau.length ? etat.hb : 14) + '%'); p.style.setProperty('--lc', etat.lc + '%');
+  var cls = { arrondi:'b-arrondi', vallonne:'b-vallonne', pointe:'b-pointe', diagonale:'b-diagonale', diagonaleInv:'b-diagonaleInv', coin:'b-coin', demiovale:'b-demiovale', vague2:'b-vague2', creneaux:'b-creneaux', carte:'b-carte', pilule:'b-pilule', ruban:'b-ruban', contour:'b-contour', contourRond:'b-contourRond', filets:'b-filets', droit:'', aucun:'' };
+  var lignes = '<div class="ligne"></div><div class="ligne d"></div><div class="ligne c"></div>';
+  p.innerHTML = '<div class="bandeau ' + (cls[etat.b] || '') + '"><b>Camille Martin</b><span class="metier">Agent de sécurité</span></div>' +
+    '<div class="corps">' + (avecC ? '<div class="colonne c-' + etat.c + (NOUVELLES_C.indexOf(etat.c) !== -1 ? ' cx' : '') + '"><h4>Contact</h4>' + lignes + '<h4>Langues</h4>' + lignes + '</div>' : '') +
+    '<div class="texte"><h4>Expérience</h4>' + lignes + lignes + '<h4>Formation</h4>' + lignes + '</div></div>';
+  var pos = [['top:20%;right:4%;width:26%;height:11%', 'border-radius:50%'], ['bottom:4%;left:4%;width:22%;height:9%', 'border-radius:50%'], ['top:6%;left:3%;width:56%;height:14%', 'border-radius:50%'], ['top:52%;right:3%;width:20%;height:8%', 'border-radius:50%']];
+  etat.formes.forEach(function (f) {
+    var d = document.createElement('div'), vide = f.rempl === 1, contour = f.rempl === 2, col = vide ? 'var(--page)' : 'var(--band)';
+    d.className = 'f-deco'; var base = pos[f.zone][0] + ';';
+    var op = vide ? 'opacity:1;mix-blend-mode:normal;' : (contour ? 'opacity:.9;mix-blend-mode:normal;' : '');
+    var st = '';
+    if (f.forme === 'Points') { st = 'background:radial-gradient(circle,' + col + ' 2px,transparent 2.5px) 0 0/9px 9px;opacity:' + (vide ? 1 : .5) + ';mix-blend-mode:' + (vide ? 'normal' : 'multiply') + ';'; }
+    else if (f.forme === 'Hachures') { st = 'background:repeating-linear-gradient(135deg,' + col + ' 0,' + col + ' 2px,transparent 2px,transparent 7px);opacity:' + (vide ? 1 : .5) + ';mix-blend-mode:' + (vide ? 'normal' : 'multiply') + ';'; }
+    else if (f.forme === 'Anneau') { st = 'background:none;border:7px solid ' + col + ';border-radius:50%;' + op; }
+    else if (f.forme === 'Lame effilée') { st = 'height:5%;clip-path:polygon(0 0,100% 0,0 100%);background:' + col + ';' + op; }
+    else {
+      var rayon = f.forme === 'Losange' ? 'transform:rotate(45deg) scale(.7);' : 'border-radius:50%;';
+      st = (contour ? 'background:none;border:3px solid var(--band);' : 'background:' + col + ';') + rayon + op;
+    }
+    d.style.cssText = base + st;
+    p.appendChild(d);
+  });
+  // Poignées de démonstration (A1c)
+  if (etat.ouvert === 'bandeau' && avecB) { var pb = poignee('ph-b', '↕', 'top:calc(' + etat.hb + '% - 13px)', function (dx, dy, r) { etat.hb = Math.max(10, Math.min(30, (dy - r.top) / r.height * 100)); p.style.setProperty('--hb', etat.hb + '%'); pb.style.top = 'calc(' + etat.hb + '% - 13px)'; }); p.appendChild(pb); }
+  if (etat.ouvert === 'colonne' && avecC) { var pc = poignee('ph-c', '↔', (colonneDroite() ? 'right' : 'left') + ':calc(' + etat.lc + '% - 13px)', function (dx, dy, r) { var x = colonneDroite() ? (r.right - dx) : (dx - r.left); etat.lc = Math.max(25, Math.min(55, x / r.width * 100)); p.style.setProperty('--lc', etat.lc + '%'); pc.style[colonneDroite() ? 'right' : 'left'] = 'calc(' + etat.lc + '% - 13px)'; }); p.appendChild(pc); }
+  return p;
+}
+function colonneDroite() { return etat.modele.id === 'colBand'; }
+function poignee(cls, sym, style, fn) {
+  var h = document.createElement('div'); h.className = 'poignee vue ' + cls; h.textContent = sym; h.style.cssText += style; h.setAttribute('role', 'slider'); h.setAttribute('aria-label', 'Régler à la main');
+  h.addEventListener('pointerdown', function (e) { h.setPointerCapture(e.pointerId); h.dataset.d = '1'; });
+  h.addEventListener('pointermove', function (e) { if (h.dataset.d) { fn(e.clientX, e.clientY, h.parentElement.getBoundingClientRect()); } });
+  h.addEventListener('pointerup', function () { delete h.dataset.d; });
+  return h;
+}
+function dessiner() {
+  var m = etat.modele; $('#modeleActuel').textContent = 'Modèle : ' + m.nom;
+  var sc = $('#scene'); sc.className = 'scene' + (colonneDroite() ? ' colonne-droite' : '');
+  var larg = document.getElementById('ecran').className, bords = larg === 'w1200';
+  var barre = $('#barre'); barre.innerHTML = '';
+  var zp = $('#zonePage'); zp.innerHTML = ''; zp.appendChild(page());
+  // anciens emplacements
+  Array.prototype.forEach.call(sc.querySelectorAll('.o-haut,.o-bas,.o-cote,.o-tiroir'), function (x) { x.remove(); });
+  var os = onglets();
+  function bouton(o, place) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'onglet ' + place; b.setAttribute('aria-expanded', etat.ouvert === o.k ? 'true' : 'false');
+    b.innerHTML = '<span>' + o.lib + '</span>' + (o.val ? '<small>' + o.val + '</small>' : '');
+    b.addEventListener('click', function () { etat.ouvert = etat.ouvert === o.k ? null : o.k; dessiner(); });
+    return b;
+  }
+  if (bords) {
+    // un onglet (et son tiroir) sur chaque bord : bandeau en haut, colonne sur le côté, formes en bas
+    os.forEach(function (o) {
+      var place = o.k === 'bandeau' ? 'o-haut' : (o.k === 'formes' ? 'o-bas' : 'o-cote');
+      var zone = document.createElement('div'); zone.className = place; zone.style.cssText = 'display:grid;gap:6px;justify-items:center;width:100%;';
+      if (etat.ouvert === o.k) { var t = tiroir(o.k); if (o.k === 'colonne') { t.style.width = 'min(100%,300px)'; } if (o.k !== 'colonne') { t.style.width = 'min(100%,620px)'; } zone.appendChild(t); }
+      var bt = bouton(o, ''); zone.insertBefore(bt, zone.firstChild);
+      if (o.k === 'formes') { zone.style.cssText += 'grid-area:bas;'; }
+      if (o.k === 'colonne') { zone.style.justifyItems = colonneDroite() ? 'start' : 'end'; }
+      sc.appendChild(zone);
+    });
+    // pour garder l'ordre de lecture, la page reste au centre
+  } else {
+    os.forEach(function (o) { barre.appendChild(bouton(o, '')); });
+    if (etat.ouvert) { var td = document.createElement('div'); td.className = 'o-tiroir'; td.style.width = '100%'; td.appendChild(tiroir(etat.ouvert)); sc.appendChild(td); }
+  }
+  // vignettes
+  var v = $('#vignettes'); v.innerHTML = '';
+  MODELES.forEach(function (mo) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vign'; b.setAttribute('aria-pressed', mo === etat.modele ? 'true' : 'false');
+    b.innerHTML = '<div class="mini">' + (mo.bandeau.length ? '<i style="left:0;right:0;top:0;height:28%"></i>' : '') + (mo.colonne.length ? '<i style="left:0;top:28%;bottom:0;width:32%;opacity:.45"></i>' : '') + '</div><b>' + mo.nom + '</b><small>' + (mo.bandeau.length ? 'bandeau ' : '') + (mo.colonne.length ? 'colonne' : (mo.bandeau.length ? '' : 'ni bandeau ni colonne')) + '</small>';
+    b.addEventListener('click', function () { choisirModele(mo); });
+    v.appendChild(b);
+  });
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-w]'), function (b) {
+  b.addEventListener('click', function () {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-w]'), function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    document.getElementById('ecran').className = b.getAttribute('data-w'); dessiner();
+  });
+});
+dessiner();
+(function () {
+  var g = document.getElementById('galB'), cls = { diagonale:'b-diagonale', diagonaleInv:'b-diagonaleInv', coin:'b-coin', demiovale:'b-demiovale', vague2:'b-vague2', creneaux:'b-creneaux', carte:'b-carte', pilule:'b-pilule', ruban:'b-ruban', contour:'b-contour', contourRond:'b-contourRond', filets:'b-filets' };
+  var aide = { diagonale:'comme le ruban en diagonale', diagonaleInv:'miroir', coin:'un coin taillé', demiovale:'très arrondi en bas', vague2:'ondulations régulières', creneaux:'bord en créneaux', carte:'rectangle arrondi, détaché des bords', pilule:'bande toute ronde, détachée', ruban:'bande inclinée à gauche', contour:'cadre de couleur, sans remplissage', contourRond:'cadre arrondi, sans remplissage', filets:'un trait épais et un trait fin' };
+  NOUVELLES.forEach(function (k) {
+    var f = document.createElement('figure');
+    f.innerHTML = '<div class="mb"><div class="bandeau ' + cls[k] + '"><b>Camille Martin</b><span>Agent de sécurité</span></div></div><figcaption>' + NOMS[k] + '<small>' + aide[k] + '</small></figcaption>';
+    g.appendChild(f);
+  });
+  var gc = document.getElementById('galC'), aideC = { diagonale:'bord intérieur incliné', pointeBas:'se termine en pointe', coin:'un coin taillé en bas', demiovale:'bord intérieur bombé', vague2:'bord intérieur ondulé', creneaux:'bord intérieur en créneaux', carte:'rectangle arrondi, détaché', pilule:'colonne toute ronde', contour:'cadre de couleur, sans remplissage', contourRond:'cadre arrondi, sans remplissage', filets:'deux traits le long du bord' };
+  NOUVELLES_C.forEach(function (k) {
+    var f = document.createElement('figure'), lg = '<div class="ligne"></div><div class="ligne d"></div><div class="ligne c"></div>';
+    f.innerHTML = '<div class="mc"><div class="colonne c-' + k + ' cx">' + lg + lg + '</div></div><figcaption>' + (NOMS_C[k] || NOMS[k]) + '<small>' + aideC[k] + '</small></figcaption>';
+    gc.appendChild(f);
+  });
+})();
+</script>
+</body>
+</html>

@@ -155,13 +155,13 @@ function executerApplicationDossier(dossierCible, misesAJour) {
   }
 }
 
-// ---- Point d'entrée UNIQUE du module (appelé depuis la boîte à outils) ----
+// ---- Point d'entrée UNIQUE du module (appelé depuis la présentation du parcours « À partir de mon récit », troisième carte de « Créer un nouveau CV ») ----
 function demarrerDecouverteCompetences() {
   _decouverteReinitialiserJournal();
   _decouverteTracerEtape('demarrage', true);
   if (typeof ouvrirDecouverteCompetences !== 'function') {
     _decouverteTracerEtape('demarrage', false, { erreur: 'decouverteParcours.js absent ou non chargé.' });
-    alert('Le module Découverte de compétences n’est pas disponible pour le moment.');
+    alert('Le parcours « À partir de mon récit » n’est pas disponible pour le moment.');
     return;
   }
   ouvrirDecouverteCompetences();

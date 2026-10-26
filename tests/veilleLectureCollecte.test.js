@@ -75,7 +75,7 @@ test('collecte : le bloc « sources » et le bloc « structures » d\'une repons
 test('outil : un seul bouton de lecture par zone « Coller ici », et chaque zone annonce son bloc [MARQUE] (necessaire a la lecture automatique)', () => {
   assert.ok(HTML.indexOf('si déjà collé') === -1, 'plus de deuxieme bouton « Lire (si déjà collé) »');
   const boutons = HTML.match(/collerDans\('(\w+)', this, '\w+'\)/g) || [];
-  assert.ok(boutons.length >= 13, 'les zones de lecture existent : ' + boutons.length);
+  assert.ok(boutons.length >= 12, 'les zones de lecture existent : ' + boutons.length);   // 13 avant le chantier du Lexique (2026-10-20) : ses 2 zones de l'ancien bloc sont remplacees par 1 seule (porte C de la fenetre « Le Lexique »)
   boutons.forEach((b) => {
     const id = /collerDans\('(\w+)'/.exec(b)[1];
     const etiquette = new RegExp('<label for="' + id + '"[^>]*>([^<]*)</label>').exec(HTML);

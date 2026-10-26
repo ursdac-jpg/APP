@@ -46,6 +46,42 @@ var GABARITS_CONNUS = [
   'explication', 'comparatif', 'decryptage', 'grille-lecture', 'deroule-demarche', 'role'
 ];
 
+// Le bloc « Les chiffres a jour » d'une fiche (champ facultatif detailsAJour, chantier du 20 octobre 2026) :
+// { verifieLe: 'AAAA-MM-JJ' ou '' (jamais verifie), source: { nom, url https }, lignes: [{ libelle, valeur, categorie, peutChanger }] }.
+// Rend la liste des erreurs de forme (vide si le bloc est correct). Source unique : l'outil de veille appelle cette meme fonction.
+var MAX_LIGNES_DETAILS = 8;
+function verifierDetails(d, aujourdhui) {
+  var e = [];
+  var categories = Object.keys(require('./reperesChiffres.js').CATEGORIES);
+  if (!d || typeof d !== 'object' || Array.isArray(d)) { return ['Le bloc des chiffres à jour est mal formé.']; }
+  Object.keys(d).forEach(function (k) { if (['verifieLe', 'source', 'lignes'].indexOf(k) === -1) { e.push('Champ inconnu dans le bloc : ' + k + '.'); } });
+  var v = d.verifieLe;
+  if (typeof v !== 'string') { e.push('La date de vérification manque (une date, ou vide si le bloc n\'a jamais été vérifié).'); }
+  else if (v !== '') {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v), ok = !!m;
+    if (ok) { var t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])); ok = t.getUTCFullYear() === +m[1] && t.getUTCMonth() === +m[2] - 1 && t.getUTCDate() === +m[3]; }
+    if (!ok) { e.push('La date de vérification doit être une vraie date au format AAAA-MM-JJ : ' + v + '.'); }
+    else if (v > (aujourdhui || new Date().toISOString().slice(0, 10))) { e.push('La date de vérification est dans le futur : ' + v + '.'); }
+  }
+  var s = d.source;
+  if (!s || typeof s !== 'object' || typeof s.nom !== 'string' || !s.nom.trim()) { e.push('La source officielle manque (son nom).'); }
+  else if (typeof s.url !== 'string' || !/^https:\/\/[^\s"'<>]+$/.test(s.url)) { e.push('L\'adresse de la source doit commencer par https:// et ne contenir ni espace ni guillemet.'); }
+  var l = d.lignes;
+  if (!Array.isArray(l) || !l.length) { e.push('Le bloc doit avoir au moins une ligne.'); return e; }
+  if (l.length > MAX_LIGNES_DETAILS) { e.push('Le bloc a ' + l.length + ' lignes, plafond ' + MAX_LIGNES_DETAILS + ' (lisibilité sur téléphone).'); }
+  l.forEach(function (x, i) {
+    var n = 'Ligne ' + (i + 1) + ' du bloc : ';
+    if (!x || typeof x !== 'object') { e.push(n + 'mal formée.'); return; }
+    Object.keys(x).forEach(function (k) { if (['libelle', 'valeur', 'categorie', 'peutChanger'].indexOf(k) === -1) { e.push(n + 'champ inconnu ' + k + '.'); } });
+    if (typeof x.libelle !== 'string' || !x.libelle.trim()) { e.push(n + 'le libellé est vide.'); }
+    if (typeof x.valeur !== 'string' || !x.valeur.trim()) { e.push(n + 'la valeur est vide.'); }
+    if (categories.indexOf(x.categorie) === -1) { e.push(n + 'catégorie inconnue « ' + x.categorie + ' ».'); }
+    if (typeof x.peutChanger !== 'boolean') { e.push(n + '« peut changer » doit être oui ou non.'); }
+    [x.libelle, x.valeur].forEach(function (t2) { if (typeof t2 === 'string' && /[–—]/.test(t2)) { e.push(n + 'un tiret long ou demi-long s\'est glissé dans le texte (interdit).'); } });
+  });
+  return e;
+}
+
 // Plafond porte de 3 a 4 le 2026-08-29 (decision Denis) : les fiches
 // "accompagnement-insertion" ajoutees pour le repertoire des freins
 // (surendettement, addictologie, aide-a-la-mobilite...) servent un public
@@ -74,6 +110,31 @@ function chargerDonnees() {
   var fabrique = new Function('exports', code +
     '\nreturn { LEXIQUE_FICHES: LEXIQUE_FICHES, LEXIQUE_COLLECTIONS: LEXIQUE_COLLECTIONS, LEXIQUE_SECOND_NIVEAU: LEXIQUE_SECOND_NIVEAU };');
   return fabrique(contexte);
+}
+
+// Liste de transition (chantier « des chiffres a jour », 20 octobre 2026) : les fiches dont le texte contient ENCORE un chiffre. Elle ne peut que retrecir.
+// Fichier de l'outil de veille (jamais lu par l'application) : outils/lexique_transition_chiffres.txt, un identifiant par ligne.
+var CHEMIN_TRANSITION = path.join(__dirname, '..', 'outils', 'lexique_transition_chiffres.txt');
+function lireTransition(texte) {
+  return String(texte || '').split(/\r?\n/).map(function (l) { return l.replace(/#.*$/, '').trim(); }).filter(Boolean);
+}
+// Regle : un chiffre, une date, un montant ou une duree dans le TEXTE d'une fiche est une erreur, sauf si la fiche est sur la liste de transition ;
+// et une fiche listee qui n'a plus de chiffre doit sortir de la liste. fiches = objets { id, corps } ; transition = identifiants. Rend la liste des erreurs.
+function controlerChiffresDuTexte(fiches, transition) {
+  var detecteur = require('./reperesChiffres.js');
+  var liste = {}; (transition || []).forEach(function (id) { liste[id] = true; });
+  var erreurs = [], connus = {};
+  fiches.forEach(function (f) {
+    connus[f.id] = true;
+    var extrait = detecteur.extrait(f.corps);
+    if (extrait && !liste[f.id]) {
+      erreurs.push('Fiche "' + f.id + '" : le texte contient un chiffre, une date, un montant ou une durée (« ' + extrait + ' »). Placez-le dans le bloc « Les chiffres à jour » de la fiche (champ detailsAJour), ou reformulez sans chiffre.');
+    } else if (!extrait && liste[f.id]) {
+      erreurs.push('Fiche "' + f.id + '" : elle est sur la liste de transition mais son texte n\'a plus de chiffre. Retirez-la de outils/lexique_transition_chiffres.txt.');
+    }
+  });
+  Object.keys(liste).forEach(function (id) { if (!connus[id]) { erreurs.push('La liste de transition cite "' + id + '", qui n\'est pas une fiche de data/lexique.js.'); } });
+  return erreurs;
 }
 
 function verifier() {
@@ -118,6 +179,11 @@ function verifier() {
     }
     if (f.type === 'terme' && f.gabarit) {
       erreurs.push('Fiche "' + f.id + '" (terme) : ne devrait pas avoir de gabarit ("' + f.gabarit + '")');
+    }
+
+    // -- Bloc « Les chiffres a jour » (facultatif) --
+    if (f.detailsAJour !== undefined) {
+      verifierDetails(f.detailsAJour).forEach(function (m) { erreurs.push('Fiche "' + f.id + '" : ' + m); });
     }
 
     // -- Univers / registres connus --
@@ -236,6 +302,10 @@ function verifier() {
   // (data/lexique-renvois-cadre.js, genere depuis les fiches Cadre par
   // scripts/genererRenvoisCadre.js). Une erreur, pas un avertissement :
   // un fichier perime affiche silencieusement un lien retour manquant.
+  // -- Pas de chiffre dans le texte de fond (hors liste de transition) --
+  var transition = fs.existsSync(CHEMIN_TRANSITION) ? lireTransition(fs.readFileSync(CHEMIN_TRANSITION, 'utf8')) : [];
+  controlerChiffresDuTexte(fiches, transition).forEach(function (m) { erreurs.push(m); });
+
   var messageRenvoisCadre = renvoisCadre.verifierFraicheur();
   if (messageRenvoisCadre) { erreurs.push(messageRenvoisCadre); }
 
@@ -309,4 +379,12 @@ function main() {
   process.exit(0);
 }
 
-main();
+// L'outil de veille (outils/veille.html, ecran « Le Lexique ») lit ICI les familles, les registres et les plafonds : une seule source de verite, jamais une copie.
+// Lance directement (node scripts/checkLexique.js), le script se comporte exactement comme avant.
+if (require.main === module) { main(); }
+module.exports = {
+  UNIVERS_CONNUS: UNIVERS_CONNUS, REGISTRES_CONNUS: REGISTRES_CONNUS, GABARITS_CONNUS: GABARITS_CONNUS,
+  MAX_VARIANTES: MAX_VARIANTES, MAX_VOIR_AUSSI: MAX_VOIR_AUSSI, MAX_A_NE_PAS_CONFONDRE: MAX_A_NE_PAS_CONFONDRE,
+  MAX_LIGNES_DETAILS: MAX_LIGNES_DETAILS, verifierDetails: verifierDetails,
+  CHEMIN_TRANSITION: CHEMIN_TRANSITION, lireTransition: lireTransition, controlerChiffresDuTexte: controlerChiffresDuTexte, chargerDonnees: chargerDonnees
+};

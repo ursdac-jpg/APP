@@ -37,6 +37,16 @@ function ucpmPoserObjectifDansDossier(etat, entree) {
     });
     dossier.contrat = o.contrat.slice();
     dossier.tempsTravail = o.tempsTravail.slice();
+    // F14 : la logique de la lettre (forme de la candidature, secteur et intitule mis en avant, horaires) atteint aussi les assistants du CV de reference.
+    dossier.horaires = o.horaires.slice();
+    if (o.cible === 'secteur' && o.secteur) {
+      dossier.modeRecherche = 'domaine'; dossier.secteurCible = o.secteur;
+      dossier.intituleDomaine = o.intitule ? { secteur: o.secteur, intitule: o.intitule } : null;
+    }
+    if (typeof ucpmFormeVersDossier === 'function') {
+      var fd = ucpmFormeVersDossier(o.demarche, o.forme);
+      dossier.typeRecherche = fd.typeRecherche; dossier.formeChoisie = fd.formeChoisie;
+    }
   } else {
     var cle = (typeof CLE_DETAILS !== 'undefined' && CLE_DETAILS[o.demarche]) || o.demarche;
     var duree = o.dureeQuantite ? o.dureeQuantite + (o.dureeUnite ? ' ' + o.dureeUnite : '') : '';
@@ -76,8 +86,19 @@ function _ucpmP3HtmlChoix(etat) {
     '<div class="cv-section"><h4>&#128190; 2. Ce qui va se passer</h4><ul class="mb-0" style="padding-left:1.25rem;">' +
     '<li>L’application range votre CV en rubriques (expériences, formations…), avec l’assistant en ligne, si ce n’est pas déjà fait.</li>' +
     '<li>Elle lui demande ensuite votre CV complet pour le métier de référence et son objectif. Elle n’envoie jamais vos coordonnées.</li>' +
-    '<li>Vous réglez votre CV avec l’éditeur de CV, comme dans le reste de l’application. Ici, vous gardez le CV sur une seule page.</li></ul></div>' +
-    '<div class="text-center"><button type="button" class="btn btn-primary btn-lg" id="btnUcpmPreparerRef"' + (ref ? '' : ' disabled') + '>Préparer mon CV complet &#8594;</button></div>';
+    '<li>Vous réglez votre CV avec l’éditeur de CV, comme dans le reste de l’application. Ici, vous gardez le CV sur une seule page.</li></ul></div>';
+}
+
+// « Préparer mon CV complet » vit dans la barre du bas (retour Denis 2026-10-19), plus dans le corps de la page.
+function _ucpmP3Preparer(etat) {
+  var ref = ucpmRefCourante(etat);
+  if (!ref) { return; }
+  etat.refId = ref.id;
+  ucpmPoserObjectifDansDossier(etat, ref);
+  var dejaRange = (typeof dossierAStructureExperiences === 'function') && dossierAStructureExperiences();
+  etat.p3Vue = dejaRange || etat.p3Extrait ? 'assistant' : 'structurer';
+  if (etat.p3Vue === 'assistant') { _ucpmP3AmorcerAssistant(etat); } else { ucpmPassageReinitialiser(etat, 'extraction'); }
+  ucpmRendrePage();
 }
 
 // ---------------- Vue 'structurer' : ranger le CV en rubriques, dans la page (pas de fenêtre) ----------------
@@ -156,7 +177,7 @@ function ucpmOuvrirInfos() {
 // Barre d'étapes et barre du bas de « Vos informations » quand la page est ouverte depuis le module (appelées par pageProjet, js/app.js).
 function ucpmBarreEtapesInfos() { return barreEtapesModule(UCPM_NAV_ETAPES, 2); }
 function ucpmBarreDepuisInfos() {
-  return barreNavigation('un-cv-plusieurs-metiers', 'un-cv-plusieurs-metiers', 'Continuer : style d’écriture et assistant &#8594;', {
+  return barreNavigation('un-cv-plusieurs-metiers', 'un-cv-plusieurs-metiers', 'Continuer &#8594;', {
     onclickPrecedent: 'ucpmRetourDepuisInfos()',
     onclickSuivant: 'ucpmContinuerDepuisInfos()'
   });
@@ -196,12 +217,18 @@ function _ucpmP3AmorcerAssistant(etat) {
 
 function _ucpmP3HtmlAssistant() {
   var importee = reponseIAImportee('cv');
-  return (typeof htmlBanniereComplementCV === 'function' ? htmlBanniereComplementCV() : '') + '<div class="cv-section"><p class="mb-0">L’application a préparé la demande de votre CV complet. Choisissez un assistant : elle copie tout, ouvre l’assistant, puis vous revenez coller sa réponse.</p></div>' +
+  // « Vos appuis » (lettres de recommandation) est visible tout de suite, avant le choix de l'assistant : il n'est plus caché dans un rectangle replié (F15, 24/10/2026).
+  var appuis = (typeof _coLettreHtmlAppuis === 'function') ? '<div class="mb-3">' + _coLettreHtmlAppuis({ pourCv: true }) + '</div>' : '';
+  var deuxiemePartie = (importee && typeof complementCVEnAttente === 'function' && complementCVEnAttente())
+    ? '<div class="cv-section" style="border-left:4px solid var(--accent);"><p class="mb-0"><strong>Il reste une deuxième partie.</strong> Votre assistant propose aussi un complément de CV. Le bouton « Voir la deuxième partie », en bas de l’écran, vous y emmène : vous pourrez l’aller chercher ou passer.</p></div>'
+    : '';
+  return deuxiemePartie + (importee ? '' : appuis) +
+    '<div class="cv-section"><p class="mb-0">L’application a préparé la demande de votre CV complet. Choisissez un assistant : elle copie tout, ouvre l’assistant, puis vous revenez coller sa réponse.</p></div>' +
     rectangleAssistant('adaptation-metier', '&#127898;&#65039;', 'Réglez le style d’écriture', resumeRectangleStyleCV('cv'), contenuRectangleStyleCV('cv')) +
-    rectangleAssistant('choix-ia', '&#128172;', 'Choisissez votre assistant', '', contenuRectangleChoixIA('cv')) +
+    rectangleAssistant('choix-ia', '&#128172;', 'Choisissez votre assistant', '', contenuRectangleChoixIA('cv', { sansAppuis: true })) +
     rectangleAssistant('import-ia', '&#128229;', 'Importer la réponse', importee ? 'réponse importée' : '', contenuAccordeonImportIA('cv')) +
     (importee ? rectangleAssistant('relecture-ia', '&#128209;', 'Ce que l’assistant a préparé', _relectureIAValideeParType.cv ? 'choix validés' : '', contenuRectangleRelectureIA()) : '') +
-    (importee ? rectangleComplementCV() : '');
+    (importee && !complementCVEnAttente() ? rectangleComplementCV() : '');
 }
 
 function _ucpmP3CablerAssistant() {
@@ -217,7 +244,8 @@ function _ucpmP3CablerAssistant() {
   wireRectangleChoixIA('cv', rerender);
   wireImportIA('cv', rerenderRelectureOuverte, 'relecture-ia');
   wireRectangleRelectureIA(rerenderRelectureOuverte);
-  if (typeof _barreAdopterBoutonEtape === 'function') { _barreAdopterBoutonEtape(); }
+  // Une fois la relecture validée, « Mettre à jour et continuer » ne ferait que revalider sans rien faire (retour Denis 2026-10-19) : la barre garde alors le bouton du module (« Régler mon CV »).
+  if (typeof _barreAdopterBoutonEtape === 'function' && !_relectureIAValideeParType.cv) { _barreAdopterBoutonEtape(); }
 }
 
 // ---------------- Vue 'editeur' (3d) ----------------
@@ -312,6 +340,7 @@ ucpmEnregistrerPage(3, {
     if (!etat.p3Vue) { etat.p3Vue = 'choix'; }
     if (etat.p3Vue === 'structurer') { return ucpmPassageRendre(etat, 'extraction', _ucpmConfigPassageExtraction(etat)); }
     if (etat.p3Vue === 'infos') { return '<div class="cv-section"><h4>&#128203; Vos informations</h4><p class="mb-2">Votre CV a été rangé en rubriques. Vérifiez et complétez vos informations : expériences, formations, compétences, coordonnées.</p><button type="button" class="btn btn-primary btn-lg" id="btnUcpmOuvrirInfos">Voir mes informations &#8594;</button></div>'; }
+    if (etat.p3Vue === 'complement') { return htmlEcranComplementCV(); }
     if (etat.p3Vue === 'assistant') { return _ucpmP3HtmlAssistant(); }
     if (etat.p3Vue === 'editeur') { return _ucpmP3HtmlEditeur(etat); }
     return _ucpmP3HtmlChoix(etat);
@@ -319,40 +348,38 @@ ucpmEnregistrerPage(3, {
   cabler: function (etat) {
     var $ = function (sel) { return document.querySelector(sel); };
     Array.prototype.forEach.call(document.querySelectorAll('input[name="ucpmRef"]'), function (el) {
-      el.addEventListener('change', function () { etat.refId = el.value; });
+      el.addEventListener('change', function () { var etaitVide = !ucpmRefCourante(etat); etat.refId = el.value; if (etaitVide) { ucpmRendrePage(); } });
     });
-    var preparer = $('#btnUcpmPreparerRef');
-    if (preparer && !preparer.disabled) {
-      preparer.addEventListener('click', function () {
-        var ref = ucpmRefCourante(etat);
-        if (!ref) { return; }
-        etat.refId = ref.id;
-        ucpmPoserObjectifDansDossier(etat, ref);
-        var dejaRange = (typeof dossierAStructureExperiences === 'function') && dossierAStructureExperiences();
-        etat.p3Vue = dejaRange || etat.p3Extrait ? 'assistant' : 'structurer';
-        if (etat.p3Vue === 'assistant') { _ucpmP3AmorcerAssistant(etat); } else { ucpmPassageReinitialiser(etat, 'extraction'); }
-        ucpmRendrePage();
-      });
-    }
     if (etat.p3Vue === 'structurer') { ucpmPassageCabler(etat, 'extraction', _ucpmConfigPassageExtraction(etat)); }
     var infos = $('#btnUcpmOuvrirInfos');
     if (infos) { infos.addEventListener('click', ucpmOuvrirInfos); }
     if (etat.p3Vue === 'assistant') { _ucpmP3CablerAssistant(); }
+    // Étape « complément » (retour Denis 2026-10-19) : après l'import, avant l'éditeur ; importer ou passer, puis l'éditeur.
+    if (etat.p3Vue === 'complement') { wireComplementCV(function () { etat.p3Vue = 'editeur'; ucpmRendrePage(); }); }
   },
-  libelleContinuer: function () { return (typeof libelleContinuerComplementCV === 'function') ? libelleContinuerComplementCV('Régler mon CV &#8594;') : 'Régler mon CV &#8594;'; },
+  libelleContinuer: function (etat) {
+    if (!etat.p3Vue || etat.p3Vue === 'choix') { return 'Préparer mon CV complet &#8594;'; }
+    if (etat.p3Vue === 'complement') { return 'Passer, je vois mon CV &#8594;'; }
+    // Après l'import, si l'assistant a proposé un complément, le bouton emmène d'abord à la deuxième partie.
+    if (etat.p3Vue === 'assistant' && typeof complementCVEnAttente === 'function' && complementCVEnAttente()) { return 'Voir la deuxième partie &#8594;'; }
+    return 'Régler mon CV &#8594;';
+  },
   peutContinuer: function (etat) {
-    if (etat.p3Vue === 'editeur' || etat.p3Vue === 'infos') { return true; }
+    if (etat.p3Vue === 'editeur' || etat.p3Vue === 'infos' || etat.p3Vue === 'complement') { return true; }
+    if (!etat.p3Vue || etat.p3Vue === 'choix') { return !!ucpmRefCourante(etat); }
     if (etat.p3Vue === 'assistant') { return !!(typeof _relectureIAValideeParType !== 'undefined' && _relectureIAValideeParType.cv); }
     return false;
   },
   raisonBlocage: function (etat) {
     if (etat.p3Vue === 'assistant') { return 'Importez la réponse de l’assistant, puis validez ce qu’il a préparé, pour continuer.'; }
     if (etat.p3Vue === 'structurer') { return 'Choisissez un assistant et collez sa réponse pour continuer.'; }
-    return 'Choisissez le métier de référence, puis cliquez sur « Préparer mon CV complet ».';
+    return 'Choisissez le métier de référence, puis cliquez sur « Préparer mon CV complet » en bas de l’écran.';
   },
   continuer: function (etat) {
+    if (!etat.p3Vue || etat.p3Vue === 'choix') { _ucpmP3Preparer(etat); return; }
     if (etat.p3Vue === 'infos') { ucpmOuvrirInfos(); return; }
-    if (etat.p3Vue === 'assistant') { etat.p3Vue = 'editeur'; ucpmRendrePage(); return; }
+    if (etat.p3Vue === 'assistant') { etat.p3Vue = (typeof complementCVEnAttente === 'function' && complementCVEnAttente()) ? 'complement' : 'editeur'; ucpmRendrePage(); return; }
+    if (etat.p3Vue === 'complement') { if (dossier) { dossier.complementCVPasse = true; } etat.p3Vue = 'editeur'; ucpmRendrePage(); return; }
     ucpmOuvrirEditeur();
   },
   // « Retour » : recule d'une vue, sans rien supprimer ; depuis le premier choix, la page 2.
@@ -360,6 +387,7 @@ ucpmEnregistrerPage(3, {
     var v = etat.p3Vue || 'choix';
     if (v === 'choix') { return false; }
     if (v === 'structurer') { if (ucpmPassageRetour(etat, 'extraction')) { return true; } etat.p3Vue = 'choix'; }
+    else if (v === 'complement') { etat.p3Vue = 'assistant'; _ucpmP3AmorcerAssistant(etat); }
     else if (v === 'editeur') { etat.p3Vue = 'assistant'; _ucpmP3AmorcerAssistant(etat); }
     else if (etat.p3Extrait) { etat.p3Vue = 'infos'; ucpmOuvrirInfos(); return true; }   // la page d'avant : « Vos informations », avec tout ce qui y a été saisi
     else { etat.p3Vue = 'structurer'; }

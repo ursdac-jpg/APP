@@ -35,6 +35,9 @@ function construireObjetLettrePourExportFormat(formatPage) {
   if (!limite) { return objetLettre; } // 'A4' (Détaillé) ou absent : texte complet, inchange
   var objetTronque = {};
   Object.keys(objetLettre).forEach(function (cle) { objetTronque[cle] = objetLettre[cle]; });
+  // « Message par mail » (A4-essentiel) et A5 : pas de bloc du destinataire (texte court a coller dans un courriel, ou demi-page).
+  objetTronque.destinataire = { lignes: [], lignesSansAdresse: [], ligneAttention: '', personneConnue: false };
+  objetTronque.gabarit = 'g0';   // le texte court a coller dans un courriel n'a pas de gabarit
   // TACHE (retour utilisateur : "je veux qu'on demande à l'IA une vraie
   // version courte, pas une coupure de la version longue") : utilise
   // objetLettre.texteCourt (rédigé séparément par l'IA, voir lettre.md)
@@ -46,6 +49,21 @@ function construireObjetLettrePourExportFormat(formatPage) {
     ? objetLettre.texteCourt
     : _dnTronquerTexte(objetLettre.texte, limite);
   return objetTronque;
+}
+
+// Essai de mise en page retenu par l'apercu (mesure reelle de la page), s'il correspond encore au contenu actuel ; sinon null (estimation).
+function _miseEnPageMesureeLettre(objetLettre) {
+  var etat = (typeof etatApercuInline !== 'undefined' && etatApercuInline.lettre) ? etatApercuInline.lettre : null;
+  if (!etat || typeof signatureMiseEnPageLettreCo !== 'function') { return null; }
+  if (etat.miseEnPageSig !== signatureMiseEnPageLettreCo(objetLettre)) { return null; }
+  return CANDIDATS_MISE_EN_PAGE_LETTRE_CO[etat.miseEnPageIndice] || null;
+}
+
+// Couleur de la lettre (lot D) : celle choisie, sinon celle du CV (hors Sobre), sinon celle du gabarit ; vide pour le Sobre neutre (couleur d'origine).
+function _primaireLettre(objetLettre) {
+  if (typeof couleurLettreEffectiveCo !== 'function') { return null; }
+  var cv = (typeof couleurCvDeLaPersonne === 'function') ? couleurCvDeLaPersonne() : '';
+  return couleurLettreEffectiveCo(objetLettre.gabarit, objetLettre.couleurChoisie, cv);
 }
 
 function _dnOptsCouleurLettre(couleurId) {
@@ -65,7 +83,8 @@ function _dnOptsCouleurLettre(couleurId) {
 function genererDocxNatifLettreFormat(modeleId, couleurId, formatPage) {
   var objetLettre = construireObjetLettrePourExportFormat(formatPage);
   return chargerLibrairieDocxNatif().then(function (docx) {
-    var opts = _fusionnerOptsLettreEntretien(_dnOptsCouleurLettre(couleurId), { formatPage: formatPage });
+    var opts = _fusionnerOptsLettreEntretien(_dnOptsCouleurLettre(couleurId), { formatPage: formatPage, miseEnPageMesuree: _miseEnPageMesureeLettre(objetLettre) },
+      (objetLettre.gabarit && objetLettre.gabarit !== 'g0') || objetLettre.couleurChoisie ? { primaire: _primaireLettre(objetLettre) } : {});
     var ajuste = (typeof _dnAjusterLettrePourUnePage === 'function')
       ? _dnAjusterLettrePourUnePage(objetLettre, opts)
       : { objetLettre: objetLettre, opts: opts };

@@ -16,6 +16,23 @@ Ce fichier est **commun à tous les comptes/sessions Claude** (ou toute autre IA
 
 ---
 
+## [EN COURS - 2026-10-21] Des chiffres à jour dans le Lexique, revérifiés tous les 6 mois
+Cahier : `docs/CHANTIER_LEXIQUE_CHIFFRES_A_JOUR_2026-10-20.md`. **Tout le code est fait (M1 à M6, B1) et 69 propositions de migration sont prêtes (7 lots).** Reste, par Denis :
+- [ ] `[effort : moyen]` M7 (relecture) : relire et valider, une fiche à la fois, les 69 propositions de migration (bouton « Proposition de migration (lot N) » du filtre « Avec un chiffre ou une date dans le texte »). Conseil : commencer par les fiches les plus ouvertes (CPF, RSA, prime d'activité, ACRE, arrêt de travail).
+- [ ] `[effort : bas]` B2 : première vérification réelle des chiffres de chaque fiche migrée (carte « Revérifier les chiffres des fiches », prompt par lot de huit fiches). Une fiche migrée mais jamais vérifiée montre le message général à la personne.
+- [ ] `[effort : bas]` Rappel tous les 6 mois : carte « Revérifier les chiffres des fiches » du menu Lexique et badge de l'accueil de l'outil.
+- [ ] `[effort : bas]` Hors chantier : la porte B (Umami) doit être contrôlée avec un vrai export (voir ci-dessous).
+
+## [EN COURS - 2026-10-20] Le Lexique de l'outil de veille (fenêtre « Le Lexique »)
+Cahier : `docs/CHANTIER_MODERNISATION_LEXIQUE_VEILLE_2026-10-20.md` (bloc REPRISE en tête). Codé et vérifié (H1 à H5, M1 à M6, B1). Reste :
+- [À FAIRE, non bloquant] `[effort : bas]` B0, par Denis (donne aussi le vrai format de l'export pour la porte B) : dans Umami (onglet « Events »), l'événement `lexique_recherche_sans_resultat` existe-t-il, combien de fois par mois ?
+- [CLOS - 2026-10-20, codé à la demande de Denis sans vérification préalable de l'export Umami : à contrôler avec un vrai export, ajuster `lireRecherches` si le format diffère] `[effort : moyen]` M7 : porte B (recherches sans résultat), seulement si B0 le justifie ; sinon la clore « non retenue ».
+- [ ] `[effort : bas]` B2, par Denis : relire les 64 fiches « chiffre ou date » (filtre de la liste des mots).
+- [ ] `[effort : bas]` Essai réel par Denis avec le lanceur, puis petits ajustements (textes, ordre des champs).
+- [CLOS - 2026-10-20] Changer le type d'une fiche existante (mot ou notion, avec présentation) ; résumé cliquable « À regarder » de la liste. Bouton « Modifier » depuis la fiche de l'application : NON FAIT volontairement (bouton visible du public pour un outil local) ; inverse possible plus tard : « Voir dans l'application » depuis l'outil, qui demande un lien direct vers une fiche dans le module Lexique.
+- [CLOS - 2026-10-20] Date des prompts de l'outil (`socleRecherche()`) écrite en jour/mois/année ; bouton « Ajouter un mot » et choix mot ou notion (avec gabarit) pour un mot neuf.
+- [ ] `[effort : bas]` Hors chantier : le texte tapé dans la recherche du Lexique part à Umami (constat F du cahier, à trancher séparément).
+
 ## [EN COURS - 2026-10-15] Bouton Aide (ampoule) : remise à jour
 Plan, résultats et suivi : `docs/CHANTIER_AIDE_A_JOUR.md`. Faits : 4 pages et 5 fenêtres sans aide désormais couvertes ; 5 entrées de fenêtres mortes retirées (validé Denis) ; parcours `aide` anti-péremption ajouté à `parcours_smoke.js`.
 - [ ] `[effort : bas]` Tâche 3 : contrôler à la main les sélecteurs de la visite guidée, page par page (`mon-territoire`, `reperes`, `coherence-transversale`, `resultats` d'abord), à traiter avec la tâche 4.
@@ -1266,3 +1283,26 @@ Plan et décisions D1 à D7 : `docs/PLAN_LETTRES_RETRAVAILLEES_ET_PREPARATION_EN
 ## Session du 2026-10-15 (suite) : boutons de l'éditeur de CV
 - **[FAIT 2026-10-15] [effort : moyen]** Boutons « Style rapide (aléatoire) » et « Mise en page » agrandis d'environ un quart (texte 12,6 à 15,7 px, icône, marges) et mieux contrastés (bordure de 2 px plus foncée, ombre, texte en gras ; mode sombre : bordure claire) ; l'explication passe à la ligne au lieu d'être coupée. `css/mise-en-page-maquette.css` seulement. Essais `grandsBoutons`, `ambiance`, `pulseAllure` verts. Constat : `.mep-simple-macro` (carte « Reprendre la main », `js/app.js`) n'a aucun style dans le dépôt, probable code mort à confirmer avant tout nettoyage.
 - **[FAIT 2026-10-15] [effort : bas]** Contour prononcé (2 px, couleur d'accent, un peu plus larges) des petits boutons « Revenir au tirage précédent », « Revenir au modèle de départ » et « Revenir à avant la dernière mise en page » (`.mini-action`, `css/mise-en-page-maquette.css`) ; désactivés, ils restent atténués. Essais `grandsBoutons` et `pulseAllure` verts.
+
+## Session du 2026-10-20 : repères d'entreprises du territoire et 4 fiches du Lexique (cahier : `docs/CHANTIER_REPERES_ENTREPRISES_TERRITOIRE_2026-10-18.md`)
+- **[FAIT 2026-10-19] [effort : haut]** Préparation : audit, carte de faisabilité, maquette, six décisions de Denis, plan validé.
+- **[FAIT 2026-10-19] [effort : moyen]** Portrait corrigé (annonces de jugement d'ouverture : 372 en Dordogne, 431 en Haute-Vienne), bloc « Les entreprises ici » dans « Comprendre les chiffres », champs de l'outil de veille, 4 fiches du Lexique et leur collection.
+- **[FAIT 2026-10-20] [effort : moyen]** Validation par Denis dans l'outil de veille (fichier daté du 20 octobre 2026), boutons « Voir les chiffres » sur deux fiches.
+- **[FAIT 2026-10-20] [effort : moyen]** Outil privé `PROSPECTION` : corriger le décompte « procédures collectives » (annonces de jugement d'ouverture, pas toute la famille) avant tout export. Ne pas comparer les radiations d'office ni les créations du BODACC entre départements.
+- **[À FAIRE] [effort : bas]** Mise à jour trimestrielle du fichier `entreprises-departements.md` (la période se saisit dans l'outil de veille, cases « periode du » et « periode au » en jour/mois/année ; 12 mois glissants, contrôle par échantillon d'une semaine : `docs/CONTROLE_ECHANTILLON_BODACC_2026-10-19.md`).
+
+
+## Session du 2026-10-25 : F10 (lettre et entretien rapides, approfondis, synthèse) et suites
+- **[À FAIRE, tout dernier point] [effort : haut]** **Déverrouillage progressif des blocs numérotés, dans tous les modules** (demande de Denis, 25/10/2026). Règle : à l'arrivée sur la première page d'un module (pas la présentation), on voit le point 1 ouvert et le point 2 BLOQUÉ ; le point 3 n'est PAS VISIBLE tant que le point 2 n'est pas ouvert. Le point 2 se débloque quand le point 1 est validé ; le point 3 apparaît alors, bloqué, et se débloque quand le point 2 est « fini de remplir » (une carte choisie, les informations importantes complétées). Cartes bloquées : curseur « sens interdit », pastille ou carte présélectionnée au survol, message qui explique pourquoi (comme « Reprendre mon CV » et « Lettre et entretien en version rapide »). Concerne d'abord « Écrire ma lettre avec l'assistant » et « M'entraîner à un entretien » (aujourd'hui les trois blocs sont visibles, le verrou est un `inert` qui rend les cartes muettes au survol, `appliquerVerrouBlocs`), puis tout module à blocs numérotés (`bloc-depli`). Audit sur tout le dépôt avant, maquette d'abord. Voir aussi LECONS (cartes bloquées : `aria-disabled`, jamais `inert`).
+
+## Séance du 25/10/2026, retours de Denis (liste et lots détaillés : `docs/MESSAGES_PAR_LOT_RETOURS_2026-10-25.md`)
+Un seul niveau d'effort par lot, un seul changement d'effort sur la série (haut, puis moyen, puis haut). Chaque lot annonce son effort au démarrage.
+- **[À FAIRE] [effort : haut] Lot 1** : point 11, régression majeure : la fiche d'entretien rapide donne au deuxième passage l'écran et le prompt de la lettre. Diagnostic (ne pas exclure les commits du jour), correction, essai de parcours.
+- **[À FAIRE] [effort : moyen] Lot 2** : point 12 `[moyen]` (la page « Synthèse » seulement par l'encart de la version rapide, « Choisir mon assistant » à l'arrivée directe, dans les DEUX modules approfondis), point 7 `[moyen]` (tous les « Retour » ramènent à « Vos documents » de la version rapide), point 5 `[bas]` (grand titre = parcours choisi, plus de pastille « Parcours » dans les pages de travail), point 9 `[bas à moyen]` (« Vos informations » sur fond jaune partout).
+- **[À FAIRE] [effort : haut] Lot 3** : point 1 `[moyen]` (boutons de page et de barre qui apparaissent et disparaissent à chaque choix, tous les parcours à cartes d'objectif ; règle : toujours visibles, un blocage = grisé) et point 8 `[haut]` (« Continuer » dans la barre du bas pour tous les écrans d'import, plus de bouton « Importer » dans la page).
+- **[À FAIRE] [effort : haut, maquette d'abord] Lot 4a** : points 2, 3 et 4, un seul écran d'objectif (référent : « Écrire ma lettre avec l'assistant »), les cartes AVANT le premier passage partout, même effet d'invitation, un seul panneau de candidature.
+- **[À FAIRE] [effort : haut, maquette d'abord] Lot 4b** : points 6 et 10, un seul parcours rapide paramétré par le document ; ordre : CV, parcours, objectifs, premier passage, style d'écriture, second passage.
+- **[À FAIRE] [effort : haut, maquette d'abord] Lot 5** : déverrouillage progressif des blocs numérotés (voir la tâche notée plus haut), d'abord « Écrire ma lettre avec l'assistant ».
+- **[À FAIRE] [effort : haut] Lot 6** : prompts de la fiche d'entretien (enrichie avec la matière de `entretien.md`) et de l'entraînement, aide sur le mode vocal.
+- **[À FAIRE] [effort : haut] Lot 7** : troisième voie de « Reprendre mon CV » (maquette existante du 22/10/2026 à relire et implémenter).
+- **[À FAIRE] [effort : haut, conception avec Denis] Lot 8** : « Découvrir mes compétences » (F12).

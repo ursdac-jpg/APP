@@ -265,6 +265,7 @@
   <script src="modules/cv-core/moteurDecisionCV.js" charset="UTF-8"></script>
   <script src="modules/cv-core/extraireDonneesCV.js" charset="UTF-8"></script>
   <script src="modules/cv-core/normaliserDonneesCV.js" charset="UTF-8"></script>
+  <script src="modules/cv-core/disponibiliteCv.js" charset="UTF-8"></script>
   <script src="modules/cv-editor/rendreTemplate.js" charset="UTF-8"></script>
   <script src="modules/cv-editor/modelesDisponibles.js" charset="UTF-8"></script>
   <!-- TACHE (Option C : export Word natif) : genere de vrais .docx par
@@ -353,6 +354,12 @@
   <script src="modules/cv-pdf-html/cvPdfPleinEcranMaquette.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfCartesMaquette.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfOptionsParModele.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfCapacitesModeles.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfFormesDeco.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfCompositions.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfPoigneesCv.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfEnteteApercu.js" charset="UTF-8"></script>
+  <script src="modules/cv-pdf-html/cvPdfTexteHors.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfTemplateA5.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfPanneauReglages.js" charset="UTF-8"></script>
   <script src="modules/cv-pdf-html/cvPdfExport.js" charset="UTF-8"></script>
@@ -373,12 +380,21 @@
   <script src="modules/cv-mise-en-page/reglagesTraducteurs.js" charset="UTF-8"></script>
   <!-- Recadrage de la photo du CV (zoom + deplacement), appele par ajouterPhotoAuDossier() de js/app.js. -->
   <script src="modules/photo-cadrage/photoCadrage.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/destinataireLettreCo.js" charset="UTF-8"></script>
   <script src="modules/lettre-core/normaliserDonneesLettre.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/construireMessageLettreCo.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/raisonsBlocageLettreCo.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/situationCandidatureLettreCo.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/disponibilitesLettreCo.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/appuisLettreCo.js" charset="UTF-8"></script>
+  <script src="modules/synthese-assistant/logique.js" charset="UTF-8"></script>
+  <script src="modules/lettre-core/controleTexteLettreCo.js" charset="UTF-8"></script>
   <script src="modules/lettre-editor/modelesDisponiblesLettre.js" charset="UTF-8"></script>
   <!-- TACHE (traitement DOCX natif etendu a la lettre) : meme principe
        que exportDocxNatifCV.js, reutilise sa fonction de chargement de
        la librairie docx (chargee juste au-dessus). -->
   <script src="modules/lettre-editor/exportDocxNatifLettre.js" charset="UTF-8"></script>
+  <script src="modules/lettre-editor/gabaritsLettre.js" charset="UTF-8"></script>
   <script src="modules/entretien-editor/normaliserDonneesEntretien.js" charset="UTF-8"></script>
   <script src="modules/entretien-editor/modelesDisponiblesEntretien.js" charset="UTF-8"></script>
   <!-- TACHE (traitement DOCX natif etendu a l'entretien) : idem. -->
@@ -516,6 +532,7 @@
        docs/PLAN_IMPLEMENTATION_UN_CV_PLUSIEURS_METIERS_2026-10-08.md. -->
   <script src="modules/un-cv-plusieurs-metiers/logique.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiqueMetiers.js" charset="UTF-8"></script>
+  <script src="modules/un-cv-plusieurs-metiers/logiqueObjectifDossier.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiqueCv.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiqueDocuments.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/logiquePreparation.js" charset="UTF-8"></script>
@@ -530,6 +547,8 @@
   <script src="modules/un-cv-plusieurs-metiers/page6Lettres.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/page7Fin.js" charset="UTF-8"></script>
   <script src="modules/un-cv-plusieurs-metiers/page8Entretiens.js" charset="UTF-8"></script>
+  <script src="modules/cv-modeles-gardes/logique.js" charset="UTF-8"></script>
+  <script src="modules/cv-modeles-gardes/modelesGardes.js" charset="UTF-8"></script>
   <script src="modules/comprendre-le-cadre/index.js" charset="UTF-8"></script>
   <!-- Module « Comprendre les chiffres » (2e sous-carte de « Se tenir informé »),
        page routée, pure consultation. Chargé avant js/app.js (référencé dans
@@ -552,6 +571,10 @@
   <script src="modules/regard-recruteur/rapportResponseParser.js" charset="UTF-8"></script>
   <script src="modules/regard-recruteur/promptBuilder.js" charset="UTF-8"></script>
   <script src="modules/regard-recruteur/index.js" charset="UTF-8"></script>
+  <!-- Voie 3 de « Reprendre mon CV » (Lot 7) : logique pure, lecteur de PDF par lignes, puis l'interface ; avant js/app.js (route 'cv-sans-assistant'). -->
+  <script src="modules/cv-sans-assistant/logique.js" charset="UTF-8"></script>
+  <script src="modules/cv-sans-assistant/lecteurPdf.js" charset="UTF-8"></script>
+  <script src="modules/cv-sans-assistant/index.js" charset="UTF-8"></script>
   <script src="js/app.js" charset="UTF-8"></script>
 
 </body>

@@ -29,7 +29,22 @@ function normaliserDonneesLettre(dossierSource) {
     day: 'numeric', month: 'long', year: 'numeric'
   });
 
+  // Bloc du destinataire (temps 3) : calcule par destinataireLettreCo.js, jamais ici. Charge par <script> avant l'appel ; require en Node.
+  var blocDest = (typeof blocDestinataireLettreCo === 'function') ? blocDestinataireLettreCo
+    : ((typeof require === 'function') ? require('./destinataireLettreCo.js').blocDestinataireLettreCo : null);
+
   return {
+    destinataire: blocDest ? blocDest(d) : { lignes: [], lignesSansAdresse: [], ligneAttention: '', personneConnue: false },
+    // La rue de la personne n'est imprimee que si elle l'a demande (case du panneau de mise en page) ; le code postal l'est toujours.
+    inclureRue: !!(d.lettreDestinataire && d.lettreDestinataire.rue),
+    // Gabarit, couleur choisie (hex ou vide) et titre du poste (sous le nom dans certains gabarits) : lot D.
+    gabarit: (typeof gabaritLettreCo === 'function') ? gabaritLettreCo(d.lettreDestinataire && d.lettreDestinataire.gabarit).id
+      : (typeof require === 'function' ? require('./destinataireLettreCo.js').gabaritLettreCo(d.lettreDestinataire && d.lettreDestinataire.gabarit).id : 'g0'),
+    optionsGabarit: { icones: !(d.lettreDestinataire && d.lettreDestinataire.icones === false), coordLigne: !!(d.lettreDestinataire && d.lettreDestinataire.coordLigne) },
+    couleurChoisie: (d.lettreDestinataire && typeof d.lettreDestinataire.couleur === 'string') ? d.lettreDestinataire.couleur : '',
+    poste: String(d.metierCible || d.titreCV || (d.intituleDomaine && d.intituleDomaine.intitule) || '').trim(),
+    police: (typeof policeLettreCo === 'function') ? policeLettreCo(d.lettreDestinataire && d.lettreDestinataire.police)
+      : (typeof require === 'function' ? require('./destinataireLettreCo.js').policeLettreCo(d.lettreDestinataire && d.lettreDestinataire.police) : 'Georgia'),
     identite: {
       civilite: id.civilite || null,
       nom: id.nom || '',

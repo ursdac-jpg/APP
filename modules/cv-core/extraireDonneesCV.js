@@ -43,6 +43,15 @@ function extraireDonneesCV(dossierSource) {
   var savoirFaire = (typeof savoirFaireActuels === 'function') ? savoirFaireActuels() : [];
   var savoirEtre = (typeof savoirEtreActuels === 'function') ? savoirEtreActuels() : [];
   var savoirs = (typeof obtenirSavoirs === 'function') ? obtenirSavoirs() : [];
+  // MODE FIDELE (Lot 7, voie 3 de « Reprendre mon CV », 26/10/2026) : seules les listes ECRITES par la personne (competencesCV, savoirEtreCV, savoirsCV) sont lues.
+  // Ni competence deduite des loisirs ou des actions, ni savoir devine d'apres des metiers qui ressemblent au profil, ni rangement par le catalogue : une competence
+  // rangee sous « Competences » reste professionnelle, une qualite reste comportementale. Eteint partout ailleurs (d.modeFidele n'est vrai que pour cette voie).
+  if (d.modeFidele === true) {
+    var qualitesCV = (d.savoirEtreCV || []).slice();
+    savoirFaire = (d.competencesCV || []).filter(function (c) { return qualitesCV.indexOf(c) === -1; });
+    savoirEtre = qualitesCV;
+    savoirs = (d.savoirsCV || []).slice();
+  }
 
   return {
     identite: {

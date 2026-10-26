@@ -95,7 +95,7 @@ var MT_SECTEURS_AFFICHAGE = {
 // Colonnes des fichiers de données.
 var MT_COLONNES_EMPLOYEURS = ['id', 'nature', 'nom', 'secteur', 'etablissements', 'telephone', 'site', 'recrutement', 'modes', 'source', 'date'];
 var MT_COLONNES_ZONES = ['zone', 'libelle', 'contenu', 'source', 'date'];
-var MT_COLONNES_LIEUX = ['id', 'type', 'nom', 'description', 'commune', 'zone', 'telephone', 'site', 'portee', 'rayons', 'source', 'date'];
+var MT_COLONNES_LIEUX = ['id', 'type', 'nom', 'description', 'commune', 'zone', 'telephone', 'site', 'portee', 'rayons', 'source', 'date', 'mail'];
 
 // Les 17 rayons de « Comprendre le cadre » (identifiants des dossiers modules/comprendre-le-cadre/contenu/<rayon>/).
 var MT_RAYONS = ['accompagnement', 'budget', 'creer', 'emploi', 'employeurs', 'etranger', 'former', 'francais', 'garde', 'handicap', 'jeunes', 'juridique', 'justice', 'logement', 'mobilite', 'sante', 'seniors'];
@@ -225,6 +225,8 @@ function mtParserRegistre(texte, colonnes) {
     if (!l || l.charAt(0) === '#') { return; }
     // Une colonne vide s'écrit « | | » ; la dernière colonne peut aussi rester vide (« ... | »).
     var parts = l.split(/\s*\|\s*/).map(function (p) { return p.trim(); });
+    // Anciennes lignes des structures : la colonne « mail » (la dernière) peut manquer, elle est alors vide.
+    if (parts.length === colonnes.length - 1 && colonnes[colonnes.length - 1] === 'mail') { parts.push(''); }
     if (parts.length !== colonnes.length) {
       erreurs.push('ligne ' + (i + 1) + ' : ' + parts.length + ' colonnes au lieu de ' + colonnes.length);
       return;
@@ -260,6 +262,18 @@ function mtParserModes(champ) {
 function mtParserEmployeurs(texte) {
   var r = mtParserRegistre(texte, MT_COLONNES_EMPLOYEURS);
   r.lignes.forEach(function (e) { e.etablissementsListe = mtParserEtablissements(e.etablissements); e.modesListe = mtParserModes(e.modes); });
+  return r;
+}
+
+// Marque « Via prospection » (décisions de Denis, 2026-10-19) : une fiche venue de l'outil de prospection porte « Via prospection ; » au DÉBUT de sa colonne source.
+// C'est l'UNIQUE façon de la reconnaître (aucune colonne en plus). Ces fiches ne se mélangent jamais aux autres : rubrique à part (mtSeparerProspection).
+var MT_MARQUE_PROSPECTION = 'Via prospection';
+var MT_RE_MARQUE_PROSPECTION = /^Via prospection ;/;
+function mtViaProspection(employeur) { return MT_RE_MARQUE_PROSPECTION.test(String((employeur && employeur.source) || '').trim()); }
+// { normaux, prospection } : chaque fiche est dans UNE SEULE des deux listes.
+function mtSeparerProspection(employeurs) {
+  var r = { normaux: [], prospection: [] };
+  (employeurs || []).forEach(function (e) { (mtViaProspection(e) ? r.prospection : r.normaux).push(e); });
   return r;
 }
 
@@ -363,6 +377,13 @@ function mtParserLieux(texte) {
 
 function mtRayonMigre(rayon) { return MT_RAYONS_MIGRES.indexOf(rayon) !== -1; }
 
+// Marque « Petite structure » (chantier docs/CHANTIER_PETITES_STRUCTURES_2026-10-19.md, décision D3 de Denis) : une structure venue de l'outil de veille, petite et locale,
+// porte « Petite structure ; » au DÉBUT de sa colonne source (aucune colonne en plus, même patron que « Via prospection » pour les employeurs).
+var MT_MARQUE_PETITE_STRUCTURE = 'Petite structure';
+var MT_RE_MARQUE_PETITE_STRUCTURE = /^Petite structure ;/;
+function mtPetiteStructure(lieu) { return MT_RE_MARQUE_PETITE_STRUCTURE.test(String((lieu && lieu.source) || '').trim()); }
+var MT_RE_MAIL = /^[^\s@|;,]+@[^\s@|;,]+\.[A-Za-z]{2,}$/;
+
 // Les structures qu'affiche un rayon de « Comprendre le cadre » (tri alphabétique par nom : jamais un classement).
 function mtLieuxDuRayon(lieux, rayon) {
   return lieux.filter(function (l) { return l.rayonsListe.indexOf(rayon) !== -1; })
@@ -372,7 +393,38 @@ function mtLieuxDuRayon(lieux, rayon) {
 // Même forme que les structures lues dans la collecte d'un rayon : { titre, detail, url, verifie, date, portee }. Le lien n'est cliquable que si la ligne est datée de moins de 12 mois.
 function mtLieuEnStructure(lieu, aujourdhuiIso, commune) {
   var ok = mtFraicheur(lieu.date, aujourdhuiIso) === 'recente';
-  return { id: lieu.id, titre: lieu.nom, detail: lieu.description, url: (ok && lieu.site) ? lieu.site : '', verifie: ok && !!lieu.site, date: ok ? lieu.date : '', portee: lieu.portee, type: lieu.type, couvre: mtZoneCouvre(lieu.zone, commune) };
+  // Téléphone, mail et commune : montrés seulement avec une date de moins de 12 mois (jamais une coordonnée que Denis n'a pas confirmée).
+  return { id: lieu.id, titre: lieu.nom, detail: lieu.description, commune: lieu.commune || '', telephone: ok ? (lieu.telephone || '') : '', mail: ok ? (lieu.mail || '') : '', petite: mtPetiteStructure(lieu), coordonnees: ok && !!(lieu.telephone || lieu.mail || lieu.site), url: (ok && lieu.site) ? lieu.site : '', verifie: ok && !!lieu.site, date: ok ? lieu.date : '', portee: lieu.portee, type: lieu.type, couvre: mtZoneCouvre(lieu.zone, commune) };
+}
+
+// ------------------------------------------------------------
+// CARTE D'UNE STRUCTURE : UNE SEULE pour « Comprendre le cadre » (Près de chez moi) ET « Qui fait quoi » (brique B.31, chantier petites structures, 2026-10-19).
+// s = { titre, detail, type, commune, telephone, mail, url, verifie, date, couvre, petite, coordonnees } (voir mtLieuEnStructure). Une structure venue d'une collecte
+// (sans téléphone ni mail) est acceptée : seuls les champs présents s'affichent. Téléphone, mail et site ne sont jamais présents sans une date de moins de 12 mois.
+// o = { dateFr: fonction de mise en forme d'une date, communeAffichee: « Bergerac (24100) », texteNonVerifie }
+// ------------------------------------------------------------
+function mtEchapperHtml(x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function mtHrefTelephone(t) { return 'tel:' + String(t || '').replace(/[^\d+]/g, ''); }
+function mtCarteStructureHtml(s, o) {
+  o = o || {};
+  var e = mtEchapperHtml, dateFr = o.dateFr || function (d) { return d; };
+  var coord = s.coordonnees !== undefined ? !!s.coordonnees : !!s.verifie;
+  var meta = [];
+  if (MT_TYPES[s.type]) { meta.push(MT_TYPES[s.type]); }
+  var commune = o.communeAffichee || s.commune; if (commune) { meta.push(commune); }
+  var contacts = !!(s.telephone || s.mail);
+  var h = '<div class="comprendre-le-cadre-encart mb-2"><span class="d-block fw-semibold">' + e(s.titre) +
+    (s.couvre === true ? ' <span class="badge text-bg-primary ms-1">Couvre votre commune</span>' : '') +
+    (s.petite ? ' <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span>' : '') + '</span>' +
+    (s.detail ? '<span class="d-block small">' + e(s.detail) + '</span>' : '') +
+    (meta.length ? '<span class="d-block small text-muted">' + meta.map(e).join(' · ') + '</span>' : '');
+  if (s.telephone) { h += '<span class="d-block small mt-1"><i class="bi bi-telephone"></i> <a href="' + e(mtHrefTelephone(s.telephone)) + '" class="text-nowrap"><strong>' + e(s.telephone) + '</strong></a></span>'; }
+  if (s.mail) { h += '<span class="d-block small' + (s.telephone ? '' : ' mt-1') + '"><i class="bi bi-envelope"></i> <a href="mailto:' + e(s.mail) + '" class="text-break">' + e(s.mail) + '</a></span>'; }
+  if (s.verifie) { h += '<a href="' + e(s.url) + '" target="_blank" rel="noopener" class="d-block small mt-1"><i class="bi bi-box-arrow-up-right"></i> ' + e(s.url) + '</a>'; }
+  if (coord) { h += '<span class="comprendre-le-cadre-source-date">' + (contacts ? 'coordonnées' : 'adresse') + ' vérifiée' + (contacts ? 's' : '') + ' le ' + e(dateFr(s.date)) + '</span>'; }
+  else { h += '<span class="d-block small text-muted mt-1"><i class="bi bi-clock-history"></i> ' + e(o.texteNonVerifie || (s.petite ? 'Coordonnées pas encore vérifiées ou à revérifier.' : 'Adresse pas encore vérifiée ou à revérifier.')) + '</span>'; }
+  if (s.petite && coord) { h += '<span class="d-block small text-muted mt-1"><i class="bi bi-info-circle"></i> Une petite structure : téléphonez ou écrivez avant de vous déplacer, les horaires peuvent changer.</span>'; }
+  return h + '</div>';
 }
 
 // ------------------------------------------------------------
@@ -564,6 +616,9 @@ function mtVerifierEmployeurs(texte, contexte) {
     if (e.site && !/^https:\/\/\S+$/.test(e.site)) { erreurs.push(ou + 'site : une adresse https est attendue'); }
     if (e.recrutement && !/^https:\/\/\S+$/.test(e.recrutement)) { erreurs.push(ou + 'page de recrutement : une adresse https est attendue'); }
     if (!e.source) { erreurs.push(ou + 'source vide'); }
+    // La marque ne se devine pas : forme exacte au début de la source, sinon la fiche passerait en silence dans les listes habituelles.
+    if (!mtViaProspection(e) && /prospection/i.test(e.source || '')) { erreurs.push(ou + 'la marque doit s’écrire exactement « Via prospection ; » au début de la source (le mot « prospection » ne doit pas apparaître ailleurs)'); }
+    if (mtViaProspection(e) && e.nature !== 'local') { erreurs.push(ou + 'une fiche « Via prospection » est un employeur local (nature « local »)'); }
     MT_COLONNES_EMPLOYEURS.forEach(function (c) { if (MT_RE_TIRET_LONG.test(e[c] || '')) { erreurs.push(ou + 'tiret long interdit (' + c + ')'); } });
   });
   return erreurs;
@@ -588,7 +643,10 @@ function mtVerifierLieux(texte, contexte) {
     if (l.commune && contexte.communes && contexte.communes.indexOf(mtNormaliser(l.commune)) === -1) { erreurs.push(ou + 'commune inconnue : ' + l.commune); }
     if (l.date && !MT_RE_DATE.test(l.date)) { erreurs.push(ou + 'date invalide (AAAA-MM-JJ)'); }
     if (l.date && contexte.aujourdhui && mtFraicheur(l.date, contexte.aujourdhui) === 'future') { erreurs.push(ou + 'date dans le futur'); }
-    if ((l.telephone || l.site) && !l.date) { erreurs.push(ou + 'téléphone ou site sans date de vérification'); }
+    if ((l.telephone || l.site || l.mail) && !l.date) { erreurs.push(ou + 'téléphone, mail ou site sans date de vérification'); }
+    if (l.mail && !MT_RE_MAIL.test(l.mail)) { erreurs.push(ou + 'mail mal écrit'); }
+    if (!mtPetiteStructure(l) && /petite structure/i.test(l.source || '')) { erreurs.push(ou + 'la marque doit s’écrire exactement « Petite structure ; » au début de la source (le mot « petite structure » ailleurs dans la source est refusé)'); }
+    if (mtPetiteStructure(l) && !l.telephone && !l.mail) { erreurs.push(ou + 'une petite structure a au moins un téléphone ou un mail'); }
     if (l.telephone && !mtTelephoneValide(l.telephone)) { erreurs.push(ou + 'téléphone mal écrit'); }
     if (l.site && !/^https:\/\/\S+$/.test(l.site)) { erreurs.push(ou + 'site : une adresse https est attendue'); }
     if (l.zone) {
@@ -720,8 +778,9 @@ if (typeof module !== 'undefined') {
     mtTrierAlphabetique: mtTrierAlphabetique, mtEmployeursDuSecteur: mtEmployeursDuSecteur, mtCompterParSecteur: mtCompterParSecteur, mtPaginer: mtPaginer,
     MT_RAYONS: MT_RAYONS, MT_PORTEES: MT_PORTEES, MT_RAYONS_MIGRES: MT_RAYONS_MIGRES, MT_SOUS_BRANCHES: MT_SOUS_BRANCHES, MT_COLONNES_LIEUX: MT_COLONNES_LIEUX,
     mtDomaineDuRayon: mtDomaineDuRayon, MT_TYPES_SELON_COMMUNE: MT_TYPES_SELON_COMMUNE, MT_CLE_COMMUNE_INFO: MT_CLE_COMMUNE_INFO, mtParserZone: mtParserZone, mtZoneCouvre: mtZoneCouvre, mtOrdonnerParCommune: mtOrdonnerParCommune, mtNotesSelonCommune: mtNotesSelonCommune, mtCommuneInfoMemorisee: mtCommuneInfoMemorisee,
-    mtParserLieux: mtParserLieux, mtRayonMigre: mtRayonMigre, mtLieuxDuRayon: mtLieuxDuRayon, mtLieuEnStructure: mtLieuEnStructure, mtRechercherLieux: mtRechercherLieux, mtLieuxVisibles: mtLieuxVisibles, MT_DEPARTEMENTS: MT_DEPARTEMENTS, MT_DEPARTEMENT_PAR_DEFAUT: MT_DEPARTEMENT_PAR_DEFAUT, mtDepartement: mtDepartement, mtDepartementOuvert: mtDepartementOuvert, mtDepartementsOuverts: mtDepartementsOuverts, mtMajuscule: mtMajuscule, mtNomsDesDepartementsOuverts: mtNomsDesDepartementsOuverts, mtPhraseTerritoireNonCouvert: mtPhraseTerritoireNonCouvert, mtCommunesDuDepartement: mtCommunesDuDepartement, mtEmployeursDuDepartement: mtEmployeursDuDepartement, mtRequeteSensible: mtRequeteSensible, mtVerifierLieux: mtVerifierLieux,
+    mtParserLieux: mtParserLieux, MT_MARQUE_PETITE_STRUCTURE: MT_MARQUE_PETITE_STRUCTURE, mtPetiteStructure: mtPetiteStructure, MT_RE_MAIL: MT_RE_MAIL, mtRayonMigre: mtRayonMigre, mtLieuxDuRayon: mtLieuxDuRayon, mtLieuEnStructure: mtLieuEnStructure, mtCarteStructureHtml: mtCarteStructureHtml, mtHrefTelephone: mtHrefTelephone, mtEchapperHtml: mtEchapperHtml, mtRechercherLieux: mtRechercherLieux, mtLieuxVisibles: mtLieuxVisibles, MT_DEPARTEMENTS: MT_DEPARTEMENTS, MT_DEPARTEMENT_PAR_DEFAUT: MT_DEPARTEMENT_PAR_DEFAUT, mtDepartement: mtDepartement, mtDepartementOuvert: mtDepartementOuvert, mtDepartementsOuverts: mtDepartementsOuverts, mtMajuscule: mtMajuscule, mtNomsDesDepartementsOuverts: mtNomsDesDepartementsOuverts, mtPhraseTerritoireNonCouvert: mtPhraseTerritoireNonCouvert, mtCommunesDuDepartement: mtCommunesDuDepartement, mtEmployeursDuDepartement: mtEmployeursDuDepartement, mtRequeteSensible: mtRequeteSensible, mtVerifierLieux: mtVerifierLieux,
     mtFreinsCorrespondants: mtFreinsCorrespondants, mtFreinParTitre: mtFreinParTitre, mtLieuxPourFrein: mtLieuxPourFrein, mtTypeDeFicheLexique: mtTypeDeFicheLexique, mtLieuxDuType: mtLieuxDuType,
+    MT_MARQUE_PROSPECTION: MT_MARQUE_PROSPECTION, mtViaProspection: mtViaProspection, mtSeparerProspection: mtSeparerProspection,
     mtRechercherEmployeurs: mtRechercherEmployeurs, mtRechercherSecteurs: mtRechercherSecteurs, mtVerifierEmployeurs: mtVerifierEmployeurs,
     MT_COLONNES_OFFRES: MT_COLONNES_OFFRES, MT_GROUPES_OFFRES: MT_GROUPES_OFFRES, MT_VALIDITE_OFFRES_MOIS: MT_VALIDITE_OFFRES_MOIS, mtParserOffres: mtParserOffres, mtFraicheurOffre: mtFraicheurOffre, mtGroupeOffre: mtGroupeOffre,
     mtOffresVisibles: mtOffresVisibles, mtOffresParGroupe: mtOffresParGroupe, mtOffreDeLEmployeur: mtOffreDeLEmployeur, mtVerifierOffres: mtVerifierOffres, mtRechercherOffres: mtRechercherOffres, mtTelephoneValide: mtTelephoneValide, mtFormaterTelephone: mtFormaterTelephone, mtLiensDepuisRegistre: mtLiensDepuisRegistre, mtLienAffichable: mtLienAffichable

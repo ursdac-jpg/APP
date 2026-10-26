@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : gabarits de lettre</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 40px}
+.page{max-width:1180px;margin:0 auto}
+h1{font-size:1.8rem;margin:1rem 0 .4rem;text-align:center}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.grille{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.5rem;align-items:start;margin-top:1rem}
+@media (max-width:760px){.grille{grid-template-columns:minmax(0,1fr)}.colapercu{position:static !important}}
+.carte{border:1px solid var(--bord);border-left:4px solid var(--acc);border-radius:10px;background:var(--card);padding:.6rem .9rem .8rem;margin:.8rem 0}
+.carte h3{font-size:1rem;margin:.1rem 0 .4rem}
+.galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem}
+.gab{border:2px solid var(--bord);border-radius:10px;background:var(--sub);padding:.35rem;text-align:center;font-size:.8rem;font-weight:600}
+.gab:hover{border-color:var(--acc)}
+.gab.actif{border-color:var(--acc);background:var(--accbg)}
+.gab .mini-page{position:relative;margin:0 auto .25rem;overflow:hidden;background:#fff;border:1px solid #0002}
+.gab .mini-page .feuille{transform-origin:top left;position:absolute;left:0;top:0}
+.jetons{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+.jeton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.35rem .8rem;font-weight:600;font-size:.92rem}
+.jeton:hover{border-color:var(--acc)}
+.jeton.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.jeton.actif::before{content:"\2713\00a0"}
+.pastilles{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.pastille{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1px var(--bord)}
+.pastille.actif{box-shadow:0 0 0 3px var(--txt)}
+.btn{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.5rem 1rem;font-weight:600}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff}
+.colapercu{position:sticky;top:3.6rem}
+.cadre{border:1px solid var(--bord);border-radius:10px;background:var(--sub);padding:6px;cursor:zoom-in}
+.fenetre{position:relative;overflow:hidden;margin:0 auto}
+.feuille{width:794px;height:1123px;background:#fff;color:#1a1a1a;position:absolute;left:0;top:0;transform-origin:top left;overflow:hidden;box-shadow:0 0 0 1px #0002}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.faisab{background:var(--warnbg);border-left:4px solid var(--warn);border-radius:6px;padding:.4rem .7rem;font-size:.86rem;margin:.5rem 0}
+.plein{position:fixed;inset:0;background:var(--bg);z-index:15;display:none;flex-direction:column;align-items:center;overflow:auto;padding:3.4rem 1rem 1rem}
+.plein.ouvert{display:flex}.plein .fermer{position:fixed;top:12px;left:12px;z-index:16}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:2rem 0}
+.questions h2{color:var(--new);font-size:1.1rem}.questions li{margin:.7rem 0}
+/* ===== Gabarits : tout est en px sur une feuille de 794 x 1123 ===== */
+.g{font-family:var(--police,Georgia),serif;font-size:14px;line-height:1.5;--c:#1f5fbf}
+.g p{margin:0 0 12px;text-align:justify}
+.g .ico{display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--c);color:#fff;font:700 9px/14px Arial,sans-serif;text-align:center;margin-right:8px;vertical-align:-2px}
+.g .dest{font-size:13px;line-height:1.45}
+.g .date{font-size:13px}
+/* G0 : Sobre (celui d'aujourd'hui) */
+.g0{padding:60px 73px}
+.g0 .exp{font-size:13.3px;line-height:1.45}
+.g0 .dest{text-align:right;margin-top:22px}
+.g0 .date{text-align:right;margin:18px 0 20px}
+/* G1 : en-tete avec filet vertical */
+.g1{padding:50px 60px}
+.g1 .tete{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:2px solid var(--c);margin-bottom:14px}
+.g1 .id{flex:1;padding-right:20px;border-right:2px solid var(--c)}
+.g1 .id b{display:block;font-size:26px;color:var(--c);line-height:1.1}
+.g1 .id span{display:block;font-size:16px;color:#555;margin-top:4px}
+.g1 .dest{flex:1;text-align:right;padding-left:20px}
+.g1 .dest b{font-size:18px;color:var(--c)}
+.g1 .coord{font-size:12.5px;margin:6px 0 10px;line-height:1.9}
+.g1 .date{text-align:right;margin:6px 0 12px}
+/* G2 : colonne coloree a gauche */
+.g2{display:flex;padding:0}
+.g2 .col{width:236px;background:var(--c);color:#fff;padding:44px 22px;flex:none;height:1123px}
+.g2 .col .nom{font-size:25px;line-height:1.15;font-weight:700}
+.g2 .col .poste{font-size:14px;margin:12px 0 22px;opacity:.95}
+.g2 .col h4{font-size:14px;margin:0 0 8px;padding:5px 8px;background:#0003;font-family:inherit}
+.g2 .col .info{font-size:12.5px;line-height:1.5;margin-bottom:10px;word-break:break-word}
+.g2 .col .info small{display:block;font-weight:700;font-size:11.5px;opacity:.85;text-transform:uppercase}
+.g2 .corps{padding:50px 44px;flex:1}
+.g2 .dest{text-align:left;margin-bottom:14px}
+/* G3 : bandeau colore en haut */
+.g3{padding:0}
+.g3 .ban{background:var(--c);color:#fff;padding:36px 56px 26px;display:grid;grid-template-columns:1.2fr 1fr;gap:6px 24px}
+.g3 .ban .nom{grid-column:1/3;font-size:30px;font-weight:700;margin-bottom:8px;line-height:1.1}
+.g3 .ban div{font-size:12.5px;line-height:1.6}
+.g3 .ban b{font-weight:700}
+.g3 .corps{padding:26px 56px}
+.g3 .dest{text-align:left}
+/* G4 : grand titre et colonne d'informations */
+.g4{padding:46px 56px}
+.g4 .nom{font-size:34px;font-weight:700;color:var(--c);line-height:1.1}
+.g4 .poste{font-size:17px;color:var(--c);margin:4px 0 24px}
+.g4 .deux{display:flex;gap:26px}
+.g4 .info{width:200px;flex:none;font-size:12.5px;line-height:1.6;border-top:2px solid var(--c);padding-top:8px}
+.g4 .info h4{margin:0 0 10px;font-size:14px;color:var(--c);font-family:inherit}
+.g4 .info small{display:block;font-weight:700;color:var(--c);margin-top:8px}
+.g4 .droite{flex:1}
+.g4 .dest{text-align:left;margin:0 0 14px}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (24/10/2026) : gabarits de lettre</strong>
+  <span style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Voir les annotations</label>
+    <button class="mini" id="tTheme" type="button">Mode sombre</button>
+  </span>
+</div>
+<h1>&#128196; La mise en page de la lettre : les gabarits</h1>
+<div class="note">Cette maquette ajoute à l'écran validé « La mise en page » un choix de <b>gabarit</b>, de <b>couleur</b> (dont celle de votre CV) et de <b>police</b>. Tout change l'aperçu en direct. Le gabarit « Sobre » est celui d'aujourd'hui, choisi par défaut.</div>
+
+<div class="grille">
+  <div>
+    <div class="carte"><h3>&#127912; Gabarit</h3>
+      <div class="galerie" id="galerie"></div>
+      <div class="note">Cinq gabarits au départ (le Sobre actuel et tes quatre exemples). La galerie peut grandir ensuite, comme celle du CV, jusqu'à une centaine : chaque nouveau gabarit s'ajoute à la liste sans rien changer d'autre.</div>
+    </div>
+    <div class="carte"><h3>&#127752; Couleur</h3>
+      <div class="pastilles" id="pastilles"></div>
+      <p style="margin-top:.6rem"><button class="btn" type="button" id="bCouleurCv">&#127912; Reprendre la couleur de mon CV <span id="pastCv" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#7a2e8a;vertical-align:-2px;margin-left:.3rem"></span></button></p>
+      <p class="small muted" id="msgCouleur"></p>
+      <div class="note">« Reprendre la couleur de mon CV » lit la couleur que la personne a choisie pour son CV (celle du PDF, sinon celle du Word). Sans CV coloré, le bouton propose la couleur par défaut du gabarit. Pour essayer ici, la couleur du CV est un violet.</div>
+    </div>
+    <div class="carte"><h3>&#128289; Police d'écriture</h3>
+      <div class="jetons" id="jPolice"></div>
+    </div>
+    <div class="carte"><h3>&#128207; Longueur du texte (pour essayer)</h3>
+      <div class="jetons" id="jLong"></div>
+      <div class="note">Le bouton « Mise en page » existant ajuste ensuite la taille et les espaces pour que la lettre tienne sur une page, quel que soit le gabarit.</div>
+    </div>
+    <div class="faisab"><b>Franchise sur la faisabilité.</b> Le <b>PDF</b> reproduit exactement ce que vous voyez (c'est l'impression de l'aperçu). Le <b>Word</b> est construit avec des tableaux et des fonds colorés, comme le CV : la colonne colorée du gabarit 2 couvre toute la hauteur pour une lettre d'une page (au-delà, elle s'arrête en bas de la première page), et les petites icônes sont remplacées par de petits carrés de couleur. D'où l'avertissement « le PDF est la référence » déjà en place.</div>
+  </div>
+
+  <div class="colapercu">
+    <div class="cadre" id="cadre" role="button" tabindex="0" aria-label="Ouvrir le grand aperçu"><div class="fenetre" id="fenetre"><div class="feuille" id="feuille"></div></div></div>
+    <p class="small muted" id="infoG" style="margin:.4rem 2px"></p>
+    <p class="small" id="msgWord" style="margin:.2rem 2px;padding:.4rem .6rem;border-left:3px solid var(--warn);background:var(--warnbg);border-radius:6px;" hidden></p>
+    <div class="note">Principe de Denis : <b>le Word s'aligne sur le PDF, jamais l'inverse</b>. Quand un gabarit ne peut pas être reproduit fidèlement en Word, ce message s'affiche (ici avec « Colonne colorée »), et aussi dans « Exporter ».</div>
+    <div class="note">Même aperçu que sur l'écran validé : entier, collé en haut, un clic ouvre le grand aperçu.</div>
+  </div>
+</div>
+
+<div class="questions">
+  <h2>Quatre questions pour vous, Denis</h2>
+  <ol>
+    <li><b>Cinq gabarits au départ (Sobre + vos quatre exemples) ?</b> Recommandé : <b>oui</b>, puis on en ajoute par vagues, avec la couleur du CV et la police au choix pour chacun. Autre choix : attendre d'en avoir dix avant d'ouvrir le choix.</li>
+    <li><b>Les petites icônes (maison, téléphone, enveloppe) de vos exemples ?</b> Recommandé : <b>de petits carrés de couleur avec une lettre</b> (A, T, @), qui s'impriment bien en PDF comme en Word. Autre choix : de vraies icônes dessinées, belles en PDF mais à refaire en images pour le Word (plus lourd, plus fragile).</li>
+    <li><b>Où se choisit le gabarit ?</b> Recommandé : <b>dans « La mise en page »</b>, au-dessus du Format, et la couleur par défaut est celle du CV quand elle existe (modifiable). Autre choix : une étape de plus avant la mise en page.</li>
+    <li><b>Le destinataire reste-t-il toujours à droite ?</b> Dans votre exemple du bandeau, il est à gauche. Recommandé : <b>à droite partout</b>, comme vous l'avez demandé (gabarit 2 et 4 : en haut de la colonne de droite). Autre choix : laisser chaque gabarit décider.</li>
+  </ol>
+</div>
+</div>
+
+<div class="plein" id="plein"><button class="btn fermer" type="button" id="bFermer">&larr; Revenir aux réglages</button><div class="fenetre" id="fenetreG"><div class="feuille" id="feuilleG"></div></div></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var GABARITS = [
+    { id: 'g0', nom: 'Sobre', defaut: '#1a1a1a' },
+    { id: 'g1', nom: 'En-tête et filet', defaut: '#2c4a7a' },
+    { id: 'g2', nom: 'Colonne colorée', defaut: '#0b3d6e' },
+    { id: 'g3', nom: 'Bandeau coloré', defaut: '#0b3d6e' },
+    { id: 'g4', nom: 'Titre et informations', defaut: '#14548f' }
+  ];
+  var COULEURS = [['Bleu', '#1f5fbf'], ['Marine', '#0b3d6e'], ['Vert', '#2e7d4f'], ['Bordeaux', '#8e2a3a'], ['Orange', '#c8641a'], ['Gris', '#4a5565']];
+  var POLICES = ['Georgia', 'Arial', 'Times New Roman'];
+  var E = { g: 'g0', couleur: null, police: 'Georgia', long: false };
+  var CV_COULEUR = '#7a2e8a';
+  var P = {
+    nom: 'Marie Durand', poste: 'Technicien de maintenance', cp: '24100 Bergerac', tel: '06.12.34.56.78', mail: 'marie.durand@exemple.fr',
+    ent: 'XEFI Bergerac', attn: 'À l’attention du service recrutement', date: '24 octobre 2026', objet: 'Candidature au poste de technicien de maintenance informatique'
+  };
+  var CORPS = [
+    'Madame, Monsieur,',
+    'Je me permets de vous proposer ma candidature au poste de technicien de maintenance informatique au sein de votre entreprise. Formée en maintenance des systèmes numériques, j’ai appris à diagnostiquer une panne, à intervenir chez un client et à expliquer simplement ce que je fais.',
+    'Votre entreprise accompagne les professionnels de la région avec réactivité et proximité. Ce sont deux valeurs auxquelles je tiens : lors de mon stage, j’ai pris en charge des demandes de dépannage et appris à rassurer les personnes avant d’intervenir.',
+    'Je serais heureuse de vous rencontrer pour vous présenter ma motivation. Je reste disponible pour un entretien à votre convenance.',
+    'Je vous prie d’agréer, Madame, Monsieur, mes salutations distinguées.'
+  ];
+  var SUP = [
+    'Au cours de mes expériences, j’ai installé des postes, vérifié des équipements et suivi des interventions jusqu’à leur clôture. J’aime comprendre l’origine d’un dysfonctionnement et laisser un poste en état de marche, avec des explications claires pour l’utilisateur.',
+    'J’ai également participé à la mise à jour de parcs informatiques et à la formation de collègues aux outils numériques du quotidien, ce qui m’a appris à m’adapter à chaque interlocuteur.'
+  ];
+  function corps() { var c = CORPS.slice(); if (E.long) { c.splice(3, 0, SUP[0], SUP[1], SUP[0]); } return c.map(function (t) { return '<p>' + t + '</p>'; }).join(''); }
+  function couleur() { return E.couleur || GABARITS.filter(function (g) { return g.id === E.g; })[0].defaut; }
+  function dest() { return '<div class="dest"><b>' + P.ent + '</b><br>' + P.attn + '</div>'; }
+  function objet() { return '<p style="margin:0 0 16px"><b>Objet :</b> ' + P.objet + '</p>'; }
+  function coordLignes() { return [['A', P.cp], ['T', P.tel], ['@', P.mail]]; }
+  function pageG(g) {
+    var c = couleur();
+    if (g === 'g0') {
+      return '<div class="exp"><b>' + P.nom + '</b><br>' + P.cp + '<br>' + P.tel + '<br>' + P.mail + '</div>' + dest() + '<div class="date">' + P.date + '</div>' + objet() + corps();
+    }
+    if (g === 'g1') {
+      return '<div class="tete"><div class="id"><b>' + P.nom + '</b><span>' + P.poste + '</span></div>' + dest().replace('class="dest"', 'class="dest"') + '</div>' +
+        '<div class="coord">' + coordLignes().map(function (x) { return '<span class="ico">' + x[0] + '</span>' + x[1]; }).join('<br>') + '</div>' + '<div class="date">' + P.date + '</div>' + objet() + corps();
+    }
+    if (g === 'g2') {
+      return '<div class="col"><div class="nom">' + P.nom + '</div><div class="poste">' + P.poste + '</div><h4>Informations de contact</h4>' +
+        '<div class="info"><small>Adresse</small>' + P.cp + '</div><div class="info"><small>Téléphone</small>' + P.tel + '</div><div class="info"><small>E-mail</small>' + P.mail + '</div></div>' +
+        '<div class="corps">' + dest() + '<div class="date" style="margin:0 0 14px">' + P.date + '</div>' + objet() + corps() + '</div>';
+    }
+    if (g === 'g3') {
+      return '<div class="ban"><div class="nom">' + P.nom + '</div><div><b>Adresse</b> ' + P.cp + '</div><div><b>Téléphone</b> ' + P.tel + '</div><div></div><div><b>E-mail</b> ' + P.mail + '</div></div>' +
+        '<div class="corps"><div style="text-align:right">' + dest() + '</div><div class="date" style="margin:12px 0 14px;text-align:right">' + P.date + '</div>' + objet() + corps() + '</div>';
+    }
+    return '<div class="nom">' + P.nom + '</div><div class="poste">' + P.poste + '</div><div class="deux"><div class="info"><h4>Informations personnelles</h4><small>Adresse</small>' + P.cp + '<small>Téléphone</small>' + P.tel + '<small>E-mail</small>' + P.mail + '</div>' +
+      '<div class="droite"><div class="dest" style="text-align:right">' + '<b>' + P.ent + '</b><br>' + P.attn + '</div><div class="date" style="text-align:right;margin:0 0 14px">' + P.date + '</div>' + objet() + corps() + '</div></div>';
+  }
+  function remplir(el, g) {
+    el.className = 'feuille g ' + g;
+    el.style.setProperty('--c', couleur()); el.style.setProperty('--police', E.police);
+    el.innerHTML = pageG(g);
+  }
+  function echelle(fen, feu, lMax, hMax) { var e = Math.min(lMax / 794, hMax / 1123); feu.style.transform = 'scale(' + e + ')'; fen.style.width = (794 * e) + 'px'; fen.style.height = (1123 * e) + 'px'; return e; }
+  function dessiner() {
+    remplir($('feuille'), E.g); remplir($('feuilleG'), E.g);
+    echelle($('fenetre'), $('feuille'), $('cadre').parentNode.clientWidth - 14, window.innerHeight - 170);
+    echelle($('fenetreG'), $('feuilleG'), window.innerWidth - 40, window.innerHeight - 90);
+    var nom = GABARITS.filter(function (g) { return g.id === E.g; })[0].nom;
+    var mw = $('msgWord'); mw.hidden = E.g !== 'g2'; mw.innerHTML = '&#9888;&#65039; Avec ce gabarit, le Word peut s’écarter du PDF (la colonne colorée ne couvre que la première page) : <b>il est recommandé d’enregistrer en PDF</b>.';
+    $('infoG').innerHTML = 'Gabarit <b>' + nom + '</b>, couleur <b style="color:' + couleur() + '">' + (E.couleur ? 'choisie' : 'par défaut du gabarit') + '</b>, police <b>' + E.police + '</b>.';
+    // galerie
+    $('galerie').innerHTML = '';
+    GABARITS.forEach(function (g) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'gab' + (g.id === E.g ? ' actif' : '');
+      var mp = document.createElement('div'); mp.className = 'mini-page'; mp.style.width = '92px'; mp.style.height = Math.round(1123 * 92 / 794) + 'px';
+      var f = document.createElement('div'); f.className = 'feuille'; f.style.transform = 'scale(' + (92 / 794) + ')';
+      var sv = E.g; var svc = E.couleur;
+      remplirGalerie(f, g.id); mp.appendChild(f); b.appendChild(mp); b.appendChild(document.createTextNode(g.nom));
+      b.addEventListener('click', function () { E.g = g.id; majTout(); }); $('galerie').appendChild(b);
+    });
+  }
+  function remplirGalerie(f, g) {
+    var c = E.couleur || GABARITS.filter(function (x) { return x.id === g; })[0].defaut;
+    f.className = 'feuille g ' + g; f.style.setProperty('--c', c); f.style.setProperty('--police', E.police); f.innerHTML = pageG2(g, c);
+  }
+  function pageG2(g, c) { var av = E.g, ac = E.couleur; E.g = g; E.couleur = c; var h = pageG(g); E.g = av; E.couleur = ac; return h; }
+  function pastilles() {
+    $('pastilles').innerHTML = '';
+    COULEURS.forEach(function (x) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pastille' + (E.couleur === x[1] ? ' actif' : ''); b.style.background = x[1]; b.title = x[0]; b.setAttribute('aria-label', x[0]);
+      b.addEventListener('click', function () { E.couleur = x[1]; $('msgCouleur').textContent = 'Couleur ' + x[0].toLowerCase() + ' choisie.'; majTout(); }); $('pastilles').appendChild(b);
+    });
+    var d = document.createElement('button'); d.type = 'button'; d.className = 'btn'; d.textContent = 'Par défaut du gabarit';
+    d.addEventListener('click', function () { E.couleur = null; $('msgCouleur').textContent = ''; majTout(); }); $('pastilles').appendChild(d);
+  }
+  function jetons(id, liste, cle, lib) {
+    $(id).innerHTML = '';
+    liste.forEach(function (v) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'jeton' + (E[cle] === v[0] ? ' actif' : ''); b.textContent = v[1]; if (cle === 'police') { b.style.fontFamily = v[0]; }
+      b.addEventListener('click', function () { E[cle] = v[0]; majTout(); }); $(id).appendChild(b);
+    });
+  }
+  function majTout() {
+    pastilles(); jetons('jPolice', POLICES.map(function (p) { return [p, p]; }), 'police');
+    jetons('jLong', [[false, 'Lettre courte'], [true, 'Lettre plus longue']], 'long');
+    dessiner();
+  }
+  $('bCouleurCv').addEventListener('click', function () { E.couleur = CV_COULEUR; $('msgCouleur').textContent = 'La couleur de votre CV est reprise.'; majTout(); });
+  function ouvrir() { $('plein').classList.add('ouvert'); dessiner(); }
+  $('cadre').addEventListener('click', ouvrir);
+  $('cadre').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrir(); } });
+  $('bFermer').addEventListener('click', function () { $('plein').classList.remove('ouvert'); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { $('plein').classList.remove('ouvert'); } });
+  $('tAnn').addEventListener('change', function () { document.body.classList.toggle('ann', this.checked); dessiner(); });
+  $('tTheme').addEventListener('click', function () { var s = document.documentElement.getAttribute('data-theme') === 'sombre'; document.documentElement.setAttribute('data-theme', s ? '' : 'sombre'); this.textContent = s ? 'Mode sombre' : 'Mode clair'; });
+  window.addEventListener('resize', dessiner);
+  majTout();
+})();
+</script>
+</body>
+</html>

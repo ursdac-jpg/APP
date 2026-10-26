@@ -6,6 +6,10 @@
 // plus -- pour permettre le require() sans faire tourner un vrai DOM (jsdom
 // serait une phase 2 separee, plus lourde, pour tester l'UI elle-meme).
 function installerStubDom() {
+  // Fonctions des modules <script> du navigateur que js/app.js appelle (ex. entrepriseCibleActuelle) : exposees comme le fait index.html.
+  if (typeof global.entrepriseCibleDuDossierLettreCo === 'undefined') {
+    global.entrepriseCibleDuDossierLettreCo = require('../modules/lettre-core/destinataireLettreCo.js').entrepriseCibleDuDossierLettreCo;
+  }
   if (typeof global.document === 'undefined') {
     global.document = {
       getElementById: function () { return null; },
@@ -67,8 +71,8 @@ function installerStubDom() {
     'pageIntroAideDecision', 'pageComparerPistes', 'pageComprendreLeCadre',
     'pageIntroComprendreLesChiffres', 'pageComprendreLesChiffres',
     'pageIntroMonTerritoire', 'pageIntroEmployeursTerritoire', 'pageMonTerritoire',
-    'pagePreparerLettreEntretien', 'pageMettreAJourCv', 'pageCreerCv',
-    'pageReformulerCv'].forEach(function (nom) {
+    'pagePreparerLettreEntretien', 'pageMettreAJourCv', 'pageCreerCv', 'pageCreerCvMain', 'pageCreerCvAssistant',
+    'pageReformulerCv', 'pageReprendreCv'].forEach(function (nom) {
     if (typeof global[nom] === 'undefined') {
       global[nom] = function () { return ''; };
     }

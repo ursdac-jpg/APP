@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le pont vers l'outil de veille</title>
+<style>
+  :root {
+    --bg-page:#f4f6fb; --bg-card:#fff; --bg-subtle:#f1f4f9;
+    --text:#1b2430; --text-strong:#0b1a33; --text-muted:#5a6a7e;
+    --border:#e2e8f0; --border-strong:#d5dbe4;
+    --accent:#0369a1; --accent-bg:#e2f0f8;
+    --ok:#198754; --ok-bg:#d9f4e4;
+    --warn:#b45309; --warn-bg:#fdf1d9;
+    --alert:#a3372b; --alert-bg:#fbe6e3;
+    --radius:10px; --shadow:0 10px 30px rgba(20,35,60,.10);
+  }
+  body.dark {
+    --bg-page:#12161f; --bg-card:#1b212c; --bg-subtle:#222834;
+    --text:#dbe2ee; --text-strong:#e8edf5; --text-muted:#a8b3c4;
+    --border:#313a4a; --border-strong:#3d4759;
+    --accent:#38bdf8; --accent-bg:#16283a;
+    --ok:#35c79a; --ok-bg:#17301f;
+    --warn:#f5a742; --warn-bg:#3a2c14;
+    --alert:#eda69c; --alert-bg:#3a1f1b;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-page); color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.55; }
+  main { max-width:840px; margin:0 auto; padding:1.2rem 1rem 4rem; }
+  h1 { font-size:1.4rem; color:var(--text-strong); margin:.2rem 0; }
+  h2 { font-size:1.05rem; color:var(--text-strong); margin:0 0 .5rem; display:flex; align-items:center; }
+  h3 { font-size:.9rem; color:var(--text-strong); margin:.8rem 0 .3rem; }
+  p { margin:.5rem 0; }
+  .sous-titre { color:var(--text-muted); font-size:.9rem; margin:.2rem 0 1rem; }
+  /* Signalé par Denis le 2026-09-26 : sans règle à soi, un lien <a> prend le bleu par défaut du
+     navigateur -- illisible ("bleu fluo") sur les fonds sombres de cet outil. Couleur du thème,
+     déjà lisible dans les deux modes (--accent). */
+  a { color:var(--accent); }
+  a:visited { color:var(--accent); }
+  a:hover { text-decoration-thickness:2px; }
+
+  .carte { background:var(--bg-card); border:1px solid var(--border); border-radius:12px;
+    padding:1rem 1.1rem; margin-bottom:.9rem; box-shadow:var(--shadow); }
+  .num { display:inline-flex; align-items:center; justify-content:center; width:1.5rem; height:1.5rem;
+    border-radius:50%; background:var(--accent); color:#fff; font-size:.8rem; font-weight:700; margin-right:.55rem; }
+  body.dark .num { color:#04202e; }
+
+  label { display:block; font-size:.82rem; color:var(--text-muted); margin:.6rem 0 .2rem; }
+  input, select, textarea { width:100%; font:inherit; color:var(--text); background:var(--bg-page);
+    border:1px solid var(--border-strong); border-radius:9px; padding:.5rem .65rem; }
+  textarea { resize:vertical; min-height:90px; }
+  .mono { font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace; font-size:.82rem; }
+  .rangee { display:flex; gap:.7rem; flex-wrap:wrap; }
+  .rangee > * { flex:1; min-width:150px; }
+
+  .btn { font:inherit; border-radius:var(--radius); padding:.5rem 1rem; border:1px solid var(--border-strong);
+    background:var(--bg-card); color:var(--text-strong); cursor:pointer; font-weight:600; }
+  .btn.primaire { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .btn.primaire { color:#04202e; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  /* Un lien en forme de bouton ressemble à un bouton (jamais souligné), dans toutes les fenêtres : Denis préfère de vrais boutons. */
+  a.btn, a.btn:hover, a.btn:focus { display:inline-block; text-decoration:none; }
+  .btn-rangee { display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.7rem; }
+
+  .code { background:var(--bg-subtle); border:1px solid var(--border); border-radius:10px; padding:.8rem .9rem;
+    font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace; font-size:.78rem; color:var(--text);
+    white-space:pre-wrap; overflow-x:auto; line-height:1.5; cursor:text; max-height:340px; overflow-y:auto; }
+  .note { display:flex; gap:.5rem; align-items:flex-start; background:var(--accent-bg);
+    border-left:3px solid var(--accent); border-radius:8px; padding:.55rem .8rem; margin:.5rem 0; font-size:.88rem; }
+  .note.ok { background:var(--ok-bg); border-left-color:var(--ok); }
+  .note.warn { background:var(--warn-bg); border-left-color:var(--warn); }
+  .note.alert { background:var(--alert-bg); border-left-color:var(--alert); }
+
+  details.avance { border:1px solid var(--border); border-radius:10px; margin:.6rem 0; background:var(--bg-subtle); }
+  details.avance > summary { cursor:pointer; padding:.6rem .8rem; font-weight:700; font-size:.85rem; color:var(--text-strong); }
+  details.avance .corps { padding:0 .8rem .8rem; }
+
+  .etape-inactive { opacity:.45; pointer-events:none; }
+
+  .apercu { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:.6rem; }
+  .apercu .barre { background:var(--bg-subtle); border-bottom:1px solid var(--border); padding:.4rem .8rem;
+    font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); }
+  .apercu .corps { padding:.9rem 1rem; }
+  .apercu .bloc-explique { background:var(--bg-subtle); border:1px solid var(--border); border-radius:10px; padding:.8rem .9rem; margin:.5rem 0; }
+  .apercu .bloc-vivant { background:var(--accent-bg); border:1px solid var(--accent); border-radius:10px; padding:.8rem .9rem; margin:.5rem 0; }
+  .apercu .bandeau-revise { background:var(--accent-bg); border:1px solid var(--accent); border-radius:9px; padding:.5rem .8rem; margin:.4rem 0; font-size:.85rem; }
+  .apercu .tampon { display:inline-block; font-size:.76rem; color:var(--text-muted); background:var(--bg-card);
+    border:1px solid var(--border); border-radius:999px; padding:.15rem .6rem; margin-top:.4rem; }
+
+  table.registre { width:100%; border-collapse:collapse; font-size:.82rem; margin:.5rem 0; }
+  table.registre th, table.registre td { border:1px solid var(--border); padding:.4rem .5rem; text-align:left; vertical-align:top; }
+  table.registre th { background:var(--bg-subtle); }
+
+  .toggle-theme { position:fixed; top:.6rem; right:.6rem; font-size:.8rem; }
+  .pied { color:var(--text-muted); font-size:.8rem; text-align:center; margin-top:2rem; }
+
+  .mode-bar { display:flex; gap:.5rem; margin:.7rem 0 1.1rem; }
+  .mode-bar .btn { flex:1; }
+  .mode-bar .btn.actif { background:var(--accent); border-color:var(--accent); color:#fff; }
+  body.dark .mode-bar .btn.actif { color:#04202e; }
+  .panneau-mois { background:var(--accent-bg); border:1px solid var(--accent); border-radius:12px; padding:.9rem 1.1rem; margin-bottom:.9rem; }
+  .panneau-mois h2 { margin-bottom:.3rem; }
+  .puce-rayon { display:inline-block; background:var(--bg-card); border:1px solid var(--border-strong); border-radius:999px;
+    padding:.2rem .7rem; margin:.2rem .3rem .2rem 0; font-size:.82rem; cursor:pointer; color:var(--text-strong); }
+  .puce-rayon:hover { border-color:var(--accent); }
+  .puce-rayon.faite { opacity:.55; cursor:default; }
+  mark { background:#fde68a; color:#1b2430; padding:0 .1em; border-radius:3px; }
+  body.dark mark { background:#7c5e1e; color:#f4f6fb; }
+  .cadence-grille { display:grid; grid-template-columns:1fr 1fr; gap:.4rem .8rem; }
+  .cadence-grille label { margin:.3rem 0 0; }
+  .section-veille { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--text-muted); margin:1.4rem 0 .3rem; padding-bottom:.2rem; border-bottom:1px solid var(--border); }
+  .ligne-trim { display:flex; align-items:center; gap:.5rem; margin:.25rem 0; font-size:.9rem; cursor:pointer; }
+  .ligne-trim .case { font-size:1rem; }
+  .ligne-trim.faite { color:var(--text-muted); }
+
+  /* Regroupement visuel par module nourri (retour Denis, 2026-09-05) :
+     un rectangle par destination (Comprendre le cadre / Chiffres /
+     Lexique), pour qu'une personne qui n'a pas participe a la conception
+     voie d'un coup d'oeil ce que chaque bloc alimente. Purement visuel,
+     aucun changement de logique : les elements a l'interieur gardent
+     leurs id et leur cablage exacts. */
+  .groupe-module { border:2px solid var(--border-strong); border-radius:14px; padding:.2rem 1rem 1rem; margin:1.1rem 0; }
+  .groupe-module-titre { display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem; font-weight:800;
+    text-transform:uppercase; letter-spacing:.03em; border-radius:999px; padding:.35rem .8rem; margin:-1px 0 .8rem -1px; }
+  .groupe-module.cadre { border-color:var(--accent); }
+  .groupe-module.cadre > .groupe-module-titre { background:var(--accent-bg); color:var(--accent); }
+  .groupe-module.chiffres { border-color:#7c3aed; }
+  .groupe-module.chiffres > .groupe-module-titre { background:#efe6fd; color:#6b21a8; }
+  body.dark .groupe-module.chiffres > .groupe-module-titre { background:#2e1a4d; color:#d8b4fe; }
+  .groupe-module.lexique { border-color:#0f766e; }
+  .groupe-module.lexique > .groupe-module-titre { background:#e2f5f3; color:#0f5f58; }
+  body.dark .groupe-module.lexique > .groupe-module-titre { background:#0f2e2b; color:#7ee8dc; }
+
+  /* Guide "Comment ça marche ?" (retour Denis, 2026-09-05) : pense pour
+     quelqu'un qui n'a jamais vu cet outil ni participe a sa conception.
+     Bouton bien visible en haut de page, jamais discret comme un simple
+     <details class="avance">. */
+  .guide-demarrage { border:2px solid var(--ok); border-radius:14px; background:var(--ok-bg); margin:.8rem 0 1.2rem; }
+  .guide-demarrage > summary { cursor:pointer; padding:.8rem 1rem; font-weight:800; font-size:1rem; color:var(--ok); list-style:none; }
+  .guide-demarrage > summary::-webkit-details-marker { display:none; }
+  .guide-demarrage > summary::before { content:"❓ "; }
+  .guide-demarrage[open] > summary::before { content:"🔽 "; }
+  .guide-demarrage .corps { padding:0 1.1rem 1.1rem; }
+  .guide-demarrage h3 { margin-top:1.1rem; }
+  .guide-demarrage h3:first-child { margin-top:.2rem; }
+  .guide-demarrage ol, .guide-demarrage ul { padding-left:1.3rem; line-height:1.6; }
+  .guide-demarrage li { margin-bottom:.3rem; }
+
+  /* ===================================================================
+     ACCUEIL GUIDÉ (chantier 2026-09-22, maquette docs/MAQUETTE_VEILLE_
+     PARCOURS_2026-09-22.html validée par Denis à l'écran, bloc par
+     bloc). Principe : « habiller », jamais réécrire -- ces classes
+     n'ajoutent qu'une présentation par-dessus les cartes/details/
+     fonctions déjà existants (mêmes id, même câblage). Voir
+     docs/CHANTIER_VEILLE_ACCUEIL_GUIDE_2026-09-22.md pour l'état
+     d'avancement (quels blocs de la maquette sont déjà habillés ici).
+     =================================================================== */
+
+  .carte-module { display:block; width:100%; text-align:left; background:var(--bg-card,#fff);
+    border:2px solid var(--border-strong); border-radius:16px; padding:1.1rem 1.2rem; margin-bottom:.9rem;
+    cursor:pointer; box-shadow:var(--shadow); font:inherit; }
+  .carte-module.cadre { border-color:var(--accent); }
+  .carte-module.chiffres { border-color:#7c3aed; }
+  body.dark .carte-module.chiffres { border-color:#d8b4fe; }
+  .carte-module.lexique { border-color:#0f766e; }
+  .carte-module.qfq { border-color:#b45309; }
+  body.dark .carte-module.qfq { border-color:#fcd34d; }
+  body.dark .carte-module.lexique { border-color:#7ee8dc; }
+  .carte-module .entete { display:flex; align-items:center; gap:.6rem; margin-bottom:.3rem; }
+  .carte-module .icone { font-size:1.6rem; }
+  .carte-module .titre { font-size:1.05rem; font-weight:800; color:var(--text-strong); }
+  .carte-module .desc { color:var(--text-muted); font-size:.88rem; margin:.2rem 0 .6rem; }
+
+  .badge-accueil { display:inline-flex; align-items:center; gap:.35rem; font-size:.78rem; font-weight:700;
+    border-radius:999px; padding:.25rem .65rem; }
+  .badge-accueil.a-faire { background:var(--warn-bg); color:var(--warn); }
+  .badge-accueil.a-jour { background:var(--ok-bg); color:var(--ok); }
+
+  .entete-module-guide { display:flex; align-items:center; gap:.6rem; margin-bottom:.2rem; }
+  .entete-module-guide .pastille { width:2.2rem; height:2.2rem; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:1.15rem; flex-shrink:0; background:var(--accent-bg); color:var(--accent); }
+  .entete-module-guide .pastille.chiffres { background:#efe6fd; color:#6b21a8; }
+  body.dark .entete-module-guide .pastille.chiffres { background:#2e1a4d; color:#d8b4fe; }
+  .entete-module-guide .pastille.lexique { background:#e2f5f3; color:#0f5f58; }
+  body.dark .entete-module-guide .pastille.lexique { background:#0f2e2b; color:#7ee8dc; }
+
+  .groupe-frequence { margin:1.1rem 0; }
+  .etiquette-frequence { display:inline-block; font-size:.72rem; font-weight:800; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--text-muted); border-bottom:2px solid var(--border-strong);
+    padding-bottom:.25rem; margin-bottom:.55rem; }
+  .carte-tache { display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+    background:var(--bg-card,#fff); border:1px solid var(--border); border-radius:12px; padding:.75rem .95rem;
+    margin-bottom:.55rem; cursor:pointer; box-shadow:0 2px 8px rgba(20,35,60,.05); }
+  .carte-tache .titre-tache { font-weight:700; color:var(--text-strong); font-size:.95rem; }
+  .carte-tache .sous-tache { color:var(--text-muted); font-size:.82rem; margin-top:.1rem; }
+  .carte-tache .fleche { color:var(--text-muted); font-size:1.1rem; flex-shrink:0; }
+  .etat-tache { font-size:.76rem; font-weight:700; border-radius:999px; padding:.2rem .6rem; white-space:nowrap; }
+  .etat-tache.du { background:var(--warn-bg); color:var(--warn); }
+  .etat-tache.fait { background:var(--ok-bg); color:var(--ok); }
+  .etat-tache.a-venir { background:var(--bg-subtle); color:var(--text-muted); }
+
+  /* Date de dernière vérification / de signalement, code couleur (demande Denis 2026-09-22) : le mot
+     porte l'info, jamais la couleur seule (daltonisme). */
+  .date-verif { display:block; font-size:.72rem; font-weight:600; margin-top:.2rem; }
+  .date-verif.frais { color:var(--ok); }
+  .date-verif.tiede { color:var(--warn); }
+  .date-verif.perime { color:var(--alert); }
+  .date-verif.jamais { color:var(--text-muted); font-weight:400; font-style:italic; }
+
+  .fil-etapes { display:flex; align-items:center; gap:.35rem; margin:.2rem 0 1.1rem; flex-wrap:wrap; }
+  .fil-etapes .point { width:1.9rem; height:1.9rem; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:.82rem; font-weight:800; background:var(--bg-subtle);
+    color:var(--text-muted); border:2px solid var(--border-strong); flex-shrink:0; }
+  .fil-etapes .point.faite { background:var(--ok); color:#fff; border-color:var(--ok); }
+  .fil-etapes .point.actif { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .fil-etapes .trait { flex:1; min-width:.6rem; height:2px; background:var(--border-strong); }
+  .fil-etapes .trait.faite { background:var(--ok); }
+
+  .bloc-destinataire { display:flex; align-items:center; gap:.6rem; background:var(--accent-bg);
+    border:1px solid var(--accent); border-radius:10px; padding:.6rem .8rem; margin:.8rem 0; font-size:.88rem; }
+  .bloc-destinataire strong { color:var(--accent); }
+  /* Navigation entre les 6 cartes de "Créer ou compléter une fiche" (bug attrapé par Denis, 2026-09-22 :
+     la carte 1 disait "revenez à l'étape 2" sans aucun moyen d'y aller -- le focus n'isolait qu'UNE
+     carte, sans jamais construire les boutons pour passer a la suivante ou revenir a la precedente). */
+  .lien-etape-precedente { background:none; border:none; color:var(--text-muted); font:inherit;
+    font-weight:600; cursor:pointer; padding:.3rem 0; margin-bottom:.6rem; display:block; }
+  .lien-etape-precedente:hover { color:var(--text-strong); }
+  .bloc-retour { display:flex; align-items:center; gap:.6rem; background:var(--bg-subtle);
+    border:1px dashed var(--border-strong); border-radius:10px; padding:.55rem .8rem; margin:.6rem 0 0; font-size:.85rem; color:var(--text-muted); }
+  .bloc-claude { display:flex; align-items:center; gap:.6rem; background:var(--alert-bg);
+    border:2px solid var(--alert); border-radius:10px; padding:.65rem .85rem; margin:.8rem 0; font-size:.88rem; }
+  .bloc-claude strong { color:var(--alert); }
+  .etiquette-claude { display:inline-flex; align-items:center; gap:.35rem; font-size:.74rem; font-weight:800;
+    text-transform:uppercase; letter-spacing:.04em; background:var(--alert); color:#fff; border-radius:999px;
+    padding:.2rem .6rem; margin-bottom:.5rem; }
+
+  /* Mode focus : #outilClassique (tout l'outil d'avant, inchangé, voir plus bas dans le HTML) est
+     masqué par défaut derrière le nouvel accueil guidé -- jamais réécrit, juste habillé (retour Denis,
+     2026-09-22 : "trop de prompts visibles à la fois"). entrerFocus()/quitterFocus()/voirClassique()
+     (script en bas de page) pilotent l'affichage : jamais de logique dupliquée, les cartes/details
+     d'origine gardent leur id et leur câblage exacts. Second niveau, une fois #outilClassique visible
+     pour une étape précise : n'affiche que le groupe-module puis la carte/details marqués .focus-actif
+     par JS, masque leurs frères et sœurs directs (jamais par profondeur, pour rester fiable quelle que
+     soit l'imbrication réelle). */
+  #outilClassique { display:none; }
+  #outilClassique.visible { display:block; }
+  body.focus-guide .mode-bar,
+  body.focus-guide .guide-demarrage,
+  body.focus-guide #detImportManuel,
+  body.focus-guide #groupeReglages,
+  body.focus-guide #outilClassique > h2.section-veille { display:none !important; }
+  body.focus-guide .groupe-module { display:none !important; }
+  body.focus-guide .groupe-module.focus-actif { display:block !important; }
+  /* Masque TOUT enfant direct qui n'est pas l'element vise -- generique plutot qu'une liste de
+     types (carte/details/panneau/h2/titre/texte d'intro...), pour ne jamais laisser passer un type
+     de contenu oublie (bug attrape avec le paragraphe d'intro de "Comprendre les chiffres"). */
+  body.focus-guide .groupe-module.focus-actif > :not(.focus-actif) { display:none !important; }
+  body.focus-guide .groupe-module.focus-actif > .focus-actif { display:block !important; }
+
+  /* Contrôle mensuel : la grille de rayons datée (nouvelle, JS) remplace visuellement le <select>
+     d'origine en mode guidé ; le <select> reste la source de vérité pour assemblerControle(), juste
+     caché. Le mode "cycle" (plusieurs rayons à la suite) reste réservé à la vue classique : décision
+     de Denis le 2026-09-22, un seul rayon à la fois dans le nouveau parcours. */
+  body.focus-guide .bloc-cycle, body.focus-guide .bloc-select-classique { display:none; }
+  body:not(.focus-guide) .choix-rayon-guide { display:none; }
+  .choix-rayon-guide button { text-align:left; background:var(--bg-subtle); border:2px solid var(--border);
+    border-radius:10px; padding:.6rem .7rem; font:inherit; font-weight:600; color:var(--text-strong); cursor:pointer; }
+  .choix-rayon-guide button.selectionne { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); }
+  #sasFenetre .chiffres, #chgFenetre .chiffres { display:flex; gap:.7rem; flex-wrap:wrap; margin:.6rem 0; }
+  #sasFenetre .chiffre, #chgFenetre .chiffre { flex:1 1 9rem; border-radius:var(--radius); padding:.5rem .8rem; text-align:center; }
+  #sasFenetre .chiffre strong, #chgFenetre .chiffre strong { display:block; font-size:1.5rem; line-height:1.1; }
+  #sasFenetre textarea, #chgFenetre textarea { width:100%; min-height:13rem; font:.85rem ui-monospace,Consolas,monospace; background:var(--bg-subtle); color:var(--text); border:1px solid var(--border-strong); border-radius:var(--radius); padding:.6rem; }
+  #sasFenetre .ligne-edit, #chgFenetre .ligne-edit { width:100%; font:.8rem ui-monospace,Consolas,monospace; margin:.3rem 0; }
+  #sasFenetre .pastille, #chgFenetre .pastille { display:inline-block; border-radius:999px; padding:.1rem .6rem; font-size:.78rem; font-weight:600; white-space:nowrap; }
+  #sasFenetre .p-ok, #chgFenetre .p-ok { background:var(--ok-bg); color:var(--ok); } #sasFenetre .p-warn, #chgFenetre .p-warn { background:var(--warn-bg); color:var(--warn); } #sasFenetre .p-alert, #chgFenetre .p-alert { background:var(--alert-bg); color:var(--alert); } #sasFenetre .p-neutre, #chgFenetre .p-neutre { background:var(--bg-subtle); color:var(--text-muted); }
+  #sasFenetre .fiche-sas, #chgFenetre .fiche-sas { border:1px solid var(--border-strong); border-radius:var(--radius); padding:.7rem .9rem; margin:.7rem 0; background:var(--bg-card); }
+  #sasFenetre .fiche-sas.choisie, #chgFenetre .fiche-sas.choisie { background:var(--warn-bg); }
+  #sasFenetre a.btn, #chgFenetre a.btn { display:inline-block; text-decoration:none; }
+
+
+  .mq-barre { position:sticky; top:0; z-index:20; background:var(--bg-card); border-bottom:1px solid var(--border-strong); padding:.6rem 1rem; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+  .mq-barre .mq-titre { font-weight:700; margin-right:auto; }
+  .mq-barre .btn { padding:.3rem .7rem; font-size:.85rem; }
+  .mq-barre .btn.actif { background:var(--accent); color:#fff; border-color:var(--accent); }
+  body.dark .mq-barre .btn.actif { color:#04202e; }
+  .mq-bandeau { border:2px dashed var(--border-strong); border-radius:12px; padding:.7rem .9rem; margin:.8rem 0 1.2rem; background:var(--bg-card); font-size:.9rem; }
+  .mq-ecran[hidden] { display:none; }
+  .nouveau { display:inline-block; font-size:.68rem; font-weight:700; text-transform:uppercase; background:var(--warn); color:#fff; border-radius:6px; padding:0 .4rem; margin-left:.4rem; vertical-align:middle; }
+  body.dark .nouveau { color:#1b1200; }
+  .mini { font-size:.8rem; color:var(--text-muted); }
+  .btn.petit { padding:.15rem .55rem; font-size:.78rem; }
+  .btn.import { border-color:var(--warn); color:var(--warn); font-weight:700; }
+  .fiche-sas table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  .fiche-sas td { border-top:1px solid var(--border); padding:.4rem .5rem; vertical-align:top; }
+  .fiche-sas td:first-child { width:11rem; color:var(--text-muted); }
+  #sasFenetre table.tri { width:100%; border-collapse:collapse; font-size:.82rem; }
+  #sasFenetre table.tri th, #sasFenetre table.tri td { border:1px solid var(--border); padding:.4rem .5rem; text-align:left; vertical-align:top; }
+  #sasFenetre table.tri th { background:var(--bg-subtle); }
+  .avant-apres { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; }
+  .avant-apres ul { margin:.3rem 0; padding-left:1.1rem; font-size:.88rem; }
+  .barre-ligne { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; margin:.5rem 0; }
+  .barre-ligne label { margin:0; }
+  .barre-ligne select { width:auto; }
+</style>
+</head>
+<body>
+<div class="mq-barre">
+  <span class="mq-titre">Maquette : le pont vers l'outil de veille (20/10/2026)</span>
+  <button type="button" class="btn actif" data-aller="coller">1. Zone de collage</button>
+  <button type="button" class="btn" data-aller="tri">2. Vérifier mes lignes</button>
+  <button type="button" class="btn" data-aller="carte">3. Une petite structure dans le sas</button>
+  <button type="button" class="btn" data-aller="retraits">4. Ce qui disparaît</button>
+  <button type="button" class="btn" id="mqSombre" aria-pressed="false">Mode sombre</button>
+</div>
+<main>
+  <div class="mq-bandeau"><strong>MAQUETTE</strong> (données INVENTÉES, rien n'est enregistré). Elle montre ce qui change dans l'outil de veille : <strong>un seul bouton nouveau</strong>, dans le panneau de collage existant, une correction de forme de plus (la commune), la provenance visible sur la carte du sas, et <strong>deux blocs retirés</strong>. Tout le reste est inchangé. Les repères <span class="nouveau">Nouveau</span> signalent ce qui est ajouté.</div>
+  <div id="sasFenetre">
+
+  <section class="mq-ecran" data-ecran="coller">
+    <h2>Importer plusieurs fiches</h2>
+    <div class="carte">
+      <p class="mini">Collez la réponse de ChatGPT <strong>telle quelle</strong>, sans rien retirer : l'outil enlève tout seul les ```, les numéros devant les lignes, les puces, les lignes de titre et les barres de tableau en trop. Rien n'est enregistré tant que vous n'avez pas validé le tri.</p>
+      <div class="barre-ligne">
+        <label>Ces lignes décrivent : <select id="sasFichier"><option value="employeurs">des employeurs (par secteur)</option><option value="lieux">des structures (logement, mobilité, accompagnement...)</option><option value="offres">des pages d'offres des employeurs</option></select></label>
+        <button class="btn petit" type="button">Voir une ligne d'exemple</button>
+        <button class="btn import" type="button" id="importer">Importer depuis la prospection (<span id="nbPont">4</span> lignes)<span class="nouveau">Nouveau</span></button>
+      </div>
+      <p class="mini" id="infoPont">Le bouton n'apparaît que lorsque la prospection a déposé un fichier pour ce choix. Il lit un seul fichier fixe, sans rien écrire.</p>
+      <p class="mini">Format attendu, colonnes séparées par « | » : <span class="mono">id | nature | nom | secteur | établissements | téléphone | site | page de recrutement | modes | source | date</span></p>
+      <textarea id="sasTexte" aria-label="Lignes à importer" spellcheck="false"></textarea>
+      <div class="btn-rangee"><button class="btn primaire" type="button" id="verifier">Vérifier mes lignes</button> <button class="btn" type="button">Le sas (462)</button><span class="mini">100 lignes au plus par import.</span></div>
+      <div id="msgPont"></div>
+    </div>
+  </section>
+
+  <section class="mq-ecran" data-ecran="tri" hidden>
+    <h2>Importer plusieurs fiches</h2>
+    <h3>4 lignes lues</h3>
+    <div class="chiffres"><div class="chiffre" style="background:var(--ok-bg)"><strong>3</strong>prêtes</div><div class="chiffre" style="background:var(--warn-bg)"><strong>0</strong>déjà connue ou sans rien à ajouter</div><div class="chiffre" style="background:var(--alert-bg)"><strong>1</strong>à corriger</div></div>
+    <div class="note" style="margin:.5rem 0"><span>&#9989;</span><span>2 autres lignes du pont étaient <strong>déjà connues</strong> (déjà publiées ou déjà dans le sas) : elles n'ont pas été rechargées. Le fichier du pont est resté en place.</span></div>
+    <table class="tri"><thead><tr><th>Ligne</th><th>Fiche</th><th>Résultat</th><th>Ce que vous pouvez faire</th></tr></thead><tbody>
+      <tr><td>1</td><td><strong>Menuiserie des Quatre Chemins</strong><br><span class="mini">Employeur local · btp · Bergerac</span></td><td><span class="pastille p-ok">Prête</span><br><span class="mini">site et téléphone : ils ne s'afficheront qu'après vérification</span></td><td><label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" checked style="width:auto"> Mettre dans le sas</label></td></tr>
+      <tr><td>2</td><td><strong>Garage de la Dordogne</strong><br><span class="mini">Employeur local · automobile · Sarlat-la-Canéda</span></td><td><span class="pastille p-ok">Prête</span><br><span class="mini">corrigé : <strong>commune écrite comme dans la liste officielle (« Sarlat-La-Caneda » devient « Sarlat-la-Canéda »)</strong></span><span class="nouveau">Nouveau</span></td><td><label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" checked style="width:auto"> Mettre dans le sas</label></td></tr>
+      <tr><td>3</td><td><strong>Imprimerie Périgord Couleurs</strong><br><span class="mini">Employeur local · artisanat · Bergerac</span></td><td><span class="pastille p-ok">Prête</span><br><span class="pastille p-warn">À regarder</span> <span class="mini">Même adresse que « Atelier Imprimerie du Périgord » (déjà publiée) : plusieurs services d'un même organisme, ou un doublon ?</span></td><td><label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" checked style="width:auto"> Mettre dans le sas</label></td></tr>
+      <tr><td>4</td><td><strong>Salon de Coiffure Les Ciseaux d'Or</strong><br><span class="mini">Employeur local · coiffure</span></td><td><span class="pastille p-alert">À corriger</span><br><span class="mini">Le secteur « coiffure » n'existe pas dans la liste.</span> <button class="btn petit" type="button">Prendre « coiffure-esthetique (Coiffure et esthétique) »</button></td><td><input type="text" class="ligne-edit" value="salon-ciseaux-dor-bergerac-24 | local | Salon de Coiffure Les Ciseaux d'Or | coiffure | Bergerac:3 rue du Marché | | | | non-indique | Via prospection ; ... |"><button class="btn petit" type="button">Revérifier cette ligne</button></td></tr>
+    </tbody></table>
+    <div class="btn-rangee"><button class="btn primaire" type="button">Mettre les 3 fiches cochées dans le sas</button> <button class="btn" type="button" data-aller="coller">Recommencer</button></div>
+    <p class="mini">Tout le contrôle est celui d'aujourd'hui : doublons, vérificateur de l'application, plafond de 100 lignes, tri une par une. L'outil ne corrige que la forme et vous le montre.</p>
+  </section>
+
+  <section class="mq-ecran" data-ecran="carte" hidden>
+    <h2>Le sas des structures</h2>
+    <div class="barre-ligne"><label>Catégorie <select><option>Petites structures (3)</option><option>Sans téléphone ni mail</option><option>Autres</option></select></label><span class="mini">(filtre existant, inchangé)</span></div>
+    <div class="fiche-sas">
+      <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><strong>Épicerie solidaire du quartier Est (exemple)</strong><span><span class="pastille p-warn">Petite structure</span> <span class="pastille p-alert">À vérifier à la main</span></span></div>
+      <div class="mini">Aide alimentaire ou matérielle · Bergerac · 24 · rayon budget</div>
+      <table><tbody>
+        <tr><td>Téléphone</td><td><input type="text" value="05 53 00 11 22"><div class="mini">à vérifier sur la page de la source</div></td></tr>
+        <tr><td>Mail (adresse de service)</td><td><input type="text" value="contact@exemple-epicerie-quartier.fr"></td></tr>
+        <tr><td>Source donnée <span class="nouveau">Provenance</span></td><td><input type="text" value="Petite structure ; Repérée sur une photo du 14/10/2026, texte lu sur le poste et comparé à la photo le 20/10/2026"><div class="mini">Référence écrite, pas une adresse : il n'y a rien à ouvrir. La photo n'est pas rangée ici : seule la provenance est conservée.</div></td></tr>
+      </tbody></table>
+      <div class="btn-rangee"><button class="btn primaire" type="button">J'ai appelé : c'est bon</button><button class="btn" type="button">J'ai écrit : c'est bon</button><button class="btn" type="button">J'ai ouvert la page : c'est bon</button><button class="btn" type="button">Écarter</button></div>
+      <p class="mini">La date « vérifié le » ne s'écrit qu'à ce clic. Elle veut dire : j'ai appelé, écrit ou vu la page officielle (décision D1 du 19/10/2026).</p>
+    </div>
+    <div class="fiche-sas">
+      <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><strong>Cours de français pour adultes (exemple)</strong><span><span class="pastille p-warn">Petite structure</span></span></div>
+      <table><tbody>
+        <tr><td>Site de la structure</td><td><input type="text" value="https://www.exemple-lire-parler.fr"> <button class="btn petit" type="button">Ouvrir le site</button></td></tr>
+        <tr><td>Source donnée <span class="nouveau">Provenance</span></td><td><input type="text" value="Petite structure ; Repérée sur la page https://exemple-epicerie-solidaire.fr/partenaires du site d'une structure déjà validée"> <button class="btn petit" type="button">Ouvrir la source</button></td></tr>
+      </tbody></table>
+      <p class="mini">Quand la provenance contient une adresse, le bouton « Ouvrir la source » l'ouvre. Le contrôle automatique des cartes (existant) cherche le numéro sur le site de la fiche.</p>
+    </div>
+    <div class="note warn"><span>&#9888;&#65039;</span><span>Parade ajoutée : dans le sas aussi, le début « Petite structure ; » de la source ne peut pas être effacé en modifiant la fiche (aujourd'hui la parade ne vaut que pour les fiches publiées).</span></div>
+  </section>
+
+  <section class="mq-ecran" data-ecran="retraits" hidden>
+    <h2>Outil de veille : ce qui disparaît, ce qui arrive</h2>
+    <div class="avant-apres">
+      <div class="carte"><h3>Retiré (deux blocs de recherche ouverte)</h3><ul>
+        <li><strong>« Annuaire associatif Dordogne et Haute-Vienne »</strong> : prompt de recherche ouverte, lecture de la réponse, sorties vers les collectes des rayons et <code>liens-verifies.txt</code>.</li>
+        <li><strong>« Petites structures »</strong> : prompt par département et problématique, lecture de la réponse, lignes à importer.</li>
+        <li>Les mentions de ces deux blocs dans <code>docs/VEILLE_PROMPTS.md</code> et <code>docs/NOUVEAUTES_A_STATUER.md</code>.</li></ul>
+        <p class="mini">Ce qui n'est PAS retiré : tout le reste de la veille (balayage, triage, chiffres, sas, validation une à une, filtre et boutons « J'ai appelé / J'ai écrit / J'ai ouvert la page »).</p></div>
+      <div class="carte"><h3>Ajouté</h3><ul>
+        <li><strong>Un bouton</strong> « Importer depuis la prospection » dans le panneau de collage existant (visible seulement quand un fichier existe).</li>
+        <li><strong>Une correction de forme</strong> : la commune s'écrit comme dans la liste officielle.</li>
+        <li><strong>Une parade</strong> : la marque « Petite structure ; » ne s'efface pas dans le sas.</li>
+        <li>Un fichier lu : <code>PROSPECTION\donnees\pont\</code>, chemin fixe, lecture seule, 1 Mo au plus.</li></ul>
+        <p class="mini"><strong>Bilan : deux blocs retirés pour un bouton ajouté</strong> (contrainte « plus aucun ajout sans retrait équivalent » respectée).</p></div>
+    </div>
+  </section>
+
+  </div>
+</main>
+<script>
+(function () {
+  var LIGNES = [
+    "menuiserie-quatre-chemins-bergerac-24 | local | Menuiserie des Quatre Chemins | btp | Bergerac:12 rue des Tilleuls:05 53 00 00 01 | 05 53 00 00 01 | https://exemple-menuiserie.fr | | non-indique | Via prospection ; Registre des entreprises (Sirene) ; coordonnées vérifiées à la main le 18/10/2026 |",
+    "garage-dordogne-sarlat-la-caneda-24 | local | Garage de la Dordogne | automobile | Sarlat-La-Caneda:5 avenue de Selves:05 53 00 00 02 | 05 53 00 00 02 | https://exemple-garage.fr | | non-indique | Via prospection ; Registre des entreprises (Sirene) ; coordonnées vérifiées à la main le 18/10/2026 |",
+    "imprimerie-perigord-couleurs-bergerac-24 | local | Imprimerie Périgord Couleurs | artisanat | Bergerac:8 rue Neuve:05 53 00 00 03 | 05 53 00 00 03 | https://exemple-imprimerie.fr | | non-indique | Via prospection ; Registre des entreprises (Sirene) ; coordonnées vérifiées à la main le 19/10/2026 |",
+    "salon-ciseaux-dor-bergerac-24 | local | Salon de Coiffure Les Ciseaux d'Or | coiffure | Bergerac:3 rue du Marché | | | | non-indique | Via prospection ; Registre des entreprises (Sirene) ; coordonnées vérifiées à la main le 19/10/2026 |"
+  ];
+  function aller(nom) {
+    document.querySelectorAll('.mq-ecran').forEach(function (e) { e.hidden = e.getAttribute('data-ecran') !== nom; });
+    document.querySelectorAll('.mq-barre [data-aller]').forEach(function (b) { b.classList.toggle('actif', b.getAttribute('data-aller') === nom); });
+  }
+  document.addEventListener('click', function (ev) { var b = ev.target.closest('[data-aller]'); if (b) { aller(b.getAttribute('data-aller')); } });
+  document.getElementById('importer').onclick = function () {
+    document.getElementById('sasFichier').value = 'employeurs';
+    document.getElementById('sasTexte').value = LIGNES.join('\n');
+    document.getElementById('msgPont').innerHTML = '<div class="note ok"><span>&#9989;</span><span><strong>4 lignes lues dans le pont</strong> (déposé le 20/10/2026). 2 autres lignes étaient déjà connues et n\'ont pas été rechargées. Les lignes sont dans la zone ci-dessus, à relire si vous voulez ; rien n\'est encore enregistré : cliquez sur « Vérifier mes lignes ».</span></div>';
+  };
+  document.getElementById('verifier').onclick = function () { aller('tri'); };
+  document.getElementById('sasFichier').onchange = function () {
+    var v = this.value, b = document.getElementById('importer');
+    b.style.display = v === 'employeurs' ? '' : 'none';
+    document.getElementById('infoPont').textContent = v === 'employeurs' ? 'Le bouton n\'apparaît que lorsque la prospection a déposé un fichier pour ce choix. Il lit un seul fichier fixe, sans rien écrire.' : '(Maquette : pour ce choix, le bouton apparaît seulement si la prospection a déposé un fichier correspondant : pages d\'offres ou structures.)';
+  };
+  var sombre = document.getElementById('mqSombre');
+  sombre.onclick = function () { var d = document.body.classList.toggle('dark'); sombre.setAttribute('aria-pressed', String(d)); };
+})();
+</script>
+</body>
+</html>

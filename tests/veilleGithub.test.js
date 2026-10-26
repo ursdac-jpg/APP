@@ -312,3 +312,29 @@ test('le code ne force jamais, ne supprime jamais, ne contacte que api.github.co
   assert.strictEqual((src.match(/api\.github\.com/g) || []).length >= 1, true);
   assert.match(src, /const API_GITHUB = 'https:\/\/api\.github\.com';/);
 });
+
+test('envoyer : jamais « Mon territoire » ouvert au public par megarde ; confirmation possible ; aucun blocage s\'il est ferme', async () => {
+  const logique = (ouvert) => '// module\nvar MT_OUVERT = ' + ouvert + ';\nvar MT_CLE_APERCU = \'x\';\n';
+  const chemin = 'modules/mon-territoire/logique.js';
+  // 1. version enregistree OUVERTE : comparer le dit, envoyer refuse sans rien changer, puis envoie si Denis confirme
+  let m = await monter({ [chemin]: logique(true), 'a.txt': 'v2' }, { [chemin]: B(logique(false)), 'a.txt': B('v1') });
+  try {
+    assert.strictEqual((await m.gh.comparer()).territoireOuvert, true);
+    const avantTete = m.faux.teteActuelle();
+    const r = await m.gh.envoyer(undefined, 'essai');
+    assert.strictEqual(r.ok, false); assert.strictEqual(r.code, 'territoire-ouvert');
+    assert.strictEqual(m.faux.teteActuelle(), avantTete, 'rien n\'a bouge sur GitHub');
+    assert.ok(!m.faux.journal.some((j) => j.methode === 'PATCH'));
+    const r2 = await m.gh.envoyer(undefined, 'essai', true);
+    assert.ok(r2.ok, JSON.stringify(r2));
+  } finally { await m.fin(); }
+  // 2. version enregistree FERMEE : aucun blocage
+  m = await monter({ [chemin]: logique(false), 'a.txt': 'v2' }, { [chemin]: B(logique(false)), 'a.txt': B('v1') });
+  try {
+    assert.strictEqual((await m.gh.comparer()).territoireOuvert, false);
+    assert.ok((await m.gh.envoyer(undefined, 'essai')).ok);
+  } finally { await m.fin(); }
+  // 3. le fichier du module n'est pas dans l'envoi (déjà identique en ligne) : pas de blocage même s'il est ouvert partout
+  m = await monter({ [chemin]: logique(true), 'a.txt': 'v2' }, { [chemin]: B(logique(true)), 'a.txt': B('v1') });
+  try { assert.ok((await m.gh.envoyer(undefined, 'essai')).ok); } finally { await m.fin(); }
+});

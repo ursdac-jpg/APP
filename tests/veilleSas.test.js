@@ -107,10 +107,10 @@ test('analyserLot : la ligne a corriger ne bloque pas les autres, et le texte ex
 
 test('analyserLot : colonne manquante (date absente) acceptee ; mauvais nombre de colonnes explique', () => {
   const sansDate = ligne(L12('z-87')).replace(/ \| $/, '');
-  const r = S.analyserLot('lieux', sansDate + '\n' + ligne(L12('t-87')).split(' | ').slice(0, 8).join(' | ') + ' | a | b | c | d | e', REG, '', CTX, AUJ);
+  const r = S.analyserLot('lieux', sansDate + '\n' + ligne(L12('t-87')).split(' | ').slice(0, 8).join(' | ') + ' | a | b | c | d | e | f | g', REG, '', CTX, AUJ);
   assert.strictEqual(r.lignes[0].statut, 'prete');
   assert.strictEqual(r.lignes[1].statut, 'corriger');
-  assert.ok(/colonnes au lieu de 12/.test(r.lignes[1].problemes[0].message));
+  assert.ok(/colonnes au lieu de 13/.test(r.lignes[1].problemes[0].message));
 });
 
 test('analyserLot : limite de 100 lignes, aucun texte reconnu', () => {
@@ -394,4 +394,44 @@ test('depot : les fiches publiées sans numéro sont listées dans le sas des nu
     assert.strictEqual(depot.listerSas('complements').lignes.filter(function (l) { return l.valeurs.cible === 'asso-udaf-87'; }).length, 0);
     assert.strictEqual(depot.publier([{ type: 'sans-numero', actions: [{ op: 'ajouter', registre: 'lieux', id: 'fiche-inconnue' }] }]).ok, false);
   } finally { nettoyerDepot(d); }
+});
+
+// ---------- communes ecrites comme dans la liste officielle (pont depuis la prospection) ----------
+test('corrigerForme : une commune ecrite sans accent ou en majuscules prend l\'ecriture officielle, et le dit', () => {
+  const lieu = S.corrigerForme({ id: 'x-87', commune: 'PERIGUEUX', nom: 'N' }, ['id', 'commune', 'nom'], CTX);
+  assert.strictEqual(lieu.valeurs.commune, 'Périgueux');
+  assert.ok(lieu.corrections.some((c) => c.champ === 'commune' && /liste officielle/.test(c.raison)));
+  const dejaBonne = S.corrigerForme({ id: 'x-87', commune: 'Limoges', nom: 'N' }, ['id', 'commune', 'nom'], CTX);
+  assert.strictEqual(dejaBonne.corrections.length, 0);
+  const inconnue = S.corrigerForme({ id: 'x-87', commune: 'Paris', nom: 'N' }, ['id', 'commune', 'nom'], CTX);
+  assert.strictEqual(inconnue.valeurs.commune, 'Paris', 'une commune inconnue n\'est jamais devinee');
+  const etabs = S.corrigerForme({ id: 'x-87', etablissements: 'BERGERAC:1 rue de la Paix:05 53 00 00 00 ; Saint-Junien:2 rue X ; Paris:3 rue Y' }, ['id', 'etablissements'], CTX);
+  assert.strictEqual(etabs.valeurs.etablissements, 'Bergerac:1 rue de la Paix:05 53 00 00 00 ; Saint-Junien:2 rue X ; Paris:3 rue Y');
+  assert.strictEqual(etabs.corrections.filter((c) => c.champ === 'etablissements').length, 1);
+  const tirets = S.corrigerForme({ id: 'x-87', etablissements: 'Saint Junien:2 rue X' }, ['id', 'etablissements'], CTX);
+  assert.strictEqual(tirets.valeurs.etablissements, 'Saint-Junien:2 rue X');
+});
+
+test('analyserLot (employeurs) : une ligne de la prospection avec une commune en majuscules sans accent est prete, commune corrigee', () => {
+  const l = 'menuiserie-quatre-chemins-bergerac-24 | local | Menuiserie des Quatre Chemins | btp | BERGERAC:12 rue des Tilleuls:05 53 00 00 01 | 05 53 00 00 01 | https://exemple-menuiserie.example.fr/ | | non-indique | Via prospection ; Registre des entreprises (Sirene) ; coordonnées vérifiées à la main le 18/10/2026 |';
+  const r = S.analyserLot('employeurs', l, REG, '', CTX, AUJ);
+  assert.strictEqual(r.lignes[0].statut, 'prete', JSON.stringify(r.lignes[0].problemes));
+  assert.ok(r.lignes[0].ligneFinale.indexOf('Bergerac:12 rue des Tilleuls') !== -1);
+  assert.ok(r.lignes[0].corrections.some((c) => c.champ === 'etablissements'));
+});
+
+// ---------- les marques d'origine ne s'effacent pas dans le sas ----------
+test('appliquer (modifier) : la marque « Petite structure ; » ou « Via prospection ; » ne se perd ni ne s\'ajoute en corrigeant une carte du sas', () => {
+  const marquee = ligne(L12('p-87', { tel: '05 55 00 00 00', source: 'Petite structure ; Repérée sur une photo du 14/10/2026' }));
+  const r1 = S.appliquer('lieux', '', [{ op: 'importer', lignes: [marquee, ligne(L12('q-87'))] }], REG, CTX, AUJ);
+  assert.ok(r1.ok, JSON.stringify(r1));
+  const efface = S.appliquer('lieux', r1.texte, [{ op: 'modifier', id: 'p-87', ligne: ligne(L12('p-87', { tel: '05 55 00 00 00', source: 'Repérée sur une photo du 14/10/2026' })) }], REG, CTX, AUJ);
+  assert.strictEqual(efface.ok, false); assert.match(efface.erreur, /Petite structure/);
+  const ajoute = S.appliquer('lieux', r1.texte, [{ op: 'modifier', id: 'q-87', ligne: ligne(L12('q-87', { tel: '05 55 00 00 01', source: 'Petite structure ; autre' })) }], REG, CTX, AUJ);
+  assert.strictEqual(ajoute.ok, false); assert.match(ajoute.erreur, /Petite structure/);
+  const garde = S.appliquer('lieux', r1.texte, [{ op: 'modifier', id: 'p-87', ligne: ligne(L12('p-87', { tel: '05 55 00 00 00', source: 'Petite structure ; Repérée sur une photo du 14/10/2026 ; comparée le 20/10/2026', desc: 'phrase corrigée' })) }], REG, CTX, AUJ);
+  assert.ok(garde.ok, JSON.stringify(garde));
+  assert.ok(garde.texte.indexOf('comparée le 20/10/2026') !== -1);
+  const normale = S.appliquer('lieux', r1.texte, [{ op: 'modifier', id: 'q-87', ligne: ligne(L12('q-87', { desc: 'phrase corrigée' })) }], REG, CTX, AUJ);
+  assert.ok(normale.ok);
 });

@@ -204,6 +204,29 @@ function _pdfMqCoordonnees(objetCV, composition, opts, ed) {
   }).join('');
 }
 
+// Nom ou metier sur DEUX lignes dans l'en-tete libre (panneau « Regler l'en-tete » de l'apercu, 2026-10-21) : la coupe est faite par un bloc, pas par un
+// saut de ligne, pour que le texte lu (corrections de texte) garde son espace. `prenom` : le nom est coupe apres le prenom ; sinon, a l'espace le plus proche du milieu.
+function _pdfMqDeuxLignes(texte, prenom) {
+  var t = String(texte === null || texte === undefined ? '' : texte), i = -1;
+  if (prenom && t.indexOf(prenom + ' ') === 0) { i = prenom.length; }
+  else {
+    var milieu = t.length / 2, ecart = Infinity;
+    for (var k = 1; k < t.length - 1; k++) { if (t.charAt(k) === ' ' && Math.abs(k - milieu) < ecart) { ecart = Math.abs(k - milieu); i = k; } }
+  }
+  if (i < 1) { return _pdfEscaperHtml(t); }
+  return '<span style="display:block">' + _pdfEscaperHtml(t.slice(0, i + 1)) + '</span>' + _pdfEscaperHtml(t.slice(i + 1));
+}
+// Coordonnees de l'en-tete libre : 'col' (une par ligne, d'office), '1' (toutes sur une ligne, separees par un point) ou '2' (deux lignes).
+function _pdfMqCoordonneesMise(html, mode, avecIcones) {
+  if (mode !== '1' && mode !== '2') { return html; }
+  var items = (String(html).match(/<div>[\s\S]*?<\/div>/g) || []).map(function (d) { return d.slice(5, -6); });
+  if (items.length < 2) { return html; }
+  var sep = avecIcones ? '<span style="display:inline-block;width:12px"></span>' : '<span> · </span>';
+  var moitie = Math.ceil(items.length / 2);
+  var lignes = mode === '1' ? [items] : [items.slice(0, moitie), items.slice(moitie)];
+  return lignes.map(function (l) { return '<div>' + l.join(sep) + '</div>'; }).join('');
+}
+
 function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   _pdfMoisAffiches = !!opts.moisAffiches;
   _pdfDatesParRub = (opts && opts.datesParRubrique) || {};
@@ -220,7 +243,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   // Certifications structurees (2026-09-26) : « Intitule (organisme, lieu, date) » devient une ligne comme celles des formations, date en
   // tete pour les modeles a date en tete. Sans information captee, seul l'intitule est affiche ; rien n'est invente.
   if ((contenu.certifications || []).length && typeof afficherCertification === 'function') {
-    var certifsDateEnTete = ['rectangles', 'sobre-rectangles', 'frise', 'photo', 'sobre-photo'].indexOf(gabarit) !== -1;
+    var certifsDateEnTete = ['rectangles', 'sobre-rectangles', 'frise', 'sobre-frise', 'photo', 'sobre-photo'].indexOf(gabarit) !== -1;
     var contenuAvecCertifs = {};
     Object.keys(contenu).forEach(function (cle) { contenuAvecCertifs[cle] = contenu[cle]; });
     contenuAvecCertifs.certificationsBrutes = contenu.certifications.slice();
@@ -309,25 +332,88 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var enteteCentree = !!opts.enteteCentree;
   // Lot 3 : en-tete a bord ondule (Vague marine), colonne coloree pleine hauteur a bord ondule (Colonne a vague),
   // bande verticale du nom (Bandeau vertical).
-  // BORD DU BANDEAU au choix (modeles Creatif Bandeau entier, Duo ovale, Vague marine : recette `bordBandeauChoix`) : 'droit', 'arrondi' ou 'vallonne'. Sans ce choix, rien ne change.
-  var bordBandeau = (opts.bordBandeauChoix && /^(droit|arrondi|vallonne)$/.test(opts.bordBandeau || '')) ? opts.bordBandeau : '';
-  var enteteVague = bordBandeau ? (bordBandeau === 'vallonne') : !!opts.enteteVague;
+  // BORD DU BANDEAU au choix (recette `bordBandeauChoix` : Bandeau entier, Duo ovale, Vague marine, et depuis le 2026-10-20 les modeles a colonne quand leur bandeau est la) : 'droit', 'arrondi', 'vallonne' ou 'pointe'. Sans ce choix, rien ne change.
+  // « En pointe » et « Vallonne » partagent le meme mecanisme (pseudo-element decoupe par `polyHaut`, classe `tete-vague`) : seule la decoupe change.
+  // Depuis le 2026-10-20 : douze formes de plus, toutes sur le meme mecanisme du pseudo-element (`tete-vague`) ; trois familles : DECOUPEES (diagonale, diagonaleInv, coin, demiovale, vague2, creneaux : polygone sur `polyHaut`),
+  // DETACHEES (carte, pilule, ruban : le fond ne touche pas les bords de la page) et VIDES (contour, contourRond, filets : un trait de la couleur du CV, le nom passe en couleur foncee comme sans bandeau).
+  var bordBandeau = (/^(droit|arrondi|vallonne|pointe|diagonale|diagonaleInv|coin|demiovale|vague2|creneaux|carte|pilule|ruban|rubanCourt|contour|contourRond|filets)$/.test(opts.bordBandeau || '')) ? opts.bordBandeau : '';
+  // Epaisseur du bandeau reglee a la main sur l'apercu (poignee ronde, 2026-10-20) : hauteur MINIMALE en px ; 0 = d'office (le contenu fait la hauteur). Sans effet en en-tete libre (la hauteur y est celle du grand apercu).
+  var enteteMin = Math.max(0, Math.min(420, parseInt(opts.enteteMin, 10) || 0));
+  // TEXTE A DEUX TONS (2026-10-20, cvPdfTexteHors.js) : le texte du bandeau qui sort de la forme prend `texteHors` (couleur du bandeau par defaut). Le gabarit ne fait que DIRE la forme (--clip-bandeau), la couleur
+  // (--hors) et si c'est actif (--hors-actif) ; la copie du texte est posee apres le rendu. Sans forme connue (bandeau vide, autre en-tete), rien n'est emis.
+  var texteHors = /^(dessous|fonce|gris|perso|aucun)$/.test(opts.texteHors || '') ? opts.texteHors : 'dessous';
+  var couleurHors = texteHors === 'fonce' ? '#1f2933' : (texteHors === 'gris' ? '#6b7686' : ((texteHors === 'perso' && /^#[0-9a-fA-F]{6}$/.test(opts.texteHorsPerso || '')) ? opts.texteHorsPerso : 'var(--cv)'));
+  // SENS de la forme (2026-10-20, maquette docs/MAQUETTE_SENS_DES_FORMES_2026-10-20.html) : 0 = la forme d'origine, 1 = l'autre sens, 2 = le bord du haut (double vague et creneaux seulement). L'ancienne forme « diagonaleInv » est le sens 1 de « diagonale » :
+  // les choix deja enregistres continuent de fonctionner.
+  var bandeauSens = Math.max(0, Math.min(2, parseInt(opts.bordBandeauSens, 10) || 0));
+  if (bordBandeau === 'diagonaleInv') { bordBandeau = 'diagonale'; bandeauSens = 1; }
+  if (!/^(vague2|creneaux|arrondi)$/.test(bordBandeau)) { bandeauSens = Math.min(bandeauSens, 1); }   // arrondi : 0 en bas, 1 en haut, 2 en haut et en bas
+  if (/^(carte|pilule|contour|contourRond|filets|droit|vallonne)$/.test(bordBandeau)) { bandeauSens = 0; }
+  var bandeauDecoupe = /^(diagonale|diagonaleInv|coin|demiovale|vague2|creneaux)$/.test(bordBandeau);
+  var bandeauDetache = /^(carte|pilule|ruban|rubanCourt)$/.test(bordBandeau);
+  var bandeauVide = /^(contour|contourRond|filets)$/.test(bordBandeau);
+  var enteteVague = bordBandeau ? (bordBandeau === 'vallonne' || bordBandeau === 'pointe' || bandeauDecoupe || bandeauDetache || bandeauVide) : !!opts.enteteVague;
   var nomVert = !!opts.nomVertical;
-  var colVague = !!opts.colonneVague && deux && (fond === 'gauche' || fond === 'droite');
+  // COLONNE DESSINEE pleine hauteur (etape 4.2, 2026-10-21, maquette docs/MAQUETTE_COLONNES_TOUS_MODELES_2026-10-21.html) : tout CV a DEUX colonnes dont une colonne est coloree (fond a gauche ou a droite, effet « fond plein »)
+  // a sa colonne dessinee comme sur « Colonne foncee » (les recettes de Colonne foncee et des modeles voisins ecrivent `colonneVague` d'office), ce qui ouvre le bord, les formes et les sens de colonne a TOUS les modeles, Standard et Sobre compris.
+  // Hors de ce mecanisme : les structures propres (frise, photo, rectangles, chrono, lateral) et l'effet « titres seulement » (pas de fond plein).
+  var colonneAuto = !opts.colonneVague && !effetTitres && ['frise', 'sobre-frise', 'photo', 'sobre-photo', 'rectangles', 'sobre-rectangles', 'sobre-chrono', 'chrono-fonce', 'lateral'].indexOf(gabarit) === -1;
+  var colVague = (!!opts.colonneVague || colonneAuto) && deux && (fond === 'gauche' || fond === 'droite');
   var colVagueDroite = colVague && (fond === 'gauche' ? inversees : !inversees);
   var colVagueMm = 0;
   // Largeur du FOND de la colonne : 1,9 mm de moins que la zone reservee a la colonne, pour laisser de l'air entre le fond et le texte de l'autre colonne (retour de Denis, 2026-10-11 : texte colle au fond, 1 px d'air).
   // Tout le reste de la mise en page garde colVagueMm : seule la couleur de fond rentre un peu.
   var colFondRentre = 1.9;
-  // « Colonne claire » en CARTE (option du modele, colonneCarte) : le fond de la colonne devient une carte detachee de la page, aux coins arrondis, avec un filet de la couleur d'accent ; la page reste blanche.
-  var colonneCarte = !!opts.colonneCarte && !!opts.colonneVague;
+  // « Colonne claire » : sa colonne en CARTE est, depuis l'etape 4.2, la forme « Carte flottante » (reglage `colonneForme`, valeur de depart de la recette) : plus de mecanisme a part, toutes les autres formes sont derriere.
   if (colVague) {
     var largInterieure = 210 - 2 * marge, partGauche = largeurGauche / 100;
     colVagueMm = Math.round((marge + ((fond === 'gauche') ? partGauche * largInterieure : largInterieure * (1 - partGauche) - 4.2) + 4) * 10) / 10;
   }
   var r2 = function (v) { return Math.round(v * 100) / 100; };
   var polyHaut = '', polyColG = '', polyColD = '';
-  if (enteteVague) {
+  var bandeauAvant = '';   // reglages propres au pseudo-element des formes detachees et vides (position, rayon, trait)
+  if (enteteVague && bordBandeau === 'pointe') {
+    polyHaut = bandeauSens ? 'polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%)' : 'polygon(0 0, 100% 0, 100% 74%, 50% 100%, 0 74%)';
+  } else if (enteteVague && bandeauDecoupe) {
+    if (bordBandeau === 'diagonale') { polyHaut = bandeauSens ? 'polygon(0 0, 100% 0, 100% 100%, 0 74%)' : 'polygon(0 0, 100% 0, 100% 74%, 0 100%)'; }
+    else if (bordBandeau === 'coin') { polyHaut = bandeauSens ? 'polygon(0 0, 100% 0, 100% 74%, 86% 100%, 0 100%)' : 'polygon(0 0, 100% 0, 100% 100%, 14% 100%, 0 74%)'; }
+    else if (bordBandeau === 'demiovale') {
+      // Deux grands coins elliptiques en bas (rayon vertical 36 % de la hauteur : le texte du haut ne sort jamais de la forme)
+      var po = ['0 0', '100% 0'];
+      for (var io = 0; io <= 40; io++) { var xo = 100 - io / 40 * 100, ko = 1 - Math.pow((xo - 50) / 50, 2); po.push(r2(xo) + '% ' + r2(bandeauSens ? 100 - 36 * Math.sqrt(Math.max(0, ko)) : 64 + 36 * Math.sqrt(Math.max(0, ko))) + '%'); }   // sens 1 : creuse vers le haut
+      polyHaut = 'polygon(' + po.join(', ') + ')';
+    } else if (bordBandeau === 'vague2') {
+      var pw;
+      if (bandeauSens === 2) {   // bord du HAUT ondule : le haut du bandeau descend un peu sous le haut de la page
+        pw = [];
+        for (var ih = 0; ih <= 6; ih++) { pw.push(r2(ih * 100 / 6) + '% ' + (ih % 2 ? 3 : 9) + '%'); }
+        pw.push('100% 100%'); pw.push('0 100%');
+      } else {
+        pw = ['0 0', '100% 0', '100% ' + (bandeauSens ? 96 : 82) + '%'];
+        for (var iw = 1; iw <= 6; iw++) { pw.push(r2(100 - iw * 100 / 6) + '% ' + ((iw % 2) === (bandeauSens ? 0 : 1) ? 96 : 82) + '%'); }
+      }
+      polyHaut = 'polygon(' + pw.join(', ') + ')';
+    } else {
+      var pc;
+      if (bandeauSens === 2) {   // « chateau » : creneaux sur le bord du HAUT, le bandeau descend un peu sous le haut de la page
+        pc = ['0 100%', '0 9%'];
+        for (var ic2 = 0; ic2 < 12; ic2++) { var xc = r2(ic2 * 100 / 12), xd2 = r2((ic2 + 1) * 100 / 12); pc.push(xc + '% ' + (ic2 % 2 ? 3 : 9) + '%'); pc.push(xd2 + '% ' + (ic2 % 2 ? 3 : 9) + '%'); }
+        pc.push('100% 100%');
+      } else {
+        pc = ['0 0', '100% 0', '100% ' + (bandeauSens ? 100 : 80) + '%'];
+        for (var ik = 0; ik < 12; ik++) { var xa = r2(100 - ik * 100 / 12), xb = r2(100 - (ik + 1) * 100 / 12), niv = bandeauSens ? (ik % 2 ? 100 : 80) : (ik % 2 ? 80 : 100); pc.push(xa + '% ' + niv + '%'); pc.push(xb + '% ' + niv + '%'); }
+      }
+      polyHaut = 'polygon(' + pc.join(', ') + ')';
+    }
+  } else if (enteteVague && bandeauDetache) {
+    polyHaut = bordBandeau === 'ruban' ? (bandeauSens ? 'polygon(0 0, 100% 0, 100% 100%, 10% 100%)' : 'polygon(0 0, 100% 0, 90% 100%, 0 100%)')
+      : (bordBandeau === 'rubanCourt' ? (bandeauSens ? 'polygon(34% 0, 100% 0, 100% 100%, 44% 100%)' : 'polygon(0 0, 66% 0, 56% 100%, 0 100%)') : 'none');
+    if (bordBandeau === 'carte') { bandeauAvant = 'inset: 8px 28px 6px; border-radius: 16px;'; }
+    else if (bordBandeau === 'pilule') { bandeauAvant = 'inset: 8px 22px 6px; border-radius: 60px;'; }
+  } else if (enteteVague && bandeauVide) {
+    polyHaut = 'none';
+    bandeauAvant = 'box-sizing: border-box; background: none !important; ' + (bordBandeau === 'filets' ? 'inset: 6px 0 4px; border-top: 5px solid var(--cv); border-bottom: 2px solid var(--cv);' : 'inset: 8px 24px 6px; border: 3px solid var(--cv);' + (bordBandeau === 'contourRond' ? ' border-radius: 16px;' : ''));
+  } else if (enteteVague) {
     var pv = ['0 0', '100% 0'];
     for (var iv = 36; iv >= 0; iv--) { pv.push(r2(iv / 36 * 100) + '% ' + r2(90 + 10 * Math.sin(iv / 36 * Math.PI * 6)) + '%'); }
     polyHaut = 'polygon(' + pv.join(', ') + ')';
@@ -343,12 +429,20 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     pg.push('0 100%'); pd.push('100% 100%');
     polyColG = 'polygon(' + pg.join(', ') + ')'; polyColD = 'polygon(' + pd.join(', ') + ')';
   }
+  var clipTexte = '';
+  if (bordBandeau && !bandeauVide) {
+    if (bordBandeau === 'droit') { clipTexte = 'inset(0)'; }
+    else if (bordBandeau === 'arrondi') { clipTexte = 'inset(0 round ' + (bandeauSens === 2 ? '26px' : (bandeauSens === 1 ? '26px 26px 0 0' : '0 0 26px 26px')) + ')'; }
+    else if (bordBandeau === 'carte') { clipTexte = 'inset(8px 28px 6px round 16px)'; }
+    else if (bordBandeau === 'pilule') { clipTexte = 'inset(8px 22px 6px round 60px)'; }
+    else if (polyHaut && polyHaut !== 'none') { clipTexte = polyHaut; }
+  }
   var competencesEncadrees = !!opts.blocsCompetencesEncadres;
   function encadre(html) { return (competencesEncadrees && html) ? '<div class="bloc-encadre">' + html + '</div>' : html; }
   // Petits reglages de titres (plan 2026-10-07, exemples 1, 6, 14, 17) : « Filet prolonge » (un filet fin continue le titre jusqu'au bout de la ligne) et « Souligne court »
   // (une courte barre sous le titre). Choix de la personne (styleTitres = 'filet' ou 'court'), jamais d'office ; sans lui le titre est inchange. Un VRAI element (pas un
   // pseudo-element) que l'export Word lit comme un petit rectangle ; ignore par les constructions propres (Frise, Photo, Rectangles).
-  var titresFilet = ((opts.styleTitres === 'filet' || opts.styleTitres === 'court') && ['frise', 'photo', 'sobre-photo', 'rectangles', 'sobre-rectangles'].indexOf(gabarit) === -1) ? opts.styleTitres : '';
+  var titresFilet = ((opts.styleTitres === 'filet' || opts.styleTitres === 'court') && ['frise', 'sobre-frise', 'photo', 'sobre-photo', 'rectangles', 'sobre-rectangles'].indexOf(gabarit) === -1) ? opts.styleTitres : '';
   function titreH2(texte, cle) {
     var h2 = _pdfMqTitreH2(texte, cle, titresPastille ? (_PDF_MQ_ICONES_RUBRIQUES[texte] || '') : '');
     return titresFilet ? h2.replace(/<\/h2>$/, '<span class="filet-' + titresFilet + '"></span></h2>') : h2;
@@ -393,7 +487,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   // des experiences, y compris celle d'origine du modele (retour Denis 2026-09-30 : les dates des formations n'etaient pas du tout placees comme
   // celles des experiences tant que la personne n'avait rien choisi). Decochee sans position propre : placement d'origine du modele.
   // « Juste apres le titre » (reglage Dates) n'existe pas dans les modeles a disposition propre (photo, rectangles, frise) : ils gardent leur placement.
-  var gabaritDatesPropre = ['photo', 'sobre-photo', 'rectangles', 'sobre-rectangles', 'sobre-chrono', 'chrono-fonce', 'frise'].indexOf(gabarit) !== -1;
+  var gabaritDatesPropre = ['photo', 'sobre-photo', 'rectangles', 'sobre-rectangles', 'sobre-chrono', 'chrono-fonce', 'frise', 'sobre-frise'].indexOf(gabarit) !== -1;
   if (positionDates === 'apres' && gabaritDatesPropre) { positionDates = 'droite'; }
   // Adaptation des dates (decision de Denis, 2026-10-04) : une rubrique placee avec une autre sur la MEME ligne (Formations et Certifications cote a cote, Logiciels a droite des
   // Formations, lignes composees dans l'ordre personnalise) ecrit sa date juste apres le titre, entre parentheses, pour tenir sur sa moitie de ligne. Un choix fait a la main
@@ -464,7 +558,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   // Forme des puces (retour Denis 2026-10-02) : UN seul choix pour toutes les listes a puces du CV (missions epurees des experiences, des formations, de l'experience
   // personnelle, listes de competences). Valeurs natives (rond = disque, carre = carre) ou signe ecrit ; le Word lit la meme valeur (wordExtracteur.js). Les modeles qui
   // dessinent leurs propres puces (Rectangles, Photo) gardent les leurs.
-  var _FORMES_PUCES = { carre: 'square', triangle: '"\u25B8 "', losange: '"\u25C6 "', tiret: '"\u2013 "' };
+  var _FORMES_PUCES = { carre: 'square', triangle: '"\u25B8 "', losange: '"\u25C6 "', tiret: '"\u2013 "', creux: 'circle' };
   // Forme de puce rubrique par rubrique (retour Denis 2026-10-03, case « Mêmes puces partout » décochée) : opts.formesPuces = { exp, form, perso, comp } ; sans lui, UNE forme pour tout le CV (opts.formePuce).
   // Le Word lit le list-style-type de chaque ligne : il reprend donc ces formes sans rien de plus.
   var _formesRub = (opts.formesPuces && typeof opts.formesPuces === 'object') ? opts.formesPuces : null;
@@ -626,7 +720,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   // Signe entre les competences en style « Texte » a la suite (opts.separateurCompetences.pro / .comp) et forme des puces en colonnes (opts.formePuce, un seul choix pour toutes les
   // listes). Variables CSS posees sur le conteneur : sans choix, aucune variable, le rendu d'avant (rond) est inchange.
   var _SIGNES_COMP = { median: ' \u00b7 ', carre: ' \u25a0 ', losange: ' \u25c6 ', barre: ' | ' };
-  var _PUCES_TXT = { carre: '\u25aa ', triangle: '\u25b8 ', losange: '\u25c6 ', tiret: '\u2013 ' };
+  var _PUCES_TXT = { carre: '\u25aa ', triangle: '\u25b8 ', losange: '\u25c6 ', tiret: '\u2013 ', creux: '◦ ' };
   function pillsSelonDisposition(liste, dispo, nom) {
     var texte = pillDe(nom) === 'texte', explicite = !!dispoCompChoisie[nom];
     var puce = (texte && explicite && _PUCES_TXT[_formePuceRub('comp')]) ? ' style="--puce:\'' + _PUCES_TXT[_formePuceRub('comp')] + '\'"' : '';
@@ -1151,8 +1245,12 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 
   // ---------- assemblage (composer() de la maquette) ----------
   var g = gabarit;
-  var entetePale = (g === 'sobre-bandeau');
-  var enteteFond = (g !== 'frise') && ((g === 'bandeau' || g === 'diagonale') || (bandeauCouleur && !entetePale));
+  var friseFam = (g === 'frise' || g === 'sobre-frise');   // « Colonne et frise » et sa version Sobre (etape 7, 2026-10-21) : meme construction, la Sobre sans coins colores et avec le nom dans un bandeau
+  // BANDEAU SOBRE DOUX (etape suivante de 4.3, maquette validee par Denis le 2026-10-21) : en mode Sobre, tout bandeau est d'abord une TEINTE CLAIRE de la couleur du CV (texte sombre, filet), comme le modele « Bandeau pale » ;
+  // la personne peut passer a la couleur PLEINE (reglage `bandeauTeinte`, rangee « Teinte » du panneau Bandeau). Hors Sobre, rien ne change.
+  var teintePleine = allure === 'sobre' && opts.bandeauTeinte === 'pleine' && g !== 'sobre-rectangles';   // Sobre rectangles : teinte douce seulement (ses rectangles sont des contours de la couleur du CV)
+  var entetePale = allure === 'sobre' && !teintePleine && (g === 'sobre-bandeau' || bandeauCouleur);
+  var enteteFond = !friseFam && ((g === 'bandeau' || g === 'diagonale') || ((bandeauCouleur || (teintePleine && g === 'sobre-bandeau')) && !entetePale));
   var pad = marge + 'mm';
   var classes = ['page-a4', 'cv'];
   if (allure === 'sobre') { classes.push('sobre'); }
@@ -1170,10 +1268,93 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   if (filetHaut) { classes.push('filet'); }
   if (cadrePage) { classes.push('cadre-page'); }
   if (colVague) { classes.push(colVagueDroite ? 'col-vague-d' : 'col-vague-g'); }
-  // Le panneau propose « Bord de la colonne : droit ou vallonne » seulement aux modeles Creatif a colonne coloree (jamais a la carte, dont le bord est arrondi d'office).
-  if (colVague && !colonneCarte && opts.creatifActif) { classes.push('bord-choix'); }
+  // Le CV affiche a DEUX colonnes (coloree ou non) : l'onglet « Colonne » de l'apercu suit ce nombre reel de colonnes, pas seulement le modele (regle 2 de Denis, 2026-10-21).
+  if (deux) { classes.push('deux-col'); }
+  // Le panneau propose « Bord de la colonne : droit ou vallonne » a tout CV a deux colonnes dont une colonne est coloree (etape 4.2 : Standard et Sobre compris ; la carte de « Colonne claire » est une forme comme les autres).
+  if (colVague) { classes.push('bord-choix'); }
+  // ARCHE (2026-10-20, Denis, exemple 2) : le haut de la colonne coloree est une arche (demi-cercle) et l'en-tete du nom (photo, coordonnees) se range dedans. Impossible quand l'en-tete est un bandeau colore
+  // (il cache le haut de la colonne) : le bandeau gagne, la colonne garde son bord. Le panneau ne propose pas l'arche dans ces cas.
+  var colSens = Math.max(0, Math.min(2, parseInt(opts.colonneSens, 10) || 0));   // sens de la forme de la colonne (maquette docs/MAQUETTE_SENS_DES_FORMES_2026-10-20.html) : 0 = d'origine
+  var archeColonne = !!opts.colonneArche && colVague && !enteteFond;
+  if (archeColonne) {
+    classes.push('col-arche'); if (colSens === 1) { classes.push('col-arche-bas'); }
+    var largArche = r2(colVagueMm - colFondRentre), rayonArche = r2(largArche / 2), hautArche = 12, parche = [];
+    for (var ia = 0; ia <= 48; ia++) {
+      var ang = Math.PI - ia / 48 * Math.PI;
+      parche.push(r2(rayonArche * (1 + Math.cos(ang))) + 'mm ' + r2(hautArche + rayonArche - rayonArche * Math.sin(ang)) + 'mm');
+    }
+    parche.push(largArche + 'mm 100%'); parche.push('0 100%');
+    polyColG = 'polygon(' + parche.join(', ') + ')'; polyColD = polyColG;
+    if (colSens === 1) {   // arche EN BAS : la colonne descend droite puis se termine en demi-cercle
+      var pab = ['0 0', largArche + 'mm 0'];
+      for (var ib = 0; ib <= 48; ib++) { var angb = ib / 48 * Math.PI; pab.push(r2(rayonArche * (1 + Math.cos(angb))) + 'mm calc(100% - ' + r2(hautArche + rayonArche - rayonArche * Math.sin(angb)) + 'mm)'); }
+      polyColG = 'polygon(' + pab.join(', ') + ')'; polyColD = polyColG;
+    }
+  }
+  // FORMES DE COLONNE (2026-10-20, Denis) : onze formes de plus, sur le meme principe que l'arche (la forme se dessine dans `clip-path` ou dans le cadre du pseudo-element de fond). Regle de securite : le TEXTE ne sort jamais de la couleur,
+  // donc une forme qui mord sur le bord interieur ajoute un retrait au texte de la colonne (`colPad`, en mm), et les formes de haut et de bas restent dans la marge de la page (10 mm).
+  //   decoupees : diagonale, pointeBas, coin, demiovale, vague2, creneaux ; detachees : carte, pilule ; vides (trait de la couleur du CV, texte fonce) : contour, contourRond, filets.
+  var colForme = (opts.colonneForme && /^(diagonale|pointeBas|coin|demiovale|vague2|creneaux|carte|pilule|contour|contourRond|filets)$/.test(opts.colonneForme)) ? opts.colonneForme : '';
+  // Formes internes des SENS (sens 1 ou 2) : pointe vers le haut, diagonale etroite en haut, coin du haut, creneaux et vagues sur le bord EXTERIEUR (tout pres du bord de la page, entre 0 et 9 mm : le texte, qui commence a 10 mm, reste dans la couleur).
+  var colFormeSens = '';
+  if (colVague && !archeColonne && colSens >= 1) {
+    if (colForme === 'pointeBas') { colFormeSens = 'pointeHaut'; } else if (colForme === 'diagonale') { colFormeSens = 'diagonaleHaut'; } else if (colForme === 'coin') { colFormeSens = 'coinHaut'; }
+    else if (colForme === 'creneaux') { colFormeSens = 'creneauxExt'; }
+    else if (!colForme && !opts.colonneBordDroit) { colFormeSens = (colSens === 1) ? 'vallonneExt' : 'vallonneDeux'; }
+  }
+  var cf = colFormeSens || colForme;
+  var colFormeActive = !!cf && colVague && !archeColonne;
+  var colPad = 0, colAvant = '', colVide = false;
+  if (colFormeActive) {
+    classes.push('col-forme');
+    var xg = function (frac, mm) { return 'calc(' + r2(frac * 100) + '% ' + (mm < 0 ? '- ' : '+ ') + r2(Math.abs(mm)) + 'mm)'; };       // colonne a gauche : x mesure depuis le bord de page
+    var xd = function (frac, mm) { return 'calc(' + r2(100 - frac * 100) + '% ' + (mm < 0 ? '+ ' : '- ') + r2(Math.abs(mm)) + 'mm)'; };   // colonne a droite : meme forme retournee
+    var bas = function (mm) { return mm ? 'calc(100% - ' + mm + 'mm)' : '100%'; };
+    var pts = null;   // [fraction de la largeur, decalage en mm, y] ; fraction 1 = bord interieur
+    if (cf === 'diagonale') { colPad = 8; pts = [[0, 0, '0'], [1, 0, '0'], [1, -8, '100%'], [0, 0, '100%']]; }
+    else if (cf === 'pointeBas') { pts = [[0, 0, '0'], [1, 0, '0'], [1, 0, bas(12)], [0.5, 0, '100%'], [0, 0, bas(12)]]; }
+    else if (cf === 'coin') { pts = [[0, 0, '0'], [1, 0, '0'], [1, 0, bas(12)], [1, -16, '100%'], [0, 0, '100%']]; }
+    else if (cf === 'demiovale') {
+      pts = [[0, 0, '0']];
+      var rx = 16, ry = 11, nO = 14, ko;
+      for (ko = 0; ko <= nO; ko++) { var ph = Math.PI / 2 - ko / nO * Math.PI / 2; pts.push([1, -r2(rx * (1 - Math.cos(ph))), r2(ry * (1 - Math.sin(ph))) + 'mm']); }
+      for (ko = 0; ko <= nO; ko++) { var ph2 = ko / nO * Math.PI / 2; pts.push([1, -r2(rx * (1 - Math.cos(ph2))), bas(r2(ry * (1 - Math.sin(ph2))))]); }
+      pts.push([0, 0, '100%']);
+    }
+    else if (cf === 'vague2') {
+      colPad = 3.5; pts = [[0, 0, '0'], [1, 0, '0']];
+      for (var iz = 1; iz <= 18; iz++) { pts.push([1, (iz % 2) ? -3.5 : 0, r2(iz * 100 / 18) + '%']); }
+      pts.push([0, 0, '100%']);
+    }
+    else if (cf === 'creneaux') {
+      colPad = 3.5; pts = [[0, 0, '0']];
+      for (var ir = 0; ir < 12; ir++) { var dd = (ir % 2) ? -3.5 : 0; pts.push([1, dd, r2(ir * 100 / 12) + '%']); pts.push([1, dd, r2((ir + 1) * 100 / 12) + '%']); }
+      pts.push([0, 0, '100%']);
+    }
+    else if (cf === 'pointeHaut') { pts = [[0, 0, '12mm'], [0.5, 0, '0'], [1, 0, '12mm'], [1, 0, '100%'], [0, 0, '100%']]; }
+    else if (cf === 'diagonaleHaut') { colPad = 8; pts = [[0, 0, '0'], [1, -8, '0'], [1, 0, '100%'], [0, 0, '100%']]; }
+    else if (cf === 'coinHaut') { pts = [[0, 0, '0'], [1, -16, '0'], [1, 0, '12mm'], [1, 0, '100%'], [0, 0, '100%']]; }
+    else if (cf === 'vallonneExt' || cf === 'vallonneDeux') {
+      pts = [];
+      if (cf === 'vallonneDeux') { for (var ivi = 0; ivi <= 60; ivi++) { pts.push([1, -r2(1.5 - 1.5 * Math.sin(ivi / 60 * Math.PI * 6)), r2(ivi / 60 * 100) + '%']); } }
+      else { pts.push([1, 0, '0']); pts.push([1, 0, '100%']); }
+      for (var ivo = 60; ivo >= 0; ivo--) { pts.push([0, r2(2.6 + 2.3 * Math.sin(ivo / 60 * Math.PI * 6)), r2(ivo / 60 * 100) + '%']); }
+    }
+    else if (cf === 'creneauxExt') {
+      pts = [[1, 0, '0'], [1, 0, '100%']];
+      for (var ice = 11; ice >= 0; ice--) { var nv = (ice % 2) ? 0 : 2.6; pts.push([0, nv, r2((ice + 1) * 100 / 12) + '%']); pts.push([0, nv, r2(ice * 100 / 12) + '%']); }
+    }
+    else if (cf === 'carte') { colPad = 1.5; colAvant = 'top: 6mm; bottom: 6mm; box-sizing: border-box; border-radius: 6mm; box-shadow: 0 1px 5px rgba(0,0,0,.16); border-%COTE%: 1.2mm solid var(--cv);'; }   // carte detachee de la page, filet de la couleur d accent sur le bord interieur (look de « Colonne claire »)
+    else if (cf === 'pilule') { colPad = 4; colAvant = 'top: 5mm; bottom: 5mm; box-sizing: border-box; border-radius: 14mm;'; }
+    else if (cf === 'filets') { colVide = true; colPad = 3; colAvant = 'box-sizing: border-box; background: none !important; border-%COTE%: 2mm double var(--cv);'; }
+    else { colVide = true; colPad = cf === 'contour' ? 3 : 4; colAvant = 'top: 6mm; bottom: 6mm; box-sizing: border-box; background: none !important; border: 0.9mm solid var(--cv);' + (cf === 'contourRond' ? ' border-radius: 6mm;' : ''); }
+    if (pts) {
+      polyColG = 'polygon(' + pts.map(function (q) { return xg(q[0], q[1]) + ' ' + q[2]; }).join(', ') + ')';
+      polyColD = 'polygon(' + pts.map(function (q) { return xd(q[0], q[1]) + ' ' + q[2]; }).join(', ') + ')';
+    } else { polyColG = polyColD = 'none'; }
+    if (colVide) { classes.push('col-vide'); }
+  }
   // Meme idee pour le bandeau d'en-tete : le panneau propose « Bord du bandeau » aux modeles Creatif qui le declarent.
-  if (bordBandeau && enteteFond && opts.creatifActif) { classes.push('bord-bandeau-choix'); }
   if (nomVert) { classes.push('nom-vert'); }
   if (chrono) { classes.push('chrono'); }
   // Coin colore en haut a gauche (plan 2026-10-07, exemples 6 et 11) : un triangle en teinte claire de la couleur du CV (le texte sombre reste lisible dessus), au-dessus des fonds mais SANS cacher le texte (z-index positif, que l'export Word sait ordonner comme le coin de la Frise ; mélange « multiplier » : le texte reste lisible a l'ecran ; aucun clic capte). Choix de la personne, jamais d'office. Sans effet (aucun element) quand le coin est deja pris : en-tete en bandeau colore, ou colonne FONCEE a gauche pleine hauteur.
@@ -1191,7 +1372,17 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   if (!(petitsCarres && !iconesCoord)) { classes.push('sans-icoc'); }
   // Lot 4 : photo « medaillon » (ronde, a cheval sur le bord bas du bandeau) et photo en losange.
   var photoMed = !!(opts.photoMedaillon && photoUrl && enteteFond);
-  var teteCls = 'tete' + (enteteFond ? ' tete-fond' : '') + (g === 'diagonale' ? ' tete-diag' : '') + ((enteteFond && enteteVague) ? ' tete-vague' : '') + (entetePale ? ' tete-pale' : '') + ((g === 'cadre' || enteteCentree) ? ' tete-centree' : '') +
+  // Formes du bandeau sur TOUS les modeles a bandeau colore ordinaire (Standard et Sobre compris, audit docs/AUDIT_FORMES_SUR_TOUS_LES_MODELES_2026-10-21.md, etape 4.1) : jamais sur une diagonale, un nom vertical,
+  // une photo en medaillon ni un bandeau pale, qui dessinent deja leur propre bord. Sans choix de la personne (valeur vide), le bord reste celui du modele (arrondi quand les coins le sont).
+  // Etape 4.3 (2026-10-21, maquette validee par Denis) : les modeles a en-tete particulier (diagonales, nom vertical, medaillon) ont AUSSI le bandeau au choix ; leur dessin d'origine reste le point de depart (valeur vide), la forme choisie le remplace.
+  if (entetePale) { classes.push('bandeau-pale'); }
+  if (enteteFond || entetePale) { classes.push('bord-bandeau-choix'); if (!bordBandeau && g === 'diagonale') { classes.push('bandeau-diagonal-origine'); } else if (!bordBandeau && coinsArrondis) { classes.push('bandeau-arrondi-origine'); } }
+  if (!bordBandeau && g === 'diagonale' && enteteFond) { clipTexte = 'polygon(0 0, 100% 0, 100% 74%, 0 100%)'; }
+  // Texte a deux tons, cas de la COLONNE coloree sans bandeau colore : la forme de la colonne (polygone du fond) sert de decoupe au texte blanc de l'en-tete qui en sortirait.
+  var colonneClipTexte = (colVague && !enteteFond && /^polygon\(/.test(colVagueDroite ? polyColD : polyColG)) ? (colVagueDroite ? polyColD : polyColG) : '';
+  // Frise sobre : le nom est dans un bandeau sombre pleine largeur, qui prend les formes de bandeau comme les autres (meme pseudo-element) ; les formes vides (le texte blanc n'y serait plus sur fond sombre) ne sont pas proposees.
+  var frBandeauCls = (g === 'sobre-frise') ? (' tete tete-fond' + (enteteVague ? ' tete-vague' : '') + ((enteteVague && (bordBandeau === 'diagonale' || bordBandeau === 'diagonaleInv' || bordBandeau === 'coin')) ? ' tete-zone76' : '')) : '';
+  var teteCls = 'tete' + (enteteFond ? ' tete-fond' : '') + ((g === 'diagonale' && !bordBandeau) ? ' tete-diag' : '') + (((enteteFond || (entetePale && bordBandeau)) && enteteVague) ? ' tete-vague' : '') + ((enteteFond && enteteVague && bandeauVide) ? ' tete-vide' : '') + ((enteteFond && enteteVague && (bordBandeau === 'diagonale' || bordBandeau === 'diagonaleInv' || bordBandeau === 'coin')) ? ' tete-zone76' : '') + (entetePale ? ' tete-pale' : '') + ((g === 'cadre' || enteteCentree) ? ' tete-centree' : '') +
     (entete2Colonnes ? ' tete-2c' : '') + ((enteteFond && (degradeBandeau === 'aucun' || degradeBandeau === 'uni')) ? ' tete-plat' : '') + ((enteteFond && degradeBandeau === 'clair-fonce') ? ' tete-inv' : '') + (photoMed ? ' tete-med' : '');
   var trait = (enteteFond || entetePale) ? '' : '<div class="trait" style="margin:0 ' + pad + ' 4px' + (allure === 'sobre' ? ';height:2px;background:var(--cv)' : '') + '"></div>';
   var photo = photoUrl ? '<img class="photo-mq' + (anneauPhoto ? ' anneau' : '') + (opts.photoForme === 'losange' ? ' photo-losange' : '') + (photoMed ? ' medaillon' : '') + '" src="' + _pdfEscaperHtml(photoUrl) + '" alt="Photo">' : '';
@@ -1199,7 +1390,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   // Lot I2 (plan 2026-10-07, decision de Denis) : « Informations complementaires » DANS L'EN-TETE, comme des lignes de plus sous les coordonnees (3 lignes au plus ; les suivantes
   // restent dans la rubrique, rien ne se perd). Un seul point d'entree : coordHtml est lu par tous les en-tetes du gabarit principal (coordonnees, bande des coordonnees, bloc libre
   // du plein ecran), et Word lit deja ces lignes. Reglage ETEINT par defaut ; les modeles a disposition propre (Frise, Photo, Rectangles) gardent la rubrique a sa place.
-  if (opts.infosPlace === 'entete' && infosCompAff.length && ['frise', 'photo', 'sobre-photo', 'rectangles', 'sobre-rectangles'].indexOf(gabarit) === -1) {
+  if (opts.infosPlace === 'entete' && infosCompAff.length && ['frise', 'sobre-frise', 'photo', 'sobre-photo', 'rectangles', 'sobre-rectangles'].indexOf(gabarit) === -1) {
     var titreInfosE = _PDF_INTITULES.infos, nbInfosE = Math.min(3, infosCompAff.length);
     var itemsInfosE = infosCompAff.slice(0, nbInfosE).map(function (x, i) { return ed('li:' + titreInfosE + ':' + i, x); });
     coordHtml += (opts.infosPresentation === 'ligne') ? '<div>' + itemsInfosE.join(' \u00b7 ') + '</div>' : itemsInfosE.map(function (h) { return '<div>' + h + '</div>'; }).join('');
@@ -1213,7 +1404,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
   var coordBande = function () { return coordHtml; };
   var blocMetierAccroche = '<div class="metier">' + ed('metier', metier) + '</div>' + (accroche ? '<div class="accroche">' + ed('accroche', accroche) + '</div>' : '');
   var tete;
-  var posE = ent.pos || {}, largE = ent.larg || {}, echE = ent.ech || {}, styE = ent.sty || {};
+  var posE = ent.pos || {}, largE = ent.larg || {}, echE = ent.ech || {}, styE = ent.sty || {}, ligE = ent.lig || {};   // ligE : nom, metier, coord sur 1 ou 2 lignes (panneau de l'apercu)
   var styBl = function (bl) {
     var st = styE[bl] || {}, o = '';
     if (st.c) { o += 'color:' + st.c + ';'; }
@@ -1231,7 +1422,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     var d2 = (disp === '2');
     // Coordonnees EN LIGNE sous l'en-tete (decision de Denis, 2026-10-07) : seulement quand la ligne de separation est droite (ni diagonale, ni vague, ni photo en medaillon, ni nom
     // vertical). L'en-tete libre n'affiche alors pas le bloc des coordonnees : elles sont dans la bande qui suit (meme bande que l'en-tete d'origine).
-    var coordEnLigne = !!(coordonneesAPart && g !== 'frise' && g !== 'diagonale' && !(enteteFond && enteteVague) && !photoMed && !nomVert);
+    var coordEnLigne = !!(coordonneesAPart && !friseFam && g !== 'diagonale' && !(enteteFond && enteteVague) && !photoMed && !nomVert);
     var d4 = (disp === '4');   // « decalee » (2026-10-07, maquette de Denis) : nom et coordonnees a gauche, titre en haut sur une ligne et accroche dessous, a droite, en large
     var mpx = Math.round(marge * 3.78), mx = Math.round(mpx / 794 * 1000) / 10;
     var r1 = function (v) { return Math.round(v * 10) / 10; };
@@ -1242,8 +1433,11 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     var gaucheW4 = 30, droiteX4 = r1(xt + gaucheW4 + 3);
     // Modeles a colonne coloree a gauche : le nom et les coordonnees restent dans la colonne, le titre commence apres elle (meme repere que la disposition 3 colonnes).
     if (colVague && !colVagueDroite) { gaucheW4 = r1(Math.max(12, colVagueMm / 210 * 100 - xt - 1.5)); droiteX4 = r1(colVagueMm / 210 * 100 + 1.5); }
-    var defs4 = { nom: { x: xt, y: mpx, w: gaucheW4 }, coord: { x: xt, y: mpx + 36, w: gaucheW4 }, metier: { x: droiteX4, y: mpx, w: r1(100 - mx - droiteX4) }, accroche: { x: droiteX4, y: mpx + 60, w: r1(100 - mx - droiteX4) } };
-    var defs = d4 ? defs4 : (g === 'frise') ? { nom: { x: 31, y: 0, w: 48 }, coord: { x: 31, y: 34, w: 41 }, metier: { x: 31, y: 122, w: 55 }, accroche: { x: 31, y: 154, w: 59 } } : {
+    // Modeles a colonne coloree a DROITE : le titre et l'accroche s'arretent AVANT la colonne (sinon le titre, de la couleur de la colonne, disparaissait dessus : « AGENTE ET DE SE... » ; defaut vu le 2026-10-22).
+    var largeurD4 = r1(100 - mx - droiteX4);
+    if (colVague && colVagueDroite) { largeurD4 = r1(Math.max(12, (100 - colVagueMm / 210 * 100) - droiteX4 - 1.5)); }
+    var defs4 = { nom: { x: xt, y: mpx, w: gaucheW4 }, coord: { x: xt, y: mpx + 36, w: gaucheW4 }, metier: { x: droiteX4, y: mpx, w: largeurD4 }, accroche: { x: droiteX4, y: mpx + 60, w: largeurD4 } };
+    var defs = d4 ? defs4 : (g === 'sobre-frise') ? { nom: { x: 34.3, y: 12, w: 36 }, coord: { x: 71, y: 12, w: 26 }, metier: { x: 34.3, y: 52, w: 36 }, accroche: { x: 34.3, y: 84, w: 62 } } : friseFam ? { nom: { x: 31, y: 0, w: 48 }, coord: { x: 31, y: 34, w: 41 }, metier: { x: 31, y: 122, w: 55 }, accroche: { x: 31, y: 154, w: 59 } } : {
       nom: { x: xt, y: mpx, w: r1(Math.min(30, 35 - xt)) },
       coord: { x: xt, y: mpx + 30, w: r1(Math.min(30, 35 - xt)) },
       metier: d2 ? { x: 55, y: mpx, w: r1(Math.min(40, 100 - mx - 55)) } : { x: xm3, y: mpx + 6, w: r1(Math.min(25, 61.5 - xm3)) },
@@ -1251,21 +1445,23 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     };
     var blc = function (bl, inner) {
       var d = defs[bl], pp = posE[bl] || d, w = largE[bl] || d.w;
+      // Coordonnees sur une ou deux lignes sans largeur reglee : le bloc prend la place disponible a droite de son bord gauche (la personne l'ajuste ensuite).
+      if (bl === 'coord' && !largE.coord && (ligE.coord === '1' || ligE.coord === '2')) { w = r1(Math.max(d.w, (ligE.coord === '1' ? 100 - mx - pp.x : Math.min(100 - mx - pp.x, 46)))); }
       return '<div class="blc" data-bl="' + bl + '" style="left:' + pp.x + '%;top:' + pp.y + 'px;width:' + w + '%;--k:' + (echE[bl] || 1) + '">' + inner +
         '<span class="poi-l" title="Tirer pour élargir ou rétrécir : la phrase passe sur plus ou moins de lignes"></span></div>';
     };
-    var haut = ent.haut || (d4 ? (g === 'diagonale' ? 225 : (g === 'frise' ? 150 : 110)) : ((g === 'frise') ? (235 + (accroche ? 0 : -80)) : ((g === 'diagonale' ? 225 : 172) + (d2 ? 32 : 0))));
-    tete = '<div class="' + teteCls + ' libre' + (g === 'frise' ? ' large' : '') + '" style="height:' + haut + 'px" data-h0="' + haut + '" data-disp="' + disp + '" data-posc="' + (posE.coord ? 1 : 0) + '" data-posa="' + (posE.accroche ? 1 : 0) + '" data-hfixe="' + (ent.haut ? 1 : 0) + '">' +
+    var haut = ent.haut || (d4 ? (g === 'diagonale' ? 225 : (friseFam ? 150 : 110)) : (g === 'sobre-frise' ? (accroche ? 122 : 100) : friseFam ? (235 + (accroche ? 0 : -80)) : ((g === 'diagonale' ? 225 : 172) + (d2 ? 32 : 0))));
+    tete = '<div class="' + teteCls + ' libre' + (friseFam ? ' large' : '') + (g === 'sobre-frise' ? ' fr-bandeau' + frBandeauCls : '') + '" style="height:' + haut + 'px" data-h0="' + haut + '" data-disp="' + disp + '" data-posc="' + (posE.coord ? 1 : 0) + '" data-posa="' + (posE.accroche ? 1 : 0) + '" data-hfixe="' + (ent.haut ? 1 : 0) + '">' +
       (photoMed ? photo : '') + blc('nom', (function () {
-        var nomDiv = '<div class="nom" style="' + styBl('nom') + '">' + (nomVert ? '' : ed('nom', nomComplet)) + '</div>';
-        if (g === 'frise' || photoMed) { return nomDiv; }
+        var nomDiv = '<div class="nom" style="' + styBl('nom') + '">' + (nomVert ? '' : ed('nom', nomComplet, ligE.nom === '2' ? function (x) { return _pdfMqDeuxLignes(x, identite.prenom); } : undefined)) + '</div>';
+        if (friseFam || photoMed) { return nomDiv; }
         // Disposition decalee : le nom d'abord, puis la photo dessous, puis les coordonnees (ordre voulu par Denis, 2026-10-07)
         return d4 ? nomDiv + photo : photo + nomDiv;
       })()) +
-      (coordEnLigne ? '' : blc('coord', '<div class="coord" style="' + styBl('coord') + '">' + coordHtml + '</div>')) +
-      blc('metier', '<div class="metier" style="' + styBl('metier') + '">' + ed('metier', metier) + '</div>') +
+      (coordEnLigne ? '' : blc('coord', '<div class="coord" style="' + styBl('coord') + '">' + _pdfMqCoordonneesMise(coordHtml, ligE.coord, !!opts.iconesCoordonnees) + '</div>')) +
+      blc('metier', '<div class="metier" style="' + styBl('metier') + '">' + ed('metier', metier, ligE.metier === '2' ? function (x) { return _pdfMqDeuxLignes(x, ''); } : undefined) + '</div>') +
       (accroche ? blc('accroche', '<div class="accroche" style="' + styBl('accroche') + '">' + ed('accroche', accroche) + '</div>') : '') +
-      '<span class="poi-h" title="Tirer pour changer la hauteur de l’en-tête"></span></div>' + (g === 'frise' ? '' : trait +
+      '<span class="poi-h" title="Tirer pour changer la hauteur de l’en-tête"></span></div>' + (friseFam ? '' : trait +
       (coordEnLigne ? '<div class="bande-coord" style="margin:0 ' + pad + '">' + coordBande().replace(/<div>/g, '<span>').replace(/<\/div>/g, '</span>') + '</div>' : '') +
       (bandeauCles ? '<div class="bande-cles" style="margin:6px ' + pad + ' 0">' + pills(competencesCles) + '</div>' : ''));
   } else if (technique) {
@@ -1345,7 +1541,10 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     var hautBlE = ent.hautBl || {};
     var defsB = { b1: { x: 0, y: 0, w: 62 }, b2: { x: 48, y: 28, w: 52 }, b3: { x: 12, y: 0, w: 66 } };
     var hautR = ent.haut || (accroche ? 150 : 110);
-    var teteR = '<div class="tete libre rc-tete" style="height:' + hautR + 'px" data-h0="' + hautR + '" data-disp="2" data-posc="' + (posE.coord ? 1 : 0) + '" data-posa="' + (posE.accroche ? 1 : 0) + '" data-hfixe="' + (ent.haut ? 1 : 0) + '">' +
+    // Bandeau doux derriere l'en-tete de Sobre rectangles (etape 4.4, famille 3) : la teinte et la forme sont dessinees par un pseudo-element qui deborde de l'en-tete (jusqu'au bord de la page), la mise en page de l'en-tete ne bouge pas.
+    var rcBandeau = sobreR && entetePale;
+    var rcBandeauCls = rcBandeau ? ' rc-bandeau tete-pale' + (enteteVague ? ' tete-vague' : '') : '';
+    var teteR = '<div class="tete libre rc-tete' + rcBandeauCls + '" style="height:' + hautR + 'px" data-h0="' + hautR + '" data-disp="2" data-posc="' + (posE.coord ? 1 : 0) + '" data-posa="' + (posE.accroche ? 1 : 0) + '" data-hfixe="' + (ent.haut ? 1 : 0) + '">' +
       blcR('nom', '<div class="rc-plein rc-nom" style="width:100%;' + styBl('nom') + '">' + ed('nom', nomComplet) + '</div>') +
       blcR('coord', '<div class="rc-contour rc-coord" style="margin-top:0"><div class="coord" style="' + styBl('coord') + '">' + coordHtml + '</div></div>') +
       blcR('metier', '<div class="rc-plein rc-metier" style="width:100%;' + styBl('metier') + '">' + ed('metier', metier) + '</div>') +
@@ -1447,7 +1646,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       }).join('') + '</div>';
     };
     var corpsR =
-      (enteteLibre ? teteR : (      '<div class="rc-haut">' +
+      (enteteLibre ? teteR : (      '<div class="rc-haut' + rcBandeauCls + '">' +
         '<div class="rc-col"><div class="rc-plein rc-nom"' + attrBl('nom') + '>' + ed('nom', nomComplet) + '</div>' +
         '<div class="rc-contour rc-coord"><div class="coord"' + attrBl('coord') + '>' + coordHtml + '</div></div></div>' +
         '<div class="rc-col rc-col-d"><div class="rc-plein rc-metier"' + attrBl('metier') + '>' + ed('metier', metier) + '</div>' +
@@ -1462,6 +1661,9 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
 '  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }' +
 '  .page-a4.cv { position: relative; width: 210mm; min-height: 297mm; margin: 24px auto; background: #fff; color: #1c2430; box-shadow: 0 2px 10px rgba(0,0,0,.18); font-family: ' + police + '; font-size: ' + tailleTexte.toFixed(2) + 'px; line-height: ' + interligne.toFixed(3) + '; padding: ' + pad + '; }' +
 '  .cv-rect .rc-haut { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px 24px; align-items: start; margin-bottom: 14px; }' +
+(rcBandeau ? '  .cv-rect.sobre { --pale: color-mix(in srgb, var(--cv) 14%, #ffffff); }  .cv-rect.sobre.sobre-couleur { --pale: color-mix(in srgb, var(--cv) 24%, #ffffff); }' +
+  '  .cv-rect .rc-bandeau { position: relative; }  .cv-rect .rc-bandeau > * { position: relative; z-index: 1; }' +
+  '  .cv-rect .rc-bandeau::before { content: ""; position: absolute; z-index: 0; top: -' + pad + '; left: -' + pad + '; right: -' + pad + '; bottom: -10px; background: var(--pale) !important; ' + (enteteVague ? (polyHaut ? 'clip-path: ' + polyHaut + '; ' : '') + bandeauAvant : 'border-bottom: 1px solid var(--cv);') + ' }' : '') +
 '  .cv-rect .rc-plein { background: var(--cv); color: #fff; font-weight: 700; text-align: center; border-radius: 12px; padding: 6px 12px; }' +
 '  .cv-rect .rc-contour { border: 1.5px solid var(--cv); border-radius: 16px; padding: 10px 14px; margin-top: 12px; }' +
 '  .cv-rect .rc-nom { font-size: calc(17px * var(--k, 1) * var(--kh, 1)); width: 78%; }' +
@@ -1549,13 +1751,14 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     var classesR = ['page-a4', 'cv', 'cv-rect'];
     if (sobreR) { classesR.push('sobre'); }
     if (sobreR && opts.sobreCouleurs) { classesR.push('sobre-couleur'); }
+    if (rcBandeau) { classesR.push('bandeau-pale', 'bord-bandeau-choix'); }
     if (opts.titresAgrandis) { classesR.push('agrandir'); }
     if (justifie) { classesR.push('justif'); }
     if (!(petitsCarres && !iconesCoord)) { classesR.push('sans-icoc'); }
-    return { css: cssR + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees), pageHtml: '<div class="' + classesR.join(' ') + '">' + corpsR + '</div>', nomComplet: nomComplet, largeurPage: '210mm', hauteurPage: '297mm' };
+    return { css: cssR + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees) + _pdfCssTypoCommune(opts), pageHtml: '<div class="' + classesR.join(' ') + '">' + corpsR + '</div>', nomComplet: nomComplet, largeurPage: '210mm', hauteurPage: '297mm' };
   }
 
-  if (g === 'frise' || g === 'photo' || g === 'sobre-photo') {
+  if (friseFam || g === 'photo' || g === 'sobre-photo') {
     var sansRetiree = function (l) { return l.filter(function (x) { return retirees.indexOf(x) === -1; }); };
     var ligneFr = function (id, t) { return '<div class="fr-b">' + ed(id, t) + '</div>'; };
     var lignesFr = function (prefixe, liste) { return liste.map(function (x, i) { return ligneFr(prefixe + i, x); }).join(''); };
@@ -1569,8 +1772,9 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       ((contenu.certifications || []).length ? '<h3 data-rub="' + _pdfEscaperHtml(_PDF_INTITULES.certifications) + '">' + _pdfEscaperHtml(_pdfLibelle(_PDF_INTITULES.certifications)) + '</h3>' + lignesFr('li:Certifications:', contenu.certifications) : '') +
       ((contenu.loisirs || []).length ? '<h3 data-rub="' + _pdfEscaperHtml(_PDF_INTITULES.loisirs) + '">' + _pdfEscaperHtml(_pdfLibelle(_PDF_INTITULES.loisirs)) + '</h3>' + lignesFr('li:Centres d’intérêt:', (contenu.loisirs || []).map(_pdfPremiereMajuscule)) : '') +
       (infosCompAff.length ? '<h3 data-rub="' + _pdfEscaperHtml(_PDF_INTITULES.infos) + '">' + _pdfEscaperHtml(_pdfLibelle(_PDF_INTITULES.infos)) + '</h3>' + lignesFr('li:Informations complémentaires:', infosCompAff) : '');
-    var enteteFr = enteteLibre ? tete : ('<div class="fr-nom"' + attrBl('nom') + '>' + ed('nom', nomComplet) + '</div><div class="fr-metier"' + attrBl('metier') + '>' + ed('metier', metier) + '</div>' +
-      (accroche ? '<p class="fr-accroche"' + attrBl('accroche') + '>' + ed('accroche', accroche) + '</p>' : ''));
+    var nomMetierFr = '<div class="fr-nom"' + attrBl('nom') + '>' + ed('nom', nomComplet) + '</div><div class="fr-metier"' + attrBl('metier') + '>' + ed('metier', metier) + '</div>';
+    var accrocheFr = accroche ? '<p class="fr-accroche"' + attrBl('accroche') + '>' + ed('accroche', accroche) + '</p>' : '';
+    var enteteFr = enteteLibre ? tete : ((g === 'sobre-frise') ? ('<div class="fr-bandeau large' + frBandeauCls + '">' + nomMetierFr + '</div>' + accrocheFr) : (nomMetierFr + accrocheFr));
     var parCompFr = parComp;
     var sansMissionsFr = parComp && opts.modePresentation === 'C';
     var lieuFr = function (e) { var l = afficherLieu ? e.lieu : ''; return l ? ' <span class="lieu lieu-' + lieuStyle + '">' + _pdfEscaperHtml(l) + '</span>' : ''; };
@@ -1623,7 +1827,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
     // ---------- « Photo et frise » (modele du CV de Denis, 2026-09-25) : colonne de gauche avec la photo et, juste dessous, le nom ;
     // colonne de droite : titre du CV centre, rubriques a pictogramme, experiences sur une frise (dates a gauche du trait).
     // Existe en Créatif (gabarit « photo ») et en Sobre (« sobre-photo », teinte assombrie). Meme contenu que « Colonne et frise ».
-    if (g !== 'frise') {
+    if (!friseFam) {
       var escPh = _pdfEscaperHtml;
       // TACHE (J4, 2026-09-28) : data-rub ajoute ici, meme raison que barreR() plus haut.
       var phLh = function (cle) { return '<div class="ph-lh" data-rub="' + escPh(cle) + '">' + escPh(_pdfLibelle(cle)) + '</div>'; };
@@ -1763,7 +1967,7 @@ function _pdfConstruireMaquette(objetCV, composition, opts, gabarit) {
       if (g === 'sobre-photo' && opts.sobreCouleurs) { classesPh.push('sobre-couleur'); }
       if (!(petitsCarres && !iconesCoord)) { classesPh.push('sans-icoc'); }
       return {
-        css: cssPh + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees),
+        css: cssPh + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees) + _pdfCssTypoCommune(opts),
         pageHtml: '<div class="' + classesPh.join(' ') + '"><div class="ph-grille"><aside class="ph-lat">' + latPh + '</aside><main class="ph-main">' + mainPh + '</main></div></div>',
         nomComplet: nomComplet, largeurPage: '210mm', hauteurPage: '297mm'
       };
@@ -1860,18 +2064,42 @@ cssPuces +
 '  .cv .poi-l:hover::after, .cv .poi-h:hover::after, .cv .poi-l:active::after, .cv .poi-h:active::after { background: #1f5aa8; }' +
 '  .cv .ctl-exp { position: absolute; right: -2px; top: -3px; display: none; gap: 2px; z-index: 4; }' +
 '  .cv .pill .x, .cv li .x { display: none; }' +
+// FRISE SOBRE (etape 7, 2026-10-21, exemples 5 et 7 de Denis) : fond blanc, une couleur, pas de coins colores, colonne gris clair, nom dans un bandeau sombre pleine largeur (formes de bandeau comme les autres : meme pseudo-element), puces rondes, dates en italique.
+(g === 'sobre-frise' ?
+  '  .cv-frise.frise-sobre { --bn: color-mix(in srgb, var(--cv) 22%, #20262e); }' +
+  '  .frise-sobre .fr-lat { background: #eceef2; padding-top: 112px; }' +
+  '  .frise-sobre .fr-lat h3 { color: #3a4452; }  .frise-sobre .fr-lat .coord, .frise-sobre .fr-lat .fr-b { color: #1f2933; }' +
+  '  .frise-sobre .fr-photo { margin-top: 0; }' +
+  '  .frise-sobre .fr-main { padding-top: 0; }' +
+  (enteteLibre ? '  .frise-sobre.frise-libre .fr-lat { padding-top: 138px; }' : '') +   // en-tete libre : le bandeau est plus haut (et reglable), la photo commence dessous
+  '  .cv-frise.frise-sobre .fr-bandeau.large { width: 210mm; margin-left: calc(-65.1mm - 26px); }' +   // pleine largeur de la page (210 mm), la colonne de droite commençant à 31 % + 26 px de marge
+  '  .frise-sobre .fr-bandeau { position: relative; z-index: 2; background: var(--bn); color: #ffffff; padding: 18px 26px 14px calc(65.1mm + 26px); margin-bottom: 16px; min-height: 90px; }' +
+  '  .frise-sobre .fr-bandeau.libre { padding: 0 !important; margin-bottom: 16px; }' +
+  '  .frise-sobre .fr-bandeau .fr-nom { color: #ffffff; font-size: calc(26px * var(--k, 1) * var(--kh, 1)); font-weight: 600; }' +
+  '  .frise-sobre .fr-bandeau .fr-metier { color: #d6dbe3; margin: 2px 0 0; }' +
+  '  .frise-sobre .fr-bandeau .blc .nom, .frise-sobre .fr-bandeau .blc .coord, .frise-sobre .fr-bandeau .blc .metier, .frise-sobre .fr-bandeau .blc .accroche { color: #ffffff; }' +
+  '  .frise-sobre .fr-bandeau .blc .metier { color: #d6dbe3; }  .frise-sobre .fr-bandeau .blc .accroche { border-left: 0; }' +
+  '  .frise-sobre .fr-bandeau .coord div::before { background: #ffffff; }' +
+  (enteteVague ? '  .frise-sobre .fr-bandeau.tete-vague { background: none; padding-bottom: 34px; }  .frise-sobre .fr-bandeau.tete-vague.libre { padding-bottom: 0 !important; }' +
+    '  .frise-sobre .fr-bandeau.tete-vague::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--bn); ' + (polyHaut ? 'clip-path: ' + polyHaut + '; ' : '') + bandeauAvant + ' }' +
+    '  .frise-sobre .fr-bandeau.tete-vague > :not(.blc):not(.poi-h):not(.poi-l) { position: relative; z-index: 1; }' : '') +
+  (bordBandeau === 'arrondi' ? '  .frise-sobre .fr-bandeau:not(.tete-vague) { border-radius: ' + (bandeauSens === 2 ? '26px' : (bandeauSens === 1 ? '26px 26px 0 0' : '0 0 26px 26px')) + '; }' : '') +
+  '  .frise-sobre .fr-d { font-style: italic; color: #4a5565; }' +
+  '  .frise-sobre .fr-item::before { background: #20262e; }' +
+  '  .frise-sobre .fr-frise { border-left-color: #20262e; }' : '') +
 (eviterTitreSeul ? '  .cv-frise .fr-h { break-after: avoid; }' : '') +
 '  @media print { .page-a4.cv { margin: 0 auto; box-shadow: none; } .cv .fr-item { break-inside: avoid; } .cv .poi-l, .cv .poi-h { display: none !important; } .cv [data-bl] { outline: none !important; background: none !important; } }' +
 '';
     var classesFr = ['page-a4', 'cv', 'cv-frise'];
+    if (g === 'sobre-frise') { classesFr.push('frise-sobre', 'sobre', 'bord-bandeau-choix', 'bandeau-sans-vide'); if (enteteLibre) { classesFr.push('frise-libre'); } }
     if (opts.titresAgrandis) { classesFr.push('agrandir'); }
     if (justifie) { classesFr.push('justif'); }
     if (degr) { classesFr.push('degr'); }
     if (!(petitsCarres && !iconesCoord)) { classesFr.push('sans-icoc'); }
     if (opts.friseFoncee) { classesFr.push('frise-foncee'); }
     return {
-      css: cssFr + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees),
-      pageHtml: '<div class="' + classesFr.join(' ') + '"><div class="fr-coin"></div><div class="fr-coin2"></div><div class="fr-grille"><aside class="fr-lat">' + latFr + '</aside><main class="fr-main">' + mainFr + '</main></div></div>',
+      css: cssFr + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees) + _pdfCssTypoCommune(opts),
+      pageHtml: '<div class="' + classesFr.join(' ') + '">' + (g === 'sobre-frise' ? '' : '<div class="fr-coin"></div><div class="fr-coin2"></div>') + '<div class="fr-grille"><aside class="fr-lat">' + latFr + '</aside><main class="fr-main">' + mainFr + '</main></div></div>',
       nomComplet: nomComplet, largeurPage: '210mm', hauteurPage: '297mm'
     };
   }
@@ -2073,7 +2301,9 @@ cssPuces +
 // Retour de Denis (2026-10-10) : un courriel long ne doit pas laisser le carré seul sur sa ligne ni dépasser de la colonne : il se coupe à la largeur, à côté du carré.
 '  .cv .coord div { overflow-wrap: anywhere; } .cv .coord [data-ed="co:email"] { word-break: break-all; }' +
 '  .cv .metier { font-size: calc(19px * var(--kh, 1)); text-transform: uppercase; color: var(--cv); text-align: center; padding-top: 6px; line-height: 1.15; letter-spacing: .01em; }' +
-'  .cv .accroche { font-style: italic; font-size: calc(11px * var(--kh, 1)); line-height: 1.4; border-left: 2px solid #cbd3dc; padding-left: 12px; }' +
+'  .cv .accroche { font-style: italic; font-size: calc(11px * var(--kh, 1)); line-height: 1.4; }' +
+// Barre verticale a gauche du texte de profil : facultative (retour Denis 2026-10-19), absente par defaut, a la couleur d'accent du CV (decision de Denis, 2026-10-19) ; les modeles qui la retirent d'eux-memes gardent leur regle plus bas.
+(opts.barreProfil === true ? '  .cv .accroche { border-left: 2px solid var(--cv); padding-left: 12px; }' : '') +
 '  .cv .photo-mq { display: block; width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin: 0 0 6px 0; }' +
 '  .cv .trait { height: 4px; background: var(--cv); margin: 0 10mm 4px; border-radius: 2px; }' +
 // Colonne pleine hauteur a bord droit : le trait de l'en-tete ne traverse pas la colonne (visible sur une colonne claire).
@@ -2212,26 +2442,46 @@ cssPuces +
 '  .cv.modele-app .pill.texte { display: inline; }' +
 '  .cv .bloc-encadre { border: 1px solid var(--cv); border-radius: 16px; padding: 2px 10px 8px; margin-top: 10px; }' +
 '  .cv .bloc-encadre h2 { margin-top: 8px; }' +
-((bordBandeau ? (bordBandeau === 'arrondi' || (bordBandeau === 'vallonne' && coinsArrondis)) : coinsArrondis) ? '  .cv .tete-fond:not(.tete-diag):not(.tete-vague) { border-radius: 0 0 26px 26px; }' : '') +
+((bordBandeau ? (bordBandeau === 'arrondi' || (bordBandeau === 'vallonne' && coinsArrondis)) : coinsArrondis) ? '  .cv .tete-fond:not(.tete-diag):not(.tete-vague) { border-radius: ' + (bordBandeau === 'arrondi' ? (bandeauSens === 2 ? '26px' : (bandeauSens === 1 ? '26px 26px 0 0' : '0 0 26px 26px')) : '0 0 26px 26px') + '; }' : '') +
 '  .page-a4.cv.filet { border-top: 6px solid var(--cv); }' +
 '  .page-a4.cv.cadre-page { border: 5px solid var(--cv); }' +
+(enteteMin ? '  .cv .tete-fond:not(.libre) { min-height: ' + enteteMin + 'px; box-sizing: border-box; }' : '') +
 '  .cv .tete-fond.tete-vague { background: none; position: relative; padding-bottom: 34px !important; }' +
 '  .cv .tete-plat.tete-vague, .cv.degr .tete-plat.tete-vague { background: none; }' +
-'  .cv .tete-vague::before { content: ""; position: absolute; inset: 0; background: var(--cv); clip-path: ' + polyHaut + '; z-index: 0; }' +
+'  .cv .tete-vague::before { content: ""; position: absolute; inset: 0; background: var(--cv); clip-path: ' + polyHaut + '; z-index: 0; ' + bandeauAvant + ' }' +
 '  .cv.degr .tete-vague:not(.tete-plat)::before { background: linear-gradient(160deg, var(--cv), var(--cv2)); }' +
 '  .cv .tete-vague > div { position: relative; z-index: 1; }' +
+// Bandeau PALE du Sobre : la forme choisie est dessinee dans la teinte pale (texte sombre, pas de texte a deux tons)
+'  .cv .tete-pale.tete-vague { background: none; position: relative; padding-bottom: 34px !important; border-bottom: 0; }  .cv .tete-pale.tete-vague::before { background: var(--pale) !important; }' +
+(clipTexte ? '  .cv { --clip-bandeau: ' + clipTexte + '; }' : '') +
+(texteHors !== 'aucun' && (clipTexte || colonneClipTexte) ? (
+    (clipTexte ? '  .cv { --clip-bandeau: ' + clipTexte + '; --hors: ' + couleurHors + '; --hors-actif: 1; }' : '') +
+    (colonneClipTexte ? '  .cv { --clip-colonne: ' + colonneClipTexte + '; --hors: ' + couleurHors + '; --hors-actif-col: 1; }' : '') +
+    '  .cv .tete-hors { background: none !important; box-shadow: none !important; pointer-events: none; user-select: none; z-index: 4; }  .cv .tete-hors::before { display: none !important; }' +
+    '  .cv .tete-hors, .cv .tete-hors * { color: var(--hors) !important; pointer-events: none !important; }  .cv .tete-hors .coord div::before { background: var(--hors) !important; }  .cv .tete-hors .accroche { border-left-color: var(--hors) !important; }' +
+    // dans le cas de la COLONNE, seuls les textes blancs (nom et coordonnees a gauche, accroche a droite) sont dans la colonne : tout le reste de l'en-tete reste invisible dans la copie
+    '  .cv .tete-hors-colonne * { visibility: hidden; }  .cv.col-vague-g .tete-hors-colonne .nom, .cv.col-vague-g .tete-hors-colonne .coord, .cv.col-vague-g .tete-hors-colonne .coord *, .cv.col-vague-d .tete-hors-colonne .accroche, .cv.col-vague-d .tete-hors-colonne .accroche * { visibility: visible; }' +
+    '  .cv.col-vague-g .tete-hors-colonne .blc[data-bl-h="nom"] *, .cv.col-vague-g .tete-hors-colonne .blc[data-bl-h="coord"] *, .cv.col-vague-d .tete-hors-colonne .blc[data-bl-h="accroche"] * { visibility: visible; }' +
+    '  @media print { .cv .tete-hors { display: block; } }') : '') +
+(bandeauVide ? '  .cv .tete-vide, .cv .tete-vide .nom, .cv .tete-vide .metier { color: #1f2933; }  .cv .tete-vide .coord div::before { background: #1f2933; }  .cv .tete-vide .accroche { border-left-color: var(--cv); }' : '') +
 '  .cv.col-vague-g, .cv.col-vague-d { isolation: isolate; }' +
 '  .cv.col-vague-g::before, .cv.col-vague-d::before { content: ""; position: absolute; top: 0; bottom: 0; width: ' + (colVague ? r2(colVagueMm - colFondRentre) : colVagueMm) + 'mm; background: var(--col, var(--cv)); z-index: -1; }' +
 '  .cv.degr.col-vague-g::before, .cv.degr.col-vague-d::before { background: linear-gradient(' + (degradeInverse ? '0deg' : '180deg') + ', var(--cv), var(--cv2)); }' +
 '  .cv.col-vague-g::before { left: 0; clip-path: ' + polyColG + '; }' +
 '  .cv.col-vague-d::before { right: 0; clip-path: ' + polyColD + '; }' +
-(colonneCarte ? '  .cv.col-vague-g::before, .cv.col-vague-d::before { top: 6mm; bottom: 6mm; box-sizing: border-box; border-radius: 6mm; clip-path: none; box-shadow: 0 1px 5px rgba(0,0,0,.16); }' +
-  '  .cv.col-vague-g::before { left: 6mm; width: ' + r2(colVagueMm - colFondRentre - 6) + 'mm; border-right: 1.2mm solid var(--cv); }' +
-  '  .cv.col-vague-d::before { right: 6mm; width: ' + r2(colVagueMm - colFondRentre - 6) + 'mm; border-left: 1.2mm solid var(--cv); }' +
-  '  .cv.col-vague-g .corps .col-fond { padding-right: 1.5mm; }  .cv.col-vague-d .corps .col-fond { padding-left: 1.5mm; }' : '') +
+(colFormeActive ? '  .cv.col-forme.col-vague-g::before { clip-path: ' + polyColG + '; }  .cv.col-forme.col-vague-d::before { clip-path: ' + polyColD + '; }' +
+  (colAvant ? '  .cv.col-forme.col-vague-g::before { ' + ((colForme === 'filets') ? '' : 'left: 6mm; width: ' + r2(colVagueMm - colFondRentre - 6) + 'mm; ') + colAvant.replace('%COTE%', 'right') + ' }' +
+    '  .cv.col-forme.col-vague-d::before { ' + ((colForme === 'filets') ? '' : 'right: 6mm; width: ' + r2(colVagueMm - colFondRentre - 6) + 'mm; ') + colAvant.replace('%COTE%', 'left') + ' }' : '') +
+  (colPad ? '  .cv.col-forme.col-vague-g .col-fond { padding-right: ' + colPad + 'mm !important; }  .cv.col-forme.col-vague-d .col-fond { padding-left: ' + colPad + 'mm !important; }' : '') +
+  (colVide ? '  .cv.col-vide .col-fond, .cv.col-vide .bloc-fond, .cv.col-vide .col-fond h2, .cv.col-vide .bloc-fond h2, .cv.col-vide .col-fond .pill { color: #1f2933; }' +
+    '  .cv.col-vide .col-fond .pill { background: rgba(0,0,0,.08); }  .cv.col-vide .col-fond h2 { border-bottom-color: rgba(0,0,0,.28); }  .cv.col-vide .col-fond .meta, .cv.col-vide .col-fond .lieu-gris { color: rgba(0,0,0,.7); }' +
+    (enteteFond ? '' : '  .cv.col-vide.col-vague-g .tete:not(.libre) > div:first-child .nom, .cv.col-vide.col-vague-g .tete:not(.libre) > div:first-child .coord, .cv.col-vide.col-vague-g .blc[data-bl="nom"] .nom, .cv.col-vide.col-vague-g .blc[data-bl="coord"] .coord, .cv.col-vide.col-vague-d .tete:not(.libre) > .accroche, .cv.col-vide.col-vague-d .blc[data-bl="accroche"] .accroche { color: #1f2933; }  .cv.col-vide.col-vague-g .tete .coord div::before { background: #1f2933; }  .cv.col-vide.col-vague-d .tete .accroche { border-left-color: rgba(0,0,0,.35); }') : '') : '') +
+// Colonne DOUCE des modeles Sobre (etape 4.4, maquette validee par Denis le 2026-10-21) : teinte claire de la couleur du CV (le texte est passe en sombre par le panneau) ; « pleine » reprend la couleur du CV.
+(colVague && allure === 'sobre' && opts.colonneTeinte === 'douce' ? '  .cv.col-vague-g::before, .cv.col-vague-d::before { background: var(--pale); }' : '') +
 '  .cv.col-vague-g .col-fond, .cv.col-vague-d .col-fond { background: none !important; border-radius: 0; padding-left: 0; padding-right: 0; }' +
 '  .cv.col-vague-g .tete:not(.libre) > div:first-child .nom, .cv.col-vague-g .tete:not(.libre) > div:first-child .coord, .cv.col-vague-g .blc[data-bl="nom"] .nom, .cv.col-vague-g .blc[data-bl="coord"] .coord, .cv.col-vague-d .tete:not(.libre) > .accroche, .cv.col-vague-d .blc[data-bl="accroche"] .accroche { color: ' + texteSurBandeau + '; }' +
 '  .cv.col-vague-g .tete .coord div::before { background: ' + texteSurBandeau + '; }' +
+(archeColonne && colSens !== 1 ? '  .cv.col-arche .tete:not(.libre) > div:first-child { padding: 22mm 2mm 0 12mm; }' : '') +
 '  .cv.col-vague-d .tete .accroche { border-left-color: rgba(255,255,255,.5); }' +
 // « Chronologique » : colonne pale (teinte du Sobre), dates dans la marge, duree en italique, photo ronde en haut de la colonne.
 (edito ? '  .cv.edito .tete-edito .nom { font-size: 46px; line-height: 1; font-weight: 700; color: var(--cv); letter-spacing: -.5px; overflow-wrap: anywhere; }' +
@@ -2328,7 +2578,7 @@ cssPuces +
   var bandeNom = nomVert ? '<div class="bande-nom-vert"><span>' + ed('nom', nomComplet) + '</span></div>' : '';
   // Aucune teinte sur toute la page (decision de Denis, 2026-10-11 : une page entierement colorée coute de l'encre, photocopie en gris) : seules une colonne, un bandeau ou un coin se colorent.
   var pageHtml = '<div class="' + classes.join(' ') + '">' + (coinCouleur ? '<div class="coin-couleur"></div>' : '') + bandeNom + tete + bandeInfosHaut + corps + bandeInfosBas + '</div>';
-  return { css: css + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees), pageHtml: pageHtml, nomComplet: nomComplet, largeurPage: largeurPage, hauteurPage: hauteurPage };
+  return { css: css + _pdfCssCouleursZones(opts.couleursZones, opts.zonesLiees) + _pdfCssTypoCommune(opts), pageHtml: pageHtml, nomComplet: nomComplet, largeurPage: largeurPage, hauteurPage: hauteurPage };
 }
 
 // TACHE (Denis, 2026-09-25, tranche 4) : port de ajusterHauteurTete() de la maquette. Appelee apres CHAQUE rendu (petit
@@ -2337,6 +2587,16 @@ cssPuces +
 // l'en-tete libre a son contenu.
 // Zone libre des trois rectangles de competences (Rectangles arrondis) : le rectangle « Savoirs » se place, tant que la personne ne l'a pas deplace, juste
 // sous les deux autres (avec le leger chevauchement du modele), et la zone prend la hauteur de son contenu tant que la personne ne l'a pas fixee.
+// Options simples de typographie et de rythme, communes a TOUS les modeles (lot du 2026-10-21 : casse des titres, lettres espacees, separateur entre les experiences) ; rien n'est ecrit sans choix de la personne.
+function _pdfCssTypoCommune(opts) {
+  var titres = '.cv h2, .cv h3, .cv .fr-h, .cv .ph-h, .cv .ph-lh, .cv .rc-barre', css = '';
+  var casse = ({ maj: 'uppercase', min: 'lowercase', normale: 'none' })[opts.titresCasse];
+  if (casse) { css += '  ' + titres + ' { text-transform: ' + casse + ' !important; }'; }
+  if (opts.titresEspaces) { css += '  ' + titres + ', .cv .metier, .cv .fr-metier { letter-spacing: 0.1em !important; }'; }
+  if (opts.separateurExp === 'filet') { css += '  .cv .item + .item, .cv .rc-item + .rc-item, .cv .ph-item + .ph-item { border-top: 1px solid #d3d8df; padding-top: 6px; margin-top: 6px; }'; }
+  if (opts.separateurExp === 'espace') { css += '  .cv .item + .item, .cv .rc-item + .rc-item, .cv .ph-item + .ph-item, .cv .fr-item + .fr-item { margin-top: 14px; }'; }
+  return css;
+}
 function _pdfMqApresRenduRectangles(feuille) {
   var zb = feuille.querySelector('.rc-boxes.libre');
   if (!zb) { return; }
@@ -2369,6 +2629,9 @@ function _pdfMqApresRenduRectangles(feuille) {
 function _pdfMqApresRendu(feuille) {
   if (!feuille) { return; }
   _pdfMqApresRenduRectangles(feuille);
+  try { _pdfMqApresRenduEntete(feuille); } finally { try { if (typeof _texteHorsPoser === 'function') { _texteHorsPoser(feuille); } } catch (e) { /* le texte a deux tons est un plus : jamais bloquer le rendu */ } }
+}
+function _pdfMqApresRenduEntete(feuille) {
   var t = feuille.querySelector('.tete.libre');
   if (!t) { return; }
   var qb = function (k) { return t.querySelector('.blc[data-bl="' + k + '"]'); };
@@ -2379,6 +2642,6 @@ function _pdfMqApresRendu(feuille) {
   Array.prototype.forEach.call(t.querySelectorAll('.blc'), function (b) { maxB = Math.max(maxB, b.offsetTop + b.offsetHeight); });
   var besoin = maxB + 12;
   if (t.classList.contains('tete-diag')) { besoin = Math.max(besoin, Math.ceil(maxB / 0.74) + 4); }
-  if (t.classList.contains('tete-vague')) { besoin = Math.max(besoin, Math.ceil(maxB / 0.8) + 4); }
+  if (t.classList.contains('tete-vague')) { besoin = Math.max(besoin, Math.ceil(maxB / (t.classList.contains('tete-zone76') ? 0.76 : 0.8)) + 4); }
   t.style.height = Math.max(parseInt(t.getAttribute('data-h0'), 10) || 172, besoin) + 'px';
 }

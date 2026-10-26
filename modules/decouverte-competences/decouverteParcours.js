@@ -95,7 +95,7 @@ var DECOUVERTE_NAV_ETAPES = [
 //   12 coller reponse (redaction) / 13 relecture -> 5 Rediger mon CV
 //   (le repere 6 "Mon CV" n'est atteint que sur pageResultats, hors parcours)
 function _decouverteNavIndex(numero) {
-  var table = [null, 0, 0, 0, 1, 2, 3, 3, 4, 5, 5, 5, 5, 5];
+  var table = [null, 0, 0, 0, 1, 2, 3, 3, 4, 5, 5, 5, 5, 5, 5];
   var i = table[numero];
   return (typeof i === 'number') ? i : -1;
 }
@@ -691,7 +691,7 @@ function ouvrirDecouverteCompetences() {
       btnDecReprR.addEventListener('click', function () {
         if (typeof confirmerAction !== 'function') { return; }
         confirmerAction(
-          'Recommencer « Découvrir mes compétences » ?',
+          'Recommencer « À partir de mon récit » ?',
           'Votre récit et les compétences déjà retenues pour ce parcours seront effacés. Vos autres modules, Mes Repères et Mon Carnet ne sont pas touchés.',
           'Recommencer ce module', 'btn-danger',
           function () {
@@ -769,6 +769,7 @@ function ouvrirDecouverteCompetences() {
         decouverteRetour();
         return;
       }
+      if (numero === 14) { afficherEtape(12); return; }
       if (numero <= 1) { decouverteRetour(); } else { afficherEtape(numero - 1); }
     }
     _decouverteAgirRetour = agirRetourDecouverte;
@@ -859,8 +860,9 @@ function ouvrirDecouverteCompetences() {
       '</div>' +
       (objectifChoisi
         ? '<div class="objectif-cadrage" style="margin-top:16px">' +
-          blocERIP(CONFIG_BLOC_CANDIDATURE) +
-          blocERIP(CONFIG_BLOC_PROJET) +
+          // E1.4 (24/10/2026) : meme logique que la lettre pour « offre » et « spontanee » (offre sans offre = spontanee) ; « stage » inchange.
+          // Lot 4a (25/10/2026) : le composant « Votre candidature » de la lettre, tel quel (plus de bloc repliable ni de « Le poste que vous recherchez »).
+          '<div id="decouverteComposantCandidature">' + htmlCandidatureComposant() + '</div>' +
           resumeObjectifLigne() +
           '</div>'
         : '<p class="sousTitre text-center" style="margin-top:14px">Choisissez un objectif ci-dessus pour préciser votre candidature.</p>');
@@ -871,7 +873,10 @@ function ouvrirDecouverteCompetences() {
       onAfficher: function () {
         document.querySelectorAll('[data-action="objectif-decouverte"]').forEach(function (el) {
           el.addEventListener('click', function () {
+            var objectifAvantDecouverte = dossier.objectif;
             definirObjectifCandidature(this.dataset.value);
+            // Changer de carte entre offre, spontanee et changer de metier remet a zero la candidature saisie (meme regle que la lettre).
+            if (changementCarteEffaceLettreCo(objectifAvantDecouverte, dossier.objectif)) { _coLettreEffacerCandidature(); }
             // TACHE (retour Denis, 2026-09-19, point 8 de sa 3e liste de
             // corrections : "dès que je choisis candidature spontanée ou
             // stage ou offre d'emploi, je veux que le bloc candidature
@@ -888,11 +893,9 @@ function ouvrirDecouverteCompetences() {
         // wireModeRecherche, contenuCandidature/wireObjectifDetails,
         // wireContratTemps) -- plus besoin d'une fonction "sauvegarder au
         // clic sur Continuer" comme l'ancien systeme maison.
+        if (!dossier.objectif && typeof invitationCartesObjectif === 'function') { invitationCartesObjectif(); }
         if (dossier.objectif) {
-          wireBlocERIP(CONFIG_BLOC_CANDIDATURE, function () { afficherEtape(1); });
-          wireEvidenceMetierCible();
-          wireBlocERIP(CONFIG_BLOC_PROJET, function () { afficherEtape(1); });
-          wireContratTemps();
+          wireCandidatureComposant(function () { afficherEtape(1); }, 'decouverteComposantCandidature');
         }
       }
     };
@@ -1093,6 +1096,8 @@ function ouvrirDecouverteCompetences() {
                 var contexteCible = '';
                 if (dossier.metierCible) { contexteCible = 'Métier visé par la personne : ' + dossier.metierCible + '\n\n'; }
                 else if (dossier.secteurCible) { contexteCible = 'Domaine visé par la personne (pas un métier précis) : ' + dossier.secteurCible + '\n\n'; }
+                // Disponibilites renseignees sur l'ecran des cartes (contrat, temps de travail, debut, horaires) : elles atteignent l'assistant (lot 4, 24/10/2026).
+                if (typeof texteDisponibilitesPourAnalyse === 'function' && texteDisponibilitesPourAnalyse()) { contexteCible += 'Disponibilités de la personne :\n' + texteDisponibilitesPourAnalyse() + '\n\n'; }
                 // TACHE (retour utilisateur : "si une offre précise existe,
                 // les compétences révélées doivent s'orienter fortement vers
                 // ses attentes, sans jamais s'y limiter" -- point de
@@ -1152,7 +1157,7 @@ function ouvrirDecouverteCompetences() {
           // (.bouton-incitation-action, css/style.css) -- visible
           // seulement une fois cette zone affichee (apres collage
           // reussi), jamais avant.
-          '<button type="button" id="btnImporterDecouverte" class="bouton-incitation-action" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
+          '<button type="button" id="btnImporterDecouverte" class="bouton-incitation-action" data-barre-bas="1" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
           'background:#0d6efd;color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; Importer</button>' +
           '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecoller">Effacer et recoller</button>' +
           '</div>') +
@@ -1171,7 +1176,7 @@ function ouvrirDecouverteCompetences() {
             var msg = document.getElementById('messageImportDecouverte');
             msg.style.color = 'var(--success-strong)';
             msg.textContent = estAjout
-              ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Importer si c’était le dernier.'
+              ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.'
               : '✅ Réponse importée automatiquement depuis le presse-papiers. Si la réponse fait plusieurs morceaux, recliquez ce même bouton après avoir copié le morceau suivant : il s’ajoutera à la suite.';
           },
           onErreur: function (texteErreur) {
@@ -2193,11 +2198,12 @@ function ouvrirDecouverteCompetences() {
       titre: '📥 Collez la réponse de l’assistant',
       // Complément de CV (facultatif, décision de Denis 2026-10-10) : une fois la réponse importée, le parcours ne se termine plus tout seul. La personne peut
       // importer le complément (zone ci-dessous), puis elle clique sur « Continuer vers mon CV ».
-      contenuHTML: htmlBanniereComplementCV() + contenuAccordeonImportIA('cv') + (reponseIAImportee('cv') ? rectangleComplementCV() : ''),
+      // Retour Denis 2026-10-19 : comme dans « Créer mon CV », le complément a son propre écran (étape 14, importer ou passer) AVANT la page de création ; ni bandeau ni rectangle ici tant que le choix n'est pas fait.
+      contenuHTML: contenuAccordeonImportIA('cv') + ((reponseIAImportee('cv') && !complementCVEnAttente()) ? rectangleComplementCV() : ''),
       masquerContinuer: true,
       continuerDansBarre: reponseIAImportee('cv'),
-      libelleContinuer: libelleContinuerComplementCV('Continuer vers mon CV &#8594;'),
-      onContinuer: function () { terminerParcoursDecouverte(); },
+      libelleContinuer: 'Continuer &#8594;',
+      onContinuer: function () { if (complementCVEnAttente()) { afficherEtape(14); } else { terminerParcoursDecouverte(); } },
       onAfficher: function () {
         etatAccordeon = accordeonPourType('cv');
         etatAccordeonValide = accordeonValidePourType('cv');
@@ -2235,6 +2241,28 @@ function ouvrirDecouverteCompetences() {
           });
           wireComplementCV(function () { afficherEtape(12); });
         }
+      }
+    };
+  }
+
+  // ------------------------------------------------------------
+  // Étape 14 — Le complément du CV (facultatif) : importer ou passer, puis la page de création
+  // ------------------------------------------------------------
+  function etapeComplementCV() {
+    etatAccordeon = accordeonPourType('cv');
+    etatAccordeonValide = accordeonValidePourType('cv');
+    return {
+      titre: '➕ Le complément de votre CV',
+      contenuHTML: htmlEcranComplementCV(true),
+      sansCarte: true,
+      masquerContinuer: true,
+      continuerDansBarre: true,
+      libelleContinuer: 'Passer, je vois mon CV &#8594;',
+      onContinuer: function () { dossier.complementCVPasse = true; terminerParcoursDecouverte(); },
+      onAfficher: function () {
+        etatAccordeon = accordeonPourType('cv');
+        etatAccordeonValide = accordeonValidePourType('cv');
+        wireComplementCV(function () { terminerParcoursDecouverte(); });
       }
     };
   }
@@ -2625,10 +2653,10 @@ function ouvrirDecouverteCompetences() {
         _decouverteBandeau('<strong>Vous n’avez pas besoin d’un CV pour commencer, ni d’un parcours ordinaire.</strong> Le travail salarié, l’aide à des proches, le bénévolat, une passion suivie longtemps : tout cela contient des compétences. On part de ce que vous racontez, et on le met en forme avec vous.') +
         '<p class="text-muted small mb-3">Tout est sur cette page. Le récit est la seule partie indispensable ; le reste peut rester vide.</p>' +
         section(1, 'Votre parcours', recitEnrichi, 'indispensable') +
-        section(2, 'Ce que vous visez', viseeEnrichi, 'facultatif'),
+        section(2, 'Ce que vous visez', viseeEnrichi, 'à compléter'),
       peutContinuer: recOK,
       raisonBlocage: !recOK ? 'Racontez d’abord votre parcours (partie 1).' : null,
-      libelleContinuer: 'Choisir mon assistant →',
+      libelleContinuer: 'Continuer →',
       onAfficher: function () {
         rec.onAfficher();
         idn.onAfficher();
@@ -2673,7 +2701,7 @@ function ouvrirDecouverteCompetences() {
         (qc ? '<div class="cv-section">' + encartChoix + dec.contenuHTML + '</div>' : encartChoix + dec.contenuHTML) +
         (qc
           ? '<div class="cv-section" style="margin-top:1rem;"><h4>&#10067; Quelques précisions</h4>' +
-            '<p class="text-muted small">Facultatif - cela aide à mieux orienter votre profil.</p>' +
+            '<p class="text-muted small">À compléter - cela aide à mieux orienter votre profil.</p>' +
             qc.contenuHTML + '</div>'
           : ''),
       peutContinuer: dec.peutContinuer,
@@ -2722,6 +2750,7 @@ function ouvrirDecouverteCompetences() {
       if (numero === 11) { return etapeChoisirAssistantCV(); }
       if (numero === 12) { return etapeCollerReponseCV(); }
       if (numero === 13) { return etapeRelectureCV(); }
+      if (numero === 14) { return etapeComplementCV(); }
       // 2, 3, 7 : ecrans fusionnes, plus jamais demandes seuls. Repli sur
       // la page "Preparer" par securite (jamais atteint en usage normal).
       if (numero === 2 || numero === 3) { return etapePreparer(); }

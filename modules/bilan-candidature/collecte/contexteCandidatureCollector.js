@@ -87,6 +87,7 @@ function bilanCollecterCandidature(saisieLibre, dependances) {
       typeStructure: saisieLibre.typeStructure || brut.typeStructure || null,
       objectif: brut.objectif,
       nombreExperiencesProfessionnelles: brut.nombreExperiencesProfessionnelles,
+      disponibilites: brut.disponibilites,
       typeStructureAutre: saisieLibre.typeStructureAutre || null,
       // TACHE (transfert Coherence transversale -> Bilan, 2026-08-25,
       // DECISION DE DENIS) : constats/recommandations deja identifies par

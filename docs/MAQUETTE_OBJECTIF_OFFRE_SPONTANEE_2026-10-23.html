@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : objectif, offre et candidature spontanée</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--off:#9aa3b2}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2442;--off:#6d7789}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 120px}
+.page{max-width:860px;margin:0 auto}
+h1{font-size:1.45rem;margin:1.2rem 0 .3rem;text-align:center}
+.sous{text-align:center;color:var(--muted);margin:0 0 1rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+details.bloc{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.8rem 0;overflow:hidden}
+details.bloc.ok{border-color:var(--ok)}
+details.bloc.verrou{opacity:.55}
+details.bloc>summary{list-style:none;cursor:pointer;padding:.8rem 1rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+details.bloc>summary::-webkit-details-marker{display:none}
+.num{background:var(--acc);color:var(--card);border-radius:50%;width:1.9rem;height:1.9rem;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.titre{font-weight:700;font-size:1.05rem}
+.pil{margin-left:auto;font-size:.8rem;border-radius:999px;padding:.15rem .7rem;background:var(--sub);border:1px solid var(--bord)}
+.pil.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.pil.att{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+.corps{padding:0 1rem 1rem}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:.6rem 0}
+.cobj{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.7rem;text-align:center}
+.cobj:hover{border-color:var(--acc)}
+.cobj.actif{border-color:var(--acc);background:var(--accbg)}
+.cobj b{display:block}.cobj span{font-size:.85rem;color:var(--muted)}
+.lib{font-weight:600;margin:.8rem 0 .3rem}
+.jetons{display:flex;flex-wrap:wrap;gap:.5rem;margin:.3rem 0;align-items:center}
+.jeton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.5rem .9rem;font-weight:600}
+.jeton.pt{padding:.3rem .7rem;font-size:.9rem}
+.jeton:hover{border-color:var(--acc)}
+.jeton.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+input[type=text],input[type=url],select,textarea{width:100%;border:2px solid var(--bord);border-radius:10px;padding:.55rem .7rem;background:var(--card)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)}
+.champ{margin:.7rem 0}
+.champ label{display:block;font-weight:700;font-size:.9rem;margin-bottom:.2rem}
+.panneau{border:1px solid var(--bord);border-radius:12px;background:var(--sub);padding:.2rem 1rem 1rem;margin-top:1rem}
+.panneau h3{font-size:1rem;margin:.9rem 0 .2rem}
+.alerte{background:var(--warnbg);border:2px solid var(--warn);color:var(--txt);border-radius:12px;padding:.7rem .9rem;margin-top:1rem}
+.alerte b{color:var(--warn)}
+.depot{border:2px dashed var(--bord);border-radius:12px;padding:.7rem;margin-top:.5rem;background:var(--card)}
+.depot.ok{border-style:solid;border-color:var(--ok);background:var(--okbg)}
+.gris{opacity:.5;pointer-events:none}
+.cta{display:block;margin:1.2rem auto .3rem;background:var(--acc);color:var(--card);border:none;border-radius:12px;padding:.8rem 1.6rem;font-weight:700;font-size:1.1rem}
+.cta:disabled{background:var(--off);cursor:not-allowed}
+.raison{text-align:center;color:var(--warn);font-size:.9rem}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:860px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:var(--card)}
+.nav.suivant:disabled{background:var(--off);border-color:var(--off);cursor:not-allowed}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.apercu{margin:1.2rem 0;border:2px dashed var(--new);border-radius:12px;padding:.2rem 1rem .8rem;background:var(--card)}
+.apercu summary{cursor:pointer;font-weight:700;color:var(--new);padding:.5rem 0}
+.apercu code{display:block;white-space:pre-wrap;font:.88rem/1.5 ui-monospace,Consolas,monospace;background:var(--sub);border-radius:8px;padding:.6rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:80px;background:var(--txt);color:var(--bg);border-radius:10px;padding:.5rem 1rem;font-size:.9rem;opacity:0;transition:opacity .3s;z-index:9;pointer-events:none}
+.toast.vu{opacity:1}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:2rem 0}
+.questions h2{color:var(--new);font-size:1.1rem}
+@media (max-width:520px){.barre .in{flex-direction:column;align-items:stretch}.nav{width:100%}}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette v2 (23/10/2026) : page « Préparer » de la lettre</strong>
+  <span style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Voir les annotations</label>
+    <button class="mini" id="tTheme" type="button">Mode sombre</button>
+    <button class="mini" id="tRaz" type="button">Tout remettre à zéro</button>
+  </span>
+</div>
+
+<h1>Écrire ma lettre de motivation avec l’assistant</h1>
+<p class="sous">Tout se prépare ici, sur une seule page qui se déplie. On part de votre CV, puis on précise à qui la lettre s’adresse.</p>
+
+<details class="bloc ok">
+  <summary><span class="num">1</span><span class="titre">Votre CV</span><span class="pil ok">Déposé · vous pouvez le changer</span></summary>
+  <div class="corps"><p>✅ Déposé (exemple). Ce bloc n’est pas modifié par ce chantier.</p></div>
+</details>
+
+<details class="bloc" id="bloc2" open>
+  <summary><span class="num">2</span><span class="titre">Votre candidature</span><span class="pil att" id="pil2">À renseigner</span></summary>
+  <div class="corps">
+    <div class="note">Nouveau : le mot « facultatif » et la phrase « Tout est facultatif » ont disparu de ce bloc.</div>
+    <p class="lib">Quel type de candidature préparez-vous ?</p>
+    <div class="grille" id="cartes"></div>
+    <div id="zone"></div>
+  </div>
+</details>
+
+<details class="bloc verrou" id="bloc3">
+  <summary><span class="num">3</span><span class="titre">Adaptation au métier</span><span class="pil att" id="pil3">Choisissez d’abord un objectif</span></summary>
+  <div class="corps" id="corps3"></div>
+</details>
+
+<button class="cta" id="cta" type="button" disabled>Choisir mon assistant →</button>
+<p class="raison" id="raison"></p>
+
+<details class="apercu" open>
+  <summary>Aperçu de l’en-tête de la lettre (coin droit, ajouté par l’application ; le service et l’adresse se règlent plus tard, dans le panneau de mise en page)</summary>
+  <div id="apEnt" style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:Georgia,serif;font-size:.92rem;background:var(--sub);border-radius:8px;padding:.7rem"></div>
+  <p class="muted small" id="apEntNote"></p>
+</details>
+
+<details class="apercu">
+  <summary>Ce que l’assistant recevra (aperçu, refermable)</summary>
+  <code id="apercu"></code>
+</details>
+
+<div class="questions">
+  <h2>À valider ensemble (une décision à la fois)</h2>
+  <p><b>1. Lettre de recommandation.</b> Une seule question : « Avez-vous une lettre de recommandation que l’assistant peut utiliser ? » (Non / Oui). Si oui : dépôt avec la même relecture et le même masquage que le CV, puis, en option, « de la part de » (ancien employeur, tuteur de stage, formateur, association) sans le nom de la personne. Le panneau « Vos appuis » apparaît dans tous les cas (offre, spontanée, changement de métier). Vous convient-il ?</p>
+  <p><b>2. Domaine.</b> Après le domaine, l’intitulé de poste proposé est demandé (obligatoire) avec des suggestions du domaine et un champ libre. Les suggestions montrées ici sont des exemples de ma part : à écrire et valider pour les 21 domaines.</p>
+  <p><b>3. Changer de métier.</b> Mêmes trois choix que la spontanée plus l’offre : « Je réponds à une offre » / « Je m’adresse à une entreprise précise » / « Je me présente de façon générale ». Cela remplace « Je cherche simplement un emploi ». D’accord ?</p>
+  <p class="muted small">Essayez : choisissez chaque carte, un domaine, un intitulé, laissez l’offre vide, déposez une lettre de recommandation, changez de carte (tout repart à zéro), et regardez la barre du bas et l’aperçu.</p>
+</div>
+</div>
+
+<div class="barre"><div class="in">
+  <button class="nav" type="button" id="nRetour">← Retour</button>
+  <button class="nav" type="button" id="nAccueil">🏠 Accueil</button>
+  <button class="nav suivant" type="button" id="nSuivant" disabled>Choisir mon assistant →</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var CARTES = [
+  {id:'offre', t:'Répondre à une offre', d:'Adapter votre CV à une offre.'},
+  {id:'spontanee', t:'Candidature spontanée', d:'Créer un CV pour une entreprise.'},
+  {id:'reconversion', t:'Changer de métier', d:'Valoriser vos compétences.'},
+  {id:'stage', t:'Stage', d:'CV adapté à une recherche de stage.'},
+  {id:'alternance', t:'Alternance', d:'CV adapté à une alternance.'},
+  {id:'formation', t:'Formation', d:'CV adapté à une demande de formation.'}
+];
+var STRUCTURES = ['Entreprise privée (secteur marchand)','Fonction publique d’État','Fonction publique territoriale','Fonction publique hospitalière','Établissement sanitaire ou médico-social privé','Association (loi 1901) / économie sociale et solidaire','Coopérative (SCOP, SCIC...)','Artisanat / commerce de proximité','Établissement d’enseignement (public ou privé, formation)','Autre'];
+var DOMAINES = {
+  'Bâtiment et travaux publics':['Ouvrier polyvalent du bâtiment','Aide-maçon polyvalent','Ouvrier second œuvre','Manœuvre BTP'],
+  'Commerce et vente':['Employé polyvalent de commerce','Vendeur polyvalent','Employé de libre-service','Conseiller de vente'],
+  'Logistique et transport':['Agent logistique polyvalent','Préparateur de commandes','Magasinier polyvalent','Manutentionnaire'],
+  'Hôtellerie, restauration et tourisme':['Employé polyvalent de restauration','Serveur polyvalent','Commis de cuisine','Agent d’accueil et d’étage'],
+  'Industrie, production et énergie':['Opérateur de production polyvalent','Agent de production','Opérateur sur machines','Agent de maintenance polyvalent'],
+  'Agriculture, nature et espaces verts':['Ouvrier agricole polyvalent','Ouvrier paysagiste','Ouvrier horticole'],
+  'Santé et aide à la personne':['Aide à domicile','Agent de service hospitalier','Auxiliaire de vie'],
+  'Administration, bureau et gestion':['Agent administratif polyvalent','Secrétaire','Assistant administratif'],
+  'Numérique et informatique':['Technicien informatique polyvalent','Technicien support','Technicien systèmes et réseaux']
+};
+var ROLES = ['Un ancien employeur','Un tuteur de stage','Un formateur ou un enseignant','Une association ou un bénévolat','Autre'];
+var VIDE = {mode:'metier', metier:'', domaine:'', intitule:'', domRecherche:'', cible:null, entreprise:'', service:'Service recrutement', adresse:'', site:'', offre:'', structure:'', civ:null, nom:'', reco:null, recoDeposee:false, recoDe:''};
+var S = {obj:null, sit:''};
+var B = JSON.parse(JSON.stringify(VIDE));
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function jeton(act,val,courant,lib,pt){return '<button type="button" class="jeton'+(pt?' pt':'')+(courant===val?' actif':'')+'" data-act="'+act+'" data-val="'+esc(val)+'">'+lib+'</button>';}
+function champ(id,lib,val,ph,type){return '<div class="champ"><label for="'+id+'">'+lib+'</label><input type="'+(type||'text')+'" id="'+id+'" data-champ="'+id+'" value="'+esc(val)+'" placeholder="'+esc(ph||'')+'"></div>';}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('vu');setTimeout(function(){t.classList.remove('vu');},2800);}
+function posteOK(){return B.mode==='metier'?!!B.metier.trim():(!!B.domaine&&!!B.intitule.trim());}
+function intitulePoste(){return B.mode==='metier'?B.metier.trim():B.intitule.trim();}
+function cibleEff(){return S.obj==='offre'?'offre':B.cible;}
+
+/* ---- briques ---- */
+function blocStructure(){
+  var opts='<option value="">Non précisé</option>'+STRUCTURES.map(function(s){return '<option'+(B.structure===s?' selected':'')+'>'+s+'</option>';}).join('');
+  return '<div class="champ"><label for="structure">Type de structure</label><select id="structure" data-champ="structure">'+opts+'</select></div>';
+}
+function blocRecruteur(){
+  return '<p class="lib">Connaissez-vous la personne en charge du recrutement ?</p><div class="jetons">'+
+    jeton('civ','non',B.civ,'Je ne sais pas')+jeton('civ','M',B.civ,'Oui, Monsieur')+jeton('civ','F',B.civ,'Oui, Madame')+'</div>'+
+    ((B.civ==='M'||B.civ==='F')?champ('nom','Son nom (facultatif)',B.nom,''):'');
+}
+function panneauOffreEntreprise(){
+  return '<div class="panneau"><h3>L’offre et l’entreprise</h3>'+
+    '<div class="note">« (facultatif) » retiré. La question « connaissez-vous la personne en charge du recrutement » est ici, car une entreprise est identifiée.</div>'+
+    champ('entreprise','Entreprise ciblée',B.entreprise,'Ex. Boulangerie Dupont')+
+    champ('site','Site internet de l’entreprise',B.site,'https://...','url')+
+    '<div class="champ"><label for="offre">Offre d’emploi</label><textarea id="offre" data-champ="offre" rows="3" placeholder="Collez ici le texte de l’offre, ou son lien">'+esc(B.offre)+'</textarea></div>'+
+    blocStructure()+blocRecruteur()+'<div id="msgOffre"></div></div>';
+}
+function panneauEntreprise(){
+  return '<div class="panneau"><h3>L’entreprise visée</h3>'+
+    '<div class="note">Même bloc que pour l’offre, sans le champ « offre d’emploi ». Le poste est déjà saisi plus haut.</div>'+
+    champ('entreprise','Entreprise ciblée',B.entreprise,'Ex. Boulangerie Dupont')+
+    champ('site','Site internet de l’entreprise (conseillé : l’assistant y cherche les valeurs de l’entreprise)',B.site,'https://...','url')+
+    blocStructure()+blocRecruteur()+'</div>';
+}
+function panneauGeneral(){
+  return '<div class="panneau"><h3>Candidature de façon générale</h3>'+
+    '<div class="note">Nouveau : plus de question « connaissez-vous la personne en charge du recrutement » (sans entreprise visée, elle n’a pas de sens). Le type de structure reste possible.</div>'+
+    blocStructure()+'</div>';
+}
+function panneauAppuis(){
+  var h='<div class="panneau"><h3>Vos appuis</h3><div class="note">Nouveau : lettre de recommandation, utilisable dans tous les cas (offre, spontanée, changement de métier). Mêmes relecture et masquage que le CV.</div>'+
+    '<p class="lib" style="margin-top:.2rem">Avez-vous une lettre de recommandation que l’assistant peut utiliser pour enrichir votre lettre ?</p>'+
+    '<div class="jetons">'+jeton('reco','non',B.reco,'Non')+jeton('reco','oui',B.reco,'Oui')+'</div>';
+  if(B.reco==='oui'){
+    h+='<div class="depot'+(B.recoDeposee?' ok':'')+'">';
+    if(B.recoDeposee){h+='<p><b>✅ Lettre de recommandation déposée</b> (relue et masquée). <button type="button" class="mini" data-act="recoChanger">Changer de lettre</button></p>';}
+    else{h+='<p>Déposez-la ou collez son texte. Elle est relue et masquée comme votre CV : <b>le nom de la personne qui la signe</b>, son téléphone et son adresse sont des données d’une autre personne, ils ne partent pas chez l’assistant.</p><button type="button" class="jeton pt" data-act="recoDeposer">Déposer ma lettre de recommandation</button>';}
+    h+='</div>';
+    h+='<div class="champ"><label for="recoDe">De la part de (facultatif, sans le nom de la personne)</label><select id="recoDe" data-champ="recoDe"><option value="">Non précisé</option>'+ROLES.map(function(r){return '<option'+(B.recoDe===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div>';
+    h+='<div id="msgReco"></div>';
+  }
+  return h+'</div>';
+}
+function selecteurPoste(libMetier,phMetier){
+  var h='<div class="jetons"><span class="lib" style="margin:.5rem .5rem 0 0">Votre recherche porte sur :</span>'+jeton('mode','metier',B.mode,'Un métier précis')+jeton('mode','domaine',B.mode,'Plusieurs métiers d’un même domaine')+'</div>';
+  if(B.mode==='metier'){return h+champ('metier',libMetier,B.metier,phMetier);}
+  h+='<div class="note">Conservé comme aujourd’hui : liste complète des domaines, on clique dessus ou on cherche en tapant. Nouveau : après le domaine, l’intitulé de poste proposé est demandé, avec des suggestions et un champ libre.</div>';
+  if(!B.domaine){
+    h+='<div class="champ"><label for="domRecherche">Recherchez un domaine : s’il est dans la liste, cliquez dessus.</label><input type="text" id="domRecherche" placeholder="Un domaine..." value="'+esc(B.domRecherche)+'"></div><div class="jetons" id="chipsDom">'+chipsDomaines()+'</div>';
+  } else {
+    h+='<p class="lib">Domaine choisi : <b>'+esc(B.domaine)+'</b> <button type="button" class="mini" data-act="domChanger">Changer de domaine</button></p>'+
+      '<p class="lib">Quel intitulé de poste proposez-vous ? <span class="muted small" style="font-weight:400">(c’est lui qui sera écrit dans la lettre ; vous pouvez en choisir un ou écrire le vôtre)</span></p>'+
+      '<div class="jetons">'+(DOMAINES[B.domaine]||[]).map(function(i){return jeton('intitule',i,B.intitule,esc(i),true);}).join('')+'</div>'+
+      champ('intitule','Ou écrivez votre intitulé',B.intitule,'Ex. Ouvrier polyvalent du bâtiment');
+  }
+  return h;
+}
+function chipsDomaines(){
+  var q=B.domRecherche.trim().toLowerCase();
+  var l=Object.keys(DOMAINES).filter(function(d){return !q||d.toLowerCase().indexOf(q)>-1;});
+  if(!l.length&&q){return '<span class="muted small">Aucun domaine dans la liste. Appuyez sur « Ajouter » pour l’écrire tel quel.</span> <button type="button" class="jeton pt" data-act="domAjouter">Ajouter « '+esc(B.domRecherche.trim())+' »</button>';}
+  return l.map(function(d){return jeton('domaine',d,B.domaine,esc(d),true);}).join('');
+}
+
+/* ---- rendu de la zone ---- */
+function rendreZone(){
+  var h='';
+  if(!S.obj){h='<p class="muted">Choisissez d’abord un type de candidature.</p>';}
+  else if(S.obj==='offre'){
+    h+='<div class="note">Nouveau : les questions « Votre recherche porte sur » (métier ou domaine) et « Votre recherche concerne » ne s’affichent plus. C’est forcément un métier précis et forcément une offre.</div>';
+    h+=champ('metier','Quel métier cherchez-vous ?',B.metier,'Ex. Technicien systèmes et réseaux');
+    if(B.metier.trim()){h+=panneauOffreEntreprise()+panneauAppuis();}
+  }
+  else if(S.obj==='spontanee'||S.obj==='reconversion'){
+    h+='<div class="note">'+(S.obj==='spontanee'
+      ?'Conservé : le choix entre un métier précis et un domaine. Nouveau : trois situations très explicites selon qu’on vise une entreprise ou non, et pas de champ offre.'
+      :'Changer de métier suit la même cohérence que la spontanée, avec en plus l’option « réponse à une offre » (elle remplace « Je cherche simplement un emploi / Je réponds à une offre »).')+'</div>';
+    h+=selecteurPoste('Quel métier cherchez-vous ?','Ex. Technicien systèmes et réseaux');
+    if(posteOK()){
+      if(S.obj==='reconversion'&&B.mode==='domaine'){h+='<div class="note">Plusieurs métiers d’un domaine : le choix « Je réponds à une offre » n’est pas proposé (une offre vise un poste précis). Restent l’entreprise précise sans offre (une agence d’intérim, une entreprise active dans plusieurs secteurs) et la candidature générale.</div>';}
+      h+='<p class="lib">Pour cette candidature :</p><div class="jetons">'+
+        (S.obj==='reconversion'&&B.mode==='metier'?jeton('cible','offre',B.cible,'Je réponds à une offre d’emploi'):'')+
+        jeton('cible','entreprise',B.cible,S.obj==='reconversion'?'Je m’adresse à une entreprise précise, sans offre':'Je m’adresse à une entreprise précise')+
+        jeton('cible','generale',B.cible,'Je me présente de façon générale, sans viser une entreprise')+'</div>';
+      if(B.cible==='offre'){h+=panneauOffreEntreprise();}
+      if(B.cible==='entreprise'){h+=panneauEntreprise();}
+      if(B.cible==='generale'){h+=panneauGeneral();}
+      if(B.cible){h+=panneauAppuis();}
+    }
+  }
+  else{h+='<div class="note">Stage, alternance, immersion, formation : inchangés, non reproduits dans cette maquette.</div><p class="muted">Ces parcours gardent leur écran actuel.</p>';}
+  $('zone').innerHTML=h;
+  majDynamique();
+}
+function rendreCartes(){
+  $('cartes').innerHTML=CARTES.map(function(c){return '<button type="button" class="cobj'+(S.obj===c.id?' actif':'')+'" data-act="obj" data-val="'+c.id+'"><b>'+c.t+'</b><span>'+c.d+'</span></button>';}).join('');
+}
+function rendre3(){
+  var verrou=!S.obj;
+  $('bloc3').classList.toggle('verrou',verrou);
+  $('pil3').textContent=verrou?'Choisissez d’abord un objectif':(S.sit?'Renseigné':'À renseigner');
+  $('pil3').className='pil '+(verrou?'att':(S.sit?'ok':'att'));
+  $('corps3').innerHTML='<div class="note">Nouveau : visible mais désactivé tant qu’aucun objectif n’est choisi.</div>'+
+    '<div class="'+(verrou?'gris':'')+'"><p class="lib">Votre situation en ce moment (obligatoire)</p><div class="jetons">'+
+    jeton('sit','emploi',S.sit,'J’ai un emploi')+jeton('sit','recherche',S.sit,'Je suis en recherche d’emploi')+jeton('sit','formation',S.sit,'Je suis en formation')+'</div>'+
+    '<p class="muted small">Le reste de ce bloc (niveau de langage, ton, longueur...) n’est pas modifié.</p></div>';
+  if(verrou){$('bloc3').open=false;}
+}
+
+/* ---- logique de la situation réelle ---- */
+function situationReelle(){
+  var nom=B.entreprise.trim(), c=cibleEff();
+  if(!S.obj){return null;}
+  if(['stage','alternance','formation'].indexOf(S.obj)>-1){return {txt:'Parcours inchangé'};}
+  if(c==='offre'){
+    if(B.offre.trim()){return {txt:'Réponse à une offre'+(nom?' chez '+nom:'')};}
+    return {txt:'Candidature spontanée'+(nom?' auprès de '+nom:', sans entreprise précise'),bascule:true};
+  }
+  if(c==='entreprise'){return {txt:'Candidature spontanée auprès de '+(nom||'[entreprise à saisir]')};}
+  if(c==='generale'){return {txt:'Candidature spontanée de façon générale, sans entreprise précise'};}
+  return null;
+}
+function raisons(){
+  var r=[];
+  if(!S.obj){r.push('choisir un type de candidature');}
+  else if(['offre','spontanee','reconversion'].indexOf(S.obj)>-1){
+    if(!posteOK()){r.push(B.mode==='metier'?'indiquer le métier':(B.domaine?'indiquer l’intitulé du poste proposé':'choisir le domaine'));}
+    else if(S.obj!=='offre'&&!B.cible){r.push('choisir si vous visez une entreprise ou si vous vous présentez de façon générale');}
+    else if(B.cible==='entreprise'&&!B.entreprise.trim()){r.push('indiquer l’entreprise visée');}
+  }
+  if(!S.sit){r.push('indiquer votre situation actuelle dans « Adaptation au métier »');}
+  return r;
+}
+function majDynamique(){
+  var m=$('msgOffre');
+  if(m){
+    if(!B.offre.trim()){
+      var nom=B.entreprise.trim();
+      m.innerHTML='<div class="alerte"><b>⚠ Pas d’offre d’emploi saisie.</b> Comme vous n’avez pas saisi d’offre d’emploi, votre candidature sera traitée comme une candidature spontanée'+(nom?' auprès de : <b>'+esc(nom)+'</b>.':' (sans entreprise précise).')+' Si vous avez l’offre, collez son texte ou son lien ci-dessus.</div>';
+    } else {m.innerHTML='';}
+  }
+  var mr=$('msgReco');
+  if(mr){mr.innerHTML=(B.reco==='oui'&&!B.recoDeposee)?'<div class="alerte"><b>⚠ Aucune lettre déposée.</b> Tant qu’elle n’est pas déposée, elle ne sera pas utilisée pour écrire votre lettre.</div>':'';}
+  var rs=raisons(), bloque=rs.length>0;
+  $('cta').disabled=bloque;$('nSuivant').disabled=bloque;
+  $('raison').textContent=bloque?'⚠ Il reste à '+rs.join(' et à ')+'.':'';
+  $('nSuivant').title=bloque?'Il reste à '+rs.join(' et à ')+'.':'';
+  var okBloc2=S.obj&&!rs.filter(function(x){return x.indexOf('Adaptation')===-1;}).length;
+  $('pil2').textContent=okBloc2?'Renseigné':'À renseigner';$('pil2').className='pil '+(okBloc2?'ok':'att');
+  $('bloc2').classList.toggle('ok',!!okBloc2);
+  var sr=situationReelle(), l=[];
+  l.push('Document demandé : Lettre de motivation');
+  l.push('CONTEXTE DE LA CANDIDATURE');
+  l.push('- Objectif choisi par la personne : '+(S.obj||'(aucun)'));
+  if(sr){l.push('- Situation réelle : '+sr.txt+(sr.bascule?'   [basculée : aucune offre saisie]':''));}
+  if(posteOK()){l.push('- Poste visé (intitulé écrit dans la lettre) : '+intitulePoste());}
+  if(B.mode==='domaine'&&B.domaine){l.push('- Domaine visé : '+B.domaine);}
+  if(B.entreprise.trim()){l.push('- Entreprise : '+B.entreprise.trim());}
+  if(B.site.trim()){l.push('- Site de l’entreprise : '+B.site.trim());}
+  if(B.offre.trim()&&cibleEff()==='offre'){l.push('- Offre visée (lien ou texte) : '+B.offre.trim().slice(0,80)+(B.offre.length>80?'...':''));}
+  if(B.structure){l.push('- Type de structure visée : '+B.structure);}
+  if(B.civ==='M'||B.civ==='F'){l.push('- Personne en charge du recrutement, déjà connue : '+(B.civ==='M'?'Monsieur':'Madame')+(B.nom.trim()?' '+B.nom.trim():''));}
+  if(B.civ==='non'){l.push('- Personne en charge du recrutement : inconnue (formule « Madame, Monsieur, »)');}
+  if(B.reco==='oui'&&B.recoDeposee){l.push('- Lettre de recommandation (relue et masquée par la personne)'+(B.recoDe?', de la part de : '+B.recoDe:'')+' : [texte ajouté en fin de message]');}
+  $('apercu').textContent=l.join('\n');
+  majEntete();
+}
+function majEntete(){
+  var e=$('apEnt');if(!e){return;}
+  var d=[], connu=(B.civ==='M'||B.civ==='F'), civ=B.civ==='M'?'Monsieur':'Madame';
+  var serv=(B.service||'').trim()||'Service recrutement';
+  if(B.entreprise.trim()){
+    d.push(esc(B.entreprise.trim()));
+    if(B.adresse.trim()){d.push('<span style="opacity:.75">'+esc(B.adresse.trim())+' <i>(imprimée seulement s’il reste de la place)</i></span>');}
+    if(connu){
+      d.push(esc(serv));
+      d.push('À l’attention de '+civ+(B.nom.trim()?' '+esc(B.nom.trim()):''));
+    } else {
+      var reste=serv.replace(/^service\s*/i,'').trim();
+      var bas=reste.charAt(0).toLowerCase()+reste.slice(1);
+      d.push('À l’attention du service '+(/^ressources humaines/i.test(reste)?'des ':'')+esc(bas));
+    }
+  }
+  var appel=connu?civ+',':'Madame, Monsieur,';
+  e.innerHTML='<div>Prénom Nom<br>Adresse<br>Code postal Ville<br>Téléphone<br>Courriel</div><div style="min-width:46%">'+(d.length?d.join('<br>'):'<span class="muted">(aucune entreprise visée : le bloc du destinataire est absent)</span>')+'<br><br>23 octobre 2026</div><div style="flex-basis:100%;margin-top:.6rem"><b>Formule d’appel :</b> '+appel+'<br><span class="muted small">Le nom du recruteur est dans le bloc de droite, pas dans la formule d’appel.</span></div>';
+  $('apEntNote').textContent=d.length?'Ici, le service vaut « Service recrutement » par défaut (il se change dans le panneau de mise en page). Le bloc prend 3 à 5 lignes : la fourchette de mots de la lettre en tient compte.':'';
+}
+function tout(){rendreCartes();rendreZone();rendre3();}
+
+/* ---- événements ---- */
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b){return;}
+  var a=b.dataset.act,v=b.dataset.val;
+  if(a==='obj'){
+    if(S.obj===v){return;}
+    var avait=B.metier||B.domaine||B.intitule||B.entreprise||B.site||B.offre||B.structure||B.civ||B.cible||B.reco;
+    B=JSON.parse(JSON.stringify(VIDE));S.obj=v;
+    if(avait){toast('Les informations de la carte précédente ont été effacées.');}
+    tout();return;
+  }
+  if(a==='sit'){S.sit=v;rendre3();majDynamique();return;}
+  if(a==='mode'){B.mode=v;B.metier='';B.domaine='';B.intitule='';B.domRecherche='';B.cible=null;}
+  else if(a==='domaine'){B.domaine=v;B.intitule='';}
+  else if(a==='domChanger'){B.domaine='';B.intitule='';B.cible=null;}
+  else if(a==='domAjouter'){B.domaine=B.domRecherche.trim();B.intitule='';DOMAINES[B.domaine]=DOMAINES[B.domaine]||[];}
+  else if(a==='intitule'){B.intitule=v;}
+  else if(a==='cible'){B.cible=v;B.entreprise='';B.site='';B.offre='';B.structure='';B.civ=null;B.nom='';}
+  else if(a==='civ'){B.civ=v;}
+  else if(a==='reco'){B.reco=v;if(v==='non'){B.recoDeposee=false;B.recoDe='';}}
+  else if(a==='recoDeposer'){B.recoDeposee=true;toast('Maquette : ici s’ouvre la même fenêtre de dépôt, relecture et masquage que pour le CV.');}
+  else if(a==='recoChanger'){B.recoDeposee=false;}
+  rendreZone();
+});
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.id==='domRecherche'){B.domRecherche=t.value;$('chipsDom').innerHTML=chipsDomaines();return;}
+  var c=t.dataset&&t.dataset.champ;if(!c){return;}
+  var avantPoste=posteOK();
+  B[c]=t.value;
+  if((c==='metier'||c==='intitule')&&avantPoste!==posteOK()){
+    var pos=t.selectionStart;rendreZone();var n=$(c);if(n){n.focus();n.setSelectionRange(pos,pos);}
+    return;
+  }
+  majDynamique();
+});
+document.addEventListener('change',function(e){var c=e.target.dataset&&e.target.dataset.champ;if(c==='structure'||c==='recoDe'){B[c]=e.target.value;majDynamique();}});
+$('tAnn').addEventListener('change',function(){document.body.classList.toggle('ann',this.checked);});
+$('tTheme').addEventListener('click',function(){var s=document.documentElement.getAttribute('data-theme')==='sombre';document.documentElement.setAttribute('data-theme',s?'':'sombre');this.textContent=s?'Mode sombre':'Mode clair';});
+$('tRaz').addEventListener('click',function(){B=JSON.parse(JSON.stringify(VIDE));S={obj:null,sit:''};tout();});
+$('nRetour').addEventListener('click',function(){toast('Retour : écran précédent (inchangé).');});
+$('nAccueil').addEventListener('click',function(){toast('Accueil (inchangé).');});
+function suivant(){toast('Choisir mon assistant : écran suivant (inchangé). Même bouton dans la page et dans la barre du bas.');}
+$('nSuivant').addEventListener('click',suivant);$('cta').addEventListener('click',suivant);
+tout();
+</script>
+</body>
+</html>

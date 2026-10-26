@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!--
+  Maquette - « petites structures » : carte de structure partagée (téléphone, mail, pastille) et filtre du sas de l'outil de veille.
+  Chantier : docs/CHANTIER_PETITES_STRUCTURES_2026-10-19.md (Mode A, [effort : haut]).
+  Statut : PROPOSITION, rien n'est codé dans l'application, rien n'est publié.
+
+  Les écrans 1 à 3 chargent les VRAIES feuilles de style de l'application (mêmes cartes, mode sombre compris).
+  L'écran 4 (outil de veille) imite son aspect : il est INDICATIF, le vrai écran reprend les styles de outils/veille.html.
+  Ouverture : double-clic depuis le dossier docs/, ou http://localhost:8123/docs/MAQUETTE_PETITES_STRUCTURES_2026-10-19.html
+
+  Les noms de structures sont INVENTÉS (« Exemple A »...) : aucune vraie structure dans ce dépôt public.
+  Les textes sont des BROUILLONS à relire par Denis.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Petites structures</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  body { background: var(--bg-page, #f4f6fb); }
+  .mq-barre { position: sticky; top: 0; z-index: 20; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .mq-barre .mq-titre { font-weight: 700; margin-right: auto; }
+  .mq-page { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  .mq-avertissement { border: 2px dashed var(--border-strong); border-radius: .8rem; padding: .7rem .9rem; margin: .8rem 0 1.2rem; background: var(--bg-card); font-size: .9rem; }
+  .mq-ecran[hidden] { display: none; }
+  .mq-etiquette { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: .4rem; padding: .05rem .4rem; margin-bottom: .3rem; }
+  .mq-note { font-size: .85rem; color: var(--text-muted); border-left: 3px solid var(--border-strong); padding: .2rem .7rem; margin: .8rem 0; }
+  .mq-contact a { text-decoration: none; }
+  .mq-contact a:hover { text-decoration: underline; }
+  .mq-outil { border: 1px solid var(--border-strong); border-radius: .6rem; background: var(--bg-card); padding: .8rem 1rem; margin-bottom: .6rem; }
+  .mq-outil .mq-ligne { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  .mq-etat { display: inline-block; font-size: .75rem; font-weight: 700; padding: .05rem .5rem; border-radius: 1rem; border: 1px solid var(--border-strong); }
+</style>
+</head>
+<body>
+<div class="mq-barre">
+  <span class="mq-titre"><i class="bi bi-geo-alt"></i> Maquette : petites structures</span>
+  <button type="button" class="btn btn-sm btn-primary" data-mq-aller="rayon">1. Un rayon (liste)</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="cas">2. Les trois cas d'une carte</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="ancienne">3. Avant / après</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="outil">4. Le sas de l'outil de veille</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="mqSombre" aria-pressed="false"><i class="bi bi-moon-stars"></i> Mode sombre</button>
+</div>
+
+<div class="mq-page">
+  <div class="mq-avertissement">
+    <strong>PROPOSITION, rien n'est codé.</strong> Les noms de structures sont inventés. Ce que cette maquette demande à Denis de valider : (1) <strong>une seule carte de structure</strong> qui montre commune, téléphone et mail, utilisée partout ; (2) la <strong>pastille « Petite structure locale »</strong> et la phrase d'aide ; (3) le <strong>filtre « Petites structures »</strong> dans le sas. Clique sur les boutons pour essayer (le mode sombre aussi).
+  </div>
+
+  <!-- ===== 1. UN RAYON ===== -->
+  <section class="mq-ecran" id="mq-rayon">
+    <span class="mq-etiquette">Écran 1 : le rayon « Apprendre le français », Dordogne</span>
+    <h1 class="h3 text-center mt-3"><i class="bi bi-translate titre-icone-accent"></i> Apprendre le français, en Dordogne</h1>
+
+    <h2 class="h5 fw-bold text-uppercase text-muted mt-4 mb-2">Partout en France</h2>
+    <div class="comprendre-le-cadre-encart mb-2">
+      <span class="d-block fw-semibold">Exemple N (réseau national)</span>
+      <span class="d-block small">Annuaire des lieux de formation en français</span>
+      <span class="d-block small text-muted">Apprendre le français</span>
+      <a href="#" class="d-block small mt-1" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> https://www.exemple-reseau.fr</a>
+      <span class="comprendre-le-cadre-source-date">adresse vérifiée le 17 octobre 2026</span>
+    </div>
+
+    <h2 class="h5 fw-bold text-uppercase text-muted mt-4 mb-2">Dordogne</h2>
+    <p class="small text-muted text-center">Par ordre alphabétique dans chaque partie : ce n’est pas un classement.</p>
+
+    <div class="comprendre-le-cadre-encart mb-2">
+      <span class="d-block fw-semibold">Exemple A, ateliers de français <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span></span>
+      <span class="d-block small">Ateliers de français pour adultes, deux matins par semaine, sans inscription préalable.</span>
+      <span class="d-block small text-muted">Apprendre le français · Bergerac (24100)</span>
+      <span class="d-block small mt-1 mq-contact"><i class="bi bi-telephone"></i> <a href="#" onclick="return false"><strong>05 53 00 00 01</strong></a></span>
+      <span class="d-block small mq-contact"><i class="bi bi-envelope"></i> <a href="#" onclick="return false">contact@exemple-a.example</a></span>
+      <span class="comprendre-le-cadre-source-date">coordonnées vérifiées le 19 octobre 2026</span>
+      <span class="d-block small text-muted mt-1"><i class="bi bi-info-circle"></i> Une petite structure : téléphonez ou écrivez avant de vous déplacer, les horaires peuvent changer.</span>
+    </div>
+
+    <div class="comprendre-le-cadre-encart mb-2">
+      <span class="d-block fw-semibold">Exemple B, association de quartier <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span></span>
+      <span class="d-block small">Permanence d’aide aux démarches et cours de français, ouverts à tous.</span>
+      <span class="d-block small text-muted">Apprendre le français · Périgueux (24000)</span>
+      <span class="d-block small mt-1 mq-contact"><i class="bi bi-envelope"></i> <a href="#" onclick="return false">accueil@exemple-b.example</a></span>
+      <span class="comprendre-le-cadre-source-date">coordonnées vérifiées le 19 octobre 2026</span>
+      <span class="d-block small text-muted mt-1"><i class="bi bi-info-circle"></i> Une petite structure : téléphonez ou écrivez avant de vous déplacer, les horaires peuvent changer.</span>
+    </div>
+
+    <div class="comprendre-le-cadre-encart mb-2">
+      <span class="d-block fw-semibold">Exemple C, collectif solidaire <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span></span>
+      <span class="d-block small">Cours de français et accompagnement des personnes réfugiées.</span>
+      <span class="d-block small text-muted">Apprendre le français · Sarlat-la-Canéda (24200)</span>
+      <span class="d-block small text-muted mt-1"><i class="bi bi-clock-history"></i> Coordonnées pas encore vérifiées ou à revérifier.</span>
+    </div>
+
+    <div class="mq-note">
+      <strong>Ce que la maquette montre.</strong> La carte garde ses éléments actuels (nom, description, type, commune, lien du site vérifié, date) et gagne <strong>le téléphone et le mail cliquables</strong> (sur téléphone portable, un appui lance l’appel ou le message). Ils ne s’affichent qu’avec une date de moins de 12 mois, exactement comme le site aujourd’hui. La <strong>pastille</strong> et la <strong>phrase d’aide</strong> n’apparaissent que sur une petite structure. Les structures déjà publiées gagnent le téléphone <em>sans pastille</em> si elles en ont un.
+    </div>
+  </section>
+
+  <!-- ===== 2. LES TROIS CAS ===== -->
+  <section class="mq-ecran" id="mq-cas" hidden>
+    <span class="mq-etiquette">Écran 2 : les cas d'une carte</span>
+    <h1 class="h3 text-center mt-3">Ce que la carte affiche selon ce qui est vérifié</h1>
+
+    <h2 class="h6 fw-bold mt-4">Cas 1 : téléphone ET mail vérifiés</h2>
+    <div class="comprendre-le-cadre-encart mb-2">
+      <span class="d-block fw-semibold">Exemple D, épicerie solidaire <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span></span>
+      <span class="d-block small">Épicerie ouverte aux personnes qui ont de petits revenus, sur orientation ou sur rendez-vous.</span>
+      <span class="d-block small text-muted">Aide alimentaire et matérielle · Limoges (87000)</span>
+      <span class="d-block small mt-1 mq-contact"><i class="bi bi-telephone"></i> <a href="#" onclick="return false"><strong>05 55 00 00 02</strong></a></span>
+      <span class="d-block small mq-contact"><i class="bi bi-envelope"></i> <a href="#" onclick="return false">epicerie@exemple-d.example</a></span>
+      <span class="comprendre-le-cadre-source-date">coordonnées vérifiées le 19 octobre 2026</span>
+    </div>
+
+    <h2 class="h6 fw-bold mt-4">Cas 2 : un seul des deux (le mail seulement, ici)</h2>
+    <div class="comprendre-le-cadre-encart mb-2">
+      <span class="d-block fw-semibold">Exemple E, collectif d’entraide <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span></span>
+      <span class="d-block small">Aide aux démarches en ligne, sur rendez-vous.</span>
+      <span class="d-block small text-muted">Aide au numérique · Limoges (87000)</span>
+      <span class="d-block small mq-contact mt-1"><i class="bi bi-envelope"></i> <a href="#" onclick="return false">entraide@exemple-e.example</a></span>
+      <span class="comprendre-le-cadre-source-date">coordonnées vérifiées le 19 octobre 2026</span>
+    </div>
+
+    <h2 class="h6 fw-bold mt-4">Cas 3 : date absente ou de plus de 12 mois (rien de cliquable, aucun numéro affiché)</h2>
+    <div class="comprendre-le-cadre-encart mb-2">
+      <span class="d-block fw-semibold">Exemple F, permanence juridique <span class="badge text-bg-secondary ms-1"><i class="bi bi-people"></i> Petite structure locale</span></span>
+      <span class="d-block small">Permanence gratuite d’aide à l’accès au droit.</span>
+      <span class="d-block small text-muted">Accès au droit · Brive-la-Gaillarde</span>
+      <span class="d-block small text-muted mt-1"><i class="bi bi-clock-history"></i> Coordonnées pas encore vérifiées ou à revérifier.</span>
+    </div>
+    <div class="mq-note">Le cas 3 est la règle déjà en vigueur : <strong>sans date de vérification, aucune coordonnée ne s’affiche</strong>. La personne ne voit jamais un numéro que Denis n’a pas confirmé.</div>
+  </section>
+
+  <!-- ===== 3. AVANT / APRES ===== -->
+  <section class="mq-ecran" id="mq-ancienne" hidden>
+    <span class="mq-etiquette">Écran 3 : une structure déjà publiée, avant et après</span>
+    <h1 class="h3 text-center mt-3">Une grosse structure déjà dans le registre</h1>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <h2 class="h6 fw-bold">Avant (aujourd'hui)</h2>
+        <div class="comprendre-le-cadre-encart mb-2">
+          <span class="d-block fw-semibold">Exemple G, antenne départementale</span>
+          <span class="d-block small">Aides personnelles au logement</span>
+          <span class="d-block small text-muted">Logement et hébergement</span>
+          <a href="#" class="d-block small mt-1" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> https://www.exemple-g.example</a>
+          <span class="comprendre-le-cadre-source-date">adresse vérifiée le 17 octobre 2026</span>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h2 class="h6 fw-bold">Après</h2>
+        <div class="comprendre-le-cadre-encart mb-2">
+          <span class="d-block fw-semibold">Exemple G, antenne départementale</span>
+          <span class="d-block small">Aides personnelles au logement</span>
+          <span class="d-block small text-muted">Logement et hébergement · Périgueux (24000)</span>
+          <span class="d-block small mt-1 mq-contact"><i class="bi bi-telephone"></i> <a href="#" onclick="return false"><strong>05 53 00 00 03</strong></a></span>
+          <a href="#" class="d-block small mt-1" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> https://www.exemple-g.example</a>
+          <span class="comprendre-le-cadre-source-date">adresse vérifiée le 17 octobre 2026</span>
+        </div>
+      </div>
+    </div>
+    <div class="mq-note">
+      <strong>Aucune fonction perdue</strong> : le lien du site, la date, le badge « Couvre votre commune » restent. S'ajoutent la commune (déjà montrée dans « Qui fait quoi », pas dans « Comprendre le cadre ») et le téléphone quand il existe. Une seule carte remplace les deux copies actuelles (dette de duplication résorbée, à écrire dans <code>BRIQUES_COMMUNES.md</code>).
+    </div>
+  </section>
+
+  <!-- ===== 4. OUTIL DE VEILLE ===== -->
+  <section class="mq-ecran" id="mq-outil" hidden>
+    <span class="mq-etiquette">Écran 4 : le sas des structures dans l'outil de veille (aspect indicatif)</span>
+    <h1 class="h4 mt-3">Sas des structures</h1>
+    <div class="mq-outil">
+      <div class="mq-ligne">
+        <strong>Filtres :</strong>
+        <button type="button" class="btn btn-sm btn-outline-primary" data-filtre="tout">Toutes (452)</button>
+        <button type="button" class="btn btn-sm btn-primary" data-filtre="petites" style="outline:3px solid var(--accent); outline-offset:2px"><i class="bi bi-people"></i> Petites structures (11)</button>
+        <button type="button" class="btn btn-sm btn-outline-primary" data-filtre="sanscontact">Sans téléphone ni mail (3)</button>
+        <button type="button" class="btn btn-sm btn-outline-primary" data-filtre="avecmail">Avec un mail (8)</button>
+      </div>
+      <div class="small text-muted mt-2">Le filtre « Petites structures » repère la marque « Petite structure ; » écrite au début de la source. Il se combine avec la recherche par mot et les autres filtres déjà là (type, portée...).</div>
+    </div>
+
+    <div id="mq-cartes"></div>
+
+    <div class="mq-note">
+      <strong>Ce que la maquette montre.</strong> Chaque carte du sas affiche pastille « Petite structure », contacts et un état de validation en clair. Le bouton <strong>« J'ai appelé »</strong>, <strong>« J'ai écrit »</strong> ou <strong>« J'ai ouvert la page officielle »</strong> garde la même action (« C'est bon ») mais dit <em>comment</em> la vérification a été faite : la date est posée à ce moment seulement, jamais avant. La fiche sans aucun contact ne peut pas être validée comme petite structure (rien à afficher).
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var CARTES = [
+    { nom: 'Exemple H, service d’accueil', quoi: 'Accueil, orientation et domiciliation.', ou: 'Bergerac', tel: '05 53 00 00 04', mail: 'accueil@exemple-h.example', page: 'https://www.exemple-h.example/contacts' },
+    { nom: 'Exemple I, service hébergement', quoi: 'Hébergement d’urgence et logement de transition.', ou: 'Sarlat-la-Canéda', tel: '', mail: '', page: 'https://www.exemple-h.example/contacts', manque: true },
+    { nom: 'Exemple J, maison des jeunes', quoi: 'Accueil des 12 à 21 ans et de leurs familles, avec ou sans rendez-vous.', ou: 'Bergerac', tel: '', mail: 'contact@exemple-j.example', page: 'https://www.exemple-j.example' }
+  ];
+  function echap(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function dessinerCartes() {
+    document.getElementById('mq-cartes').innerHTML = CARTES.map(function (c) {
+      var contacts = (c.tel ? '<span class="me-3"><i class="bi bi-telephone"></i> ' + echap(c.tel) + '</span>' : '') + (c.mail ? '<span><i class="bi bi-envelope"></i> ' + echap(c.mail) + '</span>' : '');
+      return '<div class="mq-outil">' +
+        '<div class="mq-ligne"><strong>' + echap(c.nom) + '</strong> <span class="badge text-bg-secondary"><i class="bi bi-people"></i> Petite structure</span> <span class="mq-etat">à valider</span></div>' +
+        '<div class="small">' + echap(c.quoi) + '</div>' +
+        '<div class="small text-muted">' + echap(c.ou) + ' · source : <a href="#" onclick="return false">' + echap(c.page) + '</a></div>' +
+        '<div class="small mt-1">' + (contacts || '<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Aucun téléphone ni mail : à compléter avant de valider.</span>') + '</div>' +
+        '<div class="mq-ligne mt-2">' +
+          (c.manque ? '<button type="button" class="btn btn-sm btn-outline-secondary" disabled>Valider (impossible sans contact)</button>' :
+            '<button type="button" class="btn btn-sm btn-success" data-valider><i class="bi bi-telephone"></i> J’ai appelé : c’est bon</button>' +
+            '<button type="button" class="btn btn-sm btn-success" data-valider><i class="bi bi-envelope"></i> J’ai écrit : c’est bon</button>' +
+            '<button type="button" class="btn btn-sm btn-success" data-valider><i class="bi bi-box-arrow-up-right"></i> J’ai ouvert la page : c’est bon</button>') +
+          '<button type="button" class="btn btn-sm btn-outline-secondary">Modifier</button>' +
+          '<button type="button" class="btn btn-sm btn-outline-danger">Retirer</button>' +
+        '</div></div>';
+    }).join('');
+    document.querySelectorAll('[data-valider]').forEach(function (b) {
+      b.onclick = function () {
+        var carte = b.closest('.mq-outil'); var etat = carte.querySelector('.mq-etat');
+        etat.textContent = 'validée le 19 octobre 2026'; etat.style.borderColor = 'var(--accent)';
+        carte.querySelectorAll('[data-valider]').forEach(function (x) { x.disabled = true; });
+      };
+    });
+  }
+  function aller(id) {
+    document.querySelectorAll('.mq-ecran').forEach(function (e) { e.hidden = e.id !== 'mq-' + id; });
+    document.querySelectorAll('.mq-barre [data-mq-aller]').forEach(function (b) { var a = b.dataset.mqAller === id; b.classList.toggle('btn-primary', a); b.classList.toggle('btn-outline-primary', !a); });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('[data-mq-aller]').forEach(function (b) { b.onclick = function () { aller(b.dataset.mqAller); }; });
+  var s = document.getElementById('mqSombre');
+  s.addEventListener('click', function () {
+    var html = document.documentElement, sombre = html.getAttribute('data-theme') === 'sombre';
+    if (sombre) { html.removeAttribute('data-theme'); } else { html.setAttribute('data-theme', 'sombre'); }
+    s.setAttribute('aria-pressed', String(!sombre));
+  });
+  dessinerCartes(); aller('rayon');
+})();
+</script>
+</body>
+</html>

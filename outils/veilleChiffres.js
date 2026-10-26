@@ -20,10 +20,21 @@ const NOMS_CHAMPS = { valeur: 'valeur affichée', periode: 'période', precedent
 // Forme attendue de chaque donnée d'un lieu : pourcentage, euros, nombre entier, texte libre.
 const FORMES_CHAMP = {
   valeur: 'nombre', chomage_recensement: 'pct', niveau_vie_median: 'eur', taux_pauvrete: 'pct', residences_secondaires: 'pct', part_65_et_plus: 'pct',
-  part_sans_diplome: 'pct', part_diplome_superieur: 'pct', secteur_principal: 'txt', population: 'nb', part_emploi_salarie: 'pct', gros_etablissements: 'txt', part_industrie: 'pct'
+  part_sans_diplome: 'pct', part_diplome_superieur: 'pct', secteur_principal: 'txt', population: 'nb', part_emploi_salarie: 'pct', gros_etablissements: 'txt', part_industrie: 'pct',
+  // entreprises-departements.md (repères d'entreprises, 2026-10-19) : des nombres d'annonces du BODACC, jamais une entreprise
+  ouvertures: 'nb', ouvertures_an_precedent: 'nb', ventes: 'nb', ventes_an_precedent: 'nb',
+  // début et fin de la période comptée : écrites en français (jour/mois/année), comme partout où une date est vue ; l'application les met en toutes lettres
+  periode_du: 'jour', periode_au: 'jour'
 };
-const RE_FORME = { pct: /^\d+(,\d+)? ?%$/, eur: /^\d[\d  ]* ?€$/, nb: /^\d[\d  ]*$/, nombre: /^-?\d+(,\d+)?( ?%)?$/, txt: /\S/ };
-const AIDE_FORME = { pct: 'un pourcentage à la française, par exemple « 8,5 % »', eur: 'un montant en euros, par exemple « 23 700 € »', nb: 'un nombre entier', nombre: 'un nombre à la française, par exemple « 8,5 % » ou « 133 »', txt: 'un texte non vide' };
+const RE_FORME = { pct: /^\d+(,\d+)? ?%$/, eur: /^\d[\d  ]* ?€$/, nb: /^\d[\d  ]*$/, nombre: /^-?\d+(,\d+)?( ?%)?$/, txt: /\S/, jour: /^\d{2}\/\d{2}\/\d{4}$/ };
+const AIDE_FORME = { pct: 'un pourcentage à la française, par exemple « 8,5 % »', eur: 'un montant en euros, par exemple « 23 700 € »', nb: 'un nombre entier', nombre: 'un nombre à la française, par exemple « 8,5 % » ou « 133 »', txt: 'un texte non vide', jour: 'une date jour/mois/année, par exemple « 18/10/2026 »' };
+// Une date jour/mois/année qui existe vraiment (pas de 31/02).
+function jourFrValide(v) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(v || ''));
+  if (!m) { return false; }
+  const j = parseInt(m[1], 10), mo = parseInt(m[2], 10), a = parseInt(m[3], 10), d = new Date(Date.UTC(a, mo - 1, j));
+  return a >= 2000 && a <= 2100 && d.getUTCFullYear() === a && d.getUTCMonth() === mo - 1 && d.getUTCDate() === j;
+}
 
 function nombre(s) {
   const m = String(s || '').match(/-?\d[\d\s .,]*/);
@@ -155,6 +166,7 @@ function modifierTerritoire(texte, demande, contexte) {
     const forme = FORMES_CHAMP[cle] || 'txt', v = String(changes[cle]).trim();
     if (/[\r\n]/.test(v)) { return { ok: false, erreur: 'La donnée « ' + cle + ' » tient en une seule ligne.' }; }
     if (!RE_FORME[forme].test(v)) { return { ok: false, erreur: 'La donnée « ' + cle + ' » doit être ' + AIDE_FORME[forme] + ' (reçu : « ' + v.slice(0, 40) + ' »).' }; }
+    if (forme === 'jour' && !jourFrValide(v)) { return { ok: false, erreur: 'La donnée « ' + cle + ' » doit être ' + AIDE_FORME.jour + ' (cette date n\'existe pas : « ' + v.slice(0, 40) + ' »).' }; }
     if (TIRETS.test(v)) { return { ok: false, erreur: 'La donnée « ' + cle + ' » contient un tiret long ou demi-long (interdit).' }; }
     if (existant && existant.valeur === v) { continue; }
     modifies.push({ cle: cle, valeur: v, existe: !!existant });
@@ -179,6 +191,10 @@ function modifierTerritoire(texte, demande, contexte) {
   const datation = d.datation === 'redater' ? 'redater' : 'garder';
   if (!modifies.length && sources === null && prose === null && datation !== 'redater') { return { ok: false, erreur: 'Ces modifications ne changent rien à ce lieu.' }; }
   if (chiffre && !d.confirmeSource) { return { ok: false, erreur: 'Un chiffre a changé : confirmez que vous avez ouvert la source et que le chiffre y figure.' }; }
+  // Première datation d'un fichier relevé mais jamais vérifié (« verifie_le: a-valider ») : c'est elle qui le rend public, donc elle exige la confirmation même si aucun chiffre ne change.
+  if (datation === 'redater' && !/^\d{4}-\d{2}(-\d{2})?$/.test(verifieDe(lu.entete)) && !d.confirmeSource) {
+    return { ok: false, erreur: 'Ce fichier n\'a pas encore de date de vérification : confirmez que vous avez ouvert la source et retrouvé les chiffres avant de le dater.' };
+  }
 
   modifies.forEach(function (m) {
     if (m.existe) { bloc.champs.filter(function (c) { return c.cle === m.cle; })[0].valeur = m.valeur; }

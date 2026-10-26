@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : texte qui sort de la couleur du bandeau</title>
+<style>
+:root { --bg:#f3f5f9; --card:#fff; --text:#1f2933; --muted:#5b6675; --border:#cfd6e2; --accent:#1e4f8a; --accent-bg:#e6eef9; --band:#2f6690; }
+[data-theme="sombre"] { --bg:#14181f; --card:#1d232d; --text:#e8ecf2; --muted:#9aa6b6; --border:#3a4454; --accent:#7db3ee; --accent-bg:#22304a; --band:#2f6690; }
+* { box-sizing:border-box; }
+body { margin:0; font:16px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+header { padding:14px 16px; background:var(--card); border-bottom:1px solid var(--border); }
+header h1 { margin:0; font-size:1.15rem; }
+header p { margin:4px 0 0; color:var(--muted); font-size:.92rem; }
+.corps { display:grid; grid-template-columns:minmax(300px,1fr) 400px; gap:16px; padding:16px; max-width:1200px; margin:0 auto; }
+@media (max-width:820px) { .corps { grid-template-columns:1fr; } }
+.carte { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:12px; }
+.carte h2 { margin:0 0 8px; font-size:1rem; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.btn { font:inherit; border:1px solid var(--border); background:var(--card); color:var(--text); border-radius:8px; padding:7px 12px; cursor:pointer; min-height:40px; }
+.btn[aria-checked="true"], .btn.on { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); font-weight:600; box-shadow:0 0 0 1px var(--accent) inset; }
+.rang { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; }
+.lib { font-size:.88rem; font-weight:600; margin-top:8px; }
+.aide { font-size:.85rem; color:var(--muted); margin:4px 0 0; }
+.sw { display:inline-block; width:16px; height:16px; border-radius:50%; border:1px solid var(--border); vertical-align:-3px; margin-right:6px; }
+
+/* ---- La page du CV (mini) ---- */
+.page-hote { display:flex; justify-content:center; }
+.page { position:relative; width:100%; max-width:520px; aspect-ratio:210/297; background:#fff; border:1px solid #aab4c8; box-shadow:0 2px 10px rgba(0,0,0,.18); overflow:hidden; color:#222; font-size:clamp(7px,1.9vw,11px); }
+.bande { position:absolute; left:0; right:0; top:0; height:var(--hb,19%); }
+/* la forme colorée */
+.forme { position:absolute; inset:0; background:var(--band); }
+/* le texte du bandeau : deux copies superposées */
+.bloc { position:absolute; left:var(--x,6%); top:var(--y,22%); white-space:nowrap; cursor:grab; touch-action:none; user-select:none; padding:2px 4px; border-radius:4px; z-index:3; }
+.bloc.pris { cursor:grabbing; outline:2px dashed var(--accent); }
+.bloc .nom { display:block; font-weight:700; font-size:var(--tn,2.5em); line-height:1.05; }
+.bloc .met { display:block; font-size:1.35em; margin-top:.2em; }
+.couche-hors { position:absolute; inset:0; z-index:2; pointer-events:none; }
+.couche-dans { position:absolute; inset:0; z-index:3; pointer-events:none; color:#fff; }
+.couche-hors .bloc, .couche-dans .bloc { pointer-events:none; }
+.poignee { position:absolute; z-index:5; }
+.lignes { position:absolute; left:6%; right:6%; top:26%; display:grid; gap:.7em; }
+.lignes i { display:block; height:.7em; background:#d7dce6; border-radius:3px; }
+.lignes i:nth-child(3n) { width:70%; } .lignes i:nth-child(3n+1) { width:90%; }
+.etiq { position:absolute; left:6%; bottom:3%; font-size:.85em; color:#6b7686; z-index:1; }
+
+/* fond sombre pour voir le blanc quand le texte sort */
+.note { background:var(--accent-bg); border:1px solid var(--accent); border-radius:10px; padding:8px 10px; font-size:.9rem; }
+.ferme { float:right; }
+.tiroir[hidden] { display:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Maquette : le texte qui sort de la couleur du bandeau</h1>
+  <p>Attrapez le nom ou le métier sur la page et sortez-le de la couleur : voyez ce que devient la partie qui dépasse. Les boutons de droite sont ceux du panneau « Bandeau » de l'application (même aspect que les autres).</p>
+</header>
+
+<div class="corps">
+  <div>
+    <div class="carte">
+      <h2>Votre CV <span class="aide" id="etat"></span></h2>
+      <div class="page-hote">
+        <div class="page" id="page">
+          <div class="bande" id="bande">
+            <div class="forme" id="forme"></div>
+            <div class="couche-hors" id="hors"></div>
+            <div class="couche-dans" id="dans"></div>
+            <div class="bloc" id="reel" style="opacity:0"><span class="nom">Camille MARTIN</span><span class="met">Agent de sécurité</span></div>
+          </div>
+          <div class="lignes"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <p class="aide">Astuce de la maquette : attrapez le nom et tirez-le vers le bas ou hors du bandeau.</p>
+    </div>
+    <div class="note"><b>Ce que la maquette montre.</b> Dans la couleur, le texte reste blanc. Dehors, il prend la couleur choisie à droite. Les deux morceaux se raccordent exactement au bord de la forme, comme pour la forme « Vide » déjà en place.</div>
+  </div>
+
+  <div>
+    <div class="carte tiroir" id="tiroir">
+      <h2>Forme du bandeau <button class="btn ferme" id="fermer" type="button">Fermer</button></h2>
+      <div class="rang" role="radiogroup" aria-label="Forme du bandeau" id="formes"></div>
+
+      <div class="lib">Quand le texte sort de la couleur</div>
+      <div class="rang" role="radiogroup" aria-label="Texte hors de la forme" id="modes"></div>
+      <div id="couleurs" class="rang" role="radiogroup" aria-label="Couleur du texte hors de la forme"></div>
+      <p class="aide" id="aide"></p>
+
+      <div class="lib">Taille du nom (pour essayer)</div>
+      <input type="range" id="taille" min="18" max="44" value="25" style="width:100%">
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var FORMES = [
+    ['droit', 'Droit', null],
+    ['demiovale', 'Demi-ovale', function () { var p = ['0 0', '100% 0']; for (var i = 0; i <= 40; i++) { var x = 100 - i / 40 * 100, k = 1 - Math.pow((x - 50) / 50, 2); p.push(x.toFixed(2) + '% ' + (20 + 80 * Math.sqrt(Math.max(0, k))).toFixed(2) + '%'); } return 'polygon(' + p.join(',') + ')'; }],
+    ['ruban', 'Ruban court', function () { return 'polygon(0 0, 66% 0, 56% 100%, 0 100%)'; }],
+    ['rubanLong', 'Ruban incliné', function () { return 'polygon(0 0, 100% 0, 90% 100%, 0 100%)'; }],
+    ['diagonale', 'Diagonale', function () { return 'polygon(0 0, 100% 0, 100% 50%, 0 100%)'; }],
+    ['pilule', 'Pilule', function () { return null; }, 'inset(8% 4% 6% 4% round 999px)'],
+    ['carte', 'Carte flottante', function () { return null; }, 'inset(8% 4% 6% 4% round 16px)']
+  ];
+  var MODES = [['dessous', 'Couleur du fond du bandeau'], ['fonce', 'Foncé'], ['gris', 'Gris'], ['aucun', 'Ne rien changer (texte blanc)']];
+  var forme = 'demiovale', mode = 'dessous', fond = '#2f6690';
+  var el = function (id) { return document.getElementById(id); };
+  var etat = { x: 6, y: 4 }; var page = document.getElementById('page');
+
+  function clip() {
+    var f = FORMES.filter(function (q) { return q[0] === forme; })[0];
+    if (!f[2]) { return 'none'; }
+    var g = f[2](); return g || f[3] || 'none';
+  }
+  function couleurHors() {
+    if (mode === 'dessous') { return fond; }
+    if (mode === 'fonce') { return '#1f2933'; }
+    if (mode === 'gris') { return '#6b7686'; }
+    return '#fff';
+  }
+  function copie(hote, classe) {
+    hote.innerHTML = '';
+    var b = el('reel').cloneNode(true); b.removeAttribute('id'); b.style.opacity = 1; b.classList.add('copie'); hote.appendChild(b); return b;
+  }
+  function pos(b) { var pw = page.offsetWidth, ph = page.offsetHeight; b.style.left = (etat.x / 100 * pw) + 'px'; b.style.top = (etat.y / 100 * ph) + 'px'; }
+  function dessiner() {
+    var c = clip(), forme_el = el('forme'), dans = el('dans'), hors = el('hors'), reel = el('reel');
+    forme_el.style.clipPath = c === 'none' ? '' : c;
+    dans.style.clipPath = c === 'none' ? 'inset(0)' : c;
+    var h = copie(hors), d = copie(dans);
+    h.style.color = couleurHors(); d.style.color = '#fff';
+    pos(h); pos(d); pos(reel);
+    reel.style.opacity = 0;
+    // la poignee de saisie est le bloc reel, invisible, au meme endroit
+    el('hors').style.display = (mode === 'aucun') ? 'none' : 'block';
+    var gros = el('taille').value / 10 + 'em'; ['bande'].forEach(function () { el('bande').style.setProperty('--tn', gros); });
+    el('etat').textContent = '';
+    el('aide').textContent = mode === 'aucun'
+      ? 'Rien ne change : si le texte blanc sort de la couleur, il devient invisible sur le papier blanc.'
+      : 'Le texte reste blanc dans la couleur ; la partie qui dépasse prend la couleur choisie, comme un seul texte.';
+  }
+  function boutons(hote, liste, courant, quand, avecPastille) {
+    hote.innerHTML = '';
+    liste.forEach(function (o) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', o[0] === courant ? 'true' : 'false');
+      b.textContent = o[1]; b.addEventListener('click', function () { quand(o[0]); }); hote.appendChild(b);
+    });
+  }
+  function tout() {
+    boutons(el('formes'), FORMES, forme, function (v) { forme = v; tout(); });
+    boutons(el('modes'), MODES, mode, function (v) { mode = v; tout(); });
+    // choix de la couleur propre : trois pastilles de couleur quand « Couleur du fond » est choisi
+    var c = el('couleurs'); c.innerHTML = '';
+    if (mode === 'dessous') {
+      [['#2f6690', 'Bleu du bandeau'], ['#7d2e43', 'Prune'], ['#0f6e56', 'Vert']].forEach(function (q) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', fond === q[0] ? 'true' : 'false');
+        b.innerHTML = '<span class="sw" style="background:' + q[0] + '"></span>' + q[1];
+        b.addEventListener('click', function () { fond = q[0]; el('forme').parentNode.parentNode.style.setProperty('--band', q[0]); document.documentElement.style.setProperty('--band', q[0]); tout(); });
+        c.appendChild(b);
+      });
+      var n = document.createElement('p'); n.className = 'aide'; n.style.width = '100%'; n.textContent = 'Le texte qui dépasse prend la couleur du bandeau : c\'est la figure de style décrite par Denis.'; c.appendChild(n);
+    }
+    dessiner();
+  }
+  // glisser le nom
+  var prise = null;
+  function lire(e) { var r = page.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 100, y: (e.clientY - r.top) / r.height * 100 }; }
+  var zone = el('bande');
+  // On attrape le BLOC de texte lui-meme (le vrai, invisible, pose exactement sur les deux copies) : toute la largeur du nom et du metier est saisissable.
+  el('reel').style.pointerEvents = 'auto'; el('reel').style.zIndex = 6; el('reel').style.cursor = 'grab';
+  el('reel').addEventListener('pointerdown', function (e) {
+    var p = lire(e); prise = { dx: p.x - etat.x, dy: p.y - etat.y }; page.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  page.addEventListener('pointermove', function (e) { if (!prise) { return; } var p = lire(e); etat.x = Math.max(-4, Math.min(80, p.x - prise.dx)); etat.y = Math.max(0, Math.min(92, p.y - prise.dy)); dessiner(); });
+  page.addEventListener('pointerup', function () { prise = null; });
+  el('taille').addEventListener('input', dessiner);
+  el('fermer').addEventListener('click', function () { el('tiroir').hidden = true; });
+  tout();
+})();
+</script>
+</body>
+</html>

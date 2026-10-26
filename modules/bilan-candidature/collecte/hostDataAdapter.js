@@ -212,6 +212,10 @@ function bilanLecteursParDefaut() {
     // pour l'affichage) avant d'etre unifie ici. dossierAStructureExperiences()
     // (js/app.js) est desormais la SEULE fonction qui repond a cette
     // question -- ce lecteur ne fait que la relayer, jamais la recalculer.
+    // Lot 4 : disponibilites renseignees sur l'ecran des cartes (texte deja formate par l'application, vide si rien).
+    lireDisponibilites: function () {
+      return typeof texteDisponibilitesPourAnalyse === 'function' ? (texteDisponibilitesPourAnalyse() || null) : null;
+    },
     lireStructurationDisponible: function () {
       return typeof dossierAStructureExperiences === 'function' && dossierAStructureExperiences();
     }
@@ -233,6 +237,7 @@ function bilanLireDonneesBrutesCandidat(lecteurs) {
     offreEmploi: (lecteurs.lireOffreEmploi && lecteurs.lireOffreEmploi()) || null,
     typeStructure: (lecteurs.lireTypeStructure && lecteurs.lireTypeStructure()) || null,
     objectif: (lecteurs.lireObjectifCandidature && lecteurs.lireObjectifCandidature()) || null,
+    disponibilites: (lecteurs.lireDisponibilites && lecteurs.lireDisponibilites()) || null,
     nombreExperiencesProfessionnelles: (lecteurs.lireNombreExperiencesProfessionnelles && lecteurs.lireNombreExperiencesProfessionnelles()) || 0
   };
 }

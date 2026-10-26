@@ -113,6 +113,15 @@ function creerGithub(racine, options) {
     return { ok: true, depot: depot.json && depot.json.full_name, branche: c.branche };
   }
 
+  // Le module « Mon territoire » est-il OUVERT au public dans la version enregistree (modules/mon-territoire/logique.js, MT_OUVERT) ? true / false, ou null si illisible.
+  // Mettre le site sur GitHub ne doit jamais l'ouvrir au public par mégarde (décision de Denis, 2026-10-18).
+  function territoireOuvert() {
+    const r = git(racine, ['show', 'HEAD:modules/mon-territoire/logique.js']);
+    if (r.code !== 0) { return null; }
+    const m = /var MT_OUVERT = (true|false)s*;/.exec(r.sortie);
+    return m ? m[1] === 'true' : null;
+  }
+
   // ---------- comparaison ----------
   function entreesLocales() {
     const r = git(racine, ['ls-tree', '-r', '-z', 'HEAD']);
@@ -165,6 +174,7 @@ function creerGithub(racine, options) {
       nouveaux: choisis.filter(function (e) { return !d.parChemin[e.chemin]; }).length,
       seulementSurGithub: seulementDistants,
       modificationsNonEnregistrees: lignesSt.filter(function (l) { return l.indexOf('??') !== 0; }).length,
+      territoireOuvert: territoireOuvert(),
       exemples: choisis.slice(0, 8).map(function (e) { return e.chemin; })
     };
   }
@@ -179,7 +189,7 @@ function creerGithub(racine, options) {
     try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return null; }
   }
 
-  async function envoyer(groupes, message) {
+  async function envoyer(groupes, message, confirmerTerritoire) {
     const c = configComplete();
     if (!c) { return { ok: false, erreur: 'GitHub n\'est pas encore configure.' }; }
     let locales; try { locales = entreesLocales(); } catch (e) { return { ok: false, erreur: e.message }; }
@@ -187,6 +197,10 @@ function creerGithub(racine, options) {
     if (d.erreur) { return { ok: false, erreur: d.erreur }; }
     const aEnvoyer = filtrer(locales.filter(function (e) { return d.parChemin[e.chemin] !== e.sha; }), groupes);
     if (!aEnvoyer.length) { return { ok: true, rien: true, nbFichiers: 0 }; }
+    // Garde-fou : si la version enregistree OUVRE « Mon territoire » au public, l'envoi est refusé tant que Denis ne l'a pas confirmé en connaissance de cause.
+    if (!confirmerTerritoire && aEnvoyer.some(function (e) { return e.chemin === 'modules/mon-territoire/logique.js'; }) && territoireOuvert() === true) {
+      return { ok: false, code: 'territoire-ouvert', erreur: 'Le module « Mon territoire » est OUVERT au public dans ce qui va partir : tout le monde le verrait sur le site. Rien n’a été envoyé.' };
+    }
     const entrees = [], tropGros = [], illisibles = [];
     for (const e of aEnvoyer) {
       const buf = contenuDe(e.sha);

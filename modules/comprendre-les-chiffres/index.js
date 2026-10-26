@@ -2006,6 +2006,190 @@ function _comprendreLesChiffresRenduProfessionsSante() {
   return html;
 }
 
+// ============================================================
+// BLOC « Les entreprises ici : ce qui se vend, ce qui ferme »
+// (chantier docs/CHANTIER_REPERES_ENTREPRISES_TERRITOIRE_2026-10-18.md,
+// maquette docs/MAQUETTE_REPERES_ENTREPRISES_2026-10-18.html, décisions de
+// Denis 2026-10-18 et 2026-10-19). Fichier contenu/entreprises-departements.md,
+// format « fiche de territoire » modifiable champ par champ par l'outil de
+// veille. Niveau « mon département » seulement. RIEN ne s'affiche tant que
+// l'en-tête n'a pas une vraie date « verifie_le » (valeur « a-valider » :
+// chiffres relevés mais pas encore vérifiés à la source par Denis).
+// Ce que le BODACC compte : des ANNONCES, jamais des entreprises. Seules les
+// OUVERTURES de liquidation ou de redressement sont comptées (pas les clôtures,
+// états des créances, plans...), voir le constat A du cahier. Aucun chiffre de
+// créations ni de radiations par département (non comparables, constats B et C).
+// ============================================================
+var COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC = {
+  t: 'Les entreprises ici : ce qui se vend, ce qui ferme',
+  d: 'Ouvertures de procédures collectives (liquidation, redressement, sauvegarde), achats de fonds de commerce, annonces légales du département sur douze mois.'
+};
+var COMPRENDRE_LES_CHIFFRES_ENTREPRISES_FICHES = [
+  { id: 'creations-entreprises-micro-entrepreneurs', libelle: 'Créations et micro-entrepreneurs' },
+  { id: 'radiation-d-office-entreprise', libelle: 'Radiation d’office' },
+  { id: 'defaillance-entreprise', libelle: 'Défaillance d’entreprise' },
+  { id: 'vente-fonds-de-commerce', libelle: 'Vente d’un fonds de commerce' }
+];
+var _comprendreLesChiffresEntreprises = null;
+var _comprendreLesChiffresEntreprisesEtat = 'inactif';
+
+function _comprendreLesChiffresEntier(s) {
+  var t = String(s == null ? '' : s).replace(/[\s  ]/g, '');
+  return /^\d+$/.test(t) ? parseInt(t, 10) : null;
+}
+
+// Lit contenu/entreprises-departements.md. Rend null si le texte n'a pas d'en-tête.
+function _comprendreLesChiffresParserEntreprises(md) {
+  var mFront = String(md || '').replace(/\r\n/g, '\n').match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
+  if (!mFront) { return null; }
+  var entete = mFront[1], corps = mFront[2] || '';
+  var out = { periode: '', verifie_le: '', sources: {}, parDep: {} };
+  ['periode', 'verifie_le'].forEach(function (cle) {
+    var mm = entete.match(new RegExp('^' + cle + ':\\s*(.+)$', 'm'));
+    if (mm) { out[cle] = mm[1].trim().replace(/^"|"$/g, ''); }
+  });
+  (_comprendreLesChiffresExtraireListeSimple(entete, 'sources') || []).forEach(function (ligne) {
+    var parts = ligne.split('|').map(function (p) { return p.trim(); });
+    if (parts.length >= 3) { out.sources[parts[0]] = { titre: parts[1], url: parts[2] }; }
+  });
+  var courant = null;
+  corps.split('\n').forEach(function (brute) {
+    var ligne = brute.replace(/\s+$/, '');
+    var mBloc = ligne.match(/^##\s+(.+)$/);
+    if (mBloc) {
+      var nom = mBloc[1].trim(), cle = _comprendreLesChiffresNorm(nom);
+      var code = cle === 'dordogne' ? '24' : (cle.replace(/[-\s]+/g, ' ') === 'haute vienne' ? '87' : '');
+      courant = code ? { nom: nom, ouvertures: null, ouverturesPrec: null, ventes: null, ventesPrec: null, periodeDu: '', periodeAu: '', sourcesCles: [] } : null;
+      if (courant) { out.parDep[code] = courant; }
+      return;
+    }
+    if (!courant) { return; }
+    var m = ligne.match(/^([a-z_0-9]+)\s*:\s*(.*)$/);
+    if (!m) { return; }
+    if (m[1] === 'ouvertures') { courant.ouvertures = _comprendreLesChiffresEntier(m[2]); }
+    else if (m[1] === 'ouvertures_an_precedent') { courant.ouverturesPrec = _comprendreLesChiffresEntier(m[2]); }
+    else if (m[1] === 'ventes') { courant.ventes = _comprendreLesChiffresEntier(m[2]); }
+    else if (m[1] === 'ventes_an_precedent') { courant.ventesPrec = _comprendreLesChiffresEntier(m[2]); }
+    else if (m[1] === 'periode_du') { courant.periodeDu = m[2].trim(); }
+    else if (m[1] === 'periode_au') { courant.periodeAu = m[2].trim(); }
+    else if (m[1] === 'sources') { courant.sourcesCles = m[2].split(',').map(function (s) { return s.trim(); }).filter(Boolean); }
+  });
+  return out;
+}
+
+// Phrase d'évolution entre deux nombres. Sous 3 % d'écart : « à peu près stable ».
+function _comprendreLesChiffresEvolutionEntiers(actuel, precedent) {
+  if (actuel == null || precedent == null || precedent <= 0) { return ''; }
+  var pct = (actuel - precedent) / precedent * 100;
+  if (Math.abs(pct) < 3) { return 'à peu près stable'; }
+  return (pct > 0 ? 'en hausse d’environ ' : 'en baisse d’environ ') + Math.round(Math.abs(pct)) + ' %';
+}
+
+// « 2026-10-18 » ou « 18/10/2026 » -> « 18 octobre 2026 » (le 1er du mois : « 1er octobre 2026 ») ; « 2026-10 » -> « octobre 2026 » ; autre chose : null.
+function _comprendreLesChiffresDateEnClair(texte) {
+  var mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  var t = String(texte || '').trim(), annee, mo, jour = '';
+  var fr = t.match(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$/);
+  var iso = t.match(/^(\d{4})-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?$/);
+  if (fr) { jour = fr[1]; mo = fr[2]; annee = fr[3]; }
+  else if (iso) { annee = iso[1]; mo = iso[2]; jour = iso[3] || ''; }
+  else { return null; }
+  if (jour) {
+    var d = new Date(Date.UTC(parseInt(annee, 10), parseInt(mo, 10) - 1, parseInt(jour, 10)));
+    if (d.getUTCMonth() !== parseInt(mo, 10) - 1) { return null; }   // 31/02 : une date qui n'existe pas
+    jour = parseInt(jour, 10) === 1 ? '1er ' : String(parseInt(jour, 10)) + ' ';
+  }
+  return jour + mois[parseInt(mo, 10) - 1] + ' ' + annee;
+}
+// « du 1er novembre 2025 au 18 octobre 2026 », ou '' si l'une des deux dates manque ou n'existe pas.
+function _comprendreLesChiffresPeriodeEnClair(du, au) {
+  var a = _comprendreLesChiffresDateEnClair(du), b = _comprendreLesChiffresDateEnClair(au);
+  return (a && b) ? 'du ' + a + ' au ' + b : '';
+}
+
+function _comprendreLesChiffresChargerEntreprises() {
+  if (_comprendreLesChiffresEntreprisesEtat === 'encours' || _comprendreLesChiffresEntreprisesEtat === 'ok') { return; }
+  _comprendreLesChiffresEntreprisesEtat = 'encours';
+  fetch(COMPRENDRE_LES_CHIFFRES_BASE_CONTENU + 'entreprises-departements.md')
+    .then(function (r) { return r.ok ? r.text() : null; })
+    .then(function (t) {
+      _comprendreLesChiffresEntreprises = t ? _comprendreLesChiffresParserEntreprises(t) : null;
+      _comprendreLesChiffresEntreprisesEtat = _comprendreLesChiffresEntreprises ? 'ok' : 'vide';
+      if (_comprendreLesChiffresEtat.ecran === 'accueil') { pageComprendreLesChiffres(); }
+    })
+    .catch(function () {
+      _comprendreLesChiffresEntreprisesEtat = 'erreur';
+    });
+}
+
+function _comprendreLesChiffresRenduCarteEntreprises(question, valeur, precedent, phraseDebut, phraseFin, periode, source) {
+  var evo = _comprendreLesChiffresEvolutionEntiers(valeur, precedent);
+  var lien = source && source.url
+    ? '<a class="comprendre-les-chiffres-pastille" href="' + _comprendreLesChiffresEchappe(source.url) + '" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Source : ' + _comprendreLesChiffresEchappe(source.titre) + '</a>'
+    : '';
+  return '<div class="comprendre-les-chiffres-indic">' +
+    '<p class="comprendre-les-chiffres-indic-q">' + _comprendreLesChiffresEchappe(question) + '</p>' +
+    '<div class="comprendre-les-chiffres-indic-valeur">' + _comprendreLesChiffresFormatNombre(valeur) + '</div>' +
+    '<p class="comprendre-les-chiffres-indic-phrase">' + phraseDebut +
+      (precedent != null ? ' La même période un an plus tôt : <strong>' + _comprendreLesChiffresFormatNombre(precedent) + '</strong>' + (evo ? ' (' + evo + ')' : '') + '.' : '') +
+      (phraseFin ? ' ' + phraseFin : '') + '</p>' +
+    '<p class="comprendre-les-chiffres-note">' + lien + (periode ? ' <span>Période : ' + _comprendreLesChiffresEchappe(periode) + '.</span>' : '') + '</p>' +
+    '</div>';
+}
+
+// Rend le dépliant, ou '' quand il ne doit pas s'afficher (autre niveau que « mon département »,
+// fichier absent, chiffres pas encore vérifiés, département absent du fichier).
+function _comprendreLesChiffresRenduEntreprises() {
+  if (_comprendreLesChiffresNiveauCourant() !== 'dep') { return ''; }
+  var doc = _comprendreLesChiffresEntreprises;
+  if (_comprendreLesChiffresEntreprisesEtat !== 'ok' || !doc) { return ''; }
+  var verifieLe = _comprendreLesChiffresDateEnClair(doc.verifie_le);
+  if (!verifieLe) { return ''; }
+  var dep = _comprendreLesChiffresTerritoireDuNiveau();
+  var d = doc.parDep[dep];
+  if (!d || d.ouvertures == null || d.ouverturesPrec == null) { return ''; }
+  var lieu = _comprendreLesChiffresLibelleNiveau();
+  var source = doc.sources[d.sourcesCles[0]] || null;
+  var periode = _comprendreLesChiffresPeriodeEnClair(d.periodeDu, d.periodeAu);
+  var corps = '<p class="comprendre-les-chiffres-section-intro">Ces chiffres décrivent des <b>annonces publiées au registre du commerce</b>, jamais une entreprise en particulier. Ils servent à situer le territoire, pas à décider d’aller ou non vers un employeur.</p>' +
+    _comprendreLesChiffresRenduCarteEntreprises('Combien de procédures collectives (liquidation, redressement, sauvegarde) ont été ouvertes ?', d.ouvertures, d.ouverturesPrec,
+      'C’est le nombre d’annonces de jugement d’ouverture publiées par les tribunaux, extensions à une autre entreprise comprises, dans ' + _comprendreLesChiffresEchappe(lieu) + '.', '', periode, source);
+  if (d.ventes != null && d.ventesPrec != null) {
+    corps += _comprendreLesChiffresRenduCarteEntreprises('Combien d’annonces d’achat ou de cession d’un fonds de commerce ?', d.ventes, d.ventesPrec,
+      'Annonces d’achat, d’apport ou d’attribution d’un fonds de commerce, dans ' + _comprendreLesChiffresEchappe(lieu) + '.',
+      'Une annonce ne dit pas pourquoi le propriétaire vend, ni ce que deviennent les salariés. Une même vente peut être annoncée plus d’une fois.', periode, source);
+  }
+  corps += '<div class="comprendre-les-chiffres-encart small comprendre-les-chiffres-encart-attention"><i class="bi bi-exclamation-triangle"></i> ' +
+    'Ce sont des <b>annonces</b>, pas des entreprises : une même procédure en produit plusieurs (ouverture, liste des créances, clôture). Seules les annonces de <b>jugement d’ouverture</b> sont comptées ici. ' +
+    'Les créations d’entreprises (qui comptent les micro-entrepreneurs) et les radiations ne sont pas comparées d’un département à l’autre : elles ne sont pas publiées de la même façon partout.</div>' +
+    '<p class="comprendre-les-chiffres-note"><span class="comprendre-les-chiffres-fraicheur">&#128197; Vérifié le ' + _comprendreLesChiffresEchappe(verifieLe) + '. Mise à jour tous les trimestres.</span></p>';
+  var boutons = COMPRENDRE_LES_CHIFFRES_ENTREPRISES_FICHES.map(function (f) {
+    return '<button type="button" class="btn btn-outline-secondary btn-sm" data-comprendre-les-chiffres-fiche-lexique="' + _comprendreLesChiffresEchappe(f.id) + '"><i class="bi bi-book"></i> ' + _comprendreLesChiffresEchappe(f.libelle) + '</button>';
+  }).join('');
+  corps += '<details class="comprendre-les-chiffres-depli"><summary><span class="comprendre-les-chiffres-depli-titre">Comment lire ces chiffres</span>' +
+    '<span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span></summary>' +
+    '<div class="comprendre-les-chiffres-depli-corps"><p>Quatre fiches du Lexique expliquent les mots qui reviennent dans ces chiffres :</p><div class="d-flex flex-wrap gap-2">' + boutons + '</div></div></details>';
+  return '<details class="comprendre-les-chiffres-depli" data-bloc="entreprises"' + (_comprendreLesChiffresEstVueEnsemble() ? ' open' : '') + '>' +
+    '<summary><span class="comprendre-les-chiffres-depli-titre">' + _comprendreLesChiffresEchappe(COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC.t) + '</span>' +
+    '<span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span>' +
+    '<span class="comprendre-les-chiffres-depli-desc">' + _comprendreLesChiffresEchappe(COMPRENDRE_LES_CHIFFRES_ENTREPRISES_BLOC.d) + '</span></summary>' +
+    '<div class="comprendre-les-chiffres-depli-corps">' + corps + '</div></details>';
+}
+
+// Ouvre une fiche du Lexique depuis le bloc ; « Retour » ramène ici.
+function _comprendreLesChiffresBrancherEntreprises() {
+  document.querySelectorAll('[data-comprendre-les-chiffres-fiche-lexique]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = this.getAttribute('data-comprendre-les-chiffres-fiche-lexique');
+      if (typeof lexiqueOuvrirFiche !== 'function') { return; }
+      lexiqueOuvrirFiche(id, null, 'Comprendre les chiffres', 'comprendre-les-chiffres', function () {
+        _comprendreLesChiffresEtat.ecran = 'accueil';
+        naviguerVers('comprendre-les-chiffres');
+      });
+    });
+  });
+}
+
 // Retrouve une section d'un document annuel par titre (comparaison
 // normalisée tolérante).
 function _comprendreLesChiffresSection(doc, titre) {
@@ -2151,6 +2335,7 @@ function _comprendreLesChiffresRenduCouche2() {
     COMPRENDRE_LES_CHIFFRES_PORTRAIT_BLOCS.map(function (c) {
       return _comprendreLesChiffresRenduDepliPortrait(c, ouvert);
     }).join('') +
+    _comprendreLesChiffresRenduEntreprises() +
     COMPRENDRE_LES_CHIFFRES_EDITO_BLOCS.map(_comprendreLesChiffresRenduEdito).join('') +
     _comprendreLesChiffresRenduEmployeurs();
   return _comprendreLesChiffresRenduBlocRepliable('portrait', 'Le portrait du territoire', desc, corps, ouvert);
@@ -2560,6 +2745,7 @@ function _comprendreLesChiffresRenduAccueil() {
 }
 
 function _comprendreLesChiffresBrancherAccueil() {
+  _comprendreLesChiffresBrancherEntreprises();
   var btnDep = document.querySelector('[data-comprendre-les-chiffres-changer-departement]');
   if (btnDep) {
     btnDep.addEventListener('click', function () {
@@ -2925,6 +3111,7 @@ function pageComprendreLesChiffres() {
     } else if (_comprendreLesChiffresPortraitEtat === 'inactif') {
       _comprendreLesChiffresChargerDoc('portrait');
     }
+    if (_comprendreLesChiffresEntreprisesEtat === 'inactif') { _comprendreLesChiffresChargerEntreprises(); }
     corpsHTML = _comprendreLesChiffresRenduAccueil();
     brancherCorps = _comprendreLesChiffresBrancherAccueil;
     evenement = 'comprendre_les_chiffres_accueil_affiche';
@@ -2975,6 +3162,10 @@ if (typeof module !== 'undefined') {
     _comprendreLesChiffresRenduGraphe: _comprendreLesChiffresRenduGraphe,
     _comprendreLesChiffresTendance: _comprendreLesChiffresTendance,
     _comprendreLesChiffresNombre: _comprendreLesChiffresNombre,
-    _comprendreLesChiffresFormatNombre: _comprendreLesChiffresFormatNombre
+    _comprendreLesChiffresFormatNombre: _comprendreLesChiffresFormatNombre,
+    _comprendreLesChiffresParserEntreprises: _comprendreLesChiffresParserEntreprises,
+    _comprendreLesChiffresEvolutionEntiers: _comprendreLesChiffresEvolutionEntiers,
+    _comprendreLesChiffresDateEnClair: _comprendreLesChiffresDateEnClair,
+    _comprendreLesChiffresPeriodeEnClair: _comprendreLesChiffresPeriodeEnClair
   };
 }

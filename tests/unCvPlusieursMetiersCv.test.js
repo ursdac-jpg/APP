@@ -257,3 +257,27 @@ test('retour : l’empreinte est stable et sensible au moindre changement', () =
   assert.equal(cv.ucpmHachage('abc'), cv.ucpmHachage('abc'));
   assert.notEqual(cv.ucpmHachage('abc'), cv.ucpmHachage('abd'));
 });
+
+// Lettres par groupes de 5 : la suite n'est annoncée qu'au-delà de 5 CV (24/10/2026).
+test('suite des lettres : aucun message jusqu’à 5 CV, même s’il manque une lettre', () => {
+  assert.equal(cv.UCPM_LETTRES_PAR_REPONSE, 5);
+  assert.deepEqual(cv.ucpmIdsEnAttenteDeSuite(['a', 'b', 'c', 'd'], { a: 'x', b: 'x' }), []);
+  assert.deepEqual(cv.ucpmIdsEnAttenteDeSuite(['a', 'b', 'c', 'd', 'e'], {}), []);
+});
+
+test('suite des lettres : 7 CV et 5 lettres reçues, les 2 autres sont à récupérer', () => {
+  const ids = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+  const lettres = { a: 'L', b: 'L', c: 'L', d: 'L', e: 'L' };
+  assert.deepEqual(cv.ucpmIdsEnAttenteDeSuite(ids, lettres), ['f', 'g']);
+  assert.deepEqual(cv.ucpmIdsEnAttenteDeSuite(ids, Object.assign({}, lettres, { f: 'L', g: ' ' })), ['g']);
+  assert.deepEqual(cv.ucpmIdsEnAttenteDeSuite(ids, Object.assign({}, lettres, { f: 'L', g: 'L' })), []);
+});
+
+test('suite des lettres : la deuxième réponse (CV 6 et 7 seulement) est lue à leur place', () => {
+  const ids = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+  const reponse = '```json\n[{"id":6,"metier":"F","lettre":"Madame, Monsieur,\\n\\nSixième."},{"id":7,"metier":"G","lettre":"Madame, Monsieur,\\n\\nSeptième."}]\n```\nPour recevoir la suite, répondez : oui.';
+  const r = cv.ucpmLireReponseLettres(reponse, ids);
+  assert.equal(r.succes, true);
+  assert.deepEqual(Object.keys(r.lettres).sort(), ['f', 'g']);
+  assert.deepEqual(r.manquants, ['a', 'b', 'c', 'd', 'e']);
+});

@@ -542,7 +542,7 @@ function ouvrirRegardRecruteur() {
 
     var bloc3 =
       '<details class="rr-bloc" id="rrBloc3"' + _rrOuvert('rrBloc3') + '>' +
-      '<summary><span class="rr-num">3</span> Le poste, l’entreprise, son site <span class="rr-pilule bleu">Facultatif · conseillé</span></summary>' +
+      '<summary><span class="rr-num">3</span> Le poste, l’entreprise, son site <span class="rr-pilule bleu">À compléter · conseillé</span></summary>' +
       '<div class="rr-bloc-corps">' +
       '<p>Le métier visé et l’offre aident l’assistant à repérer ce qu’un recruteur de <strong>ce</strong> poste regarderait en premier. Si vous avez une offre, le métier peut rester vide : l’assistant le déduit de l’offre.</p>' +
       // Panneau Candidature partage (2026-09-29, DECISION DE DENIS) : metier ou
@@ -562,8 +562,8 @@ function ouvrirRegardRecruteur() {
       (etat.modeTexte ? bloc1Texte : bloc1) +
       (etat.modeTexte ? '' : bloc2Image) +
       bloc3 +
-      '<div class="rr-pied-actions"><span></span>' +
-      '<button type="button" class="btn btn-primary" id="rrBtnVersAssistant"' + (prepImagePrete() ? '' : ' disabled title="' + _rrEchapAttr(texteBlocageAssistant()) + '"') + '>Choisir mon assistant &#8594;</button>' +
+      '<div class="rr-pied-actions" data-barre-bas-zone><span></span>' +
+      '<button type="button" class="btn btn-primary" id="rrBtnVersAssistant" data-barre-bas="1"' + (prepImagePrete() ? '' : ' disabled title="' + _rrEchapAttr(texteBlocageAssistant()) + '"') + '>Continuer &#8594;</button>' +
       '</div>' +
       '<p class="rr-detail" style="text-align:center;">Actif une fois ' +
       (etat.modeTexte ? 'le texte relu et masqué' : 'l’image ajoutée et masquée') + '. Le poste et l’offre peuvent rester vides.</p>' +
@@ -580,7 +580,7 @@ function ouvrirRegardRecruteur() {
     if (typeof appliquerVerrouBlocs === 'function') {
       appliquerVerrouBlocs([
         { id: 'rrBloc2', actif: etat.images.length > 0, message: 'Ajoutez d’abord une image de votre CV (partie 1) : ce point s’active ensuite.' },
-        { id: 'rrBloc3', actif: prepImagePrete(), message: etat.modeTexte
+        { id: 'rrBloc3', actif: prepImagePrete(), masque: !etat.modeTexte && etat.images.length === 0, message: etat.modeTexte
           ? 'Déposez, relisez et enregistrez d’abord le texte de votre CV (partie 1) : ce point s’active ensuite.'
           : 'Ajoutez d’abord votre CV en image et masquez ce qui est personnel (parties 1 et 2) : ce point s’active ensuite.' }
       ]);
@@ -665,8 +665,8 @@ function ouvrirRegardRecruteur() {
         (typeof htmlVerificationDocument === 'function'
           ? htmlVerificationDocument({ mode: 'texte', etapeLabel: 'Un regard sur mon CV', titre: 'Relire et masquer le texte de mon CV' })
           : '<p>Composant de vérification indisponible.</p>') +
-        '<div class="rr-pied-actions"><span></span>' +
-        '<button type="button" class="btn btn-primary" data-rr-aller="preparer"' + (etat.texteRelu ? '' : ' disabled') + ' id="rrBtnTexteRelu">C’est relu, continuer &#8594;</button>' +
+        '<div class="rr-pied-actions" data-barre-bas-zone><span></span>' +
+        '<button type="button" class="btn btn-primary" data-barre-bas="1" data-barre-bas-message="Relisez et masquez d’abord le texte de votre CV." data-rr-aller="preparer"' + (etat.texteRelu ? '' : ' disabled') + ' id="rrBtnTexteRelu">C’est relu, continuer &#8594;</button>' +
         '</div>' +
         '</div>';
     }
@@ -674,7 +674,7 @@ function ouvrirRegardRecruteur() {
     if (!etat.images.length) {
       return '<div class="regard-recruteur-masquer">' +
         '<div class="rr-encart"><span>&#128172;</span><span>Ajoutez d’abord une image de votre CV à l’étape « Préparer ».</span></div>' +
-        '<div class="rr-pied-actions"><span></span><button type="button" class="btn btn-primary" data-rr-aller="preparer">Revenir à « Préparer » &#8594;</button></div>' +
+        '<div class="rr-pied-actions" data-barre-bas-zone><span></span><button type="button" class="btn btn-primary" data-barre-bas="1" data-rr-aller="preparer">Revenir à « Préparer » &#8594;</button></div>' +
         '</div>';
     }
 
@@ -965,7 +965,7 @@ function ouvrirRegardRecruteur() {
       (typeof htmlCollageInstantane === 'function'
         ? htmlCollageInstantane('RegardRecruteur',
           '<div class="rr-boutons" style="margin-top:.6rem;">' +
-          '<button type="button" id="rrBtnImporter" class="btn btn-primary">&#128229; Lire la réponse</button>' +
+          '<button type="button" id="rrBtnImporter" class="btn btn-primary" data-barre-bas="1">&#128229; Lire la réponse</button>' +
           '<button type="button" class="btn btn-outline-secondary btn-sm" id="rrBtnEffacerRecoller">Effacer et recoller</button>' +
           '</div>')
         : '') +
@@ -1109,7 +1109,7 @@ function ouvrirRegardRecruteur() {
   function _rrQuestionHTML(o, cle, avecReponse) {
     var rep = etat.reponsesQuestions[cle] || '';
     var champ = avecReponse
-      ? '<details class="rr-repli rr-repli-imbrique"><summary>&#9997;&#65039; Écrire ma réponse (facultatif)</summary>' +
+      ? '<details class="rr-repli rr-repli-imbrique"><summary>&#9997;&#65039; Écrire ma réponse (à compléter)</summary>' +
         '<div><p class="rr-detail">C’est vous qui décidez d’écrire, ou non. Vous n’obtiendrez pas de correction ici.</p>' +
         '<textarea class="form-control form-control-sm" data-rr-reponse="' + cle + '" rows="3" placeholder="Votre réponse">' + _rrEchapTexte(rep) + '</textarea></div></details>'
       : '';
@@ -1196,8 +1196,8 @@ function ouvrirRegardRecruteur() {
       imageAnalysee +
       '<div class="rr-carte rr-fin-lecture"><h3 style="margin-top:.2rem;">Cette lecture est terminée.</h3>' +
       '<p style="margin:.3rem 0 0;">Elle vous montre des points à vérifier et à préparer, jamais une note sur vous.</p></div>' +
-      '<div class="rr-pied-actions"><span></span>' +
-      '<button type="button" class="btn btn-primary" data-rr-aller="fiche">Préparer ma fiche à garder &#8594;</button>' +
+      '<div class="rr-pied-actions" data-barre-bas-zone><span></span>' +
+      '<button type="button" class="btn btn-primary" data-barre-bas="1" data-rr-aller="fiche">Préparer ma fiche à garder &#8594;</button>' +
       '</div>' +
       '</div>';
   }

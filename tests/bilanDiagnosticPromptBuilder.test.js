@@ -44,10 +44,10 @@ test('bilanFormaterObservationsDeterministes : une ligne par observation', () =>
   assert.equal(texte, '- Téléphone présent.\n- Aucun chevauchement.');
 });
 
-test('bilanConstruireValeursPlaceholders : mappe exactement les 11 placeholders du Prompt 1', () => {
+test('bilanConstruireValeursPlaceholders : mappe exactement les 12 placeholders du Prompt 1', () => {
   const valeurs = bilanConstruireValeursPlaceholders(candidatureValidee({ metierVise: 'Boulanger' }), { niveau: 2, observations: [] });
   assert.deepEqual(Object.keys(valeurs).sort(), [
-    'CV', 'ELEMENTS_DEJA_IDENTIFIES_OU_NON_FOURNIS', 'ENTREPRISE_CIBLEE_OU_NON_FOURNIE', 'METIER_VISE_OU_NON_FOURNI',
+    'CV', 'DISPONIBILITES_OU_NON_FOURNIES', 'ELEMENTS_DEJA_IDENTIFIES_OU_NON_FOURNIS', 'ENTREPRISE_CIBLEE_OU_NON_FOURNIE', 'METIER_VISE_OU_NON_FOURNI',
     'NIVEAU_ANALYSE', 'OBSERVATIONS_DETERMINISTES', 'OFFRE_EMPLOI_OU_NON_FOURNIE',
     'POINTS_DEJA_CONNUS_OU_NON_FOURNIS', 'PROFIL_RECONVERSION_OU_DEBUTANT',
     'SITE_ENTREPRISE_OU_NON_FOURNI', 'TYPE_STRUCTURE_OU_NON_FOURNI'

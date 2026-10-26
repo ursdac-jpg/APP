@@ -1928,7 +1928,16 @@ select.form-select.select-type-structure {
    5.5rem = 88px) etait inferieure a la hauteur reelle de la barre (102px) et
    pouvait rogner les derniers pixels. On la neutralise ici : barre a ~78px,
    bouton symetrique, plus de rognage. Ne touche QUE le cas barre fixe. */
-.barre-navigation-fixe > .barre-navigation { margin-top: 0 !important; }
+.barre-navigation-fixe > .barre-navigation { margin-top: 0 !important; position: relative; }
+/* Le message n'apparait qu'au survol (ou au focus) du bouton « Continuer » grise (demande de Denis, 24/10/2026). */
+.barre-navigation button:hover + .barre-raison-suivant, .barre-navigation button:focus-visible + .barre-raison-suivant { display: block; }
+/* G1 (Denis, 24/10/2026) : la raison pour laquelle « Continuer » est grise s'affiche au-dessus de ce bouton, a droite. */
+.barre-raison-suivant {
+  display: none;
+  position: absolute; right: 0; bottom: calc(100% + 0.5rem); max-width: min(24rem, 40vw); text-align: right;
+  font-size: 0.85rem; line-height: 1.35; color: var(--warning-strong); background: var(--warning-bg-subtle);
+  border: 1px solid var(--warning-border); border-radius: 8px; padding: 0.3rem 0.7rem; box-shadow: 0 2px 8px rgba(11,26,51,0.1);
+}
 /* Retour Denis 2026-09-30 : « Accueil » n'etait pas au centre de la barre du bas. Avec trois boutons en espaces egaux (flex, space-between),
    il glisse des que « Retour » et « Continuer » n'ont pas la meme largeur. Trois colonnes (1fr, auto, 1fr) : « Accueil » est toujours
    exactement au milieu, « Retour » colle a gauche, « Continuer » colle a droite. Un seul reglage pour toutes les pages (composant
@@ -1940,6 +1949,8 @@ select.form-select.select-type-structure {
 }
 .barre-navigation.d-flex > :first-child { justify-self: start; }
 .barre-navigation.d-flex > :last-child { justify-self: end; }
+/* G1 : le message de blocage est dernier enfant (position absolue) ; le bouton « Continuer » / « Merci bien » garde sa colonne et sa taille d'origine, colle a droite. */
+.barre-navigation.d-flex > button.btn-primary, .barre-navigation.d-flex > button.btn-success { justify-self: end; }
  /* !important : .mt-4 de Bootstrap l'est aussi */
 /* TACHE (retour utilisateur : "un badge avec le nombre de cartes par
    categorie") : petit cercle discret, jamais aussi voyant que le bouton
@@ -2300,6 +2311,42 @@ select.form-select.select-type-structure {
 .carte-objectif--actif > .bi { background: var(--accent); color: #fff; }
 .carte-objectif-titre { font-weight: 700; font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-strong); line-height: 1.25; }
 .carte-objectif-desc { font-size: clamp(0.8rem, 1.4vw, 0.9rem); color: var(--text-muted); line-height: 1.35; }
+/* Retour Denis 25/10/2026 : « Reprendre mon CV », pastille « Voie 1 / 2 / 3 » (même couleur pour les trois) et carte bloquée tant que le CV n'est pas déposé. */
+.carte-voie-num {
+  font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--accent-solide); color: #fff; padding: 0.2rem 0.75rem; border-radius: 999px;
+}
+.carte-objectif.carte-objectif--bloquee, .carte-objectif.carte-objectif--bloquee * { cursor: not-allowed; }   /* « sens interdit » : plus fort que la règle de Bootstrap sur button:not(:disabled) */
+.carte-objectif.carte-objectif--bloquee { opacity: 0.55; box-shadow: none; }
+.carte-objectif.carte-objectif--bloquee:hover { border-color: var(--border-strong); }
+/* Page « Synthèse » avant « Choisir mon assistant » (25/10/2026). */
+.synthese-carte { border: 2px solid var(--accent); border-radius: 14px; background: var(--bg-card); padding: 1rem; margin: 1rem 0; }
+.synthese-carte h2 { margin: 0.1rem 0 0.3rem; font-size: 1.2rem; }
+.synthese-note { color: var(--text-muted); font-size: 0.9rem; margin: 0.3rem 0 0.4rem; }
+.synthese-ligne { display: flex; gap: 0.65rem; align-items: flex-start; padding: 0.7rem 0; border-top: 1px solid var(--border); }
+.synthese-ligne:first-of-type { border-top: 0; }
+.synthese-pastille { flex: 0 0 auto; width: 1.6rem; height: 1.6rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+.synthese-pastille.ok { background: var(--success-bg-subtle); color: var(--success); }
+.synthese-pastille.vide { background: var(--warning-bg-subtle); color: var(--warning); }
+.synthese-corps { flex: 1 1 auto; min-width: 0; }
+.synthese-titre { font-weight: 700; }
+.synthese-detail { color: var(--text-muted); font-size: 0.9rem; }
+.synthese-liste { margin: 0.2rem 0 0; padding-left: 1.1rem; font-size: 0.92rem; }
+.synthese-jetons { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.25rem 0; }
+.synthese-jeton { background: var(--accent-bg-subtle); border-radius: 999px; padding: 0.1rem 0.65rem; font-size: 0.85rem; }
+.synthese-appuis #coLettreAppuis > hr:first-child, .synthese-appuis #coLettreAppuis > p.fw-bold { display: none; }
+.synthese-appuis [data-reco-deposer] { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+.synthese-lettre #btnPrepaEntretienCollerLettre, .synthese-lettre #btnPrepaEntretienRelectureLettre { background: var(--accent-solide); color: #fff; border-color: var(--accent-solide); }
+.synthese-choix { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 0.7rem 0.8rem; background: var(--bg-subtle); }
+.synthese-confid { margin-top: 0.7rem; padding: 0.6rem 0.8rem; background: var(--success-bg-subtle); border-radius: 10px; font-size: 0.9rem; }
+.grille-objectif--deux { grid-template-columns: repeat(2, minmax(0, 20rem)); justify-content: center; }
+@media (max-width: 640px) { .grille-objectif--deux { grid-template-columns: minmax(0, 20rem); } }
+.encart-approfondir { margin: 1rem 0; padding: 0.9rem 1rem; border: 2px solid var(--accent); border-radius: 14px; background: var(--accent-bg-subtle); }
+.encart-approfondir-titre { font-weight: 700; margin-bottom: 0.4rem; font-size: 1.05rem; }
+.voie-presentation { border: 2px solid var(--border-strong); border-radius: 14px; background: var(--bg-card); padding: 0.9rem 1rem; margin-bottom: 0.9rem; }
+.voie-presentation-tete { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.4rem; font-size: 1.1rem; }
+.voie-presentation-tete > .bi { color: var(--accent); font-size: 1.3rem; }
+.voie-presentation-phrase { margin-bottom: 0.4rem; }
 [data-theme="sombre"] .carte-objectif {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
 }
@@ -4108,8 +4155,14 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 .bloc-verrouille > summary { opacity: 0.6; }
 /* Champ d'identite pre-rempli par le reperage automatique : a verifier (R2 + R15, 2026-09-29). */
 .identite-capte { background: var(--warning-bg-subtle) !important; border-color: var(--warning-border) !important; color: var(--text-strong) !important; }
-.bloc-verrouille > .bloc-depli-corps, .bloc-verrouille > .rr-bloc-corps { opacity: 0.45; pointer-events: none; user-select: none; }
-.ats-depli.bloc-verrouille > div:not(.bloc-verrou-message) { opacity: 0.45; pointer-events: none; user-select: none; }
+.bloc-verrouille > .bloc-depli-corps, .bloc-verrouille > .rr-bloc-corps { opacity: 0.55; user-select: none; }
+.ats-depli.bloc-verrouille > div:not(.bloc-verrou-message) { opacity: 0.55; user-select: none; }
+/* Point desactive (Lot 5, 25/10/2026) : « sens interdit » partout dans le point ; les cartes gardent leur reaction au survol (plus de pointer-events: none). */
+.bloc-verrouille > .bloc-depli-corps, .bloc-verrouille > .bloc-depli-corps *, .bloc-verrouille > .rr-bloc-corps, .bloc-verrouille > .rr-bloc-corps *,
+.ats-depli.bloc-verrouille > div:not(.bloc-verrou-message), .ats-depli.bloc-verrouille > div:not(.bloc-verrou-message) * { cursor: not-allowed !important; }
+.bloc-verrou-message--rappel { animation: rappelVerrou 0.9s ease-out 1; }
+@keyframes rappelVerrou { 0% { background: var(--warning-bg-subtle); color: var(--warning-strong); } 100% { background: var(--bg-subtle); color: var(--text-muted); } }
+@media (prefers-reduced-motion: reduce) { .bloc-verrou-message--rappel { animation: none; } }
 .bloc-verrou-message { margin: 0; padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-subtle); border-top: 1px solid var(--border); }
 .bloc-depli.bd-pret { border-left: 4px solid var(--success); }
 .bloc-depli.bd-pret > summary { background: var(--success-bg-subtle); }
@@ -4849,6 +4902,9 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 /* Où en est l'objectif de chaque colonne (retour de Denis, 2026-10-13) : le oui et le non se voient d'un coup d'œil, sans dépendre de la seule couleur (signe et mots). */
 .ucpm-portee-resume.is-ok, .ucpm-statuts li.is-ok { color: var(--success-strong); }
 .ucpm-portee-resume.is-vide, .ucpm-statuts li.is-vide { color: var(--warning-strong); }
+.ucpm-statut-colonne { margin: 0 0 .4rem; padding: .3rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ucpm-statut-colonne.is-ok { color: var(--success-strong); border-color: var(--success); background: var(--success-bg-subtle); }
+.ucpm-statut-colonne.is-vide { color: var(--warning-strong); border-color: var(--warning-border); background: var(--warning-bg-subtle); }
 .ucpm-statuts { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; gap: .3rem; }
 .ucpm-statuts li { padding: .35rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); }
 .ucpm-statuts li.is-ok { border-color: var(--success); background: var(--success-bg-subtle); }
@@ -4867,6 +4923,7 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
 .btn-complement-cv { background: var(--accent-bg-subtle); color: var(--accent); border: 2px solid var(--accent); font-weight: 600; }
 .btn-complement-cv:hover, .btn-complement-cv:focus { background: var(--bg-hover); color: var(--accent-hover); border-color: var(--accent-hover); }
 .complement-cv-banniere { background: var(--accent-bg-subtle); border: 2px solid var(--accent); border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; color: var(--text-strong); }
+.complement-cv-etape { margin: -.8rem -1rem .7rem; padding: .35rem 1rem; border-radius: 10px 10px 0 0; background: var(--accent-solide, var(--accent)); color: #fff; font-weight: 700; font-size: .95rem; letter-spacing: .02em; }
 
 
 /* Le bouton de départ d'une page d'introduction, repris dans la barre du bas : libellé complet sur grand écran, libellé court sur téléphone (la barre n'a pas la place). */
@@ -4875,3 +4932,73 @@ details[open] > summary .bilan-accordeon-invite { display: none; }
   .lib-intro-long { display: none; }
   .lib-intro-court { display: inline; }
 }
+
+/* Page « Preparer » de la lettre (24/10/2026, retour de Denis) : le champ ou l'on ecrit le nom du metier (ou l'intitule de poste) doit se voir tout de suite.
+   Limite a cette page par la classe co-lettre-parcours : Mon projet, le Bilan et Decouverte gardent leur champ habituel. */
+.co-lettre-parcours #rechercheMetierCibleInput,
+.co-lettre-parcours #champIntituleDomaine {
+  border: 2px solid var(--accent);
+  /* !important : activerChampsStandardises() pose une taille en ligne sur tous les champs, qui l'emporterait */
+  height: 3.2rem !important;
+  font-size: 1.15rem !important;
+  padding: .7rem 1rem !important;
+  box-shadow: 0 0 0 3px var(--accent-bg-subtle);
+}
+.co-lettre-parcours #rechercheMetierCibleInput:focus,
+.co-lettre-parcours #champIntituleDomaine:focus {
+  box-shadow: 0 0 0 4px var(--accent-bg-subtle), 0 0 0 5px var(--accent);
+}
+
+/* ============================================================
+   Voie 3 de « Reprendre mon CV » (Lot 7, modules/cv-sans-assistant) : classer les informations du CV.
+   Pastilles de rubrique (.rpast, valeur claire ET sombre), blocs (.blk), repérages (.det). Maquette : docs/MAQUETTE_REPRENDRE_VOIE3_2026-10-26.html
+   ============================================================ */
+:root {
+  --rb-identite: #0d6efd; --rb-accroche: #7c3aed; --rb-experience: #15803d; --rb-formation: #b45309;
+  --rb-competences: #0e7490; --rb-langues: #be185d; --rb-loisirs: #4f46e5; --rb-autres: #64748b; --rb-aclasser: #c2410c;
+  --rb-qualites: #0f766e; --rb-logiciels: #0369a1; --rb-certifications: #a16207; --rb-engagements: #86198f;
+}
+[data-theme="sombre"] {
+  --rb-identite: #6ba5ff; --rb-accroche: #b79cff; --rb-experience: #4ade80; --rb-formation: #fbbf24;
+  --rb-competences: #22d3ee; --rb-langues: #f472b6; --rb-loisirs: #9aa0ff; --rb-autres: #a3b0c2; --rb-aclasser: #fb923c;
+  --rb-qualites: #5eead4; --rb-logiciels: #7dd3fc; --rb-certifications: #fde047; --rb-engagements: #f0abfc;
+}
+.rb-identite { --c: var(--rb-identite); } .rb-accroche { --c: var(--rb-accroche); } .rb-experience { --c: var(--rb-experience); }
+.rb-formation { --c: var(--rb-formation); } .rb-competences { --c: var(--rb-competences); } .rb-langues { --c: var(--rb-langues); }
+.rb-loisirs { --c: var(--rb-loisirs); } .rb-autres { --c: var(--rb-autres); } .rb-aclasser { --c: var(--rb-aclasser); }
+.rb-qualites { --c: var(--rb-qualites); } .rb-logiciels { --c: var(--rb-logiciels); } .rb-certifications { --c: var(--rb-certifications); } .rb-engagements { --c: var(--rb-engagements); }
+.csa-resume { position: sticky; top: .4rem; z-index: 10; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: .6rem; padding: .5rem .8rem; margin: .6rem 0; display: flex; flex-wrap: wrap; gap: .4rem .9rem; align-items: center; font-size: .9rem; }
+.csa-legende { display: flex; flex-wrap: wrap; gap: .35rem; margin: .4rem 0 .8rem; }
+.rpast { display: inline-flex; align-items: center; gap: .35rem; border: 2px solid var(--c, var(--accent)); color: var(--c, var(--accent)); background: color-mix(in srgb, var(--c, var(--accent)) 12%, var(--bg-card)); border-radius: 999px; padding: .12rem .7rem; font-weight: 700; font-size: .85rem; line-height: 1.4; }
+button.rpast { cursor: pointer; }
+button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, var(--c, var(--accent)) 24%, var(--bg-card)); }
+.rpast.plein { background: var(--c, var(--accent)); color: var(--bg-card); }
+.rpast.prop { border-style: dashed; }
+.blk { display: flex; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); margin: .6rem 0; overflow: hidden; }
+.blk-bar { flex: 0 0 6px; background: var(--c, var(--rb-aclasser)); }
+.blk-corps { flex: 1; padding: .6rem .8rem; min-width: 0; }
+.blk-tete { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; margin-bottom: .35rem; }
+.blk-origine { font-size: .8rem; color: var(--text-muted); }
+.blk-actions { margin-left: auto; display: flex; gap: .4rem; }
+.blk-texte { font-size: .92rem; word-break: break-word; }
+.blk-ligne { padding: .08rem 0; white-space: pre-wrap; display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+.blk-ligne.titre { font-weight: 700; color: var(--text-muted); }
+.blk-coupe { flex: 0 0 auto; border: 0; background: transparent; color: var(--text-muted); font-size: .9rem; padding: 0 .35rem; opacity: .5; border-radius: 6px; }
+.blk-coupe:hover, .blk-coupe:focus-visible { opacity: 1; color: var(--accent); background: var(--bg-hover); }
+.blk-choix { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--border); }
+.blk-choix[hidden] { display: none; }
+.blk-nom { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; font-size: .85rem; margin-top: .3rem; }
+.blk-nom input { max-width: 260px; }
+.det { background: var(--accent-bg-subtle); border-bottom: 2px solid var(--accent); border-radius: 3px; padding: 0 .2rem; white-space: nowrap; }
+.det i { font-size: .8em; margin-right: .15rem; color: var(--accent); }
+.csa-alerte { font-size: .9rem; border-left: 3px solid var(--rb-aclasser); background: color-mix(in srgb, var(--rb-aclasser) 10%, var(--bg-card)); padding: .5rem .8rem; border-radius: 0 .5rem .5rem 0; margin: .8rem 0; }
+/* Voie 3 de « Reprendre mon CV » : écran « Vérifier » (fiches) */
+.csa-fiche-champs { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .5rem .8rem; }
+.csa-champ label { font-size: .78rem; color: var(--text-muted); display: flex; gap: .4rem; align-items: center; margin-bottom: .1rem; }
+.csa-devine { font-size: .68rem; font-weight: 700; color: var(--rb-aclasser); border: 1px solid var(--rb-aclasser); border-radius: 999px; padding: 0 .4rem; }
+.csa-carte { border: 1px solid var(--border); border-radius: 10px; padding: .6rem .7rem; margin: .5rem 0; background: var(--bg-subtle); }
+.csa-n:empty { display: none; }
+.csa-n { margin-left: auto; font-size: .78rem; font-weight: 700; border: 1px solid var(--border-strong); border-radius: 999px; padding: 0 .55rem; color: var(--text-muted); }
+.csa-ligne-autre { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: .4rem; margin-bottom: .35rem; }
+@media (max-width: 560px) { .csa-ligne-autre { grid-template-columns: minmax(0, 1fr); } }
+.bloc-depli > summary .rpast { margin-right: .5rem; }

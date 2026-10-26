@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : l'écran juste après l'import de « M'entraîner à un entretien »</title>
+<style>
+:root{--bg:#f6f8fb;--surface:#fff;--text:#1d2733;--muted:#5d6b7a;--border:#d5dde6;--accent:#2a6fdb;--accent-bg:#e8f0fd;--ok:#2f7d4f;--ok-bg:#e6f4ea;--warn:#a8650b;--warn-bg:#fdf1de;--alert:#b3472f;--alert-bg:#fbe9e4;--radius:8px}
+[data-theme="sombre"]{--bg:#12161c;--surface:#1b222b;--text:#e8edf3;--muted:#9fb0c2;--border:#33404f;--accent:#7aa9f5;--accent-bg:#1d2d47;--ok:#6cc08b;--ok-bg:#193326;--warn:#e0a55a;--warn-bg:#3a2c16;--alert:#e58a73;--alert-bg:#3d211b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif}
+.entete{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.entete strong{margin-right:auto}
+button,.btn{font:inherit;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:8px 14px;border-radius:12px;cursor:pointer}
+button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+button.principal{background:var(--accent);border-color:var(--accent);color:#fff}
+main{max-width:860px;margin:0 auto;padding:16px}
+.note{background:var(--accent-bg);border-left:3px solid var(--accent);padding:10px 14px;border-radius:var(--radius);margin:12px 0}
+.retire{background:var(--alert-bg);border-left:3px solid var(--alert)}
+.nouveau{background:var(--ok-bg);border-left:3px solid var(--ok)}
+.reserve{background:var(--warn-bg);border-left:3px solid var(--warn)}
+.etiquette{display:inline-block;font-size:.8rem;font-weight:700;padding:1px 10px;border-radius:999px;border:1px solid currentColor;margin-right:6px}
+.barre{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.pastille{padding:6px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.9rem}
+.pastille.fait{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.pastille.cour{background:var(--warn-bg);border-color:var(--accent);color:var(--text);box-shadow:0 0 0 3px var(--accent-bg)}
+h1{text-align:center;margin:10px 0}
+details.bd{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);margin:12px 0}
+details.bd>summary{padding:12px 14px;cursor:pointer;font-weight:600;list-style:none}
+details.bd .corps{padding:0 14px 14px}
+.cv-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin:12px 0}
+.vue{display:none}.vue.actif{display:block}
+.bas{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:10px 16px;display:flex;justify-content:space-between;gap:8px;margin:20px -16px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+.nav-ancienne{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}.nav-ancienne span{padding:4px 12px;border:1px solid var(--border);border-radius:999px;font-size:.88rem;color:var(--muted)}
+.nav-ancienne .act{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mini{font-size:.9rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="entete">
+  <strong>Maquette : après l'import de « M'entraîner à un entretien »</strong>
+  <button id="vAvant" class="on" onclick="vue('avant')">Aujourd'hui</button>
+  <button id="vCible" onclick="vue('cible')">Cible proposée</button>
+  <button id="vLettre" onclick="vue('lettre')">Référence : la lettre</button>
+  <button id="vInv" onclick="vue('inv')">Inventaire</button>
+  <button onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='sombre'?'':'sombre'">Clair / sombre</button>
+</div>
+<main>
+
+<!-- ===================== AUJOURD'HUI ===================== -->
+<section class="vue actif" id="avant">
+  <div class="note"><span class="etiquette">Constat</span>Voilà ce que voit la personne aujourd'hui, juste après avoir collé la réponse de l'assistant (capture de Denis, 2026-10-19). Le bouton qui l'envoie ici : <code>naviguerVers('resultats')</code>, <code>data/metiers.js:10080</code>.</div>
+  <div class="nav-ancienne"><span>Expérience</span><span>Ce que vous faisiez</span><span>Environnement</span><span>Attentes</span><span>Vos informations</span><span>Votre profil</span><span class="act">Action</span></div>
+  <div class="note retire"><span class="etiquette">Défaut 1</span>L'ancienne barre générale : elle n'a aucun rapport avec « M'entraîner à un entretien ».</div>
+  <h1>Vos documents</h1>
+  <div class="cv-section" style="border-left:3px solid var(--warn);background:var(--warn-bg)">
+    <strong>Il manque vos coordonnées.</strong> Sans elles, votre CV ne pourra pas être finalisé.
+    <div style="margin-top:8px"><button>Compléter mes coordonnées</button></div>
+  </div>
+  <div class="note retire"><span class="etiquette">Défaut 2</span>On parle du « CV » alors que la personne vient de préparer un entretien.</div>
+  <div class="cv-section"><strong>Adaptation au métier</strong><div class="mini">Ces choix orientent seulement l'assistant : ils n'apparaissent jamais sur votre CV.</div>
+    <p>Niveau du poste, niveau de langage, vocabulaire du métier, ton de la candidature...</p>
+    <button class="principal">Ces réglages me conviennent</button></div>
+  <div class="note retire"><span class="etiquette">Défaut 3</span>On redemande des réglages alors que l'assistant a déjà répondu : ils ont été choisis à l'étape « Préparer » et n'ont plus d'effet ici.</div>
+</section>
+
+<!-- ===================== CIBLE ===================== -->
+<section class="vue" id="cible">
+  <div class="note"><span class="etiquette">Cible</span>Même mécanisme que « Écrire ma lettre avec l'assistant » (corrigé le 2026-09-17 pour le même défaut) : un drapeau posé au moment de l'import (<code>_origineEntretien</code>, comme <code>_origineCoLettre</code>), lu par la barre du haut et par la page.</div>
+
+  <div class="barre">
+    <span class="pastille fait">&#128221; Préparer</span>
+    <span class="pastille fait">&#128172; Assistant</span>
+    <span class="pastille fait">&#127908; S’entraîner</span>
+    <span class="pastille cour">&#9989; Terminé</span>
+  </div>
+  <div class="note nouveau"><span class="etiquette">Corrigé</span>La barre du module (celle des écrans d'avant), étape « Terminé » en cours. Rien d'autre à apprendre.</div>
+
+  <h1>&#128196; Votre préparation d'entretien</h1>
+  <div class="note reserve"><span class="etiquette">Question 1</span>Titre : garder « Vos documents » (comme la lettre, page partagée) ou « Votre préparation d'entretien » (plus clair pour cette personne) ?</div>
+
+  <div class="cv-section" style="border-left:4px solid var(--ok);background:var(--ok-bg)">
+    <strong>&#9989; Votre préparation est enregistrée.</strong>
+    <div class="mini">Elle contient : votre présentation, les points à préparer, vos questions probables (dont une mise en situation) et les questions à poser au recruteur.</div>
+  </div>
+  <div class="note reserve"><span class="etiquette">Question 2 : NOUVEAU</span>Ce petit encart de confirmation n'existe pas aujourd'hui. Le garder (rassure, rappelle ce que contient la fiche) ou ne rien ajouter ?</div>
+
+  <div class="cv-section" style="border-left:3px solid var(--warn);background:var(--warn-bg)">
+    <strong>Il manque votre nom pour l'en-tête de la fiche.</strong> Vous pouvez la télécharger sans, ou le compléter.
+    <div style="margin-top:8px"><button>Compléter mon nom</button></div>
+  </div>
+  <div class="note reserve"><span class="etiquette">À vérifier au code</span>Le texte devient celui de l'entretien. Je vérifie avant de coder que la fiche se télécharge bien sans nom (la fonction <code>normaliserDonneesEntretien</code> accepte un nom vide) ; si elle ne se téléchargeait pas, le bandeau resterait bloquant.</div>
+
+  <details class="bd" open><summary>&#127912; La mise en page <span class="mini">(modèle de la fiche)</span></summary><div class="corps">Inchangé : le choix du modèle de la fiche, comme aujourd'hui.</div></details>
+  <details class="bd" open><summary>&#128190; Exporter <span class="mini">(Word, copier le texte)</span></summary><div class="corps">Inchangé : télécharger la fiche Word, copier le texte.</div></details>
+  <div class="cv-section" style="border-left:4px solid var(--accent);background:var(--accent-bg)"><strong>Et maintenant ?</strong><div class="mini">Inchangé : la suggestion du document suivant (par exemple revoir ma lettre).</div></div>
+
+  <div class="note retire"><span class="etiquette">Retiré de cet écran</span>« Adaptation au métier » et le second passage « Choisissez votre assistant / Importer la réponse » : déjà faits dans le module, sans effet après la réponse. Les réglages restent modifiables dans l'étape « Préparer » du module (le bouton « Retour » y ramène). À valider.</div>
+
+  <div class="bas"><button>&larr; Retour</button><button>Accueil</button><button class="principal">Merci bien, j'ai fini</button></div>
+  <div class="mini">« Merci bien, j'ai fini » n'apparaît qu'une fois la fiche enregistrée (téléchargée ou copiée), comme aujourd'hui.</div>
+</section>
+
+<!-- ===================== REFERENCE LETTRE ===================== -->
+<section class="vue" id="lettre">
+  <div class="note nouveau"><span class="etiquette">Déjà en place</span>Pour « Écrire ma lettre avec l'assistant », le défaut a été corrigé le 2026-09-17 : barre du module (étape « Terminé »), pas de réglages redemandés, pas de second passage de l'assistant (<code>js/app.js</code> lignes 3942, 23005, 23071). Rien à refaire pour cette lettre.</div>
+  <div class="barre"><span class="pastille fait">Préparer</span><span class="pastille fait">Assistant</span><span class="pastille fait">Relecture</span><span class="pastille cour">&#9989; Terminé</span></div>
+  <div class="note reserve"><span class="etiquette">À savoir</span>Le parcours « Préparer ma lettre et mon entretien » (depuis « Mes documents ») garde volontairement l'ancienne barre et « Adaptation au métier » : pour lui, les réglages se choisissent AVANT l'assistant, sur cette même page. Ce n'est pas le même cas. Je ne le touche pas, sauf si tu le demandes.</div>
+</section>
+
+<!-- ===================== INVENTAIRE ===================== -->
+<section class="vue" id="inv">
+  <p>Inventaire des fonctions de la page après l'import (étape 4 de la méthode). Aucun « RETIRÉ » sans ta validation.</p>
+  <table>
+    <tr><th>Élément</th><th>Étiquette</th><th>Détail</th></tr>
+    <tr><td>Barre du haut (ancienne, 7 repères)</td><td>REMPLACÉ</td><td>Par la barre du module, étape « Terminé »</td></tr>
+    <tr><td>Bandeau « coordonnées »</td><td>ENRICHI</td><td>Texte propre à l'entretien, même bouton</td></tr>
+    <tr><td>« Adaptation au métier »</td><td>RETIRÉ de cet écran, à valider</td><td>Reste réglable dans « Préparer »</td></tr>
+    <tr><td>Second passage « Choisissez votre assistant / Importer »</td><td>RETIRÉ de cet écran, à valider</td><td>Déjà fait dans le module (comme la lettre)</td></tr>
+    <tr><td>La mise en page (modèle de fiche)</td><td>GARDÉ</td><td></td></tr>
+    <tr><td>Exporter (Word, copier)</td><td>GARDÉ</td><td></td></tr>
+    <tr><td>« Et maintenant ? »</td><td>GARDÉ</td><td></td></tr>
+    <tr><td>« Merci bien, j'ai fini », Retour, Accueil</td><td>GARDÉ</td><td></td></tr>
+    <tr><td>Encart « préparation enregistrée »</td><td>NOUVEAU (question 2)</td><td>Si tu le veux</td></tr>
+  </table>
+  <h3>Ce qui sera touché dans le code</h3>
+  <ul>
+    <li><code>data/metiers.js</code> : poser <code>dossier._origineEntretien = true</code> à l'import (ligne 10077), et le remettre à faux quand on repart d'un autre parcours.</li>
+    <li><code>js/app.js</code> : 4 endroits qui lisent déjà <code>_origineCoLettre</code> (barre, calcul du second passage, masquage de « Adaptation », câblage) ; on y ajoute l'entretien. Le texte du bandeau de coordonnées.</li>
+    <li>Tests : parcours navigateur « sortie entretien » (nouveau), parcours de la lettre et du CV rejoués pour vérifier qu'ils ne bougent pas, <code>npm test</code>.</li>
+  </ul>
+  <div class="note reserve"><span class="etiquette">Risque</span><code>pageResultats()</code> est partagée par le CV, la lettre et l'entretien. Le changement est une branche de plus sur un patron déjà utilisé, mais il faut rejouer les trois chemins. À faire quand l'autre compte aura fini, car il a modifié cette page trois fois le 2026-10-19. Effort : <code>[effort : moyen]</code> une fois la maquette validée (patron existant).</div>
+</section>
+
+</main>
+<script>
+function vue(id){document.querySelectorAll('.vue').forEach(function(s){s.classList.toggle('actif',s.id===id);});
+['avant','cible','lettre','inv'].forEach(function(n){document.getElementById('v'+n.charAt(0).toUpperCase()+n.slice(1)).classList.toggle('on',n===id);});}
+</script>
+</body>
+</html>

@@ -26,7 +26,7 @@ var MT_DOMAINES = [
 var _mtDonnees = null;          // { employeurs, communes, secteurs } une fois chargé
 var _mtChargement = 'inactif';  // 'inactif' | 'en-cours' | 'ok' | 'erreur'
 function _mtEtatInitial(extra) {
-  var e = { ecran: 'accueil', rayon: '', secteur: '', id: '', requete: '', nature: '', nbAffiches: 0, vide: '', choixCommunes: null, messageCommune: '', saisieCommune: '', saisieRecherche: '', secteurOffres: '', groupeOffres: '' };
+  var e = { ecran: 'accueil', rayon: '', secteur: '', id: '', requete: '', nature: '', nbAffiches: 0, vide: '', choixCommunes: null, messageCommune: '', saisieCommune: '', saisieRecherche: '', secteurOffres: '', groupeOffres: '', secteurProspection: '' };
   var k;
   for (k in (extra || {})) { if (Object.prototype.hasOwnProperty.call(extra, k)) { e[k] = extra[k]; } }
   return e;
@@ -73,7 +73,10 @@ function _mtDep() {
 function _mtDepInfo() { return mtDepartement(_mtDep() || MT_DEPARTEMENT_PAR_DEFAUT); }
 // Les communes et les employeurs de SON département seulement.
 function _mtCommunes() { return mtCommunesDuDepartement(_mtDonnees.communes, _mtDepInfo().code); }
-function _mtEmployeurs() { return mtEmployeursDuDepartement(_mtDonnees.employeurs, _mtDonnees.communes, _mtDepInfo().code); }
+// Les employeurs « habituels » : jamais ceux « Via prospection » (rubrique à part, aucun mélange : décision de Denis, 2026-10-18). Toutes les listes, tous les compteurs et la recherche partent d'ici.
+function _mtTousLesEmployeurs() { return mtEmployeursDuDepartement(_mtDonnees.employeurs, _mtDonnees.communes, _mtDepInfo().code); }
+function _mtEmployeurs() { return mtSeparerProspection(_mtTousLesEmployeurs()).normaux; }
+function _mtEmployeursProspection() { return mtSeparerProspection(_mtTousLesEmployeurs()).prospection; }
 
 function _mtCommuneMemorisee() {
   var code = null;
@@ -137,6 +140,10 @@ function monTerritoireResultatsRecherche(requete) {
     return { titre: 'Qui fait quoi : ' + e.nom, desc: _mtLibelleSecteur(e.secteur) + ' · ' + e.etablissementsListe.map(function (x) { return _mtCommuneCp(x.commune); }).join(', '),
       cible: 'fn:mon-territoire:' + e.id };
   });
+  var pros = mtRechercherEmployeurs(_mtEmployeursProspection(), _mtSecteurs(), requete).slice(0, 3).map(function (e) {
+    return { titre: MT_MARQUE_PROSPECTION + ' : ' + e.nom, desc: 'Repéré lors d’une prospection · ' + _mtLibelleSecteur(e.secteur) + ' · ' + e.etablissementsListe.map(function (x) { return _mtCommuneCp(x.commune); }).join(', '),
+      cible: 'fn:mon-territoire:' + e.id };
+  });
   var vus = {};
   var trouves = mtRechercherLieux(_mtLieux(), requete, (typeof FREINS_REPERTOIRE !== 'undefined') ? FREINS_REPERTOIRE : null);
   // Les mots que la personne tape vraiment (« pas de voiture ») renvoient aux structures du frein correspondant (jamais pour un frein sensible).
@@ -154,7 +161,7 @@ function monTerritoireResultatsRecherche(requete) {
     ? [{ titre: 'Qui fait quoi : agences d’intérim', desc: 'Les agences d’intérim de votre département, avec leur numéro et leur page', cible: 'fn:mon-territoire:interim' }] : []);
   var pageSiae = (/(^| )(iae|siae|pass iae)( |$)|insertion par l activite|chantier d insertion|entreprise d insertion/.test(q)
     ? [{ titre: 'Qui fait quoi : insertion par l’activité économique', desc: 'Comment y entrer, le pass IAE, les liens officiels', cible: 'fn:mon-territoire:siae' }] : []);
-  return pageInterim.concat(pageSiae, pagesOffres, emp, str).slice(0, 6);
+  return pageInterim.concat(pageSiae, pagesOffres, emp, pros, str).slice(0, 6);
 }
 
 // ------------------------------------------------------------
@@ -367,7 +374,7 @@ function monTerritoireOuvrirDepuisCadre(rayon) {
 function _mtIndexEtape() {
   var e = _mtEtat.ecran;
   if (e === 'fiche') { return 2; }
-  if (e === 'emploi' || e === 'liste' || e === 'offres' || e === 'siae' || e === 'interim' || e === 'lieux' || MT_SOUS_BRANCHES[e]) { return 1; }
+  if (e === 'emploi' || e === 'liste' || e === 'prospection' || e === 'offres' || e === 'siae' || e === 'interim' || e === 'lieux' || MT_SOUS_BRANCHES[e]) { return 1; }
   return 0;
 }
 
@@ -415,7 +422,7 @@ function _mtRenduBlocCommune() {
     corps = '<span class="me-2"><i class="bi bi-geo-alt"></i> Votre territoire : <strong>' + _mtEsc(c.nom) + '</strong>, ' + _mtEsc(_mtDepInfo().nom) + ' (' + _mtEsc(_mtDepInfo().code) + ')</span>' +
       '<button type="button" class="btn btn-sm btn-outline-primary" data-mt-changer-commune>Changer</button>';
   } else {
-    corps = '<label for="mtSaisieCommune" class="fw-semibold d-block mb-1"><i class="bi bi-geo-alt"></i> Votre commune (facultatif)</label>' +
+    corps = '<label for="mtSaisieCommune" class="fw-semibold d-block mb-1"><i class="bi bi-geo-alt"></i> Votre commune (à compléter)</label>' +
       '<div class="d-flex gap-2 flex-wrap"><input id="mtSaisieCommune" class="form-control champ-bien-visible" style="max-width:18rem" autocomplete="off" placeholder="Exemple : ' + _mtEsc(_mtDepInfo().exemple) + '" value="' + _mtEsc(_mtEtat.saisieCommune) + '">' +
       '<button type="button" class="btn btn-primary" data-mt-valider-commune>Valider</button>' +
       (c ? '<button type="button" class="btn btn-outline-secondary" data-mt-annuler-commune>Garder ' + _mtEsc(c.nom) + '</button>' : '') + '</div>' +
@@ -550,6 +557,7 @@ function _mtLigneEmployeur(e, communePersonne, communeVue) {
   return '<div class="comprendre-le-cadre-encart mt-carte-employeur">' +
     '<span class="d-block fw-semibold">' + _mtEsc(e.nom) + '</span>' +
     '<span class="d-block small">' + _mtNatureLibelle(e) + ' · ' + _mtEsc(lieux) + '</span>' +
+    (mtViaProspection(e) ? '<span class="d-block small">' + _mtEsc(_mtLibelleSecteur(e.secteur)) + '</span>' + _mtPastilleProspection() : '') +
     (proche ? '<span class="badge text-bg-light mt-1"><i class="bi bi-geo-alt"></i> Dans votre intercommunalité</span>' : '') +
     '<button type="button" class="btn btn-sm btn-primary mt-2" data-mt-fiche="' + _mtEsc(e.id) + '">Voir la fiche</button></div>';
 }
@@ -621,6 +629,53 @@ function _mtRenduListe() {
 }
 
 // ------------------------------------------------------------
+// Rubrique « Via prospection » (chantier docs/CHANTIER_VIA_PROSPECTION_QUI_FAIT_QUOI_2026-10-18.md) : les employeurs repérés par l'outil de prospection, à part des listes habituelles.
+// Mêmes briques que le reste du module : puces de secteur avec compteur (comme « Où voir les offres »), bandeau des communes (B.32), cartes d'employeur.
+// ------------------------------------------------------------
+function _mtPastilleProspection() { return '<span class="badge text-bg-primary mt-1"><i class="bi bi-binoculars"></i> ' + MT_MARQUE_PROSPECTION + '</span>'; }
+function _mtPhraseProspection() {
+  return 'Cet employeur a été repéré lors d’une démarche de prospection, pas parce qu’il a publié une offre. Nous ne savons pas s’il recrute en ce moment : une candidature spontanée est possible, et il vaut mieux téléphoner d’abord.';
+}
+
+function _mtRenduProspection() {
+  var toutes = _mtEmployeursProspection();
+  var noms = _mtNomsCommunes([].concat.apply([], toutes.map(function (e) { return e.etablissementsListe.map(function (x) { return x.commune; }); })));
+  var choix = _mtChoixCommune('prospection', noms);
+  var c = _mtCommuneMemorisee();
+  var dansChoix = function (e) { return _mtToutVoir(choix) || e.etablissementsListe.some(function (x) { return _mtDansChoix(x.commune, choix); }); };
+  // Les compteurs des puces suivent les communes choisies (jamais un nombre qui promet plus que la liste montrée).
+  var visibles = noms.length && !choix.length ? toutes : toutes.filter(dansChoix);
+  var n = {};
+  visibles.forEach(function (e) { n[e.secteur] = (n[e.secteur] || 0) + 1; });
+  var cles = Object.keys(n).sort(function (a, b) { return _mtLibelleSecteur(a).localeCompare(_mtLibelleSecteur(b), 'fr', { sensitivity: 'base' }); });
+  var cle = _mtEtat.secteurProspection;
+  if (cle && !n[cle]) { cle = ''; }
+  var puces = '<p class="text-center mb-1"><strong>Choisissez un secteur</strong> pour réduire la liste.</p>' +
+    '<div class="d-flex flex-wrap gap-2 justify-content-center my-2" role="group" aria-label="Choisir un secteur">' +
+    [['', 'Tous les secteurs (' + visibles.length + ')']].concat(cles.map(function (k) { return [k, _mtLibelleSecteur(k) + ' (' + n[k] + ')']; })).map(function (f) {
+      return '<button type="button" class="btn btn-sm ' + (cle === f[0] ? 'btn-primary' : 'btn-outline-primary') + '" aria-pressed="' + (cle === f[0]) + '" data-mt-secteur-prospection="' + _mtEsc(f[0]) + '">' + _mtEsc(f[1]) + '</button>'; }).join('') + '</div>';
+  var liste = mtTrierAlphabetique(visibles.filter(function (e) { return !cle || e.secteur === cle; }));
+  var p = mtPaginer(liste, _mtEtat.nbAffiches);
+  var suite = p.restants > 0
+    ? '<div class="text-center my-2"><button type="button" class="btn btn-outline-secondary" data-mt-suivants>Afficher les ' + Math.min(MT_PAGE_TAILLE, p.restants) + ' suivants (' + p.restants + ' restants)</button></div>'
+    : '';
+  var corps;
+  if (!toutes.length) { corps = _mtEncart('bi-info-circle', 'Cette rubrique n’a pas encore de liste pour votre département.'); }
+  else {
+    corps = puces + (noms.length ? _mtBandeauCommunes('prospection', noms, choix) : '') +
+      (!noms.length || choix.length
+        ? (liste.length ? '<p class="small text-muted text-center">Par ordre alphabétique : ce n’est pas un classement. ' + p.nbAffiches + ' sur ' + p.total + ' affichés.</p>' +
+          '<div class="mt-grille-employeurs">' + p.page.map(function (e) { return _mtLigneEmployeur(e, c, choix); }).join('') + '</div>' + suite
+          : '<p class="small text-muted text-center border rounded p-3">Aucun employeur pour ce choix. Essayez un autre secteur, une autre commune, ou « Voir toute la liste ».</p>')
+        : _mtAucuneCommune());
+  }
+  return _mtTitre('bi-binoculars', MT_MARQUE_PROSPECTION + ' ' + _mtDepInfo().en) +
+    _mtEncart('bi-info-circle', 'Ces employeurs ont été <strong>repérés lors de démarches de prospection</strong>, pas parce qu’ils ont publié une offre. Rien ne dit qu’ils recrutent en ce moment : une candidature spontanée est possible, et il vaut mieux téléphoner d’abord. Ils sont rangés ici, à part des autres listes.') +
+    corps +
+    '<p class="small text-muted mt-3">Liste non exhaustive. Aucun partenariat, aucune rémunération, aucun classement.</p>';
+}
+
+// ------------------------------------------------------------
 // Rubrique « Employeurs qui publient leurs offres » (contenu/offres.txt) : on donne l'adresse de la page, jamais les offres.
 // Textes validés par Denis : docs/TEXTES_RUBRIQUE_OFFRES_PUBLIEES_A_VALIDER_2026-10-17.md. Plan : docs/PLAN_RUBRIQUE_OFFRES_PUBLIEES_2026-10-17.md.
 // ------------------------------------------------------------
@@ -656,7 +711,12 @@ function _mtPortesPrincipales() {
     '<span>Inscription possible dans tous les secteurs</span>' + (nbInterim ? '' : '<span class="badge text-bg-light mt-1">Pas encore de liste</span>') + '</button>';
   var siae = '<button type="button" class="sous-carte-accueil mt-porte" data-mt-siae><i class="bi bi-signpost-split"></i><strong>Insertion par l’activité économique</strong>' +
     '<span>Un emploi avec un accompagnement : on y entre par un conseiller</span></button>';
-  return '<div class="grille-sous-cartes-accueil mt-3">' + offres + interim + siae + '</div>';
+  var nbPros = _mtEmployeursProspection().length;
+  var prospection = nbPros
+    ? '<button type="button" class="sous-carte-accueil mt-porte" data-mt-prospection><i class="bi bi-binoculars"></i><strong>' + MT_MARQUE_PROSPECTION + '</strong>' +
+      '<span>Des employeurs repérés lors de démarches de prospection : une porte pour une candidature spontanée</span><span class="badge text-bg-primary mt-1">' + nbPros + (nbPros > 1 ? ' employeurs' : ' employeur') + '</span></button>'
+    : '';
+  return '<div class="grille-sous-cartes-accueil mt-3">' + offres + interim + siae + prospection + '</div>';
 }
 
 // Écran « Insertion par l'activité économique » : ce qu'il faut savoir avant de chercher (prescription, pass IAE). Textes à valider par Denis.
@@ -779,6 +839,7 @@ function _mtRenduCriteresOffres() {
 function _mtRenduRecherche() {
   var q = _mtEtat.requete;
   var emp = mtRechercherEmployeurs(_mtEmployeurs(), _mtSecteurs(), q);
+  var pros = mtRechercherEmployeurs(_mtEmployeursProspection(), _mtSecteurs(), q);
   var sec = mtRechercherSecteurs(_mtSecteurs(), q);
   var c = _mtCommuneMemorisee();
   var str = mtRechercherLieux(_mtLieux(), q, (typeof FREINS_REPERTOIRE !== 'undefined') ? FREINS_REPERTOIRE : null);
@@ -792,11 +853,12 @@ function _mtRenduRecherche() {
       return '<button type="button" class="sous-carte-accueil" data-mt-secteur="' + s.cle + '"><i class="bi ' + a.icone + '"></i><strong>' + _mtEsc(s.libelle) + '</strong><span>' + _mtEsc(a.exemples) + '</span></button>'; }).join('') + '</div>';
   }
   if (emp.length) { html += '<h2 class="h5 fw-bold text-uppercase text-muted mt-3">Employeurs</h2>' + '<div class="mt-grille-employeurs">' + emp.map(function (e) { return _mtLigneEmployeur(e, c); }).join('') + '</div>'; }
+  if (pros.length) { html += '<h2 class="h5 fw-bold text-uppercase text-muted mt-3">' + MT_MARQUE_PROSPECTION + '</h2>' + '<div class="mt-grille-employeurs">' + pros.map(function (e) { return _mtLigneEmployeur(e, c); }).join('') + '</div>'; }
   if (str.length) {
     html += '<h2 class="h5 fw-bold text-uppercase text-muted mt-3">Structures</h2>' + str.map(function (l) {
       return (pourFrein[l.id] ? '<p class="small text-muted mb-1 mt-2">Pour : ' + _mtEsc(pourFrein[l.id]) + '</p>' : '') + _mtCarteLieu(l) + '<div class="mb-3"><button type="button" class="btn btn-sm btn-outline-primary" data-mt-lieux-rayon="' + _mtEsc(l.rayonsListe[0]) + '">Voir toute la liste du domaine</button></div>'; }).join('');
   }
-  if (!sec.length && !emp.length && !str.length) {
+  if (!sec.length && !emp.length && !pros.length && !str.length) {
     html += _mtEncart('bi-info-circle', 'Aucun résultat pour « ' + _mtEsc(q) + ' ». Essayez un métier (caissier), un secteur (commerce) ou le nom d’un employeur.') +
       '<div class="text-center">' + _mtBoutonRegistre('bonne-boite', 'Chercher par moi-même (La Bonne Boîte)') + '</div>';
   }
@@ -835,14 +897,9 @@ function _mtRenduDomaine(domaine) {
     '<p class="small text-muted mt-3"><i class="bi bi-info-circle"></i> Les structures viennent de « Comprendre le cadre » : une seule liste, vérifiée à la main, avec sa date.</p>';
 }
 
-// Une structure : même carte que l'écran « Près de chez moi » de Comprendre le cadre (nom, description, lien seulement si l'adresse est vérifiée et datée).
+// Une structure : même carte que l'écran « Près de chez moi » de Comprendre le cadre (nom, description, téléphone, mail et lien seulement s'ils sont vérifiés et datés : UNE carte partagée, mtCarteStructureHtml dans logique.js).
 function _mtCarteLieu(l) {
-  var st = mtLieuEnStructure(l, _mtAujourdhui(), mtCommuneInfoMemorisee());
-  return '<div class="comprendre-le-cadre-encart mb-2"><span class="d-block fw-semibold">' + _mtEsc(st.titre) + (st.couvre === true ? ' <span class="badge text-bg-primary ms-1">Couvre votre commune</span>' : '') + '</span>' +
-    (st.detail ? '<span class="d-block small">' + _mtEsc(st.detail) + '</span>' : '') +
-    '<span class="d-block small text-muted">' + _mtEsc(MT_TYPES[l.type] || '') + (l.commune ? ' · ' + _mtEsc(_mtCommuneCp(l.commune)) : '') + '</span>' +
-    (st.verifie ? '<a href="' + _mtEsc(st.url) + '" target="_blank" rel="noopener" class="d-block small mt-1"><i class="bi bi-box-arrow-up-right"></i> ' + _mtEsc(st.url) + '</a><span class="comprendre-le-cadre-source-date">adresse vérifiée le ' + _mtDateFr(st.date) + '</span>'
-      : '<span class="d-block small text-muted mt-1"><i class="bi bi-clock-history"></i> Adresse pas encore vérifiée ou à revérifier.</span>') + '</div>';
+  return mtCarteStructureHtml(mtLieuEnStructure(l, _mtAujourdhui(), mtCommuneInfoMemorisee()), { dateFr: _mtDateFr, communeAffichee: l.commune ? _mtCommuneCp(l.commune) : '' });
 }
 
 function _mtRenduLieux() {
@@ -928,7 +985,7 @@ function _mtTelephoneAffiche(tel) {
 }
 
 function _mtRenduFiche() {
-  var e = _mtEmployeurs().filter(function (x) { return x.id === _mtEtat.id; })[0];
+  var e = _mtTousLesEmployeurs().filter(function (x) { return x.id === _mtEtat.id; })[0];
   if (!e) { return _mtEncart('bi-exclamation-circle', 'Cette fiche n’existe plus.') + '<div class="text-center"><button type="button" class="btn btn-outline-primary" data-mt-retour-accueil>Retour à l’accueil du module</button></div>'; }
   var aujourdhui = _mtAujourdhui();
   var fraicheur = mtFraicheur(e.date, aujourdhui);
@@ -950,8 +1007,11 @@ function _mtRenduFiche() {
   if (offre) { actions += '<span class="d-inline-block">' + _mtBoutonOffres(offre.page, 'Ses offres publiées', 'btn btn-primary') + '<span class="d-block small text-muted">L’employeur publie lui-même ses offres sur cette page. Vous quittez l’application.</span></span> '; }
   else if (aff.recrutement) { actions += _mtBoutonLienExterne(e.recrutement, 'Page de recrutement') + ' '; }   // repli : l'adresse notée sur la fiche elle-même quand la page n'est pas (encore) dans offres.txt
   var noteSite = (!aff.site && e.nom) ? '<p class="small text-muted mb-0">Le site de l’organisme n’est pas encore vérifié : il sera indiqué ici dès que ce sera fait.</p>' : '';
+  var viaProspection = mtViaProspection(e);
   return _mtTitre('bi-building', e.nom) +
+    (viaProspection ? '<p class="text-center">' + _mtPastilleProspection() + '</p>' : '') +
     '<div class="comprendre-le-cadre-encart mb-3">' + infos + '</div>' +
+    (viaProspection ? _mtEncart('bi-binoculars', '<strong>Pourquoi cet employeur est ici ?</strong> ' + _mtEsc(_mtPhraseProspection())) : '') +
     '<details class="bloc-depli bd-ok" open><summary>Comment candidater ici ?</summary><div class="bloc-depli-corps">' + pastilles +
       (e.nature === 'interim' ? '<p class="small mt-2 mb-0">Une agence d’intérim propose des missions temporaires dans plusieurs secteurs. Vous vous inscrivez auprès d’elle (sur place, par téléphone ou sur son site) ; elle vous contacte quand une mission correspond à votre profil.</p>' : '<p class="small text-muted mt-2 mb-0">Ces repères informent, ils ne sont pas à cocher. Nous ne savons pas à quelle fréquence cet employeur recrute et ne l’affirmons jamais.</p>') + '</div></details>' +
     '<details class="bloc-depli bd-warn" open><summary>Avant d’y aller</summary><div class="bloc-depli-corps"><ul class="mb-0">' +
@@ -987,7 +1047,7 @@ function pageMonTerritoire() {
     var e = _mtEtat.ecran;
     // Territoire non couvert (« ailleurs », un département fermé) : jamais les listes d'un autre département ; département jamais choisi : on le demande. Quel que soit l'écran d'arrivée (fiche, recherche...).
     corps = _mtHorsZone() ? _mtRenduHorsZone() : !_mtDep() ? _mtRenduChoixDepartement() : e === 'emploi' ? _mtRenduEmploi() : MT_SOUS_BRANCHES[e] ? _mtRenduDomaine(e) : e === 'lieux' ? _mtRenduLieux() : e === 'liste' ? _mtRenduListe() : e === 'fiche' ? _mtRenduFiche()
-      : e === 'recherche' ? _mtRenduRecherche() : e === 'vide' ? _mtRenduVide() : e === 'criteres' ? _mtRenduCriteres() : e === 'criteres-offres' ? _mtRenduCriteresOffres() : e === 'offres' ? _mtRenduOffres() : e === 'siae' ? _mtRenduSiae() : e === 'interim' ? _mtRenduInterim() : _mtRenduAccueil();
+      : e === 'recherche' ? _mtRenduRecherche() : e === 'vide' ? _mtRenduVide() : e === 'criteres' ? _mtRenduCriteres() : e === 'criteres-offres' ? _mtRenduCriteresOffres() : e === 'offres' ? _mtRenduOffres() : e === 'prospection' ? _mtRenduProspection() : e === 'siae' ? _mtRenduSiae() : e === 'interim' ? _mtRenduInterim() : _mtRenduAccueil();
   }
   app.innerHTML = '<div class="page-catalogue-contenu">' + _mtRenduEnTete() + corps + '</div>' + _mtRenduPiedFixe();
   // L'entrée courante de l'historique du navigateur porte l'état à jour (brique B.24) : « Précédent » la retrouvera telle quelle.
@@ -1062,6 +1122,8 @@ function _mtBrancherPage() {
   }); });
   document.querySelectorAll('[data-mt-interim]').forEach(function (b) { b.addEventListener('click', function () { _mtAller('interim'); }); });
   document.querySelectorAll('[data-mt-siae]').forEach(function (b) { b.addEventListener('click', function () { _mtAller('siae', { nbAffiches: 0 }); }); });
+  document.querySelectorAll('[data-mt-prospection]').forEach(function (b) { b.addEventListener('click', function () { _mtAller('prospection', { secteurProspection: '', nbAffiches: 0 }); }); });
+  document.querySelectorAll('[data-mt-secteur-prospection]').forEach(function (b) { b.addEventListener('click', function () { _mtEtat.secteurProspection = b.dataset.mtSecteurProspection; _mtEtat.nbAffiches = 0; pageMonTerritoire(); }); });
   document.querySelectorAll('[data-mt-offres]').forEach(function (b) { b.addEventListener('click', function () { _mtAller('offres', { secteurOffres: '' }); }); });
   document.querySelectorAll('[data-mt-secteur-offres]').forEach(function (b) { b.addEventListener('click', function () { _mtEtat.secteurOffres = b.dataset.mtSecteurOffres; pageMonTerritoire(); }); });
   var retourAccueil = document.querySelector('[data-mt-retour-accueil]');

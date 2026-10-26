@@ -27,8 +27,30 @@ var MODELES_AVEC_DOCX_NATIF_LETTRE = ['sobre'];
 // opts.formatPage : 'A5' => vraie page A5 (voir _dnTaillePageA5(),
 // formatA5CV.js, deja charge). 'A4-essentiel'/'A4'/absent => page A4
 // normale (taille par defaut de docx-js).
+// Espacement choisi par « Mise en page » (decision de Denis, 24/10/2026) : espace entre paragraphes, avant et apres la date, apres l'objet. Partage avec les gabarits.
+var ESPACES_LETTRE = {
+  'large': { para: 300, objet: 360, date: 360, interligne: 276 },
+  'normal': { para: 200, objet: 300, date: 300, interligne: 0 },
+  'serre': { para: 120, objet: 200, date: 200, interligne: 0 },
+  'tres-serre': { para: 70, objet: 130, date: 120, interligne: 0 }
+};
+
+// Paragraphes du corps de la lettre (un paragraphe Word par paragraphe separe par une ligne vide) : source unique pour le Sobre et les gabarits.
+// ctx : { POLICE, TEXTE, TAILLE_CORPS, ESP }.
+function _dnlParagraphesCorps(docx, objetLettre, ctx) {
+  var interligne = ctx.ESP.interligne ? { line: ctx.ESP.interligne } : {};
+  return (objetLettre.texte || '').split(/\n{2,}/).filter(function (p) { return p.trim(); }).map(function (p) {
+    return new docx.Paragraph({
+      spacing: Object.assign({ after: ctx.ESP.para }, interligne), alignment: docx.AlignmentType.JUSTIFIED,
+      children: [ new docx.TextRun({ text: p.trim(), size: ctx.TAILLE_CORPS, color: ctx.TEXTE, font: ctx.POLICE }) ]
+    });
+  });
+}
+
 function _dnlConstruireSobre(docx, objetLettre, opts) {
   opts = opts || {};
+  // Gabarits g1 a g4 (lot D) : gabaritsLettre.js ; g0 (Sobre) est dessine ci-dessous.
+  if (objetLettre.gabarit && objetLettre.gabarit !== 'g0' && typeof _dnlConstruireGabarit === 'function') { return _dnlConstruireGabarit(docx, objetLettre, opts); }
   var Paragraph = docx.Paragraph, TextRun = docx.TextRun, AlignmentType = docx.AlignmentType;
   var TEXTE = '1A1A1A';
   var ACCENT = opts.primaire || '1A1A1A';
@@ -39,8 +61,13 @@ function _dnlConstruireSobre(docx, objetLettre, opts) {
   // tout appelant qui ne les précise pas) -- décidées par le seul appelant
   // public (genererDocxNatifLettre(), plus bas) selon la longueur réelle
   // du texte, jamais ici (cette fonction dessine, elle ne décide jamais).
+  // Police choisie par la personne (POLICES_LETTRE_CO, destinataireLettreCo.js) ; Georgia par defaut.
+  var POLICE = (typeof policeLettreCo === 'function') ? policeLettreCo(objetLettre.police) : 'Georgia';
   var TAILLE_ENTETE = opts.tailleEnTete || 20;
   var TAILLE_CORPS = opts.tailleCorps || 21;
+  // Espacement choisi par « Mise en page » (decision de Denis, 24/10/2026) : espace entre paragraphes, avant et apres la date, apres l'objet.
+  var ESP = ESPACES_LETTRE[opts.espacement] || ESPACES_LETTRE['normal'];
+  function interligne() { return ESP.interligne ? { line: ESP.interligne } : {}; }
   // TACHE (retour utilisateur : lettre modifiable, champs grises pour
   // l'identite) : quand une information (prenom/nom/telephone/e-mail)
   // manque -- cas frequent pour le parcours "Co-construire votre lettre
@@ -55,18 +82,19 @@ function _dnlConstruireSobre(docx, objetLettre, opts) {
   }
 
   function ligneExpediteur(texte) {
-    return new Paragraph({ spacing: { after: 20 }, children: [ new TextRun({ text: texte, size: TAILLE_ENTETE, color: TEXTE, font: 'Georgia' }) ] });
+    return new Paragraph({ spacing: { after: 20 }, children: [ new TextRun({ text: texte, size: TAILLE_ENTETE, color: TEXTE, font: POLICE }) ] });
   }
   // Meme principe que ligneExpediteur(), mais pour un champ pouvant etre
   // un placeholder gris (telephone, e-mail).
   function ligneExpediteurOuPlaceholder(valeur, libellePlaceholder) {
     var champ = champOuPlaceholder(valeur, libellePlaceholder);
     return new Paragraph({ spacing: { after: 20 }, children: [
-      new TextRun({ text: champ.texte, italics: champ.placeholder, size: TAILLE_ENTETE, color: champ.placeholder ? GRIS_PLACEHOLDER : TEXTE, font: 'Georgia' })
+      new TextRun({ text: champ.texte, italics: champ.placeholder, size: TAILLE_ENTETE, color: champ.placeholder ? GRIS_PLACEHOLDER : TEXTE, font: POLICE })
     ] });
   }
 
   var enfants = [];
+  var expediteur = [];   // coordonnees de la personne (en haut a gauche), posees plus bas selon la place du bloc du destinataire
 
   // En-tete expediteur (aligne a gauche, comme le modele HTML "sobre") --
   // le nom seul recoit la couleur d'accent, reste de l'adresse neutre.
@@ -75,33 +103,66 @@ function _dnlConstruireSobre(docx, objetLettre, opts) {
   // manquer sans griser l'autre inutilement.
   var champPrenom = champOuPlaceholder(identite.prenom, '[Votre prénom]');
   var champNom = champOuPlaceholder(identite.nom, '[Votre nom]');
-  enfants.push(new Paragraph({ spacing: { after: 20 }, children: [
-    new TextRun({ text: champPrenom.texte, bold: true, italics: champPrenom.placeholder, color: champPrenom.placeholder ? GRIS_PLACEHOLDER : ACCENT, size: TAILLE_ENTETE, font: 'Georgia' }),
-    new TextRun({ text: ' ', bold: true, size: TAILLE_ENTETE, font: 'Georgia' }),
-    new TextRun({ text: champNom.texte, bold: true, italics: champNom.placeholder, color: champNom.placeholder ? GRIS_PLACEHOLDER : ACCENT, size: TAILLE_ENTETE, font: 'Georgia' })
+  expediteur.push(new Paragraph({ spacing: { after: 20 }, children: [
+    new TextRun({ text: champPrenom.texte, bold: true, italics: champPrenom.placeholder, color: champPrenom.placeholder ? GRIS_PLACEHOLDER : ACCENT, size: TAILLE_ENTETE, font: POLICE }),
+    new TextRun({ text: ' ', bold: true, size: TAILLE_ENTETE, font: POLICE }),
+    new TextRun({ text: champNom.texte, bold: true, italics: champNom.placeholder, color: champNom.placeholder ? GRIS_PLACEHOLDER : ACCENT, size: TAILLE_ENTETE, font: POLICE })
   ] }));
-  if (identite.adresse) { enfants.push(ligneExpediteur(identite.adresse)); }
-  if (identite.ville) { enfants.push(ligneExpediteur(identite.ville)); }
+  // Decision de Denis (24/10/2026) : nom, code postal et ville, telephone, e-mail toujours ; la rue seulement si la personne l'a choisie.
+  var ligneRue = ligneRueLettreCo(identite, objetLettre.inclureRue);
+  if (ligneRue) { expediteur.push(ligneExpediteur(ligneRue)); }
+  var ligneVille = ligneCodePostalVilleLettreCo(identite);
+  if (ligneVille) { expediteur.push(ligneExpediteur(ligneVille)); }
   // TACHE (champs grises) : telephone et e-mail toujours affiches
   // (placeholder gris si manquants) -- contrairement a adresse/ville
   // (facultatives, discretes si absentes), un recruteur a besoin d'un
   // moyen direct de recontacter la personne.
-  enfants.push(ligneExpediteurOuPlaceholder(identite.telephone, '[Votre téléphone]'));
-  enfants.push(ligneExpediteurOuPlaceholder(identite.email, '[Votre e-mail]'));
+  expediteur.push(ligneExpediteurOuPlaceholder(identite.telephone, '[Votre téléphone]'));
+  expediteur.push(ligneExpediteurOuPlaceholder(identite.email, '[Votre e-mail]'));
+
+  // Bloc du destinataire (temps 3, decisions 22 a 28 et 68 du cahier lettre), aligne a droite. Par defaut une ligne plus bas, sous les coordonnees ;
+  // opts.destinataireCote : au MEME NIVEAU que les coordonnees, a leur droite, pour gagner de la place quand la lettre est longue (decision de Denis,
+  // 24/10/2026). opts.masquerAdresseDestinataire : l'adresse de l'entreprise est la premiere a disparaitre quand la lettre est pleine.
+  var destinataire = objetLettre.destinataire || {};
+  var lignesDestinataire = (opts.masquerAdresseDestinataire ? destinataire.lignesSansAdresse : destinataire.lignes) || [];
+  var nomEntreprise = destinataire.entreprise || '';
+  var cote = !!(opts.destinataireCote && lignesDestinataire.length);
+  var blocDestinataire = lignesDestinataire.map(function (ligne, i) {
+    return new Paragraph({
+      alignment: AlignmentType.RIGHT, spacing: { before: (!cote && i === 0) ? ESP.date : 0, after: 20 },
+      children: [ new TextRun({ text: ligne, bold: !!nomEntreprise && i === 0, size: TAILLE_ENTETE, color: TEXTE, font: POLICE }) ]
+    });
+  });
+  if (cote) {
+    var SANS_BORDURE = { style: docx.BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+    var cellule = function (contenu, largeur) {
+      return new docx.TableCell({ width: { size: largeur, type: docx.WidthType.DXA }, margins: { top: 0, bottom: 0, left: 0, right: 0 },
+        borders: { top: SANS_BORDURE, bottom: SANS_BORDURE, left: SANS_BORDURE, right: SANS_BORDURE }, children: contenu });
+    };
+    // Largeur utile de la page A4 : 11906 - 2 x 1100 de marges = 9706 (dxa). Coordonnees a gauche, destinataire a droite.
+    enfants.push(new docx.Table({
+      width: { size: 9706, type: docx.WidthType.DXA }, columnWidths: [4600, 5106],
+      borders: { top: SANS_BORDURE, bottom: SANS_BORDURE, left: SANS_BORDURE, right: SANS_BORDURE, insideHorizontal: SANS_BORDURE, insideVertical: SANS_BORDURE },
+      rows: [ new docx.TableRow({ children: [ cellule(expediteur, 4600), cellule(blocDestinataire, 5106) ] }) ]
+    }));
+  } else {
+    expediteur.forEach(function (p) { enfants.push(p); });
+    blocDestinataire.forEach(function (p) { enfants.push(p); });
+  }
 
   // Date (alignee a droite, convention courrier)
   enfants.push(new Paragraph({
-    alignment: AlignmentType.RIGHT, spacing: { before: 300, after: 300 },
-    children: [ new TextRun({ text: objetLettre.date || '', size: TAILLE_ENTETE, color: TEXTE, font: 'Georgia' }) ]
+    alignment: AlignmentType.RIGHT, spacing: { before: (lignesDestinataire.length && !cote) ? Math.round(ESP.date * 0.65) : ESP.date, after: ESP.date },
+    children: [ new TextRun({ text: objetLettre.date || '', size: TAILLE_ENTETE, color: TEXTE, font: POLICE }) ]
   }));
 
   // Objet
   if (objetLettre.objet) {
     enfants.push(new Paragraph({
-      spacing: { after: 300 },
+      spacing: Object.assign({ after: ESP.objet }, interligne()),
       children: [
-        new TextRun({ text: 'Objet : ', bold: true, size: TAILLE_CORPS, color: ACCENT, font: 'Georgia' }),
-        new TextRun({ text: objetLettre.objet, size: TAILLE_CORPS, color: TEXTE, font: 'Georgia' })
+        new TextRun({ text: 'Objet : ', bold: true, size: TAILLE_CORPS, color: ACCENT, font: POLICE }),
+        new TextRun({ text: objetLettre.objet, size: TAILLE_CORPS, color: TEXTE, font: POLICE })
       ]
     }));
   }
@@ -109,13 +170,7 @@ function _dnlConstruireSobre(docx, objetLettre, opts) {
   // Corps -- un paragraphe Word par paragraphe separe par une ligne vide
   // dans le texte (normaliserDonneesLettre garantit deja au plus 2 sauts
   // de ligne consecutifs, voir son propre commentaire).
-  var paragraphesTexte = (objetLettre.texte || '').split(/\n{2,}/).filter(function (p) { return p.trim(); });
-  paragraphesTexte.forEach(function (p) {
-    enfants.push(new Paragraph({
-      spacing: { after: 200 }, alignment: AlignmentType.JUSTIFIED,
-      children: [ new TextRun({ text: p.trim(), size: TAILLE_CORPS, color: TEXTE, font: 'Georgia' }) ]
-    }));
-  });
+  _dnlParagraphesCorps(docx, objetLettre, { POLICE: POLICE, TEXTE: TEXTE, TAILLE_CORPS: TAILLE_CORPS, ESP: ESP }).forEach(function (p) { enfants.push(p); });
 
   return new docx.Document({
     sections: [ { properties: { page: { margin: { top: 900, bottom: 900, left: 1100, right: 1100 }, size: opts.formatPage === 'A5' ? _dnTaillePageA5() : undefined } }, children: enfants } ]
@@ -169,10 +224,19 @@ var LONGUEUR_MAX_ABSOLUE_LETTRE = 5500;
 function _dnAjusterLettrePourUnePage(objetLettre, opts) {
   opts = opts || {};
   if (opts.formatPage && opts.formatPage !== 'A4') { return { objetLettre: objetLettre, opts: opts }; }
-  var longueur = (objetLettre.texte || '').length;
+  // Essai de mise en page MESURE sur l'apercu (CANDIDATS_MISE_EN_PAGE_LETTRE_CO) : prioritaire sur l'estimation ci-dessous.
+  if (opts.miseEnPageMesuree) {
+    var essai = opts.miseEnPageMesuree;
+    return { objetLettre: objetLettre, opts: { primaire: opts.primaire, formatPage: opts.formatPage, tailleCorps: essai.tailleCorps, tailleEnTete: essai.tailleEnTete, destinataireCote: essai.cote, espacement: essai.espacement } };
+  }
+  // Le bloc du destinataire prend de la place (environ 60 caracteres de texte par ligne) : il compte dans la longueur. Mesure reelle de la page : temps 3, etape « Mise en page ».
+  var lignesDest = (objetLettre.destinataire && objetLettre.destinataire.lignes) ? objetLettre.destinataire.lignes.length : 0;
+  // Decision de Denis (24/10/2026) : quand la lettre est longue, le destinataire monte au niveau des coordonnees (a leur droite) avant de rapetisser la police.
+  var cote = (typeof destinataireCoteLettreCo === 'function') && destinataireCoteLettreCo((objetLettre.texte || '').length, lignesDest, PALIERS_TAILLE_LETTRE[0].longueurMax);
+  var longueur = (objetLettre.texte || '').length + (cote ? 0 : lignesDest * 90);
   var palier = PALIERS_TAILLE_LETTRE.filter(function (p) { return longueur <= p.longueurMax; })[0];
   if (palier) {
-    return { objetLettre: objetLettre, opts: { primaire: opts.primaire, formatPage: opts.formatPage, tailleCorps: palier.tailleCorps, tailleEnTete: palier.tailleEnTete } };
+    return { objetLettre: objetLettre, opts: { primaire: opts.primaire, formatPage: opts.formatPage, tailleCorps: palier.tailleCorps, tailleEnTete: palier.tailleEnTete, destinataireCote: cote } };
   }
   // Dernier recours seulement : meme a la plus petite taille lisible, le
   // texte depasserait encore une page -- coupe propre (jamais en plein
@@ -184,7 +248,7 @@ function _dnAjusterLettrePourUnePage(objetLettre, opts) {
   objetTronque.texte = (typeof _dnTronquerTexte === 'function')
     ? _dnTronquerTexte(objetLettre.texte, LONGUEUR_MAX_ABSOLUE_LETTRE)
     : objetLettre.texte;
-  return { objetLettre: objetTronque, opts: { primaire: opts.primaire, formatPage: opts.formatPage, tailleCorps: dernierPalier.tailleCorps, tailleEnTete: dernierPalier.tailleEnTete } };
+  return { objetLettre: objetTronque, opts: { primaire: opts.primaire, formatPage: opts.formatPage, tailleCorps: dernierPalier.tailleCorps, tailleEnTete: dernierPalier.tailleEnTete, destinataireCote: cote } };
 }
 
 function genererDocxNatifLettre(modeleId, objetLettre, opts) {

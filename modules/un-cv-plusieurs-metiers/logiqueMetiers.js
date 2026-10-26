@@ -40,7 +40,10 @@ function ucpmObjectifVide(demarche) {
     dureeQuantite: '', dureeUnite: '', dateDebut: '', dateFin: '', heures: '', formationVisee: '',
     disponibleA: '', autreChose: '',
     ancienType: '', ancienValeur: '', organisme: '', objectifsPmsmp: [], objectifPmsmpAutre: '',
-    employeur: '', civiliteRecruteur: '', nomRecruteur: '', posteOffre: '', texteOffre: ''
+    employeur: '', civiliteRecruteur: '', nomRecruteur: '', posteOffre: '', texteOffre: '',
+    // Chantier F14 (24/10/2026) : la logique de la lettre. forme : 'offre', 'entreprise' ou 'generale' (offre, spontanée, changer de métier) ; intitule : le poste mis en avant quand on vise un
+    // secteur ; horaires : les horaires acceptés.
+    forme: '', intitule: '', horaires: []
   };
 }
 
@@ -55,11 +58,12 @@ function ucpmNormaliserObjectif(brut) {
   if (!brut || typeof brut !== 'object') { return null; }
   var o = ucpmObjectifVide(brut.demarche && ucpmDemarche(brut.demarche) ? brut.demarche : '');
   ['typeStructure', 'typeStructureAutre', 'cible', 'metierVise', 'secteur', 'dureeQuantite', 'dureeUnite', 'dateDebut', 'dateFin', 'heures', 'formationVisee', 'disponibleA', 'autreChose',
-    'employeur', 'civiliteRecruteur', 'nomRecruteur', 'posteOffre', 'ancienType', 'ancienValeur', 'organisme', 'objectifPmsmpAutre'].forEach(function (k) { o[k] = _ucpmTexte(brut[k]); });
+    'employeur', 'civiliteRecruteur', 'nomRecruteur', 'posteOffre', 'ancienType', 'ancienValeur', 'organisme', 'objectifPmsmpAutre', 'forme', 'intitule'].forEach(function (k) { o[k] = _ucpmTexte(brut[k]); });
   o.objectifsPmsmp = _ucpmListe(brut.objectifsPmsmp);
   o.texteOffre = String(brut.texteOffre == null ? '' : brut.texteOffre).trim();
   o.contrat = _ucpmListe(brut.contrat);
   o.tempsTravail = _ucpmListe(brut.tempsTravail);
+  o.horaires = _ucpmListe(brut.horaires);
   return o;
 }
 
@@ -72,6 +76,8 @@ function ucpmDetailsObjectif(obj) {
   if (type) { morceaux.push('type de structure : ' + type); }
   if (o.metierVise) { morceaux.push('métier visé : ' + o.metierVise); }
   if (o.secteur) { morceaux.push('secteur : ' + o.secteur); }
+  if (o.secteur && o.intitule) { morceaux.push('intitulé mis en avant (la personne est ouverte à plusieurs postes de ce secteur) : ' + o.intitule); }
+  if (o.forme) { morceaux.push('candidature : ' + ({ offre: 'en réponse à une offre', entreprise: 'adressée à une entreprise précise, sans offre', generale: 'présentation générale, sans viser une entreprise' }[o.forme] || o.forme)); }
   if (o.contrat.length) { morceaux.push('contrat : ' + o.contrat.join(', ')); }
   if (o.tempsTravail.length) { morceaux.push(o.tempsTravail.join(' ou ').toLowerCase()); }
   if (o.dureeQuantite) { morceaux.push('durée : ' + o.dureeQuantite + (o.dureeUnite ? ' ' + o.dureeUnite : '')); }
@@ -80,6 +86,7 @@ function ucpmDetailsObjectif(obj) {
   if (o.heures) { morceaux.push('heures par semaine : ' + o.heures); }
   if (o.formationVisee) { morceaux.push('formation visée : ' + o.formationVisee); }
   if (o.disponibleA) { morceaux.push('disponible à partir de : ' + o.disponibleA); }
+  if (o.horaires.length) { morceaux.push('horaires acceptés : ' + o.horaires.join(', ')); }
   if (o.ancienValeur) { morceaux.push((o.ancienType === 'secteur' ? 'ancien secteur d’activité : ' : 'ancien métier : ') + o.ancienValeur); }
   if (o.organisme) { morceaux.push('organisme de formation : ' + o.organisme); }
   if (o.objectifsPmsmp.length || o.objectifPmsmpAutre) { morceaux.push('objectif de l’immersion : ' + o.objectifsPmsmp.concat(o.objectifPmsmpAutre ? [o.objectifPmsmpAutre] : []).join(' ; ')); }

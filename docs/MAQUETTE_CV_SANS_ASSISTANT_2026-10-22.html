@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<!--
+  Maquette (CONCEPT GROSSIER) - « Mettre mon CV en page, sans rien changer » : remplir un modèle de CV sans assistant en ligne.
+  Chantier : docs/CHANTIER_CV_SANS_ASSISTANT_2026-10-22.md (Mode A, [effort : haut]).
+  Statut : PROPOSITION, rien n'est codé dans l'application, rien n'est publié.
+
+  Ce que cette maquette fait VRAIMENT (pour qu'aucun bouton ne soit mort) : découpe le texte collé en blocs, classe chaque bloc par titre ou par contenu,
+  laisse la personne changer la rubrique / couper / fusionner, construit des fiches pré-remplies et modifiables, dessine le CV dans trois modèles et MESURE
+  s'il tient sur une page.
+  Ce qu'elle imite : la lecture d'un PDF, d'un Word ou d'une photo (dans l'application : lecteurs existants, ici seulement le texte et les deux exemples) ;
+  les modèles (trois mises en page indicatives, pas les 33 vrais modèles) ; l'export.
+  Les repérages (téléphone, courriel, code postal et ville) reprennent les MÊMES motifs que detecterCoordonneesSensibles() de data/metiers.js (qui serait réutilisée telle quelle).
+  Les personnes et les entreprises des exemples sont INVENTÉES.
+  Ouverture : http://localhost:8123/docs/MAQUETTE_CV_SANS_ASSISTANT_2026-10-22.html (ou double-clic).
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - CV sans assistant</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  /* Couleurs des rubriques : valeur claire ET sombre (règle du mode sombre). Dans l'application : à déclarer dans css/style.css. */
+  :root {
+    --rb-identite: #0d6efd; --rb-accroche: #7c3aed; --rb-experience: #15803d; --rb-formation: #b45309;
+    --rb-competences: #0e7490; --rb-langues: #be185d; --rb-loisirs: #4f46e5; --rb-autres: #64748b; --rb-aclasser: #c2410c;
+    --rb-qualites: #0f766e; --rb-logiciels: #0369a1; --rb-certifications: #a16207; --rb-engagements: #86198f;
+    --papier: #ffffff; --papier-texte: #1a1f2b; --papier-doux: #5b6577;
+  }
+  [data-theme="sombre"] {
+    --rb-identite: #6ba5ff; --rb-accroche: #b79cff; --rb-experience: #4ade80; --rb-formation: #fbbf24;
+    --rb-competences: #22d3ee; --rb-langues: #f472b6; --rb-loisirs: #9aa0ff; --rb-autres: #a3b0c2; --rb-aclasser: #fb923c;
+    --rb-qualites: #5eead4; --rb-logiciels: #7dd3fc; --rb-certifications: #fde047; --rb-engagements: #f0abfc;
+  }
+  .rb-identite { --c: var(--rb-identite); } .rb-accroche { --c: var(--rb-accroche); } .rb-experience { --c: var(--rb-experience); }
+  .rb-formation { --c: var(--rb-formation); } .rb-competences { --c: var(--rb-competences); } .rb-langues { --c: var(--rb-langues); }
+  .rb-loisirs { --c: var(--rb-loisirs); } .rb-autres { --c: var(--rb-autres); } .rb-aclasser { --c: var(--rb-aclasser); }
+  .rb-qualites { --c: var(--rb-qualites); } .rb-logiciels { --c: var(--rb-logiciels); } .rb-certifications { --c: var(--rb-certifications); } .rb-engagements { --c: var(--rb-engagements); }
+
+  body { background: var(--bg-page, #f0f4fa); }
+  .mq-barre { position: sticky; top: 0; z-index: 30; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .mq-barre .mq-titre { font-weight: 700; margin-right: auto; }
+  .mq-page { max-width: 1040px; margin: 0 auto; padding: 1rem 1rem 5rem; }
+  .mq-avertissement { border: 2px dashed var(--border-strong); border-radius: .8rem; padding: .7rem .9rem; margin: .8rem 0 1.2rem; background: var(--bg-card); font-size: .9rem; }
+  .mq-avertissement ol { margin: .3rem 0 0; padding-left: 1.2rem; }
+  .mq-ecran[hidden] { display: none; }
+  .mq-etiquette { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: .4rem; padding: .05rem .4rem; }
+  .mq-note { font-size: .85rem; color: var(--text-muted); border-left: 3px solid var(--border-strong); padding: .2rem .7rem; margin: 1.2rem 0 .4rem; }
+  .mq-encart { display: flex; gap: .7rem; align-items: flex-start; background: var(--accent-bg-subtle); border-left: 3px solid var(--accent); border-radius: .5rem; padding: .7rem .9rem; margin: .8rem 0; }
+  .mq-encart > i { font-size: 1.3rem; color: var(--accent); }
+  .mq-ligne { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .mq-toast { position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 50; max-width: min(92vw, 560px); background: var(--text-strong); color: var(--bg-card); padding: .6rem 1rem; border-radius: .6rem; font-size: .9rem; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  .mq-toast[hidden] { display: none; }
+
+  /* Fil des étapes (numéro = une étape à faire) */
+  .mq-etapes { display: flex; flex-wrap: wrap; gap: .4rem .9rem; justify-content: center; margin: .6rem 0 1rem; padding: 0; list-style: none; }
+  .mq-etapes li { display: flex; align-items: center; gap: .4rem; font-size: .88rem; color: var(--text-muted); }
+  .mq-etapes .rond { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 2px solid var(--border-strong); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .8rem; }
+  .mq-etapes li.actif { color: var(--text-strong); font-weight: 700; }
+  .mq-etapes li.actif .rond { background: var(--accent-solide); border-color: var(--accent-solide); color: #fff; }
+  .mq-etapes li.fait .rond { border-color: var(--accent); color: var(--accent); }
+
+  /* Écran 1 */
+  .mq-entrees { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .7rem; margin: .6rem 0 1rem; }
+  .mq-entree { text-align: left; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem .9rem; display: flex; flex-direction: column; gap: .15rem; color: var(--text-strong); }
+  .mq-entree:hover, .mq-entree:focus-visible { border-color: var(--accent); background: var(--bg-hover); }
+  .mq-entree i { font-size: 1.5rem; color: var(--accent); }
+  .mq-entree strong { font-size: 1rem; }
+  .mq-entree span { font-size: .82rem; color: var(--text-muted); }
+
+  /* Écran 2 : blocs */
+  .mq-resume { position: sticky; top: 3.4rem; z-index: 10; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: .6rem; padding: .5rem .8rem; margin: .6rem 0; display: flex; flex-wrap: wrap; gap: .4rem .9rem; align-items: center; font-size: .9rem; }
+  .mq-legende { display: flex; flex-wrap: wrap; gap: .35rem; margin: .4rem 0 .8rem; }
+  .rpast { display: inline-flex; align-items: center; gap: .35rem; border: 2px solid var(--c, var(--accent)); color: var(--c, var(--accent)); background: color-mix(in srgb, var(--c, var(--accent)) 12%, var(--bg-card)); border-radius: 999px; padding: .12rem .7rem; font-weight: 700; font-size: .85rem; line-height: 1.4; }
+  button.rpast { cursor: pointer; }
+  button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, var(--c, var(--accent)) 24%, var(--bg-card)); }
+  .rpast.plein { background: var(--c, var(--accent)); color: var(--bg-card); }
+  .blk { display: flex; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); margin: .6rem 0; overflow: hidden; }
+  .blk-bar { flex: 0 0 6px; background: var(--c, var(--rb-aclasser)); }
+  .blk-corps { flex: 1; padding: .6rem .8rem; min-width: 0; }
+  .blk-tete { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; margin-bottom: .35rem; }
+  .blk-origine { font-size: .8rem; color: var(--text-muted); }
+  .blk-actions { margin-left: auto; display: flex; gap: .4rem; }
+  .blk-texte { font-size: .92rem; word-break: break-word; }
+  .blk-ligne { padding: .08rem 0; white-space: pre-wrap; }
+  .blk-ligne.titre { font-weight: 700; color: var(--text-muted); }
+  .blk-ligne { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+  .blk-coupe { flex: 0 0 auto; border: 0; background: transparent; color: var(--text-muted); font-size: .9rem; padding: 0 .35rem; opacity: .5; border-radius: 6px; }
+  .blk-coupe:hover, .blk-coupe:focus-visible { opacity: 1; color: var(--accent); background: var(--bg-hover); }
+  .blk-choix { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--border); }
+  .blk-choix[hidden] { display: none; }
+  .rpast.prop { border-style: dashed; }
+  .blk-nom { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; font-size: .85rem; margin-top: .3rem; }
+  .blk-nom input { max-width: 260px; }
+  .mq-ligne-autre { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: .4rem; margin-bottom: .35rem; }
+  @media (max-width: 560px) { .mq-ligne-autre { grid-template-columns: minmax(0, 1fr); } }
+  .det { background: var(--accent-bg-subtle); border-bottom: 2px solid var(--accent); border-radius: 3px; padding: 0 .2rem; white-space: nowrap; }
+  .det i { font-size: .8em; margin-right: .15rem; color: var(--accent); }
+
+  /* Écran 3 : fiches */
+  .mq-fiche-champs { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .5rem .8rem; }
+  .mq-champ label { font-size: .78rem; color: var(--text-muted); display: flex; gap: .4rem; align-items: center; margin-bottom: .1rem; }
+  .mq-devine { font-size: .68rem; font-weight: 700; color: var(--rb-aclasser); border: 1px solid var(--rb-aclasser); border-radius: 999px; padding: 0 .4rem; }
+  .mq-carte { border: 1px solid var(--border); border-radius: 10px; padding: .6rem .7rem; margin: .5rem 0; background: var(--bg-subtle); }
+  .mq-alerte { font-size: .85rem; border-left: 3px solid var(--rb-aclasser); background: color-mix(in srgb, var(--rb-aclasser) 10%, var(--bg-card)); padding: .35rem .6rem; border-radius: 0 .4rem .4rem 0; margin: .4rem 0; }
+  .bloc-depli > summary .rpast { margin-right: .5rem; }
+  .mq-n:empty { display: none; }
+  .mq-n { margin-left: auto; font-size: .78rem; font-weight: 700; border: 1px solid var(--border-strong); border-radius: 999px; padding: 0 .55rem; color: var(--text-muted); }
+
+  /* Écran 4 */
+  .mq-final { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 1rem; align-items: start; }
+  @media (max-width: 860px) { .mq-final { grid-template-columns: minmax(0, 1fr); } }
+  .mq-panneau { border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-card); padding: .8rem .9rem; }
+  .mq-panneau h2 { font-size: .95rem; font-weight: 700; margin: .9rem 0 .4rem; }
+  .mq-panneau h2:first-child { margin-top: 0; }
+  .mq-verdict { display: flex; gap: .5rem; align-items: flex-start; border-radius: .5rem; padding: .5rem .7rem; font-size: .88rem; border-left: 4px solid var(--rb-experience); background: color-mix(in srgb, var(--rb-experience) 10%, var(--bg-card)); }
+  .mq-verdict.non { border-left-color: var(--rb-aclasser); background: color-mix(in srgb, var(--rb-aclasser) 10%, var(--bg-card)); }
+  .mq-zone-feuille { width: 100%; overflow: hidden; }
+  .cv-feuille { width: 595px; min-height: 842px; background: var(--papier); color: var(--papier-texte); position: relative; transform-origin: top left; box-shadow: 0 2px 14px rgba(0,0,0,.25); font-family: "Segoe UI", Arial, sans-serif; }
+  .cv-feuille.deborde::after { content: "Fin de la page 1"; position: absolute; left: 0; right: 0; top: 842px; border-top: 2px dashed #c2410c; color: #c2410c; font-size: 10px; text-align: right; padding-right: 6px; }
+  .cv-feuille h1, .cv-feuille h2, .cv-feuille h3 { font-family: inherit; color: inherit; margin: 0; }
+  .cv-feuille p, .cv-feuille ul { margin: 0; }
+  .cv-feuille ul { padding-left: 14px; }
+  .cv-feuille .doux { color: var(--papier-doux); }
+  /* Modèle 1 : sobre, une colonne */
+  .m-sobre .cv-interne { padding: 38px 42px; font-size: 11px; line-height: 1.4; }
+  .m-sobre h1 { font-size: 22px; letter-spacing: .01em; }
+  .m-sobre .cv-titre { font-size: 13px; color: #0d4aa8; margin-top: 2px; }
+  .m-sobre .cv-contact { margin-top: 6px; font-size: 10.5px; color: var(--papier-doux); }
+  .m-sobre .cv-sec { margin-top: 13px; }
+  .m-sobre h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #0d4aa8; border-bottom: 1px solid #c9d4e6; padding-bottom: 2px; margin-bottom: 5px; }
+  /* Modèle 2 : colonne latérale */
+  .m-colonne .cv-grille { display: grid; grid-template-columns: 31% 1fr; min-height: 842px; }
+  .m-colonne .cv-gauche { background: #1f3a5f; color: #fff; padding: 34px 18px; font-size: 10.5px; line-height: 1.4; }
+  .m-colonne .cv-gauche .doux { color: #c3d3ea; }
+  .m-colonne .cv-droite { padding: 34px 28px; font-size: 10.5px; line-height: 1.4; }
+  .m-colonne h1 { font-size: 21px; }
+  .m-colonne .cv-titre { font-size: 12.5px; color: #1f3a5f; margin: 2px 0 8px; }
+  .m-colonne h3 { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+  .m-colonne .cv-droite h3 { color: #1f3a5f; border-bottom: 1px solid #c9d4e6; padding-bottom: 2px; }
+  .m-colonne .cv-gauche h3 { border-bottom: 1px solid rgba(255,255,255,.35); padding-bottom: 2px; }
+  .m-colonne .cv-sec { margin-top: 12px; }
+  /* Modèle 3 : compact */
+  .m-compact .cv-interne { padding: 24px 28px; font-size: 9.5px; line-height: 1.25; }
+  .m-compact h1 { font-size: 17px; display: inline; }
+  .m-compact .cv-titre { font-size: 11px; color: #0d4aa8; display: inline; margin-left: 8px; }
+  .m-compact .cv-contact { margin-top: 3px; color: var(--papier-doux); }
+  .m-compact .cv-sec { margin-top: 8px; }
+  .m-compact h3 { font-size: 9.5px; text-transform: uppercase; letter-spacing: .05em; color: #0d4aa8; border-bottom: 1px solid #c9d4e6; margin-bottom: 3px; }
+  .m-compact ul { padding-left: 11px; }
+  .cv-exp { margin-bottom: 6px; }
+  .cv-exp .tete { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; }
+  .cv-exp .tete .doux { font-weight: 400; white-space: nowrap; }
+  @media (prefers-reduced-motion: no-preference) { .mq-toast { transition: opacity .2s; } }
+</style>
+</head>
+<body>
+<div class="mq-barre">
+  <span class="mq-titre"><i class="bi bi-file-earmark-text"></i> Maquette : mon CV en page, sans assistant</span>
+  <button type="button" class="btn btn-sm btn-primary" data-mq-aller="1">1. Déposer</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="2">2. Classer</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="3">3. Vérifier</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="4">4. Mon CV</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="mqSombre" aria-pressed="false"><i class="bi bi-moon-stars"></i> Mode sombre</button>
+</div>
+
+<div class="mq-page">
+  <div class="mq-avertissement">
+    <strong>CONCEPT GROSSIER, rien n'est codé.</strong> Les personnes et entreprises des exemples sont inventées. Cliquez, changez des rubriques, coupez des blocs avec les ciseaux : tout est réellement câblé. Ce que cette maquette demande à Denis de valider :
+    <ol>
+      <li><strong>Le parcours en 4 écrans</strong> : déposer, classer, vérifier les fiches, choisir le modèle. Aucun assistant, aucune étape inutile. <strong>Sans CV du tout</strong> : l’entrée « Je n’ai pas de CV » mène directement aux mêmes fiches, vides, à remplir à la main (2 étapes seulement).</li>
+      <li><strong>Le classement par pastilles</strong> (écran 2) : ce qui est sûr est classé tout seul, ce qui est incertain est « À classer » et la personne choisit. Essayez l’exemple B.</li>
+      <li><strong>Les fiches pré-remplies</strong> (écran 3), avec la mention « à vérifier » sur ce qui est deviné.</li>
+      <li><strong>L’indicateur « tient sur une page »</strong> (écran 4) et la reprise du titre d’origine de chaque rubrique.</li>
+    </ol>
+  </div>
+
+  <!-- ===================== ÉCRAN 1 ===================== -->
+  <section class="mq-ecran" id="mq-e1">
+    <ol class="mq-etapes" data-etapes="1"></ol>
+    <h1 class="h3 text-center">Votre CV, dans un de nos modèles</h1>
+    <p class="text-center text-muted">Vous avez déjà un CV ? Donnez-le nous : nous le remettons en page, sans rien changer à son contenu. Vous n’en avez pas ? Remplissez vous-même les rubriques, une à une.</p>
+    <div class="mq-encart">
+      <i class="bi bi-shield-lock" aria-hidden="true"></i>
+      <div><strong>Rien ne part sur internet.</strong> Votre CV est lu sur votre appareil. Aucun assistant en ligne n’est utilisé : vos mots restent exactement les vôtres.</div>
+    </div>
+    <h2 class="h5 fw-bold mt-3">Comment voulez-vous nous le donner ?</h2>
+    <div class="mq-entrees">
+      <button type="button" class="mq-entree" id="mqEntreeFichier"><i class="bi bi-file-earmark-arrow-up"></i><strong>Déposer un fichier</strong><span>PDF, Word ou texte</span></button>
+      <button type="button" class="mq-entree" id="mqEntreePhoto"><i class="bi bi-camera"></i><strong>Une photo ou un scan</strong><span>La lecture est moins sûre : vous corrigerez à l’écran suivant.</span></button>
+      <button type="button" class="mq-entree" id="mqEntreeColler"><i class="bi bi-clipboard"></i><strong>Copier-coller le texte</strong><span>Depuis un autre site ou un autre document</span></button>
+      <button type="button" class="mq-entree" id="mqEntreeManuel"><i class="bi bi-pencil-square"></i><strong>Je n’ai pas de CV</strong><span>Je remplis moi-même les rubriques : les mêmes que celles d’un CV déposé.</span></button>
+    </div>
+    <input type="file" id="mqFichier" accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png" hidden>
+    <label for="mqTexte" class="fw-bold mb-1">Le texte de votre CV</label>
+    <textarea id="mqTexte" class="form-control" rows="13" placeholder="Collez ici le texte de votre CV, ou choisissez un exemple ci-dessous."></textarea>
+    <div class="mq-ligne mt-2">
+      <span class="small text-muted">Pour essayer la maquette :</span>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-mq-exemple="A">Exemple A : un CV bien rangé</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-mq-exemple="B">Exemple B : un CV en désordre</button>
+    </div>
+    <p class="small text-muted mb-0 mt-2" id="mqEtat1"></p>
+    <div class="text-center mt-4">
+      <button type="button" class="btn btn-primary btn-lg bouton-incitation-action" id="mqVers2" style="border-radius:12px;">Continuer : classer les informations <i class="bi bi-arrow-right"></i></button>
+    </div>
+    <div class="mq-note"><strong>Réutilisé de l’application :</strong> la lecture d’un fichier PDF, Word ou texte et la lecture d’une photo (déjà là pour « J’ai déjà un CV »). <strong>Nouveau :</strong> le texte lu ne part vers aucun assistant. Dans cette maquette, seuls le collage, un fichier texte et les deux exemples fonctionnent.</div>
+  </section>
+
+  <!-- ===================== ÉCRAN 2 ===================== -->
+  <section class="mq-ecran" id="mq-e2" hidden>
+    <ol class="mq-etapes" data-etapes="2"></ol>
+    <h1 class="h3 text-center">Classez les informations de votre CV</h1>
+    <p class="text-center text-muted mb-1">Nous avons découpé votre CV en blocs. Ce qui est sûr est déjà classé. Pour le reste, <strong>c’est vous qui choisissez</strong> : touchez la pastille d’un bloc pour changer sa rubrique. Les ciseaux, à droite d’une ligne, coupent le bloc après cette ligne. Quand nous avons une idée pour un bloc incertain, elle est proposée sous la forme <strong>« Peut-être : … ? »</strong> : un toucher pour l’accepter.</p>
+    <div class="mq-legende" id="mqLegende"></div>
+    <div class="mq-resume" id="mqResume"></div>
+    <div id="mqBlocs"></div>
+    <div class="mq-ligne justify-content-between mt-4">
+      <button type="button" class="btn btn-outline-secondary" data-mq-aller="1"><i class="bi bi-arrow-left"></i> Retour</button>
+      <button type="button" class="btn btn-primary btn-lg bouton-incitation-action" id="mqVers3" style="border-radius:12px;"></button>
+    </div>
+    <div class="mq-note"><strong>Réutilisé :</strong> le repérage des coordonnées (téléphone, courriel, code postal et ville) et son surlignage, la lecture des dates. <strong>Nouveau :</strong> le classement par rubrique (par titre ou par contenu), les ciseaux (couper) et « Fusionner », et le titre d’origine gardé de côté. Rien n’est jamais effacé : un bloc non classé finit dans « Autres informations », et chacune de ses lignes pourra être déplacée à l’écran suivant. Si le CV a une rubrique qui n’existe pas chez nous (par exemple « Qui je suis »), on la range dans « Autres informations » en lui donnant son nom : le CV l’affichera sous ce nom (une seule rubrique de ce genre par CV).</div>
+  </section>
+
+  <!-- ===================== ÉCRAN 3 ===================== -->
+  <section class="mq-ecran" id="mq-e3" hidden>
+    <ol class="mq-etapes" data-etapes="3"></ol>
+    <h1 class="h3 text-center">Vérifiez vos fiches</h1>
+    <p class="text-center text-muted mb-1" id="mqIntro3">Les mots sont les vôtres, rien n’est reformulé. Les cases marquées <span class="mq-devine">à vérifier</span> ont été lues d’après leur place dans votre CV : corrigez-les si besoin.</p>
+    <div id="mqFiches"></div>
+    <div class="mq-ligne justify-content-between mt-4">
+      <button type="button" class="btn btn-outline-secondary" id="mqRetour3" data-mq-aller="2"><i class="bi bi-arrow-left"></i> <span id="mqRetour3Texte">Retour au classement</span></button>
+      <button type="button" class="btn btn-primary btn-lg bouton-incitation-action" data-mq-aller="4" style="border-radius:12px;">Voir mon CV dans un modèle <i class="bi bi-arrow-right"></i></button>
+    </div>
+    <div class="mq-note"><strong>Réutilisé :</strong> la fiche du CV de l’application (identité, expériences, formations, compétences...), la même que celle remplie après un import par l’assistant. <strong>Nouveau :</strong> la lecture « poste, entreprise, lieu » d’après la position des mots. C’est une supposition, d’où la mention « à vérifier ».</div>
+  </section>
+
+  <!-- ===================== ÉCRAN 4 ===================== -->
+  <section class="mq-ecran" id="mq-e4" hidden>
+    <ol class="mq-etapes" data-etapes="4"></ol>
+    <h1 class="h3 text-center">Votre CV, dans le modèle de votre choix</h1>
+    <div class="mq-final mt-3">
+      <div>
+        <div class="mq-zone-feuille" id="mqZoneFeuille"><div class="cv-feuille" id="mqFeuille"></div></div>
+      </div>
+      <aside class="mq-panneau">
+        <h2>Le modèle</h2>
+        <div class="mq-ligne" id="mqModeles">
+          <button type="button" class="jeton jeton--radio jeton--compact is-actif" data-mq-modele="sobre">Sobre</button>
+          <button type="button" class="jeton jeton--radio jeton--compact" data-mq-modele="colonne">Colonne</button>
+          <button type="button" class="jeton jeton--radio jeton--compact" data-mq-modele="compact">Compact</button>
+        </div>
+        <h2>Tient-il sur une page ?</h2>
+        <div class="mq-verdict" id="mqVerdict"></div>
+        <h2>Rien ne manque</h2>
+        <div class="mq-verdict" id="mqCompte"></div>
+        <h2>Le nom des rubriques</h2>
+        <p class="small text-muted mb-1">Repris de votre CV quand il y était. Vous pouvez les changer.</p>
+        <div id="mqTitres"></div>
+        <h2>Pour essayer la maquette</h2>
+        <label class="small d-flex gap-2 align-items-center"><input type="checkbox" id="mqLong"> Simuler un CV très chargé (3 fois plus d’expériences)</label>
+        <div class="mq-ligne mt-3">
+          <button type="button" class="btn btn-primary" data-mq-dire="Dans l’application : ouvre l’export habituel (aperçu, PDF, Word), le même que pour les autres CV." style="border-radius:12px;"><i class="bi bi-filetype-pdf"></i> Télécharger en PDF</button>
+          <button type="button" class="btn btn-outline-primary" data-mq-dire="Dans l’application : même export Word que pour les autres CV (avec son avertissement habituel)." style="border-radius:12px;"><i class="bi bi-filetype-docx"></i> Word</button>
+        </div>
+        <details class="bloc-depli mt-3">
+          <summary>Pour aller plus loin (facultatif)</summary>
+          <div class="bloc-depli-corps">
+            <p class="small mb-2">Rien n’est obligatoire. Si vous le souhaitez, vous pouvez ensuite faire corriger les fautes ou améliorer vos phrases.</p>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-mq-dire="Dans l’application : ouvre le parcours « Reformuler et présenter mon CV », avec la même fiche. Rien à ressaisir." style="border-radius:12px;">Corriger ou améliorer mon CV</button>
+          </div>
+        </details>
+      </aside>
+    </div>
+    <div class="mq-ligne justify-content-between mt-4">
+      <button type="button" class="btn btn-outline-secondary" data-mq-aller="3"><i class="bi bi-arrow-left"></i> Retour aux fiches</button>
+    </div>
+    <div class="mq-note"><strong>Réutilisé :</strong> les modèles de CV, la mise en page automatique, les intitulés de rubriques modifiables, l’export. <strong>Nouveau :</strong> le « mode fidèle » (toutes les missions, aucune retirée), l’indicateur « tient sur une page » (ici mesuré pour de vrai, avec trois modèles indicatifs) et le titre d’origine proposé pour chaque rubrique.</div>
+  </section>
+</div>
+<div class="mq-toast" id="mqToast" role="status" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Exemples (inventés) ---------- */
+  var EXEMPLES = {
+    A: [
+      'Camille RIVIÈRE',
+      'Chargée de clientèle',
+      '06 12 34 56 78',
+      'camille.riviere@email.fr',
+      '12 rue des Tilleuls',
+      '24100 Bergerac',
+      '',
+      'Conseillère clientèle expérimentée, à l’aise à l’accueil comme au téléphone, je cherche un poste stable près de chez moi.',
+      '',
+      'EXPÉRIENCE PROFESSIONNELLE',
+      '',
+      'Chargée de clientèle - Assurances du Périgord, Bergerac',
+      'Mars 2019 - Juin 2024',
+      '- Accueil physique et téléphonique de 40 clients par jour',
+      '- Souscription et suivi des contrats auto et habitation',
+      '- Traitement des réclamations et suivi des sinistres',
+      '- Formation de deux nouvelles collègues',
+      '',
+      'Hôtesse de caisse - Supermarché du Centre, Périgueux',
+      '2015 - 2019',
+      '- Encaissement et gestion de la caisse',
+      '- Mise en rayon et inventaires',
+      '',
+      'FORMATION',
+      '',
+      'BTS Négociation et digitalisation de la relation client',
+      'Lycée Maine de Biran, Bergerac, 2015',
+      '',
+      'Baccalauréat professionnel Commerce',
+      'Lycée Jean Capelle, Bergerac, 2013',
+      '',
+      'COMPÉTENCES',
+      'Logiciels d’assurance, Excel, Word',
+      'Gestion des réclamations',
+      'Écoute et patience',
+      'Esprit d’équipe',
+      '',
+      'LANGUES',
+      'Français : langue maternelle',
+      'Anglais : B1',
+      '',
+      'CENTRES D’INTÉRÊT',
+      'Randonnée, bénévolat à la banque alimentaire, lecture',
+      '',
+      'Permis B, véhicule personnel',
+      'Disponible immédiatement'
+    ].join('\n'),
+    B: [
+      'BENALI Karim',
+      'Ouvrier polyvalent du bâtiment',
+      '07 98 76 54 32 - karim.benali@email.fr',
+      'Limoges 87000',
+      '',
+      'MON PARCOURS',
+      '',
+      '2021 - 2024   Maçon polyvalent, Entreprise Dupré Construction (Limoges)',
+      'Maçonnerie, coffrage, ferraillage',
+      'Conduite de petits engins sur chantier',
+      'Respect des règles de sécurité',
+      '',
+      '2018 - 2021   Manœuvre, Société Bâti-Limousin (Isle)',
+      'Aide aux maçons et aux couvreurs',
+      'Chargement et déchargement des matériaux',
+      '',
+      'CE QUE JE SAIS FAIRE',
+      'Lecture de plans',
+      'Maçonnerie',
+      'Conduite de mini-pelle',
+      '',
+      'ÉCOLE ET DIPLÔMES',
+      'CAP Maçon - 2018',
+      'Centre de formation des apprentis du bâtiment, Limoges',
+      'CACES R482 cat. A et B - 2022',
+      'SST (Sauveteur secouriste du travail) - 2023',
+      '',
+      'QUI JE SUIS',
+      'Sérieux, ponctuel, aime le travail en équipe',
+      '',
+      'Arabe et français : courant',
+      'Anglais : notions',
+      'Permis B et C',
+      'Football le week-end, bricolage',
+      'Reconnu travailleur handicapé (RQTH)'
+    ].join('\n')
+  };
+
+  /* ---------- Rubriques ---------- */
+  var RUB = {
+    identite: { nom: 'Identité', ic: 'bi-card-heading', def: '' },
+    accroche: { nom: 'Titre et accroche', ic: 'bi-chat-quote', def: 'Profil' },
+    experience: { nom: 'Expérience', ic: 'bi-briefcase', def: 'Expérience professionnelle' },
+    formation: { nom: 'Formation', ic: 'bi-mortarboard', def: 'Formation' },
+    competences: { nom: 'Compétences', ic: 'bi-tools', def: 'Compétences' },
+    qualites: { nom: 'Qualités', ic: 'bi-stars', def: 'Compétences comportementales' },
+    logiciels: { nom: 'Logiciels et outils', ic: 'bi-laptop', def: 'Logiciels et outils' },
+    certifications: { nom: 'Certifications', ic: 'bi-patch-check', def: 'Certifications' },
+    langues: { nom: 'Langues', ic: 'bi-translate', def: 'Langues' },
+    loisirs: { nom: 'Loisirs', ic: 'bi-bicycle', def: 'Centres d’intérêt' },
+    engagements: { nom: 'Engagements', ic: 'bi-flag', def: 'Expérience personnelle' },
+    autres: { nom: 'Autres informations', ic: 'bi-collection', def: 'Autres informations' },
+    aclasser: { nom: 'À classer', ic: 'bi-question-circle', def: '' }
+  };
+  var ORDRE = ['identite', 'accroche', 'experience', 'formation', 'competences', 'qualites', 'logiciels', 'certifications', 'langues', 'loisirs', 'engagements', 'autres'];
+
+  /* ---------- Outils de texte ---------- */
+  function echap(s) { return String(s === undefined || s === null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sansAccent(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function phrase(t) { var m = String(t).trim().toLowerCase(); return m.charAt(0).toUpperCase() + m.slice(1); }
+  function glob(re) { return new RegExp(re.source, re.flags.indexOf('g') === -1 ? re.flags + 'g' : re.flags); }
+
+  /* Mêmes motifs que detecterCoordonneesSensibles() (data/metiers.js). */
+  var RE_TEL = /(?<!\d)0[1-9](?:[\s.\-]?\d{2}){4}(?!\d)/;
+  var RE_MAIL = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,4}(?![a-z0-9])/;
+  var RE_CPV = /\b(?:0[1-9]|[1-9]\d)\d{3}[ \t]+[A-ZÀ-Ý][a-zà-ÿ'’]+(?:[ \t-][A-ZÀ-Ý][a-zà-ÿ'’]+)*\b/;
+  var MOIS = '(?:janv|fevr|mars|avr|mai|juin|juil|aout|sept|oct|nov|dec)[a-z.]*';
+  var ANNEE = '(?:' + MOIS + '\\s+)?(?:19|20)\\d{2}';
+  var RE_PLAGE = new RegExp(ANNEE + '(?:(?:\\s*(?:-|\\u2013)\\s*|\\s+(?:a|au)\\s+)(?:' + ANNEE + "|aujourd.?hui|present|en cours))?", 'i');
+  var RE_ADR = /^\d{1,3}\s*(bis|ter)?[, ]+\s*(rue|avenue|av\.|chemin|impasse|place|boulevard|bd|route|allee|allée|lotissement|residence|résidence)\b/i;
+  var RE_LANGUE = /^(francais|anglais|espagnol|arabe|allemand|italien|portugais|turc|russe|chinois|creole|berbere|kabyle|polonais|roumain)\b/;
+  /* Motifs de contenu (sur le texte sans accent). Simples listes de mots : une PROPOSITION, jamais une certitude sur un texte inconnu. */
+  var RE_PERMIS = /permis\s+[a-e]\b|permis de conduire|vehicule/;
+  var RE_DISPO = /disponib|rqth|travailleur handicape|mobilite|preavis/;
+  var RE_CERTIF = /\b(caces|sst|pix|toeic|toefl|bafa|bafd|afps|psc1|habilitation|certificat|certification|attestation)\b/;
+  var RE_LOGIC = /\b(word|excel|powerpoint|outlook|photoshop|canva|sage|autocad|libreoffice|pack office|logiciels?|wordpress)\b/;
+  var RE_ENGAG = /\b(benevol\w*|association|associatif|croix[- ]rouge|restos du coeur|banque alimentaire)\b/;
+  var RE_QUALITE = /\b(serieu\w*|ponctuel\w*|rigoureu\w*|autonom\w*|motive\w*|dynamique|organise\w*|adaptab\w*|curieu\w*|polyvalen\w*|esprit d.equipe|patien\w*|sociable|fiable|consciencieu\w*|volontaire)\b/;
+  var RE_LOISIR = /\b(football|rugby|basket|handball|tennis|natation|randonnee|course a pied|velo|cyclisme|lecture|cinema|musique|dessin|photographie|voyages?|cuisine|jardinage|bricolage|peche|chasse|echecs|jeux video|theatre|danse|yoga)\b/;
+
+  function dateTrouvee(t) {
+    var n = sansAccent(t), m = RE_PLAGE.exec(n);
+    return m ? { i: m.index, j: m.index + m[0].length, texte: t.slice(m.index, m.index + m[0].length) } : null;
+  }
+
+  /* Repérage dans une ligne : { i, j, type } sans chevauchement (priorité téléphone, courriel, code postal, date). */
+  function reperer(ligne) {
+    var res = [];
+    function libre(i, j) { return res.every(function (r) { return j <= r.i || i >= r.j; }); }
+    [['tel', RE_TEL], ['mail', RE_MAIL], ['cpv', RE_CPV]].forEach(function (p) {
+      var re = glob(p[1]), m;
+      while ((m = re.exec(ligne)) !== null) { if (libre(m.index, m.index + m[0].length)) { res.push({ i: m.index, j: m.index + m[0].length, type: p[0] }); } }
+    });
+    var n = sansAccent(ligne), reD = glob(RE_PLAGE), md;
+    while ((md = reD.exec(n)) !== null) { if (md[0] && libre(md.index, md.index + md[0].length)) { res.push({ i: md.index, j: md.index + md[0].length, type: 'date' }); } }
+    return res.sort(function (a, b) { return a.i - b.i; });
+  }
+  var ICONES_DET = { tel: 'bi-telephone', mail: 'bi-envelope', cpv: 'bi-geo-alt', date: 'bi-calendar3' };
+  function surligner(ligne) {
+    var pos = 0, h = '';
+    reperer(ligne).forEach(function (r) {
+      h += echap(ligne.slice(pos, r.i)) + '<span class="det"><i class="bi ' + ICONES_DET[r.type] + '" aria-hidden="true"></i>' + echap(ligne.slice(r.i, r.j)) + '</span>';
+      pos = r.j;
+    });
+    return h + echap(ligne.slice(pos));
+  }
+
+  /* ---------- Titres de rubriques ---------- */
+  var DICO = [
+    ['experience', /^(mon |notre )?(experiences?( professionnelles?)?|parcours( professionnel)?|emplois?|historique professionnel)$/],
+    ['formation', /^((ecole|parcours scolaire) et )?(formations?( et diplomes?)?|diplomes?( et formations?)?|etudes( et diplomes?)?|cursus( scolaire)?)$/],
+    ['competences', /^(competences?( cles| professionnelles?)?|savoir[- ]?faire|aptitudes)$/],
+    ['qualites', /^(savoir[- ]?etre|qualites( personnelles| professionnelles)?|atouts|competences comportementales|points forts)$/],
+    ['logiciels', /^(logiciels?( et outils)?|outils( informatiques)?|informatique|bureautique|competences informatiques)$/],
+    ['certifications', /^(certifications?|certificats?|habilitations?( et certifications?)?|attestations?)$/],
+    ['engagements', /^(benevolat|engagements?( associatifs?)?|vie associative|experiences? personnelles?|activites extra[- ]professionnelles)$/],
+    ['identite', /^(permis( de conduire)?|informations? personnelles?|etat civil|contact|coordonnees)$/],
+    ['langues', /^langues?$/],
+    ['loisirs', /^(centres? d.?interets?|loisirs|interets|hobbies)$/],
+    ['accroche', /^(profil|presentation|a propos( de moi)?|objectif( professionnel)?)$/],
+    ['autres', /^(informations? (complementaires?|pratiques)|divers|autres informations|disponibilites?|mobilite)$/]
+  ];
+  function capsTitre(t) {
+    var mots = t.trim().split(/\s+/);
+    return t === t.toUpperCase() && /[A-ZÀ-Ý]{3}/.test(t) && !/\d/.test(t) && mots.length <= 6 && t.length <= 42;
+  }
+  function typeTitre(t) {
+    var n = sansAccent(t).replace(/[:.]+$/, '').trim();
+    if (n.split(/\s+/).length > 6 || /\d/.test(n) || /^[-•*]/.test(t.trim())) { return null; }
+    for (var k = 0; k < DICO.length; k++) { if (DICO[k][1].test(n)) { return { rub: DICO[k][0] }; } }
+    return capsTitre(t) ? { rub: 'aclasser' } : null;
+  }
+
+  /* ---------- Découpage en blocs et classement ---------- */
+  var blocs = [], uid = 0, signature = '';
+
+  function classerLigne(l) {
+    var n = sansAccent(l);
+    if (RE_TEL.test(l) || RE_MAIL.test(l)) { return 'identite'; }
+    if (RE_LANGUE.test(n)) { return 'langues'; }
+    if (RE_PERMIS.test(n)) { return 'identite'; }
+    if (RE_DISPO.test(n)) { return 'autres'; }
+    if (RE_CERTIF.test(n)) { return 'certifications'; }
+    if (RE_LOGIC.test(n)) { return 'logiciels'; }
+    if (RE_ENGAG.test(n)) { return 'engagements'; }
+    if (RE_QUALITE.test(n)) { return 'qualites'; }
+    if (RE_LOISIR.test(n)) { return 'loisirs'; }
+    return null;
+  }
+  /* Deux sortes de lignes sont toujours reconnues, même sous un titre qui ne leur correspond pas : le permis (identité) et la disponibilité (autres informations). */
+  function ligneSure(l) {
+    var n = sansAccent(l);
+    if (RE_PERMIS.test(n)) { return 'identite'; }
+    if (RE_DISPO.test(n)) { return 'autres'; }
+    return null;
+  }
+  function decouper(texte) {
+    var lignes = String(texte).replace(/\r/g, '').split('\n'), brut = [], cur = null, rubC = null, orig = '', premier = false, avant = true;
+    function ouvrir(rub, auto) { cur = { id: ++uid, lignes: [], rub: rub, auto: auto, origine: '', avant: avant }; brut.push(cur); return cur; }
+    lignes.forEach(function (l) {
+      var t = l.trim();
+      if (!t) { cur = null; return; }
+      var h = typeTitre(t);
+      if (h) {
+        avant = false;
+        if (h.rub === 'aclasser') { ouvrir('aclasser', 'aucun').lignes.push(t); rubC = null; return; }
+        rubC = h.rub; orig = t; premier = true; cur = null; return;
+      }
+      if (!cur) {
+        if (rubC) { ouvrir(rubC, 'titre'); if (premier) { cur.origine = orig; premier = false; } } else { ouvrir('aclasser', 'aucun'); }
+      }
+      cur.lignes.push(t);
+    });
+    /* Classement par contenu pour les blocs sans titre. */
+    var sortie = [];
+    brut.forEach(function (b) {
+      var texteB = b.lignes.join('\n');
+      if (b.auto === 'titre') {
+        var rubTitre = b.rub, origineTitre = b.origine, sures = b.lignes.map(ligneSure);
+        if (['loisirs', 'competences', 'qualites', 'langues', 'logiciels', 'certifications', 'engagements'].indexOf(rubTitre) === -1 || sures.every(function (x) { return x === null; })) { sortie.push(b); return; }
+        var coupes = [];
+        b.lignes.forEach(function (l, k) { var d = coupes[coupes.length - 1]; if (d && d.rub === sures[k]) { d.lignes.push(l); } else { coupes.push({ rub: sures[k], lignes: [l] }); } });
+        coupes.forEach(function (run, k) {
+          var nb = k === 0 ? b : { id: ++uid, avant: b.avant };
+          nb.lignes = run.lignes;
+          if (run.rub) { nb.rub = run.rub; nb.auto = 'contenu'; nb.origine = ''; }
+          else { nb.rub = rubTitre; nb.auto = 'titre'; nb.origine = origineTitre; origineTitre = ''; }
+          sortie.push(nb);
+        });
+        return;
+      }
+      if (capsTitre(b.lignes[0]) && b.lignes.length >= 1) { sortie.push(b); return; }
+      if (RE_TEL.test(texteB) || RE_MAIL.test(texteB)) { b.rub = 'identite'; b.auto = 'contenu'; sortie.push(b); return; }
+      if (b.avant && b.lignes.length === 1 && b.lignes[0].length >= 50) { b.rub = 'accroche'; b.auto = 'contenu'; sortie.push(b); return; }
+      /* Sinon : on regarde ligne par ligne, et on regroupe les lignes voisines de même nature. */
+      var runs = [];
+      b.lignes.forEach(function (l) {
+        var r = classerLigne(l, b.avant), dernier = runs[runs.length - 1];
+        if (dernier && dernier.rub === r) { dernier.lignes.push(l); } else { runs.push({ rub: r, lignes: [l] }); }
+      });
+      runs.forEach(function (run, k) {
+        var nb = k === 0 ? b : { id: ++uid, origine: '', avant: b.avant };
+        nb.lignes = run.lignes;
+        nb.rub = run.rub || 'aclasser';
+        nb.auto = run.rub ? 'contenu' : 'aucun';
+        sortie.push(nb);
+      });
+    });
+    /* Une idée de rubrique pour un bloc encore incertain : proposée d'un toucher, jamais appliquée toute seule. */
+    sortie.forEach(function (b) {
+      if (b.rub !== 'aclasser') { return; }
+      var corps = (b.lignes.length > 1 && capsTitre(b.lignes[0])) ? b.lignes.slice(1) : b.lignes;
+      var classes = corps.map(classerLigne);
+      if (classes.length && classes[0] && classes.every(function (c) { return c === classes[0]; })) { b.prop = classes[0]; }
+    });
+    return sortie;
+  }
+  function analyser(b) {
+    var titre = b.nomLibre || b.origine, idx = -1;
+    if (!titre && b.rub !== 'aclasser' && b.lignes.length > 1 && capsTitre(b.lignes[0])) { titre = b.lignes[0]; idx = 0; }
+    return { titre: titre, idx: idx, libre: !!b.nomLibre };
+  }
+  var LIBELLE_AUTO = {
+    titre: 'reconnu grâce au titre du CV',
+    contenu: 'reconnu d’après ce qui est écrit',
+    choix: 'choisi par vous',
+    aucun: 'pas sûr : à vous de choisir'
+  };
+
+  /* ---------- Écran 2 : affichage des blocs ---------- */
+  var ouvertId = null;
+  function jetonsChoix(i, b, titreCourant) {
+    var h = ORDRE.map(function (r) {
+      return '<button type="button" class="rpast rb-' + r + (r === b.rub ? ' plein' : '') + '" data-rub="' + r + '" data-bloc="' + i + '"><i class="bi ' + RUB[r].ic + '"></i> ' + RUB[r].nom + '</button>';
+    }).join('');
+    if (b.rub === 'autres') {
+      h += '<label class="blk-nom">Si votre CV a une rubrique que nous n’avons pas, donnez-lui ici le nom qu’elle portera sur le CV : <input class="form-control form-control-sm" data-nomlibre="' + i + '" value="' + echap(titreCourant) + '" placeholder="Autres informations"></label>';
+    }
+    return h;
+  }
+  function rendreBlocs() {
+    document.getElementById('mqLegende').innerHTML = ORDRE.concat(['aclasser']).map(function (r) {
+      return '<span class="rpast rb-' + r + '"><i class="bi ' + RUB[r].ic + '"></i> ' + RUB[r].nom + '</span>';
+    }).join('');
+    document.getElementById('mqBlocs').innerHTML = blocs.map(function (b, i) {
+      var a = analyser(b);
+      var lignesH = b.lignes.map(function (l, k) {
+        var cise = k < b.lignes.length - 1 ? '<button type="button" class="blk-coupe" data-couper="' + i + ':' + k + '" title="Couper le bloc après cette ligne : la suite devient un nouveau bloc" aria-label="Couper le bloc après cette ligne"><i class="bi bi-scissors"></i></button>' : '';
+        return '<div class="blk-ligne' + (k === a.idx ? ' titre' : '') + '"><span>' + surligner(l) + '</span>' + cise + '</div>';
+      }).join('');
+      return '<div class="blk rb-' + b.rub + '"><div class="blk-bar"></div><div class="blk-corps">' +
+        '<div class="blk-tete"><button type="button" class="rpast rb-' + b.rub + '" data-ouvrir="' + i + '" aria-expanded="false"><i class="bi ' + RUB[b.rub].ic + '"></i> ' + RUB[b.rub].nom + ' <i class="bi bi-chevron-down"></i></button>' +
+        '<span class="blk-origine">' + LIBELLE_AUTO[b.auto] + (a.titre ? (a.libre ? ' · nom choisi : « ' : ' · titre d’origine : « ') + echap(phrase(a.titre)) + ' »' : '') + '</span>' +
+        (b.rub === 'aclasser' && b.prop ? '<button type="button" class="rpast prop rb-' + b.prop + '" data-prop="' + i + '" title="Accepter cette proposition"><i class="bi bi-lightbulb"></i> Peut-être : ' + RUB[b.prop].nom + ' ? Oui</button>' : '') +
+        '<span class="blk-actions">' + (i > 0 ? '<button type="button" class="btn btn-sm btn-outline-secondary" data-fusion="' + i + '" style="border-radius:8px;"><i class="bi bi-arrow-up"></i> Fusionner avec le bloc du dessus</button>' : '') + '</span></div>' +
+        '<div class="blk-texte">' + lignesH + '</div>' +
+        '<div class="blk-choix" id="choix-' + i + '"' + (b.id === ouvertId ? '' : ' hidden') + '>' + jetonsChoix(i, b, a.titre ? phrase(a.titre) : '') + '</div></div></div>';
+    }).join('');
+    var nbA = blocs.filter(function (b) { return b.rub === 'aclasser'; }).length;
+    document.getElementById('mqResume').innerHTML =
+      '<span><strong>' + blocs.length + '</strong> blocs</span><span><i class="bi bi-check2-circle" style="color:var(--rb-experience)"></i> <strong>' + (blocs.length - nbA) + '</strong> classés</span>' +
+      '<span><i class="bi bi-question-circle" style="color:var(--rb-aclasser)"></i> <strong>' + nbA + '</strong> à classer</span>';
+    document.getElementById('mqVers3').innerHTML = (nbA ? 'Continuer (' + nbA + ' bloc' + (nbA > 1 ? 's iront' : ' ira') + ' dans « Autres informations », ' + (nbA > 1 ? 'vous pourrez les déplacer ensuite' : 'vous pourrez le déplacer ensuite') + ')' : 'Continuer : vérifier mes fiches') + ' <i class="bi bi-arrow-right"></i>';
+  }
+  document.getElementById('mqBlocs').addEventListener('click', function (e) {
+    var t = e.target.closest('button');
+    if (!t) { return; }
+    if (t.dataset.ouvrir !== undefined) {
+      var zone = document.getElementById('choix-' + t.dataset.ouvrir), ouvert = !zone.hidden;
+      zone.hidden = ouvert; t.setAttribute('aria-expanded', String(!ouvert));
+    } else if (t.dataset.rub) {
+      var b = blocs[Number(t.dataset.bloc)]; b.rub = t.dataset.rub; b.auto = 'choix'; b.origine = b.origine || '';
+      ouvertId = b.rub === 'autres' ? b.id : null;
+      var y = window.scrollY; rendreBlocs(); window.scrollTo(0, y);
+    } else if (t.dataset.prop !== undefined) {
+      var bp = blocs[Number(t.dataset.prop)]; bp.rub = bp.prop; bp.auto = 'choix'; ouvertId = null;
+      var yp = window.scrollY; rendreBlocs(); window.scrollTo(0, yp);
+    } else if (t.dataset.fusion !== undefined) {
+      var i = Number(t.dataset.fusion);
+      blocs[i - 1].lignes = blocs[i - 1].lignes.concat(blocs[i].lignes); blocs.splice(i, 1);
+      var y2 = window.scrollY; rendreBlocs(); window.scrollTo(0, y2);
+    } else if (t.dataset.couper) {
+      var p = t.dataset.couper.split(':'), bi = Number(p[0]), k = Number(p[1]), bb = blocs[bi];
+      var suite = bb.lignes.slice(k + 1); bb.lignes = bb.lignes.slice(0, k + 1);
+      blocs.splice(bi + 1, 0, { id: ++uid, lignes: suite, rub: bb.rub, auto: 'choix', origine: '', avant: bb.avant });
+      var y3 = window.scrollY; rendreBlocs(); window.scrollTo(0, y3);
+    }
+  });
+
+  document.getElementById('mqBlocs').addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.dataset.nomlibre !== undefined) { blocs[Number(t.dataset.nomlibre)].nomLibre = t.value.trim(); }
+  });
+
+  /* ---------- Écran 3 : fiches ---------- */
+  var F = null, manuel = false;
+  function experienceVide() { return { poste: '', entreprise: '', lieu: '', debut: '', fin: '', enCours: false, missions: [] }; }
+  function formationVide() { return { intitule: '', annee: '', etablissement: '', lieu: '' }; }
+  // Parcours « Je n'ai pas de CV » : les MÊMES fiches, vides, avec une carte d'expérience et une de formation prêtes à remplir.
+  function ficheVide() {
+    var f = construireF();
+    f.experience.push(experienceVide()); f.formation.push(formationVide()); f._sig = 'manuel';
+    return f;
+  }
+  function retirerBords(r) { return r.replace(/^[\s\-\u2013|,;]+|[\s\-\u2013|,;]+$/g, '').trim(); }
+  function sansPuce(l) { return l.replace(/^\s*[-•*•]\s*/, '').trim(); }
+  function liste(lignes, virgules) {
+    var res = [];
+    lignes.forEach(function (l) {
+      (virgules ? sansPuce(l).split(/[,;]\s*/) : [sansPuce(l)]).forEach(function (x) { x = x.trim(); if (x) { res.push(x); } });
+    });
+    return res;
+  }
+  function parserExperience(lignes, F, n) {
+    var e = { poste: '', entreprise: '', lieu: '', debut: '', fin: '', missions: [] }, restes = [], dates = null;
+    lignes.forEach(function (l) {
+      var d = dates ? null : dateTrouvee(l);
+      if (d) { dates = d.texte; l = (l.slice(0, d.i) + ' ' + l.slice(d.j)); }
+      l = retirerBords(l);
+      if (l) { restes.push(l); }
+    });
+    if (dates) {
+      var morceaux = dates.split(/\s*(?:-|\u2013)\s*|\s+(?:à|au)\s+/i);
+      e.debut = morceaux[0].trim(); e.fin = (morceaux[1] || '').trim();
+    }
+    var premiere = restes.shift() || '';
+    var lieuP = premiere.match(/\(([^)]+)\)/);
+    if (lieuP) { e.lieu = lieuP[1]; premiere = premiere.replace(lieuP[0], ' '); }
+    var parts = premiere.split(/\s+-\s+|,\s+|\s{2,}/).map(function (x) { return x.trim(); }).filter(Boolean);
+    e.poste = parts[0] || ''; e.entreprise = parts[1] || ''; if (!e.lieu) { e.lieu = parts[2] || ''; }
+    if (!e.entreprise && restes.length && !/^\s*[-•*]/.test(restes[0]) && restes[0].length < 60) { e.entreprise = restes.shift(); F.flags['experience.' + n + '.entreprise'] = true; }
+    e.missions = restes.map(sansPuce).filter(Boolean);
+    ['poste', 'entreprise', 'lieu'].forEach(function (c) { if (e[c]) { F.flags['experience.' + n + '.' + c] = true; } });
+    return e;
+  }
+  function parserFormation(lignes, F, n) {
+    var f = { intitule: '', annee: '', etablissement: '', lieu: '' }, toutes = lignes.slice(), reste = [], vues = 0, coupe = -1;
+    /* Une 2e ligne qui porte une année commence sans doute une autre formation : on ne la mélange pas avec la première. */
+    toutes.forEach(function (l, k) { if (/(?:19|20)\d{2}/.test(l)) { vues++; if (vues === 2 && coupe === -1) { coupe = k; } } });
+    if (coupe !== -1) { reste = toutes.slice(coupe); toutes = toutes.slice(0, coupe); }
+    var propres = toutes.map(function (l) {
+      var d = dateTrouvee(l);
+      if (d && !f.annee) { f.annee = d.texte.trim(); l = l.slice(0, d.i) + ' ' + l.slice(d.j); }
+      return retirerBords(l);
+    }).filter(Boolean);
+    f.intitule = propres[0] || '';
+    var suite = propres.slice(1), prem = (suite.shift() || '').split(/,\s*/);
+    f.etablissement = prem[0] || ''; f.lieu = prem.slice(1).join(', ');
+    suite = suite.concat(reste.map(retirerBords).filter(Boolean));
+    if (suite.length) {
+      /* Les lignes en trop ne sont pas jetées : on les range là où elles ont l'air d'aller (certification, par exemple), sinon dans « Autres informations ». */
+      var rangees = suite.map(function (x) {
+        var c = classerLigne(x), cible = (c && c !== 'identite' && Array.isArray(F[c])) ? c : 'autres';
+        F[cible].push(x); return '« ' + x + ' » : ' + RUB[cible].nom;
+      });
+      F.alertes.push({ cle: 'formation.' + n, texte: 'Ce bloc contient peut-être plusieurs formations. Les lignes en trop ont été rangées ailleurs pour ne rien perdre : ' + rangees.join(' ; ') + '. Pour les séparer vous-même, revenez au classement et utilisez les ciseaux.' });
+    }
+    ['intitule', 'etablissement', 'lieu'].forEach(function (c) { if (f[c]) { F.flags['formation.' + n + '.' + c] = true; } });
+    return f;
+  }
+  function construireF() {
+    var F = { identite: { nom: '', titre: '', tel: '', email: '', adresse: '', cp: '', ville: '', permis: '' }, accroche: '', experience: [], formation: [], competences: [], qualites: [], logiciels: [], certifications: [], langues: [], loisirs: [], engagements: [], autres: [], titres: {}, flags: {}, alertes: [] };
+    blocs.forEach(function (b) {
+      var a = analyser(b), lignes = b.lignes.slice(a.idx === 0 ? 1 : 0);
+      if (b.rub === 'aclasser') { b.lignes.forEach(function (l) { F.autres.push(l); }); return; }
+      if (a.titre && b.rub === 'autres' && F.titres.autres && F.titres.autres !== phrase(a.titre)) {
+        /* Une seule rubrique libre sur le CV : un 2e titre différent n'est pas perdu, il reste écrit comme une ligne. */
+        lignes = b.lignes.slice();
+        F.alertes.push({ cle: 'autres', texte: 'Deux rubriques différentes (« ' + F.titres.autres + ' » et « ' + phrase(a.titre) + ' ») sont regroupées sous le même nom sur le CV. Le titre « ' + phrase(a.titre) + ' » est gardé comme première ligne de ses informations.' });
+      } else if (a.titre && !F.titres[b.rub]) { F.titres[b.rub] = phrase(a.titre); }
+      switch (b.rub) {
+        case 'identite':
+          var id = F.identite, restes = [];
+          lignes.forEach(function (l) {
+            if (RE_PERMIS.test(sansAccent(l)) && !RE_TEL.test(l) && !RE_MAIL.test(l)) { id.permis = (id.permis ? id.permis + ', ' : '') + retirerBords(l); return; }
+            var r = l, mt = l.match(RE_TEL), me = l.match(RE_MAIL), mc = l.match(RE_CPV);
+            if (mt && !id.tel) { id.tel = mt[0]; r = r.replace(mt[0], ' '); }
+            if (me && !id.email) { id.email = me[0]; r = r.replace(me[0], ' '); }
+            if (mc && !id.cp) { var p = mc[0].split(/\s+/); id.cp = p[0]; id.ville = p.slice(1).join(' '); r = r.replace(mc[0], ' '); }
+            r = retirerBords(r); if (r) { restes.push(r); }
+          });
+          restes.forEach(function (r) {
+            var inv = r.match(/^([A-Za-zÀ-ÿ' -]+)\s+(\d{5})$/);
+            if (!id.adresse && RE_ADR.test(r)) { id.adresse = r; }
+            else if (!id.cp && inv) { id.ville = inv[1]; id.cp = inv[2]; F.flags['identite.ville'] = true; F.flags['identite.cp'] = true; }
+            else if (!id.nom && r.split(/\s+/).length <= 4) { id.nom = r; F.flags['identite.nom'] = true; }
+            else if (!id.titre) { id.titre = r; F.flags['identite.titre'] = true; }
+            else { F.autres.push(r); }
+          });
+          break;
+        case 'accroche': F.accroche = (F.accroche ? F.accroche + ' ' : '') + lignes.join(' '); break;
+        case 'experience': F.experience.push(parserExperience(lignes, F, F.experience.length)); break;
+        case 'formation': F.formation.push(parserFormation(lignes, F, F.formation.length)); break;
+        case 'competences': F.competences = F.competences.concat(liste(lignes, true)); break;
+        case 'qualites': F.qualites = F.qualites.concat(liste(lignes, true)); break;
+        case 'logiciels': F.logiciels = F.logiciels.concat(liste(lignes, true)); break;
+        case 'certifications': F.certifications = F.certifications.concat(liste(lignes, false)); break;
+        case 'engagements': F.engagements = F.engagements.concat(liste(lignes, false)); break;
+        case 'langues': F.langues = F.langues.concat(liste(lignes, false)); break;
+        case 'loisirs': F.loisirs = F.loisirs.concat(liste(lignes, true)); break;
+        default: F.autres = F.autres.concat(liste(lignes, false));
+      }
+    });
+    return F;
+  }
+  function getPath(o, p) { return p.split('.').reduce(function (x, k) { return x === undefined || x === null ? x : x[k]; }, o); }
+  function setPath(o, p, v) { var ks = p.split('.'), d = ks.pop(), c = ks.reduce(function (x, k) { return x[k]; }, o); c[d] = v; }
+  function champ(path, label, type) {
+    var v = getPath(F, path), devine = F.flags[path];
+    var etiquette = '<label for="f-' + path + '">' + echap(label) + (devine ? ' <span class="mq-devine" data-devine="' + path + '">à vérifier</span>' : '') + '</label>';
+    if (type === 'multi') {
+      var txt = Array.isArray(v) ? v.join('\n') : v;
+      return '<div class="mq-champ" style="grid-column:1/-1">' + etiquette + '<textarea id="f-' + path + '" class="form-control form-control-sm" rows="' + Math.max(2, (Array.isArray(v) ? v.length : 2)) + '" data-f="' + path + '" data-liste="1">' + echap(txt) + '</textarea></div>';
+    }
+    if (type === 'case') {
+      return '<div class="mq-champ d-flex align-items-end"><label class="form-check mb-1" style="display:flex;gap:.4rem;align-items:center;font-size:.85rem;color:var(--text-strong)"><input type="checkbox" class="form-check-input mt-0" id="f-' + path + '" data-f="' + path + '"' + (v ? ' checked' : '') + '> ' + echap(label) + '</label></div>';
+    }
+    return '<div class="mq-champ">' + etiquette + '<input id="f-' + path + '" class="form-control form-control-sm" value="' + echap(v) + '" data-f="' + path + '"></div>';
+  }
+  function bloc(rub, corps, n) {
+    return '<details class="bloc-depli" open><summary><span class="rpast rb-' + rub + '"><i class="bi ' + RUB[rub].ic + '"></i> ' + RUB[rub].nom + '</span>' +
+      (F.titres[rub] ? '<span class="small text-muted">titre d’origine : « ' + echap(F.titres[rub]) + ' »</span>' : '') +
+      '<span class="mq-n">' + n + '</span></summary><div class="bloc-depli-corps">' + corps + '</div></details>';
+  }
+  function boutonRetirer(type, n) {
+    return '<div class="text-end mt-1"><button type="button" class="btn btn-sm btn-outline-secondary" data-retirer="' + type + ':' + n + '" style="border-radius:8px;"><i class="bi bi-trash"></i> Retirer cette fiche</button></div>';
+  }
+  var CIBLES_AUTRES = ['competences', 'qualites', 'logiciels', 'certifications', 'langues', 'loisirs', 'engagements'];
+  function htmlAutres() {
+    var al = F.alertes.filter(function (a) { return a.cle === 'autres'; }).map(function (a) { return '<div class="mq-alerte"><i class="bi bi-exclamation-triangle"></i> ' + echap(a.texte) + '</div>'; }).join('');
+    var lignes = F.autres.map(function (x, k) {
+      return '<div class="mq-ligne-autre"><input class="form-control form-control-sm" value="' + echap(x) + '" data-autre="' + k + '" aria-label="Information"><select class="form-select form-select-sm" data-deplacer="' + k + '" aria-label="Déplacer vers une autre rubrique"><option value="">Déplacer vers…</option>' +
+        CIBLES_AUTRES.map(function (r) { return '<option value="' + r + '">' + RUB[r].nom + '</option>'; }).join('') + '<option value="permis">Identité : permis de conduire</option></select></div>';
+    }).join('');
+    return al + '<p class="small text-muted mb-2">Ce qui n’a pas trouvé sa rubrique. Rien n’est perdu : gardez-le ici, ou <strong>déplacez chaque ligne</strong> vers la bonne rubrique avec la liste à droite.</p>' + (lignes || '<p class="small text-muted">Rien ici : tout a trouvé sa rubrique.</p>') +
+      '<button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-ajouter="autres" style="border-radius:8px;"><i class="bi bi-plus-lg"></i> Ajouter une information</button>';
+  }
+  function rendreFiches() {
+    var h = '';
+    h += bloc('identite', '<div class="mq-fiche-champs">' + champ('identite.nom', 'Nom et prénom') + champ('identite.titre', 'Intitulé sous le nom') + champ('identite.tel', 'Téléphone') + champ('identite.email', 'Courriel') + champ('identite.adresse', 'Adresse (rue)') + champ('identite.cp', 'Code postal') + champ('identite.ville', 'Ville') + champ('identite.permis', 'Permis de conduire') + '</div>', '');
+    h += bloc('accroche', '<div class="mq-fiche-champs">' + champ('accroche', 'Phrase d’accroche', 'multi') + '</div>', F.accroche ? '1' : '0');
+    h += bloc('experience', F.experience.map(function (e, n) {
+      return '<div class="mq-carte"><div class="mq-fiche-champs">' + champ('experience.' + n + '.poste', 'Poste') + champ('experience.' + n + '.entreprise', 'Entreprise') + champ('experience.' + n + '.lieu', 'Lieu') + champ('experience.' + n + '.debut', 'Début') + champ('experience.' + n + '.fin', 'Fin') + champ('experience.' + n + '.enCours', 'Poste toujours en cours', 'case') + champ('experience.' + n + '.missions', 'Missions (une par ligne, toutes gardées)', 'multi') + '</div>' + boutonRetirer('experience', n) + '</div>';
+    }).join('') + (F.experience.length ? '' : '<p class="small text-muted">' + (manuel ? 'Aucune expérience pour l’instant : ajoutez-en une.' : 'Aucune expérience classée.') + '</p>') +
+      '<button type="button" class="btn btn-sm btn-outline-secondary" data-ajouter="experience" style="border-radius:8px;"><i class="bi bi-plus-lg"></i> Ajouter une expérience</button>', F.experience.length);
+    h += bloc('formation', F.formation.map(function (f, n) {
+      var al = F.alertes.filter(function (a) { return a.cle === 'formation.' + n; }).map(function (a) { return '<div class="mq-alerte"><i class="bi bi-exclamation-triangle"></i> ' + echap(a.texte) + '</div>'; }).join('');
+      return '<div class="mq-carte">' + al + '<div class="mq-fiche-champs">' + champ('formation.' + n + '.intitule', 'Diplôme ou formation') + champ('formation.' + n + '.annee', 'Année') + champ('formation.' + n + '.etablissement', 'Établissement') + champ('formation.' + n + '.lieu', 'Lieu') + '</div>' + boutonRetirer('formation', n) + '</div>';
+    }).join('') + (F.formation.length ? '' : '<p class="small text-muted">' + (manuel ? 'Aucune formation pour l’instant : ajoutez-en une.' : 'Aucune formation classée.') + '</p>') +
+      '<button type="button" class="btn btn-sm btn-outline-secondary" data-ajouter="formation" style="border-radius:8px;"><i class="bi bi-plus-lg"></i> Ajouter une formation</button>', F.formation.length);
+    h += bloc('competences', '<div class="mq-fiche-champs">' + champ('competences', 'Une compétence par ligne', 'multi') + '</div>', F.competences.length);
+    h += bloc('qualites', '<div class="mq-fiche-champs">' + champ('qualites', 'Une qualité par ligne', 'multi') + '</div>', F.qualites.length);
+    h += bloc('logiciels', '<div class="mq-fiche-champs">' + champ('logiciels', 'Un logiciel ou un outil par ligne', 'multi') + '</div>', F.logiciels.length);
+    h += bloc('certifications', '<div class="mq-fiche-champs">' + champ('certifications', 'Une certification par ligne', 'multi') + '</div>', F.certifications.length);
+    h += bloc('langues', '<div class="mq-fiche-champs">' + champ('langues', 'Une langue par ligne', 'multi') + '</div>', F.langues.length);
+    h += bloc('loisirs', '<div class="mq-fiche-champs">' + champ('loisirs', 'Un loisir par ligne', 'multi') + '</div>', F.loisirs.length);
+    h += bloc('engagements', '<div class="mq-fiche-champs">' + champ('engagements', 'Un engagement ou un vécu personnel par ligne', 'multi') + '</div>', F.engagements.length);
+    h += bloc('autres', htmlAutres(), F.autres.length);
+    document.getElementById('mqFiches').innerHTML = h;
+  }
+  document.getElementById('mqFiches').addEventListener('input', function (e) {
+    var t = e.target, p = t.dataset.f;
+    if (t.dataset.autre !== undefined) { F.autres[Number(t.dataset.autre)] = t.value; return; }
+    if (!p) { return; }
+    if (t.type === 'checkbox') { setPath(F, p, t.checked); return; }
+    setPath(F, p, t.dataset.liste ? (/^(competences|qualites|logiciels|certifications|langues|loisirs|engagements)$/.test(p) || /missions$/.test(p) ? t.value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean) : t.value) : t.value);
+    if (F.flags[p]) { delete F.flags[p]; var tag = document.querySelector('[data-devine="' + p + '"]'); if (tag) { tag.remove(); } }
+  });
+  document.getElementById('mqFiches').addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset.deplacer === undefined || !t.value) { return; }
+    var item = F.autres.splice(Number(t.dataset.deplacer), 1)[0];
+    if (t.value === 'permis') { F.identite.permis = (F.identite.permis ? F.identite.permis + ', ' : '') + item; } else { F[t.value].push(item); }
+    var y = window.scrollY; rendreFiches(); window.scrollTo(0, y);
+  });
+  document.getElementById('mqFiches').addEventListener('click', function (e) {
+    var r = e.target.closest('[data-retirer]');
+    if (r) {
+      var rp = r.dataset.retirer.split(':'); F[rp[0]].splice(Number(rp[1]), 1);
+      var yr = window.scrollY; rendreFiches(); window.scrollTo(0, yr);
+      return;
+    }
+    var t = e.target.closest('[data-ajouter]');
+    if (!t) { return; }
+    if (t.dataset.ajouter === 'autres') { F.autres.push(''); } else if (t.dataset.ajouter === 'experience') { F.experience.push(experienceVide()); } else { F.formation.push(formationVide()); }
+    var y = window.scrollY; rendreFiches(); window.scrollTo(0, y);
+  });
+
+  /* ---------- Écran 4 : le CV ---------- */
+  var modele = 'sobre', titresPerso = {}, long = false;
+  function plein(x) { return String(x === undefined || x === null ? '' : x).trim() !== ''; }
+  function expPleines() { return F.experience.filter(function (e) { return plein(e.poste) || plein(e.entreprise) || plein(e.lieu) || plein(e.debut) || plein(e.fin) || e.enCours || e.missions.length; }); }
+  function formPleines() { return F.formation.filter(function (f) { return plein(f.intitule) || plein(f.annee) || plein(f.etablissement) || plein(f.lieu); }); }
+  function finAffichee(e) { return plein(e.fin) ? e.fin : (e.enCours ? 'en cours' : ''); }
+  function listeExp() { var l = expPleines(); return long ? l.concat(l, l) : l; }
+  function titreRub(r) { return titresPerso[r] !== undefined && titresPerso[r] !== '' ? titresPerso[r] : (F.titres[r] || RUB[r].def); }
+  var compteur = 0;
+  function it(x) { if (x === undefined || x === null || String(x).trim() === '') { return ''; } compteur++; return '<span data-item>' + echap(x) + '</span>'; }
+  function compterF() {
+    var n = 0, id = F.identite;
+    ['nom', 'titre', 'tel', 'email', 'adresse', 'cp', 'ville', 'permis'].forEach(function (c) { if (String(id[c]).trim()) { n++; } });
+    if (F.accroche.trim()) { n++; }
+    listeExp().forEach(function (e) { ['poste', 'entreprise', 'lieu', 'debut'].forEach(function (c) { if (String(e[c]).trim()) { n++; } }); if (finAffichee(e)) { n++; } n += e.missions.length; });
+    formPleines().forEach(function (f) { ['intitule', 'annee', 'etablissement', 'lieu'].forEach(function (c) { if (String(f[c]).trim()) { n++; } }); });
+    return n + ['competences', 'qualites', 'logiciels', 'certifications', 'langues', 'loisirs', 'engagements', 'autres'].reduce(function (t, r) { return t + F[r].filter(function (x) { return String(x).trim(); }).length; }, 0);
+  }
+  function sec(r, corps) { return corps ? '<section class="cv-sec"><h3>' + echap(titreRub(r)) + '</h3>' + corps + '</section>' : ''; }
+  function liUl(items) { items = items.filter(function (x) { return String(x).trim(); }); return items.length ? '<ul>' + items.map(function (x) { return '<li>' + it(x) + '</li>'; }).join('') + '</ul>' : ''; }
+  function htmlExp() {
+    return listeExp().map(function (e) {
+      var dates = [it(e.debut), it(finAffichee(e))].filter(Boolean).join(' - ');
+      var lieu = it(e.lieu);
+      return '<div class="cv-exp"><div class="tete"><span>' + it(e.poste) + '</span><span class="doux">' + dates + '</span></div>' +
+        '<div class="doux">' + [it(e.entreprise), lieu].filter(Boolean).join(', ') + '</div>' + liUl(e.missions) + '</div>';
+    }).join('');
+  }
+  function htmlForm() {
+    return formPleines().map(function (f) {
+      return '<div class="cv-exp"><div class="tete"><span>' + it(f.intitule) + '</span><span class="doux">' + it(f.annee) + '</span></div><div class="doux">' + [it(f.etablissement), it(f.lieu)].filter(Boolean).join(', ') + '</div></div>';
+    }).join('');
+  }
+  function contactHTML() {
+    var id = F.identite, ville = [it(id.cp), it(id.ville)].filter(Boolean).join(' ');
+    return [it(id.tel), it(id.email), [it(id.adresse), ville].filter(Boolean).join(', '), it(id.permis)].filter(Boolean).join(' · ');
+  }
+  function cvHTML() {
+    compteur = 0;
+    var id = F.identite, h = '';
+    var accroche = F.accroche.trim() ? '<p>' + it(F.accroche) + '</p>' : '';
+    if (modele === 'colonne') {
+      var gauche = '<h1 style="font-size:16px;margin-bottom:2px">' + it(id.nom) + '</h1><p class="doux" style="margin-bottom:10px">' + it(id.titre) + '</p>' +
+        '<section class="cv-sec" style="margin-top:0"><h3>Contact</h3>' + [it(id.tel), it(id.email), it(id.adresse), [it(id.cp), it(id.ville)].filter(Boolean).join(' '), it(id.permis)].filter(Boolean).map(function (x) { return '<p style="word-break:break-word">' + x + '</p>'; }).join('') + '</section>' +
+        sec('competences', liUl(F.competences)) + sec('qualites', liUl(F.qualites)) + sec('logiciels', liUl(F.logiciels)) + sec('langues', liUl(F.langues)) + sec('loisirs', liUl(F.loisirs)) + sec('autres', liUl(F.autres));
+      h = '<div class="cv-grille"><div class="cv-gauche">' + gauche + '</div><div class="cv-droite">' + sec('accroche', accroche) + sec('experience', htmlExp()) + sec('formation', htmlForm()) + sec('certifications', liUl(F.certifications)) + sec('engagements', liUl(F.engagements)) + '</div></div>';
+    } else {
+      var entete = modele === 'compact'
+        ? '<div><h1>' + it(id.nom) + '</h1><span class="cv-titre">' + it(id.titre) + '</span></div>'
+        : '<h1>' + it(id.nom) + '</h1><div class="cv-titre">' + it(id.titre) + '</div>';
+      h = '<div class="cv-interne">' + entete + '<div class="cv-contact">' + contactHTML() + '</div>' + sec('accroche', accroche) + sec('experience', htmlExp()) + sec('formation', htmlForm()) +
+        sec('competences', liUl(F.competences)) + sec('qualites', liUl(F.qualites)) + sec('logiciels', liUl(F.logiciels)) + sec('certifications', liUl(F.certifications)) + sec('langues', liUl(F.langues)) + sec('loisirs', liUl(F.loisirs)) + sec('engagements', liUl(F.engagements)) + sec('autres', liUl(F.autres)) + '</div>';
+    }
+    return h;
+  }
+  function rendreCV() {
+    var feuille = document.getElementById('mqFeuille');
+    feuille.className = 'cv-feuille m-' + modele;
+    feuille.style.transform = 'none';
+    feuille.innerHTML = cvHTML();
+    var haut = feuille.scrollHeight, depasse = haut - 842;
+    feuille.classList.toggle('deborde', depasse > 4);
+    var zone = document.getElementById('mqZoneFeuille'), echelle = Math.min(1, zone.clientWidth / 595);
+    feuille.style.transform = 'scale(' + echelle + ')';
+    zone.style.height = (Math.max(842, haut) * echelle) + 'px';
+    var taille = modele === 'compact' ? 9.5 * 1.25 : 10.5 * 1.4, lignes = Math.round(depasse / taille);
+    var v = document.getElementById('mqVerdict');
+    if (depasse > 4) {
+      v.className = 'mq-verdict non';
+      v.innerHTML = '<i class="bi bi-exclamation-triangle"></i><div><strong>Ça déborde d’environ ' + Math.max(1, lignes) + (lignes > 1 ? ' lignes' : ' ligne') + '</strong> sur une 2ᵉ page avec ce modèle.' + (modele !== 'compact' ? ' <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-mq-modele="compact" style="border-radius:8px;">Essayer « Compact »</button>' : ' Gardez 2 pages, ou retirez des lignes dans les fiches.') + '</div>';
+    } else {
+      v.className = 'mq-verdict';
+      v.innerHTML = '<i class="bi bi-check-circle"></i><div><strong>Oui, tout tient sur une page</strong> avec ce modèle' + (haut < 760 ? ' (il reste de la place)' : '') + '.</div>';
+    }
+    var attendu = compterF(), vus = feuille.querySelectorAll('[data-item]').length, c = document.getElementById('mqCompte');
+    c.className = 'mq-verdict' + (attendu === vus ? '' : ' non');
+    c.innerHTML = '<i class="bi bi-list-check"></i><div><strong>' + vus + ' informations sur ' + attendu + '</strong> de votre CV sont sur la feuille' + (attendu === vus ? ' : aucune n’a été retirée ni raccourcie.' : ' : il en manque, c’est un défaut.') + '</div>';
+    document.querySelectorAll('#mqModeles .jeton').forEach(function (b) { b.classList.toggle('is-actif', b.dataset.mqModele === modele); });
+  }
+  function rendreTitres() {
+    function nbRub(r) { return r === 'accroche' ? (F.accroche.trim() ? 1 : 0) : (r === 'experience' ? listeExp().length : (r === 'formation' ? formPleines().length : F[r].filter(function (x) { return String(x).trim(); }).length)); }
+    var used = ORDRE.filter(function (r) { return r !== 'identite' && nbRub(r) > 0; });
+    document.getElementById('mqTitres').innerHTML = used.map(function (r) {
+      return '<div class="mq-champ mb-1"><label for="t-' + r + '">' + RUB[r].nom + (F.titres[r] ? ' <span class="small text-muted">(titre d’origine repris)</span>' : '') + '</label>' +
+        '<input id="t-' + r + '" class="form-control form-control-sm" data-titre="' + r + '" value="' + echap(titreRub(r)) + '"></div>';
+    }).join('');
+  }
+  document.getElementById('mqTitres').addEventListener('input', function (e) { var r = e.target.dataset.titre; if (r) { titresPerso[r] = e.target.value; rendreCV(); } });
+  document.addEventListener('click', function (e) {
+    var m = e.target.closest('[data-mq-modele]');
+    if (m) { modele = m.dataset.mqModele; rendreCV(); }
+  });
+  document.getElementById('mqLong').addEventListener('change', function (e) { long = e.target.checked; rendreCV(); });
+  window.addEventListener('resize', function () { if (!document.getElementById('mq-e4').hidden) { rendreCV(); } });
+
+  /* ---------- Navigation ---------- */
+  var NOMS_ETAPES = ['Déposer', 'Classer', 'Vérifier', 'Mon CV'];
+  var NOMS_ETAPES_MANUEL = ['Départ', 'Remplir mes rubriques', 'Mon CV'];
+  var RANG_MANUEL = { 1: 1, 3: 2, 4: 3 };
+  function dessinerEtapes() {
+    document.querySelectorAll('.mq-etapes').forEach(function (ol) {
+      var ecran = Number(ol.dataset.etapes), noms = manuel ? NOMS_ETAPES_MANUEL : NOMS_ETAPES, actif = manuel ? (RANG_MANUEL[ecran] || 1) : ecran;
+      ol.innerHTML = noms.map(function (nom, k) {
+        return '<li class="' + (k + 1 === actif ? 'actif' : (k + 1 < actif ? 'fait' : '')) + '"><span class="rond">' + (k + 1 < actif ? '<i class="bi bi-check-lg"></i>' : (k + 1)) + '</span>' + nom + '</li>';
+      }).join('');
+    });
+  }
+  var toastMinuteur = null;
+  function dire(msg) {
+    var t = document.getElementById('mqToast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastMinuteur); toastMinuteur = setTimeout(function () { t.hidden = true; }, 4200);
+  }
+  function preparer(n) {
+    var txt = document.getElementById('mqTexte');
+    if (manuel && n >= 3) {
+      if (!F || F._sig !== 'manuel') { F = ficheVide(); titresPerso = {}; }
+      rendreFiches();
+    } else if (n >= 2) {
+      if (!txt.value.trim()) { txt.value = EXEMPLES.A; }
+      var sig = txt.value;
+      if (sig !== signature) { signature = sig; blocs = decouper(sig); F = null; }
+      rendreBlocs();
+    }
+    if (!manuel && n >= 3) {
+      var sigB = JSON.stringify(blocs.map(function (b) { return [b.rub, b.lignes]; }));
+      if (!F || F._sig !== sigB) { F = construireF(); F._sig = sigB; titresPerso = {}; }
+      rendreFiches();
+    }
+    if (n === 4) { rendreTitres(); rendreCV(); }
+  }
+  function aller(n) {
+    if (manuel && n === 2) { dire('Vous remplissez vous-même : il n’y a rien à classer. Pour partir d’un CV déposé, choisissez « Déposer » ou « Copier-coller ».'); return; }
+    preparer(n);
+    dessinerEtapes();
+    var intro3 = document.getElementById('mqIntro3'), retour3 = document.getElementById('mqRetour3');
+    if (manuel) {
+      intro3.textContent = 'Remplissez ce que vous voulez, dans l’ordre que vous voulez : une rubrique laissée vide n’apparaît pas sur le CV. Rien n’est obligatoire. Ce sont les mêmes fiches que celles d’un CV déposé.';
+      retour3.dataset.mqAller = '1'; document.getElementById('mqRetour3Texte').textContent = 'Retour';
+    } else {
+      intro3.innerHTML = 'Les mots sont les vôtres, rien n’est reformulé. Les cases marquées <span class="mq-devine">à vérifier</span> ont été lues d’après leur place dans votre CV : corrigez-les si besoin.';
+      retour3.dataset.mqAller = '2'; document.getElementById('mqRetour3Texte').textContent = 'Retour au classement';
+    }
+    document.querySelectorAll('.mq-ecran').forEach(function (e) { e.hidden = e.id !== 'mq-e' + n; });
+    document.querySelectorAll('.mq-barre [data-mq-aller]').forEach(function (b) { var a = Number(b.dataset.mqAller) === n; b.classList.toggle('btn-primary', a); b.classList.toggle('btn-outline-primary', !a); });
+    if (n === 4) { rendreCV(); }
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-mq-aller]'); if (a) { aller(Number(a.dataset.mqAller)); return; }
+    var d = e.target.closest('[data-mq-dire]'); if (d) { dire(d.dataset.mqDire); return; }
+    var ex = e.target.closest('[data-mq-exemple]');
+    if (ex) { manuel = false; dessinerEtapes(); document.getElementById('mqTexte').value = EXEMPLES[ex.dataset.mqExemple]; document.getElementById('mqEtat1').textContent = ex.dataset.mqExemple === 'B' ? 'Exemple B chargé : comme après la lecture d’une photo, avec des titres inhabituels et des lignes mélangées.' : 'Exemple A chargé : un CV bien rangé, avec des titres classiques.'; }
+  });
+  document.getElementById('mqVers2').addEventListener('click', function () {
+    if (!document.getElementById('mqTexte').value.trim()) { dire('Collez le texte de votre CV, ou choisissez un exemple pour essayer. Sans CV : « Je n’ai pas de CV ».'); return; }
+    manuel = false;
+    aller(2);
+  });
+  document.getElementById('mqEntreeManuel').addEventListener('click', function () { manuel = true; F = null; aller(3); });
+  document.getElementById('mqVers3').addEventListener('click', function () { aller(3); });
+  document.getElementById('mqEntreeColler').addEventListener('click', function () { document.getElementById('mqTexte').focus(); });
+  document.getElementById('mqEntreePhoto').addEventListener('click', function () { document.getElementById('mqTexte').value = EXEMPLES.B; document.getElementById('mqEtat1').textContent = 'Photo simulée : dans l’application, la photo est lue sur votre appareil. Ici, l’exemple B montre ce que donne une lecture en désordre.'; });
+  document.getElementById('mqEntreeFichier').addEventListener('click', function () { document.getElementById('mqFichier').click(); });
+  document.getElementById('mqFichier').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) { return; }
+    if (/\.txt$/i.test(f.name)) {
+      var lecteur = new FileReader();
+      lecteur.onload = function () { document.getElementById('mqTexte').value = lecteur.result; document.getElementById('mqEtat1').textContent = 'Fichier « ' + f.name + ' » lu sur votre appareil.'; };
+      lecteur.readAsText(f);
+    } else {
+      dire('Dans l’application, ce fichier est lu ici, sur votre appareil. Dans la maquette, utilisez un fichier .txt, le collage ou un exemple.');
+    }
+  });
+  var s = document.getElementById('mqSombre');
+  s.addEventListener('click', function () {
+    var html = document.documentElement, sombre = html.getAttribute('data-theme') === 'sombre';
+    if (sombre) { html.removeAttribute('data-theme'); } else { html.setAttribute('data-theme', 'sombre'); }
+    s.setAttribute('aria-pressed', String(!sombre));
+  });
+  aller(1);
+})();
+</script>
+</body>
+</html>

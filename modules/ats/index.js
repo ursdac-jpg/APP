@@ -329,8 +329,8 @@ function _atsRendrePreparer() {
         : 'Sans offre, l’objectif devient : employer le vocabulaire du métier, et clarifier votre projet. Ces termes proviennent d’une fiche générale et peuvent varier selon les employeurs.') +
       '</p>') +
 
-    '<div class="text-center" style="margin-top:1.25rem;">' +
-    '<button type="button" id="btnAtsVersAssistant" class="btn btn-primary btn-lg"' + (actif ? '' : ' disabled') + '>Choisir mon assistant &#8594;</button>' +
+    '<div class="text-center" style="margin-top:1.25rem;" data-barre-bas-zone>' +
+    '<button type="button" id="btnAtsVersAssistant" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="Déposez et relisez votre CV, puis choisissez la référence (une offre ou un métier)."' + (actif ? '' : ' disabled') + '>Continuer &#8594;</button>' +
     '<p style="margin:.55rem 0 0;color:var(--text-muted);font-size:.9rem;">Actif une fois votre CV déposé (et relu) et la référence choisie.</p>' +
     '</div>';
 }
@@ -527,7 +527,7 @@ function _atsRendreChezAssistant() {
     (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
     '<div class="cv-section" style="margin-top:.8rem;">' +
     '<p class="mb-1"><strong>&#128278; Ce que vous retrouverez ici</strong></p>' +
-    '<p class="mb-0" style="color:var(--text-muted);font-size:.9rem;">De retour de l’assistant : cliquez sur <strong>« Je suis de retour »</strong> ci-dessus, puis sur <strong>« Coller la réponse »</strong>, puis sur <strong>« Importer »</strong>.</p>' +
+    '<p class="mb-0" style="color:var(--text-muted);font-size:.9rem;">De retour de l’assistant : cliquez sur <strong>« Je suis de retour »</strong> ci-dessus, puis sur <strong>« Coller la réponse »</strong>, puis sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     '</div>';
 }
 
@@ -594,7 +594,7 @@ function _atsRendreColler() {
   return '<div class="text-center"><h1>Coller la réponse</h1></div>' +
     '<div class="cv-section bilan-etape-import-ia">' +
     '<h4>&#128229; De retour : collez la réponse</h4>' +
-    '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis <strong>Importer</strong>.</p>' +
+    '<p class="text-muted small mb-2">Vous revenez de <strong>' + echapperAttribut(nom) + '</strong>. Sa réponse est dans votre presse-papiers : collez-la ci-dessous, puis cliquez sur <strong>« Continuer »</strong>, en bas à droite.</p>' +
     '<div class="bilan-zone-collage">' +
     (typeof htmlCollageInstantane === 'function' ? htmlCollageInstantane('Ats', {}) : '<p style="color:var(--text-muted);">Collage (composant partagé).</p>') +
     '</div>' +
@@ -683,8 +683,8 @@ function _atsRendreResultat() {
     '<p class="mb-1"><strong>&#10145;&#65039; Et maintenant ?</strong></p>' +
     '<p class="mb-0">Choisissez <strong>2 ou 3 mots</strong> à travailler, pas plus. La page suivante en fait une fiche à emporter, avec des questions pour votre conseiller.</p>' +
     '</div>' +
-    '<div class="text-center" style="margin-top:1rem;">' +
-    '<button type="button" id="btnAtsVersFiche" class="btn btn-primary btn-lg">Voir ma fiche &#8594;</button>' +
+    '<div class="text-center" style="margin-top:1rem;" data-barre-bas-zone>' +
+    '<button type="button" id="btnAtsVersFiche" class="btn btn-primary btn-lg" data-barre-bas="1">Voir ma fiche &#8594;</button>' +
     '</div>';
 }
 
@@ -716,7 +716,10 @@ function _atsEncartTriche(extraits, explication) {
 function _atsBlocsResultat(r) {
   var blocs = [
     { titre: 'Déjà exprimé dans votre CV', gloss: 'ces mots sont déjà là. Rien à faire.', liste: r.dejaExprime, rendreItem: function (it) { return echapperAttribut(it.terme) + _atsSrc(it.origine); } },
-    { titre: 'Peut être formulé autrement', gloss: 'vous l’avez sûrement fait, mais avec d’autres mots. Une piste par mot.', liste: r.peutEtreFormuleAutrement, rendreItem: function (it) {
+    { titre: 'Peut être formulé autrement', gloss: 'vous l’avez sûrement fait, mais avec d’autres mots. Une piste par mot.', liste: r.peutEtreFormuleAutrement,
+      // Exemple fixe (chantier docs/CHANTIER_ATS_ET_ENTRETIEN_AMELIORATIONS_2026-10-19.md, B1) : montre le geste avant les pistes de la personne.
+      intro: '<p style="background:var(--accent-bg-subtle);border-left:4px solid var(--accent);padding:.5rem .7rem;border-radius:6px;margin:0 0 .6rem;"><strong>Un exemple.</strong> Vous avez tenu les comptes d’une association de quartier. L’offre demande du « suivi budgétaire ». Si c’est bien ce que vous faisiez (suivre les dépenses, tenir un tableau), vous pouvez l’écrire avec ces mots dans votre CV. Si vous ne l’avez pas fait, ne l’ajoutez pas.</p>',
+      rendreItem: function (it) {
       return '<strong>' + echapperAttribut(it.terme) + '</strong>' + _atsSrc(it.origine) +
         '<br><span style="color:var(--text-muted);">Votre CV dit : « ' + echapperAttribut(it.extraitCV) + ' ».</span>' +
         '<br>' + echapperAttribut(it.piste) +
@@ -739,7 +742,7 @@ function _atsBlocsResultat(r) {
     return '<details class="cv-section ats-depli"' + (b === blocs[0] ? ' open' : '') + '>' +
       '<summary style="cursor:pointer;list-style:none;"><strong>' + b.titre + '</strong>' +
       '<br><span style="font-weight:400;color:var(--text-muted);font-size:.9rem;">' + b.gloss + '</span></summary>' +
-      '<div style="margin-top:.5rem;">' + corps + '</div></details>';
+      '<div style="margin-top:.5rem;">' + (b.intro && liste.length ? b.intro : '') + corps + '</div></details>';
   }).join('');
 }
 
@@ -870,7 +873,7 @@ function _atsRendreEmporter() {
     '<p>La phrase d’accroche (le titre ou le court résumé en haut du CV) est l’endroit idéal pour montrer que vous avez compris l’offre : reprenez-y les mots forts de l’annonce, quand ils décrivent vraiment ce que vous savez faire. Votre lettre de motivation gagne à aller dans le même sens.</p>' +
     '<div class="d-flex gap-2 flex-wrap">' +
     '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAtsEditeurCV">Ouvrir l’éditeur de mon CV</button>' +
-    '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAtsLettre">Ouvrir « Coécrire ma lettre de motivation »</button>' +
+    '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnAtsLettre">Ouvrir « Écrire ma lettre avec l’assistant »</button>' +
     '</div>' +
     '<p style="color:var(--text-muted);font-size:.85rem;margin-top:.4rem;">L’application ne réécrit pas votre accroche à votre place : vous gardez la main sur chaque mot. Votre comparaison reste, vous pourrez y revenir.</p>' +
     '</div>' +
@@ -1063,7 +1066,7 @@ function _atsFaq() {
     { q: 'Les mots-clés, les « quotas »', r: 'Le logiciel compare les mots de l’offre avec ceux de votre CV et fait remonter les CV les plus proches. Ce n’est pas un quota à atteindre : c’est un classement. Un recruteur peut aussi chercher un mot précis ; si le mot n’est nulle part dans votre CV, votre CV ne ressort pas de cette recherche.' },
     { q: 'Les questions éliminatoires au moment de postuler', r: 'Beaucoup de formulaires posent des questions fermées : autorisation de travailler, permis obligatoire, années d’expérience, mobilité. Une réponse « non » à une question obligatoire peut écarter la candidature automatiquement. Ce n’est pas votre CV, c’est le formulaire. Répondez honnêtement ; notez toute condition floue comme question pour votre conseiller.' },
     { q: 'Et les techniques pour « tromper » le logiciel ?', r: 'Écrire des mots-clés en blanc, en tout petit, dans les marges, ou remplir le CV d’une liste de mots : ça se voit. Le logiciel lit le texte blanc comme le texte noir, et beaucoup d’outils montrent au recruteur le contenu extrait à côté du CV. Une candidature repérée ainsi est souvent écartée. La seule chose qui aide vraiment : décrire vos expériences réelles avec les bons mots.' },
-    { q: 'Pourquoi ce module ne donne pas de score', r: 'Les « scores de compatibilité » affichés par certains sites sont des estimations faites par ces sites, que le recruteur ne voit jamais. Un score rassure ou inquiète pour rien. Ici, on vous montre du vocabulaire à ajuster, pas une note.' }
+    { q: 'Pourquoi ce module ne donne pas de score', r: 'Les « scores de compatibilité » affichés par certains sites sont des estimations faites par ces sites. Ce n’est pas le classement du logiciel de l’employeur, que vous ne voyez pas. Un score rassure ou inquiète pour rien. Ici, on vous montre du vocabulaire à ajuster, pas une note.' }
   ];
 }
 
@@ -1085,6 +1088,7 @@ function _atsOuvrirFenetreForme() {
     '<li>Éviter les images qui contiennent du texte.</li>' +
     '<li>Éviter de mettre une information importante dans l’en-tête ou le pied de page.</li>' +
     '<li>Une police classique.</li>' +
+    '<li>Écrire le titre du poste comme dans les offres (par exemple « chargé de recrutement »), pas un titre imaginé.</li>' +
     '<li>Vérifier le rendu après l’export en PDF.</li>' +
     '</ul>' +
     _atsEncart('&#128161;', '<strong>Test simple :</strong> si votre texte apparaît mélangé ou incompréhensible quand vous le collez dans la comparaison, le logiciel du recruteur le lira de la même façon.') +

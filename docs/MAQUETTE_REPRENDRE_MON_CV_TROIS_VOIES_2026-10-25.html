@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Reprendre mon CV, trois voies</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--ret:#a12b2b;--retbg:#fbe9e9}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342;--ret:#ff9b9b;--retbg:#3c1f1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 110px}
+.page{max-width:940px;margin:0 auto}
+h1{font-size:1.6rem;margin:1rem 0 .2rem;text-align:center}
+h2{font-size:1.12rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+.mini.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.5rem 1rem 1rem}
+.etapes{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0}
+.etape{border:2px solid var(--bord);background:var(--card);border-radius:999px;padding:.2rem .8rem;font-size:.85rem}
+.etape.ici{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.etape.fait{border-color:var(--ok);color:var(--ok)}
+.voies{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:.8rem 0}
+.voie{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.8rem;text-align:left;display:flex;flex-direction:column;gap:.3rem}
+.voie:hover{border-color:var(--acc)}.voie.actif{border-color:var(--acc);background:var(--accbg)}
+.voie h3{margin:.1rem 0;font-size:1.05rem}
+.voie ul{margin:.2rem 0;padding-left:1.1rem;font-size:.88rem}
+.voie .env{font-size:.8rem;color:var(--muted)}
+.voie.bientot{opacity:.7;border-style:dashed}
+.depot{border:2px dashed var(--bord);border-radius:12px;padding:.8rem;background:var(--sub)}
+.relu{background:var(--card);border:1px solid var(--bord);border-radius:8px;padding:.5rem .7rem;font-size:.9rem}
+.surl{background:#ffe08a;color:#3b2f10;border-radius:4px;padding:0 .2rem}
+.jeton{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.35rem .8rem;font-weight:600}
+.jeton.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc)}
+.jeton.actif::before{content:"\2713\00a0"}
+.info{background:var(--okbg);border:1px dashed var(--ok);border-radius:8px;padding:.45rem .7rem;font-size:.9rem;margin:.5rem 0}
+.carte{border:1px solid var(--bord);border-left:4px solid var(--acc);border-radius:10px;background:var(--sub);padding:.5rem .8rem;margin:.6rem 0}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:940px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.nav.suivant:disabled{opacity:.45;cursor:not-allowed}
+.raison{position:absolute;right:0;bottom:calc(100% + .5rem);max-width:24rem;text-align:right;color:var(--warn);background:var(--warnbg);border:1px solid var(--warn);border-radius:8px;padding:.25rem .6rem;font-size:.85rem;margin:0}
+.raison:empty{display:none}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0}
+body.ann .note{display:block}
+.tag{font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;display:inline-block}
+.tag.g{background:var(--okbg);color:var(--ok)}.tag.e{background:var(--newbg);color:var(--new)}.tag.d{background:var(--accbg);color:var(--acc)}.tag.f{background:var(--warnbg);color:var(--warn)}.tag.r{background:var(--retbg);color:var(--ret)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid var(--bord);padding:.35rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--sub)}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:1.5rem 0}
+.questions h2{color:var(--new)}.questions li{margin:.7rem 0}
+.ec{display:none}.ec.vu{display:block}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (25/10/2026) : « Reprendre mon CV », une entrée et trois voies</strong>
+  <span style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+    <button class="mini actif" data-ec="accueil" type="button">1. Accueil</button>
+    <button class="mini" data-ec="depot" type="button">2. Déposer mon CV</button>
+    <button class="mini" data-ec="voies" type="button">3. Choisir ma voie</button>
+    <button class="mini" data-ec="suite" type="button">4. La suite</button>
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Annotations</label>
+    <label class="tog"><input type="checkbox" id="tSombre"> Mode sombre</label>
+  </span>
+</div>
+
+<!-- ÉCRAN 1 : accueil -->
+<div class="ec vu" id="ec-accueil">
+  <h1>Mes documents</h1>
+  <p class="muted small" style="text-align:center">Aujourd'hui, deux tuiles voisines (« Mettre à jour mon CV » et « Reformuler et présenter mon CV ») demandent chacune de déposer le même CV. Ici : une seule tuile.</p>
+  <div class="voies">
+    <div class="voie"><h3>✨ Créer un nouveau CV</h3><span class="env">inchangé <span class="tag g">GARDÉ</span></span></div>
+    <div class="voie actif"><h3>📄 Reprendre mon CV</h3><span class="muted small">J'ai déjà un CV : je le dépose une seule fois, puis je choisis ce que je veux en faire.</span><span class="tag e">FUSIONNÉ : remplace deux tuiles</span></div>
+    <div class="voie"><h3>✉️ Préparer ma lettre et mon entretien</h3><span class="env">inchangé <span class="tag g">GARDÉ</span></span></div>
+  </div>
+  <div class="note">Le nom exact de la tuile est à choisir par Denis (« Reprendre mon CV » est une proposition). Les anciennes adresses « mettre-a-jour-cv » et « reformuler-cv » continuent de fonctionner (disquettes et favoris).</div>
+</div>
+
+<!-- ÉCRAN 2 : dépôt commun -->
+<div class="ec" id="ec-depot">
+  <div class="etapes"><span class="etape ici">1 Déposer et relire</span><span class="etape">2 Choisir ma voie</span><span class="etape">3 La suite dépend de la voie</span></div>
+  <h1>Reprendre mon CV</h1>
+  <div class="sec">
+    <h2>1. Déposer mon CV <span class="tag d">DÉPLACÉ : dépôt commun aux deux parcours</span></h2>
+    <div class="depot">Fichier PDF ou Word, texte copié, photo ou scan <button class="jeton" type="button" id="bDepose">Choisir un fichier (simulé)</button></div>
+    <div id="relu" style="display:none">
+      <p class="small muted" style="margin-top:.8rem">Relisez, corrigez, et masquez ce que vous ne voulez pas transmettre (déjà le cas aujourd'hui).</p>
+      <div class="relu">Nicolas <span class="surl">Poirot</span>, <span class="surl">06 12 34 56 78</span>, <span class="surl">nicolas@exemple.fr</span><br>Technicien de maintenance, dix ans d'expérience. Formation : CAP électricien…</div>
+      <div class="info">✓ Votre CV est déposé et relu. Il n'est déposé <b>qu'une seule fois</b> : les trois voies de l'étape suivante partent de ce même texte.</div>
+    </div>
+    <div class="note">Mêmes briques qu'aujourd'hui : dépôt de fichier, lecture de photo, relecture et masquage des coordonnées (`ouvrirAssistantDepotCV`, page « Préparer »). Rien n'est envoyé avant l'étape 3.</div>
+  </div>
+</div>
+
+<!-- ÉCRAN 3 : les trois voies -->
+<div class="ec" id="ec-voies">
+  <div class="etapes"><span class="etape fait">1 Déposer et relire</span><span class="etape ici">2 Choisir ma voie</span><span class="etape">3 La suite dépend de la voie</span></div>
+  <h1>Que voulez-vous faire de votre CV ?</h1>
+  <p class="muted small" style="text-align:center">Vous pourrez changer d'avis : votre CV déposé reste là, rien n'est perdu.</p>
+  <div class="voies" id="lesVoies">
+    <button class="voie" type="button" data-voie="maj">
+      <h3>✏️ Le garder et le compléter</h3>
+      <span class="small">Mon CV est à mettre à jour : ajouter une expérience, corriger une date, compléter.</span>
+      <ul><li>L'assistant récupère toutes les informations de mon CV</li><li>Je les corrige champ par champ</li><li>Je choisis la mise en forme</li></ul>
+      <span class="env">Envoyé à l'assistant : le texte relu et masqué.</span>
+      <span class="tag g">GARDÉ : parcours « Mettre à jour mon CV »</span>
+    </button>
+    <button class="voie" type="button" data-voie="ref">
+      <h3>🖌️ Le reformuler et le présenter</h3>
+      <span class="small">Mon contenu est bon : je veux une meilleure présentation, avec le bon vocabulaire pour mon objectif.</span>
+      <ul><li>Je dis pourquoi je fais ce CV (les six cartes)</li><li>L'assistant reformule, sans rien inventer</li><li>Je vérifie, puis je choisis la mise en forme</li></ul>
+      <span class="env">Envoyé : le texte relu et masqué, plus votre objectif.</span>
+      <span class="tag g">GARDÉ : parcours « Reformuler et présenter mon CV »</span> <span class="tag d">sans redéposer</span>
+    </button>
+    <button class="voie bientot" type="button" data-voie="sans">
+      <h3>🗂️ Le refaire avec mes modèles, sans assistant</h3>
+      <span class="small">Je veux seulement une nouvelle mise en page. Rien ne part vers un assistant.</span>
+      <ul><li>L'application range mes informations par rubrique</li><li>Je corrige le classement</li><li>Je choisis un modèle</li></ul>
+      <span class="env">Rien n'est envoyé.</span>
+      <span class="tag f">NOUVEAU : arrive avec le chantier « CV sans assistant » (E4)</span>
+    </button>
+  </div>
+  <div class="note">La troisième voie n'existe pas encore (chantier E4, maquette faite le 22/10/2026, rien codé). Proposition : la carte est montrée « bientôt » (non cliquable) tant que E4 n'est pas livré, ou masquée. Voir question 3.</div>
+  <div class="info" id="choisie" style="display:none"></div>
+</div>
+
+<!-- ÉCRAN 4 : la suite -->
+<div class="ec" id="ec-suite">
+  <h1>La suite, voie par voie</h1>
+  <div class="sec">
+    <h2>✏️ Le garder et le compléter</h2>
+    <div class="etapes"><span class="etape fait">Préparer</span><span class="etape fait">Assistant</span><span class="etape fait">Réponse</span><span class="etape ici">Corriger mon CV</span><span class="etape">Vos documents</span></div>
+    <p class="small">Les écrans actuels de « Mettre à jour mon CV », dans le même ordre. L'étape « Préparer » est déjà faite à l'écran 2.</p>
+  </div>
+  <div class="sec">
+    <h2>🖌️ Le reformuler et le présenter</h2>
+    <div class="etapes"><span class="etape fait">Préparer</span><span class="etape ici">Objectif</span><span class="etape">Assistant et réponse</span><span class="etape">Vérifier</span><span class="etape">Mise en forme</span></div>
+    <p class="small">Les écrans actuels de « Reformuler », avec une seule différence : le CV n'est pas redéposé. La question « pourquoi ce CV ? » (les six cartes de la lettre, déjà unifiées) devient la première page de cette voie.</p>
+  </div>
+  <div class="sec">
+    <h2>🗂️ Le refaire avec mes modèles <span class="tag f">NOUVEAU (E4)</span></h2>
+    <div class="etapes"><span class="etape fait">Préparer</span><span class="etape ici">Classer mes informations</span><span class="etape">Choisir un modèle</span></div>
+    <p class="small">Écrans de la maquette `MAQUETTE_CV_SANS_ASSISTANT_2026-10-22.html` : classement par rubrique avec les choix de la personne, puis modèles.</p>
+  </div>
+  <div class="sec">
+    <h2>Ce qui ne se perd jamais <span class="tag e">ENRICHI : garantie nouvelle</span></h2>
+    <ul class="small"><li>Le CV déposé et relu reste en mémoire quand on change de voie : pas de nouveau dépôt.</li><li>Changer de voie ne vide pas le dossier si le CV est déjà en cours dans une autre voie : l'application demande « Garder ce que vous avez fait ? » (aujourd'hui, passer d'un parcours à l'autre efface le contenu du CV).</li><li>Le drapeau « venant de Reformuler » ne vaut que pour le CV (correction F6 déjà faite).</li></ul>
+  </div>
+</div>
+
+<div class="sec" style="margin-top:2rem">
+<h2>Inventaire : ce qui existe aujourd'hui et ce que la maquette en fait</h2>
+<table>
+<tr><th>Élément actuel</th><th>Dans la maquette</th><th>Étiquette</th></tr>
+<tr><td>Deux tuiles « Mettre à jour mon CV » et « Reformuler et présenter mon CV » (`btnCarteAccueilCvMaj`, `btnCarteAccueilCvReformuler`)</td><td>Une tuile « Reprendre mon CV »</td><td><span class="tag e">FUSIONNÉ</span></td></tr>
+<tr><td>Deux pages d'introduction (`mettre-a-jour-cv`, `reformuler-cv`) et leurs barres d'étapes</td><td>Une page d'introduction ; chaque voie garde sa barre d'étapes</td><td><span class="tag e">FUSIONNÉ</span></td></tr>
+<tr><td>Dépôt, lecture de fichier ou photo, relecture, masquage (page « Préparer », `_prepLERendreDepot`)</td><td>Écran 2, identique, une seule fois</td><td><span class="tag d">DÉPLACÉ</span></td></tr>
+<tr><td>Extraction par l'assistant (prompt `extraction-cv.md`), correction champ par champ, Vos documents</td><td>Voie « Le garder et le compléter »</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Question « pourquoi ce CV ? » (six cartes) et panneau métier ou domaine, offre (Reformuler)</td><td>Première page de la voie « Reformuler »</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Reformulation par l'assistant (prompt `reformuler-cv.md`), vérification des deux propositions, sorties (modèle ou texte à copier)</td><td>Voie « Reformuler » inchangée après le dépôt</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Redéposer le CV quand on change de parcours</td><td>Plus nécessaire</td><td><span class="tag r">RETIRÉ ?</span> (à valider : le dépôt unique remplace deux dépôts)</td></tr>
+<tr><td>Effacement du contenu du CV en passant d'un parcours à l'autre (`viderContenuCVDossier`)</td><td>Entre les deux voies : on garde ; entre cette entrée et un autre module (Créer un nouveau CV, lettre) : comme aujourd'hui</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>Voie sans assistant (chantier E4)</td><td>Troisième carte, « bientôt » tant que E4 n'est pas codé</td><td><span class="tag f">NOUVEAU</span></td></tr>
+<tr><td>Recherche d'accueil, aide contextuelle, événements de suivi, disquette (reprise d'un parcours en cours)</td><td>À reprendre pour l'entrée unique, en conservant les anciens noms de routes</td><td><span class="tag d">DÉPLACÉ</span></td></tr>
+</table>
+</div>
+
+<div class="sec">
+<h2>Faisabilité (étape 2 de la méthode) : GO AVEC RÉSERVES</h2>
+<ul class="small">
+<li><b>Simple</b> : les deux parcours partagent déjà la page « Préparer » (`_prepLEMode` = 'maj' ou 'reformuler', même variable `_prepLEEtat` pour le CV déposé). Choisir la voie après le dépôt revient à poser le mode puis à ouvrir la bonne suite, sans copier de code.</li>
+<li><b>Risqué</b> : une soixantaine de références propres à chaque mode dans `data/metiers.js` et une vingtaine dans `js/app.js` (drapeaux `_origineReformuler`, `modeCreation` = 'maj', barres d'étapes, intros, reprise, disquette). La page « Préparer » de Reformuler a un bloc de plus (« Votre objectif ») : il passe en première page de la voie. La remise à zéro actuelle du dossier quand on change de parcours est à adoucir entre les deux voies.</li>
+<li><b>Coût de re-test</b> : tous les parcours « Mes documents » (Créer, Mettre à jour, Reformuler, Préparer lettre et entretien) à rejouer ; les parcours automatiques existent pour Reformuler, pas pour Mettre à jour.</li>
+<li><b>Bloquant</b> : aucun. La troisième voie dépend d'un chantier à part (E4).</li>
+</ul>
+</div>
+
+<div class="questions">
+<h2>Questions pour Denis</h2>
+<ol>
+<li><b>Une seule tuile ou garder les deux tuiles et ajouter le choix</b> : une seule (<b>recommandé</b> ; bénéfice : un seul dépôt, plus clair pour le public ; risque : les habitués cherchent « Mettre à jour » : le nom de la voie le reprend) ou deux tuiles qui mènent au même dépôt (bénéfice : aucun changement à l'accueil ; risque : le doublon que tu veux supprimer reste).</li>
+<li><b>Nom de la tuile</b> : « Reprendre mon CV » (<b>recommandé</b>) ou « J'ai déjà un CV » (déjà utilisé pour le parcours « Préparer ma lettre et mon entretien » : risque de confusion).</li>
+<li><b>Troisième voie</b> : montrée « bientôt » et non cliquable (<b>recommandé</b> ; bénéfice : annonce la suite ; risque : une carte qui ne marche pas encore, à expliquer) ou cachée jusqu'à E4 (bénéfice : rien de faux ; risque : la fusion semble incomplète).</li>
+<li><b>Changer de voie après un début de travail</b> : l'application demande « Garder ce que vous avez fait ? » (<b>recommandé</b> ; bénéfice : jamais de perte silencieuse ; risque : une question de plus) ou repart toujours de zéro comme aujourd'hui (bénéfice : plus simple ; risque : perte de travail).</li>
+<li><b>Ordre de travail proposé</b> : (1) entrée unique et dépôt commun avec les deux premières voies, tests, (2) adoucir l'effacement entre voies, (3) troisième voie quand E4 existe. Un commit par étape. Effort haut pour 1.</li>
+</ol>
+</div>
+</div>
+
+<div class="barre"><div class="in">
+  <button class="nav" type="button" id="bRetour">&larr; Retour</button>
+  <button class="nav" type="button">Accueil</button>
+  <span style="flex:1"></span>
+  <p class="raison" id="raison"></p>
+  <button class="nav suivant" type="button" id="bSuivant" disabled>Continuer &rarr;</button>
+</div></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var etat = { ec: 'accueil', depose: false, voie: '' };
+  var ORDRE = ['accueil', 'depot', 'voies', 'suite'];
+  function montrer(ec) {
+    etat.ec = ec;
+    Array.prototype.forEach.call(document.querySelectorAll('.ec'), function (e) { e.classList.toggle('vu', e.id === 'ec-' + ec); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ec]'), function (b) { b.classList.toggle('actif', b.getAttribute('data-ec') === ec); });
+    maj();
+  }
+  function maj() {
+    var raison = '';
+    if (etat.ec === 'depot' && !etat.depose) { raison = 'Il reste à déposer votre CV.'; }
+    if (etat.ec === 'voies' && !etat.voie) { raison = 'Il reste à choisir une voie.'; }
+    $('raison').textContent = raison ? '⚠️ ' + raison : '';
+    $('bSuivant').disabled = !!raison || etat.ec === 'suite';
+    $('bSuivant').textContent = etat.ec === 'accueil' ? 'Reprendre mon CV →' : (etat.ec === 'voies' ? 'Continuer avec cette voie →' : 'Continuer →');
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ec]'), function (b) { b.addEventListener('click', function () { montrer(b.getAttribute('data-ec')); }); });
+  $('bSuivant').addEventListener('click', function () { var i = ORDRE.indexOf(etat.ec); if (i < ORDRE.length - 1) { montrer(ORDRE[i + 1]); } });
+  $('bRetour').addEventListener('click', function () { var i = ORDRE.indexOf(etat.ec); if (i > 0) { montrer(ORDRE[i - 1]); } });
+  $('bDepose').addEventListener('click', function () { etat.depose = true; $('relu').style.display = ''; maj(); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-voie]'), function (b) {
+    b.addEventListener('click', function () {
+      var v = b.getAttribute('data-voie');
+      if (v === 'sans') { var c = $('choisie'); c.style.display = ''; c.textContent = 'Cette voie arrive avec le chantier « CV sans assistant » : elle n’est pas encore disponible.'; return; }
+      etat.voie = v;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-voie]'), function (x) { x.classList.toggle('actif', x === b); });
+      var c2 = $('choisie'); c2.style.display = ''; c2.textContent = v === 'maj' ? 'Voie choisie : le garder et le compléter. Suite : assistant (extraction), correction champ par champ, vos documents.' : 'Voie choisie : le reformuler et le présenter. Suite : pourquoi ce CV, assistant, vérification, mise en forme.';
+      maj();
+    });
+  });
+  $('tAnn').addEventListener('change', function () { document.body.classList.toggle('ann', $('tAnn').checked); });
+  $('tSombre').addEventListener('change', function () { document.documentElement.setAttribute('data-theme', $('tSombre').checked ? 'sombre' : ''); });
+  maj();
+})();
+</script>
+</body>
+</html>

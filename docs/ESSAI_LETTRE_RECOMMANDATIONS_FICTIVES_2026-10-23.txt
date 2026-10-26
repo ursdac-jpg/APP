@@ -1,0 +1,26 @@
+LETTRES DE RECOMMANDATION FICTIVES POUR L'ESSAI (23 octobre 2026)
+
+Ces deux textes sont INVENTÉS pour tester le prompt : ils ne correspondent à aucune vraie personne. Ils sont écrits comme la personne les déposerait après relecture et masquage (nom et coordonnées de l'auteur retirés). Ils restent cohérents avec le CV d'essai (agent technique chez SODITELEM en 2021, BTS Maintenance des systèmes, bac professionnel Électricien).
+
+Pour essayer : coller UN de ces blocs (ou les deux) tout en bas du message d'essai, après le CV. Le prompt d'essai ne dit rien sur les recommandations tant qu'aucun bloc n'est présent.
+
+======================================================================
+BLOC 1 : de la part d'un ancien employeur
+
+LETTRE DE RECOMMANDATION (relue et masquée par la personne), de la part de : un ancien employeur
+Je soussigné, responsable de l'agence de distribution de solutions électriques pour les professionnels où le candidat a travaillé comme agent technique en 2021, souhaite recommander son travail. Pendant sa mission, il a manipulé et contrôlé le matériel reçu en respectant scrupuleusement les consignes de sécurité. Un jour, lors d'un contrôle de livraison, il a repéré des disjoncteurs mal référencés et nous les a signalés avant la mise en rayon : cette vigilance a évité une erreur de commande chez un client. Ponctuel, calme et organisé, il est devenu autonome sur les contrôles courants au bout de deux semaines. Il s'intéresse beaucoup aux évolutions des équipements et pose les bonnes questions. Il a aussi pris plaisir à renseigner les clients au comptoir. Je le recommande sans réserve pour un poste technique.
+
+======================================================================
+BLOC 2 : de la part d'un formateur
+
+LETTRE DE RECOMMANDATION (relue et masquée par la personne), de la part de : un formateur
+J'ai eu le candidat en formation en maintenance des systèmes en 2018-2019. Assidu et méthodique, il abordait chaque panne sur banc d'essai avec une démarche claire : observer, mesurer, isoler, puis vérifier le résultat. Il aidait volontiers ses camarades en travaux pratiques et respectait toujours les règles de sécurité de l'atelier. Sa curiosité pour les systèmes numériques l'a souvent conduit à aller chercher des documentations techniques en anglais. Je le recommande pour tout poste de maintenance où l'on attend de la rigueur et l'envie d'apprendre.
+
+======================================================================
+CE QUE L'ESSAI DOIT MONTRER (à observer)
+
+1. Les suggestions de la question « compétences » et de la question « exemple concret » contiennent au moins une proposition marquée « (mentionné dans votre lettre de recommandation) ».
+2. Avec le bloc 1, l'exemple concret proposé est le détail réel (contrôle de livraison, disjoncteurs mal référencés signalés avant la mise en rayon, autonomie en deux semaines). Avec le bloc 2, la démarche de diagnostic (observer, mesurer, isoler, vérifier) et la documentation technique en anglais.
+3. La lettre n'est jamais une citation : mots de la personne, aucun nom, aucune phrase recopiée ; elle ne dit pas « mon employeur m'a recommandé » sauf si la personne le demande.
+4. Les faits de la recommandation ne sont jamais présentés comme acquis sans que la personne les ait choisis.
+5. Si la personne répond « Je préfère ne pas donner d'exemple précis » : une alternative numérotée est proposée (attente, qualité mise en pratique ailleurs, ce que la formation a appris, ce qu'elle veut découvrir), et le paragraphe du parcours n'est jamais laissé sans appui.

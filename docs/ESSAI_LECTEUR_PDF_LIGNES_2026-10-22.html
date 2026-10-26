@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<!--
+  ESSAI JETABLE (22/10/2026) : lecteur de PDF qui GARDE LES LIGNES, pour le chantier « Mettre mon CV en page, sans rien changer ».
+  Chantier : docs/CHANTIER_CV_SANS_ASSISTANT_2026-10-22.md, section 4bis (la lecture actuelle, lireFichierCV dans data/metiers.js, recolle tout en UNE ligne).
+  Statut : essai, rien n'est livré, rien de l'application n'est modifié. Le fichier lu reste sur l'appareil (seule la bibliothèque pdf.js est chargée depuis internet, comme dans l'application).
+  Ouverture : http://localhost:8123/docs/ESSAI_LECTEUR_PDF_LIGNES_2026-10-22.html
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essai - lecteur de PDF par lignes</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { background: var(--bg-page); }
+  .es-page { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  .es-sortie { white-space: pre-wrap; font: .82rem/1.35 Consolas, monospace; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: .6rem; padding: .7rem .9rem; max-height: 60vh; overflow: auto; color: var(--text-strong); }
+  .es-ligne { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: .5rem 0; }
+</style>
+</head>
+<body>
+<div class="es-page">
+  <h1 class="h4">Essai jetable : lire un PDF en gardant les lignes</h1>
+  <p class="small text-muted">Aujourd'hui l'application recolle tout le texte d'un PDF en une seule ligne. Ici on regroupe les morceaux de texte par hauteur sur la page, et, si le CV a deux colonnes, on lit une colonne après l'autre. Choisissez un PDF d'exemple ou déposez le vôtre : il est lu sur votre appareil.</p>
+  <div class="es-ligne">
+    <select id="esExemple" class="form-select form-select-sm" style="max-width:380px"></select>
+    <button type="button" class="btn btn-sm btn-primary" id="esLire">Lire l'exemple</button>
+    <span class="small text-muted">ou</span>
+    <input type="file" id="esFichier" accept=".pdf" class="form-control form-control-sm" style="max-width:300px">
+  </div>
+  <p id="esBilan" class="small fw-bold"></p>
+  <div class="row g-2">
+    <div class="col-md-6"><div class="small fw-bold mb-1">Lecture actuelle de l'application</div><div id="esAvant" class="es-sortie"></div></div>
+    <div class="col-md-6"><div class="small fw-bold mb-1">Nouvelle lecture par lignes</div><div id="esApres" class="es-sortie"></div></div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var EXEMPLES = ['impression_1_mqBandeau', 'impression_2_colonneBandeau', 'impression_3_sobreEpure', 'word_creatif_colonneFoncee', 'word_creatif_sidebarVague', 'impr_B_equerre', 'wc_colonneBeige', 'word_grille'];
+  var sel = document.getElementById('esExemple');
+  EXEMPLES.forEach(function (n) { var o = document.createElement('option'); o.value = '../scripts/rendu/sortie/' + n + '.pdf'; o.textContent = n; sel.appendChild(o); });
+
+  function charger() {
+    if (window.pdfjsLib) { return Promise.resolve(); }
+    return new Promise(function (ok, ko) {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = function () { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(); };
+      s.onerror = function () { ko(new Error('pdf.js introuvable (internet ?)')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ---------- Le lecteur par lignes (candidat pour modules/cv-sans-assistant/) ---------- */
+  function lignesDepuisItems(items) {
+    var tri = items.slice().sort(function (a, b) { return (b.y - a.y) || (a.x - b.x); });
+    var lignes = [];
+    tri.forEach(function (it) {
+      var tol = Math.max(2, 0.45 * it.h), l = null;
+      for (var k = lignes.length - 1; k >= 0 && k >= lignes.length - 4; k--) { if (Math.abs(lignes[k].y - it.y) <= tol) { l = lignes[k]; break; } }
+      if (!l) { l = { y: it.y, items: [] }; lignes.push(l); }
+      l.items.push(it);
+    });
+    return lignes.map(function (l) {
+      var its = l.items.sort(function (a, b) { return a.x - b.x; }), t = '', fin = null;
+      its.forEach(function (it) {
+        var ecart = fin === null ? 0 : it.x - fin;
+        t += (fin !== null ? (ecart > 1.2 * it.h ? '	' : (ecart > 0.18 * it.h && !/\s$/.test(t) && !/^\s/.test(it.s) ? ' ' : '')) : '') + it.s;
+        fin = it.x + it.w;
+      });
+      t = t.replace(/[  ]+/g, ' ').replace(/ ?	 ?/g, '	').replace(/	+/g, '	').trim();
+      /* « C O M P É T E N C E S » (lettres espacées) : on recolle les lettres isolées. */
+      if (/^(?:\S ){3,}\S(?: \S)*$/.test(t.replace(/	/g, ' ')) && t.replace(/[\s	]/g, '').length >= 4) { t = t.replace(/	/g, ' ').replace(/(\S) (?=\S)/g, '$1'); }
+      return { y: l.y, texte: t };
+    }).filter(function (l) { return l.texte; });
+  }
+  /* Deux vraies colonnes occupent à peu près la même hauteur de page ; une petite grille au milieu d'un CV d'une colonne, non. */
+  function etendueSimilaire(items, xDebut, g, xFin) {
+    function etendue(liste) { if (!liste.length) { return 0; } var ys = liste.map(function (i) { return i.y; }); return Math.max.apply(null, ys) - Math.min.apply(null, ys); }
+    var e1 = etendue(items.filter(function (i) { return i.x >= xDebut && i.x + i.w <= g; })), e2 = etendue(items.filter(function (i) { return i.x >= g && i.x + i.w <= xFin; }));
+    return Math.max(e1, e2) > 0 && Math.min(e1, e2) / Math.max(e1, e2) >= 0.45;
+  }
+  /* Les gouttières = les bandes verticales presque vides entre deux colonnes (il peut y en avoir plusieurs). */
+  function trouverGouttieres(items, largeur) {
+    var etroits = items.filter(function (i) { return i.w < 0.6 * largeur && i.s.trim(); });
+    if (etroits.length < 20) { return []; }
+    var compte = [], n = Math.ceil(largeur) + 2, k;
+    for (k = 0; k < n; k++) { compte.push(0); }
+    etroits.forEach(function (i) { for (var x = Math.max(0, Math.floor(i.x)); x <= Math.min(n - 1, Math.ceil(i.x + i.w)); x++) { compte[x]++; } });
+    var seuil = Math.max(3, Math.round(0.08 * etroits.length)), bandes = [], debut = null;
+    for (k = Math.floor(0.08 * largeur); k <= Math.ceil(0.92 * largeur); k++) {
+      if (compte[k] <= seuil) { if (debut === null) { debut = k; } }
+      else if (debut !== null) { if (k - debut >= 10) { bandes.push((debut + k) / 2); } debut = null; }
+    }
+    /* On ne garde une bande que s'il y a du texte de chaque côté (au moins 8 morceaux). */
+    return bandes.filter(function (g, idx) {
+      var avant = idx === 0 ? 0 : bandes[idx - 1];
+      var gauche = etroits.filter(function (i) { return i.x >= avant && i.x + i.w <= g; }).length;
+      var droite = etroits.filter(function (i) { return i.x >= g && (idx === bandes.length - 1 || i.x + i.w <= bandes[idx + 1]); }).length;
+      return gauche >= 8 && droite >= 8 && etendueSimilaire(etroits, avant, g, idx === bandes.length - 1 ? Infinity : bandes[idx + 1]);
+    });
+  }
+  /* Un même texte écrit plusieurs fois au même endroit (gras simulé, ombre) ne doit sortir qu'une fois. */
+  function sansSuperposition(items) {
+    var vus = [];
+    return items.filter(function (i) {
+      var doublon = vus.some(function (v) { return v.s === i.s && Math.abs(v.x - i.x) <= 2.5 && Math.abs(v.y - i.y) <= 2.5; });
+      if (!doublon) { vus.push(i); }
+      return !doublon;
+    });
+  }
+  var RE_ANNEE = /(?:19|20)\d{2}/;
+  function lirePageEnLignes(items, largeur) {
+    items = sansSuperposition(items);
+    var gs = trouverGouttieres(items, largeur);
+    if (!gs.length) { return { lignes: lignesDepuisItems(items).map(function (l) { return l.texte; }), colonnes: 1 }; }
+    var bandeau = [], cols = [];
+    gs.concat([Infinity]).forEach(function () { cols.push([]); });
+    var enHaut = items.filter(function (i) { return !gs.some(function (g) { return i.x < g && i.x + i.w > g + 1; }); }).reduce(function (m, i) { return Math.max(m, i.y); }, 0);
+    items.forEach(function (i) {
+      /* Un morceau qui enjambe une gouttière n'est une ligne « d'en-tête » que s'il est tout en haut, au-dessus du texte des colonnes ; sinon il reste dans sa colonne. */
+      var coupe = gs.some(function (g) { return i.x < g && i.x + i.w > g + 1; });
+      if (coupe && i.y >= enHaut - 2) { bandeau.push(i); return; }
+      var c = 0; while (c < gs.length && i.x + i.w / 2 > gs[c]) { c++; }
+      cols[c].push(i);
+    });
+    /* Une colonne dont presque chaque morceau est sur la même ligne qu'un morceau de sa voisine de gauche (dates rangées à droite des postes,
+       cases d'une grille) n'est pas une vraie colonne : on la recolle ligne par ligne. */
+    var fusion = 0;
+    for (var c = cols.length - 1; c >= 1; c--) {
+      if (!cols[c].length || !cols[c - 1].length) { continue; }
+      var alignes = cols[c].filter(function (i) {
+        return cols[c - 1].some(function (j) { return Math.abs(j.y - i.y) <= Math.max(2, 0.45 * i.h); });
+      }).length;
+      if (alignes >= 0.6 * cols[c].length) { cols[c - 1] = cols[c - 1].concat(cols[c]); cols[c] = []; fusion++; }
+    }
+    var sortie = lignesDepuisItems(bandeau);
+    cols.forEach(function (col) { sortie = sortie.concat(lignesDepuisItems(col)); });
+    return { lignes: sortie.map(function (l) { return l.texte; }), colonnes: cols.filter(function (c) { return c.length; }).length, gouttieres: gs.map(Math.round), datesRecollees: fusion };
+  }
+  function lirePdfEnLignes(donnees) {
+    return window.pdfjsLib.getDocument({ data: donnees }).promise.then(function (pdf) {
+      var pages = []; for (var p = 1; p <= pdf.numPages; p++) { pages.push(p); }
+      return Promise.all(pages.map(function (num) {
+        return pdf.getPage(num).then(function (page) {
+          var largeur = page.view[2] - page.view[0];
+          return page.getTextContent().then(function (c) {
+            var items = c.items.map(function (i) { return { s: i.str, x: i.transform[4], y: i.transform[5], w: i.width, h: Math.abs(i.height || i.transform[3] || 10) }; }).filter(function (i) { return i.s !== ''; });
+            var r = lirePageEnLignes(items, largeur); r.nbItems = items.length; r.avant = items.map(function (i) { return i.str; });
+            return r;
+          });
+        });
+      }));
+    });
+  }
+  window.essaiLecteur = { lirePdfEnLignes: lirePdfEnLignes, charger: charger };
+
+  function afficher(donnees, nom) {
+    return charger().then(function () {
+      return Promise.all([
+        window.pdfjsLib.getDocument({ data: donnees.slice(0) }).promise.then(function (pdf) {
+          var ps = []; for (var p = 1; p <= pdf.numPages; p++) { ps.push(p); }
+          return Promise.all(ps.map(function (n) { return pdf.getPage(n).then(function (pg) { return pg.getTextContent(); }).then(function (c) { return c.items.map(function (i) { return i.str; }).join(' '); }); })).then(function (t) { return t.join(' '); });
+        }),
+        lirePdfEnLignes(donnees.slice(0))
+      ]);
+    }).then(function (res) {
+      var avant = res[0], pages = res[1], lignes = [];
+      pages.forEach(function (p) { lignes = lignes.concat(p.lignes); });
+      document.getElementById('esAvant').textContent = avant;
+      document.getElementById('esApres').textContent = lignes.map(function (l, k) { return (k + 1 < 10 ? ' ' : '') + (k + 1) + ' | ' + l; }).join('\n');
+      document.getElementById('esBilan').textContent = nom + ' : ' + pages.length + ' page(s), ' + pages.map(function (p) { return p.colonnes + ' colonne(s)' + (p.gouttieres && p.gouttieres.length ? ' (gouttières x=' + p.gouttieres.join(', ') + (p.datesRecollees ? ', dates recollées' : '') + ')' : ''); }).join(' ; ') + ', ' + lignes.length + ' lignes (la lecture actuelle en donne 1).';
+    }).catch(function (e) { document.getElementById('esBilan').textContent = 'Erreur : ' + e.message; });
+  }
+  document.getElementById('esLire').addEventListener('click', function () {
+    fetch(sel.value).then(function (r) { return r.arrayBuffer(); }).then(function (b) { return afficher(b, sel.options[sel.selectedIndex].textContent); });
+  });
+  document.getElementById('esFichier').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) { return; }
+    f.arrayBuffer().then(function (b) { return afficher(b, f.name); });
+  });
+})();
+</script>
+</body>
+</html>

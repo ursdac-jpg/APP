@@ -11,10 +11,17 @@ function genererBlocsTexteLettre(objetLettre) {
   var identite = objetLettre.identite || {};
   var lignes = [];
   lignes.push((identite.prenom || '') + ' ' + (identite.nom || ''));
-  if (identite.adresse) { lignes.push(identite.adresse); }
-  if (identite.ville) { lignes.push(identite.ville); }
+  // Comme le Word : la rue seulement si la personne l'a choisie, code postal et ville toujours (destinataireLettreCo.js).
+  var rueTexte = (typeof ligneRueLettreCo === 'function') ? ligneRueLettreCo(identite, objetLettre.inclureRue) : '';
+  var villeTexte = (typeof ligneCodePostalVilleLettreCo === 'function') ? ligneCodePostalVilleLettreCo(identite) : (identite.ville || '');
+  if (rueTexte) { lignes.push(rueTexte); }
+  if (villeTexte) { lignes.push(villeTexte); }
   if (identite.telephone) { lignes.push(identite.telephone); }
   if (identite.email) { lignes.push(identite.email); }
+  if (objetLettre.destinataire && objetLettre.destinataire.lignes && objetLettre.destinataire.lignes.length) {
+    lignes.push('');
+    objetLettre.destinataire.lignes.forEach(function (l) { lignes.push(l); });
+  }
   lignes.push('');
   lignes.push(objetLettre.date || '');
   lignes.push('');
@@ -35,7 +42,7 @@ function genererBlocsTexteEntretien(objetEntretien) {
     lignes.push('Poste visé : ' + objetEntretien.metierVise + (objetEntretien.entreprise ? ' - ' + objetEntretien.entreprise : ''));
   }
 
-  if (objetEntretien.presentation) { titre('Ma présentation'); lignes.push(objetEntretien.presentation); }
+  if (objetEntretien.presentation) { titre('Pour me présenter'); lignes.push(objetEntretien.presentation); }
 
   var points = (objetEntretien.pointsAPreparer || []).filter(Boolean);
   if (points.length) { titre('Points à préparer'); points.forEach(puce); }

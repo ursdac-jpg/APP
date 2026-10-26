@@ -14,6 +14,8 @@
        (/api/sas/controle/...) LIT en plus le texte des pages (500 Ko au plus, redirections verifiees une a une, jamais de site prive ou local), a partir des
        adresses ECRITES dans outils/sas/employeurs.sas.txt (la fenetre n'envoie que des identifiants) ; son seul fichier ecrit est outils/controles/sas_employeurs.json
        (dernier resultat, chemin fixe, ignore par Git) ;
+     - lecture d'UN dossier hors depot : le pont depuis l'outil de prospection (/api/pont/...) lit, en LECTURE SEULE, trois fichiers de noms fixes dans le dossier voisin
+       PROSPECTION/donnees/pont (chemin fixe calcule a partir du depot, 1 Mo au plus, aucun autre fichier de PROSPECTION, rien n'est ecrit ni supprime) ;
      - il N'ECRIT RIEN LUI-MEME et ne construit aucune commande a partir d'une requete : l'ecriture, les verifications et Git sont dans
        veilleDepot.js (« Publier ») et veilleEnvoi.js (lots pour GitHub), sur des listes fermees de destinations. JAMAIS DE PUSH.
    ============================================================ */
@@ -99,6 +101,9 @@ function creerServeur(options) {
       case '/api/territoire/controler': return repondreResultat(res, depot.controlerTerritoire(donnees && donnees.fichier));
       case '/api/sas/analyser': return repondreResultat(res, depot.analyserLot(donnees && donnees.fichier, donnees && donnees.texte));
       case '/api/sas/lister': return repondreResultat(res, depot.listerSas(donnees && donnees.fichier));
+      // Le pont depuis l'outil de prospection : lecture seule d'un fichier a chemin fixe (veillePont.js), sans les lignes que la veille connait deja.
+      case '/api/pont/etat': return repondreResultat(res, depot.etatPont());
+      case '/api/pont/lire': return repondreResultat(res, depot.lirePont(donnees && donnees.fichier));
       // Contrôle automatique des cartes du sas des employeurs : la fenêtre n'envoie que des identifiants de cartes ; les adresses viennent des fichiers du sas.
       case '/api/sas/controle/demarrer': return repondreResultat(res, controleSas.demarrer(Object.assign({}, donnees, { genre: 'sas' })));
       case '/api/sas/controle/etat': return repondreResultat(res, controleSas.etat(Object.assign({}, donnees, { genre: 'sas' })));
@@ -108,6 +113,16 @@ function creerServeur(options) {
       // Magasins officiels d'une enseigne (fichier local ecrit par Claude apres lecture des pages officielles) : lecture seule, rien n'est ecrit.
       case '/api/sas/officiels': return repondreResultat(res, opt.officiels ? opt.officiels() : veilleOfficiels.lire(racine));
       case '/api/fiches/lister': return repondreResultat(res, depot.listerFiches());
+      // Le Lexique (data/lexique.js lu comme du texte) : la liste des mots, et les controles d'un mot pendant la saisie. Lecture seule : l'ecriture passe par /api/publier.
+      case '/api/lexique/lister': return repondreResultat(res, depot.listerMots());
+      case '/api/lexique/verifier': return repondreResultat(res, depot.verifierMotLexique(donnees));
+      case '/api/lexique/liste': return repondreResultat(res, depot.listerListe());
+      case '/api/lexique/idees': return repondreResultat(res, depot.idees());
+      case '/api/lexique/chercher': return repondreResultat(res, depot.chercherMot(donnees));
+      case '/api/lexique/verification-prompt': return repondreResultat(res, depot.promptVerificationChiffres(donnees));
+      case '/api/lexique/verification-lire': return repondreResultat(res, depot.lireVerificationChiffres(donnees));
+      case '/api/lexique/recherches': return repondreResultat(res, depot.recherchesSansResultat(donnees));
+      case '/api/lexique/proposer': return repondreResultat(res, depot.proposerMot(donnees));
       case '/api/fiches/historique': return repondreResultat(res, depot.listerHistorique());
       case '/api/chiffres/lister': return repondreResultat(res, depot.listerChiffres());
       case '/api/chiffres/verifier': return repondreResultat(res, depot.verifierChiffres(donnees && donnees.fichier, donnees && donnees.demande));
@@ -128,7 +143,7 @@ function creerServeur(options) {
       case '/api/github/config': return repondreResultat(res, github.ecrireConfig(donnees));
       case '/api/github/tester': return repondreResultat(res, github.tester());
       case '/api/github/comparer': return repondreResultat(res, github.comparer(donnees && donnees.groupes));
-      case '/api/github/envoyer': return repondreResultat(res, github.envoyer(donnees && donnees.groupes, donnees && donnees.message));
+      case '/api/github/envoyer': return repondreResultat(res, github.envoyer(donnees && donnees.groupes, donnees && donnees.message, !!(donnees && donnees.confirmerTerritoire)));
       default: return json(res, 404, { ok: false, erreur: 'Introuvable.' });
     }
   }

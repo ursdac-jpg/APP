@@ -2613,6 +2613,60 @@ var LEXIQUE_FICHES = [
     ]
   },
 
+  // -- Famille : Comment lire les chiffres de créations, de radiations et de
+  //    défaillances d'entreprises (chantier docs/CHANTIER_REPERES_ENTREPRISES_TERRITOIRE_2026-10-18.md,
+  //    2026-10-19). Des mots qui reviennent dans l'actualité économique, expliqués
+  //    sans aucun chiffre daté (les chiffres vivent dans « Comprendre les chiffres »).
+  //    Textes proposés par Claude, à relire par Denis et à vérifier sur les sources
+  //    officielles (Insee, Banque de France, BODACC, service-public.gouv.fr). --
+
+  {
+    id: 'creations-entreprises-micro-entrepreneurs', titre: "Créations d'entreprises et micro-entrepreneurs", titreDeTri: 'Creations d entreprises et micro entrepreneurs',
+    type: 'notion', gabarit: 'decryptage', univers: 'entrepreneuriat-independance', registres: ['langage-administratif'],
+    variantesRecherche: ['nombre de créations d\'entreprises', 'beaucoup de créations d\'entreprises', 'micro-entrepreneurs et statistiques', 'créations d\'emplois ou d\'entreprises'],
+    corps: "Quand on annonce un nombre de créations d'entreprises, ce nombre compte aussi les micro-entrepreneurs : des personnes qui se mettent à leur compte, souvent seules, parfois en complément d'un autre travail. Beaucoup de créations ne veut donc pas dire beaucoup d'emplois nouveaux : une création peut être une personne qui s'est créé son propre emploi, ou une activité d'appoint. L'Insee publie ces chiffres et les compare à la même période un an plus tôt, ce qui permet de voir si le mouvement s'accélère ou ralentit.",
+    relations: [
+      { ficheId: 'auto-entrepreneur', type: 'voir-aussi' },
+      { ficheId: 'entreprise-individuelle-ou-societe', type: 'voir-aussi' },
+      { ficheId: 'siren-ou-siret', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'radiation-d-office-entreprise', titre: "Radiation d'office d'une entreprise", titreDeTri: 'Radiation d office d une entreprise',
+    type: 'terme', univers: 'entrepreneuriat-independance', registres: ['langage-administratif', 'langage-juridique'],
+    variantesRecherche: ['entreprise radiée', 'radiée du registre du commerce', 'radiation greffe', 'entreprise radiée d\'office'],
+    corps: "Une entreprise peut être retirée du registre du commerce sur décision du greffe, sans que son dirigeant l'ait demandé : c'est une radiation d'office. Elle peut notamment intervenir après la clôture d'une liquidation. Dans les annonces légales, la mention peut figurer, mais tous les greffes ne la publient pas de la même façon. Une radiation d'office ne dit pas à quel moment l'activité s'est arrêtée, et ce n'est pas forcément une fermeture récente. Ces annonces peuvent être publiées par lots, ce qui fait monter fortement le total d'un mois sans que davantage d'entreprises aient fermé ce mois-là.",
+    relations: [
+      { ficheId: 'radiation', type: 'a-ne-pas-confondre' },
+      { ficheId: 'defaillance-entreprise', type: 'voir-aussi' },
+      { ficheId: 'siren-ou-siret', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'defaillance-entreprise', titre: "Défaillance d'entreprise", titreDeTri: 'Defaillance d entreprise',
+    type: 'terme', univers: 'entrepreneuriat-independance', registres: ['langage-administratif', 'langage-juridique'],
+    variantesRecherche: ['faillite', 'entreprise en difficulté', 'liquidation judiciaire', 'redressement judiciaire'],
+    corps: "En statistique, une entreprise est dite défaillante quand elle ne peut plus payer ses dettes avec ce qu'elle possède. Elle est comptée le jour où un tribunal ouvre un redressement judiciaire (pour tenter de continuer l'activité) ou une liquidation judiciaire (pour y mettre fin). Le total sur douze mois est la référence : un niveau très bas ou très haut sur une année peut avoir des causes générales, comme des tribunaux fermés ou des aides exceptionnelles. Dans les annonces légales, une même procédure produit plusieurs annonces : compter les annonces n'est pas compter les entreprises.",
+    voirAussiChiffres: "Voir les ouvertures de procédures de votre département",
+    relations: [
+      { ficheId: 'radiation-d-office-entreprise', type: 'voir-aussi' },
+      { ficheId: 'vente-fonds-de-commerce', type: 'voir-aussi' },
+      { ficheId: 'siren-ou-siret', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'vente-fonds-de-commerce', titre: "Vente d'un fonds de commerce", titreDeTri: 'Vente d un fonds de commerce',
+    type: 'terme', univers: 'entrepreneuriat-independance', registres: ['langage-administratif', 'langage-juridique'],
+    variantesRecherche: ['vendre un commerce', 'reprise d\'un commerce', 'cession de commerce', 'changement de propriétaire d\'un commerce'],
+    corps: "Quand un commerçant ou un artisan vend son activité (des éléments comme la clientèle, l'enseigne, le matériel et le droit au bail), on parle de vente de fonds de commerce. La vente est annoncée publiquement. Une annonce de vente montre que l'activité change de propriétaire. Elle ne dit pas pourquoi la personne vend, ni ce que deviennent les salariés : ce n'est ni une bonne ni une mauvaise nouvelle en soi.",
+    voirAussiChiffres: "Voir les annonces d'achat de fonds de commerce de votre département",
+    relations: [
+      { ficheId: 'defaillance-entreprise', type: 'voir-aussi' },
+      { ficheId: 'auto-entrepreneur', type: 'voir-aussi' },
+      { ficheId: 'guichet-unique-entreprises', type: 'voir-aussi' }
+    ]
+  },
+
   // -- Famille : Créer son activité (lot 5, chantier d'élargissement 2026-09-08).
   //    Le principe de chaque statut et de chaque appui, jamais les seuils fiscaux
   //    ni les taux (fiches datées de « Comprendre le cadre »). --
@@ -4348,6 +4402,16 @@ var LEXIQUE_COLLECTIONS = [
       'demandeur-emploi-longue-duree', 'besoins-en-main-d-oeuvre', 'metier-en-tension',
       'metier-en-tension-ou-metier-qui-recrute', 'neet', 'zone-d-emploi', 'bassin-emploi',
       'economie-presentielle'
+    ]
+  },
+  {
+    id: 'collection-lire-les-chiffres-entreprises',
+    titre: "Comment lire les chiffres de créations, de radiations et de défaillances d'entreprises",
+    icone: '🏪',
+    mode: 'collection',
+    fichesOrdonnees: [
+      'creations-entreprises-micro-entrepreneurs', 'radiation-d-office-entreprise', 'defaillance-entreprise',
+      'vente-fonds-de-commerce', 'auto-entrepreneur'
     ]
   },
   {

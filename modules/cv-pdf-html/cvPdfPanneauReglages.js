@@ -52,7 +52,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
   // autre modele" (tirage aleatoire existant, _pdfProposerAutreModeleCreatif),
   // jamais retires du code.
   // TACHE (Denis, 2026-09-25, tranche 2) : TOUS les modeles (maquette + application) ont leur bouton cache.
-  var _PDF_GALERIE_CREATIF_IDS = ['mqBandeau', 'mqDiagonale', 'mqColonne', 'mqCadre', 'mqPicto', 'frise', 'photoFrise', 'rectangles', 'sidebarVague', 'colonneFoncee', 'colonneClaire', 'colonneBandeau', 'colonneRuban', 'chronoFonce', 'friseFoncee', 'rubanDiagonal', 'duoOvale', 'cadreBarre', 'pastille', 'bandeauVertical', 'triangleSavoir', 'vagueMarine', 'diagonalesContrastees', 'losangeVert', 'medaillon'];
+  var _PDF_GALERIE_CREATIF_IDS = ['mqBandeau', 'mqDiagonale', 'mqColonne', 'mqCadre', 'mqPicto', 'frise', 'photoFrise', 'rectangles', 'sidebarVague', 'colonneFoncee', 'colonneClaire', 'colonneBandeau', 'colonneRuban', 'chronoFonce', 'friseFoncee', 'rubanDiagonal', 'bandeauxNoirs', 'duoOvale', 'cadreBarre', 'pastille', 'bandeauVertical', 'triangleSavoir', 'vagueMarine', 'diagonalesContrastees', 'losangeVert', 'medaillon'];
   return '<!DOCTYPE html>' +
 // Le titre de la page devient le nom propose a l'enregistrement en PDF : « NOM_poste » (retour Denis 2026-10-01, cv-core/identiteFormat.js).
 '<html lang="fr"><head><meta charset="UTF-8"><title>' + _pdfEscaperHtml((typeof nomFichierCV === 'function') ? nomFichierCV(dossierSource) : ('CV design (PDF) - ' + nomComplet)) + '</title>' +
@@ -411,7 +411,7 @@ function construirePageInteractivePdfA4(nomComplet, dossierSource) {
 _PDF_GALERIE_CREATIF_IDS.map(function (id) {
   return '<button type="button" id="pdfChoisirCreatif_' + id + '" style="display:none" onclick="_pdfChoisirModeleCreatif(\'' + id + '\')"></button>';
 }).join('') +
-['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].map(function (v) {
+['mq-bandeau', 'mq-fond', 'mq-epure', 'mq-photo', 'mq-frise', 'mq-rectangles', 'mq-chrono', 'mq-editorial', 'mq-editorial-large', 'mq-cartes', 'mq-grille', 'mq-technique', 'mq-cartes-couleurs'].map(function (v) {
   return '<button type="button" id="pdfChoisirSobre_' + v + '" style="display:none" onclick="_pdfChoisirVarianteSobre(\'' + v + '\')"></button>';
 }).join('') +
 '</div>' +
@@ -554,9 +554,22 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '<div class="champ-reglage"><label>Largeur colonne gauche (<span id="valeurLargeurColonnes">35%</span>)</label><input type="range" id="regLargeurColonneGauche" min="30" max="70" step="5" value="35" style="width:100%;"></div>' +
 '<div class="champ-reglage"><label>Forme des colonnes</label><select id="regFormeColonnes"><option value="rectangle">Rectangle</option><option value="diagonale">Diagonale</option></select></div>' +
 // Bord de la colonne coloree des modeles Creatif a colonne pleine hauteur (case cochee = bord droit, decochee = bord vallonne). La recette du modele ecrit sa valeur de depart (champ colonneBordDroit) ; la personne la change depuis la carte Mise en page.
-'<div class="champ-reglage case"><input type="checkbox" id="regColonneBordDroit"><label for="regColonneBordDroit">Bord droit de la colonne colorée</label></div>' +
+'<div class="champ-reglage case"><input type="checkbox" id="regColonneBordDroit" checked><label for="regColonneBordDroit">Bord droit de la colonne colorée</label></div>' +
+// Haut de la colonne en arche (2026-10-20) : choix de la personne sous la vignette (tiroir « Colonne »), jamais d'office. Sans effet quand l'en-tete est un bandeau colore (il cache le haut de la colonne).
+'<div class="champ-reglage case"><input type="checkbox" id="regColonneArche"><label for="regColonneArche">Haut de la colonne en arche</label></div>' +
+// Onze formes de colonne de plus (2026-10-20) : vide = le bord choisi par la case ci-dessus (droit ou vallonne), ou l'arche ; sinon la forme nommee.
+'<div class="champ-reglage"><label>Forme de la colonne (en plus de droite, vallonnée et arche)</label><select id="regColonneForme"><option value="">Selon le bord choisi</option><option value="diagonale">Diagonale</option><option value="pointeBas">Pointe en bas</option><option value="coin">Coin coupé</option><option value="demiovale">Demi-ovale</option><option value="vague2">Double vague</option><option value="creneaux">Créneaux</option><option value="carte">Carte flottante</option><option value="pilule">Pilule</option><option value="contour">Contour rectangle</option><option value="contourRond">Contour arrondi</option><option value="filets">Double filet</option></select></div>' +
+// Sens de la forme du bandeau (0, 1 ou 2 selon la forme ; maquette docs/MAQUETTE_SENS_DES_FORMES_2026-10-20.html) et sens de la forme de la colonne.
+'<div class="champ-reglage"><label>Sens de la forme du bandeau</label><select id="regBordBandeauSens"><option value="0">Premier sens</option><option value="1">Deuxième sens</option><option value="2">Troisième sens</option></select></div>' +
+'<div class="champ-reglage"><label>Sens de la forme de la colonne</label><select id="regColonneSens"><option value="0">Premier sens</option><option value="1">Deuxième sens</option><option value="2">Troisième sens</option></select></div>' +
+// Texte a deux tons (2026-10-20, cvPdfTexteHors.js) : ce que devient le texte du bandeau quand il sort de la forme colorée (dessous = couleur du bandeau, fonce, gris, perso = la couleur ci-dessous, aucun = texte blanc partout).
+'<div class="champ-reglage"><label>Texte du bandeau qui sort de la couleur</label><select id="regTexteHors"><option value="dessous">Couleur du bandeau</option><option value="fonce">Foncé</option><option value="gris">Gris</option><option value="perso">Autre couleur</option><option value="aucun">Ne rien changer</option></select><input type="color" id="regTexteHorsPerso" value="#2f6690"></div>' +
+// Teinte du bandeau en mode Sobre : douce (teinte claire de la couleur du CV, d'office) ou pleine (la couleur du CV).
+'<div class="champ-reglage"><label>Teinte du bandeau (mode Sobre)</label><select id="regBandeauTeinte"><option value="douce">Douce</option><option value="pleine">Pleine</option></select></div>' +
+// Teinte de la colonne des modeles Sobre qui n'avaient jamais de fond de colonne (etape 4.4, 2026-10-21) : vide = comme le modele ; douce = teinte claire ; pleine = la couleur du CV.
+'<div class="champ-reglage"><label>Teinte de la colonne (mode Sobre)</label><select id="regColonneTeinte"><option value="">Comme le modèle</option><option value="douce">Douce</option><option value="pleine">Pleine</option></select></div>' +
 // Bord du bandeau d'en-tete des modeles Creatif a bandeau au choix (Bandeau entier, Duo ovale, Vague marine) : la recette du modele ecrit sa valeur de depart (champ bordBandeau).
-'<div class="champ-reglage"><label>Bord du bandeau</label><select id="regBordBandeau"><option value="droit">Droit</option><option value="arrondi">Arrondi</option><option value="vallonne">Vallonné</option></select></div>' +
+'<div class="champ-reglage"><label>Bord du bandeau</label><select id="regBordBandeau"><option value="" hidden>Origine</option><option value="droit">Droit</option><option value="arrondi">Arrondi</option><option value="vallonne">Vallonné</option><option value="pointe">En pointe</option><option value="diagonale">Diagonale</option><option value="diagonaleInv" hidden>Diagonale (autre sens)</option><option value="coin">Coin coupé</option><option value="demiovale">Demi-ovale</option><option value="vague2">Double vague</option><option value="creneaux">Créneaux</option><option value="carte">Carte flottante</option><option value="pilule">Pilule</option><option value="ruban">Ruban incliné</option><option value="rubanCourt">Ruban court</option><option value="contour">Contour rectangle</option><option value="contourRond">Contour arrondi</option><option value="filets">Deux filets</option></select></div>' +
 '</div>' +
 '</div>' +
 // Partage A4/A5 (colonnes toujours 2 en A5 -- reste pertinent) : jamais
@@ -1005,6 +1018,18 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 'var _cvPdfTraitVertical = true;' +
 // Coin colore (plan 2026-10-07) : eteint par defaut.
 'var _cvPdfCoinCouleur = false;' +
+// Formes decoratives transparentes (A2, 2026-10-20) : liste de 0 a 4 formes, posee sur la page APRES sa construction (cvPdfFormesDeco.js, cote parent) ; vide = la page n'est jamais modifiee.
+'var _cvPdfFormesDeco = [];' +
+// Composition de l'en-tete et des marges (cvPdfCompositions.js, cote parent) : un identifiant (equerre, plaque, diagonale...) ou vide = « comme aujourd'hui » ; posee APRES la construction de la page, avant les formes.
+'var _cvPdfComposition = "";' +
+'var _cvPdfCompositionTrait = "";' +
+// Croisement du bandeau et de la colonne (cvPdfCompositions.js) : { meme, devant, angle, lisere }, vide = rien de modifie ; seulement quand aucune composition n'est choisie.
+'var _cvPdfCroisement = {};' +
+// Decor ajoute par-dessus le modele (cvPdfCompositions.js) : { id, couleur }, vide = rien ; seulement quand aucune composition n'est choisie.
+'var _cvPdfDecor = {};' +
+'var _cvPdfEditionFormeDeco = null;' +
+// Epaisseur du bandeau reglee a la main sur l'apercu (poignee ronde, cvPdfPoigneesCv.js) : hauteur minimale en px, 0 = d'office ; remise a zero a chaque changement de modele.
+'var _cvPdfEnteteMin = 0;' +   // index de la forme en cours de reglage a la main (cadre sur l\'apercu), null sinon ; jamais gardee
 // LOT 3.5 : qualites attendues pour le poste visé (assistant) : COCHE par defaut ; decocher les retire du CV et de « Choisir ».
 'var _cvPdfQualitesMetierActives = true;' +
 // Cases « Afficher les competences professionnelles / comportementales » : cochees par defaut, decochees = rubrique retiree du CV.
@@ -1133,6 +1158,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // z-index fixe (b1=1, b2=2, b3=3, cvPdfTemplateMaquette.js) des qu'elle
 // clique "1er/2e/3e plan" en plein ecran.
 'var _cvPdfEnteteLibreMq = { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };' +
+'var _cvPdfVerifEnteteEnCours = false;' +
 // Disposition « decalee » (2026-10-07) : vrai des qu'elle a ete posee d'office sur ce CV neuf ; alors CHAQUE modele qui l'accepte et dont l'en-tete n'a pas encore
 // ete regle par la personne demarre avec elle (l'en-tete libre est memorise par modele, voir _cvPdfEnteteParModele).
 'var _cvPdfEnteteDecaleeAuto = false;' +
@@ -1234,7 +1260,8 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // s'y melange. Depuis le 2026-10-11 (decision de Denis) : un modele Creatif arrive TOUJOURS avec ses couleurs d'origine ; la personne reprend les siennes avec « Reprendre mes dernieres couleurs » ou la case « Garder mes couleurs » (carte d'ambiance). Seule la recette du Standard garde `respecteCouleur`.
 '  mqBandeau: { gabaritMaquette: "bandeau", bordBandeauChoix: true, bordBandeau: "droit", icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2", texteFondColonnes: "blanc" },' +
 '  mqDiagonale: { gabaritMaquette: "diagonale", icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2", texteFondColonnes: "blanc" },' +
-'  mqColonne: { gabaritMaquette: "colonne", icones: true, styleCompetences: "pastille", fondColonnes: "droite", colonnes: 2, coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2", texteFondColonnes: "blanc" },' +
+// Colonne (mqColonne) : depuis l'etape 4.2 sa colonne est dessinee pleine hauteur ; a 35 % elle couvrait 62 % de la feuille (plafond de 60 % du banc, regle de Denis : jamais toute la feuille coloree), d'ou 38 % (58 %).
+'  mqColonne: { gabaritMaquette: "colonne", bordBandeauChoix: true, bordBandeau: "droit", icones: true, styleCompetences: "pastille", fondColonnes: "droite", colonnes: 2, coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 38, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#2f6690", couleurFin: "#d9e8f2", texteFondColonnes: "blanc" },' +
 '  mqCadre: { gabaritMaquette: "cadre", icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#1c3d52", couleurFin: "#dbe4ea", texteFondColonnes: "blanc" },' +
 '  mqPicto: { gabaritMaquette: "picto", icones: true, styleCompetences: "pastille", fondColonnes: "aucun", coinsArrondis: false, styleTitres: "souligne", lectureGuidee: false, anneauPhoto: false, formatExperiences: "standard", bandeauEnTete: false, formeEnTete: "rectangle", degradeBandeau: "fonce-clair", fondColonnePleineHauteur: false, fondColonnesEffet: "fondSeul", degradeColonnes: "fonce-clair", formeColonnes: "rectangle", largeurColonneGauche: 35, colonnesInversees: false, dispositionEntete: "3colonnes", bandeauDisponibilite: false, styleBordures: "fine", couleurDebut: "#7d2e43", couleurFin: "#f0dde2", texteFondColonnes: "blanc" },' +
 '  sidebarVague: {' +
@@ -1450,6 +1477,14 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // les recettes, jamais seulement les 7 nouvelles.
 '_PDF_CREATIF_RECETTES.sidebarVague.photoForme = "rond";' +
 '_PDF_CREATIF_RECETTES.sidebarVague.colonneBordDroit = false;' +
+// 2026-10-20 (tache A1b) : les modeles a colonne offrent aussi le choix du bord de leur bandeau quand il est la (case « Bandeau en-tete colore »), et l'arche pour la colonne.
+// Valeur de depart du bord = celle qu'ils avaient deja : arrondi pour « Colonne a vague » (coinsArrondis), droit pour les modeles derives (coinsArrondis: false).
+'_PDF_CREATIF_RECETTES.sidebarVague.colonneArche = false;' +
+'_PDF_CREATIF_RECETTES.sidebarVague.colonneForme = "";' +
+'_PDF_CREATIF_RECETTES.sidebarVague.bordBandeauSens = "0";' +
+'_PDF_CREATIF_RECETTES.sidebarVague.colonneSens = "0";' +
+'_PDF_CREATIF_RECETTES.sidebarVague.bordBandeauChoix = true;' +
+'_PDF_CREATIF_RECETTES.sidebarVague.bordBandeau = "arrondi";' +
 '_PDF_CREATIF_RECETTES.sidebarVague.blocsCompetencesEncadres = false;' +
 '_PDF_CREATIF_RECETTES.sidebarVague.cadrePage = false;' +
 '_PDF_CREATIF_RECETTES.sidebarVague.enteteCentree = false;' +
@@ -1459,17 +1494,19 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // Retour de Denis du 2026-10-01, famille A de docs/ANALYSE_MODELES_CV_EXEMPLES_2026-10-01.md : colonne pleine hauteur a bord droit, foncee ou claire.
 // Meme gabarit « lateral » que « Colonne a vague » : seule differe la forme du bord (colonneBordDroit) et la sobriete des titres et des experiences.
 // « Colonne claire » : la colonne a sa couleur propre (couleurColonne), l'accent des titres reste fonce ; texte noir sur la colonne. Depuis le 2026-10-11 (choix de Denis, proposition B de
-// docs/MAQUETTE_COLONNE_CLAIRE_ENRICHIE_2026-10-11.html) : la colonne est une CARTE detachee de la page (colonneCarte : coins arrondis, marge, filet de la couleur d'accent ; la page reste blanche).
-'_PDF_CREATIF_RECETTES.colonneFoncee = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { colonneBordDroit: true, degradeColonnes: "aucun", styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", texteFondColonnes: "blanc" });' +
-'_PDF_CREATIF_RECETTES.colonneClaire = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { colonneBordDroit: true, degradeColonnes: "aucun", styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", couleurColonne: "#e6e1d6", texteFondColonnes: "noir", colonneCarte: true });' +
+// docs/MAQUETTE_COLONNE_CLAIRE_ENRICHIE_2026-10-11.html) : la colonne est une CARTE detachee de la page (depuis l'etape 4.2 : la forme « Carte flottante » de colonne, `colonneForme: "carte"` ; coins arrondis, marge, filet de la couleur d'accent ; la page reste blanche).
+'_PDF_CREATIF_RECETTES.colonneFoncee = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { colonneBordDroit: true, bordBandeau: "droit", degradeColonnes: "aucun", styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", texteFondColonnes: "blanc" });' +
+'_PDF_CREATIF_RECETTES.colonneClaire = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { colonneBordDroit: true, bordBandeau: "droit", degradeColonnes: "aucun", styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", couleurColonne: "#e6e1d6", texteFondColonnes: "noir", colonneForme: "carte" });' +
 // « Colonne et bandeau » (2026-10-06, extras de la famille A) : colonne foncee pleine hauteur ET bandeau d'en-tete de meme couleur sur toute la largeur (exemples 2 et 10). Depuis le 2026-10-11 (chantier variete, paire 7) : le bandeau reste fonce (texte blanc, texteBandeau) mais la colonne devient PALE (teinte bleutee, texte noir) : elle ne ressemble plus a Colonne foncee et coute moins d'encre.
 // Aucun reglage nouveau : bandeau d'en-tete et colonne pleine hauteur existent deja ; seule la recette est neuve.
 // « Colonne foncee et rubans » (plan 2026-10-07, E6, exemple 5) : « Colonne foncee » + titres en ruban biseaute (titresRuban : champ sans controle, copie dans opts par la boucle de recette ; absent des autres recettes).
 '_PDF_CREATIF_RECETTES.colonneRuban = Object.assign({}, _PDF_CREATIF_RECETTES.colonneFoncee, { titresRuban: true });' +
-'_PDF_CREATIF_RECETTES.colonneBandeau = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { colonneBordDroit: true, degradeColonnes: "aucun", degradeBandeau: "aucun", bandeauEnTete: true, styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", couleurColonne: "#dde4f0", texteFondColonnes: "noir", texteBandeau: "blanc" });' +
+// « Bandeaux noirs » (etape 7, 2026-10-21, exemple 9 de Denis ; maquette docs/MAQUETTE_DEUX_MODELES_NEUFS_2026-10-21.html) : Bandeau entier en noir (gris tres fonce), bord de l'en-tete incline (forme « Diagonale »), titres en ruban biseaute (titresRuban). Aucun reglage nouveau : seule la recette est neuve ; les 16 formes de bandeau restent au choix.
+'_PDF_CREATIF_RECETTES.bandeauxNoirs = Object.assign({}, _PDF_CREATIF_RECETTES.mqBandeau, { bordBandeau: "diagonale", degradeBandeau: "aucun", couleurDebut: "#1f2933", couleurFin: "#1f2933", titresRuban: true });' +
+'_PDF_CREATIF_RECETTES.colonneBandeau = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { colonneBordDroit: true, bordBandeau: "droit", degradeColonnes: "aucun", degradeBandeau: "aucun", bandeauEnTete: true, styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", couleurColonne: "#dde4f0", texteFondColonnes: "noir", texteBandeau: "blanc" });' +
 // « Colonne foncee chronologique » (2026-10-06, extras de la famille A, exemple 16) : meme mise en page que le modele Sobre « Chronologique » (dates dans la marge, photo ronde en haut de la colonne),
 // avec une colonne foncee a droite ; « Colonnes inversees » la met a gauche.
-'_PDF_CREATIF_RECETTES.chronoFonce = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { gabaritMaquette: "chrono-fonce", colonneBordDroit: true, colonnesInversees: true, degradeColonnes: "aucun", styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", texteFondColonnes: "blanc" });' +
+'_PDF_CREATIF_RECETTES.chronoFonce = Object.assign({}, _PDF_CREATIF_RECETTES.sidebarVague, { gabaritMaquette: "chrono-fonce", colonneBordDroit: true, bordBandeau: "droit", colonnesInversees: true, degradeColonnes: "aucun", styleTitres: "souligne", pilluleExperiences: false, formatExperiences: "standard", coinsArrondis: false, couleurDebut: "#1f2a44", couleurFin: "#1f2a44", texteFondColonnes: "blanc" });' +
 '_PDF_CREATIF_RECETTES.rubanDiagonal.photoForme = "rond";' +
 '_PDF_CREATIF_RECETTES.rubanDiagonal.blocsCompetencesEncadres = false;' +
 '_PDF_CREATIF_RECETTES.rubanDiagonal.cadrePage = false;' +
@@ -1498,6 +1535,27 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '    if (!el) { return; }' +
 '    if (el.type === "checkbox") { el.checked = recette[champ]; } else { el.value = recette[champ]; }' +
 '  });' +
+// Un modele qui ne declare pas de bord de bandeau repart du bord d origine (jamais la forme choisie sur le modele precedent).
+'  if (!("bordBandeau" in recette)) { var selB = document.getElementById("regBordBandeau"), selS = document.getElementById("regBordBandeauSens"); if (selB) { selB.value = ""; } if (selS) { selS.value = "0"; } }' +
+// Meme principe pour la COLONNE (etape 4.2) : tout CV a deux colonnes colorees a maintenant sa colonne dessinee, donc un modele qui ne declare pas de bord de colonne repart d un bord droit, sans forme ni sens ni arche (jamais ceux du modele precedent).
+'  if (!("colonneBordDroit" in recette)) { _pdfRazColonneSimple(); }' +
+'}' +
+'function _pdfRazColonneSimple() {' +
+'  var cbD = document.getElementById("regColonneBordDroit"), cbA = document.getElementById("regColonneArche"), selF = document.getElementById("regColonneForme"), selC = document.getElementById("regColonneSens");' +
+'  if (cbD) { cbD.checked = true; } if (cbA) { cbA.checked = false; } if (selF) { selF.value = ""; } if (selC) { selC.value = "0"; }' +
+'}' +
+'function _pdfRazBordBandeauSimple() {' +
+'  var selB = document.getElementById("regBordBandeau"), selS = document.getElementById("regBordBandeauSens"), cbB = document.getElementById("regBandeauEnTete"), selT = document.getElementById("regBandeauTeinte");' +
+'  _pdfRazColonneSimple();' +
+'  if (selT) { selT.value = "douce"; }' +
+'  if (selB) { selB.value = ""; } if (selS) { selS.value = "0"; }' +
+// un modele Sobre qui n'a pas de bandeau d'office repart SANS bandeau (jamais celui d'un modele precedent) ; le bandeau reste un choix de la personne
+'  if (cbB && _cvPdfSobreVariante !== "mq-bandeau") { cbB.checked = false; }' +
+'}' +
+'function _pdfRazFormesBandeau() {' +
+'  var selB = document.getElementById("regBordBandeau"), selS = document.getElementById("regBordBandeauSens");' +
+'  if (selB) { selB.value = ""; } if (selS) { selS.value = "0"; }' +
+'  _pdfPersisterReglages(); _pdfRafraichir();' +
 '}' +
 // TACHE (Denis, 2026-09-25, tranche 2) : retour au STANDARD de la maquette (appliquerGabarit() sans modele : fond
 // aucun, pastilles, sans icones, couleur de depart si la personne n\'en a pas choisi une). Sert quand le retour
@@ -1515,6 +1573,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  Object.keys(_cvPdfChoixMq).forEach(function (k) { if (k !== "couleurColonne" && k !== "couleurSecondaire") { _choixSansCouleurs[k] = _cvPdfChoixMq[k]; } });' +
 '  _cvPdfChoixMq = _choixSansCouleurs;' +
 '  _pdfEcrireRecetteDOM(recette);' +
+'  _cvPdfEnteteMin = 0;' +
 // TACHE (meme bug que documente plus bas pour sidebarVague) : ordrePersonnalise
 // n\'est PAS un champ de recette generique (structure {gauche,droite}, pas
 // une simple valeur de controle) -- reste gere a part, par variante.
@@ -1625,6 +1684,15 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '    separateurColonnes: document.getElementById("regSeparateurColonnes").checked,' +
 '    formeColonnes: document.getElementById("regFormeColonnes").value,' +
 '    colonneBordDroit: document.getElementById("regColonneBordDroit").checked,' +
+'    colonneArche: document.getElementById("regColonneArche").checked,' +
+'    colonneForme: document.getElementById("regColonneForme").value,' +
+'    enteteMin: _cvPdfEnteteMin,' +
+'    texteHors: document.getElementById("regTexteHors").value,' +
+'    bandeauTeinte: document.getElementById("regBandeauTeinte").value,' +
+'    colonneTeinte: document.getElementById("regColonneTeinte").value,' +
+'    bordBandeauSens: document.getElementById("regBordBandeauSens").value,' +
+'    colonneSens: document.getElementById("regColonneSens").value,' +
+'    texteHorsPerso: document.getElementById("regTexteHorsPerso").value,' +
 '    bordBandeau: document.getElementById("regBordBandeau").value,' +
 '    anneauPhoto: document.getElementById("regAnneauPhoto").checked,' +
 '    couleurDebut: document.getElementById("regCouleurDebut").value,' +
@@ -1826,22 +1894,25 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '      opts.degradeBandeau = document.getElementById("regDegradeBandeau").value;' +
 // Modele « Chronologique » (2026-10-06) : colonne etroite pale, pleine hauteur, a bord droit ; a DROITE par defaut (la case « Colonnes inversees » la met a gauche).
 '      if (opts.sobreVariante === "mq-editorial" || opts.sobreVariante === "mq-editorial-large") {' +
-'        opts.fondColonnes = "aucun"; opts.fondColonnePleineHauteur = false; opts.degradeColonnes = "aucun"; opts.bandeauEnTete = false;' +
+'        opts.fondColonnes = _pdfFondColonneSobreChoisi(); opts.fondColonnesEffet = "fondSeul"; opts.fondColonnePleineHauteur = false; opts.degradeColonnes = "aucun"; opts.bandeauEnTete = document.getElementById("regBandeauEnTete").checked;' +
+'        if (opts.colonneTeinte === "douce") { opts.texteFondColonnes = "noir"; }' +
 '        opts.separateurColonnes = _cvPdfTraitVertical;' +
 // Variante B : colonne etroite a DROITE par defaut (la case « Colonnes inversees » la met a gauche), comme le modele « Chronologique ».
 '        if (opts.sobreVariante === "mq-editorial-large") { opts.colonnesInversees = !document.getElementById("regColonnesInversees").checked; }' +
 '      }' +
 '      if (opts.sobreVariante === "mq-technique") {' +
-'        opts.fondColonnes = "aucun"; opts.fondColonnePleineHauteur = false; opts.degradeColonnes = "aucun"; opts.bandeauEnTete = false;' +
+'        opts.fondColonnes = _pdfFondColonneSobreChoisi(); opts.fondColonnesEffet = "fondSeul"; opts.fondColonnePleineHauteur = false; opts.degradeColonnes = "aucun"; opts.bandeauEnTete = document.getElementById("regBandeauEnTete").checked;' +
+'        if (opts.colonneTeinte === "douce") { opts.texteFondColonnes = "noir"; }' +
 '      }' +
 '      if (opts.sobreVariante === "mq-cartes" || opts.sobreVariante === "mq-grille" || opts.sobreVariante === "mq-cartes-couleurs") {' +
-'        opts.fondColonnes = "aucun"; opts.fondColonnePleineHauteur = false; opts.degradeColonnes = "aucun"; opts.bandeauEnTete = false;' +
+'        opts.fondColonnes = _pdfFondColonneSobreChoisi(); opts.fondColonnesEffet = "fondSeul"; opts.fondColonnePleineHauteur = false; opts.degradeColonnes = "aucun"; opts.bandeauEnTete = document.getElementById("regBandeauEnTete").checked;' +
+'        if (opts.colonneTeinte === "douce") { opts.texteFondColonnes = "noir"; }' +
 '        if (opts.sobreVariante === "mq-grille") { opts.separateurColonnes = true; }' +
 '      }' +
 '      if (opts.sobreVariante === "mq-chrono") {' +
 '        opts.colonneVague = true; opts.colonneBordDroit = true;' +
 '        opts.fondColonnes = "gauche"; opts.fondColonnesEffet = "fondSeul"; opts.fondColonnePleineHauteur = true;' +
-'        opts.degradeColonnes = "aucun"; opts.texteFondColonnes = "noir"; opts.bandeauEnTete = false;' +
+'        opts.degradeColonnes = "aucun"; opts.texteFondColonnes = "noir"; opts.bandeauEnTete = document.getElementById("regBandeauEnTete").checked;' +
 '        opts.colonnesInversees = !document.getElementById("regColonnesInversees").checked;' +
 '      }' +
 '    }' +
@@ -1993,6 +2064,102 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 'function _pdfInjecterResultat(resultat) {' +
 '  document.getElementById("styleCv").textContent = resultat.css;' +
 '  document.getElementById("conteneurPage").innerHTML = resultat.pageHtml;' +
+'  _pdfPoserComposition();' +
+'  _pdfPoserFormesDeco();' +
+'  _pdfPoserPoigneesCv();' +
+'  try { if (typeof window.parent._texteHorsPoser === "function") { window.parent._texteHorsPoser(document.querySelector("#conteneurPage .page-a4")); } } catch (e) { /* le texte a deux tons est un plus */ }' +
+// « Regler l'en-tete » sur l'apercu (cvPdfEnteteApercu.js) : pose les gestes sur les textes de l'en-tete quand le reglage est actif.
+'  try { if (typeof window.parent._enteteApercuPoser === "function") { window.parent._enteteApercuPoser(document.querySelector("#conteneurPage .page-a4")); } } catch (e) { /* un plus */ }' +
+'}' +
+// Poignees rondes sur l'apercu (cvPdfPoigneesCv.js, cote parent) : epaisseur du bandeau et largeur de la colonne, visibles seulement quand le panneau Bandeau ou Colonne est ouvert. Un plus : toute erreur est ignoree.
+'function _pdfPoserPoigneesCv() {' +
+'  try {' +
+'    if (typeof window.parent._poigneesCvPoser !== "function") { return; }' +
+'    var page = document.querySelector("#conteneurPage .page-a4");' +
+'    if (!page) { return; }' +
+'    window.parent._poigneesCvPoser(page, (typeof window.parent._mepPoigneesCvContexte === "function") ? window.parent._mepPoigneesCvContexte() : null, _PDF_RAPPELS_POIGNEES_CV);' +
+'  } catch (e) { /* les poignees sont un plus */ }' +
+'}' +
+'var _PDF_RAPPELS_POIGNEES_CV = {' +
+'  debut: function (cle) { try { window.parent._mepPousserHistorique(cle); } catch (e) { /* sans effet */ } },' +
+// En-tete libre (grand apercu) : la hauteur est celle de l'etat libre ; sinon, la hauteur minimale du bandeau. Aucune reconstruction : la poignee a deja mis l'apercu a jour.
+'  bandeau: function (h, libre) {' +
+'    if (libre) { var e = Object.assign({}, _cvPdfEnteteLibreMq); e.haut = h; _cvPdfEnteteLibreMq = e; } else { _cvPdfEnteteMin = h; }' +
+'    _pdfPersisterReglages();' +
+'  },' +
+'  largeur: function (pct) { try { window.parent._mepFormeAppliquer.largeurColonne(pct); } catch (e) { /* panneau absent */ } }' +
+'};' +
+// Calque des formes decoratives : sur la premiere page A4 (ou chaque Mini CV A5). Un plus, jamais un blocage : toute erreur est ignoree.
+'function _pdfPoserFormesDeco() {' +
+'  try {' +
+'    if (typeof window.parent._formesDecoPoser !== "function") { return; }' +
+'    var pages = document.querySelectorAll("#conteneurPage .page-a4, #conteneurPage .page-a5");' +
+'    for (var i = 0; i < pages.length; i++) {' +
+'      var a4 = pages[i].className.indexOf("page-a4") !== -1;' +
+'      if (a4 && i > 0) { continue; }' +
+'      window.parent._formesDecoPoser(pages[i], _cvPdfFormesDeco);' +
+'      if (a4) {' +
+'        window.parent._formesDecoPoserCadre(pages[i], _cvPdfFormesDeco, _cvPdfEditionFormeDeco, _PDF_RAPPELS_FORME_DECO);' +
+'        window.parent._formesDecoActiver(pages[i], _PDF_RAPPELS_FORME_DECO);' +
+'      }' +
+'    }' +
+'  } catch (e) { /* le calque est un plus */ }' +
+'}' +
+// Les formes se touchent et se deplacent directement sur l\'apercu (aucun message ni bouton sur le CV) ; chaque geste met le calque a jour sans reconstruire le CV, la fin du geste garde le choix et rafraichit seulement le panneau « Formes ».
+'var _PDF_RAPPELS_FORME_DECO = {' +
+'  lire: function () { return _cvPdfFormesDeco; },' +
+'  changer: function (liste) { _cvPdfFormesDeco = window.parent._formesDecoNormaliser(liste); _pdfPoserFormesDeco(); },' +
+'  valider: function () { _pdfPersisterReglages(); try { window.parent._mepRafraichirPanneauxFormes(); } catch (e) { /* panneau absent */ } },' +
+'  debutGeste: function () { try { window.parent._mepPousserHistorique("formesDeco"); } catch (e) { /* sans effet */ } },' +
+'  selectionner: function (i) { _pdfEditerFormeDeco(i); },' +
+'  deselectionner: function () { if (_cvPdfEditionFormeDeco !== null) { _pdfFinirEditionFormeDeco(); } }' +
+'};' +
+'function _pdfEditerFormeDeco(i) {' +
+'  var page = document.querySelector("#conteneurPage .page-a4");' +
+'  if (!page || typeof window.parent._formesDecoVersLibre !== "function") { return; }' +
+'  var avantForme = _cvPdfFormesDeco[i];' +
+'  if (avantForme && avantForme.zone !== "libre") { try { window.parent._mepPousserHistorique("formesDeco"); } catch (e) { /* sans effet */ } }' +
+'  _cvPdfFormesDeco = window.parent._formesDecoVersLibre(page, _cvPdfFormesDeco, i);' +
+'  _cvPdfEditionFormeDeco = i;' +
+'  _pdfPersisterReglages();' +
+'  _pdfPoserFormesDeco();' +
+'  try { window.parent._mepFormeDecoCourante = i; window.parent._mepRafraichirPanneauxFormes(); } catch (e) { /* panneau absent */ }' +
+'}' +
+'function _pdfFinirEditionFormeDeco() {' +
+'  _cvPdfEditionFormeDeco = null;' +
+'  _pdfPoserFormesDeco();' +
+'  _pdfPersisterReglages();' +
+'  try { window.parent._mepRafraichirPanneauxFormes(); } catch (e) { /* panneau absent */ }' +
+'}' +
+'function _pdfPoserComposition() {' +
+'  try {' +
+'    if (typeof window.parent._compoPoser !== "function") { return; }' +
+'    var page = document.querySelector("#conteneurPage .page-a4");' +
+'    if (page) { window.parent._compoPoser(page, (typeof window.parent._mepCompositionAutorisee === "function") ? window.parent._mepCompositionAutorisee(_cvPdfComposition) : _cvPdfComposition, _cvPdfCompositionTrait); }' +
+'    if (page && !_cvPdfComposition && typeof window.parent._croisementPoser === "function") { window.parent._croisementPoser(page, window.parent._mepCroisementAutorise ? window.parent._mepCroisementAutorise(_cvPdfCroisement) : _cvPdfCroisement); }' +
+'    if (page && !_cvPdfComposition && typeof window.parent._decorPoser === "function") { window.parent._decorPoser(page, window.parent._mepDecorAutorise ? window.parent._mepDecorAutorise(_cvPdfDecor) : _cvPdfDecor); }' +
+'    if (page && typeof window.parent._mepDecorMessage === "function") { window.parent._mepDecorMessage(page, _cvPdfComposition ? {} : _cvPdfDecor); }' +
+'  } catch (e) { /* la composition est un plus : jamais bloquer le CV */ }' +
+'}' +
+'function _pdfDefinirDecor(o) {' +
+'  _cvPdfDecor = (typeof window.parent._decorNormaliser === "function") ? window.parent._decorNormaliser(o) : {};' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirCroisement(o) {' +
+'  _cvPdfCroisement = (typeof window.parent._croisementNormaliser === "function") ? window.parent._croisementNormaliser(o) : {};' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirCompositionTrait(v) {' +
+'  _cvPdfCompositionTrait = (typeof window.parent._compoTraitNormaliser === "function") ? window.parent._compoTraitNormaliser(v) : "";' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirComposition(id) {' +
+'  _cvPdfComposition = (typeof window.parent._compoNormaliser === "function") ? window.parent._compoNormaliser(id) : "";' +
+'  _pdfRafraichir();' +
+'}' +
+'function _pdfDefinirFormesDeco(liste) {' +
+'  _cvPdfFormesDeco = (typeof window.parent._formesDecoNormaliser === "function") ? window.parent._formesDecoNormaliser(liste) : [];' +
+'  _pdfRafraichir();' +
 '}' +
 // « Automatique » (maquette) : seulement en A4 sur une page, mode chronologique, et tant que la personne n'a choisi ni « Complet »
 // (10) ni « Resume » (1). Le nombre de missions par defaut (ou choisi avec − / +) est un MAXIMUM.
@@ -2177,6 +2344,9 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // TACHE (Denis, 2026-09-25, cadre commun) : previent la page hote (ecran « La mise en page ») que le CV vient
 // de changer, pour mettre a jour « n experiences affichees / le CV tient sur 1 page » et le message de depassement.
 '  if (window.parent && typeof window.parent._pdfMqApresRendu === "function") { window.parent._pdfMqApresRendu(document.querySelector("#conteneurPage .cv")); }' +
+// Les formes « vide » et « contour » montrent une COPIE de la page : elle doit etre prise APRES les ajustements de la page (hauteur de l\'en-tete...), sinon elle est decalee (essai d\'impression reel, 2026-10-21).
+'  _pdfPoserComposition();' +
+'  _pdfPoserFormesDeco();' +
 '  setTimeout(function () { if (window.parent && typeof window.parent._mepMajInfoPage === "function") { window.parent._mepMajInfoPage(); } }, 0);' +
 '  document.getElementById("stylePage").textContent = "@page { size: " + resultat.largeurPage + " " + resultat.hauteurPage + "; margin: 0; }";' +
 '  document.getElementById("valeurEchelle").textContent = Math.round(_cvPdfEchelle * 11 * 10) / 10;' +
@@ -2190,6 +2360,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  document.getElementById("valeurLargeurColonnes").textContent = document.getElementById("regLargeurColonneGauche").value + "%";' +
 '  document.getElementById("valeurLargeurAccroche").textContent = document.getElementById("regLargeurAccrocheLibre").value + "%";' +
 '  document.getElementById("valeurLargeurMetier").textContent = document.getElementById("regLargeurMetierLibre").value + "%";' +
+'  if (!_cvPdfVerifEnteteEnCours) { _cvPdfVerifEnteteEnCours = true; try { _pdfRetirerEnteteDecaleeSiTropEtroite(); } finally { _cvPdfVerifEnteteEnCours = false; } }' +
 // TACHE (retour Denis 2026-09-19, 5e vague, decision ferme de Denis :
 // "si ca retrecit, c'est parce que c'est moi qui decide, pas parce que le
 // programme me le fait a ma place") : l'ancien garde-fou automatique
@@ -3259,6 +3430,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // croissance de l\'en-tete AVANT qu\'un chevauchement n\'apparaisse a
 // l\'ecran plutot que de le corriger apres coup.
 'function _pdfEnteteProblematiqueApresCroissance() {' +
+'  if (_pdfAccrocheTropEtroite() || _pdfEnteteTropHaut()) { return true; }' +
 '  var entete = document.querySelector("#conteneurPage .entete-libre");' +
 // En-tete NON libre (cas general des modeles) : pas de blocs deplaçables a comparer ; on verifie seulement qu'aucun texte d'en-tete ne deborde de sa boite.
 '  if (!entete) {' +
@@ -4075,17 +4247,34 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  var resultat = [];' +
 '  try {' +
 '    var sens = sensImpose || ((hauteurBase < HAUTEUR_CIBLE_PX * 0.82) ? "remplir" : "gagner");' +
-'    _pdfCandidatsEquilibre().forEach(function (c) { c.gain = 0; c.sens = sens; resultat.push(c); });' +
+// Retour Denis 2026-10-19 : une suggestion d'equilibre qui AJOUTE des lignes (« Ajouter 5 competences ») doit tenir sur la page, comme les autres ; elle etait proposee sans etre mesuree.
+'    _pdfCandidatsEquilibre().forEach(function (c) {' +
+'      var ajoute = !c.changes.some(function (x) { return x.cle === "__ouvrirChoix"; });' +
+'      if (ajoute) {' +
+'        var etatSauveEq = _pdfCapturerEtatPersistant(); var parentSauveEq = window.parent._mepInstantaneParentSuggestion();' +
+'        var avantEq = _pdfAppliquerChangementsSuggestion(c.changes);' +
+'        var hEq = _pdfAjusterPourSuggestion();' +
+'        _pdfRestaurerChangementsSuggestion(avantEq);' +
+'        _pdfAppliquerEtatPersistant(etatSauveEq); window.parent._mepRestaurerParentSuggestion(parentSauveEq);' +
+'        if (hEq > HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable() + 2) { return; }' +
+'      }' +
+'      c.gain = 0; c.sens = sens; resultat.push(c);' +
+'    });' +
 '    var candidats = _pdfCandidatsSuggestions(sens);' +
 '    for (var i = 0; i < candidats.length; i++) {' +
+'      var etatSauve = _pdfCapturerEtatPersistant(); var parentSauve = window.parent._mepInstantaneParentSuggestion();' +
 '      var avant = _pdfAppliquerChangementsSuggestion(candidats[i].changes);' +
 '      var h = _pdfRafraichirEtMesurer();' +
+// Retour Denis 2026-10-19 : une suggestion est toujours sur UNE page. Une fois choisie, le CV est resserre ou agrandi pour remplir la page ; si meme ainsi elle ne tient pas, elle n'est pas proposee.
+'      var hFinal = _pdfAjusterPourSuggestion();' +
 '      _pdfRestaurerChangementsSuggestion(avant);' +
+'      _pdfAppliquerEtatPersistant(etatSauve); window.parent._mepRestaurerParentSuggestion(parentSauve);' +
 '      var ecartPx = (sens === "gagner") ? (hauteurBase - h) : (h - hauteurBase);' +
 '      var gain = Math.round(ecartPx / 17);' +
 '      var listeCourte = String(candidats[i].id).indexOf("col2-") === 0;' +
 '      if (listeCourte && gain < 1 && ecartPx >= 8) { gain = 1; }' +
-'      if (gain >= (listeCourte ? 1 : 2) && (sens === "gagner" || h <= HAUTEUR_CIBLE_PX + 2)) { candidats[i].gain = gain; candidats[i].sens = sens; resultat.push(candidats[i]); }' +
+'      var tientApresAjustement = (hFinal < 0) || hFinal <= HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable() + 2;' +
+'      if (gain >= (listeCourte ? 1 : 2) && tientApresAjustement && (sens === "gagner" || h <= HAUTEUR_CIBLE_PX + 2)) { candidats[i].gain = gain; candidats[i].sens = sens; resultat.push(candidats[i]); }' +
 '    }' +
 '    _pdfRafraichir();' +
 '  } catch (e) { resultat = []; }' +
@@ -4184,51 +4373,8 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  var h = _pdfRafraichirEtMesurer();' +
 '  if (h > hauteurCible + 2 || _pdfEnteteProblematiqueApresCroissance() || _pdfEnteteGagneUneLigne(lignesBase)) { _cvPdfEnteteBoost = avant; _pdfRafraichirEtMesurer(); }' +
 '}' +
-'function _pdfAjusterMiseEnPageCalcul() {' +
-// TACHE (chantier "remplissage automatique par defaut", Partie C -- meme
-// raisonnement EXACT que le Word, js/app.js activerMiseEnFormeUltimeXXL,
-// qui remet ses bonus a zero INCONDITIONNELLEMENT en tout debut de
-// cascade) : jamais un bonus de capacite laisse actif d\'un clic precedent
-// si CE clic-ci part sur un contenu/reglage differents (ex. la page
-// deborde desormais alors qu\'un bonus avait ete ajoute lors d\'un clic
-// precedent ou elle etait encore vide) -- _pdfEssayerCroissanceContenu()
-// (plus haut) ne reinitialise chaque cle QUE si elle est effectivement
-// retentee, jamais si la branche "trop de contenu" est empruntee cette
-// fois-ci -- reset EXPLICITE ici, avant meme la mesure, pour ne jamais
-// dependre de la branche empruntee.' +
-'  if (window.parent && window.parent.etatApercuInline && window.parent.etatApercuInline.cv && window.parent.etatApercuInline.cv.reglagesProjetXXL) {' +
-'    var _reglagesPdf = window.parent.etatApercuInline.cv.reglagesProjetXXL;' +
-'    if (_reglagesPdf.bonusCapacites) { Object.keys(_reglagesPdf.bonusCapacites).forEach(function (cle) { _reglagesPdf.bonusCapacites[cle] = 0; }); }' +
-'    _reglagesPdf.missionsBonus = 0;' +
-'  }' +
-'  var avantMEP = _pdfInstantaneMEP();' +
-'  _cvPdfEchelle = 1;' +
-// TACHE (retour utilisateur : "les deux [en-tete et corps] grandissent
-// ensemble, mais en commencant toujours par l'en-tete") : repart d'un
-// etat neutre pour l'en-tete aussi a chaque clic (meme logique que
-// _cvPdfEchelle = 1 juste au-dessus) -- jamais un agrandissement qui se
-// cumule silencieusement d'un clic "Mise en page" a l'autre.
-'  _cvPdfEnteteBoost = 1;' +
-// TACHE (retour utilisateur explicite : "d'abord on va equilibrer,
-// agrandir, voir si ca tient, et apres on retrecit si necessaire, mais on
-// ne va jamais commencer par retrecir") : reequilibrage des colonnes
-// AVANT toute mesure/reduction de police -- la reduction globale
-// (boucle ci-dessous) ne doit intervenir qu\'en dernier recours, une fois
-// le contenu deja reparti au mieux entre les 2 colonnes.
-'  _pdfRafraichir();' +
-'  _pdfEssayerRequilibrageColonnes();' +
-'  _pdfEssayerCoordEnLigne();' +
-'  var hauteurCible = HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable();' +
-'  var hauteur = _pdfRafraichirEtMesurer();' +
-'  var message;' +
-'  if (hauteur > hauteurCible + 2) {' +
-// TACHE (retour utilisateur : "si jamais il faut gagner de la place, on
-// sait par quoi commencer" -- l'en-tete redonne D'ABORD ce qu'il a
-// eventuellement gagne, avant que le corps ne descende sous sa taille
-// normale) : phase 1, en-tete seul. Reduire ne peut jamais CREER de
-// chevauchement (un texte plus petit ne deborde jamais plus qu'un texte
-// plus grand) -- aucune verification supplementaire necessaire ici,
-// contrairement a la phase de croissance plus bas.
+// Les deux leviers de PRESENTATION du bouton « Mise en page », extraits tels quels (aucun changement de comportement) pour que les suggestions les reutilisent : jamais recopies.
+'function _pdfReduirePourTenir(hauteur, hauteurCible) {' +
 '    hauteur = _pdfEssayerTasserEspaces(hauteur, hauteurCible);' +
 '    while (_pdfAjusterEchelleEnteteEnsemble(-0.05) && hauteur > hauteurCible + 2) {' +
 '      hauteur = _pdfRafraichirEtMesurer();' +
@@ -4239,15 +4385,9 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '      hauteur = _pdfRafraichirEtMesurer();' +
 '    }' +
 '    _pdfGarantirEnteteAuMoinsAussiGrandeQueCorps();' +
-'    message = _pdfCompteRenduMEP(avantMEP, hauteur > hauteurCible + 2 ? "depasse" : "tient");' +
-'  } else if (hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
-// TACHE (retour utilisateur : "on commence par l'en-tete pour grandir et
-// apres par le corps de texte" + "je prefere avoir les deux qui restent a
-// peu pres equivalentes, peut-etre la tete un peu plus grande") : phase 1,
-// en-tete seul -- s'arrete des que la cible est atteinte, que le plafond
-// 1.4 est atteint (_pdfAjusterEchelleEnteteEnsemble renvoie alors false),
-// ou qu'un chevauchement/debordement apparaitrait (revert immediat de CE
-// seul pas, jamais laisse a l'ecran).' +
+'  return hauteur;' +
+'}' +
+'function _pdfAgrandirPourRemplir(hauteur) {' +
 '    var enteteEncoreDisponible = true;' +
 '    var lignesBaseEntete = _pdfLignesEntete();' +
 '    while (enteteEncoreDisponible && hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
@@ -4303,6 +4443,89 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // de formations ou de langues ajoutes automatiquement, ni de regroupement des experiences. Les changements de STRUCTURE seront
 // PROPOSES (lot « Mise en page : propositions »), jamais appliques d'office.
 '    hauteur = _pdfEssayerAererEspaces(hauteur);' +
+'  return hauteur;' +
+'}' +
+// Retour Denis 2026-10-19 : apres le choix d'une suggestion, le CV occupe toute la page (il se reduit pour tenir, ou grandit pour la remplir) avec les memes leviers que « Mise en page »,
+// SANS son message ni le recalcul des suggestions (la liste et la carte choisie ne bougent pas). Renvoie la hauteur finale. Format A4 seulement.
+// Retour Denis 2026-10-19 (option A) : apres un changement de modele, si le CV depasse la page il est resserre avec les leviers du bouton « Mise en page » ; jamais agrandi,
+// jamais touche quand tout tient (les reglages de la personne ne bougent pas). A4 seulement.
+'function _pdfResserrerSiDepasse() {' +
+'  try {' +
+'    if (document.getElementById("regFormatCV").value.indexOf("A4") !== 0) { return; }' +
+'    var cible = HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable();' +
+'    var h = _pdfRafraichirEtMesurer();' +
+'    if (h > cible + 2) { _pdfReduirePourTenir(h, cible); _pdfCorrigerEnteteSiLigneGagnee(); _pdfRafraichir(); }' +
+'  } catch (e) { /* le CV garde son rendu */ }' +
+'}' +
+'function _pdfAjusterPourSuggestion() {' +
+'  try {' +
+'    if (document.getElementById("regFormatCV").value.indexOf("A4") !== 0) { return -1; }' +
+'    var cible = HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable();' +
+'    var h = _pdfRafraichirEtMesurer();' +
+'    if (h > cible + 2) { h = _pdfReduirePourTenir(h, cible); }' +
+'    else if (h < HAUTEUR_CIBLE_PX * 0.82) { h = _pdfAgrandirPourRemplir(h); }' +
+'    else if (h < HAUTEUR_CIBLE_PX * _SEUIL_AERER) { h = _pdfEssayerAererEspaces(h); }' +
+'    _pdfCorrigerEnteteSiLigneGagnee();' +
+'    h = _pdfRafraichirEtMesurer();' +
+'    return h;' +
+'  } catch (e) { return -1; }' +
+'}' +
+'function _pdfAjusterMiseEnPageCalcul() {' +
+// TACHE (chantier "remplissage automatique par defaut", Partie C -- meme
+// raisonnement EXACT que le Word, js/app.js activerMiseEnFormeUltimeXXL,
+// qui remet ses bonus a zero INCONDITIONNELLEMENT en tout debut de
+// cascade) : jamais un bonus de capacite laisse actif d\'un clic precedent
+// si CE clic-ci part sur un contenu/reglage differents (ex. la page
+// deborde desormais alors qu\'un bonus avait ete ajoute lors d\'un clic
+// precedent ou elle etait encore vide) -- _pdfEssayerCroissanceContenu()
+// (plus haut) ne reinitialise chaque cle QUE si elle est effectivement
+// retentee, jamais si la branche "trop de contenu" est empruntee cette
+// fois-ci -- reset EXPLICITE ici, avant meme la mesure, pour ne jamais
+// dependre de la branche empruntee.' +
+'  if (window.parent && window.parent.etatApercuInline && window.parent.etatApercuInline.cv && window.parent.etatApercuInline.cv.reglagesProjetXXL) {' +
+'    var _reglagesPdf = window.parent.etatApercuInline.cv.reglagesProjetXXL;' +
+'    if (_reglagesPdf.bonusCapacites) { Object.keys(_reglagesPdf.bonusCapacites).forEach(function (cle) { _reglagesPdf.bonusCapacites[cle] = 0; }); }' +
+'    _reglagesPdf.missionsBonus = 0;' +
+'  }' +
+'  var avantMEP = _pdfInstantaneMEP();' +
+'  _cvPdfEchelle = 1;' +
+// TACHE (retour utilisateur : "les deux [en-tete et corps] grandissent
+// ensemble, mais en commencant toujours par l'en-tete") : repart d'un
+// etat neutre pour l'en-tete aussi a chaque clic (meme logique que
+// _cvPdfEchelle = 1 juste au-dessus) -- jamais un agrandissement qui se
+// cumule silencieusement d'un clic "Mise en page" a l'autre.
+'  _cvPdfEnteteBoost = 1;' +
+// TACHE (retour utilisateur explicite : "d'abord on va equilibrer,
+// agrandir, voir si ca tient, et apres on retrecit si necessaire, mais on
+// ne va jamais commencer par retrecir") : reequilibrage des colonnes
+// AVANT toute mesure/reduction de police -- la reduction globale
+// (boucle ci-dessous) ne doit intervenir qu\'en dernier recours, une fois
+// le contenu deja reparti au mieux entre les 2 colonnes.
+'  _pdfRafraichir();' +
+'  _pdfEssayerRequilibrageColonnes();' +
+'  _pdfEssayerCoordEnLigne();' +
+'  var hauteurCible = HAUTEUR_CIBLE_PX * _pdfMaxPagesAcceptable();' +
+'  var hauteur = _pdfRafraichirEtMesurer();' +
+'  var message;' +
+'  if (hauteur > hauteurCible + 2) {' +
+// TACHE (retour utilisateur : "si jamais il faut gagner de la place, on
+// sait par quoi commencer" -- l'en-tete redonne D'ABORD ce qu'il a
+// eventuellement gagne, avant que le corps ne descende sous sa taille
+// normale) : phase 1, en-tete seul. Reduire ne peut jamais CREER de
+// chevauchement (un texte plus petit ne deborde jamais plus qu'un texte
+// plus grand) -- aucune verification supplementaire necessaire ici,
+// contrairement a la phase de croissance plus bas.
+'    hauteur = _pdfReduirePourTenir(hauteur, hauteurCible);' +
+'    message = _pdfCompteRenduMEP(avantMEP, hauteur > hauteurCible + 2 ? "depasse" : "tient");' +
+'  } else if (hauteur < HAUTEUR_CIBLE_PX * 0.82) {' +
+// TACHE (retour utilisateur : "on commence par l'en-tete pour grandir et
+// apres par le corps de texte" + "je prefere avoir les deux qui restent a
+// peu pres equivalentes, peut-etre la tete un peu plus grande") : phase 1,
+// en-tete seul -- s'arrete des que la cible est atteinte, que le plafond
+// 1.4 est atteint (_pdfAjusterEchelleEnteteEnsemble renvoie alors false),
+// ou qu'un chevauchement/debordement apparaitrait (revert immediat de CE
+// seul pas, jamais laisse a l'ecran).' +
+'    hauteur = _pdfAgrandirPourRemplir(hauteur);' +
 '    message = _pdfCompteRenduMEP(avantMEP, hauteur < HAUTEUR_CIBLE_PX * 0.82 ? "incomplet" : "rempli");' +
 '  } else {' +
 '    if (hauteur < HAUTEUR_CIBLE_PX * _SEUIL_AERER) { hauteur = _pdfEssayerAererEspaces(hauteur); }' +
@@ -4441,6 +4664,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // demande explicite). _pdfTirerVarianteSobre() choisit seulement OU la
 // couleur pale ira (colonne/bandeau/aucune), jamais le nombre de colonnes.
 '  _cvPdfSobreVariante = "mq-bandeau";' +
+'  _pdfRazBordBandeauSimple();' +
   // TACHE (meme retour utilisateur : "je ne veux pas voir du tout des
   // pastilles") : un override PAR RUBRIQUE (bandeauDisponibilite/
   // competencesCles) prime toujours sur regStyleCompetences ci-dessus
@@ -4462,6 +4686,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '}' +
 'function _pdfTirerVarianteSobre() {' +
 '  _cvPdfSobreVariante = _pdfChoixAleatoire(["mq-bandeau", "mq-fond", "mq-epure"]);' +
+'  _pdfRazBordBandeauSimple();' +
 '  _pdfColonnesPourVarianteSobre(_cvPdfSobreVariante);' +
 '}' +
 // TACHE (retour utilisateur, bug reel confirme : "je desactive Sobre, le
@@ -4625,13 +4850,19 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // de l'application compatibles avec le nombre de colonnes (jamais une combinaison invalide).
 'function _pdfIdsVariantesSobre() {' +
 '  var deuxColonnes = document.getElementById("regColonnes").value !== "1";' +
-'  return ["mq-bandeau", "mq-fond", "mq-epure"].concat(deuxColonnes ? ["mq-photo"] : ["mq-rectangles"]).concat(["mq-chrono", "mq-editorial", "mq-editorial-large", "mq-cartes", "mq-grille", "mq-technique", "mq-cartes-couleurs"]).filter(_pdfModeleProposable);' +
+'  return ["mq-bandeau", "mq-fond", "mq-epure"].concat(deuxColonnes ? ["mq-photo"] : ["mq-rectangles"]).concat(["mq-frise", "mq-chrono", "mq-editorial", "mq-editorial-large", "mq-cartes", "mq-grille", "mq-technique", "mq-cartes-couleurs"]).filter(_pdfModeleProposable);' +
 '}' +
 // « Photo et frise » (Sobre) n'existe qu'en 2 colonnes : le choisir passe en 2 colonnes, le quitter retrouve le choix d'avant
 // (meme regle que les modeles Créatif « 2 colonnes seulement »).
+// Fond de colonne des six modeles Sobre qui n'en avaient jamais (editorial, editorial large, technique, cartes, cartes colorees, grille ; etape 4.4) : le choix de la personne (gauche ou droite), sinon aucun.
+'function _pdfFondColonneSobreChoisi() { var v = document.getElementById("regFondColonnes").value; return (v === "gauche" || v === "droite") ? v : "aucun"; }' +
 'function _pdfColonnesPourVarianteSobre(variante) {' +
 '  var sel = document.getElementById("regColonnes");' +
-'  if (variante === "mq-photo" || variante === "mq-rectangles" || variante === "mq-chrono" || variante === "mq-editorial" || variante === "mq-editorial-large" || variante === "mq-cartes" || variante === "mq-grille" || variante === "mq-technique" || variante === "mq-cartes-couleurs") {' +
+// Un de ces six modeles arrive SANS colonne coloree et avec la teinte douce ; les autres modeles Sobre ne touchent pas a cette teinte.
+'  var selFondS = document.getElementById("regFondColonnes"), selTeinteS = document.getElementById("regColonneTeinte");' +
+'  if (["mq-editorial", "mq-editorial-large", "mq-technique", "mq-cartes", "mq-cartes-couleurs", "mq-grille"].indexOf(variante) !== -1) { if (selFondS) { selFondS.value = "aucun"; } if (selTeinteS) { selTeinteS.value = "douce"; } }' +
+'  else if (selTeinteS) { selTeinteS.value = ""; }' +
+'  if (variante === "mq-photo" || variante === "mq-frise" || variante === "mq-rectangles" || variante === "mq-chrono" || variante === "mq-editorial" || variante === "mq-editorial-large" || variante === "mq-cartes" || variante === "mq-grille" || variante === "mq-technique" || variante === "mq-cartes-couleurs") {' +
 '    if (_cvPdfColonnesAvantModele === null) { _cvPdfColonnesAvantModele = sel.value; }' +
 '    sel.value = (variante === "mq-rectangles" || variante === "mq-technique") ? "1" : "2";' +
 '  } else if (_cvPdfColonnesAvantModele !== null) {' +
@@ -4643,6 +4874,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  var ids = _pdfIdsVariantesSobre();' +
 '  var i = ids.indexOf(_cvPdfSobreVariante);' +
 '  _cvPdfSobreVariante = ids[(i + 1) % ids.length];' +
+'  _pdfRazBordBandeauSimple();' +
 '  _pdfColonnesPourVarianteSobre(_cvPdfSobreVariante);' +
 '  _pdfRafraichir();' +
 '  _pdfTirerCoordEnLigne();' +
@@ -4720,6 +4952,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  _pdfAfficherMessageMiseEnPage("");' +
 '  _pdfRafraichir();' +
 '  _pdfEssayerRequilibrageColonnes();' +
+'  _pdfResserrerSiDepasse();' +
 '}' +
 // TACHE (meme principe) : "colonne" n\'a de sens qu\'en 2 colonnes,
 // "aucune" (epure) qu\'en 1 colonne (meme contrainte reelle que
@@ -4729,11 +4962,13 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // ce repli reste le filet de securite final si jamais appele autrement.
 'function _pdfChoisirVarianteSobre(variante) {' +
 '  variante = _pdfMigrerVarianteSobre(variante);' +
-'  if (["mq-bandeau", "mq-fond", "mq-epure", "mq-photo", "mq-rectangles", "mq-chrono", "mq-editorial", "mq-editorial-large", "mq-cartes", "mq-grille", "mq-technique", "mq-cartes-couleurs"].indexOf(variante) === -1) { return; }' +
+'  if (["mq-bandeau", "mq-fond", "mq-epure", "mq-photo", "mq-frise", "mq-rectangles", "mq-chrono", "mq-editorial", "mq-editorial-large", "mq-cartes", "mq-grille", "mq-technique", "mq-cartes-couleurs"].indexOf(variante) === -1) { return; }' +
 '  if (!document.getElementById("regSobreActif").checked) { document.getElementById("btnSobrePdf").click(); }' +
 '  _cvPdfSobreVariante = variante;' +
+'  _pdfRazBordBandeauSimple();' +
 '  _pdfColonnesPourVarianteSobre(variante);' +
 '  _pdfRafraichir();' +
+'  _pdfResserrerSiDepasse();' +
 '}' +
 // TACHE (phase 5.4, carte "Experiences professionnelles") : fonctions
 // appelees DIRECTEMENT depuis le panneau parent (js/app.js) via
@@ -5242,6 +5477,12 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  _cvPdfNomEmpattement = true;' +
 '  _cvPdfTraitVertical = true;' +
 '  _cvPdfCoinCouleur = false;' +
+'  _cvPdfFormesDeco = [];' +
+'  _cvPdfComposition = "";' +
+'  _cvPdfCompositionTrait = "";' +
+'  _cvPdfCroisement = {};' +
+'  _cvPdfDecor = {};' +
+'  _cvPdfEnteteMin = 0;' +
 '  _cvPdfQualitesMetierActives = true;' +
 '  _cvPdfAfficherCompPro = true;' +
 '  _cvPdfAfficherCompComp = true;' +
@@ -5359,6 +5600,12 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  etat.nomEmpattement = _cvPdfNomEmpattement;' +
 '  etat.traitVertical = _cvPdfTraitVertical;' +
 '  etat.coinCouleur = _cvPdfCoinCouleur;' +
+'  etat.formesDeco = _cvPdfFormesDeco;' +
+'  etat.composition = _cvPdfComposition;' +
+'  etat.compositionTrait = _cvPdfCompositionTrait;' +
+'  etat.croisement = _cvPdfCroisement;' +
+'  etat.decor = _cvPdfDecor;' +
+'  etat.enteteMin = _cvPdfEnteteMin;' +
 '  etat.qualitesMetierActives = _cvPdfQualitesMetierActives;' +
 '  etat.afficherCompPro = _cvPdfAfficherCompPro;' +
 '  etat.afficherCompComp = _cvPdfAfficherCompComp;' +
@@ -5450,6 +5697,12 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  _cvPdfNomEmpattement = (etat.nomEmpattement !== false);' +
 '  _cvPdfTraitVertical = (etat.traitVertical !== false);' +
 '  _cvPdfCoinCouleur = !!etat.coinCouleur;' +
+'  _cvPdfFormesDeco = (window.parent && typeof window.parent._formesDecoNormaliser === "function") ? window.parent._formesDecoNormaliser(etat.formesDeco) : [];' +
+'  _cvPdfComposition = (window.parent && typeof window.parent._compoNormaliser === "function") ? window.parent._compoNormaliser(etat.composition) : "";' +
+'  _cvPdfCompositionTrait = (window.parent && typeof window.parent._compoTraitNormaliser === "function") ? window.parent._compoTraitNormaliser(etat.compositionTrait) : "";' +
+'  _cvPdfCroisement = (window.parent && typeof window.parent._croisementNormaliser === "function") ? window.parent._croisementNormaliser(etat.croisement) : {};' +
+'  _cvPdfDecor = (window.parent && typeof window.parent._decorNormaliser === "function") ? window.parent._decorNormaliser(etat.decor) : {};' +
+'  _cvPdfEnteteMin = parseInt(etat.enteteMin, 10) || 0;' +
 '  _cvPdfQualitesMetierActives = (etat.qualitesMetierActives !== false);' +
 '  _cvPdfAfficherCompPro = (etat.afficherCompPro !== false);' +
 '  _cvPdfAfficherCompComp = (etat.afficherCompComp !== false);' +
@@ -5634,8 +5887,11 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // Modeles dont l'en-tete n'occupe pas toute la largeur de la page ou a son propre dessin (verifie sur les 37 modeles, 2026-10-07) : jamais la disposition decalee.
 'var _PDF_MODELES_SANS_ENTETE_DECALE = ["creatif:photoFrise", "creatif:frise", "creatif:friseFoncee", "creatif:rectangles", "creatif:bandeauVertical", "sobre:mq-photo", "sobre:mq-rectangles"];' +
 'function _pdfModeleAccepteDecale(cle) { return _PDF_MODELES_SANS_ENTETE_DECALE.indexOf(cle) === -1; }' +
-'function _pdfEnteteDecaleeDefaut() {' +
-'  return { libre: true, modif: true, disp: "4", pos: {}, larg: {}, haut: null, ech: { nom: 1.3, coord: 1.25, metier: 1.6, accroche: 1.6 }, sty: {}, plan: {} };' +
+// Modeles dont la colonne coloree est a DROITE : le titre n'a que ~170 px avant la colonne, il est donc un peu plus petit (sinon « SECURITE » passait sous la colonne, de la meme couleur : defaut vu le 2026-10-22).
+'var _PDF_MODELES_COLONNE_DROITE = ["creatif:chronoFonce", "sobre:mq-chrono"];' +
+'function _pdfEnteteDecaleeDefaut(cle) {' +
+'  var petit = _PDF_MODELES_COLONNE_DROITE.indexOf(cle) !== -1;' +
+'  return { libre: true, modif: true, disp: "4", pos: {}, larg: {}, haut: null, ech: { nom: 1.3, coord: 1.25, metier: petit ? 1.15 : 1.6, accroche: petit ? 1.15 : 1.6 }, sty: {}, plan: {} };' +
 '}' +
 'function _pdfEnteteVierge() {' +
 '  return { libre: false, modif: false, disp: null, pos: {}, larg: {}, haut: null, ech: {}, sty: {}, plan: {} };' +
@@ -5674,7 +5930,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  Object.keys(_cvPdfEnteteParModele).forEach(function (k) { copie[k] = _cvPdfEnteteParModele[k]; });' +
 '  copie[_cvPdfCleModeleEntete] = JSON.parse(JSON.stringify(_cvPdfEnteteLibreMq));' +
 '  _cvPdfEnteteParModele = copie;' +
-'  _cvPdfEnteteLibreMq = _cvPdfEnteteParModele[cle] ? JSON.parse(JSON.stringify(_cvPdfEnteteParModele[cle])) : ((_cvPdfEnteteDecaleeAuto && _pdfModeleAccepteDecale(cle)) ? _pdfEnteteDecaleeDefaut() : _pdfEnteteVierge());' +
+'  _cvPdfEnteteLibreMq = _cvPdfEnteteParModele[cle] ? JSON.parse(JSON.stringify(_cvPdfEnteteParModele[cle])) : ((_cvPdfEnteteDecaleeAuto && _pdfModeleAccepteDecale(cle)) ? _pdfEnteteDecaleeDefaut(cle) : _pdfEnteteVierge());' +
 '  _cvPdfCleModeleEntete = cle;' +
 '}' +
 'function _pdfMqChoix(cle, valeur) {' +
@@ -5748,7 +6004,8 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  regCoinsArrondis: false, regFondColonnesA5: "droite", regEnteteInverseeA5: false, regRemplirPageA5: false, regSansAccroche: false, regPositionLibreEntete: true, regLargeurAccrocheLibre: "30", regLargeurMetierLibre: "32", regFondColonnePleineHauteur: false,' +
 '  regLettreJointe: false, regRegroupementActif: false, regOrdreExperiences: "pertinence", regFormatExperiences: "standard", regDispositionEntete: "3colonnes",' +
 '  regSoulignerPoste: false, regItaliquePoste: false, regSoulignerDates: false, regItaliqueDates: false, regSoulignerEntreprise: false, regItaliqueEntreprise: false,' +
-'  regSobreActif: false' +
+'  regSobreActif: false,' +
+'  regTexteHors: "dessous", regTexteHorsPerso: "#2f6690", regBandeauTeinte: "douce", regColonneTeinte: ""' +
 '};' +
 // TACHE (audit robustesse, 2026-09-11, defaut reel trouve) : "Reinitialiser"
 // effacait tout le travail de mise en forme sans confirmation ni retour
@@ -6068,7 +6325,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // est retiree du tirage (jamais choisie), 2 colonnes s'applique
 // automatiquement ; en dessous, 50/50 comme les autres champs structurels.
 '  var _cvPdfTitreViseTexte = (window.__cvPdfDossierSource && window.__cvPdfDossierSource.titreCV) || "";' +
-'  document.getElementById("regDispositionEntete").value = (_cvPdfTitreViseTexte.length > 42) ? "2colonnes" : _pdfChoixAleatoire(["3colonnes", "2colonnes"]);' +
+'  document.getElementById("regDispositionEntete").value = (_cvPdfTitreViseTexte.length > 42 || _pdfTexteAccrocheSource().length > 150) ? "2colonnes" : _pdfChoixAleatoire(["3colonnes", "2colonnes"]);' +
 '  document.getElementById("regAnneauPhoto").checked = Math.random() < 0.4;' +
 '  document.getElementById("regLectureGuidee").checked = Math.random() < 0.45;' +
 '  document.getElementById("regStyleProfessionnel").value = _pdfChoixAleatoire(["epure", "condense"]);' +
@@ -6160,6 +6417,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 // plus haut) -- appele ici en dernier, apres le rendu du tirage complet,
 // pour que chaque tirage herite du meme reequilibrage que "Mise en page".' +
 '  _pdfEssayerRequilibrageColonnes();' +
+'  _pdfCorrigerEnteteSiTropEtroit();' +
 '}' +
 // TACHE (retour utilisateur explicite : "quand je fais aleatoire, je vais
 // avoir des propositions de CV créatifs tout faits et pas des elements de
@@ -6180,8 +6438,66 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 '  if (document.getElementById("regCreatifActif").checked) { _pdfProposerAutreModeleCreatif(); }' +
 '  else if (document.getElementById("regSobreActif").checked) { _pdfProposerVarianteSobreSuivante(); }' +
 '  else { _pdfGenererStyleAleatoire(); }' +
+'  _pdfResserrerSiDepasse();' +
 '  try { if (window.parent && typeof window.parent._mepModeleOuStyleChange === "function") { window.parent._mepModeleOuStyleChange(); } } catch (errPulse2) { /* sans effet */ }' +
 '});' +
+// Garde-fou du tirage (retour de Denis, 24/10/2026, « les bandeaux sont énormes ») : l'en-tête doit épouser son contenu. Avec la disposition « 3 colonnes » et une accroche
+// longue, le rectangle de l'accroche (30 % de large) la fait tenir en colonne étroite, donc un bandeau très épais et un texte illisible. Aucune règle ne refusait ce tirage.
+// Le texte de l'accroche choisie, tel qu'il est dans le dossier source du CV.
+'function _pdfTexteAccrocheSource() {' +
+'  var src = window.__cvPdfDossierSource || {};' +
+'  var cv = (src.ia && src.ia.cv) || {};' +
+'  var liste = cv.accrochesProposees || [];' +
+'  return String(liste[cv.accrocheIdx || 0] || cv.profil || "");' +
+'}' +
+// Largeur (px) du plus étroit bloc de texte de l'accroche dans le CV affiché, -1 si on ne la trouve pas.
+'function _pdfLargeurTexteAccroche() {' +
+'  var debut = _pdfTexteAccrocheSource().replace(/\\s+/g, " ").trim().slice(0, 24);' +
+'  var racine = document.querySelector("#conteneurPage");' +
+'  if (!debut || !racine) { return -1; }' +
+'  var marcheur = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, null);' +
+'  while (marcheur.nextNode()) {' +
+'    var noeud = marcheur.currentNode;' +
+'    if (noeud.nodeValue.replace(/\\s+/g, " ").indexOf(debut) !== -1 && noeud.parentElement) { return noeud.parentElement.getBoundingClientRect().width; }' +
+'  }' +
+'  return -1;' +
+'}' +
+// Accroche en colonne trop etroite pour se lire (moins de 160 px) : jamais acceptable, ni apres un tirage, ni apres un agrandissement pour remplir la page.
+'function _pdfAccrocheTropEtroite() {' +
+'  var largeur = _pdfLargeurTexteAccroche();' +
+'  return largeur >= 0 && largeur < 160;' +
+'}' +
+// En-tete anormalement haut (plus de 30 % de la page) : un bandeau qui mange la page n'est jamais voulu.
+'function _pdfEnteteTropHaut() {' +
+'  var tete = document.querySelector("#conteneurPage .tete");' +
+'  var page = document.querySelector("#conteneurPage .page-a4");' +
+'  return !!tete && !!page && page.getBoundingClientRect().height > 0 && tete.getBoundingClientRect().height > page.getBoundingClientRect().height * 0.30;' +
+'}' +
+// Retour de Denis (24/10/2026) : l'en-tete « decalee » mise d'office sur un CV neuf peut, sur un modele a colonne coloree large, ne laisser que 12 % de largeur au titre et
+// a l'accroche (un mot par ligne, bandeau enorme). Tant que la personne n'a pas touche a cet en-tete (il est encore tel que la disposition par defaut l'a pose), on revient a l'en-tete d'origine
+// du modele. Un en-tete que la personne a regle elle-meme n'est jamais change ici.
+'function _pdfRetirerEnteteDecaleeSiTropEtroite() {' +
+'  var e = _cvPdfEnteteLibreMq;' +
+'  if (!e || e.disp !== "4" || !_cvPdfEnteteDecaleeAuto) { return; }' +
+'  if (JSON.stringify(e) !== JSON.stringify(_pdfEnteteDecaleeDefaut(_cvPdfCleModeleEntete))) { return; }' +
+'  if (!_pdfAccrocheTropEtroite() && !_pdfEnteteTropHaut()) { return; }' +
+'  _cvPdfEnteteLibreMq = _pdfEnteteVierge();' +
+'  _pdfRafraichir();' +
+'}' +
+// Si le tirage a mis l'accroche en colonne trop étroite (moins de 160 px, la largeur utile d'une page fait environ 700 px), on retire la disposition en cause, une étape à la fois :
+// d'abord « 2 colonnes », puis la position libre de l'en-tête. Jamais le hasard n'est supprimé : seul un résultat illisible est écarté.
+'function _pdfCorrigerEnteteSiTropEtroit() {' +
+'  var etapes = [' +
+'    function () { document.getElementById("regDispositionEntete").value = "2colonnes"; document.getElementById("regLargeurAccrocheLibre").value = "30"; document.getElementById("regLargeurMetierLibre").value = "32"; }, ' +
+'    function () { document.getElementById("regPositionLibreEntete").checked = false; }' +
+'  ];' +
+'  for (var i = 0; i < etapes.length; i++) {' +
+'    var largeur = _pdfLargeurTexteAccroche();' +
+'    if (largeur < 0 || largeur >= 160) { return; }' +
+'    etapes[i]();' +
+'    _pdfRafraichir();' +
+'  }' +
+'}' +
 // La mise en page peut-elle encore etre amelioree ? (page qui deborde, ou moins de 90 % remplie) : declenche la pulsation du bouton « Mise en page ».
 'function _pdfMiseEnPageAmeliorable() {' +
 '  var h = _pdfMesurerHauteurPage();' +
@@ -6321,7 +6637,7 @@ _PDF_GALERIE_CREATIF_IDS.map(function (id) {
 'function _pdfActiverEnteteDecale() {' +
 '  if (_cvPdfEnteteLibreMq.libre || _cvPdfEnteteLibreMq.modif) { return false; }' +
 '  var avant = JSON.parse(JSON.stringify(_cvPdfEnteteLibreMq));' +
-'  _cvPdfEnteteLibreMq = _pdfEnteteDecaleeDefaut();' +
+'  _cvPdfEnteteLibreMq = _pdfEnteteDecaleeDefaut(_cvPdfCleModeleEntete);' +
 '  _pdfRafraichir();' +
 '  var tete = document.querySelector("#conteneurPage .tete.libre");' +
 '  var page = document.querySelector("#conteneurPage .page-a4");' +

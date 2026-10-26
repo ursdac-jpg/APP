@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<!--
+  Maquette - marque « Via prospection » et rubrique séparée dans « Qui fait quoi ».
+  Chantier : docs/CHANTIER_VIA_PROSPECTION_QUI_FAIT_QUOI_2026-10-18.md (Mode A, [effort : haut]).
+  Statut : PROPOSITION, rien n'est codé dans l'application, rien n'est publié.
+
+  Cette maquette charge les VRAIES feuilles de style de l'application (mêmes couleurs, mêmes cartes, mode sombre compris).
+  Elle s'ouvre par double-clic depuis le dossier docs/ du projet (les feuilles de style sont lues dans ../css et ../vendor).
+
+  Les noms d'employeurs sont INVENTÉS (« Exemple A »...) : aucune vraie entreprise dans ce dépôt public.
+  Les textes sont des BROUILLONS à relire par Denis.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Via prospection</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/comprendre-le-cadre/comprendre-le-cadre.css">
+<style>
+  body { background: var(--bg-page, #f4f6fb); }
+  .mq-barre { position: sticky; top: 0; z-index: 20; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .mq-barre .mq-titre { font-weight: 700; margin-right: auto; }
+  .mq-page { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  .mq-avertissement { border: 2px dashed var(--border-strong); border-radius: .8rem; padding: .7rem .9rem; margin: .8rem 0 1.2rem; background: var(--bg-card); font-size: .9rem; }
+  .mq-ecran[hidden] { display: none; }
+  .mq-etiquette { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: .4rem; padding: .05rem .4rem; margin-bottom: .3rem; }
+  .mq-note { font-size: .85rem; color: var(--text-muted); border-left: 3px solid var(--border-strong); padding: .2rem .7rem; margin: .8rem 0; }
+</style>
+</head>
+<body>
+<div class="mq-barre">
+  <span class="mq-titre"><i class="bi bi-binoculars"></i> Maquette : Via prospection</span>
+  <button type="button" class="btn btn-sm btn-primary" data-mq-aller="emploi">1. Écran Emploi</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="liste">2. Liste Via prospection</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="fiche">3. Une fiche</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="secteur">4. Liste d'un secteur (inchangée)</button>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-mq-aller="variante">5. Variante : filtre dans chaque secteur</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="mqSombre" aria-pressed="false"><i class="bi bi-moon-stars"></i> Mode sombre</button>
+</div>
+
+<div class="mq-page">
+  <div class="mq-avertissement">
+    <strong>PROPOSITION, rien n'est codé.</strong> Les noms d'employeurs sont inventés. Les écrans 1 à 4 montrent la <strong>proposition recommandée</strong> (une quatrième porte « Via prospection », rubrique séparée) ; l'écran 5 montre l'autre possibilité (un filtre dans chaque secteur) pour comparer. Tous les boutons de cette page sont câblés.
+  </div>
+
+  <!-- ===== 1. ÉCRAN EMPLOI ===== -->
+  <section class="mq-ecran" id="mq-emploi">
+    <span class="mq-etiquette">Écran 1 : Emploi, les employeurs de mon territoire</span>
+    <h1 class="h3 text-center mt-3"><i class="bi bi-briefcase titre-icone-accent"></i> Emploi : les employeurs de mon territoire</h1>
+    <p class="text-center">On montre des portes, pas des annonces : des employeurs où l’on peut se présenter, candidater ou passer un concours.</p>
+    <div class="grille-sous-cartes-accueil mt-3">
+      <button type="button" class="sous-carte-accueil mt-porte"><i class="bi bi-box-arrow-up-right"></i><strong>Employeurs qui publient leurs offres</strong><span>Les pages où les employeurs publient eux-mêmes leurs offres</span></button>
+      <button type="button" class="sous-carte-accueil mt-porte"><i class="bi bi-arrow-repeat"></i><strong>Agences d’intérim</strong><span>Inscription possible dans tous les secteurs</span></button>
+      <button type="button" class="sous-carte-accueil mt-porte"><i class="bi bi-signpost-split"></i><strong>Insertion par l’activité économique</strong><span>Un emploi avec un accompagnement : on y entre par un conseiller</span></button>
+      <button type="button" class="sous-carte-accueil mt-porte" data-mq-aller="liste" style="outline:3px solid var(--accent); outline-offset:2px"><i class="bi bi-binoculars"></i><strong>Via prospection</strong><span>Des employeurs repérés lors de démarches de prospection : une porte pour une candidature spontanée</span><span class="badge text-bg-primary mt-1">NOUVEAU : 9 employeurs</span></button>
+    </div>
+    <h2 class="h5 fw-bold text-uppercase text-muted mt-4">Les 21 secteurs</h2>
+    <p class="small text-muted">Les secteurs qui ont une liste passent en premier. Les compteurs ne comptent <strong>pas</strong> les employeurs « Via prospection » (aucun mélange).</p>
+    <div class="grille-sous-cartes-accueil">
+      <button type="button" class="sous-carte-accueil" data-mq-aller="secteur"><i class="bi bi-cart3"></i><strong>Commerce et vente</strong><span>caissier, vendeur, employé libre-service</span><span class="badge text-bg-primary mt-1">5 enseignes ou employeurs</span></button>
+      <button type="button" class="sous-carte-accueil"><i class="bi bi-bricks"></i><strong>Bâtiment et travaux publics</strong><span>maçon, électricien, plombier</span><span class="badge text-bg-light mt-1">Pas encore de liste</span></button>
+    </div>
+    <div class="mq-note">Le bouton de la quatrième porte reprend exactement la forme des trois autres (même classe de l'application). Il est entouré ici seulement pour le repérer sur la maquette.</div>
+  </section>
+
+  <!-- ===== 2. LISTE VIA PROSPECTION ===== -->
+  <section class="mq-ecran" id="mq-liste" hidden>
+    <span class="mq-etiquette">Écran 2 : la rubrique « Via prospection »</span>
+    <h1 class="h3 text-center mt-3"><i class="bi bi-binoculars titre-icone-accent"></i> Via prospection, en Dordogne</h1>
+    <div class="comprendre-le-cadre-encart mb-3"><i class="bi bi-info-circle"></i> Ces employeurs ont été <strong>repérés lors de démarches de prospection</strong>, pas parce qu’ils ont publié une offre. Rien ne dit qu’ils recrutent en ce moment : une candidature spontanée est possible, et il vaut mieux téléphoner d’abord. Ils sont rangés ici, à part des autres listes.</div>
+
+    <p class="text-center mb-1"><strong>Choisissez un secteur</strong> pour réduire la liste.</p>
+    <div class="d-flex flex-wrap gap-2 justify-content-center my-2" role="group" aria-label="Choisir un secteur" id="mq-puces-secteur"></div>
+
+    <p class="text-center mb-1"><strong>Choisissez une ou plusieurs communes</strong> pour voir ce qui les concerne, ou affichez toute la liste.</p>
+    <div class="d-flex flex-wrap gap-2 justify-content-center my-3" role="group" aria-label="Communes" id="mq-puces-commune"></div>
+
+    <p class="small text-muted text-center" id="mq-compte"></p>
+    <div class="mt-grille-employeurs" id="mq-cartes"></div>
+    <div class="mq-note">Réutilisé tel quel : les puces de secteur avec compteur (le même modèle que l'écran « Où voir les offres d'emploi »), le bandeau des communes, les cartes d'employeur et la grille. Nouveau : seulement la pastille « Via prospection » sur chaque carte et l'encart d'explication. Ordre : alphabétique dans chaque secteur, jamais un classement.</div>
+  </section>
+
+  <!-- ===== 3. FICHE ===== -->
+  <section class="mq-ecran" id="mq-fiche" hidden>
+    <span class="mq-etiquette">Écran 3 : une fiche « Via prospection »</span>
+    <h1 class="h3 text-center mt-3"><i class="bi bi-building titre-icone-accent"></i> Exemple A</h1>
+    <p class="text-center"><span class="badge text-bg-primary"><i class="bi bi-binoculars"></i> Via prospection</span></p>
+    <div class="comprendre-le-cadre-encart mb-3">
+      <span class="d-block"><i class="bi bi-building"></i> Employeur local · Commerce et vente</span>
+      <span class="d-block"><i class="bi bi-geo-alt"></i> <strong>Bergerac (24100)</strong> : 12 rue de l’Exemple <a class="btn btn-sm btn-outline-primary ms-1" href="#" onclick="return false"><i class="bi bi-map"></i> Voir sur la carte</a></span>
+      <span class="d-block"><i class="bi bi-telephone"></i> <strong>Téléphone du standard</strong> : <span style="white-space:nowrap">05&nbsp;53&nbsp;00&nbsp;00&nbsp;00</span></span>
+      <span class="d-block"><i class="bi bi-clock-history"></i> Vérifié le 18 octobre 2026</span>
+    </div>
+    <div class="comprendre-le-cadre-encart mb-3"><i class="bi bi-binoculars"></i> <strong>Pourquoi cet employeur est ici ?</strong> Il a été repéré lors d’une démarche de prospection, pas parce qu’il a publié une offre. Nous ne savons pas s’il recrute en ce moment.</div>
+    <details class="bloc-depli bd-ok" open><summary>Comment candidater ici ?</summary><div class="bloc-depli-corps"><span class="badge rounded-pill text-bg-light me-1">Non indiqué par l’entreprise</span><p class="small text-muted mt-2 mb-0">Ces repères informent, ils ne sont pas à cocher. Nous ne savons pas à quelle fréquence cet employeur recrute et ne l’affirmons jamais.</p></div></details>
+    <details class="bloc-depli bd-warn" open><summary>Avant d’y aller</summary><div class="bloc-depli-corps"><ul class="mb-0"><li>Téléphonez d’abord pour demander à qui remettre votre candidature.</li><li>Ayez votre CV à jour sur vous, ou envoyez-le avant.</li><li>Préparez une phrase simple : qui vous êtes et le poste qui vous intéresse.</li></ul></div></details>
+    <div class="d-flex flex-wrap gap-2 mt-3"><a class="btn btn-outline-primary" href="#" onclick="return false"><i class="bi bi-box-arrow-up-right"></i> Voir le site (vous quittez l’application)</a></div>
+    <p class="small text-muted mt-3">Ni recommandation ni garantie de recrutement. Liste non exhaustive.</p>
+    <div class="text-center"><button type="button" class="btn btn-sm btn-outline-secondary" data-mq-aller="liste">Retour à la liste « Via prospection »</button></div>
+    <div class="mq-note">La fiche est la fiche habituelle (même écran de l'application, mêmes blocs). Ajouts : la pastille sous le nom et l'encart « Pourquoi cet employeur est ici ? ». Le mot « prospection » n'est jamais présenté comme un label de qualité.</div>
+  </section>
+
+  <!-- ===== 4. LISTE D'UN SECTEUR ===== -->
+  <section class="mq-ecran" id="mq-secteur" hidden>
+    <span class="mq-etiquette">Écran 4 : liste d'un secteur, comme aujourd'hui</span>
+    <h1 class="h3 text-center mt-3"><i class="bi bi-cart3 titre-icone-accent"></i> Commerce et vente, en Dordogne</h1>
+    <div class="d-flex flex-wrap gap-2 justify-content-center my-2"><button type="button" class="btn btn-sm btn-primary">Tous</button><button type="button" class="btn btn-sm btn-outline-primary">Enseignes</button><button type="button" class="btn btn-sm btn-outline-primary">Employeurs locaux</button></div>
+    <p class="small text-muted text-center">Par ordre alphabétique : ce n’est pas un classement. 5 sur 5 affichés.</p>
+    <div class="mt-grille-employeurs">
+      <div class="comprendre-le-cadre-encart mt-carte-employeur"><span class="d-block fw-semibold">Enseigne 1 (exemple)</span><span class="d-block small">Enseigne · Bergerac (24100)</span><button type="button" class="btn btn-sm btn-primary mt-2">Voir la fiche</button></div>
+      <div class="comprendre-le-cadre-encart mt-carte-employeur"><span class="d-block fw-semibold">Enseigne 2 (exemple)</span><span class="d-block small">Enseigne · Bergerac (24100), Creysse (24100)</span><button type="button" class="btn btn-sm btn-primary mt-2">Voir la fiche</button></div>
+    </div>
+    <div class="mq-note"><strong>Rien ne change ici.</strong> Aucun employeur « Via prospection » n'apparaît dans cette liste, ni dans « Tous », ni dans les compteurs de l'écran 1. C'est le sens de « aucun mélange ». L'employeur « Exemple A » du secteur Commerce et vente se trouve seulement dans la rubrique « Via prospection ».</div>
+  </section>
+
+  <!-- ===== 5. VARIANTE ===== -->
+  <section class="mq-ecran" id="mq-variante" hidden>
+    <span class="mq-etiquette">Écran 5 : variante, un filtre dans chaque secteur (non recommandée)</span>
+    <h1 class="h3 text-center mt-3"><i class="bi bi-cart3 titre-icone-accent"></i> Commerce et vente, en Dordogne</h1>
+    <div class="d-flex flex-wrap gap-2 justify-content-center my-2"><button type="button" class="btn btn-sm btn-primary">Tous</button><button type="button" class="btn btn-sm btn-outline-primary">Enseignes</button><button type="button" class="btn btn-sm btn-outline-primary">Employeurs locaux</button><button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-binoculars"></i> Via prospection (2)</button></div>
+    <p class="small text-muted text-center">Par ordre alphabétique : ce n’est pas un classement. 5 sur 5 affichés.</p>
+    <div class="mt-grille-employeurs">
+      <div class="comprendre-le-cadre-encart mt-carte-employeur"><span class="d-block fw-semibold">Enseigne 1 (exemple)</span><span class="d-block small">Enseigne · Bergerac (24100)</span><button type="button" class="btn btn-sm btn-primary mt-2">Voir la fiche</button></div>
+    </div>
+    <div class="mq-note">Ici le bouton « Via prospection » n'existe qu'à l'intérieur d'un secteur : pour voir tous les employeurs de prospection, il faudrait ouvrir les secteurs un par un, et « Tous » devrait exclure les fiches de prospection pour rester sans mélange (ce qui surprend : « Tous » ne veut plus dire tous). Le tri par secteur est alors impossible à voir d'un coup d'œil.</div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // Données inventées (aucun vrai employeur).
+  var SECTEURS = { 'commerce-vente': 'Commerce et vente', 'artisanat-bouche': 'Métiers de bouche (artisanat)', 'automobile': 'Mécanique et automobile', 'btp': 'Bâtiment et travaux publics' };
+  var EMPLOYEURS = [
+    { nom: 'Exemple A', secteur: 'commerce-vente', communes: ['Bergerac'], cp: '24100' },
+    { nom: 'Exemple B', secteur: 'commerce-vente', communes: ['Périgueux'], cp: '24000' },
+    { nom: 'Exemple C', secteur: 'artisanat-bouche', communes: ['Bergerac'], cp: '24100' },
+    { nom: 'Exemple D', secteur: 'artisanat-bouche', communes: ['Sarlat-la-Canéda'], cp: '24200' },
+    { nom: 'Exemple E', secteur: 'artisanat-bouche', communes: ['Périgueux'], cp: '24000' },
+    { nom: 'Exemple F', secteur: 'automobile', communes: ['Bergerac'], cp: '24100' },
+    { nom: 'Exemple G', secteur: 'automobile', communes: ['Boulazac Isle Manoire'], cp: '24750' },
+    { nom: 'Exemple H', secteur: 'btp', communes: ['Périgueux'], cp: '24000' },
+    { nom: 'Exemple I', secteur: 'btp', communes: ['Nontron'], cp: '24300' }
+  ];
+  var COMMUNES = [['Bergerac', '24100'], ['Boulazac Isle Manoire', '24750'], ['Nontron', '24300'], ['Périgueux', '24000'], ['Sarlat-la-Canéda', '24200']];
+  var etat = { secteur: '', communes: [] };
+
+  function echap(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function aller(id) {
+    document.querySelectorAll('.mq-ecran').forEach(function (e) { e.hidden = e.id !== 'mq-' + id; });
+    document.querySelectorAll('.mq-barre [data-mq-aller]').forEach(function (b) { var actif = b.dataset.mqAller === id; b.classList.toggle('btn-primary', actif); b.classList.toggle('btn-outline-primary', !actif); });
+    window.scrollTo(0, 0);
+  }
+  function dessiner() {
+    // Puces de secteur avec compteur (le compteur tient compte des communes choisies, jamais de zéro trompeur).
+    var choixCommune = function (e) { return !etat.communes.length || e.communes.some(function (c) { return etat.communes.indexOf(c) !== -1; }); };
+    var n = {}; EMPLOYEURS.filter(choixCommune).forEach(function (e) { n[e.secteur] = (n[e.secteur] || 0) + 1; });
+    var total = EMPLOYEURS.filter(choixCommune).length;
+    var cles = Object.keys(SECTEURS).sort(function (a, b) { return SECTEURS[a].localeCompare(SECTEURS[b], 'fr', { sensitivity: 'base' }); }).filter(function (k) { return n[k]; });
+    var puces = [['', 'Tous les secteurs (' + total + ')']].concat(cles.map(function (k) { return [k, SECTEURS[k] + ' (' + n[k] + ')']; }));
+    document.getElementById('mq-puces-secteur').innerHTML = puces.map(function (f) {
+      return '<button type="button" class="btn btn-sm ' + (etat.secteur === f[0] ? 'btn-primary' : 'btn-outline-primary') + '" aria-pressed="' + (etat.secteur === f[0]) + '" data-mq-secteur="' + echap(f[0]) + '">' + echap(f[1]) + '</button>'; }).join('');
+    document.getElementById('mq-puces-commune').innerHTML = COMMUNES.map(function (c) {
+      var actif = etat.communes.indexOf(c[0]) !== -1;
+      return '<button type="button" class="btn btn-sm ' + (actif ? 'btn-primary' : 'btn-outline-primary') + '" aria-pressed="' + actif + '" data-mq-commune="' + echap(c[0]) + '">' + echap(c[0] + ' (' + c[1] + ')') + '</button>'; }).join('') +
+      '<button type="button" class="btn btn-sm ' + (!etat.communes.length ? 'btn-primary' : 'btn-outline-primary') + '" data-mq-commune="*">Voir toute la liste</button>';
+    var liste = EMPLOYEURS.filter(choixCommune).filter(function (e) { return !etat.secteur || e.secteur === etat.secteur; }).sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); });
+    document.getElementById('mq-compte').textContent = 'Par ordre alphabétique : ce n’est pas un classement. ' + liste.length + ' sur ' + liste.length + ' affichés.';
+    document.getElementById('mq-cartes').innerHTML = liste.length ? liste.map(function (e) {
+      return '<div class="comprendre-le-cadre-encart mt-carte-employeur"><span class="d-block fw-semibold">' + echap(e.nom) + '</span>' +
+        '<span class="d-block small">Employeur local · ' + echap(e.communes.join(', ') + ' (' + e.cp + ')') + '</span>' +
+        '<span class="d-block small">' + echap(SECTEURS[e.secteur]) + '</span>' +
+        '<span class="badge text-bg-primary mt-1"><i class="bi bi-binoculars"></i> Via prospection</span>' +
+        '<button type="button" class="btn btn-sm btn-primary mt-2" data-mq-aller="fiche">Voir la fiche</button></div>'; }).join('')
+      : '<p class="small text-muted text-center border rounded p-3">Aucun employeur pour ce choix. Essayez un autre secteur ou « Voir toute la liste ».</p>';
+    brancher();
+  }
+  function brancher() {
+    document.querySelectorAll('[data-mq-aller]').forEach(function (b) { b.onclick = function () { aller(b.dataset.mqAller); }; });
+    document.querySelectorAll('[data-mq-secteur]').forEach(function (b) { b.onclick = function () { etat.secteur = b.dataset.mqSecteur; dessiner(); }; });
+    document.querySelectorAll('[data-mq-commune]').forEach(function (b) { b.onclick = function () {
+      var v = b.dataset.mqCommune;
+      if (v === '*') { etat.communes = []; } else { var i = etat.communes.indexOf(v); if (i === -1) { etat.communes.push(v); } else { etat.communes.splice(i, 1); } }
+      if (etat.secteur) { /* si le secteur n'a plus d'employeur pour ces communes, on revient à tous */
+        var reste = EMPLOYEURS.some(function (e) { return e.secteur === etat.secteur && (!etat.communes.length || e.communes.some(function (c) { return etat.communes.indexOf(c) !== -1; })); });
+        if (!reste) { etat.secteur = ''; } }
+      dessiner(); }; });
+  }
+  var s = document.getElementById('mqSombre');
+  s.addEventListener('click', function () {
+    var html = document.documentElement, sombre = html.getAttribute('data-theme') === 'sombre';
+    if (sombre) { html.removeAttribute('data-theme'); } else { html.setAttribute('data-theme', 'sombre'); }
+    s.setAttribute('aria-pressed', String(!sombre));
+  });
+  dessiner(); aller('emploi');
+})();
+</script>
+</body>
+</html>

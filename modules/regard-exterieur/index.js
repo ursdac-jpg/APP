@@ -1338,7 +1338,7 @@ function _regardExterieurOuvrirAttente(onReponseTraitee) {
         '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecollerRegardExterieur">Effacer et recoller</button>' +
         '</div>') +
       '<div id="regardExterieurAttenteMorceaux" class="regard-exterieur-attente-morceaux" style="display:none;">' +
-      '&#8987; En attente du message complet. N\'oubliez pas de cliquer sur « Importer » une fois tous les morceaux collés.' +
+      '&#8987; En attente du message complet. N\'oubliez pas de cliquer sur « Continuer » une fois tous les morceaux collés.' +
       '</div>' +
       '<div id="regardExterieurMessageImport" class="mt-2 small"></div>' +
       '</div>' +
@@ -1669,7 +1669,7 @@ function _regardExterieurOuvrirEditionSelection(item, btn, id) {
   var champTitre = document.createElement('input');
   champTitre.type = 'text';
   champTitre.className = 'form-control form-control-sm regard-exterieur-selection-titre-champ';
-  champTitre.placeholder = 'Titre (facultatif)';
+  champTitre.placeholder = 'Titre (à compléter)';
   champTitre.value = titreDepart;
   var champTexte = document.createElement('textarea');
   champTexte.className = 'form-control form-control-sm regard-exterieur-selection-edition mt-1';
@@ -1914,7 +1914,7 @@ function _regardExterieurDROptIn(onNon, onOui) {
     titre: '&#128300; Deuxième Regard',
     aideContexte: 'regard-exterieur-deuxieme-regard-optin',
     contenuHTML:
-      '<p class="mb-3">Voulez-vous répondre à quelques questions pour affiner ce Deuxième Regard ? C\'est <strong>facultatif</strong> : sans ça, l\'assistant relit vos Repères tels quels.</p>' +
+      '<p class="mb-3">Voulez-vous répondre à quelques questions pour affiner ce Deuxième Regard ? C\'est <strong>à compléter</strong> : sans ça, l\'assistant relit vos Repères tels quels.</p>' +
       '<div class="d-flex gap-2 justify-content-center flex-wrap">' +
       '<button type="button" class="btn btn-outline-secondary" id="regardExterieurDROptInNon">Non, relire tel quel</button>' +
       '<button type="button" class="btn btn-outline-secondary" id="regardExterieurDROptInOui">Oui, répondre à quelques questions</button>' +
@@ -1947,7 +1947,7 @@ function _regardExterieurDRRendreQuestion() {
           (actif ? '&#10003; ' : '') + echapperAttribut(r.titre) + '</button>';
       }).join('') +
       '</div>' +
-      '<p class="small text-muted mt-2 mb-1">Précisez ce qui se passe autour de ce sujet (facultatif)</p>' +
+      '<p class="small text-muted mt-2 mb-1">Précisez ce qui se passe autour de ce sujet (à compléter)</p>' +
       _regardExterieurRenduAstuceDictee() +
       '<textarea class="form-control form-control-sm" id="regardExterieurDRTexte" rows="3">' + echapperAttribut(etat.texte) + '</textarea>';
   } else if (q.choix && q.choix.length) {
@@ -1958,7 +1958,7 @@ function _regardExterieurDRRendreQuestion() {
           (actif ? '&#10003; ' : '') + echapperAttribut(c) + '</button>';
       }).join('') +
       '</div>' +
-      '<p class="small text-muted mt-2 mb-1">' + echapperAttribut(q.precisionLabel || 'Souhaitez-vous préciser votre réponse ?') + ' (facultatif)</p>' +
+      '<p class="small text-muted mt-2 mb-1">' + echapperAttribut(q.precisionLabel || 'Souhaitez-vous préciser votre réponse ?') + ' (à compléter)</p>' +
       _regardExterieurRenduAstuceDictee() +
       '<textarea class="form-control form-control-sm" id="regardExterieurDRPrecision">' + echapperAttribut(etat.precision) + '</textarea>';
   } else {
@@ -2593,7 +2593,7 @@ function _regardExterieurRenduEcranQuestionUnique() {
           (actif ? '&#10003; ' : '') + echapperAttribut(c) + '</button>';
       }).join('') +
       '</div>' +
-      '<p class="small text-muted mt-2 mb-1">' + echapperAttribut(q.precisionLabel || 'Souhaitez-vous préciser votre réponse ?') + ' (facultatif)</p>' +
+      '<p class="small text-muted mt-2 mb-1">' + echapperAttribut(q.precisionLabel || 'Souhaitez-vous préciser votre réponse ?') + ' (à compléter)</p>' +
       _regardExterieurRenduAstuceDictee() +
       '<textarea class="form-control form-control-sm" id="regardExterieurPrecision">' + echapperAttribut(etat.precision) + '</textarea>'
     : _regardExterieurRenduAstuceDictee() +
@@ -3344,7 +3344,7 @@ function regardExterieurRevoirDerniereAnalyse(type) {
       '<div class="text-center mt-3 d-flex gap-2 justify-content-center flex-wrap">' +
       '<button type="button" id="btnRegardExterieurApprofondir" class="btn btn-outline-primary btn-sm">Aller plus loin &#8594;</button>' +
       '<button type="button" id="btnRegardExterieurPointSituation" class="btn btn-outline-primary btn-sm">&#128221; Point sur ma situation</button>' +
-      '<p class="small text-muted mt-2 mb-0 w-100">Facultatif : « Aller plus loin » pose des questions supplémentaires ; « Point sur ma situation » prépare un document à imprimer ou à emmener à un rendez-vous.</p>' +
+      '<p class="small text-muted mt-2 mb-0 w-100">À compléter : « Aller plus loin » pose des questions supplémentaires ; « Point sur ma situation » prépare un document à imprimer ou à emmener à un rendez-vous.</p>' +
       '</div>'
   });
   if (!overlay) { return; }

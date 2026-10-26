@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<!--
+  Maquette - repères d'entreprises du territoire + 4 fiches du Lexique.
+  Chantier : docs/CHANTIER_REPERES_ENTREPRISES_TERRITOIRE_2026-10-18.md (Mode A, [effort : haut]).
+  Statut : PROPOSITION, rien n'est codé dans l'application, rien n'est publié.
+
+  Cette maquette charge les VRAIES feuilles de style de l'application (mêmes couleurs, mêmes dépliants, mode sombre compris).
+  Elle s'ouvre par double-clic depuis le dossier docs/ du projet (les feuilles de style sont lues dans ../css et ../modules).
+
+  Chiffres affichés : relevés le 2026-10-18 dans l'outil privé de prospection (annonces légales du BODACC, 1er novembre 2025 au 18 octobre 2026,
+  comparés à la même période un an plus tôt). Aucun nom d'entreprise ni de personne. Ces chiffres ne sont PAS encore validés : ils servent
+  seulement à juger la mise en page. Les textes des 4 fiches sont des BROUILLONS à relire et à faire vérifier sur les sources officielles.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette - Repères d'entreprises du territoire</title>
+<link href="../vendor/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/bootstrap-icons/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../modules/lexique/lexique.css">
+<link rel="stylesheet" href="../modules/comprendre-les-chiffres/comprendre-les-chiffres.css">
+<style>
+  body { background: var(--bg-page, #f4f6fb); }
+  .mq-barre { position: sticky; top: 0; z-index: 20; background: var(--bg-card); border-bottom: 1px solid var(--border-strong); padding: .6rem 1rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .mq-barre .mq-titre { font-weight: 700; margin-right: auto; }
+  .mq-page { max-width: 820px; margin: 0 auto; padding: 1rem 1rem 4rem; }
+  .mq-avertissement { border: 2px dashed var(--border-strong); border-radius: .8rem; padding: .7rem .9rem; margin: .8rem 0 1.2rem; background: var(--bg-card); font-size: .9rem; }
+  .mq-ecran[hidden] { display: none; }
+  .mq-etiquette { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: .4rem; padding: .05rem .4rem; margin-bottom: .3rem; }
+  .mq-fiche { background: var(--bg-card); border: 1px solid var(--border); border-radius: .9rem; padding: 1rem 1.1rem; margin: 1rem 0; }
+  .mq-fiche h3 { font-size: 1.1rem; margin: 0 0 .5rem; color: var(--text-strong, inherit); }
+  .mq-fiche .mq-voir { margin-top: .6rem; font-size: .88rem; color: var(--text-muted); }
+  .mq-ligne { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; align-items: baseline; margin: .2rem 0 .6rem; }
+  .mq-gros { font-size: 1.7rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+  .mq-verif { font-size: .82rem; color: var(--text-muted); }
+  .mq-panneau { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: .9rem; padding: 1rem; margin: 1rem 0; }
+  .mq-champ { display: grid; grid-template-columns: 11rem 1fr; gap: .3rem .8rem; align-items: center; margin: .35rem 0; font-size: .9rem; }
+  .mq-champ input[type=text] { width: 100%; border: 1px solid var(--border-strong); border-radius: .4rem; padding: .25rem .5rem; background: var(--bg-card); color: inherit; }
+  @media (max-width: 640px) { .mq-champ { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="mq-barre">
+  <span class="mq-titre">Maquette : repères d'entreprises</span>
+  <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-ecran="1" aria-pressed="true">1. Le bloc dans Comprendre les chiffres</button>
+  <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-ecran="2" aria-pressed="false">2. Les 4 fiches du Lexique</button>
+  <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-ecran="3" aria-pressed="false">3. La validation dans l'outil de veille</button>
+  <button type="button" class="btn btn-outline-secondary btn-sm" id="mqSombre" aria-pressed="false"><i class="bi bi-moon-stars"></i> Mode sombre</button>
+</div>
+
+<div class="mq-page">
+
+  <div class="mq-avertissement">
+    <strong>Maquette, rien n'est codé.</strong> Les chiffres viennent des annonces légales (BODACC), relevés le 18 octobre 2026, <strong>pas encore validés</strong>.
+    Les textes des fiches sont des brouillons. Tous les boutons de cette page sont câblés : changez de département, ouvrez les rubriques, passez en mode sombre.
+  </div>
+
+  <!-- =========================================================== ÉCRAN 1 -->
+  <section class="mq-ecran" id="mqEcran1">
+    <span class="mq-etiquette">Écran 1 : niveau « mon département », dans « Le portrait du territoire »</span>
+
+    <div class="comprendre-les-chiffres-bandeau-departement mb-3" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;">
+      <span><i class="bi bi-geo-alt"></i> Département :</span>
+      <button type="button" class="btn btn-sm btn-primary" data-mq-dep="24" aria-pressed="true">Dordogne (24)</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-mq-dep="87" aria-pressed="false">Haute-Vienne (87)</button>
+    </div>
+
+    <details class="comprendre-les-chiffres-depli comprendre-les-chiffres-depli-section" open>
+      <summary>
+        <span class="comprendre-les-chiffres-depli-titre">Le portrait du territoire</span>
+        <span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span>
+        <span class="comprendre-les-chiffres-depli-desc">Des repères de fond sur l'économie locale, mis à jour une fois par an.</span>
+      </summary>
+      <div class="comprendre-les-chiffres-depli-corps">
+
+        <details class="comprendre-les-chiffres-depli">
+          <summary>
+            <span class="comprendre-les-chiffres-depli-titre">Population et densité</span>
+            <span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span>
+            <span class="comprendre-les-chiffres-depli-desc">Combien d'habitants, et à quel point le territoire est peuplé.</span>
+          </summary>
+          <div class="comprendre-les-chiffres-depli-corps"><p class="comprendre-les-chiffres-note">(rubrique existante, inchangée)</p></div>
+        </details>
+
+        <details class="comprendre-les-chiffres-depli">
+          <summary>
+            <span class="comprendre-les-chiffres-depli-titre">Le territoire bouge-t-il</span>
+            <span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span>
+            <span class="comprendre-les-chiffres-depli-desc">Créations et défaillances d'entreprises par secteur, poids de l'emploi lié au tourisme.</span>
+          </summary>
+          <div class="comprendre-les-chiffres-depli-corps"><p class="comprendre-les-chiffres-note">(rubrique existante : voir la décision 1 du plan, sa phrase sur les procédures collectives est à corriger)</p></div>
+        </details>
+
+        <!-- ===== LE NOUVEAU BLOC (proposition) ===== -->
+        <details class="comprendre-les-chiffres-depli" open style="border-color: var(--accent);">
+          <summary>
+            <span class="comprendre-les-chiffres-edito-marque">Nouveau</span>
+            <span class="comprendre-les-chiffres-depli-titre">Les entreprises ici : ce qui se vend, ce qui ferme</span>
+            <span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span>
+            <span class="comprendre-les-chiffres-depli-desc">Deux repères tirés des annonces légales du département, sur douze mois.</span>
+          </summary>
+          <div class="comprendre-les-chiffres-depli-corps">
+
+            <p class="comprendre-les-chiffres-section-intro">
+              Ces chiffres décrivent des <b>annonces publiées au registre du commerce</b>, jamais une entreprise en particulier.
+              Ils servent à situer le territoire, pas à décider d'aller ou non vers un employeur.
+            </p>
+
+            <div class="comprendre-les-chiffres-indic">
+              <p class="comprendre-les-chiffres-indic-q">Combien de procédures collectives (liquidation, redressement, sauvegarde) ont été ouvertes ?</p>
+              <div class="comprendre-les-chiffres-indic-valeur" data-mq="ouvertures">372</div>
+              <p class="comprendre-les-chiffres-indic-phrase">
+                C'est le nombre d'entreprises pour lesquelles un tribunal a ouvert une de ces deux procédures sur les douze derniers mois,
+                dans <span data-mq="nomdep">la Dordogne</span>. La même période un an plus tôt : <strong data-mq="ouvertures-prec">394</strong>
+                (<span data-mq="ouvertures-evol">en légère baisse</span>).
+              </p>
+              <div class="mq-ligne">
+                <a class="comprendre-les-chiffres-pastille" href="#" onclick="return false;"><i class="bi bi-box-arrow-up-right"></i> Source : BODACC, annonces commerciales</a>
+                <span class="mq-verif"><i class="bi bi-calendar-check"></i> Période : du 1er novembre 2025 au 18 octobre 2026 · Vérifié le 2026-10-xx</span>
+              </div>
+            </div>
+
+            <div class="comprendre-les-chiffres-indic">
+              <p class="comprendre-les-chiffres-indic-q">Combien d'annonces de vente ou de cession de commerce ?</p>
+              <div class="comprendre-les-chiffres-indic-valeur" data-mq="ventes">299</div>
+              <p class="comprendre-les-chiffres-indic-phrase">
+                Annonces de vente ou de cession publiées sur les douze derniers mois. La même période un an plus tôt :
+                <strong data-mq="ventes-prec">288</strong> (<span data-mq="ventes-evol">à peu près stable</span>).
+                Une annonce ne dit pas pourquoi le propriétaire vend, ni ce que deviennent les salariés.
+              </p>
+              <div class="mq-ligne">
+                <a class="comprendre-les-chiffres-pastille" href="#" onclick="return false;"><i class="bi bi-box-arrow-up-right"></i> Source : BODACC, annonces commerciales</a>
+                <span class="mq-verif"><i class="bi bi-calendar-check"></i> Période : du 1er novembre 2025 au 18 octobre 2026 · Vérifié le 2026-10-xx</span>
+              </div>
+            </div>
+
+            <div class="comprendre-les-chiffres-encart small comprendre-les-chiffres-encart-attention">
+              <i class="bi bi-exclamation-triangle"></i>
+              Ce sont des <b>annonces</b>, pas des entreprises : une même procédure en produit plusieurs (ouverture, liste des créances, clôture).
+              Seules les <b>ouvertures</b> sont comptées ici. Les créations d'entreprises (qui comptent les micro-entrepreneurs) et les radiations
+              ne sont pas comparées d'un département à l'autre : elles ne sont pas publiées de la même façon partout.
+            </div>
+
+            <details class="comprendre-les-chiffres-depli">
+              <summary>
+                <span class="comprendre-les-chiffres-depli-titre">Comment lire ces chiffres</span>
+                <span class="comprendre-les-chiffres-depli-clic">Cliquez pour ouvrir</span>
+              </summary>
+              <div class="comprendre-les-chiffres-depli-corps">
+                <p>Quatre fiches du Lexique expliquent les mots qui reviennent dans ces chiffres :</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-vers-fiche="0"><i class="bi bi-book"></i> Créations et micro-entrepreneurs</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-vers-fiche="1"><i class="bi bi-book"></i> Radiation d'office</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-vers-fiche="2"><i class="bi bi-book"></i> Défaillance d'entreprise</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-vers-fiche="3"><i class="bi bi-book"></i> Vente d'un fonds de commerce</button>
+                </div>
+              </div>
+            </details>
+
+          </div>
+        </details>
+        <!-- ===== FIN DU NOUVEAU BLOC ===== -->
+
+      </div>
+    </details>
+
+    <p class="comprendre-les-chiffres-note mt-3">
+      Ce bloc n'apparaît qu'au niveau « mon département » (comme l'encart « gros employeurs »). Aux niveaux région, France et Europe, il est masqué.
+    </p>
+  </section>
+
+  <!-- =========================================================== ÉCRAN 2 -->
+  <section class="mq-ecran" id="mqEcran2" hidden>
+    <span class="mq-etiquette">Écran 2 : parcours « Comment lire les chiffres de créations, de radiations et de défaillances d'entreprises »</span>
+    <p class="comprendre-les-chiffres-section-intro">
+      Quatre fiches, dans la forme habituelle du Lexique : un mot, une explication sans chiffre daté, des liens « voir aussi ». Les chiffres vivent dans « Comprendre les chiffres ».
+    </p>
+
+    <article class="mq-fiche" id="mqFiche0">
+      <h3>Créations d'entreprises et micro-entrepreneurs</h3>
+      <p class="lexique-fiche-def">Quand on annonce un nombre de créations d'entreprises, ce nombre compte aussi les micro-entrepreneurs : des personnes qui se mettent à leur compte, souvent seules, parfois en complément d'un autre travail. Beaucoup de créations ne veut donc pas dire beaucoup d'emplois nouveaux. L'Insee publie ces chiffres et les compare à la même période un an plus tôt, ce qui permet de voir si le mouvement s'accélère ou ralentit.</p>
+      <div class="lexique-encart-annuaire">
+        <p class="mb-1">Comprendre les chiffres montre, pour votre territoire, les chiffres réels derrière ce mot.</p>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-vers-ecran="1"><i class="bi bi-bar-chart"></i> Voir les entreprises de votre territoire (Comprendre les chiffres)</button>
+      </div>
+      <p class="mq-voir">Voir aussi : Auto-entrepreneur · Entreprise individuelle ou société · Numéros SIREN et SIRET</p>
+    </article>
+
+    <article class="mq-fiche" id="mqFiche1">
+      <h3>Radiation d'office d'une entreprise</h3>
+      <p class="lexique-fiche-def">Une entreprise peut être retirée du registre du commerce sur décision du greffe, sans que son dirigeant l'ait demandé : c'est une radiation d'office. L'annonce légale (BODACC) porte alors la mention. Cela ne dit pas à quel moment l'activité s'est arrêtée, et ce n'est pas forcément une fermeture récente. Ces annonces sont souvent publiées par lots, ce qui peut faire monter fortement le total d'un mois.</p>
+      <p class="mq-voir"><strong>À ne pas confondre avec :</strong> Radiation de France Travail (c'est un sujet différent : la liste des demandeurs d'emploi).</p>
+      <p class="mq-voir">Voir aussi : Défaillance d'entreprise · Numéros SIREN et SIRET</p>
+    </article>
+
+    <article class="mq-fiche" id="mqFiche2">
+      <h3>Défaillance d'entreprise</h3>
+      <p class="lexique-fiche-def">En statistique, une entreprise est dite défaillante quand elle ne peut plus payer ses dettes avec ce qu'elle possède. Elle est comptée le jour où un tribunal ouvre un redressement judiciaire (pour tenter de continuer l'activité) ou une liquidation judiciaire (pour y mettre fin). Le total sur douze mois fait référence : un niveau très bas ou très haut une année s'explique parfois par des causes générales, comme la fermeture des tribunaux ou les aides de l'État. Dans les annonces légales, une même procédure produit plusieurs annonces : compter les annonces n'est pas compter les entreprises.</p>
+      <div class="lexique-encart-annuaire">
+        <p class="mb-1">Comprendre les chiffres montre, pour votre territoire, les chiffres réels derrière ce mot.</p>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-mq-vers-ecran="1"><i class="bi bi-bar-chart"></i> Voir les ouvertures de procédures de votre département (Comprendre les chiffres)</button>
+      </div>
+      <p class="mq-voir">Voir aussi : Radiation d'office d'une entreprise · Vente d'un fonds de commerce</p>
+    </article>
+
+    <article class="mq-fiche" id="mqFiche3">
+      <h3>Vente d'un fonds de commerce</h3>
+      <p class="lexique-fiche-def">Quand un commerçant ou un artisan vend son activité (clientèle, nom, matériel, souvent le bail), on parle de vente de fonds de commerce. La vente est annoncée publiquement. Une annonce de vente montre que l'activité est transmise à un nouveau propriétaire. Elle ne dit pas pourquoi la personne vend, ni ce que deviennent les salariés : ce n'est ni une bonne ni une mauvaise nouvelle en soi.</p>
+      <p class="mq-voir">Voir aussi : Défaillance d'entreprise · Auto-entrepreneur</p>
+    </article>
+
+    <p class="comprendre-les-chiffres-note">Les mots de ces fiches se trouvent aussi en tapant dans la recherche de l'accueil et du Lexique (ex. « radiation d'office », « fonds de commerce », « faillite »).</p>
+  </section>
+
+  <!-- =========================================================== ÉCRAN 3 -->
+  <section class="mq-ecran" id="mqEcran3" hidden>
+    <span class="mq-etiquette">Écran 3 : schéma de la validation dans l'outil de veille (poste de Denis, pas l'application)</span>
+    <p class="comprendre-les-chiffres-section-intro">
+      Rien n'est public tant que vous n'avez pas ouvert la source vous-même et cliqué « C'est bon ». C'est la même règle que pour « Ce qui a changé récemment » et pour les fiches du portrait.
+    </p>
+    <div class="mq-panneau">
+      <h3 class="h6">Dordogne (24) : entreprises, 12 mois jusqu'au 18 octobre 2026</h3>
+      <div class="mq-champ"><label>Annonces de jugement d'ouverture</label><input type="text" value="372" id="mqChamp1"></div>
+      <div class="mq-champ"><label>Même période un an avant</label><input type="text" value="394"></div>
+      <div class="mq-champ"><label>Annonces de vente ou cession</label><input type="text" value="299"></div>
+      <div class="mq-champ"><label>Même période un an avant</label><input type="text" value="288"></div>
+      <div class="mq-champ"><label>Source</label><span><a href="#" onclick="return false;" class="comprendre-les-chiffres-pastille"><i class="bi bi-box-arrow-up-right"></i> Ouvrir le BODACC avec les mêmes filtres</a></span></div>
+      <p class="mq-verif mb-1">Le contrôle automatique compare : la même période un an avant doit se terminer le même jour, les nombres sont des entiers, aucun nom d'entreprise.</p>
+      <label class="d-flex gap-2 align-items-start my-2"><input type="checkbox" id="mqOuvert"> <span>J'ai ouvert le BODACC avec ces filtres et j'ai retrouvé ces nombres.</span></label>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-success btn-sm" id="mqCbon" disabled>C'est bon</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="mqCbonAide">Pourquoi ce bouton est grisé ?</button>
+      </div>
+      <p class="mq-verif mt-2" id="mqRetour" aria-live="polite"></p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var html = document.documentElement;
+  // Écrans
+  function montrer(n) {
+    [1, 2, 3].forEach(function (i) { document.getElementById('mqEcran' + i).hidden = (i !== n); });
+    document.querySelectorAll('[data-mq-ecran]').forEach(function (b) { b.setAttribute('aria-pressed', String(Number(b.getAttribute('data-mq-ecran')) === n)); b.classList.toggle('btn-primary', Number(b.getAttribute('data-mq-ecran')) === n); b.classList.toggle('btn-outline-secondary', Number(b.getAttribute('data-mq-ecran')) !== n); });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('[data-mq-ecran]').forEach(function (b) { b.addEventListener('click', function () { montrer(Number(b.getAttribute('data-mq-ecran'))); }); });
+  document.querySelectorAll('[data-mq-vers-ecran]').forEach(function (b) { b.addEventListener('click', function () { montrer(Number(b.getAttribute('data-mq-vers-ecran'))); }); });
+  document.querySelectorAll('[data-mq-vers-fiche]').forEach(function (b) { b.addEventListener('click', function () { montrer(2); var f = document.getElementById('mqFiche' + b.getAttribute('data-mq-vers-fiche')); if (f) { f.scrollIntoView(); } }); });
+  montrer(1);
+
+  // Mode sombre
+  var s = document.getElementById('mqSombre');
+  s.addEventListener('click', function () {
+    var sombre = html.getAttribute('data-theme') === 'sombre';
+    if (sombre) { html.removeAttribute('data-theme'); } else { html.setAttribute('data-theme', 'sombre'); }
+    s.setAttribute('aria-pressed', String(!sombre));
+  });
+
+  // Département
+  var DONNEES = {
+    '24': { nom: 'la Dordogne', ouv: 372, ouvPrec: 394, ventes: 299, ventesPrec: 288 },
+    '87': { nom: 'la Haute-Vienne', ouv: 431, ouvPrec: 422, ventes: 206, ventesPrec: 192 }
+  };
+  function evol(a, b, mots) {
+    var p = (a - b) / b * 100;
+    if (Math.abs(p) < 3) { return mots.stable; }
+    return (p > 0 ? 'en hausse d’environ ' : 'en baisse d’environ ') + Math.round(Math.abs(p)) + ' %';
+  }
+  function poser(cle, texte) { document.querySelectorAll('[data-mq="' + cle + '"]').forEach(function (e) { e.textContent = texte; }); }
+  function dep(code) {
+    var d = DONNEES[code];
+    poser('nomdep', d.nom); poser('ouvertures', d.ouv); poser('ouvertures-prec', d.ouvPrec); poser('ventes', d.ventes); poser('ventes-prec', d.ventesPrec);
+    poser('ouvertures-evol', evol(d.ouv, d.ouvPrec, { stable: 'à peu près stable' }));
+    poser('ventes-evol', evol(d.ventes, d.ventesPrec, { stable: 'à peu près stable' }));
+    document.querySelectorAll('[data-mq-dep]').forEach(function (b) { var on = b.getAttribute('data-mq-dep') === code; b.setAttribute('aria-pressed', String(on)); b.classList.toggle('btn-primary', on); b.classList.toggle('btn-outline-secondary', !on); });
+  }
+  document.querySelectorAll('[data-mq-dep]').forEach(function (b) { b.addEventListener('click', function () { dep(b.getAttribute('data-mq-dep')); }); });
+  dep('24');
+
+  // Validation (schéma)
+  var coche = document.getElementById('mqOuvert'), bouton = document.getElementById('mqCbon'), retour = document.getElementById('mqRetour');
+  coche.addEventListener('change', function () { bouton.disabled = !coche.checked; });
+  bouton.addEventListener('click', function () { retour.textContent = 'Enregistré : ces chiffres sont maintenant publics, datés du jour. (Schéma : rien n’est réellement enregistré.)'; });
+  document.getElementById('mqCbonAide').addEventListener('click', function () { retour.textContent = 'Le bouton reste grisé tant que la case « J’ai ouvert le BODACC » n’est pas cochée : une information non retrouvée à la source ne se publie pas.'; });
+})();
+</script>
+</body>
+</html>

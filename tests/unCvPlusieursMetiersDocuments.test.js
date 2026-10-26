@@ -7,48 +7,6 @@ const NL = String.fromCharCode(10);
 
 const identite = { civilite: 'Madame', prenom: 'Camille', nom: 'Martin', adresse: '12 rue des Lilas', codePostal: '87000', ville: 'Limoges', telephone: '06 12 34 56 78', email: 'camille.martin@example.org' };
 
-test('lettre : les coordonnées de la personne, une ligne vide est omise', () => {
-  assert.deepEqual(doc.ucpmCoordonneesLettre(identite), ['Camille Martin', '12 rue des Lilas', '87000 Limoges', '06 12 34 56 78', 'camille.martin@example.org']);
-  assert.deepEqual(doc.ucpmCoordonneesLettre({ nom: 'Martin', ville: 'Limoges' }), ['Martin', 'Limoges']);
-  assert.deepEqual(doc.ucpmCoordonneesLettre(null), []);
-});
-
-test('lettre : le destinataire n’apparaît que si l’employeur ou le recruteur sont connus', () => {
-  assert.deepEqual(doc.ucpmDestinataireLettre({}), []);
-  assert.deepEqual(doc.ucpmDestinataireLettre({ employeur: 'Habitat 87' }), ['Habitat 87']);
-  assert.deepEqual(doc.ucpmDestinataireLettre({ employeur: 'Habitat 87', civiliteRecruteur: 'Madame', nomRecruteur: 'Durand' }), ['Habitat 87', 'Madame Durand']);
-});
-
-test('lettre : lieu et date à la française, sans ville la date seule', () => {
-  assert.equal(doc.ucpmLieuDateLettre(identite, '10 octobre 2026'), 'Limoges, le 10 octobre 2026');
-  assert.equal(doc.ucpmLieuDateLettre({}, '1er novembre 2026'), 'Le 1er novembre 2026');
-});
-
-test('lettre : les paragraphes sont séparés par une ligne vide, les lignes d’un paragraphe restent ensemble', () => {
-  const t = 'Madame, Monsieur,' + NL + NL + 'Premier paragraphe' + NL + 'suite.' + NL + NL + NL + 'Cordialement.' + NL;
-  assert.deepEqual(doc.ucpmParagraphesLettre(t), [['Madame, Monsieur,'], ['Premier paragraphe', 'suite.'], ['Cordialement.']]);
-  assert.deepEqual(doc.ucpmParagraphesLettre(''), []);
-});
-
-test('lettre : la feuille porte coordonnées, destinataire, date, texte, signature, et protège le HTML', () => {
-  const texte = 'Madame Durand,' + NL + NL + 'Je candidate <vite> & bien.' + NL + NL + 'Cordialement.' + NL + NL + 'Camille Martin';
-  const h = doc.ucpmHtmlLettre({ identite, objectif: { employeur: 'Habitat 87', civiliteRecruteur: 'Madame', nomRecruteur: 'Durand' }, texte, dateTexte: '10 octobre 2026', police: '"Georgia", serif' });
-  assert.match(h, /class="expediteur"/);
-  assert.match(h, /<p class="nom">Camille Martin<\/p>/);
-  assert.match(h, /<p>Habitat 87<\/p><p>Madame Durand<\/p>/);
-  assert.match(h, /Limoges, le 10 octobre 2026/);
-  assert.match(h, /Je candidate &lt;vite&gt; &amp; bien\./);
-  assert.match(h, /<p class="signature">Camille Martin<\/p>/);
-  assert.match(h, /font-family:'Georgia', serif/, 'la police du CV est reprise');
-  assert.doesNotMatch(h, /<vite>/);
-});
-
-test('lettre : sans destinataire connu, seule la date est à droite ; police par défaut', () => {
-  const h = doc.ucpmHtmlLettre({ identite, objectif: {}, texte: 'Madame, Monsieur,', dateTexte: '10 octobre 2026' });
-  assert.match(h, /<div class="destinataire"><p class="lieu-date">Limoges, le 10 octobre 2026<\/p><\/div>/);
-  assert.match(h, /Segoe UI/);
-});
-
 test('document imprimé : une pièce par compartiment étanche, saut de page entre les pièces, page A4 sans marge', () => {
   const html = doc.ucpmDocumentImpression('MARTIN_mes-cv', [{ css: '.cv{color:red}', html: '<div class="cv">A</div>' }, { css: doc.UCPM_CSS_LETTRE, html: '<div class="ucpm-lettre">B</div>' }]);
   assert.match(html, /<title>MARTIN_mes-cv<\/title>/);
@@ -94,4 +52,38 @@ test('CV dans un compartiment étanche : « :root » devient « :host » pour ga
   assert.doesNotMatch(r, /:root/);
   assert.match(r, /\.x:rootless/, 'un nom plus long qui commence pareil n’est pas touché');
   assert.equal(doc.ucpmCssPourCompartiment(null), '');
+});
+
+// Lettres mises en page par les gabarits de la lettre (24/10/2026).
+const { ucpmPoliceLettreDepuisCv, ucpmPreparerDossierLettre } = require('../modules/un-cv-plusieurs-metiers/logiqueDocuments.js');
+
+test('police de la lettre : serif reste serif, le reste devient Arial, vide = Georgia', () => {
+  assert.equal(ucpmPoliceLettreDepuisCv('georgia'), 'Georgia');
+  assert.equal(ucpmPoliceLettreDepuisCv('times'), 'Times New Roman');
+  assert.equal(ucpmPoliceLettreDepuisCv('garamond'), 'Times New Roman');
+  assert.equal(ucpmPoliceLettreDepuisCv('segoe'), 'Arial');
+  assert.equal(ucpmPoliceLettreDepuisCv('calibri'), 'Arial');
+  assert.equal(ucpmPoliceLettreDepuisCv(''), 'Georgia');
+  assert.equal(ucpmPoliceLettreDepuisCv(null), 'Georgia');
+});
+
+test('dossier de lettre : texte, entreprise, recruteur, poste, modèle et police sont posés', () => {
+  const copie = { identite: { nom: 'Durand' }, objectif: 'offre', offre: { structure: 'Autre société' }, metierCible: 'Ancien' };
+  const r = ucpmPreparerDossierLettre(copie, { texte: 'Madame Martin,\n\nCorps.', employeur: ' Boutique Élise ', civiliteRecruteur: 'Madame', nomRecruteur: 'Martin', titre: 'Vendeuse', gabarit: 'g3', jetonPolice: 'times' });
+  assert.equal(r.ia.lettre.lettre.texte, 'Madame Martin,\n\nCorps.');
+  assert.deepEqual(r.rechercheCandidature, { entreprise: 'Boutique Élise', civiliteRecruteur: 'Madame', nomRecruteur: 'Martin' });
+  assert.equal(r.objectif, '');
+  assert.equal(r.metierCible, 'Vendeuse');
+  assert.equal(r.titreCV, 'Vendeuse');
+  assert.equal(r.lettreDestinataire.gabarit, 'g3');
+  assert.equal(r.lettreDestinataire.police, 'Times New Roman');
+  assert.equal(r.lettreDestinataire.couleur, '');
+  assert.equal(r.identite.nom, 'Durand');
+});
+
+test('dossier de lettre : sans entreprise ni recruteur, rien d’inventé', () => {
+  const r = ucpmPreparerDossierLettre({}, { texte: 'Texte.', titre: 'Agent d’accueil' });
+  assert.equal(r.rechercheCandidature.entreprise, '');
+  assert.equal(r.rechercheCandidature.nomRecruteur, '');
+  assert.equal(r.lettreDestinataire.gabarit, 'g0');
 });

@@ -429,7 +429,11 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
   // COMPOSEUR_CAPACITES_A4_DETAILLE_CV (voir en tete de fichier -- nom
   // volontairement DISTINCT pour ne jamais interferer avec le pipeline
   // des 16 modeles classiques, qui reference le nom original ailleurs).
-  var capacites = estFormatIntegral
+  // Mode fidele (voie 3 de « Reprendre mon CV ») : aucun plafond, tout ce que la personne a ecrit est place.
+  var modeFidele = !!(objetCV && objetCV.meta && objetCV.meta.modeFidele);
+  var capacites = modeFidele
+    ? { competences: 99, competencesPersonnelles: 99 }
+    : estFormatIntegral
     ? { competences: 10, competencesPersonnelles: 10 }
     : formatEssentiel
       ? ((typeof CAPACITES_A4_ESSENTIEL_CV !== 'undefined') ? CAPACITES_A4_ESSENTIEL_CV : {})
@@ -498,7 +502,9 @@ function composeurComposer(objetCV, profil, decisions, variantesChoisies, format
     var totalExperiencesToutesConfondues = nombreExperiencesProBrutes + nombreExperiencesPersoBrutes;
 
     var lignesMaxParExperience;
-    if (estFormatIntegral) {
+    if (modeFidele) {
+      lignesMaxParExperience = 99;
+    } else if (estFormatIntegral) {
       lignesMaxParExperience = 10;
     } else if (formatEssentiel) {
       lignesMaxParExperience = (totalExperiencesToutesConfondues <= 1) ? 3 : 1;

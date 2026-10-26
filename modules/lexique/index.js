@@ -194,6 +194,70 @@ function _lexiqueRechercher(texte) {
 }
 
 // ============================================================
+// « LES CHIFFRES A JOUR » d'une fiche (chantier du 20 octobre 2026, docs/CHANTIER_LEXIQUE_CHIFFRES_A_JOUR_2026-10-20.md ;
+// maquette validee : docs/MAQUETTE_LEXIQUE_CHIFFRES_A_JOUR_2026-10-20.html)
+// ------------------------------------------------------------
+// Champ facultatif `detailsAJour` d'une fiche : { verifieLe: 'AAAA-MM-JJ' ou '', source: { nom, url https }, lignes: [{ libelle, valeur, categorie, peutChanger }] }.
+// Regle (decision de Denis) : le bloc n'est montre que s'il a ete verifie depuis MOINS de LEXIQUE_SEUIL_MOIS_DETAILS mois ; sinon un message general,
+// le meme pour toutes les fiches, le remplace en renvoyant a la source officielle. Un bloc dont AUCUNE ligne ne peut changer (faits passes) ne se perime jamais.
+// Une fiche sans bloc ne change pas. Aucun bouton de modification ici : tout se modifie dans l'outil de veille.
+// ============================================================
+var LEXIQUE_SEUIL_MOIS_DETAILS = 6;
+var LEXIQUE_MESSAGE_DETAILS_PERIMES = 'Les montants, les dates et les durées de cette fiche changent régulièrement. Nous ne les affichons que lorsqu’ils ont été vérifiés récemment. Pour les connaître aujourd’hui, consultez la source officielle.';
+
+// Le jour courant de l'appareil, en AAAA-MM-JJ (heure locale : c'est la date que voit la personne).
+function _lexiqueAujourdhui() {
+  var d = new Date();
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+function _lexiqueJoursEntre(debutIso, finIso) {
+  var a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(debutIso || ''), b = /^(\d{4})-(\d{2})-(\d{2})$/.exec(finIso || '');
+  if (!a || !b) { return NaN; }
+  return Math.round((Date.UTC(+b[1], +b[2] - 1, +b[3]) - Date.UTC(+a[1], +a[2] - 1, +a[3])) / 86400000);
+}
+// Pure : que voit la personne ? 'absent' (rien), 'stable' (faits qui ne changent pas, toujours montres, sans date), 'ajour' (chiffres montres avec « Verifie le »),
+// 'message' (message general). Un bloc mal forme ne fait jamais planter la fiche : 'absent'. Si l'horloge de l'appareil est AVANT la date de verification
+// (horloge mal reglee), le bloc reste montre : jamais masque a tort.
+function _lexiqueEtatDetails(details, aujourdhui, seuilMois) {
+  if (!details || typeof details !== 'object' || !Array.isArray(details.lignes) || !details.lignes.length) { return 'absent'; }
+  if (!details.source || typeof details.source.nom !== 'string' || !details.source.nom) { return 'absent'; }
+  var peutChanger = details.lignes.some(function (l) { return l && l.peutChanger !== false; });
+  if (!peutChanger) { return 'stable'; }
+  if (typeof details.verifieLe !== 'string' || !details.verifieLe) { return 'message'; }
+  var jours = _lexiqueJoursEntre(details.verifieLe, aujourdhui);
+  if (isNaN(jours)) { return 'message'; }
+  if (jours < 0) { return 'ajour'; }
+  return jours / 30.4375 < (seuilMois || LEXIQUE_SEUIL_MOIS_DETAILS) ? 'ajour' : 'message';
+}
+var _LEXIQUE_MOIS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+function _lexiqueDateFr(iso) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  return m ? parseInt(m[3], 10) + (m[3] === '01' ? 'er' : '') + ' ' + _LEXIQUE_MOIS_FR[parseInt(m[2], 10) - 1] + ' ' + m[1] : '';
+}
+// Le bouton vers la source officielle : seulement une adresse https (jamais un autre schema), et la personne est prevenue qu'elle quitte l'application.
+function _lexiqueBoutonSource(source) {
+  if (!source || typeof source.url !== 'string' || !/^https:\/\/[^\s"'<>]+$/.test(source.url)) { return ''; }
+  return '<a class="btn btn-outline-secondary btn-sm" href="' + echapperAttribut(source.url) + '" target="_blank" rel="noopener noreferrer">' +
+    '<i class="bi bi-box-arrow-up-right"></i> ' + echapperAttribut(source.nom) + ' (vous quittez l’application)</a>';
+}
+// Le HTML du bloc (ou du message general, ou rien) pour une fiche. Tout est echappe : jamais de HTML brut venu des donnees.
+function _lexiqueRenduDetails(fiche, aujourdhui) {
+  var d = fiche && fiche.detailsAJour, etat = _lexiqueEtatDetails(d, aujourdhui || _lexiqueAujourdhui());
+  if (etat === 'absent') { return ''; }
+  if (etat === 'message') {
+    return '<div class="lexique-fiche-chiffres lexique-fiche-chiffres-message" data-lexique-chiffres="message">' +
+      '<h2 class="h6">Les chiffres à jour</h2>' +
+      '<p class="mb-2">' + echapperAttribut(LEXIQUE_MESSAGE_DETAILS_PERIMES) + '</p>' + _lexiqueBoutonSource(d.source) + '</div>';
+  }
+  var lignes = d.lignes.map(function (l) {
+    return '<dt>' + echapperAttribut(l.libelle) + '</dt><dd>' + echapperAttribut(l.valeur) + '</dd>';
+  }).join('');
+  var pied = (etat === 'ajour' ? '<p class="lexique-fiche-chiffres-pied mb-2">Vérifié le ' + echapperAttribut(_lexiqueDateFr(d.verifieLe)) + '.</p>' : '');
+  return '<div class="lexique-fiche-chiffres" data-lexique-chiffres="' + etat + '">' +
+    '<h2 class="h6">Les chiffres à jour</h2><dl class="mb-2">' + lignes + '</dl>' + pied + _lexiqueBoutonSource(d.source) + '</div>';
+}
+
+// ============================================================
 // INDEX DES RELATIONS (calcule, jamais ecrit dans data/lexique.js)
 // ============================================================
 
@@ -893,6 +957,7 @@ function _lexiqueRenduFiche(id) {
     '<h1 class="h4 mb-1">' + echapperAttribut(fiche.titre) + '</h1>' +
     '<p class="small text-muted mb-2">' + libelleType + '</p>' +
     '<p class="lexique-fiche-def">' + echapperAttribut(fiche.corps) + '</p>' +
+    _lexiqueRenduDetails(fiche) +
     (blocFrein ? '<div class="lexique-fiche-frein">' + blocFrein + '</div>' : '') +
     blocUrgence +
     encartAnnuaire +
@@ -1825,6 +1890,10 @@ if (typeof module !== 'undefined') {
     _lexiqueRechercher: _lexiqueRechercher,
     _lexiqueConstruireIndexRelations: _lexiqueConstruireIndexRelations,
     _lexiqueConstruireIndexCollections: _lexiqueConstruireIndexCollections,
-    _lexiqueConstruireIndexSecondNiveau: _lexiqueConstruireIndexSecondNiveau
+    _lexiqueConstruireIndexSecondNiveau: _lexiqueConstruireIndexSecondNiveau,
+    _lexiqueEtatDetails: _lexiqueEtatDetails,
+    _lexiqueRenduDetails: _lexiqueRenduDetails,
+    _lexiqueDateFr: _lexiqueDateFr,
+    LEXIQUE_SEUIL_MOIS_DETAILS: LEXIQUE_SEUIL_MOIS_DETAILS
   };
 }

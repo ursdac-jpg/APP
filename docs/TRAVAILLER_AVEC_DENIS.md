@@ -73,6 +73,8 @@ Avec le mode, Claude annonce le niveau d'effort recommandé pour la tâche (`/ef
 - **Même endroit du code** : deux tâches qui touchent le même module ou le même écran se traitent dans le même passage (règle de `TACHES_VALIDEES.md`), même si leurs niveaux diffèrent. On les fait alors au niveau le plus haut des deux, et on le signale.
 - **Mode Nuit** : jamais `low` (voir plus haut), même si toutes les tâches sont étiquetées « bas ».
 
+**4bis. Attendre le réglage (demande de Denis, 2026-10-24).** À chaque nouvelle tâche, Claude annonce l'effort conseillé et **attend que Denis ait réglé l'effort et dit de démarrer** avant tout travail (lecture, audit ou code). Ne vaut pas pour les sous-étapes d'un chantier déjà validé et engagé.
+
 **5. Une séance = un niveau.** En début de séance, Claude annonce le niveau d'effort de la séance et la liste des tâches qu'elle couvre. Il ne mélange pas : si une tâche d'un autre niveau surgit, il la note à sa place dans la liste au lieu de la traiter à chaud (sauf défaut bloquant ou règle « défaut trouvé pendant une tâche »).
 
 
@@ -197,6 +199,7 @@ Et, s'il existe un doc de conception dédié pour ce chantier (`docs/CHANTIER_*.
 - **Bouton, pas lien texte** : toute action est un vrai bouton bordé. Les seuls textes cliquables tolérés sont les renvois de vocabulaire internes au Lexique. (LECONS 9.6, 3 récidives)
 - **Lexique modifié → `node scripts/checkLexique.js`** en plus de `npm test` : 0 erreur ET 0 avertissement attendus. (LECONS 9.26)
 - **Mode sombre** : toute variable de couleur a-t-elle sa valeur `[data-theme="sombre"]` ? (voir LECONS 9.10 / 9.14)
+- **Dates affichées en français** (demande impérative de Denis, 2026-10-20) : jour, mois, année (« 20/10/2026 » ou « 20 octobre 2026 »), jamais « 2026-10-20 » à l'écran, dans l'application comme dans l'outil de veille et l'outil de prospection. Le format année-mois-jour reste réservé aux fichiers de données. (LECONS 9.54)
 - **Français impeccable** : accents partout, aucun tiret long. (LECONS 0bis)
 - **`tel:` / liens externes** : un numéro affiché est-il cliquable sur mobile ? un lien externe prévient-il « vous quittez l'application » ?
 - **Territoire** : l'explication dépend-elle du département ? Si oui, filtrer via `demanderDepartementSiInconnu(cb)` (`js/app.js`), jamais un contenu 87 montré à quelqu'un du 24.

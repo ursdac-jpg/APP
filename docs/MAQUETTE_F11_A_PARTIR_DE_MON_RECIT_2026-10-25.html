@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette F11 : À partir de mon récit, troisième parcours de Créer un nouveau CV</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--ret:#a12b2b;--retbg:#fbe9e9}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342;--ret:#ff9b9b;--retbg:#3c1f1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 120px}
+.page{max-width:1000px;margin:0 auto}
+h1{font-size:1.6rem;margin:1rem 0 .2rem;text-align:center}
+h2{font-size:1.1rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button{font:inherit;color:inherit;cursor:pointer}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+.mini.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.5rem 1rem 1rem}
+.voies{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:.8rem 0}
+.voie{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.8rem;text-align:left;display:flex;flex-direction:column;gap:.3rem}
+.voie:hover{border-color:var(--acc)}
+.voie h3{margin:.1rem 0;font-size:1.05rem}.voie .titre-ico{font-size:1.5rem}
+.voie ul{margin:.2rem 0;padding-left:1.1rem;font-size:.88rem}
+.info{background:var(--okbg);border:1px dashed var(--ok);border-radius:8px;padding:.45rem .7rem;font-size:.9rem;margin:.5rem 0}
+.bandeau-reprise{background:var(--accbg);border-left:4px solid var(--acc);border-radius:12px;padding:1rem 1.2rem;margin:.8rem 0}
+.modeles{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.6rem 1rem .9rem;margin:1rem 0;text-align:center}
+.btn{border:2px solid var(--acc);background:var(--card);color:var(--acc);border-radius:12px;padding:.5rem 1rem;font-weight:600}
+.btn.plein{background:var(--acc);color:#fff}
+.btn.petit{padding:.25rem .7rem;font-size:.86rem}
+.btn.saumon{border-color:#c47a5a;color:#9a4a2a;background:#fdeee6}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:1000px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0;text-align:left}
+body.ann .note{display:block}
+.tag{font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;display:inline-block}
+.tag.g{background:var(--okbg);color:var(--ok)}.tag.e{background:var(--newbg);color:var(--new)}.tag.d{background:var(--accbg);color:var(--acc)}.tag.f{background:var(--warnbg);color:var(--warn)}.tag.r{background:var(--retbg);color:var(--ret)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid var(--bord);padding:.35rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--sub)}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:1.5rem 0}
+.questions h2{color:var(--new)}.questions li{margin:.7rem 0}
+.ec{display:none}.ec.vu{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.3rem 0}
+.chip{border:1px solid var(--bord);background:var(--sub);border-radius:999px;padding:.1rem .7rem;font-size:.85rem}
+.tuiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:.6rem 0}
+.tuile{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.7rem;text-align:left}
+.tuile.fantome{border-style:dashed;opacity:.55}
+.bloc-section{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.4rem 1rem .8rem;margin:.8rem 0;text-align:left}
+.bloc-section h3{font-size:1rem}
+.bloc-section ul{padding-left:1.2rem;margin:.3rem 0}
+.dialogue{border:2px solid var(--warn);background:var(--warnbg);color:var(--warn);border-radius:12px;padding:.6rem .9rem;margin:.6rem 0}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette F11 (25/10/2026) : « À partir de mon récit », troisième parcours de « Créer un nouveau CV »</strong>
+  <span style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+    <button class="mini actif" data-ec="intro" type="button">1. L'introduction</button>
+    <button class="mini" data-ec="presentation" type="button">2. La présentation du parcours</button>
+    <button class="mini" data-ec="accueil" type="button">3. Boîte à outils et accueil</button>
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Annotations</label>
+    <label class="tog"><input type="checkbox" id="tSombre"> Mode sombre</label>
+  </span>
+</div>
+
+<!-- ÉCRAN 1 : l'introduction -->
+<div class="ec vu" id="ec-intro">
+  <p class="small" style="text-align:center;margin-top:.8rem">État de la personne :
+    <button class="mini actif" data-etat="depart" type="button">Au départ (aucun CV commencé)</button>
+    <button class="mini" data-etat="cours" type="button">Récit commencé</button>
+    <button class="mini" data-etat="fait" type="button">CV fait à partir du récit</button>
+  </p>
+  <h1>✨ Créer un nouveau CV</h1>
+  <p class="muted small" style="text-align:center">On part d'une page blanche. Trois façons de faire : choisissez celle qui vous convient. Vous pourrez en changer.</p>
+
+  <div id="etat-depart">
+    <div class="voies">
+      <button class="voie" type="button" data-voie="main"><span class="titre-ico">✍️</span><h3>À la main, sans assistant</h3>
+        <span class="small">Vous écrivez vous-même vos informations, étape par étape. Rien n'est envoyé nulle part.</span>
+        <ul><li>Vos textes restent exactement les vôtres</li><li>Pas de phrase d'accroche toute faite : vous l'écrivez, ou vous vous en passez</li></ul>
+        <span class="tag g">GARDÉ</span></button>
+      <button class="voie" type="button" data-voie="assistant"><span class="titre-ico">💬</span><h3>Avec l'assistant en ligne</h3>
+        <span class="small">Vous remplissez vos informations, puis l'assistant vous aide à les formuler.</span>
+        <ul><li>Une phrase d'accroche proposée</li><li>Vos missions reformulées</li><li>Des compétences mises en situation</li></ul>
+        <span class="tag g">GARDÉ</span></button>
+      <button class="voie" type="button" data-voie="recit"><span class="titre-ico">🗣️</span><h3>À partir de mon récit</h3>
+        <span class="small">Vous racontez ce que vous avez vécu et fait, avec vos mots, au clavier ou à la voix. L'assistant en tire vos expériences et vos compétences ; vous gardez ce qui vous ressemble.</span>
+        <ul><li>Pour qui n'a jamais eu de CV, ou repart de loin</li><li>Pas besoin d'un parcours « classique » pour commencer</li></ul>
+        <span class="tag d">DÉPLACÉ depuis la Boîte à outils</span></button>
+    </div>
+    <div class="note"><b>Trois cartes, chacune dit ce qu'elle fait.</b> Les deux premières lancent le parcours tout de suite (comme aujourd'hui). La troisième ouvre la page de présentation de « À partir de mon récit » (écran 2), qui garde ses explications et son bouton « Revoir la présentation » : c'est la règle de tout module. Au départ, le CV en cours est vidé comme pour les deux autres cartes.</div>
+    <div class="modeles"><h2>🗂️ Voir nos modèles de CV</h2>
+      <p class="small muted">Regardez ce que donnera votre CV, avant de remplir quoi que ce soit. <b>Gardez jusqu'à 5 modèles</b> : vous les retrouverez, avec votre texte, au moment de choisir la mise en page.</p>
+      <button class="btn plein" type="button">Regarder nos modèles</button>
+      <div class="note">Déjà codé (M1 et M4) : ce bloc vaut pour les trois parcours.</div></div>
+  </div>
+
+  <div id="etat-cours" style="display:none">
+    <div class="bandeau-reprise"><p style="margin:0"><b>Vous avez déjà commencé à créer votre CV à partir de votre récit.</b></p>
+      <p class="small muted">Vous retrouvez votre récit et ce que vous avez déjà choisi.</p>
+      <button class="btn plein" type="button">Continuer</button> <button class="btn saumon" type="button" id="btnRecommencer">Recommencer</button></div>
+    <div class="note"><b>Comme les deux autres parcours</b> (« Vous avez déjà commencé à créer votre CV » / Continuer / Recommencer) : tant qu'un parcours est en cours, les cartes de départ sont remplacées par ce bandeau. « Continuer » reprend le parcours à l'étape où la personne s'est arrêtée (la session du module vit en mémoire de la page, comme aujourd'hui : après un rechargement de la page, la personne retrouve la présentation du parcours). « Recommencer » demande confirmation, vide le CV et le module, puis les trois cartes reviennent. Il n'y a donc jamais deux parcours mêlés.</div>
+    <div id="dlgRecommencer" class="dialogue" style="display:none"><b>Recommencer un CV depuis le début ?</b> Vous allez repartir d'une page blanche. Ce que vous avez déjà fait dans ce parcours sera perdu. <button class="btn petit" type="button" id="btnConfirmer">Recommencer</button> <button class="btn petit" type="button" id="btnAnnuler">Annuler</button></div>
+  </div>
+
+  <div id="etat-fait" style="display:none">
+    <div class="bandeau-reprise"><p style="margin:0"><b>💡 Votre CV est prêt : vous l'avez construit à partir de votre récit.</b></p>
+      <button class="btn plein" type="button">Voir mon CV</button> <button class="btn saumon" type="button">Recommencer</button></div>
+    <div class="note">Même bandeau que celui du CV fait à la main ; « Voir mon CV » rouvre « Vos documents » avec le modèle choisi.</div>
+  </div>
+
+  <div class="bloc-section"><h3>🎯 À quoi ça sert</h3>
+    <p class="small">Construire un CV complet : vos expériences, vos compétences, votre projet. À la fin, vous obtenez un CV prêt à mettre en forme, puis vous pourrez préparer votre lettre de motivation et votre entretien.</p>
+    <p class="small muted">Les modèles de mise en page sont les nôtres (PDF et Word). S'ils ne vous conviennent pas, vous pouvez à tout moment <b>copier le texte de votre CV</b> et le mettre en forme ailleurs. Vous n'êtes jamais bloqué.</p></div>
+  <div class="bloc-section"><h3>🔒 Rien n'est envoyé sans votre accord</h3>
+    <p class="small">Vous verrez chaque étape avant qu'elle se produise, et vous pourrez tout modifier. Avec l'assistant en ligne (deuxième et troisième parcours), vos coordonnées ne partent jamais : seule la civilité est transmise, pour accorder le texte.</p></div>
+  <div class="bloc-section"><h3>🚫 Ce que ces parcours ne font pas</h3>
+    <ul class="small"><li>Ils ne partent pas d'un CV que vous auriez déjà : pour cela, « Reprendre mon CV ».</li><li>Ils ne portent pas de regard critique sur un CV existant.</li><li>Ils ne rédigent pas votre lettre de motivation à votre place, phrase par phrase.</li></ul></div>
+  <div class="note"><b>Textes de la page raccourcis.</b> Aujourd'hui l'introduction décrit un seul parcours (« Ce qui va se passer » en cinq puces, qui parle d'« objectif, parcours, projet »). Avec trois parcours, ces détails passent dans les cartes (et dans la présentation de chaque parcours). Il reste trois blocs courts communs. Rien n'est perdu : la description détaillée de « À partir de mon récit » reste sur sa page de présentation.</div>
+</div>
+
+<!-- ÉCRAN 2 : présentation du parcours -->
+<div class="ec" id="ec-presentation">
+  <h1>🗣️ À partir de mon récit</h1>
+  <p class="muted small" style="text-align:center">Partir de ce que vous avez vécu et fait, pour en tirer un CV, même si vous n'en avez jamais eu.</p>
+  <p class="small" style="text-align:center"><span class="tag d">Troisième parcours de « Créer un nouveau CV »</span></p>
+  <div class="bloc-section"><p><b>Vous n'avez pas besoin d'un parcours « classique » pour commencer.</b> Le travail salarié, l'aide à des proches, le bénévolat, le bricolage, une passion suivie longtemps : tout cela contient des compétences. Ici, on les met en mots à partir de votre histoire.</p></div>
+  <div class="bloc-section"><h3>🎯 À quoi ça sert</h3><p class="small">Construire un CV en partant de votre récit, pas d'un formulaire. Vous racontez ce que vous avez fait, avec vos mots ; un assistant en ligne en tire des expériences et des compétences concrètes ; vous choisissez, pour chacune, la formulation qui vous ressemble.</p></div>
+  <div class="bloc-section"><h3>📋 Ce qui va se passer</h3><p class="small muted">… les cinq puces actuelles, inchangées (récit au clavier ou à la voix, assistant, réponse, compétences, compléments, CV à mettre en forme).</p></div>
+  <div class="note"><b>La page existante, inchangée dans son contenu</b> (explications, encart de confidentialité). Un seul changement : son bouton « Retour » ramène à « Créer un nouveau CV » (une étape en arrière) et non plus à la Boîte à outils. Le bouton de départ reste « Raconter mon parcours » ; sur un parcours déjà commencé il devient « Reprendre / recommencer ». Dans le parcours, « Revoir la présentation » revient ici comme aujourd'hui.</div>
+</div>
+
+<!-- ÉCRAN 3 : Boîte à outils et accueil -->
+<div class="ec" id="ec-accueil">
+  <h2 style="text-align:center">Accueil : la carte « Boîte à outils »</h2>
+  <div class="bloc-section" style="max-width:420px;margin-left:auto;margin-right:auto"><h3>🧰 Boîte à outils</h3>
+    <p class="small muted">Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d'étapes.</p>
+    <div class="chips"><span class="chip">Mes Repères</span><span class="chip">Mon Carnet</span><span class="chip">Lexique</span></div>
+    <p class="small"><span class="tag r">RETIRÉ de cette carte : « À partir de mon récit »</span> (décision de Denis : c'est une façon de créer un CV, plus un outil)</p></div>
+  <h2 style="text-align:center">Le panneau de la carte</h2>
+  <div class="tuiles"><div class="tuile"><b>Mes Repères</b><br><span class="small muted">Gardez les réflexions utiles de votre parcours, pour vous ou votre conseiller.</span></div>
+    <div class="tuile"><b>Mon Carnet</b><br><span class="small muted">Vous écrivez d'abord ; vous verrez plus tard ce que vous en faites, ou rien.</span></div>
+    <div class="tuile"><b>Lexique</b><br><span class="small muted">Les mots de l'emploi expliqués simplement.</span></div>
+    <div class="tuile fantome"><b>Découvrir mes compétences</b><br><span class="small">Place gardée pour le futur vrai outil (chantier F12), pas affiché aujourd'hui.</span></div></div>
+  <div class="note"><b>Une seule entrée</b> : « À partir de mon récit » n'existe plus que dans « Créer un nouveau CV » (jamais deux endroits, règle de la source unique). Reste à adapter : la liste de la carte d'accueil (4 puces → 3), le texte d'introduction du panneau, la bulle d'aide et l'ampoule de la Boîte à outils. La barre de recherche de l'accueil continue de trouver « À partir de mon récit » (et l'ancien nom « Découvrir mes compétences » en mot clé) et ouvre sa page de présentation. L'aide de l'introduction « Créer un nouveau CV » parle des trois parcours.</div>
+</div>
+
+<div class="barre"><div class="in"><button class="nav" type="button">← Retour</button><button class="nav" type="button">🏠 Accueil</button><span class="small muted">(barre habituelle)</span></div></div>
+
+<div class="sec" style="margin-top:2rem">
+<h2>Inventaire : ce qui existe aujourd'hui et ce que la maquette en fait</h2>
+<table>
+<tr><th>Élément actuel</th><th>Dans la maquette</th><th>Étiquette</th></tr>
+<tr><td>Le parcours de 7 étapes et ses 4 376 lignes (`modules/decouverte-competences/`, route `decouverte`)</td><td>Inchangé : seul son point d'entrée change</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Page de présentation (`pageDecouverteIntro`, route `decouverte-intro`), « Revoir la présentation », encart « Continuer / Recommencer »</td><td>Gardée, ouverte depuis la 3e carte ; « Retour » ramène à « Créer un nouveau CV »</td><td><span class="tag d">DÉPLACÉ</span></td></tr>
+<tr><td>Carte et puce « À partir de mon récit » de la Boîte à outils (`htmlCarteAccueil`, tuile `btnCarteAccueilDecouverte`, liste `boiteaoutils`)</td><td>Retirées</td><td><span class="tag f">RETIRÉ : à valider par Denis (décision déjà prise le 25/10/2026)</span></td></tr>
+<tr><td>Introduction « Créer un nouveau CV » : deux cartes, blocs longs sur un seul parcours</td><td>Trois cartes, trois blocs courts, bloc « Voir nos modèles » inchangé</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>États de l'introduction : « déjà commencé » et « CV prêt » (`travailEnCours`, `cvNouveauFait`)</td><td>Un état de plus par parcours : récit commencé, récit terminé (drapeaux déjà existants du module)</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>Recherche de l'accueil (`baseConnaissancesERIP.js`) et bulles d'aide (`AIDE_PAGES`)</td><td>Gardées, textes d'aide de « Créer un nouveau CV » et de la Boîte à outils mis à jour</td><td><span class="tag g">GARDÉ / ENRICHI</span></td></tr>
+<tr><td>« Recommencer » d'un parcours (`_creerCvRecommencer`, `fermerDecouverteCompetences`)</td><td>Chaque « Recommencer » vide aussi l'état de l'autre parcours (aujourd'hui non : voir réserve 1)</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>« Vos documents » à la fin du parcours (barre à sept repères, « Mes modèles » déjà branché)</td><td>Inchangé</td><td><span class="tag g">GARDÉ</span></td></tr>
+</table>
+</div>
+
+<div class="sec">
+<h2>Faisabilité (étape 2 de la méthode) : GO</h2>
+<ul class="small">
+<li><b>Simple</b> : le parcours n'est pas touché. On ajoute une carte et deux états à l'introduction, un bouton « Retour » configurable sur la page de présentation, on retire l'entrée de la Boîte à outils (quatre endroits : liste de la carte, texte du panneau, tuile, ampoule d'aide) et on met à jour les textes. Les essais navigateur existants du parcours ne passent pas par la tuile (vérifié).</li>
+<li><b>Réserve 1</b> : aujourd'hui, démarrer « À la main » ne vide pas la session du module récit (variables du module en mémoire), et démarrer le récit ne remet pas à zéro les drapeaux de « Créer un nouveau CV » (`modeCreation`, `creationSansAssistant`). Il faut que chaque départ remette l'autre parcours à zéro (une fonction commune), sinon les deux se mêlent. C'est la partie délicate, avec test.</li>
+<li><b>Réserve 2</b> : la page de « Vos documents » traite déjà le récit à part (`decouverteTerminee`) ; je ne la touche pas. Les modèles gardés y sont déjà branchés dans le code (le cas du récit est prévu) : à vérifier dans le navigateur.</li>
+<li><b>Réserve 3</b> : « Reprendre » le récit depuis l'introduction doit rouvrir exactement l'étape quittée : à vérifier dans le navigateur (parcours rejoué).</li>
+<li><b>Bloquant</b> : aucun. <b>Effort</b> : `[effort : haut]` pour l'introduction à trois états et la remise à zéro croisée, puis `[effort : moyen]` pour retirer l'entrée de la Boîte à outils et mettre à jour les textes. <b>Verdict mode nuit</b> : NON APTE tant que les questions ci-dessous ne sont pas tranchées.</li>
+</ul>
+</div>
+
+<div class="questions">
+<h2>Questions (une recommandation chacune)</h2>
+<ol class="small">
+<li><b>Au clic sur la troisième carte</b>, la personne arrive sur la page de présentation du parcours (recommandé : elle garde ses explications et son bouton « Revoir la présentation », règle de tout module) ou le parcours démarre tout de suite comme les deux autres cartes (plus direct, mais la présentation n'est alors plus qu'au détour d'un bouton).</li>
+<li><b>Un parcours à la fois.</b> Recommandé : tant qu'un parcours est commencé, l'introduction ne montre que « Continuer / Recommencer » (comme aujourd'hui) ; on change de parcours en recommençant, avec confirmation. Autre : un lien « Changer de parcours » toujours visible (plus souple, mais deux parcours mêlés possibles, donc plus de cas à tester).</li>
+<li><b>La Boîte à outils.</b> Recommandé : retirer « À partir de mon récit » tout de suite, la place reviendra au futur outil F12. Autre : garder les deux entrées le temps de tester (deux entrées pour un même parcours : contraire à la règle de la source unique).</li>
+<li><b>Les textes de l'introduction.</b> Recommandé : le raccourci montré (trois blocs courts). Autre : tout garder et ajouter un bloc par parcours (page très longue pour un public fragile).</li>
+</ol>
+</div>
+</div>
+
+<script>
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+$$('.haut [data-ec]').forEach(function(b){ b.onclick=function(){ $$('.ec').forEach(function(e){e.classList.toggle('vu', e.id==='ec-'+b.getAttribute('data-ec'));}); $$('.haut [data-ec]').forEach(function(x){x.classList.toggle('actif', x===b);}); window.scrollTo(0,0); }; });
+$$('[data-etat]').forEach(function(b){ b.onclick=function(){ var e=b.getAttribute('data-etat'); ['depart','cours','fait'].forEach(function(k){ $('#etat-'+k).style.display = (k===e?'block':'none'); }); $$('[data-etat]').forEach(function(x){x.classList.toggle('actif', x===b);}); }; });
+$$('.voie').forEach(function(b){ b.onclick=function(){ var v=b.getAttribute('data-voie'); if(v==='recit'){ $('.haut [data-ec=presentation]').click(); } else { alert('Le parcours démarre tout de suite (comportement actuel).'); } }; });
+$('#btnRecommencer').onclick=function(){ $('#dlgRecommencer').style.display='block'; };
+$('#btnAnnuler').onclick=function(){ $('#dlgRecommencer').style.display='none'; };
+$('#btnConfirmer').onclick=function(){ $('#dlgRecommencer').style.display='none'; $('[data-etat=depart]').click(); };
+$('#tAnn').onchange=function(){ document.body.classList.toggle('ann', this.checked); };
+$('#tSombre').onchange=function(){ document.documentElement.setAttribute('data-theme', this.checked?'sombre':'clair'); };
+</script>
+</body>
+</html>

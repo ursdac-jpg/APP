@@ -6,16 +6,16 @@ const path = require('path');
 const C = require('../outils/veilleChiffres.js');
 
 const DOSSIER = path.resolve(__dirname, '..', 'modules', 'comprendre-les-chiffres', 'contenu');
-const FICHIERS_TERRITOIRE = fs.readdirSync(DOSSIER).filter((f) => /(departements-region|regions-france|zones-emploi|medecins|dentistes|pharmaciens|specialistes)/.test(f));
+const FICHIERS_TERRITOIRE = fs.readdirSync(DOSSIER).filter((f) => /(departements-region|regions-france|zones-emploi|entreprises-departements|medecins|dentistes|pharmaciens|specialistes)/.test(f));
 
 // ---------- essai de réécriture à l'identique sur les VRAIS fichiers (ne dépend ni de leur contenu précis ni de leurs fins de ligne) ----------
-test('chiffres : les 11 fichiers de territoire se lisent et se réécrivent à l\'identique (tels quels, et sous la forme canonique)', () => {
-  assert.strictEqual(FICHIERS_TERRITOIRE.length, 11);
+test('chiffres : les 12 fichiers de territoire se lisent et se réécrivent à l\'identique (tels quels, et sous la forme canonique)', () => {
+  assert.strictEqual(FICHIERS_TERRITOIRE.length, 12);
   FICHIERS_TERRITOIRE.forEach((f) => {
     const t = fs.readFileSync(path.join(DOSSIER, f), 'utf8').replace(/\r\n/g, '\n');
     const l = C.lireTerritoire(t);
     assert.ok(l.ok, f + ' : ' + l.erreur);
-    assert.ok(l.blocs.length >= 3, f + ' : lieux');
+    assert.ok(l.blocs.length >= 2, f + ' : lieux');
     assert.strictEqual(C.territoireEnTexte(l), t, f + ' : réécriture sans changement différente');
     assert.strictEqual(C.territoireEnTexte(l, { toutCanonique: true }), t, f + ' : la forme canonique ne redonne pas le fichier');
   });
@@ -136,4 +136,50 @@ test('digest : un changement de source vers une autre adresse de l\'en-tête dat
   const r2 = C.modifierDigest(DIGEST, { ref: REF, changes: { sourceUrl: 'https://ec.europa.eu/eurostat/x', sourceNom: 'Eurostat, chômage', valeur: '8,0 %' }, confirmeSource: true }, AUJ);
   assert.ok(r2.ok, r2.erreur);
   assert.ok(r2.texte.indexOf('"Eurostat | Chômage | https://ec.europa.eu/eurostat/x | 2026-10"') !== -1, 'date au format AAAA-MM de la source');
+});
+
+// ---------- entreprises-departements.md : la validation passe par le chemin existant (2026-10-19) ----------
+test('entreprises : changer un nombre exige la confirmation de la source, puis la datation remplace « a-valider » par la date du jour', () => {
+  const t = fs.readFileSync(path.join(DOSSIER, 'entreprises-departements.md'), 'utf8').replace(/\r\n/g, '\n');
+  const ctx = { aujourdhui: '2026-10-19' };
+  const sans = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: { ouvertures: '330' } }, ctx);
+  assert.strictEqual(sans.ok, false);
+  assert.match(sans.erreur, /source/i);
+  const avec = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: { ouvertures: '330' }, confirmeSource: true, datation: 'redater' }, ctx);
+  assert.ok(avec.ok, avec.erreur);
+  assert.match(avec.texte, /^verifie_le: 2026-10-19$/m);
+  assert.match(avec.texte, /## Dordogne\nouvertures: 330\n/);
+  assert.match(avec.texte, /bodacc-annonces \| .*\| 2026-10-19"/);
+  const mauvais = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: { ventes: 'beaucoup' }, confirmeSource: true }, ctx);
+  assert.strictEqual(mauvais.ok, false);
+});
+
+test('entreprises : dater un fichier « a-valider » sans changer de chiffre exige aussi la confirmation de la source (c\'est la datation qui le rend public)', () => {
+  // le vrai fichier change d'état après la validation de Denis : on force « a-valider » pour que l'essai ne dépende jamais de son état
+  const t = fs.readFileSync(path.join(DOSSIER, 'entreprises-departements.md'), 'utf8').replace(/\r\n/g, '\n').replace(/^verifie_le: .*$/m, 'verifie_le: a-valider');
+  const ctx = { aujourdhui: '2026-10-20' };
+  const sans = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: {}, datation: 'redater' }, ctx);
+  assert.strictEqual(sans.ok, false);
+  assert.match(sans.erreur, /pas encore de date de vérification/);
+  const avec = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: {}, datation: 'redater', confirmeSource: true }, ctx);
+  assert.ok(avec.ok, avec.erreur);
+  assert.match(avec.texte, /^verifie_le: 2026-10-20$/m);
+  // un fichier déjà daté se redate comme avant, sans confirmation
+  const dejaDate = avec.texte;
+  const encore = C.modifierTerritoire(dejaDate, { lieu: 'Dordogne', champs: {}, datation: 'redater' }, { aujourdhui: '2026-10-21' });
+  assert.ok(encore.ok, encore.erreur);
+});
+
+test('entreprises : début et fin de période se saisissent en français ; une date qui n\'existe pas ou à l\'américaine est refusée', () => {
+  const t = fs.readFileSync(path.join(DOSSIER, 'entreprises-departements.md'), 'utf8').replace(/\r\n/g, '\n');
+  const ctx = { aujourdhui: '2026-10-21' };
+  const bon = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: { periode_au: '19/10/2026' }, confirmeSource: true }, ctx);
+  assert.ok(bon.ok, bon.erreur);
+  assert.match(bon.texte, /^periode_au: 19\/10\/2026$/m);
+  const sans = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: { periode_au: '19/10/2026' } }, ctx);
+  assert.strictEqual(sans.ok, false, 'une période qui change est un chiffre qui change : confirmation exigée');
+  ['31/02/2026', '2026-10-19', '19/10/26', 'hier'].forEach((v) => {
+    const r = C.modifierTerritoire(t, { lieu: 'Dordogne', champs: { periode_au: v }, confirmeSource: true }, ctx);
+    assert.strictEqual(r.ok, false, v);
+  });
 });

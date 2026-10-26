@@ -65,7 +65,6 @@ function _ucpmP2HtmlBandeau(etat) {
     '<div class="d-flex flex-wrap gap-2 align-items-center">' +
     '<button type="button" class="btn btn-primary btn-lg" id="btnUcpmChoisirObjectif">Choisir mon objectif</button>' +
     '<span class="small" style="color:var(--text-muted);" id="ucpmCompteurCoches">' + _ucpmEsc(etatTexte) + '</span></div>' +
-    _ucpmP2HtmlStatuts(etat) +
     (_ucpmUi2.messageCoche ? '<p class="small mb-0 mt-2" style="color:var(--danger);" role="alert">' + _ucpmEsc(_ucpmUi2.messageCoche) + '</p>' : '') +
     '</div>';
 }
@@ -80,12 +79,13 @@ function _ucpmP2TexteColonne(etat, colonne) {
   return { ok: true, texte: r.libelle + (r.nb < r.total ? ' (pour ' + r.nb + ' métier' + (r.nb > 1 ? 's' : '') + ' sur ' + r.total + ')' : '') };
 }
 
-function _ucpmP2HtmlStatuts(etat) {
+// L'objectif de CHAQUE colonne, sur une seule ligne, juste au-dessus de sa colonne (Denis, 24/10/2026) ; le texte complet reste dans l'infobulle.
+function _ucpmP2HtmlStatutColonne(etat, cote) {
   if (!etat.intitules || !etat.autres) { return ''; }
-  return '<ul class="ucpm-statuts" aria-label="Objectif de chaque colonne">' + ['gauche', 'droite'].map(function (c) {
-    var t = _ucpmP2TexteColonne(etat, c);
-    return '<li class="' + (t.ok ? 'is-ok' : 'is-vide') + '"><span class="ucpm-statut-signe" aria-hidden="true">' + (t.ok ? '&#10003;' : '&#9888;') + '</span> <strong>' + _UCPM_NOM_COLONNE[c] + '</strong> : ' + _ucpmEsc(t.texte) + '</li>';
-  }).join('') + '</ul>';
+  var t = _ucpmP2TexteColonne(etat, cote);
+  var texte = t.ok ? 'Objectif : ' + t.texte : 'Aucun objectif choisi pour le moment';
+  return '<p class="ucpm-statut-colonne ' + (t.ok ? 'is-ok' : 'is-vide') + '" data-ucpm-statut="' + cote + '" title="' + _ucpmEsc(_UCPM_NOM_COLONNE[cote] + ' : ' + texte) + '">' +
+    '<span class="ucpm-statut-signe" aria-hidden="true">' + (t.ok ? '&#10003;' : '&#9888;') + '</span> ' + _ucpmEsc(texte) + '</p>';
 }
 
 // Ce que dit chaque gros bouton de portée sous son titre.
@@ -121,14 +121,156 @@ function _ucpmP2Champ(nom, libelle, valeur, aide, type) {
     '<input type="' + (type || 'text') + '" class="form-control" id="ucpmF_' + nom + '" data-ucpm-champ="' + nom + '" value="' + _ucpmEsc(valeur) + '" maxlength="120">' +
     (aide ? '<div class="small" style="color:var(--text-muted);">' + aide + '</div>' : '') + '</div>';
 }
-function _ucpmP2Cases(nom, libelle, liste, valeurs) {
-  // « Tout » : coche ou decoche toutes les valeurs d'un coup (retour de Denis, 2026-10-10) ; il est coche quand elles le sont toutes.
-  var toutes = liste.length > 0 && liste.every(function (x) { return valeurs.indexOf(x) !== -1; });
-  var caseTout = '<label class="ck" style="display:inline-flex;gap:.4rem;align-items:center;margin:0;"><input type="checkbox" data-ucpm-tout="' + nom + '"' + (toutes ? ' checked' : '') + '> <strong>Tout</strong></label>';
-  return '<div class="mb-2"><p class="mb-1"><strong>' + libelle + '</strong></p><div class="d-flex flex-wrap gap-3">' + caseTout +
-    liste.map(function (x) {
-      return '<label class="ck" style="display:inline-flex;gap:.4rem;align-items:center;margin:0;"><input type="checkbox" data-ucpm-multi="' + nom + '" value="' + _ucpmEsc(x) + '"' + (valeurs.indexOf(x) !== -1 ? ' checked' : '') + '> ' + _ucpmEsc(x) + '</label>';
-    }).join('') + '</div></div>';
+
+
+// ---------------- Les six cartes d'objectif (celles de la lettre) ----------------
+
+// Une seule liste de cartes pour toute l'application (OBJECTIF_CHOIX_CANDIDATURE, js/app.js) ; « Stage » couvre le stage de formation et l'immersion (chantier F14, 24/10/2026).
+function _ucpmP2HtmlCartes(u) {
+  var b = u.brouillon;
+  var actifId = b.demarche === 'pmsmp' ? 'stage' : b.demarche;
+  var cartes = '<div class="grille-objectif">' + OBJECTIF_CHOIX_CANDIDATURE.map(function (o) {
+    return '<button type="button" class="carte-objectif' + (o.id === actifId ? ' carte-objectif--actif' : '') + '" data-ucpm-carte="' + o.id + '" aria-pressed="' + (o.id === actifId ? 'true' : 'false') + '">' +
+      '<i class="bi ' + o.icon + '" aria-hidden="true"></i><span class="carte-objectif-titre">' + o.title + '</span><span class="carte-objectif-desc">' + o.desc + '</span></button>';
+  }).join('') + '</div>';
+  if (actifId === 'stage') {
+    cartes += '<div class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Type de stage">' + [['stage', 'Stage de formation'], ['pmsmp', 'Stage d’immersion (PMSMP)']].map(function (c) {
+      var actif = !u.stageAChoisir && b.demarche === c[0];
+      return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-ucpm-demarche="' + c[0] + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + c[1] + '</button>';
+    }).join('') + '</div>';
+  }
+  return cartes;
+}
+
+function _ucpmP2HtmlAncien(b) {
+  return '<div class="mb-2"><p class="mb-1"><strong>Votre ancien métier ou secteur</strong> <span class="ucpm-facultatif">(à compléter)</span></p><div class="d-flex flex-wrap gap-2 mb-2">' +
+    [['metier', 'Un métier'], ['secteur', 'Un secteur d’activité']].map(function (c) {
+      var actif = (b.ancienType || 'metier') === c[0];
+      return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-ucpm-ancien="' + c[0] + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + c[1] + '</button>';
+    }).join('') + '</div>' +
+    '<input type="text" class="form-control" id="ucpmF_ancienValeur" data-ucpm-champ="ancienValeur" value="' + _ucpmEsc(b.ancienValeur) + '" maxlength="80" aria-label="Votre ancien métier ou secteur" placeholder="' + ((b.ancienType === 'secteur') ? 'Par exemple : bâtiment' : 'Par exemple : plaquiste') + '">' +
+    '<div class="small" style="color:var(--text-muted);">Le nouveau métier est celui du CV. Cela aide l’assistant à valoriser ce que vous avez déjà fait.</div></div>';
+}
+
+function _ucpmP2HtmlAutreChose(b) {
+  return '<div class="mb-2"><label class="form-label mb-1" for="ucpmF_autreChose"><strong>Autre chose à dire dans la lettre</strong> (à compléter)</label>' +
+    '<textarea class="form-control" rows="2" maxlength="400" id="ucpmF_autreChose" data-ucpm-champ="autreChose">' + _ucpmEsc(b.autreChose) + '</textarea>' +
+    '<div class="small" style="color:var(--text-muted);">Une ou deux phrases avec vos mots. Elles seront reprises dans la lettre, sans rien inventer autour.</div></div>';
+}
+
+// ---------------- Offre, spontanée, changer de métier : la brique de la lettre, avec une copie du dossier prêtée (chantier F14) ----------------
+// La brique (contenuModeRecherche et ses gestionnaires, js/app.js) lit et écrit le dossier global. Le panneau lui PRÊTE une copie bâtie sur le brouillon (logiqueObjectifDossier.js)
+// le temps du dessin et de chaque événement, puis relit ce que la brique y a écrit ; le vrai dossier revient aussitôt (même technique que dossierEchange.js).
+
+var _ucpmP2Pret = null;   // { vrai } pendant qu'une copie tient la place du dossier
+
+function _ucpmP2PreterDossier(b) {
+  if (_ucpmP2Pret) { return; }
+  var vrai = window.dossier;
+  var base = Object.assign({}, vrai);
+  base.metiersCandidats = (vrai.metiersCandidats || []).slice();
+  base.metiersHorsRepertoire = (vrai.metiersHorsRepertoire || []).slice();
+  base.dernierDocumentPrepare = 'lettre';   // la couleur d'entreprise (CV seulement) n'a pas de sens ici
+  var copie = ucpmObjectifVersDossier(b, { base: base, typesStructure: (typeof BILAN_TYPES_STRUCTURE !== 'undefined') ? BILAN_TYPES_STRUCTURE : [] });
+  if (!copie) { return; }
+  _ucpmP2Pret = { vrai: vrai, copie: copie };
+  window.dossier = copie;
+  _metierDonneActif = true;
+}
+
+function _ucpmP2RendreDossier(b) {
+  var p = _ucpmP2Pret;
+  if (!p) { return; }
+  var relu = ucpmObjectifDepuisDossier(p.copie, b, { typesStructure: (typeof BILAN_TYPES_STRUCTURE !== 'undefined') ? BILAN_TYPES_STRUCTURE : [] });
+  window.dossier = p.vrai;
+  _metierDonneActif = false;
+  _ucpmP2Pret = null;
+  // Les champs propres au module (poste de l'offre, ancien métier, autre chose à dire, date précise) restent ceux du brouillon : la brique ne les connaît pas.
+  Object.keys(relu).forEach(function (k) { if (['posteOffre', 'ancienType', 'ancienValeur', 'autreChose', 'dateDebut'].indexOf(k) === -1) { b[k] = relu[k]; } });
+}
+
+function _ucpmP2HtmlEmploi(etat, u, un) {
+  var b = u.brouillon;
+  var html = '';
+  _ucpmP2PreterDossier(b);
+  try {
+    if (_ucpmP2Pret) {
+      if (typeof _coLettreNormaliserCarteOffre === 'function') { _coLettreNormaliserCarteOffre(); }
+      html = contenuModeRecherche(false, { modeUnifie: true, metierDonne: true, formeCandidature: formeCandidatureActuelle() });
+    }
+  } finally { _ucpmP2RendreDossier(b); }
+  var posteOffre = (b.demarche === 'offre' && un) ? _ucpmP2Champ('posteOffre', 'Intitulé du poste', b.posteOffre) : '';
+  var dateDebut = (b.demarche !== 'offre' && b.forme) ? _ucpmP2Champ('dateDebut', 'Une date précise de début (à compléter)', b.dateDebut, 'Par exemple : septembre 2026. À ajouter si les choix ci-dessus ne suffisent pas.') : '';
+  return posteOffre + '<div id="ucpmZoneEmploi">' + html + '</div>' + dateDebut + (b.demarche === 'reconversion' ? _ucpmP2HtmlAncien(b) : '') + _ucpmP2HtmlAutreChose(b);
+}
+
+// « Appliquer » : ce qui reste à faire, avec les règles de la lettre pour offre, spontanée et changer de métier.
+function _ucpmP2RaisonsPanneau(u) {
+  var b = u.brouillon;
+  if (!b.demarche) { return ['choisir un objectif']; }
+  if (u.stageAChoisir) { return ['dire s’il s’agit d’un stage de formation ou d’une immersion']; }
+  return ucpmRaisonsObjectif(b, u.portee === 'un', raisonsBlocageLettreCo);
+}
+function _ucpmP2MajAppliquer() {
+  var u = _ucpmUi2.objectif;
+  var bouton = document.getElementById('btnUcpmAppliquerObjectif');
+  if (!u || !bouton) { return; }
+  var raisons = _ucpmP2RaisonsPanneau(u);
+  bouton.disabled = raisons.length > 0;
+  var phrase = document.getElementById('ucpmRaisonObjectif');
+  if (phrase) {
+    phrase.textContent = raisons.length ? phraseBlocageLettreCo(raisons) : '';
+    phrase.hidden = !raisons.length;
+  }
+}
+
+function _ucpmP2CablerEmploi(etat) {
+  var u = _ucpmUi2.objectif;
+  var zone = document.getElementById('ucpmZoneEmploi');
+  if (!u || !zone) { return; }
+  var b = u.brouillon;
+  var un = u.portee === 'un';
+  var demande = false;
+  var rerender = function () { demande = true; };
+  // Chaque evenement de la zone se deroule avec la copie du dossier en place, puis le brouillon relit ses choix (le vrai dossier revient toujours : filet de securite si un gestionnaire arrete l'evenement).
+  ['click', 'input', 'change', 'keydown'].forEach(function (type) {
+    zone.addEventListener(type, function () {
+      _ucpmP2PreterDossier(b);
+      setTimeout(function () { if (_ucpmP2Pret) { _ucpmP2RendreDossier(b); } }, 0);
+    }, true);
+    zone.addEventListener(type, function () {
+      _ucpmP2RendreDossier(b);
+      var msg = document.getElementById('messageSansOffreLettreCo');
+      if (msg && typeof aUneOffreLettreCo === 'function') {
+        var sans = !aUneOffreLettreCo({ texteOffre: b.texteOffre, lienOffre: '' });
+        msg.hidden = !sans;
+        msg.textContent = sans ? messageSansOffreLettreCo(b.employeur) : '';
+      }
+      _ucpmP2MajAppliquer();
+      if (demande) { demande = false; ucpmRendrePage(); }
+    }, false);
+  });
+  if (typeof memoriserFormeCandidatureAuClic === 'function') { memoriserFormeCandidatureAuClic(zone); }
+  _ucpmP2PreterDossier(b);
+  try {
+    wireModeRecherche(rerender);
+    wireContratTemps(rerender);
+    wireDisponibilite(rerender);
+  } finally { _ucpmP2RendreDossier(b); }
+  // Ce que le module ne reprend pas : le site de l'entreprise ; et, pour plusieurs metiers a la fois, l'entreprise, l'offre et la personne qui recrute (un seul metier a la fois).
+  var cacher = function (sel) { var el = zone.querySelector(sel); var bloc = el && el.closest('div.mb-3, div.mb-2'); if (bloc) { bloc.style.display = 'none'; } };
+  cacher('#ciblageSite');
+  if (!un) {
+    cacher('#ciblageEntreprise'); cacher('#ciblageOffre');
+    var civ = zone.querySelector('[data-cand-civilite-recruteur]'); var blocCiv = civ && civ.closest('div.mb-2'); if (blocCiv) { blocCiv.style.display = 'none'; }
+    var nom = document.getElementById('candNomRecruteur'); if (nom && nom.closest('div.mb-3')) { nom.closest('div.mb-3').style.display = 'none'; }
+    var jetonsEntreprise = b.demarche === 'spontanee' ? '[data-type-recherche="offre"]' : '[data-forme="entreprise"]';
+    Array.prototype.forEach.call(zone.querySelectorAll(jetonsEntreprise), function (el) { el.disabled = true; el.title = 'Une entreprise précise : un seul métier à la fois.'; });
+    if (b.demarche !== 'offre') {
+      Array.prototype.forEach.call(zone.querySelectorAll('[data-forme="offre"]'), function (el) { el.disabled = true; el.title = 'Une offre : un seul métier à la fois.'; });
+    }
+  }
+  _ucpmP2MajAppliquer();
 }
 
 function _ucpmP2HtmlPanneauObjectif(etat) {
@@ -155,14 +297,12 @@ function _ucpmP2HtmlPanneauObjectif(etat) {
   if (u.question) { return html + _ucpmP2HtmlQuestion(etat, u) + '</div>'; }   // le formulaire n'apparaît qu'après la réponse
   if (u.note) { html += '<p class="ucpm-note-reprise" role="status">' + _ucpmEsc(u.note) + '</p>'; }
   // B. Pour quel objectif ?
-  html += '<p class="mb-1"><strong>' + (un ? '1' : '2') + '. Pour quel objectif ?</strong></p><div class="d-flex flex-wrap gap-2 mb-3">' + UCPM_DEMARCHES.map(function (d) {
-    var actif = b.demarche === d.id;
-    return '<button type="button" class="btn ' + (actif ? 'btn-primary' : 'btn-outline-secondary') + '" data-ucpm-demarche="' + d.id + '" aria-pressed="' + (actif ? 'true' : 'false') + '" title="' + _ucpmEsc(d.desc) + '">' + _ucpmEsc(d.titre) + '</button>';
-  }).join('') + '</div>';
+  html += '<p class="mb-1"><strong>' + (un ? '1' : '2') + '. Pour quel objectif ?</strong></p>' + _ucpmP2HtmlCartes(u);
   if (b.demarche) {
     var dem = ucpmDemarche(b.demarche);
-    html += '<p class="small" style="color:var(--text-muted);">' + _ucpmEsc(dem.desc) + ' Tout ce qui suit est facultatif : renseignez ce que vous savez.</p>';
-    html += '<p class="mb-1"><strong>' + (un ? '2' : '3') + '. Les détails</strong></p>';
+    html += '<p class="small" style="color:var(--text-muted);">' + _ucpmEsc(dem.desc) + ' Tout ce qui suit est à compléter : renseignez ce que vous savez.</p>';
+    html += '<p class="mb-1"><strong>' + (un ? '2' : '3') + '. ' + (ucpmEstDemarcheEmploi(b.demarche) ? 'Votre candidature' : 'Les détails') + '</strong></p>';
+    if (ucpmEstDemarcheEmploi(b.demarche)) { html += _ucpmP2HtmlEmploi(etat, u, un); } else {
     var types = (typeof BILAN_TYPES_STRUCTURE !== 'undefined') ? BILAN_TYPES_STRUCTURE : [];
     html += '<div class="mb-2"><label class="form-label mb-1" for="ucpmF_typeStructure"><strong>Type de structure</strong></label>' +
       '<select class="form-select" id="ucpmF_typeStructure" data-ucpm-champ="typeStructure"><option value="">Je ne sais pas encore</option>' + _ucpmP2OptionsSelect(types, b.typeStructure) + '</select></div>';
@@ -187,27 +327,13 @@ function _ucpmP2HtmlPanneauObjectif(etat) {
       }).join('') + '</div>';
     }
     html += '</div>';
-    if (dem.famille === 'emploi') {
-      html += _ucpmP2Cases('contrat', 'Contrat', (typeof CONTRATS !== 'undefined') ? CONTRATS : ['CDI', 'CDD'], b.contrat);
-      html += _ucpmP2Cases('tempsTravail', 'Temps de travail', (typeof TEMPS_TRAVAIL !== 'undefined') ? TEMPS_TRAVAIL : ['Temps plein', 'Temps partiel'], b.tempsTravail);
-    } else {
-      html += '<div class="mb-2"><p class="mb-1"><strong>Durée</strong></p><div class="d-flex gap-2"><input type="number" min="1" max="99" class="form-control" style="max-width:7rem;" id="ucpmF_dureeQuantite" data-ucpm-champ="dureeQuantite" value="' + _ucpmEsc(b.dureeQuantite) + '" aria-label="Durée, nombre">' +
-        '<select class="form-select" style="max-width:9rem;" id="ucpmF_dureeUnite" data-ucpm-champ="dureeUnite" aria-label="Durée, unité"><option value="">Unité</option>' + _ucpmP2OptionsSelect(UCPM_UNITES_DUREE, b.dureeUnite) + '</select></div></div>';
-      html += _ucpmP2Champ('dateDebut', 'Début souhaité', b.dateDebut, 'Par exemple : septembre 2026.');
-      html += _ucpmP2Champ('dateFin', 'Fin souhaitée', b.dateFin);
-      html += _ucpmP2Champ('heures', 'Heures par semaine', b.heures);
-      if (b.demarche === 'alternance' || b.demarche === 'formation') { html += _ucpmP2Champ('formationVisee', 'Formation visée', b.formationVisee); }
-    }
+    html += '<div class="mb-2"><p class="mb-1"><strong>Durée</strong></p><div class="d-flex gap-2"><input type="number" min="1" max="99" class="form-control" style="max-width:7rem;" id="ucpmF_dureeQuantite" data-ucpm-champ="dureeQuantite" value="' + _ucpmEsc(b.dureeQuantite) + '" aria-label="Durée, nombre">' +
+      '<select class="form-select" style="max-width:9rem;" id="ucpmF_dureeUnite" data-ucpm-champ="dureeUnite" aria-label="Durée, unité"><option value="">Unité</option>' + _ucpmP2OptionsSelect(UCPM_UNITES_DUREE, b.dureeUnite) + '</select></div></div>';
+    html += _ucpmP2Champ('dateDebut', 'Début souhaité', b.dateDebut, 'Par exemple : septembre 2026.');
+    html += _ucpmP2Champ('dateFin', 'Fin souhaitée', b.dateFin);
+    html += _ucpmP2Champ('heures', 'Heures par semaine', b.heures);
+    if (b.demarche === 'alternance' || b.demarche === 'formation') { html += _ucpmP2Champ('formationVisee', 'Formation visée', b.formationVisee); }
     // Champs propres a chaque demarche (decisions de Denis, 2026-10-10) : ils ne partent que dans la demande du CV concerne.
-    if (b.demarche === 'reconversion') {
-      html += '<div class="mb-2"><p class="mb-1"><strong>Votre ancien métier ou secteur</strong> <span class="ucpm-facultatif">(facultatif)</span></p><div class="d-flex flex-wrap gap-2 mb-2">' +
-        [['metier', 'Un métier'], ['secteur', 'Un secteur d’activité']].map(function (c) {
-          var actif = (b.ancienType || 'metier') === c[0];
-          return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-ucpm-ancien="' + c[0] + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + c[1] + '</button>';
-        }).join('') + '</div>' +
-        '<input type="text" class="form-control" id="ucpmF_ancienValeur" data-ucpm-champ="ancienValeur" value="' + _ucpmEsc(b.ancienValeur) + '" maxlength="80" aria-label="Votre ancien métier ou secteur" placeholder="' + ((b.ancienType === 'secteur') ? 'Par exemple : bâtiment' : 'Par exemple : plaquiste') + '">' +
-        '<div class="small" style="color:var(--text-muted);">Le nouveau métier est celui du CV. Cela aide l’assistant à valoriser ce que vous avez déjà fait.</div></div>';
-    }
     if (b.demarche === 'stage' || b.demarche === 'alternance' || b.demarche === 'formation') {
       html += _ucpmP2Champ('organisme', b.demarche === 'formation' ? 'Centre formateur' : (b.demarche === 'alternance' ? 'Organisme ou centre de formation' : 'Organisme de formation'), b.organisme);
     }
@@ -217,7 +343,7 @@ function _ucpmP2HtmlPanneauObjectif(etat) {
           var actif = b.objectifsPmsmp.indexOf(o) !== -1;
           return '<button type="button" class="jeton' + (actif ? ' is-actif' : '') + '" data-ucpm-pmsmp="' + _ucpmEsc(o) + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + _ucpmEsc(o) + '</button>';
         }).join('') + '</div></div>' +
-        _ucpmP2Champ('objectifPmsmpAutre', 'Autre objectif (facultatif)', b.objectifPmsmpAutre);
+        _ucpmP2Champ('objectifPmsmpAutre', 'Autre objectif (à compléter)', b.objectifPmsmpAutre);
     }
     // Disponibilité : des choix à cliquer plutôt que du texte à écrire (mêmes pastilles que « Mon projet »), une date précise seulement si la personne le veut.
     var dispos = (typeof DISPONIBILITES !== 'undefined') ? DISPONIBILITES : ['Immédiatement', 'Sous 15 jours', 'Dans un mois', 'Sans préférence'];
@@ -229,26 +355,21 @@ function _ucpmP2HtmlPanneauObjectif(etat) {
       }).join('') +
       '<button type="button" class="jeton' + (datePrecise ? ' is-actif' : '') + '" data-ucpm-dispo-libre aria-pressed="' + (datePrecise ? 'true' : 'false') + '">Une date précise</button></div>' +
       (datePrecise ? '<input type="text" class="form-control mt-2" id="ucpmF_disponibleA" data-ucpm-champ="disponibleA" value="' + _ucpmEsc(dispos.indexOf(b.disponibleA) === -1 ? b.disponibleA : '') + '" maxlength="60" placeholder="Par exemple : septembre 2026" aria-label="Date de disponibilité">' : '') + '</div>';
-    html += '<div class="mb-2"><label class="form-label mb-1" for="ucpmF_autreChose"><strong>Autre chose à dire dans la lettre</strong> (facultatif)</label>' +
-      '<textarea class="form-control" rows="2" maxlength="400" id="ucpmF_autreChose" data-ucpm-champ="autreChose">' + _ucpmEsc(b.autreChose) + '</textarea>' +
-      '<div class="small" style="color:var(--text-muted);">Une ou deux phrases avec vos mots. Elles seront reprises dans la lettre, sans rien inventer autour.</div></div>';
+    html += _ucpmP2HtmlAutreChose(b);
     if (un && UCPM_DEMARCHES_AVEC_EMPLOYEUR.indexOf(b.demarche) !== -1) {
-      html += '<p class="mb-1 mt-3"><strong>Si vous les connaissez</strong> (facultatif)</p>';
+      html += '<p class="mb-1 mt-3"><strong>Si vous les connaissez</strong> (à compléter)</p>';
       html += _ucpmP2Champ('employeur', 'Nom de l’employeur', b.employeur);
       html += '<div class="mb-2"><p class="mb-1"><strong>Recruteur ou recruteuse</strong></p><div class="d-flex gap-2">' +
         '<select class="form-select" style="max-width:9rem;" id="ucpmF_civiliteRecruteur" data-ucpm-champ="civiliteRecruteur" aria-label="Civilité">' +
         UCPM_CIVILITES_RECRUTEUR.map(function (c) { return '<option value="' + c + '"' + (c === b.civiliteRecruteur ? ' selected' : '') + '>' + (c || 'Civilité') + '</option>'; }).join('') + '</select>' +
         '<input type="text" class="form-control" id="ucpmF_nomRecruteur" data-ucpm-champ="nomRecruteur" value="' + _ucpmEsc(b.nomRecruteur) + '" maxlength="80" aria-label="Nom du recruteur"></div></div>';
-      if (b.demarche === 'offre') {
-        html += _ucpmP2Champ('posteOffre', 'Intitulé du poste', b.posteOffre);
-        html += '<div class="mb-2"><label class="form-label mb-1" for="ucpmF_texteOffre"><strong>Lien ou texte de l’offre</strong></label>' +
-          '<textarea class="form-control" rows="3" maxlength="1500" id="ucpmF_texteOffre" data-ucpm-champ="texteOffre">' + _ucpmEsc(b.texteOffre) + '</textarea>' +
-          '<div class="small" style="color:var(--text-muted);">Quelques lignes suffisent : les points qui demandent le plus.</div></div>';
-      }
+    }
     }
   }
-  html += '<div class="d-flex gap-2 mt-3"><button type="button" class="btn btn-primary" id="btnUcpmAppliquerObjectif"' + (b.demarche ? '' : ' disabled title="Choisissez d’abord un objectif."') + '>Appliquer</button>' +
-    '<button type="button" class="btn btn-outline-secondary" id="btnUcpmAnnulerObjectif">Annuler</button></div>';
+  var raisonsAppliquer = _ucpmP2RaisonsPanneau(u);
+  html += '<div class="d-flex gap-2 mt-3 flex-wrap align-items-center"><button type="button" class="btn btn-primary" id="btnUcpmAppliquerObjectif"' + (raisonsAppliquer.length ? ' disabled' : '') + '>Appliquer</button>' +
+    '<button type="button" class="btn btn-outline-secondary" id="btnUcpmAnnulerObjectif">Annuler</button>' +
+    '<span class="small" id="ucpmRaisonObjectif" role="status" style="color:var(--warning-strong);"' + (raisonsAppliquer.length ? '' : ' hidden') + '>' + _ucpmEsc(raisonsAppliquer.length ? phraseBlocageLettreCo(raisonsAppliquer) : '') + '</span></div>';
   html += '<p class="small mb-0 mt-2" style="color:var(--text-muted);">Aucun nom d’entreprise n’est demandé sauf pour un seul métier à la fois. Rien n’est envoyé avant que vous le décidiez.</p>';
   return html + '</div>';
 }
@@ -259,10 +380,6 @@ function _ucpmP2LireChamps() {
   if (!u) { return; }
   var b = u.brouillon;
   Array.prototype.forEach.call(document.querySelectorAll('#ucpmPanneauObjectif [data-ucpm-champ]'), function (el) { b[el.getAttribute('data-ucpm-champ')] = el.value; });
-  ['contrat', 'tempsTravail'].forEach(function (nom) {
-    var els = document.querySelectorAll('#ucpmPanneauObjectif [data-ucpm-multi="' + nom + '"]');
-    if (els.length) { b[nom] = Array.prototype.filter.call(els, function (e) { return e.checked; }).map(function (e) { return e.value; }); }
-  });
   var radio = document.querySelector('#ucpmPanneauObjectif input[name="ucpmPortee"]:checked');
   if (radio) { u.portee = radio.value; }
 }
@@ -276,7 +393,9 @@ function _ucpmP2OuvrirObjectif(etat, portee, id) {
     brouillon = ucpmNormaliserObjectif(etat.objectifsPortee[portee || 'tous']);   // le panneau s'ouvre avec le dernier choix de cette portee
   }
   _ucpmUi2.dispoLibre = false;
-  _ucpmUi2.objectif = { portee: portee || 'tous', id: id || null, brouillon: brouillon, question: null, note: '' };
+  // Un objectif enregistre avant la logique de la lettre n'a pas de forme : on la deduit (une entreprise nommee = une entreprise precise).
+  if (ucpmEstDemarcheEmploi(brouillon.demarche) && !brouillon.forme && brouillon.demarche !== 'offre' && brouillon.employeur) { brouillon.forme = 'entreprise'; }
+  _ucpmUi2.objectif = { portee: portee || 'tous', id: id || null, brouillon: brouillon, question: null, note: '', stageAChoisir: false };
   if (_ucpmUi2.objectif.portee === 'tous') { _ucpmUi2.objectif.question = ucpmColonneSourceUnique(etat); }   // une seule colonne a des objectifs : on demande si on les reprend pour l'autre
   _ucpmUi2.messageCoche = '';
   ucpmRendrePage();
@@ -350,7 +469,7 @@ function _ucpmP2HtmlRubriqueOffres(etat, cote) {
   var bouton = '<button type="button" class="btn ' + (actif ? 'btn-primary' : 'btn-outline-primary') + '" data-ucpm-offres="' + cote + '"' + (n ? '' : ' disabled title="Cochez au moins un métier dans cette colonne."') + '>' +
     '<i class="bi bi-search"></i> ' + libelle + (n ? ' (' + n + ' coché' + (n > 1 ? 's' : '') + ')' : '') + '</button>';
   return '<div class="cv-section mt-3" id="ucpmRubriqueOffres_' + cote + '" style="border:2px dashed var(--accent);">' +
-    '<h4>&#128269; Chercher des offres d’emploi (facultatif)</h4>' +
+    '<h4>&#128269; Chercher des offres d’emploi</h4>' +
     '<p class="mb-2">Si vous le souhaitez, vous pouvez aller voir s’il existe des offres d’emploi pour les métiers que vous avez cochés dans cette colonne. L’application vous prépare la demande et ouvre l’assistant en ligne de votre choix. Elle ne reprend rien de ce qu’il vous répond : c’est un repère, vous restez libre d’en faire ce que vous voulez.</p>' +
     '<div class="d-flex flex-wrap gap-2">' + bouton + '</div>' +
     (_ucpmUi2.offres ? _ucpmP2PanneauOffresColonne(etat, cote) : '') +
@@ -507,8 +626,8 @@ function _ucpmP2Rendre(etat) {
   _ucpmP2Assurer(etat);
   return _ucpmP2HtmlSynthese(etat) + _ucpmP2HtmlEncadre() + _ucpmP2HtmlBandeau(etat) + _ucpmP2HtmlPanneauObjectif(etat) +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:1rem;align-items:start;">' +
-    '<div>' + _ucpmP2HtmlColonne(etat, 'gauche') + _ucpmP2HtmlRubriqueOffres(etat, 'gauche') + '</div>' +
-    '<div>' + _ucpmP2HtmlColonne(etat, 'droite') + _ucpmP2HtmlRubriqueOffres(etat, 'droite') + '</div></div>';
+    '<div>' + _ucpmP2HtmlStatutColonne(etat, 'gauche') + _ucpmP2HtmlColonne(etat, 'gauche') + _ucpmP2HtmlRubriqueOffres(etat, 'gauche') + '</div>' +
+    '<div>' + _ucpmP2HtmlStatutColonne(etat, 'droite') + _ucpmP2HtmlColonne(etat, 'droite') + _ucpmP2HtmlRubriqueOffres(etat, 'droite') + '</div></div>';
 }
 
 function _ucpmP2Cabler(etat) {
@@ -533,16 +652,9 @@ function _ucpmP2Cabler(etat) {
   var bf = $('#btnUcpmFermerObjectif'); if (bf) { bf.addEventListener('click', fermer); }
   var ba = $('#btnUcpmAnnulerObjectif'); if (ba) { ba.addEventListener('click', fermer); }
   if (_ucpmUi2.objectif) {
-    $$('#ucpmPanneauObjectif [data-ucpm-tout]', function (el) {
-      el.addEventListener('change', function () {
-        var nom = el.getAttribute('data-ucpm-tout');
-        $$('#ucpmPanneauObjectif [data-ucpm-multi="' + nom + '"]', function (c) { c.checked = el.checked; });
-        _ucpmP2LireChamps(); ucpmRendrePage();
-      });
-    });
-    $$('#ucpmPanneauObjectif [data-ucpm-champ], #ucpmPanneauObjectif [data-ucpm-multi], #ucpmPanneauObjectif input[name="ucpmPortee"]', function (el) {
+    $$('#ucpmPanneauObjectif [data-ucpm-champ], #ucpmPanneauObjectif input[name="ucpmPortee"]', function (el) {
       el.addEventListener('input', _ucpmP2LireChamps);
-      el.addEventListener('change', function () { _ucpmP2LireChamps(); if (el.hasAttribute('data-ucpm-multi')) { ucpmRendrePage(); } });
+      el.addEventListener('change', _ucpmP2LireChamps);
     });
     // Choisir un type « Autre » ou changer de démarche modifie les champs affichés : on relit avant de redessiner.
     var typeStr = $('#ucpmF_typeStructure');
@@ -551,9 +663,25 @@ function _ucpmP2Cabler(etat) {
       el.addEventListener('click', function () {
         _ucpmP2LireChamps();
         _ucpmUi2.objectif.brouillon.demarche = el.getAttribute('data-ucpm-demarche');
+        _ucpmUi2.objectif.stageAChoisir = false;
         ucpmRendrePage();
       });
     });
+    // Les six cartes de la lettre. Changer de carte entre offre, spontanée et changer de métier remet à zéro ce qui avait été saisi (règle de la lettre) ; « Stage » demande ensuite le type.
+    $$('[data-ucpm-carte]', function (el) {
+      el.addEventListener('click', function () {
+        _ucpmP2LireChamps();
+        var u5 = _ucpmUi2.objectif; var avant = u5.brouillon.demarche; var carte = el.getAttribute('data-ucpm-carte');
+        var apres = carte === 'stage' ? ((avant === 'stage' || avant === 'pmsmp') ? avant : 'stage') : carte;
+        if (apres === avant) { return; }
+        if (changementCarteEffaceLettreCo(avant, apres)) { u5.brouillon = ucpmObjectifVide(apres); } else { u5.brouillon.demarche = apres; }
+        u5.stageAChoisir = carte === 'stage' && avant !== 'stage' && avant !== 'pmsmp';
+        ucpmRendrePage();
+      });
+    });
+    _ucpmP2CablerEmploi(etat);
+    // Les cartes s'invitent une a une, en boucle, tant qu'aucune n'est choisie (comme sur tous les ecrans d'objectif).
+    if (!_ucpmUi2.objectif.brouillon.demarche && typeof invitationCartesObjectif === 'function') { invitationCartesObjectif(false); }
     $$('[data-ucpm-cible]', function (el) {
       el.addEventListener('click', function () {
         _ucpmP2LireChamps();

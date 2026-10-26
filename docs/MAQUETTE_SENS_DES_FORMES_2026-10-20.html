@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : le sens des formes de bandeau et de colonne</title>
+<style>
+:root { --bg:#f3f5f9; --card:#fff; --text:#1f2933; --muted:#5b6675; --border:#cfd6e2; --accent:#1e4f8a; --accent-bg:#e6eef9; --band:#2f6690; --warn:#a15c00; --warn-bg:#fff4e0; }
+[data-theme="sombre"] { --bg:#14181f; --card:#1d232d; --text:#e8ecf2; --muted:#9aa6b6; --border:#3a4454; --accent:#7db3ee; --accent-bg:#22304a; --warn:#f0b866; --warn-bg:#3a2c12; }
+* { box-sizing:border-box; }
+body { margin:0; font:16px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+header { padding:14px 16px; background:var(--card); border-bottom:1px solid var(--border); }
+header h1 { margin:0; font-size:1.15rem; } header p { margin:4px 0 0; color:var(--muted); font-size:.92rem; }
+main { max-width:1180px; margin:0 auto; padding:16px; }
+h2 { font-size:1.05rem; margin:18px 0 8px; }
+.note { background:var(--accent-bg); border:1px solid var(--accent); border-radius:10px; padding:8px 10px; font-size:.9rem; margin:8px 0; }
+.alerte { background:var(--warn-bg); border:1px solid var(--warn); border-radius:10px; padding:8px 10px; font-size:.9rem; margin:8px 0; }
+.grille { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; }
+.carte { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+.carte h3 { margin:0 0 6px; font-size:.98rem; }
+.duo { display:flex; gap:10px; align-items:flex-end; }
+.duo figure { margin:0; text-align:center; font-size:.8rem; color:var(--muted); flex:1; }
+.duo svg { width:100%; height:auto; display:block; background:#fff; border:1px solid #aab4c8; }
+.duo svg .f { fill:var(--band); }
+.duo svg .p { fill:#d7dce6; }
+.rien { font-size:.8rem; color:var(--warn); margin:4px 0 0; }
+.btn { font:inherit; border:1px solid var(--border); background:var(--card); color:var(--text); border-radius:8px; padding:7px 12px; cursor:pointer; min-height:40px; }
+.btn[aria-checked="true"] { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); font-weight:600; box-shadow:0 0 0 1px var(--accent) inset; }
+.rang { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; }
+.lib { font-size:.88rem; font-weight:600; margin-top:8px; }
+.panneau { max-width:430px; }
+.q { background:var(--card); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:8px; padding:8px 12px; margin:8px 0; }
+.q b { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Maquette : le sens des formes de bandeau et de colonne</h1>
+  <p>Chaque forme qui a deux sens garde un seul bouton de forme, et une rangée « Sens » apparaît dessous. Ce que vous voyez ici est exactement ce qui est faisable ; ce qui n'a pas de sens visible est signalé en orange.</p>
+</header>
+<main>
+  <div class="note"><b>Principe proposé.</b> Aujourd'hui, la diagonale et la diagonale inversée sont deux boutons. Avec les sens, il n'y en a qu'un (« Diagonale ») et le choix du sens se fait juste dessous. Les formes sans sens (carte, pilule, contours, filets) n'ont aucune rangée en plus.</div>
+
+  <h2>1. Le panneau tel qu'il apparaîtrait (essayez)</h2>
+  <div class="carte panneau" id="panneau"></div>
+
+  <h2>2. Bandeau : les sens possibles (le bord du bas change)</h2>
+  <div class="grille" id="gb"></div>
+
+  <h2>3. Colonne : les sens possibles</h2>
+  <div class="alerte"><b>À savoir :</b> une colonne colorée touche le bord de la page. Un effet sur son bord EXTÉRIEUR (celui qui touche la page) serait coupé par la page : il n'a donc aucun effet visible. Seuls le bord intérieur, le haut et le bas ont un sens, SAUF si le relief du bord extérieur est dessiné tout près du bord de la page (entre 0 et 9 mm, il peut même l’effleurer, comme une figure de style) : on voit alors les vagues ou les créneaux, et le texte de la colonne, qui commence à 10 mm du bord, reste dans la couleur. Ce serait proposé seulement avec les formes dont le bord extérieur est travaillé.</div>
+  <div class="grille" id="gc"></div>
+
+  <h2>4. Ce qu'il faut trancher</h2>
+  <div class="q"><b>Question 1.</b> Fusionner les formes qui ont deux sens (diagonale et diagonale inversée, etc.) en un seul bouton avec une rangée « Sens » ? <i>Recommandé : oui. Un bouton de moins pour le bandeau (la diagonale inversée disparaît comme bouton), et les choix déjà enregistrés continuent de fonctionner.</i></div>
+  <div class="q"><b>Question 2.</b> Pour la colonne, « droite / gauche » : est-ce bien le bord intérieur qui change (et non le côté de la page où se trouve la colonne, qui existe déjà avec « Colonnes inversées ») ? <i>Dans cette maquette, seul le haut/bas et les coins ont un sens pour une colonne pleine hauteur.</i></div>
+  <div class="q"><b>Question 3.</b> « Pointe vers le haut » et « arche en bas » pour la colonne : le nom et la photo sont en haut de la colonne. Avec une pointe en haut, le haut de l'en-tête descend d'un cran (comme l'arche aujourd'hui) pour que le texte reste dans la couleur, ou on laisse le texte à deux tons faire le travail ? <i>Recommandé : laisser le texte à deux tons (déjà en place pour le bandeau) et ne pas bouger l'en-tête.</i></div>
+</main>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  function svgBandeau(d) { return '<svg viewBox="0 0 100 62" aria-hidden="true"><path class="f" d="' + d + '"/><rect class="p" x="8" y="34" width="84" height="3"/><rect class="p" x="8" y="42" width="60" height="3"/><rect class="p" x="8" y="50" width="76" height="3"/></svg>'; }
+  function svgColonne(d) { return '<svg viewBox="0 0 62 100" aria-hidden="true"><path class="f" d="' + d + '"/><rect class="p" x="32" y="14" width="24" height="3"/><rect class="p" x="32" y="22" width="18" height="3"/><rect class="p" x="32" y="30" width="22" height="3"/><rect class="p" x="32" y="38" width="16" height="3"/></svg>'; }
+  // bandeau : [titre, [ [legende, chemin] , [legende, chemin] ], remarque]
+  var B = [
+    ['Arrondi', [['arrondi en bas (actuelle)', 'M0 0H100V16Q100 26 90 26H10Q0 26 0 16Z'], ['arrondi en haut uniquement', 'M0 10Q0 0 10 0H90Q100 0 100 10V26H0Z'], ['arrondi en haut et en bas', 'M0 10Q0 0 10 0H90Q100 0 100 10V16Q100 26 90 26H10Q0 26 0 16Z']], 'Ajouté à la demande de Denis : arrondi en haut seulement.'],
+    ['Pointe', [['vers le bas (actuelle)', 'M0 0H100V16L50 26L0 16Z'], ['vers le haut', 'M0 0H100V26L50 16L0 26Z']], ''],
+    ['Demi-ovale', [['bombé vers le bas (actuelle)', 'M0 0H100V12Q100 26 50 26Q0 26 0 12Z'], ['creusé vers le haut', 'M0 0H100V26Q50 6 0 26Z']], ''],
+    ['Diagonale', [['plus basse à gauche (actuelle)', 'M0 0H100V16L0 26Z'], ['plus basse à droite (« inversée » actuelle)', 'M0 0H100V26L0 16Z']], 'Deux formes actuelles deviennent une seule.'],
+    ['Coin coupé', [['coin à gauche (actuelle)', 'M0 0H100V26H14L0 18Z'], ['coin à droite', 'M0 0H100V18L86 26H0Z']], ''],
+    ['Ruban incliné', [['bord incliné à droite (actuelle)', 'M0 0H100L90 26H0Z'], ['bord incliné à gauche', 'M0 0H100V26H10Z']], ''],
+    ['Ruban court', [['ruban attaché à gauche (actuelle)', 'M0 0H66L56 26H0Z'], ['ruban attaché à droite', 'M34 0H100V26H44Z']], 'Le texte qui dépasse prend la couleur du ruban.'],
+    ['Double vague', [['crêtes vers le bas (actuelle)', 'M0 0H100V16L83 24L66 16L50 24L33 16L16 24L0 16Z'], ['crêtes vers le haut', 'M0 0H100V24L83 16L66 24L50 16L33 24L16 16L0 24Z'], ['bord du haut ondulé', 'M0 5Q12 0 25 5T50 5T75 5T100 5V26H0Z']], 'Le bord reste régulier ; on choisit si les pointes descendent ou remontent, ou si le bord du haut ondule (bandeau descendu de 6 mm).'],
+    ['Créneaux', [['créneaux vers le bas (actuelle)', 'M0 0H100V18H92V26H83V18H75V26H66V18H58V26H50V18H42V26H33V18H25V26H16V18H8V26H0Z'], ['créneaux vers le haut', 'M0 0H100V26H92V18H83V26H75V18H66V26H58V18H50V26H42V18H33V26H25V18H16V26H8V18H0Z'], ['bord du haut en créneaux (château)', 'M0 7H8V3H16V7H25V3H33V7H42V3H50V7H58V3H66V7H75V3H83V7H92V3H100V26H0Z']], 'Vers le haut : dents creusées dans le bandeau. Château : le bandeau descend de 6 mm sous le haut de la page pour laisser voir les créneaux du bord du haut.']
+  ];
+  var C = [
+    ['Pointe', [['vers le bas (actuelle)', 'M0 0H22V86L11 98L0 86Z'], ['vers le haut', 'M0 12L11 0L22 12V98H0Z']], 'Vers le haut : le haut de la colonne (nom, photo) est dans la pointe.'],
+    ['Arche', [['en haut (actuelle)', 'M0 98V12A11 11 0 0 1 22 12V98Z'], ['en bas', 'M0 0H22V86A11 11 0 0 1 0 86Z']], 'En bas : le bas de la colonne s\'arrondit ; sans texte dans cette zone.'],
+    ['Diagonale', [['plus étroite en bas (actuelle)', 'M0 0H24L16 98H0Z'], ['plus étroite en haut', 'M0 0H16L24 98H0Z']], ''],
+    ['Coin coupé', [['coin du bas (actuelle)', 'M0 0H22V80L8 98H0Z'], ['coin du haut', 'M0 18L8 0H22V98H0Z']], ''],
+    ['Demi-ovale', [['(un seul sens)', 'M0 0H8Q22 0 22 12V86Q22 98 8 98H0Z']], 'Pas de sens : symétrique en haut et en bas.'],
+    ['Vallonnée', [['bord intérieur ondulé (actuelle)', 'M0 0H20Q24 14 20 28T20 56T20 84L20 98H0Z'], ['bord extérieur ondulé, au plus près du bord de la page', 'M1.3 0H22V98H1.3Q-1.2 91 1.3 84T1.3 70T1.3 56T1.3 42T1.3 28T1.3 14T1.3 0Z'], ['les deux bords ondulés', 'M1.3 0H20Q24 14 20 28T20 56T20 84V98H1.3Q-1.2 91 1.3 84T1.3 70T1.3 56T1.3 42T1.3 28T1.3 14T1.3 0Z']], 'Le relief du bord extérieur se rapproche du bord de la page (entre 0 et 9 mm) et peut même l’effleurer : le texte de la colonne ne bouge pas et reste dans la couleur.'],
+    ['Créneaux', [['bord intérieur en créneaux (actuelle)', 'M0 0H22V9H18V18H22V27H18V36H22V45H18V54H22V63H18V72H22V81H18V90H22V98H0Z'], ['bord extérieur en créneaux, au plus près du bord de la page', 'M2.6 0H22V98H2.6V90H0V81H2.6V72H0V63H2.6V54H0V45H2.6V36H0V27H2.6V18H0V9H2.6Z']], 'Les créneaux arrivent au bord de la page, même s’ils l’effleurent : on voit qu’il y a des créneaux.']
+  ];
+  function remplir(id, liste, svg) {
+    var g = document.getElementById(id);
+    liste.forEach(function (f) {
+      var c = document.createElement('div'); c.className = 'carte';
+      var h = '<h3>' + f[0] + '</h3><div class="duo">';
+      f[1].forEach(function (v) { h += '<figure>' + svg(v[1]) + '<figcaption>' + v[0] + '</figcaption></figure>'; });
+      h += '</div>' + (f[2] ? '<p class="rien" style="color:var(--muted)">' + f[2] + '</p>' : '');
+      c.innerHTML = h; g.appendChild(c);
+    });
+  }
+  remplir('gb', B, svgBandeau); remplir('gc', C, svgColonne);
+
+  // le panneau : un bouton de forme, une rangée Sens quand la forme en a
+  var formes = [['arrondi', 'Arrondi', ['En bas', 'En haut', 'En haut et en bas']], ['pointe', 'Pointe', ['Vers le bas', 'Vers le haut']], ['demiovale', 'Demi-ovale', ['Vers le bas', 'Vers le haut']], ['diagonale', 'Diagonale', ['Plus basse à gauche', 'Plus basse à droite']], ['coin', 'Coin coupé', ['À gauche', 'À droite']], ['ruban', 'Ruban incliné', ['À droite', 'À gauche']], ['rubanCourt', 'Ruban court', ['À gauche', 'À droite']], ['vague2', 'Double vague', ['Pointes vers le bas', 'Pointes vers le haut', 'Bord du haut ondulé']], ['creneaux', 'Créneaux', ['Dents vers le bas', 'Dents vers le haut', 'Bord du haut (château)']], ['carte', 'Carte flottante', null], ['pilule', 'Pilule', null]];
+  var etat = { forme: 'diagonale', sens: 0 };
+  function pan() {
+    var p = document.getElementById('panneau'), f = formes.filter(function (x) { return x[0] === etat.forme; })[0];
+    var h = '<div class="lib">Forme du bandeau</div><div class="rang" role="radiogroup" aria-label="Forme du bandeau">';
+    formes.forEach(function (x) { h += '<button class="btn" type="button" role="radio" aria-checked="' + (x[0] === etat.forme) + '" data-f="' + x[0] + '">' + x[1] + '</button>'; });
+    h += '</div>';
+    if (f[2]) {
+      h += '<div class="lib">Sens</div><div class="rang" role="radiogroup" aria-label="Sens de la forme">';
+      f[2].forEach(function (n, i) { h += '<button class="btn" type="button" role="radio" aria-checked="' + (i === etat.sens) + '" data-s="' + i + '">' + n + '</button>'; });
+      h += '</div>';
+    } else { h += '<p class="rien" style="color:var(--muted)">Cette forme n\'a pas de sens : aucune rangée en plus.</p>'; }
+    p.innerHTML = h;
+    Array.prototype.forEach.call(p.querySelectorAll('[data-f]'), function (b) { b.addEventListener('click', function () { etat.forme = b.getAttribute('data-f'); etat.sens = 0; pan(); }); });
+    Array.prototype.forEach.call(p.querySelectorAll('[data-s]'), function (b) { b.addEventListener('click', function () { etat.sens = parseInt(b.getAttribute('data-s'), 10); pan(); }); });
+  }
+  pan();
+})();
+</script>
+</body>
+</html>

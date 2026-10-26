@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : prospection, repérage et structures d'aide</title>
+<style>
+  :root { --fond:#f6f7f9; --texte:#1f2937; --carte:#fff; --bord:#d1d5db; --accent:#1d4ed8; --accent-texte:#fff; --doux:#e8eefc; --alerte:#fff7e0; --alerte-bord:#e0b94a; --ok:#e6f4ea; --ok-bord:#6bb27f; --barre:#9db4f0; --bord-fort:#4b5563; --ombre:0 2px 0 rgba(31,41,55,.35); --danger:#b42318; --danger-fond:#fdecea; --focus:#0f766e; --action:#b45309; --action-texte:#ffffff; --action-ombre:0 2px 0 rgba(120,53,15,.55); }
+  @media (prefers-color-scheme: dark) { :root { --fond:#111827; --texte:#f3f4f6; --carte:#1f2937; --bord:#374151; --accent:#7aa2ff; --accent-texte:#0b1220; --doux:#22304f; --alerte:#3a3216; --alerte-bord:#8a7430; --ok:#16301f; --ok-bord:#3f8a57; --barre:#4a62a8; --bord-fort:#9ca3af; --ombre:0 2px 0 rgba(0,0,0,.6); --danger:#ffb4a9; --danger-fond:#4a1d18; --focus:#5eead4; --action:#f59e0b; --action-texte:#1f1300; --action-ombre:0 2px 0 rgba(0,0,0,.6); } }
+  body { margin:0; background:var(--fond); color:var(--texte); font-family:system-ui,"Segoe UI",sans-serif; line-height:1.5; }
+  main { max-width:960px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { margin:0 0 4px; } h2 { font-size:1.08rem; margin:0 0 10px; }
+  .carte { background:var(--carte); border:1px solid var(--bord); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .rangee { display:flex; flex-wrap:wrap; gap:12px 10px; align-items:center; margin-top:4px; margin-bottom:4px; }
+  .espace { margin-bottom:14px; }
+  /* Boutons : bien séparés et bien visibles. Choix (case à cocher visuelle avec coche) / action (fond teinté) / retrait (rouge) / lien vers un site (flèche). */
+  button, a.btn { font:inherit; font-weight:600; color:var(--texte); background:var(--carte); border:2px solid var(--bord-fort); border-radius:10px; padding:9px 15px; cursor:pointer; text-decoration:none; display:inline-block; box-shadow:var(--ombre); line-height:1.3; }
+  button:hover, a.btn:hover { background:var(--doux); }
+  button:active, a.btn:active { box-shadow:none; transform:translateY(2px); }
+  button:focus-visible, a.btn:focus-visible, input:focus-visible, textarea:focus-visible { outline:4px solid var(--focus); outline-offset:2px; }
+  button[aria-pressed="true"] { background:var(--accent); color:var(--accent-texte); border-color:var(--accent); }
+  button[aria-pressed="true"]::before { content:"\2713\00a0"; }
+  button.action { background:var(--action); color:var(--action-texte); border-color:var(--action); box-shadow:var(--action-ombre); }
+  button.action:hover { background:var(--action); filter:brightness(1.12); }
+  .zone-action { margin-top:20px; padding-top:14px; border-top:2px dashed var(--bord-fort); }
+  .zone-action[data-titre]::before { content:attr(data-titre); }
+  .zone-action::before { content:"Actions"; display:block; width:100%; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--action); }
+  /* Légende : dans le coin en haut à droite, jamais dans la continuité des boutons cliquables. */
+  .entete { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:8px; }
+  .entete .titre { flex:1 1 320px; }
+  .legende-coin { flex:0 1 250px; border:1px solid var(--bord); border-radius:12px; background:var(--carte); padding:8px 12px; font-size:.82rem; }
+  .legende-coin summary { cursor:pointer; font-weight:700; list-style:none; }
+  .legende-coin summary::-webkit-details-marker { display:none; }
+  .legende-coin summary::after { content:" \25BE"; }
+  .legende-coin[open] summary::after { content:" \25B4"; }
+  .legende-coin ul { list-style:none; margin:8px 0 2px; padding:0; display:grid; gap:6px; }
+  .legende-coin li { display:flex; gap:8px; align-items:center; }
+  .legende-coin .ex { display:inline-block; min-width:74px; text-align:center; border:2px solid var(--bord-fort); border-radius:8px; padding:1px 7px; font-weight:600; font-size:.78rem; }
+  .legende-coin .ex-choix { background:var(--accent); color:var(--accent-texte); border-color:var(--accent); }
+  .legende-coin .ex-action { background:var(--action); color:var(--action-texte); border-color:var(--action); }
+  .legende-coin .ex-lien { border-style:dashed; }
+  .legende-coin .ex-danger { color:var(--danger); border-color:var(--danger); background:var(--danger-fond); }
+  /* Trois niveaux distincts : rubriques (onglets), étapes (pastilles numérotées), puis cadres de filtres et zone d'actions. */
+  .onglets { display:flex; flex-wrap:wrap; gap:4px; border-bottom:3px solid var(--bord-fort); margin:6px 0 14px; }
+  .onglets button { border:2px solid var(--bord-fort); border-bottom:0; border-radius:10px 10px 0 0; box-shadow:none; background:var(--carte); padding:9px 16px; margin-bottom:-3px; }
+  .onglets button[aria-pressed="true"] { background:var(--accent); color:var(--accent-texte); border-color:var(--accent); }
+  .onglets button[aria-pressed="true"]::before { content:none; }
+  .etapes { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 14px; }
+  .etapes button { border-radius:999px; box-shadow:none; padding:6px 14px; }
+  .etapes button[aria-pressed="true"]::before { content:none; }
+  .etapes .fleche { opacity:.6; }
+  .filtres { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-top:10px; }
+  fieldset.groupe { border:2px solid var(--bord); border-radius:12px; padding:8px 12px 12px; margin:0; min-width:0; }
+  fieldset.groupe legend { font-weight:700; padding:0 6px; }
+  fieldset.groupe legend .mode { font-weight:400; font-size:.78rem; opacity:.85; margin-left:6px; }
+  fieldset.groupe .rangee { gap:8px 8px; margin-top:0; }
+  fieldset.groupe button { padding:5px 12px; font-weight:500; border-width:1px; box-shadow:none; }
+  fieldset.groupe.large { grid-column:1 / -1; }
+  details.secteurs summary { cursor:pointer; font-weight:600; padding:4px 0; }
+  .phrase-choix { background:var(--doux); border-radius:10px; padding:8px 12px; margin:12px 0 0; }
+  .nombre { font-weight:700; }
+  button.danger { color:var(--danger); border-color:var(--danger); background:var(--danger-fond); }
+  a.btn { border-style:dashed; }
+  a.btn::after { content:"\00a0\2197"; }
+  button:disabled { opacity:.55; cursor:default; box-shadow:none; border-style:dotted; }
+  input[type=text], textarea { font:inherit; padding:9px 11px; border:2px solid var(--bord-fort); border-radius:6px; background:var(--carte); color:var(--texte); box-sizing:border-box; }
+  textarea { width:100%; min-height:64px; }
+  .champs { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px; margin:8px 0; }
+  .champs label { font-size:.85rem; display:block; }
+  .champs input { width:100%; }
+  .aide { font-size:.88rem; opacity:.85; margin:8px 0 0; }
+  .ligne { padding:16px 0; border-top:2px solid var(--bord); }
+  .ligne:first-child { border-top:0; }
+  .tete { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:flex-start; }
+  .nom { font-weight:600; } .petit { font-size:.88rem; opacity:.9; }
+  .pastille { display:inline-block; background:var(--doux); border-radius:6px; padding:1px 8px; font-size:.82rem; margin:2px 4px 0 0; }
+  .message { border-radius:8px; padding:8px 12px; margin:8px 0; font-size:.92rem; border:1px solid var(--alerte-bord); background:var(--alerte); }
+  .message.ok { border-color:var(--ok-bord); background:var(--ok); }
+  .barre-ligne { display:flex; align-items:center; gap:8px; font-size:.85rem; margin:2px 0; }
+  .barre-ligne .mois { width:110px; flex:none; }
+  .barre-ligne .jauge { background:var(--barre); height:14px; border-radius:3px; min-width:2px; }
+  .chiffre { font-size:1.6rem; font-weight:700; }
+  .synthese { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin:10px 0; }
+  .mini { border:2px solid var(--bord-fort); border-radius:12px; padding:10px 12px; background:var(--fond); }
+  .mini .etiquette { font-size:.85rem; opacity:.9; }
+  .mini .valeur { font-size:1.5rem; font-weight:700; line-height:1.2; }
+  .mini .evolution { font-size:.9rem; font-weight:600; }
+  .retenir { margin:8px 0 0; padding-left:20px; }
+  .retenir li { margin:4px 0; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+  .enregistrement { font-size:.85rem; opacity:.85; }
+
+
+  .mq-note { font-size:.85rem; border-left:4px solid var(--bord-fort); padding:6px 12px; margin:10px 0; background:var(--carte); }
+  .mq-bandeau { border:2px dashed var(--bord-fort); border-radius:12px; padding:10px 14px; margin:0 0 14px; background:var(--carte); font-size:.9rem; }
+  .nouveau { display:inline-block; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; background:var(--action); color:var(--action-texte); border-radius:6px; padding:0 6px; margin-left:6px; vertical-align:middle; }
+  .case { display:flex; gap:8px; align-items:center; font-size:.92rem; margin:2px 0; }
+  .case input { width:auto; }
+  .mono { font-family:ui-monospace,Consolas,monospace; font-size:.8rem; word-break:break-all; background:var(--fond); border:1px solid var(--bord); border-radius:6px; padding:6px 8px; display:block; margin-top:6px; }
+  .pastille.repere { background:var(--accent); color:var(--accent-texte); }
+  .pastille.prosp { background:var(--action); color:var(--action-texte); }
+  .pastille.prov { background:var(--alerte); border:1px solid var(--alerte-bord); }
+  select { font:inherit; padding:8px 10px; border:2px solid var(--bord-fort); border-radius:6px; background:var(--carte); color:var(--texte); }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mq-bandeau"><strong>MAQUETTE du 20/10/2026</strong> (entreprises et structures INVENTÉES, rien n'est enregistré). Deux nouveautés par rapport à l'outil actuel : l'onglet <strong>Repérage</strong> et l'onglet <strong>Structures d'aide</strong>, repérés par la mention <span class="nouveau">Nouveau</span>. Tout le reste de l'outil est inchangé. Les boutons sont câblés : essayez-les.</div>
+  <div class="entete">
+    <div class="titre">
+      <h1>Outil de prospection</h1>
+      <p class="petit">Outil privé : il fonctionne uniquement sur cet ordinateur.</p>
+    </div>
+    <details class="legende-coin" open>
+      <summary>Légende des boutons</summary>
+      <ul>
+        <li><span class="ex ex-choix">✓ Choix</span> à sélectionner (un filtre)</li>
+        <li><span class="ex ex-action">Action</span> fait quelque chose</li>
+        <li><span class="ex ex-lien">Lien ↗</span> ouvre un autre site</li>
+        <li><span class="ex ex-danger">Retirer</span> supprime</li>
+      </ul>
+    </details>
+  </div>
+  <nav class="onglets" id="haut" aria-label="Rubriques"></nav>
+  <div id="contenu"></div>
+</main>
+<script>
+(function () {
+  'use strict';
+  function el(tag, props, kids) {
+    var n = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (k) {
+      if (k === 'text') { n.textContent = props[k]; } else if (k === 'html') { n.innerHTML = props[k]; } else if (k.indexOf('on') === 0) { n[k] = props[k]; } else { n.setAttribute(k, props[k]); }
+    });
+    (kids || []).forEach(function (c) { if (c) { n.appendChild(c); } });
+    return n;
+  }
+  function bouton(txt, actif, fn) { var b = el('button', { type: 'button', text: txt, 'aria-pressed': String(!!actif) }); b.onclick = fn; return b; }
+  function actionBtn(txt, fn) { return el('button', { type: 'button', class: /^(Retirer|Confirmer le retrait)/.test(txt) ? 'danger' : 'action', text: txt, onclick: fn }); }
+  function message(txt, ok) { return el('div', { class: 'message' + (ok ? ' ok' : ''), text: txt }); }
+  function groupe(titre, mode, contenus, classe) {
+    var f = el('fieldset', { class: 'groupe' + (classe ? ' ' + classe : '') });
+    var lg = el('legend', { text: titre }); if (mode) { lg.appendChild(el('span', { class: 'mode', text: '(' + mode + ')' })); }
+    f.appendChild(lg); contenus.forEach(function (c) { f.appendChild(c); }); return f;
+  }
+  function dateFr(d) { return d.toLocaleDateString('fr-FR'); }
+
+  // ---------- données inventées ----------
+  var OBJECTIFS = ['Découvrir un métier', 'Confirmer un projet', 'Immersion', 'Autre'];
+  var ENTREPRISES = [
+    { id: 'e1', nom: 'Menuiserie des Quatre Chemins', forme: 'SARL', annees: 27, commune: 'Bergerac', secteur: 'Bâtiment et travaux publics', eff: '6 à 9 salariés', siege: true },
+    { id: 'e2', nom: 'Boulangerie du Pont Neuf', forme: 'SARL', annees: 14, commune: 'Bergerac', secteur: 'Métiers de bouche (artisanat)', eff: '', siege: true },
+    { id: 'e3', nom: 'Garage de la Dordogne', forme: 'SAS', annees: 22, commune: 'Lamonzie-Saint-Martin', secteur: 'Mécanique et automobile', eff: '10 à 19 salariés', siege: true },
+    { id: 'e4', nom: 'Imprimerie Périgord Couleurs', forme: 'SAS', annees: 31, commune: 'Bergerac', secteur: 'Artisanat et création', eff: '', siege: true },
+    { id: 'e5', nom: 'Plomberie Sainte-Foy Services', forme: 'EURL', annees: 11, commune: 'Creysse', secteur: 'Bâtiment et travaux publics', eff: '', siege: false },
+    { id: 'e6', nom: 'Atelier de Maçonnerie du Bergeracois', forme: 'SARL', annees: 8, commune: 'Bergerac', secteur: 'Bâtiment et travaux publics', eff: '3 à 5 salariés', siege: true },
+    { id: 'e7', nom: 'Salon de Coiffure Les Ciseaux d\'Or', forme: 'SARL', annees: 19, commune: 'Bergerac', secteur: 'Coiffure et esthétique', eff: '', siege: true }
+  ];
+  var STRUCT_PUBLIEES = [
+    { nom: 'Épicerie solidaire du Pays Bergeracois (exemple)', site: 'https://exemple-epicerie-solidaire.fr/partenaires' },
+    { nom: 'Association d\'accueil des familles de Périgueux (exemple)', site: 'https://exemple-accueil-familles.fr/nos-relais' },
+    { nom: 'Collectif d\'aide aux démarches de Sarlat (exemple)', site: 'https://exemple-collectif-sarlat.fr/liens-utiles' }
+  ];
+  var etat = {
+    haut: 'reperage', etapeR: 1, anc: '10', communes: { 'Bergerac': true, 'Lamonzie-Saint-Martin': true, 'Creysse': true }, siege: 'tous',
+    reperees: {}, ouvert: '', objFiltre: {}, retrait: '', message: '',
+    etapeS: 1, structures: [], texteLu: '', propositions: null, partenaire: 0, promptPartenaire: '', envoye: ''
+  };
+  // Une entreprise déjà dans le carnet de prospection (pour montrer la pastille "Repérée").
+  var CARNET = [
+    { nom: 'Transports Vallée de la Dordogne', commune: 'Bergerac', secteur: 'Transport et logistique', statut: 'À contacter', reperee: false },
+    { nom: 'Quincaillerie Centrale de Bergerac', commune: 'Bergerac', secteur: 'Commerce et vente', statut: 'Contactée', reperee: false }
+  ];
+
+  var HAUT = [['prosp', 'Prospection'], ['reperage', 'Repérage', true], ['structures', 'Structures d\'aide', true], ['sources', 'Sources de recrutement'], ['ventes', 'Ventes et reprises'], ['fermetures', 'Fermetures']];
+  function dessinerHaut() {
+    var h = document.getElementById('haut'); h.innerHTML = '';
+    HAUT.forEach(function (x) {
+      var b = bouton(x[1], etat.haut === x[0], function () { etat.haut = x[0]; etat.message = ''; dessiner(); });
+      if (x[2]) { b.appendChild(el('span', { class: 'nouveau', text: 'Nouveau' })); }
+      h.appendChild(b);
+    });
+  }
+  function nbReperees() { return Object.keys(etat.reperees).length; }
+
+  // ---------- Prospection (inchangé, avec la pastille Repérée) ----------
+  function ecranProspection() {
+    var w = el('div');
+    var c = el('div', { class: 'carte' });
+    c.appendChild(el('strong', { text: (CARNET.length + Object.keys(etat.reperees).filter(function (i) { return etat.reperees[i].prosp; }).length) + ' entreprises dans mon carnet' }));
+    c.appendChild(el('div', { class: 'etapes', style: 'margin-top:8px' }, [bouton('Premier tri', true, function () {}), el('span', { class: 'fleche', text: '›' }), bouton('Deuxième tri', false, function () {}), el('span', { class: 'fleche', text: '›' }), bouton('Prêtes pour l\'application', false, function () {})]));
+    c.appendChild(el('p', { text: 'Premier tri : c\'est vous qui décidez, il n\'y a pas de règle automatique. (Écran inchangé : seule la pastille « Repérée » est ajoutée.)' }));
+    w.appendChild(c);
+    var l = el('div', { class: 'carte' });
+    var toutes = CARNET.map(function (x) { return { nom: x.nom, commune: x.commune, secteur: x.secteur, rep: false, objectifs: [] }; });
+    ENTREPRISES.forEach(function (e) { var r = etat.reperees[e.id]; if (r && r.prosp) { toutes.push({ nom: e.nom, commune: e.commune, secteur: e.secteur, rep: true, objectifs: r.obj }); } });
+    toutes.forEach(function (x) {
+      var g = el('div');
+      g.appendChild(el('div', { class: 'nom', text: x.nom }));
+      g.appendChild(el('div', { class: 'petit', text: x.commune }));
+      g.appendChild(el('span', { class: 'pastille', text: x.secteur }));
+      if (x.rep) { g.appendChild(el('span', { class: 'pastille repere', text: 'Repérée pour une visite' + (x.objectifs.length ? ' : ' + x.objectifs.join(', ') : '') })); }
+      l.appendChild(el('div', { class: 'ligne' }, [el('div', { class: 'tete' }, [g, el('div', { class: 'rangee' }, [actionBtn('Valider (deuxième tri)', function () {}), actionBtn('Retirer', function () {})])])]));
+    });
+    w.appendChild(l);
+    var seulement = Object.keys(etat.reperees).filter(function (i) { return !etat.reperees[i].prosp; }).length;
+    var za = el('div', { class: 'rangee zone-action', 'data-titre': 'Actions : vers l’application' });
+    za.appendChild(actionBtn('Copier les lignes pour le sas des employeurs', function () {}));
+    w.appendChild(el('div', { class: 'carte' }, [za, el('p', { class: 'aide', text: 'Les entreprises repérées seulement pour une visite (' + seulement + ') ne sont jamais proposées ici ni dans le pont vers l\'outil de veille.' })]));
+    return w;
+  }
+
+  // ---------- Repérage ----------
+  function filtrerR() {
+    return ENTREPRISES.filter(function (e) {
+      if (etat.anc !== 'tous' && e.annees < parseInt(etat.anc, 10)) { return false; }
+      if (!etat.communes[e.commune]) { return false; }
+      if (etat.siege === 'siege' && !e.siege) { return false; }
+      return true;
+    });
+  }
+  function ecranReperage() {
+    var w = el('div');
+    var re = el('div', { class: 'etapes' });
+    re.appendChild(bouton('1. Choisir des entreprises', etat.etapeR === 1, function () { etat.etapeR = 1; dessiner(); }));
+    re.appendChild(el('span', { class: 'fleche', text: '›' }));
+    re.appendChild(bouton('2. Mes entreprises repérées (' + nbReperees() + ')', etat.etapeR === 2, function () { etat.etapeR = 2; dessiner(); }));
+    w.appendChild(re);
+    w.appendChild(etat.etapeR === 1 ? ecranReperageListe() : ecranReperees());
+    return w;
+  }
+  function ecranReperageListe() {
+    var w = el('div');
+    w.appendChild(el('div', { class: 'carte' }, [
+      el('strong', { text: 'Repérer des entreprises pour une visite d\'entreprise' }),
+      el('p', { text: 'Ici, pas de coordonnées à chercher ni de message à copier : vous retenez les entreprises installées depuis longtemps qui pourraient accueillir une visite. Elles restent privées et ne partent jamais vers l\'application. Vous pourrez en passer une en prospection d\'un clic.' }),
+      el('p', { class: 'aide', text: 'La liste vient de la même importation que l\'onglet Prospection (Construction · Bergerac, exemple inventé).' })]));
+    var f = el('div', { class: 'carte' });
+    f.appendChild(el('h2', { text: 'Filtrer la liste', style: 'margin-bottom:2px' }));
+    var g = el('div', { class: 'filtres' });
+    var ra = el('div', { class: 'rangee' });
+    [['tous', 'Toutes'], ['20', 'Plus de 20 ans'], ['10', 'Plus de 10 ans'], ['5', 'Plus de 5 ans']].forEach(function (x) { var b = bouton(x[1], etat.anc === x[0], function () { etat.anc = x[0]; dessiner(); }); if (x[0] === '20' || x[0] === '10') { b.appendChild(el('span', { class: 'nouveau', text: 'Nouveau' })); } ra.appendChild(b); });
+    g.appendChild(groupe('Ancienneté de l\'établissement', 'un seul choix', [ra]));
+    var rc = el('div', { class: 'rangee' });
+    Object.keys(etat.communes).forEach(function (c) { rc.appendChild(bouton(c, etat.communes[c], function () { etat.communes[c] = !etat.communes[c]; dessiner(); })); });
+    var gc = groupe('Commune', 'plusieurs possibles', [rc]); gc.appendChild(el('span', { class: 'nouveau', text: 'Nouveau', style: 'margin:6px 0 0 0' })); g.appendChild(gc);
+    var rs = el('div', { class: 'rangee' });
+    [['tous', 'Siège et agences'], ['siege', 'Sièges seulement']].forEach(function (x) { rs.appendChild(bouton(x[1], etat.siege === x[0], function () { etat.siege = x[0]; dessiner(); })); });
+    g.appendChild(groupe('Où dans l\'entreprise', 'un seul choix', [rs]));
+    f.appendChild(g);
+    var vues = filtrerR();
+    var ph = el('p', { class: 'phrase-choix' });
+    ph.appendChild(el('span', { text: 'Vos filtres : ' + (etat.anc === 'tous' ? 'toutes les anciennetés' : 'plus de ' + etat.anc + ' ans') + ' · ' + Object.keys(etat.communes).filter(function (c) { return etat.communes[c]; }).join(', ') + ' → ' }));
+    ph.appendChild(el('span', { class: 'nombre', text: vues.length + ' entreprise' + (vues.length > 1 ? 's' : '') }));
+    f.appendChild(ph);
+    f.appendChild(el('div', { class: 'message', text: 'À savoir : l\'effectif n\'est renseigné que pour environ une entreprise sur cinq (essai à Bergerac, secteur Construction). Appuyez-vous surtout sur l\'ancienneté et le secteur, et prenez l\'effectif comme un simple repère. « Installée depuis longtemps » ne veut pas dire « accueillante » : le fichier ne le dit pas.' }));
+    w.appendChild(f);
+    var l = el('div', { class: 'carte' });
+    if (!vues.length) { l.appendChild(el('p', { text: 'Aucune entreprise ne correspond. Essayez d\'enlever un filtre.' })); }
+    vues.forEach(function (e) {
+      var r = etat.reperees[e.id];
+      var g2 = el('div');
+      g2.appendChild(el('div', { class: 'nom', text: e.nom }));
+      g2.appendChild(el('div', { class: 'petit', text: e.forme + ' · installée depuis ' + e.annees + ' ans · ' + (e.eff || 'Effectif non renseigné') }));
+      g2.appendChild(el('div', { class: 'petit', text: e.commune }));
+      g2.appendChild(el('span', { class: 'pastille', text: e.secteur }));
+      if (r) { g2.appendChild(el('span', { class: 'pastille repere', text: 'Repérée' + (r.obj.length ? ' : ' + r.obj.join(', ') : '') })); }
+      var b = el('div', { class: 'rangee' }, [el('a', { class: 'btn', href: '#', onclick: function (ev) { ev.preventDefault(); }, text: 'Voir la fiche officielle' })]);
+      if (r) { var k = el('button', { type: 'button', text: 'Dans mes entreprises repérées' }); k.disabled = true; b.appendChild(k); }
+      else { b.appendChild(actionBtn(etat.ouvert === e.id ? 'Fermer' : 'Retenir pour une visite', function () { etat.ouvert = etat.ouvert === e.id ? '' : e.id; etat.cochees = {}; dessiner(); })); }
+      var li = el('div', { class: 'ligne' }, [el('div', { class: 'tete' }, [g2, b])]);
+      if (etat.ouvert === e.id && !r) {
+        var cadre = el('div', { style: 'margin-top:10px' });
+        var fs = el('fieldset', { class: 'groupe' }); fs.appendChild(el('legend', { text: 'À quoi pourrait servir une visite ? (plusieurs possibles)' }));
+        OBJECTIFS.forEach(function (o) {
+          var cb = el('input', { type: 'checkbox', 'data-obj': o });
+          fs.appendChild(el('label', { class: 'case' }, [cb, el('span', { text: o })]));
+        });
+        cadre.appendChild(fs);
+        cadre.appendChild(el('div', { class: 'rangee' }, [actionBtn('Retenir cette entreprise', function () {
+          var obj = Array.prototype.map.call(cadre.querySelectorAll('input:checked'), function (c) { return c.getAttribute('data-obj'); });
+          etat.reperees[e.id] = { obj: obj, prosp: false, notes: '' }; etat.ouvert = ''; etat.message = e.nom + ' est dans « Mes entreprises repérées ».'; dessiner();
+        })]));
+        li.appendChild(cadre);
+      }
+      l.appendChild(li);
+    });
+    w.appendChild(l);
+    if (etat.message) { w.appendChild(message(etat.message, true)); }
+    return w;
+  }
+  function ecranReperees() {
+    var w = el('div');
+    var ids = Object.keys(etat.reperees);
+    var haut = el('div', { class: 'carte' });
+    haut.appendChild(el('strong', { text: ids.length + ' entreprise' + (ids.length > 1 ? 's' : '') + ' repérée' + (ids.length > 1 ? 's' : '') + ' pour une visite' }));
+    haut.appendChild(el('p', { class: 'aide', text: 'Vos notes restent privées (même dossier de données que le carnet). Une entreprise repérée seulement pour une visite n\'est jamais copiée vers l\'application.' }));
+    var ro = el('div', { class: 'rangee' });
+    OBJECTIFS.forEach(function (o) { ro.appendChild(bouton(o, etat.objFiltre[o], function () { etat.objFiltre[o] = !etat.objFiltre[o]; dessiner(); })); });
+    haut.appendChild(groupe('Objectif de visite', 'plusieurs possibles : une entreprise qui convient à l\'un des objectifs cochés', [ro]));
+    var za = el('div', { class: 'rangee zone-action', 'data-titre': 'Actions : mes données' });
+    za.appendChild(actionBtn('Copier ce tableau pour un tableur (Excel, Sheets)', function () { etat.message = 'Tableau copié : ouvrez Excel ou Google Sheets, cliquez dans une cellule et collez (Ctrl+V).'; dessiner(); }));
+    haut.appendChild(za);
+    w.appendChild(haut);
+    var actifs = OBJECTIFS.filter(function (o) { return etat.objFiltre[o]; });
+    var vues = ids.filter(function (i) { return !actifs.length || etat.reperees[i].obj.some(function (o) { return actifs.indexOf(o) !== -1; }); });
+    var l = el('div', { class: 'carte' });
+    if (!vues.length) { l.appendChild(el('p', { text: ids.length ? 'Aucune entreprise repérée pour cet objectif.' : 'Aucune entreprise repérée pour l\'instant. Revenez à l\'étape 1 et cliquez sur « Retenir pour une visite ».' })); }
+    vues.forEach(function (i) {
+      var e = ENTREPRISES.filter(function (x) { return x.id === i; })[0], r = etat.reperees[i];
+      var g = el('div');
+      g.appendChild(el('div', { class: 'nom', text: e.nom }));
+      g.appendChild(el('div', { class: 'petit', text: e.forme + ' · installée depuis ' + e.annees + ' ans · ' + e.commune }));
+      g.appendChild(el('span', { class: 'pastille', text: e.secteur }));
+      r.obj.forEach(function (o) { g.appendChild(el('span', { class: 'pastille repere', text: o })); });
+      if (r.prosp) { g.appendChild(el('span', { class: 'pastille prosp', text: 'Aussi en prospection (Premier tri)' })); }
+      var notes = el('textarea', { 'aria-label': 'Notes privées', placeholder: 'Notes privées (qui contacter, pour quelle visite...)', style: 'margin-top:8px' }); notes.value = r.notes; notes.oninput = function () { r.notes = notes.value; };
+      g.appendChild(notes);
+      var b = el('div', { class: 'rangee' });
+      if (!r.prosp) { b.appendChild(actionBtn('Passer en prospection', function () { r.prosp = true; etat.message = e.nom + ' est maintenant dans le Premier tri de l\'onglet Prospection. Elle reste aussi repérée.'; dessiner(); })); }
+      else { var d = el('button', { type: 'button', text: 'Déjà en prospection' }); d.disabled = true; b.appendChild(d); }
+      b.appendChild(actionBtn(etat.retrait === i ? 'Confirmer le retrait' : 'Retirer', function () { if (etat.retrait === i) { delete etat.reperees[i]; etat.retrait = ''; } else { etat.retrait = i; } dessiner(); }));
+      l.appendChild(el('div', { class: 'ligne' }, [el('div', { class: 'tete' }, [g, b])]));
+    });
+    w.appendChild(l);
+    if (etat.message) { w.appendChild(message(etat.message, true)); }
+    return w;
+  }
+
+  // ---------- Structures d'aide ----------
+  var MARQUE = 'Petite structure ; ';
+  function lireTexte(texte) {
+    var blocs = texte.split(/\n\s*\n/), res = [], ignorees = 0;
+    blocs.forEach(function (b) {
+      var lignes = b.split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+      if (!lignes.length) { return; }
+      var tel = [], mail = [], site = [], nom = '';
+      lignes.forEach(function (l) {
+        if (/^(m\.|mme|madame|monsieur|mlle)\b/i.test(l)) { ignorees++; return; }
+        var t = l.match(/(?:\+33\s?|0)[1-9](?:[\s.]?\d{2}){4}/g); if (t) { t.forEach(function (x) { tel.push(x.replace(/[.\s]/g, '').replace(/^\+33/, '0').replace(/(\d\d)(?=\d)/g, '$1 ')); }); }
+        var m = l.match(/[\w.+-]+@[\w-]+\.[\w.-]+/g); if (m) { m.forEach(function (x) { mail.push(x.toLowerCase()); }); }
+        var u = l.match(/(?:https?:\/\/|www\.)[^\s,;]+/g); if (u) { u.forEach(function (x) { site.push(/^www\./.test(x) ? 'https://' + x : x); }); }
+        if (!nom && !t && !m && !u && l.length > 3) { nom = l; }
+      });
+      if (tel.length || mail.length || site.length) { res.push({ nom: nom, type: '', commune: '', telephone: tel[0] || '', mail: mail[0] || '', site: site[0] || '', plusieurs: tel.length > 1 || mail.length > 1 }); }
+    });
+    return { propositions: res, ignorees: ignorees };
+  }
+  var EXEMPLE = "Épicerie solidaire du quartier Est\n05 53 00 11 22\ncontact@exemple-epicerie-quartier.fr\n\nCours de français pour adultes\nAssociation Lire et Parler\n05 53 11 22 33\nwww.exemple-lire-parler.fr\n\nPermanence d'aide aux démarches\nMme Martin, bénévole, 06 00 00 00 00\nmairie-annexe@exemple-ville.fr";
+  var TYPES = ['', 'aide-alimentaire-materielle', 'francais-langue', 'logement-hebergement', 'accueil-etrangers', 'acces-au-droit', 'soutien-aux-familles', 'sante-soins-addictions', 'mobilite-solidaire', 'budget-endettement', 'inclusion-numerique'];
+  function champ(lib, valeur, fn, large) { var i = el('input', { type: 'text', 'aria-label': lib, value: valeur || '' }); i.oninput = function () { fn(i.value); }; return el('label', { style: large ? 'grid-column:1/-1' : '' }, [document.createTextNode(lib), i]); }
+  function selType(valeur, fn) { var s = el('select', { 'aria-label': 'Type de structure' }); TYPES.forEach(function (t) { var o = el('option', { value: t, text: t || '(type à choisir)' }); if (t === valeur) { o.selected = true; } s.appendChild(o); }); s.onchange = function () { fn(s.value); }; return s; }
+  function nouvelleStructure(o) { etat.structures.push(Object.assign({ nom: '', type: '', commune: '', telephone: '', mail: '', site: '', provenance: '', quoi: '', compare: false }, o)); }
+  function ecranStructures() {
+    var w = el('div');
+    var re = el('div', { class: 'etapes' });
+    re.appendChild(bouton('1. Repérer', etat.etapeS === 1, function () { etat.etapeS = 1; dessiner(); }));
+    re.appendChild(el('span', { class: 'fleche', text: '›' }));
+    re.appendChild(bouton('2. Comparer et envoyer à l\'outil de veille (' + etat.structures.length + ')', etat.etapeS === 2, function () { etat.etapeS = 2; dessiner(); }));
+    w.appendChild(re);
+    w.appendChild(etat.etapeS === 1 ? structuresReperer() : structuresEnvoyer());
+    return w;
+  }
+  function structuresReperer() {
+    var w = el('div');
+    w.appendChild(el('div', { class: 'carte' }, [el('strong', { text: 'Repérer des petites structures d\'aide' }), el('p', { text: 'Associations de quartier, épiceries solidaires, cours de français, permanences... Ici vous relevez la matière brute, avec sa provenance. Vous les vérifierez ensuite dans l\'outil de veille (téléphone, mail, page), avant toute mise en ligne. Aucune recherche ouverte sur Internet : seulement ce que vous avez vu ou lu.' })]));
+    // a. à la main
+    var a = el('div', { class: 'carte' }); a.appendChild(el('h2', { text: 'a. Saisie rapide à la main' }));
+    var f = { nom: '', type: '', commune: '', telephone: '', mail: '', site: '', prov: '' };
+    var champs = el('div', { class: 'champs' }, [champ('Nom de la structure', '', function (v) { f.nom = v; }), champ('Commune', '', function (v) { f.commune = v; }), champ('Téléphone', '', function (v) { f.telephone = v; }), champ('Mail (adresse de service)', '', function (v) { f.mail = v; }), champ('Site ou page (https://...)', '', function (v) { f.site = v; }), champ('Où l\'avez-vous rencontrée ? (sans nom de personne)', '', function (v) { f.prov = v; })]);
+    a.appendChild(champs);
+    a.appendChild(el('div', { class: 'rangee' }, [selType('', function (v) { f.type = v; }), actionBtn('Garder dans mes structures', function () {
+      if (!f.nom || (!f.telephone && !f.mail)) { etat.message = 'Il faut au moins un nom et un téléphone ou un mail.'; dessiner(); return; }
+      nouvelleStructure({ nom: f.nom, type: f.type, commune: f.commune, telephone: f.telephone, mail: f.mail, site: f.site, provenance: 'Saisie à la main le ' + dateFr(new Date()) + (f.prov ? ' (' + f.prov + ')' : '') });
+      etat.message = f.nom + ' est gardée (étape 2).'; dessiner();
+    })]));
+    w.appendChild(a);
+    // b. texte lu sur une photo
+    var b = el('div', { class: 'carte' }); b.appendChild(el('h2', { text: 'b. Texte lu sur une photo (panneau, affiche)' }));
+    b.appendChild(el('p', { class: 'aide', text: 'Ouvrez la photo dans Windows, copiez le texte de l\'image, collez-le ici. L\'outil n\'envoie rien et ne range aucune photo : il lit le texte sur cet ordinateur seulement.' }));
+    var dp = { date: '', fichier: '' };
+    b.appendChild(el('div', { class: 'champs' }, [champ('Date de la photo (jj/mm/aaaa)', '14/10/2026', function (v) { dp.date = v; }), champ('Nom du fichier de la photo (facultatif)', '', function (v) { dp.fichier = v; })]));
+    dp.date = '14/10/2026';
+    var ta = el('textarea', { 'aria-label': 'Texte lu sur la photo', placeholder: 'Collez ici le texte lu par Windows.' }); ta.value = etat.texteLu; ta.oninput = function () { etat.texteLu = ta.value; };
+    b.appendChild(ta);
+    b.appendChild(el('div', { class: 'rangee' }, [actionBtn('Coller un exemple inventé', function () { etat.texteLu = EXEMPLE; dessiner(); }), actionBtn('Repérer les coordonnées', function () { etat.propositions = lireTexte(etat.texteLu); etat.propDate = dp.date; etat.propFichier = dp.fichier; dessiner(); })]));
+    var plus = el('button', { type: 'button', text: 'Déposer plusieurs photos d\'un coup (lecteur intégré)' }); plus.disabled = true;
+    b.appendChild(el('div', { class: 'rangee' }, [plus, el('span', { class: 'petit', text: 'Prévu plus tard, après un essai sur vos photos : il remplira la même zone.' })]));
+    if (etat.propositions) {
+      var P = etat.propositions;
+      if (!P.propositions.length) { b.appendChild(message('Aucun téléphone, mail ou site trouvé dans ce texte.')); }
+      else {
+        b.appendChild(message(P.propositions.length + ' structure' + (P.propositions.length > 1 ? 's' : '') + ' repérée' + (P.propositions.length > 1 ? 's' : '') + (P.ignorees ? ' ; ' + P.ignorees + ' ligne' + (P.ignorees > 1 ? 's' : '') + ' ignorée' + (P.ignorees > 1 ? 's' : '') + ' (nom de personne)' : '') + '. Complétez le nom, le type et la commune, puis gardez celles qui vous servent.', true));
+        P.propositions.forEach(function (p) {
+          var cadre = el('div', { class: 'ligne' });
+          var cb = el('input', { type: 'checkbox', checked: 'checked' }); p.garder = true; cb.onchange = function () { p.garder = cb.checked; };
+          cadre.appendChild(el('label', { class: 'case' }, [cb, el('strong', { text: 'Garder cette structure' })]));
+          cadre.appendChild(el('div', { class: 'champs' }, [champ('Nom', p.nom, function (v) { p.nom = v; }), champ('Commune', p.commune, function (v) { p.commune = v; }), champ('Téléphone', p.telephone, function (v) { p.telephone = v; }), champ('Mail', p.mail, function (v) { p.mail = v; }), champ('Site', p.site, function (v) { p.site = v; })]));
+          if (p.plusieurs) { cadre.appendChild(el('span', { class: 'pastille prov', text: 'Plusieurs numéros ou mails dans ce bloc : seul le premier est repris' })); }
+          cadre.appendChild(selType('', function (v) { p.type = v; }));
+          b.appendChild(cadre);
+        });
+        b.appendChild(el('div', { class: 'rangee' }, [actionBtn('Garder les structures cochées', function () {
+          var n = 0; P.propositions.forEach(function (p) { if (p.garder && p.nom) { nouvelleStructure({ nom: p.nom, type: p.type, commune: p.commune, telephone: p.telephone, mail: p.mail, site: p.site, provenance: 'Repérée sur une photo du ' + (etat.propDate || '') + (etat.propFichier ? ' (fichier ' + etat.propFichier + ')' : '') }); n++; } });
+          etat.propositions = null; etat.texteLu = ''; etat.message = n + ' structure' + (n > 1 ? 's' : '') + ' gardée' + (n > 1 ? 's' : '') + ' (étape 2). Une structure sans nom n\'est pas gardée : complétez-le.'; dessiner();
+        })]));
+      }
+    }
+    w.appendChild(b);
+    // c. page partenaire
+    var c = el('div', { class: 'carte' }); c.appendChild(el('h2', { text: 'c. Page « partenaires » d\'une structure déjà validée' }));
+    c.appendChild(el('p', { class: 'aide', text: 'Un assistant en ligne lit UNE page publique que vous désignez (jamais une recherche ouverte) et propose les structures qu\'elle cite, avec l\'adresse de la page lue pour chaque proposition. Cette page est publique : aucune donnée personnelle n\'est envoyée.' }));
+    var sel = el('select', { 'aria-label': 'Structure validée' });
+    STRUCT_PUBLIEES.forEach(function (s, i) { var o = el('option', { value: String(i), text: s.nom }); if (i === etat.partenaire) { o.selected = true; } sel.appendChild(o); });
+    sel.onchange = function () { etat.partenaire = parseInt(sel.value, 10); etat.promptPartenaire = ''; dessiner(); };
+    c.appendChild(el('div', { class: 'rangee' }, [sel, actionBtn('Préparer le message', function () {
+      var s = STRUCT_PUBLIEES[etat.partenaire];
+      etat.promptPartenaire = '@Recherche sur le Web\n\nOuvre UNIQUEMENT cette page : ' + s.site + '\nRelève les associations et structures d\'aide qu\'elle cite (partenaires, relais, liens utiles), avec leurs coordonnées publiques si elles figurent sur la page. N\'invente jamais. Aucun nom de personne. Pour chaque structure, donne l\'adresse EXACTE de la page où tu as lu l\'information. Si tu ne peux pas ouvrir la page, réponds « page non ouverte ».\n\nRéponds uniquement sous forme de tableau : nom | commune | téléphone | mail | site | adresse de la page lue';
+      dessiner();
+    })]));
+    if (etat.promptPartenaire) { c.appendChild(el('span', { class: 'mono', text: etat.promptPartenaire, style: 'white-space:pre-wrap' })); c.appendChild(el('div', { class: 'rangee' }, [actionBtn('Copier le message', function () { etat.message = 'Message copié. Collez-le chez l\'assistant de votre choix, puis collez sa réponse ci-dessous.'; dessiner(); })])); c.appendChild(el('textarea', { 'aria-label': 'Réponse de l\'assistant', placeholder: 'Collez ici la réponse (tableau).' })); c.appendChild(el('p', { class: 'aide', text: '(Maquette : la lecture de la réponse suit le même principe que « Coller la réponse de l\'assistant » des autres onglets. Chaque proposition garde la provenance « Repérée sur la page ... du site de ... ».)' })); }
+    w.appendChild(c);
+    if (etat.message) { w.appendChild(message(etat.message, !/Il faut/.test(etat.message))); }
+    return w;
+  }
+  var RAYONS = { 'aide-alimentaire-materielle': 'budget', 'francais-langue': 'francais', 'logement-hebergement': 'logement', 'accueil-etrangers': 'etranger,francais', 'acces-au-droit': 'juridique', 'soutien-aux-familles': 'accompagnement,jeunes', 'sante-soins-addictions': 'sante', 'mobilite-solidaire': 'mobilite', 'budget-endettement': 'budget', 'inclusion-numerique': 'accompagnement' };
+  function ligneSortie(s) {
+    var id = (s.nom + ' ' + s.commune).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-24';
+    return [id, s.type || '(type)', s.nom, s.quoi || '', s.commune, '', s.telephone, s.site, '24', RAYONS[s.type] || '', MARQUE + s.provenance, '', s.mail].join(' | ');
+  }
+  function structuresEnvoyer() {
+    var w = el('div');
+    var h = el('div', { class: 'carte' });
+    h.appendChild(el('strong', { text: etat.structures.length + ' structure' + (etat.structures.length > 1 ? 's' : '') + ' à comparer avant l\'envoi' }));
+    h.appendChild(el('p', { text: 'Comparez chaque ligne avec la photo ou la page d\'origine, corrigez au besoin, puis cochez « Comparé ». L\'envoi ne dépose que des lignes comparées, dans le pont vers l\'outil de veille. Là-bas, vous appellerez ou ouvrirez la page avant toute mise en ligne : rien n\'est public ici.' }));
+    w.appendChild(h);
+    var l = el('div', { class: 'carte' });
+    if (!etat.structures.length) { l.appendChild(el('p', { text: 'Aucune structure pour l\'instant. Revenez à l\'étape 1.' })); }
+    etat.structures.forEach(function (s, i) {
+      var cadre = el('div', { class: 'ligne' });
+      cadre.appendChild(el('span', { class: 'pastille prov', text: s.provenance }));
+      cadre.appendChild(el('div', { class: 'champs' }, [champ('Nom', s.nom, function (v) { s.nom = v; }), champ('Commune', s.commune, function (v) { s.commune = v; }), champ('Téléphone', s.telephone, function (v) { s.telephone = v; }), champ('Mail', s.mail, function (v) { s.mail = v; }), champ('Site', s.site, function (v) { s.site = v; }), champ('Ce que fait la structure, en une phrase simple', s.quoi, function (v) { s.quoi = v; }, true)]));
+      var cb = el('input', { type: 'checkbox' }); if (s.compare) { cb.checked = true; } cb.onchange = function () { s.compare = cb.checked; dessiner(); };
+      cadre.appendChild(el('div', { class: 'rangee' }, [selType(s.type, function (v) { s.type = v; }), el('label', { class: 'case' }, [cb, el('span', { text: 'Comparé avec la photo ou la page d\'origine' })]), actionBtn('Retirer', function () { etat.structures.splice(i, 1); dessiner(); })]));
+      if (s.compare) { cadre.appendChild(el('span', { class: 'mono', text: ligneSortie(s) })); }
+      l.appendChild(cadre);
+    });
+    w.appendChild(l);
+    var pretes = etat.structures.filter(function (s) { return s.compare && s.nom && (s.telephone || s.mail) && s.type; });
+    var za = el('div', { class: 'rangee zone-action', 'data-titre': 'Actions : vers l’outil de veille' });
+    var bt = actionBtn('Envoyer les ' + pretes.length + ' structure' + (pretes.length > 1 ? 's' : '') + ' comparée' + (pretes.length > 1 ? 's' : '') + ' dans le pont', function () { etat.envoye = pretes.length + ' ligne' + (pretes.length > 1 ? 's' : '') + ' déposée' + (pretes.length > 1 ? 's' : '') + ' dans le pont le ' + dateFr(new Date()) + '. Ouvrez l\'outil de veille, bouton « Importer depuis la prospection ». Rien n\'est public.'; dessiner(); });
+    if (!pretes.length) { bt.disabled = true; }
+    za.appendChild(bt);
+    w.appendChild(el('div', { class: 'carte' }, [za, el('p', { class: 'aide', text: 'Il faut : comparé, un nom, un téléphone ou un mail, et un type (le rayon de « Comprendre le cadre » se déduit du type). Aucun nom de personne : la provenance reste générique (« une structure d\'insertion »), jamais le lieu du stage.' }), etat.envoye ? message(etat.envoye, true) : null]));
+    return w;
+  }
+
+  function ecranInchange(nom) { return el('div', { class: 'carte' }, [el('strong', { text: nom }), el('p', { text: '(Onglet inchangé : non montré dans cette maquette.)' })]); }
+  function dessiner() {
+    dessinerHaut();
+    var c = document.getElementById('contenu'); c.innerHTML = '';
+    var h = etat.haut;
+    c.appendChild(h === 'prosp' ? ecranProspection() : h === 'reperage' ? ecranReperage() : h === 'structures' ? ecranStructures() : ecranInchange(HAUT.filter(function (x) { return x[0] === h; })[0][1]));
+  }
+  dessiner();
+})();
+</script>
+</body>
+</html>

@@ -67,7 +67,7 @@ function _ucpmP8HtmlPerimees(etat) {
   if (!p.length) { return ''; }
   return '<div class="cv-section" style="border-left:4px solid var(--warning-strong);" role="status"><p class="mb-1"><strong>' + (p.length > 1 ? 'Certaines préparations ne correspondent peut-être plus.' : 'Une préparation ne correspond peut-être plus.') + '</strong></p>' +
     '<p class="small mb-0">Vous avez changé quelque chose depuis la demande (objectif, titre, accroche, lettre, CV de référence). Concernées : ' +
-    p.map(function (e) { return 'CV ' + _ucpmP6Numero(etat, e.id) + ' (' + _ucpmEsc(_ucpmP6Titre(etat, e)) + ')'; }).join(', ') + '. Rien n’est effacé : refaites la demande si vous le souhaitez.</p></div>';
+    p.map(function (e) { return _ucpmEsc(ucpmLibelleCv(etat, e)); }).join(', ') + '. Rien n’est effacé : refaites la demande si vous le souhaitez.</p></div>';
 }
 
 // ---------------- Demande à l'assistant ----------------
@@ -125,7 +125,7 @@ function _ucpmP8HtmlRecapGeneral(etat) {
     '<div class="d-flex flex-wrap gap-2 mb-2"><button type="button" class="btn btn-outline-secondary btn-sm" id="btnUcpmP8Tous">Tout cocher</button><button type="button" class="btn btn-outline-secondary btn-sm" id="btnUcpmP8Aucun">Tout décocher</button></div>' +
     cochees.map(function (e) {
       return '<label style="display:flex;gap:.5rem;align-items:flex-start;cursor:pointer;margin:0 0 .4rem 0;"><input type="checkbox" style="margin-top:.3rem;" data-ucpm-p8-cv="' + e.id + '"' + (choisies.indexOf(e.id) >= 0 ? ' checked' : '') + '>' +
-        '<span style="flex:1;min-width:0;"><strong>CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + '</strong><br><span class="small" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) +
+        '<span style="flex:1;min-width:0;"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong><br><span class="small" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) +
         (_ucpmP8Prep(etat, e.id) ? ' &#183; une préparation existe déjà, elle sera remplacée' : '') + '</span></span></label>';
     }).join('') +
     '<p class="small mb-0" id="ucpmP8Avis" style="color:var(--warning-strong);" role="status"' + (ucpmPreparationTropDeMetiers(choisies.length, 'general') ? '' : ' hidden') + '>' + _ucpmEsc(_ucpmP8TexteTropDeMetiers()) + '</p></fieldset></div>' +
@@ -146,7 +146,7 @@ function _ucpmP8HtmlRecapApprofondi(etat) {
   return '<div class="cv-section mb-3"><fieldset style="border:0;padding:0;margin:0;"><legend class="mb-1" style="font-size:1rem;font-weight:600;float:none;">&#128221; Pour quel métier ?</legend>' +
     cochees.map(function (e) {
       return '<label style="display:flex;gap:.5rem;align-items:flex-start;cursor:pointer;margin:0 0 .4rem 0;"><input type="radio" name="ucpmP8Metier" style="margin-top:.3rem;" data-ucpm-p8-metier="' + e.id + '"' + (cible && cible.id === e.id ? ' checked' : '') + '>' +
-        '<span style="flex:1;min-width:0;"><strong>CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + '</strong><br><span class="small" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) +
+        '<span style="flex:1;min-width:0;"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong><br><span class="small" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) +
         (_ucpmP8Prep(etat, e.id) ? ' &#183; une préparation existe déjà, elle sera remplacée' : '') + '</span></span></label>';
     }).join('') + '</fieldset></div>' +
     '<div class="cv-section mb-3"><h4>Niveau d’exigence</h4><div class="d-flex flex-wrap gap-2" id="ucpmP8Niveaux" role="group" aria-label="Niveau d’exigence">' +
@@ -276,8 +276,16 @@ function _ucpmP8Pages(etat, e) {
 function _ucpmP8HtmlSelecteur(etat, avec) {
   return '<div class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Choisir la préparation à lire">' + avec.map(function (e) {
     var actif = etat.p8Sel === e.id;
-    return '<button type="button" class="btn btn-sm ' + (actif ? 'btn-primary' : 'btn-outline-primary') + '" data-ucpm-p8-sel="' + e.id + '" aria-pressed="' + (actif ? 'true' : 'false') + '">CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + '</button>';
+    return '<button type="button" class="btn btn-sm ' + (actif ? 'btn-primary' : 'btn-outline-primary') + '" data-ucpm-p8-sel="' + e.id + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</button>';
   }).join('') + '</div>';
+}
+
+// Ce que contiendrait le PDF « toutes mes préparations », et les métiers qui n'ont pas encore de préparation (page 7 et page 8, une seule fonction).
+function _ucpmP8HtmlContenuPdf(etat) {
+  var avec = _ucpmP8AvecPrep(etat);
+  var sans = _ucpmP8Cochees(etat).filter(function (e) { return !_ucpmP8Prep(etat, e.id); });
+  return (avec.length > 1 ? '<p class="small mt-2 mb-0" style="color:var(--text-muted);">Dans le PDF : ' + avec.map(function (e) { return _ucpmEsc(ucpmLibelleCv(etat, e)); }).join(' ; ') + '.</p>' : '') +
+    (sans.length ? '<p class="small mt-1 mb-0" style="color:var(--text-muted);">Pas encore de préparation pour : ' + sans.map(function (e) { return _ucpmEsc(ucpmLibelleCv(etat, e)); }).join(', ') + '.</p>' : '');
 }
 
 function _ucpmP8HtmlLecture(etat) {
@@ -291,15 +299,16 @@ function _ucpmP8HtmlLecture(etat) {
     '<p class="mb-0 small" style="color:var(--text-muted);">Les questions marquées « question délicate » sont celles où l’on hésite le plus souvent : relisez bien leurs pistes. Les conseils de savoir-être sont les mêmes pour tous vos métiers.</p></div>' +
     _ucpmP8HtmlPerimees(etat) + _ucpmP8HtmlSelecteur(etat, avec) +
     (courante
-      ? '<div class="cv-section"><p class="mb-1"><strong>CV ' + _ucpmP6Numero(etat, courante.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, courante)) + '</strong></p>' +
+      ? '<div class="cv-section"><p class="mb-1"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, courante)) + '</strong></p>' +
         '<p class="small mb-2" style="color:var(--text-muted);">' + _ucpmEsc(etiquette) + ' &#183; <span id="ucpmP8NbPages">mise en page en cours</span></p>' +
         '<div data-ucpm-p8-apercu="' + courante.id + '" role="img" aria-label="Aperçu de la feuille de préparation" style="border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);overflow:hidden;min-height:8rem;"></div>' +
         '<div class="d-flex flex-wrap gap-2 mt-3"><button type="button" class="btn btn-primary" data-ucpm-p8-tel="un" data-ucpm-p8-tel-id="' + courante.id + '">Télécharger cette préparation</button>' +
         (p.mode === 'general' ? '<button type="button" class="btn btn-outline-primary" data-ucpm-p8-approfondir="' + courante.id + '">Une préparation approfondie pour ce métier</button>' : '') + '</div></div>'
       : '') +
-    '<div class="cv-section"><div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary" data-ucpm-p8-tel="toutes">Télécharger toutes mes préparations (un seul PDF)</button>' +
+    '<div class="cv-section"><div class="d-flex flex-wrap gap-2">' +
+    (avec.length > 1 ? '<button type="button" class="btn btn-primary" data-ucpm-p8-tel="toutes">Télécharger toutes mes préparations (un seul PDF)</button>' : '') +
     '<button type="button" class="btn btn-outline-secondary" id="btnUcpmP8Autre">Faire une autre préparation</button></div>' +
-    (sans.length ? '<p class="small mt-2 mb-0" style="color:var(--text-muted);">Pas encore de préparation pour : ' + sans.map(function (e) { return 'CV ' + _ucpmP6Numero(etat, e.id); }).join(', ') + '.</p>' : '') + '</div>';
+    _ucpmP8HtmlContenuPdf(etat) + '</div>';
 }
 
 // Montre les pages d'un métier dans un compartiment étanche, réduites à la largeur de l'écran.
@@ -335,6 +344,7 @@ function ucpmTelechargerPreparations(etat, id) {
     var nom = ucpmNomFichierPdf(id ? 'preparation' : 'preparations', titre, ucpmDossierVrai().identite);
     return ucpmImprimerDocument(nom, ucpmDocumentImpression(nom, feuilles));
   }).then(function () {
+    etat.p8Telecharge = true;
     if (typeof trackEvenement === 'function') { trackEvenement('ucpm_telechargement', { type: id ? 'preparation' : 'preparations' }); }
   }).catch(function () {
     if (typeof afficherToast === 'function') { afficherToast('Le document n’a pas pu être préparé. Merci de réessayer dans un instant.', 6000); }
@@ -355,7 +365,7 @@ function _ucpmP8HtmlChoix(etat) {
     '<div class="cv-section" style="margin:0;"><h4>Une préparation approfondie</h4><p class="small" style="color:var(--text-muted);">Pour un seul métier, plus poussée : 8 à 12 questions, vous choisissez le niveau d’exigence et les sujets abordés.</p><button type="button" class="btn btn-outline-primary" id="btnUcpmP8Approfondie">Choisir &#8594;</button></div></div>' +
     '<div class="cv-section" style="border-left:4px solid var(--accent);"><p class="mb-0 small">Ce n’est pas le même outil que « M’entraîner à un entretien » de l’accueil : celui-là est une conversation avec l’assistant, ici vous recevez une feuille écrite à imprimer.</p></div>' +
     (avec.length
-      ? '<div class="cv-section"><h4>Vos préparations</h4><p class="small" style="color:var(--text-muted);">' + avec.map(function (e) { var p = _ucpmP8Prep(etat, e.id); return 'CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + ' (' + (p.mode === 'approfondi' ? 'approfondie' : 'générale') + ')'; }).join(' &#183; ') + '</p>' +
+      ? '<div class="cv-section"><h4>Vos préparations</h4><p class="small" style="color:var(--text-muted);">' + avec.map(function (e) { var p = _ucpmP8Prep(etat, e.id); return '' + _ucpmEsc(ucpmLibelleCv(etat, e)) + ' (' + (p.mode === 'approfondi' ? 'approfondie' : 'générale') + ')'; }).join(' &#183; ') + '</p>' +
         '<button type="button" class="btn btn-outline-primary" id="btnUcpmP8Lire">Lire mes préparations</button></div>'
       : '');
 }

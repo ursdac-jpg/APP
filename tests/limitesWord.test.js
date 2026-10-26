@@ -68,3 +68,53 @@ test('limites Word : Cadre de page (double cadre) est signale', () => {
   assert.strictEqual(limitesWordPourReglages(pr).length, 1);
   assert.match(phraseLimitesWord(pr), /cadre/);
 });
+
+test('limites Word : le ruban court avec texte a deux tons est signale (couleur mot par mot dans Word), pas sans lui', () => {
+  const pr = { regCreatifActif: true, creatifVariante: 'mqBandeau', regBordBandeau: 'rubanCourt', regTexteHors: 'dessous' };
+  assert.strictEqual(limitesWordPourReglages(pr).length, 1);
+  const phrase = phraseLimitesWord(pr);
+  assert.match(phrase, /ruban/);
+  assert.match(phrase, /mot par mot/);
+  assert.match(phrase, /PDF/);
+  assert.ok(!aUnTiret(phrase));
+  // sans réglage enregistré du texte qui sort : le réglage d'office (couleur du bandeau) s'applique, donc signalé aussi
+  assert.strictEqual(limitesWordPourReglages({ regSobreActif: true, regBordBandeau: 'rubanCourt' }).length, 1);
+  // « Ne rien changer » : le PDF garde le texte blanc comme le Word, aucun écart
+  assert.deepStrictEqual(limitesWordPourReglages({ regCreatifActif: true, regBordBandeau: 'rubanCourt', regTexteHors: 'aucun' }), []);
+  // une autre forme de bandeau, ou aucun modèle actif : rien (vu reproduit dans un vrai Word)
+  assert.deepStrictEqual(limitesWordPourReglages({ regCreatifActif: true, regBordBandeau: 'pointe', regTexteHors: 'dessous' }), []);
+  assert.deepStrictEqual(limitesWordPourReglages({ regCreatifActif: false, regSobreActif: false, regBordBandeau: 'rubanCourt' }), []);
+});
+
+test('limites Word : plusieurs ecarts se disent dans UN SEUL message', () => {
+  const pr = { regCreatifActif: true, creatifVariante: 'colonneRuban', regBordBandeau: 'rubanCourt', regTexteHors: 'dessous', formesDeco: [{ forme: 'rond' }] };
+  assert.strictEqual(limitesWordPourReglages(pr).length, 3);
+  const phrase = phraseLimitesWord(pr);
+  assert.strictEqual((phrase.match(/Ce modèle est surtout fait pour le PDF/g) || []).length, 1);
+});
+
+test('compositions du CV : seuls deux écarts vus dans Word sont annoncés (diagonale, L) ; équerre, plaque, volets, étiquette, ruban et quarts de cercle n’annoncent rien', () => {
+  const L = require('../modules/cv-word/limitesWord.js');
+  assert.deepStrictEqual(L.limitesWordPourReglages({ composition: 'diagonale' }), ['la ligne oblique qui coupe l’en-tête devient presque droite']);
+  assert.deepStrictEqual(L.limitesWordPourReglages({ composition: 'l' }), ['le coin arrondi du L devient un coin droit']);
+  assert.deepStrictEqual(L.limitesWordPourReglages({ composition: 'quart' }), [], 'les quarts de cercle sont reproduits depuis le 2026-10-23');
+  ['equerre', 'plaque', 'volets', 'etiquette', 'ruban', ''].forEach((id) => assert.deepStrictEqual(L.limitesWordPourReglages({ composition: id }), [], id));
+});
+
+test('décor ajouté : aucun des quatre décors n’annonce d’écart dans Word', () => {
+  const L = require('../modules/cv-word/limitesWord.js');
+  ['equerre', 'ruban', 'quarts', 'plaque'].forEach((id) => assert.deepStrictEqual(L.limitesWordPourReglages({ decor: { id } }), [], id));
+  assert.deepStrictEqual(L.limitesWordPourReglages({ decor: {} }), []);
+});
+
+test('compositions à deux colonnes : seule l’étiquette annonce un écart dans Word (arrondie aussi en bas)', () => {
+  const L = require('../modules/cv-word/limitesWord.js');
+  assert.deepStrictEqual(L.limitesWordPourReglages({ composition: 'etiquette', regColonnes: '2' }), ['l’étiquette de couleur est aussi arrondie en bas']);
+  assert.deepStrictEqual(L.limitesWordPourReglages({ composition: 'etiquette', regColonnes: '1' }), []);
+  ['equerre', 'plaque', 'volets', 'carte', 'l', 'diagonale'].forEach((id) => assert.ok(!L.limitesWordPourReglages({ composition: id, regColonnes: '2' }).some((p) => /étiquette/.test(p)), id));
+});
+test('compositions : la diagonale n’annonce rien à deux colonnes (l’oblique y est reproduite), mais le fait à une colonne', () => {
+  const L = require('../modules/cv-word/limitesWord.js');
+  assert.deepStrictEqual(L.limitesWordPourReglages({ composition: 'diagonale', regColonnes: '2' }), []);
+  assert.strictEqual(L.limitesWordPourReglages({ composition: 'diagonale', regColonnes: '1' }).length, 1);
+});

@@ -83,10 +83,14 @@ function faireBloc(id) {
     attrs: {},
     setAttribute(k, v) { this.attrs[k] = v; },
     removeAttribute(k) { delete this.attrs[k]; },
-    hasAttribute(k) { return k in this.attrs; }
+    hasAttribute(k) { return k in this.attrs; },
+    getAttribute(k) { return k in this.attrs ? this.attrs[k] : null; },
+    addEventListener() {},
+    querySelectorAll() { return []; }
   };
   return {
     id,
+    style: {},
     classList: { toggle(c, on) { if (on) { classes.add(c); } else { classes.delete(c); } }, contains: (c) => classes.has(c) },
     querySelector(sel) {
       if (sel.indexOf('.bloc-verrou-message') !== -1) { return enfants.filter((e) => e.classe === 'bloc-verrou-message')[0] || null; }
@@ -102,7 +106,7 @@ function faireBloc(id) {
   };
 }
 
-test('appliquerVerrouBlocs : bloc inactif => verrouillé, inerte, message ; actif => libéré, message retiré', () => {
+test('appliquerVerrouBlocs : bloc inactif => verrouillé (sens interdit, jamais inert), message ; actif => libéré, message retiré ; masque => non montré', () => {
   const b = faireBloc('blocX');
   const blocs = { blocX: b };
   global.document = {
@@ -115,7 +119,8 @@ test('appliquerVerrouBlocs : bloc inactif => verrouillé, inerte, message ; acti
   };
   metiers.appliquerVerrouBlocs([{ id: 'blocX', actif: false, message: 'Déposez d’abord votre CV' }]);
   assert.equal(b.classList.contains('bloc-verrouille'), true);
-  assert.equal(b._corps.hasAttribute('inert'), true);
+  assert.equal(b._corps.getAttribute('aria-disabled'), 'true');
+  assert.equal(b._corps.hasAttribute('inert'), false);
   assert.equal(b._enfants.length, 1);
   assert.match(b._enfants[0].textContent, /Déposez d’abord votre CV/);
   // rappelé deux fois : jamais de message en double
@@ -123,8 +128,13 @@ test('appliquerVerrouBlocs : bloc inactif => verrouillé, inerte, message ; acti
   assert.equal(b._enfants.length, 1);
   metiers.appliquerVerrouBlocs([{ id: 'blocX', actif: true }]);
   assert.equal(b.classList.contains('bloc-verrouille'), false);
-  assert.equal(b._corps.hasAttribute('inert'), false);
+  assert.equal(b._corps.hasAttribute('aria-disabled'), false);
   assert.equal(b._enfants.length, 0);
+  // Lot 5 : une partie pas encore atteinte n'est pas montree du tout
+  metiers.appliquerVerrouBlocs([{ id: 'blocX', actif: false, masque: true }]);
+  assert.equal(b.style.display, 'none');
+  metiers.appliquerVerrouBlocs([{ id: 'blocX', actif: false }]);
+  assert.equal(b.style.display, '');
   // id inconnu : sans erreur
   metiers.appliquerVerrouBlocs([{ id: 'absent', actif: false }]);
 });

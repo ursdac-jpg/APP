@@ -19,6 +19,13 @@ var UCPM_ETAPES_CHOIX_LETTRES = [
 var UCPM_PLACEHOLDER_LETTRE = 'L’assistant n’a pas écrit de lettre pour ce CV. Vous pouvez écrire la vôtre ici, ou refaire la demande.';
 
 function _ucpmP6Titre(etat, e) { var cv = etat.cvs && etat.cvs[e.id]; return (cv && cv.titre) || ucpmNomMetier(e, etat.sexe); }
+// « CV 1 : Peintre applicatrice » : le numero et l'intitule choisi pour ce CV (page 5) ; « CV 1 » seul tant que l'intitule n'est pas choisi (Denis, 24/10/2026).
+// Une seule fonction pour toutes les pages du module (a echapper par l'appelant).
+function ucpmLibelleCv(etat, e) {
+  var cv = etat.cvs && etat.cvs[e.id];
+  var titre = cv && typeof cv.titre === 'string' ? cv.titre.trim() : '';
+  return 'CV ' + _ucpmP6Numero(etat, e.id) + (titre ? ' : ' + titre : '');
+}
 function _ucpmP6Accroche(etat, e) { var cv = etat.cvs && etat.cvs[e.id]; return (cv && cv.accroche) || ''; }
 function _ucpmP6Numero(etat, id) {
   var liste = ucpmEntreesCochees(etat);
@@ -52,7 +59,7 @@ function _ucpmP6HtmlChoixCv(etat) {
     cochees.map(function (e) {
       return '<label style="display:flex;gap:.5rem;align-items:flex-start;cursor:pointer;margin:0 0 .4rem 0;">' +
         '<input type="checkbox" style="margin-top:.3rem;" data-ucpm-lettre-cv="' + e.id + '"' + (choisies.indexOf(e.id) >= 0 ? ' checked' : '') + '>' +
-        '<span style="flex:1;min-width:0;"><strong>CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + '</strong><br>' +
+        '<span style="flex:1;min-width:0;"><strong>' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong><br>' +
         '<span class="small" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) +
         (etat.lettres && String(etat.lettres[e.id] || '').trim() ? ' &#183; une lettre existe déjà, elle sera remplacée' : '') + '</span></span></label>';
     }).join('') +
@@ -79,6 +86,12 @@ function _ucpmP6CablerChoixCv(etat) {
 
 // ---------------- Passage avec l'assistant ----------------
 
+// La lettre de recommandation de référence (la même que pour la lettre seule et le CV, stock commun), à la fin du message ; rien si la personne a dit « Non » ou n'en a pas déposé.
+function _ucpmP6SectionRecommandation() {
+  var section = (typeof sectionRecommandationPourMessage === 'function') ? sectionRecommandationPourMessage() : '';
+  return section ? '\n\n' + section : '';
+}
+
 function _ucpmConfigPassageLettres(etat) {
   var entrees = _ucpmP6Choisies(etat);
   return {
@@ -94,7 +107,7 @@ function _ucpmConfigPassageLettres(etat) {
           cvs: ucpmBlocCvLettres(entrees.map(function (e) {
             return { titre: _ucpmP6Titre(etat, e), accroche: _ucpmP6Accroche(etat, e), objectif: e.objectif };
           }))
-        }) + ucpmConsignesStyle('lettre');
+        }) + ucpmConsignesStyle('lettre') + _ucpmP6SectionRecommandation();
       });
     },
     importer: function (texte) {
@@ -121,8 +134,8 @@ function _ucpmP6HtmlSelecteur(etat, cochees) {
   return '<div class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Choisir la lettre à lire">' + cochees.map(function (e) {
     var a = !!String((etat.lettres && etat.lettres[e.id]) || '').trim();
     var actif = etat.lettreSel === e.id;
-    return '<button type="button" class="btn btn-sm ' + (actif ? 'btn-primary' : 'btn-outline-primary') + '" data-ucpm-lettre-sel="' + e.id + '" data-ucpm-pastille-base="CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' +
-      'CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + (a ? '' : ' (à écrire)') + '</button>';
+    return '<button type="button" class="btn btn-sm ' + (actif ? 'btn-primary' : 'btn-outline-primary') + '" data-ucpm-lettre-sel="' + e.id + '" data-ucpm-pastille-base="' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '" aria-pressed="' + (actif ? 'true' : 'false') + '">' +
+      '' + _ucpmEsc(ucpmLibelleCv(etat, e)) + (a ? '' : ' (à écrire)') + '</button>';
   }).join('') + '</div>';
 }
 
@@ -134,7 +147,7 @@ function _ucpmP6HtmlLettre(etat, e) {
   var mots = ucpmNombreMots(texte);
   var formule = ucpmFormuleAppel(e.objectif).replace(/,$/, '');
   return '<div class="cv-section" data-ucpm-lettre="' + e.id + '">' +
-    '<p class="mb-1"><strong>Lettre du CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + '</strong></p>' +
+    '<p class="mb-1"><strong>Lettre du ' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong></p>' +
     '<p class="small mb-2" style="color:var(--text-muted);">' + _ucpmEsc(ucpmEtiquetteObjectif(e.objectif)) + ' &#183; adressée à : ' + _ucpmEsc(formule) + (e.objectif && e.objectif.employeur ? ' (' + _ucpmEsc(e.objectif.employeur) + ')' : '') + '</p>' +
     '<label class="visually-hidden" for="ucpmTexteLettre">Texte de la lettre</label>' +
     '<textarea class="form-control" id="ucpmTexteLettre" rows="18" data-ucpm-lettre-texte="' + e.id + '" placeholder="' + UCPM_PLACEHOLDER_LETTRE + '">' + echapperTexteUcpm(texte) + '</textarea>' +
@@ -148,6 +161,142 @@ function _ucpmP6HtmlLettre(etat, e) {
     (texte.trim() ? '<p class="small mt-2 mb-0" style="color:var(--text-muted);">Vos modifications faites ici partent avec la demande : l’assistant retravaille la lettre que vous voyez.</p>' : '') + '</div>';
 }
 
+// ---------------- Modèle de lettre (24/10/2026) : les cinq modèles de la lettre seule, le même pour toutes les lettres, couleur et police de chaque CV ----------------
+
+var UCPM_DESCRIPTIONS_MODELES_LETTRE = {
+  g0: 'Classique, tout en noir et blanc. Passe partout.',
+  g1: 'Votre nom et un filet dans la couleur de votre CV.',
+  g2: 'Vos informations dans une colonne de la couleur de votre CV, pleine hauteur.',
+  g3: 'Votre nom et vos informations dans un bandeau de la couleur de votre CV.',
+  g4: 'Grand titre, puis vos informations personnelles à côté de la lettre.'
+};
+var _ucpmP6MinuteurModeles = null;
+var _ucpmP6JetonModeles = 0;
+
+function _ucpmP6ModeleActif(etat) { return gabaritLettreCo(etat.modeleLettre).id; }
+
+function _ucpmP6HtmlModeles(etat) {
+  var actif = _ucpmP6ModeleActif(etat);
+  return '<div class="cv-section" id="ucpmModelesLettre"><h4>&#127912; Modèle de lettre (le même pour toutes vos lettres)</h4>' +
+    '<p class="small mb-2" style="color:var(--text-muted);">Chaque lettre prend la couleur et la police de son CV. Vos informations sont mises en valeur dans la colonne, le bandeau ou le titre.</p>' +
+    '<div class="d-flex flex-wrap gap-3" role="group" aria-label="Modèle de lettre">' + GABARITS_LETTRE_CO.map(function (g) {
+      return '<button type="button" class="ucpm-modele-lettre" data-ucpm-modele="' + g.id + '" aria-pressed="' + (g.id === actif ? 'true' : 'false') + '" ' +
+        'style="flex:1 1 11rem;max-width:15rem;text-align:left;font:inherit;color:inherit;background:var(--bg-surface);padding:.5rem;border-radius:10px;cursor:pointer;border:2px solid ' + (g.id === actif ? 'var(--primary)' : 'var(--border)') + ';">' +
+        '<div class="ucpm-mini-lettre" data-ucpm-mini="' + g.id + '" style="position:relative;aspect-ratio:210/297;overflow:hidden;border:1px solid var(--border);background:#fff;margin:0 0 .4rem;">' +
+        '<span class="small" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#666;">Aperçu en cours…</span></div>' +
+        '<strong>' + _ucpmEsc(g.nom) + '</strong><br><span class="small" style="color:var(--text-muted);">' + _ucpmEsc(UCPM_DESCRIPTIONS_MODELES_LETTRE[g.id] || '') + '</span></button>';
+    }).join('') + '</div>' +
+    '<p class="small mt-2 mb-0" id="ucpmAvisWordModele" style="color:var(--warning-strong);"' + (gabaritLettreCo(actif).wordFidele ? ' hidden' : '') + '>' +
+    '&#9888;&#65039; Avec ce modèle, le Word s’écarte du PDF (la colonne colorée ne couvre que la première page) : il est recommandé d’enregistrer en PDF.</p></div>';
+}
+
+// Montre une lettre rendue (css + html) dans un compartiment étanche, réduite à la largeur de son cadre (une page A4 fait 794 px de large).
+function _ucpmP6MonterApercu(cadre, feuille) {
+  var hote = cadre.querySelector('.ucpm-hote-lettre');
+  if (!hote) {
+    cadre.innerHTML = '<div class="ucpm-hote-lettre" style="position:absolute;left:0;top:0;width:794px;transform-origin:top left;"></div>';
+    hote = cadre.querySelector('.ucpm-hote-lettre');
+  }
+  var racine = hote.shadowRoot || hote.attachShadow({ mode: 'open' });
+  racine.innerHTML = '<style>' + feuille.css + '</style>' + feuille.html;
+  hote.style.transform = 'scale(' + (cadre.clientWidth / 794) + ')';
+}
+
+// Remplit les cinq aperçus avec la lettre en cours de lecture, un modèle après l'autre (le rendu des lettres se fait un à la fois). Un jeton écarte les rendus devenus inutiles.
+function _ucpmP6RemplirModeles(etat) {
+  var jeton = ++_ucpmP6JetonModeles;
+  var cochees = ucpmEntreesCochees(etat);
+  var courante = cochees.filter(function (e) { return e.id === etat.lettreSel; })[0];
+  if (!courante || !String((etat.lettres && etat.lettres[courante.id]) || '').trim()) { return; }
+  var suite = Promise.resolve();
+  GABARITS_LETTRE_CO.forEach(function (g) {
+    suite = suite.then(function () {
+      if (jeton !== _ucpmP6JetonModeles) { return null; }
+      return ucpmRendreLettre(etat, courante, g.id).then(function (feuille) {
+        var cadre = document.querySelector('[data-ucpm-mini="' + g.id + '"]');
+        if (jeton === _ucpmP6JetonModeles && cadre) { _ucpmP6MonterApercu(cadre, feuille); }
+      }, function () {
+        var cadreErreur = document.querySelector('[data-ucpm-mini="' + g.id + '"]');
+        if (jeton === _ucpmP6JetonModeles && cadreErreur) { cadreErreur.innerHTML = '<span class="small" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#666;">Aperçu indisponible</span>'; }
+      });
+    });
+  });
+}
+
+function _ucpmP6ProgrammerModeles(etat) {
+  clearTimeout(_ucpmP6MinuteurModeles);
+  _ucpmP6MinuteurModeles = setTimeout(function () { _ucpmP6RemplirModeles(etat); }, 800);
+}
+
+function _ucpmP6CablerModeles(etat) {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ucpm-modele]'), function (el) {
+    el.addEventListener('click', function () {
+      etat.modeleLettre = el.getAttribute('data-ucpm-modele');
+      Array.prototype.forEach.call(document.querySelectorAll('[data-ucpm-modele]'), function (b) {
+        var actif = b === el;
+        b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+        b.style.borderColor = actif ? 'var(--primary)' : 'var(--border)';
+      });
+      var avis = document.getElementById('ucpmAvisWordModele');
+      if (avis) { avis.hidden = gabaritLettreCo(etat.modeleLettre).wordFidele; }
+      if (typeof trackEvenement === 'function') { trackEvenement('ucpm_modele_lettre', { modele: etat.modeleLettre }); }
+    });
+  });
+  _ucpmP6RemplirModeles(etat);
+}
+
+// ---------------- La suite des lettres (24/10/2026) : l'assistant écrit 5 lettres à la fois ----------------
+// Au-delà de 5 CV, il donne d'abord les lettres des CV 1 à 5 puis dit de lui répondre « oui » pour la suite (prompts/ucpm-lettres.md). La personne colle ici chaque nouvelle
+// réponse : les lettres reçues s'ajoutent, aucune lettre déjà là (ni modifiée par la personne) n'est remplacée.
+
+// Les CV choisis pour lesquels il n'y a pas encore de lettre, quand la demande a été faite en plusieurs groupes (plus de 5 CV) ; liste vide sinon.
+function _ucpmP6EnAttenteDeSuite(etat) {
+  var choisies = _ucpmP6Choisies(etat);
+  var ids = ucpmIdsEnAttenteDeSuite(choisies.map(function (e) { return e.id; }), etat.lettres);
+  return choisies.filter(function (e) { return ids.indexOf(e.id) >= 0; });
+}
+
+function _ucpmP6HtmlSuite(etat) {
+  var attente = _ucpmP6EnAttenteDeSuite(etat);
+  if (!attente.length) { return ''; }
+  var choisies = _ucpmP6Choisies(etat);
+  var recues = choisies.length - attente.length;
+  return '<div class="cv-section" id="ucpmSuiteLettres" role="status" style="border-left:4px solid var(--warning-strong);background:var(--warning-bg-subtle);">' +
+    '<p class="mb-1"><strong>&#9888;&#65039; Il y a une suite : ' + recues + ' lettre' + (recues > 1 ? 's' : '') + ' reçue' + (recues > 1 ? 's' : '') + ' sur ' + choisies.length + '. Allez sur la page de l’assistant pour récupérer la suite.</strong></p>' +
+    '<p class="small mb-2">L’assistant écrit les lettres par groupes de ' + UCPM_LETTRES_PAR_REPONSE + '. Pour recevoir ' + (attente.length > 1 ? 'les ' + attente.length + ' lettres qui restent' : 'la lettre qui reste') + ' : retournez sur la page de l’assistant, écrivez-lui <strong>oui</strong>, copiez sa réponse avec son bouton « Copier », puis collez-la ci-dessous. Rien de ce que vous avez déjà reçu n’est remplacé. Vous pouvez aussi continuer avec les lettres déjà reçues.</p>' +
+    '<label class="visually-hidden" for="ucpmSuiteTexte">Réponse de l’assistant avec la suite des lettres</label>' +
+    '<textarea class="form-control mb-2" id="ucpmSuiteTexte" rows="4" placeholder="Collez ici la suite de la réponse de l’assistant"></textarea>' +
+    '<p class="small mb-2" id="ucpmSuiteMessage" role="status" style="color:var(--danger);" hidden></p>' +
+    '<button type="button" class="btn btn-primary btn-sm" id="btnUcpmSuiteLettres">Récupérer la suite</button></div>';
+}
+
+function _ucpmP6CablerSuite(etat) {
+  var bouton = document.getElementById('btnUcpmSuiteLettres');
+  if (!bouton) { return; }
+  bouton.addEventListener('click', function () {
+    var message = document.getElementById('ucpmSuiteMessage');
+    var entrees = _ucpmP6Choisies(etat);
+    var r = ucpmLireReponseLettres(document.getElementById('ucpmSuiteTexte').value, entrees.map(function (e) { return e.id; }));
+    if (!r.succes) { message.textContent = r.erreur; message.hidden = false; return; }
+    // Seules les lettres des CV qui n'en ont pas encore sont ajoutées.
+    var nouvelles = {};
+    Object.keys(r.lettres).forEach(function (id) { if (!String((etat.lettres && etat.lettres[id]) || '').trim()) { nouvelles[id] = r.lettres[id]; } });
+    if (!Object.keys(nouvelles).length) {
+      message.textContent = 'Cette réponse ne contient aucune lettre nouvelle. Vérifiez que vous avez copié la réponse qui suit votre « oui ».';
+      message.hidden = false;
+      return;
+    }
+    var pretes = ucpmPreparerLettresRecues(nouvelles, entrees, _ucpmP6NomSignature());
+    etat.lettres = ucpmFusionnerLettres(etat.lettres, pretes);
+    etat.lettresOrigine = ucpmFusionnerLettres(etat.lettresOrigine, pretes);
+    var recues = entrees.filter(function (e) { return !!pretes[e.id]; });
+    etat.lettresSig = Object.assign({}, etat.lettresSig, ucpmSignaturesLettres(etat, recues, ucpmConstruireProfilValide(ucpmDossierVrai()), _ucpmP6NomSignature()));
+    etat.lettresManquantes = _ucpmP6EnAttenteDeSuite(etat).map(function (e) { return e.id; });
+    if (typeof trackEvenement === 'function') { trackEvenement('ucpm_lettres_suite', { lettres: Object.keys(pretes).length, restantes: etat.lettresManquantes.length }); }
+    ucpmRendrePage();
+  });
+}
+
 // Règle de Retour : les lettres dont ce qui avait été envoyé a changé depuis (objectif, identité, titre, phrase d'accroche, CV de référence) sont signalées, sans rien effacer.
 function _ucpmP6Perimees(etat) { return ucpmLettresPerimees(etat, ucpmConstruireProfilValide(ucpmDossierVrai()), _ucpmP6NomSignature()); }
 
@@ -156,7 +305,7 @@ function _ucpmP6HtmlPerimees(etat) {
   if (!p.length) { return ''; }
   return '<div class="cv-section" style="border-left:4px solid var(--warning-strong);" role="status"><p class="mb-1"><strong>' + (p.length > 1 ? 'Certaines lettres ne correspondent peut-être plus.' : 'Une lettre ne correspond peut-être plus.') + '</strong></p>' +
     '<p class="small mb-1">Vous avez changé quelque chose depuis la demande (objectif, identité, titre ou phrase d’accroche, CV de référence). Lettres concernées : ' +
-    p.map(function (e) { return 'CV ' + _ucpmP6Numero(etat, e.id) + ' (' + _ucpmEsc(_ucpmP6Titre(etat, e)) + ')'; }).join(', ') + '.</p>' +
+    p.map(function (e) { return _ucpmEsc(ucpmLibelleCv(etat, e)); }).join(', ') + '.</p>' +
     '<p class="small mb-2">Rien n’est effacé : vos lettres restent telles quelles tant que vous ne refaites pas la demande.</p>' +
     '<button type="button" class="btn btn-outline-primary btn-sm" id="btnUcpmRefairePerimees">Refaire ' + (p.length > 1 ? 'ces lettres' : 'cette lettre') + '</button></div>';
 }
@@ -169,17 +318,21 @@ function _ucpmP6HtmlLecture(etat) {
   return '<div class="cv-section"><p class="mb-1">Voici une lettre par CV. Chacune commence par la formule d’appel et finit par votre nom, ajoutés par l’application.</p>' +
     '<p class="mb-0 small" style="color:var(--text-muted);">Relisez-les et modifiez-les comme vous voulez : ce que vous voyez ici est ce qui sera imprimé. Une lettre doit tenir sur une page.</p></div>' +
     _ucpmP6HtmlPerimees(etat) +
+    _ucpmP6HtmlSuite(etat) +
     _ucpmP6HtmlSelecteur(etat, cochees) +
+    _ucpmP6HtmlModeles(etat) +
     (courante ? _ucpmP6HtmlLettre(etat, courante) : '') +
-    (sansLettre.length
+    (sansLettre.length && !_ucpmP6EnAttenteDeSuite(etat).length
       ? '<div class="cv-section" style="border-left:4px solid var(--warning-strong);"><p class="mb-0 small">' + sansLettre.length + ' CV ' + (sansLettre.length > 1 ? 'n’ont' : 'n’a') + ' pas de lettre : ' +
-        sansLettre.map(function (e) { return 'CV ' + _ucpmP6Numero(etat, e.id); }).join(', ') + '. Vous pouvez l’écrire vous-même, refaire la demande, ou continuer sans.</p></div>'
+        sansLettre.map(function (e) { return _ucpmEsc(ucpmLibelleCv(etat, e)); }).join(', ') + '. Vous pouvez l’écrire vous-même, refaire la demande, ou continuer sans.</p></div>'
       : '') +
     '<div class="mt-3"><button type="button" class="btn btn-outline-secondary" id="btnUcpmRefaireLettres">Refaire la demande</button></div>';
 }
 
 function _ucpmP6CablerLecture(etat) {
   var $$ = function (sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); };
+  _ucpmP6CablerModeles(etat);
+  _ucpmP6CablerSuite(etat);
   $$('[data-ucpm-lettre-sel]', function (el) {
     el.addEventListener('click', function () { etat.lettreSel = el.getAttribute('data-ucpm-lettre-sel'); ucpmRendrePage(); });
   });
@@ -190,6 +343,7 @@ function _ucpmP6CablerLecture(etat) {
       etat.lettres[id] = ucpmSansTiretLong(el.value);
       var m = document.getElementById('ucpmP6Mots'); if (m) { m.textContent = ucpmNombreMots(etat.lettres[id]); }
       var l = document.getElementById('ucpmP6Longue'); if (l) { l.hidden = !ucpmLettreLongue(etat.lettres[id]); }
+      _ucpmP6ProgrammerModeles(etat);
       var o = document.querySelector('[data-ucpm-lettre-origine="' + id + '"]');
       if (o) { o.disabled = etat.lettres[id] === (etat.lettresOrigine && etat.lettresOrigine[id]); }
       var pastille = document.querySelector('[data-ucpm-lettre-sel="' + id + '"]');
@@ -274,7 +428,7 @@ function _ucpmP6HtmlRetravail(etat) {
   return '<div class="cv-section mb-3" data-ucpm-retravail="choix"><h4>&#9993;&#65039; Quelle lettre retravailler ?</h4>' +
     existantes.map(function (e) {
       return '<label style="display:flex;gap:.5rem;align-items:flex-start;cursor:pointer;margin:0 0 .4rem 0;"><input type="radio" name="ucpmRetravailLettre" style="margin-top:.3rem;" data-ucpm-retravail-id="' + e.id + '"' + (r.id === e.id ? ' checked' : '') + '>' +
-        '<span style="flex:1;min-width:0;"><strong>Lettre du CV ' + _ucpmP6Numero(etat, e.id) + ' : ' + _ucpmEsc(_ucpmP6Titre(etat, e)) + '</strong> <span class="small" style="color:var(--text-muted);">(votre texte actuel, avec vos modifications)</span></span></label>';
+        '<span style="flex:1;min-width:0;"><strong>Lettre du ' + _ucpmEsc(ucpmLibelleCv(etat, e)) + '</strong> <span class="small" style="color:var(--text-muted);">(votre texte actuel, avec vos modifications)</span></span></label>';
     }).join('') +
     (existantes.length > 1 ? '<label style="display:flex;gap:.5rem;align-items:flex-start;cursor:pointer;margin:.4rem 0 0 0;"><input type="checkbox" style="margin-top:.3rem;" id="ucpmRetravailToutes"' + (r.toutes ? ' checked' : '') + '><span>Retravailler aussi les autres lettres avec les mêmes remarques</span></label>' : '') +
     '</div>' +

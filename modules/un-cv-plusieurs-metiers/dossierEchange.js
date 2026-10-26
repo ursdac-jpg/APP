@@ -10,6 +10,7 @@
 var _ucpmDossierReference = null;   // le vrai dossier, pendant qu'une copie le remplace
 var _ucpmEchangeLong = false;       // vrai pendant le réglage de l'aspect d'un CV (éditeur ouvert), faux pendant un simple rendu
 var _ucpmFileRendu = Promise.resolve();   // les rendus se font un par un : un seul échange à la fois
+var _ucpmCacheLettres = {};         // id d'entrée + modèle -> { cle, resultat } : la lettre rendue par son gabarit (aperçus de la page 6, PDF de la page 7)
 var _ucpmCacheRendu = {};           // id d'entrée -> { cle, resultat } (miniatures et PDF réutilisent le dernier rendu à jour)
 
 // Le vrai dossier (celui du CV de référence), même pendant un échange.
@@ -97,10 +98,22 @@ function ucpmRenduAJour(etat, id) {
   return !!c && c.cle === ucpmEmpreinte(JSON.stringify(ucpmDossierPourCv(etat, id)));
 }
 
+// Toutes les règles de style d'un CV rendu dans une iframe du moteur, prêtes pour un compartiment étanche (shadow root) : les feuilles `styleCv` et `stylePage` ET celles que le
+// moteur ajoute en route (composition de l'en-tête, formes décoratives...), dans l'ordre où l'iframe les applique. Sans elles, l'en-tête n'est pas à sa place dans la vignette.
+// Seule la feuille de l'habillage de la page d'aperçu (`styleChrome`) est laissée.
+function ucpmStylesDuCv(doc) {
+  var feuilles = Array.prototype.map.call(doc.querySelectorAll('style'), function (st) { return st.id === 'styleChrome' ? '' : st.textContent; });
+  return ucpmCssPourCompartiment(feuilles.join(String.fromCharCode(10)));
+}
+
 // Rend UN CV dans une iframe cachée (même moteur que l'aperçu et l'export Word). Renvoie { html, css, nbPages, hauteurPage, police, libre } : html = les pages (`.page-a4`),
 // css = les règles du CV, de quoi les montrer isolées dans un compartiment (shadow root) sans toucher aux autres CV. Le rendu passe par l'échange de dossier.
-function ucpmRendreCv(etat, id) {
-  var copie = ucpmDossierPourCv(etat, id);
+function ucpmRendreCv(etat, id) { return ucpmRendreCopie(ucpmDossierPourCv(etat, id), id); }
+
+// Même rendu pour une copie de dossier quelconque (« Mes modèles » de « Vos documents » : le CV de la personne dans chaque modèle gardé, module cv-modeles-gardes).
+// idCache : la clé du cache (un identifiant propre à l'appelant ; le rendu en cache est réutilisé tant que la copie n'a pas changé).
+function ucpmRendreCopie(copie, idCache) {
+  var id = idCache;
   var cle = ucpmEmpreinte(JSON.stringify(copie));
   var cache = _ucpmCacheRendu[id];
   if (cache && cache.cle === cle) { return Promise.resolve(cache.resultat); }
@@ -134,8 +147,7 @@ function ucpmRendreCv(etat, id) {
         var conteneur = doc.getElementById('conteneurPage');
         // Les couleurs et les échelles de taille du moteur de CV (--cv, --col, --k, --kh, --tt...) sont définies sur « :root ». Dans un compartiment étanche (shadow root),
         // « :root » ne désigne rien : sans cette conversion en « :host », le CV perd ses couleurs et ses tailles (CV blanc, accroche trop grande, textes qui se chevauchent).
-        var styles = ['styleCv', 'stylePage'].map(function (sid) { var s = doc.getElementById(sid); return s ? s.textContent : ''; }).join(String.fromCharCode(10));
-        styles = ucpmCssPourCompartiment(styles);
+        var styles = ucpmStylesDuCv(doc);
         var clone = conteneur.cloneNode(true);
         Array.prototype.forEach.call(clone.querySelectorAll('[contenteditable]'), function (el) { el.removeAttribute('contenteditable'); });
         var pages = doc.querySelectorAll('.page-a4').length || 1;
@@ -147,6 +159,26 @@ function ucpmRendreCv(etat, id) {
         resoudre(resultat);
       })();
     });
+  });
+}
+
+// La lettre d'UN CV rendue par un gabarit de la lettre (g0 à g4) : texte (formule d'appel et signature comprises), entreprise et recruteur de l'objectif, titre du CV en poste,
+// couleur et police de ce CV (le dossier prêté à ce CV les porte). Même rendu que la lettre seule (construireFeuilleLettreGabarit, js/app.js).
+// Renvoie { css, html, nbPages } ; en cache tant que rien n'a changé. gabarit : 'g0' par défaut.
+function ucpmRendreLettre(etat, e, gabarit) {
+  var g = gabarit || 'g0';
+  var texte = String((etat.lettres && etat.lettres[e.id]) || '');
+  var copie = ucpmDossierPourCv(etat, e.id);
+  var o = (typeof ucpmNormaliserObjectif === 'function' ? ucpmNormaliserObjectif(e.objectif) : null) || e.objectif || {};
+  var cv = (etat.cvs && etat.cvs[e.id]) || {};
+  var jeton = (copie.pdfReglages && copie.pdfReglages.regPolice) || (copie.reglagesMiseEnPageCV && copie.reglagesMiseEnPageCV.police) || '';
+  ucpmPreparerDossierLettre(copie, { texte: texte, employeur: o.employeur, civiliteRecruteur: o.civiliteRecruteur, nomRecruteur: o.nomRecruteur, titre: cv.titre || copie.titreCV, gabarit: g, jetonPolice: jeton });
+  var cle = ucpmEmpreinte(JSON.stringify(copie));
+  var cache = _ucpmCacheLettres[e.id + ':' + g];
+  if (cache && cache.cle === cle) { return Promise.resolve(cache.resultat); }
+  return ucpmAvecDossier(copie, function () { return construireFeuilleLettreGabarit(); }).then(function (resultat) {
+    _ucpmCacheLettres[e.id + ':' + g] = { cle: cle, resultat: resultat };
+    return resultat;
   });
 }
 

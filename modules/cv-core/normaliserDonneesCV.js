@@ -234,7 +234,9 @@ function normaliserDonneesCV(dossierSource) {
     meta: {
       version: 1,
       dateGeneration: new Date().toISOString(),
-      modele: null
+      modele: null,
+      // Voie 3 de « Reprendre mon CV » : tout ce que la personne a ecrit doit apparaitre (lu par le composeur et cvPdfDonnees). Faux partout ailleurs.
+      modeFidele: dossierSource.modeFidele === true
     },
     identite: brut.identite,
     // TACHE (photo optionnelle) : lit desormais dossier.photo (upload
@@ -270,7 +272,8 @@ function normaliserDonneesCV(dossierSource) {
     pointsForts: (dossierSource.ia && dossierSource.ia.cv && dossierSource.ia.cv.pointsForts) || [],
     motsCles: (dossierSource.ia && dossierSource.ia.cv && dossierSource.ia.cv.motsCles) || [],
     competences: brut.competences,
-    experiences: _cvSansMissionsRedondantes(repartition.experiences),
+    // Mode fidele : aucune mission « jugee trop proche » n'est retiree (les mots de la personne restent tous la).
+    experiences: (dossierSource.modeFidele === true) ? repartition.experiences : _cvSansMissionsRedondantes(repartition.experiences),
     experiencesPersonnelles: repartition.experiencesPersonnelles,
     // TACHE (Tache 1 : formations en tableau) : "dossier" stocke desormais
     // un veritable tableau de formations (dossier.formations), plus besoin

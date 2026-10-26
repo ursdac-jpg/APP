@@ -57,6 +57,9 @@ function bilanCreerCandidature(donnees) {
     // Jamais une saisie libre : les deux viennent toujours de l'app.
     objectif: donnees.objectif || null,
     nombreExperiencesProfessionnelles: donnees.nombreExperiencesProfessionnelles || 0,
+    // Lot 4 (24/10/2026, demande de Denis) : disponibilites renseignees sur l'ecran des cartes (contrat, temps de travail, debut possible, horaires), en texte ;
+    // champ additif, simple repere de contexte pour l'assistant, jamais une saisie libre (viennent de l'app, voir hostDataAdapter.js).
+    disponibilites: donnees.disponibilites || null,
     lettreMotivation: donnees.lettreMotivation || null,
     preparationEntretien: donnees.preparationEntretien || null,
     // TACHE (chantier "ignorer un point du rapport", 2026-08-25, DECISION
@@ -82,7 +85,7 @@ function bilanCreerCandidature(donnees) {
     candidature.entrepriseCiblee, candidature.siteEntreprise, candidature.typeStructure,
     candidature.typeStructureAutre, candidature.objectif, candidature.nombreExperiencesProfessionnelles,
     candidature.lettreMotivation, candidature.preparationEntretien, candidature.pointsDejaConnus,
-    candidature.elementsCoherenceTransversale
+    candidature.elementsCoherenceTransversale, candidature.disponibilites
   ]);
   return candidature;
 }
@@ -108,7 +111,7 @@ function bilanRecalculerHashCandidature(candidature) {
     candidature.entrepriseCiblee, candidature.siteEntreprise, candidature.typeStructure,
     candidature.typeStructureAutre, candidature.objectif, candidature.nombreExperiencesProfessionnelles,
     candidature.lettreMotivation, candidature.preparationEntretien, candidature.pointsDejaConnus,
-    candidature.elementsCoherenceTransversale
+    candidature.elementsCoherenceTransversale, candidature.disponibilites
   ]);
   return candidature.hashContenu;
 }

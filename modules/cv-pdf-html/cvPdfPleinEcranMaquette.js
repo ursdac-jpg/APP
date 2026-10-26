@@ -113,12 +113,16 @@ function _mqEnteteEtat() {
     pos: JSON.parse(JSON.stringify(e.pos || {})), larg: JSON.parse(JSON.stringify(e.larg || {})),
     haut: e.haut || null, hautB: e.hautB || null, hautBl: JSON.parse(JSON.stringify(e.hautBl || {})), ech: JSON.parse(JSON.stringify(e.ech || {})), sty: JSON.parse(JSON.stringify(e.sty || {})),
     // TACHE (P11) : "plan" (1er/2e/3e), uniquement pour les rectangles de compétences ("Rectangles arrondis").
-    plan: JSON.parse(JSON.stringify(e.plan || {}))
+    plan: JSON.parse(JSON.stringify(e.plan || {})),
+    // Nom, titre et coordonnees sur 1 ou 2 lignes (panneau « Regler l'en-tete » de l'apercu, 2026-10-21).
+    lig: JSON.parse(JSON.stringify(e.lig || {}))
   };
 }
-function _mqEnteteDefinir(etat) {
+function _mqEnteteDefinir(etat, hote) {
   var w = _mqPanneau(); if (!w) { return; }
+  if (hote && hote.avant) { hote.avant(); }   // petit apercu : l'etat d'avant va dans l'historique (« Annuler »)
   w._pdfMqDefinirEntete(etat);
+  if (hote) { if (hote.apres) { hote.apres(); } return; }   // petit apercu : _pdfMqDefinirEntete l'a deja redessine
   _mqRendu();
 }
 
@@ -126,9 +130,9 @@ function _mqOuvrirBarreRub(h) {
   _mqPlein.rub = h.getAttribute('data-rub');
   _mqMajBarreRub();
   var b = _mqEl('mqBarreRub'); b.style.display = 'flex';
-  var r = h.getBoundingClientRect(), f = _mqEl('mqFrame').getBoundingClientRect();
-  b.style.left = Math.max(8, Math.min(window.innerWidth - 480, f.left + r.left)) + 'px';
-  b.style.top = Math.max(8, f.top + r.top - b.offsetHeight - 6) + 'px';
+  var r = h.getBoundingClientRect(), f = _mqEl('mqFrame').getBoundingClientRect(), k = _mqEchelleCadre();
+  b.style.left = Math.max(8, Math.min(window.innerWidth - 480, f.left + r.left * k)) + 'px';
+  b.style.top = Math.max(8, f.top + r.top * k - b.offsetHeight - 6) + 'px';
 }
 function _mqStyleRub() {
   var w = _mqPanneau(); var cur = (w && w._cvPdfReglagesRubriquesMq && w._cvPdfReglagesRubriquesMq[_mqPlein.rub]) || {};
@@ -226,20 +230,21 @@ function _pdfPlanDefautBoite(bl) {
 function _mqOuvrirBarreBloc(bl, el) {
   _mqPlein.bl = bl; _mqMajBarreBloc();
   var b = _mqEl('mqBarreBloc'); b.style.display = 'flex';
-  var f = _mqEl('mqFrame').getBoundingClientRect(), r = el.getBoundingClientRect(), t = el.closest('.tete'), rt = t ? t.getBoundingClientRect() : r;
-  b.style.left = Math.max(8, Math.min(window.innerWidth - 480, f.left + r.left)) + 'px';
-  b.style.top = Math.max(8, Math.min(window.innerHeight - b.offsetHeight - 8, f.top + rt.bottom + 12)) + 'px';
+  var f = _mqEl('mqFrame').getBoundingClientRect(), r = el.getBoundingClientRect(), t = el.closest('.tete'), rt = t ? t.getBoundingClientRect() : r, k = _mqEchelleCadre();
+  b.style.left = Math.max(8, Math.min(window.innerWidth - 480, f.left + r.left * k)) + 'px';
+  b.style.top = Math.max(8, Math.min(window.innerHeight - b.offsetHeight - 8, f.top + rt.bottom * k + 12)) + 'px';
 }
 
 // Position / largeur reelles d'un bloc (en %, et y en px) : depuis le DOM, sinon les valeurs enregistrees.
-function _mqGeomDom(bl) {
-  var d = _mqEl('mqFrame').contentDocument, b = d.querySelector('.blc[data-bl="' + bl + '"]');
+// `hote` (facultatif) : le petit apercu quand l'en-tete y est regle (cvPdfEnteteApercu.js) ; sans lui, le grand apercu.
+function _mqGeomDom(bl, hote) {
+  var d = hote ? hote.doc() : _mqEl('mqFrame').contentDocument, b = d.querySelector('.blc[data-bl="' + bl + '"]');
   if (!b) { return { x: 0, y: 0, w: 30 }; }
   var t = b.parentNode;
   return { x: _mqR1(b.offsetLeft / t.offsetWidth * 100), y: b.offsetTop, w: _mqR1(b.offsetWidth / t.offsetWidth * 100) };
 }
-function _mqTouche(ent) {
-  if (!ent.haut) { var t = _mqEl('mqFrame').contentDocument.querySelector('.tete.libre'); if (t) { ent.haut = t.offsetHeight; } }
+function _mqTouche(ent, hote) {
+  if (!ent.haut) { var t = (hote ? hote.doc() : _mqEl('mqFrame').contentDocument).querySelector('.tete.libre'); if (t) { ent.haut = t.offsetHeight; } }
   // (La hauteur de la zone des rectangles n'est PAS figee ici : elle suit son contenu tant que la personne n'a pas tire sa poignee.)
   ent.modif = true; ent.libre = true;
 }
@@ -258,14 +263,25 @@ function _mqRectCacheTexte(r, blocCible) {
     });
   });
 }
-function _mqVerifierRouge(tete, chevauchementPermis) {
+// Les rectangles TIGHTS du texte d'un bloc (un par ligne de texte, sans le vide autour) ; sans texte, le rectangle du bloc.
+function _mqRectsTexte(bloc) {
+  var d = bloc.ownerDocument, arbre = d.createTreeWalker(bloc, 4), liste = [], n;   // 4 = NodeFilter.SHOW_TEXT
+  while ((n = arbre.nextNode())) {
+    if (!/\S/.test(n.nodeValue)) { continue; }
+    var r = d.createRange(); r.selectNodeContents(n);
+    Array.prototype.forEach.call(r.getClientRects(), function (q) { if (q.width > 1 && q.height > 1) { liste.push(q); } });
+  }
+  return liste.length ? liste : [bloc.getBoundingClientRect()];
+}
+function _mqVerifierRouge(tete, chevauchementPermis, hote) {
   var blocs = Array.prototype.slice.call(tete.querySelectorAll('.blc')), tr = tete.getBoundingClientRect();
   var rects = blocs.map(function (b) { return b.getBoundingClientRect(); }), n = 0;
   blocs.forEach(function (b, i) {
     // Zone des rectangles a hauteur AUTOMATIQUE : elle grandit avec son contenu, le bas n'est donc jamais « hors cadre » ; seuls les cotes et le haut le sont.
     var basLibre = chevauchementPermis && tete.getAttribute('data-hfixe') !== '1';
     var r = rects[i], sort = r.left < tr.left - 0.5 || r.top < tr.top - 0.5 || r.right > tr.right + 0.5 || (!basLibre && r.bottom > tr.bottom + 0.5), recouvre = false, cache = false;
-    if (!chevauchementPermis) { rects.forEach(function (q, j) { if (j !== i && !(r.right <= q.left + 0.5 || r.left >= q.right - 0.5 || r.bottom <= q.top + 0.5 || r.top >= q.bottom - 0.5)) { recouvre = true; } }); }
+    // Regle de Denis (2026-10-20) : seuls les TEXTES qui se chevauchent posent probleme, jamais deux rectangles de blocs qui se recouvrent sans que leur texte se touche.
+    if (!chevauchementPermis) { var miens = _mqRectsTexte(b); blocs.forEach(function (autre, j) { if (j !== i && !recouvre) { _mqRectsTexte(autre).forEach(function (q) { miens.forEach(function (m) { if (!(m.right <= q.left + 0.5 || m.left >= q.right - 0.5 || m.bottom <= q.top + 0.5 || m.top >= q.bottom - 0.5)) { recouvre = true; } }); }); } }); }
     else {
       var zi = parseInt(b.style.zIndex, 10) || 0;
       blocs.forEach(function (autre) { if (autre !== b && (parseInt(autre.style.zIndex, 10) || 0) < zi && _mqRectCacheTexte(r, autre)) { cache = true; } });
@@ -275,9 +291,10 @@ function _mqVerifierRouge(tete, chevauchementPermis) {
   });
   var d = tete.ownerDocument;
   n = d.querySelectorAll('.hors-cadre').length;
-  _mqEl('mqHint').textContent = !n ? _mqTexteAide()
+  var phraseRouge = !n ? (hote ? hote.aide() : _mqTexteAide())
     : (d.querySelector('.hors-cadre[data-cache]') ? '⚠ Cadre rouge : ce rectangle cache du texte d’un autre. Déplacez-le, réduisez-le, ou cliquez sur « Écarter les rectangles ».'
       : '⚠ Cadre rouge : ce bloc dépasse de sa zone ou en recouvre un autre. Déplacez-le, réduisez-le, ou agrandissez la zone (poignée du bas).');
+  if (hote) { hote.phrase(phraseRouge); } else { _mqEl('mqHint').textContent = phraseRouge; }
   return n;
 }
 
@@ -514,8 +531,8 @@ function _mqBrancherOrdre(d, feuille) {
 //   bouger({clientX, clientY}) : suit le curseur ; deposer() : appele au relachement ; annuler() : appele pour toute autre fin.
 function _mqGlisserAvecGarde(d, poignee, ev, bouger, deposer, annuler) {
   var zone = _mqEl('mqZone'), cadre = _mqEl('mqFrame'), actif = true, minuteur = null, vitesse = 0, parent = null;
-  function lirePosition(e) { var r = cadre.getBoundingClientRect(); parent = { x: r.left + e.clientX, y: r.top + e.clientY }; }
-  function dansCadre() { var r = cadre.getBoundingClientRect(); return { clientX: parent.x - r.left, clientY: parent.y - r.top }; }
+  function lirePosition(e) { var r = cadre.getBoundingClientRect(), k = _mqEchelleCadre(); parent = { x: r.left + e.clientX * k, y: r.top + e.clientY * k }; }
+  function dansCadre() { var r = cadre.getBoundingClientRect(), k = _mqEchelleCadre(); return { clientX: (parent.x - r.left) / k, clientY: (parent.y - r.top) / k }; }
   function arreter() {
     actif = false;
     if (minuteur) { clearInterval(minuteur); minuteur = null; }
@@ -549,7 +566,7 @@ function _mqGlisserAvecGarde(d, poignee, ev, bouger, deposer, annuler) {
   function ecoute(e) {
     if (!actif || (e.pointerId !== undefined && ev.pointerId !== undefined && e.pointerId !== ev.pointerId)) { return; }
     var vient = (e.view && e.view !== d.defaultView);
-    var c = vient ? { clientX: e.clientX - cadre.getBoundingClientRect().left, clientY: e.clientY - cadre.getBoundingClientRect().top } : e;
+    var c = vient ? { clientX: (e.clientX - cadre.getBoundingClientRect().left) / _mqEchelleCadre(), clientY: (e.clientY - cadre.getBoundingClientRect().top) / _mqEchelleCadre() } : e;
     if (e.type === 'pointermove') { suivre(c); }
     else if (e.type === 'pointerup') { relacher(); }
     else { abandonner(); }
@@ -606,11 +623,11 @@ function _mqGlisserOrdre(d, feuille, els, el, poignee, ev, onOrdre) {
 }
 
 function _mqBrancherEntete(d, feuille) {
-  Array.prototype.forEach.call(feuille.querySelectorAll('.tete.libre, .rc-boxes.libre'), function (zone) { _mqBrancherZone(d, feuille, zone); });
+  Array.prototype.forEach.call(feuille.querySelectorAll('.tete.libre:not(.tete-hors), .rc-boxes.libre'), function (zone) { _mqBrancherZone(d, feuille, zone); });
 }
 // Une zone libre : l'en-tete (« .tete.libre ») ou la zone des trois rectangles de competences (« .rc-boxes.libre », Rectangles arrondis :
 // les rectangles se chevauchent par conception, seul un debordement de la zone est signale en rouge).
-function _mqBrancherZone(d, feuille, zone) {
+function _mqBrancherZone(d, feuille, zone, hote) {
   var tete = zone;
   var estRect = zone.classList.contains('rc-boxes');
   var cleHaut = estRect ? 'hautB' : 'haut';
@@ -620,17 +637,17 @@ function _mqBrancherZone(d, feuille, zone) {
     b.addEventListener('pointerdown', function (ev) {
       if (ev.target.closest('.poi-l') || (ev.button !== undefined && ev.button !== 0)) { return; }
       ev.preventDefault();
-      var bl = b.getAttribute('data-bl'), ech = k(), x0 = ev.clientX, y0 = ev.clientY, g = _mqGeomDom(bl), bouge = false, nx = g.x, ny = g.y;
+      var bl = b.getAttribute('data-bl'), ech = k(), x0 = ev.clientX, y0 = ev.clientY, g = _mqGeomDom(bl, hote), bouge = false, nx = g.x, ny = g.y;
       b.setPointerCapture(ev.pointerId);
       function mv(e) {
         var dx = (e.clientX - x0) / ech, dy = (e.clientY - y0) / ech; if (Math.abs(dx) > 3 || Math.abs(dy) > 3) { bouge = true; }
         nx = Math.max(0, Math.min(98, g.x + dx / tete.offsetWidth * 100)); ny = Math.max(0, g.y + dy);
-        b.style.left = nx + '%'; b.style.top = ny + 'px'; _mqVerifierRouge(tete, estRect);
+        b.style.left = nx + '%'; b.style.top = ny + 'px'; _mqVerifierRouge(tete, estRect, hote); if (typeof _texteHorsSuivre === 'function') { _texteHorsSuivre(tete); }
       }
       function up() {
         b.removeEventListener('pointermove', mv); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up);
-        if (bouge) { var ent = _mqEnteteEtat(); _mqTouche(ent); ent.pos[bl] = { x: _mqR1(nx), y: Math.round(ny) }; _mqEnteteDefinir(ent); }
-        else { _mqOuvrirBarreBloc(bl, b); }
+        if (bouge) { var ent = _mqEnteteEtat(); _mqTouche(ent, hote); ent.pos[bl] = { x: _mqR1(nx), y: Math.round(ny) }; _mqEnteteDefinir(ent, hote); }
+        else if (hote) { hote.ouvrir(bl, b); } else { _mqOuvrirBarreBloc(bl, b); }
       }
       b.addEventListener('pointermove', mv); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
     });
@@ -638,12 +655,12 @@ function _mqBrancherZone(d, feuille, zone) {
   Array.prototype.forEach.call(tete.querySelectorAll('.poi-l'), function (poi) {
     poi.addEventListener('pointerdown', function (ev) {
       ev.preventDefault(); ev.stopPropagation();
-      var b = poi.closest('.blc'), bl = b.getAttribute('data-bl'), ech = k(), x0 = ev.clientX, g = _mqGeomDom(bl), w = g.w;
+      var b = poi.closest('.blc'), bl = b.getAttribute('data-bl'), ech = k(), x0 = ev.clientX, g = _mqGeomDom(bl, hote), w = g.w;
       poi.setPointerCapture(ev.pointerId);
-      function mv(e) { w = Math.max(12, Math.min(100 - g.x, g.w + (e.clientX - x0) / ech / tete.offsetWidth * 100)); b.style.width = w + '%'; _mqVerifierRouge(tete, estRect); }
+      function mv(e) { w = Math.max(12, Math.min(100 - g.x, g.w + (e.clientX - x0) / ech / tete.offsetWidth * 100)); b.style.width = w + '%'; _mqVerifierRouge(tete, estRect, hote); if (typeof _texteHorsSuivre === 'function') { _texteHorsSuivre(tete); } }
       function up() {
         poi.removeEventListener('pointermove', mv); poi.removeEventListener('pointerup', up); poi.removeEventListener('pointercancel', up);
-        var ent = _mqEnteteEtat(); _mqTouche(ent); ent.larg[bl] = Math.round(w); _mqEnteteDefinir(ent);
+        var ent = _mqEnteteEtat(); _mqTouche(ent, hote); ent.larg[bl] = Math.round(w); _mqEnteteDefinir(ent, hote);
       }
       poi.addEventListener('pointermove', mv); poi.addEventListener('pointerup', up); poi.addEventListener('pointercancel', up);
     });
@@ -653,10 +670,10 @@ function _mqBrancherZone(d, feuille, zone) {
     ph.addEventListener('pointerdown', function (ev) {
       ev.preventDefault(); ev.stopPropagation();
       var ech = k(), y0 = ev.clientY, h0 = tete.offsetHeight, h = h0; ph.setPointerCapture(ev.pointerId);
-      function mv(e) { h = Math.round(Math.max(estRect ? 60 : 100, Math.min(estRect ? 700 : 400, h0 + (e.clientY - y0) / ech))); tete.style.height = h + 'px'; _mqVerifierRouge(tete, estRect); }
+      function mv(e) { h = Math.round(Math.max(estRect ? 60 : 100, Math.min(estRect ? 700 : 400, h0 + (e.clientY - y0) / ech))); tete.style.height = h + 'px'; _mqVerifierRouge(tete, estRect, hote); if (typeof _texteHorsPoser === 'function') { _texteHorsPoser(tete.parentNode); } }
       function up() {
         ph.removeEventListener('pointermove', mv); ph.removeEventListener('pointerup', up); ph.removeEventListener('pointercancel', up);
-        var ent = _mqEnteteEtat(); _mqTouche(ent); ent[cleHaut] = h; _mqEnteteDefinir(ent);
+        var ent = _mqEnteteEtat(); _mqTouche(ent, hote); ent[cleHaut] = h; _mqEnteteDefinir(ent, hote);
       }
       ph.addEventListener('pointermove', mv); ph.addEventListener('pointerup', up); ph.addEventListener('pointercancel', up);
     });
@@ -668,15 +685,15 @@ function _mqBrancherZone(d, feuille, zone) {
       var b = pb.closest('.blc'), bl = b.getAttribute('data-bl'), boite = b.querySelector('.rc-box'), ech = k(), y0 = ev.clientY;
       var avantMin = boite.style.minHeight; boite.style.minHeight = '0'; var mini = b.offsetHeight; boite.style.minHeight = avantMin;
       var h0 = b.offsetHeight, h = h0; pb.setPointerCapture(ev.pointerId);
-      function mv(e) { h = Math.round(Math.max(mini, h0 + (e.clientY - y0) / ech)); boite.style.minHeight = h + 'px'; _mqVerifierRouge(tete, estRect); }
+      function mv(e) { h = Math.round(Math.max(mini, h0 + (e.clientY - y0) / ech)); boite.style.minHeight = h + 'px'; _mqVerifierRouge(tete, estRect, hote); }
       function up() {
         pb.removeEventListener('pointermove', mv); pb.removeEventListener('pointerup', up); pb.removeEventListener('pointercancel', up);
-        var ent = _mqEnteteEtat(); _mqTouche(ent); ent.hautBl = ent.hautBl || {}; ent.hautBl[bl] = h; _mqEnteteDefinir(ent);
+        var ent = _mqEnteteEtat(); _mqTouche(ent, hote); ent.hautBl = ent.hautBl || {}; ent.hautBl[bl] = h; _mqEnteteDefinir(ent, hote);
       }
       pb.addEventListener('pointermove', mv); pb.addEventListener('pointerup', up); pb.addEventListener('pointercancel', up);
     });
   });
-  _mqVerifierRouge(tete, estRect);
+  _mqVerifierRouge(tete, estRect, hote);
 }
 
 // ============================================================
@@ -1075,6 +1092,22 @@ function _mqDemarrerEspace(d, feuille, u, poignee, ev) {
   _mqGlisserAvecGarde(d, poignee, ev, bouger, deposer, annuler);
 }
 
+// Grand apercu : le CV (830 px) est REDUIT pour tenir en largeur dans la zone (decision de Denis 2026-10-20, point B), jamais coupe. La reduction est une
+// transformation du cadre dans un conteneur de la taille reduite ; les gestes dans le cadre gardent leurs coordonnees, les barres posees dans la fenetre
+// multiplient par _mqEchelleCadre().
+function _mqEchelleCadre() { var f = _mqEl('mqFrame'); return (f && f.offsetWidth) ? (f.getBoundingClientRect().width / f.offsetWidth) || 1 : 1; }
+function _mqAjusterEchelle() {
+  var zone = _mqEl('mqZone'), f = _mqEl('mqFrame'), cad = _mqEl('mqEchelle'); if (!zone || !f || !cad) { return; }
+  var cs = window.getComputedStyle(zone), marges = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  // Deux passes : la barre de defilement verticale apparait (et mange de la largeur) une fois le conteneur dimensionne.
+  for (var passe = 0; passe < 2; passe++) {
+    var dispo = zone.clientWidth - marges, s = dispo > 0 ? Math.max(0.3, Math.min(1, dispo / 830)) : 1;
+    f.style.transformOrigin = '0 0'; f.style.transform = s < 1 ? 'scale(' + s + ')' : '';
+    cad.style.width = Math.round(830 * s) + 'px'; cad.style.height = Math.round(f.offsetHeight * s) + 'px';
+  }
+}
+window.addEventListener('resize', function () { if (_mqEl('mqFrame') && _mqEl('mqEchelle')) { _mqAjusterEchelle(); } });
+
 // Ecrit la feuille dans l'iframe du plein ecran, a partir du rendu courant du panneau.
 function _mqRendu() {
   var w = _mqPanneau(), f = _mqEl('mqFrame'); if (!w || !f) { return; }
@@ -1089,12 +1122,19 @@ function _mqRendu() {
   if (!feuille) { return; }
   feuille.style.margin = '0 auto';
   if (typeof _pdfMqApresRendu === 'function') { _pdfMqApresRendu(feuille); }
+  // Formes decoratives choisies par la personne : posees sur le grand apercu comme sur l'apercu du panneau (cvPdfFormesDeco.js, une seule regle ; jamais bloquant).
+  // Composition de l'en-tete (cvPdfCompositions.js) : posee avant les formes, comme sur l'apercu du panneau.
+  try { if (typeof _compoPoser === 'function' && typeof _mepComposition === 'function') { _compoPoser(feuille, _mepCompositionAutorisee(_mepComposition()), _mepCompositionTrait()); } } catch (e) { /* un plus : jamais bloquer le grand apercu */ }
+  try { if (typeof _decorPoser === 'function' && typeof _mepDecor === 'function' && !_mepComposition()) { _decorPoser(feuille, _mepDecorAutorise(_mepDecor())); } } catch (e) { /* un plus : jamais bloquer le grand apercu */ }
+  try { if (typeof _croisementPoser === 'function' && typeof _mepCroisement === 'function' && !_mepComposition()) { _croisementPoser(feuille, _mepCroisementAutorise(_mepCroisement())); } } catch (e) { /* un plus : jamais bloquer le grand apercu */ }
+  try { if (typeof _formesDecoPoser === 'function' && typeof _mepFormesDeco === 'function') { _formesDecoPoser(feuille, _mepFormesDeco()); } } catch (e) { /* un plus : jamais bloquer le grand apercu */ }
   var h = feuille.scrollHeight, pages = h > 1125 ? 2 : 1;
   if (pages === 2) {
     var mp = d.createElement('div'); mp.className = 'marque-page'; mp.style.top = '1123px'; mp.innerHTML = '<span>fin de la page 1 (estimation)</span>'; feuille.appendChild(mp);
   }
   _mqEl('mqPage').textContent = pages === 1 ? 'Estimation : le CV tient sur 1 page' : 'Estimation : le CV occupe environ 2 pages';
   f.style.height = (h + 30) + 'px';
+  _mqAjusterEchelle();
   _mqBrancher(d, feuille);
   if (m.entete && _mqPlein.bl) { _mqMajBarreBloc(); }
   if (!m.entete) { _mqEl('mqHint').textContent = _mqTexteAide(); }
@@ -1203,9 +1243,9 @@ function _mqOuvrirBarreCoul(id, el) {
   var b = _mqEl('mqBarreCoul');
   b.style.display = 'flex';
   _mqMajBarreCoul();
-  var r = el.getBoundingClientRect(), f = _mqEl('mqFrame').getBoundingClientRect();
-  b.style.left = Math.max(8, Math.min(window.innerWidth - b.offsetWidth - 8, f.left + r.left + 14)) + 'px';
-  b.style.top = Math.max(8, Math.min(window.innerHeight - b.offsetHeight - 8, f.top + r.top + 14)) + 'px';
+  var r = el.getBoundingClientRect(), f = _mqEl('mqFrame').getBoundingClientRect(), k = _mqEchelleCadre();
+  b.style.left = Math.max(8, Math.min(window.innerWidth - b.offsetWidth - 8, f.left + r.left * k + 14)) + 'px';
+  b.style.top = Math.max(8, Math.min(window.innerHeight - b.offsetHeight - 8, f.top + r.top * k + 14)) + 'px';
 }
 function _mqMajBarreCoul() {
   var id = _mqPlein.zc, z = id && _pdfZoneCouleur(id); if (!z) { return; }
@@ -1356,7 +1396,7 @@ function ouvrirPleinEcranMaquette(cible) {
     '<button type="button" id="mqTAnnulerDernier" title="Annule le dernier &eacute;l&eacute;ment retir&eacute;">&#8617; Annuler le dernier retrait</button>' +
     '<button type="button" id="mqTToutRemettreRetraits" title="Remet tout ce qui a &eacute;t&eacute; retir&eacute;">&#8646; Tout remettre</button>' +
     '</div>' +
-    '</div><div class="plein-zone" id="mqZone"><iframe id="mqFrame" title="Votre CV en grand" style="width:830px;height:1200px;border:0;background:transparent;flex:0 0 auto"></iframe></div></div></div>' +
+    '</div><div class="plein-zone" id="mqZone"><div id="mqEchelle" style="flex:0 0 auto;overflow:hidden;position:relative;width:830px"><iframe id="mqFrame" title="Votre CV en grand" style="width:830px;height:1200px;border:0;background:transparent;display:block"></iframe></div></div></div></div>' +
     '<div class="barre-rub" id="mqBarreRub" style="display:none" role="dialog" aria-label="R&eacute;glages de cette rubrique"><b id="mqRubNom"></b>' +
     '<span class="grp"><label for="mqRubT">Taille du texte</label><input type="range" id="mqRubT" min="70" max="140" step="5"><output id="mqRubTv"></output></span>' +
     '<span class="grp"><label for="mqRubIl">Interligne</label><input type="range" id="mqRubIl" min="110" max="180" step="5"><output id="mqRubIlv"></output></span>' +
@@ -1556,8 +1596,8 @@ function ouvrirPleinEcranMaquette(cible) {
   });
   _mqEl('mqBlRaz').onclick = function () {
     var ent = _mqEnteteEtat(), bl = _mqPlein.bl;
-    delete ent.pos[bl]; delete ent.larg[bl]; delete ent.ech[bl]; delete ent.sty[bl]; if (ent.hautBl) { delete ent.hautBl[bl]; } delete ent.plan[bl];
-    ent.modif = (Object.keys(ent.pos).length + Object.keys(ent.larg).length + Object.keys(ent.ech).length + Object.keys(ent.sty).length + (ent.haut ? 1 : 0)) > 0;
+    delete ent.pos[bl]; delete ent.larg[bl]; delete ent.ech[bl]; delete ent.sty[bl]; if (ent.hautBl) { delete ent.hautBl[bl]; } delete ent.plan[bl]; delete ent.lig[bl];
+    ent.modif = (Object.keys(ent.lig).length + Object.keys(ent.pos).length + Object.keys(ent.larg).length + Object.keys(ent.ech).length + Object.keys(ent.sty).length + (ent.haut ? 1 : 0)) > 0;
     _mqEnteteDefinir(ent); _mqMajBarreBloc();
   };
   _mqEl('mqBlFermer').onclick = function () {

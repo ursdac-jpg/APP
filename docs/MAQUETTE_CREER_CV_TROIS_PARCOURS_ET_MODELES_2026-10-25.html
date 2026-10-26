@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : Créer un nouveau CV, trois parcours et voir nos modèles</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--sub:#f1f4f9;--txt:#1b2230;--muted:#5b6677;--bord:#d5dbe6;--acc:#1f5fbf;--accbg:#e3edfb;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--ret:#a12b2b;--retbg:#fbe9e9}
+[data-theme="sombre"]{--bg:#12161d;--card:#1b212c;--sub:#222a37;--txt:#e8edf5;--muted:#a3adbd;--bord:#364055;--acc:#7fb0ff;--accbg:#223555;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2342;--ret:#ff9b9b;--retbg:#3c1f1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 120px}
+.page{max-width:1000px;margin:0 auto}
+h1{font-size:1.6rem;margin:1rem 0 .2rem;text-align:center}
+h2{font-size:1.1rem}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.haut{position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+label.tog{font-size:.85rem;display:flex;gap:.35rem;align-items:center}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .8rem;font-size:.85rem}
+.mini.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.5rem 1rem 1rem}
+.etapes{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0;justify-content:center}
+.etape{border:2px solid var(--bord);background:var(--card);border-radius:999px;padding:.2rem .8rem;font-size:.85rem}
+.etape.ici{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.etape.fait{border-color:var(--ok);color:var(--ok)}
+.voies{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:.8rem 0}
+.voie{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.8rem;text-align:left;display:flex;flex-direction:column;gap:.3rem}
+.voie:hover{border-color:var(--acc)}.voie.actif{border-color:var(--acc);background:var(--accbg)}
+.voie h3{margin:.1rem 0;font-size:1.05rem}
+.voie .titre-ico{font-size:1.5rem}
+.voie ul{margin:.2rem 0;padding-left:1.1rem;font-size:.88rem}
+.info{background:var(--okbg);border:1px dashed var(--ok);border-radius:8px;padding:.45rem .7rem;font-size:.9rem;margin:.5rem 0}
+.exemple{background:var(--warnbg);border:2px solid var(--warn);border-radius:10px;padding:.45rem .8rem;margin:.6rem 0;color:var(--warn);font-size:.92rem}
+.modeles{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.6rem 1rem .9rem;margin:1rem 0;text-align:center}
+.btn{border:2px solid var(--acc);background:var(--card);color:var(--acc);border-radius:12px;padding:.5rem 1rem;font-weight:600}
+.btn.plein{background:var(--acc);color:#fff}
+.btn.petit{padding:.25rem .7rem;font-size:.86rem}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem 16px;z-index:7}
+.barre .in{max-width:1000px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:#fff}
+.raison{position:absolute;right:0;bottom:calc(100% + .5rem);max-width:24rem;text-align:right;color:var(--warn);background:var(--warnbg);border:1px solid var(--warn);border-radius:8px;padding:.25rem .6rem;font-size:.85rem;margin:0}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0;text-align:left}
+body.ann .note{display:block}
+.tag{font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;display:inline-block}
+.tag.g{background:var(--okbg);color:var(--ok)}.tag.e{background:var(--newbg);color:var(--new)}.tag.d{background:var(--accbg);color:var(--acc)}.tag.f{background:var(--warnbg);color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid var(--bord);padding:.35rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--sub)}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.2rem 1rem;margin:1.5rem 0}
+.questions h2{color:var(--new)}.questions li{margin:.7rem 0}
+.ec{display:none}.ec.vu{display:block}
+/* écran d'essai des modèles */
+.mep{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1rem;align-items:start;margin-top:.6rem}
+@media (max-width:699px){.mep{grid-template-columns:minmax(0,1fr)}}
+.reglages{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.7rem}
+.fam{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}
+.liste-modeles{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.5rem;margin:.5rem 0}
+.mm{border:2px solid var(--bord);background:var(--sub);border-radius:10px;padding:.35rem;text-align:center;font-size:.78rem}
+.mm.actif{border-color:var(--acc);background:var(--accbg);font-weight:700}
+.mm .vign{height:56px;border-radius:4px;border:1px solid var(--bord);background:#fff;margin-bottom:.2rem}
+.pastilles{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}
+.pastille{width:30px;height:30px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 2px var(--bord)}
+.pastille.actif{box-shadow:0 0 0 3px var(--acc)}
+.apercu{position:sticky;top:3.6rem}
+.cvm{background:#fff;color:#222;border:1px solid var(--bord);border-radius:4px;aspect-ratio:210/297;position:relative;overflow:hidden;font-size:.62rem;line-height:1.35;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.cvm .nom{font-weight:800;font-size:1rem;letter-spacing:.02em}
+.cvm .met{font-weight:700;font-size:.7rem;text-transform:uppercase}
+.cvm h5{margin:.5rem 0 .15rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--c)}
+.cvm .txt{padding:.7rem}
+.cvm.bandeau .tete{background:var(--c);color:#fff;padding:.8rem .8rem}
+.cvm.colonne{display:grid;grid-template-columns:34% 1fr}
+.cvm.colonne .col{background:var(--c);color:#fff;padding:.8rem .6rem}
+.cvm.colonne .col h5{color:#fff}
+.cvm.cadre{border:6px solid var(--c)}
+.cvm.une .nom{color:var(--c);border-bottom:2px solid var(--c);padding-bottom:.2rem}
+.cvm.claire .col{background:#e6e1d6;color:#222}.cvm.claire .col h5{color:var(--c)}
+.cvm .photo{width:46px;height:46px;border-radius:50%;background:#cfd6e2;margin-bottom:.4rem;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.cvm.petit{font-size:.3rem;box-shadow:none}.cvm.petit .nom{font-size:.5rem}.cvm.petit h5{font-size:.32rem}.cvm.petit .met{font-size:.34rem}.cvm.petit .photo{width:20px;height:20px;font-size:.6rem;margin-bottom:.15rem}
+.etiquette-ex{position:absolute;right:6px;top:6px;background:#fff4d6;color:#8a5a00;border:1px solid #8a5a00;border-radius:999px;font-size:.6rem;font-weight:700;padding:.05rem .5rem;z-index:2}
+.panneau-gardé{background:var(--okbg);border:2px solid var(--ok);border-radius:10px;padding:.5rem .8rem;margin:.6rem auto;max-width:700px;text-align:left}
+.explic{background:var(--sub);border:1px dashed var(--bord);border-radius:10px;padding:.5rem .8rem;margin:.6rem 0;text-align:left;font-size:.9rem}
+.puces-gardes{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}
+.puce-garde{display:inline-flex;gap:.3rem;align-items:center;border:2px solid var(--ok);background:var(--card);border-radius:999px;padding:.1rem .3rem .1rem .6rem;font-size:.82rem}
+.puce-garde i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.puce-garde button{border:0;background:var(--sub);border-radius:999px;padding:.05rem .5rem;font-size:.76rem}
+.bande-gardes{border-top:1px solid var(--bord);margin-top:.6rem;padding-top:.5rem}
+/* « Vos documents » : les modèles gardés */
+.cartes-gardes{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin:.6rem 0}
+.carte-garde{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.4rem;text-align:center;font-size:.82rem}
+.carte-garde.actif{border-color:var(--acc);background:var(--accbg)}
+.carte-garde .cvm{margin-bottom:.3rem}
+.docs-grille{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:1rem;align-items:start}
+@media (max-width:699px){.docs-grille{grid-template-columns:minmax(0,1fr)}}
+.panneau-complet{background:var(--sub);border:2px dashed var(--acc);border-radius:12px;padding:.6rem .8rem;margin:.6rem 0}
+</style>
+</head>
+<body class="ann">
+<div class="page">
+<div class="haut">
+  <strong>Maquette (25/10/2026, version 2) : trois parcours et « Mes modèles » (jusqu'à 5)</strong>
+  <span style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+    <button class="mini actif" data-ec="intro" type="button">1. Introduction</button>
+    <button class="mini" data-ec="essai" type="button">2. L'essai des modèles</button>
+    <button class="mini" data-ec="docs" type="button">3. Vos documents</button>
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Annotations</label>
+    <label class="tog"><input type="checkbox" id="tSombre"> Mode sombre</label>
+  </span>
+</div>
+
+<!-- ÉCRAN 1 : introduction -->
+<div class="ec vu" id="ec-intro">
+  <h1>✨ Créer un nouveau CV</h1>
+  <p class="muted small" style="text-align:center">On part d'une page blanche. Trois façons de faire : choisissez celle qui vous convient. Vous pourrez en changer.</p>
+  <div class="voies" id="lesVoies">
+    <button class="voie" type="button" data-voie="main">
+      <span class="titre-ico">✍️</span>
+      <h3>À la main, sans assistant</h3>
+      <span class="small">Vous écrivez vous-même vos informations, étape par étape. Rien n'est envoyé nulle part.</span>
+      <ul><li>Vos textes restent exactement les vôtres</li><li>Pas de phrase d'accroche toute faite : vous l'écrivez, ou vous vous en passez</li></ul>
+      <span class="tag g">GARDÉ : parcours de ce matin, cinq étapes</span>
+    </button>
+    <button class="voie" type="button" data-voie="assistant">
+      <span class="titre-ico">💬</span>
+      <h3>Avec l'assistant en ligne</h3>
+      <span class="small">Vous remplissez vos informations, puis l'assistant vous aide à les formuler.</span>
+      <ul><li>Une phrase d'accroche proposée</li><li>Vos missions reformulées</li><li>Des compétences mises en situation</li></ul>
+      <span class="tag g">GARDÉ : parcours actuel, six étapes</span>
+    </button>
+    <button class="voie" type="button" data-voie="recit">
+      <span class="titre-ico">🗣️</span>
+      <h3>À partir de mon récit <span class="tag f">nom provisoire</span></h3>
+      <span class="small">Vous racontez ce que vous avez vécu et fait, avec vos mots. L'assistant en tire des expériences et des compétences, vous gardez ce qui vous ressemble.</span>
+      <ul><li>Pour qui n'a jamais eu de CV, ou repart de loin</li><li>Au clavier ou à la voix</li></ul>
+      <span class="tag d">DÉPLACÉ : « Découvrir mes compétences » devient ce troisième parcours (chantier F11, Lot 6)</span>
+    </button>
+  </div>
+  <div class="note"><b>Trois cartes qui se partagent l'écran, chacune dit ce qu'elle fait.</b> Sur téléphone, elles s'empilent. Code, étape M2 : la troisième carte renvoie provisoirement vers l'introduction actuelle de « Découvrir mes compétences » ; son vrai déplacement est F11.</div>
+
+  <div class="modeles" id="blocModeles">
+    <h2>🗂️ Voir nos modèles de CV</h2>
+    <p class="small muted">Regardez ce que donnera votre CV, avant de remplir quoi que ce soit. <b>Gardez jusqu'à 5 modèles</b> : vous les retrouverez, avec votre texte, au moment de choisir la mise en page.</p>
+    <div id="modeleGarde"></div>
+    <button class="btn plein" type="button" id="btnVoirModeles">Regarder nos modèles</button>
+    <p class="small muted" style="margin-top:.6rem">Aucun modèle ne vous plaît ? Vous pouvez faire votre CV ailleurs, puis venir ici pour votre lettre de motivation et la préparation de l'entretien.
+      <button class="btn petit" type="button" id="btnAilleurs">Comment faire ?</button></p>
+    <div class="explic" id="explicAilleurs" style="display:none">Faites votre CV sur la plateforme de votre choix. Ensuite, sur l'accueil, « Reprendre mon CV » vous laisse déposer ce CV : l'application s'en sert pour votre lettre et votre entretien. <button class="btn petit" type="button" id="btnFermerAilleurs">Fermer</button></div>
+    <div class="note"><b>NOUVEAU : un seul bloc, sous les trois cartes, pour tous les parcours.</b> La liste des modèles gardés (5 au plus) vit à part du CV : elle ne contient aucune information personnelle et survit au démarrage d'un parcours. Le texte « Aucun modèle ne vous plaît ? » renvoie à « Reprendre mon CV » (F9, déjà codé). Boutons vrais, jamais de lien texte.</div>
+  </div>
+  <div class="info" id="choisi" style="display:none"></div>
+</div>
+
+<!-- ÉCRAN 2 : essai des modèles -->
+<div class="ec" id="ec-essai">
+  <h1>Nos modèles de CV</h1>
+  <div class="exemple"><b>🧪 Ceci est un CV d'exemple.</b> Vos informations ne sont pas encore remplies : vous voyez simplement nos modèles. Gardez ceux qui vous plaisent (jusqu'à 5), vous les retrouverez avec votre texte.</div>
+  <div class="mep">
+    <div class="reglages">
+      <p class="small" style="margin-top:0"><b>La mise en page</b> (l'écran actuel, sans les panneaux de contenu) <span class="tag g">GARDÉ</span></p>
+      <button class="btn petit" type="button" id="btnHasard">🎲 Style rapide (au hasard)</button>
+      <div class="fam" id="familles"></div>
+      <div class="liste-modeles" id="listeModeles"></div>
+      <p class="small" style="margin:.4rem 0 0"><b>Couleur</b></p>
+      <div class="pastilles" id="pastilles"></div>
+      <div class="note"><b>Ce qui est montré</b> : la vraie page « La mise en page » (Style rapide, familles, modèles, ambiances, couleurs, polices, formes d'en-tête, « Revenir au modèle de départ ») <span class="tag g">GARDÉ</span>. <b>Masqué</b> : les panneaux qui changent le contenu (Organisation, Expériences, Formations, Compétences, Rubriques supplémentaires) <span class="tag e">NOUVEAU, même technique que « Un CV, plusieurs métiers »</span>. « Résumé de votre CV » et « Valider le CV » sont retirés ici. <b>Un modèle gardé = tout le style</b> (modèle, couleur, polices, formes, ambiance), jamais le contenu.</div>
+    </div>
+    <div class="apercu">
+      <div class="cvm une" id="cvm"></div>
+      <div class="garder-zone">
+        <button class="btn plein" type="button" id="btnGarder"></button>
+        <p class="small muted" id="msgGarder" style="margin:.3rem 0 0"></p>
+      </div>
+      <div class="bande-gardes">
+        <p class="small" style="margin:0"><b>Mes modèles gardés : <span id="compteur"></span> sur 5</b></p>
+        <div class="puces-gardes" id="puces"></div>
+      </div>
+      <div class="note"><b>Nouveau (retour de Denis) : « Garder » n'est plus dans la barre du bas.</b> Il est sous l'aperçu, à côté de ce qu'on regarde : un clic garde le modèle affiché, le bouton devient « ✅ Gardé » (un nouveau clic le retire), et on continue à regarder d'autres modèles sans rien quitter. Il ne se grise que quand les 5 places sont prises, avec la phrase qui dit quoi faire. Les modèles gardés sont juste dessous, chacun avec son bouton « Retirer ». La barre du bas ne sert plus qu'à revenir : un seul gros bouton, « J'ai fini de regarder », qui ramène à l'introduction.</div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:.8rem"><button class="btn" type="button" id="btnAucun">Aucun modèle ne me convient</button></p>
+  <div class="explic" id="explicAucun" style="display:none">Pas de souci : vous pouvez faire votre CV ailleurs, puis revenir ici pour votre lettre de motivation et la préparation de l'entretien (« Reprendre mon CV »). <button class="btn petit" type="button" id="btnRetourIntro2">Revenir à l'introduction</button></div>
+  <div class="note"><b>Barre du bas</b> : Retour et Accueil mènent tous deux à l'introduction sans rien perdre ; à droite, le seul bouton principal : <b>« J'ai fini de regarder »</b> (à la place de « Valider le CV »), toujours actif, qui ramène à l'introduction avec les modèles gardés. Le CV d'exemple est fabriqué à partir d'un dossier vierge : aucune information de la personne dedans.</div>
+</div>
+
+<!-- ÉCRAN 3 : Vos documents -->
+<div class="ec" id="ec-docs">
+  <div class="etapes" id="barreDocs"></div>
+  <h1>Vos documents</h1>
+  <div class="sec">
+    <div id="blocMesModeles"></div>
+    <div id="sansModeles" class="info" style="display:none">Aucun modèle n'a été gardé avant : « Vos documents » s'ouvre sur le modèle de départ, comme aujourd'hui.</div>
+    <div id="panneauComplet" class="panneau-complet" style="display:none">
+      <b>⚙️ La mise en page complète</b> <span class="tag g">GARDÉ, exactement comme aujourd'hui</span>
+      <p class="small">Elle s'ouvre sur le modèle choisi : la personne peut tout changer (modèle, couleurs, polices, formes, rubriques, ordre des expériences) ou y ajouter des choses. Style rapide, Mise en page, ambiances, aperçu en plein écran, réglages supplémentaires : rien ne disparaît.</p>
+      <button class="btn petit" type="button" id="btnRefermerComplet">Fermer ce panneau (maquette)</button>
+    </div>
+    <div class="note"><b>NOUVEAU : « Mes modèles »</b> en tête de « La mise en page » (comme les « Versions proposées » de la lettre). Chaque carte montre le CV de la personne, avec son vrai texte, dans le modèle gardé (le rendu se fait carte par carte, avec un message d'attente). Un clic sélectionne et pose ce modèle sur le CV. Deux boutons : <b>« Garder celui-ci et exporter »</b> (c'est « Valider le CV » d'aujourd'hui, qui ouvre « Exporter ») et <b>« Remodeler ce modèle »</b> (ouvre la mise en page complète, dans la page, sans fenêtre). Les modifications faites ensuite touchent le CV en cours ; les cartes gardées ne bougent pas (voir question 6). Sans modèle gardé, ce bloc n'apparaît pas et rien ne change.</div>
+  </div>
+</div>
+
+<div class="barre"><div class="in" id="barre"></div></div>
+
+<div class="sec" style="margin-top:2rem">
+<h2>Inventaire : ce qui existe aujourd'hui et ce que la maquette en fait</h2>
+<table>
+<tr><th>Élément actuel</th><th>Dans la maquette</th><th>Étiquette</th></tr>
+<tr><td>Introduction « Créer un nouveau CV » : deux cartes (avec / sans assistant), ajoutées ce matin (`pageCreerCv`, `data/metiers.js`)</td><td>Trois cartes : à la main, avec l'assistant, à partir de mon récit</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>« Découvrir mes compétences » : carte de la Boîte à outils, module à part (`decouverteParcours.js`)</td><td>Troisième parcours de « Créer un nouveau CV » (renommé). Étape M2 : renvoi provisoire. F11 : le déplacement réel</td><td><span class="tag d">DÉPLACÉ</span></td></tr>
+<tr><td>Page « La mise en page » (`pageResultats`, `construireMiseEnPageCV`) : modèles, Style rapide, ambiances, couleurs, polices</td><td>Même page, ouverte sur un CV d'exemple, sans les panneaux de contenu</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>« Valider le CV » dans la barre du bas (`btnMepValider`, `data-barre-bas`)</td><td>Remplacé sur l'écran d'essai seulement par « Garder ce modèle » ; intact sur « Vos documents »</td><td><span class="tag e">NOUVEAU (écran d'essai)</span></td></tr>
+<tr><td>Échange temporaire du dossier (`dossierEchange.js`)</td><td>Réutilisé pour l'exemple (dossier vierge) pendant l'essai</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Rendu de plusieurs CV du même texte avec des aspects différents, en miniatures (`ucpmRendreCv`, `page5MesCv.js`)</td><td>Réutilisé pour les cartes « Mes modèles » de « Vos documents » (même technique, un seul rendu à la fois, avec cache)</td><td><span class="tag d">DÉPLACÉ / mutualisé (dette B.19 à rapprocher)</span></td></tr>
+<tr><td>« Versions proposées » de la lettre (`cartesVersionsLettre`)</td><td>Modèle visuel des cartes « Mes modèles » (carte active en bleu)</td><td><span class="tag g">GARDÉ (patron)</span></td></tr>
+<tr><td>Vidage du CV au départ d'un parcours (`viderContenuCVDossier`, `_creerCvRecommencer`)</td><td>La liste des modèles gardés est hors du CV : elle survit au vidage ; « Oublier mes modèles » la vide</td><td><span class="tag e">ENRICHI</span></td></tr>
+<tr><td>« Reprendre mon CV » (F9)</td><td>Cité dans « Aucun modèle ne vous plaît ? »</td><td><span class="tag g">GARDÉ</span></td></tr>
+<tr><td>Disquette (`sauvegarderSession`)</td><td>Enregistre toujours le vrai dossier, jamais le CV d'exemple ; la liste des modèles gardés y est ajoutée</td><td><span class="tag e">ENRICHI</span></td></tr>
+</table>
+<p class="small">Aucun « RETIRÉ ».</p>
+</div>
+
+<div class="sec">
+<h2>Faisabilité (étape 2 de la méthode) : GO AVEC RÉSERVES</h2>
+<ul class="small">
+<li><b>Prouvé</b> par un essai : la page « La mise en page » s'affiche sur un dossier prêté (Sobre 12, Standard, Créatif 25). Et le module « Un CV, plusieurs métiers » affiche déjà plusieurs CV du même texte avec des aspects différents, en miniatures, un rendu à la fois.</li>
+<li><b>Simple</b> : échange du dossier, fabrique d'un dossier vierge, patron des cartes de versions de la lettre, rendu en miniatures : tout existe. À écrire : le bloc, l'écran d'essai, la liste des 5, les cartes « Mes modèles ».</li>
+<li><b>Réserve 1</b> : parmi les 142 réglages de mise en page, une trentaine sont liés au contenu. Un modèle gardé n'enregistre que le style ; le reste est remis à zéro, avec un test qui prouve que le vrai CV n'est pas touché.</li>
+<li><b>Réserve 2</b> : la pile « Annuler » et l'état utilisé pour le Word vivent hors du dossier ; à vider à l'entrée et à la sortie de l'essai.</li>
+<li><b>Réserve 3</b> : chaque carte de départ vide le CV ; la liste des modèles gardés vit donc à part (comme la disquette, hors du contenu du CV).</li>
+<li><b>Réserve 4 (nouvelle)</b> : jusqu'à 5 rendus du vrai CV à l'arrivée sur « Vos documents », un par un : quelques secondes d'attente, avec un message et un cache ; un CV très long peut afficher « 2 pages » sur une carte (déjà géré par l'alerte du module).</li>
+<li><b>Réserve 5</b> : <code>pageResultats</code>, la barre du bas et l'échange du dossier sont partagés : grep sur tout le dépôt et test navigateur obligatoires.</li>
+<li><b>Bloquant</b> : aucun. <b>Verdict mode nuit</b> : NON APTE tant que les questions ci-dessous ne sont pas tranchées.</li>
+</ul>
+</div>
+
+<div class="questions">
+<h2>Questions restantes (une recommandation chacune)</h2>
+<ol class="small">
+<li><b>Le nom de la troisième carte.</b> Recommandé : « À partir de mon récit ». Autres : « Raconter mon parcours », « Écrire mon histoire ». À trancher avant F11.</li>
+<li><b>Le CV d'exemple.</b> Recommandé : un seul, neutre, étiqueté « Exemple ». Un exemple par métier serait plus parlant mais demande 21 contenus à écrire et à maintenir.</li>
+<li><b>Le libellé.</b> Recommandé : « Garder ce modèle » (« bloquer » peut se lire « empêcher »).</li>
+<li><b>Dans « Vos documents », quel modèle est posé à l'arrivée ?</b> Recommandé : le dernier gardé (probablement le préféré), les autres sont à un clic. Autre : aucun avant que la personne clique (plus neutre, mais un écran d'attente de plus).</li>
+<li><b>Une fenêtre ou la page ?</b> Vous avez dit « une fenêtre » ; recommandé : dans la page, comme vos autres écrans (pas de fenêtre, sauf avertissements).</li>
+<li><b>Après avoir remodelé un modèle, la carte change-t-elle ?</b> Recommandé : non, la carte reste celle qu'on avait gardée ; un bouton « Garder ce réglage comme nouveau modèle » (si une place est libre) enregistre la version remodelée. Autre : la carte suit la personne (plus simple, mais on perd le modèle de départ).</li>
+<li><b>Si aucun modèle n'est gardé.</b> Recommandé : rien de forcé, « Vos documents » s'ouvre sur le modèle de départ comme aujourd'hui.</li>
+</ol>
+</div>
+</div>
+
+<script>
+var MODELES = [
+  {id:'sobre1', nom:'Sobre classique', fam:'Sobre', mise:'une', c:'#1c3d52'},
+  {id:'sobre2', nom:'Sobre à colonne claire', fam:'Sobre', mise:'claire', c:'#1c3d52'},
+  {id:'standard', nom:'Standard', fam:'Standard', mise:'une', c:'#2f6690'},
+  {id:'bandeau', nom:'Bandeau entier', fam:'Créatif', mise:'bandeau', c:'#2f6690'},
+  {id:'colfoncee', nom:'Colonne foncée', fam:'Créatif', mise:'colonne', c:'#1f2a44'},
+  {id:'cadre', nom:'Cadre de page', fam:'Créatif', mise:'cadre', c:'#1c3d52'},
+  {id:'colclaire', nom:'Colonne claire', fam:'Créatif', mise:'claire', c:'#d4974f'}
+];
+var COULEURS = ['#2f6690','#1f2a44','#7d2e43','#0b5c47','#d4974f','#3b2e5c'];
+var MAX = 5;
+var etat = {ecran:'intro', voie:null, gardes:[], actif:-1, courId:'standard', courCouleur:'#2f6690', fam:'Standard'};
+function $(id){return document.getElementById(id);}
+function m(id){return MODELES.filter(function(x){return x.id===id;})[0];}
+function pareil(a,b){return a.id===b.id && a.c===b.c;}
+function dejaGarde(){ return etat.gardes.some(function(g){return pareil(g,{id:etat.courId,c:etat.courCouleur});}); }
+function nomGarde(g){ return m(g.id).nom; }
+
+function htmlCv(id, couleur, exemple){
+  var mo = m(id), c = couleur;
+  var corps = '<h5>Expérience</h5><b>Agent polyvalent</b> · Entreprise exemple · 2022-2024<br>Accueillir le public · Tenir la caisse<br><b>Employée de restauration</b> · 2019-2021<br>Servir en salle · Préparer les commandes' +
+    '<h5>Formation</h5>CAP Employé polyvalent · 2021';
+  var comp = '<h5>Compétences</h5>Sens du contact<br>Rigueur<br>Travail en équipe<h5>Langues</h5>Anglais B1';
+  var tete = '<div class="photo">👤</div><div class="nom">Camille MARTIN</div><div class="met">Agent polyvalent</div><div>06 00 00 00 00 · Limoges</div>';
+  var acc = '<p style="margin:.4rem 0">Exemple de phrase d\'accroche : une personne sérieuse et à l\'écoute.</p>';
+  var h = (exemple?'<span class="etiquette-ex">Exemple</span>':'');
+  if (mo.mise==='bandeau') { h += '<div class="tete">'+tete+'</div><div class="txt">'+acc+corps+comp+'</div>'; }
+  else if (mo.mise==='colonne' || mo.mise==='claire') { h += '<div class="col">'+tete+comp+'</div><div class="txt">'+acc+corps+'</div>'; }
+  else { h += '<div class="txt">'+tete+acc+corps+comp+'</div>'; }
+  return {classe:'cvm '+(mo.mise==='claire'?'colonne claire':mo.mise), style:'--c:'+c, html:h};
+}
+function poser(el, id, couleur, exemple, petit){
+  if (typeof el==='string') { el=$(el); }
+  var r = htmlCv(id, couleur, exemple);
+  el.className = r.classe + (petit?' petit':''); el.setAttribute('style', r.style); el.innerHTML = r.html;
+}
+
+function puces(avecRetirer){
+  return etat.gardes.map(function(g,i){
+    return '<span class="puce-garde"><i style="background:'+g.c+'"></i>'+(i+1)+'. '+nomGarde(g)+(avecRetirer?' <button type="button" data-retirer="'+i+'">Retirer</button>':'')+'</span>'; }).join('');
+}
+function cablerRetirer(zone){
+  Array.prototype.forEach.call(zone.querySelectorAll('[data-retirer]'), function(b){ b.onclick=function(){ etat.gardes.splice(+b.getAttribute('data-retirer'),1); if (etat.actif>=etat.gardes.length) { etat.actif=etat.gardes.length-1; } renderIntro(); renderEssai(); renderBarre(); }; });
+}
+
+function renderIntro(){
+  var g = $('modeleGarde');
+  if (etat.gardes.length) {
+    g.innerHTML = '<div class="panneau-gardé"><b>✅ Mes modèles gardés : '+etat.gardes.length+' sur '+MAX+'</b><div class="puces-gardes">'+puces(true)+'</div><span class="small">Ils seront proposés avec votre texte, quel que soit le parcours choisi.</span><br>' +
+      '<button class="btn petit" type="button" id="btnChanger">En ajouter ou en changer</button> <button class="btn petit" type="button" id="btnOublier">Oublier mes modèles</button></div>';
+    $('btnChanger').onclick = function(){ aller('essai'); };
+    $('btnOublier').onclick = function(){ etat.gardes=[]; etat.actif=-1; renderIntro(); };
+    cablerRetirer(g);
+  } else { g.innerHTML=''; }
+  var ch = $('choisi');
+  var noms = {main:'à la main, sans assistant', assistant:'avec l\'assistant en ligne', recit:'à partir de mon récit'};
+  if (etat.voie) {
+    ch.style.display='block';
+    ch.innerHTML = 'Parcours choisi : <b>' + noms[etat.voie] + '</b>. Il vous mène à « Votre objectif », puis, à la fin, à « Vos documents »' + (etat.gardes.length ? ' avec vos ' + etat.gardes.length + ' modèle(s) gardé(s) proposés.' : '.') +
+      ' <button class="btn petit" type="button" id="btnVersDocs">Voir « Vos documents » (maquette)</button>';
+    $('btnVersDocs').onclick = function(){ if (etat.gardes.length && etat.actif<0) { etat.actif=etat.gardes.length-1; } aller('docs'); };
+  } else { ch.style.display='none'; }
+  Array.prototype.forEach.call(document.querySelectorAll('.voie'), function(b){ b.classList.toggle('actif', b.getAttribute('data-voie')===etat.voie); });
+}
+function renderEssai(){
+  var fams = ['Sobre','Standard','Créatif'];
+  $('familles').innerHTML = fams.map(function(f){ return '<button type="button" class="mini'+(f===etat.fam?' actif':'')+'" data-fam="'+f+'">'+f+'</button>'; }).join('');
+  Array.prototype.forEach.call($('familles').querySelectorAll('button'), function(b){ b.onclick=function(){ etat.fam=b.getAttribute('data-fam'); renderEssai(); renderBarre(); }; });
+  $('listeModeles').innerHTML = MODELES.filter(function(x){return x.fam===etat.fam;}).map(function(x){
+    return '<button type="button" class="mm'+(x.id===etat.courId?' actif':'')+'" data-m="'+x.id+'"><div class="vign" style="background:linear-gradient(90deg,'+x.c+' 0 30%,#fff 30%)"></div>'+x.nom+'</button>'; }).join('');
+  Array.prototype.forEach.call($('listeModeles').querySelectorAll('button'), function(b){ b.onclick=function(){ var x=m(b.getAttribute('data-m')); etat.courId=x.id; etat.courCouleur=x.c; renderEssai(); renderBarre(); }; });
+  $('pastilles').innerHTML = COULEURS.map(function(c){ return '<button type="button" class="pastille'+(c===etat.courCouleur?' actif':'')+'" style="background:'+c+'" data-c="'+c+'" aria-label="Couleur"></button>'; }).join('');
+  Array.prototype.forEach.call($('pastilles').querySelectorAll('button'), function(b){ b.onclick=function(){ etat.courCouleur=b.getAttribute('data-c'); renderEssai(); renderBarre(); }; });
+  $('compteur').textContent = etat.gardes.length;
+  $('puces').innerHTML = etat.gardes.length ? puces(true) : '<span class="small muted">Aucun pour l\'instant.</span>';
+  cablerRetirer($('puces'));
+  poser('cvm', etat.courId, etat.courCouleur, true, false);
+  var b = $('btnGarder'), msg = $('msgGarder'), plein = etat.gardes.length>=MAX && !dejaGarde();
+  if (dejaGarde()) { b.className='btn'; b.disabled=false; b.textContent='✅ Gardé (cliquez pour le retirer)'; msg.textContent = 'Gardé : ' + etat.gardes.length + ' sur ' + MAX + '. Regardez d\'autres modèles si vous le souhaitez.'; }
+  else if (plein) { b.className='btn plein'; b.disabled=true; b.textContent='⭐ Garder ce modèle'; msg.textContent = 'Vos 5 places sont prises : retirez un modèle gardé (ci-dessous) pour en garder un autre.'; }
+  else { b.className='btn plein'; b.disabled=false; b.textContent='⭐ Garder ce modèle'; msg.textContent = etat.gardes.length ? 'Vous avez gardé ' + etat.gardes.length + ' modèle(s) sur ' + MAX + '.' : 'Gardez ceux qui vous plaisent, jusqu\'à 5.'; }
+  b.onclick = function(){
+    if (dejaGarde()) { etat.gardes = etat.gardes.filter(function(g){ return !pareil(g,{id:etat.courId,c:etat.courCouleur}); }); etat.actif=etat.gardes.length-1; }
+    else { etat.gardes.push({id:etat.courId,c:etat.courCouleur}); etat.actif=etat.gardes.length-1; }
+    renderEssai(); renderBarre();
+  };
+}
+function renderDocs(){
+  var haut = '';
+  ['Votre objectif','Vos informations','Votre parcours','Votre profil'].forEach(function(t){ haut += '<span class="etape fait">'+t+'</span>'; });
+  haut += '<span class="etape ici">Vos documents</span>';
+  $('barreDocs').innerHTML = haut;
+  var bloc = $('blocMesModeles');
+  $('sansModeles').style.display = etat.gardes.length ? 'none' : 'block';
+  if (!etat.gardes.length) { bloc.innerHTML=''; $('panneauComplet').style.display='none'; return; }
+  if (etat.actif<0) { etat.actif=etat.gardes.length-1; }
+  var cartes = etat.gardes.map(function(g,i){
+    return '<button type="button" class="carte-garde'+(i===etat.actif?' actif':'')+'" data-i="'+i+'"><div class="cvm" id="cg'+i+'"></div><b>Modèle '+(i+1)+(i===etat.actif?' : sélectionné':'')+'</b><br>'+nomGarde(g)+'</button>'; }).join('');
+  bloc.innerHTML = '<h3 style="font-size:.95rem;margin:.2rem 0">🗂️ Mes modèles <span class="muted small">(votre texte, dans les modèles que vous avez gardés)</span></h3>' +
+    '<div class="docs-grille"><div><div class="cartes-gardes">'+cartes+'</div>' +
+    '<div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn plein" type="button" id="btnGarderExporter">Garder celui-ci et exporter</button><button class="btn" type="button" id="btnRemodeler">✏️ Remodeler ce modèle</button></div>' +
+    '<p class="small muted">Garder celui-ci : le CV est prêt, « Exporter » s\'ouvre (comme « Valider le CV » aujourd\'hui). Remodeler : vous partez de ce modèle et vous pouvez tout changer.</p></div>' +
+    '<div><div class="cvm" id="cvGrand"></div><p class="small muted" style="text-align:center">Aperçu du modèle sélectionné</p></div></div>';
+  etat.gardes.forEach(function(g,i){ poser('cg'+i, g.id, g.c, false, true); });
+  var a = etat.gardes[etat.actif]; poser('cvGrand', a.id, a.c, false, false);
+  Array.prototype.forEach.call(bloc.querySelectorAll('.carte-garde'), function(b){ b.onclick=function(){ etat.actif=+b.getAttribute('data-i'); renderDocs(); }; });
+  $('btnRemodeler').onclick = function(){ $('panneauComplet').style.display='block'; $('panneauComplet').scrollIntoView({block:'center'}); };
+  $('btnGarderExporter').onclick = function(){ alert('Maquette : « Exporter » s\'ouvre avec le modèle ' + (etat.actif+1) + ' (' + nomGarde(etat.gardes[etat.actif]) + ').'); };
+  $('btnRefermerComplet').onclick = function(){ $('panneauComplet').style.display='none'; };
+}
+function renderBarre(){
+  var b = $('barre');
+  var droite = '<span></span>';
+  if (etat.ecran==='essai') {
+    droite = '<button class="nav suivant" type="button" id="btnFini">J\'ai fini de regarder →</button>';
+  } else if (etat.ecran==='docs') { droite = '<button class="nav suivant" type="button">Valider le CV →</button>'; }
+  b.innerHTML = '<div class="in"><button class="nav" type="button" id="btnRetour">← Retour</button><button class="nav" type="button" id="btnAccueil">🏠 Accueil</button>' + droite + '</div>';
+  $('btnRetour').onclick = function(){ aller(etat.ecran==='docs' ? 'intro' : 'intro'); };
+  $('btnAccueil').onclick = function(){ aller('intro'); };
+  if ($('btnFini')) { $('btnFini').onclick = function(){ aller('intro'); }; }
+}
+function aller(e){
+  etat.ecran = e;
+  Array.prototype.forEach.call(document.querySelectorAll('.ec'), function(x){ x.classList.toggle('vu', x.id==='ec-'+e); });
+  Array.prototype.forEach.call(document.querySelectorAll('.haut .mini[data-ec]'), function(x){ x.classList.toggle('actif', x.getAttribute('data-ec')===e); });
+  if (e==='intro') { renderIntro(); } if (e==='essai') { renderEssai(); } if (e==='docs') { renderDocs(); }
+  renderBarre(); window.scrollTo(0,0);
+}
+Array.prototype.forEach.call(document.querySelectorAll('.haut .mini[data-ec]'), function(x){ x.onclick=function(){ aller(x.getAttribute('data-ec')); }; });
+Array.prototype.forEach.call(document.querySelectorAll('.voie'), function(b){ b.onclick=function(){ etat.voie=b.getAttribute('data-voie'); renderIntro(); }; });
+$('btnVoirModeles').onclick = function(){ if (etat.gardes.length) { var g=etat.gardes[etat.gardes.length-1]; etat.courId=g.id; etat.courCouleur=g.c; etat.fam=m(g.id).fam; } aller('essai'); };
+$('btnAilleurs').onclick = function(){ $('explicAilleurs').style.display='block'; };
+$('btnFermerAilleurs').onclick = function(){ $('explicAilleurs').style.display='none'; };
+$('btnAucun').onclick = function(){ $('explicAucun').style.display='block'; };
+$('btnRetourIntro2').onclick = function(){ aller('intro'); };
+$('btnHasard').onclick = function(){ var x = MODELES[Math.floor(Math.random()*MODELES.length)]; etat.courId=x.id; etat.fam=x.fam; etat.courCouleur=COULEURS[Math.floor(Math.random()*COULEURS.length)]; renderEssai(); renderBarre(); };
+$('tAnn').onchange = function(){ document.body.classList.toggle('ann', this.checked); };
+$('tSombre').onchange = function(){ document.documentElement.setAttribute('data-theme', this.checked ? 'sombre' : 'clair'); };
+aller('intro');
+</script>
+</body>
+</html>

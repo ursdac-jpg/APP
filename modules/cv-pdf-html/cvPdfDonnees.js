@@ -326,6 +326,8 @@ function construireDonneesPdfCV(dossierSource, formatPage, bandeauDisponibilite,
   var capaciteComportementales = (formatPage === 'A4-detaille' && typeof COMPOSEUR_CAPACITES_A4_DETAILLE_CV !== 'undefined') ? COMPOSEUR_CAPACITES_A4_DETAILLE_CV.competencesPersonnelles
     : (formatPage === 'A4-integral' ? 99 : 0);
   var placesQualitesMetier = Math.max(0, capaciteComportementales - competencesComportementales.length);
+  // Mode fidele : jamais de qualite « du metier vise » ajoutee au CV (ce ne sont pas des mots de la personne).
+  if (dossierSource.modeFidele === true) { qualitesAttenduesMetier = []; placesQualitesMetier = 0; }
 
   return {
     objetCV: objetCV,

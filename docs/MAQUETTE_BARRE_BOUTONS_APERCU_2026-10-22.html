@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette : la barre de boutons de l'aperçu</title>
+<style>
+:root { --bg:#f4f6fb; --card:#fff; --text:#1d2433; --muted:#5b6478; --accent:#2f6bff; --accent-bg:#eaf0ff; --border:#c9d2e6; --ok:#1f8a4c; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161f; --card:#1b212d; --text:#e8ecf5; --muted:#9aa6bd; --accent:#7ba2ff; --accent-bg:#26324d; --border:#39435a; --ok:#58c987; } }
+* { box-sizing:border-box; }
+body { margin:0; padding:16px; background:var(--bg); color:var(--text); font:16px/1.45 system-ui,Segoe UI,sans-serif; }
+h1 { font-size:1.3rem; margin:0 0 6px; } h2 { font-size:1.02rem; margin:0 0 6px; } p { margin:0 0 8px; }
+.muted { color:var(--muted); font-size:.9rem; }
+.boite { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--card); margin-bottom:14px; }
+.reco { border-left:4px solid var(--accent); padding-left:10px; }
+.tag { display:inline-block; font-size:.74rem; font-weight:700; border-radius:6px; padding:0 6px; background:var(--accent-bg); color:var(--accent); margin-right:4px; }
+.regle { display:flex; align-items:center; gap:10px; margin:6px 0 12px; font-size:.88rem; flex-wrap:wrap; }
+.regle input { width:240px; max-width:100%; }
+.grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px; align-items:start; }
+.colonne { margin:0 auto; border:1.5px dashed var(--border); border-radius:10px; padding:8px; background:var(--bg); }
+.colonne .etiquette { font-size:.72rem; color:var(--muted); margin-bottom:6px; }
+.apercu { height:120px; border:1px solid var(--border); border-radius:6px; background:linear-gradient(#fff,#f1f3f8); margin-top:8px; display:flex; align-items:center; justify-content:center; font-size:.8rem; color:#7a8499; }
+@media (prefers-color-scheme: dark) { .apercu { background:linear-gradient(#202737,#1a2030); color:#8c97ad; } }
+/* boutons communs */
+.bt { font:inherit; font-size:.8rem; border:1.5px solid var(--border); background:var(--card); color:var(--text); border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:5px; position:relative; }
+.bt svg { width:18px; height:22px; flex:none; }
+.bt[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-bg); color:var(--accent); font-weight:700; }
+.bt .pt { position:absolute; top:-4px; right:-4px; width:10px; height:10px; border-radius:50%; background:var(--ok); border:2px solid var(--card); }
+@keyframes pulse { 0%, 70%, 100% { box-shadow:0 0 0 0 rgba(47,107,255,0); } 20% { box-shadow:0 0 0 5px rgba(47,107,255,.35); } }
+.bt.pulse { animation:pulse 4.5s ease-in-out infinite; border-color:var(--accent); }
+@media (prefers-reduced-motion: reduce) { .bt.pulse { animation:none; box-shadow:0 0 0 3px var(--accent-bg); } }
+.ligne { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+/* A : aujourd'hui */
+.A .bt { padding:6px 10px; }
+.A .bt small { color:var(--muted); font-weight:400; }
+/* B : recommande, icone au-dessus du mot, une ligne */
+.B .ligne.un { flex-wrap:nowrap; }
+.B .un .bt { flex:1 1 0; min-width:0; flex-direction:column; gap:2px; padding:5px 2px 4px; font-size:.74rem; }
+.B .un .bt svg { width:20px; height:24px; }
+.B .deux .bt { padding:5px 10px; }
+.B .deux .bt.rond { width:34px; height:34px; padding:0; border-radius:50%; font-weight:700; }
+/* C : icones seules */
+.C .ligne.un { flex-wrap:nowrap; }
+.C .un .bt { flex:1 1 0; min-width:0; padding:7px 0; }
+.C .deux .bt { padding:5px 10px; }
+.C .deux .bt.rond { width:34px; height:34px; padding:0; border-radius:50%; font-weight:700; }
+.bulle { display:none; margin:6px 0 0; padding:8px 10px; border:1px solid var(--accent); border-radius:10px; background:var(--card); font-size:.8rem; }
+.bulle.vue { display:block; }
+.panneau { display:none; margin-top:6px; padding:8px; border:1px solid var(--border); border-radius:10px; background:var(--accent-bg); font-size:.8rem; }
+.panneau.vu { display:block; }
+table { border-collapse:collapse; width:100%; font-size:.84rem; } th, td { border:1px solid var(--border); padding:5px 7px; text-align:left; vertical-align:top; } th { background:var(--accent-bg); }
+ul.q { margin:6px 0 0 18px; padding:0; } ul.q li { margin-bottom:6px; }
+.fonc { display:none; }
+</style>
+</head>
+<body>
+<h1>La barre de boutons de l'aperçu : moins de place, tout visible</h1>
+<p class="muted">Page interactive. Les trois barres ci-dessous sont dans une colonne dont <b>vous réglez la largeur</b> (curseur) : c'est la largeur de la colonne de l'aperçu dans l'application. Cliquez sur les boutons, passez la souris dessus (info-bulle), regardez la pastille « i » pulser.</p>
+
+<div class="boite reco">
+  <h2>Ce qui est demandé</h2>
+  <p><b>Ligne 1 :</b> Bandeau, Colonne, Composition, Formes. <b>Ligne 2 :</b> Régler l'en-tête, Remettre comme avant (seulement quand il y a quelque chose à annuler), pastille « i ». Chaque ligne tient sur UNE seule ligne, quelle que soit la largeur.</p>
+  <p><b>Mon conseil :</b> la proposition B ci-dessous (icône au-dessus d'un mot court). La C (icônes seules) prend encore moins de place mais demande de deviner chaque icône : risqué pour votre public. Un petit point vert sur un onglet dit « il y a un réglage ici », et seuls les onglets jamais ouverts pulsent, à tour de rôle.</p>
+</div>
+
+<div class="regle"><label for="larg"><b>Largeur de la colonne de l'aperçu :</b> <span id="vl">380</span> px</label><input id="larg" type="range" min="270" max="520" value="380"></div>
+
+<div class="grille" id="grille">
+  <div class="colonne A" data-v="A"><div class="etiquette"><span class="tag">AUJOURD'HUI</span>icône et mot, sur plusieurs lignes</div></div>
+  <div class="colonne B" data-v="B"><div class="etiquette"><span class="tag">B, RECOMMANDÉ</span>icône au-dessus d'un mot court, une ligne</div></div>
+  <div class="colonne C" data-v="C"><div class="etiquette"><span class="tag">C</span>icônes seules, info-bulle au survol</div></div>
+</div>
+
+<div class="boite">
+  <h2>Comparaison honnête</h2>
+  <table>
+    <tr><th></th><th>Aujourd'hui</th><th>B : icône + mot court</th><th>C : icônes seules</th></tr>
+    <tr><td>Lignes (colonne de 380 px)</td><td>3 à 4</td><td>2</td><td>2</td></tr>
+    <tr><td>Hauteur prise</td><td>environ 150 px</td><td>environ 100 px</td><td>environ 80 px</td></tr>
+    <tr><td>Compréhension pour le public</td><td>Très bonne (le mot et l'icône)</td><td>Bonne (le mot reste)</td><td>Moyenne : il faut survoler ou deviner</td></tr>
+    <tr><td>Écran de téléphone (270 px)</td><td>5 lignes</td><td>2 lignes, mots coupés à surveiller</td><td>2 lignes</td></tr>
+    <tr><td>Valeur réglée visible</td><td>Écrite sous le mot (« Droit »)</td><td>Point vert sur l'onglet, valeur dans l'info-bulle</td><td>Point vert, valeur dans l'info-bulle</td></tr>
+  </table>
+</div>
+
+<div class="boite">
+  <h2>Autres idées (pour comparer)</h2>
+  <ul class="q">
+    <li><b>Un seul bouton « Personnaliser » qui déplie les quatre onglets.</b> Gain de place maximal, mais un clic de plus pour tout, donc moins découvrable. Je ne le recommande pas.</li>
+    <li><b>Barre latérale à droite de l'aperçu</b> au lieu d'une barre au-dessus. Plus de place pour les panneaux, mais la mise en page change beaucoup. À réserver à une refonte plus large.</li>
+    <li><b>Garder B et ajouter le point vert + la pulsation à tour de rôle.</b> C'est ce que je propose : on voit d'un coup d'œil ce qui est réglé et ce qui n'a jamais été regardé.</li>
+  </ul>
+</div>
+
+<div class="boite">
+  <h2>Questions pour Denis</h2>
+  <ul class="q">
+    <li><b>Q1. B (icône + mot court) ou C (icônes seules) ?</b> Recommandé : B. Risque de C : un public peu à l'aise ne devine pas « Composition » ou « Formes » sans le mot.</li>
+    <li><b>Q2. L'ordre Bandeau, Colonne, Composition, Formes vous convient-il ?</b> Recommandé : oui, de la structure vers la décoration.</li>
+    <li><b>Q3. « Remettre comme avant » n'apparaît que lorsqu'il y a quelque chose à annuler, et seulement avec « Régler l'en-tête » : d'accord ?</b> Recommandé : oui (moins de boutons au repos).</li>
+    <li><b>Q4. La pastille « i » reste sur la deuxième ligne, tout à droite, et porte tous les messages, en pulsant tant qu'un message n'est pas lu : d'accord ?</b></li>
+  </ul>
+  <p class="muted">Verdict de faisabilité : GO. Effort : moyen (la barre existe ; on change sa mise en page et ses styles, avec un essai à plusieurs largeurs). Aucun code avant votre choix.</p>
+</div>
+
+<script>
+(function () {
+  var IC = {
+    bandeau: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2.2" y="2.2" width="13.6" height="7.5" fill="currentColor"/><path d="M5 13.5h8M5 16.5h8M5 19.5h5" stroke="currentColor" stroke-width="1.3" opacity=".55"/></svg>',
+    colonne: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2.2" y="2.2" width="5.8" height="19.6" fill="currentColor"/><path d="M10.5 6h4M10.5 9h4M10.5 12h4M10.5 15h4" stroke="currentColor" stroke-width="1.3" opacity=".55"/></svg>',
+    composition: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.2 2.2h13.6v6H6.5v13.6H2.2z" fill="currentColor"/><path d="M9.5 13.5h5M9.5 16.5h5M9.5 19.5h3" stroke="currentColor" stroke-width="1.3" opacity=".55"/></svg>',
+    formes: '<svg viewBox="0 0 18 24" aria-hidden="true"><rect x="1.5" y="1.5" width="15" height="21" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="8.5" r="3.6" fill="currentColor" opacity=".6"/><path d="M8 20.5l7-8.5v8.5z" fill="currentColor" opacity=".85"/></svg>',
+    entete: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l-3 3h2v4H7V8l-3 3 3 3v-2h4v4H9l3 3 3-3h-2v-4h4v2l3-3-3-3v2h-4V6h2z" fill="currentColor"/></svg>',
+    raz: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6.5 12 11V8a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z" fill="currentColor"/></svg>'
+  };
+  var ONGLETS = [['bandeau', 'Bandeau', 'Droit'], ['colonne', 'Colonne', 'Droite'], ['composition', 'Composition', 'Plaque'], ['formes', 'Formes', '2 formes']];
+  var MOTS_B = { bandeau: 'Bandeau', colonne: 'Colonne', composition: 'Composition', formes: 'Formes' };
+  var etat = { ouvert: {}, jamaisOuvert: { bandeau: true, colonne: true, composition: true, formes: true }, regle: { bandeau: true, colonne: true, composition: false, formes: true }, raz: true, msgLu: false };
+  function construire(col) {
+    var v = col.getAttribute('data-v'), zone = col.querySelector('.zone');
+    if (!zone) { zone = document.createElement('div'); zone.className = 'zone'; col.appendChild(zone); }
+    var h = '<div class="ligne un">';
+    ONGLETS.forEach(function (o, i) {
+      var pulse = etat.jamaisOuvert[o[0]] && o[0] === Object.keys(etat.jamaisOuvert).filter(function (k) { return etat.jamaisOuvert[k]; })[0];
+      var pt = (v !== 'A' && etat.regle[o[0]]) ? '<span class="pt" title="Un réglage est choisi"></span>' : '';
+      var titre = o[1] + (etat.regle[o[0]] ? ' : ' + o[2] : '');
+      var corps = v === 'A' ? IC[o[0]] + '<span>' + o[1] + '</span>' + (etat.regle[o[0]] ? '<small>' + o[2] + '</small>' : '') : (v === 'B' ? IC[o[0]] + '<span>' + MOTS_B[o[0]] + '</span>' : IC[o[0]]);
+      h += '<button class="bt' + (pulse ? ' pulse' : '') + '" type="button" data-o="' + o[0] + '" aria-pressed="' + (!!etat.ouvert[o[0]]) + '" title="' + titre + '" aria-label="' + titre + '">' + corps + pt + '</button>';
+    });
+    h += '</div><div class="ligne deux">';
+    h += '<button class="bt" type="button" data-e="1" title="Régler l’en-tête" aria-label="Régler l’en-tête">' + IC.entete + '<span>Régler l’en-tête</span></button>';
+    if (etat.raz) { h += '<button class="bt" type="button" data-raz="1" title="Remettre comme avant" aria-label="Remettre comme avant">' + IC.raz + (v === 'C' ? '' : '<span>Remettre</span>') + '</button>'; }
+    h += '<button class="bt rond' + (etat.msgLu ? '' : ' pulse') + '" type="button" data-i="1" title="Information" aria-label="Information">i</button>';
+    h += '</div>';
+    h += '<div class="bulle' + (etat.bulle ? ' vue' : '') + '">Tant que vous réglez un panneau, un clic sur le CV n’ouvre pas le grand aperçu. Utilisez « Aperçu en plein écran » pour déplacer le texte.</div>';
+    var ouvert = Object.keys(etat.ouvert).filter(function (k) { return etat.ouvert[k]; })[0];
+    h += '<div class="panneau' + (ouvert ? ' vu' : '') + '">' + (ouvert ? 'Panneau « ' + MOTS_B[ouvert] + ' » ouvert ici, sous les boutons.' : '') + '</div>';
+    h += '<div class="apercu">aperçu du CV</div>';
+    zone.innerHTML = h;
+    zone.className = 'zone ' + v;
+    col.className = 'colonne ' + v;
+  }
+  function tout() { Array.prototype.forEach.call(document.querySelectorAll('.colonne'), construire); }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) { return; }
+    if (b.hasAttribute('data-o')) { var k = b.getAttribute('data-o'), a = !etat.ouvert[k]; etat.ouvert = {}; if (a) { etat.ouvert[k] = true; etat.jamaisOuvert[k] = false; } tout(); }
+    else if (b.hasAttribute('data-i')) { etat.bulle = !etat.bulle; etat.msgLu = true; tout(); }
+    else if (b.hasAttribute('data-raz')) { etat.raz = false; tout(); setTimeout(function () { etat.raz = true; tout(); }, 1500); }
+    else if (b.hasAttribute('data-e')) { etat.regle.entete = !etat.regle.entete; }
+  });
+  var larg = document.getElementById('larg'), vl = document.getElementById('vl');
+  function maj() { vl.textContent = larg.value; Array.prototype.forEach.call(document.querySelectorAll('.colonne'), function (c) { c.style.width = larg.value + 'px'; c.style.maxWidth = '100%'; }); }
+  larg.addEventListener('input', maj);
+  maj(); tout();
+})();
+</script>
+</body>
+</html>

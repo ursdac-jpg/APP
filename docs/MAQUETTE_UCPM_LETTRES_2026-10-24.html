@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette Un CV, plusieurs métiers : les lettres</title>
+<style>
+:root{--bg:#f6f7f9;--carte:#fff;--texte:#1d2330;--doux:#5b6475;--bord:#d9dde5;--prim:#0d6efd;--ok:#198754;--ok-fond:#e8f5ee;--attention:#8a5a00;--attention-fond:#fff6e0;}
+[data-theme="sombre"]{--bg:#12151c;--carte:#1b2030;--texte:#e8ebf2;--doux:#a4acbd;--bord:#343b50;--prim:#6ea8fe;--ok:#6fd49a;--ok-fond:#16281f;--attention:#f0c36b;--attention-fond:#2c2412;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--texte);font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif;padding:0 16px 80px}
+.cadre{max-width:900px;margin:0 auto}
+.haut{position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid var(--bord)}
+.haut b{margin-right:6px}
+.onglet,.bt{font:inherit;border:1px solid var(--prim);background:transparent;color:var(--prim);padding:.35rem .8rem;border-radius:6px;cursor:pointer}
+.onglet[aria-pressed="true"],.bt.p{background:var(--prim);color:#fff}
+.bt.p:disabled{opacity:.5;cursor:not-allowed}
+.bt.s{border-color:var(--bord);color:var(--doux)}
+h1{font-size:1.6rem;text-align:center;margin:1.2rem 0 .2rem}
+.sous{text-align:center;color:var(--doux);margin:0 0 1rem}
+.section{background:var(--carte);border:1px solid var(--bord);border-radius:10px;padding:1rem;margin:0 0 1rem}
+.section h4{margin:0 0 .5rem;font-size:1.05rem}
+.doux{color:var(--doux);font-size:.88rem}
+.etat{border-left:4px solid var(--ok);background:var(--ok-fond)}
+.att{border-left:4px solid var(--attention);background:var(--attention-fond);color:var(--texte)}
+label.cv{display:flex;gap:.5rem;align-items:flex-start;margin:0 0 .4rem;cursor:pointer}
+.pastilles{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .8rem}
+.modeles{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem}
+@media(max-width:720px){.modeles{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.modeles{grid-template-columns:1fr}}
+.modele{border:2px solid var(--bord);border-radius:10px;padding:.6rem;background:var(--carte);cursor:pointer;text-align:left;font:inherit;color:inherit}
+.modele[aria-pressed="true"]{border-color:var(--prim);box-shadow:0 0 0 2px var(--prim) inset}
+.feuille{background:#fff;color:#111;border:1px solid #ccd;box-shadow:0 2px 10px rgba(0,0,0,.12);padding:34px 38px;font:12.5px/1.5 Georgia,serif;width:100%}
+.feuille .exp p{margin:0}.feuille .dest{text-align:right;margin:14px 0 14px}.feuille .dest p{margin:0}
+.feuille .corps p{margin:0 0 9px}
+.g1 .nom{font-size:19px;font-weight:700;color:var(--cvc)}.g1 .exp{padding-bottom:8px;border-bottom:2px solid var(--cvc);margin-bottom:6px}
+.g0 .nom{font-weight:700}
+.miniwrap{position:relative;aspect-ratio:210/297;overflow:hidden;border:1px solid #ccd;background:#fff;margin:0 0 .4rem}
+.miniwrap .feuille{position:absolute;left:0;top:0;width:370.37%;transform:scale(.27);transform-origin:top left;box-shadow:none;border:0;min-height:297px}
+.g2{display:grid;grid-template-columns:31% 1fr;padding:0;min-height:520px}.g2 .colg{background:var(--cvc);color:#fff;padding:34px 14px}.g2 .droite{padding:34px 28px}
+.g2 .nom{font-weight:700;font-size:18px;margin:0}.g2 .poste{margin:2px 0 16px;font-size:13px}
+.titreinfo{font-weight:700;font-size:12px;margin:0 0 8px;padding:3px 6px;background:rgba(255,255,255,.18)}
+.info small{display:block;font:700 9px/1.2 system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;opacity:.85}.info span{display:block;margin:0 0 8px;font-size:12px;overflow-wrap:anywhere}
+.g3 .bandeau{background:var(--cvc);color:#fff;margin:-34px -38px 16px;padding:22px 38px}.g3 .bandeau .nom{font-weight:700;font-size:24px;margin:0}.g3 .bandeau .poste{margin:0 0 8px;font-size:13px}
+.g3 .bandeau .lignes{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12px}.g3 .bandeau .lignes small{font:700 9px system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;margin-right:5px;opacity:.85}
+.g4 .tete{border-bottom:2px solid var(--cvc);padding-bottom:8px;margin-bottom:12px}.g4 .nom{font-size:24px;font-weight:700;color:var(--cvc);margin:0}.g4 .poste{margin:0;font-size:13px}
+.g4 .grille{display:grid;grid-template-columns:30% 1fr;gap:18px}.g4 .infos .titreinfo{background:none;color:var(--cvc);border-bottom:1px solid var(--cvc);padding:0 0 3px}
+textarea{width:100%;font:inherit;border:1px solid var(--bord);border-radius:6px;background:var(--carte);color:var(--texte);padding:.5rem}
+.rangee{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.zonecoller{min-height:70px}
+.avis{font-size:.85rem;color:var(--doux);margin:.8rem 0 0}
+.invisible{display:none}
+</style>
+</head>
+<body data-theme="clair">
+<div class="cadre">
+<div class="haut" role="group" aria-label="Écrans de la maquette">
+  <b>Maquette :</b>
+  <button class="onglet" data-ecran="1" aria-pressed="true">1. Demande</button>
+  <button class="onglet" data-ecran="2" aria-pressed="false">2. Collage (7 lettres : 5 puis 2)</button>
+  <button class="onglet" data-ecran="3" aria-pressed="false">3. Relecture et modèle</button>
+  <button class="onglet" data-ecran="4" aria-pressed="false">4. Téléchargement</button>
+  <button class="onglet" id="theme" aria-pressed="false" style="margin-left:auto">Mode sombre</button>
+</div>
+
+<!-- ÉCRAN 1 -->
+<section data-vue="1">
+  <h1>&#9993;&#65039; Mes lettres de motivation</h1>
+  <p class="sous">Une lettre par CV, qui suit l’objectif de ce CV.</p>
+  <div class="section">
+    <h4>Pour quels CV voulez-vous une lettre ?</h4>
+    <p class="doux">Tous sont cochés. Décochez un CV dont vous n’avez pas besoin de lettre.</p>
+    <div id="listeCv"></div>
+  </div>
+  <div class="section att" id="avisCinq">
+    <b>&#128161; Plus de 5 lettres : l’assistant les écrit en deux fois.</b>
+    <p class="doux" style="margin:.3rem 0 0">Il vous donne d’abord les 5 premières. À la fin de sa réponse, il vous dit de lui écrire « oui » pour recevoir la suite. Vous collez ensuite cette deuxième réponse au même endroit : rien ne se perd.</p>
+  </div>
+  <div class="section etat"><b>Choisissez votre assistant</b><div class="rangee"><button class="bt p" data-vers="2">ChatGPT</button><button class="bt p" data-vers="2">DeepSeek</button><button class="bt p" data-vers="2">Autre</button></div></div>
+</section>
+
+<!-- ÉCRAN 2 -->
+<section data-vue="2" class="invisible">
+  <h1>&#128229; Collez la réponse</h1>
+  <p class="sous">Première réponse de l’assistant</p>
+  <div class="section">
+    <textarea class="zonecoller" id="zone" placeholder="Collez ici la réponse de l’assistant"></textarea>
+    <div class="rangee"><button class="bt p" id="coller1">Récupérer les lettres (maquette : 5 reçues)</button></div>
+  </div>
+  <div class="section att invisible" id="suite">
+    <b>&#9989; 5 lettres reçues sur 7.</b>
+    <p class="doux" style="margin:.3rem 0 .5rem">Retournez chez l’assistant et écrivez-lui « oui ». Il vous donnera les 2 dernières lettres. Copiez sa réponse et collez-la ici.</p>
+    <textarea class="zonecoller" id="zone2" placeholder="Collez ici la suite (les 2 dernières lettres)"></textarea>
+    <div class="rangee"><button class="bt p" id="coller2">Récupérer la suite (maquette : 2 reçues)</button><button class="bt s" data-vers="3">Continuer avec 5 lettres</button></div>
+  </div>
+</section>
+
+<!-- ÉCRAN 3 -->
+<section data-vue="3" class="invisible">
+  <h1>&#9997;&#65039; Relire mes lettres</h1>
+  <p class="sous">Chaque lettre prend la couleur et la police de son CV : changez de lettre, la couleur suit.</p>
+  <div class="section">
+    <h4>Modèle de lettre (le même pour toutes)</h4>
+    <div class="modeles" id="modeles" role="group" aria-label="Modèle de lettre"></div>
+    <p class="avis">Pour un envoi par courriel, choisissez le Word : les deux modèles s’ouvrent bien dans Word. Le PDF reste la référence.</p>
+  </div>
+  <div class="pastilles" id="pastilles" role="group" aria-label="Choisir la lettre à lire"></div>
+  <div class="section">
+    <p style="margin:0 0 .2rem"><b id="titreLettre"></b></p>
+    <p class="doux" id="etiqLettre" style="margin:0 0 .6rem"></p>
+    <div class="feuille g0" id="feuille"></div>
+    <label for="texte" class="doux" style="display:block;margin:.8rem 0 .2rem">Modifier le texte de cette lettre</label>
+    <textarea id="texte" rows="9"></textarea>
+    <p class="doux" style="margin:.3rem 0 0"><span id="mots">0</span> mots <span id="longue" class="invisible" style="color:var(--attention)"> · Cette lettre est longue : elle risque de passer sur deux pages.</span></p>
+    <div class="rangee"><button class="bt s">Retravailler cette lettre avec l’assistant</button></div>
+  </div>
+</section>
+
+<!-- ÉCRAN 4 -->
+<section data-vue="4" class="invisible">
+  <h1>&#128230; Mes documents</h1>
+  <div class="section etat"><b>Vos documents sont prêts : 7 CV et 7 lettres.</b></div>
+  <div class="section">
+    <h4>&#9993;&#65039; Document 2 : mes lettres de motivation</h4>
+    <p>Un seul document PDF de 7 pages, une lettre par page, dans le modèle <b id="nomModele">Sobre</b> et la couleur de chaque CV (modèle changeable à l’écran 3).</p>
+    <div class="rangee"><button class="bt p">Télécharger mes lettres (un seul PDF)</button><button class="bt s">Télécharger en Word (un fichier par lettre)</button></div>
+    <p class="avis">Un CV avec sa lettre : « Télécharger ce CV avec sa lettre » garde le même modèle et la couleur de ce CV.</p>
+  </div>
+</section>
+</div>
+
+<script>
+var CVS=[
+ {t:'Vendeuse en prêt-à-porter',o:'Réponse à une offre · Boutique Élise, Limoges',c:'#1f5fa8',d:['Boutique Élise','Madame Martin']},
+ {t:'Employée de commerce',o:'Candidature spontanée · grande distribution',c:'#2e7d4f',d:[]},
+ {t:'Hôtesse de caisse',o:'Stage de 4 semaines',c:'#9b2c3d',d:[]},
+ {t:'Réceptionniste',o:'Réponse à une offre · Hôtel du Parc',c:'#6b3fa0',d:['Hôtel du Parc']},
+ {t:'Conseillère de vente',o:'Changement de métier',c:'#b25a00',d:[]},
+ {t:'Préparatrice de commandes',o:'Alternance',c:'#2a7f8e',d:[]},
+ {t:'Agent d’accueil',o:'Candidature spontanée · mairie',c:'#4a5568',d:[]}
+];
+var TEXTES=[
+ 'Madame Martin,\n\nVotre boutique habille les Limougeaudes depuis dix ans, et c’est ce suivi de la clientèle qui m’a donné envie de vous écrire pour le poste de vendeuse.\n\nPendant trois ans, j’ai tenu le rayon femme d’un magasin de centre-ville : accueil, conseil sur les tailles, mise en rayon et caisse. Lors des soldes, j’ai formé deux saisonnières à la caisse en une matinée.\n\nJe serais heureuse de vous rencontrer pour vous montrer comment je conseille une cliente. Je reste disponible dès maintenant.\n\nCordialement,',
+ 'Madame, Monsieur,\n\nLa grande distribution recrute en continu, et je préfère vous écrire avant qu’une offre ne paraisse.\n\nMon expérience en caisse et en rayon m’a appris à tenir un poste debout toute une journée sans perdre le sourire.\n\nPuis-je vous rencontrer ?\n\nCordialement,'
+];
+var MODELES=[['g0','Sobre','Classique, tout en noir et blanc. Passe partout.'],['g1','En-tête et filet','Votre nom et un filet dans la couleur de votre CV.'],['g2','Colonne colorée','Vos informations dans une colonne de la couleur de votre CV, pleine hauteur.'],['g3','Bandeau coloré','Votre nom et vos informations dans un bandeau de la couleur de votre CV.'],['g4','Titre et informations','Grand titre, puis vos informations personnelles à côté de la lettre.']];
+var etat={modele:'g0',sel:0,textes:[],recus:0};
+CVS.forEach(function(c,i){etat.textes[i]=TEXTES[i]||TEXTES[1];});
+function $(s){return document.querySelector(s);} function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+function ecran(n){$$('[data-vue]').forEach(function(s){s.classList.toggle('invisible',s.getAttribute('data-vue')!==String(n));});$$('.onglet[data-ecran]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-ecran')===String(n)?'true':'false');});window.scrollTo(0,0);}
+$$('.onglet[data-ecran]').forEach(function(b){b.addEventListener('click',function(){ecran(b.getAttribute('data-ecran'));});});
+$$('[data-vers]').forEach(function(b){b.addEventListener('click',function(){ecran(b.getAttribute('data-vers'));});});
+$('#theme').addEventListener('click',function(){var s=document.body.getAttribute('data-theme')==='sombre';document.body.setAttribute('data-theme',s?'clair':'sombre');this.setAttribute('aria-pressed',s?'false':'true');});
+// écran 1
+function rendreChoix(){var h='';CVS.forEach(function(c,i){h+='<label class="cv"><input type="checkbox" data-cv="'+i+'" checked><span><b>CV '+(i+1)+' : '+c.t+'</b><br><span class="doux">'+c.o+'</span></span></label>';});$('#listeCv').innerHTML=h;
+ $$('[data-cv]').forEach(function(x){x.addEventListener('change',majAvis);});majAvis();}
+function majAvis(){var n=$$('[data-cv]:checked').length;if(!n){$$('[data-cv]')[0].checked=true;n=1;}$('#avisCinq').classList.toggle('invisible',n<=5);}
+// écran 2
+$('#coller1').addEventListener('click',function(){$('#suite').classList.remove('invisible');this.disabled=true;});
+$('#coller2').addEventListener('click',function(){this.disabled=true;this.textContent='2 lettres de plus reçues : 7 sur 7';ecran(3);});
+// écran 3
+function rendrePastilles(){$('#pastilles').innerHTML=CVS.map(function(c,i){return '<button class="bt '+(i===etat.sel?'p':'')+'" data-p="'+i+'" aria-pressed="'+(i===etat.sel)+'">CV '+(i+1)+' : '+c.t+'</button>';}).join('');
+ $$('[data-p]').forEach(function(b){b.addEventListener('click',function(){etat.sel=parseInt(b.getAttribute('data-p'),10);rendreLettre();rendrePastilles();});});}
+function mots(t){return t.split(/\s+/).filter(Boolean).length;}
+function rendreLettre(){var c=CVS[etat.sel],t=etat.textes[etat.sel];$('#titreLettre').textContent='Lettre du CV '+(etat.sel+1)+' : '+c.t;$('#etiqLettre').textContent=c.o;
+ var f=$('#feuille');f.className='feuille '+etat.modele;f.style.setProperty('--cvc',c.c);
+ f.innerHTML=feuilleHtml(etat.modele,c,t);
+ rendreModeles();
+ $('#texte').value=t;$('#mots').textContent=mots(t);$('#longue').classList.toggle('invisible',mots(t)<=330);}
+$('#texte').addEventListener('input',function(){etat.textes[etat.sel]=this.value;rendreLettre2();});
+function rendreLettre2(){var pos=$('#texte').selectionStart;rendreLettre();$('#texte').focus();$('#texte').setSelectionRange(pos,pos);}
+var INFOS=[['Adresse','12 rue des Lilas, 87000 Limoges'],['Téléphone','06 12 34 56 78'],['Courriel','marie.durand@exemple.fr']];
+function corpsHtml(c,t){var l=t.split('\n\n');var dest=c.d.length?c.d.map(function(x){return '<p>'+x+'</p>';}).join(''):'';
+ return '<div class="dest">'+dest+'<p>Limoges, le 24 octobre 2026</p></div><div class="corps">'+l.map(function(p){return '<p>'+p.split('\n').join('<br>')+'</p>';}).join('')+'<p>Marie Durand</p></div>';}
+function infosHtml(){return INFOS.map(function(x){return '<div class="info"><small>'+x[0]+'</small><span>'+x[1]+'</span></div>';}).join('');}
+function feuilleHtml(m,c,t){var corps=corpsHtml(c,t);
+ if(m==='g2'){return '<div class="colg"><p class="nom">Marie Durand</p><p class="poste">'+c.t+'</p><p class="titreinfo">Informations de contact</p>'+infosHtml()+'</div><div class="droite">'+corps+'</div>';}
+ if(m==='g3'){return '<div class="bandeau"><p class="nom">Marie Durand</p><p class="poste">'+c.t+'</p><div class="lignes">'+INFOS.map(function(x){return '<span><small>'+x[0]+'</small>'+x[1]+'</span>';}).join('')+'</div></div>'+corps;}
+ if(m==='g4'){return '<div class="tete"><p class="nom">Marie Durand</p><p class="poste">'+c.t+'</p></div><div class="grille"><div class="infos"><p class="titreinfo">Informations personnelles</p>'+infosHtml()+'</div><div>'+corps+'</div></div>';}
+ if(m==='g1'){return '<div class="exp"><p class="nom">Marie Durand</p><p>12 rue des Lilas</p><p>87000 Limoges</p><p>06 12 34 56 78 · marie.durand@exemple.fr</p></div>'+corps;}
+ return '<div class="exp"><p class="nom">Marie Durand</p><p>12 rue des Lilas</p><p>87000 Limoges</p><p>06 12 34 56 78 · marie.durand@exemple.fr</p></div>'+corps;}
+function rendreModeles(){var c=CVS[etat.sel],t=etat.textes[etat.sel];$('#modeles').innerHTML=MODELES.map(function(m){
+ return '<button class="modele" data-modele="'+m[0]+'" aria-pressed="'+(etat.modele===m[0])+'"><div class="miniwrap"><div class="feuille '+m[0]+'" style="--cvc:'+c.c+'">'+feuilleHtml(m[0],c,t)+'</div></div><b>'+m[1]+'</b><br><span class="doux">'+m[2]+'</span></button>';}).join('');
+ $$('.modele').forEach(function(b){b.addEventListener('click',function(){etat.modele=b.getAttribute('data-modele');$('#nomModele').textContent=MODELES.filter(function(x){return x[0]===etat.modele;})[0][1];rendreLettre();});});}
+rendreChoix();rendrePastilles();rendreLettre();
+</script>
+</body>
+</html>

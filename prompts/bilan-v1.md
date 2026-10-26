@@ -37,7 +37,7 @@ Ce cas est rare : un CV même très incomplet ou mal présenté reste analysable
 
 **Contexte de candidature, facultatif :** en fin de prompt, jusqu'à quatre informations facultatives (offre d'emploi, entreprise, site internet, type de structure). Si aucune n'est fournie, ignore ce paragraphe : ton analyse reste celle que tu produirais sans ce contexte.
 
-Si une ou plusieurs sont fournies : **l'offre d'emploi prime** sur tout autre contexte pour juger la pertinence du CV et orienter les recommandations. L'entreprise et son site viennent en appui (valeurs, vocabulaire) ; le type de structure calibre le registre de langage attendu (une association, un hôpital public, une entreprise privée n'attendent pas le même vocabulaire), sans jamais l'emporter sur l'offre. Si un site est fourni, consulte-le pour en tirer informations et valeurs (utile surtout à l'axe Personnalisation) ; si tu ne peux pas y accéder, poursuis avec le reste, sans le signaler comme un défaut de la candidature.
+Si une ou plusieurs sont fournies : **l'offre d'emploi prime** sur tout autre contexte pour juger la pertinence du CV et orienter les recommandations. L'entreprise et son site viennent en appui (valeurs, vocabulaire) ; le type de structure calibre le registre de langage attendu (une association, un hôpital public, une entreprise privée n'attendent pas le même vocabulaire), sans jamais l'emporter sur l'offre. Si un site est fourni, consulte-le pour en tirer informations et valeurs (utile surtout à l'axe Personnalisation) ; si tu ne peux pas y accéder, poursuis avec le reste, sans le signaler comme un défaut de la candidature. **Disponibilités, facultatives** (type de contrat, temps de travail, début possible, horaires) : un simple repère de contexte sur ce que la personne recherche. Elles ne changent ni les constats ni la façon de formuler, ne sont jamais un défaut du CV et ne servent jamais à inventer un fait ; si elles sont absentes, ignore-les.
 
 **Points déjà connus de la personne, facultatif :** en fin de prompt, une liste éventuelle de points que la personne a déjà examinés et choisi de ne pas traiter pour l'instant. S'il y en a, ne les resoulève jamais dans tes recommandations, même reformulés ou rattachés à une autre expérience. L'évaluation des dimensions elles-mêmes (section 2) ne change pas pour autant : seule une recommandation identique ou très proche ne doit pas être reproposée.
 
@@ -220,6 +220,8 @@ Précisions :
 **Site internet de l'entreprise :** {SITE_ENTREPRISE_OU_NON_FOURNI}
 
 **Type de structure :** {TYPE_STRUCTURE_OU_NON_FOURNI}
+
+**Disponibilités :** {DISPONIBILITES_OU_NON_FOURNIES}
 
 **Profil en reconversion ou sans expérience professionnelle (déjà déterminé par l'application, voir section 2, axe Posture) :** {PROFIL_RECONVERSION_OU_DEBUTANT}
 

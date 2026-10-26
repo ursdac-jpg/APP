@@ -203,7 +203,7 @@ function ctHtmlExplication(detour) {
         '<p class="mb-0">Un recruteur lit votre CV, votre lettre, puis vous rencontre en entretien - dans cet ordre, ou dans le désordre. Si ces documents se contredisent (un métier différent, une expérience oubliée, un ton qui change), ça peut semer le doute. Ce module compare vos documents entre eux, et avec l’offre visée si vous en avez une, pour repérer ce qui est cohérent et ce qui mérite d’être ajusté.</p>' },
       { corpsHTML:
         '<h4>&#128203; Ce qu’on va vous demander</h4>' +
-        '<p class="mb-0">Votre CV et votre lettre de motivation (obligatoires), votre préparation d’entretien d’embauche si vous en avez une (facultatif), et si vous le souhaitez : l’offre visée, l’entreprise, ou une question précise. Chaque document peut être déposé en fichier ou collé directement en texte.</p>' },
+        '<p class="mb-0">Votre CV et votre lettre de motivation (obligatoires), votre préparation d’entretien d’embauche si vous en avez une (à compléter), et si vous le souhaitez : l’offre visée, l’entreprise, ou une question précise. Chaque document peut être déposé en fichier ou collé directement en texte.</p>' },
       { corpsHTML:
         '<h4>&#128221; Ce qui va se passer</h4>' +
         '<ul class="mb-0" style="padding-left:1.25rem;">' +
@@ -293,7 +293,7 @@ function ctHtmlCollecte() {
   function blocDocument(numero, id, titre, obligatoire, present, corpsSiVide, corpsSiPresent, ouvert) {
     return '<details class="bloc-depli' + (present ? ' bd-ok' : '') + '" id="' + id + '"' + (ouvert ? ' open' : '') + '>' +
       '<summary><span class="preparer-num">' + numero + '</span><span class="preparer-titre">' + titre + '</span>' +
-      (obligatoire ? '' : '<span class="preparer-oblig">facultatif</span>') +
+      (obligatoire ? '' : '<span class="preparer-oblig">à compléter</span>') +
       '<span class="pilule-etat ' + (present ? 'pe-ok">Déposé' : 'pe-attente">À déposer') + '</span></summary>' +
       '<div class="bloc-depli-corps">' + (present ? corpsSiPresent : corpsSiVide) + '</div></details>';
   }
@@ -317,7 +317,7 @@ function ctHtmlCollecte() {
   // voir ouvertBlocDepliManuel()/cablerBlocDepliManuel() (data/metiers.js).
   var bloc3 = '<details class="bloc-depli' + (entretienTraite ? ' bd-ok' : '') + '" id="ctCollecteBlocEntretien"' + (ouvertBlocDepliManuel(etat, 'blocEntretien', cvPresent && lettrePresente && !entretienTraite) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">3</span><span class="preparer-titre">Votre préparation d’entretien d’embauche</span>' +
-    '<span class="preparer-oblig">facultatif</span>' +
+    '<span class="preparer-oblig">à compléter</span>' +
     '<span class="pilule-etat ' + (entretienPresent ? 'pe-ok">Déposée' : entretienTraite ? 'pe-info">Non fournie' : 'pe-attente">À déposer') + '</span></summary>' +
     '<div class="bloc-depli-corps">' +
     (entretienPresent
@@ -346,28 +346,29 @@ function ctHtmlCollecte() {
   var situationConnue = !!(typeof dossier !== 'undefined' && dossier.objectif);
   var bloc4 = '<details class="bloc-depli' + (situationConnue ? ' bd-ok' : '') + '" id="ctCollecteBlocOffre"' + (ouvertBlocDepliManuel(etat, 'blocOffre', true) ? ' open' : '') + '>' +
     '<summary><span class="preparer-num">4</span><span class="preparer-titre">Votre situation et l’offre visée</span>' +
-    '<span class="preparer-oblig">facultatif</span>' +
-    '<span class="pilule-etat pe-info">Facultatif &middot; conseillé si vous l’avez</span></summary>' +
+    '<span class="preparer-oblig">à compléter</span>' +
+    '<span class="pilule-etat pe-info">À compléter &middot; conseillé si vous l’avez</span></summary>' +
     '<div class="bloc-depli-corps">' +
     '<p>Cela permet de juger vos documents par rapport à ce que vous visez : un changement de métier, par exemple, n’est pas une incohérence. Si vous avez une offre, le métier peut rester vide : l’offre suffit. Sans réponse, l’analyse se fait sur vos seuls documents.</p>' +
     htmlCartesSituationPartagees('data-ct-situation') +
     '<p class="preparer-detail">Cette information est réutilisée ailleurs dans l’application (elle a pu être renseignée pendant un autre parcours).</p>' +
     '<div class="mt-3 pt-3" style="border-top:1px solid var(--border);">' +
-    htmlPanneauCandidaturePartage({ projet: false, sansCiviliteCouleur: true }) +
+    // Lot 4a (25/10/2026) : le composant « Votre candidature » de la lettre, tel quel (sans civilite ni couleur, que l'analyse ne lit pas).
+    (dossier.objectif && typeof htmlCandidatureComposant === 'function' ? '<div id="ctComposantCandidature">' + htmlCandidatureComposant({ sansCiviliteCouleur: true }) + '</div>' : '') +
     '</div>' +
     '<p class="small text-muted mb-3">&#128247; Vous avez seulement une photo de l’offre ? Envoyez-la directement à votre assistant habituel (il sait lire une image), demandez-lui de vous en recopier le texte, puis collez ce texte ici.</p>' +
-    '<h4 class="h6">&#128172; Une question ou une demande précise ? <span class="text-muted small">(facultatif)</span></h4>' +
+    '<h4 class="h6">&#128172; Une question ou une demande précise ? <span class="text-muted small">(à compléter)</span></h4>' +
     '<p class="text-muted small mb-2">Par exemple : « Ai-je assez insisté sur mon autonomie ? », « J’aimerais plus d’ambition dans mes phrases », « Où pourrais-je mettre en avant mes résultats ? ».</p>' +
     '<textarea id="ctChampQuestions" class="form-control mb-2" rows="3" placeholder="Vos questions ou demandes, une par ligne...">' + (etat.questionsPersonne ? echapperAttribut(etat.questionsPersonne) : '') + '</textarea>' +
     '<p class="small text-muted mb-0" style="background:var(--accent-bg-subtle);border-radius:8px;padding:0.5rem 0.75rem;">&#127908; <strong>Aide à la rédaction</strong> - vous pouvez dicter ce texte au lieu de le taper : appuyez sur les touches <strong><span style="white-space:nowrap;">Windows + H</span></strong> de votre clavier, puis parlez.</p>' +
     '</div></details>';
 
   var html = '<div class="text-center"><h1><i class="bi bi-check2-circle"></i> Cohérence de mon dossier</h1>' +
-    '<p class="sousTitre">CV et lettre de motivation sont obligatoires, le reste est facultatif.</p></div>' +
+    '<p class="sousTitre">CV et lettre de motivation sont obligatoires, le reste est à compléter.</p></div>' +
     '<div id="ctErreurCollecte" class="small mb-3" style="display:none;color:var(--danger);"></div>' +
     bloc1 + bloc2 + bloc3 + bloc4 +
-    '<div class="text-center" style="margin-top:1.4rem;">' +
-    '<button type="button" id="btnCtCollecteContinuer" class="btn btn-primary btn-lg"' + (peutContinuer ? '' : ' disabled') + '>Lancer l’analyse &#8594;</button>' +
+    '<div class="text-center" style="margin-top:1.4rem;" data-barre-bas-zone>' +
+    '<button type="button" id="btnCtCollecteContinuer" class="btn btn-primary btn-lg" data-barre-bas="1" data-barre-bas-message="Déposez d’abord votre CV et votre lettre pour lancer l’analyse."' + (peutContinuer ? '' : ' disabled') + '>Continuer &#8594;</button>' +
     '<p class="preparer-detail" style="margin-top:.5rem;">Ce bouton s’active une fois votre CV et votre lettre déposés.</p>' +
     '</div>';
 
@@ -401,10 +402,16 @@ function ctBrancherCollecte() {
   cablerBlocDepliManuel(etat, 'blocOffre', 'ctCollecteBlocOffre');
   // Tant que le CV n'est pas depose et valide, les autres points sont
   // desactives (decision Denis 2026-09-29).
+  // Deverrouillage progressif (Lot 5, 25/10/2026) : chaque partie n'apparait qu'une fois la precedente ouverte, et s'active quand la precedente est remplie.
+  // Partie 2 (lettre) : CV depose. Partie 3 (entretien) : lettre deposee. Partie 4 (situation) : entretien depose ou « je n'en ai pas ».
   var _cvOk = !!(etat.cv && etat.cv.texte);
-  appliquerVerrouBlocs(['ctCollecteBlocLettre', 'ctCollecteBlocEntretien', 'ctCollecteBlocOffre'].map(function (idBloc) {
-    return { id: idBloc, actif: _cvOk, message: MSG_VERROU_CV_A_DEPOSER };
-  }));
+  var _lettreOk = _cvOk && !!(etat.lettre && etat.lettre.texte);
+  var _entretienFait = _lettreOk && !!etat.entretien;
+  appliquerVerrouBlocs([
+    { id: 'ctCollecteBlocLettre', actif: _cvOk, message: MSG_VERROU_CV_A_DEPOSER },
+    { id: 'ctCollecteBlocEntretien', actif: _lettreOk, masque: !_cvOk, message: 'Déposez d’abord votre lettre de motivation (partie 2) : ce point s’active ensuite.' },
+    { id: 'ctCollecteBlocOffre', actif: _entretienFait, masque: !_lettreOk, message: 'Déposez d’abord votre préparation d’entretien, ou dites que vous n’en avez pas (partie 3) : ce point s’active ensuite.' }
+  ]);
 
   var btnDeposerCv = document.getElementById('btnCtCollecteDeposerCv');
   if (btnDeposerCv) {
@@ -466,8 +473,13 @@ function ctBrancherCollecte() {
   // Panneau Candidature partage (situation, metier/domaine, offre...) : ecrit
   // directement dans les champs globaux, aucune lecture a faire au lancement.
   if (typeof wireCartesSituationPartagees === 'function') {
-    wireCartesSituationPartagees('data-ct-situation', etat, ctHtmlCollecte);
-    wirePanneauCandidaturePartage(ctHtmlCollecte, { projet: false });
+    var objectifAvantCt = null;
+    wireCartesSituationPartagees('data-ct-situation', etat, ctHtmlCollecte, function () {
+      // Changer de carte entre offre, spontanee et changer de metier remet a zero la candidature saisie (meme regle que la lettre).
+      if (changementCarteEffaceLettreCo(objectifAvantCt, dossier.objectif)) { _coLettreEffacerCandidature(); }
+    }, function () { objectifAvantCt = dossier.objectif; });
+    if (dossier.objectif) { wireCandidatureComposant(ctHtmlCollecte, 'ctComposantCandidature'); }
+    else if (typeof invitationCartesObjectif === 'function') { invitationCartesObjectif(); }
   }
   var champQuestions = document.getElementById('ctChampQuestions');
   if (champQuestions) {
@@ -549,7 +561,7 @@ function ctObtenirOuDeposerTexteEntretien(callback) {
   var entretienExistant = ctLecteursParDefaut().lireEntretienTexte();
   if (entretienExistant) { callback({ texte: entretienExistant, dejaRelu: false }); return; }
   ouvrirAssistantDepotCV('pret', {
-    titre: 'Votre préparation d’entretien d’embauche (facultatif)',
+    titre: 'Votre préparation d’entretien d’embauche',
     intro: 'Si vous avez déjà préparé un entretien (texte, ou photo d’une synthèse imprimée), déposez-le ici - sinon, passez cette étape, ce n’est pas obligatoire.',
     optionnel: true,
     onDocumentPrepare: function (resultat) {
@@ -680,7 +692,7 @@ function ctHtmlEtapeImportIA(diagnostic) {
     (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
     htmlCollageInstantane('CoherenceTransversale',
       '<div class="d-flex gap-2 mb-2 mt-2">' +
-      '<button type="button" id="btnImporterCoherence" class="bouton-incitation-action" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
+      '<button type="button" id="btnImporterCoherence" class="bouton-incitation-action" data-barre-bas="1" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
       'background:#0d6efd;color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; Importer</button>' +
       '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecollerCoherenceTransversale">Effacer et recoller</button>' +
       '</div>') +
@@ -1198,7 +1210,7 @@ function ctHtmlEtapeImportIAEntretienAvance(entretienAvance) {
     (typeof htmlBanniereTransitionIA === 'function' ? htmlBanniereTransitionIA() : '') +
     htmlCollageInstantane('CoherenceTransversaleEntretienAvance',
       '<div class="d-flex gap-2 mb-2 mt-2">' +
-      '<button type="button" id="btnImporterEntretienAvance" class="bouton-incitation-action" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
+      '<button type="button" id="btnImporterEntretienAvance" class="bouton-incitation-action" data-barre-bas="1" style="font-size:1.05rem;font-weight:700;padding:0.65rem 1.5rem;' +
       'background:#0d6efd;color:#FFFFFF;border:none;border-radius:999px;box-shadow:0 4px 14px rgba(13,110,253,.4);">&#128229; Importer</button>' +
       '<button type="button" class="btn btn-outline-secondary btn-sm" id="btnEffacerRecollerEntretienAvance">Effacer et recoller</button>' +
       '</div>') +
@@ -1553,7 +1565,7 @@ function ctRendreCarteDocument(champ, titreCarte, dossierAffiche, diagnostic, op
   var badge;
   if (modifie) { badge = { texte: 'Modifié, pas encore relancé', bg: 'var(--accent-bg-subtle)', couleur: 'var(--accent)' }; }
   else if (present) { badge = { texte: 'Enregistré' + (champ === 'lettre' ? 'e' : ''), bg: 'var(--success-bg-subtle)', couleur: 'var(--success-strong)' }; }
-  else if (optionnel) { badge = { texte: 'Facultative', bg: 'var(--bg-subtle)', couleur: 'var(--text-muted)' }; }
+  else if (optionnel) { badge = { texte: 'À compléter', bg: 'var(--bg-subtle)', couleur: 'var(--text-muted)' }; }
   else { badge = { texte: 'Manquant', bg: 'var(--danger-bg-subtle)', couleur: 'var(--danger)' }; }
 
   // TACHE (retour utilisateur, 2026-08-25 : "en gris le bouton voir le
@@ -2091,7 +2103,7 @@ function ctOuvrirPanneauApercuLettre(texteLettreActuel, texteLettreCourte) {
     '<input type="text" id="ctApercuLettreTelephone" class="form-control form-control-sm mb-2" placeholder="Téléphone" value="' + echapperAttribut(v.telephone) + '">' +
     '<input type="text" id="ctApercuLettreEmail" class="form-control form-control-sm mb-3" placeholder="Email" value="' + echapperAttribut(v.email) + '">' +
     '<h4 class="small" style="font-weight:700;margin-bottom:0.25rem;">&#127970; Destinataire</h4>' +
-    '<p class="text-muted small mb-2">Facultatif - à compléter si vous les connaissez.</p>' +
+    '<p class="text-muted small mb-2">À compléter si vous les connaissez.</p>' +
     '<input type="text" id="ctApercuLettreEntreprise" class="form-control form-control-sm mb-2" placeholder="Nom de l’entreprise" value="' + echapperAttribut(v.entreprise) + '">' +
     '<input type="text" id="ctApercuLettreCiviliteRecruteur" class="form-control form-control-sm mb-2" placeholder="Civilité (Madame, Monsieur...)" value="' + echapperAttribut(v.civiliteRecruteur) + '">' +
     '<input type="text" id="ctApercuLettreNomRecruteur" class="form-control form-control-sm mb-2" placeholder="Nom du destinataire" value="' + echapperAttribut(v.nomRecruteur) + '">' +
@@ -2250,12 +2262,12 @@ function ctBrancherEntretienAvanceImportIA() {
   activerCollageInstantane({
     idZoneAuto: 'zoneCollageAutoCoherenceTransversaleEntretienAvance', idZoneApercu: 'zoneApercuCollageCoherenceTransversaleEntretienAvance',
     idTextarea: 'texteCollageCoherenceTransversaleEntretienAvance', idBoutonColler: 'btnCollerAutoCoherenceTransversaleEntretienAvance',
-    idBoutonCollerManuel: 'btnCollerManuelCoherenceTransversaleEntretienAvance', idBoutonEffacerRecoller: 'btnEffacerRecollerCoherenceTransversaleEntretienAvance',
+    idBoutonCollerManuel: 'btnCollerManuelCoherenceTransversaleEntretienAvance', idBoutonEffacerRecoller: 'btnEffacerRecollerCoherenceTransversaleEntretienAvance', idBoutonImporter: 'btnImporterEntretienAvance',
     onSucces: function (texte, estAjout) {
       var msg = document.getElementById('messageImportEntretienAvance');
       msg.style.color = 'var(--success-strong)';
       msg.textContent = estAjout
-        ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Importer si c’était le dernier.'
+        ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.'
         : '✅ Réponse importée automatiquement depuis le presse-papiers.';
     },
     onErreur: function (texteErreur) {
@@ -2449,12 +2461,12 @@ function ctBrancherEvenements(diagnostic, dossierExistant, entretienAvance) {
   activerCollageInstantane({
     idZoneAuto: 'zoneCollageAutoCoherenceTransversale', idZoneApercu: 'zoneApercuCollageCoherenceTransversale',
     idTextarea: 'texteCollageCoherenceTransversale', idBoutonColler: 'btnCollerAutoCoherenceTransversale',
-    idBoutonCollerManuel: 'btnCollerManuelCoherenceTransversale', idBoutonEffacerRecoller: 'btnEffacerRecollerCoherenceTransversale',
+    idBoutonCollerManuel: 'btnCollerManuelCoherenceTransversale', idBoutonEffacerRecoller: 'btnEffacerRecollerCoherenceTransversale', idBoutonImporter: 'btnImporterCoherence',
     onSucces: function (texte, estAjout) {
       var msg = document.getElementById('messageImportCoherence');
       msg.style.color = 'var(--success-strong)';
       msg.textContent = estAjout
-        ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Importer si c’était le dernier.'
+        ? '✅ Morceau suivant ajouté à la suite. Copiez le prochain morceau puis recliquez, ou cliquez Continuer si c’était le dernier.'
         : '✅ Réponse importée automatiquement depuis le presse-papiers.';
     },
     onErreur: function (texteErreur) {
