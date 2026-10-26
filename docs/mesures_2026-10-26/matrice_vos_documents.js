@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const SC = '/tmp/claude-0/-home-user-APP/642c3445-eb3e-5259-ba86-29201aa22f54/scratchpad/captures';
+const SC = process.env.CAPTURES || require('os').tmpdir() + '/captures_vos_documents';
 require('fs').mkdirSync(SC, { recursive: true });
 const familles = [
   ['01-nouveau-main',      { modeCreation: 'nouveau', creationSansAssistant: true, dernierDocumentPrepare: 'cv' }, null],
@@ -22,7 +22,7 @@ const familles = [
     const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
     const err = [];
     p.on('pageerror', e => err.push(String(e).slice(0, 140)));
-    await p.goto('http://localhost:8123/index.html');
+    await p.goto('' + (process.env.URL_APP || 'http://localhost:8123') + '/index.html');
     await p.waitForTimeout(3000);
     const r = await p.evaluate(async ({ etat, origine }) => {
       try {

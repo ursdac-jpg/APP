@@ -77,6 +77,14 @@ Méthode : navigateur sans fenêtre (Playwright) sur `serveur_dev.py`, on pose l
 - **C13 (nouveau)** : seul le parcours rapide de la lettre a un titre propre ; la famille 08 (lettre approfondie) s'intitule « Vos documents ».
 - Dernier repère : Vos documents (01, 02, 04, 05, 06, 07), Mon CV (03), Terminé (08, 09), Fin / Entretiens (10), aucun (11, 12).
 
+## 3 quater. Parcours rejoués avec de vrais clics (26/10/2026, `docs/mesures_2026-10-26/parcours_retours_et_barres.js`)
+- **C7 confirmé** (création à la main ET avec l'assistant) : depuis « Votre profil », un clic réel sur « Retour » mène à **Vos informations** (`projet`) et non à « Votre parcours » (`votre-parcours`).
+- **C8 confirmé** : l'intertitre « Ce que l'assistant a repéré chez vous » s'affiche aussi dans le parcours à la main.
+- **C14 confirmé (famille 03)** : sans session du module (page rechargée), le « Retour » de « Vos documents » ne fait rien : la page reste « Vos documents ». La personne est bloquée sans message.
+- **C1 précisé (famille 05)** : sur les écrans « Votre objectif », « Vos informations », « Votre profil » ET « Vos documents », Reformuler montre la barre de « Mettre à jour » (Préparer, Assistant, Réponse, **Corriger mon CV**, Vos documents) ; le repère « Vérifier » et le repère « Mise en forme » de sa propre barre ne reparaissent jamais après le premier passage dans ces écrans.
+
+**Références anti-régression** : `docs/mesures_2026-10-26/*.REFERENCE.json` (sorties actuelles des deux scripts, reproductibles à l'identique : deux lancements successifs donnent zéro différence). Après chaque changement de code, relancer les deux scripts et comparer avec `diff` : seules les lignes que le changement prévoit doivent bouger.
+
 ## 4. Pistes communes (à chiffrer après la lecture des familles 3 à 12)
 - **A. Une seule définition « du dernier repère »** : décider un nom unique (ou deux au plus, selon le document) et une fonction qui choisit la barre à partir de la famille, au lieu de dix branches. `[effort : haut]`
 - **B. Un registre des familles** : une table `{ famille, signal, barre, titre, retour, documents proposés }` lue par `pageResultats`, `afficherProgression` et `resultatsCibleRetour`. Les signaux sans mémoire remplacent les drapeaux qui restent. `[effort : haut]`, risque moyen à élevé.
