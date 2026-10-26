@@ -15,7 +15,7 @@ Documents sources (tous dans `docs/`) :
 | Mes documents | Créer (3 parcours), Reprendre (3 voies), Lettre et entretien rapides (2) | **de bout en bout**, vrais clics, clair et sombre |
 | Me préparer à candidater | Lettre avec l'assistant, Entretien, Employeurs | de bout en bout (Employeurs : 2 écrans, module fermé au public) |
 | Boîte à outils | Mes Repères, Mon Carnet, Lexique | de bout en bout (créer, modifier, supprimer, chercher) |
-| Outils d'analyse | Analyser ma candidature, Regard, ATS, Cohérence | Bilan et **Regard de bout en bout** (masquage, collage, fiche) ; ATS et Cohérence jusqu'au dépôt et à la préparation |
+| Outils d'analyse | Analyser ma candidature, Regard, ATS, Cohérence | Bilan et **Regard de bout en bout** (masquage, collage, fiche) ; **Cohérence jusqu'au rapport** ; ATS jusqu'au dépôt |
 | Se tenir informé | Comprendre le cadre, Comprendre les chiffres, Qui fait quoi | consultation complète (département, rayon, fiche, chiffres) |
 | Vous hésitez encore ? | Comparer mes pistes, Un CV plusieurs métiers | premier écran de travail seulement (essais existants dans `parcours_smoke.js`) |
 
@@ -31,7 +31,7 @@ Contrôles automatiques appliqués à **chaque écran visité** : tiret cadratin
 Chaque grappe porte les constats qu'elle résout. **Effort** : bas, moyen, haut ; **Risque** : régression possible si mal faite ; **Où** : cloud (code + tests + scripts) ou local (décision, maquette, essai).
 
 ### G1. Le bouton « Continuer » et la barre du bas (la règle du 19/10/2026 appliquée partout)
-Constats : C11, C16, D2, D5, D18, D30, D4, D33 (fin des analyses sans « Merci bien, j'ai fini »). La règle : **un seul bouton principal, dans la barre du bas, nommé « Continuer »** sauf s'il valide (« Valider le CV »). Écarts relevés : « Continuer » dans la page (récit « Découverte de vos compétences », reprise voie 2 « Récupérer votre CV », analyse de candidature « Organiser mon CV », UCPM), deux « Continuer » à la fois (UCPM), le même acte nommé « Valider le CV » / « Valider la lettre » / **« Continuer »** (entretien) / « Valider ma sélection » (analyse), aucun bouton principal tant que les coordonnées manquent (lettre). **Brique** : `data-barre-bas="1"` et `libelleSuivantBarre()` existent déjà (`BRIQUES_COMMUNES.md`, « Bouton Continuer dans la barre du bas ») : la grappe consiste à **marquer** les boutons restants et à **nommer** l'acte « Valider ... » pour les trois documents. Effort moyen, risque moyen (chaque écran touché doit être rejoué), cloud puis essai local.
+Constats : C11, C16, D2, D5, D18, D30, D4, D33 (fin des analyses sans « Merci bien, j'ai fini »), D35 (boutons grisés sans explication). La règle : **un seul bouton principal, dans la barre du bas, nommé « Continuer »** sauf s'il valide (« Valider le CV »). Écarts relevés : « Continuer » dans la page (récit « Découverte de vos compétences », reprise voie 2 « Récupérer votre CV », analyse de candidature « Organiser mon CV », UCPM), deux « Continuer » à la fois (UCPM), le même acte nommé « Valider le CV » / « Valider la lettre » / **« Continuer »** (entretien) / « Valider ma sélection » (analyse), aucun bouton principal tant que les coordonnées manquent (lettre). **Brique** : `data-barre-bas="1"` et `libelleSuivantBarre()` existent déjà (`BRIQUES_COMMUNES.md`, « Bouton Continuer dans la barre du bas ») : la grappe consiste à **marquer** les boutons restants et à **nommer** l'acte « Valider ... » pour les trois documents. Effort moyen, risque moyen (chaque écran touché doit être rejoué), cloud puis essai local.
 
 ### G2. Le titre de la page (la personne doit savoir où elle est)
 Constats : C13, C19, D22, D29. Quatre pratiques : nom du module (Lettre, Entretien, Bilan), nom de l'**étape** (« Préparer », « Mon CV », « Ajouter mes pistes »), « Vos documents » pour tout, « Ma lettre de motivation rapide » pour la seule version rapide. **Proposition** : le titre = le nom du **module** sur tous les écrans de travail, et un sous-titre = l'étape quand elle apporte quelque chose. **Décision de Denis** (maquette) ; la mise en œuvre passe par le registre (G9) pour « Vos documents » et par un petit changement de texte ailleurs. Effort bas à moyen.
@@ -82,7 +82,7 @@ Les lots **L0, L1, L3, L4** sont petits, sans choix d'interface (sauf textes) et
 
 ## 5. Ce qui reste à rejouer en local (non couvert ici)
 1. « Un CV, plusieurs métiers » (8 pages) et « Comparer mes pistes » (6 écrans) de bout en bout (`parcours_smoke.js`, identifiants `ucpm`, `comparer`).
-2. Les réponses de l'assistant d'**ATS** (choix de la référence) et de **Cohérence** (CV et lettre) ; l'étape « Terminé » de l'analyse de candidature (D19).
+2. **ATS** à partir du choix de la référence (métier ou offre), l'étape « Entretien avancé » de Cohérence, l'étape « Terminé » de l'analyse de candidature (D19).
 3. Le vrai presse-papiers, la vraie ouverture de l'assistant, les vrais fichiers PDF et Word (ici : un fichier texte).
 4. Les parcours avec les vraies données d'une personne et l'avis du public cible (clarté, ton, rythme).
 5. Le Mode Sombre complet de chaque écran (le contrôle automatique ne voit que le contraste du texte, pas l'harmonie des couleurs).

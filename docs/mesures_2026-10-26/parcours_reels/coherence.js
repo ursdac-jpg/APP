@@ -1,0 +1,5 @@
+module.exports = { syntheseGenerale: 'Le CV et la lettre racontent la même histoire : un agent d’entretien expérimenté.', niveau: 'coherent', syntheseNarrative: 'Le dossier présente un parcours continu dans l’entretien de locaux. La lettre reprend les mêmes années. Le poste visé est le même.',
+  questionsEntretien: ['Pourquoi ce poste ?', 'Que faites-vous en cas de produit manquant ?'], lettreVersionCourte: 'Bonjour, agent d’entretien expérimenté, je vous propose ma candidature.',
+  parDocument: { cv: { titre: 'Agent d’entretien', pointsForts: ['Expérience continue'], pointsFaibles: ['Peu de chiffres'] }, lettre: { titre: 'Agent d’entretien', pointsForts: ['Ton clair'], pointsFaibles: [] } },
+  constats: [{ ancrage: ['cv.experience[0]', 'lettre.paragraphe[1]'], nature: 'alignement', dimension: 'parcours', preuve: ['Agent d’entretien, Clean Limousin', 'quatre ans d’entretien'], message: 'Le CV et la lettre parlent des mêmes années.' }],
+  recommandations: [{ constatsLies: [0], contenu: 'Chiffrer le nombre de locaux.', documentCible: 'cv', modeApplication: 'conseil' }] };

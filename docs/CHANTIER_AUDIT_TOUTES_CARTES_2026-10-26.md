@@ -75,3 +75,8 @@ Rejoué jusqu'au premier écran de travail de chaque module ; les parcours compl
   - Analyse de candidature : un seul titre sur toutes les étapes ;
   - Regard : trois écrans (« Choisir l'assistant », « L'assistant va s'ouvrir », « De retour : coller la réponse »).
   C'est la plus grande source d'incohérence ressentie par la personne : elle refait le même geste, dans des décors différents. À traiter comme une **brique** (grappe G10 de la synthèse).
+
+**Cohérence de mon dossier rejoué jusqu'au rapport** (dépôt du CV et de la lettre, « Je n'ai pas d'entretien », choix de l'assistant, collage, rapport).
+- **D35** : sur le rapport, deux boutons restent **grisés sans aucune explication** (ni infobulle, ni texte) : « 📄 Voir/imprimer votre lettre » (`ctBoutonVoirLettre`) et « 🔄 Relancer l'analyse » (`ctBoutonRelancerAnalyse`), ainsi que « 📋 Résumé indisponible » ; seul « 🎯 Aller plus loin : mon entretien » est actif. La règle de l'application (`barreNavigation`, boutons grisés avec message au survol) n'est pas appliquée ici. À vérifier si c'est dû à mes données de test (lettre déposée, pas d'entretien) ; dans tous les cas un bouton grisé doit dire pourquoi.
+- **D36** : la page de travail de « Cohérence de mon dossier » n'a pas de bouton « Revoir la présentation » (la présentation et le premier écran de travail sont la même route `coherence-transversale`) ; c'est le seul module de la carte sans ce bouton sur ses écrans de travail.
+- **ATS rejoué jusqu'au choix de la référence** : le script `s4_ats.js` s'arrête avant le choix du métier (la zone « La référence » n'expose pas de champ dans l'état où je l'ai trouvée) : **à rejouer en local** avec l'outil d'aperçu.

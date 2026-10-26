@@ -8,10 +8,13 @@ const L = require('./lib.js'); const S = require('./saisies4.js'); const A = req
   console.log((await L.boutons(p)).filter(x => !/aide-option|jeton/.test(x)).slice(0, 22).join('\n'));
   console.log('message bouton:', await p.evaluate(() => (document.getElementById('btnSuivantNavigation') || {}).title));
   console.log('texte:', (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(600, 1500));
-  await L.clicTexte(p, 'Un métier précis', 'un métier précis');
+  await L.clicTexte(p, 'Candidature recommandé', 'ouvrir Candidature'); await p.waitForTimeout(800);
+  await L.clicTexte(p, 'Un métier précis', 'un métier précis'); await p.waitForTimeout(800);
   console.log('champs visibles:', await p.evaluate(() => [...document.querySelectorAll('input, textarea, select')].filter(e => e.offsetParent).map(e => e.tagName + '#' + e.id + ' ' + (e.placeholder || '')).join(' ; ')));
   await L.photo(p, 'ats-3b');
-  const inp = p.locator('input[id*=etier]:visible, input[placeholder*=métier]:visible').first(); await inp.scrollIntoViewIfNeeded(); await inp.click(); await inp.pressSequentially('agent d', { delay: 70 }); await p.waitForTimeout(1300);
+  console.log('TOUS les champs:', await p.evaluate(() => [...document.querySelectorAll('input, textarea')].map(e => e.id + '|' + e.type + '|' + (e.placeholder || '') + '|vis=' + (e.offsetParent !== null)).join(' ; ')));
+  await L.photo(p, 'ats-3c'); await b.close(); return;
+  const inp = p.locator('input[id*=etier]:visible').first(); await inp.scrollIntoViewIfNeeded(); await inp.click(); await inp.pressSequentially('agent d', { delay: 70 }); await p.waitForTimeout(1300);
   await p.locator('.option-metier-ajout-nom').first().click(); await p.waitForTimeout(900);
   console.log('Continuer actif:', await p.locator('#btnSuivantNavigation').isEnabled(), '|', await p.evaluate(() => (document.getElementById('btnSuivantNavigation') || {}).title));
   await L.photo(p, 'ats-4');
