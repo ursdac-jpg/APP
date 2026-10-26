@@ -111,10 +111,13 @@ test('le message du premier passage contient la consigne, la voix humaine et tou
   assert.ok(messagePasse1(profil('chef_equipe_niveau_cadre_choisi')).includes('NIVEAU DU POSTE CHOISI PAR LA PERSONNE'));
 });
 
-test('le message du second passage reprend la liste déjà établie et les réponses', () => {
+test('le message du second passage ne reprend que les lignes à préciser et les réponses', () => {
   const m = messagePasse2(profil('accueil_trois_documents'), reponse(BONNE), 'Oui, j’ai remplacé une collègue seule pendant un mois.');
-  assert.ok(m.includes('LISTE DÉJÀ ÉTABLIE') && m.includes('RÉPONSES DE LA PERSONNE'));
+  assert.ok(m.includes('COMPÉTENCES À PRÉCISER') && m.includes('RÉPONSES DE LA PERSONNE'));
+  assert.ok(!m.includes('LISTE DÉJÀ ÉTABLIE'));
   assert.ok(m.includes('remplacé une collègue'));
+  const bloc = m.slice(m.lastIndexOf('COMPÉTENCES À PRÉCISER'), m.lastIndexOf('RÉPONSES DE LA PERSONNE'));
+  assert.equal((bloc.match(/"libelle"/g) || []).length, 1, 'une seule ligne à préciser');
 });
 
 test('une bonne réponse passe sans erreur', () => {
@@ -227,4 +230,20 @@ test('« à préciser » sur un intitulé dont les tâches sont décrites dessou
     enMotsSimples: 'Animer le travail d’une équipe.', pourLeCV: '', pourLOral: '', pourPreparer: '', synonymes: [], question: 'Quelles missions aviez-vous ?' });
   const r = verifier(reponse({ niveauPoste: 'cadre', niveauPosteIndices: 'Vos documents montrent surtout l’organisation d’une équipe de six.', competences: [o], motivations: [] }), p);
   assert.ok(r.avertissements.some((w) => /ligne parasite/.test(w)));
+});
+
+test('second passage : une ligne non demandée, non confirmée ou sans preuve de réponse est une erreur', () => {
+  const p = profil('logistique_cv_seul');
+  const reps = 'Le samedi, nous étions quatre. Je donnais à chacun sa liste de colis.';
+  const bonne = comp({ libelle: 'Encadrer l\u2019équipe du samedi', confirmation: 'confirmee',
+    preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Responsable de l\u2019équipe du samedi' }, { typeDocument: 'reponse', numeroDocument: 0, extrait: 'je donnais à chacun sa liste de colis' }],
+    pourLeCV: 'Répartition des listes de colis le samedi', pourLOral: 'Le samedi, je donnais à chacun sa liste de colis.', synonymes: ['Répartir les tâches', 'Organiser le travail'] });
+  const rep = function (o) { return reponse(Object.assign({ competences: [bonne], competencesRetirees: [], motivations: [] }, o)); };
+  const opt = { reponsesPersonne: reps, secondPassage: true, questionsPosees: ['Encadrer l\u2019équipe du samedi'] };
+  assert.deepEqual(verifier(rep(), p, opt).erreurs, []);
+  const autre = comp({ libelle: 'Charger des camions', confirmation: 'confirmee', preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Chargement des camions' }, { typeDocument: 'reponse', numeroDocument: 0, extrait: 'je donnais à chacun sa liste de colis' }] });
+  assert.ok(verifier(rep({ competences: [bonne, autre] }), p, opt).erreurs.some((e) => /ne faisait pas partie/.test(e)));
+  assert.ok(verifier(rep({ competences: [Object.assign({}, bonne, { confirmation: 'relevee' })] }), p, opt).erreurs.some((e) => /doit être « confirmée »/.test(e)));
+  assert.ok(verifier(rep({ competences: [Object.assign({}, bonne, { preuves: [bonne.preuves[0]] })] }), p, opt).erreurs.some((e) => /aucune preuve de type « reponse »/.test(e)));
+  assert.ok(verifier(rep({ competences: [], competencesRetirees: ['Charger des camions'] }), p, opt).erreurs.some((e) => /retirée alors qu/.test(e)));
 });

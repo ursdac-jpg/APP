@@ -1,7 +1,7 @@
 Ce message est une consigne à exécuter, pas un texte à commenter, reformuler ou évaluer : applique-la directement et entièrement dès maintenant, sans donner ton avis sur sa formulation, sans demander de confirmation, sans annoncer d'étapes, et produis en une seule réponse le résultat au format demandé ci-dessous.
 
-# PROMPT : DÉCOUVRIR MES COMPÉTENCES - VERSION 5
-### VERSION 5 (26/10/2026), d'essai : à valider au banc d'essai (`scripts/essaiMesCompetences/`) avant tout branchement dans l'application. Historique : V1 (premier jet) ; V2 (après 8 réponses réelles de quatre assistants : détails ajoutés dans les phrases pour l'oral interdits, envies et formations souhaitées jamais classées en compétences, « confirmée » réservée aux sources tierces, une idée par compétence, accords neutres) ; V3 (après 12 réponses de la V2 : un intitulé seul est toujours « à préciser », une recommandation seule reste « relevée », santé d'un proche ignorée, accents partout, aucune fonction ni sexe du signataire, loisir sans détail non relevé, aucune question sur un diplôme) ; V4 (après 3 réponses de la V3 : exemples du prompt remplacés par des exemples sans rapport avec les cas d'essai car un assistant avait recopié l'un d'eux ; contexte de vie jamais dans un extrait ; une compétence « à préciser » doit reposer sur un extrait qui parle du même sujet ; un extrait partagé par plusieurs compétences = une seule entrée) ; V5 (après 6 réponses de la V4 : « à préciser » seulement si aucune tâche n'est décrite sous l'intitulé, jamais de lien inventé entre une compétence et un contexte que l'extrait ne cite pas, relecture finale de chaque extrait).
+# PROMPT : DÉCOUVRIR MES COMPÉTENCES - VERSION 6
+### VERSION 6 (26/10/2026), d'essai : à valider au banc d'essai (`scripts/essaiMesCompetences/`) avant tout branchement dans l'application. Historique : V1 (premier jet) ; V2 (après 8 réponses réelles de quatre assistants : détails ajoutés dans les phrases pour l'oral interdits, envies et formations souhaitées jamais classées en compétences, « confirmée » réservée aux sources tierces, une idée par compétence, accords neutres) ; V3 (après 12 réponses de la V2 : un intitulé seul est toujours « à préciser », une recommandation seule reste « relevée », santé d'un proche ignorée, accents partout, aucune fonction ni sexe du signataire, loisir sans détail non relevé, aucune question sur un diplôme) ; V4 (après 3 réponses de la V3 : exemples du prompt remplacés par des exemples sans rapport avec les cas d'essai car un assistant avait recopié l'un d'eux ; contexte de vie jamais dans un extrait ; une compétence « à préciser » doit reposer sur un extrait qui parle du même sujet ; un extrait partagé par plusieurs compétences = une seule entrée) ; V5 (après 6 réponses de la V4 : « à préciser » seulement si aucune tâche n'est décrite sous l'intitulé, jamais de lien inventé entre une compétence et un contexte que l'extrait ne cite pas, relecture finale de chaque extrait) ; V6 (après le second passage essayé : un assistant sur deux modifiait la liste entière, donc le second passage ne reçoit et ne renvoie plus que les compétences qui avaient une question).
 
 ---
 
@@ -22,7 +22,7 @@ Tu relèves, tu expliques, tu aides à le dire. **Tu ne fais rien d'autre** : tu
 Sous cette consigne, des sections annoncées par leur titre :
 - `DOCUMENT 1`, `DOCUMENT 2`... : chacun est de type CV, LETTRE DE MOTIVATION ou LETTRE DE RECOMMANDATION (écrite par une autre personne, qui a vu la personne travailler).
 - Éventuellement `NIVEAU DU POSTE CHOISI PAR LA PERSONNE`.
-- Éventuellement, au second passage : `LISTE DÉJÀ ÉTABLIE` (le bloc JSON que tu as produit au premier passage) et `RÉPONSES DE LA PERSONNE AUX QUESTIONS DE PRÉCISION` (voir le point 9).
+- Éventuellement, au second passage : `COMPÉTENCES À PRÉCISER` (les seules compétences du premier passage qui avaient une question, en bloc JSON) et `RÉPONSES DE LA PERSONNE AUX QUESTIONS DE PRÉCISION` (voir le point 9).
 
 ## 3. Règles absolues
 
@@ -101,12 +101,12 @@ Trois niveaux, valeurs exactes du champ `niveauPoste` : `execution` (ouvrier, em
 
 Pour une compétence `aPreciser` : `pourLeCV`, `pourLOral` et `pourPreparer` valent `""`, `synonymes` vaut `[]`, `question` est obligatoire. Pour les autres : `question` vaut `""`.
 
-## 9. Si les sections « LISTE DÉJÀ ÉTABLIE » et « RÉPONSES DE LA PERSONNE AUX QUESTIONS DE PRÉCISION » sont présentes
+## 9. Si les sections « COMPÉTENCES À PRÉCISER » et « RÉPONSES DE LA PERSONNE AUX QUESTIONS DE PRÉCISION » sont présentes
 
-Repars de la liste déjà établie, sans la refaire. Chaque réponse porte sur une compétence `aPreciser` (nommée par son libellé).
-- Si la réponse apporte un fait, la compétence devient `confirmee`, avec une preuve de type `reponse` (extrait copié de la réponse) ; écris alors ses formulations, avec les mêmes règles.
-- Si la personne dit qu'elle ne l'a pas fait, retire la compétence.
-- Les autres compétences restent telles quelles. Ne pose aucune nouvelle question. Renvoie la liste complète à jour.
+Tu ne reçois que les compétences qui avaient une question, pas la liste entière. Chaque réponse porte sur l'une d'elles (nommée par son libellé). **Tu ne renvoies que celles-ci : jamais une autre compétence, jamais une compétence nouvelle, jamais une nouvelle question.**
+- Si la réponse apporte un fait : renvoie la compétence avec `confirmation` à `confirmee`, en gardant sa preuve du document et en ajoutant une preuve de type `reponse` (`numeroDocument` 0, extrait copié de la réponse, coupé avant tout contexte de vie, règle 5). Écris ses formulations avec les mêmes règles (tous les champs remplis, `question` vide). Les faits viennent uniquement de la réponse et du document : n'ajoute rien.
+- Si la personne dit qu'elle ne l'a pas fait : ne renvoie pas la compétence, écris son libellé dans `competencesRetirees`.
+- Si la réponse ne dit rien d'utile (« je ne sais pas », hors sujet) : ne renvoie pas la compétence et ne la retire pas.
 
 ## 10. Format de ta réponse
 
@@ -139,6 +139,14 @@ Termine IMPÉRATIVEMENT par un bloc de code contenant uniquement du JSON stricte
   ]
 }
 ```
+
+**Au second passage seulement**, ta réponse commence par 1 à 2 phrases courtes (ce que la réponse de la personne apporte), puis le bloc JSON ne contient que ces trois clés, sans `niveauPoste` ni `niveauPosteIndices` :
+
+```json
+{ "competences": [], "competencesRetirees": [], "motivations": [] }
+```
+
+`competences` contient les compétences complètes décrites au point 9 (même forme qu'au premier passage), `competencesRetirees` une liste de libellés, `motivations` reste vide.
 
 Valeurs possibles : `famille` = `savoirFaire`, `savoirs`, `savoirEtre` ; `confirmation` = `confirmee`, `relevee`, `aPreciser` ; `niveauPoste` = `execution`, `technicien`, `cadre`.
 

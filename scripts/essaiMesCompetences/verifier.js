@@ -96,11 +96,24 @@ function verifier(reponse, profil, options) {
     return { erreurs, avertissements, infos };
   }
 
-  /* Niveau du poste */
-  if (NIVEAUX.indexOf(rep.niveauPoste) < 0) { E('niveauPoste invalide : ' + rep.niveauPoste); }
-  if (profil.niveauChoisi && rep.niveauPoste !== profil.niveauChoisi) { W('Le niveau choisi par la personne (' + profil.niveauChoisi + ') n’est pas repris tel quel : niveauPoste = ' + rep.niveauPoste + '.'); }
-  if (!rep.niveauPosteIndices || String(rep.niveauPosteIndices).trim().length < 10) { W('niveauPosteIndices vide ou trop court.'); }
-  if (profil.niveauChoisi === 'cadre' && !/surtout|montrent|prouv|document/i.test(rep.niveauPosteIndices || '')) { W('Niveau choisi plus haut que la preuve : la réponse ne le dit pas clairement dans niveauPosteIndices.'); }
+  const second = !!options.secondPassage;
+  /* Niveau du poste (premier passage seulement) */
+  if (!second) {
+    if (NIVEAUX.indexOf(rep.niveauPoste) < 0) { E('niveauPoste invalide : ' + rep.niveauPoste); }
+    if (profil.niveauChoisi && rep.niveauPoste !== profil.niveauChoisi) { W('Le niveau choisi par la personne (' + profil.niveauChoisi + ') n’est pas repris tel quel : niveauPoste = ' + rep.niveauPoste + '.'); }
+    if (!rep.niveauPosteIndices || String(rep.niveauPosteIndices).trim().length < 10) { W('niveauPosteIndices vide ou trop court.'); }
+    if (profil.niveauChoisi === 'cadre' && !/surtout|montrent|prouv|document/i.test(rep.niveauPosteIndices || '')) { W('Niveau choisi plus haut que la preuve : la réponse ne le dit pas clairement dans niveauPosteIndices.'); }
+  } else {
+    if (rep.niveauPoste || rep.niveauPosteIndices) { W('Second passage : niveauPoste ne devait pas être renvoyé.'); }
+    const retirees = Array.isArray(rep.competencesRetirees) ? rep.competencesRetirees : [];
+    if (rep.competencesRetirees !== undefined && !Array.isArray(rep.competencesRetirees)) { E('« competencesRetirees » n’est pas une liste.'); }
+    if (options.questionsPosees) {
+      const posees = options.questionsPosees.map(normaliser);
+      retirees.forEach(function (l) { if (posees.indexOf(normaliser(l)) < 0) { E('Second passage : « ' + l + ' » retirée alors qu’elle n’avait pas de question.'); } });
+      (Array.isArray(rep.competences) ? rep.competences : []).forEach(function (c) { if (posees.indexOf(normaliser(c.libelle)) < 0) { E('Second passage : « ' + c.libelle + ' » ne faisait pas partie des lignes à préciser (ligne modifiée ou ajoutée).'); } });
+    }
+    if (Array.isArray(rep.motivations) && rep.motivations.length) { W('Second passage : des motivations ont été ajoutées.'); }
+  }
 
   /* Compétences */
   const comps = Array.isArray(rep.competences) ? rep.competences : [];
@@ -108,7 +121,7 @@ function verifier(reponse, profil, options) {
   infos.repartition = { confirmee: 0, relevee: 0, aPreciser: 0 };
   if (!Array.isArray(rep.competences)) { E('« competences » absent ou n’est pas une liste.'); }
   if (comps.length > 14) { E(comps.length + ' compétences : plus de 14.'); }
-  if (comps.length < (profil.minCompetences || 3)) { W(comps.length + ' compétence(s) : en dessous de ' + (profil.minCompetences || 3) + ' attendues pour ce profil.'); }
+  if (!second && comps.length < (profil.minCompetences || 3)) { W(comps.length + ' compétence(s) : en dessous de ' + (profil.minCompetences || 3) + ' attendues pour ce profil.'); }
 
   /* Mots dont la forme accentuée existe dans les documents : écrits sans accent dans la réponse = faute */
   const accentues = {};
@@ -228,11 +241,18 @@ function verifier(reponse, profil, options) {
 
   /* Rappel : ce que le relevé devrait retrouver */
   const tousLibelles = comps.map(function (c) { return (c.libelle || '') + ' ' + (c.pourLeCV || '') + ' ' + (c.enMotsSimples || ''); }).join(' | ');
-  (profil.attendus || []).forEach(function (re) { if (!re.test(tousLibelles)) { W('Rappel : rien ne correspond à ' + re + '.'); } });
-
-  (profil.attendusPreciser || []).forEach(function (re) {
-    if (!comps.some(function (c) { return c.confirmation === 'aPreciser' && re.test((c.libelle || '') + ' ' + (c.question || '')); })) { W('Rappel : aucune compétence « à préciser » ne correspond à ' + re + '.'); }
-  });
+  if (!second) {
+    (profil.attendus || []).forEach(function (re) { if (!re.test(tousLibelles)) { W('Rappel : rien ne correspond à ' + re + '.'); } });
+    (profil.attendusPreciser || []).forEach(function (re) {
+      if (!comps.some(function (c) { return c.confirmation === 'aPreciser' && re.test((c.libelle || '') + ' ' + (c.question || '')); })) { W('Rappel : aucune compétence « à préciser » ne correspond à ' + re + '.'); }
+    });
+  } else {
+    comps.forEach(function (c, i) {
+      const nom = '#' + (i + 1) + ' « ' + (c.libelle || '?') + ' »';
+      if (c.confirmation !== 'confirmee') { E(nom + ' : au second passage, une ligne renvoyée doit être « confirmée ».'); }
+      if (!(c.preuves || []).some(function (p) { return p.typeDocument === 'reponse'; })) { E(nom + ' : aucune preuve de type « reponse ».'); }
+    });
+  }
 
   /* Motivations */
   const motivations = Array.isArray(rep.motivations) ? rep.motivations : [];

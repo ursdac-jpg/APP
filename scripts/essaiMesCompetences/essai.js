@@ -9,8 +9,9 @@
         -> écrit dans docs/essais_mes_competences/ un fichier .txt PRÊT À COLLER
            par profil fictif (consigne + documents), dans un assistant en ligne.
 
-     node scripts/essaiMesCompetences/essai.js verifier <profil> <fichier_reponse.txt> [reponses_personne.txt]
+     node scripts/essaiMesCompetences/essai.js verifier <profil> <fichier_reponse.txt> [reponses_personne.txt [fichier_passe1.txt]]
         -> contrôle la réponse collée dans un fichier texte (voir verifier.js).
+           Avec les réponses de la personne = contrôle d'un SECOND passage (lignes seules).
 
      node scripts/essaiMesCompetences/essai.js passe2 <profil> <fichier_reponse_passe1.txt> <reponses_personne.txt>
         -> écrit le message du SECOND passage (documents + liste déjà établie + réponses
@@ -57,9 +58,15 @@ function messagePasse1(profil) {
 function messagePasse2(profil, reponsePasse1, reponsesPersonne) {
   const ext = extraireJson(reponsePasse1);
   if (!ext.json) { throw new Error('Aucun JSON valide dans la réponse du premier passage.'); }
+  const aPreciser = (ext.json.competences || []).filter(function (c) { return c.confirmation === 'aPreciser'; });
+  if (!aPreciser.length) { throw new Error('Aucune compétence « à préciser » : pas de second passage.'); }
   return consigne().trimEnd() + '\n\n' + sectionsDocuments(profil) + sectionNiveau(profil) +
-    '\nLISTE DÉJÀ ÉTABLIE\n\n```json\n' + JSON.stringify(ext.json, null, 2) + '\n```\n' +
+    '\nCOMPÉTENCES À PRÉCISER\n\n```json\n' + JSON.stringify(aPreciser, null, 2) + '\n```\n' +
     '\nRÉPONSES DE LA PERSONNE AUX QUESTIONS DE PRÉCISION\n\n' + reponsesPersonne.trim() + '\n';
+}
+function libellesAPreciser(reponsePasse1) {
+  const ext = extraireJson(reponsePasse1);
+  return ((ext.json && ext.json.competences) || []).filter(function (c) { return c.confirmation === 'aPreciser'; }).map(function (c) { return c.libelle; });
 }
 
 function profilParId(id) {
@@ -83,7 +90,8 @@ function main(argv) {
     const profil = profilParId(argv[1]);
     const reponse = fs.readFileSync(argv[2], 'utf8');
     const reps = argv[3] ? fs.readFileSync(argv[3], 'utf8') : '';
-    const r = verifier(reponse, profil, { reponsesPersonne: reps });
+    const questions = argv[4] ? libellesAPreciser(fs.readFileSync(argv[4], 'utf8')) : null;
+    const r = verifier(reponse, profil, { reponsesPersonne: reps, secondPassage: !!argv[3], questionsPosees: questions });
     console.log('Profil : ' + profil.titre);
     console.log('Compétences : ' + (r.infos.nbCompetences || 0) + ' ' + JSON.stringify(r.infos.repartition || {}) + ' - motivations : ' + (r.infos.nbMotivations || 0));
     console.log('\nERREURS (' + r.erreurs.length + ')');
@@ -102,9 +110,9 @@ function main(argv) {
     console.log('écrit : docs/essais_mes_competences/' + nom);
     return 0;
   }
-  console.log('Usage : generer | verifier <profil> <fichier> [reponses] | passe2 <profil> <fichier_passe1> <reponses>');
+  console.log('Usage : generer | verifier <profil> <fichier> [reponses [passe1]] | passe2 <profil> <fichier_passe1> <reponses>');
   return 2;
 }
 
 if (require.main === module) { process.exit(main(process.argv.slice(2))); }
-module.exports = { messagePasse1, messagePasse2, consigne, profilParId };
+module.exports = { messagePasse1, messagePasse2, libellesAPreciser, consigne, profilParId };
