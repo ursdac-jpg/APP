@@ -3485,6 +3485,7 @@ function ouvrirAssistantDepotCV(mode, options) {
         definirChoixFichierActif('fichierWizardCV', true);
         etat.modeEditeur = null;
         etat.texteDocumentPrepare = null;
+        dossier.cvAnalyse = _cvAnalyseAvantDepot;
         var btnContinuer = document.getElementById('btnContinuerWizard');
         if (btnContinuer) { btnContinuer.disabled = true; }
       });
@@ -3498,10 +3499,13 @@ function ouvrirAssistantDepotCV(mode, options) {
         if (texte.trim()) {
           etat.modeEditeur = 'texte';
           etat.texteDocumentPrepare = texte;
+          // Comme le chemin « fichier » (plus haut) : un CV est maintenant analysé, quel que soit le mode de dépôt ; sans ça, après l'import la personne arrivait sur « Votre parcours » (ancienne barre) au lieu de « Vos informations ».
+          dossier.cvAnalyse = true;
           if (btnContinuer) { btnContinuer.disabled = false; }
         } else {
           etat.modeEditeur = null;
           etat.texteDocumentPrepare = null;
+          dossier.cvAnalyse = _cvAnalyseAvantDepot;   // plus de texte : l'état d'avant le dépôt (fermer sans enregistrer le restaure déjà)
           if (btnContinuer) { btnContinuer.disabled = true; }
         }
       });
