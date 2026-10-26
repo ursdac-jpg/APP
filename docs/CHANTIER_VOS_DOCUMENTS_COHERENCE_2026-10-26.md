@@ -17,7 +17,7 @@ La page distingue ses variantes par des signaux : `dossier.modeCreation` (`nouve
 |---|---|---|---|---|---|
 | 1 | Créer un nouveau CV, à la main | CV | `CREER_CV_NAV_ETAPES_SANS` (5 étapes) | Vos documents | Lu (écrans 1 à 4) |
 | 2 | Créer un nouveau CV, avec l'assistant | CV | `CREER_CV_NAV_ETAPES` (6 étapes) | Vos documents | Lu (écrans 1 à 5) |
-| 3 | Créer un nouveau CV, « À partir de mon récit » | CV | `DECOUVERTE_NAV_ETAPES` (7 repères) | Mon CV | Barre lue, parcours à lire |
+| 3 | Créer un nouveau CV, « À partir de mon récit » | CV | `DECOUVERTE_NAV_ETAPES` (7 repères) | Mon CV | **Lu (26/10)** : voir 3 bis |
 | 4 | Reprendre mon CV, voie 1 (garder et compléter) | CV, lettre, entretien | `MAJ_CV_NAV_ETAPES` | Vos documents | À lire |
 | 5 | Reprendre mon CV, voie 2 (reformuler) | CV | **`MAJ_CV_NAV_ETAPES`** (voir constat 1) | Vos documents | À lire |
 | 6 | Reprendre mon CV, voie 3 (à la main, `cv-sans-assistant`) | CV | `CSA_NAV_ETAPES` (5 étapes) | Vos documents | Barre lue |
@@ -43,6 +43,13 @@ Trois documents (CV, lettre, entretien) et au moins **dix barres d'étapes diff�
 **Constats hors « Vos documents », trouvés en chemin (parcours « Créer un nouveau CV »)**
 7. « Retour » de « Votre profil » est codé en dur vers `projet` (`pageRevelation`) : il saute « Votre parcours » (à confirmer).
 8. L'intertitre « Ce que l'assistant a repéré chez vous » reste affiché dans le parcours à la main (calcul local, sans assistant).
+
+## 3 bis. Famille 3 « À partir de mon récit » (lue le 26/10/2026, `decouverteParcours.js`)
+- **Barre** : 7 repères (Préparer, Assistant, Réponse, Compétences, Compléter, Rédiger mon CV, Mon CV). Les écrans du module utilisent `_decouverteNavIndex` (repères 0 à 5) ; « Mon CV » (repère 6) n'est atteint que sur « Vos documents », puis tout passe au vert (index 7) quand `cvTermine`.
+- **Sortie** : `terminerParcoursDecouverte()` pose `window._decouverteVersResultats` (transitoire) ET `dossier.decouverteTerminee` (persistant), puis `naviguerVers('resultats')`. Sur « Vos documents », ce drapeau force le document actif sur le CV et cache le sélecteur CV / Lettre / Entretien.
+- **« Retour »** : rouvre le module sans reconstruire son état (`reafficherDecouverteCompetences`) ; si la session du module est perdue (rechargement de la page), `_decouverteRenduEtape` est vide et le bouton ne fait rien (à confirmer dans le navigateur).
+- **Cohérence** : cette famille a le seul dernier repère nommé « Mon CV » et la seule barre à 7 repères ; la lettre et l'entretien n'y sont pas proposés (volontaire : on revient par « Reprendre mon CV », F9). C'est un cas d'exception du registre de la piste B, pas une anomalie.
+- **Vérifié, pas d'anomalie** : le drapeau persistant `decouverteTerminee` est remis à faux au départ de « Reprendre mon CV » (`data/metiers.js` ligne 6235, `onCta`), qui précède les trois voies, donc aussi la voie 3.
 
 ## 4. Pistes communes (à chiffrer après la lecture des familles 3 à 12)
 - **A. Une seule définition « du dernier repère »** : décider un nom unique (ou deux au plus, selon le document) et une fonction qui choisit la barre à partir de la famille, au lieu de dix branches. `[effort : haut]`
