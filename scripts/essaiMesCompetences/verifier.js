@@ -168,7 +168,7 @@ function verifier(reponse, profil, options) {
       if (rl.length && !rl.some(function (r) { return rx[r]; })) { W(nom + ' : le libellé n\u2019a aucun mot en commun avec ses extraits (compétence recopiée d\u2019un exemple de la consigne ?).'); }
     }
     if (c.confirmation === 'aPreciser' && (!c.enMotsSimples || !String(c.enMotsSimples).trim())) { W(nom + ' : « à préciser » sans explication en mots simples.'); }
-    if (profil.genreInconnu && /(^|[^A-Za-zÀ-ÿ])(occupé|occupée|chargé|chargée|devenu|devenue|resté|restée)(?![A-Za-zÀ-ÿ])/i.test(String(c.pourLOral || '') + ' ' + String(c.pourLeCV || ''))) { W(nom + ' : accord au masculin ou au féminin alors que rien n\u2019indique le genre de la personne.'); }
+    if (profil.genreInconnu && /(^|[^A-Za-zÀ-ÿ])(suis|étais|serai|serais|étant|été)(\s+[A-Za-zÀ-ÿ'’]+){0,2}\s+(occupé|occupée|chargé|chargée|devenu|devenue|resté|restée)(?![A-Za-zÀ-ÿ])/i.test(String(c.pourLOral || '') + ' ' + String(c.pourLeCV || ''))) { W(nom + ' : accord au masculin ou au féminin alors que rien n\u2019indique le genre de la personne.'); }
     if (c.confirmation === 'confirmee') {
       if (Object.keys(sources).length < 2) { E(nom + ' : « confirmée » avec une seule source.'); }
       else if (!preuves.some(function (p) { return p.typeDocument === 'recommandation' || p.typeDocument === 'reponse'; })) { E(nom + ' : « confirmée » sans source tierce (lettre de recommandation ou réponse de la personne) : deux documents écrits par la personne comptent comme « relevée ».'); }
