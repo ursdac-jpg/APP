@@ -90,3 +90,6 @@ Verdict provisoire : **GO AVEC RÉSERVES, NON APTE AU MODE NUIT** (restructurati
 - [ ] Rejouer les constats 1, 7, 8 dans le navigateur (script `scripts/parcours/parcours_smoke.js`, Playwright installé).
 - [ ] Décider avec Denis du vocabulaire du dernier repère et de la forme de la barre (maquette).
 - [ ] Plan en cases par effort, puis code, `npm test`, essais navigateur, ligne au journal des changements.
+
+## 6. État de départ des tests (26/10/2026, cloud, avant toute modification de code)
+`npm test` : **2021 essais, 2020 verts, 1 échec** : « Pont : le dossier est le voisin PROSPECTION/donnees/pont du dépôt, à chemin fixe » (le dossier `PROSPECTION` n'existe pas dans ce dépôt cloné). Sans lien avec « Vos documents ». À comparer avec le résultat local de Denis avant toute correction : tout autre échec après un changement serait une régression.
