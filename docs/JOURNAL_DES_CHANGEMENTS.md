@@ -14,6 +14,8 @@
 4. `npm test` (le test des nouveautés contrôle les routes et les tirets longs), puis envoi sur GitHub à la demande de Denis.
 
 ## Journal
+2026-10-26 | Créer un nouveau CV | le bouton « Retour » de « Votre profil » ramène à « Votre parcours » (l'étape d'avant) au lieu de « Vos informations » | à condenser
+2026-10-26 | Reprendre mon CV, lettre et entretien rapides | quand on colle le texte de son CV (au lieu d'un fichier), la suite est la même qu'avec un fichier : « Vos informations » avec la barre du parcours | à condenser
 2026-10-26 | Mise en page du CV | les dates des certifications ne sont plus coupées par le bord d'une colonne étroite : la ligne reste dans la colonne et la date passe sous l'intitulé | à condenser
 2026-10-26 | Mise en page du CV | un texte qui ne se lisait pas (nom blanc sur un bandeau pâle, nom sombre sur un bandeau foncé, certifications blanches sur une colonne vide, titres gris sur une colonne bleue) change tout seul de couleur ; les CV déjà lisibles ne changent pas | à condenser
 2026-10-26 | Mise en page du CV | changer de modèle dans la galerie ne fait plus clignoter l'aperçu (le CV reste affiché pendant le changement) | à condenser

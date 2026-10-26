@@ -133,7 +133,10 @@ const FIXTURE = process.env.FIXTURE || 'moyen';
     const t0 = Date.now(); let nb = 0, nbAnom = 0;
     try {
       await ouvrirModele(m);
-      const base = await instantane(), opts = await lister();
+      const base = await instantane();
+      let opts = await lister();
+      // SEULEMENT=fichier.json : { "modele": ["option=valeur", ...] } rejoue seulement ces réglages (contrôle après correctif des anomalies déjà trouvées)
+      if (process.env.SEULEMENT) { const sel = JSON.parse(fs.readFileSync(process.env.SEULEMENT, 'utf8'))[m.cle] || []; opts = opts.filter(o => sel.indexOf(o.id + '=' + o.v) !== -1); }
       const mb = await p.evaluate(MESURE, FIXTURE === 'long' ? 'Marie-Hélène' : 'Camille'); erreursPage = [];
       fs.appendFileSync(SORTIE, JSON.stringify({ modele: m.cle, fixture: FIXTURE, option: 'BASE', mesure: mb }) + '\n');
       for (const o of opts) {
