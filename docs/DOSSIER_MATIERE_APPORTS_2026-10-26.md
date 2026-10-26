@@ -9,9 +9,9 @@ Ce dossier remplace la synthèse courte de `docs/APPORTS_DOCUMENTS_2026-10-26.md
 ## 0. La réponse en dix lignes
 
 - **Récupéré** : 7 documents (PDF, plus de cent pages, dont un doublon) et toutes les photos reçues, tous lus. Seules les parties illisibles ou purement manuscrites sont laissées de côté.
-- **Informations utiles retenues : 63**, réparties ainsi : **Lexique 26** (22 fiches nouvelles, 4 fiches existantes à enrichir), **Mes Repères et Carnet 5**, **Entretien 3**, **À partir de mon récit 1**, **Comprendre le cadre 9** (logement, budget, emploi, santé et sécurité, santé mentale), **mots du métier du social 3**, **Qui fait quoi 16 lignes de structures** (déjà déposées dans le sas). Le détail est dans les sections 2 à 8.
+- **Informations utiles retenues : 62**, réparties ainsi : **Lexique 26** (22 fiches nouvelles, 4 fiches existantes à enrichir), **Mes Repères et Carnet 5**, **Entretien 3**, **À partir de mon récit 1**, **Comprendre le cadre 9** (logement, budget, emploi, santé et sécurité, santé mentale), **mots du métier du social 3**, **Qui fait quoi 15 lignes de structures** (déjà déposées dans le sas). Le détail est dans les sections 2 à 8.
 - **Écarté, avec la raison** : section 9. En gros : tout ce qui étiquette la personne (questionnaires avec scores, « faible estime de soi »), les chiffres, les noms de personnes, les illustrations protégées.
-- **Déjà fait dans cette séance** : 16 lignes de structures dans `outils/sas/lieux.sas.txt` (à vérifier par un appel avant publication). Le reste est un plan.
+- **Déjà fait dans cette séance** : 15 lignes de structures dans `outils/sas/lieux.sas.txt` (à vérifier par un appel avant publication). Le reste est un plan.
 - **Ce que tu dois faire ensuite** : section 11, en cinq gestes. Le premier est de choisir un lot.
 - **Pour retrouver tout ça sur ta machine** : section 12 (le fichier t'est aussi envoyé directement, et un message prêt à coller y figure).
 
@@ -138,7 +138,7 @@ Les photos montrent sept diapositives d'une présentation d'Action Logement (org
 
 ---
 
-## 7. Qui fait quoi : 16 lignes de structures `[effort : bas, déjà fait]`
+## 7. Qui fait quoi : 15 lignes de structures `[effort : bas, déjà fait]`
 
 **Règle de Denis (26/10/2026) : jamais de nom de personne ; la structure, son téléphone et son mail suffisent.** Toutes les lignes sont dans `outils/sas/lieux.sas.txt`, colonne date vide, source « relevé sur affiche, à vérifier ». Elles ne s'affichent pas au public : elles sortent du sas quand Denis ouvre la page ou appelle, puis clique « C'est bon ».
 
@@ -147,21 +147,23 @@ Les photos montrent sept diapositives d'une présentation d'Action Logement (org
 | 1 | Équipe mobile psychiatrie précarité du Bergeracois (CH de Vauclaire) | 05 53 27 71 41 | bergerac.precarite@ch-vauclaire.fr | P |
 | 2 à 9 | Groupes d'entraide mutuelle de Croix Marine : Bergerac, Excideuil, Montpon, Neuvic, Nontron, Périgueux, Sarlat, Terrasson | un fixe chacun | aucun relevé | P |
 | 10 | Part'ÂGE, espace de vie sociale, quartier Campréal (Bergerac) | 05 53 57 28 57 | campreal.evs@gmail.com | P |
-| 11 | Association BASE (porteuse de Part'ÂGE) | 05 53 58 88 69 | associationbase@gmail.com | P |
-| 12 | Centre médico-social de Sigoulès | 05 53 02 06 13 | aucun relevé | P |
-| 13 | La Traverse, accès aux droits et aide au numérique | 07 69 63 67 85 | acces.aux.droits@latraverse-bergerac.fr | P |
-| 14 | CIDFF 24, accompagnements numériques | 05 53 35 90 90 | cidff.cnum@gmail.com | P |
-| 15 | Parcours Confiance (microcrédit, national) | aucun | apc@parcours-confiance.fr | F |
-| 16 | La Banque Postale, service L'Appui (microcrédit) | 09 69 36 39 20 | aucun | F |
+| 11 | Centre médico-social de Sigoulès | 05 53 02 06 13 | aucun relevé | P |
+| 12 | La Traverse, accès aux droits et aide au numérique | 07 69 63 67 85 | acces.aux.droits@latraverse-bergerac.fr | P |
+| 13 | CIDFF 24, accompagnements numériques | 05 53 35 90 90 | cidff.cnum@gmail.com | P |
+| 14 | Parcours Confiance (microcrédit, national) | aucun | apc@parcours-confiance.fr | F |
+| 15 | La Banque Postale, service L'Appui (microcrédit) | 09 69 36 39 20 | aucun | F |
+
+**Correction du 26/10/2026 (soir)** : la ligne « Association BASE » que j'avais déposée était un **doublon** : BASE est déjà publiée (`asso-base-24`, même téléphone 05 53 58 88 69, bus numérique compris). Je l'ai retirée du sas. Il reste à ajouter à la fiche publiée le mail `associationbase@gmail.com` et le lien avec l'espace de vie sociale Part'ÂGE.
 
 **À corriger dans les lignes déjà publiées ou déjà dans le sas** (déjà dans l'application, pas redéposées) :
 
+- [ ] BASE (fiche publiée `asso-base-24`) : ajouter le mail `associationbase@gmail.com` et mentionner Part'ÂGE.
 - [ ] Croix Marine (fiche publiée `asso-croix-marine-24`) : ajouter le mail `association@croixmarine24.fr` relevé sur l'affiche.
 - [ ] Atelier budgétaire de Périgueux (sas, ligne 30) : ajouter le mail de contact relevé sur la fiche F (`contact24@latelierbudgetaire.org`) et l'adresse (5 rue Sirey, dans les locaux du Crédit Municipal). **Le nom de la personne indiqué sur la fiche n'est pas repris.**
 - [ ] ADIE (sas, ligne 184 : Saint-Astier) : comparer avec la fiche F (08 rue Amiral Courbet, 24110, 09 69 32 81 10, mail régional).
 - [ ] Agences d'intérim de Bergerac (affiche P) : **Proman** : l'affiche dit 89 rue Neuve d'Argenson, le sas dit 21 place Gambetta. **Interim 24** : « rue de la Roque » sur l'affiche, « avenue de la Roque » dans le sas. À trancher par un appel. **C3I** : agence de Sainte-Foy-la-Grande, en Gironde, hors périmètre.
 
-**Non déposé faute de contact lisible sur la photo** : Aide 24 est déjà publiée ; « Raconte-moi ton projet » (dispositif d'assistance au parcours de vie, service gratuit) ; Pair'mission (Mission Locale du Bergeracois et La Gare Mondiale, cofinancé par l'Union européenne) ; Terres Equi'Solidaires (entreprise d'insertion de médiation équine, ouverte en février 2021, association APES 24). Pour ces trois-là, **il faut un téléphone ou un mail** : à me donner ou à relever.
+**Les quatre dispositifs de la mission locale (décision à prendre) : « Mieux dans ma tête, mieux dans mon job », Pair'mission, « Raconte-moi ton projet », Terres Equi'Solidaires.** Denis précise (26/10/2026 soir) qu'ils sont portés par la Mission Locale du Bergeracois. Cette structure est **déjà publiée** (`asso-mission-locale-du-bergeracois-24`, avec le PLIE et l'O2R). Constat sur les photos : Pair'mission porte les logos de la mission locale et de La Gare Mondiale (cofinancé par l'Union européenne) ; la brochure de Terres Equi'Solidaires porte le logo de l'association APES 24 (entreprise d'insertion de médiation équine, ouverte en février 2021) ; « Raconte-moi ton projet » (dispositif d'assistance au parcours de vie, service gratuit) ne nomme pas son porteur sur la photo. **Recommandation : ne pas créer quatre lignes de structures.** Une personne qui cherche une aide s'adresse à la mission locale, pas à un nom de dispositif qui peut changer. À la place : **une seule phrase** dans la ligne publiée de la mission locale (« propose aussi des dispositifs pour les jeunes, par exemple Pair'mission »), **seulement après lecture de la page officielle de la mission locale** (site missionlocaledubergeracois.com) pour confirmer le porteur de chacun. Risque de l'alternative : quatre lignes sans contact lisible, plus un porteur possiblement erroné (APES 24 sur la brochure de Terres Equi'Solidaires). Décision : GARDER la phrase unique / ÉCARTER / À REVOIR après lecture du site.
 
 ---
 
@@ -191,7 +193,7 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 ## 10. Ce qui est incertain et que je ne peux pas deviner
 
 1. **Qui est l'auteur du texte « coach » ?** (G, source à retrouver.)
-2. **Le contact de « Mieux dans ma tête », de Pair'mission, de « Raconte-moi ton projet » et de Terres Equi'Solidaires.**
+2. **Le porteur exact des quatre dispositifs** (voir section 7) : à lire sur le site de la mission locale.
 3. **La licence exacte de la grille d'Alèthéia.**
 4. **Les montants, plafonds et durées des diapositives Action Logement** : à relire sur la source officielle.
 5. **Si M4 (« Qui suis-je ? ») va dans « Regard extérieur » ou dans « Mes Repères »** : il faut lire `modules/regard-exterieur/` avant de répondre.
@@ -203,8 +205,8 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 
 1. **Lis les sections 2 et 3 et coche** GARDER, ÉCARTER ou À REVOIR sur chaque entrée (ce fichier est fait pour ça). Si tu veux aller vite, ne coche que les lots entiers.
 2. **Choisis le premier lot.** Ma recommandation : **le lot 1 du Lexique** (estime de soi, confiance en soi, affirmation de soi, les trois voisines). Pourquoi : c'est le plus demandé par le public, il ne dépend d'aucun autre chantier, il demande peu de code (le moteur de fiches existe), et la rédaction reste à toi. Risque : une fiche sur l'estime touche un terrain sensible, d'où la relecture ligne à ligne.
-3. **Donne-moi les contacts manquants** (section 10, points 1 à 3) quand tu les as : une ligne de plus dans le sas par structure.
-4. **Ouvre l'outil de veille** (`outils/veille.html`) : les 16 lignes de la section 7 y attendent leur « C'est bon » après un appel.
+3. **Tranche la phrase unique sur les quatre dispositifs** (section 7), puis donne-moi les réponses de la section 10.
+4. **Ouvre l'outil de veille** (`outils/veille.html`) : les 15 lignes de la section 7 y attendent leur « C'est bon » après un appel.
 5. **Les exercices de la section 3** ne partent qu'après maquette et avec toi (Mode A) : on ne les lance pas un jour de fatigue.
 
 **Verdict mode nuit** : **NON APTE AU MODE NUIT** pour tout ce dossier : aucune décision de contenu n'est tranchée. Il le deviendra pour le lot 1 une fois tes cases cochées et le texte de chaque fiche validé par toi.
@@ -219,17 +221,11 @@ Relevées sur un tableau blanc de formation (AFPA) : **CISP** (conseiller en ins
 
 **B. Par le dépôt.** Les fichiers sont sur la branche `claude/fervent-ritchie-hmq5cn` du dépôt `ursdac-jpg/APP`, mais **elle n'est pas encore poussée** : le contrôle automatique de cette session a bloqué mon `git push` (« Git Destructive »). Si tu veux le chemin B, dis-moi « pousse » et je relance. Ensuite, sur ta machine : `git fetch origin claude/fervent-ritchie-hmq5cn`, puis tu choisis de fusionner ou de simplement lire les fichiers de cette branche. **Je ne fusionne jamais dans `master` sans ton accord** (règle de `CLAUDE.md`).
 
-### Message à coller pour reprendre en local (début d'une nouvelle session sur ta machine)
+### Message à coller pour reprendre en local
 
-```
-/app Reprise du tri des apports de Denis (26/10/2026).
-Lis docs/DOSSIER_MATIERE_APPORTS_2026-10-26.md en entier, puis docs/DOCTRINE_LEXIQUE.md.
-Contexte : Denis a déposé 7 documents (supports d'auteurs sur l'estime de soi, l'assertivité, la communication, microcrédit, origine du mot coach) et environ 40 photos (affiches, dépliants, diapositives Action Logement). Tout est trié dans le dossier ; les cases de décision sont à cocher par Denis.
-Ce qui est déjà fait : 16 lignes de structures de la Dordogne dans outils/sas/lieux.sas.txt (sans nom de personne, à vérifier par appel). Rien n'est rédigé pour le Lexique.
-Règles à respecter : jamais de nom de personne ; jamais de chiffre dans une fiche du Lexique (bloc daté à part) ; le Lexique explique le pourquoi, pas le comment ; jamais de diagnostic sur la personne ; ne pas reprendre les textes ni les schémas des auteurs (idées seulement, source citée) ; ne pas reprendre les questions de la grille d'Alèthéia.
-Mode B, [effort : moyen]. Attends mon réglage d'effort et mon « démarre » avant de commencer.
-Première tâche proposée : lot 1 du Lexique (estime de soi, confiance en soi, affirmation de soi, trois notions voisines). Prépare la matière et un brouillon par fiche ; je rédige et je tranche. Lance ensuite node scripts/checkLexique.js et npm test, ajoute une ligne à docs/JOURNAL_DES_CHANGEMENTS.md, et ne pousse rien sans ma demande.
-```
+**Le message à jour est dans `docs/MESSAGE_REPRISE_LOCAL_APPORTS_2026-10-26.md`** (il remplace l'ancienne version de cette section et tient compte des brouillons de fiches et du fichier de lignes du sas). Il t'est aussi envoyé comme fichier.
+
+**Trois fichiers à retrouver sur ta machine** : ce dossier, `docs/BROUILLONS_LEXIQUE_LOTS_1_2_2026-10-26.md` (dix fiches au format exact) et `docs/LIGNES_SAS_APPORTS_2026-10-26.txt` (les 15 lignes du sas, copie de secours).
 
 ---
 
@@ -244,4 +240,4 @@ Première tâche proposée : lot 1 du Lexique (estime de soi, confiance en soi, 
 | Entretien (M6 à M8) | 3 | haut, audit de prompt d'abord | Non |
 | À partir de mon récit (M9) | 1 | moyen | Après comparaison |
 | Comprendre le cadre (C1 à C9) | 9 | moyen | Après relecture des chiffres |
-| Qui fait quoi (section 7) | 16 lignes déposées + 4 corrections + 4 contacts à obtenir | bas | Fait, attend les appels |
+| Qui fait quoi (section 7) | 15 lignes déposées + 5 corrections + 1 phrase à décider (mission locale) | bas | Fait, attend les appels |
