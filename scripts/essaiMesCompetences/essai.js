@@ -27,42 +27,24 @@ const { verifier, extraireJson } = require('./verifier.js');
 const RACINE = path.join(__dirname, '..', '..');
 const SORTIE = path.join(RACINE, 'docs', 'essais_mes_competences');
 
-const TITRES = {
-  cv: 'CV',
-  lettreMotivation: 'LETTRE DE MOTIVATION',
-  recommandation: 'LETTRE DE RECOMMANDATION (écrite par une autre personne)'
-};
-const NIVEAUX_LIBELLES = {
-  execution: 'Ouvrier ou employé (niveau exécution)',
-  technicien: 'Technicien ou agent de maîtrise',
-  cadre: 'Cadre ou direction'
-};
+const L = require('../../modules/mes-competences/logique.js');
 
 function lire(rel) { return fs.readFileSync(path.join(RACINE, rel), 'utf8'); }
 function voix() { return lire('prompts/_voix-humaine.md').trim(); }
 
-function consigne() { return lire('prompts/mes-competences.md').replace(/\{\{VOIX_HUMAINE\}\}/g, function () { return voix(); }); }
+// Le prompt tel que l'application l'envoie : voix humaine insérée, historique des versions retiré (logique.js).
+function consigne() { return L.mesCompNettoyerPrompt(lire('prompts/mes-competences.md').replace(/\{\{VOIX_HUMAINE\}\}/g, function () { return voix(); })); }
 
-function sectionsDocuments(profil) {
-  return profil.documents.map(function (d, i) {
-    return 'DOCUMENT ' + (i + 1) + ' - ' + TITRES[d.type] + '\n\n' + d.texte.trim() + '\n';
-  }).join('\n');
-}
-function sectionNiveau(profil) {
-  return profil.niveauChoisi ? '\nNIVEAU DU POSTE CHOISI PAR LA PERSONNE\n\n' + NIVEAUX_LIBELLES[profil.niveauChoisi] + '\n' : '';
-}
-
+// Les messages sont construits par la source unique de l'application (modules/mes-competences/logique.js).
 function messagePasse1(profil) {
-  return consigne().trimEnd() + '\n\n' + sectionsDocuments(profil) + sectionNiveau(profil);
+  return L.mesCompConstruireMessage(consigne(), profil.documents, profil.niveauChoisi || 'auto');
 }
 function messagePasse2(profil, reponsePasse1, reponsesPersonne) {
   const ext = extraireJson(reponsePasse1);
   if (!ext.json) { throw new Error('Aucun JSON valide dans la réponse du premier passage.'); }
   const aPreciser = (ext.json.competences || []).filter(function (c) { return c.confirmation === 'aPreciser'; });
   if (!aPreciser.length) { throw new Error('Aucune compétence « à préciser » : pas de second passage.'); }
-  return consigne().trimEnd() + '\n\n' + sectionsDocuments(profil) + sectionNiveau(profil) +
-    '\nCOMPÉTENCES À PRÉCISER\n\n```json\n' + JSON.stringify(aPreciser, null, 2) + '\n```\n' +
-    '\nRÉPONSES DE LA PERSONNE AUX QUESTIONS DE PRÉCISION\n\n' + reponsesPersonne.trim() + '\n';
+  return L.mesCompConstruireMessageSecondPassage(consigne(), profil.documents, profil.niveauChoisi || 'auto', aPreciser, reponsesPersonne);
 }
 function libellesAPreciser(reponsePasse1) {
   const ext = extraireJson(reponsePasse1);
