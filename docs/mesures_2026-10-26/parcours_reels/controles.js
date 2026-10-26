@@ -1,6 +1,6 @@
 // Controles automatiques appliques a l'ecran visible (non-negociables du CLAUDE.md + lisibilite)
 const fs = require('fs');
-const SORTIE = process.env.ANOMALIES || '/tmp/claude-0/-home-user-APP/642c3445-eb3e-5259-ba86-29201aa22f54/scratchpad/anomalies.jsonl';
+const SORTIE = process.env.ANOMALIES || require('os').tmpdir() + '/anomalies_parcours.jsonl';
 async function controlerEcran(p, etiquette) {
   const r = await p.evaluate(() => {
     const vis = e => e.offsetParent !== null || getComputedStyle(e).position === 'fixed';

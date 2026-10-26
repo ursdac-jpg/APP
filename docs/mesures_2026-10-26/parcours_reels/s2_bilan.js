@@ -1,0 +1,25 @@
+const L = require('./lib.js'); const S = require('./saisies4.js'); const Sa = require('./saisies.js'); const A = require('./avancer.js');
+(async () => {
+  const { b, p } = await L.ouvrir();
+  await L.carte(p, 'analyse', 'btnCarteAccueilBilan', 'tuile Analyser ma candidature');
+  await L.clic(p, '#btnBilanIntroCommencer', 'Commencer'); await p.waitForTimeout(1500);
+  await S.deposerFichierDepuis(p, 'btnPreparerDeposerCv');
+  await L.photo(p, 'bil-3-apres-depot');
+  const e = await L.etat(p, 'après dépôt');
+  console.log((await L.boutons(p)).filter(x => !/aide-option|jeton|carte-objectif/.test(x)).slice(0, 20).join('\n'));
+  console.log('message bouton:', await p.evaluate(() => (document.getElementById('btnSuivantNavigation') || {}).title));
+  console.log('texte:', (await p.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').slice(300, 1100));
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (Préparer)'); await p.waitForTimeout(2000); await L.photo(p, 'bil-4');
+  console.log((await L.boutons(p)).filter(x => !/aide-option|jeton|carte-objectif/.test(x)).slice(0, 24).join('\n'));
+  await S.assistantEtColler(p, require('./bilan.js'), 'bilan');
+  await p.locator('#btnContinuerCollage').click(); await p.waitForTimeout(2500);
+  await L.etat(p, 'bilan rapport'); 
+  await L.clicTexte(p, 'Organiser mon CV', 'Organiser mon CV'); await p.waitForTimeout(2500);
+  await L.photo(p, 'bil-7');
+  console.log((await L.boutons(p)).filter(x => !/aide-option|jeton|pastille/.test(x)).slice(0, 14).join('\n'));
+  await S.assistantEtColler(p, require('./extraction.js'), 'bilan-2');
+  await A.avancer(p, 'bilan-fin', 8);
+  await L.photo(p, 'bil-8-fin');
+  console.log('erreurs:', p.errs);
+  await b.close();
+})();

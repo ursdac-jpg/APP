@@ -1,16 +1,16 @@
 const { chromium } = require('playwright');
 const { controlerEcran } = require('./controles.js');
-const SC = '/tmp/claude-0/-home-user-APP/642c3445-eb3e-5259-ba86-29201aa22f54/scratchpad/captures';
+const SC = process.env.CAPTURES || require('os').tmpdir() + '/captures_parcours';
 require('fs').mkdirSync(SC, { recursive: true });
 async function ouvrir() {
   const b = await chromium.launch();
-  const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
+  const ctx = await b.newContext({ viewport: (process.env.VIEWPORT ? { width: parseInt(process.env.VIEWPORT.split('x')[0]), height: parseInt(process.env.VIEWPORT.split('x')[1]) } : { width: 1280, height: 900 }) });
   await ctx.addInitScript(() => { window.__ouvertures = []; window.open = function (u) { window.__ouvertures.push(String(u)); return { closed: false, focus() {}, close() {} }; }; });
   await ctx.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
   const p = await ctx.newPage(); p.errs = []; p.log = [];
   p.on('pageerror', e => p.errs.push(String(e).slice(0, 160)));
   p.on('dialog', d => { p.log.push('DIALOGUE: ' + d.message().slice(0, 120)); d.accept(); });
-  await p.goto('http://localhost:8123/index.html'); await p.waitForTimeout(2500);
+  await p.goto((process.env.URL_APP || 'http://localhost:8123') + '/index.html'); await p.waitForTimeout(2500);
   await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
   if (process.env.THEME === 'sombre') { await p.evaluate(() => document.documentElement.setAttribute('data-theme', 'sombre')); await p.waitForTimeout(400); }
   return { b, p };
