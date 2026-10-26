@@ -9,6 +9,7 @@ const fs = require('fs');
 (async () => {
   const { b, p } = await vers();
   const N = parseInt(process.env.N || '100', 10);
+  if (process.env.ALLURE) { await p.locator('[data-mep-allure="' + process.env.ALLURE + '"]').first().click(); await p.waitForTimeout(3500); }
   const tirages = [];
   for (let i = 0; i < N; i++) {
     const avant = await p.evaluate(() => { const f = document.querySelector('#zonePdfInlineCV iframe'); try { return f.contentDocument.getElementById('conteneurPage').innerHTML.length; } catch (e) { return -1; } });
@@ -35,6 +36,6 @@ const fs = require('fs');
     tirages.push(r);
     if ((i + 1) % 10 === 0) { console.log('tirages', i + 1); }
   }
-  fs.writeFileSync((process.env.CAPTURES || '/tmp') + '/style_rapide_tirages.json', JSON.stringify(tirages, null, 0));
+  fs.writeFileSync((process.env.CAPTURES || '/tmp') + '/style_rapide_tirages' + (process.env.ALLURE ? '_' + process.env.ALLURE : '') + '.json', JSON.stringify(tirages, null, 0));
   await b.close();
 })();
