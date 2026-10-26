@@ -112,3 +112,7 @@ Brique à vérifier avant code : fenêtre d'import CV partagée (dette B.1, comp
 ## 7. Décision de conception issue des essais (26/10/2026) : un filet de sécurité dans l'application
 
 Les assistants ne sont pas tous aussi fiables : un seul défaut (une détention recopiée dans un extrait) suffit à gêner la personne. L'application ne doit donc **jamais afficher la réponse de l'assistant telle quelle**. Après le collage, elle applique les contrôles du banc d'essai (`scripts/essaiMesCompetences/verifier.js`, à transformer en module testé) : extrait absent des documents, mot de contexte de vie, chiffre inventé, « confirmée » sans source tierce, fonction du signataire, accent manquant, envie classée en compétence. Une ligne en erreur est retirée ou signalée à la personne, jamais montrée. À planifier dans l'audit final (module `modules/mes-competences/`, brique B nouvelle). `[effort : haut]`
+
+
+## 26/10/2026 : audit final fait
+Voir `docs/AUDIT_FINAL_DECOUVRIR_MES_COMPETENCES_2026-10-26.md` (inventaire, parcours réel, points d'intégration, décisions d'architecture, plan en 9 étapes, verdict mode nuit en deux tranches). Prochaine étape : code, étape 1.
