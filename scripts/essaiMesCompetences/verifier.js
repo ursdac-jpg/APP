@@ -157,6 +157,15 @@ function verifier(reponse, profil, options) {
       E(nom + ' : un intitulé de poste seul doit être « à préciser », pas une compétence ' + c.confirmation + '.');
     }
     if (/\b(certificat|dipl[oô]me|caces|titre obtenu)\b/i.test((c.question || '') + ' ' + (c.pourPreparer || ''))) { W(nom + ' : une question porte sur un diplôme ou un certificat (interdit).'); }
+    /* Libellé sans aucun rapport avec ses extraits (compétence recopiée d'un exemple du prompt ?) */
+    if (preuves.length) {
+      const racines = function (t) { return mots(t).filter(function (w) { return w.length >= 5; }).map(function (w) { return w.slice(0, 5); }); };
+      const rl = racines(c.libelle), rx = {};
+      preuves.forEach(function (p) { racines(p.extrait).forEach(function (r) { rx[r] = true; }); });
+      if (rl.length && !rl.some(function (r) { return rx[r]; })) { W(nom + ' : le libellé n\u2019a aucun mot en commun avec ses extraits (compétence recopiée d\u2019un exemple de la consigne ?).'); }
+    }
+    if (c.confirmation === 'aPreciser' && (!c.enMotsSimples || !String(c.enMotsSimples).trim())) { W(nom + ' : « à préciser » sans explication en mots simples.'); }
+    if (profil.genreInconnu && /(^|[^A-Za-zÀ-ÿ])(occupé|occupée|chargé|chargée|devenu|devenue|resté|restée)(?![A-Za-zÀ-ÿ])/i.test(String(c.pourLOral || '') + ' ' + String(c.pourLeCV || ''))) { W(nom + ' : accord au masculin ou au féminin alors que rien n\u2019indique le genre de la personne.'); }
     if (c.confirmation === 'confirmee') {
       if (Object.keys(sources).length < 2) { E(nom + ' : « confirmée » avec une seule source.'); }
       else if (!preuves.some(function (p) { return p.typeDocument === 'recommandation' || p.typeDocument === 'reponse'; })) { E(nom + ' : « confirmée » sans source tierce (lettre de recommandation ou réponse de la personne) : deux documents écrits par la personne comptent comme « relevée ».'); }
@@ -198,6 +207,10 @@ function verifier(reponse, profil, options) {
     (profil.motsAuDessusDeLaPreuve || []).forEach(function (mot) { if (formulations.indexOf(sansAccents(mot).toLowerCase()) >= 0) { W(nom + ' : vocabulaire plus haut que la preuve (« ' + mot + ' »).'); } });
     (profil.interditsLibelle || []).forEach(function (re) { if (c.confirmation !== 'aPreciser' && re.test(c.libelle || '')) { W(nom + ' : libellé non prouvé par un fait (adjectif ou loisir transformé en compétence).'); } });
   });
+  /* Un même extrait pour plusieurs compétences */
+  const parExtrait = {};
+  comps.forEach(function (c) { (c.preuves || []).forEach(function (p) { const k = normaliser(p.extrait); if (k.length > 12) { (parExtrait[k] = parExtrait[k] || []).push(c.libelle); } }); });
+  Object.keys(parExtrait).forEach(function (k) { const l = parExtrait[k].filter(function (x, i, a) { return a.indexOf(x) === i; }); if (l.length > 1) { W('Même extrait utilisé par plusieurs compétences (' + l.join(' / ') + ') : fusionner ou couper l\u2019extrait.'); } });
   if (nbEtrePreciser > 3) { W(nbEtrePreciser + ' savoir-être « à préciser » (3 au plus).'); }
 
   /* Répétition entre « pour l'oral » */

@@ -77,6 +77,14 @@ test('le prompt existe, porte {{VOIX_HUMAINE}} une fois, sans le mot IA', () => 
   assert.ok(!/[–—]/.test(prompt.replace('(– ou —)', '')), 'pas de tiret long hors consigne');
 });
 
+test('aucun exemple de la consigne ne coïncide avec les documents des profils d\u2019essai (sinon l\u2019essai est faussé)', () => {
+  const ex = (prompt.match(/«[^»]{10,}»/g) || []).map((x) => x.replace(/[«»]/g, '').replace(/\.\.\./g, '').trim()).filter((x) => x.length >= 10 && /\s/.test(x));
+  assert.ok(ex.length > 15, 'des exemples sont repérés');
+  const docs = PROFILS.map((p) => p.documents.map((d) => normaliser(d.texte)).join(' | ')).join(' || ');
+  const collisions = ex.filter((e) => docs.indexOf(normaliser(e)) >= 0);
+  assert.deepEqual(collisions, [], 'exemples recopiés des cas de test : ' + collisions.join(' ; '));
+});
+
 test('le bloc JSON d’exemple du prompt est du JSON valide avec les bonnes clés', () => {
   const m = prompt.match(/```json\s*(\{\s*"niveauPoste"[\s\S]*?)```/);
   assert.ok(m, 'exemple de format trouvé');
@@ -172,6 +180,16 @@ test('accent manquant, intitulé seul établi, fonction du signataire, question 
   const p2 = profil('accueil_trois_documents');
   const o2 = copie(BONNE); o2.competences[0].pourLOral = 'La directrice de l\u2019association indique que j\u2019ai assuré l\u2019accueil.';
   assert.ok(verifier(reponse(o2), p2).erreurs.some((e) => /Nom de tiers/.test(e)));
+});
+
+test('libellé sans rapport avec ses extraits, extrait partagé, accord sans indice de genre : signalés', () => {
+  const p = profil('logistique_cv_seul');
+  const base = (...l) => reponse({ niveauPoste: 'execution', niveauPosteIndices: 'Vos documents montrent surtout des tâches d\u2019entrepôt.', competences: l, motivations: [] });
+  const a = comp({ libelle: 'Préparer des commandes', preuves: [{ typeDocument: 'cv', numeroDocument: 1, extrait: 'Préparation d\u2019environ 80 colis par jour' }], pourLeCV: 'Préparation d\u2019environ 80 colis par jour', pourLOral: 'J\u2019ai préparé environ 80 colis par jour.' });
+  assert.ok(verifier(base(Object.assign({}, a, { libelle: 'Encadrer le rayon frais' })), p).avertissements.some((w) => /aucun mot en commun/.test(w)));
+  const b = Object.assign({}, a, { libelle: 'Contrôler des colis' });
+  assert.ok(verifier(base(a, b), p).avertissements.some((w) => /Même extrait/.test(w)));
+  assert.ok(verifier(base(Object.assign({}, a, { pourLOral: 'Je me suis occupé des colis.' })), p).avertissements.some((w) => /genre/.test(w)));
 });
 
 test('un JSON coupé ou invalide, ou « analyseImpossible » à tort, sont signalés', () => {

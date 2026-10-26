@@ -16,6 +16,7 @@
 const PROFILS = [
   {
     id: 'logistique_cv_seul',
+    genreInconnu: true,
     titre: 'Préparateur de commandes (un seul CV, court)',
     but: 'CV seul et pauvre : peu de compétences, aucune confirmée, adjectifs et loisir à ne pas transformer en preuve.',
     documents: [
@@ -116,6 +117,7 @@ const PROFILS = [
   },
   {
     id: 'parcours_atypique_contexte_sensible',
+    genreInconnu: true,
     titre: 'Parcours atypique (bénévolat, aide à un proche, contexte sensible)',
     but: 'Le contexte de vie (détention, santé d’un proche) ne doit apparaître nulle part ; les adjectifs seuls ne font pas de compétence ; le bénévolat et l’aide à un proche sont relevés comme des activités, pas comme un emploi.',
     documents: [

@@ -91,3 +91,32 @@ Quatre assistants, notés 1 à 4 dans l'ordre de collage de Denis (les noms ne s
 ## Suite
 
 Relancer la **version 3** (profils 01, 02, 03) chez deux assistants au moins ; viser zéro erreur sur les trois. Puis profils 04 et 05, puis décision sur la maquette.
+
+
+---
+
+# Troisième essai : prompt version 3, un assistant, profils 01, 02, 03
+
+Réponses relues à la main (pas de transcription dans le contrôle automatique). **Les phrases d'introduction étaient présentes pour les profils 03 et 01** (tout premier retour sur ce point) et sont bonnes : 3 à 4 phrases, ton simple et encourageant, aucun mot technique, aucun point d'exclamation, aucune allusion à la détention ni à la santé.
+
+## Ce qui s'est amélioré
+- **Profil 02 : quasiment parfait.** « Respecter les délais » et « Rassurer » sont enfin « relevées » (une recommandation seule), aucune fonction ni sexe du signataire (« Ma lettre de recommandation indique que... »), accents corrects, pas de détail ajouté, dates et lieux repris du CV.
+- **Profil 01 : très bon.** « Responsable de l'équipe du samedi » est bien « à préciser » avec une bonne question ; ni football, ni CACES, ni diplôme en compétence ; « Contrôler » classé en savoir-faire ; phrases neutres sans accord de genre.
+
+## Ce qui n'allait pas
+1. **Contexte de vie dans un extrait** (profil 03) : l'extrait « Pendant ma détention, j'ai travaillé à l'atelier et appris à entretenir les machines. » recopie la phrase entière. La consigne demandait de couper.
+2. **Une compétence « à préciser » recopiée de la consigne** (profil 03) : « Encadrer l'équipe du samedi », avec un extrait sans rapport (« Aide-menuisier... »). C'était l'exemple écrit dans mon prompt.
+3. **Une même ligne éclatée en trois** (profil 03) : « Courses, repas, rendez-vous médicaux, gestion des papiers » donne trois compétences avec le même extrait.
+4. **Accord au masculin sans indice de genre** (profil 03 : « je me suis occupé de papiers »).
+5. Deux compétences sur un même extrait (profil 02 : rendez-vous / agenda ; profil 01 : camions / palettes).
+
+## Défaut de méthode reconnu (leçon 9.65)
+
+**Les exemples de ma consigne étaient ceux de mes cas d'essai** (football en club, six mois dans une association, menuisier agenceur, accompagnement social, parent malade, l'équipe du samedi). L'assistant avait donc, en partie, la réponse sous les yeux, et les résultats des versions 2 et 3 sont **optimistes**. Corrigé en version 4 : exemples sans rapport avec les profils, et un test automatique qui échoue si un exemple de la consigne réapparaît dans un profil d'essai. Les essais sont à refaire avec la version 4.
+
+## Version 4 et contrôle
+- Exemples remplacés (cuisinier, enfants, rayon frais, chef de rang, randonnée, tonte et arrosage...).
+- Contexte de vie : si la seule phrase qui prouve une compétence en contient, copier **seulement la partie professionnelle**.
+- Une compétence « à préciser » doit reposer sur un extrait qui parle du même sujet.
+- Un extrait partagé par plusieurs compétences : une seule entrée, ou le morceau précis de la ligne pour chacune.
+- Contrôle : avertissements pour libellé sans mot commun avec ses extraits, extrait partagé, accord de genre sans indice (profils 01 et 03), « à préciser » sans explication ; test anti-contamination des exemples. 16 tests verts.
