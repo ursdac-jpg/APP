@@ -1,0 +1,458 @@
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Maquette Mes compétences</title>
+<style>
+/* Concept : quatre écrans en suivant le vrai parcours de la personne (introduction, documents, assistant, relecture, document final), annotations GARDÉ / DÉPLACÉ / ENRICHI / NOUVEAU pour Denis, questions à la fin. Mêmes formes et mêmes jetons que les autres maquettes du projet (docs/LANGAGE_VISUEL_COMMUN.md), teinte propre au module : vert d'eau. */
+:root{--bg:#f3f6f6;--card:#ffffff;--sub:#eaf0f0;--txt:#17262b;--muted:#52666c;--bord:#cbd7d9;--acc:#0f6e66;--accbg:#dff1ee;--onacc:#ffffff;--ok:#157347;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff4d6;--new:#7a2e8a;--newbg:#f3e6f7;--alert:#a13b2e;--alertbg:#fbe9e6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11191b;--card:#192326;--sub:#202d30;--txt:#e6eef0;--muted:#9fb2b7;--bord:#35484c;--acc:#6fd3c8;--accbg:#17403d;--onacc:#06201d;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2142;--alert:#f0a090;--alertbg:#40201b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11191b;--card:#192326;--sub:#202d30;--txt:#e6eef0;--muted:#9fb2b7;--bord:#35484c;--acc:#6fd3c8;--accbg:#17403d;--onacc:#06201d;--ok:#6fd39b;--okbg:#173a28;--warn:#f0c36a;--warnbg:#3b2f10;--new:#e3a8f2;--newbg:#3a2142;--alert:#f0a090;--alertbg:#40201b;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,"Segoe UI",Arial,sans-serif;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:0 7.5rem}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.page{max-width:980px;margin:0 auto}
+body.tel .page{max-width:390px}
+h1{font-size:1.55rem;margin:1rem 0 .2rem;text-align:center;text-wrap:balance}
+h2{font-size:1.1rem;text-wrap:balance}
+h3{font-size:1.02rem;margin:.2rem 0}
+p{margin:.4rem 0}.muted{color:var(--muted)}.small{font-size:.86rem}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+button:focus-visible,summary:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.haut{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg);padding:.5rem 0;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.haut strong{font-size:.95rem}
+.onglets{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}
+.mini{border:1px solid var(--bord);background:var(--card);border-radius:999px;padding:.25rem .75rem;font-size:.84rem}
+.mini.actif{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+label.tog{font-size:.84rem;display:flex;gap:.3rem;align-items:center}
+.ec{display:none}.ec.vu{display:block}
+.etapes{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0;justify-content:center}
+.etape{border:2px solid var(--bord);background:var(--card);border-radius:999px;padding:.2rem .75rem;font-size:.84rem;display:flex;gap:.4rem;align-items:center}
+.rond{width:1.4rem;height:1.4rem;border-radius:50%;background:var(--acc);color:var(--onacc);display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
+.etape.ici{border-color:var(--acc);background:var(--accbg);color:var(--acc);font-weight:700}
+.etape.fait{border-color:var(--ok);color:var(--ok)}
+.sec{background:var(--card);border:2px solid var(--bord);border-radius:14px;margin:.9rem 0;padding:.6rem 1rem 1rem}
+.encart{background:var(--accbg);border-left:4px solid var(--acc);border-radius:8px;padding:.5rem .8rem;margin:.6rem 0;font-size:.92rem}
+.encart.ok{background:var(--okbg);border-left-color:var(--ok)}
+.encart.warn{background:var(--warnbg);border-left-color:var(--warn);color:var(--warn)}
+.encart.alert{background:var(--alertbg);border-left-color:var(--alert)}
+.btn{border:2px solid var(--acc);background:var(--card);color:var(--acc);border-radius:12px;padding:.5rem 1rem;font-weight:600}
+.btn.plein{background:var(--acc);color:var(--onacc)}
+.btn.petit{padding:.25rem .7rem;font-size:.86rem}
+.btn.gris{border-color:var(--bord);color:var(--txt)}
+.pastille{display:inline-block;border-radius:999px;padding:.05rem .6rem;font-size:.74rem;font-weight:700;border:1px solid currentColor}
+.pastille.conf{color:var(--ok);background:var(--okbg)}.pastille.rel{color:var(--acc);background:var(--accbg)}.pastille.prec{color:var(--warn);background:var(--warnbg)}.pastille.moi{color:var(--new);background:var(--newbg)}
+.grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:.8rem 0}
+.carte{background:var(--card);border:2px solid var(--bord);border-radius:14px;padding:.8rem;text-align:left}
+.carte.nouv{border-color:var(--acc);background:var(--accbg)}
+.carte.gris{opacity:.55}
+.ico{font-size:1.5rem}
+.jetons{display:flex;flex-wrap:wrap;gap:.45rem;margin:.5rem 0}
+.jeton{border:2px solid var(--acc);color:var(--acc);background:var(--card);border-radius:999px;padding:.3rem .85rem;font-size:.9rem}
+.jeton.actif{background:var(--acc);color:var(--onacc);font-weight:700}
+.doc{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;border:1px solid var(--bord);background:var(--sub);border-radius:10px;padding:.45rem .7rem;margin:.4rem 0}
+.doc .nom{flex:1 1 12rem;min-width:0}
+.barre{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:2px solid var(--bord);padding:.6rem max(16px,env(safe-area-inset-right,0px)) calc(.6rem + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:7}
+.barre .in{max-width:980px;margin:0 auto;display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative}
+body.tel .barre .in{max-width:390px}
+.nav{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.55rem 1rem;font-weight:600}
+.nav.suivant{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.raison{color:var(--warn);background:var(--warnbg);border:1px solid var(--warn);border-radius:8px;padding:.2rem .6rem;font-size:.85rem}
+.note{display:none;background:var(--newbg);color:var(--new);border-left:4px solid var(--new);border-radius:6px;padding:.3rem .6rem;font-size:.82rem;margin:.5rem 0;text-align:left}
+body.ann .note{display:block}
+.tag{font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;display:inline-block}
+.tag.g{background:var(--okbg);color:var(--ok)}.tag.e{background:var(--newbg);color:var(--new)}.tag.d{background:var(--accbg);color:var(--acc)}.tag.f{background:var(--warnbg);color:var(--warn)}
+.vue{display:none}.vue.vu{display:block}
+textarea{width:100%;min-height:6rem;background:var(--card);border:2px solid var(--bord);border-radius:10px;padding:.5rem .7rem}
+details.bloc{border:1px solid var(--bord);border-left:5px solid var(--acc);border-radius:10px;background:var(--card);margin:.7rem 0}
+details.bloc>summary{cursor:pointer;padding:.55rem .8rem;font-weight:700;background:var(--accbg);border-radius:8px;list-style:none;display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+details.bloc>summary::-webkit-details-marker{display:none}
+details.bloc>summary::before{content:"\25B8";margin-right:.4rem}
+details.bloc[open]>summary::before{content:"\25BE"}
+.corps{padding:.3rem .8rem .8rem}
+.comp{border:2px solid var(--bord);border-radius:12px;padding:.6rem .8rem;margin:.6rem 0;background:var(--card)}
+.comp.retire{opacity:.5;background:var(--sub)}
+.comp.retire h3{text-decoration:line-through}
+.comp h3{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.preuve{border-left:3px solid var(--bord);padding:.15rem .7rem;margin:.4rem 0;color:var(--muted);font-style:italic;font-size:.92rem}
+.preuve b{font-style:normal;color:var(--txt)}
+.gestes{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0 .2rem}
+.geste{border:2px solid var(--bord);background:var(--card);border-radius:12px;padding:.35rem .8rem;font-weight:600;font-size:.9rem}
+.geste.on.ok{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
+.geste.on.part{border-color:var(--new);background:var(--newbg);color:var(--new)}
+.geste.on.non{border-color:var(--alert);background:var(--alertbg);color:var(--alert)}
+.sous{font-size:.88rem;margin:.3rem 0}
+.sous summary{cursor:pointer;color:var(--acc);font-weight:600}
+.page-doc{background:#fff;color:#1b1b1b;border:1px solid var(--bord);border-radius:4px;padding:1.4rem 1.6rem;max-width:720px;margin:.8rem auto;box-shadow:0 2px 10px rgba(0,0,0,.15);font-family:Georgia,"Times New Roman",serif;font-size:.93rem}
+.page-doc h1{font:700 1.5rem/1.2 Georgia,serif;text-align:left;margin:.1rem 0}
+.page-doc h2{font:700 .8rem/1.2 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.07em;color:#0f6e66;border-bottom:2px solid #0f6e66;padding-bottom:.15rem;margin:1.1rem 0 .4rem}
+.page-doc .ligne{margin:.45rem 0}.page-doc .lib{font-weight:700}
+.page-doc .pr{color:#555;font-style:italic;font-size:.84rem}.page-doc .or{font-size:.88rem}
+.page-doc .pied{font:.74rem system-ui,sans-serif;color:#666;margin-top:1rem}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{border:1px solid var(--bord);padding:.35rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--sub)}
+.tabw{overflow-x:auto}
+.questions{background:var(--card);border:2px solid var(--new);border-radius:14px;padding:.6rem 1.1rem 1rem;margin:1.2rem 0}
+.questions h2{color:var(--new)}.questions li{margin:.9rem 0}
+.questions .opt{font-size:.9rem;margin:.2rem 0 .2rem .4rem}
+.reco{font-weight:700;color:var(--ok)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="page">
+<div class="haut">
+  <strong>Maquette du 26/10/2026 : Découvrir mes compétences</strong>
+  <span class="onglets">
+    <button class="mini actif" data-ec="intro" type="button">0. Entrée</button>
+    <button class="mini" data-ec="docs" type="button">1. Documents</button>
+    <button class="mini" data-ec="asst" type="button">2. Assistant</button>
+    <button class="mini" data-ec="relec" type="button">3. Relecture</button>
+    <button class="mini" data-ec="fin" type="button">4. Mon document</button>
+    <button class="mini" data-ec="q" type="button">Questions</button>
+    <label class="tog"><input type="checkbox" id="tAnn" checked> Annotations</label>
+    <label class="tog"><input type="checkbox" id="tSombre"> Mode sombre</label>
+    <label class="tog"><input type="checkbox" id="tTel"> Largeur téléphone</label>
+  </span>
+</div>
+
+<!-- ============ ÉCRAN 0 : ENTRÉE ============ -->
+<div class="ec vu" id="ec-intro">
+  <h1>🧰 Boîte à outils</h1>
+  <p class="muted small" style="text-align:center">Extrait de l'écran : la nouvelle carte à côté d'outils qui existent déjà.</p>
+  <div class="grille">
+    <div class="carte gris"><span class="ico">🔎</span><h3>Comparer mes pistes</h3><span class="small">Existe déjà</span></div>
+    <div class="carte nouv" id="carteEntree"><span class="ico">🧭</span><h3>Découvrir mes compétences <span class="tag e">NOUVEAU</span></h3><span class="small">À partir de vos CV et lettres, voir ce que vous savez déjà faire, avec une preuve pour chaque ligne.</span><p><button class="btn petit plein" type="button" data-aller="intro2">Ouvrir</button></p></div>
+    <div class="carte gris"><span class="ico">📋</span><h3>Regard recruteur</h3><span class="small">Existe déjà</span></div>
+  </div>
+  <div class="note"><b>Entrée par la Boîte à outils (décision Q8).</b> La carte « À partir de mon récit » n'y est plus : elle est le troisième parcours de « Créer un nouveau CV » (F11). Les deux outils ne se mélangent pas : celui-ci part de vos documents, l'autre de votre récit. <span class="tag g">GARDÉ</span> carte et route actuelles de la Boîte à outils, <span class="tag e">NOUVEAU</span> route <code>mes-competences-intro</code>.</div>
+
+  <div id="intro2" style="margin-top:1.4rem">
+    <h1>🧭 Découvrir mes compétences</h1>
+    <p class="muted" style="text-align:center">Vous avez déjà des compétences. Cet outil les repère dans vos documents, une par une, et vous aide à les dire.</p>
+    <div class="sec" id="reprise" hidden>
+      <div class="encart ok"><b>Vous avez déjà commencé.</b> 7 compétences relues sur 9.
+        <p style="margin:.4rem 0 0"><button class="btn petit plein" type="button" data-ec-go="relec">Continuer</button> <button class="btn petit gris" type="button">Recommencer</button></p></div>
+      <div class="note"><b>Famille 2 (analyse / dépôt de documents)</b> : encart « Continuer / Recommencer », gel et pulse, comme « Cohérence de mon dossier » (<code>ctHtmlBandeReprise</code>). <span class="tag g">GARDÉ</span> comportement commun.</div>
+    </div>
+    <div class="sec"><h2>À quoi ça sert</h2>
+      <p>À voir ce que vos documents montrent déjà : ce que vous savez faire, ce que vous connaissez, votre façon de travailler. Pour chaque ligne, vous voyez la phrase de vos documents qui la prouve, comment la dire sur un CV et comment la dire à l'oral.</p></div>
+    <div class="sec"><h2>Ce qui va se passer</h2>
+      <p><span class="rond">1</span> Vous déposez un ou plusieurs documents : CV, lettre de motivation, lettre de recommandation.<br>
+      <span class="rond">2</span> L'assistant en ligne les lit. Vous copiez un message, vous collez sa réponse ici.<br>
+      <span class="rond">3</span> Vous relisez chaque ligne. Vous gardez ce qui vous ressemble.<br>
+      <span class="rond">4</span> Vous repartez avec un document « Mes compétences ».</p></div>
+    <div class="sec"><h2>Ce que cet outil ne fait pas</h2>
+      <p>Il ne vous note pas, ne vous compare pas, ne vous propose pas de métier et n'écrit pas votre CV. Rien n'est ajouté à ce que vos documents disent : si une ligne n'a pas de preuve, elle n'existe pas.</p></div>
+    <div class="sec"><h2>Bon à savoir</h2>
+      <p>Vos documents sont relus et masqués par vous avant tout envoi : ni nom, ni adresse, ni téléphone ne partent. Ce que vous gardez est enregistré avec votre disquette.</p>
+      <div class="note"><b>ENRICHI</b> : patron de l'introduction commun (<code>htmlPageIntroModule</code>) : accroche, à quoi ça sert, ce qui va se passer, ce que l'outil ne fait pas, bon à savoir. <code>Mes Repères</code> et « Ce que vous pourrez faire ensuite » à ajouter à l'audit final.</div></div>
+    <p style="text-align:center"><label class="tog" style="justify-content:center"><input type="checkbox" id="tReprise"> Simuler : retour dans le module (encart « Continuer »)</label></p>
+    <p style="text-align:center"><button class="btn plein" type="button" data-ec-go="docs">Commencer</button></p>
+  </div>
+</div>
+
+<!-- ============ ÉCRAN 1 : DOCUMENTS ============ -->
+<div class="ec" id="ec-docs">
+  <div class="etapes"><span class="etape ici"><span class="rond">1</span>Mes documents</span><span class="etape"><span class="rond">2</span>L'assistant</span><span class="etape"><span class="rond">3</span>Ma relecture</span><span class="etape"><span class="rond">4</span>Mon document</span></div>
+  <h1>📄 Mes documents</h1>
+  <p class="muted" style="text-align:center">Déposez ce que vous avez. Un seul document suffit. Plus il y en a, plus les lignes sont sûres.</p>
+  <p style="text-align:center"><label class="tog" style="justify-content:center"><input type="checkbox" id="tAucun"> Simuler : aucun document dans l'application</label></p>
+
+  <div id="avecDocs">
+    <div class="sec"><h2>📄 Mes CV <span class="small muted">(3 au plus)</span></h2>
+      <div id="listeCv">
+        <div class="doc"><span class="nom"><b>Mon CV enregistré dans l'application</b><br><span class="small muted">Préparateur de commandes, 2 pages</span></span><span class="pastille conf">Déjà relu</span><button class="btn petit gris" data-retirer type="button">Retirer</button></div>
+      </div>
+      <button class="btn petit" type="button" data-ajout="cv">+ Déposer un autre CV</button>
+      <div class="note"><b>GARDÉ</b> : fenêtre commune de dépôt <code>ouvrirAssistantDepotCV</code> (PDF, Word, photo, texte, relecture et masquage), <b>ENRICHI</b> : le CV déjà enregistré est proposé d'office (<code>obtenirOuDeposerTexteCV</code>). Piège connu : remettre <code>dossier.cvTexte</code> après le dépôt.</div></div>
+    <div class="sec"><h2>✉️ Mes lettres de motivation <span class="small muted">(2 au plus)</span></h2>
+      <div id="listeLm"></div>
+      <button class="btn petit" type="button" data-ajout="lm">+ Déposer une lettre de motivation</button></div>
+    <div class="sec"><h2>📨 Mes lettres de recommandation <span class="small muted">(3 au plus)</span></h2>
+      <div id="listeRec"></div>
+      <button class="btn petit" type="button" data-ajout="rec">+ Déposer une lettre de recommandation</button>
+      <div class="encart"><b>Pour protéger la personne qui l'a écrite</b> : à l'étape de relecture, son nom et sa fonction sont à masquer. Ils ne partent jamais chez l'assistant.</div>
+      <div class="note"><b>GARDÉ</b> : dépôt de la lettre de recommandation (<code>_coLettreDeposerReco</code>, option <code>nomsInitiaux</code>) et de la lettre de motivation (<code>_prepaEntretienDeposerLettre</code>).</div></div>
+
+    <div class="sec"><h2>🎚️ Le niveau du poste</h2>
+      <p class="small muted">Il règle les mots proposés : simples et concrets, ou plus techniques. Jamais plus haut que ce que vos documents montrent.</p>
+      <div class="jetons" id="niveaux">
+        <button class="jeton" type="button">Ouvrier ou employé</button>
+        <button class="jeton" type="button">Technicien ou agent de maîtrise</button>
+        <button class="jeton" type="button">Cadre ou direction</button>
+        <button class="jeton actif" type="button">Je ne sais pas : l'outil propose</button>
+      </div>
+      <div class="note"><b>Décision Q5</b> : l'outil propose le niveau, la personne confirme. <b>Question 1 plus bas.</b> <span class="tag e">NOUVEAU</span></div></div>
+    <div class="encart"><b>Ce qui part chez l'assistant</b> : vos documents relus et masqués, la consigne de l'outil, le niveau choisi. Rien d'autre.</div>
+  </div>
+
+  <div id="sansDocs" hidden>
+    <div class="sec"><h2>Vous n'avez pas encore de document</h2>
+      <p>Pour repérer vos compétences, l'outil a besoin d'au moins un CV ou une lettre. Deux façons d'en avoir un :</p>
+      <div class="grille">
+        <div class="carte"><span class="ico">✍️</span><h3>Créer un nouveau CV</h3><span class="small">Pas à pas, à la main ou avec l'assistant.</span><p><button class="btn petit" type="button">Aller à « Créer un nouveau CV »</button></p></div>
+        <div class="carte"><span class="ico">🗣️</span><h3>À partir de mon récit</h3><span class="small">Vous racontez, l'assistant en tire un CV.</span><p><button class="btn petit" type="button">Aller à « À partir de mon récit »</button></p></div>
+      </div>
+      <p class="small muted">Vous pouvez aussi déposer un document d'ici, il n'a pas besoin d'être récent.</p>
+      <div class="note"><b>Décision Q8</b> : au moins un document, sinon renvoi vers « Créer un nouveau CV » ou « À partir de mon récit ». Le dépôt direct reste possible.</div></div>
+  </div>
+</div>
+
+<!-- ============ ÉCRAN 2 : ASSISTANT ============ -->
+<div class="ec" id="ec-asst">
+  <div class="etapes"><span class="etape fait"><span class="rond">1</span>Mes documents</span><span class="etape ici"><span class="rond">2</span>L'assistant</span><span class="etape"><span class="rond">3</span>Ma relecture</span><span class="etape"><span class="rond">4</span>Mon document</span></div>
+  <p class="small" style="text-align:center">Les trois vues du passage avec l'assistant : <button class="mini actif" data-vue="choix" type="button">Choisir</button> <button class="mini" data-vue="chez" type="button">Chez l'assistant</button> <button class="mini" data-vue="coller" type="button">Coller la réponse</button></p>
+
+  <div class="vue vu" id="v-choix">
+    <h1>💬 Choisir l'assistant en ligne</h1>
+    <div class="sec"><h2>Ce qui va se passer</h2>
+      <p><span class="rond">1</span> Vous choisissez un assistant. Le message est copié.<br><span class="rond">2</span> Il s'ouvre dans un nouvel onglet : vous collez le message et vous attendez la réponse.<br><span class="rond">3</span> Vous copiez toute sa réponse et vous revenez ici. Cette page reste ouverte.</p>
+      <div class="jetons"><button class="jeton">Assistant A (exemple)</button><button class="jeton">Assistant B (exemple)</button><button class="jeton">Assistant C (exemple)</button></div>
+      <div class="encart"><b>Récapitulatif</b> : 1 CV, 1 lettre de recommandation (nom masqué), niveau « l'outil propose ». Taille du message : 24 000 caractères environ.</div>
+      <div class="note"><b>Question de conception</b> : ces trois vues viennent de <code>passageAssistant.js</code> (module « Un CV, plusieurs métiers »). Recommandation de l'audit : la généraliser plutôt que la copier. Visuellement, rien ne change pour la personne. <span class="tag g">GARDÉ</span></div></div>
+  </div>
+  <div class="vue" id="v-chez">
+    <h1>💬 Vous êtes chez l'assistant</h1>
+    <div class="encart"><b>Le message est copié.</b> Collez-le dans l'assistant, attendez qu'il ait fini, puis copiez toute sa réponse. Cette page reste ouverte : revenez ici ensuite.</div>
+    <p style="text-align:center"><button class="btn plein" data-vue="coller" type="button">J'ai la réponse</button></p>
+    <div class="note"><b>GARDÉ</b> : <code>htmlBanniereTransitionIA</code> (bannière « chez l'assistant »).</div>
+  </div>
+  <div class="vue" id="v-coller">
+    <h1>📥 Coller la réponse</h1>
+    <textarea id="zoneRep" aria-label="Réponse de l'assistant" placeholder="Collez ici toute la réponse de l'assistant, jusqu'à la fin."></textarea>
+    <p><button class="btn plein" id="btnImporter" type="button">Importer</button> <span class="small muted">Démonstration :</span>
+      <button class="mini" data-resultat="bon" type="button">Réponse lue, 2 lignes écartées</button>
+      <button class="mini" data-resultat="mauvais" type="button">Réponse illisible</button></p>
+    <div id="res-bon" hidden class="encart ok"><b>Nous avons lu 9 compétences.</b> Deux lignes ont été mises de côté pour être sûrs de ne rien inventer. Vous pouvez continuer.
+      <p style="margin:.4rem 0 0"><button class="btn plein petit" data-ec-go="relec" type="button">Relire mes compétences</button></p></div>
+    <div id="res-mauvais" hidden class="encart alert"><b>Cette réponse n'est pas complète.</b> Retournez chez l'assistant, copiez toute sa réponse jusqu'à la dernière ligne, puis collez-la ici.</div>
+    <div class="note"><b>Filet de sécurité (NOUVEAU)</b> : la réponse brute n'est jamais affichée. Sont écartées ou marquées : une ligne dont la phrase de preuve n'est pas dans vos documents, une ligne qui reprend un mot de santé, de détention ou de situation de vie, une ligne « confirmée » sans autre personne que vous. Lecture du JSON et réparation : <code>extraireBlocJSONDepuisTexte</code>. <span class="tag e">NOUVEAU</span></div>
+  </div>
+</div>
+
+<!-- ============ ÉCRAN 3 : RELECTURE ============ -->
+<div class="ec" id="ec-relec">
+  <div class="etapes"><span class="etape fait"><span class="rond">1</span>Mes documents</span><span class="etape fait"><span class="rond">2</span>L'assistant</span><span class="etape ici"><span class="rond">3</span>Ma relecture</span><span class="etape"><span class="rond">4</span>Mon document</span></div>
+  <h1>✅ Je relis mes compétences</h1>
+  <p class="muted" style="text-align:center">Voici ce que vos documents montrent. Pour chaque ligne, c'est vous qui décidez.</p>
+  <div class="encart warn"><b>Exemple fictif</b> : une personne imaginaire (préparateur de commandes) avec son CV, une lettre de motivation et une lettre de recommandation inventées pour la maquette.</div>
+  <div class="encart"><b>Niveau proposé : ouvrier ou employé.</b> Vos documents montrent surtout des tâches d'entrepôt et de manutention. <button class="btn petit gris" type="button">Changer</button></div>
+
+  <details class="bloc" open><summary><span>Ce que je sais faire</span><span class="small muted">3 lignes</span></summary><div class="corps">
+    <div class="comp" data-etat="">
+      <h3>Préparer des colis <span class="pastille rel">Relevée dans vos documents</span></h3>
+      <p class="small">En mots simples : prendre les produits demandés et les mettre dans un colis, en suivant les indications.</p>
+      <div class="preuve"><b>Votre CV dit :</b> « Préparation d'environ 80 colis par jour avec un terminal à main »</div>
+      <details class="sous"><summary>Pour mon CV</summary><p>Préparation d'environ 80 colis par jour avec un terminal à main</p></details>
+      <details class="sous"><summary>Pour le dire à l'oral</summary><p>« De 2021 à 2024, j'ai préparé environ 80 colis par jour avec un terminal à main. » <button class="btn petit gris" type="button" data-copier>Copier</button></p></details>
+      <details class="sous"><summary>D'autres façons de le dire</summary><p>Préparer des commandes. Faire les colis.</p></details>
+      <details class="sous"><summary>Pour aller plus loin</summary><p>Comment se passait la préparation, du début jusqu'à la fermeture des colis ?</p></details>
+      <div class="gestes"><button class="geste" data-g="ok" type="button">C'est exact</button><button class="geste" data-g="part" type="button">En partie exact</button><button class="geste" data-g="non" type="button">Je retire</button></div>
+      <div class="corrige" hidden><label class="small" for="c1">Écrivez-le avec vos mots :</label><textarea id="c1" style="min-height:3.5rem">Préparation d'environ 80 colis par jour avec un terminal à main</textarea></div>
+    </div>
+    <div class="comp" data-etat="">
+      <h3>Charger des camions <span class="pastille conf">Confirmée par une autre personne</span></h3>
+      <p class="small">En mots simples : mettre les marchandises dans les camions pour qu'ils partent à l'heure.</p>
+      <div class="preuve"><b>Votre CV dit :</b> « Chargement des camions »<br><b>Votre lettre de recommandation dit :</b> « Il charge les camions sans jamais les laisser partir en retard »</div>
+      <details class="sous"><summary>Pour le dire à l'oral</summary><p>« De 2021 à 2024, j'ai chargé des camions. » <button class="btn petit gris" type="button" data-copier>Copier</button></p></details>
+      <div class="gestes"><button class="geste" data-g="ok" type="button">C'est exact</button><button class="geste" data-g="part" type="button">En partie exact</button><button class="geste" data-g="non" type="button">Je retire</button></div>
+      <div class="corrige" hidden><label class="small" for="c2">Écrivez-le avec vos mots :</label><textarea id="c2" style="min-height:3.5rem">Chargement des camions</textarea></div>
+    </div>
+    <div class="comp" data-etat="prec" id="cartePrec">
+      <h3>Encadrer l'équipe du samedi <span class="pastille prec">À préciser</span></h3>
+      <p class="small">Votre CV indique « Responsable de l'équipe du samedi », sans dire ce que vous y faisiez.</p>
+      <p><b>Quelles tâches faisiez-vous comme responsable de l'équipe du samedi ?</b></p>
+      <label class="small" for="repPrec">Votre réponse, en une ou deux phrases :</label>
+      <textarea id="repPrec" style="min-height:4rem" placeholder="Écrivez avec vos mots. Vous pouvez aussi passer."></textarea>
+      <p><button class="btn petit plein" id="btnPrec" type="button">Valider ma réponse</button> <button class="btn petit gris" type="button">Je passe</button></p>
+      <div id="precOk" hidden class="encart ok"><b>Merci.</b> L'assistant va la lire (message plus court, même chemin qu'avant) puis la ligne reviendra ici, confirmée par vos mots.
+        <p style="margin:.3rem 0 0"><button class="btn petit gris" id="btnPrecRetour" type="button">Démonstration : voir la ligne au retour de l'assistant</button></p></div>
+      <div class="note"><b>Second passage « lignes seules »</b> (essayé, prompt V6) : l'assistant ne reçoit et ne renvoie que les lignes à préciser, rapprochées par un identifiant. Une ligne qu'il renomme ou qu'il invente est refusée par le filet. <span class="tag e">NOUVEAU</span> Aucun contexte de vie ne passe (testé avec un rendez-vous médical d'un proche).</div>
+    </div>
+  </div></details>
+
+  <details class="bloc" open><summary><span>Ce que je connais</span><span class="small muted">1 ligne</span></summary><div class="corps">
+    <div class="comp" data-etat="">
+      <h3>Utiliser un terminal à main <span class="pastille rel">Relevée dans vos documents</span></h3>
+      <p class="small">En mots simples : se servir d'un petit appareil qui permet de lire les produits et de suivre les colis à préparer.</p>
+      <div class="preuve"><b>Votre CV dit :</b> « Préparation d'environ 80 colis par jour avec un terminal à main »</div>
+      <div class="gestes"><button class="geste" data-g="ok" type="button">C'est exact</button><button class="geste" data-g="part" type="button">En partie exact</button><button class="geste" data-g="non" type="button">Je retire</button></div>
+      <div class="corrige" hidden><label class="small" for="c3">Écrivez-le avec vos mots :</label><textarea id="c3" style="min-height:3.5rem">Utilisation d'un terminal à main pour préparer les colis</textarea></div>
+    </div>
+  </div></details>
+
+  <details class="bloc" open><summary><span>Ma façon de travailler</span><span class="small muted">1 ligne</span></summary><div class="corps">
+    <div class="comp" data-etat="">
+      <h3>Prévenir son responsable quand il manque un produit <span class="pastille rel">Relevée dans vos documents</span></h3>
+      <p class="small">En mots simples : avertir tout de suite la bonne personne quand un produit manque, pour que la commande ne parte pas incomplète.</p>
+      <div class="preuve"><b>Votre lettre de recommandation dit :</b> « Il prévient toujours son responsable quand un produit manque »</div>
+      <div class="gestes"><button class="geste" data-g="ok" type="button">C'est exact</button><button class="geste" data-g="part" type="button">En partie exact</button><button class="geste" data-g="non" type="button">Je retire</button></div>
+      <div class="corrige" hidden><label class="small" for="c4">Écrivez-le avec vos mots :</label><textarea id="c4" style="min-height:3.5rem">Information du responsable quand un produit manque</textarea></div>
+    </div>
+  </div></details>
+
+  <details class="bloc" open><summary><span>🌱 Ce qui me donne envie</span><span class="small muted">1 ligne, avec vos mots seulement</span></summary><div class="corps">
+    <div class="comp" data-etat="">
+      <h3>Devenir responsable d'équipe en entrepôt</h3>
+      <div class="preuve"><b>Votre lettre de motivation dit :</b> « Je souhaite devenir responsable d'équipe en entrepôt »</div>
+      <div class="gestes"><button class="geste" data-g="ok" type="button">C'est exact</button><button class="geste" data-g="non" type="button">Je retire</button></div>
+    </div>
+    <div class="note"><b>Décision Q3</b> : séparé des compétences, uniquement à partir de ce que la personne a écrit, jamais déduit. Pas de vision à 2 ou 5 ans (renvoi vers « Mon projet »). <span class="tag e">NOUVEAU</span></div>
+  </div></details>
+
+  <div class="note"><b>NOUVEAU</b> : les trois gestes (retrait réversible comme dans « Votre profil », <span class="tag g">GARDÉ</span> comme geste). <b>Question 2 plus bas</b> sur « En partie exact » et <b>question 3</b> sur les lignes non relues.</div>
+</div>
+
+<!-- ============ ÉCRAN 4 : MON DOCUMENT ============ -->
+<div class="ec" id="ec-fin">
+  <div class="etapes"><span class="etape fait"><span class="rond">1</span>Mes documents</span><span class="etape fait"><span class="rond">2</span>L'assistant</span><span class="etape fait"><span class="rond">3</span>Ma relecture</span><span class="etape ici"><span class="rond">4</span>Mon document</span></div>
+  <h1>📘 Mes compétences</h1>
+  <p class="muted" style="text-align:center">Votre document est prêt. Il ne contient que ce que vous avez gardé.</p>
+  <p style="text-align:center"><label class="tog" style="justify-content:center"><input type="checkbox" id="oPreuves" checked> Montrer les phrases de mes documents</label>
+  <label class="tog" style="justify-content:center"><input type="checkbox" id="oOral" checked> Montrer les phrases pour l'oral</label></p>
+  <div class="page-doc" id="docFinal">
+    <h1>Mes compétences</h1>
+    <div class="pied" style="margin-top:0">Exemple fictif. Relevées dans mes documents, relues et gardées par moi.</div>
+    <h2>Ce que je sais faire</h2>
+    <div class="ligne"><span class="lib">Préparer des colis</span>
+      <div class="pr bloc-preuve">Mon CV : « Préparation d'environ 80 colis par jour avec un terminal à main »</div>
+      <div class="or bloc-oral">À l'oral : « De 2021 à 2024, j'ai préparé environ 80 colis par jour avec un terminal à main. »</div></div>
+    <div class="ligne"><span class="lib">Charger des camions</span> <span class="pr">(confirmé par une lettre de recommandation)</span>
+      <div class="pr bloc-preuve">Mon CV : « Chargement des camions ». Ma lettre de recommandation : « Il charge les camions sans jamais les laisser partir en retard »</div>
+      <div class="or bloc-oral">À l'oral : « De 2021 à 2024, j'ai chargé des camions. »</div></div>
+    <div class="ligne"><span class="lib">Encadrer l'équipe du samedi</span> <span class="pr">(précisé par mes mots)</span>
+      <div class="pr bloc-preuve">Mon CV : « Responsable de l'équipe du samedi ». Ma réponse : « je donnais à chacun sa liste de colis »</div>
+      <div class="or bloc-oral">À l'oral : « Le samedi, nous étions quatre. Au début de la matinée, je donnais à chacun sa liste de colis. »</div></div>
+    <h2>Ce que je connais</h2>
+    <div class="ligne"><span class="lib">Utiliser un terminal à main</span>
+      <div class="pr bloc-preuve">Mon CV : « Préparation d'environ 80 colis par jour avec un terminal à main »</div></div>
+    <h2>Ma façon de travailler</h2>
+    <div class="ligne"><span class="lib">Prévenir son responsable quand il manque un produit</span>
+      <div class="pr bloc-preuve">Ma lettre de recommandation : « Il prévient toujours son responsable quand un produit manque »</div></div>
+    <h2>Ce qui me donne envie</h2>
+    <div class="ligne"><span class="lib">Devenir responsable d'équipe en entrepôt</span></div>
+    <div class="pied">Document établi le 26/10/2026 à partir de mes documents.</div>
+  </div>
+  <p style="text-align:center"><button class="btn plein" type="button">Télécharger en PDF</button> <button class="btn" type="button">Copier le texte</button> <button class="btn gris" type="button">Télécharger en Word</button></p>
+  <div class="encart ok"><b>Gardé dans votre dossier</b> avec votre disquette. Vous pourrez le reprendre, le modifier ou recommencer. Pour l'instant, aucune autre partie de l'application ne le lit : c'est vous qui l'utilisez.</div>
+  <div class="sec"><h2>Et ensuite ?</h2><p class="small">Pour préparer un entretien, relisez les phrases pour l'oral. Pour un CV, reprenez les lignes « Pour mon CV ». Ces liens renvoient vers les outils existants.</p></div>
+  <div class="note"><b>NOUVEAU</b> : mise en page du document. <b>GARDÉ</b> : PDF par <code>imprimerLettrePdf(constructeurHtml, titre)</code> (patron fiche d'entretien), Word par <code>chargerLibrairieDocxNatif</code> (patron <code>exportDocxNatifEntretien.js</code>). <b>Question 4</b> : Word tout de suite ou plus tard. <b>Question 5</b> : nom de la personne en tête.</div>
+</div>
+
+<!-- ============ QUESTIONS ============ -->
+<div class="ec" id="ec-q">
+  <div class="questions">
+    <h2>Les questions pour Denis</h2>
+    <p class="small muted">Chaque question : une recommandation en premier, puis les bénéfices et les risques de chaque option.</p>
+    <ol>
+      <li><b>Le niveau du poste : le choisir avant ou après l'assistant ?</b>
+        <div class="opt"><span class="reco">A. Avant, avec « l'outil propose » par défaut (recommandé).</span> Bénéfice : un seul passage chez l'assistant, les mots sont déjà au bon niveau. Risque : la personne qui se trompe doit recommencer le passage.</div>
+        <div class="opt">B. Après, sur l'écran de relecture. Bénéfice : on voit d'abord ce que les documents montrent. Risque : changer le niveau oblige à refaire un passage chez l'assistant, donc à re-copier et re-coller.</div></li>
+      <li><b>« En partie exact » : que se passe-t-il ?</b>
+        <div class="opt"><span class="reco">A. La personne corrige elle-même la phrase, dans une zone pré-remplie ; la ligne porte la mention « écrit par moi » (recommandé).</span> Bénéfice : rien d'inventé, simple à comprendre. Risque : une personne peu à l'aise avec l'écrit peut hésiter devant la zone vide : le texte pré-rempli sert de point de départ.</div>
+        <div class="opt">B. L'assistant propose deux autres formulations à choisir. Bénéfice : moins d'écriture. Risque : un passage supplémentaire par ligne, plus long et plus fragile.</div></li>
+      <li><b>Les lignes que la personne n'a pas relues : dans le document ou non ?</b>
+        <div class="opt"><span class="reco">A. Non, seules les lignes avec « C'est exact » ou « En partie exact » y entrent (recommandé).</span> Bénéfice : le document ne contient que ce que la personne a vu et accepté. Risque : une personne pressée obtient un document court ; un compteur « il vous reste 3 lignes à relire » le dit.</div>
+        <div class="opt">B. Oui, toutes, retirées seulement si refusées. Bénéfice : document plus fourni. Risque : des lignes jamais regardées signées par la personne, contraire à « c'est vous qui décidez ».</div></li>
+      <li><b>Le document en Word, tout de suite ?</b>
+        <div class="opt"><span class="reco">A. PDF et texte d'abord, Word dans un second temps (recommandé).</span> Bénéfice : le premier essai arrive plus tôt, l'essentiel est couvert. Risque : certaines personnes veulent modifier le document dans Word.</div>
+        <div class="opt">B. Les trois formats dès le départ. Bénéfice : complet. Risque : environ 150 lignes de code en plus à tester avant de voir si le document plaît.</div></li>
+      <li><b>Le nom de la personne en tête du document ?</b>
+        <div class="opt"><span class="reco">A. Non par défaut, une case « Ajouter mon nom » (recommandé).</span> Bénéfice : les coordonnées sont masquées au dépôt, on ne les réintroduit pas par surprise. Risque : un document à compléter à la main.</div>
+        <div class="opt">B. Reprendre le nom de l'application. Bénéfice : document prêt à remettre. Risque : nom absent ou ancien, et la règle « rien ne repart sans accord » fragilisée.</div></li>
+      <li><b>Combien de lignes montrer d'abord ?</b>
+        <div class="opt"><span class="reco">A. Toutes, rangées en trois familles pliables, les mieux prouvées en haut (recommandé).</span> Bénéfice : tout est visible, la personne garde la main. Risque : 14 lignes peuvent fatiguer ; les familles pliables aident.</div>
+        <div class="opt">B. Les 5 mieux prouvées, puis « Voir le reste ». Bénéfice : plus léger. Risque : une ligne qui compte pour la personne reste cachée.</div></li>
+    </ol>
+  </div>
+  <div class="sec"><h2>Ce que la maquette ne règle pas encore</h2>
+    <div class="tabw"><table><tr><th>Point</th><th>Quand</th></tr>
+      <tr><td>Placement précis des boutons et des encarts (maquette déplaçable)</td><td>Après cette première validation du parcours, si tu veux ajuster les emplacements</td></tr>
+      <tr><td>Texte exact de l'introduction (équilibre avec les autres modules)</td><td>Audit final</td></tr>
+      <tr><td>Liste réelle des assistants proposés</td><td>Audit final (elle vient de l'application)</td></tr>
+      <tr><td>Inventaire GARDÉ / DÉPLACÉ / FUSIONNÉ / ENRICHI complet, verdict mode nuit</td><td>Audit final</td></tr></table></div>
+  </div>
+</div>
+</div>
+
+<div class="barre" id="barre"><div class="in" id="barreIn"></div></div>
+
+<script>
+(function(){
+  var ecrans=['intro','docs','asst','relec','fin','q'];
+  var ordre=['intro','docs','asst','relec','fin'];
+  var courant='intro';
+  var barreIn=document.getElementById('barreIn');
+  function $(s,r){return (r||document).querySelector(s);}
+  function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+  function montrer(id){
+    courant=id;
+    ecrans.forEach(function(e){document.getElementById('ec-'+e).classList.toggle('vu',e===id);});
+    $$('.haut [data-ec]').forEach(function(b){b.classList.toggle('actif',b.getAttribute('data-ec')===id);});
+    majBarre();window.scrollTo(0,0);
+  }
+  function nbCartes(){var c=$$('#ec-relec .comp');var gar=0,retire=0,reste=0;c.forEach(function(x){var e=x.getAttribute('data-etat');if(e==='ok'||e==='part'){gar++;}else if(e==='non'){retire++;}else{reste++;}});return {gar:gar,retire:retire,reste:reste,total:c.length};}
+  function majBarre(){
+    var i=ordre.indexOf(courant);
+    var h='';
+    if(courant==='q'){barreIn.innerHTML='<span class="small muted">Page de questions : rien à valider ici dans la barre.</span>';return;}
+    var prec=i>0?ordre[i-1]:null,suiv=i<ordre.length-1?ordre[i+1]:null;
+    h+='<button class="nav" type="button" '+(prec?'data-ec-go="'+prec+'"':'disabled')+'>'+(courant==='intro'?'Retour à la Boîte à outils':'Retour')+'</button>';
+    var raison='',off=false;
+    if(courant==='docs'){var sans=$('#tAucun').checked;var n=$$('#listeCv .doc,#listeLm .doc,#listeRec .doc').length;if(sans&&n===0){off=true;raison='Déposez au moins un document pour continuer.';}}
+    if(courant==='asst'){raison='';}
+    if(courant==='relec'){var n2=nbCartes();raison=n2.reste?('Il vous reste '+n2.reste+' ligne(s) à relire ou à passer.'):'Vous avez gardé '+n2.gar+' ligne(s) sur '+n2.total+'.';if(n2.gar===0){off=true;}}
+    if(raison){h+='<span class="'+(off||courant==='relec'&&nbCartes().reste?'raison':'small muted')+'">'+raison+'</span>';}
+    if(suiv){h+='<button class="nav suivant" type="button" '+(off?'disabled':'data-ec-go="'+suiv+'"')+'>'+(courant==='fin'?'Terminer':'Continuer')+'</button>';}
+    else {h+='<button class="nav suivant" type="button">Terminer et revenir à la Boîte à outils</button>';}
+    barreIn.innerHTML=h;
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-ec],[data-ec-go],[data-aller],[data-vue],[data-g],[data-ajout],[data-retirer],[data-resultat],[data-copier],.jeton');
+    if(!t){return;}
+    var v;
+    if((v=t.getAttribute('data-ec'))){montrer(v);return;}
+    if((v=t.getAttribute('data-ec-go'))){montrer(v);return;}
+    if(t.hasAttribute('data-aller')){document.getElementById('intro2').scrollIntoView({behavior:'smooth'});return;}
+    if((v=t.getAttribute('data-vue'))){$$('.vue').forEach(function(x){x.classList.toggle('vu',x.id==='v-'+v);});$$('[data-vue]').forEach(function(b){if(b.classList.contains('mini')){b.classList.toggle('actif',b.getAttribute('data-vue')===v);}});return;}
+    if((v=t.getAttribute('data-g'))){
+      var carte=t.closest('.comp');var deja=t.classList.contains('on');
+      $$('.geste',carte).forEach(function(g){g.classList.remove('on','ok','part','non');});
+      carte.classList.remove('retire');var corr=$('.corrige',carte);if(corr){corr.hidden=true;}
+      if(deja){carte.setAttribute('data-etat','');}
+      else{t.classList.add('on',v);carte.setAttribute('data-etat',v);if(v==='non'){carte.classList.add('retire');}if(v==='part'&&corr){corr.hidden=false;}}
+      majBarre();return;}
+    if((v=t.getAttribute('data-ajout'))){
+      var cible={cv:'#listeCv',lm:'#listeLm',rec:'#listeRec'}[v];var nom={cv:'Un autre CV déposé',lm:'Lettre de motivation déposée',rec:'Lettre de recommandation déposée'}[v];
+      var d=document.createElement('div');d.className='doc';d.innerHTML='<span class="nom"><b>'+nom+'</b><br><span class="small muted">Relu et masqué par vous</span></span><span class="pastille conf">Relu et masqué</span><button class="btn petit gris" data-retirer type="button">Retirer</button>';
+      $(cible).appendChild(d);majBarre();return;}
+    if(t.hasAttribute('data-retirer')){t.closest('.doc').remove();majBarre();return;}
+    if((v=t.getAttribute('data-resultat'))){$('#res-bon').hidden=v!=='bon';$('#res-mauvais').hidden=v!=='mauvais';return;}
+    if(t.hasAttribute('data-copier')){var o=t.textContent;t.textContent='Copié';setTimeout(function(){t.textContent=o;},1200);return;}
+    if(t.classList.contains('jeton')){var p=t.parentNode;$$('.jeton',p).forEach(function(j){j.classList.toggle('actif',j===t);});return;}
+  });
+  $('#btnImporter').addEventListener('click',function(){$('#res-bon').hidden=false;$('#res-mauvais').hidden=true;});
+  $('#btnPrec').addEventListener('click',function(){$('#precOk').hidden=false;});
+  $('#btnPrecRetour').addEventListener('click',function(){
+    var c=$('#cartePrec');
+    c.setAttribute('data-etat','');
+    c.innerHTML='<h3>Encadrer l’équipe du samedi <span class="pastille conf">Précisée par vos mots</span></h3><p class="small">En mots simples : donner à chaque personne de l’équipe sa liste de colis et vérifier que les camions sont chargés.</p><div class="preuve"><b>Votre CV dit :</b> « Responsable de l’équipe du samedi »<br><b>Votre réponse dit :</b> « je donnais à chacun sa liste de colis »</div><details class="sous"><summary>Pour le dire à l’oral</summary><p>« Le samedi, nous étions quatre. Au début de la matinée, je donnais à chacun sa liste de colis. »</p></details><div class="gestes"><button class="geste" data-g="ok" type="button">C’est exact</button><button class="geste" data-g="part" type="button">En partie exact</button><button class="geste" data-g="non" type="button">Je retire</button></div><div class="corrige" hidden><textarea aria-label="Votre version" style="min-height:3.5rem">Répartition des listes de colis le samedi</textarea></div>';
+    majBarre();
+  });
+  $('#tAnn').addEventListener('change',function(){document.body.classList.toggle('ann',this.checked);});
+  $('#tTel').addEventListener('change',function(){document.body.classList.toggle('tel',this.checked);});
+  $('#tSombre').addEventListener('change',function(){document.documentElement.setAttribute('data-theme',this.checked?'dark':'light');});
+  $('#tReprise').addEventListener('change',function(){$('#reprise').hidden=!this.checked;});
+  $('#tAucun').addEventListener('change',function(){
+    var sans=this.checked;
+    $('#sansDocs').hidden=!sans;
+    $$('#listeCv .doc').forEach(function(d){d.remove();});
+    if(!sans&&!$$('#listeCv .doc').length){var d=document.createElement('div');d.className='doc';d.innerHTML='<span class="nom"><b>Mon CV enregistré dans l’application</b><br><span class="small muted">Préparateur de commandes, 2 pages</span></span><span class="pastille conf">Déjà relu</span><button class="btn petit gris" data-retirer type="button">Retirer</button>';$('#listeCv').appendChild(d);}
+    majBarre();
+  });
+  function majDoc(){var p=$('#oPreuves').checked,o=$('#oOral').checked;$$('#docFinal .bloc-preuve').forEach(function(x){x.hidden=!p;});$$('#docFinal .bloc-oral').forEach(function(x){x.hidden=!o;});}
+  $('#oPreuves').addEventListener('change',majDoc);$('#oOral').addEventListener('change',majDoc);
+  document.body.classList.add('ann');
+  majBarre();
+})();
+</script>
