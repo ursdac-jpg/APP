@@ -83,12 +83,25 @@ Mêmes cas réels (4 à 5 profils : ouvrier, employé, parcours atypique, techni
 - **Q5** La personne choisit le niveau du poste (proposé d'après les documents) ; la formulation ne dépasse **jamais** ce que les documents prouvent.
 - **Q6** La phrase pour l'oral reste dans l'outil en version 1 ; branchement à la fiche d'entretien plus tard.
 
+## 5ter. DÉCISIONS DE DENIS (26/10/2026) : Q1 à Q8 validées telles que recommandées
+
+- **Q1** Documents (CV, lettres de motivation, lettres de recommandation) plus courtes questions de précision par expérience. Pas de récit libre.
+- **Q2** Document « Mes compétences » à télécharger ET objet gardé dans le dossier (`dossier.mesCompetences`). Aucun autre module ne le lit avant les essais.
+- **Q3** Même document, sections distinctes : « Ce qui me donne envie » à part, seulement à partir des mots de la personne.
+- **Q4** 2 ou 3 fiches du Lexique seulement (savoir-faire, savoir-être et savoirs ; comment défendre une compétence).
+- **Q5** L'outil propose le niveau du poste d'après les documents, la personne confirme ou change ; la formulation ne dépasse jamais ce que les documents prouvent.
+- **Q6** Phrase pour l'oral dans l'outil seulement en version 1.
+- **Q7** Pas de vision à 2 et 5 ans en version 1 : renvoi vers « Mon projet ».
+- **Q8** Entrée par la Boîte à outils, avec au moins un document déposé ; sans document, renvoi vers « Créer un nouveau CV » et « À partir de mon récit ».
+
+**Suite engagée le 26/10/2026 : le prompt d'abord.** Fichiers : `prompts/mes-competences.md` (version 1, d'essai, non branchée dans l'application), banc d'essai `scripts/essaiMesCompetences/` (profils fictifs, génération des messages à coller, contrôle automatique des réponses), fiche de contrôle `docs/ESSAI_MES_COMPETENCES_FICHE_DE_CONTROLE_2026-10-26.md`. Aucun écran avant que le relevé soit jugé fiable.
+
 ## 6. Plan (à compléter après décisions)
 
 Méthode : concept grossier, carte de faisabilité (verdict GO / NO GO), maquette détaillée, audit complet et verdict avant code (cas module neuf : vérification contre `LANGAGE_VISUEL_COMMUN.md` et `BRIQUES_COMMUNES.md`).
 
 - [x] `[effort : haut]` Messages de recherche chez d'autres plateformes : `docs/PROMPTS_AUTRES_IA_DECOUVRIR_COMPETENCES_2026-10-26.md` ; réponses de 5 plateformes reçues et triées le 26/10/2026 : `docs/SYNTHESE_REPONSES_AUTRES_IA_DECOUVRIR_COMPETENCES_2026-10-26.md` (à lire avant de trancher Q1 à Q6).
-- [ ] `[effort : haut]` Trancher Q1 à Q6.
+- [x] `[effort : haut]` Trancher Q1 à Q8 (fait le 26/10/2026, voir 5ter).
 - [ ] `[effort : haut]` Concept grossier puis carte de faisabilité (verdict).
 - [ ] `[effort : haut]` Maquette détaillée.
 - [ ] `[effort : haut]` Audit complet, inventaire GARDÉ / DÉPLACÉ / FUSIONNÉ / ENRICHI, verdict final, verdict mode nuit.
