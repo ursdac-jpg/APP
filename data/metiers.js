@@ -9386,6 +9386,7 @@ function htmlBulleInfoCarte(id) {
   var source = info.items.slice();
   var qfqOuvert = typeof mtOuvert === 'function' && mtOuvert();
   if (qfqOuvert && id === 'preparer') { source.push(['Employeurs près de chez moi', 'bi-geo-alt', 'Des employeurs de votre département, par secteur, pour envoyer une candidature spontanée.']); }
+  if (id === 'boiteaoutils' && typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) { source.push(['Découvrir mes compétences', 'bi-compass', 'Vos documents montrent déjà ce que vous savez faire : l’outil le repère, avec la phrase qui le prouve, et vous aide à le dire.']); }
   if (qfqOuvert && id === 'informe') { source.push(['Qui fait quoi', 'bi-geo-alt', 'À qui vous adresser dans votre département : des structures et des employeurs, avec leurs coordonnées et la date de vérification.']); }
   var items = source.map(function (it) {
     return '<div class="carte-accueil-info-item">' +
@@ -9551,7 +9552,11 @@ function ouvrirCarteAccueil(id) {
         'Notez librement ce qui vous passe par la tête, sans rien décider tout de suite.'),
       tuile('btnCarteAccueilLexique', 'bi-book', 'Lexique',
         'Cherchez un mot du monde du travail dès qu’il vous bloque, expliqué simplement.')
-    ] },
+    ].concat((typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) ? [
+      // Module « Découvrir mes compétences » : la tuile n'apparait que lorsque le module est ouvert au public (MESCOMP_OUVERT, modules/mes-competences/index.js).
+      tuile('btnCarteAccueilMesCompetences', 'bi-compass', 'Découvrir mes compétences',
+        'Ce que vos documents montrent déjà que vous savez faire, avec la phrase qui le prouve, et comment le dire.')
+    ] : []) },
     analyse: { titre: '<i class="bi bi-graph-up-arrow titre-icone-accent"></i> Outils d’analyse', tuiles: [
       tuile('btnCarteAccueilBilan', 'bi-graph-up', 'Analyser ma candidature',
         'Mon CV est-il solide ? Un assistant repère ce qui mérite d’être renforcé.'),
@@ -9759,6 +9764,9 @@ function ouvrirCarteAccueil(id) {
     brancher('btnCarteAccueilLexique', function () {
       track('lexique'); fermerFenetreERIP();
       if (typeof lexiqueDemarrer === 'function') { lexiqueDemarrer(); }
+    });
+    brancher('btnCarteAccueilMesCompetences', function () {
+      track('mes_competences'); fermerFenetreERIP(); naviguerVers('mes-competences-intro');
     });
     return;
   }

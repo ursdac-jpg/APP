@@ -4086,6 +4086,9 @@ var routes = {
   // plan PLAN_ATS_2026-09-03.md.
   'ats': typeof pageAts === 'function' ? pageAts : pageIntroAts,
   'regard-recruteur-intro': pageIntroRegardRecruteur,
+  // Module « Découvrir mes compétences » (modules/mes-competences/), meme patron que 'un-cv-plusieurs-metiers' : 'xxx-intro' = presentation, 'xxx' = le module.
+  'mes-competences-intro': typeof pageIntroMesCompetences === 'function' ? pageIntroMesCompetences : function () { naviguerVers('cv'); },
+  'mes-competences': typeof pageMesCompetences === 'function' ? pageMesCompetences : function () { naviguerVers('cv'); },
   // TACHE (module « Regard recruteur », 2026-09) : parcours route, meme
   // patron que 'ats' / 'comparer-pistes'. pageRegardRecruteur() vit dans
   // modules/regard-recruteur/index.js. Conception : maquette
@@ -5238,7 +5241,7 @@ function pageChoixCV() {
         ['Écrire ma lettre avec l’assistant', 'M’entraîner à un entretien'].concat((typeof mtOuvert === 'function' && mtOuvert()) ? ['Employeurs près de chez moi'] : [])) +
       htmlCarteAccueil('boiteaoutils', 'bi-briefcase', 'Boîte à outils',
         'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.',
-        ['Mes Repères', 'Mon Carnet', 'Lexique']) +
+        ['Mes Repères', 'Mon Carnet', 'Lexique'].concat((typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) ? ['Découvrir mes compétences'] : [])) +
       htmlCarteAccueil('analyse', 'bi-graph-up-arrow', 'Outils d’analyse',
         'Vérifier la solidité de votre candidature avant de postuler.',
         ['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']) +
@@ -33932,6 +33935,7 @@ var FICHIERS_PROMPTS_EXTERNES = {
   // un recruteur. Meme registre « chargement externe + repli par defaut ».
   // Repli integral aussi embarque dans modules/regard-recruteur/promptBuilder.js.
   'regard-recruteur': 'prompts/regard-recruteur.md',
+  mesCompetences: 'prompts/mes-competences.md',
   // Module « Un CV, plusieurs métiers » (2026-10-10) : quatre prompts propres au module, testés sur de vrais assistants (voir docs/essais_prompts_ucpm/).
   'ucpm-metiers': 'prompts/ucpm-metiers.md',
   'ucpm-accroches': 'prompts/ucpm-accroches.md',
@@ -33945,6 +33949,7 @@ var promptsExternesCharges = {
   'comparer-detection': null, 'comparer-collecte': null, 'comparer-meme-categorie': null,
   'comparer-situations': null, 'comparer-aller-plus-loin': null,
   'regard-recruteur': null,
+  mesCompetences: null,
   'ucpm-metiers': null, 'ucpm-accroches': null, 'ucpm-lettres': null, 'ucpm-offres': null
 };
 
@@ -41233,6 +41238,7 @@ function recommencer() {
   if (typeof ucpmReinitialiser === 'function') { ucpmReinitialiser(); }
   if (typeof atsReinitialiser === 'function') { atsReinitialiser(); }
   if (typeof regardRecruteurReinitialiser === 'function') { regardRecruteurReinitialiser(); }
+  if (typeof mesCompReinitialiser === 'function') { mesCompReinitialiser(); }
   bilanReinitialiserEtatBilan();
   _bilanStatutsCorrection = {};
   _bilanPropositionsParRecommandation = {};
@@ -41476,7 +41482,8 @@ function collecterEtatsModulesPourSauvegarde() {
     unCvPlusieursMetiers: typeof ucpmExporterEtatPourSauvegarde === 'function' ? ucpmExporterEtatPourSauvegarde() : null,
     ats: typeof atsExporterEtatPourSauvegarde === 'function' ? atsExporterEtatPourSauvegarde() : null,
     regardRecruteur: typeof regardRecruteurExporterEtatPourSauvegarde === 'function' ? regardRecruteurExporterEtatPourSauvegarde() : null,
-    modelesGardes: typeof mgExporterEtatPourSauvegarde === 'function' ? mgExporterEtatPourSauvegarde() : null
+    modelesGardes: typeof mgExporterEtatPourSauvegarde === 'function' ? mgExporterEtatPourSauvegarde() : null,
+    mesCompetences: typeof mesCompExporterEtatPourSauvegarde === 'function' ? mesCompExporterEtatPourSauvegarde() : null
   };
 }
 
@@ -41490,6 +41497,7 @@ function restaurerEtatsModules(modulesEtat) {
   if (typeof atsRestaurerEtatDepuisSauvegarde === 'function') { atsRestaurerEtatDepuisSauvegarde(modulesEtat.ats || null); }
   if (typeof regardRecruteurRestaurerEtatDepuisSauvegarde === 'function') { regardRecruteurRestaurerEtatDepuisSauvegarde(modulesEtat.regardRecruteur || null); }
   if (typeof mgRestaurerEtatDepuisSauvegarde === 'function') { mgRestaurerEtatDepuisSauvegarde(modulesEtat.modelesGardes || null); }
+  if (typeof mesCompRestaurerEtatDepuisSauvegarde === 'function') { mesCompRestaurerEtatDepuisSauvegarde(modulesEtat.mesCompetences || null); }
 }
 
 // Copie complete et independante de la session : tout le dossier, l'etape en
@@ -42702,6 +42710,20 @@ var AIDE_PAGES = {
 AIDE_PAGES['ats-intro'] = AIDE_PAGES.ats;
 AIDE_PAGES['regard-recruteur-intro'] = AIDE_PAGES['regard-recruteur'];
 AIDE_PAGES['aide-decision-intro'] = AIDE_PAGES['comparer-pistes'];
+AIDE_PAGES['mes-competences-intro'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-compass"></i>', titre: 'Découvrir mes compétences',
+    texte: 'Cet outil repère, dans vos documents, ce que vous savez déjà faire, avec la phrase qui le prouve, et vous aide à le dire. Il n’invente rien et ne porte aucun avis sur vous : c’est vous qui gardez ou retirez chaque ligne.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos choix ne sont pas perdus.' }
+];
+AIDE_PAGES['mes-competences'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-compass"></i>', titre: 'Découvrir mes compétences',
+    texte: 'Vous déposez vos documents, l’assistant en ligne en tire des compétences avec leur preuve, vous relisez chaque ligne et vous gardez ce qui vous ressemble.' },
+  { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
+    texte: 'La barre en haut suit les quatre étapes : Documents, Assistant, Relecture, Mon document. Elle sert de repère, on avance avec « Continuer ».' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos choix ne sont pas perdus.' }
+];
 AIDE_PAGES['un-cv-plusieurs-metiers'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-files"></i>', titre: 'Un CV, plusieurs métiers',
     texte: 'Quand plusieurs métiers vous intéressent, ce module vous aide à préparer un CV et une lettre pour chacun, à partir de votre seul vrai parcours. Rien n’est inventé et rien n’est décidé à votre place.' },

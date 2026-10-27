@@ -371,7 +371,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['comportement au travail'],
     corps: "Le savoir-être désigne la manière dont une personne se comporte et interagit dans un cadre professionnel : la façon de communiquer, de réagir à une consigne, de travailler avec d'autres. C'est ce qu'un employeur observe au-delà des compétences techniques précises.",
     relations: [
-      { ficheId: 'savoir-faire', type: 'a-ne-pas-confondre' }, { ficheId: 'esprit-equipe', type: 'voir-aussi' }
+      { ficheId: 'savoir-faire', type: 'a-ne-pas-confondre' }, { ficheId: 'esprit-equipe', type: 'voir-aussi' }, { ficheId: 'prouver-une-competence', type: 'voir-aussi' }
     ]
   },
   {
@@ -380,7 +380,25 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['compétences techniques'],
     corps: "Le savoir-faire désigne les compétences techniques concrètes qu'une personne sait mettre en œuvre dans son métier, acquises par la formation ou l'expérience. C'est ce qu'un employeur cherche à vérifier à travers un CV ou une mise en situation.",
     relations: [
-      { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'rigueur', type: 'voir-aussi' }
+      { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'rigueur', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'savoirs-connaissances', titre: 'Que veut dire "savoirs" (ce que l\'on connaît) ?', titreDeTri: 'Savoirs',
+    type: 'notion', gabarit: 'decryptage', univers: 'emploi-recrutement', registres: ['langage-rh'],
+    variantesRecherche: ['connaissances', 'ce que je connais'],
+    corps: "Les savoirs, ce sont les connaissances qu'une personne possède : des règles, des produits, des procédures, un logiciel, une langue. On les distingue du savoir-faire (ce que l'on sait faire avec ses mains ou son outil) et du savoir-être (la façon de travailler). Un savoir se montre par ce que l'on en dit ou par l'usage qu'on en fait : par exemple, lire des notices en anglais ou connaître les consignes de sécurité d'un entrepôt.",
+    relations: [
+      { ficheId: 'savoir-faire', type: 'a-ne-pas-confondre' }, { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'prouver-une-competence', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'prouver-une-competence', titre: 'Comment prouver une compétence ?', titreDeTri: 'Prouver une compétence',
+    type: 'notion', gabarit: 'decryptage', univers: 'emploi-recrutement', registres: ['langage-rh', 'langage-employeur'],
+    variantesRecherche: ['défendre une compétence', 'expliquer ce que je sais faire', 'se présenter à l\'oral'],
+    corps: "Dire qu'on sait faire quelque chose ne suffit pas toujours : un recruteur aime entendre un fait. Pour prouver une compétence, on dit où on l'a exercée, ce qu'on faisait concrètement et, si on le peut, pendant combien de temps. Une phrase courte et vraie vaut mieux qu'un mot brillant : « de 2021 à 2024, j'ai préparé environ 80 colis par jour » en dit plus que « je suis rigoureux ». Une lettre de recommandation ou le récit d'une situation précise renforcent aussi la preuve.",
+    relations: [
+      { ficheId: 'savoir-faire', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }, { ficheId: 'savoir-etre', type: 'voir-aussi' }
     ]
   },
   {
