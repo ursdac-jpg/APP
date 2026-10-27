@@ -1,0 +1,40 @@
+La réponse précise les tâches réalisées comme responsable de l’équipe du samedi. Elle apporte deux faits concrets, la répartition des listes de colis et la vérification du chargement des camions.
+```json
+{
+ "competences": [
+  {
+   "libelle": "Encadrer l'équipe du samedi",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Votre CV et votre réponse décrivent la répartition du travail entre les quatre personnes et la vérification du chargement des camions.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Responsable de l’équipe du samedi"
+    },
+    {
+     "typeDocument": "reponse",
+     "numeroDocument": 0,
+     "extrait": "je donnais à chacun sa liste de colis"
+    },
+    {
+     "typeDocument": "reponse",
+     "numeroDocument": 0,
+     "extrait": "avant midi je vérifiais que tous les camions étaient chargés"
+    }
+   ],
+   "confirmation": "confirmee",
+   "pourLeCV": "Répartition du travail et vérification du chargement des camions le samedi",
+   "pourLOral": "Le samedi, nous étions quatre. Au début de la matinée, je donnais à chacun sa liste de colis. Avant midi, je vérifiais que tous les camions étaient chargés.",
+   "pourPreparer": "Comment faisiez-vous si une personne avait besoin d'aide pour terminer sa liste de colis ?",
+   "synonymes": [
+    "Répartir le travail dans l'équipe",
+    "Organiser le travail de l'équipe"
+   ],
+   "question": ""
+  }
+ ],
+ "competencesRetirees": [],
+ "motivations": []
+}
+```

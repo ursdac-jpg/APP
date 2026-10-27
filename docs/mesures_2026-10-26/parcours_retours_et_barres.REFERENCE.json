@@ -1,0 +1,57 @@
+{
+ "A-main": {
+  "trace": [
+   "projet",
+   "votre-parcours",
+   "revelation"
+  ],
+  "textes": {
+   "intertitres": [
+    "Des métiers à regarder",
+    "Ce que l'assistant a repéré chez vous"
+   ],
+   "suivant": "Continuer →"
+  },
+  "retourVa": "votre-parcours",
+  "erreurs": 0
+ },
+ "A-assistant": {
+  "trace": [
+   "projet",
+   "votre-parcours",
+   "revelation"
+  ],
+  "textes": {
+   "intertitres": [
+    "Des métiers à regarder",
+    "Ce que l'assistant a repéré chez vous"
+   ],
+   "suivant": "Continuer →"
+  },
+  "retourVa": "votre-parcours",
+  "erreurs": 0
+ },
+ "B-recit-retour": {
+  "route": "resultats",
+  "h1": "📄 Vos documents",
+  "erreurs": 0
+ },
+ "C-reformuler-barre": [
+  [
+   "objectif",
+   "Préparer > Assistant > Réponse > Corriger mon CV > Vos documents"
+  ],
+  [
+   "projet",
+   "Préparer > Assistant > Réponse > Corriger mon CV > Vos documents"
+  ],
+  [
+   "revelation",
+   "Préparer > Assistant > Réponse > Corriger mon CV > Vos documents"
+  ],
+  [
+   "resultats",
+   "Préparer > Assistant > Réponse > Corriger mon CV > Vos documents"
+  ]
+ ]
+}

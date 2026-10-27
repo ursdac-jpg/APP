@@ -119,7 +119,9 @@ function _ucpmHtmlP1Depot(etat) {
     (recu
       ? '<p class="mb-2"><strong>&#9989; Les métiers sont reçus.</strong> Cliquez sur « Continuer » en bas de page, ou refaites la demande.</p>' +
         '<button type="button" class="btn btn-outline-secondary" id="btnUcpmRefaireMetiers">Refaire la demande</button>'
-      : '<button type="button" class="btn btn-primary" id="btnUcpmVersAssistant"' + (pret ? '' : ' disabled title="Déposez d’abord votre CV."') + '>Continuer &#8594;</button>');
+      // Un seul « Continuer » : celui de la barre du bas (règle du 19/10/2026, demande de Denis le 26/10/2026). Pas de bouton dans la page.
+      : (pret ? '<p class="mb-0 text-muted">Cliquez sur « Continuer » en bas de page pour envoyer votre CV masqué à l’assistant.</p>'
+              : '<p class="mb-0 text-muted">Déposez d’abord votre CV : le bouton « Continuer » en bas de page s’activera.</p>'));
   return '<div class="cv-section"><h4>&#128196; 1. Déposer mon CV</h4>' + carte1 + '</div>' +
     '<div class="cv-section"><h4>&#129517; 2. Demander à l’assistant les métiers proches</h4>' + carte2 + '</div>';
 }
@@ -142,8 +144,6 @@ ucpmEnregistrerPage(1, {
         } else { ouvrir(); }
       });
     }
-    var vers = document.getElementById('btnUcpmVersAssistant');
-    if (vers && !vers.disabled) { vers.addEventListener('click', function () { etat.p1Vue = 'passage'; ucpmPassageReinitialiser(etat, 'metiers'); ucpmRendrePage(); }); }
     var refaire = document.getElementById('btnUcpmRefaireMetiers');
     if (refaire) {
       refaire.addEventListener('click', function () {
@@ -162,10 +162,14 @@ ucpmEnregistrerPage(1, {
     ucpmRendrePage();
     return true;
   },
-  peutContinuer: function (etat) { return etat.p1Vue === 'depot' && !!etat.reponseMetiers; },
+  // « Continuer » de la barre du bas : CV prêt et métiers pas encore reçus = envoyer le CV à l'assistant (ouvre le passage) ; métiers reçus = page 2. « Refaire la demande » reste dans la page.
+  peutContinuer: function (etat) { return etat.p1Vue === 'depot' && (!!etat.reponseMetiers || !!(etat.cvRelu && String(etat.texteCV || '').trim())); },
   raisonBlocage: function (etat) {
-    if (!etat.cvRelu) { return 'Déposez votre CV, puis demandez les métiers à l’assistant pour continuer.'; }
+    if (!(etat.cvRelu && String(etat.texteCV || '').trim())) { return 'Déposez votre CV pour continuer.'; }
     return 'Demandez les métiers à l’assistant et collez sa réponse pour continuer.';
   },
-  continuer: function () { ucpmAllerPage(2); }
+  continuer: function (etat) {
+    if (etat.reponseMetiers) { ucpmAllerPage(2); return; }
+    etat.p1Vue = 'passage'; ucpmPassageReinitialiser(etat, 'metiers'); ucpmRendrePage();
+  }
 });

@@ -10,7 +10,7 @@
    Principe directeur et parcours complet : docs/CHANTIER_AIDE_DECISION_ORIENTATION.md
    Maquette de flux : docs/MAQUETTE_COMPARER_PISTES_FLUX_2026-08-31.html
 
-   Meme patron que "Decouvrir mes competences" : PAGE routee (jamais une
+   Meme patron que "A partir de mon recit" : PAGE routee (jamais une
    fenetre modale). L'etat de la session vit dans la closure de
    ouvrirComparerPistes() ; pageComparerPistes() (route 'comparer-pistes',
    js/app.js) redessine l'ecran courant, ou renvoie a la presentation du
@@ -606,7 +606,7 @@ function comparerApresNavigation(route) {
 }
 
 // Barre d'etapes visuelle du module : meme composant que "Analyser ma
-// candidature" et "Decouvrir mes competences" (barreEtapesModule, js/app.js).
+// candidature" et "A partir de mon recit" (barreEtapesModule, js/app.js).
 var COMPARER_NAV_ETAPES = [
   { label: 'Mes pistes', icone: '&#128203;' },        // clipboard
   { label: 'Collecter', icone: '&#128269;' },         // loupe
@@ -2748,7 +2748,7 @@ function ouvrirComparerPistes() {
       // le correctif du 2026-09-17 avait mis la barre d'etapes avant le
       // TITRE, mais htmlBandeRepriseModule() (bouton "Revoir la
       // presentation") etait reste avant la barre elle-meme -- meme bug que
-      // "Un regard sur mon CV" et "Decouvrir mes competences", meme jour.
+      // "Un regard sur mon CV" et "A partir de mon recit", meme jour.
       // Ordre correct, identique a ATS/Cohérence transversale : barre
       // d'abord, bande ensuite.
       (typeof barreEtapesModule === 'function'

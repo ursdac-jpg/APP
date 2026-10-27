@@ -36,3 +36,5 @@ Point important : vous ne pouvez pas faire la demande directement auprès d'une 
 Être inscrit au fichier des incidents de crédit de la Banque de France ne bloque pas forcément un microcrédit : l'accompagnant en tient compte au cas par cas.
 
 Pour trouver un accompagnant près de chez vous, voyez « Près de chez moi » ou demandez à la personne qui vous accompagne.
+
+Quatre acteurs peuvent vous aider. Parcours Confiance, une marque de l'Institut de microcrédit : on ne le contacte pas directement, c'est une association ou un service qui vous accompagne qui fait la demande. L'Appui, service de La Banque Postale : réservé à ses clients et joignable seulement par téléphone. L'Adie et l'Atelier budgétaire de Périgueux : ils aident aussi à monter le dossier.

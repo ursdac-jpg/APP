@@ -5031,3 +5031,25 @@ button.rpast:hover, button.rpast:focus-visible { background: color-mix(in srgb, 
 .nv-titre { font-weight: 700; font-size: 1.02rem; }
 .nv-nouveau { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #fff; background: #c2410c; border-radius: 999px; padding: .05rem .55rem; }
 [data-theme="sombre"] .nv-nouveau { background: #fb923c; color: #1b212c; }
+
+/* ============================================================
+   Module « Découvrir mes compétences » (modules/mes-competences/) : relecture et document.
+   Reprend les styles de la maquette docs/MAQUETTE_MES_COMPETENCES_2026-10-26.html (classes mc-). Les couleurs viennent des variables communes,
+   donc le mode sombre suit tout seul. Seule la feuille du document reste blanche (c'est une page à imprimer, comme l'aperçu d'un CV).
+   ============================================================ */
+.mc-preuve { border-left: 3px solid var(--border); padding: .1rem .7rem; margin: .5rem 0; color: var(--text-muted); font-size: .92rem; text-align: left; }
+.mc-preuve b { color: var(--text-strong); }
+.mc-sous { font-size: .9rem; margin: .3rem 0; text-align: left; }
+.mc-sous summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.mc-gestes { display: flex; gap: .5rem; flex-wrap: wrap; margin: .6rem 0 .2rem; }
+.mc-corrige { margin-top: .5rem; text-align: left; }
+.mc-comp.retire > summary { opacity: .55; text-decoration: line-through; }
+.mc-comp.retire .bloc-depli-corps > *:not(.mc-gestes) { opacity: .5; }
+.mc-feuille { background: #fff; color: #1b1b1b; border: 1px solid #cfd6d6; border-radius: 4px; padding: 1.4rem 1.6rem; max-width: 720px; margin: .8rem auto; box-shadow: 0 2px 10px rgba(0, 0, 0, .15); font-family: Georgia, "Times New Roman", serif; font-size: .93rem; text-align: left; }
+.mc-feuille h2 { font: 700 1.45rem/1.2 Georgia, serif; margin: .1rem 0; color: #1b1b1b; }
+.mc-feuille h3 { font: 700 .78rem/1.2 'Segoe UI', system-ui, sans-serif; text-transform: uppercase; letter-spacing: .07em; color: #0b4fb3; border-bottom: 2px solid #0b4fb3; padding-bottom: .15rem; margin: 1.1rem 0 .4rem; }
+.mc-feuille .ligne { margin: .45rem 0; }
+.mc-feuille .lib { font-weight: 700; }
+.mc-feuille .pr { color: #555; font-style: italic; font-size: .84rem; }
+.mc-feuille .or { font-size: .88rem; }
+.mc-feuille .pied { font: .74rem 'Segoe UI', system-ui, sans-serif; color: #666; margin-top: 1rem; }

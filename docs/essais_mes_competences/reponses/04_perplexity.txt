@@ -1,0 +1,31 @@
+J'ai lu votre CV et votre lettre de recommandation. Ils montrent un travail concret de maintenance dans une usine, avec le dépannage des machines, la maintenance préventive et la lecture de schémas. Votre lettre de recommandation décrit aussi un diagnostic de panne et la formation de deux collègues.
+```json
+{
+  "niveauPoste": "technicien",
+  "niveauPosteIndices": "Votre CV indique un poste de technicien de maintenance, avec le dépannage, la maintenance préventive et la lecture de schémas électriques et pneumatiques.",
+  "competences": [
+    {"libelle": "Dépanner les machines de production","famille": "savoirFaire","enMotsSimples": "Cela veut dire trouver ce qui ne marche pas sur une machine et la remettre en état de fonctionner.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Dépannage des machines de la ligne de production" },{ "typeDocument": "recommandation", "numeroDocument": 2, "extrait": "a diagnostiqué seul une panne récurrente de la ligne 3 en reprenant le câblage du capteur" }],
+      "confirmation": "confirmee","pourLeCV": "Dépannage des machines de la ligne de production","pourLOral": "J'ai été technicien de maintenance dans une usine de fabrication de portes de 2015 à 2024. Je dépannais les machines de la ligne de production.","pourPreparer": "Quels types de pannes avez-vous déjà eu à réparer sur les machines ?","synonymes": ["Réparer les machines", "Diagnostiquer les pannes"],"question": ""},
+    {"libelle": "Réaliser la maintenance préventive","famille": "savoirFaire","enMotsSimples": "Cela veut dire entretenir les machines à l'avance, en suivant un planning, pour éviter les pannes.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Maintenance préventive selon le planning de la GMAO" }],
+      "confirmation": "relevee","pourLeCV": "Maintenance préventive selon le planning de la GMAO","pourLOral": "Dans mon poste de technicien de maintenance, je réalisais la maintenance préventive en suivant le planning de la GMAO.","pourPreparer": "Quelles opérations de maintenance préventive faisiez-vous sur les machines ?","synonymes": ["Entretenir les machines", "Assurer la maintenance préventive"],"question": ""},
+    {"libelle": "Lire des schémas électriques et pneumatiques","famille": "savoirs","enMotsSimples": "Cela veut dire comprendre les dessins qui montrent comment les fils électriques et les circuits d'air sont branchés.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Lecture de schémas électriques et pneumatiques" }],
+      "confirmation": "relevee","pourLeCV": "Lecture de schémas électriques et pneumatiques","pourLOral": "Dans mon travail de maintenance, je lisais des schémas électriques et pneumatiques.","pourPreparer": "Dans quelles situations vous serviez-vous des schémas électriques ou pneumatiques ?","synonymes": ["Comprendre les schémas techniques", "Interpréter des schémas"],"question": ""},
+    {"libelle": "Tenir les fiches d'intervention","famille": "savoirFaire","enMotsSimples": "Cela veut dire écrire ce qui a été fait sur une machine après une réparation ou un entretien.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Tenue des fiches d’intervention" }],
+      "confirmation": "relevee","pourLeCV": "Tenue des fiches d'intervention","pourLOral": "Je tenais les fiches d'intervention dans mon travail de technicien de maintenance.","pourPreparer": "Quelles informations inscriviez-vous sur les fiches d'intervention ?","synonymes": ["Remplir les fiches d'intervention", "Renseigner les interventions"],"question": ""},
+    {"libelle": "Former de nouveaux techniciens","famille": "savoirFaire","enMotsSimples": "Cela veut dire expliquer son travail à quelqu'un qui arrive et lui montrer comment faire.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Accueil et formation de deux nouveaux techniciens" },{ "typeDocument": "recommandation", "numeroDocument": 2, "extrait": "Il a aussi formé deux collègues arrivés en 2022" }],
+      "confirmation": "confirmee","pourLeCV": "Accueil et formation de deux nouveaux techniciens","pourLOral": "J'ai accueilli et formé deux nouveaux techniciens dans l'usine où je travaillais. Ma lettre de recommandation indique que j'ai formé deux collègues arrivés en 2022.","pourPreparer": "Qu'est-ce que vous montriez en premier à un nouveau technicien ?","synonymes": ["Accompagner les nouveaux", "Transmettre son savoir-faire"],"question": ""},
+    {"libelle": "Prévenir avant d'intervenir sur une machine en production","famille": "savoirEtre","enMotsSimples": "Cela veut dire avertir la personne concernée avant de toucher à une machine qui tourne, pour que tout le monde soit au courant.",
+      "preuves": [{ "typeDocument": "recommandation", "numeroDocument": 2, "extrait": "Il prévient toujours le chef d’atelier avant d’intervenir sur une machine en production" }],
+      "confirmation": "relevee","pourLeCV": "Information du chef d'atelier avant intervention sur machine en production","pourLOral": "Ma lettre de recommandation indique que je préviens toujours avant d'intervenir sur une machine en production.","pourPreparer": "À qui faites-vous passer l'information avant une intervention sur une machine en production ?","synonymes": ["Avertir avant d'intervenir", "Informer avant une intervention"],"question": ""},
+    {"libelle": "Lire des notices techniques en anglais","famille": "savoirs","enMotsSimples": "Cela veut dire comprendre les explications écrites qui accompagnent une machine, même quand elles sont en anglais.",
+      "preuves": [{ "typeDocument": "cv", "numeroDocument": 1, "extrait": "Anglais technique : lecture des notices" }],
+      "confirmation": "relevee","pourLeCV": "Lecture de notices techniques en anglais","pourLOral": "Je lis les notices techniques en anglais.","pourPreparer": "Pour quelles machines ou quels équipements utilisiez-vous les notices en anglais ?","synonymes": ["Comprendre des notices en anglais", "Lire la documentation technique en anglais"],"question": ""}
+  ],
+  "motivations": []
+}
+```

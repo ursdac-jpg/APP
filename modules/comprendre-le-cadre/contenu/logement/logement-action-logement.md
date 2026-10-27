@@ -17,6 +17,7 @@ lexique:
     definition: "Somme versée au propriétaire à l'entrée dans le logement, rendue à la sortie si le logement est en bon état. Souvent un mois de loyer hors charges."
 voir_aussi_lexique:
   - visale
+  - mobili-jeune
 sources:
   - actionlogement-garantie-visale
   - actionlogement-avance-loca-pass

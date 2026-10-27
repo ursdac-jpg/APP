@@ -40,3 +40,5 @@ Pendant la mission, vous avez les mêmes droits que les salariés de l'entrepris
 Il existe aussi le CDI intérimaire, signé avec l'agence, qui garantit un revenu minimum entre les missions.
 
 L'entreprise de travail temporaire d'insertion est une agence d'intérim particulière : elle emploie des personnes qui rencontrent des difficultés et les accompagne pendant leurs missions. On y accède sur orientation d'un conseiller France Travail ou d'un travailleur social.
+
+Pour vous inscrire dans une agence d'intérim, apportez en général : votre CV, une pièce d'identité en cours de validité, votre carte Vitale ou une attestation de droits, un relevé d'identité bancaire, une attestation d'hébergement si vous êtes hébergé, et votre permis de conduire si vous en avez un. Chaque agence peut demander d'autres justificatifs : demandez la liste en prenant rendez-vous.

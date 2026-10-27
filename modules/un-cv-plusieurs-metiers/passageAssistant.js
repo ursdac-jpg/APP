@@ -18,9 +18,26 @@
      apresSucces      function () : suite quand la réponse est lue (en général aller à la page suivante)
      nomAssistant     (à compléter) function (assistant) -> texte d'alerte propre à ce passage
      avantEnvoi       (à compléter) function () -> texte : si non vide, la demande n'est pas préparée et ce texte est montré à la place (ex. trop de métiers pour une seule réponse)
+
+   OPTIONS FACULTATIVES (étape 4a de « Découvrir mes compétences », 2026-10-26) : ce passage sert aussi à un autre module. Chacune a pour défaut la valeur
+   d'avant, donc les quatre passages de « Un CV, plusieurs métiers » n'ont rien changé :
+     rerendre         function () : redessine la page du module (défaut : ucpmRendrePage)
+     attrAssistant    attribut des pastilles d'assistant (défaut : data-assistant-ucpm)
+     idErreur         identifiant de la zone d'erreur du choix (défaut : ucpmErreurChoixIA)
+     nomSuivi         nom du module dans le suivi d'usage (défaut : ucpm)
+   Le nom « ucpm » des fonctions reste (renommage = dette notée dans docs/BRIQUES_COMMUNES.md, B.10 / B.17).
    ============================================================ */
 
 var _ucpmIntervalleDecompte = null;
+
+// Redessine la page du module qui porte le passage (par défaut celle de « Un CV, plusieurs métiers »).
+function _ucpmRerendre(config) {
+  if (config && typeof config.rerendre === 'function') { config.rerendre(); return; }
+  ucpmRendrePage();
+}
+function _ucpmOptAttr(config) { return (config && config.attrAssistant) || 'data-assistant-ucpm'; }
+function _ucpmOptIdErreur(config) { return (config && config.idErreur) || 'ucpmErreurChoixIA'; }
+function _ucpmOptSuivi(config) { return (config && config.nomSuivi) || 'ucpm'; }
 
 // ---------- Style d'écriture avant chaque passage où l'assistant écrit (retours 12 et 17 de Denis, 2026-10-10) ----------
 // Le panneau de réglages de l'application (niveau de langage, ton, longueur, vocabulaire du métier, situation) : mêmes fonctions que la page « Assistant »
@@ -75,11 +92,11 @@ function ucpmPassageVue(etat, cle) {
 }
 
 // Bouton « Retour » : recule d'une vue du passage ; renvoie true si c'est fait, false quand on est déjà au début du passage.
-function ucpmPassageRetour(etat, cle) {
+function ucpmPassageRetour(etat, cle, rerendre) {
   var p = _ucpmEtatPassage(etat, cle);
   clearInterval(_ucpmIntervalleDecompte);
-  if (p.vue === 'coller') { p.vue = 'choix'; if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; } ucpmRendrePage(); return true; }
-  if (p.vue === 'chez') { p.vue = 'choix'; if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; } ucpmRendrePage(); return true; }
+  if (p.vue === 'coller') { p.vue = 'choix'; if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; } _ucpmRerendre({ rerendre: rerendre }); return true; }
+  if (p.vue === 'chez') { p.vue = 'choix'; if (typeof _etatTransitionIA !== 'undefined') { _etatTransitionIA = null; } _ucpmRerendre({ rerendre: rerendre }); return true; }
   return false;
 }
 
@@ -92,7 +109,7 @@ function ucpmPassageRendre(etat, cle, config) {
 
 function ucpmPassageCabler(etat, cle, config) {
   var vue = ucpmPassageVue(etat, cle);
-  if (vue === 'chez') { _ucpmPassageCablerChez(etat, cle); return; }
+  if (vue === 'chez') { _ucpmPassageCablerChez(etat, cle, config); return; }
   if (vue === 'coller') { _ucpmPassageCablerColler(etat, cle, config); return; }
   _ucpmPassageCablerChoix(etat, cle, config);
 }
@@ -105,8 +122,8 @@ function _ucpmPassageHtmlChoix(config) {
     '<h4 class="mb-1">&#128172; Choisissez votre assistant</h4>' +
     '<p style="color:var(--text-muted);font-size:.9rem;" class="mb-2">Cliquez sur un assistant. L’application prépare et copie tout, puis l’ouvre dans un nouvel onglet : <strong>cette page reste ouverte</strong>, c’est ici que vous reviendrez.</p>' +
     htmlChoixAssistantBilanCorps({
-      idErreur: 'ucpmErreurChoixIA',
-      attrAssistant: 'data-assistant-ucpm',
+      idErreur: _ucpmOptIdErreur(config),
+      attrAssistant: _ucpmOptAttr(config),
       etapes: config.etapes,
       texteConfidentialite: config.texteConfidentialite
     }) +
@@ -117,14 +134,14 @@ function _ucpmPassageCablerChoix(etat, cle, config) {
   // Revenir sur le choix annule une ouverture en cours.
   if (typeof _etatTransitionIA !== 'undefined' && _etatTransitionIA) { _etatTransitionIA = null; }
   clearInterval(_ucpmIntervalleDecompte);
-  Array.prototype.forEach.call(document.querySelectorAll('[data-assistant-ucpm]'), function (el) {
+  Array.prototype.forEach.call(document.querySelectorAll('[' + _ucpmOptAttr(config) + ']'), function (el) {
     el.addEventListener('click', function () {
-      var id = el.getAttribute('data-assistant-ucpm');
+      var id = el.getAttribute(_ucpmOptAttr(config));
       var assistant = (typeof ASSISTANTS_IA !== 'undefined') ? ASSISTANTS_IA.filter(function (a) { return a.id === id; })[0] : null;
       if (!assistant) { return; }
       if (typeof config.avantEnvoi === 'function') {
         var avis = config.avantEnvoi();
-        if (avis) { var za = document.getElementById('ucpmErreurChoixIA'); if (za) { za.style.display = 'block'; za.textContent = '⚠️ ' + avis; } return; }
+        if (avis) { var za = document.getElementById(_ucpmOptIdErreur(config)); if (za) { za.style.display = 'block'; za.textContent = '⚠️ ' + avis; } return; }
       }
       var p = _ucpmEtatPassage(etat, cle);
       p.assistant = assistant.id;
@@ -140,11 +157,11 @@ function _ucpmPassageCablerChoix(etat, cle, config) {
           onApresValidation: function (urlAssistant, nomAssistant) {
             _etatTransitionIA = { urlAssistant: urlAssistant, nomAssistant: nomAssistant, phase: 'decompte', secondesRestantes: 5 };
             p.vue = 'chez';
-            ucpmRendrePage();
+            _ucpmRerendre(config);
           }
         });
       }).catch(function () {
-        var z = document.getElementById('ucpmErreurChoixIA');
+        var z = document.getElementById(_ucpmOptIdErreur(config));
         if (z) { z.style.display = 'block'; z.textContent = '⚠️ L’application n’a pas pu préparer la demande. Merci de réessayer dans un instant.'; }
       });
     });
@@ -165,13 +182,13 @@ function _ucpmPassageHtmlChez() {
     '</div></div>';
 }
 
-function _ucpmPassageCablerChez(etat, cle) {
+function _ucpmPassageCablerChez(etat, cle, config) {
   var p = _ucpmEtatPassage(etat, cle);
-  if (typeof _etatTransitionIA === 'undefined' || !_etatTransitionIA) { p.vue = 'choix'; ucpmRendrePage(); return; }
+  if (typeof _etatTransitionIA === 'undefined' || !_etatTransitionIA) { p.vue = 'choix'; _ucpmRerendre(config); return; }
   // Retour en arrière depuis « Coller la réponse » alors que la phase est déjà 'revenu' : l'assistant est déjà ouvert, on revient à 'ouvert'.
   if (_etatTransitionIA.phase !== 'decompte' && _etatTransitionIA.phase !== 'bloque' && _etatTransitionIA.phase !== 'ouvert') {
     _etatTransitionIA.phase = 'ouvert';
-    ucpmRendrePage();
+    _ucpmRerendre(config);
     return;
   }
   function ouvrirAssistantEnAttente() {
@@ -180,8 +197,8 @@ function _ucpmPassageCablerChez(etat, cle) {
     recopierTexteAssistantPuisOuvrir(function () {
       var fen = window.open(_etatTransitionIA.urlAssistant, '_blank');
       _etatTransitionIA.phase = fen ? 'ouvert' : 'bloque';
-      if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement('ucpm_popup_bloque'); }
-      ucpmRendrePage();
+      if (_etatTransitionIA.phase === 'bloque' && typeof trackEvenement === 'function') { trackEvenement(_ucpmOptSuivi(config) + '_popup_bloque'); }
+      _ucpmRerendre(config);
     });
   }
   if (_etatTransitionIA.phase === 'decompte') {
@@ -199,7 +216,7 @@ function _ucpmPassageCablerChez(etat, cle) {
     if (bl) { bl.addEventListener('click', ouvrirAssistantEnAttente); }
   } else if (_etatTransitionIA.phase === 'ouvert') {
     var ret = document.getElementById('btnJeSuisDeRetourIA');
-    if (ret) { ret.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; p.vue = 'coller'; ucpmRendrePage(); }); }
+    if (ret) { ret.addEventListener('click', function () { _etatTransitionIA.phase = 'revenu'; p.vue = 'coller'; _ucpmRerendre(config); }); }
     var rouvrir = document.getElementById('btnRouvrirSiteIA');
     if (rouvrir) { rouvrir.addEventListener('click', ouvrirAssistantEnAttente); }
   }
@@ -238,7 +255,7 @@ function _ucpmPassageCablerColler(etat, cle, config) {
     }
     var r = config.importer(texte);
     if (!r || !r.succes) {
-      if (typeof trackEvenement === 'function') { trackEvenement('erreur_import', { document: 'ucpm', raison: (r && r.coupe) ? 'coupee' : 'illisible' }); }
+      if (typeof trackEvenement === 'function') { trackEvenement('erreur_import', { document: _ucpmOptSuivi(config), raison: (r && r.coupe) ? 'coupee' : 'illisible' }); }
       if (msg) {
         msg.style.color = 'var(--danger)';
         msg.textContent = '⚠️ ' + ((r && r.erreur) || 'La réponse n’a pas pu être lue.') + ' Effacez, retournez chez l’assistant, redemandez sa réponse, copiez-la, puis recollez-la ici avant de recliquer sur « Continuer ».';

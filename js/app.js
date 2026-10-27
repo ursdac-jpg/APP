@@ -4046,7 +4046,7 @@ var routes = {
   // modules/lexique/index.js (voir modules/lexique/ARCHITECTURE_TECHNIQUE.md).
   'lexique': pageLexique,
   // TACHE (retour Denis, 2026-08-31) : "Co-construire ma lettre",
-  // "Preparer un entretien" et "Decouvrir mes competences" gagnent une
+  // "Preparer un entretien" et "A partir de mon recit" gagnent une
   // VRAIE page de presentation (pas une fenetre), avec synthese du travail
   // deja fait. Ces fonctions vivent dans data/metiers.js (globales au
   // moment ou cet objet est evalue). Le CTA de chaque page lance la
@@ -4086,6 +4086,9 @@ var routes = {
   // plan PLAN_ATS_2026-09-03.md.
   'ats': typeof pageAts === 'function' ? pageAts : pageIntroAts,
   'regard-recruteur-intro': pageIntroRegardRecruteur,
+  // Module « Découvrir mes compétences » (modules/mes-competences/), meme patron que 'un-cv-plusieurs-metiers' : 'xxx-intro' = presentation, 'xxx' = le module.
+  'mes-competences-intro': typeof pageIntroMesCompetences === 'function' ? pageIntroMesCompetences : function () { naviguerVers('cv'); },
+  'mes-competences': typeof pageMesCompetences === 'function' ? pageMesCompetences : function () { naviguerVers('cv'); },
   // TACHE (module « Regard recruteur », 2026-09) : parcours route, meme
   // patron que 'ats' / 'comparer-pistes'. pageRegardRecruteur() vit dans
   // modules/regard-recruteur/index.js. Conception : maquette
@@ -5238,7 +5241,7 @@ function pageChoixCV() {
         ['Écrire ma lettre avec l’assistant', 'M’entraîner à un entretien'].concat((typeof mtOuvert === 'function' && mtOuvert()) ? ['Employeurs près de chez moi'] : [])) +
       htmlCarteAccueil('boiteaoutils', 'bi-briefcase', 'Boîte à outils',
         'Mieux comprendre votre parcours et le monde professionnel. Des outils à ouvrir quand vous voulez, sans suivre d’étapes.',
-        ['Mes Repères', 'Mon Carnet', 'Lexique']) +
+        ['Mes Repères', 'Mon Carnet', 'Lexique'].concat((typeof MESCOMP_OUVERT !== 'undefined' && MESCOMP_OUVERT) ? ['Découvrir mes compétences'] : [])) +
       htmlCarteAccueil('analyse', 'bi-graph-up-arrow', 'Outils d’analyse',
         'Vérifier la solidité de votre candidature avant de postuler.',
         ['Analyser ma candidature', 'Un regard sur mon CV', 'Les mots de votre CV (ATS)', 'Cohérence de mon dossier']) +
@@ -11355,7 +11358,9 @@ function pageRevelation(conserverTirage) {
     (function () {
       // « A la main, sans assistant » : « Votre profil » mene directement a « Vos documents ».
       var routeApres = (dossier.modeCreation === 'nouveau' && !_creerCvSansAssistant()) ? 'assistant' : 'resultats';
-      return '<div class="barre-navigation-fixe">' + barreNavigation('projet', routeApres, _creerCvSansAssistant() ? 'Voir mon CV &#8594;' : '&#128640; Passer à l’action', { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' }) + '</div>';
+      // « Retour » revient à l'écran d'où l'on vient : en création (« nouveau ») sans CV déposé, « Votre profil » vient de « Votre parcours » (même règle que le « Continuer » de « Vos informations »).
+      var routeAvant = (dossier.modeCreation === 'nouveau' && !dossier.cvAnalyse) ? 'votre-parcours' : 'projet';
+      return '<div class="barre-navigation-fixe">' + barreNavigation(routeAvant, routeApres, _creerCvSansAssistant() ? 'Voir mon CV &#8594;' : '&#128640; Passer à l’action', { onclickSuivant: 'verifierAvantPasserAction(\'' + routeApres + '\')' }) + '</div>';
     })();
   app.innerHTML = html;
 
@@ -18837,6 +18842,16 @@ function _mepSurveillerNouvelApercu() {
 var _mepConserverJusqua = 0;
 var _mepGarageApercu = null;
 function _mepConserverApercuPendant(ms) { _mepConserverJusqua = Date.now() + (ms || 3000); }
+// Un changement de modèle repart de la largeur de colonne par défaut (curseur à 35 %, soit 36 % à l'écran), exactement comme avant que l'aperçu soit conservé :
+// l'ancien chemin refaisait l'aperçu à neuf et le curseur y revenait toujours à 35. Sans cette remise, l'aperçu conservé garderait la largeur de la recette
+// du modèle (30, 40 ou 50 %) ou celle réglée à la main. Choix de Denis (26/10/2026) : garder le comportement actuel ; la largeur propre à chaque modèle sera tranchée à part.
+function _mepRemettreLargeurColonneDefaut() {
+  try {
+    var d = document.querySelector('#zonePdfInlineCV iframe').contentDocument;
+    var curseur = d && d.getElementById('regLargeurColonneGauche');
+    if (curseur && curseur.value !== '35') { curseur.value = '35'; curseur.dispatchEvent(new Event('input', { bubbles: true })); }
+  } catch (e) { /* aperçu pas prêt : le rendu repartira du défaut */ }
+}
 function _mepGarerZoneApercu() {
   if (Date.now() >= _mepConserverJusqua || typeof document.body.moveBefore !== 'function') { return false; }
   var zone = document.getElementById('zonePdfInlineCV');
@@ -22832,7 +22847,9 @@ function _wireCarteSimpleMiseEnPage() {
       var id = this.getAttribute('data-mep-galerie-creatif');
       _mepPousserHistorique('modeleCreatif');
       _mepDernierMessageMEP = ''; // TACHE (retour Denis 2026-09-27, P6) : voir lancerTirageAuHasard plus haut.
+      _mepConserverApercuPendant(4000);   // l'aperçu n'est plus refait à chaque changement de modèle (plus de clignotement)
       _mepClicMoteur(null, 'pdfChoisirCreatif_' + id);
+      _mepRemettreLargeurColonneDefaut();
       _mepSyncColonnesDepuisMoteur();
       setTimeout(rerendre, 30);
     });
@@ -22855,7 +22872,9 @@ function _wireCarteSimpleMiseEnPage() {
       var variante = this.getAttribute('data-mep-galerie-sobre');
       _mepPousserHistorique('varianteSobre');
       _mepDernierMessageMEP = ''; // TACHE (retour Denis 2026-09-27, P6) : voir lancerTirageAuHasard plus haut.
+      _mepConserverApercuPendant(4000);   // l'aperçu n'est plus refait à chaque changement de modèle (plus de clignotement)
       _mepClicMoteur(null, 'pdfChoisirSobre_' + variante);
+      _mepRemettreLargeurColonneDefaut();
       _mepSyncColonnesDepuisMoteur();
       setTimeout(rerendre, 30);
     });
@@ -24692,7 +24711,7 @@ function pageResultats() {
   var _retourResultats = resultatsCibleRetour(depuisDecouverte);
   var cibleRetourResultats = _retourResultats.cible;
   // TACHE (retour Denis, 2026-08-31, point 6) : quand on arrive sur cette
-  // page depuis "Decouvrir mes competences", on ne montre PAS la barre de
+  // page depuis "A partir de mon recit", on ne montre PAS la barre de
   // progression "Mon projet" (afficherProgression) mais la barre du module
   // Decouverte (barreEtapesModule + DECOUVERTE_NAV_ETAPES, meme composant
   // que la page routee 'decouverte'). Repere "Mon CV" courant tant que le
@@ -24834,7 +24853,7 @@ function pageResultats() {
           // CV tronque/incoherent") : pour 'pret'/'maj' uniquement -- jamais
           // 'nouveau' (deja son propre passage sur pageAssistant() avant
           // d'arriver ici) ni Decouverte (chantier "2e passage IA obligatoire
-          // pour Decouvrir mes competences", docs/CHANTIER_DECOUVERTE_2E_PASSAGE_REDACTION.md :
+          // pour A partir de mon recit", docs/CHANTIER_DECOUVERTE_2E_PASSAGE_REDACTION.md :
           // depuis ce chantier, Decouverte a bien son propre 2e passage de
           // REDACTION du CV -- pas seulement l'extraction de competences du
           // 1er passage -- mais sur SES PROPRES etapes routees (9 a 13,
@@ -25042,7 +25061,7 @@ function bilanBarreEtapes(diagnostic) {
 
 // TACHE (retour Denis, 2026-08-31) : barre d'etapes GENERIQUE pour les
 // autres modules (Co-construire ma lettre, Preparer un entretien,
-// Decouvrir mes competences...). Reprend EXACTEMENT le langage visuel de
+// A partir de mon recit...). Reprend EXACTEMENT le langage visuel de
 // bilanBarreEtapes() : memes classes CSS (.barre-etapes-bilan,
 // .pastille-etape-action*, .chevron-etape-action + bi-chevron-double-right
 // bleus), etape faite = validee (vert), courante = jaune + halo bleu, a
@@ -33628,7 +33647,7 @@ function texteProfil(type, sectionsSeulement) {
   // texte brut (dossier.cvTexte / dossier.lettreMotivation.texte) n'etait
   // jusqu'ici jamais lu par texteProfil() : une personne arrivee
   // directement sur ce module (sans etre passee par "Creer mon CV" ni
-  // "Decouvrir mes competences") voyait son CV "enregistre" a l'ecran,
+  // "A partir de mon recit") voyait son CV "enregistre" a l'ecran,
   // mais l'assistant recevait un profil quasiment vide, sans aucun
   // message d'erreur. Reserve a l'entretien (seul module qui ecrit ces
   // champs de cette facon) ET seulement si aucun profil structure
@@ -33932,6 +33951,7 @@ var FICHIERS_PROMPTS_EXTERNES = {
   // un recruteur. Meme registre « chargement externe + repli par defaut ».
   // Repli integral aussi embarque dans modules/regard-recruteur/promptBuilder.js.
   'regard-recruteur': 'prompts/regard-recruteur.md',
+  mesCompetences: 'prompts/mes-competences.md',
   // Module « Un CV, plusieurs métiers » (2026-10-10) : quatre prompts propres au module, testés sur de vrais assistants (voir docs/essais_prompts_ucpm/).
   'ucpm-metiers': 'prompts/ucpm-metiers.md',
   'ucpm-accroches': 'prompts/ucpm-accroches.md',
@@ -33945,6 +33965,7 @@ var promptsExternesCharges = {
   'comparer-detection': null, 'comparer-collecte': null, 'comparer-meme-categorie': null,
   'comparer-situations': null, 'comparer-aller-plus-loin': null,
   'regard-recruteur': null,
+  mesCompetences: null,
   'ucpm-metiers': null, 'ucpm-accroches': null, 'ucpm-lettres': null, 'ucpm-offres': null
 };
 
@@ -41233,6 +41254,7 @@ function recommencer() {
   if (typeof ucpmReinitialiser === 'function') { ucpmReinitialiser(); }
   if (typeof atsReinitialiser === 'function') { atsReinitialiser(); }
   if (typeof regardRecruteurReinitialiser === 'function') { regardRecruteurReinitialiser(); }
+  if (typeof mesCompReinitialiser === 'function') { mesCompReinitialiser(); }
   bilanReinitialiserEtatBilan();
   _bilanStatutsCorrection = {};
   _bilanPropositionsParRecommandation = {};
@@ -41476,7 +41498,8 @@ function collecterEtatsModulesPourSauvegarde() {
     unCvPlusieursMetiers: typeof ucpmExporterEtatPourSauvegarde === 'function' ? ucpmExporterEtatPourSauvegarde() : null,
     ats: typeof atsExporterEtatPourSauvegarde === 'function' ? atsExporterEtatPourSauvegarde() : null,
     regardRecruteur: typeof regardRecruteurExporterEtatPourSauvegarde === 'function' ? regardRecruteurExporterEtatPourSauvegarde() : null,
-    modelesGardes: typeof mgExporterEtatPourSauvegarde === 'function' ? mgExporterEtatPourSauvegarde() : null
+    modelesGardes: typeof mgExporterEtatPourSauvegarde === 'function' ? mgExporterEtatPourSauvegarde() : null,
+    mesCompetences: typeof mesCompExporterEtatPourSauvegarde === 'function' ? mesCompExporterEtatPourSauvegarde() : null
   };
 }
 
@@ -41490,6 +41513,7 @@ function restaurerEtatsModules(modulesEtat) {
   if (typeof atsRestaurerEtatDepuisSauvegarde === 'function') { atsRestaurerEtatDepuisSauvegarde(modulesEtat.ats || null); }
   if (typeof regardRecruteurRestaurerEtatDepuisSauvegarde === 'function') { regardRecruteurRestaurerEtatDepuisSauvegarde(modulesEtat.regardRecruteur || null); }
   if (typeof mgRestaurerEtatDepuisSauvegarde === 'function') { mgRestaurerEtatDepuisSauvegarde(modulesEtat.modelesGardes || null); }
+  if (typeof mesCompRestaurerEtatDepuisSauvegarde === 'function') { mesCompRestaurerEtatDepuisSauvegarde(modulesEtat.mesCompetences || null); }
 }
 
 // Copie complete et independante de la session : tout le dossier, l'etape en
@@ -42702,6 +42726,20 @@ var AIDE_PAGES = {
 AIDE_PAGES['ats-intro'] = AIDE_PAGES.ats;
 AIDE_PAGES['regard-recruteur-intro'] = AIDE_PAGES['regard-recruteur'];
 AIDE_PAGES['aide-decision-intro'] = AIDE_PAGES['comparer-pistes'];
+AIDE_PAGES['mes-competences-intro'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-compass"></i>', titre: 'Découvrir mes compétences',
+    texte: 'Cet outil repère, dans vos documents, ce que vous savez déjà faire, avec la phrase qui le prouve, et vous aide à le dire. Il n’invente rien et ne porte aucun avis sur vous : c’est vous qui gardez ou retirez chaque ligne.' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos choix ne sont pas perdus.' }
+];
+AIDE_PAGES['mes-competences'] = [
+  { selecteur: 'h1', icone: '<i class="bi bi-compass"></i>', titre: 'Découvrir mes compétences',
+    texte: 'Vous déposez vos documents, l’assistant en ligne en tire des compétences avec leur preuve, vous relisez chaque ligne et vous gardez ce qui vous ressemble.' },
+  { selecteur: '.barre-etapes-bilan', icone: '&#129517;', titre: 'Où vous en êtes',
+    texte: 'La barre en haut suit les quatre étapes : Documents, Assistant, Relecture, Mon document. Elle sert de repère, on avance avec « Continuer ».' },
+  { selecteur: '.barre-navigation-fixe', icone: '&#8617;&#65039;', titre: 'Navigation',
+    texte: '« Retour » revient à l’écran précédent, « Accueil » ramène à l’écran de départ. Vos choix ne sont pas perdus.' }
+];
 AIDE_PAGES['un-cv-plusieurs-metiers'] = [
   { selecteur: 'h1', icone: '<i class="bi bi-files"></i>', titre: 'Un CV, plusieurs métiers',
     texte: 'Quand plusieurs métiers vous intéressent, ce module vous aide à préparer un CV et une lettre pour chacun, à partir de votre seul vrai parcours. Rien n’est inventé et rien n’est décidé à votre place.' },

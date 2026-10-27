@@ -1,0 +1,6 @@
+module.exports = { identite: { civilite: '', nom: '', prenom: '', telephone: '', email: '', adresse: '', codePostal: '', ville: 'Limoges', lien: '' }, presentation: { titre: 'Agent d’entretien', accroche: '' },
+  experiences: [{ poste: 'Agent d’entretien', entreprise: 'Clean Limousin', lieu: 'Limoges', dateDebut: '2019-01', dateFin: '2023-06', stage: null, missions: ['Nettoyage de bureaux, 12 locaux par jour', 'Gestion des produits et du matériel'], confiance: 'elevee', alertes: [] },
+    { poste: 'Agent de service', entreprise: 'Collège Jean Moulin', lieu: 'Limoges', dateDebut: '2016-09', dateFin: '2019-06', stage: null, missions: ['Service de restauration scolaire', 'Entretien des salles'], confiance: 'elevee', alertes: [] }],
+  experiencesPerso: [], formations: [{ niveau: 'CAP', intitule: 'Agent de propreté et d’hygiène', annee: '2015', etablissement: 'Lycée professionnel de Limoges', lieu: '', missions: [], confiance: 'elevee', alertes: [] }],
+  competences: { savoirFaire: ['Utilisation de matériel professionnel'], savoirEtre: ['Ponctualité'], savoirs: [] }, langues: [{ langue: 'Anglais', niveau: 'notions' }], certifications: [], certificationsAvecMissions: [], logiciels: [], permis: { possede: true, categories: ['B'], vehicule: null },
+  loisirs: [], engagements: [], informationsNonClassees: [], pointsAVerifier: [] };

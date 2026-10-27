@@ -14,9 +14,26 @@
 4. `npm test` (le test des nouveautés contrôle les routes et les tirets longs), puis envoi sur GitHub à la demande de Denis.
 
 ## Journal
+2026-10-27 | Comprendre le cadre | nouvelle fiche du rayon logement : « J'ai hérité d'un logement sans pouvoir l'entretenir : à qui m'adresser » (France Rénov', Anah, Action Logement, ADIL, SOLIHA) | à condenser
+2026-10-27 | Lexique | trois nouvelles fiches : MaPrimeRénov', MaPrimeAdapt' et les prêts d'Action Logement pour les salariés propriétaires, avec leurs chiffres à jour | à condenser
+2026-10-27 | Lexique | nouvelle fiche « Mobili-Jeune » (aide d'Action Logement pour le loyer des alternants) avec son bloc « Les chiffres à jour » | à condenser
+2026-10-27 | Comprendre le cadre | fiche microcrédit : les quatre acteurs qui peuvent aider ; fiche intérim : les documents à apporter pour s'inscrire en agence | à condenser
+2026-10-27 | Comprendre le cadre | fiche sur les obligations de sécurité de l'employeur : lien vers « Mortel ton taf » (INRS), web-série pour les jeunes salariés | à condenser
+2026-10-26 | Lexique | 12 nouvelles fiches : confiance en soi et communication (estime de soi, confiance en soi, affirmation de soi, croyance limitante, message en « je », méthode DESC, critique ou reproche, styles de communication), et trois mots du quotidien (coach, CESF, CACES) | à condenser
+2026-10-26 | Un CV, plusieurs métiers | page 1 : un seul bouton « Continuer », celui de la barre du bas ; il s'active dès que le CV est déposé et envoie le CV à l'assistant (plus de bouton dans la page) ; « Refaire la demande » reste dans la page | à condenser
+2026-10-26 | Mise en page du CV | nouvelle disposition d'en-tête « Empilée » (grand aperçu, à côté de « Décalée ») : photo et nom sur une ligne, titre du CV pleine largeur sur deux lignes au plus, coordonnées sur une ligne, accroche en bas ; sur une colonne colorée, le texte est blanc sur la colonne et de la couleur du CV sur le blanc | à condenser
+2026-10-26 | Mes Repères | le bouton « + Garder une réflexion » n'est plus caché par le bouton rond du Carnet, le champ de recherche est assez large pour son texte d'aide, et l'écran ne déborde plus sur téléphone | à condenser
+2026-10-26 | Créer un nouveau CV | le bouton « Retour » de « Votre profil » ramène à « Votre parcours » (l'étape d'avant) au lieu de « Vos informations » | à condenser
+2026-10-26 | Reprendre mon CV, lettre et entretien rapides | quand on colle le texte de son CV (au lieu d'un fichier), la suite est la même qu'avec un fichier : « Vos informations » avec la barre du parcours | à condenser
+2026-10-26 | Mise en page du CV | les dates des certifications ne sont plus coupées par le bord d'une colonne étroite : la ligne reste dans la colonne et la date passe sous l'intitulé | à condenser
+2026-10-26 | Mise en page du CV | un texte qui ne se lisait pas (nom blanc sur un bandeau pâle, nom sombre sur un bandeau foncé, certifications blanches sur une colonne vide, titres gris sur une colonne bleue) change tout seul de couleur ; les CV déjà lisibles ne changent pas | à condenser
+2026-10-26 | Mise en page du CV | changer de modèle dans la galerie ne fait plus clignoter l'aperçu (le CV reste affiché pendant le changement) | à condenser
 2026-10-26 | Toute l'application | bouton « Signaler un problème » (accueil, page Nouveautés, panneau de la roue) : un formulaire Google, page courante préremplie, courriel à Denis | à condenser
 2026-10-26 | Nouveautés | chaque bouton « Essayer » porte l'icône du module qu'il ouvre | fait le 2026-10-26
 2026-10-26 | Nouveautés | bouton toujours visible (4e icône), pastille, page d'historique par mois, étiquette « Nouveau » | fait le 2026-10-26
 2026-10-26 | Reprendre mon CV | voie 3 « le refaire moi-même dans un modèle », sans assistant, mode fidèle, titres d'origine repris | fait le 2026-10-26
 2026-10-26 | Entretien | fiche rapide enrichie, entraînement complet qui joue le recruteur et complète la fiche | fait le 2026-10-26
 2026-10-26 | Créer un nouveau CV | « Vos appuis » (lettres de recommandation) n'est plus proposé en création à la main, sans assistant | à condenser
+2026-10-27 | Découvrir mes compétences | fiches du Lexique « savoirs » et « prouver une compétence » ; module encore fermé (en construction) | à condenser
+2026-10-27 | Découvrir mes compétences | module ouvert : relecture à trois gestes, question « à préciser » avec second passage, document « Mes compétences » en PDF ou texte | à condenser
+2026-10-27 | Découvrir mes compétences | le document « Mes compétences » se télécharge aussi en Word | à condenser

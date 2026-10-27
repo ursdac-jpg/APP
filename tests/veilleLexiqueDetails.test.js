@@ -32,7 +32,8 @@ test('details : le lecteur d\'objet accepte la forme du fichier et refuse tout l
 });
 
 test('details : ajouter un bloc a une fiche sur quatre (toutes les formes de mise en page du fichier), le relire, le retirer : le fichier redevient identique octet pour octet', () => {
-  TOUS.filter((m, i) => i % 4 === 0 || i > TOUS.length - 3).forEach((m) => {
+  // Une fiche qui a deja un bloc n'est pas concernee : l'ajouter puis le retirer ne redonnerait pas le fichier d'origine.
+  TOUS.filter((m, i) => !m.details && (i % 4 === 0 || i > TOUS.length - 3)).forEach((m) => {
     const r = lex.remplacerChamps(CONTENU, m.id, { details: BLOC });
     assert.ok(r.ok, m.id + ' : ' + r.erreur);
     const relu = lex.lireMots(r.texte);

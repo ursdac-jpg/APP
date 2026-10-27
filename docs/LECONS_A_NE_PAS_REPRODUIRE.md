@@ -920,3 +920,44 @@ Format : dans `AskUserQuestion`, le champ `description` de chaque option porte s
 - **Symptôme** : après une trentaine d'échanges, l'assistant dit ne plus retrouver des paragraphes pourtant validés et livre un JSON vide.
 - **Cause** : le prompt demandait à l'assistant de « tenir un registre » et de relire la conversation ; un assistant extérieur retrouve mal un texte situé loin dans l'historique, surtout avec la recherche web.
 - **Règle** : pour tout prompt à étapes longues, l'état validé est réécrit en bloc cumulatif dans chaque nouveau message (« Votre lettre jusqu'ici »), et la livraison copie ce dernier bloc. Ne jamais compter sur la mémoire de l'historique. Voir décision 48 du cahier de la lettre.
+
+## 9.60 Écarter un contenu parce qu'il serait « loin du public », sans le demander à Denis (2026-10-26)
+
+- **Symptôme** : lors du tri des apports de Denis, les prêts travaux, le prêt accession et l'accession abordable d'Action Logement ont été écartés comme « réservés aux salariés propriétaires, sans valeur pour le public ». Denis a corrigé : il accompagne des personnes propriétaires par héritage sans moyens d'entretenir leur logement, certaines salariées, et Action Logement est intervenu dans sa formation.
+- **Cause** : jugement sur le public cible fait de l'extérieur, à partir d'une supposition, au lieu de poser la question à celui qui connaît le terrain (même après une carte blanche pour trier).
+- **Règle** : un contenu qui ne ressemble pas au cœur du public se range en « à confirmer par Denis », jamais en « écarté », sauf quand il contredit la philosophie (conseil, diagnostic, étiquette). Un écart de public se pose en une question, et une carte blanche sur le tri ne dispense pas de signaler ce qu'on écarte pour cette raison. Effet de bord utile : en cherchant, une lacune est apparue (rien sur l'Anah ni sur France Rénov' dans l'application).
+
+## 9.63 Un test qui suppose « aucune fiche n'a de bloc » casse dès que la première fiche en reçoit un (2026-10-27)
+
+- **Symptôme** : après l'ajout de la fiche « Prêts d'Action Logement » avec son bloc de chiffres, `tests/veilleLexiqueDetails.test.js` échoue (« aller-retour »), alors que rien d'autre n'a changé.
+- **Cause** : le test ajoute puis retire un bloc sur une fiche sur quatre et compare le fichier octet pour octet ; il tombe désormais sur une fiche qui a déjà un bloc. Il n'avait jamais vu de fiche avec bloc.
+- **Règle** : un test sur « toutes les fiches » ou « une fiche sur quatre » doit exclure les fiches qui portent déjà la donnée testée. Corrigé en filtrant `!m.details`. Quand on crée la première fiche d'un nouveau type de donnée, relancer `npm test` avant le commit (c'est ce qui l'a attrapé).
+
+## 9.67 Recommander de garder une date de vérification sur une fiche dont on change le contenu (2026-10-27)
+
+- **Symptôme** : j'ai recommandé de modifier des fiches publiées en gardant leur date du 17/10, ce qui aurait affiché des mails non confirmés tout de suite, contre la règle « rien n'est publié avant que Denis ait appelé ».
+- **Cause** : la date de vérification déclenche l'affichage des coordonnées ; je ne l'avais pas relié à la règle de Denis en écrivant la recommandation.
+- **Règle** : avant de recommander une modification d'une fiche publiée, vérifier ce que la date de vérification fait afficher. Pour une coordonnée non confirmée, passer par le sas (date vide), jamais par la fiche publiée.
+
+### 9.64 Deux modules qui écrivent la même donnée n'ont pas forcément le même but : demander l'intention avant de parler de doublon (2026-10-26)
+
+- **Symptôme** : pour « Découvrir mes compétences », Claude a présenté « À partir de mon récit » et le nouvel outil comme « deux producteurs de compétences à dédoublonner avec `fusionnerSansDoublon` ». Denis : « Absolument pas. »
+- **Cause** : rapprochement fait sur le code (les deux écrivent des compétences) sans comparer l'intention. « À partir de mon récit » sert à quelqu'un qui n'a jamais fait de CV : il raconte, on en construit un. « Découvrir mes compétences » part de documents existants pour valoriser, expliquer et préparer l'oral, sans construire de CV.
+- **Règle** : avant de signaler un recoupement ou une fusion entre deux modules, comparer d'abord le but pour la personne (quel besoin, quel point de départ, quel résultat) et pas seulement les données écrites. En cas de doute, poser la question à Denis au lieu de proposer une fusion.
+
+### 9.65 Les exemples d'un prompt ne doivent jamais être tirés des cas de test (2026-10-26)
+
+- **Symptôme** : au deuxième essai de « Découvrir mes compétences », un assistant a ajouté à sa réponse une compétence « Encadrer l'équipe du samedi » qui n'avait aucun rapport avec le document de la personne : c'était l'exemple écrit dans la consigne. Les exemples de la consigne (football en club, six mois dans une association, menuisier agenceur, accompagnement social, parent malade) étaient aussi les phrases des profils d'essai : les premiers résultats étaient donc en partie faussés (l'assistant avait la réponse sous les yeux).
+- **Cause** : Claude a illustré les règles du prompt avec les phrases des cas de test pour être « concret ».
+- **Règle** : les exemples d'un prompt viennent d'un autre domaine que les cas d'essai ; un test automatique (`tests/essaiMesCompetences.test.js`) compare les exemples entre guillemets du prompt aux documents des profils et échoue en cas de collision. Un résultat obtenu avant la correction se refait.
+
+### 9.66 Une maquette de module reprend les vraies feuilles de style et les vrais composants, jamais une palette ou des boutons inventés (2026-10-26)
+
+- **Symptôme** : la première maquette de « Découvrir mes compétences » avait sa propre teinte (vert d'eau), ses propres boutons et sa propre barre du bas. Denis : le module doit respecter la charte de l'application, avoir sa propre logique et son propre contenu, avec les fenêtres et la logique communes.
+- **Cause** : Claude a « pris la teinte du module » à la lettre dans `docs/LANGAGE_VISUEL_COMMUN.md` et dessiné les formes de mémoire, sans ouvrir l'application. Dans le code réel, la couleur d'accent est unique et choisie par la personne (`--accent`, `data-accent`) : un module n'a pas de teinte propre.
+- **Règle** : avant de dessiner une maquette, ouvrir l'application réelle (Playwright sur `index.html`), regarder 2 ou 3 modules voisins, et construire la maquette avec les feuilles de style réelles (`vendor/bootstrap.min.css`, `css/style.css`, icônes) et le balisage réel des composants (`barreEtapesModule`, `htmlChoixAssistantBilanCorps`, `htmlCollageInstantane`, `.cv-section`, `.bloc-depli`, `.barre-navigation-fixe`...). Seules les classes de la maquette elle-même (préfixe `mq-`) sont propres à elle. La spécificité d'un module est son contenu et sa logique, pas son habillage.
+
+## 2026-10-26 : un remède « sans débordement » n'est pas un remède de mise en page (en-tête avec un nom et un titre très longs)
+- **Symptôme** : sur un CV à nom et titre très longs, j'ai empêché le texte de sortir de la page et de passer sur le texte voisin (grille bornée, mots coupés partout). Le résultat montrait « PRÉVENTIO / N » et « VANDENBR / OUCKE » : plus aucun chevauchement, mais une disposition laide. Denis : « c'est horrible, la disposition choisie n'est pas la meilleure ».
+- **Cause** : j'ai traité le symptôme mesurable (texte hors page, texte sur texte) avec un réglage de sécurité, sans me demander quelle disposition aurait un humain pour ce contenu. Mon outil de mesure ne voyait pas la laideur ; seul le rendu la montre.
+- **Règle** : pour tout remède qui change l'allure du CV, regarder la capture avant de le proposer et ne jamais livrer un « garde-fou » qui coupe des mots. Un contenu long se règle par la DISPOSITION (titre pleine largeur sur deux lignes, coordonnées sur une ligne, accroche en bas), pas en comprimant des colonnes. Maquette réelle (captures avant / après) avant le code, comme pour la lisibilité.

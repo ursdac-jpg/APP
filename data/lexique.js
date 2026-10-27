@@ -371,7 +371,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['comportement au travail'],
     corps: "Le savoir-être désigne la manière dont une personne se comporte et interagit dans un cadre professionnel : la façon de communiquer, de réagir à une consigne, de travailler avec d'autres. C'est ce qu'un employeur observe au-delà des compétences techniques précises.",
     relations: [
-      { ficheId: 'savoir-faire', type: 'a-ne-pas-confondre' }, { ficheId: 'esprit-equipe', type: 'voir-aussi' }
+      { ficheId: 'savoir-faire', type: 'a-ne-pas-confondre' }, { ficheId: 'esprit-equipe', type: 'voir-aussi' }, { ficheId: 'prouver-une-competence', type: 'voir-aussi' }
     ]
   },
   {
@@ -380,7 +380,25 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['compétences techniques'],
     corps: "Le savoir-faire désigne les compétences techniques concrètes qu'une personne sait mettre en œuvre dans son métier, acquises par la formation ou l'expérience. C'est ce qu'un employeur cherche à vérifier à travers un CV ou une mise en situation.",
     relations: [
-      { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'rigueur', type: 'voir-aussi' }
+      { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'rigueur', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'savoirs-connaissances', titre: 'Que veut dire "savoirs" (ce que l\'on connaît) ?', titreDeTri: 'Savoirs',
+    type: 'notion', gabarit: 'decryptage', univers: 'emploi-recrutement', registres: ['langage-rh'],
+    variantesRecherche: ['connaissances', 'ce que je connais'],
+    corps: "Les savoirs, ce sont les connaissances qu'une personne possède : des règles, des produits, des procédures, un logiciel, une langue. On les distingue du savoir-faire (ce que l'on sait faire avec ses mains ou son outil) et du savoir-être (la façon de travailler). Un savoir se montre par ce que l'on en dit ou par l'usage qu'on en fait : par exemple, lire des notices en anglais ou connaître les consignes de sécurité d'un entrepôt.",
+    relations: [
+      { ficheId: 'savoir-faire', type: 'a-ne-pas-confondre' }, { ficheId: 'savoir-etre', type: 'a-ne-pas-confondre' }, { ficheId: 'prouver-une-competence', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'prouver-une-competence', titre: 'Comment prouver une compétence ?', titreDeTri: 'Prouver une compétence',
+    type: 'notion', gabarit: 'decryptage', univers: 'emploi-recrutement', registres: ['langage-rh', 'langage-employeur'],
+    variantesRecherche: ['défendre une compétence', 'expliquer ce que je sais faire', 'se présenter à l\'oral'],
+    corps: "Dire qu'on sait faire quelque chose ne suffit pas toujours : un recruteur aime entendre un fait. Pour prouver une compétence, on dit où on l'a exercée, ce qu'on faisait concrètement et, si on le peut, pendant combien de temps. Une phrase courte et vraie vaut mieux qu'un mot brillant : « pendant plusieurs années, j'ai préparé les colis de la journée dans les délais » en dit plus que « je suis rigoureux ». Une lettre de recommandation ou le récit d'une situation précise renforcent aussi la preuve.",
+    relations: [
+      { ficheId: 'savoir-faire', type: 'voir-aussi' }, { ficheId: 'savoirs-connaissances', type: 'voir-aussi' }, { ficheId: 'savoir-etre', type: 'voir-aussi' }
     ]
   },
   {
@@ -786,7 +804,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['être certifié'],
     corps: "Une certification atteste officiellement qu'une personne maîtrise des compétences précises, à un moment donné. Elle peut prendre différentes formes (diplôme, titre professionnel, CQP, entre autres) selon qui la délivre et dans quel cadre.",
     relations: [
-      { ficheId: 'qualification', type: 'voir-aussi' }
+      { ficheId: 'qualification', type: 'voir-aussi' }, { ficheId: 'caces', type: 'voir-aussi' }
     ]
   },
   {
@@ -802,7 +820,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: [],
     corps: "Ce qui les rapproche : les deux visent à faire progresser une personne dans son parcours professionnel. Ce qui les distingue : une formation qualifiante développe des compétences reconnues sur le marché du travail, sans forcément déboucher sur un diplôme ou un titre officiel. Une formation certifiante se conclut par l'obtention d'une certification reconnue (diplôme, titre professionnel, CQP).",
     relations: [
-      { ficheId: 'certification', type: 'voir-aussi' }
+      { ficheId: 'certification', type: 'voir-aussi' }, { ficheId: 'medecine-travail', type: 'voir-aussi' }
     ]
   },
   {
@@ -858,7 +876,8 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['bien écouter en entretien'],
     corps: "L'écoute active est une posture d'écoute qui vise à comprendre réellement ce qu'exprime une personne, au-delà des seuls mots utilisés, plutôt que d'écouter en préparant déjà une réponse. Elle s'appuie notamment sur la reformulation, pour vérifier que ce qui a été compris correspond bien à ce que la personne voulait dire.",
     relations: [
-      { ficheId: 'reformulation', type: 'voir-aussi' }
+      { ficheId: 'reformulation', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' },
+      { ficheId: 'message-en-je', type: 'voir-aussi' }
     ]
   },
   {
@@ -867,6 +886,122 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['redire avec ses mots'],
     corps: "La reformulation consiste à redire, avec ses propres mots, ce qu'une personne vient d'exprimer, pour vérifier que la compréhension est la bonne avant de poursuivre l'échange. Elle n'ajoute rien et ne juge rien : elle renvoie simplement ce qui a été entendu.",
     relations: []
+  },
+  // -- Famille : Confiance en soi et communication (26/10/2026, d'après des supports de formation, idées reprises et reformulées) --
+  {
+    id: 'estime-de-soi', titre: 'Estime de soi', titreDeTri: 'Estime de soi', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ["valeur que je m'accorde", 'image de soi', 'regard sur soi'],
+    corps: "L'estime de soi désigne la valeur qu'une personne s'accorde à elle-même. Elle n'est pas fixe : elle évolue au fil des expériences, des réussites, des difficultés et des relations avec les autres. Une estime de soi dite juste ne consiste pas à se croire meilleur ou moins bon que les autres, mais à connaître ses points forts comme ses points faibles.",
+    relations: [
+      { ficheId: 'confiance-en-soi', type: 'voir-aussi' }, { ficheId: 'estime-confiance-ou-affirmation', type: 'voir-aussi' },
+      { ficheId: 'croyance-limitante', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'confiance-en-soi', titre: 'Confiance en soi', titreDeTri: 'Confiance en soi', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['se sentir capable', 'croire en mes capacités'],
+    corps: "La confiance en soi désigne le sentiment d'être capable d'agir, de réussir une tâche ou de faire face à une situation. Elle se construit surtout à partir d'expériences vécues, y compris de petites réussites, et elle peut varier d'un domaine à l'autre : on peut se sentir très sûr de soi dans son métier et beaucoup moins pour prendre la parole en réunion. Elle se distingue de l'estime de soi, qui porte sur la valeur qu'on s'accorde plutôt que sur ce qu'on se sent capable de faire.",
+    relations: [
+      { ficheId: 'estime-de-soi', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' },
+      { ficheId: 'plan-action', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'affirmation-de-soi', titre: 'Affirmation de soi', titreDeTri: 'Affirmation de soi', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['assertivité', 'savoir dire non', "s'exprimer sans se braquer"],
+    corps: "L'affirmation de soi, aussi appelée assertivité, consiste à exprimer clairement ce qu'on pense, ce qu'on ressent et ce dont on a besoin, tout en respectant l'autre. Elle se distingue de la soumission, qui consiste à se taire ou à céder, et de l'agressivité, qui consiste à imposer son point de vue.",
+    relations: [
+      { ficheId: 'ecoute-active', type: 'voir-aussi' }, { ficheId: 'message-en-je', type: 'voir-aussi' },
+      { ficheId: 'styles-de-communication', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'estime-confiance-ou-affirmation', titre: 'Estime de soi, confiance en soi ou affirmation de soi ?', titreDeTri: 'Estime de soi confiance en soi ou affirmation de soi',
+    type: 'notion', gabarit: 'comparatif', univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: [],
+    corps: "Ce qui les rapproche : les trois parlent du rapport qu'une personne entretient avec elle-même et avec les autres, et elles s'influencent mutuellement. Ce qui les distingue : l'estime de soi porte sur la valeur qu'on s'accorde, la confiance en soi sur ce qu'on se sent capable de faire, et l'affirmation de soi sur la façon de s'exprimer face aux autres. Certains auteurs les décrivent comme trois étages qui se soutiennent, sans qu'aucun doive nécessairement précéder les autres.",
+    relations: [
+      { ficheId: 'estime-de-soi', type: 'voir-aussi' }, { ficheId: 'confiance-en-soi', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'croyance-limitante', titre: 'Croyance limitante', titreDeTri: 'Croyance limitante', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['phrase qui me bloque', "je n'y arriverai pas", 'pensée qui me freine'],
+    corps: "Une croyance limitante est une phrase qu'une personne se répète, souvent depuis longtemps, et qui limite ce qu'elle ose entreprendre, par exemple « je ne suis pas fait pour ça » ou « mon avis ne compte pas ». Ces phrases viennent souvent de l'éducation, de remarques entendues ou d'expériences passées. Elles décrivent une façon de voir les choses, pas une vérité sur la personne.",
+    relations: [
+      { ficheId: 'estime-de-soi', type: 'voir-aussi' }, { ficheId: 'frein-emploi', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'message-en-je', titre: 'Message en « je »', titreDeTri: 'Message en je', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['message en je', 'parler avec je', 'dire ce que je ressens'],
+    corps: "Le message en « je » est une façon de s'exprimer qui consiste à dire ce qu'on observe, ce qu'on ressent et l'effet que cela a sur soi, plutôt que de reprocher quelque chose à l'autre en commençant par « tu ». Par exemple, « je m'inquiète quand les retards se répètent » décrit le ressenti de celui qui parle, alors que « tu es toujours en retard » porte un jugement sur l'autre. Cette forme existe parce qu'un reproche direct conduit souvent l'autre à se défendre plutôt qu'à écouter.",
+    relations: [
+      { ficheId: 'affirmation-de-soi', type: 'voir-aussi' }, { ficheId: 'methode-desc', type: 'voir-aussi' },
+      { ficheId: 'critique-ou-reproche', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'methode-desc', titre: 'Méthode DESC', titreDeTri: 'Méthode DESC', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip', 'langage-rh'],
+    variantesRecherche: ['décrire exprimer suggérer conclure', 'aborder un désaccord'],
+    corps: "La méthode DESC est une méthode de communication en quatre étapes : décrire les faits, exprimer ce qu'on ressent, suggérer une solution, puis dire les conséquences positives attendues si chacun tient ses engagements. Elle a été proposée par les psychologues américains Sharon et Gordon Bower, dans un ouvrage sur l'affirmation de soi. Elle est souvent utilisée en entreprise pour aborder un désaccord sans accuser. Son intérêt est de séparer les faits, les ressentis et les propositions, qui se mélangent facilement dans une discussion tendue.",
+    relations: [
+      { ficheId: 'message-en-je', type: 'voir-aussi' }, { ficheId: 'affirmation-de-soi', type: 'voir-aussi' },
+      { ficheId: 'critique-ou-reproche', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'critique-ou-reproche', titre: 'Critique ou reproche ?', titreDeTri: 'Critique ou reproche',
+    type: 'notion', gabarit: 'comparatif', univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['critique constructive', 'recevoir une critique'],
+    corps: "Ce qui les rapproche : dans les deux cas, une personne dit qu'un comportement ne lui convient pas. Ce qui les distingue : la critique décrit des faits précis et porte sur un comportement, dans le but de permettre à l'autre d'évoluer ; le reproche vise à faire reconnaître un tort, s'adresse à la personne elle-même et joue souvent sur la culpabilité.",
+    relations: [
+      { ficheId: 'message-en-je', type: 'voir-aussi' }, { ficheId: 'methode-desc', type: 'voir-aussi' },
+      { ficheId: 'ecoute-active', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'styles-de-communication', titre: 'Styles de communication : passif, agressif ou assertif ?', titreDeTri: 'Styles de communication passif agressif ou assertif',
+    type: 'notion', gabarit: 'comparatif', univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['passif agressif assertif', 'ma façon de réagir'],
+    corps: "Ce qui les rapproche : ce sont trois manières de réagir quand on exprime un besoin, une opinion ou un désaccord, et une même personne peut passer de l'une à l'autre selon les situations. Ce qui les distingue : le style passif consiste à se taire ou à céder, le style agressif à imposer son point de vue sans tenir compte de l'autre, le style assertif à exprimer son point de vue tout en respectant celui de l'autre. Ces styles décrivent des comportements dans des situations données, jamais des types de personnes.",
+    relations: [
+      { ficheId: 'affirmation-de-soi', type: 'voir-aussi' }, { ficheId: 'ecoute-active', type: 'voir-aussi' },
+      { ficheId: 'message-en-je', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'coach', titre: 'Coach', titreDeTri: 'Coach', type: 'terme',
+    univers: 'accompagnement-insertion', registres: ['langage-cip'],
+    variantesRecherche: ['coaching', 'accompagnement individuel'],
+    corps: "Le mot « coach » vient du nom de Kocs, un village hongrois où l'on fabriquait un type de voiture à chevaux : il a d'abord désigné cette voiture, puis son conducteur, avant de désigner au XIXe siècle un répétiteur d'étudiants, puis un entraîneur sportif. Aujourd'hui, le coaching désigne un accompagnement individuel qui aide une personne à atteindre un objectif qu'elle a elle-même choisi. En France, la profession de coach n'est pas réglementée : aucun diplôme n'est exigé pour s'en réclamer, et il existe des certifications que les coachs passent ou non.",
+    relations: [
+      { ficheId: 'cip', type: 'voir-aussi' }, { ficheId: 'cep', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'cesf', titre: 'Le rôle du CESF', titreDeTri: 'CESF',
+    type: 'notion', gabarit: 'role', univers: 'structures-organismes', registres: ['langage-administratif'],
+    variantesRecherche: ['conseiller en économie sociale et familiale', 'aide pour mon budget et mon logement'],
+    corps: "Un CESF (conseiller en économie sociale et familiale) est un travailleur social, titulaire d'un diplôme d'État, dont le métier porte sur la vie quotidienne : budget, consommation, logement, alimentation et santé, numérique. Il accompagne les personnes pour faire valoir leurs droits et peut aussi animer des ateliers collectifs. On en rencontre notamment dans les centres communaux d'action sociale, les services sociaux des départements, les caisses d'allocations familiales et les associations.",
+    relations: [
+      { ficheId: 'assistante-sociale', type: 'voir-aussi' }, { ficheId: 'ccas', type: 'voir-aussi' }, { ficheId: 'surendettement', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'caces', titre: 'CACES', titreDeTri: 'CACES', type: 'terme',
+    univers: 'conditions-travail', registres: ['langage-administratif'],
+    variantesRecherche: ['permis cariste', 'conduite de chariot', 'certificat de conduite en sécurité'],
+    corps: "Le CACES (certificat d'aptitude à la conduite en sécurité) atteste qu'une personne a les connaissances et le savoir-faire pour conduire en sécurité certains engins, comme les chariots élévateurs, les grues ou les nacelles. Il est délivré par catégorie d'engin et doit être renouvelé à intervalles réguliers. Il ne suffit pas à lui seul pour conduire : c'est l'employeur qui délivre une autorisation de conduite, après avoir vérifié l'aptitude médicale et informé la personne des risques du site.",
+    relations: [
+      { ficheId: 'certification', type: 'voir-aussi' }
+    ]
   },
   {
     id: 'questionnement', titre: 'Questionnement', titreDeTri: 'Questionnement', type: 'terme',
@@ -1247,7 +1382,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['conseiller en insertion professionnelle', 'mon CIP'],
     corps: "Un CIP (conseiller en insertion professionnelle) accompagne une personne dans la construction et la mise en œuvre de son projet professionnel. Le terme désigne le métier plutôt qu'une structure précise : un CIP peut exercer au sein d'une Mission Locale, d'une SIAE ou d'un autre organisme d'accompagnement.",
     relations: [
-      { ficheId: 'mission-locale', type: 'voir-aussi' }, { ficheId: 'diagnostic-partage', type: 'voir-aussi' }
+      { ficheId: 'mission-locale', type: 'voir-aussi' }, { ficheId: 'diagnostic-partage', type: 'voir-aussi' }, { ficheId: 'coach', type: 'voir-aussi' }
     ]
   },
   {
@@ -1503,7 +1638,7 @@ var LEXIQUE_FICHES = [
     variantesRecherche: ['assistant social', 'travailleur social', 'maison des solidarites', 'a qui demander de l aide'],
     corps: "L'assistante sociale de secteur (on dit aussi assistant de service social) accompagne gratuitement les habitants d'un territoire sur le budget, le logement, l'accès aux droits et les démarches administratives. Elle est rattachée au Département, le plus souvent dans une Maison des solidarités (MDS), ou au CCAS de la mairie. Pour la rencontrer, on contacte la mairie, le CCAS ou la MDS de son lieu d'habitation et on demande un rendez-vous avec le service social. C'est souvent le bon point de départ quand plusieurs difficultés se cumulent et qu'on ne sait pas par où commencer.",
     relations: [
-      { ficheId: 'frein-emploi', type: 'voir-aussi' }
+      { ficheId: 'frein-emploi', type: 'voir-aussi' }, { ficheId: 'cesf', type: 'voir-aussi' }
     ]
   },
   {
@@ -2125,6 +2260,99 @@ var LEXIQUE_FICHES = [
     relations: [
       { ficheId: 'foyer-jeunes-travailleurs', type: 'voir-aussi' },
       { ficheId: 'aides-au-logement', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'mobili-jeune', titre: 'Mobili-Jeune : une aide pour payer son loyer en alternance', titreDeTri: 'Mobili-Jeune',
+    type: 'terme', univers: 'dispositifs', registres: ['langage-administratif'],
+    variantesRecherche: ['Mobili Jeune', 'aide au loyer alternance', 'aide logement apprenti', 'loyer alternant'],
+    corps: "Mobili-Jeune est une aide d'Action Logement qui prend en charge une partie du loyer d'un jeune en alternance, c'est-à-dire en contrat d'apprentissage ou de professionnalisation dans une entreprise du secteur privé. Elle sert à celui ou celle qui doit se loger près de son lieu de formation ou de travail. Pour y avoir droit, plusieurs conditions se cumulent : un salaire en dessous d'un plafond, un logement éloigné de l'ancienne adresse ou un trajet long, ou bien deux loyers à payer à la fois. Le logement doit être loué : location, colocation, foyer, résidence sociale ou internat. L'aide se calcule sur le loyer, une fois déduite l'aide au logement de la CAF. La demande se fait en ligne sur la plateforme d'Action Logement, avec la quittance de loyer et les bulletins de salaire. Elle peut se cumuler avec l'avance Loca-Pass et la garantie Visale.",
+    detailsAJour: {
+      verifieLe: '2026-10-27',
+      source: { nom: "Action Logement, page « Aide Mobili-Jeune »", url: 'https://www.actionlogement.fr/aide-mobili-jeune' },
+      lignes: [
+        { libelle: 'Âge', valeur: 'moins de 30 ans (au-delà, possible avec une reconnaissance de handicap)', categorie: 'seuil', peutChanger: true },
+        { libelle: 'Plafond de salaire', valeur: '120 % du SMIC brut mensuel', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Moment de la demande', valeur: 'dans les 3 mois avant ou les 5 mois après le début du contrat', categorie: 'duree', peutChanger: true },
+        { libelle: "Distance avec l'ancien logement", valeur: 'plus de 70 km, ou trajet de plus de 40 minutes, ou double loyer', categorie: 'seuil', peutChanger: true },
+        { libelle: "Montant de l'aide", valeur: 'de 10 à 100 € par mois, plafond de 1 100 € par année de formation, en 11 mensualités', categorie: 'montant', peutChanger: true },
+        { libelle: 'Durée maximale', valeur: '2 années de formation', categorie: 'duree', peutChanger: true },
+        { libelle: "Délai d'étude d'un dossier complet", valeur: '7 jours ouvrés', categorie: 'duree', peutChanger: true }
+      ]
+    },
+    relations: [
+      { ficheId: 'visale', type: 'voir-aussi' },
+      { ficheId: 'aides-au-logement', type: 'voir-aussi' },
+      { ficheId: 'alternance', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'maprimerenov', titre: "MaPrimeRénov'", titreDeTri: 'MaPrimeRenov',
+    type: 'terme', univers: 'dispositifs', registres: ['langage-administratif'],
+    variantesRecherche: ['Ma Prime Renov', 'aide travaux Anah', 'aide rénovation énergétique', 'prime rénovation logement'],
+    corps: "MaPrimeRénov' est une aide de l'Anah (Agence nationale de l'habitat) pour financer des travaux de rénovation énergétique dans un logement. Elle s'adresse aux propriétaires qui occupent leur logement ou le louent, selon leurs ressources. Elle existe sous deux formes : la rénovation d'ampleur, pour un ensemble de travaux qui améliore nettement la performance du logement, et le parcours par geste, pour un type de travaux à la fois. Pour la rénovation d'ampleur, un rendez-vous avec France Rénov' est obligatoire et un accompagnateur est proposé pour suivre le projet. La demande se fait en ligne, avant la signature des devis : les travaux ne doivent pas commencer avant l'accord de l'Anah.",
+    detailsAJour: {
+      verifieLe: '2026-10-27',
+      source: { nom: "Service-public.gouv.fr, fiche « MaPrimeRénov' (propriétaires occupants) »", url: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F35083' },
+      lignes: [
+        { libelle: 'Ancienneté du logement', valeur: 'construit depuis au moins 15 ans (en métropole)', categorie: 'seuil', peutChanger: true },
+        { libelle: "Rénovation d'ampleur : occupation", valeur: 'résidence principale pendant au moins 3 ans', categorie: 'duree', peutChanger: true },
+        { libelle: "Rénovation d'ampleur : état du logement", valeur: "classé E, F ou G avant les travaux, gain d'au moins 2 classes", categorie: 'seuil', peutChanger: true },
+        { libelle: 'Part prise en charge selon les ressources (gain de 2 classes)', valeur: 'ménages très modestes 80 %, modestes 60 %, intermédiaires 45 %, supérieurs 10 %', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Dépenses prises en compte (hors taxes)', valeur: "jusqu'à 30 000 € (gain de 2 classes) ou 40 000 € (gain de 3 classes ou plus)", categorie: 'montant', peutChanger: true },
+        { libelle: 'Plafonds de ressources pour une personne, hors Île-de-France', valeur: 'très modestes 17 363 €, modestes 22 259 €, intermédiaires 31 185 € (revenu fiscal de référence 2025, demande en 2026)', categorie: 'montant', peutChanger: true },
+        { libelle: 'Délai pour terminer les travaux', valeur: '3 ans (1 an si une avance a été versée)', categorie: 'duree', peutChanger: true }
+      ]
+    },
+    relations: [
+      { ficheId: 'maprimeadapt', type: 'voir-aussi' },
+      { ficheId: 'prets-action-logement-salaries', type: 'voir-aussi' },
+      { ficheId: 'aides-au-logement', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'maprimeadapt', titre: "MaPrimeAdapt'", titreDeTri: 'MaPrimeAdapt',
+    type: 'terme', univers: 'dispositifs', registres: ['langage-administratif'],
+    variantesRecherche: ['Ma Prime Adapt', 'aide adaptation logement', 'adapter son logement', 'aide Anah handicap'],
+    corps: "MaPrimeAdapt' est une aide de l'Anah (Agence nationale de l'habitat) pour financer des travaux qui adaptent le logement à l'âge ou au handicap de la personne qui y vit : par exemple un monte-escalier, une douche à la place d'une baignoire, des WC surélevés, une rampe d'accès ou l'élargissement d'une porte. Elle s'adresse aux propriétaires qui occupent leur logement et aux locataires du parc privé, dont le bailleur a donné son accord écrit, selon leur âge ou leur situation de handicap et leurs ressources. La demande se fait en ligne après un premier contact avec France Rénov', et les travaux ne doivent pas commencer avant l'accord de l'Anah.",
+    detailsAJour: {
+      verifieLe: '2026-10-27',
+      source: { nom: "Service-public.gouv.fr, fiche « MaPrimeAdapt' : travaux d'adaptation du logement »", url: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F37501' },
+      lignes: [
+        { libelle: 'Âge', valeur: "70 ans ou plus, ou 60 à 69 ans avec un classement en GIR (perte d'autonomie)", categorie: 'seuil', peutChanger: true },
+        { libelle: 'Handicap', valeur: "taux d'incapacité d'au moins 50 %, ou éligibilité à la PCH, à l'AEEH ou à l'AAH", categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Plafonds de ressources pour une personne, hors Île-de-France', valeur: 'très modestes 17 363 €, modestes 22 259 € (revenu fiscal de référence)', categorie: 'montant', peutChanger: true },
+        { libelle: 'Part des travaux prise en charge', valeur: 'ménages très modestes 70 %, modestes 50 %', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Plafond de travaux pris en compte (hors taxes)', valeur: '22 000 €', categorie: 'montant', peutChanger: true }
+      ]
+    },
+    relations: [
+      { ficheId: 'maprimerenov', type: 'voir-aussi' },
+      { ficheId: 'aides-au-logement', type: 'voir-aussi' }
+    ]
+  },
+  {
+    id: 'prets-action-logement-salaries', titre: "Prêts d'Action Logement pour les salariés propriétaires", titreDeTri: 'Prets Action Logement salaries proprietaires',
+    type: 'terme', univers: 'dispositifs', registres: ['langage-administratif'],
+    variantesRecherche: ['prêt travaux Action Logement', 'prêt accession Action Logement', 'prêt salarié propriétaire', 'prêt 1 % logement'],
+    corps: "Action Logement propose aux salariés de certaines entreprises du secteur privé deux prêts à conditions avantageuses. Le prêt travaux finance des travaux dans la résidence principale d'un salarié propriétaire : mise aux normes, amélioration, adaptation au handicap, sécurité. Les travaux d'agrandissement en sont exclus. Le prêt accession complète un prêt principal pour acheter sa résidence principale. Dans les deux cas, la demande se fait en ligne et il faut attendre l'accord avant de commencer les travaux ou de signer chez le notaire.",
+    detailsAJour: {
+      verifieLe: '2026-10-27',
+      source: { nom: "Action Logement, pages « Prêt travaux » et « Prêt accession »", url: 'https://www.actionlogement.fr/le-pret-travaux-amelioration' },
+      lignes: [
+        { libelle: 'Entreprise du salarié', valeur: 'secteur privé non agricole, au moins 10 salariés', categorie: 'seuil', peutChanger: true },
+        { libelle: 'Prêt travaux : montant', valeur: "jusqu'à 10 000 €, jusqu'à 100 % du prix des travaux", categorie: 'montant', peutChanger: true },
+        { libelle: 'Prêt travaux : taux', valeur: '1,5 % fixe, hors assurance facultative', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Prêt travaux : durée', valeur: '10 ans au plus', categorie: 'duree', peutChanger: true },
+        { libelle: 'Prêt accession : montant', valeur: "jusqu'à 30 000 €", categorie: 'montant', peutChanger: true },
+        { libelle: 'Prêt accession : taux', valeur: '1 % fixe, hors assurance obligatoire', categorie: 'pourcent', peutChanger: true },
+        { libelle: 'Prêt accession : durée', valeur: '25 ans au plus', categorie: 'duree', peutChanger: true },
+        { libelle: 'Prêt accession : dépôt du dossier', valeur: 'au moins 30 jours ouvrés avant la signature chez le notaire', categorie: 'duree', peutChanger: true }
+      ]
+    },
+    relations: [
+      { ficheId: 'maprimerenov', type: 'voir-aussi' },
+      { ficheId: 'visale', type: 'voir-aussi' }
     ]
   },
   {
@@ -4361,7 +4589,7 @@ var LEXIQUE_COLLECTIONS = [
     mode: 'collection',
     fichesOrdonnees: [
       'dalo', 'siao-115', 'hebergement-urgence', 'accueil-de-jour', 'treve-hivernale',
-      'fsl', 'aides-au-logement', 'visale', 'foyer-jeunes-travailleurs',
+      'fsl', 'aides-au-logement', 'visale', 'mobili-jeune', 'maprimerenov', 'maprimeadapt', 'prets-action-logement-salaries', 'foyer-jeunes-travailleurs',
       'intermediation-locative', 'pension-de-famille', 'hebergement-ou-logement-accompagne',
       'domiciliation', 'assistante-sociale'
     ]

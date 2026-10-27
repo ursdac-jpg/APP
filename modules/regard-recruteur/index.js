@@ -11,7 +11,7 @@
      docs/CHANTIER_REGARD_RECRUTEUR_SCHEMA_SORTIE_2026-09-03.md
    Prompt : prompts/regard-recruteur.md
 
-   Meme patron que « Comparer mes pistes » / « Decouvrir mes competences » :
+   Meme patron que « Comparer mes pistes » / « A partir de mon recit » :
    PAGE routee (jamais une fenetre modale). L'etat de la session vit dans
    la closure de ouvrirRegardRecruteur() ; pageRegardRecruteur() (route
    'regard-recruteur', js/app.js) redessine l'ecran courant, ou renvoie a

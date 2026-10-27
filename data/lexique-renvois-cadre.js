@@ -951,6 +951,20 @@ var LEXIQUE_RENVOIS_CADRE = {
       "titre": "Trouver un mode de garde : par où commencer"
     }
   ],
+  "maprimeadapt": [
+    {
+      "ficheId": "logement-proprietaire-sans-moyens-travaux",
+      "rayon": "logement",
+      "titre": "J'ai hérité d'un logement sans pouvoir l'entretenir : à qui m'adresser"
+    }
+  ],
+  "maprimerenov": [
+    {
+      "ficheId": "logement-proprietaire-sans-moyens-travaux",
+      "rayon": "logement",
+      "titre": "J'ai hérité d'un logement sans pouvoir l'entretenir : à qui m'adresser"
+    }
+  ],
   "mdph": [
     {
       "ficheId": "handicap-rqth-mdph",
@@ -1019,6 +1033,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "jeunes-mission-locale-cej",
       "rayon": "jeunes",
       "titre": "La Mission locale et le contrat d'engagement jeune"
+    }
+  ],
+  "mobili-jeune": [
+    {
+      "ficheId": "logement-action-logement",
+      "rayon": "logement",
+      "titre": "Entrer dans un logement : la garantie Visale et l'avance Loca-Pass"
     }
   ],
   "monoparentalite": [
@@ -1290,6 +1311,13 @@ var LEXIQUE_RENVOIS_CADRE = {
       "ficheId": "creer-se-faire-accompagner",
       "rayon": "creer",
       "titre": "Se faire accompagner et financer son projet de création"
+    }
+  ],
+  "prets-action-logement-salaries": [
+    {
+      "ficheId": "logement-proprietaire-sans-moyens-travaux",
+      "rayon": "logement",
+      "titre": "J'ai hérité d'un logement sans pouvoir l'entretenir : à qui m'adresser"
     }
   ],
   "prevoyance-complementaire": [

@@ -5,6 +5,7 @@
    Le plus récent d'abord n'est pas obligatoire : la page trie par date. L'étiquette « Nouveau » dure 30 jours (modules/nouveautes/logique.js).
    ============================================================ */
 var NOUVEAUTES = [
+  { date: '2026-10-27', titre: 'Découvrir mes compétences', texte: 'Déposez votre CV ou vos lettres : l’outil relève ce qu’ils montrent, avec la phrase qui le prouve. Vous gardez ce qui vous ressemble et vous repartez avec un document « Mes compétences » à télécharger en PDF ou en Word.', route: 'mes-competences-intro', icone: 'bi-compass', module: 'Découvrir mes compétences' },
   { date: '2026-10-26', titre: 'Reprendre mon CV : un seul dépôt, trois voies', texte: 'Déposez votre CV une fois, puis choisissez : le garder et le compléter, le reformuler, ou le refaire vous-même dans un modèle, sans assistant et sans rien reformuler.', route: 'reprendre-cv', icone: 'bi-pencil-square', module: 'Reprendre mon CV' },
   { date: '2026-10-26', titre: 'Fiche et entraînement à l’entretien', texte: 'Une fiche rapide (idées pour vous présenter, questions probables, cas pratique) et un entraînement où l’assistant joue le recruteur, relance et fait un bilan.', route: 'prepa-entretien', icone: 'bi-mic', module: 'M’entraîner à un entretien' },
   { date: '2026-10-25', titre: 'Voir nos modèles avant de remplir son CV', texte: 'Parcourez les modèles sur un CV d’exemple et gardez-en jusqu’à cinq. Ils s’affichent ensuite avec votre propre texte.', route: 'creer-cv', icone: 'bi-stars', module: 'Créer un nouveau CV' },

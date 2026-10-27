@@ -1,0 +1,33 @@
+J’ai lu vos deux documents, votre CV et votre lettre de motivation. Ils montrent concrètement que vous avez réparti le travail d’une équipe de six personnes, suivi les retards et accueilli de nouveaux intérimaires. Votre expérience décrit aussi votre rôle dans l’organisation du travail et la transmission des consignes de sécurité.
+```json
+{
+  "niveauPoste": "cadre",
+  "niveauPosteIndices": "Vous avez choisi le niveau cadre ou direction. Vos documents montrent la répartition du travail d'une équipe de six personnes, le suivi des retards et la transmission des problèmes au responsable d'exploitation. Ils décrivent surtout des tâches d'organisation et de suivi, sans préciser de décisions à l'échelle de l'ensemble de l'entrepôt.",
+  "competences": [
+    {"libelle": "Répartir les tâches d'une équipe","famille": "savoirFaire","enMotsSimples": "Répartir le travail entre les personnes de l'équipe en fonction des besoins de la journée.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "répartition des tâches chaque matin"},{"typeDocument": "lettreMotivation","numeroDocument": 2,"extrait": "Je répartis les tâches selon les départs de camions"}],
+      "confirmation": "relevee","pourLeCV": "Répartition des tâches d'une équipe de six personnes chaque matin","pourLOral": "Chaque matin, je répartissais les tâches d'une équipe de six personnes. Je répartissais le travail selon les départs de camions.","pourPreparer": "Comment décidiez-vous de la répartition des tâches selon les départs de camions ?","synonymes": ["Distribuer le travail dans l'équipe","Organiser les tâches de l'équipe"],"question": ""},
+    {"libelle": "Suivre les retards","famille": "savoirFaire","enMotsSimples": "Repérer les retards dans le travail et les suivre.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Suivi des retards"},{"typeDocument": "lettreMotivation","numeroDocument": 2,"extrait": "je signale les retards à mon responsable"}],
+      "confirmation": "relevee","pourLeCV": "Suivi des retards sur une plateforme logistique","pourLOral": "Sur la plateforme logistique, je suivais les retards. Je signalais les retards à mon responsable.","pourPreparer": "Comment repériez-vous les retards et que faisiez-vous lorsqu'un retard était constaté ?","synonymes": ["Repérer les retards","Contrôler les retards"],"question": ""},
+    {"libelle": "Signaler les problèmes au responsable d'exploitation","famille": "savoirFaire","enMotsSimples": "Faire remonter les problèmes rencontrés pendant le travail à la personne chargée de l'exploitation.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "remontée des problèmes au responsable d’exploitation"}],
+      "confirmation": "relevee","pourLeCV": "Remontée des problèmes au responsable d'exploitation","pourLOral": "Sur la plateforme logistique, je faisais remonter les problèmes au responsable d'exploitation.","pourPreparer": "Quels types de problèmes signaliez-vous au responsable d'exploitation ?","synonymes": ["Faire remonter les problèmes","Informer le responsable des difficultés"],"question": ""},
+    {"libelle": "Accueillir les nouveaux intérimaires","famille": "savoirFaire","enMotsSimples": "Recevoir les personnes qui arrivent dans l'équipe et les aider à prendre connaissance du travail.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Accueil des nouveaux intérimaires"}],
+      "confirmation": "relevee","pourLeCV": "Accueil des nouveaux intérimaires sur la plateforme logistique","pourLOral": "Sur la plateforme logistique, j'accueillais les nouveaux intérimaires.","pourPreparer": "Que faisiez-vous concrètement lors de l'accueil des nouveaux intérimaires ?","synonymes": ["Recevoir les nouveaux intérimaires","Accueillir les nouvelles personnes dans l'équipe"],"question": ""},
+    {"libelle": "Expliquer les consignes de sécurité","famille": "savoirFaire","enMotsSimples": "Présenter aux personnes les règles de sécurité à respecter pour le travail.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "explication des consignes de sécurité"}],
+      "confirmation": "relevee","pourLeCV": "Explication des consignes de sécurité aux nouveaux intérimaires","pourLOral": "Sur la plateforme logistique, j'expliquais les consignes de sécurité aux nouveaux intérimaires.","pourPreparer": "Quelles consignes de sécurité expliquiez-vous aux nouveaux intérimaires ?","synonymes": ["Présenter les règles de sécurité","Transmettre les consignes de sécurité"],"question": ""},
+    {"libelle": "Préparer des commandes","famille": "savoirFaire","enMotsSimples": "Réaliser les tâches nécessaires pour préparer les commandes à expédier.",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Préparateur de commandes"}],
+      "confirmation": "aPreciser","pourLeCV": "","pourLOral": "","pourPreparer": "","synonymes": [],"question": "Quelles tâches réalisiez-vous comme préparateur de commandes sur la plateforme logistique ?"},
+    {"libelle": "Encadrer une équipe","famille": "savoirFaire","enMotsSimples": "",
+      "preuves": [{"typeDocument": "cv","numeroDocument": 1,"extrait": "Chef d’équipe"}],
+      "confirmation": "aPreciser","pourLeCV": "","pourLOral": "","pourPreparer": "","synonymes": [],"question": "En dehors de la répartition des tâches, quelles missions réalisiez-vous comme chef d'équipe sur la plateforme logistique ?"}
+  ],
+  "motivations": [
+    {"libelle": "Prendre davantage de responsabilités dans l'organisation d'un entrepôt","preuve": {"typeDocument": "lettreMotivation","numeroDocument": 2,"extrait": "Je souhaite aujourd’hui prendre davantage de responsabilités dans l’organisation d’un entrepôt."}}
+  ]
+}
+```

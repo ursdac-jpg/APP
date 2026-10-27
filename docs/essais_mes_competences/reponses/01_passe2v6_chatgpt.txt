@@ -1,0 +1,61 @@
+La réponse apporte des précisions concrètes sur le travail du samedi. Elle décrit la répartition des listes de colis entre quatre personnes et la vérification du chargement des camions avant midi.
+```json
+{
+ "competences": [
+  {
+   "libelle": "Répartir les listes de colis entre les membres de l'équipe",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Répartir le travail entre les personnes en donnant à chacune sa liste de colis.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Responsable de l’équipe du samedi"
+    },
+    {
+     "typeDocument": "reponse",
+     "numeroDocument": 0,
+     "extrait": "je donnais à chacun sa liste de colis"
+    }
+   ],
+   "confirmation": "confirmee",
+   "pourLeCV": "Répartition des listes de colis entre les membres de l'équipe",
+   "pourLOral": "Le samedi, nous étions quatre. Au début de la matinée, je donnais à chacun sa liste de colis.",
+   "pourPreparer": "Comment saviez-vous que chaque personne avait reçu le travail à faire ?",
+   "synonymes": [
+    "Distribuer les listes de colis",
+    "Répartir le travail dans l'équipe"
+   ],
+   "question": ""
+  },
+  {
+   "libelle": "Vérifier le chargement des camions",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Contrôler que les camions sont chargés avant de terminer cette partie du travail.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Chargement des camions et filmage des palettes"
+    },
+    {
+     "typeDocument": "reponse",
+     "numeroDocument": 0,
+     "extrait": "avant midi je vérifiais que tous les camions étaient chargés"
+    }
+   ],
+   "confirmation": "confirmee",
+   "pourLeCV": "Vérification du chargement des camions avant midi",
+   "pourLOral": "Avant midi, je vérifiais que tous les camions étaient chargés.",
+   "pourPreparer": "Que faisiez-vous si un camion n'était pas encore chargé au moment de la vérification ?",
+   "synonymes": [
+    "Contrôler le chargement des camions",
+    "Vérifier que les camions sont chargés"
+   ],
+   "question": ""
+  }
+ ],
+ "competencesRetirees": [],
+ "motivations": []
+}
+```

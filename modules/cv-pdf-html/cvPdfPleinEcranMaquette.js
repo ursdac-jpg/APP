@@ -1381,7 +1381,7 @@ function ouvrirPleinEcranMaquette(cible) {
     '<button type="button" class="t" id="mqTEntete">&#10530; R&eacute;gler l&rsquo;en-t&ecirc;te</button>' +
     '<button type="button" class="t" id="mqTCouleurs">&#127912; Modifier les couleurs</button>' +
     '<div id="mqZoneDisp"><b>Disposition de d&eacute;part</b>' +
-    '<div class="seg seg-mini" id="mqSegDisp"><button type="button" data-v="3">3 colonnes</button><button type="button" data-v="2">2 colonnes</button><button type="button" data-v="4">Décalée</button></div>' +
+    '<div class="seg seg-mini" id="mqSegDisp"><button type="button" data-v="3">3 colonnes</button><button type="button" data-v="2">2 colonnes</button><button type="button" data-v="4">Décalée</button><button type="button" data-v="5">Empilée</button></div>' +
     '<button type="button" class="t" id="mqTRaz" style="width:100%">&#8634; Remettre l&rsquo;en-t&ecirc;te &agrave; sa place</button></div>' +
     '<button type="button" class="t" id="mqTEcarter" style="display:none">&#8645; &Eacute;carter les rectangles</button>' +
     '<button type="button" class="t" id="mqTDeplacer">&#8597; D&eacute;placer exp&eacute;riences, formations et missions</button>' +

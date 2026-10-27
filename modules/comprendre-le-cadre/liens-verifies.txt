@@ -391,3 +391,9 @@ siae-plateforme-inclusion | https://plateforme.inclusion.gouv.fr/ | 2026-10-17 |
 siae-aide-pass-iae | https://aide.emplois.inclusion.beta.gouv.fr/hc/fr/articles/14733528375185--PASS-IAE-Comment-%C3%A7a-marche | 2026-10-17 | national
 siae-francetravail-iae | https://www.francetravail.fr/candidat/votre-projet-professionnel/definir-votre-projet-professionn/insertion-par-lactivite-economiq.html | 2026-10-17 | national
 bonne-boite | https://labonneboite.francetravail.fr/ | 2026-10-12 | national
+inrs-mortel-ton-taf | https://mortel-ton-taf.fr/ | 2026-10-27 | national
+service-public-maprimerenov | https://www.service-public.gouv.fr/particuliers/vosdroits/F35083 | 2026-10-27 | national
+anah-accueil | https://www.anah.gouv.fr/ | 2026-10-27 | national
+actionlogement-pret-travaux | https://www.actionlogement.fr/le-pret-travaux-amelioration | 2026-10-27 | national
+actionlogement-pret-accession | https://www.actionlogement.fr/le-pret-accession | 2026-10-27 | national
+anil-reseau-adil | https://www.anil.org/qui-sommes-nous/reseau-des-adil/ | 2026-10-27 | national

@@ -1,4 +1,4 @@
-# Rayon « Logement » : 6 fiches
+# Rayon « Logement » : 9 fiches
 
 **Statut : relu et validé par Denis le 2026-09-06.** Recherche web sur les pages officielles (service-public.gouv.fr,
 solidarites.gouv.fr, Action Logement, Délégation interministérielle à l'hébergement et à l'accès au
@@ -19,7 +19,7 @@ La fiche « sans hébergement » a été écrite le 2026-09-04 à la demande de 
    - DALO : critères prioritaires, délais 3 à 6 mois, recours contentieux à 4 mois ;
    - le FSL dépend de chaque département (conditions de ressources, prêt ou subvention).
 
-## Les 8 fiches
+## Les 9 fiches
 
 | id | titre |
 |---|---|
@@ -31,6 +31,7 @@ La fiche « sans hébergement » a été écrite le 2026-09-04 à la demande de 
 | `logement-residences-sociales-fjt` | Se loger en résidence sociale, en foyer de jeunes travailleurs, ou par une association |
 | `logement-expulsion` | Menacé d'expulsion : les étapes de la procédure, ce qu'on peut faire (ajoutée le 2026-09-06) |
 | `logement-demande-de-logement-social` | Demander un logement social : le numéro unique, les pièces, le renouvellement (ajoutée le 2026-09-06) |
+| `logement-proprietaire-sans-moyens-travaux` | J'ai hérité d'un logement sans pouvoir l'entretenir : à qui m'adresser (France Rénov', Anah, Action Logement, ADIL, SOLIHA ; chiffres dans trois fiches du Lexique ; ajoutée le 2026-10-27) |
 
 ## Section « à qui s'adresser »
 

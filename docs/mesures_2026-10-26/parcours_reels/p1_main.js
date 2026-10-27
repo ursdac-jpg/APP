@@ -1,0 +1,27 @@
+const L = require('./lib.js'); const S = require('./saisies.js');
+(async () => {
+  const { b, p } = await L.ouvrir();
+  await L.clicTexte(p, 'Mes documents', 'carte');
+  await L.clic(p, '#btnCarteAccueilCvNouveau', 'tuile Créer');
+  await L.clic(p, '#btnCreerCvSansAssistant', 'carte À la main');
+  await L.clicTexte(p, 'Commencer mon CV', 'Commencer');
+  await S.objectifSpontanee(p, L);
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (objectif)');
+  await S.identite(p, L); await S.experience(p, L);
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (informations)');
+  await S.parcoursQuatreQuestions(p, L);
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (parcours)');
+  await L.photo(p, 'main-5-profil');
+  const inter = await p.evaluate(() => [...document.querySelectorAll('.revelation-intertitre')].map(e => e.textContent.trim()));
+  console.log('  intertitres du profil :', inter.join(' | '));
+  await L.clic(p, '.barre-navigation-fixe .barre-navigation button:first-child', 'RETOUR (1) depuis Votre profil');
+  await L.clic(p, '.barre-navigation-fixe .barre-navigation button:first-child', 'RETOUR (2)');
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (informations -> parcours)');
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (parcours -> profil)');
+  await L.clic(p, '#btnSuivantNavigation', 'Continuer (profil -> documents)');
+  await p.waitForTimeout(2500); await L.etat(p, 'Vos documents (attente rendu)');
+  await L.photo(p, 'main-6-documents');
+  console.log((await L.boutons(p)).filter(x => /^button/.test(x)).slice(0, 40).join('\n'));
+  console.log('erreurs page:', p.errs);
+  await b.close();
+})();

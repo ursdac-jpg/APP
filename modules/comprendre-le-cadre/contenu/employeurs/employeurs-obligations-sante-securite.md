@@ -16,6 +16,7 @@ voir_aussi_lexique:
 sources:
   - ameli-duerp
   - inrs-duerp-obligations
+  - inrs-mortel-ton-taf
 ce_qui_change_souvent:
   - "Les modalités de conservation et de transmission du DUERP"
 revisions: []

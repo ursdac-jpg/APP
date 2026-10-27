@@ -1,0 +1,35 @@
+Votre réponse précise ce que vous faisiez le samedi : vous donniez les listes de colis à quatre personnes et vous vérifiiez que les camions étaient chargés avant midi.
+```json
+{
+ "competences": [
+  {
+   "libelle": "Encadrer l'équipe du samedi",
+   "famille": "savoirFaire",
+   "enMotsSimples": "Donner à chaque personne de l'équipe sa liste de colis et vérifier que les camions sont chargés.",
+   "preuves": [
+    {
+     "typeDocument": "cv",
+     "numeroDocument": 1,
+     "extrait": "Responsable de l’équipe du samedi"
+    },
+    {
+     "typeDocument": "reponse",
+     "numeroDocument": 0,
+     "extrait": "Le samedi, nous étions quatre. Au début de la matinée, je donnais à chacun sa liste de colis, et avant midi je vérifiais que tous les camions étaient chargés."
+    }
+   ],
+   "confirmation": "confirmee",
+   "pourLeCV": "Répartition des listes de colis et contrôle du chargement des camions le samedi",
+   "pourLOral": "Le samedi, nous étions quatre dans l'équipe. Je donnais à chacun sa liste de colis et je vérifiais avant midi que tous les camions étaient chargés.",
+   "pourPreparer": "Qu'est-ce qui vous aidait à organiser le travail de l'équipe le samedi ?",
+   "synonymes": [
+    "Organiser le travail de l'équipe",
+    "Répartir les tâches du samedi"
+   ],
+   "question": ""
+  }
+ ],
+ "competencesRetirees": [],
+ "motivations": []
+}
+```

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maquette : lisibilité du texte sur les fonds colorés</title>
+<style>
+:root{--fond:#f7f6f2;--texte:#1f2933;--carte:#ffffff;--trait:#d9d6cc;--accent:#1e3a5f;--ok:#2d6a4f;--alerte:#9c4221}
+@media (prefers-color-scheme:dark){:root{--fond:#16191d;--texte:#e8e6e1;--carte:#20252b;--trait:#3a414a;--accent:#9bb8dc;--ok:#7ccba0;--alerte:#e9a37f}}
+body{margin:0;background:var(--fond);color:var(--texte);font:16px/1.55 system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;color:var(--accent)} h2{font-size:1.15rem;margin-top:2rem}
+.cas{background:var(--carte);border:1px solid var(--trait);border-radius:12px;padding:14px;margin:16px 0}
+.paire{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.paire figure{margin:0}.paire img{width:100%;height:auto;border:1px solid var(--trait);border-radius:6px}
+figcaption{font-size:.9rem;font-weight:600;margin-top:4px}.av{color:var(--alerte)}.ap{color:var(--ok)}
+@media (max-width:640px){.paire{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--trait);padding:6px 8px;text-align:left;vertical-align:top}
+</style></head><body><main>
+<h1>Lisibilité du texte sur les fonds colorés : avant et après</h1>
+<p><strong>Ce que montre cette page.</strong> Sept cas trouvés par une mesure automatique sur les 39 modèles et leurs formes de bandeau et de colonne (plus de 1 000 combinaisons). Pour chaque cas : à gauche le CV tel qu’il est aujourd’hui, à droite ce que donnerait la règle proposée. Les images « après » sont de vraies captures du même CV dont seule la couleur du texte illisible a été changée : aucun autre élément ne bouge.</p>
+<h2>La règle proposée (garde-fou « seulement si illisible »)</h2>
+<ul>
+<li>Après chaque affichage du CV, on regarde la couleur réelle du fond derrière chaque texte.</li>
+<li>Si le texte se lit déjà bien (contraste suffisant), <strong>on n’y touche pas</strong> : tous les CV déjà lisibles restent exactement les mêmes.</li>
+<li>Sinon, le texte devient blanc sur fond foncé, ou presque noir sur fond clair, avec la même règle que celle des compositions d’en-tête.</li>
+<li>Le texte qui dépasse d’un bandeau à moitié (deux tons) garde son fonctionnement actuel.</li>
+</ul>
+<section class="cas"><h2 style="margin-top:0">Colonne claire + bandeau « Droit »</h2><p>Le nom et les coordonnées sont sombres sur un bandeau bleu foncé : on ne les lit presque pas.</p>
+<div class="paire"><figure><img src="captures/creatif_colonneClaire__bandeau_droit_0__avant.jpg" alt="Avant : Colonne claire + bandeau « Droit »"><figcaption class="av">Aujourd’hui</figcaption></figure>
+<figure><img src="captures/creatif_colonneClaire__bandeau_droit_0__apres.jpg" alt="Après : Colonne claire + bandeau « Droit »"><figcaption class="ap">Avec la règle proposée</figcaption></figure></div></section>
+<section class="cas"><h2 style="margin-top:0">Chrono foncé + bandeau « Droit »</h2><p>Le nom (bleu foncé) disparaît sur le bandeau bleu foncé.</p>
+<div class="paire"><figure><img src="captures/creatif_chronoFonce__bandeau_droit_0__avant.jpg" alt="Avant : Chrono foncé + bandeau « Droit »"><figcaption class="av">Aujourd’hui</figcaption></figure>
+<figure><img src="captures/creatif_chronoFonce__bandeau_droit_0__apres.jpg" alt="Après : Chrono foncé + bandeau « Droit »"><figcaption class="ap">Avec la règle proposée</figcaption></figure></div></section>
+<section class="cas"><h2 style="margin-top:0">Colonne et bandeau + bandeau « Contour rectangle »</h2><p>Le nom et les coordonnées sont blancs sur un fond pâle : ils disparaissent.</p>
+<div class="paire"><figure><img src="captures/creatif_colonneBandeau__bandeau_contour_0__avant.jpg" alt="Avant : Colonne et bandeau + bandeau « Contour rectangle »"><figcaption class="av">Aujourd’hui</figcaption></figure>
+<figure><img src="captures/creatif_colonneBandeau__bandeau_contour_0__apres.jpg" alt="Après : Colonne et bandeau + bandeau « Contour rectangle »"><figcaption class="ap">Avec la règle proposée</figcaption></figure></div></section>
+<section class="cas"><h2 style="margin-top:0">Sobre « Bandeau » + colonne ajoutée</h2><p>Le nom est blanc sur le bandeau pâle quand on ajoute une colonne foncée.</p>
+<div class="paire"><figure><img src="captures/sobre_mq-bandeau__colonne_gauche_droit_0__avant.jpg" alt="Avant : Sobre « Bandeau » + colonne ajoutée"><figcaption class="av">Aujourd’hui</figcaption></figure>
+<figure><img src="captures/sobre_mq-bandeau__colonne_gauche_droit_0__apres.jpg" alt="Après : Sobre « Bandeau » + colonne ajoutée"><figcaption class="ap">Avec la règle proposée</figcaption></figure></div></section>
+<section class="cas"><h2 style="margin-top:0">Sobre « Épuré » + colonne ajoutée</h2><p>Les titres de rubrique sont gris moyen sur le bleu de la colonne : contraste trop faible.</p>
+<div class="paire"><figure><img src="captures/sobre_mq-epure__colonne_gauche_droit_0__avant.jpg" alt="Avant : Sobre « Épuré » + colonne ajoutée"><figcaption class="av">Aujourd’hui</figcaption></figure>
+<figure><img src="captures/sobre_mq-epure__colonne_gauche_droit_0__apres.jpg" alt="Après : Sobre « Épuré » + colonne ajoutée"><figcaption class="ap">Avec la règle proposée</figcaption></figure></div></section>
+<section class="cas"><h2 style="margin-top:0">Colonne vague + colonne « Contour rectangle »</h2><p>Les certifications sont blanches sur la colonne vide : elles disparaissent.</p>
+<div class="paire"><figure><img src="captures/creatif_sidebarVague__colonne_natif_contour_0__avant.jpg" alt="Avant : Colonne vague + colonne « Contour rectangle »"><figcaption class="av">Aujourd’hui</figcaption></figure>
+<figure><img src="captures/creatif_sidebarVague__colonne_natif_contour_0__apres.jpg" alt="Après : Colonne vague + colonne « Contour rectangle »"><figcaption class="ap">Avec la règle proposée</figcaption></figure></div></section>
+<section class="cas"><h2 style="margin-top:0">Bandeau vertical + colonne ajoutée</h2><p>Les dates des certifications sont coupées par le bord de la colonne : ce n’est pas un problème de couleur.</p>
+<div class="paire"><figure><img src="captures/creatif_bandeauVertical__colonne_gauche_droit_0__avant.jpg" alt="Avant : Bandeau vertical + colonne ajoutée"><figcaption class="av">Aujourd’hui</figcaption></figure>
+<figure><img src="captures/creatif_bandeauVertical__colonne_gauche_droit_0__apres.jpg" alt="Après : Bandeau vertical + colonne ajoutée"><figcaption class="ap">Avec la règle proposée</figcaption></figure></div></section>
+<h2>Ce qui n’est pas réglé par la couleur</h2>
+<p>Le dernier cas (dates des certifications coupées par le bord de la colonne) est un problème de place, pas de couleur. Trois façons de le traiter :</p>
+<table><tr><th>Option</th><th>Bénéfice</th><th>Risque</th></tr>
+<tr><td><strong>A. La date passe sous l’intitulé quand la colonne est étroite (recommandé)</strong></td><td>Rien n’est coupé, le texte reste dans la colonne.</td><td>La rubrique prend un peu plus de hauteur.</td></tr>
+<tr><td>B. Deux tons : la partie qui dépasse prend la couleur du fond de page</td><td>Cohérent avec le bandeau, la date reste sur la ligne.</td><td>Une date à moitié sombre, à moitié claire : peu lisible.</td></tr>
+<tr><td>C. Élargir automatiquement la colonne</td><td>Aucune coupure.</td><td>Change la mise en page voulue du modèle.</td></tr></table>
+<h2>Questions pour toi</h2>
+<ol><li>La règle « seulement si illisible » te convient-elle ?</li>
+<li>Pour les dates coupées : option A, B ou C ?</li>
+<li>Pour le cas « Contour rectangle » du bandeau : le texte du nom doit-il devenir sombre (comme dans l’image) ou préfères-tu que cette forme ne soit pas proposée avec ce modèle ?</li></ol>
+<p><small>Mesures : <code>docs/mesures_2026-10-26/lot8/scan_f27.js</code>. Aucun code de l’application n’a été modifié pour produire ces images.</small></p>
+</main></body></html>

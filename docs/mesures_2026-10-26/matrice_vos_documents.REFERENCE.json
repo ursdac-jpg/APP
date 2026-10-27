@@ -1,0 +1,245 @@
+[
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Votre objectif",
+   "Vos informations",
+   "Votre parcours",
+   "Votre profil",
+   "Vos documents"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Valider le CV →"
+  ],
+  "retour": "retourPagePrecedente()",
+  "selecteur": false,
+  "nom": "01-nouveau-main",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Votre objectif",
+   "Vos informations",
+   "Votre parcours",
+   "Votre profil",
+   "Assistant",
+   "Vos documents"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Valider le CV →"
+  ],
+  "retour": "retourPagePrecedente()",
+  "selecteur": false,
+  "nom": "02-nouveau-assistant",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Préparer",
+   "Assistant",
+   "Réponse",
+   "Compétences",
+   "Compléter",
+   "Rédiger mon CV",
+   "Mon CV"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Valider le CV →"
+  ],
+  "retour": "reafficherDecouverteCompetences()",
+  "selecteur": false,
+  "nom": "03-recit",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Préparer",
+   "Assistant",
+   "Réponse",
+   "Corriger mon CV",
+   "Vos documents"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Continuer →"
+  ],
+  "retour": "retourPagePrecedente()",
+  "selecteur": false,
+  "nom": "04-maj",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Préparer",
+   "Assistant",
+   "Réponse",
+   "Corriger mon CV",
+   "Vos documents"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Continuer →"
+  ],
+  "retour": "retourPagePrecedente()",
+  "selecteur": false,
+  "nom": "05-reformuler",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Déposer",
+   "Ma voie",
+   "Classer",
+   "Vérifier",
+   "Vos documents"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Valider le CV →"
+  ],
+  "retour": "naviguerVers('cv-sans-assistant')",
+  "selecteur": false,
+  "nom": "06-voie3",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Préparer",
+   "Assistant",
+   "Réponse",
+   "Vos informations",
+   "Vos documents"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Ma lettre de motivation rapide",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Continuer →"
+  ],
+  "retour": "retourPagePrecedente()",
+  "selecteur": false,
+  "nom": "07-pret-lettre",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Préparer",
+   "Assistant",
+   "Rédiger",
+   "Terminé"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil"
+  ],
+  "retour": "retourPagePrecedente()",
+  "selecteur": false,
+  "nom": "08-colettre",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Préparer",
+   "Assistant",
+   "S’entraîner",
+   "Terminé"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Votre préparation d’entretien",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Continuer →"
+  ],
+  "retour": "naviguerVers('prepa-entretien')",
+  "selecteur": false,
+  "nom": "09-prepa-entretien",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": [
+   "Mon CV",
+   "Métiers",
+   "Référence",
+   "Accroches",
+   "Mes CV",
+   "Lettres",
+   "Fin",
+   "Entretiens"
+  ],
+  "ancienneBarre": false,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Continuer →"
+  ],
+  "retour": "ucpmRetourDepuisEditeur()",
+  "selecteur": false,
+  "nom": "10-ucpm",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": null,
+  "ancienneBarre": true,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Continuer →"
+  ],
+  "retour": "naviguerVers('bilan')",
+  "selecteur": false,
+  "nom": "11-bilan",
+  "erreursPage": 0
+ },
+ {
+  "route": "resultats",
+  "pastilles": null,
+  "ancienneBarre": true,
+  "h1": "📄 Vos documents",
+  "bas": [
+   "← Retour",
+   "Accueil",
+   "Continuer →"
+  ],
+  "retour": "retourPagePrecedente()",
+  "selecteur": false,
+  "nom": "12-direct",
+  "erreursPage": 0
+ }
+]
